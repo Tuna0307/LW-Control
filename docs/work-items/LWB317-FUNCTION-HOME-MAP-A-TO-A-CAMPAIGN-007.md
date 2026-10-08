@@ -1,6 +1,10 @@
 # LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007
 
-Status: **AWAITING_REVIEW / SOLO WORKER DELIVERED; PROJECT-LEAD AUDIT PENDING**, 2026-10-08.
+Status: **CHANGES_REQUIRED / PROJECT-LEAD REVIEW COMPLETE**, 2026-10-08.
+Accepted bounded query corrections and real-data/inert proofs remain preserved.
+Continue only R007-01/02/03 under LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1.
+See docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-LEAD.md.
+Historical worker delivery below remains evidence, not final campaign acceptance.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller.
 Starting reference checkpoint: 3f43f5f23ebca715f2a7c835d58f190c07b1e99f.

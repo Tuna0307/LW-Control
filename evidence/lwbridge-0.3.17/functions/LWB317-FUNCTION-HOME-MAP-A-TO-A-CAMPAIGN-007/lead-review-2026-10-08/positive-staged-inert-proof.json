@@ -1,0 +1,20 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+  "evidenceClass": "INERT provider, ACTUAL production MapControlPlane/MapStore SQLite in-memory",
+  "originalReferenceContract": "0.3.17 RE-MAP-002 recovered cancel/failed/successful store transactions",
+  "stoppedWithPositiveStaging": true,
+  "stagingBeforeStop": 1,
+  "publishedBeforeStop": 1,
+  "cancelledStatus": "cancelled",
+  "stagedAfterStop": 0,
+  "publishedAfterStop": 1,
+  "providerStopCalls": 1,
+  "lateCapturedRejected": true,
+  "lateProgressRejected": true,
+  "latePublishRejected": true,
+  "failedStagedPreservedCount": 2,
+  "incompletePublishRejected": true,
+  "completedReplacingCount": 1,
+  "originalProtectedProviderLateResponseEquivalence": "UNKNOWN_NOT_PROVEN",
+  "currentGameActions": 0
+}

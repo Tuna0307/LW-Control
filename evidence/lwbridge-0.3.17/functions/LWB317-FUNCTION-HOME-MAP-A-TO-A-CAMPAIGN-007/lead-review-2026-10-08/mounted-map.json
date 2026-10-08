@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "proofType": "actual production MapDataPage.jsx + I18nProvider.jsx + mapBackend.js mounted in isolated jsdom with REAL current-v22 Resource native command payload and controlled external transport; not current LastWar or original protected WebView",
+  "languageTheme": [
+    "en/light",
+    "ja/dark"
+  ],
+  "cases": [
+    {
+      "language": "en",
+      "theme": "light",
+      "phase": "A-initial",
+      "countText": "8008 items",
+      "tableRows": 50,
+      "bodyTextLength": 3106
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "phase": "A-page2",
+      "countText": "8008 items",
+      "tableRows": 50,
+      "paginationText": "PreviousPage 2 of 161Next"
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "phase": "A-name-filter",
+      "countText": "2608 items",
+      "tableRows": 50,
+      "selectValue": "129027"
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "phase": "B",
+      "countText": "0 items",
+      "tableRows": 1
+    },
+    {
+      "language": "en",
+      "theme": "light",
+      "phase": "A-return",
+      "countText": "8008 items",
+      "tableRows": 50
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "phase": "A-initial",
+      "countText": "8008件",
+      "tableRows": 50,
+      "bodyTextLength": 2024
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "phase": "A-page2",
+      "countText": "8008件",
+      "tableRows": 50,
+      "paginationText": "前へ2 / 161 ページ次へ"
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "phase": "A-name-filter",
+      "countText": "2608件",
+      "tableRows": 50,
+      "selectValue": "129027"
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "phase": "B",
+      "countText": "0件",
+      "tableRows": 1
+    },
+    {
+      "language": "ja",
+      "theme": "dark",
+      "phase": "A-return",
+      "countText": "8008件",
+      "tableRows": 50
+    }
+  ],
+  "requestCount": 22,
+  "commands": [
+    "map_data_options",
+    "map_search",
+    "map_plunder_jobs_list"
+  ],
+  "errors": [],
+  "externalGameActions": 0,
+  "originalParity": "UNKNOWN"
+}

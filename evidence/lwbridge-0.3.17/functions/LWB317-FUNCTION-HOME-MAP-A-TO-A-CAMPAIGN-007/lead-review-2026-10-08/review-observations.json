@@ -1,0 +1,67 @@
+{
+  "workerCheckpoint": "4442b0486125420f11e92020e0a900361aecef4b",
+  "status": "CHANGES_REQUIRED_FOR_CAMPAIGN_CLOSEOUT",
+  "originalHomeNativeBodiesAvailable": 5,
+  "originalHomeSemanticParityProvedByThisReview": false,
+  "prior004ScanElapsedSeconds": 198.995942,
+  "prior004FinishEvent": "resource-natural-terminal",
+  "campaign007ElapsedBeforeStopSeconds": 181.480474,
+  "campaign007StopStagedRows": 0,
+  "timingConclusion": "007 stopped earlier than the retained successful 004 completion; this does not prove the cause of 007 zero-stage.",
+  "batchConclusion": "For a fresh 1000x1000 Resource run, CaptureBatchAsync takes the 2500-pending full-world route. MapScanEngine checkpoints only after that batch returns. Provider acquisition progress and durable staging are distinct.",
+  "sourceHashes": {
+    "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs": "247a7ef9def867138c919ffbacbe7bd19af79297b0cb4ae29a189be385135ac6",
+    "src/LWBridge.Desktop/MapScanEngine.cs": "8f8da39b3cddba3a0ad0ed17fd3b36bc763aeb7f1e9ded1877915904a8eea800",
+    "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs": "7942351a09eb254e1d7e5c49240eeb5fd9eb67de8de55f5cce2ca13cd355b3c2",
+    "tests/LWBridge.Desktop.Checks/BackgroundHomeMapWitness002.cs": "6582688b42af86ce401a259899f27966e44fe91d71b9844da1dc5c681caa06d9"
+  },
+  "unfinishedQueueEntries": [
+    {
+      "id": "B01",
+      "title": "Original home recovery and launcher service bodies",
+      "sourceLocator": "docs/reviews/2026-10-07-LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-LEAD.md",
+      "status": "RECOVERED_NATIVE_XREFS_INNER_POLICY_UNPROVEN",
+      "proofType": "Original static xrefs accepted previously",
+      "lastExecutedResult": "Hash-gated 0.3.17 Home native start/stop/status/reconcile/profile/root/recovery xrefs recovered; inner retry timing not decoded",
+      "dependency": "Need original 0.3.17 Home launch/recovery inner-control body or same-state dynamic observation",
+      "nextAction": "No new source-independent task until documented external input/witness"
+    },
+    {
+      "id": "C02",
+      "title": "Home launcher retry/timeout/reconnect exact parity",
+      "sourceLocator": "original Home service xrefs vs OverviewLifecycleService",
+      "status": "CURRENT_HOST_TESTED_ORIGINAL_LAUNCH_TIMING_UNKNOWN",
+      "proofType": "Original deeper parameters unproved",
+      "lastExecutedResult": "Reconnect policy, close timing, process ownership, launch spam and recovery checks PASS",
+      "dependency": "Exact original 0.3.17 Home launcher retry/backoff/timeout inner semantics",
+      "nextAction": "No new source-independent task until documented external input/witness"
+    },
+    {
+      "id": "G02",
+      "title": "New native City scan / cancellation-after-staging if needed",
+      "sourceLocator": "pilot isolation/compatibility backups",
+      "status": "COMPLETE_SINGLE_BOUNDED_LIVE_ATTEMPT_NEGATIVE",
+      "proofType": "Valid only current-server nonintrusive launch",
+      "lastExecutedResult": "run 4bf2ef2cd54d4a7a8a3fc7ae7fa6753d server2212 stopped cancelled completed0 staged0 published0; restored. Actual positive-stage Stop NOT PROVEN",
+      "dependency": "One future expressly authorized live positive-stage timing witness, not repeated without new admission control",
+      "nextAction": "No new source-independent task until documented external input/witness"
+    }
+  ],
+  "M33": [
+    {
+      "id": "M33",
+      "tab": "Map",
+      "behavior": "Canonical Home/Map loaded views EN/JA",
+      "originalClassification": "EXACT_FRONTEND_SOURCE_LOCAL",
+      "originalLocator": "docs/reviews/2026-10-02-LWB317-PM-026-map-interactions-closeout.md",
+      "cloneLocator": "src/LWBridge.UI-0.3.17/src/App.jsx; HomePage.jsx; MapDataPage.jsx",
+      "proofStatus": "SOURCE_LOCAL_ACCEPTED",
+      "dependency": "New mounted real-data profile proof pending; protected original visual runtime blocked",
+      "parityClaim": "BOUNDED_SOURCE_LOCAL_ONLY"
+    }
+  ],
+  "preservationLaunchCountFieldRejected": true,
+  "leadDesktopActions": 0,
+  "leadGameLaunches": 0,
+  "proofLimit": "Read-only static/source/evidence analysis, inert production tests and headless React tests. No original runtime or live parity claim."
+}

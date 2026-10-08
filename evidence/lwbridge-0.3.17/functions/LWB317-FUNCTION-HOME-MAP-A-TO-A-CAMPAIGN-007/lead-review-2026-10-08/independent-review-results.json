@@ -1,0 +1,112 @@
+{
+  "reviewedCheckpoint": "4442b0486125420f11e92020e0a900361aecef4b",
+  "decision": "CHANGES_REQUIRED",
+  "acceptedScope": [
+    "numeric Int32 query clamps",
+    "current-client real captured dataset command replay",
+    "bounded inert/headless integration",
+    "truthful negative live Stop plus restoration"
+  ],
+  "findings": [
+    "R007-01",
+    "R007-02",
+    "R007-03"
+  ],
+  "freshExecutions": [
+    {
+      "command": "dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-restore -v:q",
+      "exit": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--campaign007-command-proof safe-real-db-snapshot.json lead-review-2026-10-08/real-command-proof.json",
+      "exit": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--campaign007-positive-stage-cancel lead-review-2026-10-08/positive-staged-inert-proof.json",
+      "exit": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--map317-native-boundary-check",
+      "exit": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--home-campaign-lifecycle-check",
+      "exit": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--profile-runtime-owner-check",
+      "exit": 0
+    },
+    {
+      "runner": "Release Desktop.Checks",
+      "command": "--world-resource-004-inverses",
+      "exit": 0
+    },
+    {
+      "runner": "node; final command-page-size-corrected-proof.payload.json",
+      "command": "check-campaign007-real-resource-frontend.mjs",
+      "exit": 0
+    },
+    {
+      "runner": "node; final command-page-size-corrected-proof.payload.json",
+      "command": "check-campaign007-mounted-real-resource.mjs",
+      "exit": 0
+    },
+    {
+      "runner": "node; final command-page-size-corrected-proof.payload.json",
+      "command": "check-campaign007-mounted-real-app.mjs",
+      "exit": 0
+    },
+    {
+      "command": "tests/pipe_heartbeat_world004_checks.py",
+      "exit": 0,
+      "cases": 4
+    },
+    {
+      "command": "tests/home_runtime_lease_lua_checks.py",
+      "exit": 0,
+      "cases": 6
+    },
+    {
+      "command": "tests/campaign007_provider_guard_mutations.py",
+      "exit": 0,
+      "cases": 4,
+      "proof": "Structural source guards, not semantic execution"
+    },
+    {
+      "command": "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check",
+      "exit": 0
+    },
+    {
+      "command": "npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:production-build",
+      "exit": 0
+    },
+    {
+      "command": "rerun-readonly-audits.py",
+      "exit": 0,
+      "caution": "Hardcoded launch count field rejected"
+    },
+    {
+      "command": "verify-home-native-availability.py",
+      "exit": 0
+    },
+    {
+      "command": "verify-review-observations.py",
+      "exit": 0,
+      "historicalFilesUnchanged": 38
+    }
+  ],
+  "leadGameLaunches": 0,
+  "leadDesktopActions": 0,
+  "homeMapOverall": "PARTIAL",
+  "originalNativeSemanticRecoveryCompleted": false,
+  "livePositiveStagedStopProved": false,
+  "continuation": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1"
+}

@@ -1,0 +1,8 @@
+{
+  "sourceHashes": {
+    "tools\\lwbridge317\\audit_campaign007_live_stop.py": "e23138c45b98ec9618baea64e7414d82a96859eaef54e54522c9e7beacb5f751",
+    "tools\\lwbridge317\\campaign007_preservation.py": "3a31f148d600c7c7f200243bb86185bbad059a2d3e17dc52d59ca6c45cac4ed0"
+  },
+  "modification": "Output-only destination redirect; source, assertions and inputs unchanged.",
+  "caution": "Preservation auditor hardcodes newGameLaunchesCampaign007=0. This field is rejected by the lead; the retained 007 live attempt proves a new launch."
+}

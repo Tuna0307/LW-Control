@@ -1,0 +1,3975 @@
+{
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "scope": "Original native byte availability and direct-call locators only; NO inferred retry/timing semantics",
+  "commands": [
+    {
+      "command": "profile_instance_start",
+      "range": [
+        "0x20715f",
+        "0x207ca9"
+      ],
+      "bodyBytes": 2890,
+      "bodySha256": "1b39bc74dd372ea2db0a40365fc740e9680639d7a44f03836b6af783d5a89bc2",
+      "decodedInstructionCount": 579,
+      "directCalls": [
+        {
+          "instructionRva": "0x20718f",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x2071a8",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2071e7",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x207240",
+          "targetRva": "0x298177",
+          "containingRuntimeFunction": [
+            "0x298177",
+            "0x298213"
+          ]
+        },
+        {
+          "instructionRva": "0x207324",
+          "targetRva": "0x297a7f",
+          "containingRuntimeFunction": [
+            "0x297a7f",
+            "0x297ac6"
+          ]
+        },
+        {
+          "instructionRva": "0x20737e",
+          "targetRva": "0x3741ca",
+          "containingRuntimeFunction": [
+            "0x3741ca",
+            "0x374300"
+          ]
+        },
+        {
+          "instructionRva": "0x20740b",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x207413",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x20743a",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x20749e",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2074c8",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x207509",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x207558",
+          "targetRva": "0x1d4016",
+          "containingRuntimeFunction": [
+            "0x1d4016",
+            "0x1d420d"
+          ]
+        },
+        {
+          "instructionRva": "0x20765d",
+          "targetRva": "0x82427",
+          "containingRuntimeFunction": [
+            "0x82427",
+            "0x8250c"
+          ]
+        },
+        {
+          "instructionRva": "0x207684",
+          "targetRva": "0x2ac656",
+          "containingRuntimeFunction": [
+            "0x2ac656",
+            "0x2ac6c0"
+          ]
+        },
+        {
+          "instructionRva": "0x2076aa",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x2076ea",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x2076f6",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x207752",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x207773",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x207791",
+          "targetRva": "0x5a9615",
+          "containingRuntimeFunction": [
+            "0x5a9615",
+            "0x5a965b"
+          ]
+        },
+        {
+          "instructionRva": "0x207808",
+          "targetRva": "0x1d5009",
+          "containingRuntimeFunction": [
+            "0x1d5009",
+            "0x1ddbb2"
+          ]
+        },
+        {
+          "instructionRva": "0x207879",
+          "targetRva": "0x1e009a",
+          "containingRuntimeFunction": [
+            "0x1e009a",
+            "0x1e0af7"
+          ]
+        },
+        {
+          "instructionRva": "0x207885",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x20795b",
+          "targetRva": "0x32df9d",
+          "containingRuntimeFunction": [
+            "0x32df9d",
+            "0x32e072"
+          ]
+        },
+        {
+          "instructionRva": "0x207a07",
+          "targetRva": "0x2a186b",
+          "containingRuntimeFunction": [
+            "0x2a186b",
+            "0x2a1944"
+          ]
+        },
+        {
+          "instructionRva": "0x207a0f",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x207a64",
+          "targetRva": "0x5addeb",
+          "containingRuntimeFunction": [
+            "0x5addeb",
+            "0x5ade4a"
+          ]
+        },
+        {
+          "instructionRva": "0x207a8d",
+          "targetRva": "0x1e153b",
+          "containingRuntimeFunction": [
+            "0x1e153b",
+            "0x1e1597"
+          ]
+        },
+        {
+          "instructionRva": "0x207b11",
+          "targetRva": "0x5f9b92",
+          "containingRuntimeFunction": [
+            "0x5f9b92",
+            "0x5fa170"
+          ]
+        },
+        {
+          "instructionRva": "0x207b3a",
+          "targetRva": "0x1e1352",
+          "containingRuntimeFunction": [
+            "0x1e1352",
+            "0x1e14a5"
+          ]
+        },
+        {
+          "instructionRva": "0x207b91",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x207ba0",
+          "targetRva": "0x76b7b",
+          "containingRuntimeFunction": [
+            "0x76b7b",
+            "0x76bad"
+          ]
+        },
+        {
+          "instructionRva": "0x207bf5",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x207c39",
+          "targetRva": "0x344cbb",
+          "containingRuntimeFunction": [
+            "0x344cbb",
+            "0x344e20"
+          ]
+        },
+        {
+          "instructionRva": "0x207c80",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x207c8c",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x207c98",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "profile_instance_stop",
+      "range": [
+        "0x199627",
+        "0x19ac62"
+      ],
+      "bodyBytes": 5691,
+      "bodySha256": "51facd17db09036e588c13566d2b9cf9e1f4c61fc0d1f44970de2091048d1751",
+      "decodedInstructionCount": 1051,
+      "directCalls": [
+        {
+          "instructionRva": "0x199657",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x199670",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1996af",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x199708",
+          "targetRva": "0x297a7f",
+          "containingRuntimeFunction": [
+            "0x297a7f",
+            "0x297ac6"
+          ]
+        },
+        {
+          "instructionRva": "0x19975f",
+          "targetRva": "0x3741ca",
+          "containingRuntimeFunction": [
+            "0x3741ca",
+            "0x374300"
+          ]
+        },
+        {
+          "instructionRva": "0x1997e0",
+          "targetRva": "0x1094f9",
+          "containingRuntimeFunction": [
+            "0x1094f9",
+            "0x109578"
+          ]
+        },
+        {
+          "instructionRva": "0x199850",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x199875",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1998ea",
+          "targetRva": "0xdc886",
+          "containingRuntimeFunction": [
+            "0xdc886",
+            "0xdca7d"
+          ]
+        },
+        {
+          "instructionRva": "0x1999f3",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x199a78",
+          "targetRva": "0x82427",
+          "containingRuntimeFunction": [
+            "0x82427",
+            "0x8250c"
+          ]
+        },
+        {
+          "instructionRva": "0x199a9c",
+          "targetRva": "0x2ac656",
+          "containingRuntimeFunction": [
+            "0x2ac656",
+            "0x2ac6c0"
+          ]
+        },
+        {
+          "instructionRva": "0x199ad8",
+          "targetRva": "0x5a9615",
+          "containingRuntimeFunction": [
+            "0x5a9615",
+            "0x5a965b"
+          ]
+        },
+        {
+          "instructionRva": "0x199bea",
+          "targetRva": "0x241836",
+          "containingRuntimeFunction": [
+            "0x241836",
+            "0x242373"
+          ]
+        },
+        {
+          "instructionRva": "0x199c99",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x199d66",
+          "targetRva": "0x7a3e30",
+          "containingRuntimeFunction": [
+            "0x7a3e30",
+            "0x7a3ef7"
+          ]
+        },
+        {
+          "instructionRva": "0x199d93",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x199df2",
+          "targetRva": "0x24156e",
+          "containingRuntimeFunction": [
+            "0x24156e",
+            "0x241836"
+          ]
+        },
+        {
+          "instructionRva": "0x199e30",
+          "targetRva": "0x41bbff",
+          "containingRuntimeFunction": [
+            "0x41bbff",
+            "0x41bcd5"
+          ]
+        },
+        {
+          "instructionRva": "0x199f7a",
+          "targetRva": "0x10add3",
+          "containingRuntimeFunction": [
+            "0x10add3",
+            "0x10ae7f"
+          ]
+        },
+        {
+          "instructionRva": "0x199fae",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x19a094",
+          "targetRva": "0x41e543",
+          "containingRuntimeFunction": [
+            "0x41e543",
+            "0x41e613"
+          ]
+        },
+        {
+          "instructionRva": "0x19a0de",
+          "targetRva": "0xe5725",
+          "containingRuntimeFunction": [
+            "0xe5725",
+            "0xe5884"
+          ]
+        },
+        {
+          "instructionRva": "0x19a161",
+          "targetRva": "0x5d5da",
+          "containingRuntimeFunction": [
+            "0x5d5da",
+            "0x5d621"
+          ]
+        },
+        {
+          "instructionRva": "0x19a184",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x19a1ae",
+          "targetRva": "0x2d1eb0",
+          "containingRuntimeFunction": [
+            "0x2d1eb0",
+            "0x2d1fb2"
+          ]
+        },
+        {
+          "instructionRva": "0x19a1dd",
+          "targetRva": "0x1a75dc",
+          "containingRuntimeFunction": [
+            "0x1a75dc",
+            "0x1a774b"
+          ]
+        },
+        {
+          "instructionRva": "0x19a20b",
+          "targetRva": "0xfd161",
+          "containingRuntimeFunction": [
+            "0xfd161",
+            "0xfd195"
+          ]
+        },
+        {
+          "instructionRva": "0x19a24f",
+          "targetRva": "0xe9115",
+          "containingRuntimeFunction": [
+            "0xe9115",
+            "0xe9a22"
+          ]
+        },
+        {
+          "instructionRva": "0x19a297",
+          "targetRva": "0x100eae",
+          "containingRuntimeFunction": [
+            "0x100eae",
+            "0x100f2e"
+          ]
+        },
+        {
+          "instructionRva": "0x19a2ac",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x19a2b8",
+          "targetRva": "0x47d60b",
+          "containingRuntimeFunction": [
+            "0x47d60b",
+            "0x47d63f"
+          ]
+        },
+        {
+          "instructionRva": "0x19a2f4",
+          "targetRva": "0x23e158",
+          "containingRuntimeFunction": [
+            "0x23e158",
+            "0x23e6db"
+          ]
+        },
+        {
+          "instructionRva": "0x19a425",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x19a449",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x19a498",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x19a4aa",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x19a4bc",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x19a505",
+          "targetRva": "0x31ef22",
+          "containingRuntimeFunction": [
+            "0x31ef22",
+            "0x31ef91"
+          ]
+        },
+        {
+          "instructionRva": "0x19a546",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x19a558",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x19a56a",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x19a5b5",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x19a5f6",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x19a608",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x19a63d",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x19a645",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x19a6e3",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x19a6fc",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x19a708",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x19a7b8",
+          "targetRva": "0xfd9c4",
+          "containingRuntimeFunction": [
+            "0xfd9c4",
+            "0xfda7d"
+          ]
+        },
+        {
+          "instructionRva": "0x19a7cc",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x19a7dd",
+          "targetRva": "0xfd98a",
+          "containingRuntimeFunction": [
+            "0xfd98a",
+            "0xfd9c4"
+          ]
+        },
+        {
+          "instructionRva": "0x19a831",
+          "targetRva": "0x32df9d",
+          "containingRuntimeFunction": [
+            "0x32df9d",
+            "0x32e072"
+          ]
+        },
+        {
+          "instructionRva": "0x19a8e0",
+          "targetRva": "0x2a186b",
+          "containingRuntimeFunction": [
+            "0x2a186b",
+            "0x2a1944"
+          ]
+        },
+        {
+          "instructionRva": "0x19a8e8",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x19a93d",
+          "targetRva": "0x5addeb",
+          "containingRuntimeFunction": [
+            "0x5addeb",
+            "0x5ade4a"
+          ]
+        },
+        {
+          "instructionRva": "0x19a969",
+          "targetRva": "0x10949d",
+          "containingRuntimeFunction": [
+            "0x10949d",
+            "0x1094f9"
+          ]
+        },
+        {
+          "instructionRva": "0x19a9ed",
+          "targetRva": "0x5f9b92",
+          "containingRuntimeFunction": [
+            "0x5f9b92",
+            "0x5fa170"
+          ]
+        },
+        {
+          "instructionRva": "0x19aa19",
+          "targetRva": "0x1091b3",
+          "containingRuntimeFunction": [
+            "0x1091b3",
+            "0x1092c6"
+          ]
+        },
+        {
+          "instructionRva": "0x19aa73",
+          "targetRva": "0x1094f9",
+          "containingRuntimeFunction": [
+            "0x1094f9",
+            "0x109578"
+          ]
+        },
+        {
+          "instructionRva": "0x19aa82",
+          "targetRva": "0x76b7b",
+          "containingRuntimeFunction": [
+            "0x76b7b",
+            "0x76bad"
+          ]
+        },
+        {
+          "instructionRva": "0x19aa91",
+          "targetRva": "0x10269c",
+          "containingRuntimeFunction": [
+            "0x10269c",
+            "0x1026fb"
+          ]
+        },
+        {
+          "instructionRva": "0x19aae2",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x19ab26",
+          "targetRva": "0x344cbb",
+          "containingRuntimeFunction": [
+            "0x344cbb",
+            "0x344e20"
+          ]
+        },
+        {
+          "instructionRva": "0x19abb9",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x19abf0",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x19abf8",
+          "targetRva": "0x7b7890",
+          "containingRuntimeFunction": [
+            "0x7b7890",
+            "0x7b7a54"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac09",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac11",
+          "targetRva": "0x7b7b90",
+          "containingRuntimeFunction": [
+            "0x7b7b90",
+            "0x7b7c45"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac22",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac2e",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac3d",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac4c",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x19ac5b",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "profile_instance_status",
+      "range": [
+        "0x1a0da4",
+        "0x1a213c"
+      ],
+      "bodyBytes": 5016,
+      "bodySha256": "b98186d49870029ea3b8e25d8989b72ae877edaf21a3161b12b65c0b1251eb15",
+      "decodedInstructionCount": 928,
+      "directCalls": [
+        {
+          "instructionRva": "0x1a0dd4",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0ded",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0e2c",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0e80",
+          "targetRva": "0x297a7f",
+          "containingRuntimeFunction": [
+            "0x297a7f",
+            "0x297ac6"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0eda",
+          "targetRva": "0x3741ca",
+          "containingRuntimeFunction": [
+            "0x3741ca",
+            "0x374300"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0f53",
+          "targetRva": "0x1094f9",
+          "containingRuntimeFunction": [
+            "0x1094f9",
+            "0x109578"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0fb7",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1a0fda",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1043",
+          "targetRva": "0xdc886",
+          "containingRuntimeFunction": [
+            "0xdc886",
+            "0xdca7d"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1095",
+          "targetRva": "0x1a75dc",
+          "containingRuntimeFunction": [
+            "0x1a75dc",
+            "0x1a774b"
+          ]
+        },
+        {
+          "instructionRva": "0x1a10c9",
+          "targetRva": "0xfd161",
+          "containingRuntimeFunction": [
+            "0xfd161",
+            "0xfd195"
+          ]
+        },
+        {
+          "instructionRva": "0x1a10dd",
+          "targetRva": "0x3a15a4",
+          "containingRuntimeFunction": [
+            "0x3a15a4",
+            "0x3a19f3"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1101",
+          "targetRva": "0x30afd9",
+          "containingRuntimeFunction": [
+            "0x30afd9",
+            "0x30b0dd"
+          ]
+        },
+        {
+          "instructionRva": "0x1a111b",
+          "targetRva": "0x2c9034",
+          "containingRuntimeFunction": [
+            "0x2c9034",
+            "0x2c90b8"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1155",
+          "targetRva": "0x2d7ff3",
+          "containingRuntimeFunction": null
+        },
+        {
+          "instructionRva": "0x1a118b",
+          "targetRva": "0x24276e",
+          "containingRuntimeFunction": [
+            "0x24276e",
+            "0x24292b"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1193",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x1a11dd",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x1a11e5",
+          "targetRva": "0x10949d",
+          "containingRuntimeFunction": [
+            "0x10949d",
+            "0x1094f9"
+          ]
+        },
+        {
+          "instructionRva": "0x1a124e",
+          "targetRva": "0x109b4e",
+          "containingRuntimeFunction": [
+            "0x109b4e",
+            "0x109c1f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1261",
+          "targetRva": "0x46750",
+          "containingRuntimeFunction": [
+            "0x46750",
+            "0x467a8"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1276",
+          "targetRva": "0x648d4c",
+          "containingRuntimeFunction": [
+            "0x648d4c",
+            "0x648ff3"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1280",
+          "targetRva": "0x109942",
+          "containingRuntimeFunction": [
+            "0x109942",
+            "0x10997f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a129d",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1374",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a140b",
+          "targetRva": "0x82427",
+          "containingRuntimeFunction": [
+            "0x82427",
+            "0x8250c"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1436",
+          "targetRva": "0x2ac656",
+          "containingRuntimeFunction": [
+            "0x2ac656",
+            "0x2ac6c0"
+          ]
+        },
+        {
+          "instructionRva": "0x1a151a",
+          "targetRva": "0x241836",
+          "containingRuntimeFunction": [
+            "0x241836",
+            "0x242373"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1672",
+          "targetRva": "0x24156e",
+          "containingRuntimeFunction": [
+            "0x24156e",
+            "0x241836"
+          ]
+        },
+        {
+          "instructionRva": "0x1a16a5",
+          "targetRva": "0x2d41ba",
+          "containingRuntimeFunction": [
+            "0x2d41ba",
+            "0x2d4548"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1746",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x1a17c1",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1815",
+          "targetRva": "0x31ef22",
+          "containingRuntimeFunction": [
+            "0x31ef22",
+            "0x31ef91"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1859",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x1a186b",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a187d",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x1a18dd",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x1a18ef",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1901",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1a21",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1b64",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1b76",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1b88",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1bdf",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1bf1",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1c21",
+          "targetRva": "0x109b4e",
+          "containingRuntimeFunction": [
+            "0x109b4e",
+            "0x109c1f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1c34",
+          "targetRva": "0x46750",
+          "containingRuntimeFunction": [
+            "0x46750",
+            "0x467a8"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1c49",
+          "targetRva": "0x648d4c",
+          "containingRuntimeFunction": [
+            "0x648d4c",
+            "0x648ff3"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1c53",
+          "targetRva": "0x109942",
+          "containingRuntimeFunction": [
+            "0x109942",
+            "0x10997f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1c6c",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1d09",
+          "targetRva": "0x10a91e",
+          "containingRuntimeFunction": [
+            "0x10a91e",
+            "0x10a98a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1d15",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1d26",
+          "targetRva": "0xfeebd",
+          "containingRuntimeFunction": [
+            "0xfeebd",
+            "0xfeefa"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1d74",
+          "targetRva": "0x32df9d",
+          "containingRuntimeFunction": [
+            "0x32df9d",
+            "0x32e072"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1e45",
+          "targetRva": "0x2a186b",
+          "containingRuntimeFunction": [
+            "0x2a186b",
+            "0x2a1944"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1e4d",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1ea2",
+          "targetRva": "0x5addeb",
+          "containingRuntimeFunction": [
+            "0x5addeb",
+            "0x5ade4a"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1ed3",
+          "targetRva": "0x10949d",
+          "containingRuntimeFunction": [
+            "0x10949d",
+            "0x1094f9"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1f4d",
+          "targetRva": "0x5f9b92",
+          "containingRuntimeFunction": [
+            "0x5f9b92",
+            "0x5fa170"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1f7e",
+          "targetRva": "0x1091b3",
+          "containingRuntimeFunction": [
+            "0x1091b3",
+            "0x1092c6"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1fca",
+          "targetRva": "0x1094f9",
+          "containingRuntimeFunction": [
+            "0x1094f9",
+            "0x109578"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1fd9",
+          "targetRva": "0x76b7b",
+          "containingRuntimeFunction": [
+            "0x76b7b",
+            "0x76bad"
+          ]
+        },
+        {
+          "instructionRva": "0x1a1fe8",
+          "targetRva": "0x10175c",
+          "containingRuntimeFunction": [
+            "0x10175c",
+            "0x1017bb"
+          ]
+        },
+        {
+          "instructionRva": "0x1a202e",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x1a2072",
+          "targetRva": "0x344cbb",
+          "containingRuntimeFunction": [
+            "0x344cbb",
+            "0x344e20"
+          ]
+        },
+        {
+          "instructionRva": "0x1a20bc",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x1a20f3",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x1a20ff",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a210b",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a2117",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x1a2126",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x1a2135",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "profile_instances_reconcile",
+      "range": [
+        "0x203021",
+        "0x2057dc"
+      ],
+      "bodyBytes": 10171,
+      "bodySha256": "adfd4291ffbf80540b556af8a0af0bbcf6463550e94c1a512a49464ce7df2b4c",
+      "decodedInstructionCount": 1926,
+      "directCalls": [
+        {
+          "instructionRva": "0x203051",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x20306a",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2030b6",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x20310a",
+          "targetRva": "0x298177",
+          "containingRuntimeFunction": [
+            "0x298177",
+            "0x298213"
+          ]
+        },
+        {
+          "instructionRva": "0x2031dd",
+          "targetRva": "0x297a7f",
+          "containingRuntimeFunction": [
+            "0x297a7f",
+            "0x297ac6"
+          ]
+        },
+        {
+          "instructionRva": "0x20323c",
+          "targetRva": "0x3741ca",
+          "containingRuntimeFunction": [
+            "0x3741ca",
+            "0x374300"
+          ]
+        },
+        {
+          "instructionRva": "0x2032be",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x2032cb",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x2032f2",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x20335d",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x203382",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2033bb",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x20340a",
+          "targetRva": "0x1d4016",
+          "containingRuntimeFunction": [
+            "0x1d4016",
+            "0x1d420d"
+          ]
+        },
+        {
+          "instructionRva": "0x203514",
+          "targetRva": "0x82427",
+          "containingRuntimeFunction": [
+            "0x82427",
+            "0x8250c"
+          ]
+        },
+        {
+          "instructionRva": "0x203536",
+          "targetRva": "0x5a9615",
+          "containingRuntimeFunction": [
+            "0x5a9615",
+            "0x5a965b"
+          ]
+        },
+        {
+          "instructionRva": "0x203576",
+          "targetRva": "0x1ddbb2",
+          "containingRuntimeFunction": [
+            "0x1ddbb2",
+            "0x1ddc84"
+          ]
+        },
+        {
+          "instructionRva": "0x2035a9",
+          "targetRva": "0xfd161",
+          "containingRuntimeFunction": [
+            "0xfd161",
+            "0xfd195"
+          ]
+        },
+        {
+          "instructionRva": "0x2035ce",
+          "targetRva": "0x23f685",
+          "containingRuntimeFunction": [
+            "0x23f685",
+            "0x23f8f6"
+          ]
+        },
+        {
+          "instructionRva": "0x2035ff",
+          "targetRva": "0x325abe",
+          "containingRuntimeFunction": [
+            "0x325abe",
+            "0x325dc8"
+          ]
+        },
+        {
+          "instructionRva": "0x203668",
+          "targetRva": "0x23f466",
+          "containingRuntimeFunction": [
+            "0x23f466",
+            "0x23f685"
+          ]
+        },
+        {
+          "instructionRva": "0x2036d6",
+          "targetRva": "0x39e6e1",
+          "containingRuntimeFunction": [
+            "0x39e6e1",
+            "0x39e77d"
+          ]
+        },
+        {
+          "instructionRva": "0x20371d",
+          "targetRva": "0x39e153",
+          "containingRuntimeFunction": [
+            "0x39e153",
+            "0x39e26a"
+          ]
+        },
+        {
+          "instructionRva": "0x203745",
+          "targetRva": "0x39e77d",
+          "containingRuntimeFunction": [
+            "0x39e77d",
+            "0x39e862"
+          ]
+        },
+        {
+          "instructionRva": "0x2037a8",
+          "targetRva": "0x1e70f7",
+          "containingRuntimeFunction": [
+            "0x1e70f7",
+            "0x1e716d"
+          ]
+        },
+        {
+          "instructionRva": "0x2037ce",
+          "targetRva": "0x1d390d",
+          "containingRuntimeFunction": [
+            "0x1d390d",
+            "0x1d3a3c"
+          ]
+        },
+        {
+          "instructionRva": "0x20380c",
+          "targetRva": "0x5c1d",
+          "containingRuntimeFunction": [
+            "0x5c1d",
+            "0x5c81"
+          ]
+        },
+        {
+          "instructionRva": "0x20385f",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x203a00",
+          "targetRva": "0x5cdd10",
+          "containingRuntimeFunction": [
+            "0x5cdd10",
+            "0x5cdd68"
+          ]
+        },
+        {
+          "instructionRva": "0x203a24",
+          "targetRva": "0x5cdd10",
+          "containingRuntimeFunction": [
+            "0x5cdd10",
+            "0x5cdd68"
+          ]
+        },
+        {
+          "instructionRva": "0x203a37",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x203a55",
+          "targetRva": "0x2db183",
+          "containingRuntimeFunction": [
+            "0x2db183",
+            "0x2db7cc"
+          ]
+        },
+        {
+          "instructionRva": "0x203b50",
+          "targetRva": "0x7a3e30",
+          "containingRuntimeFunction": [
+            "0x7a3e30",
+            "0x7a3ef7"
+          ]
+        },
+        {
+          "instructionRva": "0x203b9d",
+          "targetRva": "0x7a3e30",
+          "containingRuntimeFunction": [
+            "0x7a3e30",
+            "0x7a3ef7"
+          ]
+        },
+        {
+          "instructionRva": "0x203bde",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203bf1",
+          "targetRva": "0x31f06c",
+          "containingRuntimeFunction": [
+            "0x31f06c",
+            "0x31f0df"
+          ]
+        },
+        {
+          "instructionRva": "0x203c37",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x203c51",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x203c66",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203c75",
+          "targetRva": "0x31ef22",
+          "containingRuntimeFunction": [
+            "0x31ef22",
+            "0x31ef91"
+          ]
+        },
+        {
+          "instructionRva": "0x203cbb",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x203ccd",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x203d18",
+          "targetRva": "0x491f8",
+          "containingRuntimeFunction": [
+            "0x491f8",
+            "0x49236"
+          ]
+        },
+        {
+          "instructionRva": "0x203d8b",
+          "targetRva": "0x2dc61a",
+          "containingRuntimeFunction": [
+            "0x2dc61a",
+            "0x2dc830"
+          ]
+        },
+        {
+          "instructionRva": "0x203dcc",
+          "targetRva": "0x41e543",
+          "containingRuntimeFunction": [
+            "0x41e543",
+            "0x41e613"
+          ]
+        },
+        {
+          "instructionRva": "0x203de5",
+          "targetRva": "0x2a2c0",
+          "containingRuntimeFunction": [
+            "0x2a2c0",
+            "0x2a32e"
+          ]
+        },
+        {
+          "instructionRva": "0x203df5",
+          "targetRva": "0x1d3a74",
+          "containingRuntimeFunction": [
+            "0x1d3a74",
+            "0x1d3b51"
+          ]
+        },
+        {
+          "instructionRva": "0x203e12",
+          "targetRva": "0x401394",
+          "containingRuntimeFunction": [
+            "0x401394",
+            "0x4013d2"
+          ]
+        },
+        {
+          "instructionRva": "0x203e32",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x203e7d",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203e90",
+          "targetRva": "0x31f06c",
+          "containingRuntimeFunction": [
+            "0x31f06c",
+            "0x31f0df"
+          ]
+        },
+        {
+          "instructionRva": "0x203ed6",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x203ef0",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x203f05",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203f14",
+          "targetRva": "0x31ef22",
+          "containingRuntimeFunction": [
+            "0x31ef22",
+            "0x31ef91"
+          ]
+        },
+        {
+          "instructionRva": "0x203f4e",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203f5e",
+          "targetRva": "0x31f06c",
+          "containingRuntimeFunction": [
+            "0x31f06c",
+            "0x31f0df"
+          ]
+        },
+        {
+          "instructionRva": "0x203fa4",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x203fbe",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x203fd3",
+          "targetRva": "0x10b5b4",
+          "containingRuntimeFunction": [
+            "0x10b5b4",
+            "0x10b609"
+          ]
+        },
+        {
+          "instructionRva": "0x203fe3",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x204029",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x20403b",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204086",
+          "targetRva": "0x491f8",
+          "containingRuntimeFunction": [
+            "0x491f8",
+            "0x49236"
+          ]
+        },
+        {
+          "instructionRva": "0x2040c3",
+          "targetRva": "0x1e16a0",
+          "containingRuntimeFunction": [
+            "0x1e16a0",
+            "0x1e16e9"
+          ]
+        },
+        {
+          "instructionRva": "0x204111",
+          "targetRva": "0x381ac",
+          "containingRuntimeFunction": [
+            "0x381ac",
+            "0x381df"
+          ]
+        },
+        {
+          "instructionRva": "0x204170",
+          "targetRva": "0x7b7890",
+          "containingRuntimeFunction": [
+            "0x7b7890",
+            "0x7b7a54"
+          ]
+        },
+        {
+          "instructionRva": "0x204197",
+          "targetRva": "0x2595f9",
+          "containingRuntimeFunction": [
+            "0x2595f9",
+            "0x259741"
+          ]
+        },
+        {
+          "instructionRva": "0x2041cf",
+          "targetRva": "0x7b7b90",
+          "containingRuntimeFunction": [
+            "0x7b7b90",
+            "0x7b7c45"
+          ]
+        },
+        {
+          "instructionRva": "0x2041ff",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x204217",
+          "targetRva": "0x7a5050",
+          "containingRuntimeFunction": [
+            "0x7a5050",
+            "0x7a5086"
+          ]
+        },
+        {
+          "instructionRva": "0x204242",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x204255",
+          "targetRva": "0x2ee2d4",
+          "containingRuntimeFunction": [
+            "0x2ee2d4",
+            "0x2ee38d"
+          ]
+        },
+        {
+          "instructionRva": "0x204268",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204274",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x2042ec",
+          "targetRva": "0x2a186b",
+          "containingRuntimeFunction": [
+            "0x2a186b",
+            "0x2a1944"
+          ]
+        },
+        {
+          "instructionRva": "0x2042f4",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x204345",
+          "targetRva": "0x5addeb",
+          "containingRuntimeFunction": [
+            "0x5addeb",
+            "0x5ade4a"
+          ]
+        },
+        {
+          "instructionRva": "0x204373",
+          "targetRva": "0x1e153b",
+          "containingRuntimeFunction": [
+            "0x1e153b",
+            "0x1e1597"
+          ]
+        },
+        {
+          "instructionRva": "0x2043ec",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x204413",
+          "targetRva": "0x10997f",
+          "containingRuntimeFunction": [
+            "0x10997f",
+            "0x109a54"
+          ]
+        },
+        {
+          "instructionRva": "0x204434",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204448",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x20445b",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20446a",
+          "targetRva": "0x403711",
+          "containingRuntimeFunction": [
+            "0x403711",
+            "0x40374b"
+          ]
+        },
+        {
+          "instructionRva": "0x20447d",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20449b",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2044c2",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x2044e0",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2044fc",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204513",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20451f",
+          "targetRva": "0x81f84",
+          "containingRuntimeFunction": [
+            "0x81f84",
+            "0x82002"
+          ]
+        },
+        {
+          "instructionRva": "0x204593",
+          "targetRva": "0x1ddc84",
+          "containingRuntimeFunction": [
+            "0x1ddc84",
+            "0x1ddde3"
+          ]
+        },
+        {
+          "instructionRva": "0x2045d6",
+          "targetRva": "0x5d5da",
+          "containingRuntimeFunction": [
+            "0x5d5da",
+            "0x5d621"
+          ]
+        },
+        {
+          "instructionRva": "0x204613",
+          "targetRva": "0x24156e",
+          "containingRuntimeFunction": [
+            "0x24156e",
+            "0x241836"
+          ]
+        },
+        {
+          "instructionRva": "0x204649",
+          "targetRva": "0x2d1eb0",
+          "containingRuntimeFunction": [
+            "0x2d1eb0",
+            "0x2d1fb2"
+          ]
+        },
+        {
+          "instructionRva": "0x204678",
+          "targetRva": "0x1f5f9a",
+          "containingRuntimeFunction": [
+            "0x1f5f9a",
+            "0x1f6109"
+          ]
+        },
+        {
+          "instructionRva": "0x2046a6",
+          "targetRva": "0xfd161",
+          "containingRuntimeFunction": [
+            "0xfd161",
+            "0xfd195"
+          ]
+        },
+        {
+          "instructionRva": "0x2046ee",
+          "targetRva": "0x1ddde3",
+          "containingRuntimeFunction": [
+            "0x1ddde3",
+            "0x1de6f0"
+          ]
+        },
+        {
+          "instructionRva": "0x204724",
+          "targetRva": "0x1e1010",
+          "containingRuntimeFunction": [
+            "0x1e1010",
+            "0x1e1090"
+          ]
+        },
+        {
+          "instructionRva": "0x204739",
+          "targetRva": "0x1e16a0",
+          "containingRuntimeFunction": [
+            "0x1e16a0",
+            "0x1e16e9"
+          ]
+        },
+        {
+          "instructionRva": "0x204745",
+          "targetRva": "0x47d60b",
+          "containingRuntimeFunction": [
+            "0x47d60b",
+            "0x47d63f"
+          ]
+        },
+        {
+          "instructionRva": "0x204786",
+          "targetRva": "0x23e158",
+          "containingRuntimeFunction": [
+            "0x23e158",
+            "0x23e6db"
+          ]
+        },
+        {
+          "instructionRva": "0x204854",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x204872",
+          "targetRva": "0x2a2c0",
+          "containingRuntimeFunction": [
+            "0x2a2c0",
+            "0x2a32e"
+          ]
+        },
+        {
+          "instructionRva": "0x20487d",
+          "targetRva": "0x62d9bf",
+          "containingRuntimeFunction": [
+            "0x62d9bf",
+            "0x62dbbf"
+          ]
+        },
+        {
+          "instructionRva": "0x20489f",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x2048df",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x204928",
+          "targetRva": "0x31f06c",
+          "containingRuntimeFunction": [
+            "0x31f06c",
+            "0x31f0df"
+          ]
+        },
+        {
+          "instructionRva": "0x20496a",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x20497c",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x20498e",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x2049d1",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x204a0c",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x204a1e",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204a50",
+          "targetRva": "0x491f8",
+          "containingRuntimeFunction": [
+            "0x491f8",
+            "0x49236"
+          ]
+        },
+        {
+          "instructionRva": "0x204a93",
+          "targetRva": "0x1e16a0",
+          "containingRuntimeFunction": [
+            "0x1e16a0",
+            "0x1e16e9"
+          ]
+        },
+        {
+          "instructionRva": "0x204b6e",
+          "targetRva": "0x261c54",
+          "containingRuntimeFunction": [
+            "0x261c54",
+            "0x261cfd"
+          ]
+        },
+        {
+          "instructionRva": "0x204bd0",
+          "targetRva": "0x62e99d",
+          "containingRuntimeFunction": [
+            "0x62e99d",
+            "0x62ea17"
+          ]
+        },
+        {
+          "instructionRva": "0x204bdf",
+          "targetRva": "0x403605",
+          "containingRuntimeFunction": [
+            "0x403605",
+            "0x403647"
+          ]
+        },
+        {
+          "instructionRva": "0x204bf2",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204c01",
+          "targetRva": "0x5acc0a",
+          "containingRuntimeFunction": [
+            "0x5acc0a",
+            "0x5acc70"
+          ]
+        },
+        {
+          "instructionRva": "0x204c14",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204c2e",
+          "targetRva": "0x3f57ca",
+          "containingRuntimeFunction": [
+            "0x3f57ca",
+            "0x3f5855"
+          ]
+        },
+        {
+          "instructionRva": "0x204c41",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204c7a",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x204d16",
+          "targetRva": "0x30a502",
+          "containingRuntimeFunction": [
+            "0x30a502",
+            "0x30a606"
+          ]
+        },
+        {
+          "instructionRva": "0x204d31",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204d5f",
+          "targetRva": "0x405d1c",
+          "containingRuntimeFunction": [
+            "0x405d1c",
+            "0x405d83"
+          ]
+        },
+        {
+          "instructionRva": "0x204d83",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x204dc6",
+          "targetRva": "0x29a978",
+          "containingRuntimeFunction": [
+            "0x29a978",
+            "0x29aa67"
+          ]
+        },
+        {
+          "instructionRva": "0x204e04",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x204e16",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204e28",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x204e67",
+          "targetRva": "0x29a978",
+          "containingRuntimeFunction": [
+            "0x29a978",
+            "0x29aa67"
+          ]
+        },
+        {
+          "instructionRva": "0x204ea8",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x204ebb",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204ece",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x204f0c",
+          "targetRva": "0x299d9d",
+          "containingRuntimeFunction": [
+            "0x299d9d",
+            "0x299e89"
+          ]
+        },
+        {
+          "instructionRva": "0x204f50",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x204f64",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x204f84",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x204f97",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204f9f",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x204fb2",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204fca",
+          "targetRva": "0x62e99d",
+          "containingRuntimeFunction": [
+            "0x62e99d",
+            "0x62ea17"
+          ]
+        },
+        {
+          "instructionRva": "0x204fd9",
+          "targetRva": "0x403605",
+          "containingRuntimeFunction": [
+            "0x403605",
+            "0x403647"
+          ]
+        },
+        {
+          "instructionRva": "0x204fec",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x204ff4",
+          "targetRva": "0x5acc0a",
+          "containingRuntimeFunction": [
+            "0x5acc0a",
+            "0x5acc70"
+          ]
+        },
+        {
+          "instructionRva": "0x205007",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x205021",
+          "targetRva": "0x3f57ca",
+          "containingRuntimeFunction": [
+            "0x3f57ca",
+            "0x3f5855"
+          ]
+        },
+        {
+          "instructionRva": "0x205034",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20504b",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x205062",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20506e",
+          "targetRva": "0x81f84",
+          "containingRuntimeFunction": [
+            "0x81f84",
+            "0x82002"
+          ]
+        },
+        {
+          "instructionRva": "0x20507d",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x205090",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2050ae",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2050d0",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x2050ec",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x20510e",
+          "targetRva": "0x10997f",
+          "containingRuntimeFunction": [
+            "0x10997f",
+            "0x109a54"
+          ]
+        },
+        {
+          "instructionRva": "0x20512d",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x205139",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x205145",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x205194",
+          "targetRva": "0x32df9d",
+          "containingRuntimeFunction": [
+            "0x32df9d",
+            "0x32e072"
+          ]
+        },
+        {
+          "instructionRva": "0x205252",
+          "targetRva": "0x5f9b92",
+          "containingRuntimeFunction": [
+            "0x5f9b92",
+            "0x5fa170"
+          ]
+        },
+        {
+          "instructionRva": "0x205284",
+          "targetRva": "0x1e1352",
+          "containingRuntimeFunction": [
+            "0x1e1352",
+            "0x1e14a5"
+          ]
+        },
+        {
+          "instructionRva": "0x2052a0",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x2052af",
+          "targetRva": "0x76b7b",
+          "containingRuntimeFunction": [
+            "0x76b7b",
+            "0x76bad"
+          ]
+        },
+        {
+          "instructionRva": "0x205308",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x20534c",
+          "targetRva": "0x344cbb",
+          "containingRuntimeFunction": [
+            "0x344cbb",
+            "0x344e20"
+          ]
+        },
+        {
+          "instructionRva": "0x205388",
+          "targetRva": "0x2951e3",
+          "containingRuntimeFunction": [
+            "0x2951e3",
+            "0x295364"
+          ]
+        },
+        {
+          "instructionRva": "0x20539f",
+          "targetRva": "0x2a2c0",
+          "containingRuntimeFunction": [
+            "0x2a2c0",
+            "0x2a32e"
+          ]
+        },
+        {
+          "instructionRva": "0x2053b8",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2053cd",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2053fa",
+          "targetRva": "0x1d5009",
+          "containingRuntimeFunction": [
+            "0x1d5009",
+            "0x1ddbb2"
+          ]
+        },
+        {
+          "instructionRva": "0x205430",
+          "targetRva": "0x1e009a",
+          "containingRuntimeFunction": [
+            "0x1e009a",
+            "0x1e0af7"
+          ]
+        },
+        {
+          "instructionRva": "0x205493",
+          "targetRva": "0x611d3",
+          "containingRuntimeFunction": [
+            "0x611d3",
+            "0x61211"
+          ]
+        },
+        {
+          "instructionRva": "0x2054e4",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x20552d",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x205574",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x205586",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x205598",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x2055db",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x205616",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x205628",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x20565a",
+          "targetRva": "0x491f8",
+          "containingRuntimeFunction": [
+            "0x491f8",
+            "0x49236"
+          ]
+        },
+        {
+          "instructionRva": "0x20569d",
+          "targetRva": "0x1e16a0",
+          "containingRuntimeFunction": [
+            "0x1e16a0",
+            "0x1e16e9"
+          ]
+        },
+        {
+          "instructionRva": "0x2056de",
+          "targetRva": "0x611d3",
+          "containingRuntimeFunction": [
+            "0x611d3",
+            "0x61211"
+          ]
+        },
+        {
+          "instructionRva": "0x20572c",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x205745",
+          "targetRva": "0x1e0086",
+          "containingRuntimeFunction": null
+        },
+        {
+          "instructionRva": "0x2057a9",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x2057b8",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x2057c7",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x2057d6",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "profile_instances_update_and_restart",
+      "range": [
+        "0x2057dc",
+        "0x20715f"
+      ],
+      "bodyBytes": 6531,
+      "bodySha256": "b012b857ecd4184bac1a57e0581b84b78354b5139cc1cb31a52a3c7b17258ce6",
+      "decodedInstructionCount": 1238,
+      "directCalls": [
+        {
+          "instructionRva": "0x20580e",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x205827",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x20586b",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x2058bf",
+          "targetRva": "0x298177",
+          "containingRuntimeFunction": [
+            "0x298177",
+            "0x298213"
+          ]
+        },
+        {
+          "instructionRva": "0x20598c",
+          "targetRva": "0x297a7f",
+          "containingRuntimeFunction": [
+            "0x297a7f",
+            "0x297ac6"
+          ]
+        },
+        {
+          "instructionRva": "0x2059be",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2059e3",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x205a03",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x205a5f",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x205a92",
+          "targetRva": "0x1d4016",
+          "containingRuntimeFunction": [
+            "0x1d4016",
+            "0x1d420d"
+          ]
+        },
+        {
+          "instructionRva": "0x205aee",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x205af8",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x205bea",
+          "targetRva": "0x82427",
+          "containingRuntimeFunction": [
+            "0x82427",
+            "0x8250c"
+          ]
+        },
+        {
+          "instructionRva": "0x205c1f",
+          "targetRva": "0x1f5f9a",
+          "containingRuntimeFunction": [
+            "0x1f5f9a",
+            "0x1f6109"
+          ]
+        },
+        {
+          "instructionRva": "0x205c54",
+          "targetRva": "0xfd161",
+          "containingRuntimeFunction": [
+            "0xfd161",
+            "0xfd195"
+          ]
+        },
+        {
+          "instructionRva": "0x205c76",
+          "targetRva": "0x23f466",
+          "containingRuntimeFunction": [
+            "0x23f466",
+            "0x23f685"
+          ]
+        },
+        {
+          "instructionRva": "0x205d08",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x205daf",
+          "targetRva": "0x5c1d",
+          "containingRuntimeFunction": [
+            "0x5c1d",
+            "0x5c81"
+          ]
+        },
+        {
+          "instructionRva": "0x205e09",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x205e7d",
+          "targetRva": "0x7b7b90",
+          "containingRuntimeFunction": [
+            "0x7b7b90",
+            "0x7b7c45"
+          ]
+        },
+        {
+          "instructionRva": "0x205f3f",
+          "targetRva": "0x41dea4",
+          "containingRuntimeFunction": [
+            "0x41dea4",
+            "0x41dfb1"
+          ]
+        },
+        {
+          "instructionRva": "0x205f64",
+          "targetRva": "0x381ac",
+          "containingRuntimeFunction": [
+            "0x381ac",
+            "0x381df"
+          ]
+        },
+        {
+          "instructionRva": "0x205f98",
+          "targetRva": "0x390d9c",
+          "containingRuntimeFunction": [
+            "0x390d9c",
+            "0x390ded"
+          ]
+        },
+        {
+          "instructionRva": "0x205fda",
+          "targetRva": "0x2a2887",
+          "containingRuntimeFunction": [
+            "0x2a2887",
+            "0x2a2935"
+          ]
+        },
+        {
+          "instructionRva": "0x20600f",
+          "targetRva": "0x7b7890",
+          "containingRuntimeFunction": [
+            "0x7b7890",
+            "0x7b7a54"
+          ]
+        },
+        {
+          "instructionRva": "0x20601c",
+          "targetRva": "0x7b7b90",
+          "containingRuntimeFunction": [
+            "0x7b7b90",
+            "0x7b7c45"
+          ]
+        },
+        {
+          "instructionRva": "0x206029",
+          "targetRva": "0x7b7b90",
+          "containingRuntimeFunction": [
+            "0x7b7b90",
+            "0x7b7c45"
+          ]
+        },
+        {
+          "instructionRva": "0x20603a",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x206046",
+          "targetRva": "0x7a5150",
+          "containingRuntimeFunction": [
+            "0x7a5150",
+            "0x7a516f"
+          ]
+        },
+        {
+          "instructionRva": "0x20607f",
+          "targetRva": "0x41e543",
+          "containingRuntimeFunction": [
+            "0x41e543",
+            "0x41e613"
+          ]
+        },
+        {
+          "instructionRva": "0x2060c5",
+          "targetRva": "0x1ddc84",
+          "containingRuntimeFunction": [
+            "0x1ddc84",
+            "0x1ddde3"
+          ]
+        },
+        {
+          "instructionRva": "0x206136",
+          "targetRva": "0x5d5da",
+          "containingRuntimeFunction": [
+            "0x5d5da",
+            "0x5d621"
+          ]
+        },
+        {
+          "instructionRva": "0x20618c",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2061ae",
+          "targetRva": "0x325abe",
+          "containingRuntimeFunction": [
+            "0x325abe",
+            "0x325dc8"
+          ]
+        },
+        {
+          "instructionRva": "0x2061e8",
+          "targetRva": "0x2abf66",
+          "containingRuntimeFunction": [
+            "0x2abf66",
+            "0x2ac00a"
+          ]
+        },
+        {
+          "instructionRva": "0x2062c6",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206328",
+          "targetRva": "0x2a1a47",
+          "containingRuntimeFunction": [
+            "0x2a1a47",
+            "0x2a1b1b"
+          ]
+        },
+        {
+          "instructionRva": "0x206382",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x2063a0",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2063ac",
+          "targetRva": "0x47d60b",
+          "containingRuntimeFunction": [
+            "0x47d60b",
+            "0x47d63f"
+          ]
+        },
+        {
+          "instructionRva": "0x2063bf",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x2063e6",
+          "targetRva": "0x1e0c6c",
+          "containingRuntimeFunction": [
+            "0x1e0c6c",
+            "0x1e0e81"
+          ]
+        },
+        {
+          "instructionRva": "0x20643b",
+          "targetRva": "0x2a186b",
+          "containingRuntimeFunction": [
+            "0x2a186b",
+            "0x2a1944"
+          ]
+        },
+        {
+          "instructionRva": "0x206443",
+          "targetRva": "0x81f3b",
+          "containingRuntimeFunction": [
+            "0x81f3b",
+            "0x81f84"
+          ]
+        },
+        {
+          "instructionRva": "0x206494",
+          "targetRva": "0x5addeb",
+          "containingRuntimeFunction": [
+            "0x5addeb",
+            "0x5ade4a"
+          ]
+        },
+        {
+          "instructionRva": "0x2064c2",
+          "targetRva": "0x1e153b",
+          "containingRuntimeFunction": [
+            "0x1e153b",
+            "0x1e1597"
+          ]
+        },
+        {
+          "instructionRva": "0x20653d",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x2065cf",
+          "targetRva": "0x1d4468",
+          "containingRuntimeFunction": [
+            "0x1d4468",
+            "0x1d5009"
+          ]
+        },
+        {
+          "instructionRva": "0x206633",
+          "targetRva": "0x1dffcd",
+          "containingRuntimeFunction": [
+            "0x1dffcd",
+            "0x1e0086"
+          ]
+        },
+        {
+          "instructionRva": "0x20665b",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x206726",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x206739",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206758",
+          "targetRva": "0x372d0",
+          "containingRuntimeFunction": [
+            "0x372d0",
+            "0x37330"
+          ]
+        },
+        {
+          "instructionRva": "0x20676f",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206786",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x2067a5",
+          "targetRva": "0xffd72",
+          "containingRuntimeFunction": [
+            "0xffd72",
+            "0xffdb3"
+          ]
+        },
+        {
+          "instructionRva": "0x2067be",
+          "targetRva": "0x61342",
+          "containingRuntimeFunction": [
+            "0x61342",
+            "0x61398"
+          ]
+        },
+        {
+          "instructionRva": "0x2067e2",
+          "targetRva": "0x46750",
+          "containingRuntimeFunction": [
+            "0x46750",
+            "0x467a8"
+          ]
+        },
+        {
+          "instructionRva": "0x2067f7",
+          "targetRva": "0x648d4c",
+          "containingRuntimeFunction": [
+            "0x648d4c",
+            "0x648ff3"
+          ]
+        },
+        {
+          "instructionRva": "0x20686c",
+          "targetRva": "0x7b7a60",
+          "containingRuntimeFunction": [
+            "0x7b7a60",
+            "0x7b7b8c"
+          ]
+        },
+        {
+          "instructionRva": "0x206876",
+          "targetRva": "0x7b82d0",
+          "containingRuntimeFunction": null
+        },
+        {
+          "instructionRva": "0x2068ef",
+          "targetRva": "0x2951e3",
+          "containingRuntimeFunction": [
+            "0x2951e3",
+            "0x295364"
+          ]
+        },
+        {
+          "instructionRva": "0x206906",
+          "targetRva": "0x2a2c0",
+          "containingRuntimeFunction": [
+            "0x2a2c0",
+            "0x2a32e"
+          ]
+        },
+        {
+          "instructionRva": "0x20691f",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x206934",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x206963",
+          "targetRva": "0x1d5009",
+          "containingRuntimeFunction": [
+            "0x1d5009",
+            "0x1ddbb2"
+          ]
+        },
+        {
+          "instructionRva": "0x20698f",
+          "targetRva": "0x1e009a",
+          "containingRuntimeFunction": [
+            "0x1e009a",
+            "0x1e0af7"
+          ]
+        },
+        {
+          "instructionRva": "0x2069dc",
+          "targetRva": "0x611d3",
+          "containingRuntimeFunction": [
+            "0x611d3",
+            "0x61211"
+          ]
+        },
+        {
+          "instructionRva": "0x206a17",
+          "targetRva": "0x1e0086",
+          "containingRuntimeFunction": null
+        },
+        {
+          "instructionRva": "0x206a40",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x206a86",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x206acb",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x206add",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x206aef",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x206b2f",
+          "targetRva": "0x31eeb2",
+          "containingRuntimeFunction": [
+            "0x31eeb2",
+            "0x31ef22"
+          ]
+        },
+        {
+          "instructionRva": "0x206b6d",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x206b7f",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x206bb7",
+          "targetRva": "0x491f8",
+          "containingRuntimeFunction": [
+            "0x491f8",
+            "0x49236"
+          ]
+        },
+        {
+          "instructionRva": "0x206bfa",
+          "targetRva": "0x1e16a0",
+          "containingRuntimeFunction": [
+            "0x1e16a0",
+            "0x1e16e9"
+          ]
+        },
+        {
+          "instructionRva": "0x206c1a",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206c4d",
+          "targetRva": "0x59164e",
+          "containingRuntimeFunction": [
+            "0x59164e",
+            "0x5916c7"
+          ]
+        },
+        {
+          "instructionRva": "0x206c6e",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x206cba",
+          "targetRva": "0x29a978",
+          "containingRuntimeFunction": [
+            "0x29a978",
+            "0x29aa67"
+          ]
+        },
+        {
+          "instructionRva": "0x206cf8",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x206d0a",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x206d1c",
+          "targetRva": "0x5c4370",
+          "containingRuntimeFunction": [
+            "0x5c4370",
+            "0x5c43ac"
+          ]
+        },
+        {
+          "instructionRva": "0x206d63",
+          "targetRva": "0x299d9d",
+          "containingRuntimeFunction": [
+            "0x299d9d",
+            "0x299e89"
+          ]
+        },
+        {
+          "instructionRva": "0x206da7",
+          "targetRva": "0x5a9712",
+          "containingRuntimeFunction": [
+            "0x5a9712",
+            "0x5a97af"
+          ]
+        },
+        {
+          "instructionRva": "0x206dbb",
+          "targetRva": "0x81e10",
+          "containingRuntimeFunction": [
+            "0x81e10",
+            "0x81e7a"
+          ]
+        },
+        {
+          "instructionRva": "0x206dd8",
+          "targetRva": "0x5acc0a",
+          "containingRuntimeFunction": [
+            "0x5acc0a",
+            "0x5acc70"
+          ]
+        },
+        {
+          "instructionRva": "0x206deb",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206df3",
+          "targetRva": "0x5cb7",
+          "containingRuntimeFunction": [
+            "0x5cb7",
+            "0x5ced"
+          ]
+        },
+        {
+          "instructionRva": "0x206e06",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206e25",
+          "targetRva": "0x372d0",
+          "containingRuntimeFunction": [
+            "0x372d0",
+            "0x37330"
+          ]
+        },
+        {
+          "instructionRva": "0x206e3c",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206e53",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206e75",
+          "targetRva": "0x8282a",
+          "containingRuntimeFunction": [
+            "0x8282a",
+            "0x82894"
+          ]
+        },
+        {
+          "instructionRva": "0x206e91",
+          "targetRva": "0x1150d",
+          "containingRuntimeFunction": [
+            "0x1150d",
+            "0x1157b"
+          ]
+        },
+        {
+          "instructionRva": "0x206ea4",
+          "targetRva": "0x109337",
+          "containingRuntimeFunction": [
+            "0x109337",
+            "0x109385"
+          ]
+        },
+        {
+          "instructionRva": "0x206eb8",
+          "targetRva": "0x1e0c6c",
+          "containingRuntimeFunction": [
+            "0x1e0c6c",
+            "0x1e0e81"
+          ]
+        },
+        {
+          "instructionRva": "0x206f02",
+          "targetRva": "0x32df9d",
+          "containingRuntimeFunction": [
+            "0x32df9d",
+            "0x32e072"
+          ]
+        },
+        {
+          "instructionRva": "0x206fbe",
+          "targetRva": "0x5f9b92",
+          "containingRuntimeFunction": [
+            "0x5f9b92",
+            "0x5fa170"
+          ]
+        },
+        {
+          "instructionRva": "0x206ff0",
+          "targetRva": "0x1e1352",
+          "containingRuntimeFunction": [
+            "0x1e1352",
+            "0x1e14a5"
+          ]
+        },
+        {
+          "instructionRva": "0x207009",
+          "targetRva": "0x1e1597",
+          "containingRuntimeFunction": [
+            "0x1e1597",
+            "0x1e16a0"
+          ]
+        },
+        {
+          "instructionRva": "0x207018",
+          "targetRva": "0x76b7b",
+          "containingRuntimeFunction": [
+            "0x76b7b",
+            "0x76bad"
+          ]
+        },
+        {
+          "instructionRva": "0x207070",
+          "targetRva": "0x7a33e0",
+          "containingRuntimeFunction": [
+            "0x7a33e0",
+            "0x7a3a5d"
+          ]
+        },
+        {
+          "instructionRva": "0x2070b4",
+          "targetRva": "0x344cbb",
+          "containingRuntimeFunction": [
+            "0x344cbb",
+            "0x344e20"
+          ]
+        },
+        {
+          "instructionRva": "0x207110",
+          "targetRva": "0x7a50b0",
+          "containingRuntimeFunction": [
+            "0x7a50b0",
+            "0x7a5108"
+          ]
+        },
+        {
+          "instructionRva": "0x20713b",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x20714a",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        },
+        {
+          "instructionRva": "0x207159",
+          "targetRva": "0x7a43d6",
+          "containingRuntimeFunction": [
+            "0x7a43d6",
+            "0x7a43f0"
+          ]
+        }
+      ]
+    }
+  ],
+  "interpretation": "These native body bytes and direct call targets are present in the supplied executable. Undecoded semantics are unfinished static recovery, not by themselves missing external input."
+}

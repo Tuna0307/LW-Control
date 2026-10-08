@@ -1,0 +1,23 @@
+{
+  "note": "Native transcript is first chunk only; subsequent completion is recorded in independent-review-results.json. All tests exit 0.",
+  "executions": [
+    {
+      "name": "native",
+      "result": "",
+      "exit": null,
+      "session": 11194
+    },
+    {
+      "name": "frontend",
+      "result": "CAMPAIGN007_REAL_RESOURCE_FRONTEND_ADAPTER_PASS page2 filter options A/B/A stale-event; 0 game actions\nCAMPAIGN007_CANONICAL_MOUNTED_REAL_RESOURCE_PASS cases=10 no leaked timers no native game actions\nCAMPAIGN007_ACTUAL_APP_MAP_RESOURCE_MOUNT_PASS cases=8 commands=profile_list,profile_instances_reconcile,game_recovery_status,game_root_status,local_game_launch_status,update_status,get_status,proxy_status,local_config_get,local_map_auto_scan_status,map_summary,server_jump_history_import,map_data_options,map_search,map_plunder_jobs_list\n",
+      "exit": 0,
+      "session": null
+    },
+    {
+      "name": "guards",
+      "result": "....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.010s\r\n\r\nOK\r\n......\r\nlupa=2.8 lua=Lua 5.4\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.129s\r\n\r\nOK\r\nCAMPAIGN007_GHOST_TREASURE_FENCES_ACTUAL_SOURCE_4_MUTATIONS_PASS\r\n\n> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build\n> node scripts/check-production-build.mjs\n\nLWB317_PRODUCTION_UI_PACKAGE_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909\n",
+      "exit": 0,
+      "session": null
+    }
+  ]
+}
