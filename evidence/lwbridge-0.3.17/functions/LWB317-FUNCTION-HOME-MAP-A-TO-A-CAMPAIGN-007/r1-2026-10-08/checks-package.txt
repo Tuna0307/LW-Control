@@ -1,0 +1,9 @@
+R1 phase=package checkpoint=f789faa8936b094c46f6aadbc6acc0da816ad01e utc=2026-10-08T06:43:49.9569602Z
+desktop-Release-build status=PASS exit=0
+checks-Release-build status=PASS exit=0
+desktop-Release-publish status=PASS exit=0
+package-file LWBridge.Desktop.exe PASS
+package-file OverviewBridge/LWBridge.GamePipeAdapter.dll PASS
+package-file OverviewBridge/current_overview_bridge.lua PASS
+package-file ProductionUi/index.html PASS
+Lua package/source SHA256 716B982F96A460C55CCB5AA26167A6219F2A10FBADA5A2AF2233D30A2523F79F PASS

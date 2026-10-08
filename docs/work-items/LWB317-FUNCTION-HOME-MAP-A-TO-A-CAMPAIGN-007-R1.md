@@ -1,6 +1,7 @@
 # LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1
 
-Status: **READY / PROJECT-LEAD ASSIGNED**, 2026-10-08.
+Status: **AWAITING_REVIEW / R1 WORKER DELIVERED — ORIGINAL A→A PARTIAL**, 2026-10-08.
+R1 summary: original native static Home ranges/callees investigated (inner 0.3.17 timeout/retry unknown); production Resource late canceled-run staging defect reproduced and corrected with four actual engine/sink/Stop/SQLite cases; mounted actual App inert-bridge A/B/A with rejected/fulfilled deferred requests passes 20 cases; preservation and honest launch/scope metadata validated. Report: `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1-WORKER.md`; evidence under R1 subtree, including exact unresolved continuation. Historical 007 work item/lead disposition remain immutable.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller
 Reviewed worker checkpoint: 4442b0486125420f11e92020e0a900361aecef4b.

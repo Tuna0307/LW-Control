@@ -1,0 +1,11 @@
+# R1 continuity and lead-review handoff
+
+**State:** AWAITING_REVIEW / lead acceptance pending. Do not reset or rerun Campaign 007 A–H. Starting checkpoint 77e552f1. R1 A and B coherent commits: a6578eeb, f789faa8, then current integration checkpoint in git history. See R1 `queue.json` and `closeout.json` for 3 finding dispositions and 49-row derivative; immutable historical lead and worker JSON remain authoritative for their own times.
+
+**Exact follow-on work:** Further *local original 0.3.17 native* control/async continuation and call-dataflow recovery from shared 0x1d5009–0x1ddbb2; explicit numeric 0.3.17 Home retry/failure/timeout comparison with clone's 0.3.1-sourced policy. Do not misclassify undecoded available code as missing external. For encrypted original 0.3.17 controller, only authorized signed envelope/matching CNG state could resolve 006 boundary. For original private Map extractor/provider equality and native WebView, original same-state oracle needed. Current-v22 004 real 8,008 Resource rows and 007 zero-stage live Stop are distinct, not full original parity.
+
+**Live staging:** No repeat permitted absent evidence of an *observable positive staged state* ahead of full-batch instant publication, compatible rooted provider ownership and all existing safe isolate/restore gates. No new R1 Last War game launch, no desktop focus/input/capture, no gameplay/updater/protected-service actions. 007 was one prior game attempt despite historical `preservation-final.json` incorrectly reporting zero; corrected only in new R1 `closeout.json`.
+
+**Re-run (safe offline):** From repo root, `python tools/lwbridge317/validate_campaign007_r1.py` (verifies hashes/004 read-only safe DB), `python tools/lwbridge317/build_campaign007_r1_matrix.py`, `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/lwbridge317/campaign007_r1_verify.ps1 -Phase native|static|frontend|package`. These write **only** new R1 evidence; historical writers are not invoked. Canonical Release publish runs in a uniquely named TEMP directory and removes it in finally.
+
+**Post-review:** Lead decides whether R007-01 partial original Home static recovery requires a further authorized R2; product cancellation fix and mounted/inert proof do not automatically satisfy original complete A→A. Preserve all R3, query and current-world fences.

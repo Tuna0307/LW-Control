@@ -1,0 +1,157 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1",
+  "startingLeadCheckpoint": "77e552f1e08e3cf5f67de24f82f5e066f04d0d60",
+  "status": "AWAITING_REVIEW",
+  "leadAcceptance": "PENDING",
+  "live": {
+    "004_completedResource8008": true,
+    "007_positive_staged_stop": false,
+    "007_terminal": "cancelled_before_batch_return",
+    "R1_additional_launches": 0
+  },
+  "launch": {
+    "004_completedPlusActiveStop": "retained separate prior 004 runs",
+    "007_real_game_attempts": 1,
+    "R1_real_game_attempts": 0,
+    "historicalPreservationFieldSaysZeroIncorrect": true
+  },
+  "queries": {
+    "numericCorrections": [
+      "M20_pageSize",
+      "M21_page"
+    ],
+    "correctedOriginalContractScope": "public numeric query only"
+  },
+  "proofs": {
+    "sourceNativeHandlers": 5,
+    "boundedCallees": 123,
+    "mountedAppR1Cases": 20,
+    "mapComponent007Cases": 10,
+    "realCurrentResourceRows": 8008,
+    "realPositiveNameKeyRows": 2608,
+    "originalFullHomeParity": false,
+    "originalMapProtectedProviderParity": false
+  },
+  "freshCheckCounts": {
+    "native": 21,
+    "static": 12,
+    "frontend": 6,
+    "package": 3
+  },
+  "obligations": [
+    {
+      "id": "R007-01",
+      "status": "INVESTIGATED_NATIVE_BYTES_AVAILABLE_SEMANTIC_RECOVERY_PARTIAL",
+      "finding": "Five original Home handler bodies, 123 direct short callees and large shared launch callee traced; identity/state/error branches recovered, exact 0.3.17 retry/timeout not decoded",
+      "proof": "ORIGINAL_HASH_GATED_STATIC_ONLY",
+      "remaining": "Nested native async/state dataflow and original same-state Home retry/timeout response oracle",
+      "nextAction": "Continue static state-machine continuation tracing; do not declare unavailable code an external dependency",
+      "source": "home-recovered-boundaries.md"
+    },
+    {
+      "id": "R007-02",
+      "status": "CORRECTED_CURRENT_ENGINE_SINK_LATE_STAGE_INERT_VERIFIED",
+      "finding": "One genuine canceled-run late-stage defect corrected; four actual engine/sink/Stop tests pass",
+      "proof": "ACTUAL_ENGINE_SINK_SQLITE_CONTROLLED_SOURCE",
+      "remaining": "Live current-world positive-staged active Stop naturally observable before publication, original provider behavior",
+      "nextAction": "No new real launch absent distinct evidence-supported staging observation trigger",
+      "source": "resource-stage-diagnosis.md"
+    },
+    {
+      "id": "R007-03",
+      "status": "MOUNTED_APP_REPLAY_AND_METADATA_RECONCILED",
+      "finding": "Actual App 14 A/B/A deferred cases and corrected scoped 49-row matrix and historical count",
+      "proof": "MOUNTED_REAL_CURRENT_RESOURCE_INERT_NATIVE_BRIDGE",
+      "remaining": "Protected original WebView UI/production same-state visuals and original extractor",
+      "nextAction": "Owner authorization and matching original runnable/protected inputs required for full parity",
+      "source": "mounted-app-profiles.json"
+    }
+  ],
+  "mutations": [
+    {
+      "kind": "structural",
+      "count": 4,
+      "evidenceClass": "static/provider-guard",
+      "claim": "detect missing guard/source shape, not semantic parity"
+    },
+    {
+      "kind": "semantic",
+      "count": 1,
+      "evidenceClass": "production-late-response",
+      "claim": "baseline canceled run retained 2 staged rows; corrected durable cancellation removes them"
+    },
+    {
+      "kind": "semantic",
+      "count": 2,
+      "evidenceClass": "public-query-original-contract",
+      "claim": "preserved numeric M20 and M21 mismatches and corrections"
+    }
+  ],
+  "engineCases": [
+    {
+      "scenario": "cancel-during-deferred-batch",
+      "acquisitionPercent": 47,
+      "stagedBeforeStop": 0,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled",
+      "providerStops": 1
+    },
+    {
+      "scenario": "late-batch-return-after-cancel",
+      "acquisitionPercent": 47,
+      "stagedBeforeStop": 0,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled",
+      "providerStops": 1
+    },
+    {
+      "scenario": "positive-stage-then-stop",
+      "stagedBeforeStop": 1,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled"
+    },
+    {
+      "scenario": "stop-during-publication-transition",
+      "stagedBeforeStop": 2,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled"
+    }
+  ],
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "installedOriginalScriptsPreserved": true,
+  "original004SqliteAndSidecarsPreserved": true,
+  "gameProcesses": [],
+  "ownerDesktopActionsR1": 0,
+  "sourceOriginalState": "native Home partially decoded; encrypted controller missing authenticated matching original package key/CNG owner state",
+  "remaining": "r1-2026-10-08/unresolved-dependencies.md",
+  "validatorMutationProbes": [
+    {
+      "case": "reopened-ready-R007-01",
+      "detected": true
+    },
+    {
+      "case": "false-live-positive-stage",
+      "detected": true
+    },
+    {
+      "case": "false-no-007-launch",
+      "detected": true
+    },
+    {
+      "case": "drop-page-size-correction",
+      "detected": true
+    },
+    {
+      "case": "structural-as-semantic",
+      "detected": true
+    },
+    {
+      "case": "staged-after-cancel",
+      "detected": true
+    }
+  ]
+}

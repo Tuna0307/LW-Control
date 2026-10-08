@@ -1,0 +1,22 @@
+R1 phase=native checkpoint=f789faa8936b094c46f6aadbc6acc0da816ad01e utc=2026-10-08T06:45:19.9190170Z
+overview-official-settle-check status=PASS exit=0
+overview-launch-spam-check status=PASS exit=0
+overview-process-ownership-check status=PASS exit=0
+overview-reconnect-policy-check status=PASS exit=0
+overview-fault-admission-check status=PASS exit=0
+overview-close-timing-check status=PASS exit=0
+home-campaign-lifecycle-check status=PASS exit=0
+map-auto-scan-campaign-check status=PASS exit=0
+map-campaign-canonical-check status=PASS exit=0
+map317-restart-check status=PASS exit=0
+map317-native-boundary-check status=PASS exit=0
+map317-plunder-worker-boundary-check status=PASS exit=0
+map317-dto-matrix-check status=PASS exit=0
+profile-runtime-owner-check status=PASS exit=0
+overview-status-contract-check status=PASS exit=0
+production-root-isolation-check status=PASS exit=0
+overview-bridge-host-transport-check status=PASS exit=0
+overview-bridge-rpc-session-transport-check status=PASS exit=0
+world-resource-004-inverses status=PASS exit=0
+r1-actual-engine-sink-stop status=PASS exit=0
+007-inert-positive-staged-stop status=PASS exit=0

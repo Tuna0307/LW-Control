@@ -1,0 +1,13 @@
+R1 phase=static checkpoint=f789faa8936b094c46f6aadbc6acc0da816ad01e utc=2026-10-08T06:51:48.1182009Z
+tests/pipe_heartbeat_world004_checks.py status=PASS exit=0
+tests/pipe_delegate_current_checks.py status=PASS exit=0
+tests/home_runtime_file_ownership_checks.py status=PASS exit=0
+tests/home_runtime_lease_lua_checks.py status=PASS exit=0
+tests/map_provider_decoded_body_oracles.py status=PASS exit=0
+tests/map_provider_semantics_lua_checks.py status=PASS exit=0
+original-controller-boundary status=PASS exit=0
+current-client-contract status=PASS exit=0
+provider-semantics status=PASS exit=0
+ghost-treasure-structural-mutations status=PASS exit=0
+R1-native-home-trace status=PASS exit=0
+R1-native-home-focus status=PASS exit=0

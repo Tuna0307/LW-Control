@@ -1,0 +1,38 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1",
+  "status": "AWAITING_REVIEW",
+  "overallParity": "PARTIAL_UNPROVEN_ORIGINAL_HOME_MAP",
+  "startingCheckpoint": "77e552f1e08e3cf5f67de24f82f5e066f04d0d60",
+  "obligations": [
+    {
+      "id": "R007-01",
+      "status": "INVESTIGATED_NATIVE_BYTES_AVAILABLE_SEMANTIC_RECOVERY_PARTIAL",
+      "finding": "Five original Home handler bodies, 123 direct short callees and large shared launch callee traced; identity/state/error branches recovered, exact 0.3.17 retry/timeout not decoded",
+      "proof": "ORIGINAL_HASH_GATED_STATIC_ONLY",
+      "remaining": "Nested native async/state dataflow and original same-state Home retry/timeout response oracle",
+      "nextAction": "Continue static state-machine continuation tracing; do not declare unavailable code an external dependency",
+      "source": "home-recovered-boundaries.md"
+    },
+    {
+      "id": "R007-02",
+      "status": "CORRECTED_CURRENT_ENGINE_SINK_LATE_STAGE_INERT_VERIFIED",
+      "finding": "One genuine canceled-run late-stage defect corrected; four actual engine/sink/Stop tests pass",
+      "proof": "ACTUAL_ENGINE_SINK_SQLITE_CONTROLLED_SOURCE",
+      "remaining": "Live current-world positive-staged active Stop naturally observable before publication, original provider behavior",
+      "nextAction": "No new real launch absent distinct evidence-supported staging observation trigger",
+      "source": "resource-stage-diagnosis.md"
+    },
+    {
+      "id": "R007-03",
+      "status": "MOUNTED_APP_REPLAY_AND_METADATA_RECONCILED",
+      "finding": "Actual App 14 A/B/A deferred cases and corrected scoped 49-row matrix and historical count",
+      "proof": "MOUNTED_REAL_CURRENT_RESOURCE_INERT_NATIVE_BRIDGE",
+      "remaining": "Protected original WebView UI/production same-state visuals and original extractor",
+      "nextAction": "Owner authorization and matching original runnable/protected inputs required for full parity",
+      "source": "mounted-app-profiles.json"
+    }
+  ],
+  "historicalWorkerUnchanged": true,
+  "newRealGameLaunches": 0,
+  "mutationScope": "4 structural guard mutations, 1 semantic late-stage production inverse, 2 semantic original-public numeric query corrections"
+}
