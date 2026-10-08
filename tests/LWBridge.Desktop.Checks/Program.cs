@@ -378,6 +378,20 @@ if (args.Contains("--unmanaged-close-check", StringComparer.OrdinalIgnoreCase))
     return 0;
 }
 
+if (args.Contains("--recovery-async-ownership-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.RecoveryAsyncOwnershipChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--recovery-boundary-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.RecoveryBoundaryChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-process-ownership-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();

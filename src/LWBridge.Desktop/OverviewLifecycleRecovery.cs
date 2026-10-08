@@ -663,6 +663,11 @@ internal sealed partial class OverviewLifecycleService
     {
         RecoveryTrackedGame? tracked = recoveryTracked;
         if (tracked is null) return (true, null);
+        // HOME 009 R1 E: the owned session being cleaned is the one that existed when the terminate was issued. The
+        // snapshot is captured BEFORE the (possibly long) await and re-verified afterwards, so a late completion of
+        // this effect can never clean up a session that a user Stop/Start created in the meantime.
+        OwnedSnapshot? issuedFor = GetOwnedSnapshot();
+        if (issuedFor is not null && issuedFor.GamePid != tracked.Pid) issuedFor = null;
         try
         {
             await TerminateOwnedProcessAsync(tracked.Pid, tracked.Path, tracked.StartedAtUtc,
@@ -672,8 +677,13 @@ internal sealed partial class OverviewLifecycleService
         {
             return (false, RecoveryErrorCode(ex));
         }
+        bool ownerClosed;
+        lock (stateGate) ownerClosed = closed;
+        if (ownerClosed) return (true, null);   // a closed owner starts no new helper effects; the journal stays pending
         OwnedSnapshot? snapshot = GetOwnedSnapshot();
-        if (snapshot is not null)
+        if (issuedFor is not null && snapshot is not null &&
+            snapshot.InstanceId == issuedFor.InstanceId && snapshot.GamePid == issuedFor.GamePid &&
+            snapshot.Challenge == issuedFor.Challenge)
             await CleanupExitedOwnedSessionAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
         return (true, null);
     }

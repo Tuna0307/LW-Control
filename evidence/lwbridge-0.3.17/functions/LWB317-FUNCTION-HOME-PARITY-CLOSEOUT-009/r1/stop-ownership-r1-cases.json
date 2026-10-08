@@ -1,0 +1,90 @@
+{
+  "toolsDir": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tools",
+  "total": 19,
+  "failed": [],
+  "results": [
+    {
+      "case": "lead009_01_poll_query_denied_while_pid_survives",
+      "pass": true,
+      "finding": "LEAD009-01",
+      "outcome": "OWNED_EXIT_UNPROVEN"
+    },
+    {
+      "case": "delayed_exit_after_denied_query_is_proven_by_handle",
+      "pass": true,
+      "finding": "LEAD009-01"
+    },
+    {
+      "case": "final_poll_boundary_denied_at_check_100_exit_within_budget",
+      "pass": true
+    },
+    {
+      "case": "final_poll_boundary_denied_at_check_100_exit_after_budget",
+      "pass": true
+    },
+    {
+      "case": "timeout_when_game_visibly_survives_keeps_journal",
+      "pass": true
+    },
+    {
+      "case": "already_absent_restores_without_touching_a_process",
+      "pass": true
+    },
+    {
+      "case": "denial_before_termination_open_denied_with_pid_present",
+      "pass": true
+    },
+    {
+      "case": "image_unreadable_while_pid_present_is_query_failure_not_exit",
+      "pass": true
+    },
+    {
+      "case": "denial_after_termination_terminate_call_fails_while_alive",
+      "pass": true
+    },
+    {
+      "case": "terminate_call_fails_because_process_already_exited_restores",
+      "pass": true
+    },
+    {
+      "case": "surviving_second_installation_process_withholds_restoration",
+      "pass": true,
+      "finding": "LEAD009-01"
+    },
+    {
+      "case": "restoration_failure_keeps_journal_and_retry_succeeds",
+      "pass": true
+    },
+    {
+      "case": "lead009_02_same_path_replacement_before_open_is_not_terminated",
+      "pass": true,
+      "finding": "LEAD009-02"
+    },
+    {
+      "case": "lead009_02_replacement_after_validation_before_terminate_hits_only_the_opened_handle",
+      "pass": true,
+      "finding": "LEAD009-02"
+    },
+    {
+      "case": "different_path_replacement_is_not_terminated_and_captured_exit_is_proven",
+      "pass": true,
+      "finding": "LEAD009-02"
+    },
+    {
+      "case": "handle_creation_time_unreadable_is_refused",
+      "pass": true
+    },
+    {
+      "case": "journal_without_creation_identity_never_terminates_a_live_pid",
+      "pass": true
+    },
+    {
+      "case": "inventory_replacement_still_refused_before_any_open",
+      "pass": true
+    },
+    {
+      "case": "legitimate_termination_restores_after_handle_confirmed_exit",
+      "pass": true
+    }
+  ]
+}

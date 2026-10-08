@@ -1,0 +1,5 @@
+Unhandled exception. System.InvalidOperationException: recovery async ownership check failed: late old success must not stop/clean the NEW instance: helper-start,terminate:50100,helper-stop:50100,helper-start,helper-stop:50200
+   at LWBridge.Desktop.Checks.RecoveryAsyncOwnershipChecks.Check(Boolean condition, String message) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\LWBridge.Desktop.Checks\RecoveryAsyncOwnershipChecks.cs:line 256
+   at LWBridge.Desktop.Checks.RecoveryAsyncOwnershipChecks.RunAsync() in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\LWBridge.Desktop.Checks\RecoveryAsyncOwnershipChecks.cs:line 212
+   at Program.<Main>$(String[] args) in C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\LWBridge.Desktop.Checks\Program.cs:line 383
+   at Program.<Main>(String[] args)

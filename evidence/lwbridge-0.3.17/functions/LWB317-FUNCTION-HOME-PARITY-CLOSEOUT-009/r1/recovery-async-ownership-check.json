@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "cases": [
+    "no-overlap-cleans-the-terminated-instance-once",
+    "late-success-after-stop-start-does-not-touch-new-instance",
+    "late-rejection-after-stop-start-publishes-nothing",
+    "close-while-terminate-parked-is-quiet"
+  ]
+}
