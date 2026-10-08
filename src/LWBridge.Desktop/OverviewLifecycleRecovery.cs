@@ -139,10 +139,76 @@ internal sealed partial class OverviewLifecycleService
 
     // game_lifecycle_start (0x11157c) sets desired-running and resets the recovery status to idle (0x41ad16)
     // before launching. Recovery relaunches call StartAsync directly and never reset their own status.
-    private async Task<object?> StartCommandAsync(CancellationToken cancellationToken)
+    private async Task<object?> StartCommandAsync(bool closeUnmanaged, CancellationToken cancellationToken)
     {
         ResetRecoveryStatusToIdle(invalidateRun: false);
-        return await StartAsync(cancellationToken).ConfigureAwait(false);
+        return await StartAsync(cancellationToken, closeUnmanaged).ConfigureAwait(false);
+    }
+
+    // HOME 009 R1 C. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
+    // 0x1d5009: `closeUnmanaged` (0x207784) gates 0x1d6548. Unmanaged = LastWar processes of <root>\Game\LastWar.exe
+    // (0x41dea4) whose PID is not an LWBridge-managed one (hash-set filter 0x30a354 via 0x39d7de), PIDs sorted
+    // (0x2a2887). When any exist and closeUnmanaged: each PID is terminated in order by the path-verified 0x41e543
+    // (an error aborts the launch at once, remaining PIDs untouched); a deadline of now+5 s is then set (0x1d693f-0x1d6955)
+    // and the loop 0x1d723b lists again, finishes when empty, fails GAME_CLOSE_TIMEOUT (0x1d74e5) when
+    // now >= deadline (secs,nanos lexicographic compare 0x1d72d0-0x1d72eb), otherwise waits 100 ms (0x1d7305) and repeats.
+    private static readonly TimeSpan UnmanagedCloseWindow = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan UnmanagedClosePoll = TimeSpan.FromMilliseconds(100);
+
+    private IReadOnlyList<int> SelectedGamePids(string selectedRoot)
+    {
+        if (testHooks?.SelectedGamePids is { } hook) return hook(selectedRoot);
+        string expected = Path.GetFullPath(Path.Combine(selectedRoot, "Game", "LastWar.exe"));
+        var pids = new SortedSet<int>();
+        foreach (Process process in Process.GetProcessesByName("LastWar"))
+        {
+            try
+            {
+                string? actual = process.MainModule?.FileName;
+                if (actual is not null && PathEquals(actual, expected)) pids.Add(process.Id);
+            }
+            catch { }
+            finally { process.Dispose(); }
+        }
+        return pids.ToArray();
+    }
+
+    private async Task CloseUnmanagedSelectedGamesAsync(string selectedRoot, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<int> pids = SelectedGamePids(selectedRoot);
+        if (pids.Count == 0) return;
+        string expectedPath = Path.GetFullPath(Path.Combine(selectedRoot, "Game", "LastWar.exe"));
+        IOwnedProcessApi api = OwnedProcessApi;
+        foreach (int pid in pids)
+        {
+            OwnedProcessTerminationResult result = await OwnedProcessTermination.TerminateAsync(
+                api, pid, expectedPath, null, RecoveryDelayAsync, cancellationToken, awaitExit: false).ConfigureAwait(false);
+            switch (result)
+            {
+                case OwnedProcessTerminationResult.QueryFailed:
+                    throw new BridgeCommandException("PROCESS_QUERY_FAILED", "Unable to verify the target process path.");
+                case OwnedProcessTerminationResult.OpenDenied:
+                    throw new BridgeCommandException("IO_ERROR", "open target process: " + OsErrorText(api, 5));
+                case OwnedProcessTerminationResult.TerminateFailed:
+                    throw new BridgeCommandException("IO_ERROR", "terminate target process: " + OsErrorText(api, 5));
+            }
+        }
+        long deadline = checked(RecoveryClockMilliseconds() + (long)UnmanagedCloseWindow.TotalMilliseconds);
+        while (true)
+        {
+            if (SelectedGamePids(selectedRoot).Count == 0) return;
+            if (RecoveryClockMilliseconds() >= deadline)
+                throw new BridgeCommandException("GAME_CLOSE_TIMEOUT", "GAME_CLOSE_TIMEOUT");
+            await RecoveryDelayAsync(UnmanagedClosePoll, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    // Rust std::io::Error Display: "<text> (os error N)"; the exact OS code of a failed open is not retained here,
+    // so only the IO_ERROR code and the operation label are source-backed (0x41da31/0x41da6d, 0x2a1998).
+    private static string OsErrorText(IOwnedProcessApi api, int fallback)
+    {
+        int code = api.LastErrorCode(fallback);
+        return $"{new System.ComponentModel.Win32Exception(code).Message} (os error {code})";
     }
 
     internal void InvalidateRecoveryForUserStop() => ResetRecoveryStatusToIdle(invalidateRun: true);
@@ -1087,6 +1153,7 @@ internal sealed partial class OverviewLifecycleService
             case OwnedProcessTerminationResult.Terminated:
                 return;
             case OwnedProcessTerminationResult.NotVerified:
+            case OwnedProcessTerminationResult.QueryFailed:
                 throw new BridgeCommandException("PROCESS_IDENTITY_CHANGED", "Unable to verify the exact owned game process incarnation.");
             case OwnedProcessTerminationResult.OpenDenied:
                 throw new BridgeCommandException("GAME_RECOVERY_TERMINATE_FAILED", "Unable to open the exact owned game process for recovery termination.");

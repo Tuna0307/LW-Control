@@ -31,6 +31,8 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<int, string, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
     // HOME 009 R1 B: Win32 process primitives for the real (non-overridden) handle-bound termination logic.
     public IOwnedProcessApi? OwnedProcessApi { get; init; }
+    // HOME 009 R1 C: PIDs of LastWar processes at <root>\Game\LastWar.exe (0x41dea4); null = real process enumeration.
+    public Func<string, IReadOnlyList<int>>? SelectedGamePids { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
     // HOME 009: <root>\Game\LastWar.exe presence (0x41d2ce) and the three recovery log readers (0x41a18d).
     public Func<bool>? GameRootAvailable { get; init; }
@@ -348,7 +350,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken) => command switch
     {
-        "profile_instance_start" => StartCommandAsync(cancellationToken),
+        "profile_instance_start" => StartCommandAsync(ReadCloseUnmanaged(payload), cancellationToken),
         "profile_instance_stop" => StopAsync(payload, cancellationToken),
         "profile_instance_status" => Task.FromResult(CreateProfileInstanceStatus()),
         "profile_instances_reconcile" => ReconcileStartupAsync(payload, cancellationToken),
@@ -615,7 +617,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         return fullCandidate.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task<object?> StartAsync(CancellationToken cancellationToken)
+    // 0x207784-0x2077af: `closeUnmanaged` is read from the start payload object; a missing key or a non-boolean
+    // value is false. Reconcile (0x2053fa) and update-and-restart (0x206963) store false in the same launch slot.
+    internal static bool ReadCloseUnmanaged(JsonElement payload) =>
+        payload.ValueKind == JsonValueKind.Object &&
+        payload.TryGetProperty("closeUnmanaged", out JsonElement value) &&
+        value.ValueKind is JsonValueKind.True or JsonValueKind.False &&
+        value.GetBoolean();
+
+    private async Task<object?> StartAsync(CancellationToken cancellationToken, bool closeUnmanaged = false)
     {
         if (!File.Exists(helperPath) && testHooks?.RunHelperAsync is null)
             throw new BridgeCommandException("OVERVIEW_HELPER_MISSING", "The Overview bridge helper was not deployed with LWBridge.Desktop.");
@@ -636,8 +646,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (gamePid is not null)
                 throw new BridgeCommandException("GAME_RUNNING", "The LWBridge-owned game is already running.");
             selectedRoot = gameRoot;
-            if (FindSelectedGameProcess(selectedRoot) is not null)
-                throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "Close the game started outside this application first.");
+            IReadOnlyList<int> unmanagedPids = SelectedGamePids(selectedRoot);
+            if (unmanagedPids.Count > 0 && !closeUnmanaged)
+                // 0x1d6781-0x1d6828: code == message == "UNMANAGED_GAME_RUNNING", details {pids:[ascending]}.
+                throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "UNMANAGED_GAME_RUNNING", new { pids = unmanagedPids });
             phase = "starting";
             connectionState = "starting";
             instanceId = newSession;
@@ -651,6 +663,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool startTransactionSucceeded = false;
         try
         {
+            if (closeUnmanaged)
+                await CloseUnmanagedSelectedGamesAsync(selectedRoot, cancellationToken).ConfigureAwait(false);
             await EnsureControlPipeHostStartedAsync(selectedRoot).ConfigureAwait(false);
             OverviewHelperInvocation startInvocation;
             long? startDeadline = null;

@@ -371,6 +371,13 @@ if (args.Contains("--owned-process-handle-binding-check", StringComparer.Ordinal
     return 0;
 }
 
+if (args.Contains("--unmanaged-close-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.UnmanagedCloseChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-process-ownership-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();

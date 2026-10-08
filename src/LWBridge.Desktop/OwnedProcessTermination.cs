@@ -16,6 +16,8 @@ internal interface IOwnedProcessApi
     bool Terminate(IntPtr handle, uint exitCode);
     bool WaitExited(IntPtr handle, int milliseconds); // true when the process behind THIS handle has exited
     void Close(IntPtr handle);
+    bool PidExists(int pid);                          // Toolhelp-style presence of any process with this PID (0x4198e5)
+    int LastErrorCode(int fallback);                  // Win32 error of the last failed call (diagnostics only)
 }
 
 internal enum OwnedProcessTerminationResult
@@ -28,6 +30,8 @@ internal enum OwnedProcessTerminationResult
     OpenDenied,
     /// <summary>The identity was verified on the handle but TerminateProcess failed while the process is still alive.</summary>
     TerminateFailed,
+    /// <summary>The PID exists but its image path cannot be read (original: PROCESS_QUERY_FAILED).</summary>
+    QueryFailed,
 }
 
 internal static class OwnedProcessTermination
@@ -36,25 +40,31 @@ internal static class OwnedProcessTermination
     internal const uint ProcessQueryLimitedInformation = 0x1000;
     internal const uint Synchronize = 0x00100000;
 
-    // expectedStartedAtUtc == null: path-only identity (updater helper processes carry no recorded incarnation).
+    // expectedStartedAtUtc == null: path-only identity (updater helper processes and the original unmanaged-game close
+    // carry no recorded incarnation). awaitExit == false: return right after TerminateProcess (the caller polls),
+    // matching 0x41d84b which does not wait.
     internal static async Task<OwnedProcessTerminationResult> TerminateAsync(
         IOwnedProcessApi api,
         int pid,
         string expectedPath,
         string? expectedStartedAtUtc,
         Func<TimeSpan, CancellationToken, Task> delayAsync,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool awaitExit = true)
     {
         IntPtr handle = api.Open(pid, ProcessQueryLimitedInformation | ProcessTerminate | Synchronize);
         if (handle == IntPtr.Zero)
         {
             // Classify without any terminate right so an access problem is not reported as "not verified".
             IntPtr query = api.Open(pid, ProcessQueryLimitedInformation);
-            if (query == IntPtr.Zero) return OwnedProcessTerminationResult.NotVerified;
+            if (query == IntPtr.Zero)
+                return api.PidExists(pid) ? OwnedProcessTerminationResult.QueryFailed : OwnedProcessTerminationResult.NotVerified;
             try
             {
                 string? image = api.ImagePath(query);
-                return image is not null && PathEquals(image, expectedPath)
+                if (image is null)
+                    return api.PidExists(pid) ? OwnedProcessTerminationResult.QueryFailed : OwnedProcessTerminationResult.NotVerified;
+                return PathEquals(image, expectedPath)
                     ? OwnedProcessTerminationResult.OpenDenied
                     : OwnedProcessTerminationResult.NotVerified;
             }
@@ -63,13 +73,18 @@ internal static class OwnedProcessTermination
         try
         {
             string? actualPath = api.ImagePath(handle);
-            if (actualPath is null || !PathEquals(actualPath, expectedPath)) return OwnedProcessTerminationResult.NotVerified;
+            if (actualPath is null)
+                return api.PidExists(pid) && !api.WaitExited(handle, 0)
+                    ? OwnedProcessTerminationResult.QueryFailed
+                    : OwnedProcessTerminationResult.NotVerified;
+            if (!PathEquals(actualPath, expectedPath)) return OwnedProcessTerminationResult.NotVerified;
             if (expectedStartedAtUtc is not null &&
                 !string.Equals(api.CreationUtc(handle), expectedStartedAtUtc, StringComparison.Ordinal))
                 return OwnedProcessTerminationResult.NotVerified;
             if (!api.Terminate(handle, 1))
                 return api.WaitExited(handle, 0) ? OwnedProcessTerminationResult.NotVerified
                                                  : OwnedProcessTerminationResult.TerminateFailed;
+            if (!awaitExit) return OwnedProcessTerminationResult.Terminated;
             while (!api.WaitExited(handle, 0))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -116,6 +131,24 @@ internal sealed class Win32OwnedProcessApi : IOwnedProcessApi
     public bool WaitExited(IntPtr handle, int milliseconds) => WaitForSingleObject(handle, (uint)milliseconds) == 0;
 
     public void Close(IntPtr handle) => _ = CloseHandle(handle);
+
+    public bool PidExists(int pid)
+    {
+        try
+        {
+            using var process = System.Diagnostics.Process.GetProcessById(pid);
+            return !process.HasExited;
+        }
+        catch (ArgumentException) { return false; }
+        catch (InvalidOperationException) { return false; }
+        catch (System.ComponentModel.Win32Exception) { return true; } // present but inaccessible
+    }
+
+    public int LastErrorCode(int fallback)
+    {
+        int error = Marshal.GetLastWin32Error();
+        return error == 0 ? fallback : error;
+    }
 
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern IntPtr OpenProcess(uint desiredAccess, [MarshalAs(UnmanagedType.Bool)] bool inheritHandle, int processId);

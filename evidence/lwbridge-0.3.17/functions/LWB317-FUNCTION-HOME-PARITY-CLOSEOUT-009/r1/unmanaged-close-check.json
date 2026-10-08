@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "cases": [
+    "payload-key-default-false",
+    "false-refuses-without-touching-processes",
+    "true-no-process-proceeds",
+    "terminates-in-ascending-order-then-polls",
+    "deadline-boundaries-list-before-deadline-check",
+    "terminate-error-aborts-before-later-pids",
+    "unreadable-image-is-process-query-failed",
+    "terminate-failure-is-io-error",
+    "no-handle-leak"
+  ]
+}

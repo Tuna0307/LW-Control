@@ -78,6 +78,8 @@ internal static class OwnedProcessHandleBindingChecks
             return false;
         }
         public void Close(IntPtr handle) { var h = Handles[handle]; Handles[handle] = (h.Inc, h.Access, true); }
+        public bool PidExists(int pid) => ByPid(pid) is not null;
+        public int LastErrorCode(int fallback) => fallback;
     }
 
     private static Task NoDelay(TimeSpan _, CancellationToken token) { token.ThrowIfCancellationRequested(); return Task.CompletedTask; }
@@ -133,7 +135,10 @@ internal static class OwnedProcessHandleBindingChecks
             Check(denied == OwnedProcessTerminationResult.OpenDenied && t.OpenHandles == 0, "terminate right denied => OpenDenied");
             var t2 = new Table(); t2.Add(new Inc { Pid = Pid, TerminateOpenDenied = true, QueryDenied = true });
             var unverified = await OwnedProcessTermination.TerminateAsync(t2, Pid, Game, Old, NoDelay, CancellationToken.None);
-            Check(unverified == OwnedProcessTerminationResult.NotVerified, "nothing verifiable => NotVerified");
+            Check(unverified == OwnedProcessTerminationResult.QueryFailed, "PID present but unreadable => QueryFailed (original PROCESS_QUERY_FAILED)");
+            var t2b = new Table(); t2b.Add(new Inc { Pid = Pid, QueryDenied = true });
+            var unreadable = await OwnedProcessTermination.TerminateAsync(t2b, Pid, Game, Old, NoDelay, CancellationToken.None);
+            Check(unreadable == OwnedProcessTerminationResult.QueryFailed && t2b.All[0].TerminateCalls == 0 && t2b.OpenHandles == 0, "unreadable image with an open handle => QueryFailed");
             var t3 = new Table(); t3.Add(new Inc { Pid = Pid, TerminateFails = true });
             var failed = await OwnedProcessTermination.TerminateAsync(t3, Pid, Game, Old, NoDelay, CancellationToken.None);
             Check(failed == OwnedProcessTerminationResult.TerminateFailed && t3.OpenHandles == 0, "terminate failure while alive");
@@ -142,6 +147,13 @@ internal static class OwnedProcessHandleBindingChecks
             var vanished = await OwnedProcessTermination.TerminateAsync(t4, Pid, Game, Old, NoDelay, CancellationToken.None);
             Check(vanished == OwnedProcessTerminationResult.NotVerified, "terminate failed because the process just exited");
             done.Add("access-and-terminate-failures-classified");
+        }
+        // awaitExit:false returns right after TerminateProcess (0x41d84b does not wait)
+        {
+            var t = new Table(); t.Add(new Inc { Pid = Pid, ExitAfterWaits = int.MaxValue });
+            var r = await OwnedProcessTermination.TerminateAsync(t, Pid, Game, null, NoDelay, CancellationToken.None, awaitExit: false);
+            Check(r == OwnedProcessTerminationResult.Terminated && t.All[0].Alive && t.OpenHandles == 0, "no exit wait");
+            done.Add("terminate-without-exit-wait");
         }
         // absent PID
         {
