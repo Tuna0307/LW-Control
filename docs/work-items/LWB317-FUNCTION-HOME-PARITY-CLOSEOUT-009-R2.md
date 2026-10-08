@@ -1,0 +1,30 @@
+# LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2
+
+Status: **READY / PROJECT-LEAD ASSIGNED**, 2026-10-08. Parent 009/R1: **PARTIAL / CHANGES_REQUIRED**, with bounded R1 safety fixes accepted.
+
+Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`; branch `research/offline-controller`.
+Reviewed worker checkpoint: `17095dc1e250f5ad907110db80d695dcc2c82f5b`. Start from its current descendant with this review; never reset.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, A→A/background-only directions, original 009 and R1 assignments, worker R1 report/continuation, and `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-LEAD.md`. New lead evidence: the 009 packet's `r1/lead-review-2026-10-08/` directory. The full scope below is assigned; no additional milestone approval is required.
+
+## Preserve
+
+Keep R1 captured-exit restoration gates and retryable journals, handle-bound identity, issuing-session cleanup fencing and source-backed closeUnmanaged. Keep accepted R3 profile/run ownership, 007/R1 Resource staging cancellation/query fixes, current binding/world readiness, source/local UI, original reference/scripts, archived Resource data and all old failures/results. Original target stays hash-matched 0.3.17; current-client adaptations must preserve observable behavior. Never introduce a fallback or fabricate success.
+
+## Sequential checkpoints
+
+**A — finish local launch/rollback/report recovery (LEAD009R1-03).** Decode finalizer `0x1DDDE3`, launcher stage `0x1DC2BC–0x1DCDA0`, post-connect `0x1E71D6/0x23C1E4/0x23FAC5`. Trace async success/error/cancellation, launcher-restart attempts/caps, ticket/report/PID checks and cleanup outcomes. Preserve source locators and finite obligations. Protected input fields can remain unavailable; local consuming branches and return paths are still assigned static work.
+
+**B — finish profile/restart recovery (LEAD009R1-03).** Decode `0x203B30–0x2043C8`, reason producer `0x2A0CB7` and relevant `0x241836` path, and original `{profileId,error}` contents around `0x203C5F/0x203CA8/0x31EF22`. Determine reachable primary-profile restart/ordering/error behavior. Compare actual profile/native/App boundaries; do not equate a single selected-profile implementation to all-profile original iteration. Keep genuine missing multi-lease/entitlement inputs explicit; do not obtain service credentials or bypass access controls.
+
+**C — remove extra native Auto Launch gate (LEAD009R1-01).** Lead decision is to match the original. Remove the production `autoLaunchAll && native AutoLaunchGame` admission difference while preserving UI local preference → explicit payload intent. First audit all fixture/pilot/mounted-host callers relying on native=false as launch suppression, and move protection to explicit inert providers or isolated host-only test admission. Do not turn any automated test into a live launch. Extend the actual production handler comparison across true/false/missing/nonboolean payloads, persisted native values, supported profile/restart states, failures and repeated calls. Preserve current preference ownership; do not redesign the switch or its labels.
+
+**D — align equivalent readiness boundaries (LEAD009R1-02).** Map current launcher report/game PID handoff to the recovered original post-report 90,000 ms bridge-connect window, wall-clock provenance, registry refresh and final lookup. Separate acquisition/official-update timing and outer helper supervision instead of replacing a global 120 with 90. Implement the source-proven observable rule where mapping is established and record unresolved event mapping separately. Use actual production controlled clocks/launcher/RPC seams: early/late spawn, ready before/at/after deadline, final registration, backward/forward clock movement, rejection/cancellation, wrong PID/session and teardown. Preserve authentication/lease/readiness and restoration correctness. A live stopwatch measurement is not a prerequisite for testing already recovered timer arithmetic.
+
+**E — full coupled verification and honest closure.** Reconcile these policies with Home recovery and Map ownership: pending launch/Stop/profile replacement, late old success/rejection, interrupted repair/restart, A→B→A, Home Close during Map scan and task teardown. Maintain independent original-contract comparators and immutable before/after proofs. No oracle repinning from the new clone or extra normalization to conceal mismatches. Rerun affected native/Home/profile/Map tests, 230-case normalized regression with its limits, mounted App EN/light/JA/dark, canonical frontend/build/package, Release builds/publish, current compatibility and preservation checks. Fix a genuinely stale harness where needed without erasing its historical failure.
+
+**F — deliver the whole ready scope.** Audit the integrated diff and update current masters/matrix/ledger/handoff, finite semantic obligations, progress, queue, continuation and dated review. Remaining local undecoded code is INCOMPLETE, not external BLOCKED or COMPLETE. Record exact attempts/next action if interrupted; continue independent ready branches. Produce one final owner relay with scoped acceptance evidence and exact static/external/live dependencies.
+
+Work alone: no subagents, other AI chats, GPT Work or Codex delegation. This task is headless/static/inert, not a new live pilot. No game launch/Stop, owner installation/config/runtime mutation, screenshots/snapshots/input/focus via any tool, protected service/access bypass, credentials, gameplay/updater actions. The existing owner's game must remain untouched. Use explicit temporary roots and controlled providers/process/helper seams; remove only task-owned resources.
+
+No artificial duration quota or per-checkpoint relay. Commit coherent sequential milestones, run applicable checks, push normally and verify direct remote SHA. Never force-push/reset unrelated work. Return **AWAITING_REVIEW** only with complete ready assigned scope or an honest PARTIAL interruption/exact dependency packet; all full original Home/Map and LIVE_PROVEN promotions remain project-lead decisions.

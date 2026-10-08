@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1
 
-Status: **AWAITING_REVIEW** (worker report: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-WORKER.md), 2026-10-08. Parent 009: **PARTIAL / CHANGES_REQUIRED**.
+Status: **PARTIALLY_ACCEPTED / CHANGES_REQUIRED — independent lead review**, 2026-10-08. Reviewed worker `17095dc1e250f5ad907110db80d695dcc2c82f5b`: bounded restoration/handle/issuing-session fixes accepted; known Auto Launch/readiness differences and undecoded static branches remain. Continue `LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2.md`; see `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-LEAD.md`. Parent 009 remains PARTIAL.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`.

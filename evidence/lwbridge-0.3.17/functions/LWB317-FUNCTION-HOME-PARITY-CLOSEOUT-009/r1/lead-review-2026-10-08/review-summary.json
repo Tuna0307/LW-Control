@@ -1,0 +1,20 @@
+{
+  "reviewedCheckpoint": "17095dc1e250f5ad907110db80d695dcc2c82f5b",
+  "decision": "PARTIALLY_ACCEPTED / CHANGES_REQUIRED",
+  "accepted": "bounded restoration, handle-binding, issuing-session corrections; not full campaign/original/live parity",
+  "checksPassed": 28,
+  "checksTotal": 28,
+  "productionReconcileAdmissionMismatches": 1,
+  "boundedActualReadinessTimingMismatches": 2,
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "verificationScratchRemoved": true,
+  "productSourceChangedByLead": false,
+  "newGameLaunches": 0,
+  "ownerGameTouched": false,
+  "desktopCaptureOrInput": false,
+  "remaining": [
+    "LEAD009R1-01 extra native gate",
+    "LEAD009R1-02 readiness boundary",
+    "LEAD009R1-03 undecoded local branches"
+  ]
+}

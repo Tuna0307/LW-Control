@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "cases": [
+    "legitimate-termination-awaited-on-handle",
+    "same-path-replacement-refused",
+    "different-path-replacement-refused",
+    "replacement-after-validation-only-reaches-opened-handle",
+    "unreadable-creation-refused",
+    "access-and-terminate-failures-classified",
+    "terminate-without-exit-wait",
+    "absent-pid-not-verified",
+    "cancel-during-exit-wait-closes-handle",
+    "updater-path-only-identity",
+    "service-error-code-mapping-preserved",
+    "win32-format-matches-process-starttime-readonly"
+  ]
+}

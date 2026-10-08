@@ -1,0 +1,70 @@
+You are the solo worker continuing LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Reviewed R1 checkpoint: 17095dc1e250f5ad907110db80d695dcc2c82f5b.
+Start from the current descendant with the new lead review; do not reset.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, current owner directions, and:
+docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-LEAD.md
+docs/work-items/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2.md
+The complete R2 work item assigns checkpoints A-F. Complete them together,
+through sequential durable milestones, with one final owner relay.
+
+The lead independently reran all 28 verification commands successfully and
+ACCEPTED the bounded R1 restoration/handle-binding/issuing-session fixes.
+Preserve those fixes. Campaign closure remains CHANGES_REQUIRED.
+
+Lead decisions and outstanding work:
+
+1. Remove the extra production native AutoLaunchGame AND-gate. The original
+decision uses UI intent/payload, not a second persisted native preference.
+The actual lead handler probe reproduced request=true/native=false admitting
+zero helpers instead of one. Protect fixtures and pilot hosts using inert
+providers or explicit host-only test admission, never altered product behavior.
+Audit all callers relying on the old safety seed before changing it; do not
+allow any test to launch the real game. This is the lead decision, not an
+unanswered owner approval question.
+
+2. Finish the local finalizer 0x1DDDE3, launcher 0x1DC2BC-0x1DCDA0, reconcile
+recovery sub-path 0x203B30-0x2043C8, restartRequired producer 0x2A0CB7,
+post-connect report 0x1E71D6/0x23C1E4/0x23FAC5 and original error-entry content.
+These remain available static work, not completed or automatically blocked
+because some surrounding inputs originate from a protected service.
+
+3. Map and align readiness at equivalent production boundaries. Original:
+90 seconds after launcher report, recovered clock/poll/final-lookup behavior.
+Current: one 120-second wait from launcher start. Two controlled actual-wait
+cases produce different outcomes. Separate acquisition, bridge connection and
+helper supervision; do not just replace a global constant. Preserve session,
+lease, authentication and restoration gates. Use controlled clocks/providers;
+future live event mapping is separate from the already recovered timer rule.
+
+4. Complete affected primary-profile restart/intent, Home recovery and Map
+lifetime comparisons. Test late responses and held effects, Stop/Close during
+launch/recovery/scan, profile replacement, A-B-A and teardown. Preserve R3,
+007/R1 Resource cancellation/query behavior, UI, current-client bindings and
+all historical negative evidence. No fallback or invented original behavior.
+
+New lead proof is in the 009 evidence packet's r1/lead-review-2026-10-08/.
+Keep those negatives unchanged; write new R2 before/after results. Record exact
+original locators and distinguish reconstructed original, current adaptation
+and live evidence. Passing general suites alone does not close differences.
+
+Work alone: no subagents/other AI chats/GPT Work/Codex delegation. This task
+is static/headless/inert: no game launch/Stop, owner-state mutation, desktop
+capture/input/focus via any tool, protected-service access/bypass, credentials
+or gameplay/updater actions. Leave the owner's existing game untouched.
+
+Run applicable native/Home/profile/Map, mounted-App EN/light and JA/dark,
+source-contract, compatibility, frontend/build/package/Release/preservation
+checks. Audit the full diff; update current status/finite obligations honestly.
+Commit/push coherent checkpoints and verify direct remote SHA. Never force-push
+or discard unrelated work. Continue ready branches without per-milestone relay
+or artificial duration quota. If interrupted, save PARTIAL with exact next action.
+
+Return one AWAITING_REVIEW packet covering the entire ready R2 scope, with
+finding dispositions, independently meaningful comparisons, executed checks,
+commits, exact remaining dependencies and continuation. Do not call undecoded
+assigned local code complete. Full original Home/Map parity remains PARTIAL
+until separately accepted by the lead.

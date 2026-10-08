@@ -1,0 +1,24 @@
+{
+  "scope": "actual current wait with virtual clock versus original recovered 90-second post-launch-report deadline; not original/live execution",
+  "source": "home009_launch_contract.py and r1/launch-readiness-recovery.md, original 0x1DD114/0x1DD119",
+  "cases": [
+    {
+      "gamePidReportSeconds": 5.0,
+      "validConnectionEventSeconds": 100.0,
+      "originalDeadlineSeconds": 95.0,
+      "currentDeadlineSeconds": 120.0,
+      "reconstructedOriginalOutcome": "timeout",
+      "actualCurrentWaitOutcome": "success",
+      "mismatch": true
+    },
+    {
+      "gamePidReportSeconds": 70.0,
+      "validConnectionEventSeconds": 150.0,
+      "originalDeadlineSeconds": 160.0,
+      "currentDeadlineSeconds": 120.0,
+      "reconstructedOriginalOutcome": "success",
+      "actualCurrentWaitOutcome": "timeout",
+      "mismatch": true
+    }
+  ]
+}

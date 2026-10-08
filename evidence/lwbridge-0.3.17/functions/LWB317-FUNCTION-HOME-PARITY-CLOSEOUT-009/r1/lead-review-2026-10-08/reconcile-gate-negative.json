@@ -1,0 +1,34 @@
+{
+  "scope": "actual current reconcile with inert helper versus source-recovered admission; not original/live execution",
+  "cases": [
+    {
+      "autoLaunchAll": false,
+      "nativeAutoLaunchGame": false,
+      "expectedHelperCalls": 0,
+      "actualHelperCalls": 0,
+      "mismatch": false
+    },
+    {
+      "autoLaunchAll": true,
+      "nativeAutoLaunchGame": false,
+      "expectedHelperCalls": 1,
+      "actualHelperCalls": 0,
+      "mismatch": true
+    },
+    {
+      "autoLaunchAll": false,
+      "nativeAutoLaunchGame": true,
+      "expectedHelperCalls": 0,
+      "actualHelperCalls": 0,
+      "mismatch": false
+    },
+    {
+      "autoLaunchAll": true,
+      "nativeAutoLaunchGame": true,
+      "expectedHelperCalls": 1,
+      "actualHelperCalls": 1,
+      "mismatch": false
+    }
+  ],
+  "newGameLaunches": 0
+}
