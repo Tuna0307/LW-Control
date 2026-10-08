@@ -1,0 +1,97 @@
+{
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "capstone": "5.0.7",
+  "originalMethods": [
+    {
+      "role": "stop-close",
+      "start": 939813,
+      "end": 940164,
+      "init": 939919,
+      "loop": 939924,
+      "limit": 939926,
+      "test": 939954,
+      "timer": 939979,
+      "delaycall": 939985,
+      "pollcall": 940012,
+      "timeout": 940049,
+      "error": 940065,
+      "success": 940039,
+      "ready": 940137,
+      "iterationCap": 100,
+      "timerNanoseconds": 100000000,
+      "nominalBudgetMilliseconds": 10000,
+      "readyStateByteOffset": "0xA0",
+      "onProcessCheckFalse": "ready branch without waiting",
+      "onProcessCheckTrue": "schedule timer and poll; repeat while ready timer and count<100",
+      "onExhaustion": "The game did not close in time.",
+      "unresolved": "process checker inputs/native cause of process close and cancellation provenance"
+    },
+    {
+      "role": "reconcile-close",
+      "start": 1956996,
+      "end": 1957347,
+      "init": 1957102,
+      "loop": 1957107,
+      "limit": 1957109,
+      "test": 1957137,
+      "timer": 1957162,
+      "delaycall": 1957168,
+      "pollcall": 1957195,
+      "timeout": 1957232,
+      "error": 1957248,
+      "success": 1957222,
+      "ready": 1957320,
+      "iterationCap": 100,
+      "timerNanoseconds": 100000000,
+      "nominalBudgetMilliseconds": 10000,
+      "readyStateByteOffset": "0xA0",
+      "onProcessCheckFalse": "ready branch without waiting",
+      "onProcessCheckTrue": "schedule timer and poll; repeat while ready timer and count<100",
+      "onExhaustion": "The game did not close in time.",
+      "unresolved": "process checker inputs/native cause of process close and cancellation provenance"
+    }
+  ],
+  "timerUnitProof": {
+    "function": "0x641035-0x6410b4",
+    "comparisonRva": "0x64105a",
+    "nanosecondsPerSecond": 1000000000
+  },
+  "semanticContractOracleCases": [
+    {
+      "firstAbsentCheck": 1,
+      "outcome": "READY_PROCESS_ABSENT",
+      "completedWaitsBeforeExit": 0
+    },
+    {
+      "firstAbsentCheck": 2,
+      "outcome": "READY_PROCESS_ABSENT",
+      "completedWaitsBeforeExit": 1
+    },
+    {
+      "firstAbsentCheck": 99,
+      "outcome": "READY_PROCESS_ABSENT",
+      "completedWaitsBeforeExit": 98
+    },
+    {
+      "firstAbsentCheck": 100,
+      "outcome": "READY_PROCESS_ABSENT",
+      "completedWaitsBeforeExit": 99
+    },
+    {
+      "firstAbsentCheck": 101,
+      "outcome": "READY_ERROR_TIMEOUT",
+      "completedWaitsBeforeExit": 100
+    }
+  ],
+  "production": {
+    "source": "tools/run_live_resource_probe.py:close_owned_game_process_for_restore",
+    "defaultWaitMilliseconds": 10000,
+    "processProof": "exact PID/path/startTime guarded; normal CloseMainWindow and WaitForExit bounded; no forced kill",
+    "scope": "CURRENT_CLIENT_IMPLEMENTATION_COMPARABLE_POLL_BUDGET_NOT_IDENTICAL_NATIVE_ASYNC_ORACLE"
+  },
+  "limits": [
+    "100 * 100ms is an iteration budget; scheduling overhead may make wall clock exceed exactly 10s",
+    "CloseMainWindow current implementation is not proved the original trigger of the native waiting loop",
+    "Timer wake and process enumeration are asynchronous; no original post-auth execution performed"
+  ]
+}
