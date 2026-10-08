@@ -1,6 +1,9 @@
 # LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1
 
-Status: **AWAITING_REVIEW / R1 WORKER DELIVERED — ORIGINAL A→A PARTIAL**, 2026-10-08.
+Status: **PARTIALLY_ACCEPTED / R007-02 AND R007-03 ACCEPTED; R007-01 OPEN**, 2026-10-08.
+Project-lead review: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1-LEAD.md.
+Continue only available Home semantic recovery under LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008.
+Full Home/Map remains PARTIAL. Historical worker summary below is retained.
 R1 summary: original native static Home ranges/callees investigated (inner 0.3.17 timeout/retry unknown); production Resource late canceled-run staging defect reproduced and corrected with four actual engine/sink/Stop/SQLite cases; mounted actual App inert-bridge A/B/A with rejected/fulfilled deferred requests passes 20 cases; preservation and honest launch/scope metadata validated. Report: `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1-WORKER.md`; evidence under R1 subtree, including exact unresolved continuation. Historical 007 work item/lead disposition remain immutable.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller

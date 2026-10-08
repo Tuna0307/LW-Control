@@ -1,6 +1,9 @@
 # LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007
 
-Status: **CHANGES_REQUIRED / PROJECT-LEAD REVIEW COMPLETE**, 2026-10-08.
+Status: **PARTIAL / BOUNDED QUERY AND R1 CANCELLATION-INTEGRATION FIXES ACCEPTED**, 2026-10-08.
+Latest review: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1-LEAD.md.
+R007-01 remains OPEN under LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008.
+Earlier review directions below are historical where inconsistent.
 Accepted bounded query corrections and real-data/inert proofs remain preserved.
 Continue only R007-01/02/03 under LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1.
 See docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-LEAD.md.

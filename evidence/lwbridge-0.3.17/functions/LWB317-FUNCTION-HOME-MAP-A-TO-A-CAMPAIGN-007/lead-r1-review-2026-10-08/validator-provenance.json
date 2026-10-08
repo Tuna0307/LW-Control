@@ -1,0 +1,5 @@
+{
+  "sourceSha256": "5edefd5a899fce5fcc05fba2fda6d2b1166c93b5fdfc17576d09d47db0a0aac0",
+  "change": "Only output destination redirected; assertions and inputs unchanged.",
+  "limit": "Metadata consistency and preservation do not prove original Home semantics."
+}

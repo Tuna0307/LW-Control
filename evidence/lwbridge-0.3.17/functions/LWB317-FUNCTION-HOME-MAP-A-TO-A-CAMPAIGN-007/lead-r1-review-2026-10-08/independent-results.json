@@ -1,0 +1,81 @@
+{
+  "reviewedCheckpoint": "57fc69b0219e5c2457ba13d0a24bb7acc3a58de3",
+  "decision": "PARTIALLY_ACCEPTED",
+  "findingDispositions": {
+    "R007-01": "OPEN_READY_HOME_NATIVE_SEMANTICS_008",
+    "R007-02": "ACCEPTED_PRODUCTION_INERT_SCOPE",
+    "R007-03": "ACCEPTED_MOUNTED_INERT_METADATA_SCOPE"
+  },
+  "freshChecks": [
+    {
+      "command": "Release Desktop.Checks build --no-restore",
+      "exit": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "command": "--campaign007-r1-engine-sink",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "--campaign007-positive-stage-cancel",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "--map317-native-boundary-check",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "--map-campaign-canonical-check",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "--profile-runtime-owner-check",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "--home-campaign-lifecycle-check",
+      "runner": "fresh Release Desktop.Checks",
+      "exit": 0
+    },
+    {
+      "command": "dotnet run tests/LWBridge.Map-0.3.17.Checks -c Release --no-restore",
+      "exit": 0
+    },
+    {
+      "command": "check-campaign007-r1-mounted-app-profiles.mjs",
+      "exit": 0,
+      "cases": 20,
+      "transport": "inert; archived real payload"
+    },
+    {
+      "command": "npm frontend check",
+      "exit": 0
+    },
+    {
+      "command": "npm check:production-build",
+      "exit": 0
+    },
+    {
+      "command": "unchanged R1 preservation validator; output redirected",
+      "exit": 0,
+      "metadataProbes": 6
+    },
+    {
+      "command": "verify-native-bytes-and-history.py",
+      "exit": 0,
+      "nativeSlices": 129,
+      "historicalFiles": 77
+    }
+  ],
+  "homeMapParity": "PARTIAL",
+  "leadGameLaunches": 0,
+  "leadDesktopActions": 0,
+  "livePositiveStagedStop": false,
+  "nextTask": "LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008"
+}
