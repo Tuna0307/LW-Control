@@ -1,0 +1,160 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-PIPE-CONNECT-003",
+  "allThreeRestored": true,
+  "oldReflectionUnconnected": true,
+  "directDelegateHostAuthenticated": true,
+  "genuineFinalGetStatusRpc": true,
+  "resourceBlockedByWorldReadiness": true,
+  "canonicalUiProof": false,
+  "attempts": [
+    {
+      "attempt": 1,
+      "route": "reflection",
+      "delegateValueType": "userdata",
+      "nativeStages": [],
+      "authenticated": false,
+      "authenticatedSessions": 0,
+      "connectedRoutes": 0,
+      "genuineGetStatusRpc": false,
+      "world": null,
+      "restorationVerified": true,
+      "sqliteRows": {
+        "scanRuns": 0,
+        "scanBlocks": 0,
+        "resourceScanRecords": 0,
+        "resourcePublishedRows": 0
+      },
+      "resourceStarted": false
+    },
+    {
+      "attempt": 2,
+      "route": "delegate_direct_once",
+      "delegateValueType": "userdata",
+      "nativeStages": [],
+      "authenticated": true,
+      "authenticatedSessions": 1,
+      "connectedRoutes": 1,
+      "genuineGetStatusRpc": false,
+      "world": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": false,
+        "homeServerId": 2212,
+        "seasonServerIds": [],
+        "truckMatchServerIds": [
+          2197,
+          2208,
+          2211,
+          2212
+        ]
+      },
+      "restorationVerified": true,
+      "sqliteRows": {
+        "scanRuns": 0,
+        "scanBlocks": 0,
+        "resourceScanRecords": 0,
+        "resourcePublishedRows": 0
+      },
+      "resourceStarted": false
+    },
+    {
+      "attempt": 3,
+      "route": "delegate_direct_once",
+      "delegateValueType": "userdata",
+      "nativeStages": [
+        "begin_connect_entry",
+        "native_startup",
+        "worker_created",
+        "worker_start_called",
+        "worker_entry",
+        "wait_named_pipe_success",
+        "native_pipe_opened",
+        "hello_frame_written",
+        "worker_connected"
+      ],
+      "authenticated": true,
+      "authenticatedSessions": 1,
+      "connectedRoutes": 1,
+      "genuineGetStatusRpc": true,
+      "world": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": false,
+        "homeServerId": 2212,
+        "seasonServerIds": [],
+        "truckMatchServerIds": [
+          2197,
+          2208,
+          2211,
+          2212
+        ]
+      },
+      "restorationVerified": true,
+      "sqliteRows": {
+        "scanRuns": 0,
+        "scanBlocks": 0,
+        "resourceScanRecords": 0,
+        "resourcePublishedRows": 0
+      },
+      "resourceStarted": false
+    }
+  ]
+}

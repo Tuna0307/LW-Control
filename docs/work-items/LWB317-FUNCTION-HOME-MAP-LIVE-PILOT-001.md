@@ -1,6 +1,17 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
 Status: **PARTIAL CHECKPOINT / BACKGROUND-ONLY CONTINUATION**, 2026-10-08.
+**2026-10-08 PIPE-CONNECT-003 worker checkpoint:** current-client game
+adapter reflection invocation repaired by a single direct xLua userdata
+delegate call; three isolated live attempts and independent audit establish
+actual native pipe open, hello write, host authenticated ACK and a genuine
+production `getStatus` RPC. Production Map identifies live server 2212
+but `isInWorld=false`: Resource was correctly not started. All sessions
+stopped by exact production ownership and original installed scripts and
+journals restored. Evidence and next dependencies in
+`background-pipe-connect-003/checkpoint-B.md`. Parent remains PARTIAL;
+Resource and canonical UI acceptance still unproven.
+
 
 The lead preserved attempt-5 evidence at product checkpoint b1f75a25, restored
 all three original script files through the production recovery helper, and

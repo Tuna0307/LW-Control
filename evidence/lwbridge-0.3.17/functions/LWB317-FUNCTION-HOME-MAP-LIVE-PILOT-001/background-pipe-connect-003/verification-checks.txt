@@ -1,0 +1,19 @@
+Start 2026-10-08T10:41:20.9815428+08:00 HEAD=f6555511
+current-delegate-lupa exit=0 passed=True elapsed=0.2
+file-ownership exit=0 passed=True elapsed=0.4
+lua-lease exit=0 passed=True elapsed=0.2
+canonical-frontend-and-Release-build exit=0 passed=True elapsed=9.7
+overview-bridge-host-transport-check exit=0 passed=True elapsedSeconds=14.2
+overview-bridge-isolated-handshake-check exit=0 passed=True elapsedSeconds=14
+overview-bridge-rpc-session-transport-check exit=0 passed=True elapsedSeconds=14.1
+overview-status-transport-check exit=0 passed=True elapsedSeconds=34.8
+map317-native-boundary-check exit=0 passed=True elapsedSeconds=14.6
+production-root-isolation-check exit=0 passed=True elapsedSeconds=14.5
+overview-bridge-lifecycle-launch-binding-check exit=0 passed=True elapsedSeconds=14.5
+canonical-frontend-and-Release-package exit=0 passed=True elapsedSeconds=9.3
+package-file LWBridge.Desktop.exe exists=True
+package-file OverviewBridge\LWBridge.GamePipeAdapter.dll exists=True
+package-file OverviewBridge\current_overview_bridge.lua exists=True
+package-file ProductionUi\index.html exists=True
+packaged-adapter-sha256=0a89940a5b8edb9f3ef180ead583259fe85cbe1216b7d32b92beed91906eec7a matches-source-release=True
+current-client-read-only-contract exit=0 passed=True contentVersion=22 versionMarker=22

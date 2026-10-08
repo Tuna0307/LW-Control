@@ -1,0 +1,9 @@
+2026-10-08T02:40:10.1679306Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=begin_connect_entry|detail=runtimeDirMatches=True
+2026-10-08T02:40:10.1700409Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=native_startup|detail=stateFileExists=True
+2026-10-08T02:40:10.1710405Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=worker_created
+2026-10-08T02:40:10.1720412Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=worker_start_called
+2026-10-08T02:40:10.1730410Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=worker_entry
+2026-10-08T02:40:10.1805604Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=wait_named_pipe_success
+2026-10-08T02:40:10.1815571Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=native_pipe_opened
+2026-10-08T02:40:10.1825569Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=hello_frame_written
+2026-10-08T02:40:10.1825569Z|pid=50384|session=b0bd1d42fe7447d0b800c4abef2460fb|stage=worker_connected

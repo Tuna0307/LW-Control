@@ -30,6 +30,32 @@ Original Lua plaintext still input-blocked; native tests do not replace
 canonical UI Home/Map click/visual/manual Stop/reopen acceptance, which is
 pending separately authorised interaction. Parent pilot remains **PARTIAL**.
 
+## 2026-10-08 — BACKGROUND-PIPE-CONNECT-003 (AWAITING_REVIEW)
+
+Corrected a demonstrated current-client integration failure:
+in actual Last War xLua the `Action<string,string,string>`
+`PipeClientAdapter.Connect` value is `userdata`. The previous
+`MethodInfo.Invoke` path reported Lua `pcall` success but no native
+entry/state and no host authentication. A direct **single** delegate call
+(with no void/nil retry) resolves the gap. Three fresh isolated live
+attempts include before/after negative and positive packet evidence,
+session-bound native worker/open/hello-write receipts, host authenticated
+ACK and a genuine production `getStatus` RPC. Read
+`evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/background-pipe-connect-003/checkpoint-A.md`,
+`checkpoint-B.md` and `read-only-audit.json`.
+
+Both repaired live runs prove current server 2212, but the real game
+is **not in the world scene** (`isInWorld=false`). No Resource scan,
+capture/Stop run, publication/export or canonical visual test is
+claimed. Those depend on legitimately entering the world view; desktop
+input/capture/focus remains prohibited until owner resumption.
+All three owned sessions were stopped through the production exact
+identity boundary, original scripts restored and journals cleared;
+final process inventory zero. All affected Lua/helper/.NET checks,
+canonical frontend/Release build and publish package pass. Existing
+City-only exporter and original encrypted controller restrictions
+unchanged. Parent LIVE-PILOT-001 remains PARTIAL. No new delegated task
+or owner desktop interaction was initiated.
 # Current live-test handoff — strict parity phase
 
 ## Current 2026-10-08 background-only checkpoint
