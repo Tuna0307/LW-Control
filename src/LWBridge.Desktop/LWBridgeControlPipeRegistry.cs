@@ -17,6 +17,7 @@ internal sealed class LWBridgeControlPipeRegistry
     private readonly Dictionary<string, PendingRegistration> pending = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ConnectedRoute> connected = new(StringComparer.Ordinal);
     private ulong connectionGeneration;
+    private ulong registrationSerial;
 
     internal LWBridgeControlPipeRegistry(ulong initialGeneration = 0)
     {
@@ -33,7 +34,9 @@ internal sealed class LWBridgeControlPipeRegistry
         get { lock (gate) return connected.Count; }
     }
 
-    public void Register(
+    // Returns the monotonic serial of the new registration. A retiring owner can
+    // later unregister exactly that registration, never a successor's.
+    public ulong Register(
         string profileId,
         string instanceId,
         string token,
@@ -60,11 +63,14 @@ internal sealed class LWBridgeControlPipeRegistry
                     "named pipe instance is already registered");
             }
 
+            ulong serial = ++registrationSerial;
             pending.Add(instanceId, new PendingRegistration(
                 profileId,
                 tokenHash,
                 expiresAtMilliseconds,
-                Claimed: false));
+                Claimed: false,
+                Serial: serial));
+            return serial;
         }
     }
 
@@ -128,7 +134,7 @@ internal sealed class LWBridgeControlPipeRegistry
                 pending[instanceId] = registration with { Claimed = true };
 
             generation = NextGeneration();
-            connected[instanceId] = new ConnectedRoute(instanceId, generation, route);
+            connected[instanceId] = new ConnectedRoute(instanceId, generation, route, registration.Serial);
             return true;
         }
     }
@@ -175,6 +181,30 @@ internal sealed class LWBridgeControlPipeRegistry
         }
     }
 
+    // Registration-scoped unregister: removes the pending record and any route
+    // admitted through that exact registration only. A stale owner whose
+    // registration was already replaced is a no-op.
+    public bool Unregister(string instanceId, ulong registrationSerial)
+    {
+        lock (gate)
+        {
+            bool removed = false;
+            if (pending.TryGetValue(instanceId, out PendingRegistration? registration) &&
+                registration.Serial == registrationSerial)
+            {
+                pending.Remove(instanceId);
+                removed = true;
+            }
+            if (connected.TryGetValue(instanceId, out ConnectedRoute? route) &&
+                route.RegistrationSerial == registrationSerial)
+            {
+                connected.Remove(instanceId);
+                removed = true;
+            }
+            return removed;
+        }
+    }
+
     private ulong NextGeneration()
     {
         if (connectionGeneration != ulong.MaxValue)
@@ -189,10 +219,12 @@ internal sealed class LWBridgeControlPipeRegistry
         string ProfileId,
         byte[] TokenHash,
         long ExpiresAtMilliseconds,
-        bool Claimed);
+        bool Claimed,
+        ulong Serial);
 }
 
 internal sealed record ConnectedRoute(
     string InstanceId,
     ulong Generation,
-    object Route);
+    object Route,
+    ulong RegistrationSerial = 0);

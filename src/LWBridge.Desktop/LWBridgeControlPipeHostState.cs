@@ -394,7 +394,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
 
     // HOME009 R3 C: re-create ONLY an exact original token from a current-user
     // protected prior successful launch. Do not mint a new identity for a live game.
-    internal void RestoreLaunchBinding(
+    internal ulong RestoreLaunchBinding(
         OverviewAdoptionSnapshot record, long nowMilliseconds)
     {
         ArgumentNullException.ThrowIfNull(record);
@@ -405,7 +405,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         lock (gate)
         {
             ThrowIfStopped();
-            registry.Register(record.ProfileId, record.InstanceId, record.PipeToken,
+            return registry.Register(record.ProfileId, record.InstanceId, record.PipeToken,
                 checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds));
         }
     }
@@ -450,6 +450,14 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         // Explicit launch-failure cleanup remains legal while the host is
         // stopping, matching the recovered unregister cleanup futures.
         registry.Unregister(instanceId);
+    }
+
+    // Registration-scoped retirement for a restored (adopted) binding: a late
+    // owner can remove only the exact registration it created.
+    internal bool CancelLaunchBinding(string instanceId, ulong registrationSerial)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        return registry.Unregister(instanceId, registrationSerial);
     }
 
     internal LWBridgeControlPipeRegistry RequireActiveRegistry()

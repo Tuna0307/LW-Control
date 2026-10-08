@@ -187,6 +187,8 @@ internal static class OverviewAdoptionChecks
             await TestProfileAbaAndCancelledAdoptionAsync(root, gameRoot, game, record, encoded, passed);
             await TestDeferredAdoptionReadinessAsync(root, gameRoot, game, record, encoded, passed);
             await TestExplicitStopAndOutdatedRepairAsync(root, gameRoot, game, record, encoded, passed);
+            await TestRetiredAdoptionCannotDisableSuccessorAsync(root, passed);
+            TestRegistrationScopedRetirement(record, passed);
             return JsonSerializer.SerializeToElement(new
             {
                 ok = true, tests = passed, count = passed.Count, gameLaunches = 0,
@@ -489,6 +491,186 @@ internal static class OverviewAdoptionChecks
                 passed.Add("adopted-session-explicit-stop-record-cleanup");
             }
         }
+    }
+
+
+    // LEAD009R3-01: held adoption -> Stop -> successful new Start -> late old
+    // completion (success-delay, fault, cancellation; before and after the new
+    // Start). The successor must keep its lease timer, keep RENEWING its lease,
+    // keep its registration and published state; the old attempt must still be
+    // retired with its own exact-owner file cleanup.
+    private static async Task TestRetiredAdoptionCannotDisableSuccessorAsync(
+        string taskRoot, List<string> passed)
+    {
+        foreach (string outcome in new[] { "released", "faulted", "cancelled" })
+        foreach (bool afterNewStart in new[] { false, true })
+        {
+            string root = Path.Combine(taskRoot, $"successor-{outcome}-{(afterNewStart ? "late" : "early")}");
+            string gameRoot = Path.Combine(root, "selected");
+            string runtime = Path.Combine(root, "runtime");
+            string backups = Path.Combine(root, "backups");
+            string game = Path.Combine(gameRoot, "Game", "LastWar.exe");
+            Directory.CreateDirectory(Path.GetDirectoryName(game)!);
+            File.WriteAllBytes(game, new byte[] { 77, 90 });
+            Directory.CreateDirectory(runtime);
+            Directory.CreateDirectory(backups);
+            var old = new OverviewAdoptionSnapshot(Profile, Session, Challenge, GamePid, game,
+                StartedAt, OverviewLifecycleService.BridgeVersion, Token,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), true);
+            File.WriteAllBytes(Path.Combine(runtime, OverviewAdoptionRecord.FileName),
+                OverviewAdoptionRecord.Serialize(old));
+            WriteRepair(runtime, backups, old);
+            var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            bool oldAlive = true, newAlive = false;
+            int stage = 0;
+            int helperLaunches = 0, helperStops = 0, successorLeaseWrites = 0, oldLeaseWritesAfterStop = 0;
+            string? newSession = null;
+            OverviewHelperInvocation? current = null;
+            var hooks = new OverviewLifecycleTestHooks
+            {
+                ProcessMatches = (pid, path, started) =>
+                    string.Equals(path, game, StringComparison.OrdinalIgnoreCase) &&
+                    started == StartedAt && ((pid == GamePid && oldAlive) || (pid == 50000 && newAlive)),
+                SelectedGamePids = _ => oldAlive ? new[] { GamePid } : Array.Empty<int>(),
+                RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+                RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+                WriteLease = (session, _, _) =>
+                {
+                    if (session == newSession) Interlocked.Increment(ref successorLeaseWrites);
+                    else if (stage == 1) Interlocked.Increment(ref oldLeaseWritesAfterStop);
+                },
+                DelayAsync = (_, token) =>
+                {
+                    if (stage == 0) { entered.TrySetResult(); return release.Task; }
+                    return Task.Delay(1, token);
+                },
+                ReadAllBytes = path =>
+                {
+                    if (path.EndsWith("heartbeat.json", StringComparison.Ordinal))
+                    {
+                        if (current is null)
+                            return System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1}");
+                        return JsonSerializer.SerializeToUtf8Bytes(new
+                        {
+                            schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                            profileId = Profile, sessionId = current.SessionId,
+                            challenge = current.Challenge, gamePid = 50000,
+                            updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(), ready = true,
+                            messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage
+                        });
+                    }
+                    if (path.EndsWith("game-reported.txt", StringComparison.Ordinal) && current is not null)
+                        return System.Text.Encoding.UTF8.GetBytes(
+                            $"schema=1\nbridgeVersion={OverviewLifecycleService.BridgeVersion}\n" +
+                            $"sessionId={current.SessionId}\nchallenge={current.Challenge}\ngamePid=50000\n" +
+                            $"deadlineMilliseconds={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 90000}\n");
+                    return File.ReadAllBytes(path);
+                },
+                RunHelperAsync = (inv, _) =>
+                {
+                    if (inv.Operation == "stop")
+                    {
+                        Interlocked.Increment(ref helperStops);
+                        oldAlive = false;
+                        File.Delete(Path.Combine(runtime, "recovery.json"));
+                        return Task.FromResult(JsonSerializer.SerializeToElement(new
+                        {
+                            ok = true, mode = "overview_exact_pid_close_restore",
+                            bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                            profileId = Profile, sessionId = inv.SessionId, gamePid = inv.GamePid,
+                            gamePath = inv.GamePath, gameStartedAtUtc = inv.GameStartedAtUtc,
+                            close = new { method = "inert", accepted = true, processExited = true, alreadyExited = false },
+                            restore = new { restored = true }, gameRunning = false, installedFilesChanged = false
+                        }));
+                    }
+                    Interlocked.Increment(ref helperLaunches);
+                    current = inv; newSession = inv.SessionId; newAlive = true;
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    return Task.FromResult(JsonSerializer.SerializeToElement(new
+                    {
+                        ok = true, mode = "overview_install_launch_ready_deferred_restore",
+                        bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = Profile,
+                        sessionId = inv.SessionId,
+                        challengeSha256 = Convert.ToHexString(SHA256.HashData(
+                            System.Text.Encoding.UTF8.GetBytes(inv.Challenge!))).ToLowerInvariant(),
+                        gamePid = 50000, launcherPid = 60000, gamePath = game, gameStartedAtUtc = StartedAt,
+                        gameRunning = true, installedFilesChanged = true,
+                        restore = new { restored = false, deferred = true, stage = "active_ready_deferred_restore" },
+                        ready = new
+                        {
+                            schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                            profileId = Profile, sessionId = inv.SessionId, challenge = inv.Challenge,
+                            gamePid = 50000, ready = true, messageVisible = true,
+                            messageText = OverviewLifecycleService.ReadyMessage, readyAt = now, updatedAt = now
+                        }
+                    }));
+                },
+            };
+            using var holder = new RegistryHolder();
+            using var life = Create(Profile, gameRoot, runtime, backups, root, holder.Host, hooks);
+            string label = $"{outcome}/{(afterNewStart ? "after" : "before")}-new-start";
+            Task<object?> pending = life.InvokeAsync("profile_instances_reconcile",
+                JsonSerializer.SerializeToElement(new { autoLaunchAll = false }), CancellationToken.None);
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            await life.InvokeAsync("profile_instance_stop",
+                JsonSerializer.SerializeToElement(new { profileId = Profile, instanceId = Session }),
+                CancellationToken.None);
+            stage = 1;
+            void Release()
+            {
+                if (outcome == "released") release.TrySetResult();
+                else if (outcome == "faulted") release.TrySetException(new InvalidOperationException("late helper fault"));
+                else release.TrySetCanceled();
+            }
+            if (!afterNewStart) { Release(); await pending; }
+            await life.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }),
+                CancellationToken.None);
+            Check(newSession is not null && life.RuntimeManaged && life.IsReady, label + ": successor not running");
+            var timerField = typeof(OverviewLifecycleService).GetField("leaseTimer",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            Check(timerField.GetValue(life) is not null, label + ": successor timer missing before late completion");
+            if (afterNewStart) { Release(); await pending; }
+            Check(timerField.GetValue(life) is not null,
+                label + ": late retirement of the old attempt disabled the successor lease timer");
+            int before = Volatile.Read(ref successorLeaseWrites);
+            DateTime until = DateTime.UtcNow.AddSeconds(6);
+            while (Volatile.Read(ref successorLeaseWrites) <= before && DateTime.UtcNow < until)
+                await Task.Delay(100);
+            Check(Volatile.Read(ref successorLeaseWrites) > before,
+                label + ": successor lease renewal stopped after late old completion");
+            Check(life.RuntimeManaged && life.IsReady && life.CurrentConnectionState == "connected" &&
+                holder.Registry.PendingCount == 1 && holder.Registry.IsPending(newSession!),
+                label + ": successor state or registration was removed by the old attempt");
+            Check(helperLaunches == 1 && helperStops == 1 && oldLeaseWritesAfterStop == 0,
+                label + ": unexpected launch/stop/old-owner lease write");
+            life.Close();
+            passed.Add("late-old-adoption-completion-keeps-successor-lease-" + outcome +
+                (afterNewStart ? "-after-start" : "-before-start"));
+        }
+    }
+
+    private static void TestRegistrationScopedRetirement(
+        OverviewAdoptionSnapshot record, List<string> passed)
+    {
+        using var holder = new RegistryHolder();
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        ulong first = holder.Host.RestoreLaunchBinding(record, now);
+        Check(first != 0, "restored registration has no attempt identity");
+        Check(holder.Host.CancelLaunchBinding(Session, first) &&
+              holder.Registry.PendingCount == 0, "own registration not retired");
+        ulong second = holder.Host.RestoreLaunchBinding(record, now);
+        Check(second != first, "successor registration reused attempt identity");
+        Check(!holder.Host.CancelLaunchBinding(Session, first) &&
+              holder.Registry.PendingCount == 1,
+              "stale attempt removed the same-session successor registration");
+        Check(holder.Registry.TryAdmit(Profile, Session, Token, now, new object(), out _) &&
+              !holder.Host.CancelLaunchBinding(Session, first) && holder.Registry.ConnectedCount == 1,
+              "stale attempt removed the successor's admitted route");
+        Check(holder.Host.CancelLaunchBinding(Session, second) &&
+              holder.Registry.PendingCount == 0 && holder.Registry.ConnectedCount == 0,
+              "successor registration not retired by its own identity");
+        passed.Add("registration-scoped-retirement-protects-same-session-successor");
     }
 
     private static OverviewLifecycleService Create(

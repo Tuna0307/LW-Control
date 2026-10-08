@@ -86,7 +86,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly bool bridgeControlPipeLaunchBindingEnabled;
     private readonly bool requireCurrentClientEvidence;
     private readonly bool recoveryMonitorEnabled;
+    // Lease-timer ownership is (session, challenge): a timer started for one
+    // owner is only ever stopped/renewed for that exact owner (LEAD009R3-01).
+    private readonly object leaseTimerGate = new();
     private System.Threading.Timer? leaseTimer;
+    private string? leaseTimerSession;
+    private string? leaseTimerChallenge;
     private long leaseGeneration;
     private Process? activeHelperProcess;
     private bool closed;
@@ -809,7 +814,22 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     "LWBridge closed while the game was starting.");
             }
 
-            StartLeaseTimer();
+            if (!StartLeaseTimer(newSession, newChallenge))
+            {
+                bool closedNow;
+                lock (stateGate) closedNow = closed;
+                if (closedNow)
+                {
+                    await StopCancelledSuccessfulStartAsync(start, newSession, newChallenge)
+                        .ConfigureAwait(false);
+                    throw new BridgeCommandException(
+                        "GAME_OPERATION_CANCELLED",
+                        "LWBridge closed while the game was starting.");
+                }
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_CANCELLED",
+                    "The started game session was retired before its lease timer began.");
+            }
             if (controlPipeLaunchBinding is not null &&
                 !await WaitAuthenticatedRouteAsync(newSession, cancellationToken).ConfigureAwait(false))
             {
@@ -1642,29 +1662,72 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             MarkUnexpectedExit(snapshot);
     }
 
-    private void StartLeaseTimer()
+    // Starts the lease timer for the exact current owner. Returns false, without
+    // touching any existing timer, when the caller no longer owns the service
+    // (closed, replaced, stopped or superseded by a successor session).
+    private bool StartLeaseTimer(string session, string nonce)
     {
-        StopLeaseTimer(deleteLease: false);
-        long generation = Interlocked.Increment(ref leaseGeneration);
-        leaseTimer = new System.Threading.Timer(_ =>
+        lock (stateGate)
         {
-            try
+            if (closed || profileReplacementPending ||
+                !string.Equals(instanceId, session, StringComparison.Ordinal) ||
+                !string.Equals(challenge, nonce, StringComparison.Ordinal))
+                return false;
+            StopLeaseTimer(deleteLease: false);
+            lock (leaseTimerGate)
             {
-                OwnedSnapshot? snapshot = GetOwnedSnapshot();
-                if (snapshot is null || snapshot.Phase != "running") return;
-                WriteLease(snapshot.InstanceId, snapshot.Challenge, generation);
+                long generation = Interlocked.Increment(ref leaseGeneration);
+                leaseTimerSession = session;
+                leaseTimerChallenge = nonce;
+                leaseTimer = new System.Threading.Timer(_ =>
+                {
+                    try
+                    {
+                        OwnedSnapshot? snapshot = GetOwnedSnapshot();
+                        if (snapshot is null ||
+                            !string.Equals(snapshot.InstanceId, session, StringComparison.Ordinal) ||
+                            !string.Equals(snapshot.Challenge, nonce, StringComparison.Ordinal))
+                        {
+                            // The owner this timer was created for is gone; a
+                            // late-started orphan retires itself without touching
+                            // any successor's timer.
+                            StopLeaseTimer(deleteLease: false, session, nonce);
+                            return;
+                        }
+                        if (snapshot.Phase != "running") return;
+                        WriteLease(session, nonce, generation);
+                    }
+                    catch { }
+                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
             }
-            catch { }
-        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            return true;
+        }
     }
 
+    // With an expected owner the timer is disposed only when it belongs to that
+    // exact owner; a late retirement of an older owner can never disable a
+    // successor's renewal. Without one the stop is unconditional (service Close,
+    // profile replacement). The lease file is always deleted by exact ownership.
     private void StopLeaseTimer(
         bool deleteLease,
         string? expectedSession = null,
         string? expectedChallenge = null)
     {
-        Interlocked.Increment(ref leaseGeneration);
-        System.Threading.Timer? timer = Interlocked.Exchange(ref leaseTimer, null);
+        System.Threading.Timer? timer = null;
+        lock (leaseTimerGate)
+        {
+            bool ownedByCaller = expectedSession is null || expectedChallenge is null ||
+                leaseTimer is null ||
+                (string.Equals(leaseTimerSession, expectedSession, StringComparison.Ordinal) &&
+                 string.Equals(leaseTimerChallenge, expectedChallenge, StringComparison.Ordinal));
+            if (ownedByCaller)
+            {
+                Interlocked.Increment(ref leaseGeneration);
+                timer = Interlocked.Exchange(ref leaseTimer, null);
+                leaseTimerSession = null;
+                leaseTimerChallenge = null;
+            }
+        }
         timer?.Dispose();
         if (!deleteLease || expectedSession is null || expectedChallenge is null) return;
         lock (leaseWriteGate)

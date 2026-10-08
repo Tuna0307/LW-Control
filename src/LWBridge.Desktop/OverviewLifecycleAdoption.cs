@@ -116,6 +116,9 @@ internal sealed partial class OverviewLifecycleService
                     "The exact-session adoption is no longer owned by this profile.");
         }
 
+        // Attempt identity: the exact registration this adoption creates. Every
+        // retirement side effect is scoped to (session, challenge, registration).
+        ulong registrationSerial = 0;
         try
         {
             await EnsureControlPipeHostStartedAsync(gameRoot!).ConfigureAwait(false);
@@ -125,7 +128,7 @@ internal sealed partial class OverviewLifecycleService
             long admissionStarted = ControlPipeClockMilliseconds();
             long adoptionDeadline = checked(admissionStarted +
                 LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds);
-            bridgeHostState.RestoreLaunchBinding(record, admissionStarted);
+            registrationSerial = bridgeHostState.RestoreLaunchBinding(record, admissionStarted);
             lock (stateGate)
             {
                 if (closed || profileReplacementPending ||
@@ -147,7 +150,9 @@ internal sealed partial class OverviewLifecycleService
                 recoveryTracked = new RecoveryTrackedGame(
                     record.Pid, record.GameExecutable, record.ProcessCreatedAt);
             }
-            StartLeaseTimer();
+            if (!StartLeaseTimer(record.InstanceId, record.Challenge))
+                throw new BridgeCommandException("GAME_OPERATION_CANCELLED",
+                    "The exact-session adoption was retired before its lease timer began.");
             // Do not equate ready.json with the host's authenticated hello.
             // The restored registration's 90s window owns the wait budget.
             bool authenticated = await WaitAuthenticatedRouteAsync(
@@ -175,18 +180,18 @@ internal sealed partial class OverviewLifecycleService
         }
         catch (OperationCanceledException)
         {
-            RetireIncompleteAdoption(record.InstanceId, record.Challenge);
+            RetireIncompleteAdoption(record.InstanceId, record.Challenge, registrationSerial);
             return new OverviewStartupError(profileId, "GAME_OPERATION_CANCELLED",
                 "The same-build reconnect was cancelled without terminating its game.");
         }
         catch (BridgeCommandException ex)
         {
-            RetireIncompleteAdoption(record.InstanceId, record.Challenge);
+            RetireIncompleteAdoption(record.InstanceId, record.Challenge, registrationSerial);
             return new OverviewStartupError(profileId, ex.Code, ex.Message);
         }
         catch (Exception ex)
         {
-            RetireIncompleteAdoption(record.InstanceId, record.Challenge);
+            RetireIncompleteAdoption(record.InstanceId, record.Challenge, registrationSerial);
             return new OverviewStartupError(profileId, "BRIDGE_HOST_UNAVAILABLE", ex.Message);
         }
     }
@@ -214,10 +219,15 @@ internal sealed partial class OverviewLifecycleService
         }
     }
 
-    private void RetireIncompleteAdoption(string session, string nonce)
+    // Retires exactly one adoption attempt. Every side effect is scoped to that
+    // attempt's (session, challenge, registration): a late completion after Stop
+    // and a successor Start must not touch the successor's timer, route, lease,
+    // record or published state (LEAD009R3-01).
+    private void RetireIncompleteAdoption(string session, string nonce, ulong registrationSerial)
     {
         StopLeaseTimer(deleteLease: true, session, nonce);
-        bridgeHostState?.CancelLaunchBinding(session);
+        if (registrationSerial != 0)
+            bridgeHostState?.CancelLaunchBinding(session, registrationSerial);
         lock (stateGate)
         {
             if (string.Equals(instanceId, session, StringComparison.Ordinal) &&
