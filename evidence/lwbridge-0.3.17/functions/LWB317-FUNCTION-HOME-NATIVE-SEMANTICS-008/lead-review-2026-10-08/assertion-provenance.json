@@ -1,0 +1,9 @@
+{
+  "sourceHashes": {
+    "home008_close_contract.py": "9882e75b19bd77be5d9d0b71285e6c9cbac66ae7bbd8c59de3f82deaffd30723",
+    "home008_start_contract.py": "4b6dcce0124681daac426d3aa1e2485c9f2df1cf3aa9f383175e5b972de43a88",
+    "home008_validate.py": "39552ac40c26417dfa653373745d1c65fbec431955acfa00c776cd13f5254001"
+  },
+  "change": "Only output destinations redirected; source checks and historical inputs unchanged.",
+  "limits": "Original-byte assertions and bounded inert comparisons; not original-runtime execution or complete Home parity."
+}

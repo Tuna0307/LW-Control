@@ -1,0 +1,42 @@
+{
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "fact": "Original cap check precedes process check; exhausted timer resumes at cap check with no final process check.",
+  "originalInstructionRvas": [
+    "0xE5794",
+    "0xE5796",
+    "0xE57AD",
+    "0xE5805"
+  ],
+  "productionSourceSha256": "0356c0efaae6f65d84487cf411084f6ea3550480f7f95aac00003c8d990039da",
+  "productionPrimitive": "Process.WaitForExit(10000) after CloseMainWindow",
+  "hypothesis": "Matching a nominal 10s budget does not establish equal terminal outcomes near the final poll; event waiting and capped polling may differ.",
+  "models": [
+    {
+      "processAbsentAtMs": 0,
+      "originalLoopIdealSchedule": "success",
+      "eventWaitIdealDeadlineModel": "success"
+    },
+    {
+      "processAbsentAtMs": 9890,
+      "originalLoopIdealSchedule": "success",
+      "eventWaitIdealDeadlineModel": "success"
+    },
+    {
+      "processAbsentAtMs": 9950,
+      "originalLoopIdealSchedule": "timeout",
+      "eventWaitIdealDeadlineModel": "success"
+    },
+    {
+      "processAbsentAtMs": 10000,
+      "originalLoopIdealSchedule": "timeout",
+      "eventWaitIdealDeadlineModel": "deadline-boundary-unresolved"
+    }
+  ],
+  "proofClass": "SOURCE_BACKED_BOUNDARY_HYPOTHESIS_AND_RECONSTRUCTED_IDEAL_CLOCK_MODEL",
+  "notProved": [
+    "Original process-checker identity/cardinality",
+    "Original close trigger and caller result mapping",
+    "Actual production versus original boundary outcome"
+  ],
+  "requiredNext": "Align the operation and input process identity, then execute controlled actual production seam comparisons; no product fix from the model alone."
+}

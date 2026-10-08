@@ -1,0 +1,44 @@
+{
+  "status": "AWAITING_REVIEW",
+  "workItem": "LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008",
+  "startingCheckpoint": "3d2fd106eb06110f4993dc74e845521297b1c5b6",
+  "originalFullParity": false,
+  "originalRuntimeExecuted": false,
+  "nativeFullRecoveryRetryTableKnown": false,
+  "closeNativeNominalWaitMs": 10000,
+  "autoLaunchAll": {
+    "absent": true,
+    "nonBool": true,
+    "explicitFalse": false
+  },
+  "decodedNativeBoundaries": [
+    "two 100x100ms original async close waits",
+    "startup autoLaunchAll JSON bool fallback",
+    "5s/100ms selected launch-poll bound",
+    "90s/250ms named-pipe registry bound"
+  ],
+  "fixedHomeCodeCount": 0,
+  "availableStaticRecoveryRemaining": 3,
+  "newGameLaunches": 0,
+  "desktopActions": 0,
+  "acceptedMapRegressionPassed": true,
+  "checks": {
+    "package": 3,
+    "native": 13,
+    "frontend": 3,
+    "static": 6
+  },
+  "protectedOriginalExeAndScriptsPreserved": true,
+  "archived004ResourceRows": 8008,
+  "historicalCampaign007AndR1EvidenceUntouched": true,
+  "cleanupOk": true,
+  "scope": "native opcode/dataflow + isolated production adaptation tests; original full recovery UNKNOWN",
+  "metadataNegativeProbes": [
+    "false-Home-full-parity",
+    "false-0.3.17-backoff-table-known",
+    "false-close-15-seconds",
+    "lost-recoverable-native-work",
+    "false-original-runtime",
+    "accepted-Map-regression-erased"
+  ]
+}

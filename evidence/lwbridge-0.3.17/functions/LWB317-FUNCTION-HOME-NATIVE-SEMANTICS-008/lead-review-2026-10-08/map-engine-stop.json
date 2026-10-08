@@ -1,0 +1,39 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1",
+  "scope": "actual-engine/actual-Map317-sink/actual-Stop and SQLite; controlled provider, NO current-game or original-runtime proof",
+  "cases": [
+    {
+      "scenario": "cancel-during-deferred-batch",
+      "acquisitionPercent": 47,
+      "stagedBeforeStop": 0,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled",
+      "providerStops": 1
+    },
+    {
+      "scenario": "late-batch-return-after-cancel",
+      "acquisitionPercent": 47,
+      "stagedBeforeStop": 0,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled",
+      "providerStops": 1
+    },
+    {
+      "scenario": "positive-stage-then-stop",
+      "stagedBeforeStop": 1,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled"
+    },
+    {
+      "scenario": "stop-during-publication-transition",
+      "stagedBeforeStop": 2,
+      "stagedAfterStop": 0,
+      "publishedAfterStop": 1,
+      "terminal": "cancelled"
+    }
+  ],
+  "livePositiveStageStop": false
+}

@@ -1,0 +1,83 @@
+{
+  "reviewedCheckpoint": "9cc5bcee7a7bff19c391995c87ba8a3359e6d3aa",
+  "decision": "BOUNDED_RECOVERY_ACCEPTED_FULL_PARITY_PARTIAL",
+  "accepted": [
+    "original close iteration/timer values",
+    "autoLaunchAll boolean default",
+    "local launch/registry wait values"
+  ],
+  "notAcceptedAsFullParity": [
+    "complete close outcomes",
+    "overall launch deadlines",
+    "health thresholds",
+    "retry caps/resets",
+    "original runtime equivalence"
+  ],
+  "hypothesis": "LEAD008-H1 final-poll versus event-wait outcome requires operation alignment and actual production comparison",
+  "freshChecks": [
+    {
+      "command": "home008_close_contract.py output-only redirect",
+      "exit": 0,
+      "proof": "original byte assertions and reconstructed loop"
+    },
+    {
+      "command": "home008_start_contract.py output-only redirect",
+      "exit": 0,
+      "proof": "original byte value-flow assertions"
+    },
+    {
+      "command": "home008_validate.py output-only redirect",
+      "exit": 0,
+      "probes": 6
+    },
+    {
+      "command": "Release Desktop.Checks build --no-restore",
+      "exit": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "command": "--home008-original-reconcile-contract",
+      "exit": 0,
+      "cases": 8,
+      "proof": "actual handler; inert helper"
+    },
+    {
+      "command": "--campaign007-r1-engine-sink",
+      "exit": 0,
+      "cases": 4
+    },
+    {
+      "command": "--overview-close-timing-check",
+      "exit": 0,
+      "proof": "current regression; not new original close parity"
+    },
+    {
+      "command": "--overview-reconnect-policy-check",
+      "exit": 0,
+      "proof": "current 0.3.1-derived regression; not 0.3.17 retry recovery"
+    },
+    {
+      "command": "--profile-runtime-owner-check",
+      "exit": 0
+    },
+    {
+      "command": "canonical frontend check",
+      "exit": 0
+    },
+    {
+      "command": "production-build integrity",
+      "exit": 0
+    },
+    {
+      "command": "check-close-boundary-hypothesis.py",
+      "exit": 0,
+      "proof": "source-backed hypothesis and ideal model only"
+    }
+  ],
+  "leadGameLaunches": 0,
+  "leadDesktopActions": 0,
+  "productChangedByLead": false,
+  "remainingAvailableNativeWork": true,
+  "nextTask": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009"
+}
