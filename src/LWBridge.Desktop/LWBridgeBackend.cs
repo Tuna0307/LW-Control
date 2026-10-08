@@ -344,7 +344,6 @@ internal sealed class LWBridgeBackend
                     downloadDirectory = "",
                 };
             case "set_automation":
-                RequireOptionalProfile(payload);
                 return SetAutomation(payload);
             case "automation_status":
                 RequireOptionalProfile(payload);
@@ -705,15 +704,41 @@ internal sealed class LWBridgeBackend
         }
     }
 
+    // Original set_automation handler 0x12C34B (COMPLETION-010 c-handlers items 1.1-1.8):
+    //  * payload Object with a non-empty String profileId, else PROFILE_ID_REQUIRED (code == message);
+    //    an unknown profile has no runtime -> PROFILE_RUNTIME_UNAVAILABLE;
+    //  * name = string-or-"", enabled = bool-or-false; there is no payload type error;
+    //  * autoClosePopup is forced to enabled=false (persisted false); autoForceUpdateReload stores the
+    //    requested bool and drives the recovery monitor; result is {ok:true,name,enabled=effective};
+    //  * any other name is forwarded to the game (protected Lua `setAutomation`, 5 s): GAME_DISCONNECTED
+    //    when the bridge is not connected. The connected forward is NOT recoverable here and stays
+    //    AUTOMATION_NOT_IMPLEMENTED (truthful incomplete feature, not a parity pass).
     private object SetAutomation(JsonElement payload)
     {
-        string name = GetRequiredString(payload, "name");
-        bool enabled = GetRequiredBoolean(payload, "enabled");
-        if (name != "autoForceUpdateReload")
-            throw new BridgeCommandException("AUTOMATION_NOT_IMPLEMENTED", $"Automation '{name}' is not implemented yet.");
-        UpdateConfig(c => c with { AutoReconnect = enabled });
-        overviewLifecycle?.NotifyAutomationChanged(enabled);
-        return new { enabled };
+        if (payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("profileId", out JsonElement profileElement) ||
+            profileElement.ValueKind != JsonValueKind.String ||
+            string.IsNullOrEmpty(profileElement.GetString()))
+            throw new BridgeCommandException("PROFILE_ID_REQUIRED", "PROFILE_ID_REQUIRED");
+        if (!string.Equals(profileElement.GetString(), ProfileId, StringComparison.Ordinal))
+            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE", "PROFILE_RUNTIME_UNAVAILABLE");
+        string name = payload.TryGetProperty("name", out JsonElement nameElement) &&
+                      nameElement.ValueKind == JsonValueKind.String
+            ? nameElement.GetString() ?? string.Empty : string.Empty;
+        bool enabled = payload.TryGetProperty("enabled", out JsonElement enabledElement) &&
+                       enabledElement.ValueKind == JsonValueKind.True;
+        if (name == "autoClosePopup")
+            return new { ok = true, name, enabled = false };
+        if (name == "autoForceUpdateReload")
+        {
+            UpdateConfig(c => c with { AutoReconnect = enabled });
+            overviewLifecycle?.NotifyAutomationChanged(enabled);
+            return new { ok = true, name, enabled };
+        }
+        bool bridgeConnected = bridgeReadyProvider?.Invoke() ?? overviewLifecycle?.IsReady ?? false;
+        if (!bridgeConnected)
+            throw new BridgeCommandException("GAME_DISCONNECTED", "game disconnected");
+        throw new BridgeCommandException("AUTOMATION_NOT_IMPLEMENTED", $"Automation '{name}' is not implemented yet.");
     }
 
     private object SetLocalConfig(JsonElement payload)

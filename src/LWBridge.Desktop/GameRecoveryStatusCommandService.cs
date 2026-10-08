@@ -21,15 +21,10 @@ internal sealed class GameRecoveryStatusCommandService
     internal object Invoke(JsonElement payload)
     {
         RequireRuntime(payload);
-        OverviewRecoveryStatus? status = statusProvider();
-        if (status is null)
-        {
-            throw new BridgeCommandException(
-                "STATE_UNAVAILABLE",
-                "game recovery state is unavailable");
-        }
-
-        return status;
+        // Original 0x154905: a present runtime always answers (idle is a normal result); STATE_UNAVAILABLE only
+        // names a poisoned lock. An absent lifecycle owner is the original's "no runtime for this profile".
+        return statusProvider() ??
+            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE", "PROFILE_RUNTIME_UNAVAILABLE");
     }
 
     private void RequireRuntime(JsonElement payload)
@@ -37,7 +32,7 @@ internal sealed class GameRecoveryStatusCommandService
         if (payload.ValueKind != JsonValueKind.Object ||
             !payload.TryGetProperty("profileId", out JsonElement property) ||
             property.ValueKind != JsonValueKind.String ||
-            string.IsNullOrWhiteSpace(property.GetString()))
+            string.IsNullOrEmpty(property.GetString()))
         {
             throw new BridgeCommandException(
                 "PROFILE_ID_REQUIRED",

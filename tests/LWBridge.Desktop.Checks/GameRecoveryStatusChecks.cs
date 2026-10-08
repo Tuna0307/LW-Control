@@ -125,9 +125,9 @@ internal static class GameRecoveryStatusChecks
                 () => null);
             ExpectError(
                 () => missingState.Invoke(payload.RootElement.Clone()),
-                "STATE_UNAVAILABLE",
-                "game recovery state is unavailable",
-                "missing recovery state");
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "missing recovery state (no runtime owner)");
             var config = new LocalConfigStore(Path.Combine(root, "config"));
             config.Update(c => c with { ProfileId = profileId });
             var backend = new LWBridgeBackend(
@@ -146,9 +146,9 @@ internal static class GameRecoveryStatusChecks
                     "game_recovery_status",
                     payload.RootElement.Clone(),
                     CancellationToken.None),
-                "STATE_UNAVAILABLE",
-                "backend does not synthesize idle when recovery state is absent",
-                "game recovery state is unavailable");
+                "PROFILE_RUNTIME_UNAVAILABLE",
+                "backend does not synthesize idle when the recovery runtime is absent",
+                "PROFILE_RUNTIME_UNAVAILABLE");
         }
         finally
         {

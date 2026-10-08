@@ -105,7 +105,7 @@ internal static class OverviewProcessOwnershipChecks
                 "foreign process must remain alive while the selected-root managed session is running");
 
             string duplicateCode = await CaptureStartErrorAsync(managedLifecycle, empty);
-            Check(duplicateCode == "GAME_RUNNING", "duplicate start with owned process must report GAME_RUNNING");
+            Check(duplicateCode == "PROFILE_ALREADY_RUNNING", "duplicate start with owned process must report PROFILE_ALREADY_RUNNING");
             Check(helperStartCalls == 1, "duplicate managed Start must not invoke another helper");
             Check(IsAlive(ownedProcess) && IsAlive(foreignProcess),
                 "duplicate Start rejection must not terminate managed or unrelated processes");

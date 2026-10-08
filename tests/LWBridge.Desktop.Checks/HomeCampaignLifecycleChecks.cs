@@ -123,7 +123,7 @@ internal static class HomeCampaignLifecycleChecks
                 "profile_instance_start", payload, CancellationToken.None).ConfigureAwait(false);
         });
 
-        Check(repeatedCode == "GAME_OPERATION_IN_PROGRESS",
+        Check(repeatedCode == "PROFILE_ALREADY_RUNNING",
             "a repeated Start must reject while the admitted Start is still pending");
         Check(Volatile.Read(ref startCalls) == 1,
             "a repeated pending Start must not invoke a second helper launch");
@@ -145,8 +145,8 @@ internal static class HomeCampaignLifecycleChecks
             _ = await lifecycle.InvokeAsync(
                 "profile_instance_start", payload, CancellationToken.None).ConfigureAwait(false);
         });
-        Check(runningDuplicateCode == "GAME_RUNNING",
-            "a duplicate Start after ownership publication must fail as GAME_RUNNING");
+        Check(runningDuplicateCode == "PROFILE_ALREADY_RUNNING",
+            "a duplicate Start after ownership publication must fail as PROFILE_ALREADY_RUNNING (original 0x23e9dc)");
 
         JsonElement stopped = Status(await lifecycle.InvokeAsync(
             "profile_instance_stop",

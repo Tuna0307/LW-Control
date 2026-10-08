@@ -1386,7 +1386,7 @@ try
     Check(!overviewLifecycle.IsReady, "foreign challenge heartbeat cannot green the active Overview session");
     heartbeatMode = "fresh";
     Check(overviewLifecycle.IsReady, "matching fresh heartbeat restores current-session readiness");
-    await ExpectBridgeError("GAME_RUNNING", "duplicate Overview start is rejected while owned game is active", async () =>
+    await ExpectBridgeError("PROFILE_ALREADY_RUNNING", "duplicate Overview start is rejected while owned game is active", async () =>
         await overviewLifecycle.InvokeAsync("profile_instance_start", overviewProfilePayload.RootElement.Clone(), CancellationToken.None));
     using JsonDocument wrongOverviewStop = JsonDocument.Parse(JsonSerializer.Serialize(new
     {

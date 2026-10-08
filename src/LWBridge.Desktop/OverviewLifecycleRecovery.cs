@@ -114,12 +114,40 @@ internal sealed partial class OverviewLifecycleService
         if (run is not null) FinishRecoveryRunStopped(run);
     }
 
+    // set_automation(autoForceUpdateReload) -> 0x41a681 (COMPLETION-010 c-handlers 1.5): enabling runs the
+    // monitor tick (0x41a8a0) immediately; disabling resets the monitor's observation state and republishes the
+    // recovery status (0x41a850). Neither cancels an in-flight run: 0xe69c3-0xe69cc re-reads the persisted
+    // setting at the end of every iteration and the run finishes idle (0x41c201) when it is off.
     internal void NotifyAutomationChanged(bool enabled)
     {
-        // 0xe69c3-0xe69cc: the original run re-reads the persisted auto_force_update_reload setting at the end of
-        // every iteration and finishes idle (0x41c201) when it is off; disabling does not interrupt the current
-        // iteration (including an in-flight relaunch). The monitor tick also re-reads it (0x41a8c5).
-        _ = enabled;
+        if (!recoveryMonitorEnabled || config is null) return;
+        if (enabled)
+        {
+            _ = RecoveryObservationAsync();
+            return;
+        }
+        _ = ResetMonitorObservationAndRepublishAsync();
+    }
+
+    private async Task ResetMonitorObservationAndRepublishAsync()
+    {
+        try
+        {
+            await recoverySerial.WaitAsync(recoveryLifetime.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) { return; }
+        try
+        {
+            monitorObservation.Missing = 0;
+            monitorObservation.OfflinePid = 0;
+            monitorObservation.OfflineSince = 0;
+            monitorObservation.UnhealthyPid = 0;
+            monitorObservation.UnhealthySince = 0;
+            monitorObservation.HungPid = 0;
+            monitorObservation.HungSince = 0;
+        }
+        finally { recoverySerial.Release(); }
+        PublishRecoveryStatus(CurrentRecoveryStatus);
     }
 
     private void SetDesiredRunning(bool desired)
@@ -128,7 +156,6 @@ internal sealed partial class OverviewLifecycleService
         config.Update(current => current.GameDesiredRunning == desired
             ? current
             : current with { GameDesiredRunning = desired });
-        if (!desired) NotifyAutomationChanged(enabled: false);
     }
 
     private bool RecoveryEnabledAndDesired()

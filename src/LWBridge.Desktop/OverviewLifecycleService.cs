@@ -680,10 +680,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     "The selected profile is changing; wait for the current profile owner to finish retiring.");
             if (gameRoot is null)
                 throw new BridgeCommandException("GAME_ROOT_NOT_FOUND", "No validated Last War installation is selected.");
-            if (phase is "starting" or "stopping")
-                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
-            if (gamePid is not null)
-                throw new BridgeCommandException("GAME_RUNNING", "The LWBridge-owned game is already running.");
+            // Original profile_instance_start (0x23e9dc; COMPLETION-010 c-handlers 5.1): GAME_ROOT_NOT_FOUND, then
+            // PROFILE_ALREADY_RUNNING for a profile that already has an instance record in any phase, then the
+            // unmanaged-game gate. GAME_OPERATION_IN_PROGRESS / GAME_RUNNING are not start-path codes in 0.3.17
+            // (closed / profile-replacement waits above stay clone-only lifetime fences).
+            if (phase is "starting" or "stopping" || gamePid is not null)
+                throw new BridgeCommandException("PROFILE_ALREADY_RUNNING", "PROFILE_ALREADY_RUNNING");
             selectedRoot = gameRoot;
             IReadOnlyList<int> unmanagedPids = SelectedGamePids(selectedRoot);
             if (unmanagedPids.Count > 0 && !closeUnmanaged)

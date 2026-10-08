@@ -122,8 +122,8 @@ internal static class OverviewLaunchSpamChecks
 
         string[] launchCodes = launchSpam.Select(task => task.Result).ToArray();
         JsonElement[] refreshes = refreshSpam.Select(task => task.Result).ToArray();
-        Check(launchCodes.All(code => code == "GAME_OPERATION_IN_PROGRESS"),
-            "every Launch during starting must reject as GAME_OPERATION_IN_PROGRESS");
+        Check(launchCodes.All(code => code == "PROFILE_ALREADY_RUNNING"),
+            "every Launch during starting must reject as PROFILE_ALREADY_RUNNING");
         Check(refreshes.All(status =>
             status.GetProperty("phase").GetString() == "starting" &&
             status.GetProperty("connectionState").GetString() == "starting" &&
@@ -174,7 +174,7 @@ internal static class OverviewLaunchSpamChecks
             acceptanceCase = "A04",
             scope = "isolated OverviewLifecycleService Launch-spam/status-refresh concurrency; no real game process",
             launchSpamAttempts = spamCount,
-            launchSpamRejected = launchCodes.Count(code => code == "GAME_OPERATION_IN_PROGRESS"),
+            launchSpamRejected = launchCodes.Count(code => code == "PROFILE_ALREADY_RUNNING"),
             refreshDuringLaunch = refreshCount,
             refreshAllSameStartingSession = true,
             refreshBatchElapsedMilliseconds = stopwatch.ElapsedMilliseconds,
