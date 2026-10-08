@@ -118,3 +118,29 @@ raw MapStore and all game collectors remain unchanged. Positive actual command
 test on 8008 Resource records now returns 1 row for zero/-4, 200 rows for 201,
 and page1/2, filter/options, A/B/A remain green. Evidence
 command-page-size-corrected-proof.json; source A->A native query contract ONLY.
+## H final validation and handoff (worker 007)
+
+- 19/19 affected Home/Map/native/host/profile/transport checks PASS
+- 9/9 static original/current-v22/Lua guards and ownership checks PASS
+- 6/6 canonical frontend check/build/production-build, recorded real Resource
+  JS adapter and actual canonical mounted App + Map page proofs PASS
+- 13/13 final affected (inert post-stage stop, real high-level query,
+  Home profile/service, original constraints, independent negative live and
+  preservation, EN/JA mounted views) PASS
+- After last pageSize source correction, fresh Desktop Release build,
+  checks Release build and canonical production Publish PASS with all
+  required packaged files and exact Lua source/package identity
+- Final preservation audit PASS: exact original executable/installed scripts,
+  accepted 004 Resource SQLite+sidecars unchanged, task owned snapshot intact,
+  no scheduled jobs, no active LastWar/clone process or leftover replay temp roots
+- Source-reviewed all changed original UI/native/code surfaces, including
+  new 007 live runner's exact run-id read-only staging observer. 007 live
+  positive post-stage Stop did NOT occur; terminal NEGATIVE and independent
+  audit PASS, all exact-owned assets restored
+- All ready 007 A–H worker obligations reached source-bounded implementation
+  or exact named missing-original-input/current-world/desktop witness.
+  Worker status AWAITING_REVIEW; **full Home/Map A?A remains PARTIAL**.
+
+Review packet: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-WORKER.md.
+Exact upstream originals/private-provider dependencies: unresolved-dependencies.md.
+The project lead, not this worker, decides acceptance.

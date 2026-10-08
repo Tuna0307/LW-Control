@@ -182,3 +182,6 @@ cleanup. No concurrent live sessions or control.
 
 Return AWAITING_REVIEW with actual live outcomes, fixed defects, failed attempts,
 restoration proof, remaining dependencies and exact continuation. The lead accepts.
+
+
+**2026-10-08 campaign-007 worker negative live continuation (parent pilot still PARTIAL):** One permitted exact-isolated current-server Resource re-run was admitted to seek post-positive-staging Stop. At bounded Stop run 4bf2ef2cd54d4a7a8a3fc7ae7fa6753d was still active with 1 inflight, 0 completed and 0 staged. Durable SQLite became cancelled with 0 staged/published, true Map/owned Home Stop, exact original scripts restored, no journal or game process. Thus positive-staging Stop remains unproved and no automatic repeat is planned. Independent audit: evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007/live-positive-staged-stop-independent-audit.json. Other 004 positive completion/Stop remains accepted/current-client only, NOT original 0.3.17 equivalent.

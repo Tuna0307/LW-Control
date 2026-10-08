@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007
 
-Status: **ACTIVE / ONE SOLO OWNER-RELAY CAMPAIGN**, 2026-10-08.
+Status: **AWAITING_REVIEW / SOLO WORKER DELIVERED; PROJECT-LEAD AUDIT PENDING**, 2026-10-08.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller.
 Starting reference checkpoint: 3f43f5f23ebca715f2a7c835d58f190c07b1e99f.
@@ -268,3 +268,8 @@ Return only when:
 If interrupted, checkpoint safely and resume from the exact first incomplete obligation.
 Final acceptance remains exclusively with the project lead. A genuine external
 dependency is not authority to fabricate an alternative A-to-A result.
+
+
+## 2026-10-08 worker return boundary
+
+A–H independent available scopes exercised and documented in docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-WORKER.md. Actual starting SHA supplied by owner and observed clean: 839f0bcd162eed560a52c17ccf61eeb6a8731af0. Two earlier pushed checkpoints 16a7fdf427ee04604bc6ebeca4927d5676427e68 / 3310bd70b1832f9440540db5c3870be0e153763f; final checkpoint SHAs are verified in worker final delivery and git branch. Original 0.3.17 entire game-side Map acquisition and Home inner launcher policy remain UNKNOWN, not delivered as A→A. 007 live Resource cancellation before positive staging is a negative witness, not a success. Owner LocalLow originals restored, exact owner session stopped and no game process left. Current source/local UI and bounded native/command integration passes do not overwrite earlier lead acceptance or grant new access.

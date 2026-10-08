@@ -19,7 +19,7 @@ USER_CONTROL are not reasons to close out ownership-blocked. See current AGENTS.
 
 | Campaign / work item | State | File | Notes |
 |---|---|---|---|
-| LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007 | ACTIVE / SOLO MANUAL RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007.md` | One owner-requested Home/Map recovery/implementation/validation campaign A-H; no per-milestone relay; background-only restrictions preserved |
+| LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007 | AWAITING_REVIEW / WORKER DELIVERED; PROJECT-LEAD AUDIT PENDING | `docs/work-items/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007.md` | 007 solo A–H bounded delivery: exact Map numeric page and pageSize clamps, real Resource 8,008 command/frontend replay, 49 source obligations, eight producer matrix, inert post-stage cancellation; one additional live Stop negative (0 staged), exact restoration. Original A→A scanning controller unresolved; lead decision pending. |
 | LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006 | ACCEPTED BOUNDED / PLAINTEXT BLOCKED | `docs/work-items/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006.md` | Encrypted resources/loader recovered; matching original envelope/key inputs unavailable; no decrypted controller bodies |
 | LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005 | ACCEPTED BOUNDED OFFLINE | `docs/work-items/LWB317-FUNCTION-MAP-EXPIRY-CORRELATION-005.md` | Numeric/missing expiry correction accepted; managed correlation partial; string-reader and real Ghost response dependencies remain |
 | LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004 | ACCEPTED OFFLINE AUDIT | `docs/work-items/LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004.md` | Fresh A/B/C and 11 Lua cases pass; prior overbroad blocker rationales narrowed; real correlation remains UNKNOWN |

@@ -1,7 +1,7 @@
-phase=package baseline=839f0bcd162eed560a52c17ccf61eeb6a8731af0 head=3310bd70b1832f9440540db5c3870be0e153763f utc=2026-10-08T05:54:29.5714078Z
-desktop-Release-build status=PASS exit=0 seconds=18.4
-checks-Release-build status=PASS exit=0 seconds=13
-desktop-canonical-Release-publish status=PASS exit=0 seconds=18
+phase=package baseline=839f0bcd162eed560a52c17ccf61eeb6a8731af0 head=48f96940f86abe3fc524c7b2eba7f74618793625 utc=2026-10-08T05:59:45.4945076Z
+desktop-Release-build status=PASS exit=0 seconds=21.1
+checks-Release-build status=PASS exit=0 seconds=24.4
+desktop-canonical-Release-publish status=PASS exit=0 seconds=13.9
 package-file LWBridge.Desktop.exe PASS
 package-file OverviewBridge/LWBridge.GamePipeAdapter.dll PASS
 package-file OverviewBridge/current_overview_bridge.lua PASS

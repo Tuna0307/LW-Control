@@ -1,7 +1,7 @@
 ﻿{
     "campaign":  "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
     "baseline":  "839f0bcd162eed560a52c17ccf61eeb6a8731af0",
-    "status":  "IN_PROGRESS",
+    "status":  "AWAITING_REVIEW",
     "obligations":  [
                         {
                             "id":  "A01",
@@ -187,21 +187,21 @@
                             "id":  "H01",
                             "title":  "Full diff, checks/build/preserve cleanup",
                             "sourceLocator":  "AGENTS.md; campaign 007 H",
-                            "status":  "VERIFICATION_NEAR_COMPLETE",
+                            "status":  "COMPLETE_VERIFIED_PACKAGED_RESTORED",
                             "proofType":  "Fresh reference hash and process inventory zero at kickoff",
-                            "lastExecutedResult":  "19 native, static/lua, frontend and Release pass; independent 007 live negative audit and preservation pass",
-                            "dependency":  "Final affected checks/package/diff/source hashes after all edits",
-                            "nextAction":  "Final affected checks/package/diff/source hashes after all edits"
+                            "lastExecutedResult":  "19/19 native, 9/9 static, 6/6 frontend, 13/13 final affected; post pageSize Desktop and Checks Release build+publish PASS; original exe and installed triplet exact; 0 processes/temp replay paths",
+                            "dependency":  null,
+                            "nextAction":  "Await independent project-lead audit"
                         },
                         {
                             "id":  "H02",
                             "title":  "Masters/ledger/review/queue/remote SHA",
                             "sourceLocator":  "campaign 007 H",
-                            "status":  "PENDING_FINAL_DOCS_AND_REMOTE_SHA",
+                            "status":  "AWAITING_REVIEW_HANDOFF_DELIVERED",
                             "proofType":  "Project lead acceptance separate",
-                            "lastExecutedResult":  "Checkpoint E and matrix pushed directly; C/D/F/G source+proof pending medium checkpoint",
-                            "dependency":  "Finish masters/handoff/queue docs, final commit/push/direct remote SHA",
-                            "nextAction":  "Finish masters/handoff/queue docs, final commit/push/direct remote SHA"
+                            "lastExecutedResult":  "Source/clone/original source 49 obligations; eight producers, 2 discrepancies, original encrypted controller input dependency, all 9 master/queue/review documents updated; final remote SHA independently verified on delivery",
+                            "dependency":  null,
+                            "nextAction":  "Project lead independently audits evidence and chooses next explicitly authorized input/witness"
                         }
                     ]
 }
