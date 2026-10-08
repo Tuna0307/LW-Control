@@ -1,0 +1,28 @@
+{
+  "capturedAtUtc": "2026-10-08T02:55:22.1208819+00:00",
+  "sourceCheckpoint": "e51ab590f1c2866136c2f57e6f936add2945dd11",
+  "installedFiles": [
+    {
+      "Hash": "248F3AEAC712B3F14F86BFF37A0C365E467897A2248403837C44C1B774F05B22",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data"
+    },
+    {
+      "Hash": "D2F9BCC165F41427D4B3B7B9243E4A483BF316519A16B4CE9BE658BA9AFA783A",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt"
+    },
+    {
+      "Hash": "785F3EC7EB32F30B90CD0FCF3657D388B5FF4297F2F9716FF66E9B69C05DDD09",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt"
+    }
+  ],
+  "processes": [],
+  "gameLaunchedByLead": false,
+  "desktopCaptureOrInput": false,
+  "freshChecks": [
+    "pipe_delegate_current_checks.py: 4/4",
+    "home_runtime_file_ownership_checks.py: 5/5",
+    "home_runtime_lease_lua_checks.py: 6/6"
+  ],
+  "worldInputBlockerAccepted": false,
+  "worldEntryFinding": "BW004-01: runner stops before existing production StartAsync automatic world-entry path"
+}

@@ -1,0 +1,67 @@
+You are the SOLO worker for LWB317-FUNCTION-HOME-MAP-BACKGROUND-WORLD-RESOURCE-004.
+Repo: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller. Inspect latest HEAD/status; never reset.
+Reviewed predecessor: e51ab590f1c2866136c2f57e6f936add2945dd11.
+Read AGENTS.md, AI_WORK_PROTOCOL.md, this work item, parent LIVE-PILOT-001,
+2026-10-08-BACKGROUND-ONLY-PILOT.md and:
+docs/reviews/2026-10-08-LWB317-BACKGROUND-PIPE-CONNECT-003-LEAD.md
+
+Connect fix is accepted: keep the single direct userdata invocation, actual host
+authentication and profile/session/lease fences. Current-game pipe/RPC proof does
+not mean original Lua decrypted or whole Home/Map complete.
+
+Lead finding BW004-01: your runner returns on isInWorld=false before map_scan_start.
+Production StartAsync already calls EnterWorldMapAsync when initially in city.
+CurrentClientMap317ScanProvider -> GetCurrentContextAsync -> EnsureWorldReadyAsync
+uses identity-bound world-ready.txt/result; actual Lua invokes the existing
+SceneUtils.ChangeToWorld(callback) and observes WorldScene. Therefore desktop input
+being required is UNPROVEN. Inspect this complete path and original/source-backed
+contract; try the existing production route instead of returning at the city flag.
+
+Checkpoint A: repair the checks-only runner's premature gate. Admit only genuine
+authenticated owned game/current server, then invoke actual production map_scan_start,
+letting normal provider/state machine establish world readiness. Do not add a guessed
+direct scene command, bypass readiness or change product semantics just to pass.
+Add distinguishing inverse cases through actual production start/provider boundaries
+for initially-city successful entry, already-world path, failure, stale identity,
+cancellation and session replacement. Inert cases are labelled separately.
+Observe world-ready request/result identity and genuine WorldScene/server/dimensions.
+
+Checkpoint B: fresh isolated background real-provider execution. Verify current
+process identity, current-client admission, exact backups and isolated roots first.
+Last War launch is permitted; owner will background it. No Windows-MCP or other
+desktop screenshots, input, focus or window activation afterward. The existing
+native same-server city-to-world transition is authorized within the parent pilot;
+it is not mouse/keyboard automation or permission for unrelated gameplay.
+
+Follow authenticated host/RPC -> world-entry result -> accepted Resource run ->
+real block/request/results -> staging -> completed publication -> production query/
+filter/pagination -> independent SQLite reopen, retaining exact correlated IDs and
+timestamps. Positive data must originate from this run. Preserve original pacing,
+limits, selection and success meanings. Inspect the runner's old first-block Stop:
+partial cancelled staging and completed publication are distinct outcomes.
+Prove completed positive publication and a meaningful owned active Stop separately;
+one additional bounded same-server Manual Resource run is allowed if needed for
+the Stop witness. No recurring Auto, wider scans or cross-server movement.
+Do not claim unsupported Resource export; the recovered exporter is City-only.
+
+If existing world-entry/capture fails, preserve the actual result and continue
+source-backed diagnosis/repair with inverse proof inside this scope. isInWorld=false
+alone is not a final blocker. Legitimate login/update/maintenance or a concretely
+UI-only external prerequisite may remain blocked; do not bypass it or send input.
+Complete every independent ready branch before returning. Canonical UI click/visual
+proof stays pending; background native results are not a substitute for it.
+
+Use production exact-run Stop and owned-session close, preserve ownership until
+termination, restore instrumented scripts only after game exit, verify exact triplet
+hashes/cleared journals and retain backups/failed attempts. No owner-root writes,
+fake provider results, product fallback, guessed original semantics, claims/plunder,
+shares/marches/spending/updater/protected services or original-key guessing.
+
+Evidence: parent pilot/background-world-resource-004/. Preserve all earlier packets.
+Run affected native Map/world/helper/Lua/lease checks; product changes require relevant
+Release/frontend/build/package gates. Work alone: no subagents or GPT Work/Codex/
+other-chat delegation. Continue both checkpoints without per-milestone relay or
+artificial duration. Commit coherent owned changes, push, verify direct remote SHA,
+update current status/handoff and return AWAITING_REVIEW with actual outcomes,
+corrections, failed attempts, checks, cleanup and exact remaining dependencies.

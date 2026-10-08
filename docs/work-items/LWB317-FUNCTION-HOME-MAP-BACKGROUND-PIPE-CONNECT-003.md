@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-BACKGROUND-PIPE-CONNECT-003
 
-Status: **AWAITING_REVIEW** — actual game pipe/RPC repaired and proven; Resource depends on world scene.
+Status: **ACCEPTED CONNECTION REPAIR / BOUNDED CURRENT-CLIENT LIVE PROOF**, 2026-10-08. See 003-LEAD review and BW004-01; full pilot remains PARTIAL. — actual game pipe/RPC repaired and proven; Resource depends on world scene.
 Reviewed predecessor: `35d92a2490cb38829208a4db50cd09c8a2b87b33`.
 
 Goal: repair the actual in-game adapter-to-host connection through a source-backed

@@ -1,3 +1,5 @@
+Lead review, 2026-10-08: PIPE-CONNECT-003 accepted at e51ab590 for current-client direct userdata Connect repair, actual authenticated pipe/getStatus RPC and restoration. Fresh 4 delegate + 5 file ownership + 6 Lua lease tests and three-attempt audit pass. Full Home/Map remains PARTIAL. BW004-01: runner stopped on city state before exercising existing StartAsync -> EnterWorldMapAsync -> SceneUtils.ChangeToWorld path; desktop-input requirement is not established. Next solo relay: BACKGROUND-WORLD-RESOURCE-004, correct proof gate and exercise existing native world entry/Resource/Stop. Background game/native ordinary same-server scene transition permitted; OS desktop capture/input/focus remains restricted.
+
 Lead checkpoint, 2026-10-08: **LIVE-PILOT-001 PARTIAL / BACKGROUND ONLY**.
 Attempt-5 historical readiness/direct-reader evidence is preserved at product
 checkpoint b1f75a25. No fresh Resource result or complete pilot sequence is accepted.
