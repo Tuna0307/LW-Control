@@ -33,3 +33,30 @@ Sources: RE-MAP-001/002/003; Map317CommandService.cs;
 MapStore.Query.cs; mapBackend.js. Evidence: safe-real-db-snapshot.json,
 command-actual-resource-proof.json/.payload.json,
 frontend-real-resource-adapter-proof.json.
+## Checkpoint A/E mounted expansion and source-backed correction
+
+Added 49-obligation Home/Map finite contract matrix, each with original
+reference locator, current implementation, proof status and missing edge.
+This is an inventory, NOT 49 passed A-to-A equivalences.
+
+Replayed accepted 004 Resource data in actual mounted canonical
+MapDataPage.jsx, I18nProvider.jsx and mapBackend.js:
+EN/light and JA/dark; 8008 rows, 50 first-page table rows;
+actual next-page button fetches page2; original-name option
+129027 selection fetches 2608 and displays it; profile A to B
+drops count to zero, A return restores 8008 and 50 real rows.
+Ten mounted cases pass with zero unexpected React issues, zero native
+game actions, and all owned page timers cleared. Headless jsdom with
+controlled recorded *actual Map317 command responses*, not a live
+original desktop/WebView.
+
+M21 demonstrated original 0.3.17 page minimum: baseline
+map_search(page=0) threw INVALID_MAP_QUERY at command boundary,
+although original RE-MAP-003 minimum is 1; retained actual failing
+stack in source-page-zero-baseline-failure.json. Narrow product
+correction maps any numeric int page<1 to1, missing/null to1 while
+preserving wrong-type rejection and untouched pageSize. Corrected
+production dispatcher now handles page0 and -7 plus 8008 real rows,
+2 pages, filtered positive/negative, preserved A/B/A and exact cleanup.
+This is source-backed bounded public search A->A, NOT protected
+original in-game scanning parity.

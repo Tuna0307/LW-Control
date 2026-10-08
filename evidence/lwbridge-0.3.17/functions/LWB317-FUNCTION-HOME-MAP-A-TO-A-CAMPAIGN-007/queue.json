@@ -7,21 +7,21 @@
                             "id":  "A01",
                             "title":  "Home frontend/native controls, status and conditional state",
                             "sourceLocator":  "docs/tabs/home.md; src/LWBridge.UI-0.3.17/src/pages/HomePage*; src/LWBridge.Desktop/OverviewLifecycleService.cs",
-                            "status":  "IN_PROGRESS",
+                            "status":  "FINITELY_INVENTORIED_MISSING_ORIGINAL_EDGES_MARKED",
                             "proofType":  "Exact frontend bytes and native commands",
-                            "lastExecutedResult":  null,
+                            "lastExecutedResult":  "49 distinct Home/Map controls/provider/storage obligations in reference-contract-matrix.json",
                             "dependency":  null,
-                            "nextAction":  "Trace source ownership and original distinct states"
+                            "nextAction":  "Audit remaining original host/body and run controlled distinguishing oracles"
                         },
                         {
                             "id":  "A02",
                             "title":  "Map eight-kind contract and command/persistence trace",
                             "sourceLocator":  "docs/reviews/2026-09-30-LWB317-RE-MAP-001/002/003; Map317CommandService.cs",
-                            "status":  "IN_PROGRESS",
+                            "status":  "FINITELY_INVENTORIED_MISSING_ORIGINAL_EDGES_MARKED",
                             "proofType":  "Recovered 0.3.17 host/store, limited native live",
-                            "lastExecutedResult":  null,
+                            "lastExecutedResult":  "49 distinct Home/Map controls/provider/storage obligations in reference-contract-matrix.json",
                             "dependency":  null,
-                            "nextAction":  "Map comprehensive command matrix"
+                            "nextAction":  "Audit remaining original host/body and run controlled distinguishing oracles"
                         },
                         {
                             "id":  "B01",
@@ -137,11 +137,11 @@
                             "id":  "E04",
                             "title":  "Canonical mapBackend/frontend profile A/B/A with real rows",
                             "sourceLocator":  "src/LWBridge.UI-0.3.17/src/mapBackend.js and MapDataPage",
-                            "status":  "PARTIAL_REAL_FRONTEND_ADAPTER_PASS_MOUNT_PENDING",
+                            "status":  "COMPLETE_MOUNTED_CURRENT_DATA_BOUNDED",
                             "proofType":  "No desktop UI allowed",
-                            "lastExecutedResult":  "Actual mapBackend.js createMapApi consumed real command payload; A/B/A and stale event pass, no DOM mount",
+                            "lastExecutedResult":  "Mounted actual MapDataPage I18n EN/light JA/dark 10 cases: A 8008 page1+2, 2608 filter, B0, A8008; no timer leak; game actions0",
                             "dependency":  null,
-                            "nextAction":  "Mount MapDataPage headlessly"
+                            "nextAction":  "Retain source-local provenance; original runtime A-to-A still separate"
                         },
                         {
                             "id":  "E05",

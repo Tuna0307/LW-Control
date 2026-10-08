@@ -1,0 +1,36 @@
+{
+  "result": {
+    "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+    "proofType": "real captured v22 records -\u003E actual Map317CommandService.InvokeAsync -\u003E actual MapControlPlane \u002B MapStore, inert external game/action provider",
+    "originalReferenceParity": "UNKNOWN_NOT_PROVEN",
+    "realSourceRunId": "b439bfa57cd54405a14e803d21964c9d",
+    "snapshotSha256BeforeAfter": "641f70f6ce7c69c6d2b8af0d3afa9fe8ad50a0bbcabd0308667719509afc78a8",
+    "serverId": 2212,
+    "profileA": {
+      "total": 8008,
+      "page1Count": 50,
+      "page2Count": 50,
+      "firstRecordKey": "901994",
+      "pagesNonoverlap": true,
+      "defaults50": true,
+      "comparatorExactPageMatches": true,
+      "filteredResourceNameKey": "129027",
+      "positiveFilterCount": 2608,
+      "impossibleFilterCount": 0,
+      "optionsResourceNames": 4,
+      "optionResourceCount": 8008,
+      "summaryOfflineServerId": 0,
+      "reopenTotal": 8008
+    },
+    "oldEnvelopeRejected": true,
+    "profileBTotal": 0,
+    "schedulesDisabled": true,
+    "externalGameActions": 0
+  },
+  "failure": null,
+  "ownedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-A-TO-A-CAMPAIGN-007-COMMAND-914082e88a7b4106b2532c5885f158c6",
+  "sourceSnapshot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-A-TO-A-CAMPAIGN-007-RESOURCEREPLAY\\profile-A\\map-data\\map-data.db",
+  "sourceSnapshotPreserved": true,
+  "ownedTempCleanupSucceeded": true,
+  "cleanupPolicy": "clear SQLite connection pools and delete only newly allocated temp replay root"
+}

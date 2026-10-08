@@ -84,6 +84,25 @@ internal static class Campaign007RealResourceCommandChecks
                 catch (BridgeCommandException e) when (e.Code == "INVALID_MAP_QUERY") { }
                 first = await Query(serviceA, new { serverId = Server, page = 1, pageSize = 50 });
                 second = await Query(serviceA, new { serverId = Server, page = 2, pageSize = 50 });
+                JsonElement zeroPage = await Query(serviceA,
+                    new { serverId = Server, page = 0, pageSize = 50 });
+                // Original exact 0.3.17 native search normalizes page to >=1
+                // (RE-MAP-003 Search pagination); the clone must not reject it.
+                JsonElement negativePage = await Query(serviceA,
+                    new { serverId = Server, page = -7, pageSize = 50 });
+                Require(Keys(negativePage).SequenceEqual(Keys(first)),
+                    "R17 original negative-page clamp must match page one");
+                try
+                {
+                    _ = await Query(serviceA,
+                        new { serverId = Server, page = "not-an-integer", pageSize = 50 });
+                    throw new InvalidDataException("nonnumeric unsupported query unexpectedly accepted");
+                }
+                catch (BridgeCommandException e) when (e.Code == "INVALID_MAP_QUERY" &&
+                    e.Message == "page must be a positive integer.") { }
+                Require(zeroPage.GetProperty("total").GetInt32() == ExpectedRows &&
+                    Keys(zeroPage).SequenceEqual(Keys(first)),
+                    "R17 original page=0 minimum-to-1 contract differs from current public command");
                 defaultPage = await Query(serviceA, new { serverId = Server });
                 Require(first.GetProperty("total").GetInt32() == ExpectedRows &&
                     second.GetProperty("total").GetInt32() == ExpectedRows &&

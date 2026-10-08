@@ -78,7 +78,7 @@ internal static class MapDataQueryContract
             throw new BridgeCommandException("INVALID_MAP_QUERY", "map_search query must be an object.");
 
         int serverId = RequiredServerIdOrAll(query);
-        int page = OptionalPositiveInt(query, "page", 1);
+        int page = OptionalNormalizedPage(query);
         int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
         bool markedOnly = OptionalBoolean(query, "markedOnly", false);
@@ -367,6 +367,20 @@ internal static class MapDataQueryContract
         return string.IsNullOrEmpty(result) ? null : result;
     }
 
+    // ORIGINAL 0.3.17 SEARCH CONTRACT (RE-MAP-003): page defaults to
+    // 1 and is clamped to at least 1. The old clone parser threw
+    // INVALID_MAP_QUERY on numeric zero/negative before MapStore.Search
+    // could apply the original minimum; this is observably stricter.
+    // Keep unknown wrong-type coercion separate from this proven numeric case.
+    private static int OptionalNormalizedPage(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("page", out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return 1;
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int result))
+            throw new BridgeCommandException("INVALID_MAP_QUERY", "page must be a positive integer.");
+        return Math.Max(result, 1);
+    }
     private static int OptionalPositiveInt(JsonElement payload, string name, int fallback)
     {
         if (!payload.TryGetProperty(name, out JsonElement value) || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
