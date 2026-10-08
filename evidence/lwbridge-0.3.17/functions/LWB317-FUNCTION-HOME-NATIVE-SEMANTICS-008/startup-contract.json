@@ -1,0 +1,76 @@
+{
+  "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "analysisClass": "EXACT_BYTE_VALUE_AND_CONTROL_FLOW_NOT_ORIGINAL_RUNTIME",
+  "reconcile": {
+    "jsonKey": "autoLaunchAll",
+    "defaultWhenAbsent": true,
+    "defaultWhenNonBoolean": true,
+    "explicitFalse": false,
+    "explicitTrue": true,
+    "selector": "0x203519-0x203551",
+    "callback": "0x203576",
+    "oracleInputs": [
+      {
+        "input": null,
+        "originalDecision": true
+      },
+      {
+        "input": true,
+        "originalDecision": true
+      },
+      {
+        "input": false,
+        "originalDecision": false
+      },
+      {
+        "input": 5,
+        "originalDecision": true
+      },
+      {
+        "input": "false",
+        "originalDecision": true
+      },
+      {
+        "input": {},
+        "originalDecision": true
+      },
+      {
+        "input": [],
+        "originalDecision": true
+      }
+    ]
+  },
+  "launch": {
+    "fiveSecondDeadline": {
+      "producer": "0x1d693f-0x1d695c",
+      "consumers": [
+        "0x1d72c9-0x1d72e9"
+      ],
+      "sleeper": "0x1d7303-0x1d733c",
+      "intervalNanoseconds": 100000000,
+      "deadlineSeconds": 5,
+      "purpose": "async returned-record readiness after 0x2a2887; full input type/response still incomplete"
+    },
+    "registryWait": {
+      "producer": "0x1dd10f-0x1dd11f",
+      "readyCall": "0x2c75ca (named pipe registry; contains STATE_UNAVAILABLE)",
+      "pollCall": "0x2c6a65 after 0x1dd3f2 current-time check",
+      "deadlineMilliseconds": 90000,
+      "pollNanoseconds": 250000000,
+      "exactOrdering": "record request -> store (clock_ms+90000) -> check registry -> wait/poll at 250ms; repeat only while below deadline and registry check branch says not ready",
+      "unresolved": "registry result state and treatment of deadline as terminal error vs follow-on retry need more continuation tracing"
+    },
+    "timerNanosecondsPerSecond": 1000000000
+  },
+  "productionComparison": {
+    "source": "OverviewLifecycleService.cs:449-457",
+    "defaultAutoLaunchMatches": true,
+    "originalPrivate5sAnd90sMechanismIsDistinctFromCurrentClient": true,
+    "doNotChangeCloneTimeoutSecondsWithoutEndToEndStateProof": true
+  },
+  "limits": [
+    "Milliseconds from 0x2c9034 uses FILETIME conversion; wall/monotonic clock provenance not fully decoded",
+    "First 5s wait purpose and 90s registry failure propagation need further available-body tracing",
+    "Health/retry threshold table and reset rules not identified in these snippets, no 0.3.1 promotion"
+  ]
+}

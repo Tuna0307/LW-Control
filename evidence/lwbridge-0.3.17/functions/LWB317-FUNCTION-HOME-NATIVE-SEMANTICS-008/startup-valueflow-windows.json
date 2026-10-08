@@ -1,0 +1,3465 @@
+{
+  "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "classification": "STATIC_CROSS_REFERENCE_WINDOWS_NO_RUNTIME_ORIGINAL",
+  "functions": [
+    {
+      "name": "start",
+      "range": [
+        "0x20715f",
+        "0x207ca9"
+      ],
+      "matches": [
+        {
+          "at": "0x207784",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83c548",
+              "text": "closeUnmanaged"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x207752",
+              "assembly": "call 0x1405c4370"
+            },
+            {
+              "at": "0x207757",
+              "assembly": "test rax, rax"
+            },
+            {
+              "at": "0x20775a",
+              "assembly": "je 0x140207c9d"
+            },
+            {
+              "at": "0x207760",
+              "assembly": "mov rsi, rax"
+            },
+            {
+              "at": "0x207763",
+              "assembly": "jmp 0x14020776a"
+            },
+            {
+              "at": "0x207765",
+              "assembly": "mov esi, 1"
+            },
+            {
+              "at": "0x20776a",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x20776d",
+              "assembly": "mov rdx, r13"
+            },
+            {
+              "at": "0x207770",
+              "assembly": "mov r8, r12"
+            },
+            {
+              "at": "0x207773",
+              "assembly": "call 0x1407a33e0"
+            },
+            {
+              "at": "0x207778",
+              "assembly": "cmp byte ptr [rdi], 5"
+            },
+            {
+              "at": "0x20777b",
+              "assembly": "jne 0x1402077a8"
+            },
+            {
+              "at": "0x20777d",
+              "assembly": "lea rcx, [rbx + 0x55b8]"
+            },
+            {
+              "at": "0x207784",
+              "assembly": "lea rdx, [rip + 0x634dbd]"
+            },
+            {
+              "at": "0x20778b",
+              "assembly": "mov r8d, 0xe"
+            },
+            {
+              "at": "0x207791",
+              "assembly": "call 0x1405a9615"
+            },
+            {
+              "at": "0x207796",
+              "assembly": "test rax, rax"
+            },
+            {
+              "at": "0x207799",
+              "assembly": "mov rdi, r14"
+            },
+            {
+              "at": "0x20779c",
+              "assembly": "je 0x1402077af"
+            },
+            {
+              "at": "0x20779e",
+              "assembly": "cmp byte ptr [rax], 1"
+            },
+            {
+              "at": "0x2077a1",
+              "assembly": "jne 0x1402077af"
+            },
+            {
+              "at": "0x2077a3",
+              "assembly": "mov al, byte ptr [rax + 1]"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 579
+    },
+    {
+      "name": "stop",
+      "range": [
+        "0x199627",
+        "0x19ac62"
+      ],
+      "matches": [
+        {
+          "at": "0x19a0de",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0xe5725"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x19a09c",
+              "assembly": "mov rax, r15"
+            },
+            {
+              "at": "0x19a09f",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x19a0a2",
+              "assembly": "jno 0x14019ab49"
+            },
+            {
+              "at": "0x19a0a8",
+              "assembly": "movups xmm0, xmmword ptr [rbx + 0x24d0]"
+            },
+            {
+              "at": "0x19a0af",
+              "assembly": "movups xmmword ptr [rbx + 0x2420], xmm0"
+            },
+            {
+              "at": "0x19a0b6",
+              "assembly": "mov dword ptr [rbx + 0x24b8], ebp"
+            },
+            {
+              "at": "0x19a0bc",
+              "assembly": "mov byte ptr [rbx + 0x24c0], 0"
+            },
+            {
+              "at": "0x19a0c3",
+              "assembly": "mov r15, r14"
+            },
+            {
+              "at": "0x19a0c6",
+              "assembly": "lea rdx, [rbx + 0x2420]"
+            },
+            {
+              "at": "0x19a0cd",
+              "assembly": "lea rsi, [rsp + 0x2b8]"
+            },
+            {
+              "at": "0x19a0d5",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x19a0d8",
+              "assembly": "mov r14, r15"
+            },
+            {
+              "at": "0x19a0db",
+              "assembly": "mov r8, r15"
+            },
+            {
+              "at": "0x19a0de",
+              "assembly": "call 0x1400e5725"
+            },
+            {
+              "at": "0x19a0e3",
+              "assembly": "mov r15, qword ptr [rsi]"
+            },
+            {
+              "at": "0x19a0e6",
+              "assembly": "movabs rax, 0x8000000000000001"
+            },
+            {
+              "at": "0x19a0f0",
+              "assembly": "cmp r15, rax"
+            },
+            {
+              "at": "0x19a0f3",
+              "assembly": "jne 0x14019a0fc"
+            },
+            {
+              "at": "0x19a0f5",
+              "assembly": "mov al, 3"
+            },
+            {
+              "at": "0x19a0f7",
+              "assembly": "jmp 0x14019a385"
+            },
+            {
+              "at": "0x19a0fc",
+              "assembly": "mov qword ptr [rsp + 0x48], r12"
+            },
+            {
+              "at": "0x19a101",
+              "assembly": "mov r12, qword ptr [rsp + 0x2c0]"
+            }
+          ]
+        },
+        {
+          "at": "0x19a161",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x19a101",
+              "assembly": "mov r12, qword ptr [rsp + 0x2c0]"
+            },
+            {
+              "at": "0x19a109",
+              "assembly": "mov rbp, qword ptr [rsp + 0x2c8]"
+            },
+            {
+              "at": "0x19a111",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0x2d0]"
+            },
+            {
+              "at": "0x19a119",
+              "assembly": "movaps xmmword ptr [rsp + 0x440], xmm0"
+            },
+            {
+              "at": "0x19a121",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0x2e0]"
+            },
+            {
+              "at": "0x19a129",
+              "assembly": "movaps xmmword ptr [rsp + 0x450], xmm0"
+            },
+            {
+              "at": "0x19a131",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0x2f0]"
+            },
+            {
+              "at": "0x19a139",
+              "assembly": "movaps xmmword ptr [rsp + 0x460], xmm0"
+            },
+            {
+              "at": "0x19a141",
+              "assembly": "mov rax, qword ptr [rsp + 0x300]"
+            },
+            {
+              "at": "0x19a149",
+              "assembly": "mov qword ptr [rsp + 0x470], rax"
+            },
+            {
+              "at": "0x19a151",
+              "assembly": "cmp byte ptr [rbx + 0x24c0], 3"
+            },
+            {
+              "at": "0x19a158",
+              "assembly": "jne 0x14019a166"
+            },
+            {
+              "at": "0x19a15a",
+              "assembly": "lea rcx, [rbx + 0x2448]"
+            },
+            {
+              "at": "0x19a161",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x19a166",
+              "assembly": "mov rax, r15"
+            },
+            {
+              "at": "0x19a169",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x19a16c",
+              "assembly": "jno 0x14019a69a"
+            },
+            {
+              "at": "0x19a172",
+              "assembly": "lea rcx, [rbx + 0x24c8]"
+            },
+            {
+              "at": "0x19a179",
+              "assembly": "mov edx, 1"
+            },
+            {
+              "at": "0x19a17e",
+              "assembly": "mov r8d, 1"
+            },
+            {
+              "at": "0x19a184",
+              "assembly": "call 0x14001150d"
+            },
+            {
+              "at": "0x19a189",
+              "assembly": "mov r12, qword ptr [rsp + 0x48]"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 1051
+    },
+    {
+      "name": "status",
+      "range": [
+        "0x1a0da4",
+        "0x1a213c"
+      ],
+      "matches": [],
+      "instructionCount": 928
+    },
+    {
+      "name": "reconcile",
+      "range": [
+        "0x203021",
+        "0x2057dc"
+      ],
+      "matches": [
+        {
+          "at": "0x203576",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x1ddbb2"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x20353e",
+              "assembly": "je 0x14020354a"
+            },
+            {
+              "at": "0x203540",
+              "assembly": "cmp byte ptr [rax], 1"
+            },
+            {
+              "at": "0x203543",
+              "assembly": "jne 0x14020354a"
+            },
+            {
+              "at": "0x203545",
+              "assembly": "mov al, byte ptr [rax + 1]"
+            },
+            {
+              "at": "0x203548",
+              "assembly": "jmp 0x14020354c"
+            },
+            {
+              "at": "0x20354a",
+              "assembly": "mov al, 1"
+            },
+            {
+              "at": "0x20354c",
+              "assembly": "mov r13, qword ptr [rsp + 0x30]"
+            },
+            {
+              "at": "0x203551",
+              "assembly": "mov byte ptr [rbx + 0x68d1], al"
+            },
+            {
+              "at": "0x203557",
+              "assembly": "mov rax, qword ptr [rbx + 0x66a8]"
+            },
+            {
+              "at": "0x20355e",
+              "assembly": "mov qword ptr [rbx + 0x68d8], rax"
+            },
+            {
+              "at": "0x203565",
+              "assembly": "mov byte ptr [rbx + 0x6958], 0"
+            },
+            {
+              "at": "0x20356c",
+              "assembly": "lea rcx, [rbx + 0x68d8]"
+            },
+            {
+              "at": "0x203573",
+              "assembly": "mov rdx, r13"
+            },
+            {
+              "at": "0x203576",
+              "assembly": "call 0x1401ddbb2"
+            },
+            {
+              "at": "0x20357b",
+              "assembly": "mov cl, 4"
+            },
+            {
+              "at": "0x20357d",
+              "assembly": "test al, 1"
+            },
+            {
+              "at": "0x20357f",
+              "assembly": "jne 0x140204b18"
+            },
+            {
+              "at": "0x203585",
+              "assembly": "mov esi, edx"
+            },
+            {
+              "at": "0x203587",
+              "assembly": "cmp byte ptr [rbx + 0x6958], 3"
+            },
+            {
+              "at": "0x20358e",
+              "assembly": "jne 0x1402035ae"
+            },
+            {
+              "at": "0x203590",
+              "assembly": "cmp byte ptr [rbx + 0x6950], 3"
+            },
+            {
+              "at": "0x203597",
+              "assembly": "jne 0x1402035ae"
+            }
+          ]
+        },
+        {
+          "at": "0x203844",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83c51a",
+              "text": "GAME_ROOT_NOT_FOUND"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x203809",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x20380c",
+              "assembly": "call 0x140005c1d"
+            },
+            {
+              "at": "0x203811",
+              "assembly": "mov al, byte ptr [rbx + 0x67e0]"
+            },
+            {
+              "at": "0x203817",
+              "assembly": "mov byte ptr [rsi + 0x18], al"
+            },
+            {
+              "at": "0x20381a",
+              "assembly": "mov rbp, qword ptr [rsi]"
+            },
+            {
+              "at": "0x20381d",
+              "assembly": "movups xmm0, xmmword ptr [rsi + 8]"
+            },
+            {
+              "at": "0x203821",
+              "assembly": "movaps xmmword ptr [rsp + 0x50], xmm0"
+            },
+            {
+              "at": "0x203826",
+              "assembly": "mov rax, qword ptr [rsi + 0x18]"
+            },
+            {
+              "at": "0x20382a",
+              "assembly": "mov qword ptr [rsp + 0x60], rax"
+            },
+            {
+              "at": "0x20382f",
+              "assembly": "mov rax, rbp"
+            },
+            {
+              "at": "0x203832",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x203835",
+              "assembly": "jno 0x14020399b"
+            },
+            {
+              "at": "0x20383b",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x13"
+            },
+            {
+              "at": "0x203844",
+              "assembly": "lea rdx, [rip + 0x638ccf]"
+            },
+            {
+              "at": "0x20384b",
+              "assembly": "lea rsi, [rsp + 0xf0]"
+            },
+            {
+              "at": "0x203853",
+              "assembly": "mov r8d, 0x13"
+            },
+            {
+              "at": "0x203859",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x20385c",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x20385f",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x203864",
+              "assembly": "mov r15, qword ptr [rsi]"
+            },
+            {
+              "at": "0x203867",
+              "assembly": "mov rbp, qword ptr [rsi + 8]"
+            },
+            {
+              "at": "0x20386b",
+              "assembly": "mov rax, r15"
+            }
+          ]
+        },
+        {
+          "at": "0x204593",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x1ddc84"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x204544",
+              "assembly": "mov qword ptr [rbx + 0x68a0], rcx"
+            },
+            {
+              "at": "0x20454b",
+              "assembly": "mov qword ptr [rbx + 0x68b0], rax"
+            },
+            {
+              "at": "0x204552",
+              "assembly": "lea rcx, [rax + 0x18]"
+            },
+            {
+              "at": "0x204556",
+              "assembly": "mov qword ptr [rbx + 0x68b8], rcx"
+            },
+            {
+              "at": "0x20455d",
+              "assembly": "movups xmm0, xmmword ptr [rbx + 0x67f0]"
+            },
+            {
+              "at": "0x204564",
+              "assembly": "mov eax, dword ptr [rax + 0x90]"
+            },
+            {
+              "at": "0x20456a",
+              "assembly": "movups xmmword ptr [rbx + 0x68d8], xmm0"
+            },
+            {
+              "at": "0x204571",
+              "assembly": "mov dword ptr [rbx + 0x6970], eax"
+            },
+            {
+              "at": "0x204577",
+              "assembly": "mov byte ptr [rbx + 0x6978], 0"
+            },
+            {
+              "at": "0x20457e",
+              "assembly": "lea rdx, [rbx + 0x68d8]"
+            },
+            {
+              "at": "0x204585",
+              "assembly": "lea rsi, [rsp + 0xf0]"
+            },
+            {
+              "at": "0x20458d",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x204590",
+              "assembly": "mov r8, r13"
+            },
+            {
+              "at": "0x204593",
+              "assembly": "call 0x1401ddc84"
+            },
+            {
+              "at": "0x204598",
+              "assembly": "mov r14, qword ptr [rsi]"
+            },
+            {
+              "at": "0x20459b",
+              "assembly": "movabs rax, 0x8000000000000001"
+            },
+            {
+              "at": "0x2045a5",
+              "assembly": "cmp r14, rax"
+            },
+            {
+              "at": "0x2045a8",
+              "assembly": "je 0x140204b0e"
+            },
+            {
+              "at": "0x2045ae",
+              "assembly": "lea rsi, [rsp + 0xf8]"
+            },
+            {
+              "at": "0x2045b6",
+              "assembly": "lea rdi, [rsp + 0x3c8]"
+            },
+            {
+              "at": "0x2045be",
+              "assembly": "mov ecx, 9"
+            },
+            {
+              "at": "0x2045c3",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            }
+          ]
+        },
+        {
+          "at": "0x2045d6",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x204590",
+              "assembly": "mov r8, r13"
+            },
+            {
+              "at": "0x204593",
+              "assembly": "call 0x1401ddc84"
+            },
+            {
+              "at": "0x204598",
+              "assembly": "mov r14, qword ptr [rsi]"
+            },
+            {
+              "at": "0x20459b",
+              "assembly": "movabs rax, 0x8000000000000001"
+            },
+            {
+              "at": "0x2045a5",
+              "assembly": "cmp r14, rax"
+            },
+            {
+              "at": "0x2045a8",
+              "assembly": "je 0x140204b0e"
+            },
+            {
+              "at": "0x2045ae",
+              "assembly": "lea rsi, [rsp + 0xf8]"
+            },
+            {
+              "at": "0x2045b6",
+              "assembly": "lea rdi, [rsp + 0x3c8]"
+            },
+            {
+              "at": "0x2045be",
+              "assembly": "mov ecx, 9"
+            },
+            {
+              "at": "0x2045c3",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x2045c6",
+              "assembly": "cmp byte ptr [rbx + 0x6978], 3"
+            },
+            {
+              "at": "0x2045cd",
+              "assembly": "jne 0x1402045db"
+            },
+            {
+              "at": "0x2045cf",
+              "assembly": "lea rcx, [rbx + 0x6900]"
+            },
+            {
+              "at": "0x2045d6",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x2045db",
+              "assembly": "mov rax, r14"
+            },
+            {
+              "at": "0x2045de",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x2045e1",
+              "assembly": "jno 0x1402048a9"
+            },
+            {
+              "at": "0x2045e7",
+              "assembly": "mov rax, qword ptr [rbx + 0x66a8]"
+            },
+            {
+              "at": "0x2045ee",
+              "assembly": "mov rdx, qword ptr [rax + 0x110]"
+            },
+            {
+              "at": "0x2045f5",
+              "assembly": "add rdx, 0x10"
+            },
+            {
+              "at": "0x2045f9",
+              "assembly": "mov rax, qword ptr [rbx + 0x68b0]"
+            },
+            {
+              "at": "0x204600",
+              "assembly": "mov r8, qword ptr [rax + 8]"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 1926
+    },
+    {
+      "name": "restart",
+      "range": [
+        "0x2057dc",
+        "0x20715f"
+      ],
+      "matches": [
+        {
+          "at": "0x205dee",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83c51a",
+              "text": "GAME_ROOT_NOT_FOUND"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x205dac",
+              "assembly": "mov rcx, rdi"
+            },
+            {
+              "at": "0x205daf",
+              "assembly": "call 0x140005c1d"
+            },
+            {
+              "at": "0x205db4",
+              "assembly": "mov al, byte ptr [r14 + 0x98]"
+            },
+            {
+              "at": "0x205dbb",
+              "assembly": "mov byte ptr [rdi + 0x18], al"
+            },
+            {
+              "at": "0x205dbe",
+              "assembly": "mov r14, qword ptr [rdi]"
+            },
+            {
+              "at": "0x205dc1",
+              "assembly": "movups xmm0, xmmword ptr [rdi + 8]"
+            },
+            {
+              "at": "0x205dc5",
+              "assembly": "movaps xmmword ptr [rsp + 0x90], xmm0"
+            },
+            {
+              "at": "0x205dcd",
+              "assembly": "mov rax, qword ptr [rdi + 0x18]"
+            },
+            {
+              "at": "0x205dd1",
+              "assembly": "mov qword ptr [rsp + 0xa0], rax"
+            },
+            {
+              "at": "0x205dd9",
+              "assembly": "mov rax, r14"
+            },
+            {
+              "at": "0x205ddc",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x205ddf",
+              "assembly": "jno 0x140205ec3"
+            },
+            {
+              "at": "0x205de5",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x13"
+            },
+            {
+              "at": "0x205dee",
+              "assembly": "lea rdx, [rip + 0x636725]"
+            },
+            {
+              "at": "0x205df5",
+              "assembly": "lea rdi, [rsp + 0x340]"
+            },
+            {
+              "at": "0x205dfd",
+              "assembly": "mov r8d, 0x13"
+            },
+            {
+              "at": "0x205e03",
+              "assembly": "mov rcx, rdi"
+            },
+            {
+              "at": "0x205e06",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x205e09",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x205e0e",
+              "assembly": "mov r12, qword ptr [rdi]"
+            },
+            {
+              "at": "0x205e11",
+              "assembly": "mov r14, qword ptr [rdi + 8]"
+            },
+            {
+              "at": "0x205e15",
+              "assembly": "mov rax, r12"
+            }
+          ]
+        },
+        {
+          "at": "0x2060c5",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x1ddc84"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x20607f",
+              "assembly": "call 0x14041e543"
+            },
+            {
+              "at": "0x206084",
+              "assembly": "mov r12, qword ptr [rdi]"
+            },
+            {
+              "at": "0x206087",
+              "assembly": "mov rax, r12"
+            },
+            {
+              "at": "0x20608a",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x20608d",
+              "assembly": "jno 0x140206257"
+            },
+            {
+              "at": "0x206093",
+              "assembly": "movups xmm0, xmmword ptr [rbx + 0x5da8]"
+            },
+            {
+              "at": "0x20609a",
+              "assembly": "movups xmmword ptr [rbx + 0x5e28], xmm0"
+            },
+            {
+              "at": "0x2060a1",
+              "assembly": "mov dword ptr [rbx + 0x5ec0], esi"
+            },
+            {
+              "at": "0x2060a7",
+              "assembly": "mov byte ptr [rbx + 0x5ec8], 0"
+            },
+            {
+              "at": "0x2060ae",
+              "assembly": "lea rdx, [rbx + 0x5e28]"
+            },
+            {
+              "at": "0x2060b5",
+              "assembly": "lea rsi, [rsp + 0xc0]"
+            },
+            {
+              "at": "0x2060bd",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x2060c0",
+              "assembly": "mov r8, qword ptr [rsp + 0x38]"
+            },
+            {
+              "at": "0x2060c5",
+              "assembly": "call 0x1401ddc84"
+            },
+            {
+              "at": "0x2060ca",
+              "assembly": "mov r12, qword ptr [rsi]"
+            },
+            {
+              "at": "0x2060cd",
+              "assembly": "cmp r12, r15"
+            },
+            {
+              "at": "0x2060d0",
+              "assembly": "je 0x140206227"
+            },
+            {
+              "at": "0x2060d6",
+              "assembly": "mov r14, qword ptr [rsp + 0xc8]"
+            },
+            {
+              "at": "0x2060de",
+              "assembly": "mov r13, qword ptr [rsp + 0xd0]"
+            },
+            {
+              "at": "0x2060e6",
+              "assembly": "mov rbp, qword ptr [rsp + 0xd8]"
+            },
+            {
+              "at": "0x2060ee",
+              "assembly": "mov r15, qword ptr [rsp + 0xe0]"
+            },
+            {
+              "at": "0x2060f6",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0xe8]"
+            }
+          ]
+        },
+        {
+          "at": "0x206136",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x2060d6",
+              "assembly": "mov r14, qword ptr [rsp + 0xc8]"
+            },
+            {
+              "at": "0x2060de",
+              "assembly": "mov r13, qword ptr [rsp + 0xd0]"
+            },
+            {
+              "at": "0x2060e6",
+              "assembly": "mov rbp, qword ptr [rsp + 0xd8]"
+            },
+            {
+              "at": "0x2060ee",
+              "assembly": "mov r15, qword ptr [rsp + 0xe0]"
+            },
+            {
+              "at": "0x2060f6",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0xe8]"
+            },
+            {
+              "at": "0x2060fe",
+              "assembly": "movaps xmmword ptr [rsp + 0x270], xmm0"
+            },
+            {
+              "at": "0x206106",
+              "assembly": "movups xmm0, xmmword ptr [rsp + 0xf8]"
+            },
+            {
+              "at": "0x20610e",
+              "assembly": "movaps xmmword ptr [rsp + 0x280], xmm0"
+            },
+            {
+              "at": "0x206116",
+              "assembly": "mov rax, qword ptr [rsp + 0x108]"
+            },
+            {
+              "at": "0x20611e",
+              "assembly": "mov qword ptr [rsp + 0x290], rax"
+            },
+            {
+              "at": "0x206126",
+              "assembly": "cmp byte ptr [rbx + 0x5ec8], 3"
+            },
+            {
+              "at": "0x20612d",
+              "assembly": "jne 0x14020613b"
+            },
+            {
+              "at": "0x20612f",
+              "assembly": "lea rcx, [rbx + 0x5e50]"
+            },
+            {
+              "at": "0x206136",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x20613b",
+              "assembly": "mov rax, r12"
+            },
+            {
+              "at": "0x20613e",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x206141",
+              "assembly": "jno 0x14020622e"
+            },
+            {
+              "at": "0x206147",
+              "assembly": "mov rax, qword ptr [rbx + 0x5ed8]"
+            },
+            {
+              "at": "0x20614e",
+              "assembly": "mov rcx, qword ptr [rbx + 0x5ee8]"
+            },
+            {
+              "at": "0x206155",
+              "assembly": "movabs r15, 0x8000000000000001"
+            },
+            {
+              "at": "0x20615f",
+              "assembly": "jmp 0x14020604d"
+            },
+            {
+              "at": "0x206164",
+              "assembly": "mov rax, qword ptr [rbx + 0x5ed0]"
+            }
+          ]
+        },
+        {
+          "at": "0x20658e",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83d0b0",
+              "text": "bridge_update"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x20654a",
+              "assembly": "mov byte ptr [rbx + 0x6d88], cl"
+            },
+            {
+              "at": "0x206550",
+              "assembly": "mov byte ptr [rbx + 0x6d90], cl"
+            },
+            {
+              "at": "0x206556",
+              "assembly": "mov al, 1"
+            },
+            {
+              "at": "0x206558",
+              "assembly": "jmp 0x1402070bd"
+            },
+            {
+              "at": "0x20655d",
+              "assembly": "cmp rax, rcx"
+            },
+            {
+              "at": "0x206560",
+              "assembly": "je 0x14020667d"
+            },
+            {
+              "at": "0x206566",
+              "assembly": "lea rcx, [rax + 0x78]"
+            },
+            {
+              "at": "0x20656a",
+              "assembly": "mov qword ptr [rbx + 0x63a0], rcx"
+            },
+            {
+              "at": "0x206571",
+              "assembly": "mov rcx, qword ptr [rbx + 0x5d78]"
+            },
+            {
+              "at": "0x206578",
+              "assembly": "movups xmm0, xmmword ptr [rax + 8]"
+            },
+            {
+              "at": "0x20657c",
+              "assembly": "movups xmm1, xmmword ptr [rax + 0x20]"
+            },
+            {
+              "at": "0x206580",
+              "assembly": "mov qword ptr [rbx + 0x5e28], rcx"
+            },
+            {
+              "at": "0x206587",
+              "assembly": "movups xmmword ptr [rbx + 0x5e30], xmm0"
+            },
+            {
+              "at": "0x20658e",
+              "assembly": "lea rax, [rip + 0x636b1b]"
+            },
+            {
+              "at": "0x206595",
+              "assembly": "mov qword ptr [rbx + 0x5e40], rax"
+            },
+            {
+              "at": "0x20659c",
+              "assembly": "mov qword ptr [rbx + 0x5e48], 0xd"
+            },
+            {
+              "at": "0x2065a7",
+              "assembly": "movups xmmword ptr [rbx + 0x5e50], xmm1"
+            },
+            {
+              "at": "0x2065ae",
+              "assembly": "mov byte ptr [rbx + 0x5f00], 0"
+            },
+            {
+              "at": "0x2065b5",
+              "assembly": "lea rsi, [rbx + 0x5e28]"
+            },
+            {
+              "at": "0x2065bc",
+              "assembly": "lea rdi, [rsp + 0xc0]"
+            },
+            {
+              "at": "0x2065c4",
+              "assembly": "mov rcx, rdi"
+            },
+            {
+              "at": "0x2065c7",
+              "assembly": "mov rdx, rsi"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 1238
+    },
+    {
+      "name": "shared_launch",
+      "range": [
+        "0x1d5009",
+        "0x1ddbb2"
+      ],
+      "matches": [
+        {
+          "at": "0x1d5be1",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83c51a",
+              "text": "GAME_ROOT_NOT_FOUND"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d5b9d",
+              "assembly": "mov rcx, rdi"
+            },
+            {
+              "at": "0x1d5ba0",
+              "assembly": "call 0x140005c1d"
+            },
+            {
+              "at": "0x1d5ba5",
+              "assembly": "mov al, byte ptr [r14 + 0x320]"
+            },
+            {
+              "at": "0x1d5bac",
+              "assembly": "mov byte ptr [rdi + 0x18], al"
+            },
+            {
+              "at": "0x1d5baf",
+              "assembly": "mov rsi, qword ptr [rdi]"
+            },
+            {
+              "at": "0x1d5bb2",
+              "assembly": "movdqu xmm0, xmmword ptr [rdi + 8]"
+            },
+            {
+              "at": "0x1d5bb7",
+              "assembly": "movdqa xmmword ptr [rsp + 0xc0], xmm0"
+            },
+            {
+              "at": "0x1d5bc0",
+              "assembly": "mov rax, qword ptr [rdi + 0x18]"
+            },
+            {
+              "at": "0x1d5bc4",
+              "assembly": "mov qword ptr [rsp + 0xd0], rax"
+            },
+            {
+              "at": "0x1d5bcc",
+              "assembly": "mov rax, rsi"
+            },
+            {
+              "at": "0x1d5bcf",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x1d5bd2",
+              "assembly": "jno 0x1401d6145"
+            },
+            {
+              "at": "0x1d5bd8",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x13"
+            },
+            {
+              "at": "0x1d5be1",
+              "assembly": "lea rdx, [rip + 0x666932]"
+            },
+            {
+              "at": "0x1d5be8",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1d5bf0",
+              "assembly": "mov r8d, 0x13"
+            },
+            {
+              "at": "0x1d5bf6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d5bf9",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x1d5bfc",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x1d5c01",
+              "assembly": "mov r13, qword ptr [rsi]"
+            },
+            {
+              "at": "0x1d5c04",
+              "assembly": "mov rsi, qword ptr [rsi + 8]"
+            },
+            {
+              "at": "0x1d5c08",
+              "assembly": "mov rax, r13"
+            }
+          ]
+        },
+        {
+          "at": "0x1d6440",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x1ddbb2"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d63f5",
+              "assembly": "mov qword ptr [r14 + 0x478], rax"
+            },
+            {
+              "at": "0x1d63fc",
+              "assembly": "mov rax, qword ptr [r14 + 0x250]"
+            },
+            {
+              "at": "0x1d6403",
+              "assembly": "mov rcx, qword ptr [rax + 0x28]"
+            },
+            {
+              "at": "0x1d6407",
+              "assembly": "add rcx, 0x10"
+            },
+            {
+              "at": "0x1d640b",
+              "assembly": "lea rdx, [rip + 0x6661d6]"
+            },
+            {
+              "at": "0x1d6412",
+              "assembly": "mov r8d, 0x25"
+            },
+            {
+              "at": "0x1d6418",
+              "assembly": "call 0x1402d374b"
+            },
+            {
+              "at": "0x1d641d",
+              "assembly": "mov rax, qword ptr [r14 + 0x150]"
+            },
+            {
+              "at": "0x1d6424",
+              "assembly": "mov qword ptr [r14 + 0x878], rax"
+            },
+            {
+              "at": "0x1d642b",
+              "assembly": "mov byte ptr [r14 + 0x8f8], 0"
+            },
+            {
+              "at": "0x1d6433",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d643a",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d643d",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1d6440",
+              "assembly": "call 0x1401ddbb2"
+            },
+            {
+              "at": "0x1d6445",
+              "assembly": "test al, 1"
+            },
+            {
+              "at": "0x1d6447",
+              "assembly": "je 0x1401d645d"
+            },
+            {
+              "at": "0x1d6449",
+              "assembly": "movabs rax, 0x8000000000000001"
+            },
+            {
+              "at": "0x1d6453",
+              "assembly": "mov qword ptr [rbx], rax"
+            },
+            {
+              "at": "0x1d6456",
+              "assembly": "mov al, 5"
+            },
+            {
+              "at": "0x1d6458",
+              "assembly": "jmp 0x1401d7156"
+            },
+            {
+              "at": "0x1d645d",
+              "assembly": "mov r12, r15"
+            },
+            {
+              "at": "0x1d6460",
+              "assembly": "mov byte ptr [r14 + 0x86c], dl"
+            }
+          ]
+        },
+        {
+          "at": "0x1d730b",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641035"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d72d0",
+              "assembly": "cmp edx, dword ptr [r14 + 0x4a0]"
+            },
+            {
+              "at": "0x1d72d7",
+              "assembly": "setae cl"
+            },
+            {
+              "at": "0x1d72da",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1d72dc",
+              "assembly": "cmp rax, qword ptr [r14 + 0x498]"
+            },
+            {
+              "at": "0x1d72e3",
+              "assembly": "setae dl"
+            },
+            {
+              "at": "0x1d72e6",
+              "assembly": "cmove edx, ecx"
+            },
+            {
+              "at": "0x1d72e9",
+              "assembly": "test dl, dl"
+            },
+            {
+              "at": "0x1d72eb",
+              "assembly": "jne 0x1401d74e5"
+            },
+            {
+              "at": "0x1d72f1",
+              "assembly": "lea r9, [rip + 0x6653c8]"
+            },
+            {
+              "at": "0x1d72f8",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1d7300",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d7303",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1d7305",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1d730b",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1d7310",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7317",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1d731c",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1d731f",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7326",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d7329",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1d732c",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1d7331",
+              "assembly": "test al, al"
+            }
+          ]
+        },
+        {
+          "at": "0x1d732c",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641410"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d72eb",
+              "assembly": "jne 0x1401d74e5"
+            },
+            {
+              "at": "0x1d72f1",
+              "assembly": "lea r9, [rip + 0x6653c8]"
+            },
+            {
+              "at": "0x1d72f8",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1d7300",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d7303",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1d7305",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1d730b",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1d7310",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7317",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1d731c",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1d731f",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7326",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d7329",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1d732c",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1d7331",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1d7333",
+              "assembly": "jne 0x1401d74d1"
+            },
+            {
+              "at": "0x1d7339",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d733c",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1d7341",
+              "assembly": "jmp 0x1401d723b"
+            },
+            {
+              "at": "0x1d7346",
+              "assembly": "mov r12, r15"
+            },
+            {
+              "at": "0x1d7349",
+              "assembly": "mov rax, qword ptr [r14 + 0x250]"
+            },
+            {
+              "at": "0x1d7350",
+              "assembly": "mov rsi, qword ptr [rax + 0x28]"
+            }
+          ]
+        },
+        {
+          "at": "0x1d733c",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d7303",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1d7305",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1d730b",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1d7310",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7317",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1d731c",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1d731f",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d7326",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d7329",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1d732c",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1d7331",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1d7333",
+              "assembly": "jne 0x1401d74d1"
+            },
+            {
+              "at": "0x1d7339",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d733c",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1d7341",
+              "assembly": "jmp 0x1401d723b"
+            },
+            {
+              "at": "0x1d7346",
+              "assembly": "mov r12, r15"
+            },
+            {
+              "at": "0x1d7349",
+              "assembly": "mov rax, qword ptr [r14 + 0x250]"
+            },
+            {
+              "at": "0x1d7350",
+              "assembly": "mov rsi, qword ptr [rax + 0x28]"
+            },
+            {
+              "at": "0x1d7354",
+              "assembly": "add rsi, 0x10"
+            },
+            {
+              "at": "0x1d7358",
+              "assembly": "mov rax, qword ptr [r14 + 0x490]"
+            },
+            {
+              "at": "0x1d735f",
+              "assembly": "lea rcx, [rsp + 0xc0]"
+            },
+            {
+              "at": "0x1d7367",
+              "assembly": "mov qword ptr [rcx], rax"
+            }
+          ]
+        },
+        {
+          "at": "0x1d8137",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0xd54d7a",
+              "text": "LeaseResponseleaseIdleaseTokeninstanceIdexpiresAtserverTime"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d80eb",
+              "assembly": "call 0x14047d60b"
+            },
+            {
+              "at": "0x1d80f0",
+              "assembly": "mov r15, qword ptr [r14 + 0x878]"
+            },
+            {
+              "at": "0x1d80f7",
+              "assembly": "mov rax, r15"
+            },
+            {
+              "at": "0x1d80fa",
+              "assembly": "neg rax"
+            },
+            {
+              "at": "0x1d80fd",
+              "assembly": "jno 0x1401d81cd"
+            },
+            {
+              "at": "0x1d8103",
+              "assembly": "movups xmm0, xmmword ptr [r14 + 0x880]"
+            },
+            {
+              "at": "0x1d810b",
+              "assembly": "movups xmm1, xmmword ptr [r14 + 0x890]"
+            },
+            {
+              "at": "0x1d8113",
+              "assembly": "lea rdx, [rsp + 0x3e0]"
+            },
+            {
+              "at": "0x1d811b",
+              "assembly": "movaps xmmword ptr [rdx + 0x10], xmm1"
+            },
+            {
+              "at": "0x1d811f",
+              "assembly": "movaps xmmword ptr [rdx], xmm0"
+            },
+            {
+              "at": "0x1d8122",
+              "assembly": "lea rax, [rip + 0xb7cc8f]"
+            },
+            {
+              "at": "0x1d8129",
+              "assembly": "mov qword ptr [rsp + 0x20], rax"
+            },
+            {
+              "at": "0x1d812e",
+              "assembly": "mov qword ptr [rsp + 0x28], 6"
+            },
+            {
+              "at": "0x1d8137",
+              "assembly": "lea r8, [rip + 0xb7cc3c]"
+            },
+            {
+              "at": "0x1d813e",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1d8146",
+              "assembly": "mov r9d, 0xd"
+            },
+            {
+              "at": "0x1d814c",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d814f",
+              "assembly": "call 0x14031c392"
+            },
+            {
+              "at": "0x1d8154",
+              "assembly": "xor eax, eax"
+            },
+            {
+              "at": "0x1d8156",
+              "assembly": "cmp rax, qword ptr [rsi]"
+            },
+            {
+              "at": "0x1d8159",
+              "assembly": "jno 0x1401d82fd"
+            },
+            {
+              "at": "0x1d815f",
+              "assembly": "mov rax, qword ptr [rsp + 0x118]"
+            }
+          ]
+        },
+        {
+          "at": "0x1d8ec0",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83caee",
+              "text": "create instance directoryLAUNCH_DESCRIPTOR_FAILEDdescriptorJson"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1d8e86",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d8e89",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1d8e8c",
+              "assembly": "call 0x1401d420d"
+            },
+            {
+              "at": "0x1d8e91",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1d8e93",
+              "assembly": "je 0x1401d8ea9"
+            },
+            {
+              "at": "0x1d8e95",
+              "assembly": "movabs rax, 0x8000000000000001"
+            },
+            {
+              "at": "0x1d8e9f",
+              "assembly": "mov qword ptr [rbx], rax"
+            },
+            {
+              "at": "0x1d8ea2",
+              "assembly": "mov al, 0x12"
+            },
+            {
+              "at": "0x1d8ea4",
+              "assembly": "jmp 0x1401d7156"
+            },
+            {
+              "at": "0x1d8ea9",
+              "assembly": "mov qword ptr [rsp + 0xb8], rbx"
+            },
+            {
+              "at": "0x1d8eb1",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1d8eb4",
+              "assembly": "call 0x1401dff73"
+            },
+            {
+              "at": "0x1d8eb9",
+              "assembly": "mov r9, qword ptr [r14 + 0x880]"
+            },
+            {
+              "at": "0x1d8ec0",
+              "assembly": "lea rdx, [rip + 0x663c27]"
+            },
+            {
+              "at": "0x1d8ec7",
+              "assembly": "lea r15, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1d8ecf",
+              "assembly": "mov r8d, 0x19"
+            },
+            {
+              "at": "0x1d8ed5",
+              "assembly": "mov rcx, r15"
+            },
+            {
+              "at": "0x1d8ed8",
+              "assembly": "call 0x1402a1944"
+            },
+            {
+              "at": "0x1d8edd",
+              "assembly": "mov rax, qword ptr [r15]"
+            },
+            {
+              "at": "0x1d8ee0",
+              "assembly": "mov qword ptr [rsp + 0x78], rax"
+            },
+            {
+              "at": "0x1d8ee5",
+              "assembly": "mov rsi, qword ptr [r15 + 8]"
+            },
+            {
+              "at": "0x1d8ee9",
+              "assembly": "mov r13, qword ptr [r15 + 0x10]"
+            }
+          ]
+        },
+        {
+          "at": "0x1da443",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83cb07",
+              "text": "LAUNCH_DESCRIPTOR_FAILEDdescriptorJson"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1da3fe",
+              "assembly": "mov al, 0x18"
+            },
+            {
+              "at": "0x1da400",
+              "assembly": "jmp 0x1401d7156"
+            },
+            {
+              "at": "0x1da405",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1da408",
+              "assembly": "call 0x1401dff73"
+            },
+            {
+              "at": "0x1da40d",
+              "assembly": "mov rcx, qword ptr [r14 + 0x540]"
+            },
+            {
+              "at": "0x1da414",
+              "assembly": "mov rdx, qword ptr [r14 + 0x548]"
+            },
+            {
+              "at": "0x1da41b",
+              "assembly": "call 0x1405bdcf0"
+            },
+            {
+              "at": "0x1da420",
+              "assembly": "mov qword ptr [rsp + 0x110], rax"
+            },
+            {
+              "at": "0x1da428",
+              "assembly": "test rax, rax"
+            },
+            {
+              "at": "0x1da42b",
+              "assembly": "je 0x1401da43a"
+            },
+            {
+              "at": "0x1da42d",
+              "assembly": "lea rcx, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1da435",
+              "assembly": "call 0x140058588"
+            },
+            {
+              "at": "0x1da43a",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x18"
+            },
+            {
+              "at": "0x1da443",
+              "assembly": "lea rdx, [rip + 0x6626bd]"
+            },
+            {
+              "at": "0x1da44a",
+              "assembly": "lea r15, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1da452",
+              "assembly": "mov r8d, 0x18"
+            },
+            {
+              "at": "0x1da458",
+              "assembly": "mov rcx, r15"
+            },
+            {
+              "at": "0x1da45b",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x1da45e",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x1da463",
+              "assembly": "mov r13, qword ptr [r15]"
+            },
+            {
+              "at": "0x1da466",
+              "assembly": "mov rsi, qword ptr [r15 + 8]"
+            },
+            {
+              "at": "0x1da46a",
+              "assembly": "mov rdi, qword ptr [r15 + 0x10]"
+            }
+          ]
+        },
+        {
+          "at": "0x1db517",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0xd54ebc",
+              "text": "LeaseActivationResponselaunchProof"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1db4c4",
+              "assembly": "lea rsi, [rsp + 0x250]"
+            },
+            {
+              "at": "0x1db4cc",
+              "assembly": "movups xmm0, xmmword ptr [rsi + 8]"
+            },
+            {
+              "at": "0x1db4d0",
+              "assembly": "movdqu xmm1, xmmword ptr [rsi + 0x18]"
+            },
+            {
+              "at": "0x1db4d5",
+              "assembly": "movdqa xmmword ptr [rsp + 0x3f0], xmm1"
+            },
+            {
+              "at": "0x1db4de",
+              "assembly": "movaps xmmword ptr [rsp + 0x3e0], xmm0"
+            },
+            {
+              "at": "0x1db4e6",
+              "assembly": "lea rdi, [rsp + 0x340]"
+            },
+            {
+              "at": "0x1db4ee",
+              "assembly": "movaps xmmword ptr [rdi], xmm0"
+            },
+            {
+              "at": "0x1db4f1",
+              "assembly": "movdqa xmmword ptr [rdi + 0x10], xmm1"
+            },
+            {
+              "at": "0x1db4f6",
+              "assembly": "lea rcx, [r14 + 0x9d8]"
+            },
+            {
+              "at": "0x1db4fd",
+              "assembly": "call 0x14047d60b"
+            },
+            {
+              "at": "0x1db502",
+              "assembly": "lea rax, [rip + 0xb799d7]"
+            },
+            {
+              "at": "0x1db509",
+              "assembly": "mov qword ptr [rsp + 0x20], rax"
+            },
+            {
+              "at": "0x1db50e",
+              "assembly": "mov qword ptr [rsp + 0x28], 1"
+            },
+            {
+              "at": "0x1db517",
+              "assembly": "lea r8, [rip + 0xb7999e]"
+            },
+            {
+              "at": "0x1db51e",
+              "assembly": "mov r9d, 0x17"
+            },
+            {
+              "at": "0x1db524",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1db527",
+              "assembly": "mov rdx, rdi"
+            },
+            {
+              "at": "0x1db52a",
+              "assembly": "call 0x14031c313"
+            },
+            {
+              "at": "0x1db52f",
+              "assembly": "xor eax, eax"
+            },
+            {
+              "at": "0x1db531",
+              "assembly": "cmp rax, qword ptr [rsi]"
+            },
+            {
+              "at": "0x1db534",
+              "assembly": "jno 0x1401db5ee"
+            },
+            {
+              "at": "0x1db53a",
+              "assembly": "mov rax, qword ptr [rsp + 0x258]"
+            }
+          ]
+        },
+        {
+          "at": "0x1dbc08",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83cb07",
+              "text": "LAUNCH_DESCRIPTOR_FAILEDdescriptorJson"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dbbc3",
+              "assembly": "mov al, 0x1c"
+            },
+            {
+              "at": "0x1dbbc5",
+              "assembly": "jmp 0x1401d7156"
+            },
+            {
+              "at": "0x1dbbca",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dbbcd",
+              "assembly": "call 0x1401dff73"
+            },
+            {
+              "at": "0x1dbbd2",
+              "assembly": "mov rcx, qword ptr [r14 + 0x540]"
+            },
+            {
+              "at": "0x1dbbd9",
+              "assembly": "mov rdx, qword ptr [r14 + 0x548]"
+            },
+            {
+              "at": "0x1dbbe0",
+              "assembly": "call 0x1405bdcf0"
+            },
+            {
+              "at": "0x1dbbe5",
+              "assembly": "mov qword ptr [rsp + 0x110], rax"
+            },
+            {
+              "at": "0x1dbbed",
+              "assembly": "test rax, rax"
+            },
+            {
+              "at": "0x1dbbf0",
+              "assembly": "je 0x1401dbbff"
+            },
+            {
+              "at": "0x1dbbf2",
+              "assembly": "lea rcx, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1dbbfa",
+              "assembly": "call 0x140058588"
+            },
+            {
+              "at": "0x1dbbff",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x18"
+            },
+            {
+              "at": "0x1dbc08",
+              "assembly": "lea rdx, [rip + 0x660ef8]"
+            },
+            {
+              "at": "0x1dbc0f",
+              "assembly": "lea r15, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1dbc17",
+              "assembly": "mov r8d, 0x18"
+            },
+            {
+              "at": "0x1dbc1d",
+              "assembly": "mov rcx, r15"
+            },
+            {
+              "at": "0x1dbc20",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x1dbc23",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x1dbc28",
+              "assembly": "mov r13, qword ptr [r15]"
+            },
+            {
+              "at": "0x1dbc2b",
+              "assembly": "mov rsi, qword ptr [r15 + 8]"
+            },
+            {
+              "at": "0x1dbc2f",
+              "assembly": "mov rdi, qword ptr [r15 + 0x10]"
+            }
+          ]
+        },
+        {
+          "at": "0x1dc2bc",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83ceda",
+              "text": "LAUNCH_TASK_FAILEDSurvival-Game-Game-LastWar-exe-SingleInstanceMutex-Default"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dc279",
+              "assembly": "mov rcx, qword ptr [r12]"
+            },
+            {
+              "at": "0x1dc27d",
+              "assembly": "mov edx, 0x84"
+            },
+            {
+              "at": "0x1dc282",
+              "assembly": "mov eax, 0xcc"
+            },
+            {
+              "at": "0x1dc287",
+              "assembly": "lock cmpxchg qword ptr [rcx], rdx"
+            },
+            {
+              "at": "0x1dc28c",
+              "assembly": "je 0x1401dc299"
+            },
+            {
+              "at": "0x1dc28e",
+              "assembly": "mov rcx, qword ptr [r12]"
+            },
+            {
+              "at": "0x1dc292",
+              "assembly": "mov rax, qword ptr [rcx + 0x10]"
+            },
+            {
+              "at": "0x1dc296",
+              "assembly": "call qword ptr [rax + 0x20]"
+            },
+            {
+              "at": "0x1dc299",
+              "assembly": "cmp dword ptr [rsp + 0x570], 3"
+            },
+            {
+              "at": "0x1dc2a1",
+              "assembly": "jne 0x1401dc2db"
+            },
+            {
+              "at": "0x1dc2a3",
+              "assembly": "lea rsi, [rsp + 0x578]"
+            },
+            {
+              "at": "0x1dc2ab",
+              "assembly": "lea rcx, [rsp + 0x258]"
+            },
+            {
+              "at": "0x1dc2b3",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x12"
+            },
+            {
+              "at": "0x1dc2bc",
+              "assembly": "lea rdx, [rip + 0x660c17]"
+            },
+            {
+              "at": "0x1dc2c3",
+              "assembly": "mov r8d, 0x12"
+            },
+            {
+              "at": "0x1dc2c9",
+              "assembly": "mov r9, rdx"
+            },
+            {
+              "at": "0x1dc2cc",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x1dc2d1",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dc2d4",
+              "assembly": "call 0x14005d64a"
+            },
+            {
+              "at": "0x1dc2d9",
+              "assembly": "jmp 0x1401dc2fc"
+            },
+            {
+              "at": "0x1dc2db",
+              "assembly": "lea rax, [rsp + 0x250]"
+            },
+            {
+              "at": "0x1dc2e3",
+              "assembly": "lea rsi, [rsp + 0x570]"
+            }
+          ]
+        },
+        {
+          "at": "0x1dc35c",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x8bc3a8",
+              "text": "OFFICIAL_LAUNCHER_RESTARTED"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dc314",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1dc317",
+              "assembly": "mov qword ptr [rax - 8], 2"
+            },
+            {
+              "at": "0x1dc31f",
+              "assembly": "jmp 0x1401dc345"
+            },
+            {
+              "at": "0x1dc321",
+              "assembly": "lea rax, [rsp + 0x510]"
+            },
+            {
+              "at": "0x1dc329",
+              "assembly": "lea rsi, [rsp + 0x570]"
+            },
+            {
+              "at": "0x1dc331",
+              "assembly": "mov ecx, 0xc"
+            },
+            {
+              "at": "0x1dc336",
+              "assembly": "mov rdi, rax"
+            },
+            {
+              "at": "0x1dc339",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1dc33c",
+              "assembly": "cmp dword ptr [rax], 2"
+            },
+            {
+              "at": "0x1dc33f",
+              "assembly": "jne 0x1401dc423"
+            },
+            {
+              "at": "0x1dc345",
+              "assembly": "cmp qword ptr [rsp + 0x528], 0x1b"
+            },
+            {
+              "at": "0x1dc34e",
+              "assembly": "jne 0x1401dc423"
+            },
+            {
+              "at": "0x1dc354",
+              "assembly": "mov rax, qword ptr [rsp + 0x520]"
+            },
+            {
+              "at": "0x1dc35c",
+              "assembly": "movdqu xmm0, xmmword ptr [rip + 0x6e0044]"
+            },
+            {
+              "at": "0x1dc364",
+              "assembly": "movdqu xmm1, xmmword ptr [rax]"
+            },
+            {
+              "at": "0x1dc368",
+              "assembly": "pcmpeqb xmm1, xmm0"
+            },
+            {
+              "at": "0x1dc36c",
+              "assembly": "movdqu xmm0, xmmword ptr [rax + 0xb]"
+            },
+            {
+              "at": "0x1dc371",
+              "assembly": "movdqu xmm2, xmmword ptr [rip + 0x6e003a]"
+            },
+            {
+              "at": "0x1dc379",
+              "assembly": "pcmpeqb xmm2, xmm0"
+            },
+            {
+              "at": "0x1dc37d",
+              "assembly": "pand xmm2, xmm1"
+            },
+            {
+              "at": "0x1dc381",
+              "assembly": "pmovmskb ecx, xmm2"
+            },
+            {
+              "at": "0x1dc385",
+              "assembly": "xor eax, eax"
+            }
+          ]
+        },
+        {
+          "at": "0x1dd3bc",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641035"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dd36f",
+              "assembly": "call 0x140081bc9"
+            },
+            {
+              "at": "0x1dd374",
+              "assembly": "mov byte ptr [r14 + 0x86f], 0"
+            },
+            {
+              "at": "0x1dd37c",
+              "assembly": "mov word ptr [r14 + 0x870], 0"
+            },
+            {
+              "at": "0x1dd386",
+              "assembly": "lea rcx, [r14 + 0x730]"
+            },
+            {
+              "at": "0x1dd38d",
+              "assembly": "mov edx, 1"
+            },
+            {
+              "at": "0x1dd392",
+              "assembly": "mov r8d, 1"
+            },
+            {
+              "at": "0x1dd398",
+              "assembly": "call 0x14001150d"
+            },
+            {
+              "at": "0x1dd39d",
+              "assembly": "jmp 0x1401dc124"
+            },
+            {
+              "at": "0x1dd3a2",
+              "assembly": "lea r9, [rip + 0x65fa0f]"
+            },
+            {
+              "at": "0x1dd3a9",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1dd3b1",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3b4",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1dd3b6",
+              "assembly": "mov r8d, 0xee6b280"
+            },
+            {
+              "at": "0x1dd3bc",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1dd3c1",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3c8",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1dd3cd",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1dd3d0",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3d7",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3da",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1dd3dd",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1dd3e2",
+              "assembly": "test al, al"
+            }
+          ]
+        },
+        {
+          "at": "0x1dd3dd",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641410"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dd39d",
+              "assembly": "jmp 0x1401dc124"
+            },
+            {
+              "at": "0x1dd3a2",
+              "assembly": "lea r9, [rip + 0x65fa0f]"
+            },
+            {
+              "at": "0x1dd3a9",
+              "assembly": "lea rsi, [rsp + 0x110]"
+            },
+            {
+              "at": "0x1dd3b1",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3b4",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1dd3b6",
+              "assembly": "mov r8d, 0xee6b280"
+            },
+            {
+              "at": "0x1dd3bc",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1dd3c1",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3c8",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1dd3cd",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1dd3d0",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3d7",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3da",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1dd3dd",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1dd3e2",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1dd3e4",
+              "assembly": "jne 0x1401dd4e9"
+            },
+            {
+              "at": "0x1dd3ea",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3ed",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1dd3f2",
+              "assembly": "call 0x1402c9034"
+            },
+            {
+              "at": "0x1dd3f7",
+              "assembly": "cmp rax, qword ptr [r14 + 0x808]"
+            },
+            {
+              "at": "0x1dd3fe",
+              "assembly": "jge 0x1401dd431"
+            },
+            {
+              "at": "0x1dd400",
+              "assembly": "mov rax, qword ptr [r14 + 0x250]"
+            }
+          ]
+        },
+        {
+          "at": "0x1dd3ed",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1dd3b4",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1dd3b6",
+              "assembly": "mov r8d, 0xee6b280"
+            },
+            {
+              "at": "0x1dd3bc",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1dd3c1",
+              "assembly": "lea rdi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3c8",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1dd3cd",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1dd3d0",
+              "assembly": "lea rsi, [r14 + 0x878]"
+            },
+            {
+              "at": "0x1dd3d7",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3da",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1dd3dd",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1dd3e2",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1dd3e4",
+              "assembly": "jne 0x1401dd4e9"
+            },
+            {
+              "at": "0x1dd3ea",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1dd3ed",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1dd3f2",
+              "assembly": "call 0x1402c9034"
+            },
+            {
+              "at": "0x1dd3f7",
+              "assembly": "cmp rax, qword ptr [r14 + 0x808]"
+            },
+            {
+              "at": "0x1dd3fe",
+              "assembly": "jge 0x1401dd431"
+            },
+            {
+              "at": "0x1dd400",
+              "assembly": "mov rax, qword ptr [r14 + 0x250]"
+            },
+            {
+              "at": "0x1dd407",
+              "assembly": "mov rdx, qword ptr [r14 + 0x390]"
+            },
+            {
+              "at": "0x1dd40e",
+              "assembly": "mov rax, qword ptr [rax + 0x28]"
+            },
+            {
+              "at": "0x1dd412",
+              "assembly": "mov r8, qword ptr [r14 + 0x398]"
+            },
+            {
+              "at": "0x1dd419",
+              "assembly": "mov rcx, qword ptr [rax + 0xe0]"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 6242
+    },
+    {
+      "name": "close_stop",
+      "range": [
+        "0xe5725",
+        "0xe5884"
+      ],
+      "matches": [
+        {
+          "at": "0xe57d1",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641035"
+            }
+          ],
+          "window": [
+            {
+              "at": "0xe5798",
+              "assembly": "inc eax"
+            },
+            {
+              "at": "0xe579a",
+              "assembly": "mov dword ptr [r14 + 0x20], eax"
+            },
+            {
+              "at": "0xe579e",
+              "assembly": "mov rcx, qword ptr [r14 + 0x10]"
+            },
+            {
+              "at": "0xe57a2",
+              "assembly": "mov rdx, qword ptr [r14 + 0x18]"
+            },
+            {
+              "at": "0xe57a6",
+              "assembly": "mov r8d, dword ptr [r14 + 0x9c]"
+            },
+            {
+              "at": "0xe57ad",
+              "assembly": "call 0x14041e3cf"
+            },
+            {
+              "at": "0xe57b2",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0xe57b4",
+              "assembly": "je 0x1400e5853"
+            },
+            {
+              "at": "0xe57ba",
+              "assembly": "lea r9, [rip + 0x747e6f]"
+            },
+            {
+              "at": "0xe57c1",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0xe57c6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57c9",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0xe57cb",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0xe57d1",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0xe57d6",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57da",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0xe57df",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0xe57e2",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57e6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57e9",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0xe57ec",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0xe57f1",
+              "assembly": "test al, al"
+            }
+          ]
+        },
+        {
+          "at": "0xe57ec",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641410"
+            }
+          ],
+          "window": [
+            {
+              "at": "0xe57b4",
+              "assembly": "je 0x1400e5853"
+            },
+            {
+              "at": "0xe57ba",
+              "assembly": "lea r9, [rip + 0x747e6f]"
+            },
+            {
+              "at": "0xe57c1",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0xe57c6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57c9",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0xe57cb",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0xe57d1",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0xe57d6",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57da",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0xe57df",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0xe57e2",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57e6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57e9",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0xe57ec",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0xe57f1",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0xe57f3",
+              "assembly": "jne 0x1400e5807"
+            },
+            {
+              "at": "0xe57f5",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57f8",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0xe57fd",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0xe5801",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0xe5805",
+              "assembly": "jmp 0x1400e5794"
+            },
+            {
+              "at": "0xe5807",
+              "assembly": "inc r12"
+            }
+          ]
+        },
+        {
+          "at": "0xe57f8",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0xe57c9",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0xe57cb",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0xe57d1",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0xe57d6",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57da",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0xe57df",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0xe57e2",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0xe57e6",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57e9",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0xe57ec",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0xe57f1",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0xe57f3",
+              "assembly": "jne 0x1400e5807"
+            },
+            {
+              "at": "0xe57f5",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57f8",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0xe57fd",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0xe5801",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0xe5805",
+              "assembly": "jmp 0x1400e5794"
+            },
+            {
+              "at": "0xe5807",
+              "assembly": "inc r12"
+            },
+            {
+              "at": "0xe580a",
+              "assembly": "mov qword ptr [rbx], r12"
+            },
+            {
+              "at": "0xe580d",
+              "assembly": "mov al, 3"
+            },
+            {
+              "at": "0xe580f",
+              "assembly": "jmp 0x1400e5869"
+            },
+            {
+              "at": "0xe5811",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x1f"
+            }
+          ]
+        },
+        {
+          "at": "0xe5821",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x82d610",
+              "text": "The game did not close in time."
+            }
+          ],
+          "window": [
+            {
+              "at": "0xe57f1",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0xe57f3",
+              "assembly": "jne 0x1400e5807"
+            },
+            {
+              "at": "0xe57f5",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe57f8",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0xe57fd",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0xe5801",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0xe5805",
+              "assembly": "jmp 0x1400e5794"
+            },
+            {
+              "at": "0xe5807",
+              "assembly": "inc r12"
+            },
+            {
+              "at": "0xe580a",
+              "assembly": "mov qword ptr [rbx], r12"
+            },
+            {
+              "at": "0xe580d",
+              "assembly": "mov al, 3"
+            },
+            {
+              "at": "0xe580f",
+              "assembly": "jmp 0x1400e5869"
+            },
+            {
+              "at": "0xe5811",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x1f"
+            },
+            {
+              "at": "0xe581a",
+              "assembly": "lea rdx, [rip + 0x7463ac]"
+            },
+            {
+              "at": "0xe5821",
+              "assembly": "lea r9, [rip + 0x747de8]"
+            },
+            {
+              "at": "0xe5828",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0xe582d",
+              "assembly": "mov r8d, 0x12"
+            },
+            {
+              "at": "0xe5833",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0xe5836",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0xe583b",
+              "assembly": "mov r12, qword ptr [rsi]"
+            },
+            {
+              "at": "0xe583e",
+              "assembly": "lea rsi, [rsp + 0x80]"
+            },
+            {
+              "at": "0xe5846",
+              "assembly": "lea rdi, [rsp + 0x30]"
+            },
+            {
+              "at": "0xe584b",
+              "assembly": "mov ecx, 9"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 88
+    },
+    {
+      "name": "close_reconcile",
+      "range": [
+        "0x1ddc84",
+        "0x1ddde3"
+      ],
+      "matches": [
+        {
+          "at": "0x1ddd30",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641035"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1ddcf7",
+              "assembly": "inc eax"
+            },
+            {
+              "at": "0x1ddcf9",
+              "assembly": "mov dword ptr [r14 + 0x20], eax"
+            },
+            {
+              "at": "0x1ddcfd",
+              "assembly": "mov rcx, qword ptr [r14 + 0x10]"
+            },
+            {
+              "at": "0x1ddd01",
+              "assembly": "mov rdx, qword ptr [r14 + 0x18]"
+            },
+            {
+              "at": "0x1ddd05",
+              "assembly": "mov r8d, dword ptr [r14 + 0x9c]"
+            },
+            {
+              "at": "0x1ddd0c",
+              "assembly": "call 0x14041e3cf"
+            },
+            {
+              "at": "0x1ddd11",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1ddd13",
+              "assembly": "je 0x1401dddb2"
+            },
+            {
+              "at": "0x1ddd19",
+              "assembly": "lea r9, [rip + 0x65f4c0]"
+            },
+            {
+              "at": "0x1ddd20",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0x1ddd25",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd28",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1ddd2a",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1ddd30",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1ddd35",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd39",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1ddd3e",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1ddd41",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd45",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd48",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1ddd4b",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1ddd50",
+              "assembly": "test al, al"
+            }
+          ]
+        },
+        {
+          "at": "0x1ddd4b",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x641410"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1ddd13",
+              "assembly": "je 0x1401dddb2"
+            },
+            {
+              "at": "0x1ddd19",
+              "assembly": "lea r9, [rip + 0x65f4c0]"
+            },
+            {
+              "at": "0x1ddd20",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0x1ddd25",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd28",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1ddd2a",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1ddd30",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1ddd35",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd39",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1ddd3e",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1ddd41",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd45",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd48",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1ddd4b",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1ddd50",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1ddd52",
+              "assembly": "jne 0x1401ddd66"
+            },
+            {
+              "at": "0x1ddd54",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd57",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1ddd5c",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0x1ddd60",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0x1ddd64",
+              "assembly": "jmp 0x1401ddcf3"
+            },
+            {
+              "at": "0x1ddd66",
+              "assembly": "inc r12"
+            }
+          ]
+        },
+        {
+          "at": "0x1ddd57",
+          "facts": [
+            {
+              "kind": "call",
+              "target": "0x5d5da"
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1ddd28",
+              "assembly": "xor edx, edx"
+            },
+            {
+              "at": "0x1ddd2a",
+              "assembly": "mov r8d, 0x5f5e100"
+            },
+            {
+              "at": "0x1ddd30",
+              "assembly": "call 0x140641035"
+            },
+            {
+              "at": "0x1ddd35",
+              "assembly": "lea rdi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd39",
+              "assembly": "mov ecx, 0xe"
+            },
+            {
+              "at": "0x1ddd3e",
+              "assembly": "rep movsq qword ptr [rdi], qword ptr [rsi]"
+            },
+            {
+              "at": "0x1ddd41",
+              "assembly": "lea rsi, [r14 + 0x28]"
+            },
+            {
+              "at": "0x1ddd45",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd48",
+              "assembly": "mov rdx, r15"
+            },
+            {
+              "at": "0x1ddd4b",
+              "assembly": "call 0x140641410"
+            },
+            {
+              "at": "0x1ddd50",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1ddd52",
+              "assembly": "jne 0x1401ddd66"
+            },
+            {
+              "at": "0x1ddd54",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd57",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1ddd5c",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0x1ddd60",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0x1ddd64",
+              "assembly": "jmp 0x1401ddcf3"
+            },
+            {
+              "at": "0x1ddd66",
+              "assembly": "inc r12"
+            },
+            {
+              "at": "0x1ddd69",
+              "assembly": "mov qword ptr [rbx], r12"
+            },
+            {
+              "at": "0x1ddd6c",
+              "assembly": "mov al, 3"
+            },
+            {
+              "at": "0x1ddd6e",
+              "assembly": "jmp 0x1401dddc8"
+            },
+            {
+              "at": "0x1ddd70",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x1f"
+            }
+          ]
+        },
+        {
+          "at": "0x1ddd80",
+          "facts": [
+            {
+              "kind": "string",
+              "rva": "0x83d1c0",
+              "text": "The game did not close in time."
+            }
+          ],
+          "window": [
+            {
+              "at": "0x1ddd50",
+              "assembly": "test al, al"
+            },
+            {
+              "at": "0x1ddd52",
+              "assembly": "jne 0x1401ddd66"
+            },
+            {
+              "at": "0x1ddd54",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd57",
+              "assembly": "call 0x14005d5da"
+            },
+            {
+              "at": "0x1ddd5c",
+              "assembly": "mov eax, dword ptr [r14 + 0x20]"
+            },
+            {
+              "at": "0x1ddd60",
+              "assembly": "mov ecx, dword ptr [r14 + 0x24]"
+            },
+            {
+              "at": "0x1ddd64",
+              "assembly": "jmp 0x1401ddcf3"
+            },
+            {
+              "at": "0x1ddd66",
+              "assembly": "inc r12"
+            },
+            {
+              "at": "0x1ddd69",
+              "assembly": "mov qword ptr [rbx], r12"
+            },
+            {
+              "at": "0x1ddd6c",
+              "assembly": "mov al, 3"
+            },
+            {
+              "at": "0x1ddd6e",
+              "assembly": "jmp 0x1401dddc8"
+            },
+            {
+              "at": "0x1ddd70",
+              "assembly": "mov qword ptr [rsp + 0x20], 0x1f"
+            },
+            {
+              "at": "0x1ddd79",
+              "assembly": "lea rdx, [rip + 0x65e958]"
+            },
+            {
+              "at": "0x1ddd80",
+              "assembly": "lea r9, [rip + 0x65f439]"
+            },
+            {
+              "at": "0x1ddd87",
+              "assembly": "lea rsi, [rsp + 0x78]"
+            },
+            {
+              "at": "0x1ddd8c",
+              "assembly": "mov r8d, 0x12"
+            },
+            {
+              "at": "0x1ddd92",
+              "assembly": "mov rcx, rsi"
+            },
+            {
+              "at": "0x1ddd95",
+              "assembly": "call 0x1402a1a47"
+            },
+            {
+              "at": "0x1ddd9a",
+              "assembly": "mov r12, qword ptr [rsi]"
+            },
+            {
+              "at": "0x1ddd9d",
+              "assembly": "lea rsi, [rsp + 0x80]"
+            },
+            {
+              "at": "0x1ddda5",
+              "assembly": "lea rdi, [rsp + 0x30]"
+            },
+            {
+              "at": "0x1dddaa",
+              "assembly": "mov ecx, 9"
+            }
+          ]
+        }
+      ],
+      "instructionCount": 88
+    }
+  ]
+}

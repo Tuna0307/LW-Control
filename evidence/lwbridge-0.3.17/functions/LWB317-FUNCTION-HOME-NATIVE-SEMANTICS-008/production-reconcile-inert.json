@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "scope": "original byte-recovered boolean decision vs actual production OverviewLifecycleService controlled helper; NOT original runtime",
+  "originalSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "cases": [
+    {
+      "name": "absent",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "true",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "false",
+      "expectedStart": false,
+      "actualStarts": 0,
+      "errors": 0,
+      "onceOnly": true
+    },
+    {
+      "name": "null",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "integer",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "string",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "object",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    },
+    {
+      "name": "array",
+      "expectedStart": true,
+      "actualStarts": 1,
+      "errors": 1,
+      "onceOnly": true
+    }
+  ],
+  "gameActions": 0
+}

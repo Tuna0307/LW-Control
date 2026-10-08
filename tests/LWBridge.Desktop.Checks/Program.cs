@@ -2,6 +2,14 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int home008Index = Array.FindIndex(args, value => string.Equals(value, "--home008-original-reconcile-contract", StringComparison.OrdinalIgnoreCase));
+if (home008Index >= 0)
+{
+    if (home008Index + 1 >= args.Length)
+        throw new ArgumentException("--home008-original-reconcile-contract <startup-contract-json>");
+    await LWBridge.Desktop.Checks.Home008NativeSemanticChecks.RunAsync(args[home008Index + 1]);
+    return 0;
+}
 int campaign007R1Index = Array.FindIndex(args,
     value => string.Equals(value, "--campaign007-r1-engine-sink", StringComparison.OrdinalIgnoreCase));
 if (campaign007R1Index >= 0)
