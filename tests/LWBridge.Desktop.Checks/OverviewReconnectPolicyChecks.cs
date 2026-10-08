@@ -24,6 +24,7 @@ internal static class OverviewReconnectPolicyChecks
                 recoveredPolicy = new
                 {
                     disconnectThresholdSeconds = OverviewRecoveryPolicy.DisconnectThreshold.TotalSeconds,
+                    disconnectWaitBeforeTerminateSeconds = OverviewRecoveryPolicy.DisconnectWaitBeforeTerminate.TotalSeconds,
                     stableVerificationSeconds = OverviewRecoveryPolicy.StableVerification.TotalSeconds,
                     normalRetrySeconds = OverviewRecoveryPolicy.NormalRetryDelays.Select(x => x.TotalSeconds).ToArray(),
                 },
@@ -48,35 +49,46 @@ internal static class OverviewReconnectPolicyChecks
             int startCountBeforeDisconnect = h.StartCalls;
             int stopCountBeforeDisconnect = h.StopCalls;
 
+            // ORIGINAL 0.3.17 timeline (0x41a8a0 monitor 2 s, 0xe5884 run 2 s): bridge offline from t=0.
+            // The monitor needs offline >= 60 s to start a recovery (status waiting); the run then waits a
+            // further >= 60 s (0xe654f) before terminating the still-running game.
+            var pump = new Home009RecoveryPump(h.Lifecycle, v => h.ClockMilliseconds = v);
             h.HeartbeatAvailable = false;
-            h.ClockMilliseconds = 0;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            h.ClockMilliseconds = (long)OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds - 1;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            Check(h.Terminations.Count == 0 && h.StartCalls == startCountBeforeDisconnect && h.StopCalls == stopCountBeforeDisconnect,
-                "enabled: disconnect must not terminate/restart before recovered 60-second threshold");
-
-            h.ClockMilliseconds = (long)OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            Check(h.Terminations.Count == 1,
-                "enabled: threshold disconnect must terminate exactly one owned process");
-            Check(h.StopCalls == stopCountBeforeDisconnect + 1,
-                "enabled: recovery must restore/close the old owned session exactly once");
+            var timeline = new List<(long Time, OverviewRecoveryStatus Status)>();
+            h.Lifecycle.RecoveryStatusChanged += s => timeline.Add((h.ClockMilliseconds, s));
+            await pump.RunUntilAsync(58_000);
+            Check(h.Terminations.Count == 0 && h.StartCalls == startCountBeforeDisconnect &&
+                  h.StopCalls == stopCountBeforeDisconnect && h.Lifecycle.CurrentRecoveryStatus.State == "idle",
+                "enabled: offline < 60 s must not start a recovery");
+            await pump.RunUntilAsync(60_000);
+            Check(h.Lifecycle.CurrentRecoveryStatus.State == "waiting" &&
+                  h.Lifecycle.CurrentRecoveryStatus.Reason == "disconnect" && h.Terminations.Count == 0,
+                "enabled: 60 s offline starts a waiting disconnect recovery without terminating");
+            await pump.RunUntilAsync(118_000);
+            Check(h.Terminations.Count == 0,
+                "enabled: the run waits >= 60 s from its own start before terminating (0xe654f)");
+            await pump.RunUntilAsync(120_000);
+            Check(h.Terminations.Count == 1 && h.StopCalls == stopCountBeforeDisconnect + 1,
+                "enabled: recovery must terminate exactly one owned process and restore/close the session once");
+            Check(await pump.RunUntilAsync(() => h.Lifecycle.CurrentRecoveryStatus.State == "succeeded", 120_000),
+                "enabled: recovery must relaunch and reach succeeded");
             Check(h.StartCalls == startCountBeforeDisconnect + 1,
                 "enabled: recovery must relaunch once through the normal lifecycle");
             OverviewRecoveryStatus terminal = h.Lifecycle.CurrentRecoveryStatus;
-            Check(h.RecoveryEvents.Any(x => x.State == "waiting" && x.Reason == "disconnect") &&
-                  h.RecoveryEvents.Any(x => x.State == "repairing" && x.Reason == "disconnect") &&
-                  h.RecoveryEvents.Any(x => x.State == "launching" && x.Reason == "disconnect") &&
-                  h.RecoveryEvents.Any(x => x.State == "verifying" && x.Reason == "disconnect") &&
+            Check(timeline.Any(x => x.Status.State == "waiting" && x.Status.Reason == "disconnect") &&
+                  timeline.Any(x => x.Status.State == "repairing" && x.Status.Reason == "disconnect") &&
+                  timeline.Any(x => x.Status.State == "launching" && x.Status.Reason == "disconnect") &&
+                  timeline.Any(x => x.Status.State == "verifying" && x.Status.Reason == "disconnect") &&
                   terminal.State == "succeeded" && terminal.Restarted,
                 "enabled: recovery must publish waiting/repairing/launching/verifying then succeeded restarted");
             Check(terminal.StartedAt > 0 && terminal.CompletedAt is > 0 &&
                   terminal.NoticeId == 1 && terminal.NoticeVisible &&
-                  h.RecoveryEvents.Where(x => x.State != "idle").All(x => x.NoticeId == 1 && x.NoticeVisible),
+                  timeline.Where(x => x.Status.State != "idle").All(x => x.Status.NoticeId == 1 && x.Status.NoticeVisible),
                 "enabled: native recovery notice id remains stable and visible through terminal success");
-            Check(h.Delays.Contains(OverviewRecoveryPolicy.StableVerification),
-                "enabled: recovered session must pass the 15-second stable verification gate");
+            long verifyingAt = timeline.First(x => x.Status.State == "verifying").Time;
+            long succeededAt = timeline.First(x => x.Status.State == "succeeded").Time;
+            Check(succeededAt - verifyingAt >= (long)OverviewRecoveryPolicy.StableVerification.TotalMilliseconds,
+                "enabled: recovered session must stay healthy for the 15-second stable verification (0xe6285)");
             Check(h.Config.Snapshot.AutoReconnect && h.Config.Snapshot.GameDesiredRunning,
                 "enabled: successful recovery preserves reconnect and desired-running intent");
 
@@ -87,19 +99,19 @@ internal static class OverviewReconnectPolicyChecks
             int startsAfterStop = h.StartCalls;
             h.HeartbeatAvailable = false;
             h.ProcessAlive = false;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
+            await pump.RunUntilAsync(pump.Now + 600_000);
             Check(h.StartCalls == startsAfterStop,
                 "enabled: intentional Stop must suppress later automatic resurrection");
 
             return JsonSerializer.SerializeToElement(new
             {
-                preThresholdTerminationCount = 0,
+                monitorStartsRecoveryAtMs = 60_000,
+                runTerminatesAtMs = 120_000,
                 thresholdTerminations = 1,
                 recoveryStartDelta = 1,
                 recoveryStopDelta = 1,
-                states = h.RecoveryEvents.Select(x => x.State).Distinct().ToArray(),
-                stableVerificationObserved = h.Delays.Contains(OverviewRecoveryPolicy.StableVerification),
+                states = timeline.Select(x => x.Status.State).Distinct().ToArray(),
+                stableVerificationMs = succeededAt - verifyingAt,
                 finalDesiredRunning = h.Config.Snapshot.GameDesiredRunning,
                 automaticRestartAfterIntentionalStop = h.StartCalls != startsAfterStop,
             });
@@ -117,13 +129,9 @@ internal static class OverviewReconnectPolicyChecks
             int startsBefore = h.StartCalls;
             int stopsBefore = h.StopCalls;
 
+            var pump = new Home009RecoveryPump(h.Lifecycle, v => h.ClockMilliseconds = v);
             h.HeartbeatAvailable = false;
-            h.ClockMilliseconds = 0;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            h.ClockMilliseconds = (long)OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            h.ClockMilliseconds += (long)OverviewRecoveryPolicy.LoginUnavailableThreshold.TotalMilliseconds;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
+            await pump.RunUntilAsync(900_000);
             Check(h.Terminations.Count == 0 && h.StartCalls == startsBefore && h.StopCalls == stopsBefore,
                 "disabled: observed disconnect must not terminate, restore or relaunch the owned process");
             Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle" &&
@@ -153,38 +161,46 @@ internal static class OverviewReconnectPolicyChecks
         {
             await h.StartAsync();
             h.FailNextStart = true;
-            h.DisableReconnectOnNormalRetry = true;
             int startsBefore = h.StartCalls;
             int stopsBefore = h.StopCalls;
 
+            var pump = new Home009RecoveryPump(h.Lifecycle, v => h.ClockMilliseconds = v);
             h.HeartbeatAvailable = false;
-            h.ClockMilliseconds = 0;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            h.ClockMilliseconds = (long)OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds;
-            await h.Lifecycle.RunRecoveryObservationForTestAsync();
+            bool scheduled = await pump.RunUntilAsync(
+                () => h.Lifecycle.CurrentRecoveryStatus is { State: "waiting", Attempts: 1, NextRetryAt: not null },
+                300_000);
+            Check(scheduled && h.Terminations.Count == 1 && h.StopCalls == stopsBefore + 1,
+                "disable-during-retry: the failed recovery launch enters its retry wait after exact cleanup");
+            Check(h.StartCalls == startsBefore + 1,
+                "disable-during-retry: exactly one failed recovery launch is attempted");
+            long retryAt = h.Lifecycle.CurrentRecoveryStatus.NextRetryAt!.Value;
+            Check(retryAt - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() <=
+                  (long)OverviewRecoveryPolicy.NormalRetryDelays[0].TotalMilliseconds + 1000 &&
+                  h.Lifecycle.CurrentRecoveryStatus.Error == "LAUNCH_FAILED",
+                "disable-during-retry: failed recovery must enter the recovered 15-second first retry delay");
 
+            JsonElement disable = JsonSerializer.SerializeToElement(new
+            {
+                profileId = h.ProfileId,
+                name = "autoForceUpdateReload",
+                enabled = false,
+            });
+            await h.Backend.InvokeAsync("set_automation", disable, CancellationToken.None);
             Check(!h.Config.Snapshot.AutoReconnect,
                 "disable-during-retry: public automation command must persist reconnect=false");
             Check(h.Config.Snapshot.GameDesiredRunning,
                 "disable-during-retry: disabling reconnect must not erase desired-running intent");
-            Check(h.Terminations.Count == 1 && h.StopCalls == stopsBefore + 1,
-                "disable-during-retry: already-eligible recovery still performs exact cleanup once");
-            Check(h.StartCalls == startsBefore + 1,
-                "disable-during-retry: exactly one failed recovery launch is attempted before cancellation");
-            Check(h.Delays.Contains(OverviewRecoveryPolicy.NormalRetryDelays[0]),
-                "disable-during-retry: failed recovery must enter recovered 15-second retry delay");
+            Check(h.Lifecycle.CurrentRecoveryStatus.State == "waiting",
+                "disable-during-retry: the run notices the setting at its next end-of-iteration gate (0xe69c3)");
+            await pump.StepAsync();
             Check(h.Lifecycle.CurrentRecoveryStatus.State == "idle" &&
                   h.Lifecycle.CurrentRecoveryStatus.StartedAt == 0 &&
                   h.Lifecycle.CurrentRecoveryStatus.NoticeId == 1 &&
                   !h.Lifecycle.CurrentRecoveryStatus.NoticeVisible,
-                "disable-during-retry: cancellation must restore native idle defaults while preserving noticeId");
+                "disable-during-retry: the gate restores native idle defaults while preserving noticeId");
 
             int startsAfterDisable = h.StartCalls;
-            for (int i = 0; i < 4; i++)
-            {
-                h.ClockMilliseconds += 300_000;
-                await h.Lifecycle.RunRecoveryObservationForTestAsync();
-            }
+            await pump.RunUntilAsync(pump.Now + 1_200_000);
             Check(h.StartCalls == startsAfterDisable,
                 "disable-during-retry: future observations must never launch another recovery");
 
@@ -284,6 +300,8 @@ internal static class OverviewReconnectPolicyChecks
         }
 
         internal LocalConfigStore Config { get; }
+        internal string ProfileId => profileId;
+        internal LWBridgeBackend Backend => backend!;
         internal OverviewLifecycleService Lifecycle { get; }
         internal bool ProcessAlive { get; set; }
         internal bool HeartbeatAvailable { get; set; } = true;

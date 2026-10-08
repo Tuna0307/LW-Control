@@ -44,6 +44,19 @@ internal static class Home009RecoveryTraceChecks
         return value;
     }
 
+    private static JsonNode? PieceNode(JsonNode? signal, long t)
+    {
+        if (signal is not JsonArray array) return null;
+        JsonNode? value = null;
+        foreach (JsonNode? entry in array)
+        {
+            JsonArray pair = entry!.AsArray();
+            if (pair[0]!.GetValue<long>() <= t) value = pair[1];
+            else break;
+        }
+        return value;
+    }
+
     private sealed class Instance
     {
         public int Pid;
@@ -144,6 +157,7 @@ internal static class Home009RecoveryTraceChecks
                 Instance inst = sim.Current;
                 if (!sim.Online) throw new IOException("synthetic bridge disconnect");
                 bool healthy = sim.Healthy;
+                JsonNode? ev = PieceNode(scenario["event"], sim.Clock);
                 return JsonSerializer.SerializeToUtf8Bytes(new
                 {
                     schemaVersion = 1,
@@ -164,9 +178,11 @@ internal static class Home009RecoveryTraceChecks
                     gameUid = healthy ? "home009" : "",
                     serverId = healthy ? 2212 : 0,
                     worldPos = healthy ? 12345 : 0,
-                    recoveryObserved = false,
-                    recoveryConfirmed = false,
-                    recoveryAmbiguous = false,
+                    recoveryObserved = ev?["observed"]?.GetValue<bool>() ?? false,
+                    recoveryConfirmed = ev?["confirmed"]?.GetValue<bool>() ?? false,
+                    recoveryAmbiguous = ev?["ambiguous"]?.GetValue<bool>() ?? false,
+                    recoveryReason = ev?["reason"]?.GetValue<string?>(),
+                    recoveryUpdateDetected = ev?["update"]?.GetValue<bool>() ?? false,
                 });
             }
 
@@ -280,6 +296,12 @@ internal static class Home009RecoveryTraceChecks
                     return Task.CompletedTask;
                 },
                 RunHelperAsync = Helper,
+                CreateRecoveryLogReader = name => new HarnessLogReader(logTexts[name switch
+                {
+                    "Player.log" => "player",
+                    "Launcher.log" => "launcher",
+                    _ => "updater",
+                }]),
             };
 
             using var lifecycle = new OverviewLifecycleService(
@@ -289,7 +311,8 @@ internal static class Home009RecoveryTraceChecks
                 config: sim.Config,
                 testHooks: hooks,
                 startRecoveryMonitor: false);
-            lifecycle.RecoveryStatusChanged += status => Record("status", e =>
+            bool recording = true;
+            lifecycle.RecoveryStatusChanged += status => { if (recording) Record("status", e =>
             {
                 e["state"] = status.State;
                 e["reason"] = status.Reason;
@@ -300,7 +323,7 @@ internal static class Home009RecoveryTraceChecks
                 e["restarted"] = status.Restarted;
                 e["completedAt"] = status.CompletedAt is long done ? done - EpochBase : null;
                 e["noticeId"] = (long)status.NoticeId;
-            });
+            }); };
 
             sim.SetTime(0);
             await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { profileId }),
@@ -337,11 +360,24 @@ internal static class Home009RecoveryTraceChecks
                 long after = Math.Max(t, sim.Clock);
                 t = (after / 2000 + 1) * 2000;
             }
+            recording = false;     // disposal finishes any active run idle; that is not part of the scenario
             return sim.Events;
         }
         finally
         {
             try { Directory.Delete(root, recursive: true); } catch { }
+        }
+    }
+
+    private sealed class HarnessLogReader(StringBuilder text) : IRecoveryLogReader
+    {
+        private int offset;
+        public void Begin() => offset = text.Length;
+        public string ReadNew()
+        {
+            string value = text.ToString(offset, text.Length - offset);
+            offset = text.Length;
+            return value;
         }
     }
 

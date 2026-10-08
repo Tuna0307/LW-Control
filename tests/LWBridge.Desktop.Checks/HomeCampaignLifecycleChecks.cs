@@ -576,15 +576,13 @@ internal static class HomeCampaignLifecycleChecks
 
         bool processAlive = false;
         bool failNextStart = false;
-        bool blockRetryDelay = false;
         int startCalls = 0;
         int stopCalls = 0;
         int currentPid = 0;
+        long virtualClock = 0;
         string currentStartedAtUtc = string.Empty;
         string? session = null;
         string? challenge = null;
-        var retryDelayEntered = new TaskCompletionSource(
-            TaskCreationOptions.RunContinuationsAsynchronously);
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -628,21 +626,16 @@ internal static class HomeCampaignLifecycleChecks
             UpdateProcessRunning = () => false,
             UpdateActivityFingerprint = () => null,
             ProcessHung = (_, _) => false,
+            MonotonicMilliseconds = () => virtualClock,
             TerminateOwnedProcessAsync = (_, _, _, _) =>
             {
                 processAlive = false;
                 return Task.CompletedTask;
             },
-            DelayAsync = async (_, token) =>
+            DelayAsync = (_, token) =>
             {
-                if (!blockRetryDelay)
-                {
-                    token.ThrowIfCancellationRequested();
-                    return;
-                }
-
-                retryDelayEntered.TrySetResult();
-                await Task.Delay(Timeout.InfiniteTimeSpan, token).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
+                return Task.CompletedTask;
             },
         };
 
@@ -665,9 +658,11 @@ internal static class HomeCampaignLifecycleChecks
         Check(config.Snapshot.GameDesiredRunning,
             "successful Start must arm desired-running before recovery acceptance");
 
+        // ORIGINAL 0.3.17 cadence: 2 s monitor, processExit after two consecutive misses (0x41aafe), 2 s run loop.
+        var pump = new Home009RecoveryPump(lifecycle, value => virtualClock = value);
         processAlive = false;
-        await lifecycle.RunRecoveryObservationForTestAsync();
-        await lifecycle.RunRecoveryObservationForTestAsync();
+        Check(await pump.RunUntilAsync(() => lifecycle.CurrentRecoveryStatus.State == "succeeded", 120_000),
+            "unexpected owned-process loss must reach a succeeded recovery on the original cadence");
         JsonElement recovered = Status(lifecycle.CreateInstanceStatus());
         string recoveredSession = recovered.GetProperty("instanceId").GetString()!;
         Check(startCalls == 2 && stopCalls == 1 &&
@@ -678,13 +673,12 @@ internal static class HomeCampaignLifecycleChecks
 
         processAlive = false;
         failNextStart = true;
-        blockRetryDelay = true;
-        await lifecycle.RunRecoveryObservationForTestAsync();
-        Task closingRecovery = lifecycle.RunRecoveryObservationForTestAsync();
-        await retryDelayEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Check(await pump.RunUntilAsync(
+                () => lifecycle.CurrentRecoveryStatus is { State: "waiting", Attempts: 1, NextRetryAt: not null },
+                120_000),
+            "a rejected recovery relaunch must enter the recovered retry wait");
         int startsAtClose = startCalls;
         lifecycle.Close();
-        await closingRecovery.WaitAsync(TimeSpan.FromSeconds(5));
 
         Check(lifecycle.CurrentRecoveryStatus.State == "idle" &&
               !lifecycle.RuntimeManaged &&
@@ -697,7 +691,6 @@ internal static class HomeCampaignLifecycleChecks
         var reopenedConfig = new LocalConfigStore(Path.Combine(root, "config"));
         Check(reopenedConfig.Snapshot.AutoReconnect && reopenedConfig.Snapshot.GameDesiredRunning,
             "fresh config ownership must preserve reconnect and desired-running state across host restart");
-        blockRetryDelay = false;
         int startsBeforeFreshHost = startCalls;
         using var freshLifecycle = new OverviewLifecycleService(
             profileId,

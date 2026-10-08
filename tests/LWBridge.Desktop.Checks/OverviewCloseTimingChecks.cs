@@ -518,14 +518,15 @@ internal static class OverviewCloseTimingChecks
             JsonSerializer.SerializeToElement(new { }), CancellationToken.None));
         string ownedSession = running.GetProperty("instanceId").GetString()!;
         recoveryRequested = true;
-        clock = 1_000;
-        await lifecycle.RunRecoveryObservationForTestAsync();
+        var pump = new Home009RecoveryPump(lifecycle, value => clock = value, startMilliseconds: 1_000);
+        await pump.StepAsync();
         Check(lifecycle.CurrentRecoveryStatus.State == "waiting" &&
               lifecycle.CurrentRecoveryStatus.Reason == "disconnect",
             "confirmed unhealthy recovery request must enter waiting while exact owned process remains active");
 
         await lifecycle.InvokeAsync("profile_instance_stop",
             JsonSerializer.SerializeToElement(new { instanceId = ownedSession }), CancellationToken.None);
+        // 0x41bbff/0x41ad16: user Stop clears desired-running, invalidates the run and resets the status to idle at once.
         Check(lifecycle.CurrentRecoveryStatus.State == "idle" && !config.Snapshot.GameDesiredRunning &&
               stopCalls == 1 && !processAlive,
             "intentional Close while recovering must cancel recovery intent and restore/stop exact owned game");

@@ -1,28 +1,39 @@
 using System.Globalization;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace LWBridge.Desktop;
 
+// HOME 009 C/D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783):
+//   monitor tick         0x41a8a0 (interval 2 s, 0xe5650)      recovery start    0x41b03a
+//   recovery run         0xe5884  (2 s loop, 0xe69e3)           log classifier    0x419e2a
+//   retry tables         0xd67b08 (normal) / 0xd681b0 (maintenance)
+// Decision logic below mirrors tools/lwbridge317/home009_recovery_oracle.py line by line; the cited
+// RVAs and the constants are asserted against the image by home009_contract.py. Effects (terminate,
+// cleanup/restoration, relaunch, log files, bridge heartbeat) are current-client adaptations.
 internal sealed partial class OverviewLifecycleService
 {
-    // IMPLEMENTATION POLICY: the original worker cadence is not yet pinned.
-    // Recovery decisions use recovered absolute thresholds/tables; this cadence
-    // only drives observation and cancellation responsiveness.
-    private static readonly TimeSpan RecoveryMonitorCadence = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan RecoveryMonitorCadence = TimeSpan.FromSeconds(2);   // 0xe5660 interval(2 s)
+    private static readonly TimeSpan RecoveryRunCadence = TimeSpan.FromSeconds(2);       // 0xe69e3 timer(2 s)
     private readonly SemaphoreSlim recoverySerial = new(1, 1);
     private readonly CancellationTokenSource recoveryLifetime = new();
     private System.Threading.Timer? recoveryTimer;
     private CancellationTokenSource? activeRecoveryCancellation;
-    private int missingProcessObservations;
-    private long? bridgeOfflineSinceMilliseconds;
-    private long? gameUnhealthySinceMilliseconds;
-    private long? hungSinceMilliseconds;
-    private string? lastUpdateActivityFingerprint;
-    private long? updateActivitySinceMilliseconds;
-    private PendingRecoveryRequest? pendingRecoveryRequest;
-    private long? pendingRecoveryVerifySinceMilliseconds;
+    private RecoveryRunState? activeRecoveryRun;
+    private Task? activeRecoveryRunTask;
+    private long recoveryRunSequence;
+    private int missingProcessObservations;                  // adaptation: UI exit tracking (see RefreshExitedOwnership)
+    // 0x41b451 / ctx+0x120: the original keeps tracking the launched game's PID after it is terminated; only
+    // Stop (0x23e158 / 0x129622) clears it. The current client's restoration cleanup clears the owned-session
+    // fields, so the tracked identity is kept separately.
+    private RecoveryTrackedGame? recoveryTracked;
+    // 0x41ba64: the game-state record ([+0x88] pid, [+0x8c] valid) is produced by game-state events while the
+    // bridge is connected and is retained while it is not; the current client delivers it through the heartbeat.
+    private int healthRecordPid;
+    private bool healthRecordValid;
+    private readonly RecoveryMonitorObservation monitorObservation = new();
     private ulong recoveryNoticeId;
     private OverviewRecoveryStatus recoveryStatus = IdleRecoveryStatus();
 
@@ -34,6 +45,14 @@ internal sealed partial class OverviewLifecycleService
     }
 
     internal Task RunRecoveryObservationForTestAsync() => RecoveryObservationAsync();
+
+    internal async Task RunRecoveryRunTickForTestAsync()
+    {
+        RecoveryRunState? run;
+        lock (stateGate) run = activeRecoveryRun;
+        if (run is null || run.Finished) return;
+        await RecoveryRunTickAsync(run).ConfigureAwait(false);
+    }
 
     private static OverviewRecoveryStatus IdleRecoveryStatus(
         string? reason = null,
@@ -65,6 +84,11 @@ internal sealed partial class OverviewLifecycleService
     private long RecoveryClockMilliseconds() =>
         testHooks?.MonotonicMilliseconds?.Invoke() ?? Environment.TickCount64;
 
+    // 0x2c9034: Unix epoch milliseconds from GetSystemTimePreciseAsFileTime. The monitor and the run compare
+    // wall-clock instants, so the recovery engine uses the wall clock (test hook: MonotonicMilliseconds).
+    private long RecoveryEngineNowMilliseconds() =>
+        testHooks?.MonotonicMilliseconds?.Invoke() ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
     private Task RecoveryDelayAsync(TimeSpan delay, CancellationToken cancellationToken) =>
         testHooks?.DelayAsync is { } delayAsync
             ? delayAsync(delay, cancellationToken)
@@ -82,19 +106,20 @@ internal sealed partial class OverviewLifecycleService
     {
         Interlocked.Exchange(ref recoveryTimer, null)?.Dispose();
         try { recoveryLifetime.Cancel(); } catch { }
-        CancellationTokenSource? active = Interlocked.Exchange(ref activeRecoveryCancellation, null);
+        RecoveryRunState? run;
+        lock (stateGate) run = activeRecoveryRun;
+        CancellationTokenSource? active = run?.Cancellation;
         try { active?.Cancel(); } catch { }
-        active?.Dispose();
+        // Shutdown / profile replacement: the active run ends idle immediately instead of waiting for its next tick.
+        if (run is not null) FinishRecoveryRunStopped(run);
     }
 
     internal void NotifyAutomationChanged(bool enabled)
     {
-        if (enabled) return;
-        CancellationTokenSource? active = Volatile.Read(ref activeRecoveryCancellation);
-        try { active?.Cancel(); } catch { }
-        ResetPendingRecoveryRequest();
-        ResetRunningFailureObservations();
-        SetRecoveryStatus(IdleRecoveryStatus(noticeId: CurrentRecoveryNoticeId()));
+        // 0xe69c3-0xe69cc: the original run re-reads the persisted auto_force_update_reload setting at the end of
+        // every iteration and finishes idle (0x41c201) when it is off; disabling does not interrupt the current
+        // iteration (including an in-flight relaunch). The monitor tick also re-reads it (0x41a8c5).
+        _ = enabled;
     }
 
     private void SetDesiredRunning(bool desired)
@@ -112,6 +137,69 @@ internal sealed partial class OverviewLifecycleService
         return snapshot is not null && snapshot.AutoReconnect && snapshot.GameDesiredRunning;
     }
 
+    // game_lifecycle_start (0x11157c) sets desired-running and resets the recovery status to idle (0x41ad16)
+    // before launching. Recovery relaunches call StartAsync directly and never reset their own status.
+    private async Task<object?> StartCommandAsync(CancellationToken cancellationToken)
+    {
+        ResetRecoveryStatusToIdle(invalidateRun: false);
+        return await StartAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    internal void InvalidateRecoveryForUserStop() => ResetRecoveryStatusToIdle(invalidateRun: true);
+
+    // 0x41ad16: fresh idle record preserving the notice id, game-state record and M.offline_pid cleared.
+    private void ResetRecoveryStatusToIdle(bool invalidateRun)
+    {
+        OverviewRecoveryStatus? published = null;
+        RecoveryRunState? run = null;
+        lock (stateGate)
+        {
+            if (invalidateRun)
+            {
+                run = activeRecoveryRun;
+                if (run is not null)
+                {
+                    run.Finished = true;               // 0x41bc47 run id increment: the stale run does nothing more
+                    activeRecoveryRun = null;
+                }
+                recoveryTracked = null;                // 0x41bc41 xchg [ctx+0x120], 0
+            }
+            healthRecordPid = 0;
+            healthRecordValid = false;
+            monitorObservation.OfflinePid = 0;
+            OverviewRecoveryStatus idle = IdleRecoveryStatus(noticeId: recoveryStatus.NoticeId);
+            if (idle != recoveryStatus) published = recoveryStatus = idle;
+        }
+        if (run is not null)
+        {
+            if (ReferenceEquals(Interlocked.CompareExchange(ref activeRecoveryCancellation, null, run.Cancellation),
+                    run.Cancellation))
+            {
+                try { run.Cancellation.Cancel(); } catch { }
+                run.Cancellation.Dispose();
+            }
+        }
+        if (published is not null) PublishRecoveryStatus(published);
+    }
+
+    // 0x4199ba
+    private static bool IsActiveRecoveryState(string state) => state is
+        "waiting" or "repairing" or "launching" or "verifying" or "updating" or "maintenance";
+
+    // 0x41d2ce: <root>\Game\LastWar.exe must be a file.
+    private bool RecoveryRootAvailable()
+    {
+        if (testHooks?.GameRootAvailable is { } hook) return hook();
+        string? root = gameRoot;
+        if (root is null) return false;
+        if (testHooks is not null) return true;
+        try { return File.Exists(Path.Combine(root, "Game", "LastWar.exe")); }
+        catch { return false; }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Monitor tick (0x41a8a0)
+    // ---------------------------------------------------------------------------------------------
     private async Task RecoveryObservationAsync()
     {
         if (!await recoverySerial.WaitAsync(0).ConfigureAwait(false)) return;
@@ -123,194 +211,550 @@ internal sealed partial class OverviewLifecycleService
             }
 
             OwnedSnapshot? snapshot = GetOwnedSnapshot();
-            if (snapshot is null || snapshot.Phase is "starting" or "stopping")
+            bool lifecycleBusy = snapshot is not null && snapshot.Phase is "starting" or "stopping";
+            string currentPhase;
+            lock (stateGate) currentPhase = phase;
+            if (currentPhase is "starting" or "stopping") lifecycleBusy = true;
+            if (snapshot is null || lifecycleBusy)
+                Interlocked.Exchange(ref missingProcessObservations, 0);   // adaptation: UI exit tracking
+            else if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc))
             {
-                ResetFailureObservations();
+                // Adaptation (UI exit state): keeps the previous consecutive-miss classification that publishes
+                // GAME_EXITED_RESTORE_REQUIRED independently of the recovery setting.
+                if (Interlocked.Increment(ref missingProcessObservations) > 1) MarkUnexpectedExit(snapshot);
+            }
+            else Interlocked.Exchange(ref missingProcessObservations, 0);
+
+            if (lifecycleBusy) return;                                       // adaptation: no decisions mid start/stop
+
+            // Current-client adaptation of the game.recovery_requested event (0x41ec72): a fresh, exact-session,
+            // confirmed heartbeat request starts the same recovery (0x41b03a) with its reason.
+            RecoveryHeartbeatObservation heartbeat = snapshot is null
+                ? new(false, false, false, false, null, false)
+                : ReadRecoveryHeartbeat(snapshot);
+            if (snapshot is not null) UpdateHealthRecord(snapshot.GamePid, heartbeat);
+            if (heartbeat.RecoveryConfirmed && heartbeat.RecoveryReason is not null)
+                await StartRecoveryAsync(heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected).ConfigureAwait(false);
+
+            if (!RecoveryEnabledAndDesired()) return;                        // 0x41a8c0-0x41a8e5 (state M untouched)
+            if (IsActiveRecoveryState(CurrentRecoveryStatus.State)) return;  // 0x41a932-0x41a951
+            if (!RecoveryRootAvailable()) return;                            // 0x41a974-0x41a97c
+            RecoveryTrackedGame? tracked = recoveryTracked;
+            if (tracked is null) return;                                     // 0x41a99c ctx+0x120 == 0
+
+            long now = RecoveryEngineNowMilliseconds();
+            RecoveryMonitorObservation m = monitorObservation;
+            bool processPresent = ProcessMatches(tracked.Pid, tracked.Path, tracked.StartedAtUtc);   // 0x41b451
+            if (!processPresent)                                             // 0x41aa30-0x41ab07
+            {
+                m.OfflinePid = 0;
+                m.Missing = m.Missing == uint.MaxValue ? m.Missing : m.Missing + 1;
+                if (m.Missing <= 1) return;
+                await StartRecoveryAsync("processExit", updateDetected: false).ConfigureAwait(false);
                 return;
             }
 
-            if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc))
+            int pid = tracked.Pid;
+            bool online = heartbeat.BridgeOnline;                            // 0x2d47a6 (current-client heartbeat)
+            bool healthy = IsGameHealthy(pid);                              // 0x41ba64
+            bool updating = IsUpdateProcessRunning();                        // 0x41dfb1
+            bool either = updating || online;
+            bool hung = !either && IsOwnedProcessHung(pid, tracked.Path, tracked.StartedAtUtc);   // 0x41a472
+            m.Missing = 0;                                                   // 0x41ab51
+            if (either) { m.OfflinePid = 0; m.OfflineSince = 0; }            // 0x41ab5b
+            else if (m.OfflinePid != pid) { m.OfflinePid = pid; m.OfflineSince = now; }
+            if (healthy) { m.UnhealthyPid = 0; m.UnhealthySince = 0; }       // 0x41ab8c
+            else if (m.UnhealthyPid != pid) { m.UnhealthyPid = pid; m.UnhealthySince = now; }
+            string? reason = null;
+            if (hung)                                                        // 0x41abb3
             {
-                ResetRunningFailureObservations();
-                // A confirmed reload/quit action can exit the game before the next
-                // monitor tick. Preserve its fresh exact-session heartbeat reason.
-                if (RecoveryEnabledAndDesired())
-                {
-                    RecoveryHeartbeatObservation lastHeartbeat = ReadRecoveryHeartbeat(snapshot);
-                    if (lastHeartbeat.RecoveryConfirmed) LatchRecoveryRequest(lastHeartbeat, RecoveryClockMilliseconds());
-                }
-                int missing = Interlocked.Increment(ref missingProcessObservations);
-                if (missing <= 1) return;
-                MarkUnexpectedExit(snapshot);
-                if (RecoveryEnabledAndDesired())
-                {
-                    PendingRecoveryRequest? pending = pendingRecoveryRequest;
-                    ResetPendingRecoveryRequest();
-                    await RecoverOwnedSessionAsync(snapshot, pending?.Reason ?? "processExit", terminateFirst: false,
-                        initialUpdateDetected: pending?.UpdateDetected ?? false,
-                        startedAtUnixMilliseconds: pending?.StartedAtUnixMilliseconds,
-                        noticeId: pending?.NoticeId).ConfigureAwait(false);
-                }
-                return;
+                long hungSince;
+                if (m.HungPid == pid) hungSince = m.HungSince;
+                else { m.HungPid = pid; m.HungSince = now; hungSince = now; }
+                if (now - hungSince >= OverviewRecoveryPolicy.HangThreshold.TotalMilliseconds &&
+                    now - m.OfflineSince >= OverviewRecoveryPolicy.HangThreshold.TotalMilliseconds) reason = "hang";   // 0x41abf8/0x41ac0b
             }
-
-            Interlocked.Exchange(ref missingProcessObservations, 0);
-            if (!RecoveryEnabledAndDesired())
-            {
-                ResetRunningFailureObservations();
-                return;
-            }
-
-            long now = RecoveryClockMilliseconds();
-            RecoveryHeartbeatObservation heartbeat = ReadRecoveryHeartbeat(snapshot);
-            if (heartbeat.RecoveryConfirmed)
-                LatchRecoveryRequest(heartbeat, now);
-            if (pendingRecoveryRequest is not null)
-            {
-                await ObservePendingRecoveryRequestAsync(snapshot, heartbeat, now).ConfigureAwait(false);
-                return;
-            }
-
-            // The original monitor suppresses disconnect/hang classification while
-            // the official launcher/updater/sync process family is active.
-            if (IsUpdateProcessRunning())
-            {
-                ResetRunningFailureObservations();
-                return;
-            }
-            if (!heartbeat.BridgeOnline)
-            {
-                bridgeOfflineSinceMilliseconds ??= now;
-                bool hung = IsOwnedProcessHung(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc);
-                if (hung) hungSinceMilliseconds ??= now;
-                else hungSinceMilliseconds = null;
-                gameUnhealthySinceMilliseconds = null;
-
-                if (hungSinceMilliseconds is long hungSince &&
-                    now - hungSince >= OverviewRecoveryPolicy.HangThreshold.TotalMilliseconds &&
-                    now - bridgeOfflineSinceMilliseconds.Value >= OverviewRecoveryPolicy.HangThreshold.TotalMilliseconds)
-                {
-                    await RecoverOwnedSessionAsync(snapshot, "hang", terminateFirst: true).ConfigureAwait(false);
-                    return;
-                }
-
-                if (now - bridgeOfflineSinceMilliseconds.Value >= OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds)
-                    await RecoverOwnedSessionAsync(snapshot, "disconnect", terminateFirst: true).ConfigureAwait(false);
-                return;
-            }
-
-            bridgeOfflineSinceMilliseconds = null;
-            hungSinceMilliseconds = null;
-            if (!heartbeat.GameStateObserved)
-            {
-                gameUnhealthySinceMilliseconds = null;
-                return;
-            }
-            if (heartbeat.GameHealthy)
-            {
-                gameUnhealthySinceMilliseconds = null;
-                return;
-            }
-
-            gameUnhealthySinceMilliseconds ??= now;
-            if (now - gameUnhealthySinceMilliseconds.Value >= OverviewRecoveryPolicy.LoginUnavailableThreshold.TotalMilliseconds)
-                await RecoverOwnedSessionAsync(snapshot, "disconnect", terminateFirst: true).ConfigureAwait(false);
+            else { m.HungPid = 0; m.HungSince = 0; }
+            if (reason is null && !either && now - m.OfflineSince >= OverviewRecoveryPolicy.DisconnectThreshold.TotalMilliseconds) reason = "disconnect";   // 0x41ac34 (>59999)
+            if (reason is null && m.UnhealthySince > 0 && !healthy && online &&
+                now - m.UnhealthySince >= OverviewRecoveryPolicy.LoginUnavailableThreshold.TotalMilliseconds) reason = "disconnect";                              // 0x41ac53
+            if (reason is not null)
+                await StartRecoveryAsync(reason, updateDetected: false).ConfigureAwait(false);
         }
         finally { recoverySerial.Release(); }
     }
 
-    private void LatchRecoveryRequest(RecoveryHeartbeatObservation heartbeat, long now)
+    // ---------------------------------------------------------------------------------------------
+    // start_recovery (0x41b03a) + run spawn
+    // ---------------------------------------------------------------------------------------------
+    private async Task StartRecoveryAsync(string reason, bool updateDetected)
     {
-        if (heartbeat.RecoveryReason is null) return;
-        PendingRecoveryRequest? current = pendingRecoveryRequest;
-        if (current is not null) return;
-        ulong noticeId = NextRecoveryNoticeId();
-        pendingRecoveryRequest = new PendingRecoveryRequest(
-            heartbeat.RecoveryReason,
-            heartbeat.RecoveryUpdateDetected,
-            now,
-            RecoveryNow().ToUnixTimeMilliseconds(),
-            noticeId);
-        pendingRecoveryVerifySinceMilliseconds = null;
-        SetRecoveryStatus(new("waiting", heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected, false,
-            pendingRecoveryRequest.StartedAtUnixMilliseconds, null, 0, null, null, noticeId, true));
+        if (!RecoveryEnabledAndDesired()) return;                            // same three preconditions as the tick
+        RecoveryRunState? run = null;
+        OverviewRecoveryStatus? published = null;
+        lock (stateGate)
+        {
+            if (closed) return;
+            if (IsActiveRecoveryState(recoveryStatus.State))                 // 0x41b121-0x41b131: only merge the flag
+            {
+                if (updateDetected && !recoveryStatus.UpdateDetected)
+                    published = recoveryStatus = recoveryStatus with { UpdateDetected = true };
+            }
+            else
+            {
+                ulong noticeId = unchecked(recoveryNoticeId + 1);
+                recoveryNoticeId = noticeId;
+                long startedAt = RecoveryNow().ToUnixTimeMilliseconds();
+                run = new RecoveryRunState(++recoveryRunSequence, reason, startedAt, noticeId)
+                {
+                    Cancellation = CancellationTokenSource.CreateLinkedTokenSource(recoveryLifetime.Token),
+                };
+                activeRecoveryRun = run;
+                CancellationTokenSource? previous = Interlocked.Exchange(ref activeRecoveryCancellation, run.Cancellation);
+                previous?.Dispose();
+                published = recoveryStatus = new("waiting", reason, updateDetected, false, startedAt, null, 0, null,
+                    null, noticeId, true);
+            }
+        }
+        if (published is not null) PublishRecoveryStatus(published);
+        if (run is null) return;
+
+        await InitRecoveryRunAsync(run).ConfigureAwait(false);
+        if (!run.Finished && recoveryMonitorEnabled)
+            activeRecoveryRunTask = Task.Run(() => RecoveryRunLoopAsync(run));
     }
 
-    private async Task ObservePendingRecoveryRequestAsync(
-        OwnedSnapshot snapshot, RecoveryHeartbeatObservation heartbeat, long now)
+    private async Task RecoveryRunLoopAsync(RecoveryRunState run)
     {
-        PendingRecoveryRequest pending = pendingRecoveryRequest!;
-        if (!RecoveryEnabledAndDesired())
+        try
         {
-            ResetPendingRecoveryRequest();
-            SetRecoveryStatus(IdleRecoveryStatus(noticeId: pending.NoticeId));
-            return;
-        }
-        if (heartbeat.GameStateObserved && heartbeat.GameHealthy)
-        {
-            pendingRecoveryVerifySinceMilliseconds ??= now;
-            SetRecoveryStatus(new("verifying", pending.Reason, pending.UpdateDetected, false,
-                pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
-            if (now - pendingRecoveryVerifySinceMilliseconds.Value >= OverviewRecoveryPolicy.StableVerification.TotalMilliseconds)
+            while (!run.Finished)
             {
-                SetRecoveryStatus(new("succeeded", pending.Reason, pending.UpdateDetected, false,
-                    pending.StartedAtUnixMilliseconds, RecoveryNow().ToUnixTimeMilliseconds(), 0,
-                    null, null, pending.NoticeId, true));
-                ResetPendingRecoveryRequest();
+                await RecoveryDelayAsync(RecoveryRunCadence, run.Cancellation.Token).ConfigureAwait(false);
+                await RecoveryRunTickAsync(run).ConfigureAwait(false);
             }
-            return;
         }
-        pendingRecoveryVerifySinceMilliseconds = null;
-        if (IsUpdateProcessRunning())
+        catch (OperationCanceledException)
         {
-            if (UpdateActivityStalled(now))
+            FinishRecoveryRunStopped(run);
+        }
+        catch (Exception ex)
+        {
+            FinishRecoveryRunFailed(run, RecoveryErrorCode(ex));
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Run init (0xe58e1-0xe5bf8)
+    // ---------------------------------------------------------------------------------------------
+    private async Task InitRecoveryRunAsync(RecoveryRunState run)
+    {
+        try
+        {
+            long now = RecoveryEngineNowMilliseconds();
+            if (!RecoveryRootAvailable())
             {
-                await TerminateUpdateProcessesAsync(CancellationToken.None).ConfigureAwait(false);
-                TimeSpan delay = OverviewRecoveryPolicy.NormalRetryDelays[0];
-                SetRecoveryStatus(new("waiting", pending.Reason, true, false,
-                    pending.StartedAtUnixMilliseconds, null, 1,
-                    RecoveryNow().Add(delay).ToUnixTimeMilliseconds(),
-                    "game update had no activity for 15 minutes", pending.NoticeId, true));
-                await RecoveryDelayAsync(delay, recoveryLifetime.Token).ConfigureAwait(false);
-                ResetPendingRecoveryRequest();
-                await RecoverOwnedSessionAsync(snapshot, pending.Reason, terminateFirst: true,
-                    initialUpdateDetected: true,
-                    startedAtUnixMilliseconds: pending.StartedAtUnixMilliseconds,
-                    noticeId: pending.NoticeId).ConfigureAwait(false);
+                FinishRecoveryRun(run, success: false, "game root is unavailable");   // 0xe5976
                 return;
             }
-            SetRecoveryStatus(new("updating", pending.Reason, true, false,
-                pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
+            int pid = FindRecoveryTrackedPid();
+            run.RunPid = run.LastPid = pid;
+            run.StableSince = 0;
+            run.LastActivity = run.LoginSince = run.Deadline = now;
+            run.NormalAttempts = run.MaintenanceAttempts = 0;
+            run.Maintenance = false;
+            run.LogReaders = CreateRecoveryLogReaders();
+            foreach (IRecoveryLogReader reader in run.LogReaders) reader.Begin();          // 0x41a18d / 0x41e950
+            run.LastFingerprint = ReadUpdateActivityFingerprint();                          // 0x41dad8
+            if (run.Reason == "hang" && pid != 0)                                           // 0xe5b73-0xe5bf3
+            {
+                (bool ok, string? error) = await TerminateTrackedGameAsync().ConfigureAwait(false);
+                if (!ok)
+                {
+                    uint n = run.NormalAttempts;
+                    run.NormalAttempts = n + 1;
+                    run.Deadline = now + RetryDelayMilliseconds(normal: true, n);
+                    RecoveryRetryScheduled(run, checked((int)run.NormalAttempts), run.Deadline, error);
+                }
+            }
+        }
+        catch (OperationCanceledException) { FinishRecoveryRunStopped(run); }
+        catch (Exception ex) { FinishRecoveryRunFailed(run, RecoveryErrorCode(ex)); }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Run tick (0xe5ca7-0xe6987)
+    // ---------------------------------------------------------------------------------------------
+    private async Task RecoveryRunTickAsync(RecoveryRunState run)
+    {
+        if (run.Finished) return;
+        try
+        {
+            await RecoveryRunTickCoreAsync(run).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) { FinishRecoveryRunStopped(run); }
+        catch (Exception ex) { FinishRecoveryRunFailed(run, RecoveryErrorCode(ex)); }
+    }
+
+    private async Task RecoveryRunTickCoreAsync(RecoveryRunState run)
+    {
+        long now = RecoveryEngineNowMilliseconds();
+        OverviewRecoveryStatus st = CurrentRecoveryStatus;
+        if (st.NextRetryAt is long nextUnix)                                             // 0xe5cfc-0xe5d1c
+        {
+            long candidate = now + (nextUnix - RecoveryNow().ToUnixTimeMilliseconds());
+            if (candidate < run.Deadline) run.Deadline = candidate;
+        }
+        RecoveryLogClassification logs = ClassifyRecoveryLogs(run.LogReaders);              // 0x419e2a
+        if (logs.Activity) run.LastActivity = now;                                         // 0xe5d4c
+        if (logs.UpdateDetected) RecoveryMarkUpdateDetected(run);                          // 0xe5d57-0xe5d6c
+        string? fingerprint = ReadUpdateActivityFingerprint();                             // 0xe5d71-0xe5db0
+        if (!string.Equals(fingerprint, run.LastFingerprint, StringComparison.Ordinal))
+        {
+            run.LastFingerprint = fingerprint;
+            run.LastActivity = now;
+            RecoveryMarkUpdateDetected(run);
+        }
+        OwnedSnapshot? snapshot = GetOwnedSnapshot();
+        int pid = FindRecoveryTrackedPid(snapshot);                                        // 0xe5dd0
+        if (pid != 0)                                                                      // 0xe5deb
+        {
+            if (pid != run.LastPid)
+            {
+                run.LastPid = pid;
+                run.LoginSince = now;
+                run.StableSince = 0;
+            }
+            if (run.RunPid != 0 && pid != run.RunPid) RecoveryMarkRestarted(run);           // 0xe5e0e-0xe5e2e
+        }
+        bool upd = IsUpdateProcessRunning();                                                // 0xe5e3b
+        if (upd)                                                                            // 0xe5e44-0xe5e85
+        {
+            run.LoginSince = now;
+            RecoveryMarkUpdateDetected(run);
+            RecoverySetState(run, "updating", checked((int)run.NormalAttempts));
+        }
+        if (logs.Error is not null)                                                         // 0xe5fa3
+        {
+            if (pid != 0) await TerminateTrackedGameAsync().ConfigureAwait(false);
+            await KillUpdateProcessesIgnoringErrorsAsync().ConfigureAwait(false);   // 0x41e613 (result dropped)
+            uint n = run.NormalAttempts;
+            run.NormalAttempts = n + 1;
+            run.Deadline = now + RetryDelayMilliseconds(normal: true, n);
+            RecoveryRetryScheduled(run, checked((int)run.NormalAttempts), run.Deadline, logs.Error);
+            run.LastActivity = now;
+            EndRecoveryIteration(run);
             return;
         }
-        ResetUpdateActivity();
-        SetRecoveryStatus(new("waiting", pending.Reason, pending.UpdateDetected, false,
-            pending.StartedAtUnixMilliseconds, null, 0, null, null, pending.NoticeId, true));
-        if (now - pending.StartClockMilliseconds < OverviewRecoveryPolicy.DisconnectWaitBeforeTerminate.TotalMilliseconds) return;
-        ResetPendingRecoveryRequest();
-        await RecoverOwnedSessionAsync(snapshot, pending.Reason, terminateFirst: true,
-            initialUpdateDetected: pending.UpdateDetected,
-            startedAtUnixMilliseconds: pending.StartedAtUnixMilliseconds,
-            noticeId: pending.NoticeId).ConfigureAwait(false);
+        if (logs.Maintenance && !upd)                                                       // 0xe5e95-0xe5f9e
+        {
+            if (pid != 0) await TerminateTrackedGameAsync().ConfigureAwait(false);
+            run.Maintenance = true;
+            run.Deadline = now + RetryDelayMilliseconds(normal: false, run.MaintenanceAttempts);
+            RecoverySetMaintenance(run, checked((int)run.MaintenanceAttempts), run.Deadline);
+            run.LastActivity = now;
+            EndRecoveryIteration(run);
+            return;
+        }
+        if (upd)                                                                            // 0xe608b-0xe6444
+        {
+            if (now - run.LastActivity < OverviewRecoveryPolicy.UpdateNoActivityTimeout.TotalMilliseconds)
+            {
+                EndRecoveryIteration(run);
+                return;
+            }
+            await KillUpdateProcessesIgnoringErrorsAsync().ConfigureAwait(false);
+            uint n = run.NormalAttempts;
+            run.NormalAttempts = n + 1;
+            run.Deadline = now + RetryDelayMilliseconds(normal: true, n);
+            RecoveryRetryScheduled(run, checked((int)run.NormalAttempts), run.Deadline,
+                "game update had no activity for 15 minutes");
+            run.LastActivity = now;
+            EndRecoveryIteration(run);
+            return;
+        }
+
+        RecoveryHeartbeatObservation heartbeat = snapshot is null || pid == 0 || snapshot.GamePid != pid
+            ? new(false, false, false, false, null, false)
+            : ReadRecoveryHeartbeat(snapshot);
+        bool online = heartbeat.BridgeOnline;                                               // 0x2d47a6
+        if (snapshot is not null && pid != 0 && snapshot.GamePid == pid) UpdateHealthRecord(pid, heartbeat);
+        bool healthy = pid != 0 && IsGameHealthy(pid);                                       // 0x41ba64
+        if (online && pid != 0 && healthy && pid == run.LastPid)                            // 0xe6223-0xe6233
+        {
+            RecoverySetState(run, "verifying", checked((int)run.ActiveAttempts));
+            if (run.StableSince == 0) run.StableSince = now;
+            if (now - run.StableSince >= OverviewRecoveryPolicy.StableVerification.TotalMilliseconds)   // 0xe6285
+            {
+                FinishRecoveryRun(run, success: true, null);
+                return;
+            }
+            EndRecoveryIteration(run);
+            return;
+        }
+        run.StableSince = 0;                                                                // 0xe62b9
+        if (pid == 0)                                                                       // 0xe64e0
+        {
+            if (now < run.Deadline)
+            {
+                EndRecoveryIteration(run);
+                return;
+            }
+            RecoverySetState(run, "repairing", checked((int)run.ActiveAttempts));
+            uint attempt;
+            if (run.Maintenance) attempt = ++run.MaintenanceAttempts;
+            else attempt = ++run.NormalAttempts;
+            run.LaunchAttempt = attempt;
+            RecoverySetState(run, "launching", checked((int)attempt));
+            string? launchError = await RecoveryLaunchAsync(run).ConfigureAwait(false);     // 0xe6bf7 (+0x2deee9)
+            if (launchError is null)                                                        // 0xe6751
+            {
+                RecoveryMarkRestarted(run);
+                run.LastActivity = now;
+                run.Deadline = now + RetryDelayMilliseconds(!run.Maintenance, attempt - 1);
+            }
+            else if (run.Maintenance)                                                       // 0xe67a4
+            {
+                run.Deadline = now + RetryDelayMilliseconds(normal: false, attempt - 1);
+                RecoverySetMaintenance(run, checked((int)attempt), run.Deadline);
+            }
+            else
+            {
+                run.Deadline = now + RetryDelayMilliseconds(normal: true, attempt - 1);
+                RecoveryRetryScheduled(run, checked((int)attempt), run.Deadline, launchError);
+            }
+            EndRecoveryIteration(run);
+            return;
+        }
+        if (!online)                                                                        // 0xe6544
+        {
+            if (now - run.LastActivity < OverviewRecoveryPolicy.DisconnectWaitBeforeTerminate.TotalMilliseconds)
+            {
+                RecoverySetState(run, "waiting", checked((int)run.NormalAttempts));
+                EndRecoveryIteration(run);
+                return;
+            }
+            (bool ok, string? error) = await TerminateTrackedGameAsync().ConfigureAwait(false);
+            if (!ok)                                                                        // 0xe6ab3
+            {
+                uint n = run.NormalAttempts;
+                run.NormalAttempts = n + 1;
+                run.Deadline = now + RetryDelayMilliseconds(normal: true, n);
+                RecoveryRetryScheduled(run, checked((int)run.NormalAttempts), run.Deadline, error);
+            }
+            else if (run.Maintenance)                                                       // 0xe6619
+            {
+                run.Deadline = now + RetryDelayMilliseconds(normal: false, run.MaintenanceAttempts);
+                RecoverySetMaintenance(run, checked((int)run.MaintenanceAttempts), run.Deadline);
+            }
+            else run.Deadline = now;                                                        // 0xe6bb2
+            run.LastActivity = now;
+            EndRecoveryIteration(run);
+            return;
+        }
+        RecoverySetState(run, "verifying", checked((int)run.ActiveAttempts));              // 0xe62d2
+        if (now - run.LoginSince < OverviewRecoveryPolicy.LoginUnavailableThreshold.TotalMilliseconds)
+        {
+            EndRecoveryIteration(run);
+            return;
+        }
+        await TerminateTrackedGameAsync().ConfigureAwait(false);                            // result ignored (0xe632c)
+        run.Maintenance = true;                                                             // 0xe6342
+        run.Deadline = now + RetryDelayMilliseconds(normal: false, run.MaintenanceAttempts);
+        RecoverySetMaintenance(run, checked((int)run.MaintenanceAttempts), run.Deadline);
+        run.LastActivity = run.LoginSince = now;
+        EndRecoveryIteration(run);
     }
 
-    private void ResetPendingRecoveryRequest()
+    // 0xe6987-0xe69cc end-of-iteration gate: armed (not closed), same run, desired running, auto reconnect.
+    private void EndRecoveryIteration(RecoveryRunState run)
     {
-        pendingRecoveryRequest = null;
-        pendingRecoveryVerifySinceMilliseconds = null;
+        bool allowed;
+        lock (stateGate) allowed = !closed && ReferenceEquals(activeRecoveryRun, run);
+        if (!allowed || !RecoveryEnabledAndDesired()) FinishRecoveryRunStopped(run);
     }
 
-    private void ResetFailureObservations()
+    // ---------------------------------------------------------------------------------------------
+    // Effects (current-client adaptations of the original helper calls)
+    // ---------------------------------------------------------------------------------------------
+    private int FindRecoveryTrackedPid(OwnedSnapshot? unused = null)
     {
-        Interlocked.Exchange(ref missingProcessObservations, 0);
-        ResetRunningFailureObservations();
+        _ = unused;
+        RecoveryTrackedGame? tracked = recoveryTracked;
+        if (tracked is null) return 0;
+        return ProcessMatches(tracked.Pid, tracked.Path, tracked.StartedAtUtc) ? tracked.Pid : 0;
     }
 
-    private void ResetRunningFailureObservations()
+    private async Task KillUpdateProcessesIgnoringErrorsAsync()
     {
-        bridgeOfflineSinceMilliseconds = null;
-        gameUnhealthySinceMilliseconds = null;
-        hungSinceMilliseconds = null;
+        try { await TerminateUpdateProcessesAsync(CancellationToken.None).ConfigureAwait(false); }
+        catch (Exception ex) when (ex is not OperationCanceledException) { }
+    }
+
+    // 0x41e543: terminate the tracked game; the lifecycle restoration that the current client needs after
+    // the game exits (journal/script triplet) is part of this effect.
+    private async Task<(bool Ok, string? Error)> TerminateTrackedGameAsync()
+    {
+        RecoveryTrackedGame? tracked = recoveryTracked;
+        if (tracked is null) return (true, null);
+        try
+        {
+            await TerminateOwnedProcessAsync(tracked.Pid, tracked.Path, tracked.StartedAtUtc,
+                CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return (false, RecoveryErrorCode(ex));
+        }
+        OwnedSnapshot? snapshot = GetOwnedSnapshot();
+        if (snapshot is not null)
+            await CleanupExitedOwnedSessionAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
+        return (true, null);
+    }
+
+    // 0xe6bf7 relaunch (+ fallback 0x2deee9): returns null on success, otherwise the error code.
+    private async Task<string?> RecoveryLaunchAsync(RecoveryRunState run)
+    {
+        // Safety fence (adaptation): never relaunch after the user cleared desired-running (Stop).
+        if (config?.Snapshot.GameDesiredRunning != true) throw new OperationCanceledException(run.Cancellation.Token);
+        OwnedSnapshot? stale = GetOwnedSnapshot();
+        if (stale is not null)
+            await CleanupExitedOwnedSessionAsync(stale, CancellationToken.None).ConfigureAwait(false);
+        try
+        {
+            await StartAsync(run.Cancellation.Token).ConfigureAwait(false);
+            return null;
+        }
+        catch (OperationCanceledException) when (run.Cancellation.IsCancellationRequested) { throw; }
+        catch (Exception ex) { return RecoveryErrorCode(ex); }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Status record helpers (0x41ce45 / 0x41cacb / 0x41b59e / 0x41b89f / 0x41ae75 / 0x41c448 / 0x41c201)
+    // ---------------------------------------------------------------------------------------------
+    // Read-modify-write of the shared status record for the active run; the change event is delivered
+    // after the lock is released (handlers may call back into the lifecycle).
+    private void MutateRecoveryStatus(RecoveryRunState run,
+        Func<OverviewRecoveryStatus, OverviewRecoveryStatus?> mutate)
+    {
+        OverviewRecoveryStatus? published = null;
+        lock (stateGate)
+        {
+            if (!ReferenceEquals(activeRecoveryRun, run)) return;
+            OverviewRecoveryStatus? next = mutate(recoveryStatus);
+            if (next is null || next == recoveryStatus) return;
+            recoveryStatus = next;
+            published = next;
+        }
+        PublishRecoveryStatus(published);
+    }
+
+    private void PublishRecoveryStatus(OverviewRecoveryStatus status)
+    {
+        try { RecoveryStatusChanged?.Invoke(status); }
+        catch { }
+    }
+
+    private void RecoverySetState(RecoveryRunState run, string label, int attempts) =>
+        MutateRecoveryStatus(run, s =>
+            s.State == label && s.Attempts == attempts                         // dedupe on (state, attempts)
+                ? null
+                : s with { State = label, Attempts = attempts, NextRetryAt = null, Error = null });
+
+    private long ToUnixDeadline(long engineDeadline) =>
+        RecoveryNow().ToUnixTimeMilliseconds() + (engineDeadline - RecoveryEngineNowMilliseconds());
+
+    private void RecoveryRetryScheduled(RecoveryRunState run, int attempts, long engineDeadline, string? error)
+    {
+        long unixDeadline = ToUnixDeadline(engineDeadline);
+        MutateRecoveryStatus(run, s => s with
+        {
+            State = "waiting", Attempts = attempts, NextRetryAt = unixDeadline, Error = error,
+        });
+    }
+
+    private void RecoverySetMaintenance(RecoveryRunState run, int attempts, long engineDeadline)
+    {
+        long unixDeadline = ToUnixDeadline(engineDeadline);
+        MutateRecoveryStatus(run, s => s with
+        {
+            State = "maintenance", Attempts = attempts, NextRetryAt = unixDeadline, NoticeVisible = true,
+        });
+    }
+
+    private void RecoveryMarkUpdateDetected(RecoveryRunState run) =>
+        MutateRecoveryStatus(run, s => s.UpdateDetected ? null : s with { UpdateDetected = true });
+
+    private void RecoveryMarkRestarted(RecoveryRunState run) =>
+        MutateRecoveryStatus(run, s => s.Restarted ? null : s with { Restarted = true });
+
+    private void FinishRecoveryRun(RecoveryRunState run, bool success, string? message)
+    {
+        long completedAt = RecoveryNow().ToUnixTimeMilliseconds();
+        OverviewRecoveryStatus? published = null;
+        lock (stateGate)
+        {
+            if (run.Finished || !ReferenceEquals(activeRecoveryRun, run)) return;
+            run.Finished = true;
+            published = recoveryStatus = recoveryStatus with
+            {
+                State = success ? "succeeded" : "failed",
+                CompletedAt = completedAt,
+                NextRetryAt = null,
+                Error = success ? null : message,
+                NoticeVisible = true,
+            };
+            ReleaseRecoveryRunLocked(run);
+        }
+        PublishRecoveryStatus(published);
+    }
+
+    private void FinishRecoveryRunFailed(RecoveryRunState run, string code) => FinishRecoveryRun(run, success: false, code);
+
+    private void UpdateHealthRecord(int pid, RecoveryHeartbeatObservation heartbeat)
+    {
+        if (!heartbeat.BridgeOnline) return;                       // retained while the bridge is offline
+        lock (stateGate)
+        {
+            healthRecordPid = pid;
+            healthRecordValid = heartbeat.GameStateObserved && heartbeat.GameHealthy;
+        }
+    }
+
+    private bool IsGameHealthy(int pid)
+    {
+        lock (stateGate) return pid != 0 && healthRecordPid == pid && healthRecordValid;
+    }
+
+    private void FinishRecoveryRunStopped(RecoveryRunState run)
+    {
+        OverviewRecoveryStatus? published = null;
+        lock (stateGate)
+        {
+            if (run.Finished || !ReferenceEquals(activeRecoveryRun, run)) return;
+            run.Finished = true;
+            healthRecordPid = 0;                                   // 0x41c201 resets the game-state record
+            healthRecordValid = false;
+            published = recoveryStatus = IdleRecoveryStatus(noticeId: recoveryStatus.NoticeId);   // 0x41c201 keeps the notice id
+            ReleaseRecoveryRunLocked(run);
+        }
+        PublishRecoveryStatus(published);
+    }
+
+    private void ReleaseRecoveryRunLocked(RecoveryRunState run)
+    {
+        activeRecoveryRun = null;
+        if (ReferenceEquals(Interlocked.CompareExchange(ref activeRecoveryCancellation, null, run.Cancellation),
+                run.Cancellation))
+            run.Cancellation.Dispose();
+    }
+
+    private long RetryDelayMilliseconds(bool normal, uint counterBefore)
+    {
+        TimeSpan[] table = normal
+            ? OverviewRecoveryPolicy.NormalRetryDelays
+            : OverviewRecoveryPolicy.MaintenanceRetryDelays;
+        return (long)table[Math.Min((int)Math.Min(counterBefore, (uint)int.MaxValue), table.Length - 1)].TotalMilliseconds;
     }
 
     private void MarkUnexpectedExit(OwnedSnapshot snapshot)
@@ -322,128 +766,6 @@ internal sealed partial class OverviewLifecycleService
             phase = "error";
             connectionState = "recovering";
             lastError = "GAME_EXITED_RESTORE_REQUIRED";
-        }
-    }
-
-    private async Task RecoverOwnedSessionAsync(
-        OwnedSnapshot snapshot,
-        string reason,
-        bool terminateFirst,
-        bool initialUpdateDetected = false,
-        long? startedAtUnixMilliseconds = null,
-        ulong? noticeId = null)
-    {
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(recoveryLifetime.Token);
-        CancellationTokenSource? previous = Interlocked.Exchange(ref activeRecoveryCancellation, linked);
-        previous?.Dispose();
-        CancellationToken token = linked.Token;
-        long startedAt = startedAtUnixMilliseconds ?? RecoveryNow().ToUnixTimeMilliseconds();
-        ulong activeNoticeId = noticeId ?? NextRecoveryNoticeId();
-        bool updateDetected = initialUpdateDetected;
-        int attempts = 0;
-
-        try
-        {
-            if (noticeId is null)
-            {
-                SetRecoveryStatus(new("waiting", reason, updateDetected, false,
-                    startedAt, null, 0, null, null, activeNoticeId, true));
-            }
-            SetRecoveryStatus(new("repairing", reason, updateDetected, false,
-                startedAt, null, attempts, null, null, activeNoticeId, true));
-            token.ThrowIfCancellationRequested();
-            // Once an eligible recovery has terminated/lost the owned process, exact
-            // journal restoration is cleanup, not a retry, and must finish even if
-            // Automatic Reconnection is disabled concurrently.
-            if (terminateFirst)
-                await TerminateOwnedProcessAsync(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, CancellationToken.None).ConfigureAwait(false);
-            await CleanupExitedOwnedSessionAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
-
-            while (RecoveryEnabledAndDesired())
-            {
-                token.ThrowIfCancellationRequested();
-                bool updateRunning = IsUpdateProcessRunning();
-                if (updateRunning)
-                {
-                    updateDetected = true;
-                    if (UpdateActivityStalled(RecoveryClockMilliseconds()))
-                    {
-                        await TerminateUpdateProcessesAsync(CancellationToken.None).ConfigureAwait(false);
-                        attempts++;
-                        TimeSpan stalledDelay = OverviewRecoveryPolicy.RetryDelay(maintenance: false, attempts);
-                        SetRecoveryStatus(new("waiting", reason, true, false,
-                            startedAt, null, attempts,
-                            RecoveryNow().Add(stalledDelay).ToUnixTimeMilliseconds(),
-                            "game update had no activity for 15 minutes", activeNoticeId, true));
-                        await RecoveryDelayAsync(stalledDelay, token).ConfigureAwait(false);
-                        continue;
-                    }
-                    attempts++;
-                    TimeSpan delay = OverviewRecoveryPolicy.RetryDelay(maintenance: true, attempts);
-                    SetRecoveryStatus(new("updating", reason, true, false,
-                        startedAt, null, attempts,
-                        RecoveryNow().Add(delay).ToUnixTimeMilliseconds(), null, activeNoticeId, true));
-                    await RecoveryDelayAsync(delay, token).ConfigureAwait(false);
-                    continue;
-                }
-                ResetUpdateActivity();
-
-                attempts++;
-                SetRecoveryStatus(new("launching", reason, updateDetected, false,
-                    startedAt, null, attempts, null, null, activeNoticeId, true));
-                try
-                {
-                    await StartAsync(token).ConfigureAwait(false);
-                    SetRecoveryStatus(new("verifying", reason, updateDetected, true,
-                        startedAt, null, attempts, null, null, activeNoticeId, true));
-                    await RecoveryDelayAsync(OverviewRecoveryPolicy.StableVerification, token).ConfigureAwait(false);
-                    OwnedSnapshot? current = GetOwnedSnapshot();
-                    if (current is not null && ProcessMatches(current.GamePid, current.GamePath, current.GameStartedAtUtc) && IsReady)
-                    {
-                        SetRecoveryStatus(new("succeeded", reason, updateDetected, true,
-                            startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts,
-                            null, null, activeNoticeId, true));
-                        ResetFailureObservations();
-                        return;
-                    }
-                    throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
-                        "The recovered game did not remain bridge-ready for the verification window.");
-                }
-
-                catch (OperationCanceledException) when (token.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    if (!RecoveryEnabledAndDesired()) break;
-                    bool maintenance = IsUpdateProcessRunning();
-                    updateDetected |= maintenance;
-                    TimeSpan delay = OverviewRecoveryPolicy.RetryDelay(maintenance, attempts);
-                    string state = maintenance ? "maintenance" : "waiting";
-                    SetRecoveryStatus(new(state, reason, updateDetected, false,
-                        startedAt, null, attempts,
-                        RecoveryNow().Add(delay).ToUnixTimeMilliseconds(),
-                        RecoveryErrorCode(ex), activeNoticeId, true));
-                    await RecoveryDelayAsync(delay, token).ConfigureAwait(false);
-                }
-            }
-
-            SetRecoveryStatus(IdleRecoveryStatus(noticeId: activeNoticeId));
-        }
-        catch (OperationCanceledException)
-        {
-            SetRecoveryStatus(IdleRecoveryStatus(noticeId: activeNoticeId));
-        }
-        catch (Exception ex)
-        {
-            SetRecoveryStatus(new("failed", reason, updateDetected, false,
-                startedAt, RecoveryNow().ToUnixTimeMilliseconds(), attempts,
-                null, RecoveryErrorCode(ex), activeNoticeId, true));
-        }
-        finally
-        {
-            Interlocked.CompareExchange(ref activeRecoveryCancellation, null, linked);
         }
     }
 
@@ -472,6 +794,123 @@ internal sealed partial class OverviewLifecycleService
             lastError = null;
             readyAtUnix = null;
         }
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // Launcher/updater/player log classification (0x419e2a), readers 0x41a18d / 0x41e950 / 0x41e9bb
+    // ---------------------------------------------------------------------------------------------
+    internal static readonly string[] PlayerUpdateMarkers =
+        ["downloadupdatestate", "download_start", "download_finish", "dll version changed"];
+    internal static readonly string[] LauncherUpdateMarkers =
+        ["updating from path", "installing from path", "copying launcher"];
+    internal static readonly string[] PlayerErrorMarkers = ["downloadupdate error", "disk full"];
+    internal static readonly string[] PlayerErrorTokens = ["e115", "e123", "e900"];
+    internal static readonly string[] LauncherErrorMarkers = ["download failed", "update failed", "disk full"];
+    internal static readonly string[] UpdaterErrorMarkers = ["update failed", "install failed", "disk full"];
+    internal const string RecoveryLogErrorText = "game update reported an error";
+
+    internal readonly record struct RecoveryLogClassification(bool Activity, bool UpdateDetected, bool Maintenance, string? Error);
+
+    // 0x41d0df: case-sensitive occurrence whose neighbours are not ASCII alphanumeric.
+    internal static bool ContainsToken(string haystack, string needle)
+    {
+        int start = 0;
+        while (true)
+        {
+            int i = haystack.IndexOf(needle, start, StringComparison.Ordinal);
+            if (i < 0) return false;
+            bool beforeAlnum = i > 0 && char.IsAsciiLetterOrDigit(haystack[i - 1]);
+            int end = i + needle.Length;
+            bool afterAlnum = end < haystack.Length && char.IsAsciiLetterOrDigit(haystack[end]);
+            if (!beforeAlnum && !afterAlnum) return true;
+            start = i + 1;
+        }
+    }
+
+    private static bool ContainsAny(string haystack, string[] needles)
+    {
+        foreach (string needle in needles)
+            if (haystack.Contains(needle, StringComparison.Ordinal)) return true;
+        return false;
+    }
+
+    internal static RecoveryLogClassification ClassifyRecoveryLogTexts(string player, string launcher, string updater)
+    {
+        bool update = ContainsAny(player, PlayerUpdateMarkers) || ContainsToken(player, "e999") ||
+                      ContainsAny(launcher, LauncherUpdateMarkers);
+        bool maintenance = player.Contains("connect to server failed", StringComparison.Ordinal) ||
+                           (player.Contains("loading error", StringComparison.Ordinal) && ContainsToken(player, "e109"));
+        bool error = ContainsAny(player, PlayerErrorMarkers) ||
+                     Array.Exists(PlayerErrorTokens, token => ContainsToken(player, token)) ||
+                     ContainsAny(launcher, LauncherErrorMarkers) || ContainsAny(updater, UpdaterErrorMarkers);
+        bool activity = update || launcher.Length != 0 || updater.Length != 0;
+        return new(activity, update, maintenance, error ? RecoveryLogErrorText : null);
+    }
+
+    private RecoveryLogClassification ClassifyRecoveryLogs(IRecoveryLogReader[] readers)
+    {
+        string player = readers[0].ReadNew();
+        string launcher = readers[1].ReadNew();
+        string updater = readers[2].ReadNew();
+        return ClassifyRecoveryLogTexts(player, launcher, updater);
+    }
+
+    private IRecoveryLogReader[] CreateRecoveryLogReaders()
+    {
+        string directory = Path.Combine(
+            Environment.GetEnvironmentVariable("USERPROFILE") ?? string.Empty,
+            "AppData", "LocalLow", "FunFly", "Last War-Survival Game");
+        string[] names = ["Player.log", "Launcher.log", "Updater.log"];
+        var readers = new IRecoveryLogReader[names.Length];
+        for (int i = 0; i < names.Length; i++)
+            readers[i] = testHooks?.CreateRecoveryLogReader is { } factory
+                ? factory(names[i])
+                : new FileRecoveryLogReader(Path.Combine(directory, names[i]));
+        return readers;
+    }
+
+    private sealed record RecoveryTrackedGame(int Pid, string Path, string StartedAtUtc);
+
+    private sealed class RecoveryMonitorObservation
+    {
+        internal uint Missing;          // [M+0xac]
+        internal int OfflinePid;        // [M+0xb0]
+        internal long OfflineSince;     // [M+0x98]
+        internal int UnhealthyPid;      // [M+0xb4]
+        internal long UnhealthySince;   // [M+0xa0]
+        internal int HungPid;           // [M+0xa8]
+        internal long HungSince;        // [M+0x90]
+    }
+
+    private sealed class RecoveryRunState
+    {
+        internal RecoveryRunState(long runId, string reason, long startedAtUnixMilliseconds, ulong noticeId)
+        {
+            RunId = runId;
+            Reason = reason;
+            StartedAtUnixMilliseconds = startedAtUnixMilliseconds;
+            NoticeId = noticeId;
+        }
+
+        internal long RunId { get; }
+        internal string Reason { get; }
+        internal long StartedAtUnixMilliseconds { get; }
+        internal ulong NoticeId { get; }
+        internal CancellationTokenSource Cancellation { get; init; } = null!;
+        internal bool Finished;
+        internal long StableSince;         // [+0x68]
+        internal long LastActivity;        // [+0x70]
+        internal long LoginSince;          // [+0x78]
+        internal long Deadline;            // [+0x80]
+        internal int RunPid;               // [+0x108]
+        internal int LastPid;              // [+0x10c]
+        internal uint NormalAttempts;      // [+0x110]
+        internal uint MaintenanceAttempts; // [+0x114]
+        internal bool Maintenance;         // [+0x118]
+        internal uint LaunchAttempt;       // [+0x120]
+        internal string? LastFingerprint;
+        internal IRecoveryLogReader[] LogReaders = [];
+        internal uint ActiveAttempts => Maintenance ? MaintenanceAttempts : NormalAttempts;
     }
 
     private RecoveryHeartbeatObservation ReadRecoveryHeartbeat(OwnedSnapshot snapshot)
@@ -543,30 +982,6 @@ internal sealed partial class OverviewLifecycleService
         return hung;
     }
 
-    private bool UpdateActivityStalled(long now)
-    {
-        string? fingerprint = ReadUpdateActivityFingerprint();
-        if (fingerprint is null)
-        {
-            ResetUpdateActivity();
-            return false;
-        }
-        if (!string.Equals(lastUpdateActivityFingerprint, fingerprint, StringComparison.Ordinal))
-        {
-            lastUpdateActivityFingerprint = fingerprint;
-            updateActivitySinceMilliseconds = now;
-            return false;
-        }
-        updateActivitySinceMilliseconds ??= now;
-        return now - updateActivitySinceMilliseconds.Value >= OverviewRecoveryPolicy.UpdateNoActivityTimeout.TotalMilliseconds;
-    }
-
-    private void ResetUpdateActivity()
-    {
-        lastUpdateActivityFingerprint = null;
-        updateActivitySinceMilliseconds = null;
-    }
-
     private string? ReadUpdateActivityFingerprint()
     {
         if (testHooks?.UpdateActivityFingerprint is { } test) return test();
@@ -626,7 +1041,6 @@ internal sealed partial class OverviewLifecycleService
         if (testHooks?.TerminateUpdateProcessesAsync is { } test)
         {
             await test(cancellationToken).ConfigureAwait(false);
-            ResetUpdateActivity();
             return;
         }
         if (gameRoot is null) return;
@@ -649,12 +1063,15 @@ internal sealed partial class OverviewLifecycleService
                                 throw new BridgeCommandException("UPDATE_RECOVERY_TERMINATE_FAILED", $"Unable to terminate exact updater process {verified.Id}.");
                         }
                         finally { _ = CloseHandle(handle); }
-                        await verified.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                        // 0x41e613 does not wait for exit; bound the wait so an unkillable process cannot stall recovery.
+                        using var exitBound = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        exitBound.CancelAfter(TimeSpan.FromSeconds(10));
+                        try { await verified.WaitForExitAsync(exitBound.Token).ConfigureAwait(false); }
+                        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { }
                     }
                 }
             }
         }
-        ResetUpdateActivity();
     }
 
     private async Task TerminateOwnedProcessAsync(int pid, string expectedPath, string expectedStartedAtUtc, CancellationToken cancellationToken)
@@ -744,21 +1161,6 @@ internal sealed partial class OverviewLifecycleService
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool CloseHandle(IntPtr handle);
 
-    private void SetRecoveryStatus(OverviewRecoveryStatus next)
-    {
-        bool changed;
-        lock (stateGate)
-        {
-            changed = recoveryStatus != next;
-            recoveryStatus = next;
-        }
-        if (changed)
-        {
-            try { RecoveryStatusChanged?.Invoke(next); }
-            catch { }
-        }
-    }
-
     private static string RecoveryErrorCode(Exception ex) => ex switch
     {
         BridgeCommandException bridge => bridge.Code,
@@ -773,11 +1175,4 @@ internal sealed partial class OverviewLifecycleService
         bool RecoveryConfirmed,
         string? RecoveryReason,
         bool RecoveryUpdateDetected);
-
-    private sealed record PendingRecoveryRequest(
-        string Reason,
-        bool UpdateDetected,
-        long StartClockMilliseconds,
-        long StartedAtUnixMilliseconds,
-        ulong NoticeId);
 }

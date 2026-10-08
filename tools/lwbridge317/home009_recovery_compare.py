@@ -49,9 +49,23 @@ def main() -> int:
             rows.append({"scenario": name, "equal": False, "reason": "missing production trace"})
             bad += 1
             continue
-        keep = (lambda e: True) if a.status else (lambda e: e["kind"] != "status")
-        on = [e for e in normalize(o_events) if keep(e)]
-        pn = [e for e in normalize(p_events) if keep(e)]
+        on_all, pn_all = normalize(o_events), normalize(p_events)
+        on = [e for e in on_all if e["kind"] != "status"]
+        pn = [e for e in pn_all if e["kind"] != "status"]
+        if a.status:
+            # status streams are compared separately (ordering relative to effects within one tick is an
+            # implementation detail) with consecutive identical records collapsed (UI-idempotent)
+            def stream(events):
+                out = []
+                for e in events:
+                    if e["kind"] != "status":
+                        continue
+                    rec = {k: v for k, v in e.items()}
+                    if not out or out[-1] != rec:
+                        out.append(rec)
+                return out
+            on += stream(on_all)
+            pn += stream(pn_all)
         equal = on == pn
         row = {"scenario": name, "equal": equal, "oracleEffects": len(on), "productionEffects": len(pn)}
         if not equal:

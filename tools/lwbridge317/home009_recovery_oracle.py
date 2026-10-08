@@ -117,7 +117,9 @@ class Env:
     def tracked_pid(self) -> int: ...                              # ctx+0x120
     def find_pid(self) -> int: ...                                 # 0x41b451 (0 when absent)
     def online(self) -> bool: ...                                  # 0x2d47a6
-    def healthy(self, pid: int) -> bool: ...                       # 0x41ba64
+    def healthy(self, pid: int) -> bool: ...                       # 0x41ba64 (record keyed by pid, persists while offline)
+    def reset_health_record(self) -> None: ...                     # 0x41c201 clears [+0x88]/[+0x8c]
+    def event(self): ...                                           # 0x42c39d game.recovery_requested (reason, update) | None
     def update_running(self) -> bool: ...                          # 0x41dfb1
     def hung(self, pid: int) -> bool: ...                          # 0x41a472 via EnumWindows
     def fingerprint(self): ...                                     # 0x41dad8
@@ -144,6 +146,9 @@ class Monitor:
         """0x41a8a0.  Returns (reason, update_flag) when a recovery is requested."""
         if not (env.config_reconnect() and env.desired() and env.armed()):   # 0x41a8c0-0x41a8e5
             return None
+        ev = env.event()                                                     # 0x42c8ff -> 0x41b03a
+        if ev is not None:
+            return ev
         if store.status.state in ACTIVE_STATES:                              # 0x41a932-0x41a951
             return None
         if not env.root_available():                                         # 0x41a974-0x41a97c
@@ -379,4 +384,5 @@ class Run:
     def _end(self, env: Env, store: Store) -> None:
         if not self._continue_allowed(env):
             store.finish_stopped()
+            env.reset_health_record()
             self.finished = True

@@ -1,0 +1,18887 @@
+[
+ {
+  "name": "idle-healthy",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "process-exit-at-30s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "process-exit-immediately",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 2000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "bridge-offline-from-10s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "bridge-offline-then-back-at-100s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     100000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     100000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "bridge-offline-back-at-140s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     140000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     140000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "hang-from-10s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     10000,
+     true
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "login-unavailable-from-20s",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     20000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "login-unavailable-never-recovers-launch-ok-unhealthy",
+  "durationMs": 900000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     20000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     false
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "disabled-reconnect-offline",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "reconnect-enabled-late-offline-stale",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    false
+   ],
+   [
+    200000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "update-process-running-offline",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    10000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "launch-fails-forever",
+  "durationMs": 1500000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "launch-fails-three-times-then-ok",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": [
+    true,
+    true,
+    true,
+    false
+   ]
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "terminate-fails-hang",
+  "durationMs": 400000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     10000,
+     true
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    true
+   ],
+   [
+    90000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "server-unavailable-log-after-exit",
+  "durationMs": 900000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    34000,
+    "player",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "update-log-error",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ]
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    80000,
+    "launcher",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "update-stall-15min",
+  "durationMs": 1500000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    36000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "update-activity-keeps-alive",
+  "durationMs": 1500000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    36000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    40000,
+    1
+   ],
+   [
+    640000,
+    2
+   ],
+   [
+    1240000,
+    3
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "reconnect-disabled-mid-recovery",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    45000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "launch-then-unhealthy-after-2s-flap",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     false
+    ],
+    [
+     4000,
+     true
+    ],
+    [
+     14000,
+     false
+    ],
+    [
+     16000,
+     true
+    ]
+   ],
+   "fails": []
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "crash-loop",
+  "durationMs": 900000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 30000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "onlineAfterMs": 0,
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "fails": [],
+   "crashAfterMs": 20000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-0",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     142000,
+     true
+    ],
+    [
+     192000,
+     false
+    ],
+    [
+     274000,
+     false
+    ],
+    [
+     384000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     42000,
+     false
+    ],
+    [
+     568000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     162000,
+     false
+    ],
+    [
+     174000,
+     false
+    ],
+    [
+     434000,
+     false
+    ]
+   ],
+   "crashAt": 70000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    66000,
+    false
+   ],
+   [
+    106000,
+    true
+   ],
+   [
+    300000,
+    false
+   ],
+   [
+    394000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    90000,
+    3
+   ],
+   [
+    216000,
+    2
+   ],
+   [
+    274000,
+    2
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     436000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-1",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    1018000,
+    true
+   ],
+   [
+    1102000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     416000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 140000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    306000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    826000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    1036000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    1070000,
+    "updater",
+    "Loading error : E109\n"
+   ],
+   [
+    1180000,
+    "player",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     86000,
+     true
+    ]
+   ],
+   "crashAfterMs": 22000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-2",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    574000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     204000,
+     true
+    ],
+    [
+     216000,
+     false
+    ],
+    [
+     376000,
+     false
+    ],
+    [
+     412000,
+     true
+    ],
+    [
+     464000,
+     false
+    ],
+    [
+     590000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     228000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    106000,
+    0
+   ],
+   [
+    292000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     574000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     298000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    356000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-3",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     8000,
+     true
+    ],
+    [
+     62000,
+     true
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     86000,
+     true
+    ],
+    [
+     90000,
+     false
+    ],
+    [
+     136000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     8000,
+     false
+    ],
+    [
+     74000,
+     false
+    ],
+    [
+     146000,
+     true
+    ],
+    [
+     182000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     34000,
+     false
+    ],
+    [
+     62000,
+     false
+    ]
+   ],
+   "crashAt": 40000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    88000,
+    false
+   ],
+   [
+    142000,
+    false
+   ],
+   [
+    198000,
+    false
+   ],
+   [
+    254000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    90000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    34000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    280000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    294000,
+    "updater",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     136000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 42000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-4",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     212000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     110000,
+     true
+    ],
+    [
+     124000,
+     false
+    ],
+    [
+     930000,
+     true
+    ],
+    [
+     1004000,
+     false
+    ],
+    [
+     1008000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     1016000,
+     false
+    ],
+    [
+     1174000,
+     false
+    ]
+   ],
+   "crashAt": 90000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    142000,
+    1
+   ],
+   [
+    166000,
+    0
+   ],
+   [
+    834000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    174000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    950000,
+    "launcher",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     964000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-5",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    108000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     110000,
+     true
+    ],
+    [
+     142000,
+     false
+    ],
+    [
+     358000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     228000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    60000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    106000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    204000,
+    "player",
+    "noise\n"
+   ],
+   [
+    260000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    324000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     false
+    ]
+   ],
+   "crashAfterMs": 54000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-6",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    428000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     80000,
+     false
+    ],
+    [
+     272000,
+     false
+    ],
+    [
+     384000,
+     true
+    ],
+    [
+     564000,
+     false
+    ],
+    [
+     616000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    854000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    1008000,
+    2
+   ],
+   [
+    1154000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    56000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    176000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    748000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    790000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     122000,
+     false
+    ],
+    [
+     824000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    618000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-7",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    200000,
+    false
+   ],
+   [
+    204000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     118000,
+     true
+    ],
+    [
+     166000,
+     false
+    ],
+    [
+     216000,
+     true
+    ],
+    [
+     242000,
+     false
+    ],
+    [
+     284000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    22000,
+    false
+   ],
+   [
+    48000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    50000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    12000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    48000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    74000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    246000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    268000,
+    "updater",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     292000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     294000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-8",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    26000,
+    true
+   ],
+   [
+    182000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     76000,
+     true
+    ],
+    [
+     178000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     14000,
+     true
+    ],
+    [
+     96000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     176000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    104000,
+    true
+   ],
+   [
+    112000,
+    true
+   ],
+   [
+    264000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     224000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 16000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-9",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    156000,
+    true
+   ],
+   [
+    390000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     254000,
+     true
+    ],
+    [
+     482000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     true
+    ],
+    [
+     178000,
+     true
+    ],
+    [
+     230000,
+     false
+    ],
+    [
+     344000,
+     false
+    ],
+    [
+     554000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     306000,
+     false
+    ],
+    [
+     406000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    44000,
+    false
+   ],
+   [
+    322000,
+    false
+   ],
+   [
+    476000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    536000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    106000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    204000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    232000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    262000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    542000,
+    "launcher",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     98000,
+     false
+    ],
+    [
+     526000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     356000,
+     true
+    ],
+    [
+     384000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-10",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    394000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     558000,
+     true
+    ],
+    [
+     662000,
+     true
+    ],
+    [
+     714000,
+     true
+    ],
+    [
+     758000,
+     true
+    ],
+    [
+     850000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     40000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    156000,
+    false
+   ],
+   [
+    1142000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    122000,
+    1
+   ],
+   [
+    362000,
+    1
+   ],
+   [
+    874000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    836000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    926000,
+    "launcher",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     596000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     214000,
+     true
+    ],
+    [
+     868000,
+     false
+    ],
+    [
+     1092000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    1056000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-11",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    4000,
+    true
+   ],
+   [
+    296000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     62000,
+     false
+    ],
+    [
+     166000,
+     true
+    ],
+    [
+     218000,
+     false
+    ],
+    [
+     254000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     242000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    30000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    46000,
+    "player",
+    "E115\n"
+   ],
+   [
+    84000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    162000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    174000,
+    "player",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     false
+    ],
+    [
+     102000,
+     false
+    ],
+    [
+     158000,
+     false
+    ]
+   ],
+   "crashAfterMs": 56000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    54000,
+    true
+   ],
+   [
+    196000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-12",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    582000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     846000,
+     true
+    ],
+    [
+     1018000,
+     true
+    ],
+    [
+     1098000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     164000,
+     false
+    ],
+    [
+     1168000,
+     true
+    ],
+    [
+     1196000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 340000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    664000,
+    false
+   ],
+   [
+    764000,
+    false
+   ],
+   [
+    1062000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    654000,
+    3
+   ],
+   [
+    678000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    326000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    350000,
+    "player",
+    "Loading error : E109\n"
+   ],
+   [
+    546000,
+    "player",
+    "Loading error : E109\n"
+   ],
+   [
+    590000,
+    "player",
+    "noise\n"
+   ],
+   [
+    596000,
+    "player",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     604000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     88000,
+     true
+    ],
+    [
+     430000,
+     true
+    ],
+    [
+     1046000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    524000,
+    false
+   ],
+   [
+    616000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-13",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    560000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     206000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     200000,
+     false
+    ],
+    [
+     552000,
+     false
+    ],
+    [
+     578000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     414000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    156000,
+    false
+   ],
+   [
+    190000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    138000,
+    0
+   ],
+   [
+    468000,
+    0
+   ],
+   [
+    512000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    162000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    460000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    464000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    476000,
+    "launcher",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     88000,
+     true
+    ],
+    [
+     560000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-14",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    2000,
+    true
+   ],
+   [
+    122000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     28000,
+     true
+    ],
+    [
+     126000,
+     true
+    ],
+    [
+     166000,
+     true
+    ],
+    [
+     212000,
+     true
+    ],
+    [
+     274000,
+     true
+    ],
+    [
+     416000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     430000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     154000,
+     false
+    ],
+    [
+     426000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    490000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    8000,
+    0
+   ],
+   [
+    378000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    558000,
+    "player",
+    "E115\n"
+   ],
+   [
+    564000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     8000,
+     true
+    ],
+    [
+     22000,
+     true
+    ],
+    [
+     494000,
+     false
+    ]
+   ],
+   "crashAfterMs": 56000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    170000,
+    true
+   ],
+   [
+    536000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-15",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     164000,
+     false
+    ]
+   ],
+   "crashAt": 120000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    294000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    52000,
+    2
+   ],
+   [
+    184000,
+    2
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     42000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     true
+    ],
+    [
+     136000,
+     true
+    ]
+   ],
+   "crashAfterMs": 6000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-16",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     136000,
+     false
+    ],
+    [
+     146000,
+     false
+    ],
+    [
+     200000,
+     false
+    ],
+    [
+     358000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     202000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    146000,
+    3
+   ],
+   [
+    214000,
+    1
+   ],
+   [
+    588000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    224000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    424000,
+    "player",
+    "E115\n"
+   ],
+   [
+    528000,
+    "launcher",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     98000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     72000,
+     false
+    ],
+    [
+     264000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    384000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-17",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    58000,
+    true
+   ],
+   [
+    208000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     true
+    ],
+    [
+     36000,
+     false
+    ],
+    [
+     172000,
+     true
+    ],
+    [
+     186000,
+     false
+    ],
+    [
+     214000,
+     false
+    ],
+    [
+     234000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    14000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    28000,
+    0
+   ],
+   [
+    108000,
+    2
+   ],
+   [
+    220000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    10000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    14000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    122000,
+    "player",
+    "E115\n"
+   ],
+   [
+    176000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    182000,
+    "updater",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     204000,
+     false
+    ],
+    [
+     220000,
+     false
+    ]
+   ],
+   "crashAfterMs": 40000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-18",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    484000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     130000,
+     false
+    ],
+    [
+     398000,
+     false
+    ],
+    [
+     714000,
+     true
+    ],
+    [
+     864000,
+     false
+    ],
+    [
+     990000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     138000,
+     false
+    ],
+    [
+     870000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     386000,
+     false
+    ],
+    [
+     796000,
+     true
+    ],
+    [
+     1168000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    374000,
+    false
+   ],
+   [
+    700000,
+    false
+   ],
+   [
+    760000,
+    false
+   ],
+   [
+    1118000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    208000,
+    1
+   ],
+   [
+    410000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     true
+    ],
+    [
+     264000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     806000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    120000,
+    false
+   ],
+   [
+    706000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-19",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     232000,
+     true
+    ],
+    [
+     248000,
+     false
+    ],
+    [
+     278000,
+     false
+    ],
+    [
+     460000,
+     false
+    ],
+    [
+     516000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    50000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    84000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    120000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    562000,
+    "player",
+    "E115\n"
+   ],
+   [
+    596000,
+    "player",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     32000,
+     false
+    ],
+    [
+     524000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     108000,
+     true
+    ],
+    [
+     254000,
+     false
+    ],
+    [
+     394000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-20",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     true
+    ],
+    [
+     446000,
+     true
+    ],
+    [
+     492000,
+     true
+    ],
+    [
+     544000,
+     true
+    ],
+    [
+     1108000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 214000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    170000,
+    false
+   ],
+   [
+    666000,
+    false
+   ],
+   [
+    894000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    134000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     242000,
+     true
+    ],
+    [
+     772000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 52000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-21",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    1002000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     100000,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     396000,
+     false
+    ],
+    [
+     410000,
+     false
+    ],
+    [
+     674000,
+     false
+    ],
+    [
+     966000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     186000,
+     true
+    ],
+    [
+     712000,
+     false
+    ],
+    [
+     740000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     616000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    1016000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    442000,
+    1
+   ],
+   [
+    1194000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    130000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    184000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    604000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    894000,
+    "updater",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     444000,
+     true
+    ],
+    [
+     496000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     938000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-22",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     622000,
+     true
+    ],
+    [
+     730000,
+     false
+    ],
+    [
+     970000,
+     false
+    ],
+    [
+     1090000,
+     true
+    ],
+    [
+     1140000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     80000,
+     true
+    ],
+    [
+     136000,
+     true
+    ],
+    [
+     324000,
+     false
+    ],
+    [
+     842000,
+     true
+    ],
+    [
+     1078000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     556000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    310000,
+    false
+   ],
+   [
+    358000,
+    true
+   ],
+   [
+    484000,
+    true
+   ],
+   [
+    874000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    1102000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    152000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    256000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    772000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    778000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    824000,
+    "launcher",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    212000,
+    false
+   ],
+   [
+    1026000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-23",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     350000,
+     false
+    ],
+    [
+     514000,
+     false
+    ],
+    [
+     564000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     150000,
+     true
+    ],
+    [
+     278000,
+     false
+    ],
+    [
+     338000,
+     false
+    ],
+    [
+     432000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 206000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    590000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    18000,
+    2
+   ],
+   [
+    364000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    74000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     470000,
+     true
+    ],
+    [
+     478000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     464000,
+     false
+    ]
+   ],
+   "crashAfterMs": 34000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    536000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-24",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     412000,
+     false
+    ],
+    [
+     512000,
+     false
+    ],
+    [
+     518000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     92000,
+     true
+    ],
+    [
+     296000,
+     true
+    ],
+    [
+     452000,
+     true
+    ],
+    [
+     526000,
+     false
+    ],
+    [
+     572000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     448000,
+     true
+    ]
+   ],
+   "crashAt": 280000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    28000,
+    false
+   ],
+   [
+    338000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    108000,
+    2
+   ],
+   [
+    242000,
+    0
+   ],
+   [
+    312000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    110000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    188000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    214000,
+    "player",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     12000,
+     false
+    ],
+    [
+     284000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    554000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-25",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    498000,
+    false
+   ],
+   [
+    808000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     84000,
+     false
+    ],
+    [
+     892000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     680000,
+     true
+    ],
+    [
+     690000,
+     true
+    ],
+    [
+     1126000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     74000,
+     false
+    ]
+   ],
+   "crashAt": 314000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    236000,
+    false
+   ],
+   [
+    658000,
+    false
+   ],
+   [
+    860000,
+    false
+   ],
+   [
+    1166000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    134000,
+    3
+   ],
+   [
+    818000,
+    2
+   ],
+   [
+    1044000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    112000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    214000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    958000,
+    "updater",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     620000,
+     true
+    ],
+    [
+     876000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     596000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-26",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    256000,
+    true
+   ],
+   [
+    312000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     34000,
+     true
+    ],
+    [
+     44000,
+     false
+    ],
+    [
+     168000,
+     true
+    ],
+    [
+     392000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     32000,
+     true
+    ],
+    [
+     424000,
+     true
+    ],
+    [
+     486000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     246000,
+     false
+    ],
+    [
+     320000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    10000,
+    false
+   ],
+   [
+    46000,
+    false
+   ],
+   [
+    314000,
+    true
+   ],
+   [
+    386000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    62000,
+    0
+   ],
+   [
+    272000,
+    0
+   ],
+   [
+    292000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     48000,
+     true
+    ],
+    [
+     408000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     206000,
+     true
+    ],
+    [
+     330000,
+     false
+    ],
+    [
+     364000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    288000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-27",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    172000,
+    true
+   ],
+   [
+    230000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     132000,
+     false
+    ],
+    [
+     198000,
+     true
+    ],
+    [
+     274000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    242000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    122000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    296000,
+    "launcher",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     90000,
+     false
+    ],
+    [
+     128000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    206000,
+    false
+   ],
+   [
+    266000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-28",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     74000,
+     true
+    ],
+    [
+     176000,
+     false
+    ],
+    [
+     198000,
+     false
+    ],
+    [
+     238000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     40000,
+     false
+    ],
+    [
+     216000,
+     false
+    ],
+    [
+     230000,
+     false
+    ],
+    [
+     242000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    42000,
+    false
+   ],
+   [
+    242000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    80000,
+    2
+   ],
+   [
+    88000,
+    0
+   ],
+   [
+    140000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    28000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    140000,
+    "updater",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     60000,
+     false
+    ],
+    [
+     124000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     82000,
+     true
+    ],
+    [
+     206000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    46000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-29",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    170000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     284000,
+     false
+    ],
+    [
+     1176000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     902000,
+     false
+    ]
+   ],
+   "crashAt": 558000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    336000,
+    false
+   ],
+   [
+    408000,
+    false
+   ],
+   [
+    1162000,
+    false
+   ],
+   [
+    1196000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    310000,
+    1
+   ],
+   [
+    316000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    32000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    184000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    710000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    748000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     436000,
+     true
+    ],
+    [
+     476000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     470000,
+     false
+    ],
+    [
+     808000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-30",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    88000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     32000,
+     true
+    ],
+    [
+     280000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    594000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    142000,
+    1
+   ],
+   [
+    448000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    236000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    516000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    536000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    true,
+    false,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     528000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 58000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-31",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    164000,
+    true
+   ],
+   [
+    194000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     68000,
+     false
+    ],
+    [
+     192000,
+     false
+    ],
+    [
+     522000,
+     false
+    ],
+    [
+     536000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     446000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     492000,
+     true
+    ]
+   ],
+   "crashAt": 242000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    548000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    520000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     84000,
+     false
+    ],
+    [
+     492000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 8000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    394000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-32",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     874000,
+     false
+    ],
+    [
+     1110000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     414000,
+     false
+    ],
+    [
+     910000,
+     false
+    ],
+    [
+     986000,
+     false
+    ],
+    [
+     1122000,
+     true
+    ],
+    [
+     1192000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    692000,
+    false
+   ],
+   [
+    744000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    392000,
+    0
+   ],
+   [
+    600000,
+    1
+   ],
+   [
+    614000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    902000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    956000,
+    "player",
+    "E115\n"
+   ],
+   [
+    1138000,
+    "updater",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     1048000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     236000,
+     false
+    ],
+    [
+     1170000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-33",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    264000,
+    true
+   ],
+   [
+    636000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     442000,
+     false
+    ],
+    [
+     782000,
+     false
+    ],
+    [
+     954000,
+     false
+    ],
+    [
+     1082000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     168000,
+     false
+    ],
+    [
+     360000,
+     false
+    ],
+    [
+     654000,
+     false
+    ],
+    [
+     1156000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    476000,
+    true
+   ],
+   [
+    638000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    564000,
+    1
+   ],
+   [
+    864000,
+    1
+   ],
+   [
+    946000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    44000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    364000,
+    "player",
+    "downloadupdate error\n"
+   ],
+   [
+    704000,
+    "player",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     198000,
+     false
+    ],
+    [
+     326000,
+     false
+    ],
+    [
+     774000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    26000,
+    true
+   ],
+   [
+    84000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-34",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     272000,
+     true
+    ],
+    [
+     800000,
+     true
+    ],
+    [
+     1082000,
+     true
+    ],
+    [
+     1156000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     216000,
+     true
+    ],
+    [
+     644000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    582000,
+    false
+   ],
+   [
+    770000,
+    true
+   ],
+   [
+    778000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    88000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    26000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    46000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    662000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    1034000,
+    "launcher",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     476000,
+     false
+    ],
+    [
+     1022000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     706000,
+     true
+    ],
+    [
+     1056000,
+     false
+    ],
+    [
+     1126000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    260000,
+    false
+   ],
+   [
+    1148000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-35",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     74000,
+     false
+    ],
+    [
+     120000,
+     true
+    ],
+    [
+     342000,
+     false
+    ],
+    [
+     390000,
+     false
+    ],
+    [
+     536000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     true
+    ],
+    [
+     852000,
+     true
+    ],
+    [
+     992000,
+     false
+    ],
+    [
+     1060000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     520000,
+     false
+    ],
+    [
+     1004000,
+     false
+    ],
+    [
+     1194000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    970000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    102000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    832000,
+    "player",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     552000,
+     false
+    ],
+    [
+     1046000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     272000,
+     false
+    ],
+    [
+     392000,
+     false
+    ],
+    [
+     698000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-36",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     230000,
+     false
+    ],
+    [
+     632000,
+     false
+    ],
+    [
+     646000,
+     true
+    ],
+    [
+     1124000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     1154000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     624000,
+     false
+    ],
+    [
+     840000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    756000,
+    false
+   ],
+   [
+    1026000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    124000,
+    1
+   ],
+   [
+    946000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    1026000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     1062000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     434000,
+     false
+    ],
+    [
+     922000,
+     false
+    ],
+    [
+     1086000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    176000,
+    false
+   ],
+   [
+    1148000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-37",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    36000,
+    true
+   ],
+   [
+    198000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     true
+    ],
+    [
+     56000,
+     false
+    ],
+    [
+     148000,
+     false
+    ],
+    [
+     160000,
+     false
+    ],
+    [
+     170000,
+     false
+    ],
+    [
+     176000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     48000,
+     true
+    ],
+    [
+     96000,
+     true
+    ],
+    [
+     126000,
+     true
+    ],
+    [
+     138000,
+     true
+    ],
+    [
+     154000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    128000,
+    false
+   ],
+   [
+    188000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    90000,
+    1
+   ],
+   [
+    266000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    4000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    18000,
+    "updater",
+    "Loading error : E109\n"
+   ],
+   [
+    112000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    130000,
+    "updater",
+    "Loading error : E109\n"
+   ],
+   [
+    238000,
+    "launcher",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     22000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     186000,
+     true
+    ],
+    [
+     254000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-38",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    156000,
+    true
+   ],
+   [
+    1004000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     674000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     22000,
+     true
+    ],
+    [
+     174000,
+     false
+    ],
+    [
+     404000,
+     true
+    ],
+    [
+     560000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     208000,
+     false
+    ],
+    [
+     988000,
+     false
+    ],
+    [
+     1166000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    258000,
+    false
+   ],
+   [
+    502000,
+    true
+   ],
+   [
+    1090000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    892000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    940000,
+    "updater",
+    "Loading error : E109\n"
+   ],
+   [
+    1080000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    1160000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    1190000,
+    "updater",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     796000,
+     false
+    ],
+    [
+     1166000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     374000,
+     true
+    ],
+    [
+     814000,
+     true
+    ]
+   ],
+   "crashAfterMs": 50000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    926000,
+    true
+   ],
+   [
+    1070000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-39",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     48000,
+     false
+    ],
+    [
+     60000,
+     true
+    ],
+    [
+     406000,
+     true
+    ],
+    [
+     480000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     422000,
+     false
+    ],
+    [
+     442000,
+     true
+    ],
+    [
+     492000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     252000,
+     true
+    ],
+    [
+     458000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    2000,
+    0
+   ],
+   [
+    272000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    168000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    198000,
+    "player",
+    "noise\n"
+   ],
+   [
+    478000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    480000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    546000,
+    "updater",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     168000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     16000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-40",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    240000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     104000,
+     false
+    ],
+    [
+     154000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     52000,
+     false
+    ],
+    [
+     94000,
+     true
+    ],
+    [
+     534000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    380000,
+    false
+   ],
+   [
+    406000,
+    true
+   ],
+   [
+    442000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    true,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     236000,
+     false
+    ],
+    [
+     390000,
+     true
+    ],
+    [
+     516000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-41",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    86000,
+    false
+   ],
+   [
+    228000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     252000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     22000,
+     false
+    ],
+    [
+     124000,
+     false
+    ],
+    [
+     260000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     206000,
+     true
+    ],
+    [
+     256000,
+     true
+    ]
+   ],
+   "crashAt": 70000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    106000,
+    false
+   ],
+   [
+    174000,
+    true
+   ],
+   [
+    202000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    2000,
+    "player",
+    "E115\n"
+   ],
+   [
+    24000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    98000,
+    "player",
+    "E115\n"
+   ],
+   [
+    210000,
+    "launcher",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     88000,
+     true
+    ],
+    [
+     284000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    86000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-42",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     942000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     128000,
+     true
+    ],
+    [
+     540000,
+     false
+    ],
+    [
+     794000,
+     true
+    ],
+    [
+     844000,
+     true
+    ],
+    [
+     992000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    452000,
+    false
+   ],
+   [
+    456000,
+    false
+   ],
+   [
+    826000,
+    false
+   ],
+   [
+    902000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    312000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     498000,
+     false
+    ],
+    [
+     1018000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-43",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    38000,
+    true
+   ],
+   [
+    418000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     164000,
+     false
+    ],
+    [
+     418000,
+     true
+    ],
+    [
+     420000,
+     false
+    ],
+    [
+     476000,
+     true
+    ],
+    [
+     528000,
+     false
+    ],
+    [
+     588000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     72000,
+     true
+    ],
+    [
+     492000,
+     false
+    ],
+    [
+     530000,
+     false
+    ],
+    [
+     582000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    548000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    440000,
+    "player",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     166000,
+     false
+    ],
+    [
+     342000,
+     false
+    ],
+    [
+     436000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-44",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    96000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     198000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     282000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     226000,
+     false
+    ]
+   ],
+   "crashAt": 142000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    196000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    42000,
+    1
+   ],
+   [
+    112000,
+    2
+   ],
+   [
+    184000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     258000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 16000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-45",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     82000,
+     false
+    ],
+    [
+     248000,
+     false
+    ],
+    [
+     660000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     516000,
+     true
+    ],
+    [
+     690000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     60000,
+     false
+    ],
+    [
+     260000,
+     false
+    ],
+    [
+     754000,
+     false
+    ]
+   ],
+   "crashAt": 120000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    304000,
+    false
+   ],
+   [
+    782000,
+    true
+   ],
+   [
+    1116000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    172000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    314000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    1040000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    1118000,
+    "updater",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     460000,
+     false
+    ],
+    [
+     654000,
+     false
+    ],
+    [
+     716000,
+     true
+    ]
+   ],
+   "crashAfterMs": 16000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    1188000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-46",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    34000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     150000,
+     true
+    ],
+    [
+     320000,
+     false
+    ],
+    [
+     354000,
+     false
+    ],
+    [
+     482000,
+     false
+    ],
+    [
+     528000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     270000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    192000,
+    0
+   ],
+   [
+    280000,
+    1
+   ],
+   [
+    388000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    56000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    244000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    340000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    548000,
+    "player",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     300000,
+     true
+    ],
+    [
+     584000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     562000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-47",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    172000,
+    false
+   ],
+   [
+    288000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     42000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     168000,
+     false
+    ],
+    [
+     260000,
+     false
+    ],
+    [
+     288000,
+     true
+    ],
+    [
+     290000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     120000,
+     false
+    ],
+    [
+     186000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    66000,
+    false
+   ],
+   [
+    88000,
+    false
+   ],
+   [
+    94000,
+    false
+   ],
+   [
+    112000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    96000,
+    0
+   ],
+   [
+    212000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    52000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    62000,
+    "player",
+    "Loading error : E109\n"
+   ],
+   [
+    68000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    80000,
+    "updater",
+    "Loading error : E109\n"
+   ],
+   [
+    240000,
+    "player",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     34000,
+     true
+    ],
+    [
+     142000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 26000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-48",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    96000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     66000,
+     false
+    ],
+    [
+     150000,
+     true
+    ],
+    [
+     230000,
+     false
+    ],
+    [
+     282000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     true
+    ],
+    [
+     34000,
+     false
+    ],
+    [
+     54000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     232000,
+     false
+    ],
+    [
+     266000,
+     false
+    ]
+   ],
+   "crashAt": 126000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    52000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    10000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    142000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    166000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    166000,
+    "updater",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     294000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 52000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    224000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-49",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     140000,
+     false
+    ],
+    [
+     184000,
+     true
+    ],
+    [
+     528000,
+     false
+    ],
+    [
+     590000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     8000,
+     true
+    ],
+    [
+     294000,
+     true
+    ],
+    [
+     328000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    298000,
+    false
+   ],
+   [
+    308000,
+    false
+   ],
+   [
+    368000,
+    false
+   ],
+   [
+    472000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    344000,
+    1
+   ],
+   [
+    434000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    320000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    524000,
+    "launcher",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     20000,
+     false
+    ],
+    [
+     574000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    50000,
+    true
+   ],
+   [
+    54000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-50",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    12000,
+    true
+   ],
+   [
+    176000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     14000,
+     true
+    ],
+    [
+     28000,
+     false
+    ],
+    [
+     52000,
+     true
+    ],
+    [
+     296000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     296000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    272000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    100000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    156000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    192000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    236000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    284000,
+    "launcher",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     66000,
+     false
+    ],
+    [
+     270000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    8000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-51",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    76000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     82000,
+     true
+    ],
+    [
+     128000,
+     false
+    ],
+    [
+     240000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     46000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    2000,
+    false
+   ],
+   [
+    16000,
+    true
+   ],
+   [
+    368000,
+    false
+   ],
+   [
+    506000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     228000,
+     true
+    ],
+    [
+     498000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-52",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     126000,
+     false
+    ],
+    [
+     166000,
+     true
+    ],
+    [
+     194000,
+     false
+    ],
+    [
+     264000,
+     true
+    ],
+    [
+     278000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     false
+    ],
+    [
+     42000,
+     false
+    ],
+    [
+     160000,
+     false
+    ],
+    [
+     194000,
+     true
+    ],
+    [
+     248000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    108000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    188000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    214000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    236000,
+    "updater",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     130000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     96000,
+     false
+    ],
+    [
+     140000,
+     true
+    ],
+    [
+     262000,
+     true
+    ]
+   ],
+   "crashAfterMs": 28000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    260000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-53",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    464000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     416000,
+     false
+    ],
+    [
+     422000,
+     true
+    ],
+    [
+     452000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     522000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     386000,
+     false
+    ]
+   ],
+   "crashAt": 176000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    94000,
+    false
+   ],
+   [
+    414000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    444000,
+    0
+   ],
+   [
+    512000,
+    1
+   ],
+   [
+    564000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    136000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    238000,
+    "player",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     466000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     88000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    18000,
+    true
+   ],
+   [
+    380000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-54",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    98000,
+    true
+   ],
+   [
+    202000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     102000,
+     true
+    ],
+    [
+     118000,
+     true
+    ],
+    [
+     158000,
+     true
+    ],
+    [
+     212000,
+     false
+    ],
+    [
+     230000,
+     true
+    ],
+    [
+     278000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     true
+    ],
+    [
+     228000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     200000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    94000,
+    true
+   ],
+   [
+    264000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    194000,
+    3
+   ],
+   [
+    254000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    30000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    58000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    74000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    84000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    88000,
+    "player",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     32000,
+     true
+    ],
+    [
+     90000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     106000,
+     false
+    ]
+   ],
+   "crashAfterMs": 34000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    12000,
+    false
+   ],
+   [
+    158000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-55",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     14000,
+     true
+    ],
+    [
+     38000,
+     true
+    ],
+    [
+     154000,
+     false
+    ],
+    [
+     294000,
+     true
+    ],
+    [
+     346000,
+     false
+    ],
+    [
+     582000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     134000,
+     false
+    ],
+    [
+     214000,
+     false
+    ],
+    [
+     318000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     258000,
+     false
+    ],
+    [
+     398000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     402000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     466000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    552000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-56",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    254000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     292000,
+     false
+    ],
+    [
+     324000,
+     true
+    ],
+    [
+     328000,
+     false
+    ],
+    [
+     348000,
+     false
+    ],
+    [
+     410000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     40000,
+     false
+    ],
+    [
+     122000,
+     false
+    ],
+    [
+     508000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    462000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    214000,
+    2
+   ],
+   [
+    302000,
+    3
+   ],
+   [
+    526000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    8000,
+    "player",
+    "Loading error : E109\n"
+   ],
+   [
+    108000,
+    "player",
+    "downloadupdate error\n"
+   ],
+   [
+    260000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    390000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    496000,
+    "player",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     166000,
+     true
+    ],
+    [
+     444000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     142000,
+     true
+    ],
+    [
+     182000,
+     true
+    ],
+    [
+     494000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    176000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-57",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    518000,
+    true
+   ],
+   [
+    570000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     true
+    ],
+    [
+     226000,
+     false
+    ],
+    [
+     574000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     114000,
+     true
+    ],
+    [
+     462000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     198000,
+     false
+    ],
+    [
+     260000,
+     false
+    ],
+    [
+     334000,
+     false
+    ]
+   ],
+   "crashAt": 130000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    430000,
+    false
+   ],
+   [
+    466000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    484000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    76000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    348000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    512000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    556000,
+    "updater",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     276000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     96000,
+     true
+    ],
+    [
+     310000,
+     true
+    ],
+    [
+     442000,
+     true
+    ]
+   ],
+   "crashAfterMs": 8000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    278000,
+    false
+   ],
+   [
+    366000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-58",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    712000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     152000,
+     false
+    ],
+    [
+     302000,
+     true
+    ],
+    [
+     408000,
+     true
+    ],
+    [
+     772000,
+     false
+    ],
+    [
+     1030000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     846000,
+     false
+    ],
+    [
+     1018000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     468000,
+     false
+    ],
+    [
+     800000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    886000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    376000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     722000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     98000,
+     false
+    ],
+    [
+     594000,
+     true
+    ]
+   ],
+   "crashAfterMs": 10000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    384000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-59",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    108000,
+    false
+   ],
+   [
+    320000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     60000,
+     false
+    ],
+    [
+     120000,
+     true
+    ],
+    [
+     336000,
+     true
+    ],
+    [
+     462000,
+     false
+    ],
+    [
+     516000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     48000,
+     false
+    ],
+    [
+     150000,
+     false
+    ],
+    [
+     280000,
+     false
+    ],
+    [
+     392000,
+     true
+    ],
+    [
+     504000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     66000,
+     false
+    ],
+    [
+     280000,
+     true
+    ]
+   ],
+   "crashAt": 90000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    308000,
+    true
+   ],
+   [
+    430000,
+    false
+   ],
+   [
+    462000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    382000,
+    3
+   ],
+   [
+    422000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     180000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     40000,
+     false
+    ],
+    [
+     48000,
+     false
+    ],
+    [
+     312000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    388000,
+    false
+   ],
+   [
+    478000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-60",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     16000,
+     true
+    ],
+    [
+     248000,
+     false
+    ],
+    [
+     322000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     72000,
+     false
+    ],
+    [
+     450000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    40000,
+    false
+   ],
+   [
+    46000,
+    false
+   ],
+   [
+    160000,
+    false
+   ],
+   [
+    236000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    490000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    170000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    336000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     396000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 56000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-61",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    112000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     true
+    ],
+    [
+     68000,
+     true
+    ],
+    [
+     194000,
+     true
+    ],
+    [
+     248000,
+     false
+    ],
+    [
+     264000,
+     false
+    ],
+    [
+     268000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     150000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    90000,
+    false
+   ],
+   [
+    238000,
+    true
+   ],
+   [
+    246000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    52000,
+    2
+   ],
+   [
+    76000,
+    1
+   ],
+   [
+    98000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    74000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    164000,
+    "player",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     2000,
+     true
+    ],
+    [
+     26000,
+     false
+    ],
+    [
+     220000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-62",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    572000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     178000,
+     true
+    ],
+    [
+     350000,
+     false
+    ],
+    [
+     356000,
+     false
+    ],
+    [
+     578000,
+     false
+    ],
+    [
+     596000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     410000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     352000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    254000,
+    false
+   ],
+   [
+    342000,
+    false
+   ],
+   [
+    344000,
+    true
+   ],
+   [
+    568000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    292000,
+    3
+   ],
+   [
+    458000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     282000,
+     false
+    ],
+    [
+     340000,
+     true
+    ],
+    [
+     358000,
+     false
+    ]
+   ],
+   "crashAfterMs": 24000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    128000,
+    false
+   ],
+   [
+    440000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-63",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     100000,
+     true
+    ],
+    [
+     134000,
+     false
+    ],
+    [
+     196000,
+     true
+    ],
+    [
+     518000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     38000,
+     true
+    ],
+    [
+     72000,
+     true
+    ],
+    [
+     92000,
+     false
+    ],
+    [
+     248000,
+     false
+    ],
+    [
+     476000,
+     false
+    ],
+    [
+     486000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     492000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    354000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    112000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    214000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    294000,
+    "launcher",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     242000,
+     false
+    ],
+    [
+     394000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     false
+    ],
+    [
+     36000,
+     false
+    ],
+    [
+     590000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-64",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    510000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     264000,
+     false
+    ],
+    [
+     502000,
+     true
+    ],
+    [
+     828000,
+     false
+    ],
+    [
+     1036000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     180000,
+     true
+    ],
+    [
+     226000,
+     true
+    ],
+    [
+     1028000,
+     false
+    ]
+   ],
+   "crashAt": 226000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    786000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    352000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    500000,
+    "player",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     986000,
+     false
+    ],
+    [
+     1166000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-65",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    106000,
+    true
+   ],
+   [
+    236000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     102000,
+     true
+    ],
+    [
+     220000,
+     false
+    ],
+    [
+     230000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     32000,
+     false
+    ],
+    [
+     112000,
+     true
+    ],
+    [
+     136000,
+     true
+    ],
+    [
+     228000,
+     false
+    ],
+    [
+     280000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     184000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    238000,
+    true
+   ],
+   [
+    292000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    144000,
+    3
+   ],
+   [
+    268000,
+    1
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     268000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-66",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    542000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     false
+    ],
+    [
+     540000,
+     false
+    ],
+    [
+     810000,
+     true
+    ],
+    [
+     996000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     190000,
+     true
+    ],
+    [
+     236000,
+     false
+    ],
+    [
+     374000,
+     true
+    ],
+    [
+     1104000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     212000,
+     false
+    ],
+    [
+     236000,
+     false
+    ],
+    [
+     444000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    756000,
+    false
+   ],
+   [
+    1182000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    368000,
+    2
+   ],
+   [
+    562000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    16000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    208000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    986000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    1174000,
+    "player",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     100000,
+     true
+    ],
+    [
+     832000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     254000,
+     true
+    ],
+    [
+     478000,
+     false
+    ]
+   ],
+   "crashAfterMs": 50000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    562000,
+    false
+   ],
+   [
+    750000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-67",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     152000,
+     true
+    ],
+    [
+     252000,
+     true
+    ],
+    [
+     478000,
+     false
+    ],
+    [
+     500000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     80000,
+     false
+    ],
+    [
+     88000,
+     false
+    ],
+    [
+     462000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     58000,
+     true
+    ],
+    [
+     86000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    198000,
+    false
+   ],
+   [
+    284000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    100000,
+    0
+   ],
+   [
+    578000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    194000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    374000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    398000,
+    "player",
+    "E115\n"
+   ],
+   [
+    430000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    558000,
+    "launcher",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     134000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 56000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    482000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-68",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     846000,
+     false
+    ],
+    [
+     998000,
+     false
+    ],
+    [
+     1016000,
+     false
+    ],
+    [
+     1132000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     332000,
+     true
+    ],
+    [
+     402000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    958000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    160000,
+    1
+   ],
+   [
+    464000,
+    3
+   ],
+   [
+    614000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    98000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    266000,
+    "player",
+    "noise\n"
+   ],
+   [
+    274000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    282000,
+    "player",
+    "noise\n"
+   ],
+   [
+    390000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     46000,
+     true
+    ],
+    [
+     636000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    244000,
+    true
+   ],
+   [
+    374000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-69",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    356000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     46000,
+     false
+    ],
+    [
+     144000,
+     false
+    ],
+    [
+     158000,
+     false
+    ],
+    [
+     302000,
+     true
+    ],
+    [
+     494000,
+     false
+    ],
+    [
+     568000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     56000,
+     false
+    ],
+    [
+     188000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     414000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    54000,
+    false
+   ],
+   [
+    104000,
+    false
+   ],
+   [
+    218000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    268000,
+    2
+   ],
+   [
+    420000,
+    3
+   ],
+   [
+    460000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    94000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    182000,
+    "updater",
+    "updating from path\n"
+   ],
+   [
+    234000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    468000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     506000,
+     true
+    ],
+    [
+     588000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     218000,
+     false
+    ],
+    [
+     370000,
+     false
+    ],
+    [
+     486000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    136000,
+    true
+   ],
+   [
+    378000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-70",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    86000,
+    true
+   ],
+   [
+    154000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     744000,
+     false
+    ],
+    [
+     790000,
+     false
+    ],
+    [
+     972000,
+     true
+    ],
+    [
+     1142000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     214000,
+     false
+    ],
+    [
+     1126000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 596000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    272000,
+    false
+   ],
+   [
+    566000,
+    false
+   ],
+   [
+    716000,
+    false
+   ],
+   [
+    1156000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    642000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    1040000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    1064000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     730000,
+     true
+    ],
+    [
+     922000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-71",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    114000,
+    true
+   ],
+   [
+    184000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     212000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     236000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     92000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    140000,
+    false
+   ],
+   [
+    142000,
+    false
+   ],
+   [
+    220000,
+    true
+   ],
+   [
+    266000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    76000,
+    "player",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     70000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     166000,
+     false
+    ],
+    [
+     202000,
+     false
+    ],
+    [
+     252000,
+     true
+    ]
+   ],
+   "crashAfterMs": 32000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-72",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    262000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     412000,
+     true
+    ],
+    [
+     818000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     false
+    ],
+    [
+     474000,
+     true
+    ],
+    [
+     518000,
+     false
+    ],
+    [
+     652000,
+     true
+    ],
+    [
+     1014000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     392000,
+     false
+    ],
+    [
+     464000,
+     false
+    ],
+    [
+     876000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    684000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    572000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    334000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    1188000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     62000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 30000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    726000,
+    true
+   ],
+   [
+    1110000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-73",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     156000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     448000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    648000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    266000,
+    2
+   ],
+   [
+    284000,
+    1
+   ],
+   [
+    354000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    102000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    504000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    576000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    672000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    974000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     248000,
+     true
+    ],
+    [
+     604000,
+     true
+    ],
+    [
+     1090000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    832000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-74",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     860000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     480000,
+     false
+    ],
+    [
+     1100000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     56000,
+     false
+    ],
+    [
+     440000,
+     true
+    ],
+    [
+     858000,
+     false
+    ]
+   ],
+   "crashAt": 556000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    352000,
+    false
+   ],
+   [
+    694000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    1074000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    640000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    1028000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     592000,
+     true
+    ]
+   ],
+   "crashAfterMs": 16000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-75",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    76000,
+    true
+   ],
+   [
+    232000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     38000,
+     false
+    ],
+    [
+     92000,
+     false
+    ],
+    [
+     114000,
+     true
+    ],
+    [
+     216000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     92000,
+     true
+    ],
+    [
+     158000,
+     true
+    ],
+    [
+     278000,
+     true
+    ]
+   ],
+   "crashAt": 136000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    24000,
+    false
+   ],
+   [
+    76000,
+    false
+   ],
+   [
+    120000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    56000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    58000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    98000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     50000,
+     false
+    ],
+    [
+     164000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     70000,
+     true
+    ],
+    [
+     220000,
+     false
+    ],
+    [
+     240000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-76",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    22000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     48000,
+     true
+    ],
+    [
+     52000,
+     false
+    ],
+    [
+     178000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     220000,
+     false
+    ],
+    [
+     228000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     138000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    50000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    98000,
+    "updater",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     278000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    110000,
+    true
+   ],
+   [
+    252000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-77",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     372000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     124000,
+     false
+    ],
+    [
+     170000,
+     false
+    ],
+    [
+     488000,
+     false
+    ],
+    [
+     702000,
+     true
+    ],
+    [
+     1018000,
+     true
+    ],
+    [
+     1138000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     480000,
+     false
+    ],
+    [
+     1070000,
+     false
+    ],
+    [
+     1186000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    160000,
+    false
+   ],
+   [
+    816000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    142000,
+    0
+   ],
+   [
+    158000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    80000,
+    "player",
+    "noise\n"
+   ],
+   [
+    246000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    478000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    858000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    860000,
+    "player",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     552000,
+     false
+    ],
+    [
+     1048000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     false
+    ]
+   ],
+   "crashAfterMs": 14000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    212000,
+    true
+   ],
+   [
+    868000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-78",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     72000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     166000,
+     false
+    ],
+    [
+     218000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     32000,
+     true
+    ],
+    [
+     72000,
+     false
+    ],
+    [
+     194000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    104000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    180000,
+    "launcher",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false,
+    true,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     184000,
+     true
+    ],
+    [
+     190000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 20000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    244000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-79",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    200000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     18000,
+     false
+    ],
+    [
+     150000,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     208000,
+     true
+    ],
+    [
+     282000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     152000,
+     true
+    ],
+    [
+     170000,
+     true
+    ],
+    [
+     238000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     58000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    62000,
+    false
+   ],
+   [
+    142000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    16000,
+    "player",
+    "downloadupdate error\n"
+   ],
+   [
+    22000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    246000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    264000,
+    "updater",
+    "disk full\n"
+   ],
+   [
+    296000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     20000,
+     false
+    ],
+    [
+     134000,
+     false
+    ],
+    [
+     240000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    270000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-80",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    180000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     false
+    ],
+    [
+     82000,
+     false
+    ],
+    [
+     222000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     40000,
+     false
+    ],
+    [
+     46000,
+     true
+    ],
+    [
+     126000,
+     false
+    ],
+    [
+     168000,
+     false
+    ],
+    [
+     180000,
+     true
+    ],
+    [
+     218000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     188000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    70000,
+    false
+   ],
+   [
+    76000,
+    false
+   ],
+   [
+    194000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    12000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    16000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    60000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    70000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    86000,
+    "player",
+    "E115\n"
+   ],
+   [
+    138000,
+    "launcher",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    288000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-81",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    402000,
+    true
+   ],
+   [
+    408000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     142000,
+     true
+    ],
+    [
+     276000,
+     false
+    ],
+    [
+     398000,
+     false
+    ],
+    [
+     426000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     206000,
+     false
+    ],
+    [
+     382000,
+     true
+    ],
+    [
+     562000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    144000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    462000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    244000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    248000,
+    "player",
+    "downloadupdate error\n"
+   ],
+   [
+    492000,
+    "player",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     8000,
+     false
+    ],
+    [
+     328000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     254000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    154000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-82",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     870000,
+     true
+    ],
+    [
+     1054000,
+     false
+    ],
+    [
+     1100000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     120000,
+     true
+    ],
+    [
+     362000,
+     true
+    ],
+    [
+     398000,
+     false
+    ],
+    [
+     1102000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 588000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    478000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    352000,
+    2
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     568000,
+     true
+    ],
+    [
+     916000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-83",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    1032000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     44000,
+     true
+    ],
+    [
+     196000,
+     false
+    ],
+    [
+     508000,
+     true
+    ],
+    [
+     846000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     18000,
+     true
+    ],
+    [
+     214000,
+     false
+    ],
+    [
+     502000,
+     false
+    ],
+    [
+     584000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     522000,
+     false
+    ],
+    [
+     1068000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    266000,
+    false
+   ],
+   [
+    644000,
+    false
+   ],
+   [
+    1096000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    480000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     68000,
+     true
+    ],
+    [
+     672000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     176000,
+     false
+    ]
+   ],
+   "crashAfterMs": 10000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    1146000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-84",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    452000,
+    true
+   ],
+   [
+    496000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     308000,
+     true
+    ],
+    [
+     402000,
+     false
+    ],
+    [
+     406000,
+     false
+    ],
+    [
+     522000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     54000,
+     true
+    ],
+    [
+     56000,
+     false
+    ],
+    [
+     232000,
+     false
+    ],
+    [
+     514000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     436000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    44000,
+    true
+   ],
+   [
+    234000,
+    true
+   ],
+   [
+    258000,
+    true
+   ],
+   [
+    304000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    484000,
+    3
+   ],
+   [
+    492000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    36000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    160000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    220000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    276000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    300000,
+    "player",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     false
+    ],
+    [
+     242000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     82000,
+     false
+    ],
+    [
+     526000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    6000,
+    true
+   ],
+   [
+    402000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-85",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    194000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     38000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     58000,
+     false
+    ],
+    [
+     60000,
+     false
+    ],
+    [
+     146000,
+     true
+    ],
+    [
+     226000,
+     false
+    ],
+    [
+     234000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     124000,
+     false
+    ],
+    [
+     270000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    196000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    94000,
+    0
+   ],
+   [
+    190000,
+    3
+   ],
+   [
+    258000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    42000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    166000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    168000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": 20000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-86",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    94000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     50000,
+     true
+    ],
+    [
+     348000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     344000,
+     false
+    ],
+    [
+     474000,
+     false
+    ],
+    [
+     522000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     572000,
+     false
+    ],
+    [
+     878000,
+     true
+    ]
+   ],
+   "crashAt": 104000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    158000,
+    false
+   ],
+   [
+    908000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    516000,
+    "player",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     398000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     478000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    506000,
+    false
+   ],
+   [
+    956000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-87",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    320000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     166000,
+     true
+    ],
+    [
+     256000,
+     false
+    ],
+    [
+     404000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     42000,
+     false
+    ],
+    [
+     102000,
+     true
+    ],
+    [
+     184000,
+     true
+    ],
+    [
+     424000,
+     true
+    ],
+    [
+     484000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    36000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    196000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    364000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    472000,
+    "updater",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     256000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    492000,
+    true
+   ],
+   [
+    518000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-88",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    44000,
+    true
+   ],
+   [
+    84000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     70000,
+     false
+    ],
+    [
+     110000,
+     false
+    ],
+    [
+     202000,
+     true
+    ],
+    [
+     282000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     92000,
+     true
+    ],
+    [
+     182000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    48000,
+    true
+   ],
+   [
+    200000,
+    true
+   ],
+   [
+    288000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    160000,
+    3
+   ],
+   [
+    190000,
+    3
+   ],
+   [
+    210000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    178000,
+    "updater",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     44000,
+     false
+    ],
+    [
+     282000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     96000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    238000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-89",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     76000,
+     false
+    ],
+    [
+     112000,
+     false
+    ],
+    [
+     218000,
+     true
+    ],
+    [
+     248000,
+     true
+    ],
+    [
+     294000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     60000,
+     true
+    ],
+    [
+     294000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     78000,
+     false
+    ],
+    [
+     200000,
+     false
+    ],
+    [
+     224000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    200000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    222000,
+    "updater",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    78000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-90",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     122000,
+     true
+    ],
+    [
+     258000,
+     false
+    ],
+    [
+     982000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     1144000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    232000,
+    true
+   ],
+   [
+    708000,
+    false
+   ],
+   [
+    1186000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    196000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    776000,
+    "launcher",
+    "E115\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     340000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     196000,
+     true
+    ],
+    [
+     224000,
+     false
+    ],
+    [
+     1144000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    868000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-91",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    4000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     210000,
+     true
+    ],
+    [
+     378000,
+     false
+    ],
+    [
+     388000,
+     true
+    ],
+    [
+     548000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     576000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     156000,
+     false
+    ],
+    [
+     196000,
+     false
+    ],
+    [
+     282000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    20000,
+    true
+   ],
+   [
+    96000,
+    false
+   ],
+   [
+    286000,
+    true
+   ],
+   [
+    384000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    28000,
+    "launcher",
+    "downloadupdate error\n"
+   ],
+   [
+    342000,
+    "launcher",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-92",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     28000,
+     false
+    ],
+    [
+     722000,
+     true
+    ],
+    [
+     964000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     178000,
+     false
+    ],
+    [
+     282000,
+     true
+    ],
+    [
+     930000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     78000,
+     true
+    ],
+    [
+     808000,
+     false
+    ],
+    [
+     1102000,
+     false
+    ]
+   ],
+   "crashAt": 438000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    250000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    34000,
+    0
+   ],
+   [
+    488000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     1114000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    880000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-93",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     194000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     398000,
+     true
+    ],
+    [
+     458000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 10000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    532000,
+    true
+   ],
+   [
+    550000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    94000,
+    2
+   ],
+   [
+    178000,
+    2
+   ],
+   [
+    368000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    232000,
+    "player",
+    "downloadupdate error\n"
+   ],
+   [
+    392000,
+    "updater",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     144000,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     278000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-94",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     false
+    ],
+    [
+     106000,
+     false
+    ],
+    [
+     334000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     588000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     292000,
+     false
+    ],
+    [
+     308000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    42000,
+    false
+   ],
+   [
+    314000,
+    true
+   ],
+   [
+    572000,
+    true
+   ],
+   [
+    582000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    74000,
+    "player",
+    "Loading error : E109\n"
+   ],
+   [
+    330000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    332000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     90000,
+     true
+    ],
+    [
+     498000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     438000,
+     true
+    ]
+   ],
+   "crashAfterMs": 42000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    490000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-95",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     10000,
+     false
+    ],
+    [
+     320000,
+     false
+    ],
+    [
+     448000,
+     true
+    ],
+    [
+     452000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     544000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     82000,
+     true
+    ]
+   ],
+   "crashAt": 32000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    146000,
+    2
+   ],
+   [
+    230000,
+    1
+   ],
+   [
+    550000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    36000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    328000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    544000,
+    "player",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     332000,
+     false
+    ],
+    [
+     442000,
+     false
+    ],
+    [
+     562000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-96",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     110000,
+     true
+    ],
+    [
+     222000,
+     true
+    ],
+    [
+     318000,
+     true
+    ],
+    [
+     434000,
+     true
+    ],
+    [
+     512000,
+     true
+    ],
+    [
+     542000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     144000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    428000,
+    true
+   ],
+   [
+    492000,
+    false
+   ],
+   [
+    518000,
+    false
+   ],
+   [
+    564000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    322000,
+    1
+   ],
+   [
+    480000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    432000,
+    "launcher",
+    "updating from path\n"
+   ],
+   [
+    448000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    520000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    540000,
+    "updater",
+    "connect to server failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     454000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    388000,
+    false
+   ],
+   [
+    572000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-97",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    604000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     578000,
+     true
+    ],
+    [
+     986000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     756000,
+     true
+    ],
+    [
+     1076000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    74000,
+    false
+   ],
+   [
+    530000,
+    true
+   ],
+   [
+    826000,
+    true
+   ],
+   [
+    1186000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    690000,
+    0
+   ],
+   [
+    730000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    242000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    898000,
+    "launcher",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     836000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     426000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    706000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-98",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    82000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     110000,
+     true
+    ],
+    [
+     214000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     true
+    ],
+    [
+     36000,
+     true
+    ],
+    [
+     118000,
+     false
+    ],
+    [
+     136000,
+     true
+    ],
+    [
+     206000,
+     true
+    ],
+    [
+     212000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     90000,
+     false
+    ],
+    [
+     96000,
+     true
+    ]
+   ],
+   "crashAt": 14000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    2000,
+    true
+   ],
+   [
+    60000,
+    false
+   ],
+   [
+    194000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    66000,
+    "updater",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     108000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    44000,
+    false
+   ],
+   [
+    154000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-99",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    248000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     124000,
+     true
+    ],
+    [
+     600000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     256000,
+     true
+    ],
+    [
+     316000,
+     false
+    ],
+    [
+     894000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    196000,
+    false
+   ],
+   [
+    854000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    694000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    424000,
+    "launcher",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     816000,
+     false
+    ],
+    [
+     864000,
+     true
+    ],
+    [
+     1190000,
+     true
+    ]
+   ],
+   "crashAfterMs": 34000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    152000,
+    true
+   ],
+   [
+    1056000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-100",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     54000,
+     false
+    ],
+    [
+     68000,
+     false
+    ],
+    [
+     286000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     56000,
+     true
+    ],
+    [
+     144000,
+     true
+    ],
+    [
+     360000,
+     true
+    ],
+    [
+     484000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     108000,
+     true
+    ],
+    [
+     112000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     574000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     82000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    174000,
+    false
+   ],
+   [
+    386000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-101",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    394000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     298000,
+     false
+    ],
+    [
+     554000,
+     false
+    ],
+    [
+     588000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     56000,
+     false
+    ],
+    [
+     320000,
+     false
+    ],
+    [
+     548000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     550000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    38000,
+    false
+   ],
+   [
+    498000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    392000,
+    3
+   ],
+   [
+    454000,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    220000,
+    "launcher",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     556000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     14000,
+     false
+    ],
+    [
+     312000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-102",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    284000,
+    true
+   ],
+   [
+    428000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     186000,
+     false
+    ],
+    [
+     338000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     86000,
+     false
+    ],
+    [
+     118000,
+     true
+    ],
+    [
+     128000,
+     true
+    ],
+    [
+     274000,
+     false
+    ],
+    [
+     352000,
+     false
+    ],
+    [
+     494000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     576000,
+     false
+    ]
+   ],
+   "crashAt": 282000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    14000,
+    false
+   ],
+   [
+    112000,
+    false
+   ],
+   [
+    164000,
+    false
+   ],
+   [
+    394000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    328000,
+    1
+   ],
+   [
+    400000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    166000,
+    "launcher",
+    "E115\n"
+   ],
+   [
+    284000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     332000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     184000,
+     true
+    ],
+    [
+     240000,
+     false
+    ]
+   ],
+   "crashAfterMs": 28000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    50000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-103",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    420000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     270000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     298000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    158000,
+    false
+   ],
+   [
+    218000,
+    false
+   ],
+   [
+    338000,
+    true
+   ],
+   [
+    594000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    378000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    56000,
+    "updater",
+    "noise\n"
+   ],
+   [
+    358000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    428000,
+    "updater",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     318000,
+     true
+    ],
+    [
+     498000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    570000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-104",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    292000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     158000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     false
+    ],
+    [
+     28000,
+     true
+    ],
+    [
+     60000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     12000,
+     true
+    ],
+    [
+     84000,
+     false
+    ],
+    [
+     178000,
+     false
+    ]
+   ],
+   "crashAt": 88000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    28000,
+    false
+   ],
+   [
+    78000,
+    true
+   ],
+   [
+    88000,
+    false
+   ],
+   [
+    196000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    164000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    24000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    24000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    38000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    50000,
+    "player",
+    "noise\n"
+   ],
+   [
+    78000,
+    "player",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     46000,
+     true
+    ],
+    [
+     84000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     286000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    188000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-105",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    140000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     2000,
+     false
+    ],
+    [
+     84000,
+     false
+    ],
+    [
+     88000,
+     false
+    ],
+    [
+     90000,
+     true
+    ],
+    [
+     198000,
+     false
+    ],
+    [
+     258000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     268000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     112000,
+     false
+    ],
+    [
+     128000,
+     false
+    ],
+    [
+     242000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    198000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    192000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    242000,
+    "player",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     28000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    142000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-106",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     false
+    ],
+    [
+     84000,
+     true
+    ],
+    [
+     166000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     26000,
+     false
+    ],
+    [
+     30000,
+     false
+    ],
+    [
+     116000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     70000,
+     true
+    ],
+    [
+     152000,
+     false
+    ],
+    [
+     166000,
+     false
+    ]
+   ],
+   "crashAt": 56000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    172000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    76000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     68000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    60000,
+    true
+   ],
+   [
+    156000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-107",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    100000,
+    true
+   ],
+   [
+    140000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     148000,
+     false
+    ],
+    [
+     258000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     true
+    ],
+    [
+     140000,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     162000,
+     true
+    ],
+    [
+     270000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     68000,
+     true
+    ],
+    [
+     130000,
+     false
+    ],
+    [
+     184000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    180000,
+    false
+   ],
+   [
+    200000,
+    true
+   ],
+   [
+    236000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    150000,
+    3
+   ],
+   [
+    230000,
+    0
+   ],
+   [
+    262000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    138000,
+    "updater",
+    "downloadupdate error\n"
+   ],
+   [
+    148000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    198000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    270000,
+    "updater",
+    "update failed\n"
+   ],
+   [
+    296000,
+    "launcher",
+    "noise\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     72000,
+     true
+    ]
+   ],
+   "crashAfterMs": 38000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    192000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-108",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    496000,
+    true
+   ],
+   [
+    568000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     88000,
+     true
+    ],
+    [
+     336000,
+     false
+    ],
+    [
+     424000,
+     false
+    ],
+    [
+     542000,
+     true
+    ],
+    [
+     560000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     222000,
+     false
+    ],
+    [
+     236000,
+     true
+    ],
+    [
+     450000,
+     true
+    ],
+    [
+     458000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     358000,
+     false
+    ],
+    [
+     390000,
+     false
+    ],
+    [
+     512000,
+     false
+    ]
+   ],
+   "crashAt": 176000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    122000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    188000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    246000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    262000,
+    "player",
+    "noise\n"
+   ],
+   [
+    420000,
+    "launcher",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     272000,
+     false
+    ],
+    [
+     550000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     188000,
+     true
+    ],
+    [
+     236000,
+     false
+    ],
+    [
+     528000,
+     true
+    ]
+   ],
+   "crashAfterMs": 6000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-109",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    642000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     944000,
+     true
+    ],
+    [
+     1014000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     1082000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     408000,
+     true
+    ],
+    [
+     724000,
+     true
+    ],
+    [
+     1160000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    864000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    260000,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     790000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     336000,
+     false
+    ],
+    [
+     590000,
+     true
+    ],
+    [
+     656000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    454000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-110",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    286000,
+    false
+   ],
+   [
+    964000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     102000,
+     false
+    ],
+    [
+     140000,
+     true
+    ],
+    [
+     488000,
+     true
+    ],
+    [
+     508000,
+     false
+    ],
+    [
+     628000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     78000,
+     true
+    ],
+    [
+     110000,
+     false
+    ],
+    [
+     632000,
+     true
+    ],
+    [
+     1112000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     12000,
+     true
+    ],
+    [
+     760000,
+     true
+    ],
+    [
+     1102000,
+     false
+    ]
+   ],
+   "crashAt": 450000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    786000,
+    2
+   ],
+   [
+    808000,
+    2
+   ],
+   [
+    970000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    188000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    678000,
+    "player",
+    "E115\n"
+   ],
+   [
+    694000,
+    "player",
+    "disk full\n"
+   ],
+   [
+    766000,
+    "player",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    830000,
+    true
+   ],
+   [
+    932000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-111",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     6000,
+     false
+    ],
+    [
+     146000,
+     false
+    ],
+    [
+     212000,
+     true
+    ],
+    [
+     680000,
+     false
+    ],
+    [
+     872000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     false
+    ],
+    [
+     106000,
+     true
+    ],
+    [
+     302000,
+     true
+    ],
+    [
+     604000,
+     true
+    ],
+    [
+     658000,
+     true
+    ],
+    [
+     794000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     310000,
+     false
+    ],
+    [
+     538000,
+     false
+    ],
+    [
+     948000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    484000,
+    false
+   ],
+   [
+    594000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    1134000,
+    "launcher",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     206000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     408000,
+     false
+    ],
+    [
+     716000,
+     true
+    ]
+   ],
+   "crashAfterMs": 28000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    162000,
+    true
+   ],
+   [
+    1072000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-112",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    280000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     94000,
+     true
+    ],
+    [
+     210000,
+     true
+    ],
+    [
+     422000,
+     true
+    ],
+    [
+     452000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     326000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    2000,
+    true
+   ],
+   [
+    72000,
+    true
+   ],
+   [
+    98000,
+    false
+   ],
+   [
+    422000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    152000,
+    3
+   ]
+  ],
+  "logs": [
+   [
+    236000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    316000,
+    "player",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     558000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     280000,
+     false
+    ]
+   ],
+   "crashAfterMs": 48000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    414000,
+    false
+   ],
+   [
+    504000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-113",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    94000,
+    false
+   ],
+   [
+    208000,
+    false
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     108000,
+     false
+    ],
+    [
+     506000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     102000,
+     false
+    ],
+    [
+     192000,
+     false
+    ],
+    [
+     276000,
+     true
+    ],
+    [
+     354000,
+     true
+    ],
+    [
+     432000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    134000,
+    false
+   ],
+   [
+    226000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    286000,
+    1
+   ],
+   [
+    340000,
+    2
+   ],
+   [
+    342000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    4000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    40000,
+    "launcher",
+    "update failed\n"
+   ],
+   [
+    52000,
+    "launcher",
+    "disk full\n"
+   ],
+   [
+    372000,
+    "launcher",
+    "Loading error : E109\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    106000,
+    false
+   ],
+   [
+    226000,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-114",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     40000,
+     true
+    ],
+    [
+     140000,
+     true
+    ],
+    [
+     174000,
+     true
+    ],
+    [
+     222000,
+     false
+    ],
+    [
+     224000,
+     true
+    ],
+    [
+     282000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": 44000
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    206000,
+    false
+   ],
+   [
+    292000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [],
+  "launch": {
+   "fails": [
+    false,
+    false,
+    true,
+    false,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     128000,
+     true
+    ],
+    [
+     296000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     280000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-115",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    476000,
+    true
+   ],
+   [
+    1030000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     144000,
+     false
+    ],
+    [
+     398000,
+     true
+    ],
+    [
+     516000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     280000,
+     false
+    ],
+    [
+     718000,
+     true
+    ],
+    [
+     724000,
+     false
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     1014000,
+     false
+    ],
+    [
+     1098000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    8000,
+    1
+   ],
+   [
+    966000,
+    1
+   ],
+   [
+    1186000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    852000,
+    "launcher",
+    "connect to server failed\n"
+   ],
+   [
+    1166000,
+    "updater",
+    "downloadupdate error\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    true,
+    true,
+    false,
+    true
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     90000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     24000,
+     true
+    ],
+    [
+     54000,
+     false
+    ],
+    [
+     684000,
+     false
+    ]
+   ],
+   "crashAfterMs": 42000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    440000,
+    false
+   ],
+   [
+    740000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-116",
+  "durationMs": 1200000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     1060000,
+     true
+    ],
+    [
+     1076000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     144000,
+     true
+    ],
+    [
+     154000,
+     true
+    ],
+    [
+     816000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     824000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    190000,
+    "player",
+    "updating from path\n"
+   ],
+   [
+    218000,
+    "launcher",
+    "noise\n"
+   ],
+   [
+    542000,
+    "player",
+    "disk full\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     566000,
+     false
+    ],
+    [
+     580000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     132000,
+     false
+    ],
+    [
+     326000,
+     false
+    ]
+   ],
+   "crashAfterMs": 36000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-117",
+  "durationMs": 300000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     16000,
+     false
+    ],
+    [
+     54000,
+     true
+    ],
+    [
+     70000,
+     false
+    ],
+    [
+     126000,
+     false
+    ],
+    [
+     220000,
+     false
+    ],
+    [
+     264000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     52000,
+     true
+    ],
+    [
+     186000,
+     false
+    ],
+    [
+     284000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    44000,
+    false
+   ],
+   [
+    114000,
+    false
+   ],
+   [
+    250000,
+    true
+   ],
+   [
+    296000,
+    true
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    32000,
+    1
+   ]
+  ],
+  "logs": [
+   [
+    58000,
+    "player",
+    "connect to server failed\n"
+   ],
+   [
+    86000,
+    "updater",
+    "E115\n"
+   ],
+   [
+    108000,
+    "player",
+    "update failed\n"
+   ],
+   [
+    120000,
+    "launcher",
+    "Loading error : E109\n"
+   ],
+   [
+    250000,
+    "updater",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     60000,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     20000,
+     true
+    ],
+    [
+     132000,
+     false
+    ],
+    [
+     172000,
+     true
+    ]
+   ],
+   "crashAfterMs": 18000
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ],
+   [
+    60000,
+    true
+   ]
+  ]
+ },
+ {
+  "name": "random-9-118",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     226000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     506000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     190000,
+     false
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ],
+   [
+    382000,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ]
+  ],
+  "logs": [
+   [
+    60000,
+    "updater",
+    "connect to server failed\n"
+   ],
+   [
+    206000,
+    "player",
+    "noise\n"
+   ],
+   [
+    502000,
+    "updater",
+    "update failed\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    true,
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     202000,
+     false
+    ],
+    [
+     324000,
+     true
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ },
+ {
+  "name": "random-9-119",
+  "durationMs": 600000,
+  "autoReconnect": [
+   [
+    0,
+    true
+   ],
+   [
+    356000,
+    true
+   ]
+  ],
+  "initial": {
+   "online": [
+    [
+     0,
+     true
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     30000,
+     false
+    ],
+    [
+     100000,
+     true
+    ],
+    [
+     400000,
+     false
+    ],
+    [
+     518000,
+     true
+    ]
+   ],
+   "hung": [
+    [
+     0,
+     false
+    ],
+    [
+     480000,
+     true
+    ]
+   ],
+   "crashAt": null
+  },
+  "updating": [
+   [
+    0,
+    false
+   ]
+  ],
+  "fingerprint": [
+   [
+    0,
+    0
+   ],
+   [
+    214000,
+    2
+   ]
+  ],
+  "logs": [
+   [
+    536000,
+    "launcher",
+    "updating from path\n"
+   ]
+  ],
+  "launch": {
+   "fails": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "online": [
+    [
+     0,
+     true
+    ],
+    [
+     390000,
+     true
+    ],
+    [
+     524000,
+     false
+    ]
+   ],
+   "healthy": [
+    [
+     0,
+     true
+    ],
+    [
+     172000,
+     false
+    ]
+   ],
+   "crashAfterMs": null
+  },
+  "terminateFails": [
+   [
+    0,
+    false
+   ]
+  ]
+ }
+]

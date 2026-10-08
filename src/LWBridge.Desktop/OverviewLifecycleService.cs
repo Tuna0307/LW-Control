@@ -30,6 +30,9 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<int, string, bool>? ProcessHung { get; init; }
     public Func<int, string, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
+    // HOME 009: <root>\Game\LastWar.exe presence (0x41d2ce) and the three recovery log readers (0x41a18d).
+    public Func<bool>? GameRootAvailable { get; init; }
+    public Func<string, IRecoveryLogReader>? CreateRecoveryLogReader { get; init; }
 }
 
 internal sealed record OverviewHelperInvocation(
@@ -343,7 +346,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken) => command switch
     {
-        "profile_instance_start" => StartAsync(cancellationToken),
+        "profile_instance_start" => StartCommandAsync(cancellationToken),
         "profile_instance_stop" => StopAsync(payload, cancellationToken),
         "profile_instance_status" => Task.FromResult(CreateProfileInstanceStatus()),
         "profile_instances_reconcile" => ReconcileStartupAsync(payload, cancellationToken),
@@ -512,6 +515,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 instanceStartedAtUnixMilliseconds = null;
                 challenge = null;
                 gamePid = null;
+                recoveryTracked = null;
                 launcherPid = null;
                 gamePath = null;
                 gameStartedAtUtc = null;
@@ -760,6 +764,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     instanceId = newSession;
                     challenge = newChallenge;
                     gamePid = start.GamePid;
+                    recoveryTracked = new RecoveryTrackedGame(start.GamePid, start.GamePath, start.GameStartedAtUtc);
                     launcherPid = start.LauncherPid;
                     gamePath = start.GamePath;
                     gameStartedAtUtc = start.GameStartedAtUtc;
@@ -913,6 +918,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             instanceStartedAtUnixMilliseconds = null;
             challenge = null;
             gamePid = null;
+            recoveryTracked = null;
             launcherPid = null;
             gamePath = null;
             gameStartedAtUtc = null;
@@ -1034,6 +1040,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             connectionState = "recovering";
             snapshot = SnapshotLocked();
         }
+        // 0x41bbff: the original Stop turns desired-running off, clears the tracked PID, increments the run id
+        // (invalidating any recovery run) and resets the recovery status to idle (0x41ad16) before terminating.
+        InvalidateRecoveryForUserStop();
 
         try
         {
@@ -1054,6 +1063,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 instanceStartedAtUnixMilliseconds = null;
                 challenge = null;
                 gamePid = null;
+                recoveryTracked = null;
                 launcherPid = null;
                 gamePath = null;
                 gameStartedAtUtc = null;

@@ -89,6 +89,8 @@ class World(o.Env):
         self.log_reader_started = False
         self.run_id = 0
         self.config_trail = scenario.get("autoReconnect", [[0, True]])
+        self.rec_pid = 0
+        self.rec_valid = False
 
     # time/log plumbing
     def set_time(self, t: int) -> None:
@@ -124,7 +126,28 @@ class World(o.Env):
         return piece(self.sc.get("launch", {}).get(name, [[0, default]]), rel, default)
 
     def online(self): return self.find_pid() != 0 and bool(self._signal("online", True))
-    def healthy(self, pid): return self.find_pid() == pid and bool(self._signal("healthy", True))
+
+    def update_record(self):
+        """Game-state record producer: refreshed while the bridge is online, retained while offline."""
+        pid = self.find_pid()
+        if pid != 0 and self.online():
+            self.rec_pid, self.rec_valid = pid, bool(self._signal("healthy", True))
+
+    def healthy(self, pid): return pid != 0 and self.rec_pid == pid and self.rec_valid
+    def reset_health_record(self): self.rec_pid, self.rec_valid = 0, False
+
+    def event(self):
+        """Effective confirmed recovery request visible through a fresh, owned, online heartbeat."""
+        inst = self.current()
+        if not inst.get("owned", True) or not self.online():
+            return None
+        ev = piece(self.sc.get("event", [[0, None]]), self.t, None)
+        if not ev or not ev.get("observed") or not ev.get("confirmed") or ev.get("ambiguous"):
+            return None
+        reason = ev.get("reason")
+        if reason not in ("disconnect", "crossDisconnect", "forceUpdate", "exitPrompt"):
+            return None
+        return (reason, reason == "forceUpdate" or bool(ev.get("update")))
     def hung(self, pid): return self.find_pid() == pid and bool(self._signal("hung", False))
 
     def update_running(self):
@@ -153,6 +176,7 @@ class World(o.Env):
         for inst in self.instances:
             if inst["pid"] == pid:
                 inst["alive"] = False
+                inst["owned"] = False      # restoration cleanup follows a termination
         return True
 
     def kill_updaters(self):
@@ -162,6 +186,7 @@ class World(o.Env):
 
     def launch(self):
         self.launches += 1
+        self.current()["owned"] = False    # stale-session cleanup precedes a relaunch
         fails = self.sc.get("launch", {}).get("fails", [])
         self.events.append({"t": self.t, "kind": "launch", "n": self.launches})
         if self.launches <= len(fails) and fails[self.launches - 1]:
@@ -200,8 +225,12 @@ def run_oracle(scenario: dict) -> list[dict]:
         world.set_time(t)
         if run is not None and run.finished:
             run = None
+        world.update_record()
         decision = monitor.tick(world, store)
         flush(t)
+        if decision is not None and run is not None and decision[1] and not store.status.update_detected:
+            store.mark_update_detected()          # 0x41b121: active recovery only merges the update flag
+            flush(t)
         if decision is not None and run is None:
             reason, update_flag = decision
             world.run_id += 1
@@ -213,6 +242,7 @@ def run_oracle(scenario: dict) -> list[dict]:
             flush(t)
             next_run_tick = t + o.TICK_MS
         if run is not None and not run.finished and next_run_tick is not None and next_run_tick <= t:
+            world.update_record()
             run.tick(world, store)
             flush(t)
             next_run_tick = t + o.TICK_MS
@@ -290,6 +320,22 @@ def catalogue() -> list[dict]:
                   initial={"crashAt": 30000},
                   launch={"healthy": [[0, False], [4000, True], [14000, False], [16000, True]]}, durationMs=300000))
     S.append(base("crash-loop", initial={"crashAt": 30000}, launch={"crashAfterMs": 20000}, durationMs=900000))
+    ev = lambda reason, **kw: {"observed": True, "confirmed": True, "ambiguous": False, "reason": reason, **kw}
+    S.append(base("event-crossdisconnect-healthy-in-place", event=[[0, None], [20000, ev("crossDisconnect")], [26000, None]]))
+    S.append(base("event-disconnect-unhealthy-escalates",
+                  initial={"healthy": [[0, True], [18000, False]]},
+                  event=[[0, None], [20000, ev("disconnect")]], durationMs=500000))
+    S.append(base("event-forceupdate-with-updater",
+                  initial={"healthy": [[0, True], [18000, False]]}, updating=[[0, False], [19000, True], [200000, False]],
+                  event=[[0, None], [20000, ev("forceUpdate")]], durationMs=600000))
+    S.append(base("event-exitprompt-then-exit",
+                  initial={"crashAt": 21000}, event=[[0, None], [19000, ev("exitPrompt")], [20000, None]]))
+    S.append(base("event-unconfirmed-ignored",
+                  event=[[0, None], [20000, {"observed": True, "confirmed": False, "ambiguous": False, "reason": "disconnect"}]]))
+    S.append(base("event-ambiguous-ignored",
+                  event=[[0, None], [20000, {"observed": True, "confirmed": True, "ambiguous": True, "reason": "disconnect"}]]))
+    S.append(base("event-unsupported-reason-ignored", event=[[0, None], [20000, ev("unsupported")]]))
+    S.append(base("event-while-reconnect-disabled", autoReconnect=[[0, False]], event=[[0, None], [20000, ev("disconnect")]]))
     return S
 
 
@@ -323,6 +369,17 @@ def random_scenarios(seed: int, count: int) -> list[dict]:
         files = ["player", "launcher", "updater"]
         sc["logs"] = sorted([[rng.randrange(2000, dur - 2000, 2000), rng.choice(files), rng.choice(texts)]
                              for _ in range(rng.randint(0, 5))])
+        if rng.random() < 0.5:
+            reasons = ["disconnect", "crossDisconnect", "forceUpdate", "exitPrompt", "unsupported"]
+            ev_sig = [[0, None]]
+            for tt in sorted(rng.sample(range(2000, dur - 2000, 2000), k=rng.randint(1, 4))):
+                if rng.random() < 0.3:
+                    ev_sig.append([tt, None])
+                else:
+                    ev_sig.append([tt, {"observed": rng.random() < 0.9, "confirmed": rng.random() < 0.8,
+                                        "ambiguous": rng.random() < 0.15, "reason": rng.choice(reasons),
+                                        "update": rng.random() < 0.3}])
+            sc["event"] = ev_sig
         out.append(sc)
     return out
 
