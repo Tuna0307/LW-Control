@@ -52,7 +52,9 @@
    "proofAvailable": "none against original",
    "status": "UNKNOWN",
    "requiredCorrection": "Trace instruction order in available EXE bytes 0xFA09E-0xFC643 (not protected) and reorder if the original validates mode/types first",
-   "remainingDependency": "static disassembly only (EXE available, no protected input)"
+   "remainingDependency": "static disassembly only (EXE available, no protected input)",
+   "status010": "VERIFIED_EQUAL_010_STATIC",
+   "update010": "d-map-decode item 1: clone validation order equals the original service order; no change."
   },
   {
    "id": "M-03",
@@ -290,7 +292,9 @@
    "proofAvailable": "none",
    "status": "UNKNOWN",
    "requiredCorrection": "Trace the 0.3.17 status service (0xF8CB2-0xFA09E, available bytes) for the exact trigger, then implement + inverse test",
-   "remainingDependency": "static disassembly of available EXE bytes (no protected input)"
+   "remainingDependency": "static disassembly of available EXE bytes (no protected input)",
+   "status010": "FIXED_010_CONTROLLED",
+   "update010": "6526afa7: live server change while reading fails the run (staging discarded), provider stopped, idle state with original text (decoded 0xF8CB2/0xF9559-0xF9783)."
   },
   {
    "id": "M-21",
@@ -407,7 +411,9 @@
    "proofAvailable": "none",
    "status": "UNKNOWN",
    "requiredCorrection": "Trace search service 0x3E10E7-0x3E6952 argument parsing in available EXE bytes",
-   "remainingDependency": "static disassembly only"
+   "remainingDependency": "static disassembly only",
+   "status010": "FIXED_010_CONTROLLED",
+   "update010": "6526afa7: production map_search/options coerce loosely like 0x3EB60E/0x3E1144-0x3E1194 (page/pageSize/server/kind never rejected). Mistyped OTHER filters still fail closed (MAP_QUERY_UNRECOVERED/INVALID_MAP_QUERY): remaining difference."
   },
   {
    "id": "M-30",
@@ -420,7 +426,9 @@
    "proofAvailable": "none",
    "status": "UNKNOWN",
    "requiredCorrection": "Decode 0.3.17 search effective-server rule; then either substitute shared-state server or return empty set",
-   "remainingDependency": "static disassembly only"
+   "remainingDependency": "static disassembly only",
+   "status010": "FIXED_010_CONTROLLED",
+   "update010": "6526afa7: serverId<=0 -> shared-state server, still <=0 or >99999 -> empty page (decoded 0x3E1211)."
   },
   {
    "id": "M-31",
@@ -526,7 +534,7 @@
    "requiredCorrection": "Return MAP_EXPORT_FAILED / 'city export server is unavailable'; decode whether serverId<=0 substitutes shared-state server",
    "remainingDependency": "static disassembly of 0x129FA7-0x12BC48",
    "status010": "FIXED_010_CONTROLLED",
-   "update010": "1029c03d: City export with non-positive server -> MAP_EXPORT_FAILED \"city export server is unavailable\". Whether the original substitutes a shared-state server stays UNKNOWN (d-map-decode)."
+   "update010": "6526afa7: City export order headers(12)->labels->query({} if missing)->server = loose query.serverId else shared-state server else MAP_EXPORT_FAILED unavailable (decoded 0x129FA7). Blank-header acceptance UNKNOWN."
   },
   {
    "id": "M-39",

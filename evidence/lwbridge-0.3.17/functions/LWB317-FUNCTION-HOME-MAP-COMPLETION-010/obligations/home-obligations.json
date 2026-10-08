@@ -41,7 +41,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Decide in-progress/running precedence only with original evidence; do not guess.",
    "remainingDependency": "original start-in-flight policy at 0x41B3BC-0x41B451",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "FIXED_010_CONTROLLED",
+   "update010": "24898e62: duplicate/in-flight start -> PROFILE_ALREADY_RUNNING (decoded 0x23e9dc). Closed/profile-replacement waits stay clone-only fences."
   },
   {
    "id": "H-04",
@@ -181,7 +183,9 @@
    "status": "BLOCKED",
    "requiredCorrection": "Continue runtime-callback/vtable producer tracing where bytes allow (010-C); protected response stays blocked.",
    "remainingDependency": "protected lease-release response + runtime vtable identity",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "STATIC_PROGRESS_010",
+   "update010": "c-finalizer: 0x1DDDE3 = lease-release future; callers discard errors; launch error wins; vtable callback = Bytes::drop. Protected server responses remain UNKNOWN."
   },
   {
    "id": "H-14",
@@ -321,7 +325,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Verify original locale keys for these codes from recovered locale assets.",
    "remainingDependency": "original locale table check",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "CLOSED_010_STATIC",
+   "update010": "c-handlers item 8: original UI also shows the generic message for the clone-only codes; do not add keys."
   },
   {
    "id": "H-24",
@@ -463,7 +469,9 @@
    "status": "UNKNOWN",
    "requiredCorrection": "Decode 0x12C34B handler (payload validation, errors, persistence) before claiming parity.",
    "remainingDependency": "static decode only",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "PARTIAL_FIXED_010_CONTROLLED",
+   "update010": "24898e62: profile resolution, defaults, autoClosePopup, {ok,name,enabled}, GAME_DISCONNECTED gate, monitor tick/reset. Connected forward of other names needs the protected game-side Lua setAutomation: stays AUTOMATION_NOT_IMPLEMENTED."
   },
   {
    "id": "H-34",
@@ -477,7 +485,9 @@
    "status": "ORIGINAL_PROVED",
    "requiredCorrection": "Fix stale comment only.",
    "remainingDependency": "none",
-   "readiness": "NONE"
+   "readiness": "NONE",
+   "status010": "COMMENT_FIXED_010",
+   "update010": "stale 0.3.1 comment corrected in OverviewRecoveryPolicy.cs."
   },
   {
    "id": "H-35",
@@ -519,7 +529,9 @@
    "status": "UNKNOWN",
    "requiredCorrection": "Decide persisted vs in-memory against original; no change without evidence.",
    "remainingDependency": "original lifetime of ctx+0x124",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "CLOSED_010_STATIC",
+   "update010": "c-handlers item 7: original persists game_desired_running in config.json; clone matches."
   },
   {
    "id": "H-38",
@@ -547,7 +559,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Decode 0x10B70B body for validation/errors.",
    "remainingDependency": "static decode",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "PARTIAL_FIXED_010_CONTROLLED",
+   "update010": "24898e62: profile_note_set validates the id first. BRIDGE_HOST_BUSY/PROFILE_LOCKED swap fencing remain clone mechanisms."
   },
   {
    "id": "H-40",
@@ -575,7 +589,9 @@
    "status": "CURRENT_CLIENT_ADAPTATION",
    "requiredCorrection": "Decode original root-change-while-running behaviour (0x188F12).",
    "remainingDependency": "original root-change semantics",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "DOCUMENTED_DIFFERENCE_010",
+   "update010": "c-handlers item 3: original game_root_select never rejects/stops a running game; clone fences (GAME_OPERATION_IN_PROGRESS etc.) because the installation journal is root-bound. Clone-only fence, not A->A."
   },
   {
    "id": "H-42",
@@ -589,7 +605,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Map original state enum to UI-visible states.",
    "remainingDependency": "static decode of tagged state",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "DOCUMENTED_DIFFERENCE_010",
+   "update010": "c-handlers item 6: clone CreateInstanceStatus has clone-only maintenance/offline states; profile_instance_status record itself matches."
   },
   {
    "id": "H-43",
@@ -603,7 +621,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Decode 0x154905 body for errors.",
    "remainingDependency": "static decode",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "FIXED_010_CONTROLLED",
+   "update010": "24898e62: blank profileId only for empty string; absent owner -> PROFILE_RUNTIME_UNAVAILABLE (no synthesized idle)."
   },
   {
    "id": "H-44",
@@ -645,7 +665,9 @@
    "status": "IMPLEMENTED_NOT_VALIDATED",
    "requiredCorrection": "Compare against original locale key set (see H-23).",
    "remainingDependency": "original locale tables",
-   "readiness": "READY"
+   "readiness": "READY",
+   "status010": "CLOSED_010_STATIC",
+   "update010": "same as H-23."
   },
   {
    "id": "H-47",

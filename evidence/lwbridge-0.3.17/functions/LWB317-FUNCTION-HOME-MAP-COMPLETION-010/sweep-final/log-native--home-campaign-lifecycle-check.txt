@@ -4,9 +4,9 @@
   "scope": "isolated OverviewLifecycleService/LWBridgeBackend hooks only; no real Last War, updater, original service, or live provider action",
   "pendingRepeated": {
     "pendingPhase": "starting",
-    "pendingInstanceId": "adb5644bebba41e6b5e0c468813fb48b",
-    "repeatedPendingError": "GAME_OPERATION_IN_PROGRESS",
-    "duplicateRunningError": "GAME_RUNNING",
+    "pendingInstanceId": "c207785c0fe446c3ac3788ff4d543eca",
+    "repeatedPendingError": "PROFILE_ALREADY_RUNNING",
+    "duplicateRunningError": "PROFILE_ALREADY_RUNNING",
     "helperStartCalls": 1,
     "helperStopCalls": 1,
     "finalPhase": "stopped"
@@ -43,8 +43,8 @@
     "lifecycleHelperCalls": 0
   },
   "recoveryAndShutdown": {
-    "firstSession": "5efb353a42fe4077957c6fd8da23cba7",
-    "recoveredSession": "6354b55319e94e2e8d9da3f1c9eaf543",
+    "firstSession": "987397abc1664d1ab39af0158c92279f",
+    "recoveredSession": "ddaa92139c9540679df380a904d8a473",
     "successfulRecoveryUsedFreshSession": true,
     "successfulRecoveryState": "succeeded",
     "startsBeforeShutdown": 3,

@@ -71,7 +71,37 @@ Verified against original bytes before editing (not just the inventory's claim):
   never run. **No EN/light or genuine JA/dark canonical captures, no Home Stop click, no repair/restart adversity and no
   City/Resource pilot results exist from this assignment.** Real launches total: 1.
 
-## Status
+## C/D/E additions after the first draft (commits 6526afa7, 24898e62)
 
-Home/Map remains PARTIAL. Exact remaining dependencies are in the obligation table
-(`evidence/.../COMPLETION-010/obligations/obligation-table.md`, 47 Home + 86 Map rows) and continuation below.
+Static decodes were re-run (`d_map_verify.py` 62 asserted facts OK; `decode_finalizer.py` OK) and used for product changes
+verified by actual-command checks:
+* Search/options: original coerces loosely and never rejects mistyped page/pageSize/serverId/kind; serverId<=0 -> shared-state server,
+  still unusable -> empty page; page<1->1, pageSize clamp [1,200]. Production `map_search`/`map_data_options` now do the same.
+  Still stricter than the original: mistyped *other* filters (MAP_QUERY_UNRECOVERED / INVALID_MAP_QUERY fences) — remaining difference.
+* City export order (decoded 0x129FA7): 12 headers, labels, query ({} if missing), server = query.serverId else shared state else
+  `city export server is unavailable` (this supersedes my earlier simpler change in 1029c03d). Legacy `LWBridgeBackend.PrepareCityExport` untouched.
+* Live server change while reading fails the run (staging discarded), provider stopped, idle state, original text (0xF8CB2).
+* set_automation / start / game_recovery_status / profile_note_set as listed in the master paragraph. Documented but unchanged: clone-only
+  game_root_select fences while a game runs; clone-only maintenance/offline instance-status states; connected forward of other automation names
+  (protected Lua); clone-only closed/profile-replacement waits; post-publication BRIDGE_START_TIMEOUT leaves the owned game/journal in place.
+* Verified equal (no change): map_scan_start validation order; profile_instance_status record/classifier; reconcile admission; GameDesiredRunning
+  persistence; clone-only error codes correctly have no original locale key.
+
+## Checks executed
+
+Integrated R2-compatible sweep (38 commands incl. Release build 0 warnings/errors, 230 normalized recovery comparisons, native default flow,
+mounted App cases, frontend/package, scratch publish): after B 38/38 (`sweep-b/final-checks.json`) and after all changes 38/38 (`sweep-final/`).
+Focused: adoption 26, map-auto-scan-campaign, map317-native-boundary (host contracts, coercion, guard), Map-0.3.17 checks, game-recovery-status,
+launch-spam, process-ownership, home-campaign-lifecycle, reconnect-policy, profile-runtime-owner, close-timing. Mutation: unconditional lease stop
+fails the new adoption check. Real game launches: 1; actual game terminations by this task: 0 attributed (see live/run1-summary.md).
+
+## Status and exact continuation
+
+Home/Map remains **PARTIAL**. Genuinely open (see obligation table): (1) all desktop-input and pilot live evidence (needs permission for Windows-MCP
+input and for `dotnet ...Checks.dll --completion010-live-pilot <out.json> <preflight.json> [--positive-stage]` after
+`python tools/lwbridge317/home009_r3_live_preflight.py <iso-root> <preflight.json>`; EN/light + JA/dark captures; Home Stop click; repair/restart/
+reconnect adversity; City/Resource acquisition, query/export/reopen, positive-stage Stop plan = timeline from the first two runs);
+(2) protected original Lua controllers (per-kind extraction/traversal/retry, Treasure/Ghost status/claim/preparation/result identity) and lease/
+entitlement responses; (3) original coercion of mistyped non-page filters, blank export headers, serverId==0 in options/summary aggregators,
+`prepareGhostPlunderTasks`, launcher-restart producer (OFFICIAL_LAUNCHER_RESTARTED), multi-profile reconcile loop (maxProfiles=1);
+(4) static decodes not done: dispatch/ghost/truck daily-limit fan-out/history prune, 0x41B3BC start reserve predicate, 27 launch-failure site codes.
