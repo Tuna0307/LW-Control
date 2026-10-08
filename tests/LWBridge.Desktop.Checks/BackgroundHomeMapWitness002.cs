@@ -57,7 +57,7 @@ internal static class BackgroundHomeMapWitness002
             heartbeat <= now + 2000 && now - heartbeat < 15001;
     }
 
-    internal static async Task RunAsync(string outputFile, bool launch)
+    internal static async Task RunAsync(string outputFile, bool launch, bool activeStop = false)
     {
         string output = Path.GetFullPath(outputFile);
         Directory.CreateDirectory(Path.GetDirectoryName(output)!);
@@ -69,7 +69,7 @@ internal static class BackgroundHomeMapWitness002
         var report = new Dictionary<string, object?>
         {
             ["workItem"] = "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
-            ["attemptId"] = attemptId, ["mode"] = launch ? "explicit-real-launch" : "isolated-preflight",
+            ["attemptId"] = attemptId, ["mode"] = launch ? (activeStop ? "explicit-real-launch-active-stop" : "explicit-real-launch-completion") : "isolated-preflight",
             ["createdAtUtc"] = DateTimeOffset.UtcNow, ["profileId"] = profile,
             ["isolatedRoot"] = root, ["outputFile"] = output,
             ["productionMapProvider"] = "ProfileRuntimeOwner.Create mapProvider:null -> Map317CommandService(lifecycle) -> CurrentClientMap317ScanProvider",
@@ -291,28 +291,41 @@ internal static class BackgroundHomeMapWitness002
                 JsonElement context = J(observedMap);
                 Record("production-map-context-rpc-attempt", new { context, owner.BridgeHostState.PendingCallCount,
                     protocol = ReadRuntimeProtocolSummaries(paths, profile, instance!, ownedPid.GetValueOrDefault()) });
-                if (!Bool(context, "isInWorld") || Int(context, "serverId") is not > 0)
+                // Already-world and city both flow into the real production
+                // StartAsync world-entry path after authenticated session/server admission.
+                if (Int(context, "serverId") is not > 0)
                 {
-                    report["terminal"] = "BLOCKED_WORLD_OR_LOGIN_READINESS";
+                    report["terminal"] = "BLOCKED_NO_LIVE_SERVER";
                     return;
                 }
+                Record("world-entry-before-production-start", new {
+                    initialIsInWorld = Bool(context, "isInWorld"),
+                    liveServerId = Int(context, "serverId"),
+                    profile, instance, ownedPid,
+                    requestedPath = "MapScanStateMachine.StartAsync -> EnterWorldMapAsync"
+                });
                 object? startedScan = await owner.Map317.InvokeAsync("map_scan_start",
                     J(new { profileId = profile, scanMode = "normal", selectedTypes = new[] { "resource" } }), overall.Token);
                 JsonElement start = J(startedScan);
                 run = String(start, "scanRunId");
                 serverId = Int(start, "serverId") ?? 0;
                 Assert(!string.IsNullOrWhiteSpace(run) && serverId > 0, "new durable Resource run identity");
-                Record("resource-start", new { run, serverId, start });
-                DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(3);
+                Record("resource-start", new { run, serverId, start, worldReady = ReadWorldReadySummary(paths, profile, instance!, ownedPid.GetValueOrDefault()) });
+                DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(activeStop ? 2 : 5);
+                DateTimeOffset activeStopEarliest = DateTimeOffset.UtcNow.AddSeconds(8);
                 while (DateTimeOffset.UtcNow < deadline && !overall.Token.IsCancellationRequested)
                 {
                     JsonElement state = J(owner.Map317.CreateStatus());
                     Assert(String(state, "scanRunId") == run, "same Resource run identity until termination");
-                    if (Int(state, "readBlocks") is > 0 ||
-                        !Bool(state, "isReading"))
+                    if (activeStop && Bool(state, "isReading") && DateTimeOffset.UtcNow >= activeStopEarliest &&
+                        (Int(state, "completedBlocks") is > 0 || Int(state, "inflightBlocks") is > 0))
                     {
-                        Record("resource-capture-or-terminal", new { state,
-                        protocol = ReadRuntimeProtocolSummaries(paths, profile, instance!, ownedPid.GetValueOrDefault()) });
+                        Record("resource-owned-active-stop-admission", state);
+                        break;
+                    }
+                    if (!Bool(state, "isReading"))
+                    {
+                        Record("resource-natural-terminal", state);
                         break;
                     }
                     await Task.Delay(1500, overall.Token);
@@ -321,6 +334,7 @@ internal static class BackgroundHomeMapWitness002
                 if (Bool(last, "isReading"))
                 {
                     Assert(String(last, "scanRunId") == run, "stop must target the owned active run");
+                    Record("production-active-stop-before", last);
                     object? stopped = await owner.Map317.InvokeAsync("map_scan_stop", empty, overall.Token);
                     mapStopSucceeded = true;
                     Record("production-map-stop", J(stopped));
@@ -330,12 +344,12 @@ internal static class BackgroundHomeMapWitness002
                     Record("resource-natural-terminal", last);
                 }
                 MapQuery q = new("resource", serverId);
-                object? search = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", serverId, page = 1, pageSize = 50 }), overall.Token);
+                object? search = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", query = new { serverId, page = 1, pageSize = 50 } }), overall.Token);
                 Record("production-resource-query", new { run, result = J(search),
                     protocol = ReadRuntimeProtocolSummaries(paths, profile, instance!, ownedPid.GetValueOrDefault()) });
-                object? second = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", serverId, page = 2, pageSize = 50 }), overall.Token);
+                object? second = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", query = new { serverId, page = 2, pageSize = 50 } }), overall.Token);
                 Record("production-resource-page-2", J(second));
-                object? filtered = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", serverId, page = 1, pageSize = 50, keyword = "__witness002_unlikely_name__" }), overall.Token);
+                object? filtered = await owner.Map317.InvokeAsync("map_search", J(new { kind = "resource", query = new { serverId, page = 1, pageSize = 50, keyword = "__witness004_unlikely_name__" } }), overall.Token);
                 Record("production-resource-filter", J(filtered));
                 using (var reopened = new MapStore(paths.MapDatabasePath(profile)))
                 {
@@ -345,14 +359,22 @@ internal static class BackgroundHomeMapWitness002
                     Record("sqlite-reopened-actual-run", report["reopenedPersistence"]);
                 }
                 report["resourceExport"] = "NOT_AVAILABLE: production Map317 exporter is City-only; no Resource export or UI claim";
-                report["terminal"] = "RESOURCE_REQUEST_OBSERVED_PUBLICATION_STATUS_REQUIRES_DURABLE_RUN_INSPECTION";
+                JsonElement persisted = J(report["reopenedPersistence"]);
+                JsonElement durableRun = persisted.GetProperty("durable");
+                bool completed = String(durableRun, "status") == "completed";
+                bool positive = Int(persisted, "total") is > 0;
+                report["resourceCompletionObserved"] = completed;
+                report["resourcePublishedPositiveRowsObserved"] = completed && positive;
+                report["terminal"] = completed && positive ? "LIVE_COMPLETED_POSITIVE_RESOURCE_PUBLICATION" :
+                    mapStopSucceeded ? "LIVE_CANCELLED_RESOURCE_STAGING_NOT_COMPLETED" :
+                    "RESOURCE_RUN_TERMINATED_WITHOUT_PROVEN_POSITIVE_PUBLICATION";
             }
             catch (Exception ex)
             {
                 report["liveException"] = new { type = ex.GetType().Name,
                     code = (ex as BridgeCommandException)?.Code, ex.Message };
                 report["terminal"] = "BLOCKED_LIVE_PREREQUISITE_OR_FAILURE";
-                Record("real-boundary-failure", report["liveException"]);
+                Record("real-boundary-failure", new { failure = report["liveException"], worldReady = instance is null ? null : ReadWorldReadySummary(paths, profile, instance, ownedPid.GetValueOrDefault()), scanState = J(owner.Map317.CreateStatus()) });
             }
             finally
             {
@@ -453,6 +475,31 @@ internal static class BackgroundHomeMapWitness002
             catch (JsonException) { }
         }
         return summaries.ToArray();
+    }
+    // No challenge, lease, account secrets or command bodies in evidence.
+    private static object ReadWorldReadySummary(DesktopApplicationPaths paths,
+        string profile, string session, int pid)
+    {
+        string path = Path.Combine(paths.OverviewRuntimeRoot, "world-ready-result.json");
+        if (!File.Exists(path)) return new { observed = false };
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
+            JsonElement result = document.RootElement;
+            return new {
+                observed = true, updatedAtUtc = File.GetLastWriteTimeUtc(path),
+                requestId = String(result, "requestId"),
+                profileMatched = String(result, "profileId") == profile,
+                sessionMatched = String(result, "sessionId") == session,
+                pidMatched = Int(result, "gamePid") == pid,
+                state = String(result, "state"), method = String(result, "method"),
+                error = String(result, "error"), serverId = Int(result, "serverId"),
+                worldId = Long(result, "worldId"),
+                tileWidth = Int(result, "tileWidth"), tileHeight = Int(result, "tileHeight")
+            };
+        }
+        catch (IOException) { return new { observed = false, readError = true }; }
+        catch (JsonException) { return new { observed = false, jsonError = true }; }
     }
     private static string HashFile(string path)
     {

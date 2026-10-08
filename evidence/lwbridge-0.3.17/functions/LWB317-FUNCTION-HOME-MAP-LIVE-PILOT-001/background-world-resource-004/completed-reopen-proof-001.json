@@ -1,0 +1,17 @@
+{
+  "mode": "independent-production-MapStore-readonly-query-of-live-published-run",
+  "database": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-d198b505115248d8bd5596612f5a8819\\profiles\\lwb317-background-witness-002-d198b505\\map-data\\map-data.db",
+  "runId": "b439bfa57cd54405a14e803d21964c9d",
+  "serverId": 2212,
+  "runStatus": "completed",
+  "TotalBlocks": 2500,
+  "CompletedBlocks": 2500,
+  "FailedBlocks": 0,
+  "firstTotal": 8008,
+  "page1Count": 50,
+  "page2Count": 50,
+  "pageKeysNonoverlapping": true,
+  "impossibleKeywordTotal": 0,
+  "originalReferenceParity": "NOT_PROVEN",
+  "source": "MapStore.ReadScanRun \u002B MapStore.Search; real isolated game-published records"
+}

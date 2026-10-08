@@ -2,6 +2,21 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int world004ReopenIndex = Array.FindIndex(args,
+    value => string.Equals(value, "--world-resource-004-reopen", StringComparison.OrdinalIgnoreCase));
+if (world004ReopenIndex >= 0)
+{
+    if (world004ReopenIndex + 3 >= args.Length)
+        throw new ArgumentException("expected --world-resource-004-reopen <database> <runId> <output>");
+    LWBridge.Desktop.Checks.BackgroundWorldResource004Checks.ProveCompletedReopen(
+        args[world004ReopenIndex + 1], args[world004ReopenIndex + 2],
+        args[world004ReopenIndex + 3]);
+    return 0;
+}if (args.Contains("--world-resource-004-inverses", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.BackgroundWorldResource004Checks.RunAsync();
+    return 0;
+}
 if (args.Contains("--background-witness-002-self-test", StringComparer.OrdinalIgnoreCase))
 {
     LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunInverseChecks();
@@ -15,7 +30,8 @@ if (backgroundWitness002Index >= 0)
         throw new ArgumentException("--background-witness-002 requires an output JSON path");
     await LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunAsync(
         Path.GetFullPath(args[backgroundWitness002Index + 1]),
-        args.Contains("--launch", StringComparer.OrdinalIgnoreCase));
+        args.Contains("--launch", StringComparer.OrdinalIgnoreCase),
+        args.Contains("--active-stop", StringComparer.OrdinalIgnoreCase));
     return 0;
 }
 int resourceRuntimeInspectionProofIndex = Array.FindIndex(
