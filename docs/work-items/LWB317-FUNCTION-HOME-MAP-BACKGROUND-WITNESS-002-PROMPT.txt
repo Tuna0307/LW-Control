@@ -1,0 +1,63 @@
+You are the SOLO worker for LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002.
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller. Use latest HEAD; never reset/discard other work.
+Reviewed predecessor: 79164b821443167462632cfbcc908029deeb0f9f.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, this work item, parent
+LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001, and:
+docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md
+docs/reviews/2026-10-08-LWB317-BACKGROUND-CONTINUATION-001-LEAD.md
+
+The original payload remains encrypted because matching legitimate inputs were
+not supplied. Do not repeat its filename audit or guess keys. The older Resource
+cancellation predates attempt 5; existing 7,000 City rows are not a fresh witness.
+001 was archived diagnosis, not live testing or new feature implementation.
+
+Goal: establish a repeatable actual-production-provider BACKGROUND native pilot
+and collect fresh evidence at the first missing boundary. Complete both medium
+checkpoints without relay between them:
+
+A. Inspect actual Home lifecycle, pipe handshake/RPC registration, profile-runtime
+composition, Map provider and existing proof runners. Build an explicit test-owned
+headless runner in existing checks/tool infrastructure that composes the actual
+production services with explicit isolated root/profile and real current-client
+providers. Preserve no-option normal defaults; never relax existing Program option
+restrictions or replace the provider with fixtures. Add timestamped, correlated
+host hello acknowledgement/RPC observability with profile/session/process-start,
+run/request IDs and terminal reasons. Do not log pipe tokens/private keys.
+Test stale/mismatched identity, rejection, timeout, cancellation and cleanup through
+actual production boundaries with separately labelled inert seams. Reuse meaningful
+existing checks. Any product fix requires a source-backed distinguishing case.
+
+B. Inventory current processes and recovery journal; verify current-client admission,
+isolated roots and exact backups before real operations. The owner ALLOWS launching
+Last War and will background its window. No Windows-MCP or alternative desktop
+screenshots/input/focus automation; do not repeatedly activate the game. Headless
+background native observation and bounded current-server City/Resource operations
+within the existing pilot are authorized. Keep Auto off; no claims/plunder/shares,
+marches/spending/cross-server/updater/protected-original services.
+
+Use the audited runner to collect actual session-bound host acceptance plus a
+fresh Resource request/capture/terminal witness. Respect recovered pacing/limits
+and exact Stop/run ownership. If rows are acquired, prove staging/publication,
+query/filter/pagination/export/reopen against those new rows. Exercise controlled
+Stop through the actual command boundary and preserve run/lease identity until
+termination. Close only the identified handed-over pilot session when restoration
+requires it; never restore underneath a running game. Verify exact original file
+hashes, pending journals and cleanup; preserve backups and all failed attempts.
+
+If legitimate login/world readiness requires desktop interaction, record the exact
+fresh prerequisite and don't send input. Finish all independent runner/inverse/
+cleanup work; do not claim native or UI success from inert tests. Native background
+witnesses do not substitute for canonical UI click/visual proof, which remains
+pending. No requirement to stay busy for an arbitrary number of hours.
+
+Preserve accepted UIUX/R3 behavior and original 0.3.17 A-to-A contracts. Current
+game adaptation must not invent behavior. New evidence goes under the parent pilot
+root/background-witness-002/. No subagents, GPT Work/Codex or other-chat delegation.
+Run applicable native/helper checks; product changes require affected Release and
+frontend/build/package gates. Commit coherent checkpoints, inspect/stage only owned
+changes, push and verify direct origin SHA. Update work item/handoff and return
+AWAITING_REVIEW with actual outcomes, failed attempts, checks, cleanup and exact
+remaining live/UI dependencies. Complete the ready assignment rather than returning
+after another filename search or general passing test suite.

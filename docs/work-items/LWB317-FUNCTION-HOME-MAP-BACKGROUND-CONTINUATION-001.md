@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001
 
-Status: **READY FOR MANUAL OWNER RELAY**. One solo medium assignment.
+Status: **ACCEPTED BOUNDED ARCHIVED DIAGNOSIS**, 2026-10-08. See the 001-LEAD review; no live/decryption acceptance.
 
 Goal: explain the saved Resource cancellation/zero-completed-block result and the
 attempt-5 `hello_sent` transport versus connected heartbeat without inventing a

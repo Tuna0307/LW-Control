@@ -1,3 +1,5 @@
+Lead review, 2026-10-08: BACKGROUND-CONTINUATION-001 accepted for bounded archived diagnosis/input recheck at 79164b82. No original decryption or new feature implementation was completed. Resource cancellation predates attempt 5; 5 classifier checks rerun and 7 saved hashes preserved. Next solo owner relay: LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002, actual-provider background runner/host acknowledgement and fresh bounded Resource witness. Game launch permitted; shared-desktop capture/input/focus restricted. Native-only proof does not complete canonical UI pilot; Home/Map remains PARTIAL.
+
 Lead checkpoint, 2026-10-08: **LIVE-PILOT-001 PARTIAL / BACKGROUND ONLY**.
 Attempt-5 historical readiness/direct-reader evidence is preserved at product
 checkpoint b1f75a25. No fresh Resource result or complete pilot sequence is accepted.

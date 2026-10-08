@@ -10,7 +10,11 @@ The owner now restricts desktop screenshots/input/focus while using the computer
 background Last War remains allowed without interruption. This supersedes the
 foreground permissions in the historical continuation below. Read
 `docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md` and the lead checkpoint
-review. Next ready work: BACKGROUND-CONTINUATION-001, via manual relay.
+review. BACKGROUND-CONTINUATION-001 is now accepted for bounded archived diagnosis
+at 79164b82, with no decryption or live feature acceptance. Next ready work:
+BACKGROUND-WITNESS-002, actual-provider background runner and fresh native
+Resource/host acceptance evidence, via manual relay. UI-dependent proof remains
+pending; existing native/headless operation permission is not withdrawn.
 
 Latest continuation after worker delivery `0ffb049c6fae7a06881159b537dfe0d296fc743a`:
 the owner explicitly hands over pilot sessions even if the worker did not start
