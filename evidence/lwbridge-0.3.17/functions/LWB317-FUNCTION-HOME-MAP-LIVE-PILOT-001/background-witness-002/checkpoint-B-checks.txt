@@ -1,0 +1,6 @@
+startedUtc=2026-10-08T00:58:28.9138961Z
+ownership exit=0 ok=True durationSeconds=0.7
+lua-lease exit=0 ok=True durationSeconds=0.4
+native-boundary exit=0 ok=True durationSeconds=30.8
+isolated-handshake exit=0 ok=True durationSeconds=29.2
+status-transport exit=0 ok=True durationSeconds=49.3

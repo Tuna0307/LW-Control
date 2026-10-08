@@ -1,0 +1,149 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+  "attemptId": "6f50f14bbcb74cae959034e98022d28a",
+  "mode": "explicit-real-launch",
+  "createdAtUtc": "2026-10-08T00:50:26.1450105+00:00",
+  "profileId": "lwb317-background-witness-002-6f50f14b",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6f50f14bbcb74cae959034e98022d28a",
+  "outputFile": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-witness-002\\live-attempt-001.json",
+  "productionMapProvider": "ProfileRuntimeOwner.Create mapProvider:null -\u003E Map317CommandService(lifecycle) -\u003E CurrentClientMap317ScanProvider",
+  "autoSchedulerStarted": false,
+  "uiInteraction": false,
+  "events": [
+    {
+      "atUtc": "2026-10-08T00:50:26.6399347+00:00",
+      "kind": "independent-exact-original-backup",
+      "details": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6f50f14bbcb74cae959034e98022d28a\\overview-bridge-backups\\preflight-originals-6f50f14bbcb74cae959034e98022d28a",
+        "hashes": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:50:27.0844699+00:00",
+      "kind": "real-provider-composed",
+      "details": {
+        "profile": "lwb317-background-witness-002-6f50f14b",
+        "root": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6f50f14bbcb74cae959034e98022d28a",
+        "hostStarted": true,
+        "PendingRegistrationCount": 0,
+        "ConnectedRouteCount": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:50:27.1200959+00:00",
+      "kind": "stale-stop-rejected",
+      "details": {
+        "Code": "INSTANCE_NOT_OWNED"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:51:49.303532+00:00",
+      "kind": "real-home-start-returned",
+      "details": {
+        "instance": "a2a2e32065844fb3a91d34c959fe0acf",
+        "ownedPid": 63552,
+        "ownedStartUtc": "2026-10-08T00:51:30.6092933Z",
+        "started": {
+          "phase": "running",
+          "pid": 63552,
+          "instanceId": "a2a2e32065844fb3a91d34c959fe0acf",
+          "connectionState": "connected",
+          "error": null
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:51:49.345174+00:00",
+      "kind": "authenticated-host-observation",
+      "details": {
+        "profile": "lwb317-background-witness-002-6f50f14b",
+        "instance": "a2a2e32065844fb3a91d34c959fe0acf",
+        "ownedPid": 63552,
+        "ownedStartUtc": "2026-10-08T00:51:30.6092933Z",
+        "profileStatus": {
+          "profileId": "lwb317-background-witness-002-6f50f14b",
+          "instanceId": "a2a2e32065844fb3a91d34c959fe0acf",
+          "phase": "running",
+          "pid": 63552,
+          "startedAt": 1791420627151,
+          "lastError": null,
+          "identityConfirmed": true,
+          "leaseRequired": false,
+          "connectionState": "reconnecting",
+          "bridgeConnected": false,
+          "lastHeartbeatAt": 1791420708000,
+          "leaseActive": false
+        },
+        "accepted": false,
+        "AuthenticatedSessionCount": 0,
+        "ConnectedRouteCount": 0,
+        "RejectedHandshakeCount": 0,
+        "PendingCallCount": 0,
+        "LastHandshakeError": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:51:57.7891737+00:00",
+      "kind": "owned-home-stop",
+      "details": {
+        "phase": "stopped",
+        "pid": null,
+        "instanceId": null,
+        "connectionState": "offline",
+        "error": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:51:58.066687+00:00",
+      "kind": "final-restoration-inventory",
+      "details": {
+        "originalHashesRestored": true,
+        "ownedGameStopSucceeded": true,
+        "installedAfter": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        },
+        "activeProcesses": []
+      }
+    }
+  ],
+  "installedBefore": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "preflightOriginalBackup": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6f50f14bbcb74cae959034e98022d28a\\overview-bridge-backups\\preflight-originals-6f50f14bbcb74cae959034e98022d28a",
+    "hashes": {
+      "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  },
+  "recoveryJournalBefore": false,
+  "priorProcesses": [],
+  "gameAdmission": {
+    "Valid": true,
+    "Path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "Error": null,
+    "GamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "XluaPath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+    "Is64Bit": true
+  },
+  "terminal": "BLOCKED_NO_CORRELATED_HOST_ACK",
+  "recoveryJournalAfter": false,
+  "installedAfter": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "originalHashesRestored": true,
+  "ownedGameStopSucceeded": true,
+  "resourceStopSucceeded": false,
+  "finishedAtUtc": "2026-10-08T00:51:58.0478639+00:00"
+}

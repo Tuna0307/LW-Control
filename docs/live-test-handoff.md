@@ -1,5 +1,33 @@
 Lead review, 2026-10-08: BACKGROUND-CONTINUATION-001 accepted for bounded archived diagnosis/input recheck at 79164b82. No original decryption or new feature implementation was completed. Resource cancellation predates attempt 5; 5 classifier checks rerun and 7 saved hashes preserved. Next solo owner relay: LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002, actual-provider background runner/host acknowledgement and fresh bounded Resource witness. Game launch permitted; shared-desktop capture/input/focus restricted. Native-only proof does not complete canonical UI pilot; Home/Map remains PARTIAL.
 
+## 2026-10-08 Home/Map background witness 002 — fresh negative native proof
+
+Solo assigned A/B checkpoints completed and marked **AWAITING_REVIEW**
+(`docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002.md`).
+An explicit checks-only runner now creates a fresh isolated actual production
+Home/Map provider composition with native pipe listener, no Auto/fixture/UI
+automation; normal app option gates are unchanged. Checkpoint A pushed as
+`2ca93838d1de2a4755a8ebe34d515dbf4b8b19aa`. Both real game launches
+were authorised and performed headlessly; both reached session-owned Home
+ready, then failed to establish an authenticated host pipe connection.
+Twenty-second attempt-2 host trace: server instance 1, pending native connect
+(error 997 = overlapped pending), authenticated 0, routes 0, rejected 0;
+in-game Lua `hello_sent`/`clientConnected=false`. No Resource request/run
+or row was acquired; do not reuse older City/Resource records as this witness.
+
+Owned Home Stop on both, exactly restored original scripts, no journal and no
+remaining game or clone process. Independent read-only reopen of actual isolated
+SQLite: zero new runs, blocks and Resource rows. All focused checks passed.
+Details and all failed attempts:
+`evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/background-witness-002/checkpoint-B.md`;
+repeatable post-run archive verification
+`tools/lwbridge317/audit_background_witness_002.py`.
+Next permitted engineering investigation: same-session game adapter's native
+pipe connect/hello ACK, then actual current-server Resource scan/persist/Stop.
+Original Lua plaintext still input-blocked; native tests do not replace
+canonical UI Home/Map click/visual/manual Stop/reopen acceptance, which is
+pending separately authorised interaction. Parent pilot remains **PARTIAL**.
+
 # Current live-test handoff — strict parity phase
 
 ## Current 2026-10-08 background-only checkpoint

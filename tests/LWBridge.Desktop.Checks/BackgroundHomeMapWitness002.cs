@@ -200,14 +200,46 @@ internal static class BackgroundHomeMapWitness002
                 }
                 Record("real-home-start-returned", new { instance, ownedPid, ownedStartUtc, started });
                 Assert(!string.IsNullOrWhiteSpace(instance) && ownedPid is not null, "start session and game PID required");
-                JsonElement profileStatus = J(owner.OverviewLifecycle.CreateProfileInstanceStatus());
-                long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                bool accepted = Correlated(profileStatus, profile, instance!, ownedPid.GetValueOrDefault(), now,
-                    owner.BridgeHostState.AuthenticatedSessionCount, owner.BridgeHostState.ConnectedRouteCount);
+                // Lua adapter.Connect starts its own background thread. A single
+                // immediate host-state read after ready can misclassify the ACK.
+                // Poll a bounded 20 seconds; preserve the actual listener and
+                // adapter states without copying pipe tokens or command bodies.
+                JsonElement profileStatus = default;
+                bool accepted = false;
+                var hostTrace = new List<object>();
+                DateTimeOffset hostDeadline = DateTimeOffset.UtcNow.AddSeconds(20);
+                do
+                {
+                    profileStatus = J(owner.OverviewLifecycle.CreateProfileInstanceStatus());
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    accepted = Correlated(profileStatus, profile, instance!, ownedPid.GetValueOrDefault(), now,
+                        owner.BridgeHostState.AuthenticatedSessionCount, owner.BridgeHostState.ConnectedRouteCount);
+                    string adapterStatePath = Path.Combine(paths.OverviewRuntimeRoot, "pipe-adapter-state.txt");
+                    string? adapterState = File.Exists(adapterStatePath)
+                        ? File.ReadAllText(adapterStatePath).Trim() : null;
+                    hostTrace.Add(new
+                    {
+                        atUtc = DateTimeOffset.UtcNow,
+                        accepted, profileState = String(profileStatus, "connectionState"),
+                        bridgeConnected = Bool(profileStatus, "bridgeConnected"),
+                        authenticated = owner.BridgeHostState.AuthenticatedSessionCount,
+                        routes = owner.BridgeHostState.ConnectedRouteCount,
+                        listenerInstances = owner.BridgeHostState.ServerInstanceCount,
+                        listenerFailedConnects = owner.BridgeHostState.FailedConnectCount,
+                        listenerLastConnectDisposition = owner.BridgeHostState.LastConnectInitialDisposition,
+                        listenerLastConnectError = owner.BridgeHostState.LastConnectInitialError,
+                        listenerRejectedHandshakes = owner.BridgeHostState.RejectedHandshakeCount,
+                        handshakeError = owner.BridgeHostState.LastHandshakeError,
+                        adapterState
+                    });
+                    if (accepted || DateTimeOffset.UtcNow >= hostDeadline) break;
+                    await Task.Delay(750, overall.Token);
+                }
+                while (true);
                 Record("authenticated-host-observation", new
                 {
                     profile, instance, ownedPid, ownedStartUtc,
-                    profileStatus, accepted,
+                    profileStatus, accepted, hostTrace,
                     owner.BridgeHostState.AuthenticatedSessionCount,
                     owner.BridgeHostState.ConnectedRouteCount,
                     owner.BridgeHostState.RejectedHandshakeCount,
