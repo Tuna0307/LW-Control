@@ -48,11 +48,37 @@ namespace LWBridge.GamePipe
             catch { return "unavailable\n"; }
         }
 
+        // Test-owned, opt-in receipts. Never include token, hello payload or secrets.
+        // The real game-side adapter writes these under the explicitly isolated
+        // LWBRIDGE_REBUILD_DATA_ROOT. Fail closed on unavailable diagnostics.
+        private static void TraceStage(string stage, string? detail = null)
+        {
+            if (Environment.GetEnvironmentVariable("LWBRIDGE_PIPE_DIAGNOSTIC") != "1")
+                return;
+            try
+            {
+                string? configured = Environment.GetEnvironmentVariable("LWBRIDGE_REBUILD_DATA_ROOT");
+                string? session = Environment.GetEnvironmentVariable("LWBRIDGE_INSTANCE_ID");
+                if (string.IsNullOrWhiteSpace(configured) || string.IsNullOrWhiteSpace(session) ||
+                    !Path.GetFullPath(configured).StartsWith(Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) +
+                        Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    return;
+                string directory = Path.Combine(configured, "overview-bridge");
+                Directory.CreateDirectory(directory);
+                File.AppendAllText(Path.Combine(directory, "pipe-native-receipts.txt"),
+                    DateTime.UtcNow.ToString("O") + "|pid=" + Process.GetCurrentProcess().Id +
+                    "|session=" + session + "|stage=" + stage +
+                    (string.IsNullOrEmpty(detail) ? "" : "|detail=" + detail) +
+                    Environment.NewLine, new UTF8Encoding(false));
+            }
+            catch { /* diagnostics must not perturb production connectivity */ }
+        }
         private static void BeginConnect(
             string pipePath,
             string helloJson,
             string runtimeDir)
         {
+            TraceStage("begin_connect_entry", "runtimeDirMatches=" + string.Equals(runtimeDir, Path.Combine(Environment.GetEnvironmentVariable("LWBRIDGE_REBUILD_DATA_ROOT") ?? "", "overview-bridge"), StringComparison.OrdinalIgnoreCase));
             lock (Gate)
             {
                 CloseLocked();
@@ -79,13 +105,16 @@ namespace LWBridge.GamePipe
                 outboundSequence = 0;
                 running = true;
                 WriteState("connecting");
+                TraceStage("native_startup", "stateFileExists=" + File.Exists(Path.Combine(runtimeDirectory, "pipe-adapter-state.txt")));
                 var worker = new Thread(
                     () => ConnectAndRun(pipePath, helloJson))
                 {
                     IsBackground = true,
                     Name = "LWBridgeGamePipeWorker",
                 };
+                TraceStage("worker_created");
                 worker.Start();
+                TraceStage("worker_start_called");
             }
         }
 
@@ -95,10 +124,12 @@ namespace LWBridge.GamePipe
         {
             SafeFileHandle? handle = null;
             FileStream? opened = null;
+            TraceStage("worker_entry");
             try
             {
                 if (!WaitNamedPipeW(pipePath, 3000))
                     throw NativeError("WaitNamedPipeW");
+                TraceStage("wait_named_pipe_success");
                 handle = CreateFileW(
                     pipePath,
                     GenericRead | GenericWrite,
@@ -110,6 +141,7 @@ namespace LWBridge.GamePipe
                 if (handle.IsInvalid)
                     throw NativeError("CreateFileW");
 
+                TraceStage("native_pipe_opened");
                 opened = new FileStream(
                     handle,
                     FileAccess.ReadWrite,
@@ -117,6 +149,7 @@ namespace LWBridge.GamePipe
                     false);
                 handle = null;
                 WriteFrame(opened, helloJson);
+                TraceStage("hello_frame_written");
                 lock (Gate)
                 {
                     if (!running)
@@ -125,6 +158,7 @@ namespace LWBridge.GamePipe
                     opened = null;
                 }
                 WriteState("connected");
+                TraceStage("worker_connected");
 
                 while (running)
                 {
@@ -166,6 +200,7 @@ namespace LWBridge.GamePipe
             }
             catch (Exception error)
             {
+                TraceStage("worker_exception", error.GetType().Name + ":" + (error is Win32Exception win ? win.NativeErrorCode.ToString() : "non-win32"));
                 if (running)
                     WriteState("error:" + FormatError(error));
             }

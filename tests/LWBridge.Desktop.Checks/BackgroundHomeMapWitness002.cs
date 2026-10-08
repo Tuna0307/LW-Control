@@ -184,6 +184,7 @@ internal static class BackgroundHomeMapWitness002
                 return;
             }
 
+            Environment.SetEnvironmentVariable("LWBRIDGE_PIPE_DIAGNOSTIC", "1");
             using var overall = new CancellationTokenSource(TimeSpan.FromMinutes(7));
             try
             {
@@ -217,6 +218,13 @@ internal static class BackgroundHomeMapWitness002
                     string adapterStatePath = Path.Combine(paths.OverviewRuntimeRoot, "pipe-adapter-state.txt");
                     string? adapterState = File.Exists(adapterStatePath)
                         ? File.ReadAllText(adapterStatePath).Trim() : null;
+                    string luaReceiptFile = Path.Combine(paths.OverviewRuntimeRoot, "pipe-invocation-receipt.json");
+                    JsonElement? luaReceipt = File.Exists(luaReceiptFile)
+                        ? J(JsonDocument.Parse(File.ReadAllText(luaReceiptFile)).RootElement.Clone())
+                        : null;
+                    string nativeReceiptFile = Path.Combine(paths.OverviewRuntimeRoot, "pipe-native-receipts.txt");
+                    string[] nativeReceipts = File.Exists(nativeReceiptFile)
+                        ? File.ReadAllLines(nativeReceiptFile).TakeLast(25).ToArray() : [];
                     hostTrace.Add(new
                     {
                         atUtc = DateTimeOffset.UtcNow,
@@ -230,7 +238,7 @@ internal static class BackgroundHomeMapWitness002
                         listenerLastConnectError = owner.BridgeHostState.LastConnectInitialError,
                         listenerRejectedHandshakes = owner.BridgeHostState.RejectedHandshakeCount,
                         handshakeError = owner.BridgeHostState.LastHandshakeError,
-                        adapterState
+                        adapterState, luaReceipt, nativeReceipts
                     });
                     if (accepted || DateTimeOffset.UtcNow >= hostDeadline) break;
                     await Task.Delay(750, overall.Token);
@@ -250,6 +258,34 @@ internal static class BackgroundHomeMapWitness002
                 {
                     report["terminal"] = "BLOCKED_NO_CORRELATED_HOST_ACK";
                     return;
+                }
+                // Genuine production host -> game Lua command/result route;
+                // heartbeat and map file results are separate witnesses.
+                try
+                {
+                    long sentAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    JsonElement? reply = await owner.BridgeHostState.CallLuaAsync(
+                        instance!, "getStatus", empty, timestamp: sentAt,
+                        createdAt: sentAt, cancellationToken: overall.Token,
+                        resultTimeout: TimeSpan.FromSeconds(3),
+                        timeoutMessage: "isolated pilot getStatus result did not return");
+                    Record("production-authenticated-getStatus-rpc", new
+                    {
+                        instance, ownedPid, sentAt, completedAtUtc = DateTimeOffset.UtcNow,
+                        resultWasNull = reply is null,
+                        resultKind = reply?.ValueKind.ToString(),
+                        owner.BridgeHostState.ConnectedRouteCount,
+                        owner.BridgeHostState.PendingCallCount
+                    });
+                }
+                catch (Exception rpcError)
+                {
+                    Record("production-getStatus-rpc-failed", new
+                    {
+                        instance, ownedPid, errorType = rpcError.GetType().Name,
+                        code = (rpcError as BridgeCommandException)?.Code,
+                        rpcError.Message, owner.BridgeHostState.PendingCallCount
+                    });
                 }
                 object? observedMap = await owner.Map317.InvokeAsync("map_scan_status", empty, overall.Token);
                 JsonElement context = J(observedMap);
@@ -309,7 +345,7 @@ internal static class BackgroundHomeMapWitness002
                     Record("sqlite-reopened-actual-run", report["reopenedPersistence"]);
                 }
                 report["resourceExport"] = "NOT_AVAILABLE: production Map317 exporter is City-only; no Resource export or UI claim";
-                report["terminal"] = "RESOURCE_REQUEST_OBSERVED";
+                report["terminal"] = "RESOURCE_REQUEST_OBSERVED_PUBLICATION_STATUS_REQUIRES_DURABLE_RUN_INSPECTION";
             }
             catch (Exception ex)
             {

@@ -321,6 +321,22 @@ local function refresh_pipe_adapter_state()
     end
 end
 
+-- Explicit isolated pilot observability only; no hello payload, token or key.
+local function pipe_invocation_receipt(stage, control, route, actual_type)
+    if os.getenv("LWBRIDGE_PIPE_DIAGNOSTIC") ~= "1" then return end
+    write_json(root .. [[\pipe-invocation-receipt.json]], {
+        stage = stage, sessionId = control and control.sessionId or nil,
+        profileId = control and control.profileId or nil,
+        gamePid = control and control.gamePid or nil,
+        timestamp = (tonumber(os.time()) or 0) * 1000,
+        route = route, delegateValueType = actual_type,
+        adapterLoaded = pipe_runtime.adapterLoaded == true,
+        adapterReadMode = pipe_runtime.adapterReadMode,
+        rootFromIsolatedEnvironment =
+            type(os.getenv("LWBRIDGE_REBUILD_DATA_ROOT")) == "string" and
+            os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") ~= "",
+    })
+end
 local function ensure_pipe_hello(control)
     if pipe_runtime.adapterActive and pipe_runtime.sessionId == control.sessionId then
         return true, nil
@@ -378,25 +394,16 @@ local function ensure_pipe_hello(control)
         },
     })
     local connect = pipe_runtime.adapterConnect
+    -- CURRENT-CLIENT FIX: xLua returns the Action field as callable userdata.
+    -- MethodInfo.Invoke returned without entering the native adapter in a
+    -- real game; call the delegate once, and do not retry on void/nil results.
+    local invocation_route = "delegate_direct_once"
+    pipe_invocation_receipt("before", control, invocation_route, type(connect))
     local ok_connect, connect_error = pcall(function()
-        if type(connect) == "function" then
-            return connect(control.controlPipePath, hello, root)
-        end
-        local invoke = pipe_runtime.adapterConnectInvoke
-        if invoke == nil then error("pipe_adapter_connect_invoke_method_unavailable") end
-        local cs = rawget(_G, "CS")
-        local typeof_fn = rawget(_G, "typeof")
-        local array_type = cs and cs.System and cs.System.Array or nil
-        local object_type = cs and cs.System and cs.System.Object or nil
-        if array_type == nil or object_type == nil or type(typeof_fn) ~= "function" then
-            error("pipe_adapter_connect_reflection_types_unavailable")
-        end
-        local arguments = array_type.CreateInstance(typeof_fn(object_type), 3)
-        arguments:SetValue(control.controlPipePath, 0)
-        arguments:SetValue(hello, 1)
-        arguments:SetValue(root, 2)
-        return invoke:Invoke(connect, arguments)
+        return connect(control.controlPipePath, hello, root)
     end)
+    pipe_invocation_receipt(ok_connect and "pcall_returned" or "pcall_failed", control,
+        invocation_route, type(connect))
     if not ok_connect then
         pipe_runtime.state = "error"
         pipe_runtime.error =
