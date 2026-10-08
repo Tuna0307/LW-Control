@@ -1,5 +1,11 @@
 # Current live-test handoff — strict parity phase
 
+## Current 2026-10-08 background-only checkpoint
+
+Home/Map pilot remains PARTIAL. Follow `docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md`: no desktop capture, input or focus control. The solo `LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001` diagnosis attributes the archived zero-block cancelled Resource run to a time before attempt-5 game launch, and separates game heartbeat readiness from authenticated pipe handshake. See its work item and `evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/background-continuation-001/diagnosis.md`. No production fault or fresh same-session Resource proof is established. Foreground-dependent canonical Manual Resource/Stop/reopen proof awaits owner resumption. Original Lua plaintext remains input-blocked after an explicit supplied-artifact recheck; the encrypted package alone is insufficient.
+
+---
+
 **Current through:** `LWB-R8-097`, 2026-09-27.
 
 Live testing is no longer driven by the old “close remaining Home/Map acceptance rows” matrix. The primary task is now original-reference recovery and parity implementation.

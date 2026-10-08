@@ -1,0 +1,45 @@
+﻿{
+  "attempt5GamePid": 66036,
+  "evidenceClass": "archived-static-only",
+  "firstUnprovenBoundary": "same-session authenticated hello.ack -> connected RPC -> Resource provider capture/publish",
+  "gameHeartbeatReady": true,
+  "heartbeatUtc": "2026-10-07T16:04:51+00:00",
+  "launchUtc": "2026-10-07T15:56:08.347000+00:00",
+  "pipeHelloAckProvenForSession": false,
+  "pipeLimitation": "No timestamped, session-correlated host hello.ack or authenticated RPC result in the seven saved captures",
+  "pipeSnapshotClientConnected": false,
+  "pipeSnapshotReportsConnected": false,
+  "pipeSnapshotState": "hello_sent",
+  "readyUtc": "2026-10-07T15:56:18+00:00",
+  "resourceRowsBeforeScan": 0,
+  "resourceRunCancelledBeforeAttempt5": true,
+  "resourceRunZeroCompletedBlocks": true,
+  "runs": [
+    {
+      "completedBlocks": 0,
+      "createdAtUtc": "2026-10-07T14:35:53.075000+00:00",
+      "failedBlocks": 0,
+      "predatesAttempt5Game": true,
+      "scanRunId": "c04110e9cef44453bd79b3f61276c8a6",
+      "selectedTypes": [
+        "resource"
+      ],
+      "status": "cancelled",
+      "temporallyEligibleForAttempt5": false,
+      "updatedAtUtc": "2026-10-07T14:38:10.362000+00:00"
+    },
+    {
+      "completedBlocks": 2500,
+      "createdAtUtc": "2026-10-07T14:32:49.279000+00:00",
+      "failedBlocks": 0,
+      "predatesAttempt5Game": true,
+      "scanRunId": "efe454e8a9ea4b0aa09e027dd625e273",
+      "selectedTypes": [
+        "city"
+      ],
+      "status": "completed",
+      "temporallyEligibleForAttempt5": false,
+      "updatedAtUtc": "2026-10-07T14:34:41.140000+00:00"
+    }
+  ]
+}
