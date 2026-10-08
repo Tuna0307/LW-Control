@@ -51,6 +51,38 @@ def fake_close_process(*args, **kwargs):
     return subprocess.CompletedProcess(args=args, returncode=0, stdout="", stderr="")
 
 
+class FakeProcessApi:
+    """Inert Win32 process table used by the original-contract Stop path (HOME 009 A)."""
+
+    def __init__(self, pid: int, image: str, *, present: bool = True) -> None:
+        self.pid = pid
+        self.image = image
+        self.present = present
+        self.terminated = 0
+        self.sleeps: list[int] = []
+
+    def snapshot_pid_exists(self, pid: int) -> bool:
+        return self.present and pid == self.pid
+
+    def image_path(self, pid: int):
+        return self.image if self.present and pid == self.pid else None
+
+    def open_terminate(self, pid: int):
+        return object() if self.present and pid == self.pid else None
+
+    def terminate(self, handle, exit_code: int) -> bool:
+        assert exit_code == 1
+        self.terminated += 1
+        self.present = False
+        return True
+
+    def close_handle(self, handle) -> None:
+        return None
+
+    def sleep_ms(self, ms: int) -> None:
+        self.sleeps.append(ms)
+
+
 def run_exact_live_case() -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix="lwbridge-ovl-stop-exact-") as td:
         _, runtime, backup, game, paths = fixture_root(td)
@@ -64,17 +96,22 @@ def run_exact_live_case() -> dict[str, object]:
             return []
         def clear_recovery(p, state):
             (runtime / "recovery.json").unlink(missing_ok=True)
+        api = FakeProcessApi(PID, str(game))
         with patch.object(ov, "overview_paths", return_value=paths), \
              patch.object(ov.lr, "selected_game_processes", side_effect=selected), \
              patch.object(ov.lr, "restore_backup", return_value={"restored": True, "packageSha256": "original"}) as restore, \
              patch.object(ov.lr, "clear_recovery", side_effect=clear_recovery), \
              patch.object(ov.lr, "update_recovery_stage", side_effect=lambda p, state, value: state.__setitem__("stage", value)), \
-             patch.object(ov.lr.subprocess, "run", side_effect=fake_close_process) as close_process:
+             patch.object(ov.lr, "process_api", return_value=api), \
+             patch.object(ov.lr, "stop_sleep_milliseconds", side_effect=api.sleep_ms), \
+             patch.object(ov.lr.subprocess, "run", side_effect=AssertionError("Stop must not use a graceful PowerShell closer")) as close_process:
             result = ov.run_stop(PROFILE, SESSION, PID, str(game), None, OLD_STARTED)
             assert result["ok"] is True
             assert result["gameStartedAtUtc"] == OLD_STARTED
             assert result["close"]["startedAtUtc"] == OLD_STARTED
-            assert restore.call_count == 1 and close_process.call_count == 1
+            assert result["close"]["method"] == "TerminateProcess" and result["close"]["accepted"] is True
+            assert api.terminated == 1 and api.sleeps == []
+            assert restore.call_count == 1 and close_process.call_count == 0
             return result
 
 
@@ -84,15 +121,19 @@ def run_already_exited_case(stage="active_ready_deferred_restore") -> dict[str, 
         write_state(runtime, game, backup, stage=stage)
         def clear_recovery(p, state):
             (runtime / "recovery.json").unlink(missing_ok=True)
+        api = FakeProcessApi(PID, str(game), present=False)
         with patch.object(ov, "overview_paths", return_value=paths), \
              patch.object(ov.lr, "selected_game_processes", return_value=[]), \
              patch.object(ov.lr, "restore_backup", return_value={"restored": True, "packageSha256": "original"}) as restore, \
              patch.object(ov.lr, "clear_recovery", side_effect=clear_recovery), \
              patch.object(ov.lr, "update_recovery_stage", side_effect=lambda p, state, value: state.__setitem__("stage", value)), \
+             patch.object(ov.lr, "process_api", return_value=api), \
+             patch.object(ov.lr, "stop_sleep_milliseconds", side_effect=api.sleep_ms), \
              patch.object(ov.lr.subprocess, "run", side_effect=AssertionError("must not touch a process")) as close_process:
             result = ov.run_stop(PROFILE, SESSION, PID, str(game), None, OLD_STARTED)
             assert result["alreadyExited"] is True
             assert result["close"]["alreadyExited"] is True
+            assert api.terminated == 0
             assert restore.call_count == 1 and close_process.call_count == 0
             return result
 
@@ -111,6 +152,7 @@ def expect_rejected(selected_values, *, journal_started=OLD_STARTED,
              patch.object(ov.lr, "restore_backup") as restore, \
              patch.object(ov.lr, "clear_recovery") as clear_recovery, \
              patch.object(ov.lr, "update_recovery_stage", side_effect=lambda p, state, value: state.__setitem__("stage", value)), \
+             patch.object(ov.lr, "process_api", side_effect=AssertionError("destructive termination must not run")), \
              patch.object(ov.lr.subprocess, "run", side_effect=AssertionError("destructive close must not run")) as close_process:
             try:
                 ov.run_stop(PROFILE, SESSION, PID, str(game), None, requested_started)
@@ -233,7 +275,7 @@ def main() -> int:
                     expected_text="journal gameStartedAtUtc is missing or invalid")
     expect_rejected([None], expected_text="current game startedAtUtc is missing or invalid")
     expect_rejected([OLD_STARTED, NEW_STARTED],
-                    expected_text="creation identity changed before normal close")
+                    expected_text="creation identity changed before termination")
     reject_foreign_session()
     run_maintenance_log_case()
     run_restore_only_preflight_case()

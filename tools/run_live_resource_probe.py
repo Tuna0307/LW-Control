@@ -383,6 +383,10 @@ def close_owned_game_process_for_restore(
     operational recovery. It revalidates the selected installation path and
     PID immediately before the close, waits a bounded ten seconds for normal
     exit, and has no force-kill fallback.
+
+    HOME 009 NOTE: the product Stop path no longer uses this graceful closer; the
+    original 0.3.17 Stop terminates the PID (see terminate_owned_game_process_for_stop).
+    This function remains for the research live-resource probe only.
     """
     pid = owned_game.get("pid")
     process_path = owned_game.get("path")
@@ -453,6 +457,202 @@ def close_owned_game_process_for_restore(
         "waitMilliseconds": wait_milliseconds,
         "accepted": True,
         "processExited": True,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Original-contract Stop path (Home 009 checkpoint A).
+#
+# EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783):
+#   0x19a094 -> 0x41e543 -> 0x41d84b   terminate by PID after an image-path check:
+#       QueryFullProcessImageNameW (OpenProcess 0x1000); different image => no action;
+#       unreadable image while the PID exists => PROCESS_QUERY_FAILED;
+#       OpenProcess(PROCESS_TERMINATE=1) + TerminateProcess(handle, 1);
+#       open/terminate failure is an error only if the PID still exists afterwards.
+#   0x19a0de -> 0xe5725                wait loop: at most 100 image-path checks (0x41e3cf),
+#       100 ms timer between checks, the cap is tested before the next check, and
+#       "The game did not close in time." when all 100 checks still see the game.
+# The PID-reuse (creation time), single-process and restoration gates in run_stop are
+# retained technical adaptations and are NOT part of the original contract.
+# ---------------------------------------------------------------------------
+STOP_MAX_CHECKS = 100
+STOP_POLL_MILLISECONDS = 100
+STOP_TIMEOUT_TEXT = "The game did not close in time."
+
+
+class Win32ProcessApi:
+    """Windows process primitives used by the original Stop path (0x4197d8, 0x4198e5, 0x41d84b)."""
+
+    def __init__(self) -> None:
+        import ctypes
+        from ctypes import wintypes
+
+        self._ctypes = ctypes
+        self._wintypes = wintypes
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        k32.OpenProcess.restype = wintypes.HANDLE
+        k32.QueryFullProcessImageNameW.argtypes = [
+            wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR, ctypes.POINTER(wintypes.DWORD)]
+        k32.QueryFullProcessImageNameW.restype = wintypes.BOOL
+        k32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+        k32.TerminateProcess.restype = wintypes.BOOL
+        k32.CloseHandle.argtypes = [wintypes.HANDLE]
+        k32.CloseHandle.restype = wintypes.BOOL
+        k32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+        k32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+
+        class PROCESSENTRY32W(ctypes.Structure):
+            _fields_ = [
+                ("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD),
+                ("th32ProcessID", wintypes.DWORD), ("th32DefaultHeapID", ctypes.c_size_t),
+                ("th32ModuleID", wintypes.DWORD), ("cntThreads", wintypes.DWORD),
+                ("th32ParentProcessID", wintypes.DWORD), ("pcPriClassBase", wintypes.LONG),
+                ("dwFlags", wintypes.DWORD), ("szExeFile", wintypes.WCHAR * 260),
+            ]
+
+        k32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.POINTER(PROCESSENTRY32W)]
+        k32.Process32FirstW.restype = wintypes.BOOL
+        k32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.POINTER(PROCESSENTRY32W)]
+        k32.Process32NextW.restype = wintypes.BOOL
+        self._k32 = k32
+        self._entry = PROCESSENTRY32W
+
+    def snapshot_pid_exists(self, pid: int) -> bool:
+        ctypes = self._ctypes
+        snapshot = self._k32.CreateToolhelp32Snapshot(0x2, 0)
+        if snapshot is None or snapshot == ctypes.c_void_p(-1).value:
+            raise LiveResourceError("snapshot processes failed")
+        try:
+            entry = self._entry()
+            entry.dwSize = ctypes.sizeof(entry)
+            ok = self._k32.Process32FirstW(snapshot, ctypes.byref(entry))
+            while ok:
+                if entry.th32ProcessID == pid:
+                    return True
+                ok = self._k32.Process32NextW(snapshot, ctypes.byref(entry))
+            return False
+        finally:
+            self._k32.CloseHandle(snapshot)
+
+    def image_path(self, pid: int) -> str | None:
+        handle = self._k32.OpenProcess(0x1000, False, pid)
+        if not handle:
+            return None
+        try:
+            ctypes, wintypes = self._ctypes, self._wintypes
+            size = wintypes.DWORD(0x8000)
+            buffer = ctypes.create_unicode_buffer(0x8000)
+            if not self._k32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+                return None
+            return buffer.value[:size.value]
+        finally:
+            self._k32.CloseHandle(handle)
+
+    def open_terminate(self, pid: int):
+        handle = self._k32.OpenProcess(0x1, False, pid)
+        return handle if handle else None
+
+    def terminate(self, handle, exit_code: int) -> bool:
+        return bool(self._k32.TerminateProcess(handle, exit_code))
+
+    def close_handle(self, handle) -> None:
+        self._k32.CloseHandle(handle)
+
+
+def process_api() -> Win32ProcessApi:
+    return Win32ProcessApi()
+
+
+def stop_sleep_milliseconds(milliseconds: int) -> None:
+    time.sleep(milliseconds / 1000.0)
+
+
+def _stop_ascii_ci_equal(left: str, right: str) -> bool:
+    a, b = left.encode("utf-8"), right.encode("utf-8")
+    if len(a) != len(b):
+        return False
+    return all((x | 0x20 if 0x41 <= x <= 0x5A else x) == (y | 0x20 if 0x41 <= y <= 0x5A else y)
+               for x, y in zip(a, b))
+
+
+def _terminate_by_original_contract(api, pid: int, expected_path: str) -> bool:
+    """0x41d84b: True=terminated, False=nothing to do; failures fail closed."""
+    if not api.snapshot_pid_exists(pid):
+        return False
+    actual = api.image_path(pid)
+    if actual is None:
+        if not api.snapshot_pid_exists(pid):
+            return False
+        raise LiveResourceError("PROCESS_QUERY_FAILED: Unable to verify the target process path.")
+    if not _stop_ascii_ci_equal(actual, expected_path):
+        return False
+    handle = api.open_terminate(pid)
+    if handle is None:
+        if not api.snapshot_pid_exists(pid):
+            return False
+        raise LiveResourceError(f"open target process failed for pid {pid}")
+    ok = api.terminate(handle, 1)
+    api.close_handle(handle)
+    if not ok:
+        if not api.snapshot_pid_exists(pid):
+            return False
+        raise LiveResourceError(f"terminate target process failed for pid {pid}")
+    return True
+
+
+def terminate_owned_game_process_for_stop(
+    p: dict[str, Path],
+    owned_game: dict[str, object],
+) -> dict[str, object]:
+    """Terminate the helper-owned LastWar PID as the 0.3.17 Stop path does, then wait for exit.
+
+    Technical identity gate (retained adaptation): when the selected-installation inventory
+    shows a LastWar process it must be exactly the owned PID/path/creation incarnation.
+    """
+    pid = owned_game.get("pid")
+    process_path = owned_game.get("path")
+    started_at_utc = require_process_started_at(owned_game.get("startedAtUtc"), "helper-owned game startedAtUtc")
+    if not isinstance(pid, int) or pid <= 0 or not isinstance(process_path, str):
+        raise LiveResourceError("helper-owned LastWar identity is incomplete; refusing termination")
+    expected_path = os.path.abspath(process_path)
+    if _normalized_process_path(process_path) != _normalized_process_path(p["game"]):
+        raise LiveResourceError("helper-owned LastWar path no longer matches the selected installation")
+
+    selected = selected_game_processes(p)
+    if selected:
+        if len(selected) != 1 or selected[0].get("pid") != pid:
+            raise LiveResourceError("selected LastWar process identity changed before termination")
+        if _normalized_process_path(str(selected[0].get("path", ""))) != _normalized_process_path(p["game"]):
+            raise LiveResourceError("selected LastWar path changed before termination")
+        current_started_at = require_process_started_at(selected[0].get("startedAtUtc"), "selected game startedAtUtc")
+        if current_started_at != started_at_utc:
+            raise LiveResourceError("selected LastWar process creation identity changed before termination")
+
+    api = process_api()
+    terminated = _terminate_by_original_contract(api, pid, expected_path)
+
+    checks = 0
+    while True:
+        if checks >= STOP_MAX_CHECKS:
+            raise LiveResourceError(STOP_TIMEOUT_TEXT)
+        checks += 1
+        image = api.image_path(pid)
+        if image is None or not _stop_ascii_ci_equal(image, expected_path):
+            break
+        stop_sleep_milliseconds(STOP_POLL_MILLISECONDS)
+
+    return {
+        "method": "TerminateProcess" if terminated else "already_exited",
+        "pid": pid,
+        "path": expected_path,
+        "startedAtUtc": started_at_utc,
+        "pollIntervalMilliseconds": STOP_POLL_MILLISECONDS,
+        "maxChecks": STOP_MAX_CHECKS,
+        "checks": checks,
+        "accepted": terminated,
+        "processExited": True,
+        "alreadyExited": not terminated,
     }
 
 

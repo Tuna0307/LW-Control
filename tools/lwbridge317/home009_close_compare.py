@@ -153,7 +153,10 @@ def main() -> int:
             game = Path(td) / "Game" / "LastWar.exe"
             expected = run_oracle(spec, game)
         actual = run_production(spec)
-        compare_keys = ("kind", "error", "terminated", "terminateCalls", "elapsedMs")
+        # An error carries no `terminated` value in production (an exception, not a result record),
+        # so that key is compared only for successful outcomes. terminateCalls/elapsedMs always.
+        compare_keys = ("kind", "error", "terminateCalls", "elapsedMs") + (
+            ("terminated",) if expected["kind"] == "ok" else ())
         same = all(expected[k] == actual.get(k) for k in compare_keys)
         rows.append({"scenario": spec["name"], "oracle": expected, "production": actual, "equal": same})
         if not same:

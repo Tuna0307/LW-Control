@@ -1104,18 +1104,14 @@ def run_stop(
             if requested_started_at != expected_started_at or current_started_at != expected_started_at:
                 raise OverviewBridgeError("selected LastWar process creation identity changed before Overview Close")
             lr.update_recovery_stage(p, state, "closing_owned_game_for_restore")
-            close = lr.close_owned_game_process_for_restore(p, {"pid": game_pid, "path": supplied, "startedAtUtc": expected_started_at})
-            already_exited = False
+            owned_started_at = expected_started_at
         else:
-            close = {
-                "method": "already_exited",
-                "pid": game_pid,
-                "path": supplied,
-                "accepted": False,
-                "processExited": True,
-                "alreadyExited": True,
-            }
-            already_exited = True
+            owned_started_at = recorded_started_at if isinstance(recorded_started_at, str) and recorded_started_at else "unavailable"
+        # HOME 009 A: the original Stop terminates the PID (path-verified TerminateProcess) and polls
+        # for its exit (100 checks, 100 ms). The same exact-PID probe also runs when the inventory
+        # shows no process, so an unreadable-image or already-gone PID is classified as the original does.
+        close = lr.terminate_owned_game_process_for_stop(p, {"pid": game_pid, "path": supplied, "startedAtUtc": owned_started_at})
+        already_exited = bool(close.get("alreadyExited"))
 
         lr.update_recovery_stage(p, state, "restoring_after_owned_game_exit")
         restored = lr.restore_backup(p, Path(backup_path))
