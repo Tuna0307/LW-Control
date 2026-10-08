@@ -91,4 +91,3 @@ Historical R7 PASS statuses are preserved in their evidence files but are not cu
 - Reconcile: original selects enabled profiles (`display_order, created_at, id`) with `restartRequired` regardless of, or no reason only if, the payload `autoLaunchAll`; there is no native persisted launch preference (the earlier `[cfg+0x140]` gate reading was wrong). The clone's native `AutoLaunchGame` AND-gate is a non-original safety fence.
 - Recovery: late completion of an old terminate can no longer clean a newer session or act after Close.
 - Details: evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/ and docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-WORKER.md.
-
