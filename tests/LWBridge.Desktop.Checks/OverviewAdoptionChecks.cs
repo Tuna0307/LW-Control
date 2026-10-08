@@ -46,6 +46,18 @@ internal static class OverviewAdoptionChecks
             Check(!System.Text.Encoding.UTF8.GetString(encoded).Contains(Token,
                 StringComparison.Ordinal), "plaintext pipe token leaked in journal");
             passed.Add("dpapi-roundtrip-token-not-plaintext");
+            // Production WebView IPC uses Web camelCase, unlike default
+            // JsonSerializer.SerializeToElement used by native test snapshots.
+            // Original 0x2055db projects the FIRST code member as a string,
+            // and App.jsx reads result.errors[].profileId/error/message.
+            JsonElement wireError = JsonSerializer.SerializeToElement(
+                new OverviewStartupError(Profile, "RECOVERY_RECORD_INVALID",
+                    "A separate human-readable detail"), JsonOptions.Default);
+            Check(wireError.GetProperty("profileId").GetString() == Profile &&
+                wireError.GetProperty("error").GetString() == "RECOVERY_RECORD_INVALID" &&
+                wireError.GetProperty("message").GetString() == "A separate human-readable detail",
+                "production WebView error projected message instead of code or used PascalCase");
+            passed.Add("original-first-code-string-through-production-webview-casing");
             var original = JsonDocument.Parse(encoded).RootElement;
             string serialized = System.Text.Encoding.UTF8.GetString(encoded);
             Check(!OverviewAdoptionRecord.TryDeserialize(System.Text.Encoding.UTF8.GetBytes(
@@ -172,6 +184,7 @@ internal static class OverviewAdoptionChecks
                     scenario + " did not fail closed without touching a process");
                 passed.Add(scenario + "-fails-closed");
             }
+            await TestProfileAbaAndCancelledAdoptionAsync(root, gameRoot, game, record, encoded, passed);
             await TestDeferredAdoptionReadinessAsync(root, gameRoot, game, record, encoded, passed);
             await TestExplicitStopAndOutdatedRepairAsync(root, gameRoot, game, record, encoded, passed);
             return JsonSerializer.SerializeToElement(new
@@ -184,6 +197,136 @@ internal static class OverviewAdoptionChecks
         {
             if (Directory.Exists(root)) Directory.Delete(root, true);
         }
+    }
+
+    private static async Task TestProfileAbaAndCancelledAdoptionAsync(
+        string root, string gameRoot, string game, OverviewAdoptionSnapshot source,
+        byte[] encoded, List<string> passed)
+    {
+        string folder = Path.Combine(root, "profile-aba");
+        string runtime = Path.Combine(folder, "runtime");
+        string backup = Path.Combine(folder, "backup");
+        Directory.CreateDirectory(runtime);
+        Directory.CreateDirectory(backup);
+        WriteRepair(runtime, backup, source);
+        WriteHeartbeat(runtime, source);
+        string recordPath = Path.Combine(runtime, OverviewAdoptionRecord.FileName);
+        File.WriteAllBytes(recordPath, encoded);
+        int helperCount = 0;
+        OverviewLifecycleTestHooks Hooks() => new()
+        {
+            ProcessMatches = (pid, path, created) =>
+                pid == GamePid && path.Equals(game, StringComparison.OrdinalIgnoreCase) &&
+                created == StartedAt,
+            ReadAllBytes = File.ReadAllBytes,
+            RunHelperAsync = (_, _) =>
+            {
+                helperCount++;
+                throw new InvalidOperationException("Profile replacement must not touch game");
+            },
+        };
+
+        // The exact same running game belongs to A. A switch to B must not
+        // consume A's protected journal; returning to A must adopt without
+        // a new process. The source multi-profile lease rule is NOT inferred.
+        using (var hostA = new RegistryHolder())
+        using (var lifecycleA = Create(Profile, gameRoot, runtime, backup, folder,
+            hostA.Host, Hooks()))
+        {
+            JsonElement first = JsonSerializer.SerializeToElement(
+                await lifecycleA.InvokeAsync("profile_instances_reconcile",
+                    JsonSerializer.SerializeToElement(new { autoLaunchAll = false }),
+                    CancellationToken.None));
+            Check(first.GetProperty("errors").GetArrayLength() == 0 &&
+                lifecycleA.IsReady, "first A did not adopt game");
+            JsonElement duplicate = JsonSerializer.SerializeToElement(
+                await lifecycleA.InvokeAsync("profile_instances_reconcile",
+                    JsonSerializer.SerializeToElement(new { autoLaunchAll = true }),
+                    CancellationToken.None));
+            Check(duplicate.GetProperty("errors").GetArrayLength() == 0 &&
+                lifecycleA.IsReady && helperCount == 0,
+                "consumed reconcile launched game twice");
+            passed.Add("same-host-reconcile-consumed-exactly-once");
+        }
+        using (var hostB = new RegistryHolder())
+        using (var lifecycleB = Create("secondary", gameRoot, runtime, backup, folder,
+            hostB.Host, Hooks()))
+        {
+            JsonElement answer = JsonSerializer.SerializeToElement(
+                await lifecycleB.InvokeAsync("profile_instances_reconcile",
+                    JsonSerializer.SerializeToElement(new { autoLaunchAll = false }),
+                    CancellationToken.None));
+            Check(answer.GetProperty("errors").GetArrayLength() <= 1 &&
+                !lifecycleB.RuntimeManaged && helperCount == 0 &&
+                File.ReadAllBytes(recordPath).SequenceEqual(encoded),
+                "B claimed or damaged A's retained protected journal");
+        }
+        using (var returnHost = new RegistryHolder())
+        using (var lifecycleA = Create(Profile, gameRoot, runtime, backup, folder,
+            returnHost.Host, Hooks()))
+        {
+            JsonElement returned = JsonSerializer.SerializeToElement(
+                await lifecycleA.InvokeAsync("profile_instances_reconcile",
+                    JsonSerializer.SerializeToElement(new { autoLaunchAll = false }),
+                    CancellationToken.None));
+            Check(returned.GetProperty("errors").GetArrayLength() == 0 &&
+                lifecycleA.IsReady && helperCount == 0,
+                "A was lost after an unrelated B selection");
+        }
+        passed.Add("same-process-profile-A-B-A-retains-A-journal");
+
+        // A completed command-independent Close while adoption is parked must
+        // retire only the new host lease; it must never call a helper, terminate
+        // the game, delete the exact prior journal, or publish stale success.
+        string cancelFolder = Path.Combine(root, "close-while-adopting");
+        string cancelRuntime = Path.Combine(cancelFolder, "runtime");
+        string cancelBackup = Path.Combine(cancelFolder, "backup");
+        Directory.CreateDirectory(cancelRuntime);
+        Directory.CreateDirectory(cancelBackup);
+        WriteRepair(cancelRuntime, cancelBackup, source);
+        WriteHeartbeat(cancelRuntime, source);
+        string cancelRecord = Path.Combine(cancelRuntime, OverviewAdoptionRecord.FileName);
+        File.WriteAllBytes(cancelRecord, encoded);
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            ProcessMatches = (pid, path, created) =>
+                pid == GamePid && created == StartedAt &&
+                path.Equals(game, StringComparison.OrdinalIgnoreCase),
+            ReadAllBytes = path => path.EndsWith("heartbeat.json", StringComparison.Ordinal)
+                ? System.Text.Encoding.UTF8.GetBytes("{\"schemaVersion\":1}")
+                : File.ReadAllBytes(path),
+            DelayAsync = (_, token) =>
+            {
+                token.ThrowIfCancellationRequested();
+                entered.TrySetResult();
+                return release.Task;
+            },
+            RunHelperAsync = (_, _) =>
+            {
+                helperCount++;
+                throw new InvalidOperationException("Game must not be touched");
+            },
+        };
+        using var holder = new RegistryHolder();
+        using var lifecycle = Create(Profile, gameRoot, cancelRuntime, cancelBackup,
+            cancelFolder, holder.Host, hooks);
+        Task<object?> pending = lifecycle.InvokeAsync("profile_instances_reconcile",
+            JsonSerializer.SerializeToElement(new { autoLaunchAll = false }),
+            CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(3));
+        lifecycle.Close();
+        release.TrySetResult();
+        JsonElement result = JsonSerializer.SerializeToElement(await pending);
+        JsonElement errors = result.GetProperty("errors");
+        Check(errors.GetArrayLength() == 1 &&
+            errors[0].GetProperty("Error").GetString() == "GAME_OPERATION_CANCELLED" &&
+            !lifecycle.RuntimeManaged && helperCount == 0 &&
+            File.ReadAllBytes(cancelRecord).SequenceEqual(encoded) &&
+            holder.Registry.PendingCount == 0,
+            "closed owner published stale adoption or removed retained game journal");
+        passed.Add("closed-owner-held-adoption-no-late-ready-or-kill");
     }
 
     private static async Task TestDeferredAdoptionReadinessAsync(

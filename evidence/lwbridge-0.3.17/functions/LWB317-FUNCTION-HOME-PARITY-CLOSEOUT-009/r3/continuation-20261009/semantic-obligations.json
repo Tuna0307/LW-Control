@@ -1,0 +1,106 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3/continuation-20261009",
+  "delivery": "PARTIAL",
+  "fullOriginalHomeParity": false,
+  "baseCommit": "b51124bf48d9d5d2d6199262c341a74c7a3288d9",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "extraRealGameLaunches": 0,
+  "gameProcessesTerminated": 0,
+  "protectedServicesUsed": false,
+  "checkpoints": [
+    {
+      "id": "LEAD009R2-01",
+      "state": "FIXED_IN_EARLIER_R3",
+      "proof": "r3/refresh-error-before.json + refresh-error-after-built.json + handoff-probe-ownership.json"
+    },
+    {
+      "id": "LEAD009R2-02-LAUNCH-ERROR",
+      "state": "CODE_STRING_SOURCE_RESOLVED",
+      "original": [
+        "0x205412",
+        "0x2055d0",
+        "0x2055db",
+        "0x31eeb2",
+        "0x2a1a47"
+      ],
+      "proof": "finalizer-original-contract.json",
+      "current": "OverviewStartupError.Error=Code and Web camelCase + actual App translated generic fallback"
+    },
+    {
+      "id": "LEAD009R2-02-FINALIZER",
+      "state": "LOCAL_STATE_AND_DROP_BRANCHES_BYTE_PROVED_EXTERNAL_RESULTS_UNPROVEN",
+      "original": [
+        "0x1ddde3 state+0xe8",
+        "0x83df8c five states",
+        "0x1de6f0 inner state+0x85",
+        "0x83dfa0 inner five states",
+        "0x1dfee6/0x1e0bbd/0x1e0c27 conditional destructors",
+        "0x1de5c8 record cleanup",
+        "0x1de474 local duration arithmetic"
+      ],
+      "proof": "finalizer-original-contract.json",
+      "remaining": [
+        "protected lease release response/error precedence",
+        "complete async future service-state semantics",
+        "original runtime dynamic witness"
+      ]
+    },
+    {
+      "id": "LEAD009R2-03",
+      "state": "SAME_BUILD_CURRENT_CLIENT_LIVE_PREVIOUSLY_PROVED_PLUS_NEW_OWNERSHIP_INERT",
+      "proof": "adoption-inert.json 19/19",
+      "newCases": [
+        "wire first-code camelCase",
+        "reconcile consumed once",
+        "primary A->secondary B->primary A without stealing journal",
+        "host Close during pending heartbeat preserves game/journal"
+      ]
+    },
+    {
+      "id": "D-CURRENT-LAUNCHER",
+      "state": "SOURCE_TRIGGER_MAPPED_CURRENT_CLIENT_EVENT_UNPROVED",
+      "remaining": "genuine source-equivalent OFFICIAL_LAUNCHER_RESTARTED observable current producer"
+    },
+    {
+      "id": "E-R3-REPLAY",
+      "state": "PASS",
+      "cases": 38,
+      "normalizedRecoveryCases": 230,
+      "mountedAppInheritedCases": 20,
+      "proof": "replay/final-checks.json"
+    },
+    {
+      "id": "F-MOUNTED-HOME",
+      "state": "PASS_BOUNDED_HEADLESS_NOT_LIVE_ORIGINAL",
+      "cases": 6,
+      "locales": [
+        "en/light",
+        "ja/dark"
+      ],
+      "flows": [
+        "current-profile error code becomes localized generic fallback",
+        "other-profile error cannot leak",
+        "success no error"
+      ],
+      "proof": "mounted-home-reconcile.json",
+      "extraGameLaunches": 0
+    },
+    {
+      "id": "LIVE-POSTFIX",
+      "state": "PREVIOUS_R3_CURRENT_CLIENT_POSTFIX_VERIFIED_NOT_REPEATED",
+      "proof": "r3/live-postfix-closeout.json",
+      "remaining": [
+        "repeated transient failure and race live witnesses",
+        "original A-to-A dynamic",
+        "separate JA/dark desktop visual"
+      ]
+    }
+  ],
+  "finalBlockers": [
+    "original protected auth/lease effects not authorized for simulation",
+    "current launcher self-restart event producer unobserved",
+    "original multi-profile lease entitlement/runtime not reproduced",
+    "original finalizer full async/protected response semantics incomplete",
+    "additional current-client desktop negative/cancellation transitions"
+  ]
+}

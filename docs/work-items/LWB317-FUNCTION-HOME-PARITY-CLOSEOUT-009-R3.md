@@ -1,5 +1,7 @@
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3
 
+**2026-10-09 worker continuation: PARTIAL, further source and current-client test proof delivered.** Source-proven launch error first-code string and local finalizer dispatch/drop paths; new 19/19 adoption ownership regressions, 6/6 EN/light and JA/dark actual-App error cases, and fresh 38/38 integration suite. The previous bounded real Home same-game authenticated restart and exact Stop remains valid. Protected original lease response/finalizer and licensed runtime A→A, current launcher self-restart event and further desktop failure edges remain unproved; no original parity or independent lead acceptance declared. See dated R3 CONTINUATION review and r3/continuation-20261009 evidence. The original assignment below remains the governing scope.
+
 Status: **READY — project-lead continuation**, 2026-10-08.
 Latest owner resumption: **BOUNDED LIVE HOME / DESKTOP VERIFICATION AUTHORIZED**.
 Read `docs/owner-directions/2026-10-08-HOME009-R3-DESKTOP-RESUMED.md`; it supersedes

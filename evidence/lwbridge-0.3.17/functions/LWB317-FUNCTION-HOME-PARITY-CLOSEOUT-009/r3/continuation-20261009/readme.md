@@ -1,0 +1,32 @@
+# HOME009-R3 further continuation — source closure and adoption ownership
+
+**Worker status: PARTIAL.** This is a new checkpoint, not a rewrite of the pushed `b51124bf` R3 worker packet or an original-runtime A→A assertion. Branch `research/offline-controller`, immutable `reference/lwbridge-0.3.17.exe` SHA-256 `4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783`.
+
+## Original local finalizer (static; source-checked)
+
+`tools/lwbridge317/home009_r4_finalizer_contract.py` SHA-gates the original PE and asserts machine instructions and dispatch table bytes:
+
+- `0x1DDDE3` loads the finalizer's state byte at frame `+0xE8`; the five observed table destinations are `0:0x1DDE2F`, `1:0x1DE6E2`, `2:0x1DE6EE`, `3:0x1DE07B`, `4:0x1DDF43` (literal jump table `0x83DF8C`). These are state **entries**, not proven HTTP statuses or individual successes.
+- The separately awaited inner future `0x1DE6F0` dispatches on frame `+0x85` through five byte-asserted states (`0→0x1DE72B`, `1→0x1DF79B`, `2→0x1DF7C9`, `3→0x1DE8BF`, `4→0x1DE85D`; jump table `0x83DFA0`). Its directly called helpers `0x1DFEE6`, `0x1E0BBD`, `0x1E0C27` have concrete drop/heap-free/variant cleanup paths; they do **not** by themselves evidence new service calls or successful authorization. The body of the inner future still includes locally available async branches and its external-service results remain semantically unproved.
+- State-4 continuation checks inner substate `==3` at `0x1DDF5D–0x1DDF60`, resumes at `0x1DE342`; `0x1DE357` invokes `0x1DE6F0`, sentinel `0x8000000000000001` at `0x1DE35C` branches at `0x1DE369`, non-sentinel `0x1DE37D` invokes `0x1DFEE6`, `0x1DE3CF` invokes `0x1E0BBD`. `0x1DE626` invokes `0x1E0C27`. Calling convention/state frame assertions do not prove a protected lease-service response.
+- `0x1DE463` retrieves clock, `0x1DE468` loads literal 60, `0x1DE474` invokes duration arithmetic `0x5DC950`. Do not equate this local arithmetic automatically to an externally observed 60-second retry or auth timeout.
+- `0x1DE5C8` invokes per-instance record removal `0x2DD578`; after the result tag check at `0x1DE5CD–0x1DE5D2`, the conditional drop at `0x1DE5DC` invokes `0x1E16A0`; execution continues at `0x1DE5E1…0x1DE5ED` without using that cleanup result as an abort gate. This is a verified local cleanup/result-precedence fact. HTTP lease-release payload/response, protected authorization states, all side effects of helper futures and actual runtime timing remain unverified.
+
+## Original reconcile error value: **source-resolved as code string**
+
+The original `0x1D5009` launch body constructs an error at `0x1D542C → 0x2A1A47`. The constructor at `0x2A1ADE/1AE1/1AE5` stores the first input string at offsets `+0,+8,+0x10`, with the second at `+0x18,+0x20,+0x28` (`0x2A1AE9/1AED/1AF1`). In a known `STATE_UNAVAILABLE` constructor, code literal/length are supplied in `rdx/r8`, and message pointer/length separately in `r9/stack`. The reconcile caller `0x205412–0x20542A` copies the 80-byte launch-result Error into stack `+0x460`; error projection `0x2055D0→0x2055DB` calls `0x31EEB2`. Its string clone reads only the **first code** member at `[rdx+8]` and `[rdx+0x10]`, writes serde JSON string tag 3 at `0x31EEFF`, and puts it under key `error`; independent first projection at `0x20552D` handles `profileId`. Thus the original `{profileId,error}` launch error uses a **string error code**, not the second human-readable message or a serialized error object. This is source-backed local logic, not protected service execution.
+
+The current `OverviewStartupError.Error` uses `BridgeCommandException.Code`, `Message` separately; production WebView `JsonOptions.Default` emits lower-camel `profileId,error,message` for the canonical UI. A new native check protects the original first-code behavior. No product rewrite was justified by this recovered local branch.
+
+## Current-client profile/async tests, intentionally inert
+
+Extended `--overview-adoption-check` with: production lower-camel/code JSON, same-host consumed-once reconcile, exact running A→B→A (B cannot claim or alter A's journal), and host Close while the adoption heartbeat wait is held (no late `Connected`, no helper, no owner journal deletion). Separate cases still cover DPAPI tamper, exact token, outdated build, missing/invalid/mismatched repair, stale heartbeat timeout, explicit Stop. **19 controlled cases**, zero new real game launches or terminations, test root deleted. These do not establish original multi-profile entitlements.
+
+## Verification, cleanup and remaining
+
+- New byte-level script: `finalizer-original-contract.json` from SHA-gated original image, no execution.
+- New native test run: `adoption-inert.json` **19/19**, including code-first production wire casing, one-shot reconcile, A→B→A and Close during parked adoption; Release build `build-checks.txt` **zero warnings/errors**.
+- Fresh inherited integrated replay: `replay/final-checks.json` **38/38 exit 0**, including 230 normalized recovery comparisons, 20 mounted App headless cases, production frontend/build/current-client checks and Release publish. Separate actual-App headless error harness `src/LWBridge.UI-0.3.17/scripts/check-home009-r3-reconcile-errors.mjs` **6/6** (`mounted-home-reconcile.json`) proves EN/light and JA/dark: the selected-profile code maps to translated generic failure (unknown code), other-profile errors do not leak, and successful reconcile shows no false error; zero network/game actions.
+- Original late-finalizer protected lease HTTP response/error precedence and all user authorization outcomes: **UNPROVEN**, cannot be inferred from request string and callbacks. Current official launcher self-restart producer is still unobserved. Repeatable current-client live transient-failure/cancel/JA-dark desktop witnesses are not supplied by the inert tests; the prior bounded post-fix successful same-PID reconnection and exact restoration remain in immutable R3 evidence. Multi-profile original controlled entitlement/runtime comparison requires authorized original service inputs.
+
+No new live Last War session, auth bypass, package mutations, automation, gameplay or extraneous processes were needed for this continuation. Existing source and archived data remain intact.
