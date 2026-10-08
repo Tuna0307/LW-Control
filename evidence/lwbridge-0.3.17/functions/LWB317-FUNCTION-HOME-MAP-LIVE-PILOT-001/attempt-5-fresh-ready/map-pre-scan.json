@@ -1,0 +1,49 @@
+﻿{
+  "capturedAtEpochMs": 1791389091459,
+  "city": {
+    "count": 7000,
+    "maxUpdatedAt": 1791383679000
+  },
+  "resource": {
+    "count": 0,
+    "maxUpdatedAt": null
+  },
+  "scanRunsSchema": [
+    "id",
+    "server_id",
+    "selected_types",
+    "status",
+    "total_blocks",
+    "completed_blocks",
+    "failed_blocks",
+    "created_at",
+    "updated_at",
+    "error"
+  ],
+  "latestScanRuns": [
+    {
+      "id": "c04110e9cef44453bd79b3f61276c8a6",
+      "server_id": 2212,
+      "selected_types": "[\"resource\"]",
+      "status": "cancelled",
+      "total_blocks": 2500,
+      "completed_blocks": 0,
+      "failed_blocks": 0,
+      "created_at": 1791383753075,
+      "updated_at": 1791383890362,
+      "error": null
+    },
+    {
+      "id": "efe454e8a9ea4b0aa09e027dd625e273",
+      "server_id": 2212,
+      "selected_types": "[\"city\"]",
+      "status": "completed",
+      "total_blocks": 2500,
+      "completed_blocks": 2500,
+      "failed_blocks": 0,
+      "created_at": 1791383569279,
+      "updated_at": 1791383681140,
+      "error": null
+    }
+  ]
+}

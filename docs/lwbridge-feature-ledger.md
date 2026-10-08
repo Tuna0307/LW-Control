@@ -1,3 +1,14 @@
+Lead checkpoint, 2026-10-08: **LIVE-PILOT-001 PARTIAL / BACKGROUND ONLY**.
+Attempt-5 historical readiness/direct-reader evidence is preserved at product
+checkpoint b1f75a25. No fresh Resource result or complete pilot sequence is accepted.
+Lead restored the exact original game script triplet, cleared pending recovery and
+verified no LastWar/LWBridge processes; 5 ownership + 6 Lua lease tests and current
+v22 structural admission pass. Shared-desktop screenshots/input/focus are now
+restricted by the owner; background Last War remains permitted without interruption.
+Next solo medium task: LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001.
+See docs/reviews/2026-10-08-LWB317-LIVE-PILOT-CHECKPOINT-LEAD.md. Earlier continuation
+paragraphs below are historical where inconsistent. Home/Map remains PARTIAL.
+
 Lead audit/owner resumption, 2026-10-07: **ORIGINAL-LUA-RECOVERY-006 ACCEPTED for bounded offline delivery** at `dfc7b1dcad3b82842527d460cc07e7caa0d35c58`. All A-D checkpoints and final closeout are saved; no unfinished worker tree remains. Exact encrypted package/proxies were independently re-extracted; crypto/boundary inspectors, eight synthetic parser checks, 11 inherited Lua checks and current-client static admission pass. Original Treasure/Ghost bodies remain input-blocked by unavailable matching envelope/decryption inputs; no original-service/key bypass is authorized. **Owner explicitly resumed bounded live testing and desktop control. HOME-MAP-LIVE-PILOT-001 is reissued for owner relay**, first proving isolated real-provider normal-host roots, then owned Home connect, Manual current-server City/Resource acquisition, Stop/persist/reopen and close/restoration. Windows-MCP screenshot capability is freshly proven; no game/clone launched by this audit. Home/Map remains PARTIAL, accepted UIUX/fixes stand, and no LIVE_PROVEN status is upgraded. See the 006-LEAD review and pilot lead-preflight record. Older holds/statuses below are superseded only within this assigned pilot.
 
 Lead review/next assignment, 2026-10-07: **EXPIRY-CORRELATION-005 ACCEPTED for the assigned expiry correction and bounded offline/static recovery** at `8f6730ef5e46fc602c6331d21e25d206b2e95ca4`. Fresh packaged host/helper comparison passes six assigned cases and preserves four accepted rows; parser/validator plus 11 decoded/production-Lua cases pass. LR-GHOST-EXPIRY-005 is closed for numeric/missing expiry; numeric-string reader differences remain unaccepted dependencies. Managed correlation is partial static evidence, not a general token decoder or real Ghost response witness. Public Treasure/Ghost methods stay unavailable; Home/Map remains PARTIAL and live/shared-desktop work ON_HOLD_BY_OWNER. Next solo owner-relayed task: ORIGINAL-LUA-RECOVERY-006, exact original payload/loader/crypto and controller semantics; no product enablement. See the dated 005-LEAD review. Historical statuses below remain preserved.

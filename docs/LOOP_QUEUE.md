@@ -1,3 +1,5 @@
+Current owner direction, 2026-10-08: desktop capture/input/focus is restricted after the lead checkpoint. Last War launch/background operation remains permitted within the pilot; the owner will background its window. Read AGENTS.md and 2026-10-08-BACKGROUND-ONLY-PILOT.md. The October-7 control permission below is historical and superseded. Next ready solo relay: BACKGROUND-CONTINUATION-001.
+
 # Loop work queue
 
 Only the project lead should normally change what is authorized here.
@@ -23,7 +25,8 @@ USER_CONTROL are not reasons to close out ownership-blocked. See current AGENTS.
 | LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003 | CHANGES_REQUIRED | `docs/work-items/LWB317-FUNCTION-MAP-PROVIDER-SEMANTICS-003.md` | LR-GHOST-EXPIRY-005 reproduced through actual packaged helper; correction assigned separately; semantic toolchain/safety proof credited |
 | LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002 | AWAITING_REVIEW | `docs/work-items/LWB317-FUNCTION-HOME-MAP-DEEP-RECOVERY-002.md` | Worker delivery a7c4a03c; lead independently checked provenance/bytecode availability only; comprehensive A-H acceptance remains open |
 | LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001 | ACCEPTED OFFLINE | `docs/work-items/LWB317-FUNCTION-HOME-MAP-OFFLINE-HOST-CONTRACT-001.md` | Lead review of f970b614 with precise reader units/BOM erratum; real xLua/live witnesses remain UNKNOWN |
-| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | CONTINUE / OWNER SESSION HANDED OVER | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | A worker-delivered at 0ffb049c; preserve WIP, reconcile pending restoration, finish actual Home/City/Resource/Stop and cleanup; owner-started pilot sessions authorized |
+| LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001 | PARTIAL / BACKGROUND ONLY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.md` | Lead checkpoint 2026-10-08 restores originals and preserves attempt 5; desktop capture/input/focus restricted, full live sequence remains incomplete |
+| LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001 | READY / SOLO MANUAL RELAY | `docs/work-items/LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001.md` | Medium headless Resource/transport diagnosis; owner permits game launch/background provider work; UI-dependent witnesses pending |
 | LWB317-UI-COMPLETE-001 | READY | `docs/work-items/LWB317-UI-COMPLETE-001.md` | Owner manually dispatches a fresh worker chat; full shell/eight-page UI coverage with Home/Map first; milestone checkpoints, no fixed time stop; no new game/native lifecycle work |
 | LWB317-UI-CAMPAIGN-8H | ACCEPTED | `docs/LOOP_CAMPAIGN_8H.md` | Static UI recovery accepted; direct original post-auth pixel validation remains blocked by the original auth boundary |
 | LWB317-COMPAT-MAP-V22-001 | COMPLETE | `docs/reviews/2026-09-30-LWB317-COMPAT-MAP-V22-001.md` | Installed v22 Map compatibility statically revalidated; no production Map change required |

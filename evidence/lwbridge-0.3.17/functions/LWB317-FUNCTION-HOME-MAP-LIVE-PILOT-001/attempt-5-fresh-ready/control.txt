@@ -1,0 +1,8 @@
+schema=1
+bridgeVersion=lwbridge-overview-bridge-1
+profileId=lwb317-live-pilot-001
+sessionId=1ba5a00e5c8646dd81341f7beb736d24
+challenge=b75fdffacb0a5a0f60363f5214a4bab13ab3536dd878ad0206ab8ab1e4aa2cbb
+gamePid=66036
+controlPipePath=\\.\pipe\lwbridge-control-v1-d5eb15a8845a45f2
+pipeAdapterPath=C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\src\LWBridge.Desktop\bin\Release\net10.0-windows10.0.17763.0\OverviewBridge\LWBridge.GamePipeAdapter.dll

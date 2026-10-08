@@ -1,0 +1,55 @@
+You are the solo worker for LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001.
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller. Inspect current HEAD/status; never reset.
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, this work item, the parent
+LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001, docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md,
+and docs/reviews/2026-10-08-LWB317-LIVE-PILOT-CHECKPOINT-LEAD.md.
+
+The lead preserved the interrupted worker's seven attempt-5 evidence files and
+restored all three instrumented game files to verified originals using the existing
+production recovery helper. At the checkpoint no game/clone process or recovery
+journal remained. Reobserve identities before any runtime work; old PIDs are stale.
+
+Complete one medium task through two coherent checkpoints:
+1. Recover a timestamped trace of the cancelled Resource run (zero completed blocks)
+and attempt-5 pipe hello_sent/clientConnected=false versus connected heartbeat.
+Inspect actual production Python/Lua/native provider/request ownership, admission,
+timeout/cancellation, handshake and result publication. Determine which records
+belong to different runs/times; do not assume the apparent mismatch is a bug.
+Record exact source locators and the first genuinely unproven/failing boundary.
+2. For a demonstrated in-scope defect, build a distinguishing inverse case through
+actual production boundaries with isolated inert seams, correct it, and verify
+the accepted lease/Stop/profile fences. If no defect is proven, deliver a precise
+negative diagnosis and bounded executable readiness checks instead of guessed code.
+
+Current permission is BACKGROUND ONLY. No Windows-MCP or other shared-desktop
+screenshots/snapshots, mouse/keyboard, focus changes or foreground automation.
+Do not use Remote Desktop Commander to work around this. Headless commands/static
+inspection/inert tests are allowed. The owner explicitly permits opening Last War
+and will background its window. Use the existing production launch path after all
+pilot gates pass; do not take mouse/keyboard control or reactivate it afterward.
+Source-backed background provider diagnostics are allowed; preserve truthful
+distinction between headless native witnesses and canonical UI interaction proof.
+UI-dependent validation remains pending.
+Keep tools installed; do not disable takeover guards. No live Auto/claims/plunder,
+spending/cross-server/updater/protected-service access or unrelated functions.
+Before any allowed native operation retain isolation, exact backup/restoration,
+compatibility and current session/run identity gates. Do not mutate active scripts.
+
+Preserve historical negative attempts and attempt-5 bytes. Existing 7,000 City
+records and local export are older results, not fresh same-session acquisition.
+Resource positive live proof, canonical UI-driven Stop, and complete pilot sequence
+remain incomplete; inert checks must never be promoted to LIVE_PROVEN.
+The behavior target stays original LWBridge 0.3.17, reference SHA256
+4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783;
+current game adaptation must preserve A-to-A observable behavior. No fake success,
+guessed provider semantics or product fallback. Preserve accepted UIUX/R3 fixes.
+
+Work alone: no subagents, other AI chat delegation, GPT Work or Codex delegation.
+Write new evidence under the parent pilot evidence root/background-continuation-001/.
+Run relevant focused production/helper/Lua checks; if product code changes, run
+affected Release native/frontend/build/package checks. Review/stage only your owned
+changes, commit/push coherent checkpoints and verify direct origin SHA. Update
+work item/handoff with truthful proof limits. Return AWAITING_REVIEW with diagnosis,
+changes, exact tests, remaining live witnesses, cleanup and exact continuation.
+Do not wait for an arbitrary duration or broaden scope when the assignment ends.

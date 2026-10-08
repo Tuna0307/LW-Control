@@ -1,0 +1,16 @@
+﻿[
+    {
+        "ProcessId":  36092,
+        "ParentProcessId":  23388,
+        "Name":  "LWBridge.Desktop.exe",
+        "ExecutablePath":  "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\src\\LWBridge.Desktop\\bin\\Release\\net10.0-windows10.0.17763.0\\LWBridge.Desktop.exe",
+        "CreationDate":  "\/Date(1791388311015)\/"
+    },
+    {
+        "ProcessId":  66036,
+        "ParentProcessId":  30624,
+        "Name":  "LastWar.exe",
+        "ExecutablePath":  "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+        "CreationDate":  "\/Date(1791388568347)\/"
+    }
+]

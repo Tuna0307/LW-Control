@@ -1,5 +1,17 @@
 # AI work protocol
 
+Current owner direction, 2026-10-08: after the lead checkpoint, restrict all
+shared-desktop screenshots/snapshots, mouse/keyboard and focus/foreground control.
+The owner is using the computer. Windows-MCP stays installed; do not use another
+tool to bypass this restriction. Headless/static/inert work and verified nonintrusive
+background Last War operation within the existing pilot remain allowed. The
+owner explicitly permits game launch and will background its window; do not
+reactivate it afterward or use desktop input/capture to operate it. This
+supersedes the 2026-10-07 permission to take desktop control while the owner works;
+session handover and technical identity/isolation/backup/restoration gates remain.
+See docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md. UI-dependent tests
+remain pending until the owner resumes desktop interaction.
+
 This project is expected to use multiple AIs. The main project lead controls scope and integrates results.
 
 Latest owner clarification, 2026-10-07: pilot sessions are explicitly handed over

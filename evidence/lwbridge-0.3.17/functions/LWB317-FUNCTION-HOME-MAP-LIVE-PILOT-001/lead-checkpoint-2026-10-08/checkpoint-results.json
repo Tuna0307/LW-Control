@@ -1,0 +1,81 @@
+{
+  "capturedAtUtc": "2026-10-07T23:59:34.732123+00:00",
+  "sourceCheckpoint": "b1f75a25a8ede943fa0503265b0a946f90f68a20",
+  "purpose": "restoration and focused headless regression checkpoint; not full live-pilot acceptance",
+  "desktopCaptureOrInput": false,
+  "gameLaunchedByThisCheckpoint": false,
+  "files": {
+    "LWScripts.data": {
+      "expected": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "installed": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "backup": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22"
+    },
+    "LWScripts.txt": {
+      "expected": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "installed": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "backup": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a"
+    },
+    "version.txt": {
+      "expected": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "installed": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "backup": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  },
+  "backupManifest": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-LIVE-PILOT-001-root\\overview-bridge-backups\\20261007-155600-22c4860c742040e39664c2dc1486155d\\manifest.json",
+    "stage": "restored",
+    "updatedAtUtc": "2026-10-07T23:58:00Z",
+    "sha256": "c2351279bef1ad86106622f01f70719439b1fa135e287dafe6e5ff16dcbd5834"
+  },
+  "recoveryJournalExists": false,
+  "processInventory": {
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-Command",
+      "$items=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'LastWar|LWBridge' } | Select-Object ProcessId,Name,ExecutablePath,CreationDate); ConvertTo-Json -InputObject $items -Depth 4 -Compress"
+    ],
+    "exitCode": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  "checks": [
+    {
+      "command": [
+        "C:\\Users\\chimw\\.codex\\tmp\\lwb317-recovery003-lua\\Scripts\\python.exe",
+        "tests/home_runtime_file_ownership_checks.py"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.116s\n\nOK\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\chimw\\.codex\\tmp\\lwb317-recovery003-lua\\Scripts\\python.exe",
+        "tests/home_runtime_lease_lua_checks.py"
+      ],
+      "exitCode": 0,
+      "stdout": "lupa=2.8 lua=Lua 5.4\n",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.111s\n\nOK\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\chimw\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "tools/check_current_client_runtime_contract.py"
+      ],
+      "exitCode": 0,
+      "stdout": "{\n  \"binaryIdentityApproved\": true,\n  \"binaryIdentityProblems\": [],\n  \"compatibilityPolicy\": \"lwbridge-current-client-critical-anchors-3\",\n  \"criticalLuaAnchorsOk\": true,\n  \"internalLuaPackageOk\": true,\n  \"missingWorldGetBlockContracts\": [],\n  \"missingWorldPointManagerContracts\": [],\n  \"observed\": {\n    \"assemblyCSharpSha256\": \"bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e\",\n    \"contentVersion\": 22,\n    \"criticalEntries\": {\n      \"DataCenter/Global/LuaEntry.luac\": \"50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137\",\n      \"Global/ConstDefine.luac\": \"95e6c733b98dc641c330f36efdef044845033b37ea6703068f7c7ed5fb0048fd\",\n      \"UI/LWMainUI/Component/UIMainBottom/UIMainChangeScene.luac\": \"3843dc02869330f060a199b946ef3cd30aa335504914c2f4c60f8a824e871c5b\",\n      \"Util/CSharpCallLuaInterface.luac\": \"af1559723afba0fa5773bb815c486f3233fecb3928768abd082a96b51960229e\"\n    },\n    \"entryCount\": 18741,\n    \"fileVersion\": 3,\n    \"gameSha256\": \"905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d\",\n    \"luaEntrySha256\": \"50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137\",\n    \"metadata\": \"41320262|3283604722\",\n    \"packageCrc32\": 3283604722,\n    \"packageSha256\": \"248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22\",\n    \"packageSize\": 41320262,\n    \"version\": \"22\",\n    \"versionMarker\": 22,\n    \"versionMarkerMatchesContentVersion\": true,\n    \"xluaSha256\": \"d22d912f031c60f2649fdaf76d359d695511f7a37b93cd637b557f8346569d45\"\n  },\n  \"ok\": true,\n  \"purpose\": \"read-only structural evidence; not binary approval\",\n  \"worldGetBlockContractOk\": true,\n  \"worldPointManagerContractOk\": true\n}\n",
+      "stderr": ""
+    }
+  ],
+  "attempt5Files": {
+    "control.txt": "c95dd976322a9b8e8ac5240cc2d9ed2d6872f632fef9b7f5324722f23ccb0674",
+    "heartbeat.json": "faee65b86f75e0ddebadef9de8238a777fc0c5035be58b243a6830f420636b99",
+    "map-pre-scan.json": "73e11097e5d07cc3f3e04504508bfbbabbe117589641e01db5eef1da82d22c23",
+    "pipe-transport.json": "c8875379b4514a405b34261d6d8e0d33b5e614c0bc68f3dfb4af5330d389494c",
+    "processes.json": "85af54ff2adfe3dbc3843a860584cdec33d7f75cb9df643d8d34e58708cc90ee",
+    "ready.json": "daecd01a5b7ae8173268b624c3d0a5de6298c5fedfd809e1b91949a42b5f292d",
+    "recovery-active.json": "2f39d24729343fe6935982c923d341bc3b6d74246b809ba11d3b71c7d5c53452"
+  },
+  "ok": true
+}

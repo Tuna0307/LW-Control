@@ -6,3 +6,5 @@ evidence/lwbridge-0.3.17/ui/frontend-package/pe-resources/** binary
 src/LWBridge.Desktop/WebUi/assets/** -text
 src/LWBridge.Desktop/WebUi/index.html -text
 src/LWBridge.UI-0.3.17/src/reference.css -text
+# Preserve the interrupted pilot's original capture bytes without CRLF conversion.
+evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/attempt-5-fresh-ready/** binary

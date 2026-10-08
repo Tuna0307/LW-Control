@@ -1,3 +1,5 @@
+SUPERSEDED FOR DESKTOP CONTROL as of 2026-10-08. Read AGENTS.md and 2026-10-08-BACKGROUND-ONLY-PILOT.md first. Use LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001-PROMPT.txt now. This historical prompt does not authorize foreground interaction.
+
 You are the solo worker for LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001.
 
 Latest continuation: use LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001-CONTINUE-PROMPT.txt

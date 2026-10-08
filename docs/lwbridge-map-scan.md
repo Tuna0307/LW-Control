@@ -1,3 +1,14 @@
+Lead checkpoint, 2026-10-08: **LIVE-PILOT-001 PARTIAL / BACKGROUND ONLY**.
+Attempt-5 historical readiness/direct-reader evidence is preserved at product
+checkpoint b1f75a25. No fresh Resource result or complete pilot sequence is accepted.
+Lead restored the exact original game script triplet, cleared pending recovery and
+verified no LastWar/LWBridge processes; 5 ownership + 6 Lua lease tests and current
+v22 structural admission pass. Shared-desktop screenshots/input/focus are now
+restricted by the owner; background Last War remains permitted without interruption.
+Next solo medium task: LWB317-FUNCTION-HOME-MAP-BACKGROUND-CONTINUATION-001.
+See docs/reviews/2026-10-08-LWB317-LIVE-PILOT-CHECKPOINT-LEAD.md. Earlier continuation
+paragraphs below are historical where inconsistent. Home/Map remains PARTIAL.
+
 # LWBridge Map Scan recovery
 
 > **0.3.17 authority supersession (2026-09-30):** this long document is retained

@@ -1,6 +1,16 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
-Status: **RESUMED / ASSIGNED FOR MANUAL OWNER RELAY**, 2026-10-07.
+Status: **PARTIAL CHECKPOINT / BACKGROUND-ONLY CONTINUATION**, 2026-10-08.
+
+The lead preserved attempt-5 evidence at product checkpoint b1f75a25, restored
+all three original script files through the production recovery helper, and
+verified no pending recovery or game/clone process. Fresh ownership 5/5, Lua lease
+6/6 and v22 structural checks pass. Full live pilot acceptance remains incomplete.
+The owner now restricts desktop screenshots/input/focus while using the computer;
+background Last War remains allowed without interruption. This supersedes the
+foreground permissions in the historical continuation below. Read
+`docs/owner-directions/2026-10-08-BACKGROUND-ONLY-PILOT.md` and the lead checkpoint
+review. Next ready work: BACKGROUND-CONTINUATION-001, via manual relay.
 
 Latest continuation after worker delivery `0ffb049c6fae7a06881159b537dfe0d296fc743a`:
 the owner explicitly hands over pilot sessions even if the worker did not start
