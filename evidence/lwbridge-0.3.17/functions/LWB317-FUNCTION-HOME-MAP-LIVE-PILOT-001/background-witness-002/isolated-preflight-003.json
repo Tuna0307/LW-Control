@@ -1,0 +1,105 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+  "attemptId": "5a16aff038524b00a33d777b5e044e58",
+  "mode": "isolated-preflight",
+  "createdAtUtc": "2026-10-08T00:45:12.1174443+00:00",
+  "profileId": "lwb317-background-witness-002-5a16aff0",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-5a16aff038524b00a33d777b5e044e58",
+  "outputFile": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-witness-002\\isolated-preflight-003.json",
+  "productionMapProvider": "ProfileRuntimeOwner.Create mapProvider:null -\u003E Map317CommandService(lifecycle) -\u003E CurrentClientMap317ScanProvider",
+  "autoSchedulerStarted": false,
+  "uiInteraction": false,
+  "events": [
+    {
+      "atUtc": "2026-10-08T00:45:12.3906795+00:00",
+      "kind": "independent-exact-original-backup",
+      "details": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-5a16aff038524b00a33d777b5e044e58\\overview-bridge-backups\\preflight-originals-5a16aff038524b00a33d777b5e044e58",
+        "hashes": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:45:12.6387401+00:00",
+      "kind": "real-provider-composed",
+      "details": {
+        "profile": "lwb317-background-witness-002-5a16aff0",
+        "root": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-5a16aff038524b00a33d777b5e044e58",
+        "hostStarted": true,
+        "PendingRegistrationCount": 0,
+        "ConnectedRouteCount": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:45:12.6561329+00:00",
+      "kind": "stale-stop-rejected",
+      "details": {
+        "Code": "INSTANCE_NOT_OWNED"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:45:12.6804266+00:00",
+      "kind": "disconnected-resource-rejected",
+      "details": {
+        "Code": "GAME_CONNECTION_UNAVAILABLE",
+        "Message": "game connection unavailable"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:45:12.6817522+00:00",
+      "kind": "preflight-complete",
+      "details": null
+    },
+    {
+      "atUtc": "2026-10-08T00:45:12.8541765+00:00",
+      "kind": "final-restoration-inventory",
+      "details": {
+        "originalHashesRestored": true,
+        "ownedGameStopSucceeded": false,
+        "installedAfter": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        },
+        "activeProcesses": []
+      }
+    }
+  ],
+  "installedBefore": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "preflightOriginalBackup": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-5a16aff038524b00a33d777b5e044e58\\overview-bridge-backups\\preflight-originals-5a16aff038524b00a33d777b5e044e58",
+    "hashes": {
+      "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  },
+  "recoveryJournalBefore": false,
+  "priorProcesses": [],
+  "gameAdmission": {
+    "Valid": true,
+    "Path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "Error": null,
+    "GamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "XluaPath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+    "Is64Bit": true
+  },
+  "terminal": "PREFLIGHT_ONLY_NO_GAME",
+  "recoveryJournalAfter": false,
+  "installedAfter": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "originalHashesRestored": true,
+  "ownedGameStopSucceeded": false,
+  "resourceStopSucceeded": false,
+  "finishedAtUtc": "2026-10-08T00:45:12.8444898+00:00"
+}

@@ -1,0 +1,80 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+  "attemptId": "81618114ddbb4020aa8c05bcb516083f",
+  "mode": "isolated-preflight",
+  "createdAtUtc": "2026-10-08T00:44:07.2982656+00:00",
+  "profileId": "lwb317-background-witness-002-81618114",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-81618114ddbb4020aa8c05bcb516083f",
+  "outputFile": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-witness-002\\isolated-preflight-002.json",
+  "productionMapProvider": "ProfileRuntimeOwner.Create mapProvider:null -\u003E Map317CommandService(lifecycle) -\u003E CurrentClientMap317ScanProvider",
+  "autoSchedulerStarted": false,
+  "uiInteraction": false,
+  "events": [
+    {
+      "atUtc": "2026-10-08T00:44:07.6067385+00:00",
+      "kind": "independent-exact-original-backup",
+      "details": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-81618114ddbb4020aa8c05bcb516083f\\overview-bridge-backups\\preflight-originals-81618114ddbb4020aa8c05bcb516083f",
+        "hashes": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:44:07.6457695+00:00",
+      "kind": "preflight-or-composition-failed",
+      "details": {
+        "type": "InvalidDataException",
+        "code": null,
+        "Message": "BACKGROUND_WITNESS_002: isolated root must be fresh"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T00:44:07.7620202+00:00",
+      "kind": "final-restoration-inventory",
+      "details": {
+        "originalHashesRestored": true,
+        "ownedGameStopSucceeded": false,
+        "installedAfter": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        },
+        "activeProcesses": []
+      }
+    }
+  ],
+  "installedBefore": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "preflightOriginalBackup": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-81618114ddbb4020aa8c05bcb516083f\\overview-bridge-backups\\preflight-originals-81618114ddbb4020aa8c05bcb516083f",
+    "hashes": {
+      "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  },
+  "recoveryJournalBefore": false,
+  "priorProcesses": [],
+  "failure": {
+    "type": "InvalidDataException",
+    "code": null,
+    "Message": "BACKGROUND_WITNESS_002: isolated root must be fresh"
+  },
+  "terminal": "PREFLIGHT_OR_COMPOSITION_FAILED",
+  "recoveryJournalAfter": false,
+  "installedAfter": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "originalHashesRestored": true,
+  "ownedGameStopSucceeded": false,
+  "resourceStopSucceeded": false,
+  "finishedAtUtc": "2026-10-08T00:44:07.7517322+00:00"
+}

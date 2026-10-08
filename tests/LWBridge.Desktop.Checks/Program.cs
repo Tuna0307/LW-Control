@@ -2,6 +2,22 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+if (args.Contains("--background-witness-002-self-test", StringComparer.OrdinalIgnoreCase))
+{
+    LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunInverseChecks();
+    return 0;
+}
+int backgroundWitness002Index = Array.FindIndex(args,
+    value => string.Equals(value, "--background-witness-002", StringComparison.OrdinalIgnoreCase));
+if (backgroundWitness002Index >= 0)
+{
+    if (backgroundWitness002Index + 1 >= args.Length)
+        throw new ArgumentException("--background-witness-002 requires an output JSON path");
+    await LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunAsync(
+        Path.GetFullPath(args[backgroundWitness002Index + 1]),
+        args.Contains("--launch", StringComparer.OrdinalIgnoreCase));
+    return 0;
+}
 int resourceRuntimeInspectionProofIndex = Array.FindIndex(
     args,
     value => string.Equals(value, "--live-map-v22-resource-runtime-inspection-proof", StringComparison.OrdinalIgnoreCase));

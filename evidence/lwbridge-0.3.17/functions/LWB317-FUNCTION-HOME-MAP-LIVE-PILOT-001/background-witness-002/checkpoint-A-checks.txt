@@ -1,0 +1,6 @@
+startedUtc=2026-10-08T08:45:46.0746734+08:00 commit=876ba787
+overview-bridge-host-transport-check exit=0 ok=True durationSeconds=10.6
+overview-bridge-lifecycle-launch-binding-check exit=0 ok=True durationSeconds=11.5
+overview-bridge-rpc-session-transport-check exit=0 ok=True durationSeconds=23.2
+overview-bridge-call-registry-check exit=0 ok=True durationSeconds=28.7
+production-root-isolation-check exit=0 ok=True durationSeconds=29.9
