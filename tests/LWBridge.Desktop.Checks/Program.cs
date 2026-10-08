@@ -596,6 +596,13 @@ if (args.Contains("--overview-bridge-launch-binding-check", StringComparer.Ordin
     return 0;
 }
 
+if (args.Contains("--overview-adoption-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.OverviewAdoptionChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-bridge-lifecycle-launch-binding-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewBridgeLifecycleLaunchBindingChecks.RunAsync();

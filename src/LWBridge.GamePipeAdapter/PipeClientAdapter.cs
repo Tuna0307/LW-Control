@@ -24,6 +24,9 @@ namespace LWBridge.GamePipe
         private static readonly object Gate = new object();
         private static Stream? stream;
         private static volatile bool running;
+        // Every Connect supersedes the prior worker. A retired worker must not
+        // close/relabel the replacement stream or make its worker stop.
+        private static volatile int connectionGeneration;
         private static string runtimeDirectory = string.Empty;
         private static string instanceId = string.Empty;
         private static int inboundSequence;
@@ -82,6 +85,7 @@ namespace LWBridge.GamePipe
             lock (Gate)
             {
                 CloseLocked();
+                int workerGeneration = ++connectionGeneration;
                 runtimeDirectory = runtimeDir ?? string.Empty;
                 if (string.IsNullOrWhiteSpace(pipePath) ||
                     string.IsNullOrEmpty(helloJson) ||
@@ -107,7 +111,7 @@ namespace LWBridge.GamePipe
                 WriteState("connecting");
                 TraceStage("native_startup", "stateFileExists=" + File.Exists(Path.Combine(runtimeDirectory, "pipe-adapter-state.txt")));
                 var worker = new Thread(
-                    () => ConnectAndRun(pipePath, helloJson))
+                    () => ConnectAndRun(pipePath, helloJson, workerGeneration))
                 {
                     IsBackground = true,
                     Name = "LWBridgeGamePipeWorker",
@@ -118,15 +122,29 @@ namespace LWBridge.GamePipe
             }
         }
 
+        private static bool CurrentWorker(int generation) =>
+            running && connectionGeneration == generation;
+
+        private static void WriteStateForWorker(int generation, string value)
+        {
+            lock (Gate)
+            {
+                if (CurrentWorker(generation)) WriteState(value);
+            }
+        }
+
         private static void ConnectAndRun(
             string pipePath,
-            string helloJson)
+            string helloJson,
+            int generation)
         {
             SafeFileHandle? handle = null;
             FileStream? opened = null;
+            bool hadError = false;
             TraceStage("worker_entry");
             try
             {
+                if (!CurrentWorker(generation)) return;
                 if (!WaitNamedPipeW(pipePath, 3000))
                     throw NativeError("WaitNamedPipeW");
                 TraceStage("wait_named_pipe_success");
@@ -148,23 +166,25 @@ namespace LWBridge.GamePipe
                     4096,
                     false);
                 handle = null;
+                if (!CurrentWorker(generation)) return;
                 WriteFrame(opened, helloJson);
                 TraceStage("hello_frame_written");
                 lock (Gate)
                 {
-                    if (!running)
+                    if (!CurrentWorker(generation))
                         return;
                     stream = opened;
                     opened = null;
+                    WriteState("connected");
                 }
-                WriteState("connected");
                 TraceStage("worker_connected");
 
-                while (running)
+                while (CurrentWorker(generation))
                 {
                     if (!LeaseIsFresh())
                     {
-                        WriteState("error:host_lease_stale");
+                        hadError = true;
+                        WriteStateForWorker(generation, "error:host_lease_stale");
                         return;
                     }
 
@@ -201,16 +221,20 @@ namespace LWBridge.GamePipe
             catch (Exception error)
             {
                 TraceStage("worker_exception", error.GetType().Name + ":" + (error is Win32Exception win ? win.NativeErrorCode.ToString() : "non-win32"));
-                if (running)
-                    WriteState("error:" + FormatError(error));
+                hadError = true;
+                WriteStateForWorker(generation, "error:" + FormatError(error));
             }
             finally
             {
-                running = false;
                 lock (Gate)
                 {
-                    try { stream?.Dispose(); } catch { }
-                    stream = null;
+                    if (connectionGeneration == generation)
+                    {
+                        running = false;
+                        try { stream?.Dispose(); } catch { }
+                        stream = null;
+                        if (!hadError) WriteState("closed");
+                    }
                 }
                 try { opened?.Dispose(); } catch { }
                 try { handle?.Dispose(); } catch { }

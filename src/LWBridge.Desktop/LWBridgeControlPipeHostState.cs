@@ -52,6 +52,9 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         !string.IsNullOrWhiteSpace(instanceId) &&
         registry.Resolve(instanceId) is not null;
 
+    internal long? GetPendingExpiration(string instanceId) =>
+        registry.GetPendingExpiration(instanceId);
+
     internal int ServerInstanceCount
     {
         get { lock (gate) return acceptLoop?.ServerInstancesCreated ?? 0; }
@@ -386,6 +389,24 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 buildId,
                 expiresAt,
                 environment);
+        }
+    }
+
+    // HOME009 R3 C: re-create ONLY an exact original token from a current-user
+    // protected prior successful launch. Do not mint a new identity for a live game.
+    internal void RestoreLaunchBinding(
+        OverviewAdoptionSnapshot record, long nowMilliseconds)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        if (record.BuildId != OverviewLifecycleService.BridgeVersion ||
+            nowMilliseconds < 0)
+            throw new BridgeCommandException("PIPE_REGISTRATION_INVALID",
+                "The retained launch binding is not compatible with this host.");
+        lock (gate)
+        {
+            ThrowIfStopped();
+            registry.Register(record.ProfileId, record.InstanceId, record.PipeToken,
+                checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds));
         }
     }
 

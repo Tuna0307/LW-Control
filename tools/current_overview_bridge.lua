@@ -246,6 +246,8 @@ local function close_pipe_runtime()
     pipe_runtime.state = "idle"
     pipe_runtime.error = nil
     pipe_runtime.retryAt = 0
+    pipe_runtime.reconnectAttempts = 0
+    pipe_runtime.authenticatedOnceForSession = false
 end
 
 local function load_pipe_adapter(path)
@@ -339,7 +341,31 @@ local function pipe_invocation_receipt(stage, control, route, actual_type)
 end
 local function ensure_pipe_hello(control)
     if pipe_runtime.adapterActive and pipe_runtime.sessionId == control.sessionId then
-        return true, nil
+        -- After host restart the old pipe worker may have exited (PeekNamedPipe
+        -- failed/lease expired) even though Lua's last delegate invocation
+        -- returned normally. Retry ONLY the transport with the same environment
+        -- identity and token; never rebind after an authentication error.
+        local state_error = pipe_runtime.error or ""
+        local transport_lost = pipe_runtime.state == "closed" or
+            state_error == "host_lease_stale" or
+            string.find(state_error, "PeekNamedPipe", 1, true) ~= nil or
+            string.find(state_error, "WaitNamedPipeW", 1, true) ~= nil or
+            string.find(state_error, "CreateFileW", 1, true) ~= nil or
+            string.find(state_error, "EndOfStreamException", 1, true) ~= nil
+        if not transport_lost then return true, nil end
+        local initial_host_unavailable =
+            string.find(state_error, "WaitNamedPipeW", 1, true) ~= nil
+        if not pipe_runtime.authenticatedOnceForSession and not initial_host_unavailable then
+            return false, "unauthenticated_transport_failure"
+        end
+        if (pipe_runtime.reconnectAttempts or 0) >= 90 then
+            return false, "pipe_reconnect_attempt_limit"
+        end
+        pipe_runtime.reconnectAttempts = (pipe_runtime.reconnectAttempts or 0) + 1
+        pipe_runtime.adapterActive = false
+        pipe_runtime.clientConnected = false
+        pipe_runtime.retryAt = runtime_clock() + 1.0
+        return false, "pipe_reconnect_wait"
     end
     if pipe_runtime.adapterActive then close_pipe_runtime() end
     local now_clock = runtime_clock()
@@ -3456,6 +3482,8 @@ local function process_pipe_inbound(control)
             end
             pipe_runtime.state = "connected"
             pipe_runtime.clientConnected = true
+            pipe_runtime.authenticatedOnceForSession = true
+            pipe_runtime.reconnectAttempts = 0
         elseif message_type == "command" then
             local payload_id = pipe_json_string(text, "id")
             local kind = pipe_json_string(text, "kind")

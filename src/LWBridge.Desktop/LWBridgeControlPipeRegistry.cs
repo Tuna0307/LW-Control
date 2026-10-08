@@ -90,6 +90,13 @@ internal sealed class LWBridgeControlPipeRegistry
         }
     }
 
+    internal long? GetPendingExpiration(string instanceId)
+    {
+        lock (gate)
+            return pending.TryGetValue(instanceId, out PendingRegistration? value)
+                ? value.ExpiresAtMilliseconds : null;
+    }
+
     public bool IsPending(string instanceId)
     {
         lock (gate) return pending.ContainsKey(instanceId);

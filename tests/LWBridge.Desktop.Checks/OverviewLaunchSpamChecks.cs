@@ -83,7 +83,11 @@ internal static class OverviewLaunchSpamChecks
             testHooks: hooks,
             startRecoveryMonitor: false,
             bridgeHostState: bridgeHost,
-            enableBridgeControlPipeLaunchBinding: true);
+            enableBridgeControlPipeLaunchBinding: true,
+            runtimeRoot: Path.Combine(root, "overview-bridge"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"),
+            applicationDataRoot: root);
         JsonElement empty = JsonSerializer.SerializeToElement(new { });
 
         Task<object?> primaryStart = lifecycle.InvokeAsync("profile_instance_start", empty, CancellationToken.None);

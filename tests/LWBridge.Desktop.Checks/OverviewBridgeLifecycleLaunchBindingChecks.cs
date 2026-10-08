@@ -11,7 +11,7 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
     {
         string root = Path.Combine(
             Path.GetTempPath(),
-            "lwbridge-overview-r7-118-launch-binding");
+            "lwbridge-overview-r7-118-launch-binding-" + Guid.NewGuid().ToString("N"));
         string gamePath = Path.Combine(root, "Game", "LastWar.exe");
         const string Profile = "profile-r7-118";
         const int GamePid = 48123;
@@ -82,8 +82,9 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                     Check(binding.ExpiresAtMilliseconds == 91_000,
                         "initial binding deadline is monotonic clock 1000 + 90000");
                     Volatile.Write(ref clock, 5_000);
-                    throw new InvalidOperationException(
-                        "official_lua_update_failed: synthetic R7-118 retry");
+                    throw new BridgeCommandException(
+                        "OFFICIAL_LAUNCHER_RESTARTED",
+                        "Synthetic original first-attempt retry class; not a current-client producer.");
                 }
 
                 Check(firstBinding is not null &&
@@ -165,8 +166,8 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
               session == activeSession &&
               started.GetProperty("pid").GetInt32() == GamePid,
             "actual lifecycle publishes successful running state after refreshed retry");
-        Check(startCalls == 2 && settleCalls >= 2,
-            "official-update retry reruns settle/helper exactly through lifecycle retry path");
+        Check(startCalls == 2 && settleCalls == 1,
+            "only the source-backed launcher-restarted retry performs exactly two attempts; no unrelated settle retry");
         Check(host.ConnectedRouteCount == 1 &&
               ReferenceEquals(registry.Resolve(session)?.Route, admittedRoute) &&
               registry.Resolve(session)?.Generation == admittedGeneration,

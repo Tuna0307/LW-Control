@@ -476,14 +476,24 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             // The profile's native AutoLaunchGame value is a mirror and no longer participates in admission.
             shouldAttempt = autoLaunchAll;
             startupReconcileErrors = Array.Empty<OverviewStartupError>();
-            if (!shouldAttempt || phase is "starting" or "running" || gamePid is not null)
+            if (phase is "starting" or "running" || gamePid is not null)
                 return new { errors = startupReconcileErrors };
         }
 
-        // A correlated interrupted Overview session is intentionally left running for
-        // the recovered repair/update-and-restart path. Startup auto-launch must not
-        // reclassify that exact owned journal as a generic unmanaged-game error.
-        if (TryGetRepairSnapshot(out _))
+        // Restoration/adoption precedes fresh-game autoLaunchAll admission.
+        // The same-build game survives host restart, while the validated
+        // outdated-build journal takes the original restartRequired path.
+        if (TryGetRepairSnapshot(out OverviewRepairSnapshot? repair) && repair is not null)
+        {
+            OverviewStartupError? restored = await AdoptOrRepairAsync(
+                repair, cancellationToken).ConfigureAwait(false);
+            lock (stateGate)
+                startupReconcileErrors = restored is null
+                    ? Array.Empty<OverviewStartupError>() : [restored];
+            return new { errors = startupReconcileErrors };
+        }
+
+        if (!shouldAttempt)
             return new { errors = startupReconcileErrors };
 
         try
@@ -504,6 +514,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         if (!TryGetRepairSnapshot(out OverviewRepairSnapshot? repair) || repair is null)
             return CreateUpdateRestartResult(restarted: false);
+        // Capture before stopping: the protected adoption reader must only
+        // accept a still-running exact process, never a recycled PID later.
+        _ = TryReadAdoptionRecord(out OverviewAdoptionSnapshot? retained, out _);
+        if (retained is not null &&
+            !string.Equals(retained.InstanceId, repair.SessionId, StringComparison.Ordinal))
+            retained = null;
 
         lock (stateGate)
         {
@@ -523,6 +539,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 cancellationToken).ConfigureAwait(false);
             ValidateStopResult(result, profileId, repair.SessionId, repair.GamePid, repair.GamePath, repair.GameStartedAtUtc, requireCurrentClientEvidence);
             if (testHooks is null) WriteHostStopEvidence(repair.SessionId, result);
+            if (retained is not null)
+            {
+                RemoveAdoptionRecord(retained.InstanceId, retained.Challenge);
+                ClearRuntimeSessionFiles(retained.InstanceId, retained.Challenge);
+            }
             StopLeaseTimer(deleteLease: false);
             lock (stateGate)
             {
@@ -723,8 +744,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             {
                 helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
-            catch (InvalidOperationException error) when (IsOfficialLuaUpdateFailure(error))
+            catch (BridgeCommandException error) when (
+                string.Equals(error.Code, "OFFICIAL_LAUNCHER_RESTARTED", StringComparison.Ordinal))
             {
+                // 0x1DC345..0x1DC3D0: only attempt 1's exact 27-byte
+                // OFFICIAL_LAUNCHER_RESTARTED error permits attempt 2.
+                // Official-Lua-update and spawn-timeout are NOT equivalent
+                // events. The current helper has no verified producer of this
+                // typed event; synthetic tests prove policy, not live mapping.
+                cancellationToken.ThrowIfCancellationRequested();
                 if (testHooks is null)
                 {
                     long officialSettleDeadline = checked(
@@ -733,45 +761,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     await EnsureOfficialClientSettledAsync(
                         selectedRoot, cancellationToken, officialSettleDeadline,
                         forceOfficialSettle: true).ConfigureAwait(false);
-
-                    startDeadline = checked(
-                        RecoveryClockMilliseconds() +
-                        (long)helperSupervisionTimeout.TotalMilliseconds);
-                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
-                    startInvocation = CreateBoundedStartInvocation(
-                        newSession,
-                        newChallenge,
-                        startDeadline.Value,
-                        controlPipeLaunchBinding);
-                }
-                else
-                {
-                    await EnsureOfficialClientSettledAsync(
-                        selectedRoot, cancellationToken, forceOfficialSettle: true).ConfigureAwait(false);
-                    RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
-                    startInvocation = new OverviewHelperInvocation(
-                        "start", profileId, newSession, newChallenge, null, null, null,
-                        ControlPipeLaunchBinding: controlPipeLaunchBinding);
-                }
-                helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
-            }
-            catch (InvalidOperationException error) when (IsLauncherGameSpawnTimeout(error))
-            {
-                // R7-062: the official launcher can occasionally finish pack verification
-                // but fail to issue its LastWar start command. The helper has already
-                // closed its owned launcher and restored the exact original package before
-                // surfacing this error, so one same-session retry is transactionally safe.
-                if (testHooks is null)
-                {
-                    long retryDeadline = startDeadline!.Value;
-                    if (retryDeadline - RecoveryClockMilliseconds() < MinimumStartWindowMilliseconds + 1_000)
+                    if (startDeadline!.Value - RecoveryClockMilliseconds() <
+                        MinimumStartWindowMilliseconds + 1_000)
                         throw;
-                    await RecoveryDelayAsync(TimeSpan.FromMilliseconds(750), cancellationToken).ConfigureAwait(false);
                     RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
                     startInvocation = CreateBoundedStartInvocation(
-                        newSession,
-                        newChallenge,
-                        retryDeadline,
+                        newSession, newChallenge, startDeadline.Value,
                         controlPipeLaunchBinding);
                 }
                 else
@@ -781,6 +776,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                         "start", profileId, newSession, newChallenge, null, null, null,
                         ControlPipeLaunchBinding: controlPipeLaunchBinding);
                 }
+                // Exactly one more invocation; no catch retries its failure.
                 helper = await RunHelperAsync(startInvocation, cancellationToken).ConfigureAwait(false);
             }
             OverviewStartResult start = ValidateStartResult(helper, profileId, newSession, newChallenge, selectedRoot, requireCurrentClientEvidence);
@@ -814,8 +810,31 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
 
             StartLeaseTimer();
+            if (controlPipeLaunchBinding is not null &&
+                !await WaitAuthenticatedRouteAsync(newSession, cancellationToken).ConfigureAwait(false))
+            {
+                await StopCancelledSuccessfulStartAsync(start, newSession, newChallenge)
+                    .ConfigureAwait(false);
+                throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
+                    "The game was launched, but no authenticated bridge connection was accepted before registration expired.");
+            }
             if (!IsReady)
                 throw new BridgeCommandException("BRIDGE_START_TIMEOUT", "The game started, but the current Overview bridge response is not fresh.");
+            if (controlPipeLaunchBinding is not null)
+            {
+                try
+                {
+                    CommitAdoptionRecord(start, newSession, newChallenge, controlPipeLaunchBinding);
+                }
+                catch (Exception error)
+                {
+                    await StopCancelledSuccessfulStartAsync(start, newSession, newChallenge)
+                        .ConfigureAwait(false);
+                    throw new BridgeCommandException("RECOVERY_RECORD_COMMIT_FAILED",
+                        "The protected adoption record could not be written; the exact owned game was stopped and restored.",
+                        new { error = error.Message });
+                }
+            }
             SetDesiredRunning(true);
 
             bool cancelAfterPublication;
@@ -942,6 +961,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
         StopLeaseTimer(deleteLease: true, ownedSession, ownedChallenge);
         ClearRuntimeSessionFiles(ownedSession, ownedChallenge);
+        if (ownedSession is not null && ownedChallenge is not null)
+            RemoveAdoptionRecord(ownedSession, ownedChallenge);
         lock (stateGate)
         {
             phase = "stopped";
@@ -1087,6 +1108,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
             if (bridgeControlPipeLaunchBindingEnabled)
                 bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);
+            RemoveAdoptionRecord(snapshot.InstanceId, snapshot.Challenge);
             StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
             ClearRuntimeSessionFiles(snapshot.InstanceId, snapshot.Challenge);
             lock (stateGate)
@@ -1546,6 +1568,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private bool IsSnapshotReady(OwnedSnapshot snapshot)
     {
         if (!ProcessMatches(snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc)) return false;
+        if (bridgeControlPipeLaunchBindingEnabled && testHooks is null &&
+            (bridgeHostState is null || !bridgeHostState.IsRouteConnected(snapshot.InstanceId)))
+            return false;  // A current ready.json/heartbeat is NOT authenticated host registration.
         string heartbeatPath = Path.Combine(runtimeRoot, "heartbeat.json");
         try
         {

@@ -12,8 +12,8 @@ internal static class OverviewOfficialSettleChecks
         await OfficialSettleRunsBeforeHelper();
         await OfficialRecoveryFailureBlocksSettleAndHelper();
         await OfficialSettleFailureBlocksHelper();
-        await OfficialLuaUpdateFailureForcesSettleAndRetriesOnce();
-        await LauncherGameSpawnTimeoutRetriesOnceWithoutRepeatingSettle();
+        await OfficialLuaUpdateFailureDoesNotImplicitlyRetry();
+        await LauncherGameSpawnTimeoutDoesNotImplicitlyRetry();
         await GenericHelperFailureAllowsExplicitSubsequentRetry();
         await PostHelperReadinessFailureCanCloseThenRetry();
     }
@@ -146,7 +146,7 @@ internal static class OverviewOfficialSettleChecks
         Check(helperCalls == 0, "official settle failure prevents candidate/helper start");
     }
 
-    private static async Task OfficialLuaUpdateFailureForcesSettleAndRetriesOnce()
+    private static async Task OfficialLuaUpdateFailureDoesNotImplicitlyRetry()
     {
         int recoverCalls = 0;
         int settleCalls = 0;
@@ -180,13 +180,18 @@ internal static class OverviewOfficialSettleChecks
         using var lifecycle = new OverviewLifecycleService(
             "profile-settle-order", root, helperPath: Path.Combine(root, "fake-helper.py"),
             requireCurrentClientEvidence: false, testHooks: hooks, startRecoveryMonitor: false);
-        await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None)
-            .WaitAsync(TimeSpan.FromSeconds(5));
-        Check(recoverCalls == 2 && settleCalls == 2 && helperCalls == 2,
-            "Lua update CRC failure should force exactly one fresh official settle and one helper retry");
+        try
+        {
+            await lifecycle.InvokeAsync("profile_instance_start", JsonSerializer.SerializeToElement(new { }), CancellationToken.None)
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            throw new InvalidOperationException("Expected non-retry Lua-update failure");
+        }
+        catch (BridgeCommandException ex) when (ex.Code == "LAUNCH_FAILED") { }
+        Check(recoverCalls == 1 && settleCalls == 1 && helperCalls == 1,
+            "Lua update CRC failure must not masquerade as OFFICIAL_LAUNCHER_RESTARTED");
     }
 
-    private static async Task LauncherGameSpawnTimeoutRetriesOnceWithoutRepeatingSettle()
+    private static async Task LauncherGameSpawnTimeoutDoesNotImplicitlyRetry()
     {
         int recoverCalls = 0;
         int settleCalls = 0;
@@ -224,14 +229,19 @@ internal static class OverviewOfficialSettleChecks
         using var lifecycle = new OverviewLifecycleService(
             "profile-settle-order", root, helperPath: Path.Combine(root, "fake-helper.py"),
             requireCurrentClientEvidence: false, testHooks: hooks, startRecoveryMonitor: false);
-        await lifecycle.InvokeAsync(
-                "profile_instance_start",
-                JsonSerializer.SerializeToElement(new { }),
-                CancellationToken.None)
-            .WaitAsync(TimeSpan.FromSeconds(5));
+        try
+        {
+            await lifecycle.InvokeAsync(
+                    "profile_instance_start",
+                    JsonSerializer.SerializeToElement(new { }),
+                    CancellationToken.None)
+                .WaitAsync(TimeSpan.FromSeconds(5));
+            throw new InvalidOperationException("Expected non-retry launcher-spawn failure");
+        }
+        catch (BridgeCommandException ex) when (ex.Code == "LAUNCH_FAILED") { }
 
-        Check(recoverCalls == 1 && settleCalls == 1 && helperCalls == 2,
-            "launcher spawn timeout should retry exactly once without repeating official settle");
+        Check(recoverCalls == 1 && settleCalls == 1 && helperCalls == 1,
+            "unclassified launcher spawn timeout must not trigger an original-only restart retry");
     }
 
     private static async Task GenericHelperFailureAllowsExplicitSubsequentRetry()
