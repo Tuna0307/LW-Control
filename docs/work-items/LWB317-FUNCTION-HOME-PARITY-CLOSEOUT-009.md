@@ -1,6 +1,8 @@
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009
 
-Status: **READY / PROJECT-LEAD ASSIGNED**, 2026-10-08.
+Status: **PARTIAL / CHANGES_REQUIRED — independent lead review**, 2026-10-08.
+Reviewed worker checkpoint: `1d9b54c6433a24899b9e7fa3e390f8d16a8c4a55`.
+Two actual Stop ownership/restoration failures reproduced; launch/profile/lifetime branches remain incomplete. Continue the existing scope through `LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1.md`; see `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-LEAD.md`. Original assignment below is retained.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: research/offline-controller.
 Reviewed worker checkpoint: 9cc5bcee7a7bff19c391995c87ba8a3359e6d3aa.

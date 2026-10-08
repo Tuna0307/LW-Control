@@ -1,0 +1,72 @@
+You are the solo worker continuing LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Reviewed worker checkpoint: 1d9b54c6433a24899b9e7fa3e390f8d16a8c4a55.
+Start at the current descendant containing the lead review; do not reset.
+
+The lead independently audited your delivery and returned CHANGES_REQUIRED.
+009 is PARTIAL. Preserve its useful original-byte recovery and accepted prior
+changes; complete the existing assignment rather than start another campaign.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, the current owner directions, and:
+docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-LEAD.md
+docs/work-items/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1.md
+docs/work-items/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009.md
+The full R1 work item is your assigned scope; complete all checkpoints A-F.
+Lead proof is under the 009 evidence directory, lead-review-2026-10-08/.
+
+1. LEAD009-01: actual run_stop restored while the controlled game PID still
+existed after image lookup failed; it returned ok=true/processExited=true/
+gameRunning=true and cleared the journal. Preserve original close-policy facts,
+but require captured-process exit proof before current-client file restoration.
+Keep a truthful pending/failure journal when exit cannot be established.
+
+2. LEAD009-02: actual Python Stop terminated a same-path PID replacement after
+inventory validation. Verify creation identity on the handle actually acted on.
+Audit the corresponding native recovery path, too. Exercise replacements,
+access failures, legitimate exit/termination and restoration ownership through
+actual production seams. Preserve both historical lead negative results; write
+new corrected R1 evidence rather than overwrite or repin them.
+
+3. LEAD009-03: finish available launch/readiness async continuation recovery,
+including 0x1D72C9-0x1D74E5, 0x1DD3F7-0x1DD6B5 and request/registry producers.
+Static code behind an auth-related path is still available research. Separate
+actual unavailable protected inputs from undecoded local states; do not declare
+the entire branch blocked without following its available outcomes.
+
+4. LEAD009-04: finish original profile selection/filter/order closures, global
+versus profile preferences and actual Home/Map lifetime comparisons. Cover
+A-B-A, pending/rejected preferences, Stop during recovery, Home Close during
+Map scans and exact captured cancellation. A launch call inside a loop does
+not prove single-profile behavior. Change product behavior only from evidence.
+
+5. LEAD009-05: finish adversarial coverage and coherent closeout. The passing
+230-case comparison normalizes cleanup/errors/order and drives serial hooks;
+it does not establish every observable rule or concurrency/restoration safety.
+Map still-valid retired assertions to replacement proof and test held effects,
+obsolete runs, Stop/profile replacement and cleanup failures independently.
+Keep original-contract and current-adaptation evidence explicitly distinct.
+
+Recover behavior from the hash-matched original 0.3.17, not plausible designs
+or tests written only against the clone. Preserve source/local UI, R3 ownership,
+007/R1 query and Resource cancellation, pipe/world readiness, original scripts,
+archived Resource data and all historical evidence. No fallback or fabricated
+product success. Full original Home/Map parity remains PARTIAL.
+
+This is static/headless/inert work. No new game launch, desktop capture/input/
+focus via any tool, owner-root mutation, protected-service/auth bypass or live
+gameplay/updater actions. Use isolated temporary roots and controlled providers.
+Work alone: no subagents, other AI chats, GPT Work or Codex delegation.
+
+Continue sequential coherent checkpoints without per-checkpoint owner relay or
+artificial time quota. Run applicable native/profile/Home/Map, mounted App,
+frontend/build/package/Release/compatibility/preservation checks. Audit the full
+diff; update current masters and finite obligations honestly. Commit and push
+normally and verify the direct remote SHA; never discard unrelated changes.
+
+Return one AWAITING_REVIEW packet with LEAD009-01 through 05 dispositions,
+distinguishing before/after proofs, original locators, executed commands and
+results, commits, exact remaining dependencies and continuation. If interrupted,
+save PARTIAL with a precise resume point. Do not declare finished while ready
+assigned code remains undecoded. Final acceptance stays with the project lead.

@@ -1,0 +1,28 @@
+{
+  "check": "PASS",
+  "scope": "read-only hashes and archived snapshot; no game launch or desktop use",
+  "referenceAndScripts": [
+    {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+    },
+    {
+      "path": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\reference\\lwbridge-0.3.17.exe",
+      "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+    },
+    {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+      "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22"
+    },
+    {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+      "sha256": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a"
+    },
+    {
+      "path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+      "sha256": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  ],
+  "archivedSourceAndSidecarsUnchanged": true,
+  "resourceRows": 8008
+}

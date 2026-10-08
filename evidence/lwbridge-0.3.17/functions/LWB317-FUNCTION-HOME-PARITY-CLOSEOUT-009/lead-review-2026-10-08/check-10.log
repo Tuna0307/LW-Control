@@ -1,0 +1,48 @@
+{
+  "close": {
+    "stop-close": {
+      "maxChecks": 100,
+      "timerNanoseconds": 100000000,
+      "capBeforeCheck": true
+    },
+    "reconcile-close": {
+      "maxChecks": 100,
+      "timerNanoseconds": 100000000,
+      "capBeforeCheck": true
+    },
+    "terminate": {
+      "access": 1,
+      "exitCode": 1,
+      "pathQueryAccess": 4096,
+      "mismatchedImage": "no action (Ok(false))",
+      "pathUnreadableAndPresent": "PROCESS_QUERY_FAILED"
+    }
+  },
+  "recovery": {
+    "constants": {
+      "tickMs": 2000,
+      "normalRetryMs": [
+        15000,
+        30000,
+        60000,
+        120000,
+        300000
+      ],
+      "maintenanceRetryMs": [
+        120000,
+        300000,
+        600000
+      ],
+      "updateStallMs": 900000,
+      "stableVerifyMs": 15000,
+      "disconnectWaitMs": 60000,
+      "loginUnavailableMs": 180000,
+      "monitor": {
+        "hangMs": 30000,
+        "disconnectMs": 60000,
+        "loginUnavailableMs": 180000,
+        "missingObservations": 2
+      }
+    }
+  }
+}

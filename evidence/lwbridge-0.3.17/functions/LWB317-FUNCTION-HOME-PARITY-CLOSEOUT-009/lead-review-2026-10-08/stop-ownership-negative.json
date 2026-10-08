@@ -1,0 +1,37 @@
+{
+  "scope": "actual production handlers with inert seams; no original/live execution",
+  "cases": [
+    {
+      "finding": "LEAD009-01",
+      "case": "post-terminate image query denied while PID survives",
+      "expected": "do not restore or clear journal until owned exit is established",
+      "actual": {
+        "restoreCalls": 1,
+        "replacementTerminated": false,
+        "pidExistsAtRestore": true
+      },
+      "productOk": true,
+      "gameRunning": true,
+      "processExitedClaim": true,
+      "journalCleared": true,
+      "regressionReproduced": true
+    },
+    {
+      "finding": "LEAD009-02",
+      "case": "same-path PID incarnation replacement before open",
+      "expected": "refuse replacement termination",
+      "actual": {
+        "restoreCalls": 1,
+        "replacementTerminated": true,
+        "replacementStartedAtUtc": "2026-09-12T02:00:00.0000000Z",
+        "pidExistsAtRestore": false
+      },
+      "productOk": true,
+      "gameRunning": false,
+      "processExitedClaim": true,
+      "journalCleared": true,
+      "regressionReproduced": true
+    }
+  ],
+  "reproduced": 2
+}

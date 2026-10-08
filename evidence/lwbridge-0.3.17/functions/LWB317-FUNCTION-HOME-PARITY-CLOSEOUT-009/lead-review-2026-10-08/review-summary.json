@@ -1,0 +1,46 @@
+{
+  "reviewedCheckpoint": "1d9b54c6433a24899b9e7fa3e390f8d16a8c4a55",
+  "decision": "CHANGES_REQUIRED",
+  "overallHomeMapOriginalParity": "PARTIAL",
+  "build": {
+    "command": "dotnet build tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release --no-restore",
+    "exitCode": 0,
+    "warnings": 0,
+    "errors": 0,
+    "evidence": "captured tool execution; includes fresh canonical frontend build and packaged UI check"
+  },
+  "reconstructedStopComparison": {
+    "cases": 21,
+    "mismatches": 0
+  },
+  "normalizedRecoveryComparison": {
+    "scenarios": 230,
+    "mismatches": 0
+  },
+  "commandRunner": {
+    "passed": 14,
+    "total": 14,
+    "record": "executed-checks.json"
+  },
+  "mountedApp": {
+    "cases": 20,
+    "status": "PASS",
+    "record": "mounted-app-profiles.json",
+    "proof": "actual current App, inert bridge, archived current-client Resource payload; not original/live runtime"
+  },
+  "ownershipInverses": {
+    "reproduced": 2,
+    "record": "stop-ownership-negative.json"
+  },
+  "preservation": "preservation.json",
+  "newGameLaunches": 0,
+  "desktopControlOrCapture": false,
+  "productCodeChangedByLead": false,
+  "remaining": [
+    "LEAD009-01 restoration gate",
+    "LEAD009-02 handle-bound incarnation",
+    "LEAD009-03 available launch continuations",
+    "LEAD009-04 profile/preferences/Home-Map lifetime",
+    "LEAD009-05 adversarial coverage and coherent final closeout"
+  ]
+}
