@@ -1,0 +1,108 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1",
+  "delivery": "AWAITING_REVIEW",
+  "fullOriginalHomeParity": false,
+  "reference": "reference/lwbridge-0.3.17.exe SHA-256 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "supersedes": "../semantic-obligations.json (kept unchanged as historical record); entries below replace its E-PROFILE-LIFETIME and B-LAUNCH-READINESS items and add LEAD009 dispositions",
+  "proofClasses": {
+    "EXACT_CONTRACT": "read from reference bytes and asserted at instruction/byte level by a tools/lwbridge317/home009_*_contract.py script",
+    "RECONSTRUCTED_COMPARATOR": "tools/lwbridge317/home009_oracle.py / home009_recovery_oracle.py (a model, not original execution)",
+    "ADAPTATION": "current-client mechanism or safety fence with no original counterpart; never counted as parity",
+    "EXECUTED_INERT": "actual production code run through scripted seams; no game, desktop or protected service"
+  },
+  "items": [
+    {
+      "id": "LEAD009-01",
+      "title": "Stop restoration only after proven captured-process exit",
+      "originalLocators": ["0x41d84b terminate", "0x41e3cf presence predicate (unreadable image == absent)", "0xe5725 100 x 100 ms wait"],
+      "inputOutput": "original: unreadable image path is treated as gone and Stop reports success. R1 adaptation: restoration of the current-client installation additionally requires exitProof (captured handle signalled, PID absent or foreign image) AND no other process of the selected installation.",
+      "currentBefore": "run_stop restored and cleared the journal while the PID survived and image lookup was denied (lead stop-ownership-negative.json, immutable)",
+      "currentAfter": "StopRestorationWithheld(OWNED_EXIT_UNPROVEN | OWNED_INSTALLATION_STILL_RUNNING); journal kept at closing_owned_game_for_restore with stopOutcome; restoration failure keeps restoring_after_owned_game_exit and retry restores",
+      "proof": ["tools/test_stop_ownership_r1.py (19 cases, actual run_stop)", "r1/stop-ownership-before-after.json (5 behaviourally distinguishing, 4 field-only)", "tools/lwbridge317/home009_close_compare.py (21 reconstructed cases, 0 mismatches, plus restoration-gate assertions)"],
+      "disposition": "CORRECTED",
+      "limits": "ProcessTable is a scripted model of Windows semantics; no real process was terminated. The start-failure cleanup in run_overview_bridge (restore first, then close the game, retry restore) was audited, not changed: it is a different, journaled transaction."
+    },
+    {
+      "id": "LEAD009-02",
+      "title": "Handle-bound process identity (Python Stop and native recovery)",
+      "originalLocators": ["0x4197d8 query handle", "0x41d84b separate OpenProcess(PROCESS_TERMINATE)"],
+      "inputOutput": "original reopens the PID; that window is a defect in the current-client adaptation, not a contract. Python: one handle (query|terminate|synchronize) is image-checked, creation-incarnation-checked, terminated and waited. Native: OwnedProcessTermination does the same for TerminateOwnedProcessAsync and TerminateUpdateProcessesAsync.",
+      "currentBefore": "Python validated via inventory then opened a new terminate handle; native validated a Process then OpenProcess(0x1, pid) (inspection of cdde6736 OverviewLifecycleRecovery.cs 1077-1097)",
+      "currentAfter": "replacement before open refused; different image left alone and captured exit proven; unreadable creation refused; native error codes preserved",
+      "proof": ["Python cases lead009_02_*", "--owned-process-handle-binding-check (12 cases incl. read-only Win32 format check against Process.StartTime)"],
+      "disposition": "CORRECTED",
+      "limits": "native before-state evidenced by source inspection (the pre-R1 code has no seam); real PID-reuse witness not produced."
+    },
+    {
+      "id": "LEAD009-03a",
+      "title": "closeUnmanaged and the 5 s / 100 ms unmanaged-close wait",
+      "originalLocators": ["0x207784 payload key", "0x1D6548 gate", "0x1D65AB terminate each", "0x1D693F-0x1D6966 deadline", "0x1D723B-0x1D74E5 loop", "0x39D7DE/0x30A354/0x2A2887 filter+sort"],
+      "inputOutput": "input payload bool closeUnmanaged (default false; reconcile/restart store false); state = unmanaged LastWar PIDs of <root>\\Game\\LastWar.exe ascending; true: terminate each in order (error aborts), deadline 5 s monotonic, loop list -> empty? -> now>=deadline? -> 100 ms; GAME_CLOSE_TIMEOUT code=message; false: UNMANAGED_GAME_RUNNING code=message details {pids}",
+      "currentBefore": "payload ignored; the shipped Start button (closeUnmanaged:true) was always refused",
+      "currentAfter": "implemented exactly (OverviewLifecycleRecovery.CloseUnmanagedSelectedGamesAsync); reconcile/restart/recovery relaunch remain false",
+      "proof": ["home009_launch_contract.py byte assertions", "--unmanaged-close-check (9 groups, boundary 4900/5000 ok, 5001/5100 timeout)"],
+      "disposition": "CORRECTED",
+      "limits": "ascending PID order is inferred from the default u32 Ord (no comparator passed); IO_ERROR text after the label is approximate; monitor relaunch flag UNKNOWN (kept false); live proof not performed."
+    },
+    {
+      "id": "LEAD009-03b",
+      "title": "Bridge-connect wait 90 s / 250 ms and pipe registry functions",
+      "originalLocators": ["0x1DD114-0x1DD11F deadline", "0x2C75CA refresh_pending", "0x2C6A65 pid_of", "0x1DD3F7-0x1DD6B5 loop and failure mapping"],
+      "inputOutput": "deadline = wall-clock ms + 90 000 shared with the registry expiry; loop now>=deadline? -> pid_of? -> 250 ms; after loop one more pid_of; absent => terminate + BRIDGE_START_TIMEOUT; present => image check; mismatch => LAUNCH_REPORT_FAILED",
+      "current": "registry (90 s, RefreshPending, three error codes) already matches; readiness wait is a different mechanism (heartbeat/ready.json) inside one 120 s window that also covers launcher->game spawn",
+      "disposition": "DIFFERENCE IDENTIFIED, NOT CORRECTED",
+      "reason": "equivalent start point and predicate in the current client cannot be derived without protected launcher/ticket timings or a live witness; shortening the window could break legitimate slow current-client starts",
+      "missingEdges": ["live witness of the current-client spawn->ready interval", "post-connect report bodies 0x1E71D6/0x23C1E4/0x23FAC5"]
+    },
+    {
+      "id": "LEAD009-03c",
+      "title": "Ticket/lease/launcher/rollback stages of 0x1D5009",
+      "originalLocators": ["0x1D78DE-0x1DB556 ticket+lease", "0x1DB9FA-0x1DCDA0 launcher", "0x1D420D rollback future", "0x1DDDE3 finalizer"],
+      "disposition": "PARTIAL",
+      "decoded": "stage order, every literal/error code, which local branches follow the protected response, rollback call sites",
+      "protectedInputs": ["/api/multi/leases response (LeaseResponse, launchProof)", "ticket reason/source decisions", "entitlement max_profiles"],
+      "undecodedStatic": ["0x1DDDE3 body (461 instructions)", "launcher retry count at 0x1DC35C/0x1DC3D0", "0x1D9527 user_stop/INSTANCE_MISMATCH consultation", "launcher stage line-by-line mapping"],
+      "nextStaticAction": "map the callees of 0x1DDDE3 (`home009_native.py calls 0x1ddde3`) then 0x1DC2BC-0x1DCDA0"
+    },
+    {
+      "id": "LEAD009-04a",
+      "title": "Original profile store, selection, order and preference scope",
+      "originalLocators": ["0xD4E5CA SQL", "0x328924 serializer (+0xD0 enabled)", "0x392EB9 mapper", "0x39E153/0x2EA391/0x39E77D filters", "0x1E70F7 guard", "0x203519 autoLaunchAll"],
+      "inputOutput": "enabled profiles in display_order, created_at, id; reason restartRequired selected regardless of autoLaunchAll; absent reason selected iff autoLaunchAll; sequential 0x1D5009 with closeUnmanaged=false; errors collected per profile. Preference is global/UI-side; no native persisted preference exists in the original.",
+      "corrects": "008/009 reading of [cfg+0x140] as an AutoLaunchGame gate (it is the authorization-state lock poison flag)",
+      "current": "single selected profile per lifecycle service; ProfileRegistryStore uses the same ORDER BY; extra native AutoLaunchGame AND-gate retained",
+      "disposition": "RECOVERED; ONE ADAPTATION DECISION OPEN",
+      "openDecision": "the native AutoLaunchGame AND-gate is not original behaviour; it protects pilot/test hosts (configs seeded AutoLaunchGame=false). Kept and labelled ADAPTATION; lead to decide keep vs replace with a non-production admission flag",
+      "proof": ["home009_profile_contract.py byte assertions"]
+    },
+    {
+      "id": "LEAD009-04b",
+      "title": "Home/Map lifetime: A->B->A, deferred/rejected preference saves, intentional Stop during recovery, Close during Map scan, exact captured cancellation",
+      "originalCounterpart": "none for the native preference write (original preference is UI local storage); original Stop/recovery interplay decoded in C/D of 009",
+      "current": "R3 profile ownership, 007/R1 query and Resource cancellation, 009 recovery engine; R1 adds held-async overlaps",
+      "disposition": "EXECUTED (current adaptation); original comparison partial",
+      "proof": ["mounted App 20 cases EN/light + JA/dark (final/mounted-app-profiles.json)", "home-campaign-lifecycle, profile-runtime-owner, map-campaign-canonical, map317-native-boundary checks", "--recovery-async-ownership-check (7 overlaps)"],
+      "undecodedStatic": ["reconcile recovery-record sub-path 0x203B30-0x2043C8", "status reason producer 0x2A0CB7", "0x23F685 / 0x1DDBB2 capacity inputs (protected)"]
+    },
+    {
+      "id": "LEAD009-05a",
+      "title": "Held asynchronous effects and cleanup ownership",
+      "defect": "TerminateTrackedGameAsync cleaned whatever owned session existed AFTER the await; with a user Stop then Start while the terminate was parked, the late completion issued a helper stop for the NEW game (reproduced: helper-start, terminate:50100, helper-stop:50100, helper-start, helper-stop:50200). After Close it also issued new helper effects.",
+      "correction": "snapshot captured before the await and re-verified (instance id, pid, challenge) afterwards; a closed owner starts no new cleanup",
+      "proof": ["r1/recovery-async-ownership-BEFORE-fix.txt (immutable failing run)", "--recovery-async-ownership-check: no-overlap cleanup exactly once, late success, late rejection, Close with terminate parked, restoration failure retry, Close with relaunch parked, closed owner inert"],
+      "disposition": "CORRECTED (current-client ownership; not an original-contract claim)"
+    },
+    {
+      "id": "LEAD009-05b",
+      "title": "Retired assertions mapped to executed replacements; comparator limits",
+      "record": "r1/retired-assertion-map.md",
+      "disposition": "MAPPED; one retired assertion consciously SUPERSEDED (unknown game state)",
+      "comparatorLimit": "the 230-case comparison is normalized (cleanup events, most error text and relative order removed); it is retained but not treated as parity. Direct replacements: recovery-boundary-check (millisecond-exact thresholds, 15 000 ms stable window, retry table cap, update-stall text, exactly-once cleanup) and the Python restoration comparator (restore gating)",
+      "notExecuted": ["uint saturation of the missing-process counter (byte-asserted only)", "real wall-clock backwards movement in production timers (only virtual clock moves are executed)"]
+    }
+  ],
+  "unchangedHistoricalNegatives": [
+    "lead-review-2026-10-08/stop-ownership-negative.json (LEAD009-01/02 reproduced against cdde6736; the lead script targets the pre-R1 open_terminate API and is kept as history)",
+    "worker 009 semantic-obligations.json, progress.md, continuation.md"
+  ]
+}

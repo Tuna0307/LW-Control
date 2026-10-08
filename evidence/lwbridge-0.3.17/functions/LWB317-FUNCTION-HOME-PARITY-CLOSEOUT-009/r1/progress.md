@@ -36,3 +36,23 @@ Evidence
 
 Pre-existing unrelated failure noted: `tools/test_overview_start_failure_matrix.py` raises AttributeError
 (`close_owned_launcher_process`) at the lead checkpoint too (stale test; see checkpoint E).
+
+## Checkpoint C (7c3c33c4) — LEAD009-03
+`launch-readiness-recovery.md`, `home009_launch_contract.py`: 0x1D5009 is the profile-launch async body; stage map, unmanaged-close
+(closeUnmanaged, 5 s/100 ms), bridge-connect (90 s/250 ms), registry functions decoded and byte-asserted; native `closeUnmanaged` parity implemented
+(`--unmanaged-close-check`). Readiness-window difference identified, not corrected (needs live/protected timings).
+
+## Checkpoint D — LEAD009-04
+`profile-intent-recovery.md`, `home009_profile_contract.py`: SQL/order, enabled flag, reconcile filter (restartRequired / autoLaunchAll), corrected
+the earlier [cfg+0x140] "global gate" claim (lock poison flag). Native AutoLaunchGame AND-gate recorded as ADAPTATION with an open lead decision.
+
+## Checkpoint E (a9f7f799 + this commit) — LEAD009-05
+Defect found by held-effect tests and fixed: late terminate completion cleaned a NEWER session (and acted after Close). `retired-assertion-map.md`
+maps all 22 retired obligation groups; `--recovery-boundary-check` (10 groups) and `--recovery-async-ownership-check` (8 overlaps) added.
+
+## Checkpoint F — integrated verification
+`final/final-checks.json`: 28/28 commands exit 0 (Release build incl. canonical frontend/package embedding, 230-scenario actual trace +
+normalized compare 0 mismatches, 13 native checks, 7 Python checks, frontend check + production-build check, mounted App 20 cases EN/light +
+JA/dark, current-client runtime contract, scratch Release publish). Two later-added test groups (boundary clock-movement, Stop-during-relaunch
+characterisation) were rebuilt and re-run separately (`recovery-boundary-check.json`, `recovery-async-ownership-check.json`).
+No game launch, desktop capture/input/focus, protected-service access or owner-state mutation. An unrelated owner `LastWar.exe` was running throughout and was never touched.

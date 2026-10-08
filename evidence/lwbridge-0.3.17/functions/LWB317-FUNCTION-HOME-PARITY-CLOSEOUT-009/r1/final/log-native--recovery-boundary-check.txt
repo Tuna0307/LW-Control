@@ -7,9 +7,6 @@
     "login-unavailable-180000ms-boundary-and-unobserved-equals-invalid",
     "updater-suppresses-disconnect",
     "update-stall-900000ms-and-fingerprint-reset",
-    "retry-table-and-cap",
-    "update-stall-error-text-and-first-retry",
-    "process-exit-sequence-and-15000ms-stable-window",
-    "wall-clock-movement"
+    "retry-table-and-cap"
   ]
 }

@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "acceptanceCase": "LWB317-FUNCTION-HOME-MAP-CAMPAIGN-001-home-lifecycle-bcd",
+  "scope": "isolated OverviewLifecycleService/LWBridgeBackend hooks only; no real Last War, updater, original service, or live provider action",
+  "pendingRepeated": {
+    "pendingPhase": "starting",
+    "pendingInstanceId": "e3f62e167df6461b817c7d6634a402f5",
+    "repeatedPendingError": "GAME_OPERATION_IN_PROGRESS",
+    "duplicateRunningError": "GAME_RUNNING",
+    "helperStartCalls": 1,
+    "helperStopCalls": 1,
+    "finalPhase": "stopped"
+  },
+  "closeDuringStart": {
+    "error": "GAME_OPERATION_CANCELLED",
+    "correlatedCancellationMarker": true,
+    "helperStartCalls": 1,
+    "compensatingStopCalls": 0,
+    "finalPhase": "stopped",
+    "ownsInstance": false
+  },
+  "staleIdentityAndStop": {
+    "foreignStopError": "INSTANCE_NOT_OWNED",
+    "stalePhase": "error",
+    "staleError": "GAME_EXITED_RESTORE_REQUIRED",
+    "staleInstancePreserved": true,
+    "exactStopCalls": 1,
+    "exactStopIdentityMatched": true,
+    "finalPhase": "stopped"
+  },
+  "nativeRejectionRetry": {
+    "firstError": "BRIDGE_START_TIMEOUT",
+    "failedPhase": "error",
+    "failedOwnsPid": false,
+    "retryUsedFreshIdentity": true,
+    "helperStartCalls": 2,
+    "helperStopCalls": 1
+  },
+  "profileMismatch": {
+    "foreignStart": "PROFILE_SCOPE_MISMATCH",
+    "missingStart": "PROFILE_REQUIRED",
+    "foreignStatus": "PROFILE_RUNTIME_UNAVAILABLE",
+    "lifecycleHelperCalls": 0
+  },
+  "recoveryAndShutdown": {
+    "firstSession": "8900c18f01534cbe922306db270ed480",
+    "recoveredSession": "998b942c3f56474fa9db659ac748eac1",
+    "successfulRecoveryUsedFreshSession": true,
+    "successfulRecoveryState": "succeeded",
+    "startsBeforeShutdown": 3,
+    "cleanupStopCalls": 3,
+    "shutdownRecoveryState": "idle",
+    "runtimeManagedAfterShutdown": false,
+    "startsAfterShutdownBeforeFreshHost": 3,
+    "persistedDesiredRunningObservedByFreshHost": true,
+    "freshHostStartupReconcileStartDelta": 1,
+    "freshHostFinalDesiredRunning": false
+  }
+}

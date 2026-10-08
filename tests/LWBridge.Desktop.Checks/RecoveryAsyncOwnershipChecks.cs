@@ -33,6 +33,9 @@ internal static class RecoveryAsyncOwnershipChecks
         public bool GameStateObserved = true;
         public int KillUpdaterCalls;
         public int FailStarts;
+        public int FailStops;
+        public TaskCompletionSource? StartGate;
+        public readonly TaskCompletionSource StartEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public string Fingerprint = "fp";
         public TaskCompletionSource? TerminateGate;
         public readonly TaskCompletionSource TerminateEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -106,11 +109,16 @@ internal static class RecoveryAsyncOwnershipChecks
             });
         }
 
-        private Task<JsonElement> Helper(OverviewHelperInvocation invocation, CancellationToken _)
+        private async Task<JsonElement> Helper(OverviewHelperInvocation invocation, CancellationToken _)
         {
             if (invocation.Operation == "start")
             {
                 Calls.Add("helper-start");
+                if (Instances.Count > 0 && StartGate is { } startGate)
+                {
+                    StartEntered.TrySetResult();
+                    await startGate.Task.ConfigureAwait(false);
+                }
                 if (Instances.Count > 0 && FailStarts > 0)
                 {
                     FailStarts--;
@@ -125,7 +133,7 @@ internal static class RecoveryAsyncOwnershipChecks
                 Instances.Add(inst);
                 string hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(invocation.Challenge!))).ToLowerInvariant();
                 long now = Clock / 1000;
-                return Task.FromResult(JsonSerializer.SerializeToElement(new
+                return (JsonSerializer.SerializeToElement(new
                 {
                     ok = true, mode = "overview_install_launch_ready_deferred_restore",
                     bridgeVersion = OverviewLifecycleService.BridgeVersion, profileId = Profile, sessionId = invocation.SessionId,
@@ -141,8 +149,13 @@ internal static class RecoveryAsyncOwnershipChecks
                 }));
             }
             Calls.Add("helper-stop:" + invocation.GamePid);
+            if (FailStops > 0)
+            {
+                FailStops--;
+                throw new InvalidOperationException("synthetic restoration failure");
+            }
             foreach (Instance i in Instances) if (i.Pid == invocation.GamePid) i.Alive = false;
-            return Task.FromResult(JsonSerializer.SerializeToElement(new
+            return (JsonSerializer.SerializeToElement(new
             {
                 ok = true, mode = "overview_exact_pid_close_restore", bridgeVersion = OverviewLifecycleService.BridgeVersion,
                 profileId = Profile, sessionId = invocation.SessionId, gamePid = invocation.GamePid, gamePath = invocation.GamePath,
@@ -258,6 +271,96 @@ internal static class RecoveryAsyncOwnershipChecks
             Check(env.StartCalls == 1 && env.Calls.Count == callsBefore, "no relaunch/cleanup after the owner was closed: " + string.Join(",", env.Calls.Skip(callsBefore)));
             Check(env.StatusStates.Count == statusBefore, "no recovery status published after close: " + string.Join(",", env.StatusStates.Skip(statusBefore)));
             done.Add("close-while-terminate-parked-is-quiet");
+        }
+        // 5. restoration (helper stop) failure during an intentional Stop: stays retryable, nothing resurrects it
+        using (var env = new Env())
+        {
+            string a = await env.StartAsync();
+            int pidA = env.Current.Pid;
+            env.FailStops = 1;
+            bool failed = false;
+            try { await env.StopAsync(a); } catch (BridgeCommandException) { failed = true; } catch (InvalidOperationException) { failed = true; }
+            Check(failed, "scripted restoration failure must surface");
+            Check(env.Lifecycle.CurrentRecoveryStatus.State == "idle", "no recovery after an intentional Stop with a failed restoration");
+            env.Current.Alive = false;
+            for (int i = 0; i < 4; i++) { env.Clock += 2000; await env.Lifecycle.RunRecoveryObservationForTestAsync(); }
+            Check(env.StartCalls == 1, "desired-running was cleared by the Stop: recovery must not relaunch: " + string.Join(",", env.Calls));
+            await env.StopAsync(a);                                           // retry restores
+            Check(env.StopCallsFor(pidA) == 2, "retry reaches the helper again: " + string.Join(",", env.Calls));
+            done.Add("stop-restoration-failure-is-retryable-and-not-resurrected");
+        }
+
+        // 6. Close (profile replacement) while a recovery RELAUNCH is parked in the helper
+        using (var env = new Env())
+        {
+            await env.StartAsync();
+            env.Current.Alive = false;
+            env.StartGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var background = new List<Task>();
+            for (int i = 0; i < 60 && !env.StartEntered.Task.IsCompleted; i++)
+            {
+                env.Clock += 2000;
+                Task observe = env.Lifecycle.RunRecoveryObservationForTestAsync();
+                background.Add(observe);
+                await Task.WhenAny(observe, env.StartEntered.Task, Task.Delay(1000));
+                if (env.StartEntered.Task.IsCompleted) break;
+                Task tick = env.Lifecycle.RunRecoveryRunTickForTestAsync();
+                background.Add(tick);
+                await Task.WhenAny(tick, env.StartEntered.Task, Task.Delay(1000));
+            }
+            Check(env.StartEntered.Task.IsCompleted, "relaunch must reach the helper");
+            Task dispose = Task.Run(env.Lifecycle.Dispose);
+            Check(await Task.WhenAny(dispose, Task.Delay(5000)) == dispose, "Dispose must not block on a parked relaunch");
+            int startsParked = env.StartCalls;
+            env.StartGate.SetResult();
+            await Task.Delay(200);
+            Check(env.StartCalls == startsParked, "no further launch after the owner was closed");
+            int newGamePid = env.Current.Pid;
+            Check(env.StopCallsFor(newGamePid) == 1 || !env.Current.Alive,
+                "a game started by a cancelled start must be stopped/cleaned: " + string.Join(",", env.Calls));
+            done.Add("close-while-relaunch-parked-cleans-the-cancelled-start");
+        }
+
+        // 6b. intentional Stop while a recovery RELAUNCH is parked in the helper: CURRENT-CLIENT characterisation
+        // (the original Stop handler 0x199627 has no counterpart for an in-flight relaunch; not a parity claim): the lifecycle
+        // refuses the Stop as in progress, keeps desired-running, and the parked relaunch still completes into a running game.
+        using (var env = new Env())
+        {
+            string a = await env.StartAsync();
+            env.Current.Alive = false;
+            env.StartGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var background = new List<Task>();
+            for (int i = 0; i < 60 && !env.StartEntered.Task.IsCompleted; i++)
+            {
+                env.Clock += 2000;
+                Task observe = env.Lifecycle.RunRecoveryObservationForTestAsync();
+                background.Add(observe);
+                await Task.WhenAny(observe, env.StartEntered.Task, Task.Delay(1000));
+                if (env.StartEntered.Task.IsCompleted) break;
+                Task tick = env.Lifecycle.RunRecoveryRunTickForTestAsync();
+                background.Add(tick);
+                await Task.WhenAny(tick, env.StartEntered.Task, Task.Delay(1000));
+            }
+            Check(env.StartEntered.Task.IsCompleted, "relaunch parked");
+            string? code = null;
+            try { await env.StopAsync(a); } catch (BridgeCommandException ex) { code = ex.Code; }
+            Check(code is "GAME_OPERATION_IN_PROGRESS" or "INSTANCE_NOT_OWNED", "Stop during a parked relaunch is refused, not interleaved: " + code);
+            env.StartGate.SetResult();
+            await Task.WhenAll(background.Select(t => t.ContinueWith(_ => { }))).WaitAsync(TimeSpan.FromSeconds(5));
+            Check(env.Instances.Count == 2 && env.Current.Alive, "the parked relaunch completes into a running game");
+            done.Add("stop-during-parked-relaunch-is-refused-characterisation");
+        }
+
+        // 7. timer teardown: a closed owner ignores later monitor ticks and publishes nothing
+        using (var env = new Env())
+        {
+            await env.StartAsync();
+            env.Lifecycle.Dispose();
+            int calls = env.Calls.Count, statuses = env.StatusStates.Count;
+            env.Current.Alive = false;
+            for (int i = 0; i < 6; i++) { env.Clock += 2000; await env.Lifecycle.RunRecoveryObservationForTestAsync(); }
+            Check(env.Calls.Count == calls && env.StatusStates.Count == statuses, "closed owner must be inert");
+            done.Add("closed-owner-ignores-monitor-ticks");
         }
         return JsonSerializer.SerializeToElement(new { ok = true, cases = done });
     }

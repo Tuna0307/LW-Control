@@ -42,6 +42,8 @@ internal static class RecoveryBoundaryChecks
             await env.Lifecycle.RunRecoveryObservationForTestAsync();
             Check((State(env) != "idle") == expectActive, $"hang +{delta} ms active={State(env)}");
             if (expectActive) Check(env.Lifecycle.CurrentRecoveryStatus.Reason == "hang", "hang reason");
+            Check(env.Calls.Count(c => c == "terminate:" + env.Instances[0].Pid) == (expectActive ? 1 : 0),
+                $"hang +{delta} ms: exact owned PID terminated {(expectActive ? "once" : "never")}: {string.Join(",", env.Calls)}");
         }
         done.Add("hang-30000ms-boundary");
 
@@ -139,6 +141,71 @@ internal static class RecoveryBoundaryChecks
             Check(delays.Count == expected.Length && delays.Zip(expected).All(p => Math.Abs(p.First - p.Second) <= 1),
                 "retry delays: " + string.Join(",", delays));
             done.Add("retry-table-and-cap");
+        }
+        // stalled update: the recovered error text and the first normal retry (15 s) follow the updater stop
+        using (var env = new RecoveryAsyncOwnershipChecks.Env())
+        {
+            await env.StartAsync();
+            env.Current.Alive = false; env.UpdateRunning = true;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            env.Clock += 1000;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            env.Clock += 900_000;
+            await env.Lifecycle.RunRecoveryRunTickForTestAsync();
+            OverviewRecoveryStatus st = env.Lifecycle.CurrentRecoveryStatus;
+            Check(st.State == "waiting" && st.Error == "game update had no activity for 15 minutes" &&
+                  st.NextRetryAt is long next && Math.Abs(next - env.Clock - 15_000) <= 1,
+                $"stall status: {st.State}/{st.Error}/{st.NextRetryAt}");
+            done.Add("update-stall-error-text-and-first-retry");
+        }
+
+        // full process-exit recovery sequence: exited session restored once, relaunch, 15 s stable verification (14 999 / 15 000)
+        foreach ((long stable, bool expectSucceeded) in new[] { (14_999L, false), (15_000L, true) })
+        {
+            using var env = new RecoveryAsyncOwnershipChecks.Env();
+            await env.StartAsync();
+            int pidA = env.Current.Pid;
+            env.Current.Alive = false;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            env.Clock += 1000;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            Check(State(env) == "waiting", "processExit recovery waiting");
+            long verifyStart = 0;
+            for (int i = 0; i < 8 && env.Instances.Count < 2; i++)
+            {
+                env.Clock += 1;
+                await env.Lifecycle.RunRecoveryRunTickForTestAsync();
+            }
+            Check(env.Instances.Count == 2 && env.StopCallsFor(pidA) == 1, "exited session cleaned once and relaunched: " + string.Join(",", env.Calls));
+            for (int i = 0; i < 6 && State(env) != "verifying"; i++)
+            {
+                env.Clock += 1;
+                await env.Lifecycle.RunRecoveryRunTickForTestAsync();
+            }
+            Check(State(env) == "verifying", "verifying after relaunch: " + State(env));
+            verifyStart = env.Clock;
+            env.Clock = verifyStart + stable;
+            await env.Lifecycle.RunRecoveryRunTickForTestAsync();
+            OverviewRecoveryStatus final = env.Lifecycle.CurrentRecoveryStatus;
+            Check((final.State == "succeeded") == expectSucceeded, $"stable {stable}: {final.State}");
+            if (expectSucceeded)
+                Check(final.Restarted && final.NoticeVisible && final.NoticeId > 0, "succeeded carries restarted + visible notice");
+        }
+        done.Add("process-exit-sequence-and-15000ms-stable-window");
+        // clock movement (the original compares wall-clock milliseconds, 0x2c9034): a backwards jump never fires a recovery,
+        // a forward jump past a threshold fires on the next observation
+        using (var env = new RecoveryAsyncOwnershipChecks.Env())
+        {
+            await env.StartAsync();
+            env.BridgeOnline = false;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            env.Clock -= 3_600_000;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            Check(State(env) == "idle", "backwards wall-clock jump must not trigger recovery: " + State(env));
+            env.Clock += 3_600_000 + 86_400_000;
+            await env.Lifecycle.RunRecoveryObservationForTestAsync();
+            Check(State(env) != "idle", "forward jump beyond the disconnect threshold fires on the next observation: " + State(env));
+            done.Add("wall-clock-movement");
         }
         return JsonSerializer.SerializeToElement(new { ok = true, cases = done });
     }

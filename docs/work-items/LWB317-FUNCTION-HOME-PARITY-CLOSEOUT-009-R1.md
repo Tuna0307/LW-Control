@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1
 
-Status: **READY / PROJECT-LEAD ASSIGNED**, 2026-10-08. Parent 009: **PARTIAL / CHANGES_REQUIRED**.
+Status: **AWAITING_REVIEW** (worker report: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1-WORKER.md), 2026-10-08. Parent 009: **PARTIAL / CHANGES_REQUIRED**.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`.

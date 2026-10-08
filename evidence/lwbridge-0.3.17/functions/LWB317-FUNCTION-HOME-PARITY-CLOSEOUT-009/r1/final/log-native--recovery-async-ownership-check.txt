@@ -7,7 +7,6 @@
     "close-while-terminate-parked-is-quiet",
     "stop-restoration-failure-is-retryable-and-not-resurrected",
     "close-while-relaunch-parked-cleans-the-cancelled-start",
-    "stop-during-parked-relaunch-is-refused-characterisation",
     "closed-owner-ignores-monitor-ticks"
   ]
 }
