@@ -674,7 +674,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         try
         {
             if (closeUnmanaged)
+            {
                 await CloseUnmanagedSelectedGamesAsync(selectedRoot, cancellationToken).ConfigureAwait(false);
+                ThrowIfStartClosed(cancellationToken);
+            }
             await EnsureControlPipeHostStartedAsync(selectedRoot).ConfigureAwait(false);
             OverviewHelperInvocation startInvocation;
             long? startDeadline = null;

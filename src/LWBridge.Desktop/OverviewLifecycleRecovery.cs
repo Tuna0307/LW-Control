@@ -181,6 +181,7 @@ internal sealed partial class OverviewLifecycleService
         IOwnedProcessApi api = OwnedProcessApi;
         foreach (int pid in pids)
         {
+            ThrowIfStartClosed(cancellationToken);
             OwnedProcessTerminationResult result = await OwnedProcessTermination.TerminateAsync(
                 api, pid, expectedPath, null, RecoveryDelayAsync, cancellationToken, awaitExit: false).ConfigureAwait(false);
             switch (result)
@@ -196,11 +197,22 @@ internal sealed partial class OverviewLifecycleService
         long deadline = checked(RecoveryClockMilliseconds() + (long)UnmanagedCloseWindow.TotalMilliseconds);
         while (true)
         {
+            ThrowIfStartClosed(cancellationToken);
             if (SelectedGamePids(selectedRoot).Count == 0) return;
             if (RecoveryClockMilliseconds() >= deadline)
                 throw new BridgeCommandException("GAME_CLOSE_TIMEOUT", "GAME_CLOSE_TIMEOUT");
             await RecoveryDelayAsync(UnmanagedClosePoll, cancellationToken).ConfigureAwait(false);
         }
+    }
+
+    // HOME 009 R2 E (current-client ownership, not an original-contract claim): a start whose owner was closed or whose caller
+    // cancelled must not continue into a launch after any parked step of the unmanaged-close phase.
+    private void ThrowIfStartClosed(CancellationToken cancellationToken)
+    {
+        bool isClosed;
+        lock (stateGate) isClosed = closed;
+        if (isClosed || cancellationToken.IsCancellationRequested)
+            throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge closed while the game was starting.");
     }
 
     // Rust std::io::Error Display: "<text> (os error N)"; the exact OS code of a failed open is not retained here,

@@ -94,6 +94,48 @@ internal static class UnmanagedCloseChecks
         return outcome;
     }
 
+
+    private static async Task<Outcome> RunWithParkedDelayAsync(World world, string root, TaskCompletionSource gate, TaskCompletionSource entered)
+    {
+        Directory.CreateDirectory(Path.Combine(root, "Game"));
+        string game = Path.Combine(root, "Game", "LastWar.exe");
+        world.Game = game;
+        var outcome = new Outcome();
+        var config = new LocalConfigStore(Path.Combine(root, "config"));
+        config.Update(current => current with { ProfileId = "r1-unmanaged-close", GameRoot = root });
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = (invocation, _) =>
+            {
+                outcome.StartReached = true;
+                throw new BridgeCommandException(TestStop, "test ends the start");
+            },
+            SelectedGamePids = world.List,
+            OwnedProcessApi = world,
+            MonotonicMilliseconds = () => world.Now,
+            DelayAsync = async (delay, token) => { entered.TrySetResult(); await gate.Task.WaitAsync(token); world.Now += (long)delay.TotalMilliseconds; },
+            ReadAllBytes = _ => Array.Empty<byte>(),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+            UpdateProcessRunning = () => false,
+            UpdateActivityFingerprint = () => null,
+            ProcessHung = (_, _) => false,
+        };
+        using var lifecycle = new OverviewLifecycleService(
+            "r1-unmanaged-close", root, helperPath: Path.Combine(root, "fake-helper.py"),
+            requireCurrentClientEvidence: false, config: config, testHooks: hooks, startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "rt"), evidenceRoot: Path.Combine(root, "ev"), backupRoot: Path.Combine(root, "bk"));
+        Task<object?> start = lifecycle.InvokeAsync("profile_instance_start", Json("{\"closeUnmanaged\":true}"), CancellationToken.None);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        lifecycle.Dispose();
+        gate.SetResult();
+        try { await start.WaitAsync(TimeSpan.FromSeconds(10)); }
+        catch (BridgeCommandException ex) { outcome.Code = ex.Code; }
+        return outcome;
+    }
+
     private static JsonElement Json(string text) => JsonDocument.Parse(text).RootElement.Clone();
 
     internal static async Task<JsonElement> RunAsync()
@@ -189,6 +231,17 @@ internal static class UnmanagedCloseChecks
                 var o = await RunAsync(w, r, Json("{\"closeUnmanaged\":true}"));
                 Check(w.OpenHandles == 0, "handles closed");
                 done.Add("no-handle-leak");
+            }
+            // R2 E coupling: the owner is closed (profile replacement) while the 5 s close wait is parked -> no launch afterwards
+            {
+                var w = Make("closed-during-wait", out string r);
+                w.Image[700] = w.Game; w.ExitDelayAfterTerminate[700] = 200;
+                var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                var o = await RunWithParkedDelayAsync(w, r, gate, entered);
+                Check(!o.StartReached, $"closed owner must not launch after the parked close wait: code={o.Code}");
+                Check(o.Code == "GAME_OPERATION_CANCELLED", "cancelled start reports GAME_OPERATION_CANCELLED: " + o.Code);
+                done.Add("close-during-parked-close-wait-never-launches");
             }
         }
         finally { try { Directory.Delete(root, recursive: true); } catch { } }
