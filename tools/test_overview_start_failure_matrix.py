@@ -84,6 +84,9 @@ class FakeLauncher:
         self.pid = LAUNCHER_PID
 
 
+FIXED_WALL_MS = 1_790_000_000_000
+
+
 def run_case(name: str) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix=f'lwbridge-a10-{name}-') as td:
         paths = fixture(td)
@@ -175,12 +178,12 @@ def run_case(name: str) -> dict[str, object]:
             launcher_running = True
             return FakeLauncher()
 
-        def close_launcher(_):
+        def close_launcher(*_args, **_kwargs):
             nonlocal launcher_running, launcher_close_calls
             launcher_close_calls += 1
             launcher_running = False
 
-        def await_game(p, deadline, log_offset):
+        def await_game(p, deadline, log_offset, *_ignored):
             nonlocal game_running, launcher_running, fail_enabled
             if name == 'game_spawn' and fail_enabled:
                 fail_enabled = False
@@ -191,8 +194,9 @@ def run_case(name: str) -> dict[str, object]:
             launcher_running = False
             return {'pid': GAME_PID, 'path': str(paths['game']), 'startedAtUtc': STARTED_AT}
 
-        def await_ready(p, profile, session, nonce, pid, deadline):
+        def await_ready(p, profile, session, nonce, pid, deadline, *_ignored):
             nonlocal fail_enabled
+            ready_calls.append((deadline, ov.read_kv(paths['runtime'] / 'game-reported.txt')))
             if name == 'readiness' and fail_enabled:
                 fail_enabled = False
                 raise ov.OverviewBridgeError('A10 injected bridge-readiness failure')
@@ -212,6 +216,19 @@ def run_case(name: str) -> dict[str, object]:
                 'method': 'A10.synthetic.exact-owned-close', 'pid': identity['pid'],
                 'path': identity['path'], 'startedAtUtc': identity['startedAtUtc'],
                 'accepted': True, 'processExited': True,
+            }
+
+        ready_calls = []
+
+        def terminate_for_stop(p, owned):
+            nonlocal game_running, game_close_calls
+            game_close_calls += 1
+            require(game_running, 'stop requested without synthetic game ownership')
+            game_running = False
+            return {
+                'method': 'TerminateProcess', 'pid': owned['pid'], 'path': owned['path'],
+                'startedAtUtc': owned['startedAtUtc'], 'accepted': True, 'processExited': True,
+                'alreadyExited': False, 'exitProof': {'established': True, 'method': 'process-handle-signalled'},
             }
 
         # Create a valid but interrupted prior operation for the pre-start recovery stage.
@@ -241,10 +258,13 @@ def run_case(name: str) -> dict[str, object]:
              patch.object(ov.lr, 'restore_backup', side_effect=restore_backup), \
              patch.object(ov, 'make_candidate', side_effect=make_candidate), \
              patch.object(ov, 'launcher_log_offset', return_value=0), \
+             patch.object(ov, 'wall_clock_milliseconds', return_value=FIXED_WALL_MS), \
+             patch.object(ov, 'selected_launcher_processes', return_value=[]), \
              patch.object(ov.lr.subprocess, 'Popen', side_effect=popen), \
-             patch.object(ov, 'close_owned_launcher_process', side_effect=close_launcher), \
+             patch.object(ov, 'close_helper_owned_launcher_processes', side_effect=close_launcher), \
              patch.object(ov, 'await_owned_game_process_update_aware', side_effect=await_game), \
              patch.object(ov, 'await_ready', side_effect=await_ready), \
+             patch.object(ov.lr, 'terminate_owned_game_process_for_stop', side_effect=terminate_for_stop), \
              patch.object(ov.lr, 'close_owned_game_process_for_restore', side_effect=close_game):
 
             try:
@@ -286,6 +306,13 @@ def run_case(name: str) -> dict[str, object]:
             require(retry.get('ok') is True and retry.get('gameRunning') is True,
                     f'{name}: subsequent retry did not reach owned ready state')
             require(game_running, f'{name}: retry did not own the synthetic game')
+            # HOME 009 R2 D: the readiness deadline is a fresh wall-clock window (+90 000 ms) taken at the launcher's game
+            # report, independent of the acquisition deadline, and the host is told the same deadline through the marker.
+            require(ready_calls and all(d == FIXED_WALL_MS + 90_000 for d, _ in ready_calls),
+                    f'{name}: readiness deadline was {[d for d, _ in ready_calls]}')
+            require(all(m is not None and m.get('deadlineMilliseconds') == str(FIXED_WALL_MS + 90_000)
+                        and m.get('gamePid') == str(GAME_PID) for _, m in ready_calls),
+                    f'{name}: game-reported marker missing or wrong: {[m for _, m in ready_calls]}')
             stop = ov.run_stop(PROFILE, session2, GAME_PID, str(paths['game']), None, STARTED_AT)
             require(stop.get('ok') is True and stop.get('gameRunning') is False,
                     f'{name}: successful retry did not close cleanly')

@@ -33,6 +33,7 @@ internal static class RecoveryAsyncOwnershipChecks
         public bool GameStateObserved = true;
         public int KillUpdaterCalls;
         public int FailStarts;
+        public int PreFailStarts;
         public int FailStops;
         public TaskCompletionSource? StartGate;
         public readonly TaskCompletionSource StartEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -41,6 +42,7 @@ internal static class RecoveryAsyncOwnershipChecks
         public readonly TaskCompletionSource TerminateEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public Exception? TerminateFailure;
         public OverviewLifecycleService Lifecycle = null!;
+        public LocalConfigStore Config = null!;
         public string GamePath = "";
         private int starts;
 
@@ -52,7 +54,7 @@ internal static class RecoveryAsyncOwnershipChecks
         {
             Directory.CreateDirectory(Path.Combine(Root, "Game"));
             GamePath = Path.Combine(Root, "Game", "LastWar.exe");
-            var config = new LocalConfigStore(Path.Combine(Root, "config"));
+            var config = Config = new LocalConfigStore(Path.Combine(Root, "config"));
             config.Update(c => c with { ProfileId = Profile, GameRoot = Root, AutoLaunchGame = false, AutoReconnect = true });
             var hooks = new OverviewLifecycleTestHooks
             {
@@ -118,6 +120,11 @@ internal static class RecoveryAsyncOwnershipChecks
                 {
                     StartEntered.TrySetResult();
                     await startGate.Task.ConfigureAwait(false);
+                }
+                if (PreFailStarts > 0)
+                {
+                    PreFailStarts--;
+                    throw new BridgeCommandException("LAUNCH_FAILED", "synthetic launch failure");
                 }
                 if (Instances.Count > 0 && FailStarts > 0)
                 {

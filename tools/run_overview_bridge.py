@@ -35,6 +35,21 @@ RESOURCE_PROBE_ENTRY = "DataCenter/Global/LWBridgeLiveResourceProbe.luac"
 RESOURCE_PROBE_MODULE = "DataCenter.Global.LWBridgeLiveResourceProbe"
 MESSAGE = "LWbridge is running"
 
+# HOME 009 R2 D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
+# 0x1D5009: once the launcher has reported the game PID the bridge-connect window is wall_clock_ms() + 90 000 ms
+# (0x1DD114 call 0x2C9034, 0x1DD119 add rax,0x15F90, stored at [r14+0x808]); the loop is
+# "now >= deadline ? -> lookup -> sleep 250 ms" (0x1DD3F7/0x1DD3FE, 0x1DD3B6) followed by ONE final lookup after the loop
+# (0x1DD45C), so a connection that appears in the iteration that passes the deadline still succeeds.
+# ADAPTATION: "lookup" is the same-session ready.json produced by the bridge handshake; launcher/game acquisition keeps its
+# own budget (--timeout-seconds) and the C# outer helper supervision covers acquisition + this window + cleanup.
+READY_WINDOW_MILLISECONDS = 90_000
+READY_POLL_SECONDS = 0.25
+
+
+def wall_clock_milliseconds() -> int:
+    """0x2C9034: Unix-epoch milliseconds from the system wall clock (not monotonic; may move backwards/forwards)."""
+    return int(time.time() * 1000)
+
 class OverviewBridgeError(RuntimeError):
     pass
 
@@ -440,7 +455,7 @@ def clear_abandoned_runtime(p: dict[str, Path]) -> None:
     lr.require_no_selected_game_process(p)
     require_no_fresh_foreign_lease(p, "__abandoned__", "__abandoned__")
     p["runtime"].mkdir(parents=True, exist_ok=True)
-    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json"):
+    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json", "game-reported.txt"):
         _delete_runtime_identity(p["runtime"] / name)
 
 
@@ -456,6 +471,7 @@ def clear_stale_runtime(
         ("lease.txt", False),
         ("ready.json", True),
         ("heartbeat.json", True),
+        ("game-reported.txt", False),
     ):
         path = p["runtime"] / name
         _delete_owned_runtime(path, session_id, challenge, json_file=json_file)
@@ -783,31 +799,39 @@ def is_server_maintenance_log(text: str) -> bool:
 
 def await_ready(
     p: dict[str, Path], profile_id: str, session_id: str, challenge: str,
-    game_pid: int, deadline: float, player_log_cursor: tuple[int, int, bytes],
+    game_pid: int, deadline_milliseconds: int, player_log_cursor: tuple[int, int, bytes],
 ) -> dict[str, object]:
+    """Wait for same-session bridge readiness until the wall-clock ``deadline_milliseconds`` (0x1DD3F7 loop + final lookup)."""
     ready_path = p["runtime"] / "ready.json"
     game_log = player_log_path()
     log_cursor = player_log_cursor
     maintenance_tail = ""
     started_epoch = int(time.time()) - 2
-    while time.monotonic() < deadline:
-        throw_if_start_cancelled(p, session_id, challenge)
+
+    def lookup() -> dict[str, object] | None:
         value = read_json(ready_path)
-        if value is not None:
-            if (
-                value.get("schemaVersion") == 1 and
-                value.get("bridgeVersion") == BRIDGE_VERSION and
-                value.get("profileId") == profile_id and
-                value.get("sessionId") == session_id and
-                value.get("challenge") == challenge and
-                value.get("gamePid") == game_pid and
-                value.get("ready") is True and
-                value.get("messageVisible") is True and
-                value.get("messageText") == MESSAGE and
-                isinstance(value.get("readyAt"), (int, float)) and
-                int(value["readyAt"]) >= started_epoch
-            ):
-                return value
+        if (
+            value is not None and
+            value.get("schemaVersion") == 1 and
+            value.get("bridgeVersion") == BRIDGE_VERSION and
+            value.get("profileId") == profile_id and
+            value.get("sessionId") == session_id and
+            value.get("challenge") == challenge and
+            value.get("gamePid") == game_pid and
+            value.get("ready") is True and
+            value.get("messageVisible") is True and
+            value.get("messageText") == MESSAGE and
+            isinstance(value.get("readyAt"), (int, float)) and
+            int(value["readyAt"]) >= started_epoch
+        ):
+            return value
+        return None
+
+    while wall_clock_milliseconds() < deadline_milliseconds:
+        throw_if_start_cancelled(p, session_id, challenge)
+        found = lookup()
+        if found is not None:
+            return found
         log_cursor, appended = read_since_cursor(game_log, log_cursor)
         if appended:
             maintenance_tail = (maintenance_tail + appended)[-131072:]
@@ -816,11 +840,29 @@ def await_ready(
                     "Last War server maintenance detected (login E005 / loading E109)"
                 )
         write_lease(p, session_id, challenge)
-        time.sleep(0.25)
+        time.sleep(READY_POLL_SECONDS)
+    throw_if_start_cancelled(p, session_id, challenge)
+    found = lookup()                       # 0x1DD45C: the final lookup after the loop
+    if found is not None:
+        return found
     heartbeat = read_json(p["runtime"] / "heartbeat.json")
     detail = heartbeat.get("error") if isinstance(heartbeat, dict) else None
     suffix = f" ({detail})" if detail else ""
     raise OverviewBridgeError("same-session game-side bridge readiness did not arrive before timeout" + suffix)
+
+
+def write_game_report(
+    p: dict[str, Path], session_id: str, challenge: str, game_pid: int, deadline_milliseconds: int,
+) -> None:
+    """Hand the launcher's game-PID report and its 90 s deadline to the host (registry refresh_pending, 0x1DD152)."""
+    write_kv_atomic(p["runtime"] / "game-reported.txt", {
+        "schema": 1,
+        "bridgeVersion": BRIDGE_VERSION,
+        "sessionId": require_token(session_id, "sessionId"),
+        "challenge": require_token(challenge, "challenge"),
+        "gamePid": int(game_pid),
+        "deadlineMilliseconds": int(deadline_milliseconds),
+    })
 
 
 def run_start(
@@ -908,9 +950,12 @@ def run_start(
                 int(owned_game["pid"]),
                 control_pipe_path,
             )
+            # R2 D: a fresh wall-clock window starts at the launcher's game report (acquisition keeps `deadline`).
+            ready_deadline_ms = wall_clock_milliseconds() + READY_WINDOW_MILLISECONDS
+            write_game_report(p, session_id, challenge, int(owned_game["pid"]), ready_deadline_ms)
             ready = await_ready(
                 p, profile_id, session_id, challenge, int(owned_game["pid"]),
-                deadline, player_log_start_cursor,
+                ready_deadline_ms, player_log_start_cursor,
             )
             throw_if_start_cancelled(p, session_id, challenge)
 

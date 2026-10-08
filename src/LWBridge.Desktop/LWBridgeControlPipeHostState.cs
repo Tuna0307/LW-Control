@@ -409,6 +409,20 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         }
     }
 
+    // HOME 009 R2 D: 0x1DD152 refresh_pending(key, deadline) - the pending registration expires at the exact
+    // wall-clock deadline (report + 90 s) the launcher-report handler also uses for its own wait.
+    internal void RefreshLaunchBindingUntil(
+        string instanceId,
+        long expiresAtMilliseconds)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        lock (gate)
+        {
+            ThrowIfStopped();
+            registry.RefreshPending(instanceId, expiresAtMilliseconds);
+        }
+    }
+
     internal void CancelLaunchBinding(string instanceId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);

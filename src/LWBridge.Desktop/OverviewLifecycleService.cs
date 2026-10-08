@@ -1,3 +1,4 @@
+using System.Text;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -57,6 +58,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     internal const string ReadyMessage = "LWbridge is running";
     private const string StartCancellationFileName = "cancel-start.txt";
     private static readonly TimeSpan HeartbeatFreshness = TimeSpan.FromSeconds(5);
+    // HOME 009 R2 D (see run_overview_bridge.py READY_WINDOW_MILLISECONDS, original 0x1DD119 add rax,0x15F90).
+    internal const long BridgeReadyWindowMilliseconds = 90_000;
+    private const long StartCleanupMarginMilliseconds = 15_000;
+    private const long MinimumAcquisitionMilliseconds = 10_000;
+    internal const long MinimumStartWindowMilliseconds =
+        MinimumAcquisitionMilliseconds + BridgeReadyWindowMilliseconds + StartCleanupMarginMilliseconds;
 
     private readonly object stateGate = new();
     private readonly object leaseWriteGate = new();
@@ -115,7 +122,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         this.profileId = profileId;
         this.gameRoot = string.IsNullOrWhiteSpace(gameRoot) ? null : Path.GetFullPath(gameRoot);
         this.helperPath = helperPath ?? Path.Combine(AppContext.BaseDirectory, "OverviewBridge", "run_overview_bridge_current.py");
-        this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(190);
+        this.helperSupervisionTimeout = helperSupervisionTimeout ?? TimeSpan.FromSeconds(120 + 90 + 15);
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.config = config;
         this.testHooks = testHooks;
@@ -461,7 +468,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (startupReconcileConsumed)
                 return new { errors = startupReconcileErrors };
             startupReconcileConsumed = true;
-            shouldAttempt = autoLaunchAll && (config?.Snapshot.AutoLaunchGame ?? true);
+            // HOME 009 R2 C: the original reconcile (0x203021, 0x39E153/0x2EA391) reads no persisted launch preference; the
+            // only gate is the payload `autoLaunchAll` (default true), which the UI fills from its local-storage preference.
+            // The profile's native AutoLaunchGame value is a mirror and no longer participates in admission.
+            shouldAttempt = autoLaunchAll;
             startupReconcileErrors = Array.Empty<OverviewStartupError>();
             if (!shouldAttempt || phase is "starting" or "running" || gamePid is not null)
                 return new { errors = startupReconcileErrors };
@@ -748,7 +758,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 if (testHooks is null)
                 {
                     long retryDeadline = startDeadline!.Value;
-                    if (retryDeadline - RecoveryClockMilliseconds() < 11_000)
+                    if (retryDeadline - RecoveryClockMilliseconds() < MinimumStartWindowMilliseconds + 1_000)
                         throw;
                     await RecoveryDelayAsync(TimeSpan.FromMilliseconds(750), cancellationToken).ConfigureAwait(false);
                     RefreshControlPipeLaunchBinding(controlPipeLaunchBinding);
@@ -1010,17 +1020,19 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         testHooks?.MonotonicMilliseconds?.Invoke() ??
         DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-    private OverviewHelperInvocation CreateBoundedStartInvocation(
+    internal OverviewHelperInvocation CreateBoundedStartInvocation(
         string sessionId,
         string sessionChallenge,
         long deadline,
         LWBridgeControlPipeLaunchBinding? controlPipeLaunchBinding)
     {
         long remainingMilliseconds = deadline - RecoveryClockMilliseconds();
-        if (remainingMilliseconds < 10_000)
+        if (remainingMilliseconds < MinimumStartWindowMilliseconds)
             throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
                 "The official client settled, but no bounded start window remained for the Overview bridge.");
-        int timeoutSeconds = (int)Math.Min(120, remainingMilliseconds / 1000);
+        // HOME 009 R2 D: `--timeout-seconds` is the launcher->game ACQUISITION budget only. The 90 s bridge-connect window
+        // starts at the launcher's game report (helper-side) and is carved out of the outer supervision window here.
+        int timeoutSeconds = (int)Math.Min(120, (remainingMilliseconds - BridgeReadyWindowMilliseconds - StartCleanupMarginMilliseconds) / 1000);
         int supervisionMilliseconds = (int)Math.Min(int.MaxValue, remainingMilliseconds);
         return new OverviewHelperInvocation(
             "start", profileId, sessionId, sessionChallenge, null, null, null,
@@ -1118,16 +1130,78 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             ? cancellationToken.Register(() =>
                 TryWriteStartCancellationMarker(invocation.SessionId!, invocation.Challenge!))
             : default;
+        CancellationTokenSource? observerCancellation = null;
+        Task<BridgeCommandException?>? observer = null;
+        if (isStart && invocation.ControlPipeLaunchBinding is not null && bridgeHostState is not null)
+        {
+            observerCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            observer = ObserveGameReportAsync(invocation, observerCancellation.Token);
+        }
         try
         {
             return await RunHelperCoreAsync(invocation, cancellationToken).ConfigureAwait(false);
         }
+        catch when (observer is not null && observer.IsCompletedSuccessfully && observer.Result is not null)
+        {
+            // 0x1DD152: a failed registry refresh is the launch error (the helper only saw the cancellation it caused).
+            throw observer.Result;
+        }
         finally
         {
             startCancellationRegistration.Dispose();
+            if (observerCancellation is not null)
+            {
+                observerCancellation.Cancel();
+                try { if (observer is not null) await observer.ConfigureAwait(false); } catch { }
+                observerCancellation.Dispose();
+            }
             if (isStart)
                 ClearStartCancellationMarker(invocation.SessionId!, invocation.Challenge!);
         }
+    }
+
+    // HOME 009 R2 D. The helper reports the launcher's game PID and the wall-clock deadline of the 90 s bridge-connect window
+    // in runtime/game-reported.txt (0x1DD114-0x1DD11F); the host then performs refresh_pending(key, deadline) (0x1DD152) so the
+    // pending pipe registration lives exactly as long as the readiness wait. Returns the refresh error, if any (the start is
+    // cancelled through the existing start-cancellation marker so the helper restores and closes its owned game).
+    private async Task<BridgeCommandException?> ObserveGameReportAsync(OverviewHelperInvocation invocation, CancellationToken token)
+    {
+        LWBridgeControlPipeLaunchBinding binding = invocation.ControlPipeLaunchBinding!;
+        string path = Path.Combine(runtimeRoot, "game-reported.txt");
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await RecoveryDelayAsync(TimeSpan.FromMilliseconds(250), token).ConfigureAwait(false);
+                byte[] bytes;
+                try { bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(path); }
+                catch { continue; }
+                var values = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (string line in Encoding.UTF8.GetString(bytes).Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    int eq = line.IndexOf('=');
+                    if (eq > 0) values[line[..eq]] = line[(eq + 1)..].TrimEnd('\r');
+                }
+                if (!values.TryGetValue("schema", out string? schema) || schema != "1" ||
+                    !values.TryGetValue("sessionId", out string? session) || session != invocation.SessionId ||
+                    !values.TryGetValue("challenge", out string? challenge) || challenge != invocation.Challenge ||
+                    !values.TryGetValue("deadlineMilliseconds", out string? deadlineText) ||
+                    !long.TryParse(deadlineText, NumberStyles.None, CultureInfo.InvariantCulture, out long deadline))
+                    continue;
+                try
+                {
+                    bridgeHostState!.RefreshLaunchBindingUntil(binding.InstanceId, deadline);
+                    return null;
+                }
+                catch (BridgeCommandException error)
+                {
+                    TryWriteStartCancellationMarker(invocation.SessionId!, invocation.Challenge!);
+                    return error;
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
+        return null;
     }
 
     private async Task<JsonElement> RunHelperCoreAsync(OverviewHelperInvocation invocation, CancellationToken cancellationToken)

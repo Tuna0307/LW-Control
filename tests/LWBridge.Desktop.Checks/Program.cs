@@ -392,6 +392,20 @@ if (args.Contains("--recovery-boundary-check", StringComparer.OrdinalIgnoreCase)
     return 0;
 }
 
+if (args.Contains("--reconcile-admission-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.ReconcileAdmissionChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
+if (args.Contains("--bridge-ready-window-check", StringComparer.OrdinalIgnoreCase))
+{
+    JsonElement result = await LWBridge.Desktop.Checks.BridgeReadyWindowChecks.RunAsync();
+    Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+    return 0;
+}
+
 if (args.Contains("--overview-process-ownership-check", StringComparer.OrdinalIgnoreCase))
 {
     JsonElement result = await LWBridge.Desktop.Checks.OverviewProcessOwnershipChecks.RunAsync();
@@ -1410,9 +1424,12 @@ try
         object? suppressed = await startupOffLifecycle.InvokeAsync(
             "profile_instances_reconcile", startupReconcilePayload.RootElement.Clone(), CancellationToken.None);
         using JsonDocument suppressedJson = JsonDocument.Parse(JsonSerializer.Serialize(suppressed, JsonOptions.Default));
+        // HOME 009 R2 C: the native mirror no longer suppresses admission (original reads only the payload); the inert
+        // helper hook records the one admitted start and nothing real runs.
         Check(suppressedJson.RootElement.GetProperty("errors").GetArrayLength() == 0 &&
-              overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile,
-            "Overview startup OFF leaves the game untouched");
+              overviewInvocations.Count(i => i.Operation == "start") == startsBeforeSuppressedReconcile + 1,
+            "payload autoLaunchAll=true admits the start even when the native AutoLaunchGame mirror is false");
+        startsBeforeSuppressedReconcile = overviewInvocations.Count(i => i.Operation == "start");
     }
 
     var payloadFalseConfig = new LocalConfigStore(Path.Combine(overviewLifecycleRoot, "config-payload-false"));

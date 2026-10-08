@@ -1,0 +1,128 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2",
+  "checkpoint": "D",
+  "scope": "actual await_ready with scripted wall clock; recovered timer contract (reconstructed), adapter lookup",
+  "rows": [
+    {
+      "case": "report 5 s, event 100 s (old 120 s window succeeded)",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "report 70 s, event 150 s (old 120 s window timed out)",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "event at 99.75s (deadline 100.0 s)",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "independent model event 99.75s",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "event at 100.0s (deadline 100.0 s)",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "independent model event 100.0s",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "event at 100.001s (deadline 100.0 s)",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "independent model event 100.001s",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "event at 100.25s (deadline 100.0 s)",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "independent model event 100.25s",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "event at 10.0s (deadline 100.0 s)",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "independent model event 10.0s",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "no event",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "event inside the last poll interval is found by the final lookup",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "backward clock jump of 60 s extends the wait",
+      "expected": "success",
+      "actual": "success",
+      "pass": true
+    },
+    {
+      "case": "forward clock jump of 10 min ends the wait immediately",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "wrong game PID",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "wrong session",
+      "expected": "timeout",
+      "actual": "timeout",
+      "pass": true
+    },
+    {
+      "case": "cancellation inside the loop",
+      "expected": "cancelled",
+      "actual": "cancelled",
+      "pass": true
+    },
+    {
+      "case": "cancellation exactly at the deadline",
+      "expected": "cancelled",
+      "actual": "cancelled",
+      "pass": true
+    }
+  ],
+  "failures": []
+}
