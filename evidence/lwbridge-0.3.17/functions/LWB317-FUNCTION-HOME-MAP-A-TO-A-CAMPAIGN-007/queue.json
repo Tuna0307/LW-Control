@@ -27,11 +27,11 @@
                             "id":  "B01",
                             "title":  "Original home recovery and launcher service bodies",
                             "sourceLocator":  "docs/reviews/2026-10-07-LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-LEAD.md",
-                            "status":  "READY",
+                            "status":  "RECOVERED_NATIVE_XREFS_INNER_POLICY_UNPROVEN",
                             "proofType":  "Original static xrefs accepted previously",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Trace available original host/launcher native edges"
+                            "lastExecutedResult":  "Hash-gated 0.3.17 Home native start/stop/status/reconcile/profile/root/recovery xrefs recovered; inner retry timing not decoded",
+                            "dependency":  "Need original 0.3.17 Home launch/recovery inner-control body or same-state dynamic observation",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "B02",
@@ -39,69 +39,69 @@
                             "sourceLocator":  "006 accepted artifact research + original exact package",
                             "status":  "BLOCKED_ORIGINAL_INPUT",
                             "proofType":  "Missing matching signed package-key envelope and original CNG device state",
-                            "lastExecutedResult":  null,
-                            "dependency":  "Missing matching signed package-key envelope and original CNG device state",
-                            "nextAction":  "No key guessing; decode only if legitimately supplied"
+                            "lastExecutedResult":  "006 ciphertext/crypto and controller boundary reaudited; no valid signed envelope/device state",
+                            "dependency":  "Matching valid signed package-key.envelope + authorized matching persisted CNG P-256 owner state",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "C01",
                             "title":  "Home preferences global/profile native rollback",
                             "sourceLocator":  "RECOVERY-003 R3-04/05; actual original frontend bundle",
-                            "status":  "READY",
+                            "status":  "COMPLETE_BOUNDED_CLONE_NATIVE_AND_SOURCE",
                             "proofType":  "R3 corrections accepted offline",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Distinguishing current handler regression"
+                            "lastExecutedResult":  "Global Auto Launch, profile reconnect and concurrent draft native/current App accepted source/local regressions PASS",
+                            "dependency":  "No source-proven exact original native failure rollback semantics beyond recovered localStorage",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "C02",
                             "title":  "Home launcher retry/timeout/reconnect exact parity",
                             "sourceLocator":  "original Home service xrefs vs OverviewLifecycleService",
-                            "status":  "READY",
+                            "status":  "CURRENT_HOST_TESTED_ORIGINAL_LAUNCH_TIMING_UNKNOWN",
                             "proofType":  "Original deeper parameters unproved",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Trace original host xref, compare implementation policy"
+                            "lastExecutedResult":  "Reconnect policy, close timing, process ownership, launch spam and recovery checks PASS",
+                            "dependency":  "Exact original 0.3.17 Home launcher retry/backoff/timeout inner semantics",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "C03",
                             "title":  "Home root/Launch/Close/pending/status/profiles/restart",
                             "sourceLocator":  "RECOVERY-003 + src/LWBridge.UI-0.3.17/src",
-                            "status":  "READY",
+                            "status":  "COMPLETE_BOUNDED_CLONE_HOST_NATIVE",
                             "proofType":  "Accepted source UIUX and ownership guards",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Run production mounted tests and original cases"
+                            "lastExecutedResult":  "19/19 native runners include root status, lifecycle, profile A-B-A, process/transport, closed sessions",
+                            "dependency":  "True original protected post-auth runtime and UI equivalent-state failure sequence unavailable",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "D01",
                             "title":  "Resource logical grid, request order, AOI adaptation and retry",
                             "sourceLocator":  "RE-MAP-002, CurrentClientMapBlockSource.FastCity.cs, MapScanEngine.cs",
-                            "status":  "READY",
+                            "status":  "CURRENT_LIVE_SOURCE_BOUNDED_ORIGINAL_TRAVERSAL_UNKNOWN",
                             "proofType":  "Original provider details unknown",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Recover additional original xrefs, differentiate policy"
+                            "lastExecutedResult":  "Original native start/stop/query annotated; v22 2500 logical blocks and AOI/grouping/retry source inspected",
+                            "dependency":  "Original protected tile traversal/selection/AOI/raw message queues/timing",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "D02",
                             "title":  "All eight producers and record identity/field absence",
                             "sourceLocator":  "DEEP-RECOVERY-002; current v22 bytecode body oracles",
-                            "status":  "READY",
+                            "status":  "EIGHT_KIND_BOUNDARIES_INVENTORIED_PRIVATE_PRODUCERS_UNKNOWN",
                             "proofType":  "Original protected producer details unknown",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Validate source projections and compare accepted tests"
+                            "lastExecutedResult":  "eight-producer-matrix and current game Lua bytecode tests pass; all eight original extractor bodies unavailable",
+                            "dependency":  "Original bridge protected package or equivalent same-state per-kind output oracle",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "D03",
                             "title":  "Cancellation positive staged and late response",
                             "sourceLocator":  "004 lead review; MapScanEngine and MapStore",
-                            "status":  "READY_LIVE_OPTIONAL",
+                            "status":  "POSITIVE_STAGING_INERT_PASS_LIVE_POSITIVE_WITNESS_UNMET",
                             "proofType":  "004 negative early Stop live; positive staging unproved",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "First do controlled inert races; launch only if necessary"
+                            "lastExecutedResult":  "Actual control/store inert Stop after staged1 PASS; live 007 attempted, 0 staged, cancelled without publication, exact restoration",
+                            "dependency":  "Real current game must produce staged\u003e0 while run still isReading before Stop",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "E01",
@@ -119,7 +119,7 @@
                             "sourceLocator":  "Map317CommandService.InvokeAsync; MapStore.Search",
                             "status":  "COMPLETE_BOUNDED_CURRENT_DATA",
                             "proofType":  "Previous first command envelope invalid",
-                            "lastExecutedResult":  "Actual Map317CommandService 8008, pages50/50, positive resourceNameKey2608, impossible0; malformed rejected",
+                            "lastExecutedResult":  "Actual Map317CommandService 8008, pages50/50, Resource filter2608, numeric page0/-7 -\u003e1; pageSize0/-4-\u003e1 and201-\u003e200; malformed payload and wrong types rejected",
                             "dependency":  null,
                             "nextAction":  "Preserve, compare original contract later"
                         },
@@ -129,7 +129,7 @@
                             "sourceLocator":  "Map317CommandService, MapControlPlane, cancelled DB",
                             "status":  "COMPLETE_BOUNDED_CURRENT_DATA",
                             "proofType":  "Offline context differs from game-ready context",
-                            "lastExecutedResult":  "Actual options 8008/4 names, offline summary server0, B empty, A reopen",
+                            "lastExecutedResult":  "Actual offline Map summary server0; inert positive live-shaped context returns server2212+actual count8008, options resource8008/4; no gameplay",
                             "dependency":  null,
                             "nextAction":  "Preserve, compare original contract later"
                         },
@@ -147,21 +147,21 @@
                             "id":  "E05",
                             "title":  "Map auto/manual config hydration, scheduled jobs, export",
                             "sourceLocator":  "RECOVERY-003; MapAutoScanScheduler; CityExporter",
-                            "status":  "READY",
+                            "status":  "COMPLETE_BOUNDED_CONFIG_JOBS_CITY_EXPORT_INERT",
                             "proofType":  "No real gameplay or SaveDialog permitted",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Existing production focused tests and extra inverses"
+                            "lastExecutedResult":  "map-auto-scan campaign, restart, Map317 worker and City export serializer; no Resource export or live Auto/game actions",
+                            "dependency":  "Exact original private job execution/correlation and OS dialog/live recurring approval",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "F01",
                             "title":  "Canonical Home+Map EN/light JA/dark integration race cleanup",
                             "sourceLocator":  "actual App UI mounts and source oracles",
-                            "status":  "READY",
+                            "status":  "COMPLETE_MOUNTED_CURRENT_APP_NOT_ORIGINAL_WEBVIEW",
                             "proofType":  "Canonical WebView live blocked owner desktop ban",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Headless browser test with source constraints"
+                            "lastExecutedResult":  "Actual App/Home/Map 8 headless cases and MapDataPage 10 cases EN/light, JA/dark; real 8008 native data; 0 errors/listener leaks",
+                            "dependency":  "Original WebView post-auth actions/visuals; owner currently restricts desktop capture/input/focus",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "G01",
@@ -177,31 +177,31 @@
                             "id":  "G02",
                             "title":  "New native City scan / cancellation-after-staging if needed",
                             "sourceLocator":  "pilot isolation/compatibility backups",
-                            "status":  "OPTIONAL_NEEDS_GAP",
+                            "status":  "COMPLETE_SINGLE_BOUNDED_LIVE_ATTEMPT_NEGATIVE",
                             "proofType":  "Valid only current-server nonintrusive launch",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Determine from existing evidence; no repeated scan without need"
+                            "lastExecutedResult":  "run 4bf2ef2cd54d4a7a8a3fc7ae7fa6753d server2212 stopped cancelled completed0 staged0 published0; restored. Actual positive-stage Stop NOT PROVEN",
+                            "dependency":  "One future expressly authorized live positive-stage timing witness, not repeated without new admission control",
+                            "nextAction":  "No new source-independent task until documented external input/witness"
                         },
                         {
                             "id":  "H01",
                             "title":  "Full diff, checks/build/preserve cleanup",
                             "sourceLocator":  "AGENTS.md; campaign 007 H",
-                            "status":  "READY",
+                            "status":  "VERIFICATION_NEAR_COMPLETE",
                             "proofType":  "Fresh reference hash and process inventory zero at kickoff",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Final verification and source-grounded distinctions"
+                            "lastExecutedResult":  "19 native, static/lua, frontend and Release pass; independent 007 live negative audit and preservation pass",
+                            "dependency":  "Final affected checks/package/diff/source hashes after all edits",
+                            "nextAction":  "Final affected checks/package/diff/source hashes after all edits"
                         },
                         {
                             "id":  "H02",
                             "title":  "Masters/ledger/review/queue/remote SHA",
                             "sourceLocator":  "campaign 007 H",
-                            "status":  "READY",
+                            "status":  "PENDING_FINAL_DOCS_AND_REMOTE_SHA",
                             "proofType":  "Project lead acceptance separate",
-                            "lastExecutedResult":  null,
-                            "dependency":  null,
-                            "nextAction":  "Update, push, verify direct SHA"
+                            "lastExecutedResult":  "Checkpoint E and matrix pushed directly; C/D/F/G source+proof pending medium checkpoint",
+                            "dependency":  "Finish masters/handoff/queue docs, final commit/push/direct remote SHA",
+                            "nextAction":  "Finish masters/handoff/queue docs, final commit/push/direct remote SHA"
                         }
                     ]
 }

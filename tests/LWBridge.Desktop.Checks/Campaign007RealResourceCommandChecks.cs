@@ -103,6 +103,18 @@ internal static class Campaign007RealResourceCommandChecks
                 Require(zeroPage.GetProperty("total").GetInt32() == ExpectedRows &&
                     Keys(zeroPage).SequenceEqual(Keys(first)),
                     "R17 original page=0 minimum-to-1 contract differs from current public command");
+                // Distinguishing R17 Search pagination numeric-page-size edges:
+                // RE-MAP-003: absent -> 50, explicit below one -> one, >200 ->200.
+                JsonElement sizeZero = await Query(serviceA,
+                    new {serverId = Server, page = 1, pageSize = 0});
+                JsonElement sizeNegative = await Query(serviceA,
+                    new {serverId = Server, page = 1, pageSize = -4});
+                JsonElement sizeOverMax = await Query(serviceA,
+                    new {serverId = Server, page = 1, pageSize = 201});
+                Require(sizeZero.GetProperty("rows").GetArrayLength() == 1 &&
+                    sizeNegative.GetProperty("rows").GetArrayLength() == 1 &&
+                    sizeOverMax.GetProperty("rows").GetArrayLength() == 200,
+                    "R17 native page-size explicit minimum=1 maximum=200 was not restored");
                 defaultPage = await Query(serviceA, new { serverId = Server });
                 Require(first.GetProperty("total").GetInt32() == ExpectedRows &&
                     second.GetProperty("total").GetInt32() == ExpectedRows &&
@@ -142,6 +154,32 @@ internal static class Campaign007RealResourceCommandChecks
                 Require(offlineSummary.GetProperty("serverId").GetInt32() == 0,
                     "offline no-live-context summary must not pretend to have server 2212");
             }
+            // Only the game boundary is inert: make the production summary
+            // consume an explicitly source-shaped current-server context.
+            // This is NOT a real authenticated/live game-context witness.
+            JsonElement positiveContextSummary;
+            JsonElement positiveContextStatus;
+            var positiveContext = new Map317.MapProviderContext(
+                IsAvailable: true, IsInWorld: true, ServerId: Server,
+                ServerIdSource: "live", WorldId: 0, TileWidth: 1000,
+                TileHeight: 1000, ExpectedTotalBlocks: 2500);
+            var contextProvider = new Map317.MapProviderAdapter(
+                _ => ValueTask.FromResult(positiveContext),
+                _ => throw new InvalidOperationException("in-world context must not invoke map entry"),
+                (_, _) => throw new InvalidOperationException("read-only command replay cannot start a scan"),
+                _ => throw new InvalidOperationException("read-only command replay cannot stop a scan"));
+            using (var readied = new Map317CommandService(a, contextProvider,
+                Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
+            {
+                positiveContextSummary = await Command(readied, "map_summary", new {});
+                positiveContextStatus = await Command(readied, "map_scan_status", new {});
+                Require(positiveContextSummary.GetProperty("serverId").GetInt32() == Server &&
+                    positiveContextSummary.GetProperty("counts").GetProperty("resource").GetInt32() == ExpectedRows,
+                    "actual map_summary failed to join positive context and published Resource count");
+                Require(positiveContextStatus.GetProperty("serverId").GetInt32() == Server &&
+                    positiveContextStatus.GetProperty("isInWorld").GetBoolean(),
+                    "actual map_scan_status did not refresh injected owned world context");
+            }
             // Explicitly separate a never-populated profile B.
             JsonElement emptyB;
             using (var serviceB = Open(b))
@@ -171,7 +209,7 @@ internal static class Campaign007RealResourceCommandChecks
                     {
                         firstPage = first, secondPage = second, positiveResourceFilter = filtered,
                         impossibleResourceFilter = impossible, options = optionsA,
-                        offlineSummary
+                        offlineSummary, positiveContextSummary, positiveContextStatus
                     },
                     profileB = new { firstPage = emptyB },
                     actualCommand = "Map317CommandService.InvokeAsync"
@@ -192,6 +230,8 @@ internal static class Campaign007RealResourceCommandChecks
                     optionsResourceNames = optionsA.GetProperty("names").GetProperty("resource").GetArrayLength(),
                     optionResourceCount=optionsA.GetProperty("counts").GetProperty("resource").GetInt32(),
                     summaryOfflineServerId=offlineSummary.GetProperty("serverId").GetInt32(),
+                    summaryInertPositiveContextServerId=positiveContextSummary.GetProperty("serverId").GetInt32(),
+                    summaryInertPositiveContextResourceCount=positiveContextSummary.GetProperty("counts").GetProperty("resource").GetInt32(),
                     reopenTotal=reopened.GetProperty("total").GetInt32()
                 },
                 oldEnvelopeRejected = true,

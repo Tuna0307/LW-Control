@@ -60,3 +60,61 @@ production dispatcher now handles page0 and -7 plus 8008 real rows,
 2 pages, filtered positive/negative, preserved A/B/A and exact cleanup.
 This is source-backed bounded public search A->A, NOT protected
 original in-game scanning parity.
+## Checkpoint C/D/F/G — original-native recovery, mounted App and distinct live negative
+
+Exact original native Home handlers re-annotated by hash-locked xrefs: launch,
+Stop, status, reconcile, root-select, profile-list/select, repair/restart,
+recovery. Original private Lua remains encrypted with valid matching signed
+envelope and device-key inputs absent; no guessed Home retry/Map traversal.
+
+Source/current v22 8-kind producer matrix created, with original vs current
+projection/scan contracts and unknown original per-kind extractor bodies kept
+explicitly separate. Accepted R3 Home original-local UIUX, root ownership,
+profile A/B/A and recovery were not reopened. Fresh 19/19 native focused
+checks PASS (Home/Map/profile/RPC etc), plus static original/current
+bytecode and protection guards PASS. Ghost public provider remains
+GAME_PROVIDER_UNAVAILABLE; stale exact-message static validation updated to
+test both incomplete preparation and unresolved terminal correlation. Four
+in-memory gate-removal/semantic mutations were rejected as designed.
+
+Production MapControlPlane/MapStore positive staging inert inverse PASS:
+one staged Resource row then Stop => cancelled, zero staging, preserved
+prior publication, late stage/progress/publish rejected; separate failed
+partial preservation and successful complete replacement checked. Actual
+Map summary with inert source-shaped positive world context returns server
+2212 and published 8008; offline context returns server0. These cases use
+the real Map command/SQLite path, no synthetic game actions.
+
+Actual canonical App/Home/Map and MapDataPage mounted with real native
+current-v22 Resource command responses: EN/light and JA/dark, route
+transitions/retained Home->Map, real page1/page2 button,
+positive resourceNameKey filter 2608, A8008->B0->A8008, zero
+unexpected console warnings, 0 remaining timers/listeners. Headless
+jsdom/react, not original WebView pixels or game UI.
+
+Fresh expressly bounded real current-server Resource attempt:
+profile lwb317-background-witness-002-550b5a8b, run
+4bf2ef2cd54d4a7a8a3fc7ae7fa6753d, real authenticated host/game Lua
+RPC and Start, one block inflight at bounded Stop. **Staging never became
+positive**; completed=0, staged=0, published=0, durable cancelled.
+No claim of cancellation after positive live staging. Independent
+read-only audit PASS for negative classification. Exact owned Home/Map
+Stop, LocalLow original hash restoration, journal absent, zero
+LastWar/clone processes. No screenshots/input/focus, cross-server Auto,
+updater or gameplay actions. The 004 completed 8008 rows and active
+Stop remain accepted and untouched.
+
+All proof files in this campaign root. Final docs/Release revalidation
+and direct remote verification remain H.
+## Final original Search page-size edge (M20), after original page correction
+
+RE-MAP-003 original 0.3.17 native Search specifies missing pageSize default 50,
+numeric explicit minimum1 maximum200. The old clone command parser rejected
+pageSize=0 with INVALID_MAP_QUERY; actual negative stack
+source-page-size-zero-baseline-failure.json preserved. Corrected only the
+MapDataQueryContract incoming command numeric pageSize boundary; missing/null
+still defaults 50, wrong-type still rejects without guessing string coercion,
+raw MapStore and all game collectors remain unchanged. Positive actual command
+test on 8008 Resource records now returns 1 row for zero/-4, 200 rows for 201,
+and page1/2, filter/options, A/B/A remain green. Evidence
+command-page-size-corrected-proof.json; source A->A native query contract ONLY.

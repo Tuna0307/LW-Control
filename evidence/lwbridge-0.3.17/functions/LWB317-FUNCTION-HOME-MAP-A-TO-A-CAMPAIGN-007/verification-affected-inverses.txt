@@ -1,0 +1,11 @@
+Campaign 007 affected independent oracles
+home-profile-draft-frontend status=PASS exit=0
+original-lua-boundary status=PASS exit=0
+map-blocker-source status=PASS exit=0
+ghost-expiry-correlation status=PASS exit=0
+resource-current-inverses status=FAIL exit=1
+Traceback (most recent call last):
+  File "C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tests\map_blocker_boundaries_lua_checks.py", line 16, in <module>
+    import lupa
+ModuleNotFoundError: No module named 'lupa'
+resource-current-inverses-correct-lupa-runtime status=PASS exit=0

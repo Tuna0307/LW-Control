@@ -1,0 +1,17 @@
+﻿{
+    "preflightAtUtc":  "2026-10-08T05:42:08.7988255Z",
+    "scanMode":  "normal",
+    "selectedTypes":  [
+                          "resource"
+                      ],
+    "noInitialGameOrDesktopBridgeProcesses":  true,
+    "AutoScan":  false,
+    "AutoLaunch":  false,
+    "newWitness":  "actual positive staged rows followed by native Stop",
+    "gameExe":  "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "ownerScriptsPreserved":  "PASS",
+    "gameExeSha256":  "905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d",
+    "campaign":  "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+    "limitations":  "No desktop screenshots/input/focus, no other gameplay, no original 0.3.17 controller access",
+    "sourceBaseline":  "3310bd70b1832f9440540db5c3870be0e153763f"
+}

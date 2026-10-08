@@ -1,49 +1,80 @@
-{
-  "campaign": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
-  "knownDemonstratedDifferences": [
-    {
-      "id": "A2A-MAP-QUERY-PAGE-001",
-      "status": "CORRECTED_SOURCE_BACKED_PRESERVE_BASELINE",
-      "reference": {
-        "kind": "EXACT_CONTRACT",
-        "source": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md, Search pagination (original native normalizes page defaults/minimum to 1)",
-        "referenceExecutableSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
-      },
-      "cloneBaseline": {
-        "source": "src/LWBridge.Desktop/MapDataQueryContract.cs:81, OptionalPositiveInt",
-        "input": "map_search({kind:'resource',query:{serverId:2212,page:0,pageSize:50}})",
-        "observed": "INVALID_MAP_QUERY, 'page must be a positive integer.'",
-        "evidence": "source-page-zero-baseline-failure.json"
-      },
-      "correction": {
-        "source": "src/LWBridge.Desktop/MapDataQueryContract.cs, OptionalNormalizedPage",
-        "numericZero": "clamp1",
-        "negativeNumeric": "clamp1",
-        "missingOrNull": "default1",
-        "nonIntegerOrWrongType": "preserve existing INVALID_MAP_QUERY message",
-        "pageSize": "UNCHANGED; original other type coercion not inferred"
-      },
-      "validation": {
-        "source": "tests/LWBridge.Desktop.Checks/Campaign007RealResourceCommandChecks.cs",
-        "corrected": "command-page-zero-corrected-proof.json",
-        "dataset": "Actual 8008 Resource rows from archived 004, copied without modifying source",
-        "result": "PASS for page0/negative, positive page1/page2 filter options and profile A/B/A",
-        "externalGameActions": 0,
-        "originalProviderParity": "UNKNOWN"
-      },
-      "followUps": [
-        "Further exact original public page-size wrong-type coercion remains unverified",
-        "No original protected Resource extractor record-set equivalence is claimed"
-      ]
-    }
-  ],
-  "unprovedEquivalence": [
-    "Original Home launcher retry/timeout/backoff thresholds",
-    "Original protected scan target/traversal/AOI scheduling and concurrency",
-    "Original per-kind selected record membership/field semantics",
-    "Original provider failure/retry and positive-stage late-cancellation race",
-    "Actual current-client WorldScene ChangeToWorld callback in a city-only session",
-    "Original protected Treasure aggregate and Ghost preparation controller"
-  ],
-  "claimsPolicy": "No current-client success or self-test establishes original A-to-A without recovered original comparison"
+﻿{
+    "campaign":  "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+    "knownDemonstratedDifferences":  [
+                                         {
+                                             "id":  "A2A-MAP-QUERY-PAGE-001",
+                                             "status":  "CORRECTED_SOURCE_BACKED_PRESERVE_BASELINE",
+                                             "reference":  {
+                                                               "kind":  "EXACT_CONTRACT",
+                                                               "source":  "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md, Search pagination (original native normalizes page defaults/minimum to 1)",
+                                                               "referenceExecutableSha256":  "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+                                                           },
+                                             "cloneBaseline":  {
+                                                                   "source":  "src/LWBridge.Desktop/MapDataQueryContract.cs:81, OptionalPositiveInt",
+                                                                   "input":  "map_search({kind:\u0027resource\u0027,query:{serverId:2212,page:0,pageSize:50}})",
+                                                                   "observed":  "INVALID_MAP_QUERY, \u0027page must be a positive integer.\u0027",
+                                                                   "evidence":  "source-page-zero-baseline-failure.json"
+                                                               },
+                                             "correction":  {
+                                                                "source":  "src/LWBridge.Desktop/MapDataQueryContract.cs, OptionalNormalizedPage",
+                                                                "numericZero":  "clamp1",
+                                                                "negativeNumeric":  "clamp1",
+                                                                "missingOrNull":  "default1",
+                                                                "nonIntegerOrWrongType":  "preserve existing INVALID_MAP_QUERY message",
+                                                                "pageSize":  "UNCHANGED; original other type coercion not inferred"
+                                                            },
+                                             "validation":  {
+                                                                "source":  "tests/LWBridge.Desktop.Checks/Campaign007RealResourceCommandChecks.cs",
+                                                                "corrected":  "command-page-zero-corrected-proof.json",
+                                                                "dataset":  "Actual 8008 Resource rows from archived 004, copied without modifying source",
+                                                                "result":  "PASS for page0/negative, positive page1/page2 filter options and profile A/B/A",
+                                                                "externalGameActions":  0,
+                                                                "originalProviderParity":  "UNKNOWN"
+                                                            },
+                                             "followUps":  [
+                                                               "Further exact original public page-size wrong-type coercion remains unverified",
+                                                               "No original protected Resource extractor record-set equivalence is claimed"
+                                                           ]
+                                         },
+                                         {
+                                             "id":  "A2A-MAP-QUERY-PAGESIZE-002",
+                                             "status":  "CORRECTED_EXACT_R17_NUMERIC_MINMAX",
+                                             "reference":  {
+                                                               "kind":  "EXACT_RE_MAP_003_CONTRACT",
+                                                               "source":  "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md:Search pagination original native defaults to 50, minimum 1, maximum 200",
+                                                               "referenceExecutableSha256":  "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
+                                                           },
+                                             "baseline":  {
+                                                              "observed":  "Actual Map317CommandService rejected explicit pageSize=0 with INVALID_MAP_QUERY pageSize must be a positive integer",
+                                                              "trace":  "source-page-size-zero-baseline-failure.json"
+                                                          },
+                                             "correction":  {
+                                                                "source":  "src/LWBridge.Desktop/MapDataQueryContract.cs:OptionalNormalizedPageSize",
+                                                                "explicitNumeric":  "int min1 max200",
+                                                                "missingNull":  "default50",
+                                                                "wrongTypes":  "unchanged INVALID_MAP_QUERY",
+                                                                "storeQuery":  "untouched",
+                                                                "privateCapture":  "not modified"
+                                                            },
+                                             "validation":  {
+                                                                "actualProductionCommandRealResourceRows":  8008,
+                                                                "size0":  1,
+                                                                "sizeNegative4":  1,
+                                                                "size201":  200,
+                                                                "profileReopen":  "A/B/A",
+                                                                "report":  "command-page-size-corrected-proof.json",
+                                                                "sourceBackedOnly":  true,
+                                                                "originalGameProviderParity":  "UNKNOWN"
+                                                            }
+                                         }
+                                     ],
+    "unprovedEquivalence":  [
+                                "Original Home launcher retry/timeout/backoff thresholds",
+                                "Original protected scan target/traversal/AOI scheduling and concurrency",
+                                "Original per-kind selected record membership/field semantics",
+                                "Original provider failure/retry and positive-stage late-cancellation race",
+                                "Actual current-client WorldScene ChangeToWorld callback in a city-only session",
+                                "Original protected Treasure aggregate and Ghost preparation controller"
+                            ],
+    "claimsPolicy":  "No current-client success or self-test establishes original A-to-A without recovered original comparison"
 }

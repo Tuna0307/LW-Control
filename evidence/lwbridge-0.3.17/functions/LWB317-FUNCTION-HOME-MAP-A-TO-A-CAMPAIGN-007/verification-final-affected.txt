@@ -1,0 +1,14 @@
+campaign007 final affected checks baseline=839f0bcd head=3310bd70b1832f9440540db5c3870be0e153763f
+staging-readonly-run-inverses PASS exit=0
+production-map-store-post-stage-stop PASS exit=0
+positive-native-command-real-data-and-context PASS exit=0
+native-home-campaign-lifecycle PASS exit=0
+native-map317-boundary-city-export PASS exit=0
+native-map317-plunder-workers PASS exit=0
+native-profile-runtime-owner-aba PASS exit=0
+producer-unavailable-inverse-mutations PASS exit=0
+original-controller-boundary-contract PASS exit=0
+independent-negative-real-game-staging-stop PASS exit=0
+independent-final-preservation PASS exit=0
+actual-mounted-app-current-replay PASS exit=0
+actual-mounted-map-page-current-replay PASS exit=0

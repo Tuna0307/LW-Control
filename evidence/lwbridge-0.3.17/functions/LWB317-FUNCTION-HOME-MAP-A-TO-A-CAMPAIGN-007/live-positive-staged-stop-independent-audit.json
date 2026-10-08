@@ -1,0 +1,50 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+  "status": "NEGATIVE_UNMET_POSITIVE_STAGING_WITNESS",
+  "evidenceClass": "actual current-v22 authenticated production isolated background session",
+  "run": "4bf2ef2cd54d4a7a8a3fc7ae7fa6753d",
+  "profileId": "lwb317-background-witness-002-550b5a8b",
+  "ownedSession": "85551409da3c46959eaf86ff1e215e2d",
+  "ownedPid": 44192,
+  "worldReady": {
+    "observed": true,
+    "updatedAtUtc": "2026-10-08T05:44:48.4135009Z",
+    "requestId": "world75284a0432b64446b2261fb84ba2a53e",
+    "profileMatched": true,
+    "sessionMatched": true,
+    "pidMatched": true,
+    "state": "proven",
+    "method": "already_world_scene",
+    "error": null,
+    "serverId": 2212,
+    "worldId": 0,
+    "tileWidth": 1000,
+    "tileHeight": 1000
+  },
+  "preStop": {
+    "isReading": true,
+    "inflight": 1,
+    "completed": 0,
+    "staged": 0
+  },
+  "durableScan": {
+    "status": "cancelled",
+    "serverId": 2212,
+    "total": 2500,
+    "completed": 0,
+    "failed": 0
+  },
+  "afterStop": {
+    "staged": 0,
+    "publishedResource": 0,
+    "gameProcesses": 0,
+    "journal": false
+  },
+  "restorationVerified": true,
+  "ownedHomeStop": true,
+  "nativeMapStop": true,
+  "positiveStagedCancellationProved": false,
+  "originalReferenceParity": false,
+  "missingWitness": "real game scan_records must become >0 while run remains isReading=true before Stop",
+  "noDesktopInputOrScreenshots": true
+}

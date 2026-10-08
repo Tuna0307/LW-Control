@@ -135,8 +135,18 @@ def main() -> int:
             "Treasure claim status fence was removed")
     require("current-client Treasure claim provider is unavailable" in provider,
             "Treasure claim fence was removed")
-    require("GhostReconSteal terminal response identity is not source-proven" in provider,
-            "Ghost public preparation fence was removed")
+    # The later, accepted BLOCKER-BOUNDARIES-004 review separates missing
+    # original preparation transformation from downstream Ghost execution
+    # correlation. Retain BOTH explicit fail-closed dependencies; the old
+    # single-message assertion was tied to the superseded rationale.
+    ghost_method = provider.split("public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(", 1)
+    require(len(ghost_method) == 2, "Ghost public method missing")
+    ghost_fence = ghost_method[1].split("internal static IReadOnlyList<JsonElement> PrepareGhostPlunderRows", 1)[0]
+    require("ValueTask.FromException<IReadOnlyList<JsonElement>>" in ghost_fence
+            and "ProviderUnavailable(" in ghost_fence
+            and "prepareGhostPlunderTasks row transformation/rejection semantics are incomplete" in ghost_fence
+            and "downstream Ghost execution terminal-result correlation is separately unresolved" in ghost_fence,
+            "Ghost public preparation fail-closed contract was removed")
     require("PrepareGhostPlunderRows" in provider, "Ghost normalization helper missing")
 
     fast_city = (ROOT / "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs").read_text(encoding="utf-8")

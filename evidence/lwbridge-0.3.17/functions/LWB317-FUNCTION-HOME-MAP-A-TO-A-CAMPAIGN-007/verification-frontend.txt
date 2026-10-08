@@ -1,0 +1,7 @@
+phase=frontend baseline=839f0bcd162eed560a52c17ccf61eeb6a8731af0 head=3310bd70b1832f9440540db5c3870be0e153763f utc=2026-10-08T05:17:59.5164739Z
+canonical-ui-check status=PASS exit=0 seconds=2
+canonical-ui-build status=PASS exit=0 seconds=4.5
+canonical-ui-production-build-check status=PASS exit=0 seconds=0.8
+real-current-mapBackend-adapter status=PASS exit=0 seconds=0.1
+mounted-canonical-MapDataPage status=PASS exit=0 seconds=2.2
+mounted-canonical-App-Home-Map status=PASS exit=0 seconds=1.9

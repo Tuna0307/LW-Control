@@ -2,6 +2,16 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int campaign007CancelIndex = Array.FindIndex(args,
+    value => string.Equals(value, "--campaign007-positive-stage-cancel", StringComparison.OrdinalIgnoreCase));
+if (campaign007CancelIndex >= 0)
+{
+    if (campaign007CancelIndex + 1 >= args.Length)
+        throw new ArgumentException("--campaign007-positive-stage-cancel <evidence-json>");
+    await LWBridge.Desktop.Checks.Campaign007LateCancellationChecks.RunAsync(
+        args[campaign007CancelIndex + 1]);
+    return 0;
+}
 int campaign007CommandProofIndex = Array.FindIndex(args,
     value => string.Equals(value, "--campaign007-command-proof", StringComparison.OrdinalIgnoreCase));
 if (campaign007CommandProofIndex >= 0)
@@ -41,7 +51,8 @@ if (backgroundWitness002Index >= 0)
     await LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunAsync(
         Path.GetFullPath(args[backgroundWitness002Index + 1]),
         args.Contains("--launch", StringComparer.OrdinalIgnoreCase),
-        args.Contains("--active-stop", StringComparer.OrdinalIgnoreCase));
+        args.Contains("--active-stop", StringComparer.OrdinalIgnoreCase) || args.Contains("--positive-stage-stop", StringComparer.OrdinalIgnoreCase),
+        args.Contains("--positive-stage-stop", StringComparer.OrdinalIgnoreCase));
     return 0;
 }
 int resourceRuntimeInspectionProofIndex = Array.FindIndex(

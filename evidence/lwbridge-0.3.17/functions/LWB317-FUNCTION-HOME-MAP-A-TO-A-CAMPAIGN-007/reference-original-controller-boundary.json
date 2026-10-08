@@ -1,0 +1,134 @@
+{
+  "ok": true,
+  "findingId": "LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-D",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "nativeBodyHashes": {
+    "statusPublic": "76a871144538664d684ef2cbf9a693aa03a81864885d0479a49e87e5e537eb1c",
+    "treasureService": "c013598b3325323b00e294d23eb76c9d37ce159b979a5786b3911500db337f95",
+    "claimPublic": "ed532af562b54969df287264ad2417e978b60e2845e3fb278649bdbeb00987b6",
+    "claimCandidates": "caa98c4d7a2cc6038f02a48783230d1cd64be696c4704bbbefb15c5df37e0f13",
+    "ghostSchedule": "e203da25841cddd71eb5a0548c9167a0223f720a76916c81fe1a99ac4ccba1a4",
+    "providerBridge": "472954c3d3852a6174c9be3f39ed494aa268d834138579bca4fd1e3e501d8e04"
+  },
+  "plaintextControllerNameSearch": {
+    "bridge-scripts.dat": {
+      "getTreasureClaimStatus": [],
+      "claimTreasures": [],
+      "prepareGhostPlunderTasks": []
+    },
+    "xlua-proxy-secure.dll": {
+      "getTreasureClaimStatus": [],
+      "claimTreasures": [],
+      "prepareGhostPlunderTasks": []
+    },
+    "xlua-proxy-plain.dll": {
+      "getTreasureClaimStatus": [],
+      "claimTreasures": [],
+      "prepareGhostPlunderTasks": []
+    }
+  },
+  "bodyRecovery": {
+    "getTreasureClaimStatus": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+    "claimTreasures": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+    "prepareGhostPlunderTasks": "NOT_RECOVERED_FROM_SUPPLIED_INPUTS",
+    "reason": "the exact original module-table plaintext cannot be produced without a legitimate signed package-key.envelope and matching persisted CNG private key; no duplicate plaintext controller body exists in the carved package/proxies"
+  },
+  "hostRecovered": {
+    "treasureStatus": {
+      "handler": "0x115C5D-0x1166BE",
+      "provider": "getTreasureClaimStatus",
+      "timeoutMs": 5000,
+      "featurePayload": "none at provider method boundary",
+      "resultFieldsObserved": [
+        "playerUid",
+        "allianceId",
+        "states",
+        "batch?"
+      ],
+      "profileScope": "frontend injects currently selected profileId on each call; poll is not pinned",
+      "persistentState": "profile-owned map DB has treasure_claim_states keyed by (server_id,player_uid,treasure_uuid); batch/controller lifecycle is not stored in native schema"
+    },
+    "treasureClaim": {
+      "handler": "0x18EE07-0x190734",
+      "provider": "claimTreasures",
+      "timeoutMs": 5000,
+      "payloadKeys": [
+        "serverId",
+        "records",
+        "claimScope",
+        "targetUuid",
+        "prioritizeLuckySlots"
+      ],
+      "scopes": [
+        "single",
+        "boxes",
+        "season"
+      ],
+      "luckyDefault": true,
+      "candidateOrdering": "host persisted candidate query ORDER BY point_index ASC",
+      "candidateFilter": "nonexpired valid UUID rows; suppliesType 1/3/4 or complete ordinary suppliesType 0",
+      "resultCounters": [
+        "eligible",
+        "queued",
+        "skipped",
+        "directQueued",
+        "scoutQueued",
+        "scoutDispatched",
+        "claimed",
+        "noScoutSkipped",
+        "otherAllianceSkipped",
+        "failed"
+      ]
+    },
+    "ghostPreparation": {
+      "handler": "0x1336A9-0x1350DF",
+      "provider": "prepareGhostPlunderTasks",
+      "timeoutMs": 5000,
+      "payload": {
+        "rows": "validated Ghost input rows"
+      },
+      "result": {
+        "rows": "required array"
+      },
+      "postconditions": [
+        "prepared rows are identity-matched instead of blindly persisted by provider position",
+        "uuid and serverId identity are checked",
+        "taskKind must remain ghost",
+        "positive ownerServer required",
+        "completionTime positive and plunderAt >= completionTime",
+        "taskExpireTime may be nonpositive; positive value must be > plunderAt",
+        "remaining steal capacity is enforced when maxStealCount is positive"
+      ]
+    }
+  },
+  "controllerOwnedStillMissing": {
+    "treasureStatus": [
+      "where/how idle states and optional batch are stored or recomputed inside the Lua controller",
+      "batch creation/default state/counter transitions",
+      "terminal/error/timeout/reconnect/profile-switch retirement/reset semantics"
+    ],
+    "treasureClaim": [
+      "controller record selection among already host-selected candidates",
+      "prioritizeLuckySlots ordering algorithm",
+      "direct claim vs scout decision/dispatch ordering",
+      "batch ownership/counter transition meanings and duplicate/retry behavior"
+    ],
+    "ghostPreparation": [
+      "whether rows are re-read/hydrated from game state",
+      "exact transformation/additional fields",
+      "exact per-row rejection policy and any output reordering"
+    ]
+  },
+  "cloneDifferences": {
+    "publicStatus": "current production returns GAME_PROVIDER_UNAVAILABLE; original calls controller",
+    "publicClaim": "current production returns GAME_PROVIDER_UNAVAILABLE; original calls controller",
+    "publicGhostPreparation": "current production returns GAME_PROVIDER_UNAVAILABLE; original calls controller",
+    "ghostPreparationHelper": "internal current-v22 adaptation exists but is not promoted as original; 005-retained numeric/malformed string reader discrepancy remains"
+  },
+  "dependency": {
+    "missingArtifact": "package-key.envelope",
+    "requiredOwnerState": "matching persisted CNG private key",
+    "bypassAttempted": false,
+    "futureStaticClosure": "legitimate recovered module-table plaintext containing the bridge Lua dispatcher/provider definitions for the three methods"
+  }
+}

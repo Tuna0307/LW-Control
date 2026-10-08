@@ -1,0 +1,309 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+  "evidenceType": "ORIGINAL_HASH_LOCKED_NATIVE_STRING_AND_DISASSEMBLY_XREF_DISCOVERY_ONLY",
+  "originalExeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "originalExePath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW\\lwbridge-0.3.17.exe",
+  "sourceTool": "tools/lwbridge317/inspect_map_surface.py:native_surface",
+  "markers": [
+    {
+      "name": "profile_instance_start",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x20715F-0x207CA9"
+      ],
+      "stringOffsets": [
+        "0x83B147"
+      ],
+      "xrefInstructionRvas": [
+        "0x207208"
+      ]
+    },
+    {
+      "name": "profile_instance_stop",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x199627-0x19AC62"
+      ],
+      "stringOffsets": [
+        "0x828BCB"
+      ],
+      "xrefInstructionRvas": [
+        "0x1996D0"
+      ]
+    },
+    {
+      "name": "profile_instance_status",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x1A0DA4-0x1A213C"
+      ],
+      "stringOffsets": [
+        "0x828C4C"
+      ],
+      "xrefInstructionRvas": [
+        "0x1A0E48"
+      ]
+    },
+    {
+      "name": "profile_instances_reconcile",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x203021-0x2057DC"
+      ],
+      "stringOffsets": [
+        "0x83B168"
+      ],
+      "xrefInstructionRvas": [
+        "0x2030D2"
+      ]
+    },
+    {
+      "name": "profile_instances_update_and_restart",
+      "stringOccurrences": 2,
+      "xrefCount": 2,
+      "candidateNonRegistrationHandlers": [
+        "0x2057DC-0x20715F"
+      ],
+      "stringOffsets": [
+        "0x83B123",
+        "0x83DFF0"
+      ],
+      "xrefInstructionRvas": [
+        "0x205887",
+        "0x2182FE"
+      ]
+    },
+    {
+      "name": "profile_list",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x14F19A-0x14FA46"
+      ],
+      "stringOffsets": [
+        "0x82877B"
+      ],
+      "xrefInstructionRvas": [
+        "0x14F23E"
+      ]
+    },
+    {
+      "name": "profile_select",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x10B70B-0x10C27F"
+      ],
+      "stringOffsets": [
+        "0x8287D9"
+      ],
+      "xrefInstructionRvas": [
+        "0x10B7AF"
+      ]
+    },
+    {
+      "name": "game_root_status",
+      "stringOccurrences": 2,
+      "xrefCount": 2,
+      "candidateNonRegistrationHandlers": [
+        "0x12816E-0x128A38"
+      ],
+      "stringOffsets": [
+        "0x828BBB",
+        "0x83E132"
+      ],
+      "xrefInstructionRvas": [
+        "0x12820B",
+        "0x2193BE"
+      ]
+    },
+    {
+      "name": "game_root_select",
+      "stringOccurrences": 2,
+      "xrefCount": 2,
+      "candidateNonRegistrationHandlers": [
+        "0x188F12-0x18A2AD"
+      ],
+      "stringOffsets": [
+        "0x828B6E",
+        "0x83E142"
+      ],
+      "xrefInstructionRvas": [
+        "0x188FB3",
+        "0x2193D8"
+      ]
+    },
+    {
+      "name": "local_game_launch_status",
+      "stringOccurrences": 0,
+      "xrefCount": 0,
+      "candidateNonRegistrationHandlers": [],
+      "stringOffsets": [],
+      "xrefInstructionRvas": []
+    },
+    {
+      "name": "game_recovery_status",
+      "stringOccurrences": 2,
+      "xrefCount": 2,
+      "candidateNonRegistrationHandlers": [
+        "0x154905-0x155144"
+      ],
+      "stringOffsets": [
+        "0x82862F",
+        "0x83E10F"
+      ],
+      "xrefInstructionRvas": [
+        "0x1549AB",
+        "0x218726"
+      ]
+    },
+    {
+      "name": "local_config_get",
+      "stringOccurrences": 0,
+      "xrefCount": 0,
+      "candidateNonRegistrationHandlers": [],
+      "stringOffsets": [],
+      "xrefInstructionRvas": []
+    },
+    {
+      "name": "local_config_set",
+      "stringOccurrences": 0,
+      "xrefCount": 0,
+      "candidateNonRegistrationHandlers": [],
+      "stringOffsets": [],
+      "xrefInstructionRvas": []
+    },
+    {
+      "name": "set_automation",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x12C34B-0x12DA36"
+      ],
+      "stringOffsets": [
+        "0x828B7E"
+      ],
+      "xrefInstructionRvas": [
+        "0x12C3EF"
+      ]
+    },
+    {
+      "name": "autoLaunchAll",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x203021-0x2057DC"
+      ],
+      "stringOffsets": [
+        "0x83BD58"
+      ],
+      "xrefInstructionRvas": [
+        "0x203529"
+      ]
+    },
+    {
+      "name": "closeUnmanaged",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x20715F-0x207CA9"
+      ],
+      "stringOffsets": [
+        "0x83B348"
+      ],
+      "xrefInstructionRvas": [
+        "0x207784"
+      ]
+    },
+    {
+      "name": "GAME_OPERATION_IN_PROGRESS",
+      "stringOccurrences": 1,
+      "xrefCount": 1,
+      "candidateNonRegistrationHandlers": [
+        "0x41B3BC-0x41B451"
+      ],
+      "stringOffsets": [
+        "0xD66CE3"
+      ],
+      "xrefInstructionRvas": [
+        "0x41B3EC"
+      ]
+    },
+    {
+      "name": "GAME_ROOT_NOT_FOUND",
+      "stringOccurrences": 4,
+      "xrefCount": 9,
+      "candidateNonRegistrationHandlers": [
+        "0x199627-0x19AC62",
+        "0x1D4468-0x1D5009",
+        "0x1D5009-0x1DDBB2",
+        "0x203021-0x2057DC",
+        "0x2057DC-0x20715F",
+        "0x23BAE5-0x23BB52",
+        "0x23D63C-0x23DEA0",
+        "0x29FED9-0x2A09AE",
+        "0x2A2BD4-0x2AB81D"
+      ],
+      "stringOffsets": [
+        "0x82A9BA",
+        "0x83B31A",
+        "0x8403C3",
+        "0x8BBB95"
+      ],
+      "xrefInstructionRvas": [
+        "0x199F93",
+        "0x1D482A",
+        "0x1D5BE1",
+        "0x203844",
+        "0x205DEE",
+        "0x23BB0B",
+        "0x23D9D0",
+        "0x2A01A1",
+        "0x2A3AC2"
+      ]
+    },
+    {
+      "name": "GAME_RUNNING",
+      "stringOccurrences": 5,
+      "xrefCount": 2,
+      "candidateNonRegistrationHandlers": [
+        "0x2E0CED-0x2E187A",
+        "0x2E187A-0x2E1FBF"
+      ],
+      "stringOffsets": [
+        "0x83B478",
+        "0x83B497",
+        "0x8BB2E8",
+        "0x8BB307",
+        "0xD47442"
+      ],
+      "xrefInstructionRvas": [
+        "0x2E0D58",
+        "0x2E18E2"
+      ]
+    },
+    {
+      "name": "BRIDGE_HOST_BUSY",
+      "stringOccurrences": 0,
+      "xrefCount": 0,
+      "candidateNonRegistrationHandlers": [],
+      "stringOffsets": [],
+      "xrefInstructionRvas": []
+    },
+    {
+      "name": "gameLaunchBusy",
+      "stringOccurrences": 0,
+      "xrefCount": 0,
+      "candidateNonRegistrationHandlers": [],
+      "stringOffsets": [],
+      "xrefInstructionRvas": []
+    }
+  ],
+  "inferOriginalLauncherTimeoutRetry": "NO: lexical/native handler xrefs do not prove internal retry or timer policy",
+  "inferOriginalProtectedController": "NO: encrypted package keys/material unavailable",
+  "noOriginalServiceAccess": true
+}

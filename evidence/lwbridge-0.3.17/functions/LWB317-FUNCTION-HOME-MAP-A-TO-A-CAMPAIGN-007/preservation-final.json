@@ -1,0 +1,38 @@
+{
+  "campaign": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+  "check": "PASS",
+  "originalExeSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "installedOriginals": {
+    "LWScripts.data": {
+      "file": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data",
+      "sha256": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "matches": true
+    },
+    "LWScripts.txt": {
+      "file": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt",
+      "sha256": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "matches": true
+    },
+    "version.txt": {
+      "file": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt",
+      "sha256": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09",
+      "matches": true
+    }
+  },
+  "originalLiveRootDbHashUnchanged": "09cf51c0a7a6242385e42605578062107599d2c93ad803883a8c353468b45993",
+  "sourceSidecarHashes": {
+    "db": "09cf51c0a7a6242385e42605578062107599d2c93ad803883a8c353468b45993",
+    "wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+  },
+  "safeSnapshotSha256": "641f70f6ce7c69c6d2b8af0d3afa9fe8ad50a0bbcabd0308667719509afc78a8",
+  "sourceDatasetPublishedResource": 8008,
+  "safeSnapshotNoJobs": true,
+  "historicalRunId": "b439bfa57cd54405a14e803d21964c9d",
+  "historicalLiveRestoration": true,
+  "historicalPostRunCommandEnvelopeFailurePreserved": true,
+  "gameProcesses": [],
+  "tempCommandReplayRoots": [],
+  "newGameLaunchesCampaign007": 0,
+  "boundary": "does not prove original protected provider parity, source DB queried ro only"
+}

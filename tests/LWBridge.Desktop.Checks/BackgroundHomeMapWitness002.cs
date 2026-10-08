@@ -40,9 +40,48 @@ internal static class BackgroundHomeMapWitness002
             startedAt = now - 1000, lastHeartbeatAt = now, bridgeConnected = false,
             connectionState = "reconnecting", identityConfirmed = true
         }), "witness-profile", "witness-session", 1001, now, 1, 1), "hello without route");
+        VerifyPositiveStagingObserverInert();
         Console.WriteLine("BACKGROUND_WITNESS_002_INVERSES_PASS 7/7 (inert observation classifier; host inverse tests separate)");
     }
 
+    // Same read-only observer used by --positive-stage-stop, but executed
+    // entirely against test-owned SQLite. No game launch or fake live witness.
+    private static void VerifyPositiveStagingObserverInert()
+    {
+        string root = Path.Combine(Path.GetTempPath(),
+            "LWB317-A-TO-A-CAMPAIGN-007-OBSERVATION-" + Guid.NewGuid().ToString("N"));
+        string db = Path.Combine(root, "map-data.db");
+        Directory.CreateDirectory(root);
+        try
+        {
+            using (var store = new MapStore(db))
+            {
+                string run = "campaign007-positive-observer";
+                long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                store.InsertScanRun(new MapScanRun(run, 2212, ["resource"],
+                    "running", 2, 0, 0, now, now, null));
+                var record = new MapRecord("resource", 2212, "positive-observer",
+                    23, null, "positive-observer", null, 1, 1, null, null,
+                    null, now, "{\"recordKey\":\"positive-observer\",\"kind\":\"resource\",\"serverId\":2212}");
+                Assert(CountResourceStagingReadOnly(db, run) == 0,
+                    "read-only observer empty negative");
+                store.StageRecord(run, record);
+                Assert(CountResourceStagingReadOnly(db, run) == 1,
+                    "read-only observer sees POSITIVE staged record");
+                Assert(CountResourceStagingReadOnly(db, "foreign-run") == 0,
+                    "read-only observer cannot cross run ownership");
+                store.CancelScan(run, null, now + 1);
+                Assert(CountResourceStagingReadOnly(db, run) == 0,
+                    "observer detects cancellation after true staging");
+            }
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+        Console.WriteLine("CAMPAIGN007_STAGED_READONLY_OBSERVER_INVERSES_PASS 4/4");
+    }
     private static bool Correlated(JsonElement status, string profile, string instance, int pid,
         long now, int authenticated, int routes)
     {
@@ -57,8 +96,10 @@ internal static class BackgroundHomeMapWitness002
             heartbeat <= now + 2000 && now - heartbeat < 15001;
     }
 
-    internal static async Task RunAsync(string outputFile, bool launch, bool activeStop = false)
+    internal static async Task RunAsync(string outputFile, bool launch, bool activeStop = false, bool stopOnPositiveStaging = false)
     {
+        if (stopOnPositiveStaging && (!launch || !activeStop))
+            throw new ArgumentException("Positive staging witness requires an explicitly owned real launch and active Stop.");
         string output = Path.GetFullPath(outputFile);
         Directory.CreateDirectory(Path.GetDirectoryName(output)!);
         string attemptId = Guid.NewGuid().ToString("N");
@@ -68,8 +109,8 @@ internal static class BackgroundHomeMapWitness002
         var events = new List<object>();
         var report = new Dictionary<string, object?>
         {
-            ["workItem"] = "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
-            ["attemptId"] = attemptId, ["mode"] = launch ? (activeStop ? "explicit-real-launch-active-stop" : "explicit-real-launch-completion") : "isolated-preflight",
+            ["workItem"] = stopOnPositiveStaging ? "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007" : "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+            ["attemptId"] = attemptId, ["mode"] = launch ? (stopOnPositiveStaging ? "explicit-real-launch-positive-stage-stop" : activeStop ? "explicit-real-launch-active-stop" : "explicit-real-launch-completion") : "isolated-preflight",
             ["createdAtUtc"] = DateTimeOffset.UtcNow, ["profileId"] = profile,
             ["isolatedRoot"] = root, ["outputFile"] = output,
             ["productionMapProvider"] = "ProfileRuntimeOwner.Create mapProvider:null -> Map317CommandService(lifecycle) -> CurrentClientMap317ScanProvider",
@@ -99,6 +140,8 @@ internal static class BackgroundHomeMapWitness002
         int serverId = 0;
         bool stopSucceeded = false;
         bool mapStopSucceeded = false;
+        int positiveStagingCountBeforeStop = 0;
+        report["positiveStagingStopRequested"] = stopOnPositiveStaging;
         try
         {
             report["installedBefore"] = Hashes();
@@ -311,13 +354,28 @@ internal static class BackgroundHomeMapWitness002
                 serverId = Int(start, "serverId") ?? 0;
                 Assert(!string.IsNullOrWhiteSpace(run) && serverId > 0, "new durable Resource run identity");
                 Record("resource-start", new { run, serverId, start, worldReady = ReadWorldReadySummary(paths, profile, instance!, ownedPid.GetValueOrDefault()) });
-                DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(activeStop ? 2 : 5);
+                DateTimeOffset deadline = DateTimeOffset.UtcNow.AddMinutes(stopOnPositiveStaging ? 3 : activeStop ? 2 : 5);
                 DateTimeOffset activeStopEarliest = DateTimeOffset.UtcNow.AddSeconds(8);
                 while (DateTimeOffset.UtcNow < deadline && !overall.Token.IsCancellationRequested)
                 {
                     JsonElement state = J(owner.Map317.CreateStatus());
                     Assert(String(state, "scanRunId") == run, "same Resource run identity until termination");
-                    if (activeStop && Bool(state, "isReading") && DateTimeOffset.UtcNow >= activeStopEarliest &&
+                    if (stopOnPositiveStaging && Bool(state, "isReading"))
+                    {
+                        // Actual durable staging; never confuse pending/inflight or
+                        // accepted run with a positive completed SQLite checkpoint.
+                        int staged = CountResourceStagingReadOnly(paths.MapDatabasePath(profile), run!);
+                        if (staged > 0)
+                        {
+                            positiveStagingCountBeforeStop = staged;
+                            Record("resource-positive-staged-before-stop", new {
+                                run, serverId, staged, profile, instance, ownedPid,
+                                state, proof = "actual-current-isolated-SQLite-scan_records"
+                            });
+                            break;
+                        }
+                    }
+                    if (activeStop && !stopOnPositiveStaging && Bool(state, "isReading") && DateTimeOffset.UtcNow >= activeStopEarliest &&
                         (Int(state, "completedBlocks") is > 0 || Int(state, "inflightBlocks") is > 0))
                     {
                         Record("resource-owned-active-stop-admission", state);
@@ -355,7 +413,8 @@ internal static class BackgroundHomeMapWitness002
                 {
                     MapScanRun? durable = reopened.ReadScanRun(run!);
                     LWBridge.Map317.MapSearchResult rows = reopened.Search(q);
-                    report["reopenedPersistence"] = new { run, durable, total = rows.Total, firstPageCount = rows.Rows.Count };
+                    int stagedAfterStop = reopened.Search(new MapQuery("resource", serverId, ScanRunId: run)).Total;
+                    report["reopenedPersistence"] = new { run, durable, total = rows.Total, firstPageCount = rows.Rows.Count, stagedAfterStop };
                     Record("sqlite-reopened-actual-run", report["reopenedPersistence"]);
                 }
                 report["resourceExport"] = "NOT_AVAILABLE: production Map317 exporter is City-only; no Resource export or UI claim";
@@ -365,7 +424,20 @@ internal static class BackgroundHomeMapWitness002
                 bool positive = Int(persisted, "total") is > 0;
                 report["resourceCompletionObserved"] = completed;
                 report["resourcePublishedPositiveRowsObserved"] = completed && positive;
-                report["terminal"] = completed && positive ? "LIVE_COMPLETED_POSITIVE_RESOURCE_PUBLICATION" :
+                report["positiveStagingCountBeforeStop"] = positiveStagingCountBeforeStop;
+                if (stopOnPositiveStaging)
+                {
+                    bool durableCancelled = String(durableRun, "status") == "cancelled";
+                    int stagedAfterStop = Int(persisted, "stagedAfterStop") ?? -1;
+                    bool valid = positiveStagingCountBeforeStop > 0 && mapStopSucceeded &&
+                        durableCancelled && stagedAfterStop == 0 && !completed && !positive;
+                    report["positiveStageStopVerified"] = valid;
+                    report["terminal"] = valid
+                        ? "LIVE_POSITIVE_STAGING_CANCELLED_WITHOUT_PUBLICATION"
+                        : "POSITIVE_STAGING_STOP_NOT_VERIFIED";
+                }
+                else
+                    report["terminal"] = completed && positive ? "LIVE_COMPLETED_POSITIVE_RESOURCE_PUBLICATION" :
                     mapStopSucceeded ? "LIVE_CANCELLED_RESOURCE_STAGING_NOT_COMPLETED" :
                     "RESOURCE_RUN_TERMINATED_WITHOUT_PROVEN_POSITIVE_PUBLICATION";
             }
@@ -438,6 +510,25 @@ internal static class BackgroundHomeMapWitness002
             throw new InvalidDataException("Background witness preflight/composition failed; see preserved JSON.");
     }
 
+    private static int CountResourceStagingReadOnly(string databasePath, string runId)
+    {
+        // Check-only observer. Own profile DB and owned run are established before
+        // this call; no schema writes, game commands, or second scan lease.
+        var builder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+        {
+            DataSource = databasePath,
+            Mode = Microsoft.Data.Sqlite.SqliteOpenMode.ReadOnly,
+            Pooling = false,
+        };
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection(builder.ToString());
+        connection.DefaultTimeout = 3;
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT count(*) FROM scan_records WHERE run_id=$run AND kind='resource'";
+        command.Parameters.AddWithValue("$run", runId);
+        return checked((int)(long)(command.ExecuteScalar()
+            ?? throw new InvalidDataException("SQLite staging count unavailable")));
+    }
     // Only source-backed, nonsensitive telemetry fields: never copy challenges, Lua command bodies or tokens.
     private static object[] ReadRuntimeProtocolSummaries(DesktopApplicationPaths paths,
         string profileId, string sessionId, int pid)

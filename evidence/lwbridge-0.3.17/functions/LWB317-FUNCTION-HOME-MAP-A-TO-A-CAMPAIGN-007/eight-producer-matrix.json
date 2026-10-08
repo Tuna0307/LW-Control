@@ -1,0 +1,103 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+  "reportType": "eight current-v22 Map producer versus exact original 0.3.17 host contract audit",
+  "provenance": "Reference original executable fixed SHA 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783; accepted source oracles; no protected plaintext",
+  "originalExtractorParity": "UNKNOWN_EIGHT_OF_EIGHT",
+  "currentClientOperatingProof": "PARTIAL_PRODUCER_SPECIFIC",
+  "rows": [
+    {
+      "id": "D-CITY",
+      "kind": "city",
+      "currentProducer": "AOI-backed City collection and dedup in CaptureFullCityMapAsync",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:296-324,420-425",
+      "capturedLive": "previous bounded current-client City evidence reused, not 007 fresh",
+      "originalContract": "exact 0.3.17 host kind, kind/server identity, selected-kind replace, City export XLSX",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-002-scan-state-machine.md; RE-MAP-003-storage-query-export.md",
+      "originalExtractor": "UNKNOWN protected controller; no exact same-state City row comparator",
+      "caution": "City XLSX native serializer tests source/local; native save dialog and any live 007 City scan unexecuted"
+    },
+    {
+      "id": "D-RESOURCE",
+      "kind": "resource",
+      "currentProducer": "Measured full-world AOI union; accepts and merges keyed Resource snapshots, applies detail/completeness policy",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:301-415,426-435,510-631",
+      "capturedLive": "004 run b439bfa57cd54405a14e803d21964c9d: current v22 2500/2500, 8008 Resource records; 007 command/native/frontend live-data replay",
+      "originalContract": "exact 0.3.17 public query options filters and SQLite atomic selected-kind replacement",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-003-storage-query-export.md",
+      "originalExtractor": "UNKNOWN original target order, dedup, Resource membership/detail/amount semantics",
+      "caution": "8008 must not be used as A expected rows"
+    },
+    {
+      "id": "D-MONSTER",
+      "kind": "monster",
+      "currentProducer": "Current coarse LOD2 population, current attack/protection checks, keyed merge; generic Monster differs from zombie boss-only shortcut",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:74-85,214-295,455-459",
+      "capturedLive": "current-client historical studies, no 007 fresh Monster acquisition",
+      "originalContract": "exact 0.3.17 host kind/filters/sort/storage shape",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-001-frontend-host-contract.md; RE-MAP-003-storage-query-export.md",
+      "originalExtractor": "UNKNOWN original Monster type classification and protection detail acquisition",
+      "caution": "current v22 LOD2 and monster detail not original scan mechanism"
+    },
+    {
+      "id": "D-TRUCK",
+      "kind": "truck",
+      "currentProducer": "AOI/train records with post-acquisition metadata enrichment and train identity",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:168-180,461-466,498-507",
+      "capturedLive": "historical current-client selective proofs only, no 007 live positive Truck",
+      "originalContract": "exact 0.3.17 query/schedule/cancel/clear and native store under target key",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-001-frontend-host-contract.md; RE-MAP-003-storage-query-export.md",
+      "originalExtractor": "UNKNOWN original Truck source selection/enrichment and duplicate key treatment",
+      "caution": "live Truck plunder not permitted; scheduled workers inert"
+    },
+    {
+      "id": "D-RAILWAY",
+      "kind": "railway",
+      "currentProducer": "Current Train-list refresh merges into keyed trainRecords, Railway-only AOI hot path",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:481-498",
+      "capturedLive": "historical current-v22 Train-list work; no 007 fresh positive population",
+      "originalContract": "exact 0.3.17 query row navigation via map_march_follow and host persistence",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-001-frontend-host-contract.md",
+      "originalExtractor": "UNKNOWN original Railway population/refresh cadence and anti-duplicate rules",
+      "caution": "no map_march_follow live movement in 007"
+    },
+    {
+      "id": "D-DISPATCH",
+      "kind": "dispatch",
+      "currentProducer": "Current AOI Dispatches normalized and deduplicated by recordKey",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:320,437-441",
+      "capturedLive": "historical current-client population; 007 inert native worker/job lifecycle",
+      "originalContract": "exact original host scheduling admission, execution timing, row identity/order and persistence",
+      "originalLocator": "docs/reviews/2026-09-30-LWB317-RE-MAP-001-frontend-host-contract.md; RE-MAP-003-storage-query-export.md",
+      "originalExtractor": "UNKNOWN original protected scan projection and client schedule/send result matching",
+      "caution": "no Dispatch task/share/plunder execution in 007"
+    },
+    {
+      "id": "D-GHOST",
+      "kind": "ghost",
+      "currentProducer": "Current AOI Ghost rows and schedule fields; distinct from execute/preparation",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:321,443-447",
+      "capturedLive": "current source-bytecode Ghost field oracles pass; no 007 live Ghost action",
+      "originalContract": "original host UUID/server/task kind postconditions, positive-only expiry and stored schedule; no complete protected preparer body",
+      "originalLocator": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/d-function-matrix.md; docs/reviews/2026-10-07-LWB317-FUNCTION-MAP-BLOCKER-BOUNDARIES-004-LEAD.md",
+      "originalExtractor": "UNKNOWN protected prepareGhostPlunderTasks transformation/drop/order; terminal correlation also unresolved",
+      "caution": "public Ghost preparation MUST remain GAME_PROVIDER_UNAVAILABLE"
+    },
+    {
+      "id": "D-TREASURE",
+      "kind": "treasure",
+      "currentProducer": "Current AOI Treasure rows keyed in full-world collector",
+      "currentLocator": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:322,449-453",
+      "capturedLive": "current source/host static only; no 007 Treasure game action",
+      "originalContract": "exact outer host Treasure claim/status payload and 5-second provider timeout; database and UI polling source",
+      "originalLocator": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/d-function-matrix.md",
+      "originalExtractor": "UNKNOWN original getTreasureClaimStatus and claimTreasures internal bodies/result/counter/lifecycle",
+      "caution": "public Treasure status/claim MUST remain GAME_PROVIDER_UNAVAILABLE; no guessed controller"
+    }
+  ],
+  "negativeGuarantees": [
+    "no Treasure/Ghost fake execution",
+    "no original 8008-row expected census",
+    "no unsupported Resource export",
+    "no inferred native original traversal/retry/delay parity"
+  ]
+}

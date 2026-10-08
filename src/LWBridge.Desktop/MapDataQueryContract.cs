@@ -79,7 +79,7 @@ internal static class MapDataQueryContract
 
         int serverId = RequiredServerIdOrAll(query);
         int page = OptionalNormalizedPage(query);
-        int pageSize = OptionalPositiveInt(query, "pageSize", RecoveredPageSize);
+        int pageSize = OptionalNormalizedPageSize(query);
         IReadOnlyList<MapDataSort> sorts = NormalizeSorts(query);
         bool markedOnly = OptionalBoolean(query, "markedOnly", false);
         string? keyword = OptionalString(query, "keyword");
@@ -380,6 +380,20 @@ internal static class MapDataQueryContract
         if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int result))
             throw new BridgeCommandException("INVALID_MAP_QUERY", "page must be a positive integer.");
         return Math.Max(result, 1);
+    }
+    // ORIGINAL 0.3.17 native search contract (RE-MAP-003):
+    // missing pageSize defaults to 50; an explicit numeric integer clamps
+    // to [1,200]. The old clone rejected explicit 0/-n instead of honoring
+    // the documented minimum, unlike the underlying recovered Store query.
+    // Wrong-type handling remains fail-closed; no string coercion is guessed.
+    private static int OptionalNormalizedPageSize(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("pageSize", out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return RecoveredPageSize;
+        if (value.ValueKind != JsonValueKind.Number || !value.TryGetInt32(out int number))
+            throw new BridgeCommandException("INVALID_MAP_QUERY", "pageSize must be a positive integer.");
+        return Math.Clamp(number, 1, 200);
     }
     private static int OptionalPositiveInt(JsonElement payload, string name, int fallback)
     {
