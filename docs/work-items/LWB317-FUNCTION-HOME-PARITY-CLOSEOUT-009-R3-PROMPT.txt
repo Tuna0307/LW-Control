@@ -1,8 +1,12 @@
-You are the solo worker for LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3. Complete the entire scope below through sequential checkpoints; do not stop for relay after each checkpoint. Treat this as a fresh chat and read the listed project files first.
+You are the solo worker for LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3. Complete all five Home gaps and the bounded live/canonical UI verification below through sequential checkpoints; do not stop for relay after each checkpoint. Windows-MCP permission has resumed for this assignment. Read the current owner direction and listed project files first.
 
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3
 
 Status: **READY — project-lead continuation**, 2026-10-08.
+Latest owner resumption: **BOUNDED LIVE HOME / DESKTOP VERIFICATION AUTHORIZED**.
+Read `docs/owner-directions/2026-10-08-HOME009-R3-DESKTOP-RESUMED.md`; it supersedes
+the prior static-only restriction for this assignment. All five Home gaps below
+are included, with static, inert and appropriate live proof kept distinct.
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`. Submitted R2: `79617a18d493fbb722f4cc2179279bff954472be`.
 Start from the current descendant containing this lead review. Never reset.
@@ -14,7 +18,7 @@ after each checkpoint. The assignment ends when its acceptance criteria are met
 or every remaining branch has a concrete missing input, not because tests pass
 or another clone capability has not yet been implemented.
 
-Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, current background-only/A→A directions,
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, latest Home009-R3 resumption/A→A directions,
 Home master, R2 work item, worker report/continuation, and
 `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2-LEAD.md`.
 Use the R2 lead-review packet as immutable negative/current evidence.
@@ -101,13 +105,58 @@ closes original unknowns. Keep exact reference/original/historical/archive integ
 and prove cleanup of task-owned roots/process seams. Update current masters,
 matrix/ledger/handoff, queue/continuation and dated worker review honestly.
 
-Work alone: no subagents, AI chat delegation, GPT Work or Codex execution. All work
-here is static/headless/inert; **no game launch/Stop, owner installation/config/
-runtime changes, desktop screenshots/snapshots/input/focus through any tool,
-gameplay/updater actions, credentials or protected-original service access**.
-The owner's game stays untouched. Use isolated roots and controlled providers,
-helpers/process APIs; a native preference false is not a test launch-suppression
-mechanism. No new live pilot is assigned. Preserve unrelated work.
+## F — bounded real Home and canonical UI witnesses
+
+Windows-MCP is now permitted. Inspect its actual tools/schemas and Remote Desktop
+Commander; use complementary capabilities rather than inventing availability or
+declaring a blocker before checking both. Record exact unavailable capabilities/
+errors if neither supports a needed step. Preflight executable/current-client
+hashes, existing sessions, current PID/path/creation time/profile identity,
+isolation, runtime roots, reversible backups and restoration. Pilot sessions are
+handed over under the owner clarification; provenance and technical identity are
+separate. No new per-click approval is needed within this assigned scope.
+
+Run a bounded scenario plan with distinguishing observations, not repeated blind
+launches. Through the packaged canonical Home UI, prove Launch -> connected,
+Auto Launch off/on -> recovered reconcile intent, Stop -> proven exact exit ->
+restoration, and closeUnmanaged. Prove registry refresh/readiness/cancellation
+ordering with current helper/host timestamps and actual authenticated connection;
+do not call ready.json original-registry equivalence without establishing mapping.
+Exercise host close/restart while a game is active using the supported adoption
+path: same-build game retained/reconnected versus source-backed outdated-build
+repair/restart. If deliberate build mismatch requires unsupported installation
+mutation, use controlled inert evidence for that branch and identify the exact
+remaining live witness. Do not intentionally corrupt the game to force an error.
+
+Test pending/error/success, retained profile/state, localized Home feedback in
+EN/light and JA/dark, with measured viewport, complete-session issue history and
+settled inspected screenshots. Keep pilot authentication, process/run/lease
+ownership and identity throughout Stop and cleanup. Source retry mappings need a
+genuine observable current producer; a successful retry is not proof of the
+original trigger. If a natural restart event is not witnessed, finish static/
+controlled cases and record that single live edge honestly.
+
+End every owned attempt with verified exact script/metadata restoration after
+confirmed exit, resolved or explicitly retryable recovery journals, closed owned
+clone/helper/game processes and task-root cleanup. Never restore under a live
+game, terminate an unrelated process, discard owner data, or leave instrumentation
+silently installed. Keep failure attempts and actual launch counts. Original
+runtime comparison requires supplied authorized access; don't bypass auth or
+protected-service controls. No gameplay, spending, claims, plunder, recurring Auto,
+cross-server or updater task is assigned; Map regression checks stay in scope.
+
+Work alone: no subagents, AI chat delegation, GPT Work or Codex execution. For
+inert tests use explicit isolated roots and controlled provider/helper/process
+seams; native preference false is not test launch suppression. For live tests use
+the authorized canonical production path and isolation/backup/restoration gates.
+Explicit owner pause/stop prevails; respect transient control guards and continue
+after their reported wait without disabling them. Preserve unrelated work.
+
+Keep evidence proportional: run required checks freshly, reuse immutable
+historical baselines without copying them, compact large new machine-readable
+traces and retain source hashes/concise summaries. Preserve original artifacts,
+historical failures and necessary before/after proof. Evidence volume is not
+completion; don't weaken any acceptance check to reduce it.
 
 Commit medium coherent checkpoints, push normally and verify direct remote SHA.
 No force push or reset. Return once with **AWAITING_REVIEW** only for completed

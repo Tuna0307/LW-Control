@@ -1,5 +1,13 @@
 # AI work protocol
 
+Latest owner resumption, 2026-10-08: HOME-PARITY-CLOSEOUT-009-R3 now includes
+bounded live Home and desktop UI verification with Windows-MCP and Remote Desktop
+Commander. Its older static-only/background-only scope is superseded within this
+assignment. Read AGENTS.md and docs/owner-directions/2026-10-08-HOME009-R3-DESKTOP-RESUMED.md.
+Keep solo-worker, manual relay, technical identity/isolation/backup/restoration,
+explicit owner pause/stop and protected-service/gameplay boundaries. Other scopes
+are not automatically expanded by this resumption.
+
 Owner assignment-size direction, 2026-10-08: HOME-MAP-A-TO-A-CAMPAIGN-007 is
 one combined solo Home/Map recovery, implementation and validation assignment.
 It consolidates the command-closeout, Home parity audit and scan recovery prompts.

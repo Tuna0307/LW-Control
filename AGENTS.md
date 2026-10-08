@@ -2,6 +2,17 @@
 
 Read this file before doing any work.
 
+Latest owner resumption, 2026-10-08: Windows-MCP/desktop interaction is available
+again for the lead-assigned HOME-PARITY-CLOSEOUT-009-R3 five-gap Home continuation.
+Bounded Home UI/native launch/connect/Stop/restart/reconnect verification is now
+assigned and authorized after current identity/isolation/build/backup gates pass.
+Use Windows-MCP and Remote Desktop Commander as complementary available tools.
+This supersedes the background-only desktop restriction and R3 static-only limit
+within that assignment; preserve pilot handover, technical ownership/restoration,
+owner data, explicit pause/stop and access/scope boundaries. Work remains solo.
+See docs/owner-directions/2026-10-08-HOME009-R3-DESKTOP-RESUMED.md and the updated
+R3 work item. Older directions below apply where not superseded.
+
 Current owner direction, 2026-10-08: after the lead checkpoint, restrict all
 shared-desktop screenshots/snapshots, mouse/keyboard and focus/foreground control.
 The owner is using the computer. Windows-MCP stays installed; do not use another
