@@ -1,0 +1,2238 @@
+{
+ "mismatches": 112,
+ "rows": [
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "idle-healthy"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "process-exit-at-30s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 6000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 4000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "process-exit-immediately"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 130000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "bridge-offline-from-10s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "bridge-offline-then-back-at-100s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 130000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "bridge-offline-back-at-140s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 42000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 40000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "hang-from-10s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 380000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 200000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 2,
+   "scenario": "login-unavailable-from-20s"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 380000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 200000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 8,
+   "scenario": "login-unavailable-never-recovers-launch-ok-unhealthy"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "disabled-reconnect-offline"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 320000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 260000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "reconnect-enabled-late-offline-stale"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "update-process-running-offline"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 9,
+   "productionEffects": 11,
+   "scenario": "launch-fails-forever"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "launch-fails-three-times-then-ok"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 100000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 42000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 27,
+   "scenario": "terminate-fails-hang"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 154000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "server-unavailable-log-after-exit"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 80000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 2,
+   "scenario": "update-log-error"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 1,
+   "scenario": "update-stall-15min"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "update-activity-keeps-alive"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "reconnect-disabled-mid-recovery"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "launch-then-unhealthy-after-2s-flap"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 32000
+    }
+   },
+   "oracleEffects": 40,
+   "productionEffects": 40,
+   "scenario": "crash-loop"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 74000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 72000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-0"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 144000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 142000
+    }
+   },
+   "oracleEffects": 42,
+   "productionEffects": 45,
+   "scenario": "random-9-1"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 396000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 8,
+   "scenario": "random-9-2"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 44000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 42000
+    }
+   },
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-3"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 94000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 92000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-4"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-5"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 260000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 4,
+   "scenario": "random-9-6"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-7"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-8"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 410000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-9"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-10"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 84000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 50,
+   "scenario": "random-9-11"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 344000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 342000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 29,
+   "scenario": "random-9-12"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 476000
+    },
+    "production": null
+   },
+   "oracleEffects": 4,
+   "productionEffects": 0,
+   "scenario": "random-9-13"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 564000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 458000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 17,
+   "scenario": "random-9-14"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 124000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 122000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 1,
+   "scenario": "random-9-15"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 436000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 256000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 9,
+   "scenario": "random-9-16"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-17"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 268000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 190000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-18"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 428000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 5,
+   "scenario": "random-9-19"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 218000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 216000
+    }
+   },
+   "oracleEffects": 20,
+   "productionEffects": 20,
+   "scenario": "random-9-20"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 516000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 456000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-21"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 778000
+    },
+    "production": null
+   },
+   "oracleEffects": 3,
+   "productionEffects": 0,
+   "scenario": "random-9-22"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 210000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 208000
+    }
+   },
+   "oracleEffects": 11,
+   "productionEffects": 11,
+   "scenario": "random-9-23"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 284000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 282000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-24"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 204000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 144000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-25"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 164000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 104000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-26"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-27"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 236000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-28"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-29"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 126000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 124000
+    }
+   },
+   "oracleEffects": 14,
+   "productionEffects": 12,
+   "scenario": "random-9-30"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 188000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 128000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 3,
+   "scenario": "random-9-31"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 774000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 594000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 4,
+   "scenario": "random-9-32"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 364000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 348000
+    }
+   },
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-33"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-34"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 462000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 402000
+    }
+   },
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-35"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 350000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 290000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 6,
+   "scenario": "random-9-36"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 116000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 4,
+   "scenario": "random-9-37"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 354000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 4,
+   "scenario": "random-9-38"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-39"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 284000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-40"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 74000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 72000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-41"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 720000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-42"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 284000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 224000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "random-9-43"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 146000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 144000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 9,
+   "scenario": "random-9-44"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 124000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 122000
+    }
+   },
+   "oracleEffects": 7,
+   "productionEffects": 38,
+   "scenario": "random-9-45"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 500000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 4,
+   "scenario": "random-9-46"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-47"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 130000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 128000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "random-9-48"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 588000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-49"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-50"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 488000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 428000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-51"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 254000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 3,
+   "scenario": "random-9-52"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 180000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 178000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-53"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-54"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 274000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 214000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-55"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 390000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 388000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 4,
+   "scenario": "random-9-56"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 134000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 132000
+    }
+   },
+   "oracleEffects": 5,
+   "productionEffects": 2,
+   "scenario": "random-9-57"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 272000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 212000
+    }
+   },
+   "oracleEffects": 7,
+   "productionEffects": 2,
+   "scenario": "random-9-58"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 94000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 92000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-59"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 336000
+    },
+    "production": null
+   },
+   "oracleEffects": 7,
+   "productionEffects": 0,
+   "scenario": "random-9-60"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-61"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 130000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 70000
+    }
+   },
+   "oracleEffects": 11,
+   "productionEffects": 13,
+   "scenario": "random-9-62"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 374000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 194000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 4,
+   "scenario": "random-9-63"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 230000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 228000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-64"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-65"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 146000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 86000
+    }
+   },
+   "oracleEffects": 22,
+   "productionEffects": 24,
+   "scenario": "random-9-66"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 256000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 3,
+   "scenario": "random-9-67"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 966000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 906000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-68"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 166000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 106000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 2,
+   "scenario": "random-9-69"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 196000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 136000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-70"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-71"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 216000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 3,
+   "scenario": "random-9-72"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 344000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 216000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-73"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 560000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 558000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 8,
+   "scenario": "random-9-74"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 140000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 98000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 4,
+   "scenario": "random-9-75"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-76"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 372000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 304000
+    }
+   },
+   "oracleEffects": 14,
+   "productionEffects": 226,
+   "scenario": "random-9-77"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 240000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 132000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 9,
+   "scenario": "random-9-78"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 138000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 78000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-79"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 130000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 66000
+    }
+   },
+   "oracleEffects": 5,
+   "productionEffects": 2,
+   "scenario": "random-9-80"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-81"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 588000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 578000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 2,
+   "scenario": "random-9-82"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 316000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 256000
+    }
+   },
+   "oracleEffects": 7,
+   "productionEffects": 2,
+   "scenario": "random-9-83"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 402000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 462000
+    }
+   },
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-84"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 158000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 98000
+    }
+   },
+   "oracleEffects": 7,
+   "productionEffects": 6,
+   "scenario": "random-9-85"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 108000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 106000
+    }
+   },
+   "oracleEffects": 4,
+   "productionEffects": 93,
+   "scenario": "random-9-86"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 424000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 316000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-87"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-88"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 196000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 136000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 41,
+   "scenario": "random-9-89"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 836000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 768000
+    }
+   },
+   "oracleEffects": 12,
+   "productionEffects": 2,
+   "scenario": "random-9-90"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-91"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 148000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 88000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-92"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 14000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 12000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 4,
+   "scenario": "random-9-93"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 144000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 84000
+    }
+   },
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-94"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 36000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 34000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 6,
+   "scenario": "random-9-95"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-96"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-97"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 60000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 136000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-98"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-99"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 174000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 114000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-100"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 298000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 236000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-101"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 282000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 246000
+    }
+   },
+   "oracleEffects": 6,
+   "productionEffects": 8,
+   "scenario": "random-9-102"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 358000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 330000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 2,
+   "scenario": "random-9-103"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 92000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 90000
+    }
+   },
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-104"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": null,
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 62000
+    }
+   },
+   "oracleEffects": 0,
+   "productionEffects": 2,
+   "scenario": "random-9-105"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 60000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 58000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 1,
+   "scenario": "random-9-106"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 268000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 266000
+    }
+   },
+   "oracleEffects": 5,
+   "productionEffects": 2,
+   "scenario": "random-9-107"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 180000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 178000
+    }
+   },
+   "oracleEffects": 5,
+   "productionEffects": 1,
+   "scenario": "random-9-108"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-109"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 1,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 134000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 132000
+    }
+   },
+   "oracleEffects": 6,
+   "productionEffects": 5,
+   "scenario": "random-9-110"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 126000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 66000
+    }
+   },
+   "oracleEffects": 35,
+   "productionEffects": 39,
+   "scenario": "random-9-111"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-112"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-113"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "launch",
+     "n": 1,
+     "t": 48000
+    },
+    "production": {
+     "kind": "launch",
+     "n": 1,
+     "t": 46000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-114"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 264000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 204000
+    }
+   },
+   "oracleEffects": 23,
+   "productionEffects": 25,
+   "scenario": "random-9-115"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-116"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 190000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 130000
+    }
+   },
+   "oracleEffects": 1,
+   "productionEffects": 60,
+   "scenario": "random-9-117"
+  },
+  {
+   "equal": false,
+   "firstDifference": {
+    "index": 0,
+    "oracle": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 346000
+    },
+    "production": {
+     "kind": "terminate",
+     "pid": 41000,
+     "t": 286000
+    }
+   },
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-118"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-119"
+  }
+ ],
+ "scenarios": 142
+}

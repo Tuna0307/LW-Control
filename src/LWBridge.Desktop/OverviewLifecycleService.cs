@@ -1386,7 +1386,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 snapshot.InstanceId,
                 snapshot.Challenge,
                 snapshot.GamePid,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                RecoveryNow().ToUnixTimeSeconds());
         }
         catch
         {
