@@ -3721,6 +3721,9 @@ function M.Pump()
     ensure_pipe_hello(active)
     refresh_pipe_adapter_state()
     process_pipe_inbound(active)
+    -- Keep the authenticated route active using the existing session-bound
+    -- five-second heartbeat; the host expires after 30 seconds of no frames.
+    write_pipe_heartbeat(active)
     write_pipe_transport_diagnostic()
     return true
 end
