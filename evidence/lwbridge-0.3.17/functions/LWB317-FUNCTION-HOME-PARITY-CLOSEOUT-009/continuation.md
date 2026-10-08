@@ -1,4 +1,3 @@
-# HOME 009 continuation (PARTIAL; cloud checkpoint 1)
-Done: A (Stop terminate), C/D decode + port + 230/230 oracle compare, static hash-gated tools re-verified in cloud, stale Program.cs recovery block retired + Python contract check.
-PENDING on Windows: `dotnet build` of tests/LWBridge.Desktop.Checks (warnings are errors) and `home008_verify.ps1 native` + the three updated checks (home-campaign-lifecycle, overview-close-timing, overview-reconnect-policy). Nothing .NET was run in the cloud.
-Next: (1) E: decode 0x203021/0x2057dc/0x128a38/0x11157c semantics from handler-skeletons.txt (home009_native.py fn <rva>), A-B-A and Map-scan lifetime comparisons; (2) B: launch/readiness async states 0x1D5009-0x1DDBB2 etc.; (3) update masters/ledger after those; reference exe now at reference/lwbridge-0.3.17.exe (tools use repo-relative path).
+# HOME 009 continuation (PARTIAL)
+Verified on Windows (merge 1344a330+): build, 11 native checks, close comparator (21), recovery trace compare (230/230), contract check.
+Remaining: E closure bodies 0x39e6e1/0x39e153/0x39e77d/0x1e70f7 + A-B-A/deferred/pending-save/Home-Close-during-Map-scan comparisons; B async states of 0x1D5009-0x1DDBB2 (+0x1D420D, 0x1E11A5, 0x2A2887, 0x2C75CA/0x2C6A65); update masters (docs/tabs/home.md, parity matrix, ledger, handoff); known stale test tools/test_overview_start_failure_matrix.py (fails on HEAD~ too).

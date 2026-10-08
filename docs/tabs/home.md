@@ -76,3 +76,9 @@ No fallback path is acceptable for completion. Recover the original lifecycle fi
 Do not redesign Home around our current service model. Recover the retained original Rust/Tauri command/service behavior, launcher descriptor, profile semantics and bridge readiness, then make the current-client compatibility layer reproduce those contracts. Account/Login/Authentication-purpose flows remain explicitly excluded.
 
 Historical R7 PASS statuses are preserved in their evidence files but are not current parity completion claims.
+
+
+## HOME 009 (2026-10-08, PARTIAL)
+- Original Stop = path-verified TerminateProcess + 100x100ms exit poll (0x41d84b/0xe5725); production Stop now matches (comparator 21/21; baseline 19 differed). Retained adaptations: PID-reuse creation-time gate, single-process and restoration gates.
+- Original health monitor (0x41a8a0, 2 s) and recovery run (0xe5884, 2 s) decoded; thresholds/retry tables confirmed from 0.3.17 bytes; production engine ported; reconstructed-oracle vs production trace compare 230/230 (baseline 112/142 differed). Disconnect recovery takes ~120 s (60 s monitor + 60 s run wait).
+- Home/Map profile lifetime (E) and launch/readiness flow (B) remain INCOMPLETE; see evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/. Full original Home parity is NOT claimed.

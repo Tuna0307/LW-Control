@@ -12,3 +12,4 @@ No game launch, no shared-desktop capture/input/focus, no protected-service acce
 - [CLOUD-2] Stale Program.cs recovery block retired (scenario assertions removed; fixture, stop and failed-launch checks kept). New tools/lwbridge317/home009_recovery_contract_check.py asserts original contract points on oracle+production traces (PASS). C# edit NOT compiled: .NET verification PENDING on Windows.
 - [CLOUD-3] E skeleton only (home009_handler_skeleton.py -> handler-skeletons.txt). B not started. Both INCOMPLETE; see semantic-obligations.json.
 - [merge] cloud checkpoint da7fae11 merged; all 11 native checks + close compare + contract check + trace compare PASS on Windows.
+- [E/B] E partially decoded (reconcile structure, single launch site, user-Stop reset); closure bodies and Map/profile lifetime comparisons NOT done. B NOT done. Delivery PARTIAL, not AWAITING_REVIEW.

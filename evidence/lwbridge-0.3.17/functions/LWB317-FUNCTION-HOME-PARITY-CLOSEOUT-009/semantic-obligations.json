@@ -1,48 +1,56 @@
 {
-  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009",
-  "delivery": "PARTIAL",
-  "fullOriginalHomeParity": false,
-  "reference": "lwbridge-0.3.17.exe SHA256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783 (reference/lwbridge-0.3.17.exe)",
-  "items": [
-    {
-      "id": "A-STOP",
-      "status": "EXACT_CONTRACT_RECONSTRUCTED_AND_PORTED",
-      "original": "0x199627 -> 0x41e543/0x41d84b path-verified TerminateProcess; close wait 0xe5725 (100x100ms)",
-      "current": "run_stop path-verified TerminateProcess + 100x100ms poll",
-      "comparison": "home009_close_compare.py 21 scenarios 0 mismatches (baseline-A-stop-before-fix.json 19)",
-      "remaining": "Windows re-run of comparator not repeated in cloud; live process timing unobserved"
-    },
-    {
-      "id": "C-D-RECOVERY",
-      "status": "EXACT_CONTRACT_RECONSTRUCTED_AND_PORTED",
-      "original": "monitor 0x41a8a0, start 0x41b03a, run 0xe5884, tables 0xd67b08/0xd681b0, classifier 0x419e2a",
-      "current": "OverviewLifecycleRecovery.cs",
-      "comparison": "oracle vs production trace 230/230 (recorded on Windows); cloud re-run of the Python comparator and new home009_recovery_contract_check.py pass; baseline 112/142 differed",
-      "remaining": "Oracle is a reconstruction, not original execution; log classifier/updater/fingerprint effects and file-log producers are current-client adaptations; .NET checks not re-run in cloud"
-    },
-    {
-      "id": "CHECKS-PROGRAM-CS",
-      "status": "PARTIAL_WINDOWS_PENDING",
-      "original": "n/a",
-      "current": "Retired stale pre-port game-recovery-status block assertions in Program.cs (kept fixture setup, launch-failure tail, stop/desired-running check); replaced by trace-based contract assertions",
-      "comparison": "Python contract check passes; the edited C# was NOT compiled or run (no dotnet/Windows in cloud)",
-      "remaining": "Run tools/lwbridge317/home008_verify.ps1 native and the three updated checks on Windows; TreatWarningsAsErrors is on, so confirm no unused-variable warnings in the trimmed Program.cs block; consider C# pump-driven replacements"
-    },
-    {
-      "id": "E-PROFILE-LIFETIME",
-      "status": "INCOMPLETE",
-      "original": "skeleton only: reconcile 0x203021 (profile_instances_reconcile, GAME_ROOT_NOT_FOUND), restart 0x2057dc (profile_instances_update_and_restart, STATE_UNAVAILABLE), lifecycle stop 0x128a38 (GAME_OPERATION_IN_PROGRESS/TIMEOUT), start 0x11157c (game lifecycle start requested)",
-      "current": "not compared",
-      "comparison": "none executed",
-      "remaining": "decode autoLaunchAll ordering, global vs profile gates, preference persistence, error precedence; A-B-A and Home-close-during-Map-scan comparisons. See handler-skeletons.txt (address-ordered strings/callees only, no semantics)"
-    },
-    {
-      "id": "B-LAUNCH-READINESS",
-      "status": "INCOMPLETE",
-      "original": "not decoded: 0x1D5009-0x1DDBB2, 0x1D420D, 0x1E11A5, 0x2A2887, 0x2C75CA/0x2C6A65; 008 static facts (5s/100ms, 90s/250ms) unchanged",
-      "current": "not compared",
-      "comparison": "none executed",
-      "remaining": "async state/frame decode, clock units, success/exhaustion/retry/cancel returns"
-    }
-  ]
+ "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009",
+ "delivery": "PARTIAL",
+ "fullOriginalHomeParity": false,
+ "reference": "lwbridge-0.3.17.exe SHA256 4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783 (reference/lwbridge-0.3.17.exe)",
+ "items": [
+  {
+   "id": "A-STOP",
+   "status": "EXACT_CONTRACT_RECONSTRUCTED_AND_PORTED",
+   "original": "0x199627 -> 0x41e543/0x41d84b path-verified TerminateProcess; close wait 0xe5725 (100x100ms)",
+   "current": "run_stop path-verified TerminateProcess + 100x100ms poll",
+   "comparison": "home009_close_compare.py 21 scenarios 0 mismatches (baseline-A-stop-before-fix.json 19)",
+   "remaining": "Windows re-run of comparator not repeated in cloud; live process timing unobserved"
+  },
+  {
+   "id": "C-D-RECOVERY",
+   "status": "EXACT_CONTRACT_RECONSTRUCTED_AND_PORTED",
+   "original": "monitor 0x41a8a0, start 0x41b03a, run 0xe5884, tables 0xd67b08/0xd681b0, classifier 0x419e2a",
+   "current": "OverviewLifecycleRecovery.cs",
+   "comparison": "oracle vs production trace 230/230 (recorded on Windows); cloud re-run of the Python comparator and new home009_recovery_contract_check.py pass; baseline 112/142 differed",
+   "remaining": "Oracle is a reconstruction, not original execution; log classifier/updater/fingerprint effects and file-log producers are current-client adaptations; .NET checks not re-run in cloud"
+  },
+  {
+   "id": "CHECKS-PROGRAM-CS",
+   "status": "COMPLETE_WINDOWS_VERIFIED",
+   "original": "n/a",
+   "current": "Retired stale pre-port game-recovery-status block assertions in Program.cs (kept fixture setup, launch-failure tail, stop/desired-running check); replaced by trace-based contract assertions",
+   "comparison": "Python contract check passes; the edited C# was NOT compiled or run (no dotnet/Windows in cloud)",
+   "remaining": "Run tools/lwbridge317/home008_verify.ps1 native and the three updated checks on Windows; TreatWarningsAsErrors is on, so confirm no unused-variable warnings in the trimmed Program.cs block; consider C# pump-driven replacements",
+   "note": "Stale recovery block retired in cloud checkpoint da7fae11; on Windows all 11 native checks, close comparator, contract check and 230-scenario trace compare pass (merge 1344a330). Coverage of event-origin cases (unconfirmed/ambiguous/unsupported/crossDisconnect/exitPrompt/forceUpdate) now lives in the trace scenarios, not separate assertions."
+  },
+  {
+   "id": "E-PROFILE-LIFETIME",
+   "status": "INCOMPLETE_PARTIAL_STATIC",
+   "original": "skeleton only: reconcile 0x203021 (profile_instances_reconcile, GAME_ROOT_NOT_FOUND), restart 0x2057dc (profile_instances_update_and_restart, STATE_UNAVAILABLE), lifecycle stop 0x128a38 (GAME_OPERATION_IN_PROGRESS/TIMEOUT), start 0x11157c (game lifecycle start requested)",
+   "current": "not compared",
+   "comparison": "Stop/Start status reset ported (InvalidateRecoveryForUserStop, StartCommandAsync); 230-scenario trace compare unaffected. Single-profile reconcile order matches clone's single launch; multi-profile ordering/selection closure bodies 0x39e153/0x39e77d/0x1e70f7 NOT decoded.",
+   "remaining": "decode autoLaunchAll ordering, global vs profile gates, preference persistence, error precedence; A-B-A and Home-close-during-Map-scan comparisons. See handler-skeletons.txt (address-ordered strings/callees only, no semantics)",
+   "recovered": {
+    "reconcile 0x203021-0x2057dc": "reads autoLaunchAll (0x203519-0x203551, default true), calls 0x1ddbb2 pre-step, fetches profile list via 0x23f685/0x23f466 (0xd8-byte records), maps with flag through closures 0x39e153/0x39e77d (40- then 32-byte entries), reads ctx byte [+0x140] (global gate, matches clone AutoLaunchGame) then 0x1e70f7; GAME_ROOT_NOT_FOUND at 0x203844; stale game terminate 0x203dcc then close-wait 0x204593; exactly ONE launch call site 0x2053fa (0x1d5009); per-profile errors are {profileId,error} objects",
+    "user Stop 0x41bbff": "desired off, tracked PID cleared, run id incremented, recovery status reset to idle (0x41ad16) BEFORE terminate; lifecycle start 0x11157c also resets status idle",
+    "set_automation": "clone persists AutoReconnect only; original handler not decoded"
+   },
+   "next": "decode closure bodies 0x39e6e1/0x39e153/0x39e77d/0x1e70f7 for per-profile predicates; then A-B-A, deferred-reply, pending-save, Home-Close-during-Map-scan comparisons through App/native boundaries"
+  },
+  {
+   "id": "B-LAUNCH-READINESS",
+   "status": "INCOMPLETE",
+   "original": "not decoded: 0x1D5009-0x1DDBB2, 0x1D420D, 0x1E11A5, 0x2A2887, 0x2C75CA/0x2C6A65; 008 static facts (5s/100ms, 90s/250ms) unchanged",
+   "current": "not compared",
+   "comparison": "none executed",
+   "remaining": "async state/frame decode, clock units, success/exhaustion/retry/cancel returns",
+   "next": "decode async states of 0x1D5009-0x1DDBB2 around 0x1D72C9/0x1D74E5/0x1DD3F7/0x1DD4FD/0x1DD6B5, producer 0x2A2887, registry 0x2C75CA/0x2C6A65; no production change justified until layer-equivalent comparison exists (do not substitute local 5s/90s for 120s/190s)"
+  }
+ ]
 }
