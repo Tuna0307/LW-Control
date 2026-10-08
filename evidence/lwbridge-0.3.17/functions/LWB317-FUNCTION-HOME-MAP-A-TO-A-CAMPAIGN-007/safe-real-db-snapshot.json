@@ -1,0 +1,48 @@
+{
+  "mode": "source-query-only-sqlite-online-backup-into-new-task-owned-destination",
+  "originalSourcePath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-d198b505115248d8bd5596612f5a8819\\profiles\\lwb317-background-witness-002-d198b505\\map-data\\map-data.db",
+  "sourceBytesSha256BeforeAfter": "09cf51c0a7a6242385e42605578062107599d2c93ad803883a8c353468b45993",
+  "originalSidecarHashes": {
+    "db": {
+      "sha256": "09cf51c0a7a6242385e42605578062107599d2c93ad803883a8c353468b45993",
+      "bytes": 18235392
+    },
+    "-wal": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "-shm": {
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "bytes": 32768
+    }
+  },
+  "snapshotPath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-A-TO-A-CAMPAIGN-007-RESOURCEREPLAY\\profile-A\\map-data\\map-data.db",
+  "snapshotSha256": "641f70f6ce7c69c6d2b8af0d3afa9fe8ad50a0bbcabd0308667719509afc78a8",
+  "state": {
+    "run": [
+      [
+        "b439bfa57cd54405a14e803d21964c9d",
+        2212,
+        "completed",
+        2500,
+        2500,
+        0
+      ]
+    ],
+    "publishedResource": 8008,
+    "staged": 0,
+    "jobs": {
+      "dispatch_plunder_jobs": 0,
+      "truck_plunder_jobs": 0,
+      "dispatch_assist_jobs": 0
+    }
+  },
+  "sqliteIntegrity": "ok",
+  "proofType": "real-v22-captured-dataset-readonly-copy; NOT original 0.3.17 parity",
+  "negativeGuarantees": [
+    "source opened mode=ro/query_only",
+    "no scheduled jobs",
+    "no game actions",
+    "never replaces original"
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "proofType": "actual 0.3.17 canonical mapBackend createMapApi code consuming replayed ACTUAL native Resource command responses; NO mounted DOM/game/original runtime",
+  "originalParity": "NOT_PROVEN",
+  "payloadPath": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007\\command-actual-resource-proof.payload.json",
+  "total": 8008,
+  "page1Count": 50,
+  "page2Count": 50,
+  "positiveFilterCount": 2608,
+  "negativeFilterCount": 0,
+  "nativeResourceOptions": 4,
+  "profileBTotal": 0,
+  "reopenedATotal": 8008,
+  "rejectedOldProfileEvent": true,
+  "offlineSummaryServerId": 0,
+  "commandCount": 8,
+  "commands": [
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 2,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resourceNameKey": "129027"
+        }
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ],
+          "resourceNameKey": "__campaign007_no_such_resource_key__"
+        }
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_data_options",
+      "args": {
+        "serverId": 2212
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 1,
+      "command": "map_summary",
+      "args": {}
+    },
+    {
+      "profileId": "B",
+      "generation": 2,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "profileId": "A",
+      "generation": 3,
+      "command": "map_search",
+      "args": {
+        "kind": "resource",
+        "query": {
+          "serverId": 2212,
+          "keyword": "",
+          "page": 1,
+          "pageSize": 50,
+          "sorts": [
+            {
+              "sortBy": "updatedAt",
+              "sortOrder": "desc"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "externalGameActions": 0
+}

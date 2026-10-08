@@ -1,0 +1,207 @@
+﻿{
+    "campaign":  "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007",
+    "baseline":  "839f0bcd162eed560a52c17ccf61eeb6a8731af0",
+    "status":  "IN_PROGRESS",
+    "obligations":  [
+                        {
+                            "id":  "A01",
+                            "title":  "Home frontend/native controls, status and conditional state",
+                            "sourceLocator":  "docs/tabs/home.md; src/LWBridge.UI-0.3.17/src/pages/HomePage*; src/LWBridge.Desktop/OverviewLifecycleService.cs",
+                            "status":  "IN_PROGRESS",
+                            "proofType":  "Exact frontend bytes and native commands",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Trace source ownership and original distinct states"
+                        },
+                        {
+                            "id":  "A02",
+                            "title":  "Map eight-kind contract and command/persistence trace",
+                            "sourceLocator":  "docs/reviews/2026-09-30-LWB317-RE-MAP-001/002/003; Map317CommandService.cs",
+                            "status":  "IN_PROGRESS",
+                            "proofType":  "Recovered 0.3.17 host/store, limited native live",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Map comprehensive command matrix"
+                        },
+                        {
+                            "id":  "B01",
+                            "title":  "Original home recovery and launcher service bodies",
+                            "sourceLocator":  "docs/reviews/2026-10-07-LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006-LEAD.md",
+                            "status":  "READY",
+                            "proofType":  "Original static xrefs accepted previously",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Trace available original host/launcher native edges"
+                        },
+                        {
+                            "id":  "B02",
+                            "title":  "Original encrypted controller exact traversal/schedule/extraction",
+                            "sourceLocator":  "006 accepted artifact research + original exact package",
+                            "status":  "BLOCKED_ORIGINAL_INPUT",
+                            "proofType":  "Missing matching signed package-key envelope and original CNG device state",
+                            "lastExecutedResult":  null,
+                            "dependency":  "Missing matching signed package-key envelope and original CNG device state",
+                            "nextAction":  "No key guessing; decode only if legitimately supplied"
+                        },
+                        {
+                            "id":  "C01",
+                            "title":  "Home preferences global/profile native rollback",
+                            "sourceLocator":  "RECOVERY-003 R3-04/05; actual original frontend bundle",
+                            "status":  "READY",
+                            "proofType":  "R3 corrections accepted offline",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Distinguishing current handler regression"
+                        },
+                        {
+                            "id":  "C02",
+                            "title":  "Home launcher retry/timeout/reconnect exact parity",
+                            "sourceLocator":  "original Home service xrefs vs OverviewLifecycleService",
+                            "status":  "READY",
+                            "proofType":  "Original deeper parameters unproved",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Trace original host xref, compare implementation policy"
+                        },
+                        {
+                            "id":  "C03",
+                            "title":  "Home root/Launch/Close/pending/status/profiles/restart",
+                            "sourceLocator":  "RECOVERY-003 + src/LWBridge.UI-0.3.17/src",
+                            "status":  "READY",
+                            "proofType":  "Accepted source UIUX and ownership guards",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Run production mounted tests and original cases"
+                        },
+                        {
+                            "id":  "D01",
+                            "title":  "Resource logical grid, request order, AOI adaptation and retry",
+                            "sourceLocator":  "RE-MAP-002, CurrentClientMapBlockSource.FastCity.cs, MapScanEngine.cs",
+                            "status":  "READY",
+                            "proofType":  "Original provider details unknown",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Recover additional original xrefs, differentiate policy"
+                        },
+                        {
+                            "id":  "D02",
+                            "title":  "All eight producers and record identity/field absence",
+                            "sourceLocator":  "DEEP-RECOVERY-002; current v22 bytecode body oracles",
+                            "status":  "READY",
+                            "proofType":  "Original protected producer details unknown",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Validate source projections and compare accepted tests"
+                        },
+                        {
+                            "id":  "D03",
+                            "title":  "Cancellation positive staged and late response",
+                            "sourceLocator":  "004 lead review; MapScanEngine and MapStore",
+                            "status":  "READY_LIVE_OPTIONAL",
+                            "proofType":  "004 negative early Stop live; positive staging unproved",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "First do controlled inert races; launch only if necessary"
+                        },
+                        {
+                            "id":  "E01",
+                            "title":  "Completed Resource SQLite safe read-only snapshot",
+                            "sourceLocator":  "004 completed run and actual isolated database",
+                            "status":  "COMPLETE_BOUNDED_CURRENT_DATA",
+                            "proofType":  "Current v22 live 8008 rows, no original comparator",
+                            "lastExecutedResult":  "SQLite source hash same, 8008 no jobs integrity ok",
+                            "dependency":  null,
+                            "nextAction":  "Preserve, compare original contract later"
+                        },
+                        {
+                            "id":  "E02",
+                            "title":  "Positive actual map_search + filters/page/sort/reopen via command",
+                            "sourceLocator":  "Map317CommandService.InvokeAsync; MapStore.Search",
+                            "status":  "COMPLETE_BOUNDED_CURRENT_DATA",
+                            "proofType":  "Previous first command envelope invalid",
+                            "lastExecutedResult":  "Actual Map317CommandService 8008, pages50/50, positive resourceNameKey2608, impossible0; malformed rejected",
+                            "dependency":  null,
+                            "nextAction":  "Preserve, compare original contract later"
+                        },
+                        {
+                            "id":  "E03",
+                            "title":  "map_data_options, map_summary context and cancellation empty set",
+                            "sourceLocator":  "Map317CommandService, MapControlPlane, cancelled DB",
+                            "status":  "COMPLETE_BOUNDED_CURRENT_DATA",
+                            "proofType":  "Offline context differs from game-ready context",
+                            "lastExecutedResult":  "Actual options 8008/4 names, offline summary server0, B empty, A reopen",
+                            "dependency":  null,
+                            "nextAction":  "Preserve, compare original contract later"
+                        },
+                        {
+                            "id":  "E04",
+                            "title":  "Canonical mapBackend/frontend profile A/B/A with real rows",
+                            "sourceLocator":  "src/LWBridge.UI-0.3.17/src/mapBackend.js and MapDataPage",
+                            "status":  "PARTIAL_REAL_FRONTEND_ADAPTER_PASS_MOUNT_PENDING",
+                            "proofType":  "No desktop UI allowed",
+                            "lastExecutedResult":  "Actual mapBackend.js createMapApi consumed real command payload; A/B/A and stale event pass, no DOM mount",
+                            "dependency":  null,
+                            "nextAction":  "Mount MapDataPage headlessly"
+                        },
+                        {
+                            "id":  "E05",
+                            "title":  "Map auto/manual config hydration, scheduled jobs, export",
+                            "sourceLocator":  "RECOVERY-003; MapAutoScanScheduler; CityExporter",
+                            "status":  "READY",
+                            "proofType":  "No real gameplay or SaveDialog permitted",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Existing production focused tests and extra inverses"
+                        },
+                        {
+                            "id":  "F01",
+                            "title":  "Canonical Home+Map EN/light JA/dark integration race cleanup",
+                            "sourceLocator":  "actual App UI mounts and source oracles",
+                            "status":  "READY",
+                            "proofType":  "Canonical WebView live blocked owner desktop ban",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Headless browser test with source constraints"
+                        },
+                        {
+                            "id":  "G01",
+                            "title":  "Background current-client connected Resource/Stop",
+                            "sourceLocator":  "accepted 004 dual-run packet",
+                            "status":  "ACCEPTED_BOUNDED",
+                            "proofType":  "Live current v22 not original parity",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Preserve, do not repeat"
+                        },
+                        {
+                            "id":  "G02",
+                            "title":  "New native City scan / cancellation-after-staging if needed",
+                            "sourceLocator":  "pilot isolation/compatibility backups",
+                            "status":  "OPTIONAL_NEEDS_GAP",
+                            "proofType":  "Valid only current-server nonintrusive launch",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Determine from existing evidence; no repeated scan without need"
+                        },
+                        {
+                            "id":  "H01",
+                            "title":  "Full diff, checks/build/preserve cleanup",
+                            "sourceLocator":  "AGENTS.md; campaign 007 H",
+                            "status":  "READY",
+                            "proofType":  "Fresh reference hash and process inventory zero at kickoff",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Final verification and source-grounded distinctions"
+                        },
+                        {
+                            "id":  "H02",
+                            "title":  "Masters/ledger/review/queue/remote SHA",
+                            "sourceLocator":  "campaign 007 H",
+                            "status":  "READY",
+                            "proofType":  "Project lead acceptance separate",
+                            "lastExecutedResult":  null,
+                            "dependency":  null,
+                            "nextAction":  "Update, push, verify direct SHA"
+                        }
+                    ]
+}

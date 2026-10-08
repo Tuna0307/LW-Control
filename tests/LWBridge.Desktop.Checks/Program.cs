@@ -2,6 +2,16 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int campaign007CommandProofIndex = Array.FindIndex(args,
+    value => string.Equals(value, "--campaign007-command-proof", StringComparison.OrdinalIgnoreCase));
+if (campaign007CommandProofIndex >= 0)
+{
+    if (campaign007CommandProofIndex + 2 >= args.Length)
+        throw new ArgumentException("--campaign007-command-proof <safe-backup-json> <result-json>");
+    await LWBridge.Desktop.Checks.Campaign007RealResourceCommandChecks.RunAsync(
+        args[campaign007CommandProofIndex + 1], args[campaign007CommandProofIndex + 2]);
+    return 0;
+}
 int world004ReopenIndex = Array.FindIndex(args,
     value => string.Equals(value, "--world-resource-004-reopen", StringComparison.OrdinalIgnoreCase));
 if (world004ReopenIndex >= 0)
