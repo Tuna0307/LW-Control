@@ -1,4 +1,4 @@
-# HOME 009 continuation (PARTIAL, interrupted by owner shutdown)
-Done: A (Stop terminate), C/D static decode + port + oracle compare (230/230).
-Next: (1) rewrite Program.cs game-recovery-status block to original contract; run full native check list (home008_verify.ps1 native) ; (2) E: autoLaunchAll/profile/Map lifetime comparisons; (3) B: launch flow 0x1D5009 etc.; (4) obligations json, docs/masters, final checks, push.
-Needs reference exe at C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe (SHA 4E9C3113...D6783) for tools/lwbridge317/home009_*.py (hash-gated).
+# HOME 009 continuation (PARTIAL; cloud checkpoint 1)
+Done: A (Stop terminate), C/D decode + port + 230/230 oracle compare, static hash-gated tools re-verified in cloud, stale Program.cs recovery block retired + Python contract check.
+PENDING on Windows: `dotnet build` of tests/LWBridge.Desktop.Checks (warnings are errors) and `home008_verify.ps1 native` + the three updated checks (home-campaign-lifecycle, overview-close-timing, overview-reconnect-policy). Nothing .NET was run in the cloud.
+Next: (1) E: decode 0x203021/0x2057dc/0x128a38/0x11157c semantics from handler-skeletons.txt (home009_native.py fn <rva>), A-B-A and Map-scan lifetime comparisons; (2) B: launch/readiness async states 0x1D5009-0x1DDBB2 etc.; (3) update masters/ledger after those; reference exe now at reference/lwbridge-0.3.17.exe (tools use repo-relative path).

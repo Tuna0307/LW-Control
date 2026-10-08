@@ -6,7 +6,7 @@ import hashlib, json, bisect, sys
 import pefile
 from capstone import Cs,CS_ARCH_X86,CS_MODE_64
 from capstone.x86 import X86_OP_IMM,X86_OP_MEM,X86_REG_RIP
-REFERENCE=Path(r"C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe")
+REFERENCE=Path(__file__).resolve().parents[2] / "reference" / "lwbridge-0.3.17.exe"
 H="4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
 assert hashlib.sha256(REFERENCE.read_bytes()).hexdigest()==H
 PE=pefile.PE(str(REFERENCE))

@@ -7,7 +7,7 @@ from pathlib import Path
 import pefile
 from capstone import Cs,CS_ARCH_X86,CS_MODE_64
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
-exe=Path(r"C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe")
+exe=Path(__file__).resolve().parents[2] / "reference" / "lwbridge-0.3.17.exe"
 expected="4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
 assert hashlib.sha256(exe.read_bytes()).hexdigest()==expected
 pe=pefile.PE(str(exe))

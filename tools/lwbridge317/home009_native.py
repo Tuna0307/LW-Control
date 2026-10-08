@@ -20,7 +20,7 @@ import pefile
 from capstone import Cs, CS_ARCH_X86, CS_MODE_64
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_REG_RIP
 
-EXE = Path(r"C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe")
+EXE = Path(__file__).resolve().parents[2] / "reference" / "lwbridge-0.3.17.exe"
 SHA = "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
 raw = EXE.read_bytes()
 assert hashlib.sha256(raw).hexdigest() == SHA, "reference executable identity mismatch"

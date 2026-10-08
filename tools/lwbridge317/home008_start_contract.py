@@ -6,7 +6,7 @@ from pathlib import Path
 import pefile
 from capstone import Cs,CS_ARCH_X86,CS_MODE_64
 ROOT=Path(__file__).resolve().parents[2]
-EXE=Path(r"C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe")
+EXE=Path(__file__).resolve().parents[2] / "reference" / "lwbridge-0.3.17.exe"
 SHA="4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
 assert hashlib.sha256(EXE.read_bytes()).hexdigest()==SHA
 pe=pefile.PE(str(EXE));base=pe.OPTIONAL_HEADER.ImageBase;md=Cs(CS_ARCH_X86,CS_MODE_64)

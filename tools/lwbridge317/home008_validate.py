@@ -6,7 +6,7 @@ import copy,hashlib,json,sqlite3,subprocess,os
 ROOT=Path(__file__).resolve().parents[2]
 E=ROOT/"evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-NATIVE-SEMANTICS-008"
 R1=ROOT/"evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007"
-EXE=Path(r"C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe")
+EXE=Path(__file__).resolve().parents[2] / "reference" / "lwbridge-0.3.17.exe"
 ORIGINAL="4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783"
 INSTALLED=Path(r"C:\Users\chimw\AppData\LocalLow\FunFly\Last War-Survival Game\lwScripts")
 TRIPLET={
