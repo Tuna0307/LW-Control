@@ -20,6 +20,7 @@ internal static class OverviewLaunchSpamChecks
 
         var helperEntered = new TaskCompletionSource<OverviewHelperInvocation>(TaskCreationOptions.RunContinuationsAsynchronously);
         var helperRelease = new TaskCompletionSource<JsonElement>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var reportRegistered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         int helperStartCalls = 0;
         int helperStopCalls = 0;
         bool processAlive = false;
@@ -44,6 +45,9 @@ internal static class OverviewLaunchSpamChecks
                         throw new InvalidDataException("launch binding was not supplied");
                     helperEntered.TrySetResult(invocation);
                     JsonElement result = await helperRelease.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    // Admission follows the REAL host refresh of a matching report;
+                    // a blind immediate claim races the production registration boundary.
+                    await reportRegistered.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
                     Check(registry.TryAdmit(
                             binding.ProfileId,
                             binding.InstanceId,
@@ -62,7 +66,11 @@ internal static class OverviewLaunchSpamChecks
             },
             ProcessMatches = (pid, path, created) => processAlive && pid == gamePid && created == startedAt &&
                 string.Equals(Path.GetFullPath(path), Path.GetFullPath(gamePath), StringComparison.OrdinalIgnoreCase),
-            ReadAllBytes = _ => Heartbeat(session!, challenge!, gamePid),
+            ReadAllBytes = path => path.EndsWith("game-reported.txt", StringComparison.Ordinal)
+                ? Encoding.UTF8.GetBytes(
+                    $"schema=1\nbridgeVersion={OverviewLifecycleService.BridgeVersion}\nsessionId={session}\nchallenge={challenge}\ngamePid={gamePid}\ndeadlineMilliseconds={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + 90_000}\n")
+                : Heartbeat(session!, challenge!, gamePid),
+            LaunchReportRegistered = _ => reportRegistered.TrySetResult(),
             WriteLease = (_, _, _) => { },
             DeleteFile = _ => { },
         };

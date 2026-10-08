@@ -1,0 +1,22 @@
+{
+  "checkpoint": "79617a18d493fbb722f4cc2179279bff954472be",
+  "scope": "actual production helper/observer boundary; source-recovered refresh-error precedence, not original/live execution",
+  "cases": [
+    {
+      "helperFulfills": false,
+      "markerWrites": 1,
+      "expected": "PIPE_REGISTRATION_INVALID",
+      "actual": "PIPE_REGISTRATION_INVALID",
+      "mismatch": false
+    },
+    {
+      "helperFulfills": true,
+      "markerWrites": 1,
+      "expected": "PIPE_REGISTRATION_INVALID",
+      "actual": "PIPE_REGISTRATION_INVALID",
+      "mismatch": false
+    }
+  ],
+  "newGameLaunches": 0,
+  "tempRootRemoved": true
+}

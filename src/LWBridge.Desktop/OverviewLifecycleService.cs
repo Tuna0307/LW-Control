@@ -17,6 +17,9 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<string, CancellationToken, Task>? RunOfficialSettleAsync { get; init; }
     public Func<int, string, string?, bool>? ProcessMatches { get; init; }
     public Func<string, byte[]>? ReadAllBytes { get; init; }
+    // Inert producer seam: fires only after the actual host registry accepted
+    // the launch report. Tests wait on this signal instead of a timing sleep.
+    public Action<OverviewHelperInvocation>? LaunchReportRegistered { get; init; }
     public Action<string, string, string>? WriteLease { get; init; }
     public Action<string, string, string>? WriteStartCancellation { get; init; }
     public Action<string>? DeleteFile { get; init; }
@@ -1142,11 +1145,34 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
         try
         {
-            return await RunHelperCoreAsync(invocation, cancellationToken).ConfigureAwait(false);
+            JsonElement helperResult = await RunHelperCoreAsync(invocation, cancellationToken).ConfigureAwait(false);
+            if (observer is not null)
+            {
+                // The helper can fulfill while its independent report reader has not yet
+                // completed (or has already failed). Success must own BOTH outcomes.
+                // A real successful start writes game-reported.txt before ready.json.
+                // The local five-second handoff cap is a conservative adapter fence,
+                // not a claim about the original launcher's timing.
+                Task completed = await Task.WhenAny(
+                    observer, Task.Delay(TimeSpan.FromSeconds(5), cancellationToken)).ConfigureAwait(false);
+                if (completed != observer)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    throw new BridgeCommandException(
+                        "LAUNCH_REPORT_FAILED", "The game launch report was not registered.");
+                }
+                BridgeCommandException? refreshError = await observer.ConfigureAwait(false);
+                if (refreshError is not null) throw refreshError;
+            }
+            // StartAsync must receive a successful helper's owned game identity
+            // even when Close/Stop raced it, so that its exact-identity rollback
+            // can terminate and restore the just-started process.
+            return helperResult;
         }
         catch when (observer is not null && observer.IsCompletedSuccessfully && observer.Result is not null)
         {
-            // 0x1DD152: a failed registry refresh is the launch error (the helper only saw the cancellation it caused).
+            // Original 0x1DD152-0x1DD198: a failed registry refresh precedes
+            // the consequent helper cancellation, rejection OR late fulfillment.
             throw observer.Result;
         }
         finally
@@ -1175,10 +1201,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             while (!token.IsCancellationRequested)
             {
-                await RecoveryDelayAsync(TimeSpan.FromMilliseconds(250), token).ConfigureAwait(false);
+                // The report may already exist when the observer starts; do not
+                // force an initial sleep across the launch/registration handoff.
+                token.ThrowIfCancellationRequested();
                 byte[] bytes;
                 try { bytes = (testHooks?.ReadAllBytes ?? File.ReadAllBytes)(path); }
-                catch { continue; }
+                catch
+                {
+                    await RecoveryDelayAsync(TimeSpan.FromMilliseconds(250), token).ConfigureAwait(false);
+                    continue;
+                }
                 var values = new Dictionary<string, string>(StringComparer.Ordinal);
                 foreach (string line in Encoding.UTF8.GetString(bytes).Split('\n', StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -1189,17 +1221,53 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     !values.TryGetValue("sessionId", out string? session) || session != invocation.SessionId ||
                     !values.TryGetValue("challenge", out string? challenge) || challenge != invocation.Challenge ||
                     !values.TryGetValue("deadlineMilliseconds", out string? deadlineText) ||
-                    !long.TryParse(deadlineText, NumberStyles.None, CultureInfo.InvariantCulture, out long deadline))
+                    !long.TryParse(deadlineText, NumberStyles.None, CultureInfo.InvariantCulture, out long deadline) ||
+                    !values.TryGetValue("gamePid", out string? gamePidText) ||
+                    !int.TryParse(gamePidText, NumberStyles.None, CultureInfo.InvariantCulture, out int reportedGamePid) ||
+                    reportedGamePid <= 0)
+                {
+                    await RecoveryDelayAsync(TimeSpan.FromMilliseconds(250), token).ConfigureAwait(false);
                     continue;
+                }
                 try
                 {
+                    token.ThrowIfCancellationRequested();
                     bridgeHostState!.RefreshLaunchBindingUntil(binding.InstanceId, deadline);
+                    // The current-client helper cannot expose connect-capable
+                    // control until refresh_pending has succeeded. This is an
+                    // atomic, exact-session handoff (not a ready.json shortcut).
+                    string ackPath = Path.Combine(runtimeRoot, "registration-confirmed.txt");
+                    Directory.CreateDirectory(runtimeRoot);
+                    byte[] ackContents = Encoding.UTF8.GetBytes(
+                        "schema=1\n" +
+                        "sessionId=" + invocation.SessionId + "\n" +
+                        "challenge=" + invocation.Challenge + "\n" +
+                        "instanceId=" + binding.InstanceId + "\n" +
+                        "gamePid=" + reportedGamePid.ToString(CultureInfo.InvariantCulture) + "\n");
+                    token.ThrowIfCancellationRequested();
+                    if (!OverviewRuntimeFileOwnership.TryWrite(
+                        ackPath, ackContents,
+                        bytes => KeyValueRuntimeFileMatches(
+                            bytes, invocation.SessionId!, invocation.Challenge!),
+                        testHooks?.RuntimeFileBeforeMutation))
+                    {
+                        throw new BridgeCommandException(
+                            "LAUNCH_REPORT_FAILED",
+                            "The exact-session registration acknowledgement is unavailable.");
+                    }
+                    testHooks?.LaunchReportRegistered?.Invoke(invocation);
                     return null;
                 }
                 catch (BridgeCommandException error)
                 {
                     TryWriteStartCancellationMarker(invocation.SessionId!, invocation.Challenge!);
                     return error;
+                }
+                catch (IOException error)
+                {
+                    TryWriteStartCancellationMarker(invocation.SessionId!, invocation.Challenge!);
+                    return new BridgeCommandException("LAUNCH_REPORT_FAILED",
+                        "The launch report could not be acknowledged.", new { error = error.Message });
                 }
             }
         }
@@ -1726,6 +1794,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "control.txt"), expectedSession, expectedChallenge, json: false);
         TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "ready.json"), expectedSession, expectedChallenge, json: true);
         TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "heartbeat.json"), expectedSession, expectedChallenge, json: true);
+        TryDeleteOwnedRuntimeFile(Path.Combine(runtimeRoot, "registration-confirmed.txt"), expectedSession, expectedChallenge, json: false);
         ClearStartCancellationMarker(expectedSession, expectedChallenge);
     }
 

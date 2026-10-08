@@ -455,7 +455,7 @@ def clear_abandoned_runtime(p: dict[str, Path]) -> None:
     lr.require_no_selected_game_process(p)
     require_no_fresh_foreign_lease(p, "__abandoned__", "__abandoned__")
     p["runtime"].mkdir(parents=True, exist_ok=True)
-    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json", "game-reported.txt"):
+    for name in ("control.txt", "lease.txt", "ready.json", "heartbeat.json", "game-reported.txt", "registration-confirmed.txt"):
         _delete_runtime_identity(p["runtime"] / name)
 
 
@@ -472,6 +472,7 @@ def clear_stale_runtime(
         ("ready.json", True),
         ("heartbeat.json", True),
         ("game-reported.txt", False),
+        ("registration-confirmed.txt", False),
     ):
         path = p["runtime"] / name
         _delete_owned_runtime(path, session_id, challenge, json_file=json_file)
@@ -865,6 +866,32 @@ def write_game_report(
     })
 
 
+def await_registration_confirmation(
+    p: dict[str, Path], session_id: str, challenge: str,
+    game_pid: int, deadline_milliseconds: int,
+) -> None:
+    """Only expose connect-capable control after the host refreshed this exact run.
+
+    Current-client interprocess ordering adaptation; the original refresh_pending
+    error branch at 0x1DD152 precedes its bridge-ready wait.
+    """
+    ack_path = p["runtime"] / "registration-confirmed.txt"
+    while wall_clock_milliseconds() < deadline_milliseconds:
+        throw_if_start_cancelled(p, session_id, challenge)
+        ack = read_kv(ack_path)
+        if (
+            ack is not None and ack.get("schema") == "1"
+            and ack.get("sessionId") == session_id
+            and ack.get("challenge") == challenge
+            and ack.get("instanceId") == session_id
+            and ack.get("gamePid") == str(game_pid)
+        ):
+            return
+        time.sleep(READY_POLL_SECONDS)
+    throw_if_start_cancelled(p, session_id, challenge)
+    raise OverviewBridgeError("launch report registration not confirmed before the bridge-connect deadline")
+
+
 def run_start(
     profile_id: str, session_id: str, challenge: str,
     timeout_seconds: int, game_root: str | Path | None,
@@ -942,6 +969,16 @@ def run_start(
             )
             throw_if_start_cancelled(p, session_id, challenge)
             game_started_at_utc = lr.require_process_started_at(owned_game.get("startedAtUtc"), "owned game startedAtUtc")
+            # R3 A: publish the launcher report FIRST. An active control file
+            # could otherwise let the game claim the pending pipe route before
+            # refresh_pending, causing a false PIPE_REGISTRATION_INVALID failure.
+            ready_deadline_ms = wall_clock_milliseconds() + READY_WINDOW_MILLISECONDS
+            write_game_report(p, session_id, challenge, int(owned_game["pid"]), ready_deadline_ms)
+            if validated_control_pipe_path is not None:
+                await_registration_confirmation(
+                    p, session_id, challenge, int(owned_game["pid"]), ready_deadline_ms,
+                )
+            throw_if_start_cancelled(p, session_id, challenge)
             write_control(
                 p,
                 profile_id,
@@ -950,9 +987,6 @@ def run_start(
                 int(owned_game["pid"]),
                 control_pipe_path,
             )
-            # R2 D: a fresh wall-clock window starts at the launcher's game report (acquisition keeps `deadline`).
-            ready_deadline_ms = wall_clock_milliseconds() + READY_WINDOW_MILLISECONDS
-            write_game_report(p, session_id, challenge, int(owned_game["pid"]), ready_deadline_ms)
             ready = await_ready(
                 p, profile_id, session_id, challenge, int(owned_game["pid"]),
                 ready_deadline_ms, player_log_start_cursor,

@@ -36,6 +36,7 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
         LWBridgeControlPipeLaunchBinding? firstBinding = null;
         object admittedRoute = new();
         ulong admittedGeneration = 0;
+        var reportRegistered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -46,16 +47,16 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 return Task.CompletedTask;
             },
             MonotonicMilliseconds = () => Volatile.Read(ref clock),
-            RunHelperAsync = (invocation, _) =>
+            RunHelperAsync = async (invocation, token) =>
             {
                 if (invocation.Operation != "start")
                 {
                     processAlive = false;
-                    return Task.FromResult(StopResult(
+                    return StopResult(
                         invocation,
                         gamePath,
                         GamePid,
-                        StartedAt));
+                        StartedAt);
                 }
 
                 int call = Interlocked.Increment(ref startCalls);
@@ -91,6 +92,11 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 Check(binding.PipeToken == firstBinding!.PipeToken,
                     "retry does not mint a replacement pipe token");
 
+                activeSession = invocation.SessionId;
+                activeChallenge = invocation.Challenge;
+                // The report must first refresh this pending route; admitting
+                // before it does so would violate the original claimed-binding rule.
+                await reportRegistered.Task.WaitAsync(token).ConfigureAwait(false);
                 bool admitted = registry.TryAdmit(
                     Profile,
                     invocation.SessionId!,
@@ -104,12 +110,12 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                 activeSession = invocation.SessionId;
                 activeChallenge = invocation.Challenge;
                 processAlive = true;
-                return Task.FromResult(StartResult(
+                return StartResult(
                     invocation,
                     gamePath,
                     GamePid,
                     LauncherPid,
-                    StartedAt));
+                    StartedAt);
             },
             ProcessMatches = (pid, path, created) =>
                 processAlive &&
@@ -119,11 +125,15 @@ internal static class OverviewBridgeLifecycleLaunchBindingChecks
                     Path.GetFullPath(path),
                     Path.GetFullPath(gamePath),
                     StringComparison.OrdinalIgnoreCase),
-            ReadAllBytes = _ => Heartbeat(
-                Profile,
-                activeSession!,
-                activeChallenge!,
-                GamePid),
+            ReadAllBytes = path => path.EndsWith("game-reported.txt", StringComparison.Ordinal)
+                ? Encoding.UTF8.GetBytes(
+                    $"schema=1\nbridgeVersion={OverviewLifecycleService.BridgeVersion}\nsessionId={activeSession}\nchallenge={activeChallenge}\ngamePid={GamePid}\ndeadlineMilliseconds=200000\n")
+                : Heartbeat(
+                    Profile,
+                    activeSession!,
+                    activeChallenge!,
+                    GamePid),
+            LaunchReportRegistered = _ => reportRegistered.TrySetResult(),
             WriteLease = (_, _, _) => { },
             DeleteFile = _ => { },
         };

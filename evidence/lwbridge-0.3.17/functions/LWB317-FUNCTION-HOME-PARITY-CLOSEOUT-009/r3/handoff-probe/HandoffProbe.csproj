@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
+    <AssemblyName>LWBridge.Desktop.Checks</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ProbeRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../../../'))</ProbeRepositoryRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LWBridge.Desktop"><HintPath>$(ProbeRepositoryRoot)/src/LWBridge.Desktop/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.dll</HintPath></Reference>
+    <Reference Include="LWBridge.Map_0_3_17"><HintPath>$(ProbeRepositoryRoot)/src/LWBridge.Map-0.3.17/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Map_0_3_17.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

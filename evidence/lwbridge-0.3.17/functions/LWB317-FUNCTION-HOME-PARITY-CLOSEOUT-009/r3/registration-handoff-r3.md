@@ -1,0 +1,19 @@
+# HOME009 R3 A — registration handoff, bounded correction
+
+Reference: SHA256 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`, original RVAs `0x1DD152` (refresh pending), `0x1DD163` (only successful refresh enters wait), `0x1DD198` (failure terminates game). Original's game-registry wait and current-client file receipt are NOT yet proven identical.
+
+## Before and distinguishing correction
+
+Immutable R2 independent lead inverse: `r2/lead-review-2026-10-08/refresh-probe/Program.cs`. Fresh R3 BEFORE source edit: `refresh-error-before.json`: actual production RunHelperAsync + host/registry sees a claimed pending binding. Helper rejection -> PIPE_REGISTRATION_INVALID; helper FULFILLMENT -> SUCCESS (incorrect). This is LEAD009R2-01, not a mock-only boundary.
+
+Corrected, rebuilt identical inverse `refresh-error-after-built.json`: fulfillment and rejection BOTH -> PIPE_REGISTRATION_INVALID, 2/2. The intermediate `refresh-error-after.json` used a stale pre-rebuild Release DLL and is NOT correction proof.
+
+Current helper initially exposed control.txt before game-reported.txt, allowing the real game to claim the registration before refresh. The host initially polled only after an unconditional 250 ms sleep, and awaited observer errors without accepting their result. The current-client correction publishes game-reported.txt first, validates the exact host refresh, emits session/challenge/instance/PID-bound registration-confirmed.txt by same-handle owner-checked write, and only then exposes connect-capable control. The helper checks the identical receipt and deadline before writing control. A fast successful helper reply is *not* an independent success until observer outcome is accepted; a refresh error takes precedence over helper rejection, cancellation or fulfillment. A delayed/absent malformed/foreign report is not promoted to success.
+
+Production boundary `handoff-probe/Program.cs`, result `handoff-probe-ownership.json`: 13/13 current RunHelperAsync / host / real registry outcomes: fast report, delayed report after helper fulfilled, helper rejection, claimed failure with fulfilled/rejected helpers, Close/Stop host, obsolete session, obsolete challenge, report read errors, malformed PID, preserved foreign-owner acknowledgment, missing report and cancel. Temporary root removed; no actual game launched. Python isolated helper report consumer `tools/test_home009_r3_handoff.py` 8/8: immediate, wrong identities, delayed ack, exact-owner deletion, foreign preservation, cancellation.
+
+Affected native production lifecycle fixtures now gate synthetic registration on the real host report-refresh callback (not a fixed sleep). Three corrected independent native checks pass: launch-spam, recovery-async-ownership (including cancel-success exact game stop), and bridge-lifecycle-launch-binding. R2 full verify replay at `final-recheck/final-checks.json`: 38/38, unchanged 230 recovery comparisons, 20 mounted App cases, Release build 0 warnings/errors, frontend/package and scratch Release publish all success. First R3 replay at `final/` had four fixture/cancellation regressions, since corrected; retained as nonpassing audit history. Full 38/38 was executed before the final small owner-checked acknowledgment write, which was subsequently compiled with 0 errors and rerun 13/13; rerun fresh 38/38 after final integration.
+
+## Limitations
+
+The bounded 5s post-helper observer wait is **current-client adapter policy**, not an independently recovered original 5s budget. The original grants a 90s wait anchored at the successful registration report; the helper still owns bounded cleanup on timeout/cancel. No authentic game or canonical UI event has yet been verified; report/ack/ready.json mapping does not establish original authenticated registry parity. Preserve R1 restoration and exact session/lease constraints. Original-service authorization was not bypassed.

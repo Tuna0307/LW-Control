@@ -1,0 +1,152 @@
+{
+  "scope": "R3 actual production RunHelperAsync/host/registry with inert helper and held reports",
+  "results": [
+    {
+      "Name": "pending-helper-fulfilled-first",
+      "Expected": "SUCCESS",
+      "actual": "SUCCESS",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 5,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "pending-fast-report",
+      "Expected": "SUCCESS",
+      "actual": "SUCCESS",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "pending-helper-rejected",
+      "Expected": "INERT_HELPER_REJECTED",
+      "actual": "INERT_HELPER_REJECTED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "claimed-helper-fulfilled",
+      "Expected": "PIPE_REGISTRATION_INVALID",
+      "actual": "PIPE_REGISTRATION_INVALID",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 1,
+      "pending": 1,
+      "connected": 1
+    },
+    {
+      "Name": "claimed-helper-rejected",
+      "Expected": "PIPE_REGISTRATION_INVALID",
+      "actual": "PIPE_REGISTRATION_INVALID",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 1,
+      "pending": 1,
+      "connected": 1
+    },
+    {
+      "Name": "host-closed-helper-fulfilled",
+      "Expected": "BRIDGE_STOPPED",
+      "actual": "BRIDGE_STOPPED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 1,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "obsolete-session-report",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1449,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "obsolete-challenge-report",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1454,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "report-read-errors",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1456,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "malformed-pid-report",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1464,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "foreign-owner-ack",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1,
+      "markerWrites": 1,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "missing-report",
+      "Expected": "LAUNCH_REPORT_FAILED",
+      "actual": "LAUNCH_REPORT_FAILED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 1458,
+      "markerWrites": 0,
+      "pending": 1,
+      "connected": 0
+    },
+    {
+      "Name": "cancel-before-helper-completion",
+      "Expected": "CANCELLED",
+      "actual": "CANCELLED",
+      "match": true,
+      "ackVerified": true,
+      "readCalls": 11,
+      "markerWrites": 1,
+      "pending": 1,
+      "connected": 0
+    }
+  ],
+  "passed": 13,
+  "total": 13,
+  "tempRootRemoved": true,
+  "launchedGames": 0
+}
