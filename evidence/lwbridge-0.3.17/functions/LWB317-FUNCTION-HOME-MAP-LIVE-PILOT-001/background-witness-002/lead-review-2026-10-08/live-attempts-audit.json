@@ -1,0 +1,113 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+  "auditAtUtc": "2026-10-08T01:06:27.489563+00:00",
+  "mode": "read-only post-run audit; not a Resource or canonical UI proof",
+  "allAttemptRestorationsVerified": true,
+  "anyFreshAuthenticatedHost": false,
+  "anyFreshResourceStart": false,
+  "anyFreshResourceCapture": false,
+  "attempts": [
+    {
+      "source": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-witness-002\\live-attempt-001.json",
+      "attemptId": "6f50f14bbcb74cae959034e98022d28a",
+      "profileId": "lwb317-background-witness-002-6f50f14b",
+      "terminal": "BLOCKED_NO_CORRELATED_HOST_ACK",
+      "restorationVerified": true,
+      "originalPreflightBackupMatches": true,
+      "originalPostRunHashesMatch": true,
+      "recoveryJournalPresent": false,
+      "manifestStages": [
+        {
+          "backupName": "20261008-005114-d562f0d231df4b0ea071cb3e6028ef19",
+          "stage": "restored",
+          "recordedOriginalMatches": true
+        }
+      ],
+      "ownedHomeStopEvidence": true,
+      "sqliteReopened": true,
+      "isolatedSqliteCounts": {
+        "scanRuns": 0,
+        "scanBlocks": 0,
+        "resourceScanRecords": 0,
+        "resourcePublishedRows": 0
+      },
+      "freshNativeResourceStartEvidence": false,
+      "freshNativeResourceCaptureEvidence": false,
+      "hostAccepted": false,
+      "hostAuthenticatedCount": 0,
+      "hostConnectedRoutes": 0,
+      "hostRejectedHandshakes": 0,
+      "hostTraceSampleCount": 0,
+      "hostTraceFirstAtUtc": null,
+      "hostTraceLastAtUtc": null,
+      "serverInstances": null,
+      "serverLastConnectDisposition": null,
+      "serverLastConnectError": null,
+      "adapterStateObserved": [],
+      "gameSidePipeDiagnostic": {
+        "modifiedAtUtc": "2026-10-08T00:51:48.119896+00:00",
+        "state": "hello_sent",
+        "clientConnected": false,
+        "adapterActive": true,
+        "adapterLoaded": true,
+        "adapterReadMode": "direct",
+        "profileIdPresent": true,
+        "instanceIdPresent": true,
+        "buildIdPresent": true,
+        "pipeTokenPresent": true,
+        "namedPipeClientStreamAvailable": true
+      }
+    },
+    {
+      "source": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-witness-002\\live-attempt-002.json",
+      "attemptId": "3a9a1a9924f045f4ac77eb5498e2d815",
+      "profileId": "lwb317-background-witness-002-3a9a1a99",
+      "terminal": "BLOCKED_NO_CORRELATED_HOST_ACK",
+      "restorationVerified": true,
+      "originalPreflightBackupMatches": true,
+      "originalPostRunHashesMatch": true,
+      "recoveryJournalPresent": false,
+      "manifestStages": [
+        {
+          "backupName": "20261008-005620-7fad172841f742029cd4a987287fed56",
+          "stage": "restored",
+          "recordedOriginalMatches": true
+        }
+      ],
+      "ownedHomeStopEvidence": true,
+      "sqliteReopened": true,
+      "isolatedSqliteCounts": {
+        "scanRuns": 0,
+        "scanBlocks": 0,
+        "resourceScanRecords": 0,
+        "resourcePublishedRows": 0
+      },
+      "freshNativeResourceStartEvidence": false,
+      "freshNativeResourceCaptureEvidence": false,
+      "hostAccepted": false,
+      "hostAuthenticatedCount": 0,
+      "hostConnectedRoutes": 0,
+      "hostRejectedHandshakes": 0,
+      "hostTraceSampleCount": 28,
+      "hostTraceFirstAtUtc": "2026-10-08T00:56:48.4526726+00:00",
+      "hostTraceLastAtUtc": "2026-10-08T00:57:08.9910555+00:00",
+      "serverInstances": 1,
+      "serverLastConnectDisposition": "Pending",
+      "serverLastConnectError": 997,
+      "adapterStateObserved": [],
+      "gameSidePipeDiagnostic": {
+        "modifiedAtUtc": "2026-10-08T00:56:47.649009+00:00",
+        "state": "hello_sent",
+        "clientConnected": false,
+        "adapterActive": true,
+        "adapterLoaded": true,
+        "adapterReadMode": "direct",
+        "profileIdPresent": true,
+        "instanceIdPresent": true,
+        "buildIdPresent": true,
+        "pipeTokenPresent": true,
+        "namedPipeClientStreamAvailable": true
+      }
+    }
+  ]
+}

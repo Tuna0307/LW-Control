@@ -1,0 +1,66 @@
+You are the SOLO worker for LWB317-FUNCTION-HOME-MAP-BACKGROUND-PIPE-CONNECT-003.
+Repo: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller. Inspect latest HEAD/status; never reset.
+Reviewed delivery: 35d92a2490cb38829208a4db50cd09c8a2b87b33.
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, the 003 work item, parent LIVE-PILOT-001,
+2026-10-08-BACKGROUND-ONLY-PILOT.md and:
+docs/reviews/2026-10-08-LWB317-BACKGROUND-WITNESS-002-LEAD.md
+background-witness-002/checkpoint-B.md and both retained live attempts.
+
+Current failure: real game readiness succeeds, Lua says hello_sent, host pending
+connect stays at zero accepted/zero rejected. In attempt 2 no adapter state file
+was observed over the sampled interval. Win32 997 is normal pending IO, not the
+error to repair. No authenticated RPC or Resource start has been proven.
+
+Checkpoint A: trace and distinguish the first failing boundary.
+- Verify exact packaged/loaded adapter identity, reflection field and actual Lua
+  value type, argument values/path provenance, invocation route and native entry.
+- H1: Connect userdata is routed through MethodInfo.Invoke and apparent pcall
+  success does not prove BeginConnect ran. The existing direct reader proof is
+  relevant but not sufficient. H2: wrong root/state path, stale DLL or swallowed
+  state-write failure hides entry. H3: native worker/pipe opening fails after entry.
+  Seek counter-evidence; do not assert any hypothesis merely from absent files.
+- Add narrowly scoped, timestamped, session-correlated native entry/worker/pipe-open/
+  send/ACK receipts and real failure diagnostics. No tokens/private keys in evidence.
+  Observe before patching. Retain thread/process/assembly/path identity provenance.
+- Use actual production Lua/native boundaries for distinguishing inverse checks;
+  a stub giving type(connect)==function cannot prove reflected userdata behavior.
+- Correct the demonstrated mechanism. If direct delegate invocation is justified,
+  do not treat void/nil return as failure and blindly call Connect a second time;
+  prevent duplicate connects/restarts. Preserve current read result grammar and
+  ownership. Do not remove authentication, widen timeouts as the sole repair,
+  manufacture hello ACKs or equate adapterActive with a sent/accepted hello.
+
+Checkpoint B: fresh background production-provider retest and cleanup.
+Use the existing isolated 002 runner, extended only where justified. Preflight
+actual process/root/compatibility/backup identity; use unique profile/session/root.
+The owner ALLOWS opening Last War and will background its window. No Windows-MCP
+or other desktop screenshots/input/focus control; do not repeatedly activate it.
+Prove actual native entry, host accepted hello, correlated ACK and at least one
+legitimate production RPC. Distinguish game-ready from world-ready.
+If current-server world readiness holds, continue one fresh permitted Manual
+Resource run through production Map commands, correlate requests/capture/publish/
+query/reopen and exact Stop. Never call old rows or inert results live success.
+Inspect the unexecuted runner branch: partial cancelled staging and completed
+publication are different recovered outcomes. Do not stop after the first block
+and label an empty published query a completed positive scan. Preserve those
+semantics and prove only outcomes genuinely reached.
+Do not fabricate Resource export: the recovered production exporter is City-only.
+If login/world transition requires UI, record the exact dependent state without
+input; complete independent connection fixes/tests and cleanup before returning.
+
+Stop only the exact handed-over pilot session, retain lease/run ownership until
+termination, restore original scripts only after the game exits, verify triplet
+hashes and cleared journals, preserve backups/attempts and owner data. Keep Auto
+off. No claims/plunder/shares/marches/spending/cross-server/updater/protected-service
+actions or original encrypted-input guessing. Preserve accepted UIUX/R3/A-to-A.
+
+Continue ready investigations/corrections after a failed attempt. Do not stop
+just because two attempts failed or a general suite passed. Stop implementation
+only at actual completion or a concrete external/input prerequisite, with the
+first unproven boundary and all independently ready work complete.
+Run affected helper/Lua/adapter/host/Map checks and required Release/frontend/build/
+package checks after product changes. Evidence: parent pilot/background-pipe-connect-003/.
+Work alone: no subagents, GPT Work/Codex or other-chat delegation. Commit coherent
+checkpoints, push, verify direct origin SHA, update status/handoff and return
+AWAITING_REVIEW with root cause, actual outcomes, checks, cleanup and exact limits.

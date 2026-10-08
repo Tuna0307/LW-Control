@@ -1,0 +1,21 @@
+{
+  "capturedAtUtc": "2026-10-08T01:08:32.7857471+00:00",
+  "sourceCheckpoint": "35d92a2490cb38829208a4db50cd09c8a2b87b33",
+  "installedFiles": [
+    {
+      "Hash": "248F3AEAC712B3F14F86BFF37A0C365E467897A2248403837C44C1B774F05B22",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.data"
+    },
+    {
+      "Hash": "D2F9BCC165F41427D4B3B7B9243E4A483BF316519A16B4CE9BE658BA9AFA783A",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\LWScripts.txt"
+    },
+    {
+      "Hash": "785F3EC7EB32F30B90CD0FCF3657D388B5FF4297F2F9716FF66E9B69C05DDD09",
+      "Path": "C:\\Users\\chimw\\AppData\\LocalLow\\FunFly\\Last War-Survival Game\\lwScripts\\version.txt"
+    }
+  ],
+  "processes": [],
+  "desktopCaptureOrInput": false,
+  "gameLaunchedByLead": false
+}

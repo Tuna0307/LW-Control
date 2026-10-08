@@ -1,3 +1,5 @@
+Lead review, 2026-10-08: BACKGROUND-WITNESS-002 accepted for bounded runner/two negative game connection witnesses and restoration at 35d92a24. Fresh 7 inert inverses and read-only two-root audit pass; installed originals match and no game/clone process remains. The game adapter never connected to the waiting host; no Resource start/capture is proven. Next solo relay: BACKGROUND-PIPE-CONNECT-003, distinguish native Connect invocation/root/worker/pipe-open failure, repair and background retest. Background game launch remains permitted; desktop capture/input/focus restricted. Home/Map remains PARTIAL.
+
 Lead checkpoint, 2026-10-08: **LIVE-PILOT-001 PARTIAL / BACKGROUND ONLY**.
 Attempt-5 historical readiness/direct-reader evidence is preserved at product
 checkpoint b1f75a25. No fresh Resource result or complete pilot sequence is accepted.

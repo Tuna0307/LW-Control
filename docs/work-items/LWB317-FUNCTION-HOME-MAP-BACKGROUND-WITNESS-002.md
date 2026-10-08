@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002
 
-Status: **AWAITING_REVIEW** — checkpoints A and B completed; live Home/Map pilot remains PARTIAL.
+Status: **ACCEPTED BOUNDED RUNNER/NEGATIVE WITNESS**, 2026-10-08; see the 002-LEAD review. Full live pilot remains PARTIAL. — checkpoints A and B completed; live Home/Map pilot remains PARTIAL.
 Starting reviewed delivery: `79164b821443167462632cfbcc908029deeb0f9f`.
 Use the latest descendant; never reset. Parent pilot and owner directions remain.
 
