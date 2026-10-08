@@ -1,5 +1,12 @@
 # AI work protocol
 
+Latest lead assignment, 2026-10-09: HOME-MAP-COMPLETION-010 consolidates the owner's
+requested remaining Home/Map work after the partial R3 audit. Continue A–H through
+medium durable checkpoints in one solo assignment and return once after ready work
+is complete or all remaining branches have exact dependencies. Preserve R3 progress,
+live Home/Manual City-Resource pilot permission, technical safety/access boundaries
+and manual owner relay. See the work item and 009-R3-LEAD-PARTIAL review.
+
 Latest owner resumption, 2026-10-08: HOME-PARITY-CLOSEOUT-009-R3 now includes
 bounded live Home and desktop UI verification with Windows-MCP and Remote Desktop
 Commander. Its older static-only/background-only scope is superseded within this

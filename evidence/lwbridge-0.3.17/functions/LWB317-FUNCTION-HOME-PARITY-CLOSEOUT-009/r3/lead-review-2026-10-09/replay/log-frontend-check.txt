@@ -1,0 +1,9 @@
+
+> lwbridge-ui-0.3.17@0.3.17-ui-preview check
+> node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs
+
+LWBridge 0.3.17 static UI scaffold checks passed.
+LWB317_HOME_UI_INTEGRATION_CHECKS_OK
+LWB317_MAP_UI_INTEGRATION_CHECKS_OK
+LWB317_UI_COMPLETE_CHECKS_OK 470 referenced keys {"en":1383,"zh-CN":1383,"zh-TW":1383,"ja":1383,"ko":1383,"vi":1383,"id":1383,"ru":1383,"pt":1383}
+LWB317_UI_DRAFT_CHECKS_OK: concurrent edits, ack, error/retry/discard, no invalid dispatch, join defaults/precision, profile independence and card validation

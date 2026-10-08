@@ -2,6 +2,16 @@
 
 Read this file before doing any work.
 
+Latest lead assignment, 2026-10-09: the owner requested review of partial R3 work
+and one large combined Home/Map continuation, HOME-MAP-COMPLETION-010. It preserves
+R3 progress and includes the still-authorized Windows-MCP/Remote Desktop Commander
+Home verification and bounded current-server Manual City/Resource pilot. Other
+Map producer/controller recovery proceeds through static/inert boundaries where
+that pilot does not cover live actions. Technical identity/isolation/backups/
+restoration, solo manual relay, explicit pause/stop and protected-service/gameplay
+limits remain. Read docs/work-items/LWB317-FUNCTION-HOME-MAP-COMPLETION-010.md;
+this supersedes the old requirement to return solely for unfinished R3 scope.
+
 Latest owner resumption, 2026-10-08: Windows-MCP/desktop interaction is available
 again for the lead-assigned HOME-PARITY-CLOSEOUT-009-R3 five-gap Home continuation.
 Bounded Home UI/native launch/connect/Stop/restart/reconnect verification is now

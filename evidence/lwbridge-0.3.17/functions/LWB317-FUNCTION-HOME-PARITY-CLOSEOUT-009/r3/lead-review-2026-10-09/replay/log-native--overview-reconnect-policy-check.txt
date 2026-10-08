@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "acceptanceCase": "A07",
+  "scope": "isolated recovered Overview reconnect policy; no real game/process operation",
+  "recoveredPolicy": {
+    "disconnectThresholdSeconds": 60,
+    "disconnectWaitBeforeTerminateSeconds": 60,
+    "stableVerificationSeconds": 15,
+    "normalRetrySeconds": [
+      15,
+      30,
+      60,
+      120,
+      300
+    ]
+  },
+  "enabled": {
+    "monitorStartsRecoveryAtMs": 60000,
+    "runTerminatesAtMs": 120000,
+    "thresholdTerminations": 1,
+    "recoveryStartDelta": 1,
+    "recoveryStopDelta": 1,
+    "states": [
+      "waiting",
+      "repairing",
+      "launching",
+      "verifying",
+      "succeeded",
+      "idle"
+    ],
+    "stableVerificationMs": 16000,
+    "finalDesiredRunning": false,
+    "automaticRestartAfterIntentionalStop": false
+  },
+  "disabled": {
+    "autoReconnect": false,
+    "recoveryTerminations": 0,
+    "recoveryStartDelta": 0,
+    "recoveryStopDelta": 0,
+    "recoveryState": "idle",
+    "finalDesiredRunning": false
+  },
+  "disabledDuringRetry": {
+    "firstRetryDelaySeconds": 15,
+    "exactCleanupCount": 1,
+    "attemptedRecoveryStarts": 1,
+    "autoReconnectAfterDisable": false,
+    "desiredRunningAfterDisable": true,
+    "recoveryState": "idle",
+    "futureRecoveryStarts": 0
+  }
+}
