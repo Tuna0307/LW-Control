@@ -1,0 +1,21 @@
+{
+  "capturedAtUtc": "2026-10-08T03:53:58.3182815Z",
+  "checkpoint": "ba97b8bf8fa8438004ae8d69ff95b9a4a1d8695d",
+  "scripts": [
+    {
+      "file": "LWScripts.data",
+      "sha256": "248F3AEAC712B3F14F86BFF37A0C365E467897A2248403837C44C1B774F05B22"
+    },
+    {
+      "file": "LWScripts.txt",
+      "sha256": "D2F9BCC165F41427D4B3B7B9243E4A483BF316519A16B4CE9BE658BA9AFA783A"
+    },
+    {
+      "file": "version.txt",
+      "sha256": "785F3EC7EB32F30B90CD0FCF3657D388B5FF4297F2F9716FF66E9B69C05DDD09"
+    }
+  ],
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "processes": [],
+  "directOrigin": "ba97b8bf8fa8438004ae8d69ff95b9a4a1d8695d\trefs/heads/research/offline-controller"
+}

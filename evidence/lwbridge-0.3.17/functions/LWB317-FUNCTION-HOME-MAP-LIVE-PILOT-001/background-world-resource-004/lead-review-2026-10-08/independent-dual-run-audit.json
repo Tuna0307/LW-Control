@@ -1,0 +1,256 @@
+[
+  {
+    "report": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-world-resource-004\\live-attempt-001.json",
+    "attemptId": "d198b505115248d8bd5596612f5a8819",
+    "terminal": "BLOCKED_LIVE_PREREQUISITE_OR_FAILURE",
+    "events": [
+      "independent-exact-original-backup",
+      "real-provider-composed",
+      "stale-stop-rejected",
+      "real-home-start-returned",
+      "authenticated-host-observation",
+      "production-authenticated-getStatus-rpc",
+      "production-map-context-rpc-attempt",
+      "world-entry-before-production-start",
+      "resource-start",
+      "resource-natural-terminal",
+      "resource-natural-terminal",
+      "real-boundary-failure",
+      "owned-home-stop",
+      "final-restoration-inventory"
+    ],
+    "worldReady": {
+      "requestId": "world01f34e75396346239ddad8dd18951f21",
+      "state": "proven",
+      "method": "already_world_scene",
+      "error": null,
+      "profileMatch": true,
+      "sessionMatch": true,
+      "pidMatch": true,
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000
+    },
+    "sqlite": {
+      "scan_runs": {
+        "count": 1,
+        "columns": [
+          "id",
+          "server_id",
+          "selected_types",
+          "status",
+          "total_blocks",
+          "completed_blocks",
+          "failed_blocks",
+          "created_at",
+          "updated_at",
+          "error"
+        ],
+        "rows": [
+          {
+            "id": "b439bfa57cd54405a14e803d21964c9d",
+            "server_id": 2212,
+            "selected_types": "[\"resource\"]",
+            "status": "completed",
+            "total_blocks": 2500,
+            "completed_blocks": 2500,
+            "failed_blocks": 0,
+            "created_at": 1791429154259,
+            "updated_at": 1791429352129,
+            "error": null
+          }
+        ]
+      },
+      "scan_blocks": {
+        "count": 0,
+        "columns": [
+          "run_id",
+          "block_index",
+          "payload_json",
+          "status",
+          "attempts",
+          "error",
+          "updated_at"
+        ]
+      },
+      "scan_records": {
+        "count": 0,
+        "columns": [
+          "run_id",
+          "kind",
+          "server_id",
+          "record_key",
+          "point_index",
+          "uuid",
+          "name",
+          "alliance_name",
+          "level",
+          "quality",
+          "power",
+          "distance",
+          "shield_end_time",
+          "updated_at",
+          "data_json"
+        ],
+        "resourceCount": 0
+      },
+      "map_records": {
+        "count": 8008,
+        "columns": [
+          "kind",
+          "server_id",
+          "record_key",
+          "point_index",
+          "uuid",
+          "name",
+          "alliance_name",
+          "level",
+          "quality",
+          "power",
+          "distance",
+          "shield_end_time",
+          "updated_at",
+          "data_json"
+        ],
+        "resourceCount": 8008
+      }
+    },
+    "preflightOriginalBackupsMatch": true,
+    "installedAfterHashesMatch": true,
+    "manifestStages": [
+      "restored"
+    ],
+    "journalExists": false,
+    "ownedStopSucceeded": true
+  },
+  {
+    "report": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-world-resource-004\\live-active-stop-002.json",
+    "attemptId": "6d81af33c042452d96baa96b25d03422",
+    "terminal": "LIVE_CANCELLED_RESOURCE_STAGING_NOT_COMPLETED",
+    "events": [
+      "independent-exact-original-backup",
+      "real-provider-composed",
+      "stale-stop-rejected",
+      "real-home-start-returned",
+      "authenticated-host-observation",
+      "production-authenticated-getStatus-rpc",
+      "production-map-context-rpc-attempt",
+      "world-entry-before-production-start",
+      "resource-start",
+      "resource-owned-active-stop-admission",
+      "production-active-stop-before",
+      "production-map-stop",
+      "production-resource-query",
+      "production-resource-page-2",
+      "production-resource-filter",
+      "sqlite-reopened-actual-run",
+      "owned-home-stop",
+      "final-restoration-inventory"
+    ],
+    "worldReady": {
+      "requestId": "worldaecf57cf40f8457f96104216e4eaf2fe",
+      "state": "proven",
+      "method": "already_world_scene",
+      "error": null,
+      "profileMatch": true,
+      "sessionMatch": true,
+      "pidMatch": true,
+      "serverId": 2212,
+      "worldId": 0,
+      "tileWidth": 1000,
+      "tileHeight": 1000
+    },
+    "sqlite": {
+      "scan_runs": {
+        "count": 1,
+        "columns": [
+          "id",
+          "server_id",
+          "selected_types",
+          "status",
+          "total_blocks",
+          "completed_blocks",
+          "failed_blocks",
+          "created_at",
+          "updated_at",
+          "error"
+        ],
+        "rows": [
+          {
+            "id": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+            "server_id": 2212,
+            "selected_types": "[\"resource\"]",
+            "status": "cancelled",
+            "total_blocks": 2500,
+            "completed_blocks": 0,
+            "failed_blocks": 0,
+            "created_at": 1791429675738,
+            "updated_at": 1791429684867,
+            "error": null
+          }
+        ]
+      },
+      "scan_blocks": {
+        "count": 0,
+        "columns": [
+          "run_id",
+          "block_index",
+          "payload_json",
+          "status",
+          "attempts",
+          "error",
+          "updated_at"
+        ]
+      },
+      "scan_records": {
+        "count": 0,
+        "columns": [
+          "run_id",
+          "kind",
+          "server_id",
+          "record_key",
+          "point_index",
+          "uuid",
+          "name",
+          "alliance_name",
+          "level",
+          "quality",
+          "power",
+          "distance",
+          "shield_end_time",
+          "updated_at",
+          "data_json"
+        ],
+        "resourceCount": 0
+      },
+      "map_records": {
+        "count": 0,
+        "columns": [
+          "kind",
+          "server_id",
+          "record_key",
+          "point_index",
+          "uuid",
+          "name",
+          "alliance_name",
+          "level",
+          "quality",
+          "power",
+          "distance",
+          "shield_end_time",
+          "updated_at",
+          "data_json"
+        ],
+        "resourceCount": 0
+      }
+    },
+    "preflightOriginalBackupsMatch": true,
+    "installedAfterHashesMatch": true,
+    "manifestStages": [
+      "restored"
+    ],
+    "journalExists": false,
+    "ownedStopSucceeded": true
+  }
+]

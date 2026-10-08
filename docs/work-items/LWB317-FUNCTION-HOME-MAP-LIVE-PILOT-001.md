@@ -1,6 +1,14 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
 Status: **PARTIAL CHECKPOINT / BACKGROUND-ONLY CONTINUATION**, 2026-10-08.
+Latest lead disposition: WORLD-RESOURCE-004 accepted for bounded current-v22
+completed Resource (8008 published rows), separate active Stop and storage proof.
+Fresh two-database read-only audit, 19 Lua/delegate/ownership checks and 6 actual
+production-state-machine inverses pass; installed originals match and processes=0.
+Positive high-level command queries on the completed data, canonical desktop UI,
+actual ChangeToWorld callback and original full parity are still unproved here.
+Next assigned solo task: BACKGROUND-COMMAND-CLOSEOUT-005. See dated 004-LEAD review.
+
 **2026-10-08 WORLD-RESOURCE-004 worker checkpoint:** the 003 lead's BW004-01
 premature city gate is corrected only in the checks runner; actual
 production `map_scan_start` reaches existing world-ready

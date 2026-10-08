@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-08",
+  "checkpoint": "ba97b8bf8fa8438004ae8d69ff95b9a4a1d8695d",
+  "scope": "Independent headless lead review; no live game launch or desktop capture/input",
+  "checks": [
+    {
+      "command": "python tools/lwbridge317/audit_world_resource_004.py <live-attempt-001.json> <live-active-stop-002.json> --output <new-lead-audit.json>",
+      "exitCode": 0,
+      "marker": "WORLD004_INDEPENDENT_DUAL_AUDIT_PASS",
+      "audit": "independent-dual-run-audit.json"
+    },
+    {
+      "command": "C:/Users/chimw/.codex/tmp/lwb317-recovery003-lua/Scripts/python.exe <each listed test>",
+      "exitCode": 0,
+      "output": "tests/pipe_heartbeat_world004_checks.py\r\n....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.007s\r\n\r\nOK\r\ntests/pipe_delegate_current_checks.py\r\n....\r\n----------------------------------------------------------------------\r\nRan 4 tests in 0.007s\r\n\r\nOK\r\ntests/home_runtime_file_ownership_checks.py\r\n.....\r\n----------------------------------------------------------------------\r\nRan 5 tests in 0.079s\r\n\r\nOK\r\ntests/home_runtime_lease_lua_checks.py\r\n......\r\nlupa=2.8 lua=Lua 5.4\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.086s\r\n\r\nOK\r\n",
+      "limits": "Heartbeat cases are structural/syntax checks; file/Lua ownership and delegate checks include inert execution. These checks do not replace live trace evidence."
+    },
+    {
+      "command": "dotnet run --no-restore --project tests/LWBridge.Desktop.Checks/LWBridge.Desktop.Checks.csproj -c Release -- --world-resource-004-inverses",
+      "exitCode": 0,
+      "output": "WORLD004_START_PROVIDER_INVERSES_PASS 6/6 (inert; production state machine and real provider adapter)",
+      "limits": "Stale/replaced-session cases inject the provider error, not a new live session replacement race."
+    }
+  ],
+  "workerBroaderChecks": "Inspected saved Release/frontend/package logs; not independently rerun all broad checks.",
+  "disposition": "ACCEPTED bounded current-v22 Resource completion, separate active Stop and durable storage proof. Full Home/Map ORIGINAL/UI parity remains PARTIAL."
+}

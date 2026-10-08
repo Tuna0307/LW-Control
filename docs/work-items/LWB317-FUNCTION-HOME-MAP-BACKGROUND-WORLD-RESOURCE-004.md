@@ -1,7 +1,10 @@
 # LWB317-FUNCTION-HOME-MAP-BACKGROUND-WORLD-RESOURCE-004
 
-Status: **AWAITING_REVIEW** — production Resource completed and active Stop separately verified; original/UI parity pending.
-Reviewed delivery: `e51ab590f1c2866136c2f57e6f936add2945dd11`.
+Status: **ACCEPTED BOUNDED CURRENT-CLIENT LIVE RESOURCE / STORAGE / ACTIVE STOP**, 2026-10-08. Full original/UI parity pending.
+Reviewed delivery: `ba97b8bf8fa8438004ae8d69ff95b9a4a1d8695d` (including df4c9551, d59a4aaa and 5f2140cd).
+Lead review: docs/reviews/2026-10-08-LWB317-BACKGROUND-WORLD-RESOURCE-004-LEAD.md.
+Next solo relay: BACKGROUND-COMMAND-CLOSEOUT-005; parent Home/Map stays PARTIAL.
+The worker-delivery status paragraphs below are preserved historical records.
 
 Goal: exercise existing automatic production world entry and prove a fresh bounded
 current-server Resource native pipeline. Connection repair is accepted; preserve it.
