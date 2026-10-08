@@ -1,0 +1,158 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R1",
+  "checkpoint": "A/B",
+  "before": {
+    "commit": "cdde6736521cf741700f090c75f80982c521c4e8",
+    "note": "pre-R1 production replayed through a PID-addressed adapter over the same incarnation table"
+  },
+  "after": {
+    "note": "working tree production"
+  },
+  "distinguishing": [
+    "lead009_01_poll_query_denied_while_pid_survives",
+    "delayed_exit_after_denied_query_is_proven_by_handle",
+    "final_poll_boundary_denied_at_check_100_exit_after_budget",
+    "already_absent_restores_without_touching_a_process",
+    "surviving_second_installation_process_withholds_restoration",
+    "lead009_02_same_path_replacement_before_open_is_not_terminated",
+    "different_path_replacement_is_not_terminated_and_captured_exit_is_proven",
+    "handle_creation_time_unreadable_is_refused",
+    "legitimate_termination_restores_after_handle_confirmed_exit"
+  ],
+  "afterFailures": [],
+  "rows": [
+    {
+      "case": "lead009_01_poll_query_denied_while_pid_survives",
+      "finding": "LEAD009-01",
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "AssertionError: restoration must be withheld: {'ok': True, 'close': {'method': 'TerminateProcess', 'pid': 42420, 'path': 'C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\Temp\\\\home009-r1-stop-6da2wso_\\\\Game\\\\LastWar.exe', 'startedAtUtc': '2026-09-12T01:00:00.0000000Z', 'pollIntervalMilliseconds': 100, 'maxChecks': 100, 'checks': 4, 'accepted': True, 'processExited': True, 'alreadyExited': False}, 'gameRunning': False}"
+    },
+    {
+      "case": "delayed_exit_after_denied_query_is_proven_by_handle",
+      "finding": "LEAD009-01",
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "KeyError: 'exitProof'"
+    },
+    {
+      "case": "final_poll_boundary_denied_at_check_100_exit_within_budget",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "final_poll_boundary_denied_at_check_100_exit_after_budget",
+      "finding": null,
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "AssertionError: {'ok': True, 'close': {'method': 'TerminateProcess', 'pid': 42420, 'path': 'C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\Temp\\\\home009-r1-stop-sxeugo2r\\\\Game\\\\LastWar.exe', 'startedAtUtc': '2026-09-12T01:00:00.0000000Z', 'pollIntervalMilliseconds': 100, 'maxChecks': 100, 'checks': 100, 'accepted': True, 'processExited': True, 'alreadyExited': False}, 'gameRunning': False}"
+    },
+    {
+      "case": "timeout_when_game_visibly_survives_keeps_journal",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "already_absent_restores_without_touching_a_process",
+      "finding": null,
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "KeyError: 'exitProof'"
+    },
+    {
+      "case": "denial_before_termination_open_denied_with_pid_present",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "image_unreadable_while_pid_present_is_query_failure_not_exit",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "denial_after_termination_terminate_call_fails_while_alive",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "terminate_call_fails_because_process_already_exited_restores",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "surviving_second_installation_process_withholds_restoration",
+      "finding": "LEAD009-01",
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "AssertionError: {'ok': True, 'close': {'method': 'TerminateProcess', 'pid': 42420, 'path': 'C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\Temp\\\\home009-r1-stop-he0wy9jd\\\\Game\\\\LastWar.exe', 'startedAtUtc': '2026-09-12T01:00:00.0000000Z', 'pollIntervalMilliseconds': 100, 'maxChecks': 100, 'checks': 6, 'accepted': True, 'processExited': True, 'alreadyExited': False}, 'gameRunning': False}"
+    },
+    {
+      "case": "restoration_failure_keeps_journal_and_retry_succeeds",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "lead009_02_same_path_replacement_before_open_is_not_terminated",
+      "finding": "LEAD009-02",
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "AssertionError: {'ok': True, 'close': {'method': 'TerminateProcess', 'pid': 42420, 'path': 'C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\Temp\\\\home009-r1-stop-_7fkyn_c\\\\Game\\\\LastWar.exe', 'startedAtUtc': '2026-09-12T01:00:00.0000000Z', 'pollIntervalMilliseconds': 100, 'maxChecks': 100, 'checks': 1, 'accepted': True, 'processExited': True, 'alreadyExited': False}, 'gameRunning': False}"
+    },
+    {
+      "case": "lead009_02_replacement_after_validation_before_terminate_hits_only_the_opened_handle",
+      "finding": "LEAD009-02",
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "different_path_replacement_is_not_terminated_and_captured_exit_is_proven",
+      "finding": "LEAD009-02",
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "KeyError: 'exitProof'"
+    },
+    {
+      "case": "handle_creation_time_unreadable_is_refused",
+      "finding": null,
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "AssertionError: {'ok': True, 'close': {'method': 'TerminateProcess', 'pid': 42420, 'path': 'C:\\\\Users\\\\chimw\\\\AppData\\\\Local\\\\Temp\\\\home009-r1-stop-uq_fpr6p\\\\Game\\\\LastWar.exe', 'startedAtUtc': '2026-09-12T01:00:00.0000000Z', 'pollIntervalMilliseconds': 100, 'maxChecks': 100, 'checks': 1, 'accepted': True, 'processExited': True, 'alreadyExited': False}, 'gameRunning': False}"
+    },
+    {
+      "case": "journal_without_creation_identity_never_terminates_a_live_pid",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "inventory_replacement_still_refused_before_any_open",
+      "finding": null,
+      "beforePass": true,
+      "afterPass": true,
+      "beforeFailure": null
+    },
+    {
+      "case": "legitimate_termination_restores_after_handle_confirmed_exit",
+      "finding": null,
+      "beforePass": false,
+      "afterPass": true,
+      "beforeFailure": "KeyError: 'exitProof'"
+    }
+  ]
+}

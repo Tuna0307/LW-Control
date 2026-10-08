@@ -29,6 +29,8 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<CancellationToken, Task>? TerminateUpdateProcessesAsync { get; init; }
     public Func<int, string, bool>? ProcessHung { get; init; }
     public Func<int, string, string, CancellationToken, Task>? TerminateOwnedProcessAsync { get; init; }
+    // HOME 009 R1 B: Win32 process primitives for the real (non-overridden) handle-bound termination logic.
+    public IOwnedProcessApi? OwnedProcessApi { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
     // HOME 009: <root>\Game\LastWar.exe presence (0x41d2ce) and the three recovery log readers (0x41a18d).
     public Func<bool>? GameRootAvailable { get; init; }

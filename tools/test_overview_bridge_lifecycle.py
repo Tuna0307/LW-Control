@@ -14,6 +14,9 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 import run_overview_bridge as ov
 import recover_overview_pending_current as preflight
+if str(TOOLS / "lwbridge317") not in sys.path:
+    sys.path.insert(0, str(TOOLS / "lwbridge317"))
+import home009_process_table as ptable
 
 PROFILE = "overview_test_profile"
 SESSION = "session_123"
@@ -51,36 +54,13 @@ def fake_close_process(*args, **kwargs):
     return subprocess.CompletedProcess(args=args, returncode=0, stdout="", stderr="")
 
 
-class FakeProcessApi:
-    """Inert Win32 process table used by the original-contract Stop path (HOME 009 A)."""
-
-    def __init__(self, pid: int, image: str, *, present: bool = True) -> None:
-        self.pid = pid
-        self.image = image
-        self.present = present
-        self.terminated = 0
-        self.sleeps: list[int] = []
-
-    def snapshot_pid_exists(self, pid: int) -> bool:
-        return self.present and pid == self.pid
-
-    def image_path(self, pid: int):
-        return self.image if self.present and pid == self.pid else None
-
-    def open_terminate(self, pid: int):
-        return object() if self.present and pid == self.pid else None
-
-    def terminate(self, handle, exit_code: int) -> bool:
-        assert exit_code == 1
-        self.terminated += 1
-        self.present = False
-        return True
-
-    def close_handle(self, handle) -> None:
-        return None
-
-    def sleep_ms(self, ms: int) -> None:
-        self.sleeps.append(ms)
+def FakeProcessApi(pid: int, image: str, *, present: bool = True):
+    """Inert Win32 process table used by the original-contract Stop path (HOME 009 A/R1)."""
+    table = ptable.ProcessTable()
+    table.add(ptable.Incarnation(pid=pid, image=image, created=OLD_STARTED,
+                                 exit_at=None if present else 0))
+    table.terminated_count = lambda: sum(i.terminated_calls for i in table.incarnations)  # type: ignore[attr-defined]
+    return table
 
 
 def run_exact_live_case() -> dict[str, object]:
@@ -110,7 +90,7 @@ def run_exact_live_case() -> dict[str, object]:
             assert result["gameStartedAtUtc"] == OLD_STARTED
             assert result["close"]["startedAtUtc"] == OLD_STARTED
             assert result["close"]["method"] == "TerminateProcess" and result["close"]["accepted"] is True
-            assert api.terminated == 1 and api.sleeps == []
+            assert api.terminated_count() == 1 and api.now == 0
             assert restore.call_count == 1 and close_process.call_count == 0
             return result
 
@@ -133,7 +113,7 @@ def run_already_exited_case(stage="active_ready_deferred_restore") -> dict[str, 
             result = ov.run_stop(PROFILE, SESSION, PID, str(game), None, OLD_STARTED)
             assert result["alreadyExited"] is True
             assert result["close"]["alreadyExited"] is True
-            assert api.terminated == 0
+            assert api.terminated_count() == 0
             assert restore.call_count == 1 and close_process.call_count == 0
             return result
 

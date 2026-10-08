@@ -10,10 +10,12 @@ The command-file rendezvous and time bounds are explicit rebuild policy.
 from __future__ import annotations
 
 import argparse
+import calendar
 import hashlib
 import json
 import msvcrt
 import os
+import re
 from pathlib import Path
 import shutil
 import struct
@@ -499,6 +501,10 @@ class Win32ProcessApi:
         k32.TerminateProcess.restype = wintypes.BOOL
         k32.CloseHandle.argtypes = [wintypes.HANDLE]
         k32.CloseHandle.restype = wintypes.BOOL
+        k32.GetProcessTimes.argtypes = [wintypes.HANDLE] + [ctypes.c_void_p] * 4
+        k32.GetProcessTimes.restype = wintypes.BOOL
+        k32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        k32.WaitForSingleObject.restype = wintypes.DWORD
         k32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
         k32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
 
@@ -549,9 +555,34 @@ class Win32ProcessApi:
         finally:
             self._k32.CloseHandle(handle)
 
-    def open_terminate(self, pid: int):
-        handle = self._k32.OpenProcess(0x1, False, pid)
+    def open_process(self, pid: int, access: int):
+        handle = self._k32.OpenProcess(access, False, pid)
         return handle if handle else None
+
+    def handle_image_path(self, handle) -> str | None:
+        ctypes, wintypes = self._ctypes, self._wintypes
+        size = wintypes.DWORD(0x8000)
+        buffer = ctypes.create_unicode_buffer(0x8000)
+        if not self._k32.QueryFullProcessImageNameW(handle, 0, buffer, ctypes.byref(size)):
+            return None
+        return buffer.value[:size.value]
+
+    def handle_creation_utc(self, handle) -> str | None:
+        """Creation FILETIME of the process behind this exact handle, as 'o'-style UTC (100 ns)."""
+        ctypes, wintypes = self._ctypes, self._wintypes
+
+        class FILETIME(ctypes.Structure):
+            _fields_ = [("lo", wintypes.DWORD), ("hi", wintypes.DWORD)]
+
+        created, exited, kernel, user = FILETIME(), FILETIME(), FILETIME(), FILETIME()
+        if not self._k32.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(exited),
+                                         ctypes.byref(kernel), ctypes.byref(user)):
+            return None
+        return format_filetime_utc((created.hi << 32) | created.lo)
+
+    def handle_wait_exit(self, handle, timeout_milliseconds: int) -> bool:
+        """True when the process behind this exact handle has exited (WaitForSingleObject signalled)."""
+        return self._k32.WaitForSingleObject(handle, max(0, int(timeout_milliseconds))) == 0
 
     def terminate(self, handle, exit_code: int) -> bool:
         return bool(self._k32.TerminateProcess(handle, exit_code))
@@ -576,29 +607,107 @@ def _stop_ascii_ci_equal(left: str, right: str) -> bool:
                for x, y in zip(a, b))
 
 
-def _terminate_by_original_contract(api, pid: int, expected_path: str) -> bool:
-    """0x41d84b: True=terminated, False=nothing to do; failures fail closed."""
+PROCESS_TERMINATE = 0x0001
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+PROCESS_SYNCHRONIZE = 0x00100000
+_STARTED_AT_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,7}))?Z$")
+_FILETIME_UNIX_EPOCH_TICKS = 116444736000000000
+
+
+def format_filetime_utc(ticks: int) -> str:
+    """Format a Windows FILETIME (100 ns since 1601) like PowerShell's StartTime.ToUniversalTime().ToString('o')."""
+    unix_ticks = ticks - _FILETIME_UNIX_EPOCH_TICKS
+    seconds, fraction = divmod(unix_ticks, 10_000_000)
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(seconds))
+    return f"{stamp}.{fraction:07d}Z"
+
+
+def started_at_ticks(value: object) -> int | None:
+    """100 ns tick count of an ISO-8601 UTC creation stamp, or None when it is not a comparable stamp."""
+    if not isinstance(value, str):
+        return None
+    match = _STARTED_AT_RE.match(value)
+    if match is None:
+        return None
+    year, month, day, hour, minute, second = (int(match.group(i)) for i in range(1, 7))
+    fraction = int((match.group(7) or "").ljust(7, "0") or "0")
+    try:
+        seconds = calendar.timegm((year, month, day, hour, minute, second, 0, 0, 0))
+    except (OverflowError, ValueError):
+        return None
+    return seconds * 10_000_000 + fraction
+
+
+def _terminate_handle_bound(api, pid: int, expected_path: str, expected_started_at: str) -> dict[str, object]:
+    """0x41d84b outcomes with the identity checked on the very handle that is terminated.
+
+    Original contract (RECONSTRUCTED): absent PID => nothing; unreadable image while present =>
+    PROCESS_QUERY_FAILED; different image => nothing; open/terminate failure is an error only while
+    the PID still exists. TECHNICAL ADAPTATION (not original): one OpenProcess handle carries
+    query+terminate+synchronize rights, its image path AND creation incarnation are verified on that
+    handle, and the same handle is terminated and later waited on, so a PID replaced after validation
+    cannot be terminated and the owned process's exit can be proven independently of PID reuse.
+
+    Returns {"terminated", "handle", "basis"}; the caller closes a non-None handle.
+    basis: pid-absent | foreign-image | terminated-handle.
+    """
     if not api.snapshot_pid_exists(pid):
-        return False
-    actual = api.image_path(pid)
-    if actual is None:
-        if not api.snapshot_pid_exists(pid):
-            return False
-        raise LiveResourceError("PROCESS_QUERY_FAILED: Unable to verify the target process path.")
-    if not _stop_ascii_ci_equal(actual, expected_path):
-        return False
-    handle = api.open_terminate(pid)
+        return {"terminated": False, "handle": None, "basis": "pid-absent"}
+    handle = api.open_process(pid, PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_TERMINATE | PROCESS_SYNCHRONIZE)
     if handle is None:
         if not api.snapshot_pid_exists(pid):
-            return False
+            return {"terminated": False, "handle": None, "basis": "pid-absent"}
+        # Classify exactly like the original (query first) without any terminate right.
+        query_only = api.open_process(pid, PROCESS_QUERY_LIMITED_INFORMATION)
+        actual = api.handle_image_path(query_only) if query_only is not None else None
+        if query_only is not None:
+            api.close_handle(query_only)
+        if actual is None:
+            if not api.snapshot_pid_exists(pid):
+                return {"terminated": False, "handle": None, "basis": "pid-absent"}
+            raise LiveResourceError("PROCESS_QUERY_FAILED: Unable to verify the target process path.")
+        if not _stop_ascii_ci_equal(actual, expected_path):
+            return {"terminated": False, "handle": None, "basis": "foreign-image"}
         raise LiveResourceError(f"open target process failed for pid {pid}")
-    ok = api.terminate(handle, 1)
-    api.close_handle(handle)
-    if not ok:
-        if not api.snapshot_pid_exists(pid):
-            return False
-        raise LiveResourceError(f"terminate target process failed for pid {pid}")
-    return True
+    try:
+        actual = api.handle_image_path(handle)
+        if actual is None:
+            if not api.snapshot_pid_exists(pid):
+                api.close_handle(handle)
+                return {"terminated": False, "handle": None, "basis": "pid-absent"}
+            raise LiveResourceError("PROCESS_QUERY_FAILED: Unable to verify the target process path.")
+        if not _stop_ascii_ci_equal(actual, expected_path):
+            api.close_handle(handle)
+            return {"terminated": False, "handle": None, "basis": "foreign-image"}
+        expected_ticks = started_at_ticks(expected_started_at)
+        if expected_ticks is None:
+            raise LiveResourceError(
+                "owned LastWar creation identity is unavailable; refusing to terminate an unverifiable process")
+        actual_ticks = started_at_ticks(api.handle_creation_utc(handle))
+        if actual_ticks is None:
+            raise LiveResourceError("selected LastWar creation identity could not be read from the process handle")
+        if actual_ticks != expected_ticks:
+            raise LiveResourceError("selected LastWar process creation identity changed before termination")
+        ok = api.terminate(handle, 1)
+        if not ok:
+            if not api.snapshot_pid_exists(pid) or api.handle_wait_exit(handle, 0):
+                api.close_handle(handle)
+                return {"terminated": False, "handle": None, "basis": "pid-absent"}
+            raise LiveResourceError(f"terminate target process failed for pid {pid}")
+        return {"terminated": True, "handle": handle, "basis": "terminated-handle"}
+    except BaseException:
+        api.close_handle(handle)
+        raise
+
+
+def _prove_owned_exit(api, handle, basis: str, wait_milliseconds: int) -> dict[str, object]:
+    """Independent proof that the captured owned process (not merely its PID path) has exited."""
+    if handle is None:
+        return {"established": True, "method": basis, "waitedMilliseconds": 0}
+    exited = api.handle_wait_exit(handle, wait_milliseconds)
+    return {"established": bool(exited),
+            "method": "process-handle-signalled" if exited else "process-handle-not-signalled",
+            "waitedMilliseconds": wait_milliseconds}
 
 
 def terminate_owned_game_process_for_stop(
@@ -608,7 +717,10 @@ def terminate_owned_game_process_for_stop(
     """Terminate the helper-owned LastWar PID as the 0.3.17 Stop path does, then wait for exit.
 
     Technical identity gate (retained adaptation): when the selected-installation inventory
-    shows a LastWar process it must be exactly the owned PID/path/creation incarnation.
+    shows a LastWar process it must be exactly the owned PID/path/creation incarnation, and the
+    same identity is re-verified on the process handle that is terminated (HOME 009 R1 B).
+    The result's ``exitProof`` separately records whether the captured process exit was
+    established; callers must not restore installation files unless it is (HOME 009 R1 A).
     """
     pid = owned_game.get("pid")
     process_path = owned_game.get("path")
@@ -630,17 +742,27 @@ def terminate_owned_game_process_for_stop(
             raise LiveResourceError("selected LastWar process creation identity changed before termination")
 
     api = process_api()
-    terminated = _terminate_by_original_contract(api, pid, expected_path)
-
-    checks = 0
-    while True:
-        if checks >= STOP_MAX_CHECKS:
-            raise LiveResourceError(STOP_TIMEOUT_TEXT)
-        checks += 1
-        image = api.image_path(pid)
-        if image is None or not _stop_ascii_ci_equal(image, expected_path):
-            break
-        stop_sleep_milliseconds(STOP_POLL_MILLISECONDS)
+    bound = _terminate_handle_bound(api, pid, expected_path, started_at_utc)
+    handle = bound["handle"]
+    try:
+        terminated = bool(bound["terminated"])
+        checks = 0
+        while True:
+            if checks >= STOP_MAX_CHECKS:
+                raise LiveResourceError(STOP_TIMEOUT_TEXT)
+            checks += 1
+            image = api.image_path(pid)
+            if image is None or not _stop_ascii_ci_equal(image, expected_path):
+                break
+            stop_sleep_milliseconds(STOP_POLL_MILLISECONDS)
+        # The original presence predicate (image path) treats an unreadable path as absent. That is
+        # NOT proof the captured process exited, so wait on the captured handle for the remainder
+        # of the original ten-second budget (minimum one second) before reporting unproven.
+        remaining_ms = max(1000, (STOP_MAX_CHECKS - checks) * STOP_POLL_MILLISECONDS)
+        proof = _prove_owned_exit(api, handle, str(bound["basis"]), remaining_ms)
+    finally:
+        if handle is not None:
+            api.close_handle(handle)
 
     return {
         "method": "TerminateProcess" if terminated else "already_exited",
@@ -651,8 +773,9 @@ def terminate_owned_game_process_for_stop(
         "maxChecks": STOP_MAX_CHECKS,
         "checks": checks,
         "accepted": terminated,
-        "processExited": True,
+        "processExited": bool(proof["established"]),
         "alreadyExited": not terminated,
+        "exitProof": proof,
     }
 
 

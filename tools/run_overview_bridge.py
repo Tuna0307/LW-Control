@@ -43,6 +43,15 @@ class ServerMaintenanceError(OverviewBridgeError):
     pass
 
 
+class StopRestorationWithheld(OverviewBridgeError):
+    """Stop completed the original close contract but restoration is withheld (journal preserved)."""
+
+    def __init__(self, message: str, code: str, close: dict[str, object]):
+        super().__init__(message)
+        self.code = code
+        self.close = close
+
+
 def overview_paths(game_root: str | Path | None = None) -> dict[str, Path]:
     p = dict(lr.paths(game_root))
     application_root = lr.application_data_root()
@@ -1113,6 +1122,30 @@ def run_stop(
         close = lr.terminate_owned_game_process_for_stop(p, {"pid": game_pid, "path": supplied, "startedAtUtc": owned_started_at})
         already_exited = bool(close.get("alreadyExited"))
 
+        # HOME 009 R1 A (technical restoration gate, NOT original behaviour): the original presence
+        # predicate treats an unreadable image path as "gone". The current-client installation must
+        # only be restored once the captured process's exit is independently established AND no other
+        # process of the selected installation is running. Otherwise keep the retryable journal.
+        exit_proof = close.get("exitProof")
+
+        def withhold_restoration(code: str, text: str, detail: dict[str, object]) -> None:
+            state["stopOutcome"] = {"code": code, "detail": detail,
+                                    "recordedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+            lr.update_recovery_stage(p, state, "closing_owned_game_for_restore")
+            raise StopRestorationWithheld(
+                f"{code}: {text}; installation restoration is withheld and the recovery journal is preserved for retry",
+                code, close)
+
+        if not isinstance(exit_proof, dict) or exit_proof.get("established") is not True:
+            withhold_restoration("OWNED_EXIT_UNPROVEN", "the owned LastWar process exit could not be established",
+                                 {"exitProof": exit_proof if isinstance(exit_proof, dict) else None})
+        survivors = lr.selected_game_processes(p)
+        if survivors:
+            withhold_restoration("OWNED_INSTALLATION_STILL_RUNNING",
+                                 "a LastWar process of the selected installation is running",
+                                 {"pids": [item.get("pid") for item in survivors]})
+
+        state.pop("stopOutcome", None)
         lr.update_recovery_stage(p, state, "restoring_after_owned_game_exit")
         restored = lr.restore_backup(p, Path(backup_path))
         lr.clear_recovery(p, state)

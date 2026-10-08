@@ -1051,50 +1051,47 @@ internal sealed partial class OverviewLifecycleService
             {
                 using (candidate)
                 {
-                    if (!ValidateExactProcessPath(candidate.Id, expectedPath, out Process? verified) || verified is null) continue;
-                    using (verified)
+                    // HOME 009 R1 B: the image path is verified on the handle that is terminated (no PID reopen).
+                    // 0x41e613 does not wait for exit; bound the wait so an unkillable process cannot stall recovery.
+                    using var exitBound = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    exitBound.CancelAfter(TimeSpan.FromSeconds(10));
+                    OwnedProcessTerminationResult result;
+                    try
                     {
-                        IntPtr handle = OpenProcess(0x0001, false, verified.Id);
-                        if (handle == IntPtr.Zero)
-                            throw new BridgeCommandException("UPDATE_RECOVERY_TERMINATE_FAILED", $"Unable to open exact updater process {verified.Id}.");
-                        try
-                        {
-                            if (!TerminateProcess(handle, 1))
-                                throw new BridgeCommandException("UPDATE_RECOVERY_TERMINATE_FAILED", $"Unable to terminate exact updater process {verified.Id}.");
-                        }
-                        finally { _ = CloseHandle(handle); }
-                        // 0x41e613 does not wait for exit; bound the wait so an unkillable process cannot stall recovery.
-                        using var exitBound = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                        exitBound.CancelAfter(TimeSpan.FromSeconds(10));
-                        try { await verified.WaitForExitAsync(exitBound.Token).ConfigureAwait(false); }
-                        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { }
+                        result = await OwnedProcessTermination.TerminateAsync(
+                            OwnedProcessApi, candidate.Id, expectedPath, null, RecoveryDelayAsync, exitBound.Token).ConfigureAwait(false);
                     }
+                    catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested) { continue; }
+                    if (result is OwnedProcessTerminationResult.OpenDenied or OwnedProcessTerminationResult.TerminateFailed)
+                        throw new BridgeCommandException("UPDATE_RECOVERY_TERMINATE_FAILED", $"Unable to terminate exact updater process {candidate.Id}.");
                 }
             }
         }
     }
 
-    private async Task TerminateOwnedProcessAsync(int pid, string expectedPath, string expectedStartedAtUtc, CancellationToken cancellationToken)
+    private IOwnedProcessApi OwnedProcessApi => testHooks?.OwnedProcessApi ?? Win32OwnedProcessApi.Instance;
+
+    internal async Task TerminateOwnedProcessAsync(int pid, string expectedPath, string expectedStartedAtUtc, CancellationToken cancellationToken)
     {
         if (testHooks?.TerminateOwnedProcessAsync is { } test)
         {
             await test(pid, expectedPath, expectedStartedAtUtc, cancellationToken).ConfigureAwait(false);
             return;
         }
-        if (!ValidateExactProcessIdentity(pid, expectedPath, expectedStartedAtUtc, out Process? process) || process is null)
-            throw new BridgeCommandException("PROCESS_IDENTITY_CHANGED", "Unable to verify the exact owned game process incarnation.");
-        using (process)
+        // HOME 009 R1 B: identity (image path + creation incarnation) is verified on the very handle that is
+        // terminated and awaited; the PID is never reopened after validation.
+        OwnedProcessTerminationResult result = await OwnedProcessTermination.TerminateAsync(
+            OwnedProcessApi, pid, expectedPath, expectedStartedAtUtc, RecoveryDelayAsync, cancellationToken).ConfigureAwait(false);
+        switch (result)
         {
-            IntPtr handle = OpenProcess(0x0001, false, pid); // PROCESS_TERMINATE
-            if (handle == IntPtr.Zero)
+            case OwnedProcessTerminationResult.Terminated:
+                return;
+            case OwnedProcessTerminationResult.NotVerified:
+                throw new BridgeCommandException("PROCESS_IDENTITY_CHANGED", "Unable to verify the exact owned game process incarnation.");
+            case OwnedProcessTerminationResult.OpenDenied:
                 throw new BridgeCommandException("GAME_RECOVERY_TERMINATE_FAILED", "Unable to open the exact owned game process for recovery termination.");
-            try
-            {
-                if (!TerminateProcess(handle, 1))
-                    throw new BridgeCommandException("GAME_RECOVERY_TERMINATE_FAILED", "Unable to terminate the exact owned game process for recovery.");
-            }
-            finally { _ = CloseHandle(handle); }
-            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+            default:
+                throw new BridgeCommandException("GAME_RECOVERY_TERMINATE_FAILED", "Unable to terminate the exact owned game process for recovery.");
         }
     }
 
@@ -1149,17 +1146,6 @@ internal sealed partial class OverviewLifecycleService
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool IsHungAppWindow(IntPtr window);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern IntPtr OpenProcess(uint desiredAccess, [MarshalAs(UnmanagedType.Bool)] bool inheritHandle, int processId);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool TerminateProcess(IntPtr process, uint exitCode);
-
-    [DllImport("kernel32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CloseHandle(IntPtr handle);
 
     private static string RecoveryErrorCode(Exception ex) => ex switch
     {
