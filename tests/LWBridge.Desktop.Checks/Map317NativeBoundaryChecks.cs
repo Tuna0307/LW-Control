@@ -23,6 +23,7 @@ internal static class Map317NativeBoundaryChecks
             await StopWaitsForExactProviderTerminalBeforeLeaseReuseAsync(root).ConfigureAwait(false);
             await CommittedStopRetiresCallerWithoutAbandoningCaptureAsync(root).ConfigureAwait(false);
             await DisposalTerminatesCaptureAndReleasesLeaseAsync(root).ConfigureAwait(false);
+            await Completion010OriginalHostContractsAsync(root).ConfigureAwait(false);
         }
         finally
         {
@@ -585,6 +586,85 @@ internal static class Map317NativeBoundaryChecks
                 provider.CaptureCancellationRunIds.SequenceEqual(new[] { firstRunId, secondRunId }) &&
                 provider.TerminatedRunIds.SequenceEqual(new[] { firstRunId, secondRunId }),
             "the next Stop must signal and release only the new exact run owner");
+    }
+
+
+    // COMPLETION-010 D/E: original 0.3.17 host-validation facts (EXE strings, RE5/RE3
+    // and the original Auto-scan frontend) through the actual production command service.
+    private static async Task Completion010OriginalHostContractsAsync(string root)
+    {
+        string database = Path.Combine(root, "completion010", "map-data.db");
+        Directory.CreateDirectory(Path.GetDirectoryName(database)!);
+        var provider = new PublishingProvider(317, ProviderMode.Complete);
+        using var service = Service(database, provider);
+
+        static (string? Code, string? Message) Failure(Func<Task> action)
+        {
+            try { action().GetAwaiter().GetResult(); }
+            catch (Exception error)
+            {
+                var type = error.GetType();
+                return (type.GetProperty("Code")?.GetValue(error) as string, error.Message);
+            }
+            return (null, null);
+        }
+
+        const string serverText = "server ID must be an integer from 1 to 99999";
+        foreach (object? bad in new object?[] { null, 0, 100000, -3, "5", 5.5 })
+        {
+            var payload = bad is null
+                ? JsonSerializer.SerializeToElement(new { }, JsonOptions.Default)
+                : JsonSerializer.SerializeToElement(new { serverId = bad }, JsonOptions.Default);
+            (string? code, string? message) = Failure(() => service.InvokeAsync(
+                "server_jump", payload, CancellationToken.None));
+            Require(code == "INVALID_SERVER_ID" && message == serverText,
+                $"server_jump with serverId={bad ?? "<missing>"} must be INVALID_SERVER_ID/'{serverText}' but was {code}/{message}");
+        }
+
+        (string? scopeCode, string? scopeMessage) = Failure(() => service.InvokeAsync(
+            "map_treasure_claim",
+            JsonSerializer.SerializeToElement(new { serverId = 317 }, JsonOptions.Default),
+            CancellationToken.None));
+        Require(scopeCode == "INVALID_TREASURE_CLAIM_SCOPE" && scopeMessage == "treasure claim scope is invalid",
+            "map_treasure_claim without claimScope must be INVALID_TREASURE_CLAIM_SCOPE");
+        (string? singleCode, _) = Failure(() => service.InvokeAsync(
+            "map_treasure_claim",
+            JsonSerializer.SerializeToElement(new { serverId = 317, claimScope = "single" }, JsonOptions.Default),
+            CancellationToken.None));
+        Require(singleCode == "INVALID_TREASURE_CLAIM_SCOPE", "single claim without a target UUID must be rejected");
+        (string? claimServerCode, string? claimServerMessage) = Failure(() => service.InvokeAsync(
+            "map_treasure_claim",
+            JsonSerializer.SerializeToElement(new { claimScope = "boxes" }, JsonOptions.Default),
+            CancellationToken.None));
+        Require(claimServerCode == "INVALID_SERVER_ID" && claimServerMessage == serverText,
+            "map_treasure_claim without a server must be INVALID_SERVER_ID with the original text");
+
+        (string? exportCode, string? exportMessage) = Failure(() =>
+        {
+            service.PrepareCityExport(JsonSerializer.SerializeToElement(new
+            {
+                query = new { serverId = 0, page = 1, pageSize = 50 },
+                headers = new[] { "a" },
+            }, JsonOptions.Default));
+            return Task.CompletedTask;
+        });
+        Require(exportCode == "MAP_EXPORT_FAILED" && exportMessage == "city export server is unavailable",
+            $"City export without a positive server must be MAP_EXPORT_FAILED/'city export server is unavailable' but was {exportCode}/{exportMessage}");
+
+        // A non-string selectedTypes entry is ignored (not an unstructured crash).
+        JsonElement started = JsonSerializer.SerializeToElement(
+            await service.InvokeAsync(
+                "map_scan_start",
+                JsonSerializer.SerializeToElement(new
+                {
+                    selectedTypes = new object[] { 1, "city" },
+                    scanMode = "fast",
+                    resume = false,
+                }, JsonOptions.Default),
+                CancellationToken.None).ConfigureAwait(false),
+            JsonOptions.Default);
+        Require(!string.IsNullOrWhiteSpace(started.GetProperty("scanRunId").GetString()),
+            "selectedTypes [1,'city'] must start a City scan instead of throwing");
     }
 
     private static Map317CommandService Service(string database, IMap317RunScopedProvider provider) =>

@@ -109,7 +109,7 @@ internal static class DispatchPlunderContract
         new("INVALID_REQUEST", "secret task scheduling data is invalid");
 
     private static BridgeCommandException InvalidTarget() =>
-        new("INVALID_REQUEST", "server ID and secret task UUID are required");
+        new("INVALID_REQUEST", "server ID and task UUID are required");
 
     private static long ReadRecoveredIntegerLike(
         JsonElement row,

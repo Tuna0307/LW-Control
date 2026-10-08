@@ -59,10 +59,32 @@ public sealed class MapActionControlPlane
         return new MarchFollowResult(serverId, marchUuid);
     }
 
+    // Original server_jump handler 0x182112-0x182C0D: any server id outside the
+    // integer range 1..99999 (including a missing/non-integer payload value) is
+    // INVALID_SERVER_ID with exactly this text.
+    internal const string ServerJumpInvalidServerText = "server ID must be an integer from 1 to 99999";
+
+    public static void RequireServerJumpServerId(long serverId)
+    {
+        if (serverId is < 1 or > 99_999)
+            throw new BridgeCommandException("INVALID_SERVER_ID", ServerJumpInvalidServerText);
+    }
+
+    public static int RequireServerJumpServerId(System.Text.Json.JsonElement payload)
+    {
+        if (payload.ValueKind != System.Text.Json.JsonValueKind.Object ||
+            !payload.TryGetProperty("serverId", out System.Text.Json.JsonElement value) ||
+            value.ValueKind != System.Text.Json.JsonValueKind.Number ||
+            !value.TryGetInt32(out int serverId))
+            throw new BridgeCommandException("INVALID_SERVER_ID", ServerJumpInvalidServerText);
+        RequireServerJumpServerId(serverId);
+        return serverId;
+    }
+
     public async ValueTask<ServerJumpResult> ServerJumpAsync(
         int serverId, CancellationToken cancellationToken = default)
     {
-        MapStore.ValidateServerId(serverId);
+        RequireServerJumpServerId(serverId);
         using OperationLease lease = EnterGameOperation();
         int previous = await ProtectedAsync(
             provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
@@ -203,7 +225,7 @@ public sealed class MapActionControlPlane
     public void CancelDispatchPlunder(long serverId, string taskUuid)
     {
         if (serverId <= 0 || string.IsNullOrEmpty(taskUuid))
-            throw new BridgeCommandException("INVALID_REQUEST", "server ID and secret task UUID are required");
+            throw new BridgeCommandException("INVALID_REQUEST", "server ID and task UUID are required");
         if (!store.CancelDispatchPlunder(serverId, taskUuid, nowMilliseconds()))
             throw new BridgeCommandException("NOT_FOUND", "scheduled plunder job not found");
         DispatchPlunderChanged?.Invoke(this, EventArgs.Empty);

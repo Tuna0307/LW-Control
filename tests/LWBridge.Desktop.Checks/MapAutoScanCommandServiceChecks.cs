@@ -15,6 +15,7 @@ internal static class MapAutoScanCommandServiceChecks
         await PersistenceFailureDoesNotMutateLiveStateAsync();
         await TerminalLastErrorContinuesAcrossServersAsync();
         await ThrownTargetFailuresAbortRemainingServersAsync();
+        await ExplicitTargetsRunWhenCurrentServerIsUnknownAsync();
         await TimeoutStopsOnlyTheOwnedAutoScanAsync();
         await DisableStopsOwnedAutoScanButNeverManualScanAsync();
         await StaleAutoOwnerCannotStopReplacementManualScanAsync();
@@ -331,12 +332,53 @@ internal static class MapAutoScanCommandServiceChecks
                     Check(snapshot.OwnsActiveScan,
                         "a thrown status wait must retain Auto ownership because the accepted scan has no terminal observation");
                     await service.UpdateConfigAsync(snapshot.Config with { Enabled = false });
-                    Check(execution.StopCalls == 1,
-                        "disabling after a thrown status wait must stop the still Auto-owned scan");
+                    Check(execution.StopCalls == 0,
+                        "original Auto has no Stop: disabling after a thrown status wait must not stop the scan");
                 }
             }
             finally { DeleteRoot(root); }
         }
+    }
+
+    // Original index-BVfnK1wp.js Di(): explicit servers are used even when the
+    // current server id is 0; only an EMPTY resolved list fails with
+    // MAP_AUTO_SCAN_SERVER_UNAVAILABLE. Return-home needs a positive original id.
+    private static async Task ExplicitTargetsRunWhenCurrentServerIsUnknownAsync()
+    {
+        string root = TempRoot("explicit-unknown-current");
+        try
+        {
+            var clock = new FakeClock(50_000);
+            var explicitRun = new FakeExecution { CurrentServerId = 0 };
+            await using (var service = Service(Path.Combine(root, "explicit.json"), explicitRun, clock))
+            {
+                await service.UpdateConfigAsync(MapAutoScanConfig.Default with
+                {
+                    Enabled = true,
+                    ServerIds = new[] { 71, 72 },
+                    ReturnToOriginalServer = true,
+                });
+                await service.WaitForIdleAsync();
+                MapAutoScanSnapshot snapshot = await service.GetSnapshotAsync();
+                Check(explicitRun.StartAttempts.SequenceEqual(new[] { 71, 72 }) &&
+                      snapshot.LastCycle?.Outcome == "completed" && snapshot.LastError is null,
+                    "explicit Auto targets must scan even when the current server id is 0");
+                Check(!explicitRun.JumpAttempts.Contains(0),
+                    "return-home must be skipped when the original server id is not positive");
+            }
+
+            var emptyRun = new FakeExecution { CurrentServerId = 0 };
+            await using (var service = Service(Path.Combine(root, "empty.json"), emptyRun, clock))
+            {
+                await service.UpdateConfigAsync(MapAutoScanConfig.Default with { Enabled = true });
+                await service.WaitForIdleAsync();
+                MapAutoScanSnapshot snapshot = await service.GetSnapshotAsync();
+                Check(emptyRun.StartAttempts.Count == 0 && snapshot.LastCycle?.Outcome == "failed" &&
+                      snapshot.LastError == "MAP_AUTO_SCAN_SERVER_UNAVAILABLE",
+                    "empty resolved target list must fail with MAP_AUTO_SCAN_SERVER_UNAVAILABLE");
+            }
+        }
+        finally { DeleteRoot(root); }
     }
 
     private static async Task TimeoutStopsOnlyTheOwnedAutoScanAsync()
@@ -366,11 +408,11 @@ internal static class MapAutoScanCommandServiceChecks
             await service.WaitForIdleAsync();
 
             MapAutoScanSnapshot snapshot = await service.GetSnapshotAsync();
-            Check(execution.StopCalls == 1 && !execution.StartAttempts.Contains(22),
-                "45-minute Auto timeout must stop its accepted scan and abort later targets");
+            Check(execution.StopCalls == 0 && !execution.StartAttempts.Contains(22),
+                "original 45-minute Auto timeout issues no Stop (scan keeps running) and aborts later targets");
             Check(snapshot.LastCycle?.Outcome == "failed" &&
-                  snapshot.LastError == "Auto scan timed out after 45 minutes" && !snapshot.OwnsActiveScan,
-                "Auto timeout must persist the recovered timeout error and release Auto scan ownership");
+                  snapshot.LastError == "MAP_AUTO_SCAN_TIMEOUT" && !snapshot.OwnsActiveScan,
+                "Auto timeout must persist the original MAP_AUTO_SCAN_TIMEOUT error and release Auto ownership marker");
         }
         finally { DeleteRoot(root); }
     }
@@ -390,7 +432,7 @@ internal static class MapAutoScanCommandServiceChecks
                 await service.UpdateConfigAsync(MapAutoScanConfig.Default with
                 {
                     Enabled = true,
-                    ServerIds = new[] { 31 },
+                    ServerIds = new[] { 31, 32 },
                     ReturnToOriginalServer = false,
                 });
                 await execution.ScanStarted.Task.WaitAsync(TimeSpan.FromSeconds(2));
@@ -398,11 +440,17 @@ internal static class MapAutoScanCommandServiceChecks
                 Check(beforeDisable.OwnsActiveScan, "accepted Auto scan must record Auto ownership");
 
                 await service.UpdateConfigAsync(beforeDisable.Config with { Enabled = false });
+                MapAutoScanSnapshot mid = await service.GetSnapshotAsync();
+                Check(execution.StopCalls == 0 && mid.OwnsActiveScan && mid.Config.NextRunAt == 0,
+                    "original disable only clears the deadline: the in-flight Auto scan is NOT stopped");
+                pollRelease.TrySetResult();
                 await service.WaitForIdleAsync();
                 MapAutoScanSnapshot disabled = await service.GetSnapshotAsync();
-                Check(execution.StopCalls == 1 && disabled.Config.NextRunAt == 0 &&
-                      disabled.LastCycle?.Outcome == "disabled" && !disabled.OwnsActiveScan,
-                    "disable must cancel/stop the Auto-owned scan and keep the scheduler disabled");
+                Check(execution.StopCalls == 0 && disabled.Config.NextRunAt == 0 &&
+                      disabled.LastCycle?.Outcome == "disabled" && !disabled.OwnsActiveScan &&
+                      execution.StartAttempts.SequenceEqual(new[] { 31 }) &&
+                      disabled.LastCycle.CompletedServerIds.SequenceEqual(new[] { 31 }),
+                    "original loop observes enabled BETWEEN targets: first scan completes, second never starts");
             }
 
             var manual = new FakeExecution { CurrentServerId = 9, ManualScanActive = true };
@@ -443,6 +491,7 @@ internal static class MapAutoScanCommandServiceChecks
                 "serialized admission must reject overlapping Run Now/due checks while an Auto cycle is active");
 
             await service.UpdateConfigAsync((await service.GetSnapshotAsync()).Config with { Enabled = false });
+            pollRelease.TrySetResult(); // disable no longer stops the scan; let the cycle finish
             await service.WaitForIdleAsync();
         }
         finally { DeleteRoot(root); }
@@ -487,10 +536,10 @@ internal static class MapAutoScanCommandServiceChecks
             await service.WaitForIdleAsync();
 
             Check(execution.ManualScanActive && execution.CurrentRunId == "manual-M" &&
-                  execution.StopCalls == 0 && execution.StopAttempts.SequenceEqual(new[] { autoRunId }),
-                "disabling stale Auto A must attempt stop-if-owned for A without stopping replacement Manual M");
+                  execution.StopCalls == 0 && execution.StopAttempts.Count == 0,
+                "disabling stale Auto A must issue no Stop at all and leave replacement Manual M running");
             Check(!(await service.GetSnapshotAsync()).OwnsActiveScan,
-                "stale Auto owner token must retire after stop-if-owned rejects replacement Manual M");
+                "stale Auto owner token must retire when its completion poll observes A is no longer reading");
         }
         finally { DeleteRoot(root); }
     }
@@ -508,12 +557,13 @@ internal static class MapAutoScanCommandServiceChecks
                 providers.ActionProvider,
                 startPlunderWorkers: false);
             var pollEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var staleRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             async Task BlockingPoll(TimeSpan delay, CancellationToken token)
             {
                 Check(delay == TimeSpan.FromMilliseconds(MapAutoScanCommandService.ScanPollMilliseconds),
                     "real Map317 replacement race must pause on the first Auto completion poll");
                 pollEntered.TrySetResult();
-                await Task.Delay(Timeout.InfiniteTimeSpan, token).ConfigureAwait(false);
+                await staleRelease.Task.WaitAsync(token).ConfigureAwait(false);
             }
 
             await using var auto = new MapAutoScanCommandService(
@@ -571,6 +621,7 @@ internal static class MapAutoScanCommandServiceChecks
             Check(beforeDisable.OwnsActiveScan,
                 "Auto scheduler must still retain stale A ownership until its blocked completion poll resumes");
             await auto.UpdateConfigAsync(beforeDisable.Config with { Enabled = false });
+            staleRelease.TrySetResult();
             await auto.WaitForIdleAsync(new CancellationTokenSource(TimeSpan.FromSeconds(2)).Token);
 
             MapAutoScanRuntimeStatus manualStatus =
@@ -578,9 +629,9 @@ internal static class MapAutoScanCommandServiceChecks
             Check(manualStatus.IsReading && manualStatus.ScanRunId == manualRunId && map.IsScanActive,
                 "disabling stale Auto A must leave replacement Manual M current and reading in the real Map317 service");
             Check(providers.StopCalls == 0,
-                "stale Auto A stop-if-owned must reject Manual M before invoking the provider stop boundary");
+                "original Auto never stops: disabling stale Auto A must not reach the provider stop boundary");
             Check(!(await auto.GetSnapshotAsync()).OwnsActiveScan,
-                "real Map317 stale Auto A token must retire after stop-if-owned rejects Manual M");
+                "real Map317 stale Auto A token must retire when its completion poll observes A is finished");
 
             _ = await map.InvokeAsync(
                 "map_scan_stop",
@@ -750,12 +801,13 @@ internal static class MapAutoScanCommandServiceChecks
                 providers.ActionProvider,
                 startPlunderWorkers: false);
             var pollEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var disableRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             async Task BlockingPoll(TimeSpan delay, CancellationToken token)
             {
                 Check(delay == TimeSpan.FromMilliseconds(MapAutoScanCommandService.ScanPollMilliseconds),
                     "real Map317 disable must reach the accepted run completion poll before disabling");
                 pollEntered.TrySetResult();
-                await Task.Delay(Timeout.InfiniteTimeSpan, token).ConfigureAwait(false);
+                await disableRelease.Task.WaitAsync(token).ConfigureAwait(false);
             }
 
             await using var auto = RealMapAutoService(
@@ -763,7 +815,7 @@ internal static class MapAutoScanCommandServiceChecks
             await auto.UpdateConfigAsync(MapAutoScanConfig.Default with
             {
                 Enabled = true,
-                ServerIds = new[] { 43 },
+                ServerIds = new[] { 43, 44 },
                 SelectedTypes = new[] { "city" },
                 ReturnToOriginalServer = false,
             });
@@ -773,11 +825,15 @@ internal static class MapAutoScanCommandServiceChecks
 
             MapAutoScanSnapshot beforeDisable = await auto.GetSnapshotAsync();
             await auto.UpdateConfigAsync(beforeDisable.Config with { Enabled = false });
+            Check(providers.StopCalls == 0 && map.IsScanActive && (await auto.GetSnapshotAsync()).OwnsActiveScan,
+                "original disable must not stop the in-flight real Map317 scan");
+            providers.CompleteRun(runId);
+            disableRelease.TrySetResult();
             await auto.WaitForIdleAsync(new CancellationTokenSource(TimeSpan.FromSeconds(2)).Token);
             MapAutoScanSnapshot snapshot = await auto.GetSnapshotAsync();
-            Check(providers.StopCalls == 1 && providers.StoppedRunIds.SequenceEqual(new[] { runId }) &&
-                  providers.TerminatedRunIds.SequenceEqual(new[] { runId }) && !map.IsScanActive,
-                "disabling Auto must stop and terminally release only its exact active real Map317 run");
+            Check(providers.StopCalls == 0 && providers.StartRequests.Count == 1 &&
+                  providers.StartRequests.Single().ServerId == 43 && !map.IsScanActive,
+                "disabled Auto lets its accepted real Map317 run finish and starts no later target");
             Check(!snapshot.Config.Enabled && snapshot.Config.NextRunAt == 0 &&
                   snapshot.LastCycle?.Outcome == "disabled" && !snapshot.OwnsActiveScan,
                 "real Map317 disable must persist disabled terminal state without retaining scan ownership");
@@ -819,10 +875,10 @@ internal static class MapAutoScanCommandServiceChecks
 
             MapAutoScanSnapshot snapshot = await auto.GetSnapshotAsync();
             string runId = providers.StartRequests.Single().ScanRunId;
-            Check(providers.StartRequests.Single().ServerId == 51 && providers.StoppedRunIds.SequenceEqual(new[] { runId }) &&
-                  providers.TerminatedRunIds.SequenceEqual(new[] { runId }) && providers.StopCalls == 1 && !map.IsScanActive,
-                "real Map317 timeout must stop and terminally release the exact first target owner");
-            Check(snapshot.LastCycle?.Outcome == "failed" && snapshot.LastError == "Auto scan timed out after 45 minutes" &&
+            Check(providers.StartRequests.Single().ServerId == 51 && providers.StopCalls == 0 &&
+                  map.IsScanActive && providers.ActiveRunId == runId,
+                "original Auto timeout issues no Stop: the real Map317 first-target run keeps running");
+            Check(snapshot.LastCycle?.Outcome == "failed" && snapshot.LastError == "MAP_AUTO_SCAN_TIMEOUT" &&
                   snapshot.LastCycle.CompletedServerIds.Count == 0 && !snapshot.OwnsActiveScan,
                 "real Map317 timeout must persist the recovered timeout and abort before a later target starts");
         }

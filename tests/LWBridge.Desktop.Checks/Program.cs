@@ -6095,7 +6095,7 @@ Check(
     manualMapServiceSource.Contains("map_truck_plunder_cancel", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("select between 1 and 200 secret tasks", StringComparison.Ordinal) &&
     dispatchPlunderContractSource.Contains("secret task scheduling data is invalid", StringComparison.Ordinal) &&
-    dispatchPlunderContractSource.Contains("server ID and secret task UUID are required", StringComparison.Ordinal) &&
+    dispatchPlunderContractSource.Contains("server ID and task UUID are required", StringComparison.Ordinal) &&
     windowSource.Contains("bridge://dispatch-plunder-changed", StringComparison.Ordinal) &&
     windowSource.Contains("bridge://truck-plunder-changed", StringComparison.Ordinal) &&
     overviewBridgeSource.Contains("truck-quick-rob.txt", StringComparison.Ordinal) &&

@@ -252,22 +252,11 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         }
 
         Publish(snapshot);
-        if (disabling)
-        {
-            try
-            {
-                await CancelCycleAndStopOwnedScanAsync().ConfigureAwait(false);
-            }
-            catch (Exception error)
-            {
-                await RecordErrorAsync(error.Message).ConfigureAwait(false);
-                throw;
-            }
-        }
-        else
-        {
+        // Original: disabling only clears the persisted deadline; a running cycle
+        // finishes its in-flight scan and observes `enabled` between targets (there
+        // is no Auto-specific Stop; Manual Stop remains the scan Stop surface).
+        if (!disabling)
             await TryAdmitDueCycleAsync().ConfigureAwait(false);
-        }
 
         return await GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -452,12 +441,15 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             MapAutoScanRuntimeStatus admissionState =
                 await execution.ReadStatusAsync(null, cancellationToken).ConfigureAwait(false);
             originalServerId = admissionState.ServerId;
-            if (originalServerId <= 0)
-                throw new InvalidOperationException("Current server is unavailable");
 
+            // Original cycle (index-BVfnK1wp.js Di()): an explicit server list is
+            // used as supplied even when the current server is unknown (id 0); only
+            // an EMPTY resolved list fails with MAP_AUTO_SCAN_SERVER_UNAVAILABLE.
             targets = admittedConfig.ServerIds is { Count: > 0 }
                 ? admittedConfig.ServerIds.ToArray()
-                : [originalServerId];
+                : originalServerId > 0 ? [originalServerId] : Array.Empty<int>();
+            if (targets.Length == 0)
+                throw new InvalidOperationException("MAP_AUTO_SCAN_SERVER_UNAVAILABLE");
             await UpdateRestartProgressAsync(startedAt, originalServerId, targets, 0, null)
                 .ConfigureAwait(false);
 
@@ -493,8 +485,11 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                         .ConfigureAwait(false);
                     if (utcNowMilliseconds() >= deadline)
                     {
-                        await StopOwnedScanAsync().ConfigureAwait(false);
-                        throw new TimeoutException("Auto scan timed out after 45 minutes");
+                        // Original: the 45-minute wait throws MAP_AUTO_SCAN_TIMEOUT and
+                        // issues NO map_scan_stop; the ordinary scan keeps running.
+                        // Auto only releases its ownership marker.
+                        Interlocked.CompareExchange(ref ownedScanRunId, null, scanRunId);
+                        throw new TimeoutException("MAP_AUTO_SCAN_TIMEOUT");
                     }
 
                     MapAutoScanRuntimeStatus status =

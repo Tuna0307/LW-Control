@@ -1,0 +1,1386 @@
+{
+ "mismatches": 0,
+ "rows": [
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "idle-healthy"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "process-exit-at-30s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "process-exit-immediately"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "bridge-offline-from-10s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "bridge-offline-then-back-at-100s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "bridge-offline-back-at-140s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "hang-from-10s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "login-unavailable-from-20s"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 11,
+   "productionEffects": 11,
+   "scenario": "login-unavailable-never-recovers-launch-ok-unhealthy"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "disabled-reconnect-offline"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "reconnect-enabled-late-offline-stale"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "update-process-running-offline"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 37,
+   "productionEffects": 37,
+   "scenario": "launch-fails-forever"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 19,
+   "productionEffects": 19,
+   "scenario": "launch-fails-three-times-then-ok"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "terminate-fails-hang"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "server-unavailable-log-after-exit"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "update-log-error"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 11,
+   "productionEffects": 11,
+   "scenario": "update-stall-15min"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "update-activity-keeps-alive"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "reconnect-disabled-mid-recovery"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "launch-then-unhealthy-after-2s-flap"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 279,
+   "productionEffects": 279,
+   "scenario": "crash-loop"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "event-crossdisconnect-healthy-in-place"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 35,
+   "productionEffects": 35,
+   "scenario": "event-disconnect-unhealthy-escalates"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 25,
+   "productionEffects": 25,
+   "scenario": "event-forceupdate-with-updater"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "event-exitprompt-then-exit"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "event-unconfirmed-ignored"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "event-ambiguous-ignored"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "event-unsupported-reason-ignored"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "event-while-reconnect-disabled"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-0"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-1"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-2"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "random-9-3"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-4"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 17,
+   "productionEffects": 17,
+   "scenario": "random-9-5"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-6"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-7"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 12,
+   "productionEffects": 12,
+   "scenario": "random-9-8"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-9"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 44,
+   "productionEffects": 44,
+   "scenario": "random-9-10"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 11,
+   "productionEffects": 11,
+   "scenario": "random-9-11"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-12"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-13"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-14"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-15"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-16"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 42,
+   "productionEffects": 42,
+   "scenario": "random-9-17"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 95,
+   "productionEffects": 95,
+   "scenario": "random-9-18"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-19"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 43,
+   "productionEffects": 43,
+   "scenario": "random-9-20"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "random-9-21"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-22"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-23"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-24"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-25"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-26"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-27"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-28"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 5,
+   "productionEffects": 5,
+   "scenario": "random-9-29"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 150,
+   "productionEffects": 150,
+   "scenario": "random-9-30"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 20,
+   "productionEffects": 20,
+   "scenario": "random-9-31"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 26,
+   "productionEffects": 26,
+   "scenario": "random-9-32"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 23,
+   "productionEffects": 23,
+   "scenario": "random-9-33"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-34"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-35"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 15,
+   "productionEffects": 15,
+   "scenario": "random-9-36"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-37"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-38"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 54,
+   "productionEffects": 54,
+   "scenario": "random-9-39"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-40"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 5,
+   "productionEffects": 5,
+   "scenario": "random-9-41"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-42"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-43"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-44"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 150,
+   "productionEffects": 150,
+   "scenario": "random-9-45"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 12,
+   "productionEffects": 12,
+   "scenario": "random-9-46"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-47"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-48"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 24,
+   "productionEffects": 24,
+   "scenario": "random-9-49"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 18,
+   "productionEffects": 18,
+   "scenario": "random-9-50"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 34,
+   "productionEffects": 34,
+   "scenario": "random-9-51"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-52"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-53"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-54"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-55"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 57,
+   "productionEffects": 57,
+   "scenario": "random-9-56"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 15,
+   "productionEffects": 15,
+   "scenario": "random-9-57"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-58"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 33,
+   "productionEffects": 33,
+   "scenario": "random-9-59"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-60"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "random-9-61"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-62"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-63"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-64"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 61,
+   "productionEffects": 61,
+   "scenario": "random-9-65"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-66"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 70,
+   "productionEffects": 70,
+   "scenario": "random-9-67"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-68"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 13,
+   "productionEffects": 13,
+   "scenario": "random-9-69"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-70"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-71"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-72"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-73"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 14,
+   "productionEffects": 14,
+   "scenario": "random-9-74"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 30,
+   "productionEffects": 30,
+   "scenario": "random-9-75"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 13,
+   "productionEffects": 13,
+   "scenario": "random-9-76"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-77"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-78"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 14,
+   "productionEffects": 14,
+   "scenario": "random-9-79"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-80"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-81"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-82"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 41,
+   "productionEffects": 41,
+   "scenario": "random-9-83"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 19,
+   "productionEffects": 19,
+   "scenario": "random-9-84"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-85"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-86"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 12,
+   "productionEffects": 12,
+   "scenario": "random-9-87"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-88"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 20,
+   "productionEffects": 20,
+   "scenario": "random-9-89"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 1,
+   "productionEffects": 1,
+   "scenario": "random-9-90"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 38,
+   "productionEffects": 38,
+   "scenario": "random-9-91"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 31,
+   "productionEffects": 31,
+   "scenario": "random-9-92"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 15,
+   "productionEffects": 15,
+   "scenario": "random-9-93"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-94"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 282,
+   "productionEffects": 282,
+   "scenario": "random-9-95"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 5,
+   "productionEffects": 5,
+   "scenario": "random-9-96"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 112,
+   "productionEffects": 112,
+   "scenario": "random-9-97"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 40,
+   "productionEffects": 40,
+   "scenario": "random-9-98"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-99"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 22,
+   "productionEffects": 22,
+   "scenario": "random-9-100"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-101"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 93,
+   "productionEffects": 93,
+   "scenario": "random-9-102"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 59,
+   "productionEffects": 59,
+   "scenario": "random-9-103"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "random-9-104"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 6,
+   "productionEffects": 6,
+   "scenario": "random-9-105"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 60,
+   "productionEffects": 60,
+   "scenario": "random-9-106"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-107"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-108"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 15,
+   "productionEffects": 15,
+   "scenario": "random-9-109"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-110"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-111"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "random-9-112"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 50,
+   "productionEffects": 50,
+   "scenario": "random-9-113"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 94,
+   "productionEffects": 94,
+   "scenario": "random-9-114"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 28,
+   "productionEffects": 28,
+   "scenario": "random-9-115"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-116"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-117"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-118"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-119"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-120"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 13,
+   "productionEffects": 13,
+   "scenario": "random-9-121"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-122"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-123"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 25,
+   "productionEffects": 25,
+   "scenario": "random-9-124"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-125"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 39,
+   "productionEffects": 39,
+   "scenario": "random-9-126"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 5,
+   "productionEffects": 5,
+   "scenario": "random-9-127"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-128"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-129"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-130"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 22,
+   "productionEffects": 22,
+   "scenario": "random-9-131"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 76,
+   "productionEffects": 76,
+   "scenario": "random-9-132"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 22,
+   "productionEffects": 22,
+   "scenario": "random-9-133"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 13,
+   "productionEffects": 13,
+   "scenario": "random-9-134"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 62,
+   "productionEffects": 62,
+   "scenario": "random-9-135"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-136"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 30,
+   "productionEffects": 30,
+   "scenario": "random-9-137"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-138"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-139"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-140"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-141"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-142"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 4,
+   "productionEffects": 4,
+   "scenario": "random-9-143"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-144"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-145"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 66,
+   "productionEffects": 66,
+   "scenario": "random-9-146"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-147"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 12,
+   "productionEffects": 12,
+   "scenario": "random-9-148"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-149"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-150"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 14,
+   "productionEffects": 14,
+   "scenario": "random-9-151"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-152"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-153"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 69,
+   "productionEffects": 69,
+   "scenario": "random-9-154"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 135,
+   "productionEffects": 135,
+   "scenario": "random-9-155"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 24,
+   "productionEffects": 24,
+   "scenario": "random-9-156"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 107,
+   "productionEffects": 107,
+   "scenario": "random-9-157"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 33,
+   "productionEffects": 33,
+   "scenario": "random-9-158"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-159"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-160"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 13,
+   "productionEffects": 13,
+   "scenario": "random-9-161"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 25,
+   "productionEffects": 25,
+   "scenario": "random-9-162"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 2,
+   "productionEffects": 2,
+   "scenario": "random-9-163"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 18,
+   "productionEffects": 18,
+   "scenario": "random-9-164"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-165"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 53,
+   "productionEffects": 53,
+   "scenario": "random-9-166"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 19,
+   "productionEffects": 19,
+   "scenario": "random-9-167"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-168"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 23,
+   "productionEffects": 23,
+   "scenario": "random-9-169"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 5,
+   "productionEffects": 5,
+   "scenario": "random-9-170"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 14,
+   "productionEffects": 14,
+   "scenario": "random-9-171"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-172"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-173"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 10,
+   "productionEffects": 10,
+   "scenario": "random-9-174"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 9,
+   "productionEffects": 9,
+   "scenario": "random-9-175"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-176"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 28,
+   "productionEffects": 28,
+   "scenario": "random-9-177"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 43,
+   "productionEffects": 43,
+   "scenario": "random-9-178"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 28,
+   "productionEffects": 28,
+   "scenario": "random-9-179"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-180"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-181"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 42,
+   "productionEffects": 42,
+   "scenario": "random-9-182"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 91,
+   "productionEffects": 91,
+   "scenario": "random-9-183"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-184"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 103,
+   "productionEffects": 103,
+   "scenario": "random-9-185"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-186"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 3,
+   "productionEffects": 3,
+   "scenario": "random-9-187"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 71,
+   "productionEffects": 71,
+   "scenario": "random-9-188"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 25,
+   "productionEffects": 25,
+   "scenario": "random-9-189"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-190"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 7,
+   "productionEffects": 7,
+   "scenario": "random-9-191"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-192"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 28,
+   "productionEffects": 28,
+   "scenario": "random-9-193"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 55,
+   "productionEffects": 55,
+   "scenario": "random-9-194"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 21,
+   "productionEffects": 21,
+   "scenario": "random-9-195"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 0,
+   "productionEffects": 0,
+   "scenario": "random-9-196"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 24,
+   "productionEffects": 24,
+   "scenario": "random-9-197"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 16,
+   "productionEffects": 16,
+   "scenario": "random-9-198"
+  },
+  {
+   "equal": true,
+   "oracleEffects": 8,
+   "productionEffects": 8,
+   "scenario": "random-9-199"
+  }
+ ],
+ "scenarios": 230
+}

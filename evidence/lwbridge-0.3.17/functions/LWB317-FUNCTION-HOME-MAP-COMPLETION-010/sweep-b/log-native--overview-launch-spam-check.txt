@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "acceptanceCase": "A04",
+  "scope": "isolated OverviewLifecycleService Launch-spam/status-refresh concurrency; no real game process",
+  "launchSpamAttempts": 48,
+  "launchSpamRejected": 48,
+  "refreshDuringLaunch": 120,
+  "refreshAllSameStartingSession": true,
+  "refreshBatchElapsedMilliseconds": 3,
+  "helperStartCalls": 1,
+  "helperStopCalls": 1,
+  "uniqueSuccessfulSession": "620d6ffffe0c42bb83a0c8b3b23472e2",
+  "staleSuccessObserved": false,
+  "duplicateHelperStartObserved": false,
+  "finalPhase": "stopped",
+  "finalProcessAlive": false
+}

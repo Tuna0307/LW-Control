@@ -1,0 +1,195 @@
+{
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "mode": "static disassembly only; original program and services never executed",
+  "tool": "python capstone/pefile (same as tools/lwbridge317/home009_native.py)",
+  "facts": [
+    {
+      "id": "F-STATE",
+      "addr": "0x1ddde3/0x83df8c",
+      "evidence": "state byte [frame+0xe8]; jump table 0:0x1dde2f 1:0x1de6e2(panic helper 0x7a5150) 2:0x1de6ee(ud2) 3:0x1de07b 4:0x1ddf43",
+      "interpretation": "Rust async-fn poll: 0 unresumed, 1 returned (re-poll panics), 2 poisoned, 3 awaiting the mutex Acquire future (0x1f5f9a), 4 awaiting the inner authenticated-API future (0x1de6f0). Output at [rcx]: 0x8000000000000001 = Pending, 0x8000000000000000 = Ok(()), anything else = Err(80-byte error).",
+      "confidence": "high"
+    },
+    {
+      "id": "F-NOREC",
+      "addr": "0x1dde46..0x1ddfcf,0x1de64b",
+      "evidence": "map count [state+0x170]==0 or key miss -> Option<Record>::cloned()==None -> rbx=0x8000000000000000; jmp 0x1de64b stores tag, state=1",
+      "interpretation": "If no lease record exists in the in-memory map (state+0x158, key = instanceId) the finalizer returns Ok(()) immediately: no HTTP, no file removal, no event, no retry deadline.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-PATH",
+      "addr": "0x1dde009,0x1de026,0x83d27e",
+      "evidence": "mov byte [rec+0x90],1 ; fmt template bytes 12 '/api/multi/leases/' c0 08 '/release' ; 0x276b0 = alloc::fmt::format",
+      "interpretation": "Before awaiting anything the record is marked busy ([rec+0x90]=1, set via re-lookup 0x310a4c). Request target = format!(\"/api/multi/leases/{}/release\", leaseId) where leaseId is the first String of the cloned 0x98-byte record. Then await the tokio-style Mutex Acquire on [[state+0x150]+0x10]. Pending => state 3.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-BODY",
+      "addr": "0x1de10a-0x1de257",
+      "evidence": "key literals 'instance'+'Id' and 'leaseTok'+'en'; values = String->serde Value (0x31eeb2) of frame+0x78 / frame+0x48 (record+0x48 / +0x18); inserted via 0x5a9712; Value tag byte 5 (Object)",
+      "interpretation": "Request body is the JSON object {\"instanceId\": record.instanceId, \"leaseToken\": record.leaseToken}. Key order is insertion order instanceId, leaseToken (map impl unknown, so wire order UNKNOWN).",
+      "confidence": "high"
+    },
+    {
+      "id": "F-AWAIT",
+      "addr": "0x1de342-0x1de3ea",
+      "evidence": "poll 0x1de6f0; ==0x8000000000000001 -> sub-state [r15]=3, return Pending(al=4); else drop request future 0x1dfee6, builder 0x1e0bbd, release mutex permit 0x47d60b, then branch on first word of the 64-byte result",
+      "interpretation": "The inner future's Ready value is Result<serde Value, ApiError>: first word 0x8000000000000000 = Ok(data), else Err. The mutex permit is held across the whole HTTP round trip and released before any local mutation.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-OK",
+      "addr": "0x1de408-0x1de626",
+      "evidence": "Ok => 0x31020f remove_entry(state+0x158,id) ; 0x2dd578 (remove lease proof/record/directory, result dropped at 0x1de5d2/0x1de5dc) ; 0x3a0510 (remove id from map state+0x38) ; 0x3a14ec emit ; Ok(())",
+      "interpretation": "On a successful release (HTTP 2xx and body.ok==true; response data is NEVER read and is dropped by 0x1e0c27) the in-memory record is removed, then the on-disk lease artifacts (optional proof file = record+0x60 Option<String>, the lease record file and the instance directory under <dir>/instances/<instanceId>) are deleted with all I/O errors ignored, then the id is removed from a second map (state+0x38), then the 'bridge://multi-entitlement' event is emitted, then Ok(()).",
+      "confidence": "high (flow); medium (identity of map +0x38)"
+    },
+    {
+      "id": "F-ERR",
+      "addr": "0x1de445-0x1de4e7",
+      "evidence": "Err => rec=0x310a4c lookup; [rec+0x80]=Instant::now()+Duration(60s,0) (0x5cfc70/0x5dc950, r8d=0x3c); 0x3a14ec emit; 0x2a2c0 = String::clone(code); NO call to 0x31020f/0x2dd578/0x3a0510",
+      "interpretation": "On any release failure the record, its files and the second map entry are KEPT; only a retry-after deadline ([rec+0x80]/[rec+0x88]) = now+60 s is written if the record still exists, the entitlement event is emitted, and Err is returned. The busy flag [rec+0x90] set before the call is not cleared here. Returned error = {code = api.code, message = clone(api.code), details = api.detail (Value at +0x18..0x38)}; ApiError.retryable (+0x38) is discarded.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-DROP",
+      "addr": "0x1e1010",
+      "evidence": "drop glue by state: 3 -> drop Acquire (0xfd161) ; 4 -> drop request builder (0x1e0bbd) + release permit (0x47d60b) ; both free path String [frame+0xc8] and drop record clone [frame+0x30] (0x82658); other states nothing",
+      "interpretation": "Cancelling/dropping the finalizer future (e.g. app shutdown mid-await) performs ONLY destructors: the HTTP request is abandoned, the permit is released, the record stays in the map with busy flag=1 and WITHOUT a retry deadline, files are not removed, no event, nothing is retried by the drop.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-HTTP",
+      "addr": "0x1de6f0 (+drop 0x1dfee6)",
+      "evidence": "state byte [+0x85] table 0x83dfa0 {0:0x1de72b 1:0x1df79b 2:0x1df7c9 3:0x1de8bf 4:0x1de85d}; callees 0x3a530f (auth base-URL/config: AUTH_URL_INVALID, AUTH_HTTPS_REQUIRED, AUTH_NOT_CONFIGURED), 0x3a9637 (MachineGuid via reg.exe query), 0x3a8c1f (CLIENT_INTEGRITY_FAILED), 0x311b48 (send/body poll); headers Accept: application/json, X-Device-Fingerprint, X-Client-Build-Id, X-Client-Auth-Policy: 2; source file src\\commands\\auth.rs",
+      "interpretation": "Generic authenticated JSON POST helper shared by lease acquire/activate/release. Order: auth base-URL/config -> device fingerprint -> client build/integrity -> (if auth required and [state+0x3a8]==0) SESSION_INVALID without sending -> send. Transport errors: is_timeout (0x50bd14) -> REQUEST_TIMEOUT else NETWORK_ERROR (both retryable=true via 0x3a529d); SESSION_INVALID/AUTH_* /CLIENT_INTEGRITY_FAILED are retryable=false (0x3a522b). A failure while reading/decoding the response body also yields NETWORK_ERROR (0x1deeda..0x1deefd). Success = HTTP status 200..=299 AND body is a JSON object AND body.ok == true -> Ok(body.data clone). Otherwise ApiError{code = /error/code if it is a non-empty String of only [A-Z0-9_] else 'SERVICE_UNAVAILABLE', detail = /error/detail clone or None}. No retry loop inside.",
+      "confidence": "high (flow); medium (header/value roles); no live bytes"
+    },
+    {
+      "id": "F-CALLBACK",
+      "addr": "0x1dedd0/0x1dee65 ; 0x2e4902 ; vtables 0x7fdfa8.. 0x7e9a98 0x7e9cd0",
+      "evidence": "call [r13+0x20] with rcx=data field, rdx=ptr, r8=len ; r13 = vtable pointer of a 32-byte element popped from a ring buffer (0x2e4902: shl rax,5) ; .rdata has 5-slot tables [clone,to_vec,to_mut,is_unique,drop]: static (7 copies, drop=0x2a664=ret), 0x7e9a98 (drop 0x35188->0x35287), 0x7e9cd0 (drop 0x35c1c: lock dec [rcx+0x20], HeapFree)",
+      "interpretation": "The 'runtime callback' is NOT a protocol callback: it is bytes::Bytes::drop dispatched through the Bytes vtable (slot +0x20 in this bytes version) while the HTTP client discards buffered body chunks on the transport-error path. Targets are enumerable (static no-op, promotable, shared) and have no lease/ticket semantics.",
+      "confidence": "medium-high (signature + vtable shape; producer set enumerated by pattern, not by RTTI)"
+    },
+    {
+      "id": "F-PRECEDENCE-FIN",
+      "addr": "0x1d8b27-0x1d8b3c ; 0x1d43a4-0x1d43b6 ; 0x1d4b01-0x1d4b16 ; 0x204724-0x204739",
+      "evidence": "all four call sites: poll finalizer, Pending(0x8000000000000001)->propagate Pending, else drop future (0x1e1010) and conditionally drop result (0x1e16a0 unless tag==0x8000000000000000)",
+      "interpretation": "The finalizer's Err is discarded at every call site (launch lease-persist failure, launch-failure wrapper, Stop, reconcile). No path surfaces a release/cleanup error code to the UI.",
+      "confidence": "high"
+    },
+    {
+      "id": "F-WRAPPER",
+      "addr": "0x1d420d (27 call sites inside 0x1d5009)",
+      "evidence": "async fn(state A, state B, profileId, instanceId): (1) RwLock write [A+0x210], A.Option@+0x220 := None ; (2) 0x2d1eb0 unregister instance ; (3) await Mutex [A+0x108] ; (4) 0x1ddde3 finalizer, result dropped ; (5) unlock ; (6) 0x23e158 profile unbind, result dropped ; Ready(()) (cl=1, al=0)",
+      "interpretation": "Every launch failure branch after lease acquisition runs this wrapper: local instance/pipe registration removal FIRST (synchronous, before any network), then lease release (HTTP, may take up to the client timeout), then removal of the profile's recovery.json / profile binding. The wrapper cannot fail, so the launch error is always the one returned. If the wrapper future is dropped while awaiting (state 3/4: drop glue 0x1dff73) steps (4)-(6) are skipped but step (1)-(2) already happened.",
+      "confidence": "high (order/ignored errors); medium (what A+0x220 holds)"
+    },
+    {
+      "id": "F-LAUNCH-DOUBLE",
+      "addr": "0x1d8ae2 then 0x1d8f8a",
+      "evidence": "launch lease-grant apply fails (0x3a0a95 non-Ok at 0x1d88cf/0x1d88d6) -> finalizer directly (0x1d8ae2), result dropped; then error flows to 0x1d8d30 jno 0x1d8f22 -> wrapper 0x1d420d at 0x1d8f8a",
+      "interpretation": "On this one path the release is attempted twice: once directly and once inside the wrapper. If the first removed the record, the second finalizer is the no-record Ok no-op; if the first failed the second is a second HTTP attempt (no delay between). The returned error is the original apply error.",
+      "confidence": "medium-high (inferred from straight-line flow, not executed)"
+    },
+    {
+      "id": "F-STOP-RECON",
+      "addr": "0x1d4468 ; 0x203021",
+      "evidence": "Stop: wait-for-close 0x1ddc84 (100 iterations x 100 ms, then GAME_CLOSE_TIMEOUT 'The game did not close in time.') -> 0x2d1eb0 unregister -> lock -> finalizer (error dropped) -> unlock -> 0x23e158 (its Err, tag 0x8000000000000001, IS propagated at 0x1d4b90/0x1d4bc9 -> 0x1d4ecf). Reconcile: same sequence per element (0x204593/0x204649/0x2046ee/0x204786), 0x23e158 Err handled at 0x2047ca->0x204b33.",
+      "interpretation": "Stop and reconcile run the release only after the game is confirmed closed; a close timeout aborts before any release/unregister. Release errors never reach the caller; unbind errors (INSTANCE_MISMATCH 0x84185f, STATE_UNAVAILABLE, PROFILE_NOT_FOUND) can.",
+      "confidence": "high (Stop); medium (reconcile error handling at 0x204b33 not fully followed)"
+    },
+    {
+      "id": "F-EVENT",
+      "addr": "0x3a14ec / 0xd54d60",
+      "evidence": "string 'bridge://multi-entitlement' (0x1a bytes) passed to the emit helper 0x28830e with a snapshot struct (LeaseResponse leaseId/leaseToken/instanceId/expiresAt/serverTime ; EntitlementResponse planCode/maxProfiles/accountExpiresAt)",
+      "interpretation": "Both the success and failure branches of the finalizer emit the 'bridge://multi-entitlement' UI event (after local state mutation). The no-record branch does not.",
+      "confidence": "medium-high"
+    }
+  ],
+  "launchFailureCallSitesOfWrapper": [
+    "0x1d6624",
+    "0x1d675c",
+    "0x1d6f65",
+    "0x1d753e",
+    "0x1d7662",
+    "0x1d7758",
+    "0x1d85f9",
+    "0x1d86f4",
+    "0x1d8e8c",
+    "0x1d8f8a",
+    "0x1d9089",
+    "0x1da3e8",
+    "0x1da52e",
+    "0x1da64e",
+    "0x1da769",
+    "0x1da884",
+    "0x1da9a4",
+    "0x1dbbad",
+    "0x1dbcd3",
+    "0x1dc5bb",
+    "0x1dc870",
+    "0x1dcb50",
+    "0x1dcf3a",
+    "0x1dd0eb",
+    "0x1dd254",
+    "0x1dd64e",
+    "0x1dd97b"
+  ],
+  "cloneComparison": [
+    {
+      "orig": "launch failure => wrapper 0x1d420d: unregister instance, release remote lease (errors ignored), remove recovery.json/profile binding (errors ignored); launch error returned",
+      "clone": "OverviewLifecycleService.StartAsync catch (lines ~877-915) sets phase/connectionState=error and lastError=ex.Code only when gamePid is null, rethrows; finally block cancels the control-pipe launch binding (pipe registration). Lease/adoption/runtime-session cleanup (StopLeaseTimer(deleteLease:true), ClearRuntimeSessionFiles, RemoveAdoptionRecord) exists in ResetCancelledStartState (~969-1002) which runs for cancel paths only. The remote /api/multi/leases/{id}/release call has no clone counterpart (protected service; clone uses a local lease timer).",
+      "status": "difference to review: non-cancel launch failures in the clone do not run the lease/record cleanup the original runs at every failure edge (verify whether the python helper does it)"
+    },
+    {
+      "orig": "cleanup errors never replace the launch error; release Err is dropped everywhere",
+      "clone": "StopCancelledSuccessfulStartAsync maps a restore failure to GAME_CLOSE_FAILED / RECOVERY_RECORD_COMMIT_FAILED (new codes that replace the triggering cancel/timeout in some branches)",
+      "status": "adapted behaviour; not source-equivalent"
+    },
+    {
+      "orig": "Stop: wait up to 100 x 100 ms for close (GAME_CLOSE_TIMEOUT, 'The game did not close in time.') BEFORE unregister/release; unbind Err (INSTANCE_MISMATCH etc.) is propagated",
+      "clone": "StopAsync (~1099-1170): see file; not compared line by line here",
+      "status": "UNKNOWN comparison"
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "U-1",
+      "what": "Real HTTP/timeout values and server error bodies for /api/multi/leases/{id}/release",
+      "reason": "protected service; no request/response bytes available. Client timeout is configured outside the future (reqwest builder not located)."
+    },
+    {
+      "id": "U-2",
+      "what": "Exact retry/consumer semantics of record fields +0x80/+0x88 (60 s deadline) and +0x90 (busy flag)",
+      "reason": "writers found in four sibling lease ops (0xe6f71, 0xe9115, 0x2d8131, finalizer); the periodic renew/heartbeat reader and the code that clears +0x90 were not decoded."
+    },
+    {
+      "id": "U-3",
+      "what": "Identity of AppState.Option@+0x220 cleared by the wrapper and of the second map at lease-service state+0x38",
+      "reason": "only mutation sites decoded; no naming string tied to them."
+    },
+    {
+      "id": "U-4",
+      "what": "Exact on-disk file names removed by 0x2dd578 (lease record file name, proof file naming)",
+      "reason": "path built by 0x2dcd09 (not decoded); only the error-context strings and the 'instances' directory literal were confirmed. recovery.json belongs to 0x2dbde4, not to 0x2dd578."
+    },
+    {
+      "id": "U-5",
+      "what": "Whether every one of the 27 launch-failure edges has a distinct error code and which ones occur for the current client",
+      "reason": "only call-site count and shared cleanup semantics established; producer-by-producer code mapping not done here."
+    },
+    {
+      "id": "U-6",
+      "what": "Reconcile handling of the 0x23e158 error at 0x204b33 (does it become an errors[] entry?)",
+      "reason": "branch not followed to the JSON projection."
+    },
+    {
+      "id": "U-7",
+      "what": "JSON key emission order for {instanceId, leaseToken}",
+      "reason": "depends on serde_json map feature (BTreeMap vs preserve_order); not determined."
+    }
+  ]
+}

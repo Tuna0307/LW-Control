@@ -63,7 +63,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         actions = new Map317.MapActionControlPlane(store, actionProvider);
         plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
 
-        control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(args.State);
+        control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(ApplyStatusOverlay(args.State));
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
         actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
         actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
@@ -107,7 +107,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         if (scanRunProvider is not null)
             scanRunProvider.RunTerminated += ReleaseScanLease;
 
-        control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(args.State);
+        control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(ApplyStatusOverlay(args.State));
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
         actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
         actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
@@ -288,8 +288,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         RequiredString(payload, "marchUuid"),
                         cancellationToken).ConfigureAwait(false);
                 case "server_jump":
+                    // Original handler 0x182112: INVALID_SERVER_ID for any missing,
+                    // non-integer or out-of-range id, with the original text.
                     return await actions.ServerJumpAsync(
-                        RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
+                        Map317.MapActionControlPlane.RequireServerJumpServerId(payload),
+                        cancellationToken).ConfigureAwait(false);
                 case "map_player_mark_set":
                     return SetPlayerMark(payload);
                 case "server_jump_history_get":
@@ -308,12 +311,14 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 case "map_treasure_claim_status":
                     return await actions.TreasureClaimStatusAsync(cancellationToken).ConfigureAwait(false);
                 case "map_treasure_claim":
-                    return await actions.ClaimTreasuresAsync(
-                        RequiredInt(payload, "serverId"),
-                        RequiredString(payload, "claimScope"),
-                        OptionalBool(payload, "prioritizeLuckySlots", true),
-                        OptionalString(payload, "targetUuid") ?? string.Empty,
-                        cancellationToken).ConfigureAwait(false);
+                    {
+                        // Original handler 0x18EE07: INVALID_SERVER_ID /
+                        // INVALID_TREASURE_CLAIM_SCOPE before any game work.
+                        TreasureClaimRequest claim = TreasureClaimContract.NormalizeRequest(payload);
+                        return await actions.ClaimTreasuresAsync(
+                            claim.ServerId, claim.ClaimScope, claim.PrioritizeLuckySlots,
+                            claim.TargetUuid, cancellationToken).ConfigureAwait(false);
+                    }
                 case "map_dispatch_share_alliance":
                     return await actions.ShareDispatchToAllianceAsync(
                         ReadRows(payload, "rows"), cancellationToken).ConfigureAwait(false);
@@ -407,6 +412,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             throw new BridgeCommandException("INVALID_MAP_QUERY", "map_city_export query must be an object.");
 
         int serverId = RequiredInt(query, "serverId");
+        if (serverId <= 0)
+            throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export server is unavailable");
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new
         {
             kind = "city",
@@ -494,7 +501,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             string[]? types = null;
             if (payload.TryGetProperty("selectedTypes", out JsonElement selected) &&
                 selected.ValueKind == JsonValueKind.Array)
-                types = selected.EnumerateArray().Select(value => value.GetString() ?? string.Empty).ToArray();
+                types = selected.EnumerateArray()
+                    .Where(value => value.ValueKind == JsonValueKind.String)
+                    .Select(value => value.GetString() ?? string.Empty).ToArray();
             string? mode = OptionalString(payload, "scanMode");
             bool resume = OptionalBool(payload, "resume", false);
             Map317.MapScanState state =
@@ -529,6 +538,25 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
     }
 
+    private CurrentClientMapStatusContext? lastStatusContext;
+
+    // The UI replaces its whole scan state on every bridge://map-scan-status event.
+    // Events therefore carry the home/season/truck-match/world overlay last observed
+    // by map_scan_status instead of resetting those fields to defaults until the next
+    // poll. (The server id/source of a running scan is never overlaid on an event.)
+    private Map317.MapScanState ApplyStatusOverlay(Map317.MapScanState state)
+    {
+        CurrentClientMapStatusContext? context = lastStatusContext;
+        if (context is null) return state;
+        return state with
+        {
+            IsInWorld = context.IsInWorld,
+            HomeServerId = context.HomeServerId,
+            SeasonServerIds = context.SeasonServerIds,
+            TruckMatchServerIds = context.TruckMatchServerIds,
+        };
+    }
+
     private async Task<Map317.MapScanState> ReadScanStatusAsync(CancellationToken cancellationToken)
     {
         Map317.MapScanState state = control.ScanState;
@@ -549,6 +577,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         {
             CurrentClientMapStatusContext context =
                 await currentSource.GetMapStatusContextAsync(cancellationToken).ConfigureAwait(false);
+            lastStatusContext = context;
             return state with
             {
                 ServerId = context.ServerId > 0 ? context.ServerId : state.ServerId,
