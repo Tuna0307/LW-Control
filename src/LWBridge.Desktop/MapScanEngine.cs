@@ -75,6 +75,9 @@ internal sealed class MapScanEngine
                         continue;
                     }
 
+                    // Provider cancellation can race a completed asynchronous batch.
+                    // Retire that response before any persistent checkpoint or publication.
+                    cancellationToken.ThrowIfCancellationRequested();
                     ValidateBatch(request, block, captures, pending, blocksByIndex);
                     MapScanBlockSuccess[] successes = captures
                         .Select(capture => new MapScanBlockSuccess(blocksByIndex[capture.BlockIndex], capture))

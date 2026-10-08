@@ -1,0 +1,14 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-A-TO-A-CAMPAIGN-007-R1",
+  "proof": "Actual engine, Map317ScanRunSink and MapControlPlane/SQLite with controlled provider",
+  "baselineSource": "tests/LWBridge.Desktop.Checks/Campaign007R1EngineSinkChecks.cs original first execution before correction",
+  "observation": "R1_DEBUG honor=False stopCalls=1 status=cancelled staged=2 published=1 isReading=False",
+  "exception": "InvalidDataException: late/full batch after Stop must not stage or publish",
+  "classification": "CONFIRMED_CURRENT_PRODUCT_DEFECT_NOT_ORIGINAL_RUNTIME_ORACLE",
+  "originalHostReference": "RE-MAP-002 cancel/Stop removes staging",
+  "correctiveGuard": [
+    "MapScanEngine post-await cancellation check",
+    "MapStore.StageRecord durable-run status check"
+  ],
+  "currentGameActions": 0
+}

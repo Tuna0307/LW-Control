@@ -225,6 +225,17 @@ public sealed partial class MapStore : IDisposable
         ValidateRecord(record);
         lock (gate)
         {
+            // Stop commits cancellation before the provider finishes unwinding.
+            // A provider batch returning late must not recreate cancelled staging,
+            // even while the in-memory UI state has not yet transitioned to idle.
+            using (SqliteCommand state = connection.CreateCommand())
+            {
+                state.CommandText = "SELECT status FROM scan_runs WHERE id=$run AND server_id=$server";
+                state.Parameters.AddWithValue("$run", runId);
+                state.Parameters.AddWithValue("$server", record.ServerId);
+                if (!string.Equals(state.ExecuteScalar() as string, "running", StringComparison.Ordinal))
+                    throw new BridgeCommandException("INVALID_SCAN", "map scan run is not running");
+            }
             using SqliteCommand command = connection.CreateCommand();
             command.CommandText = """
                 INSERT INTO scan_records(run_id,kind,server_id,record_key,point_index,uuid,name,alliance_name,level,quality,power,distance,shield_end_time,updated_at,data_json)

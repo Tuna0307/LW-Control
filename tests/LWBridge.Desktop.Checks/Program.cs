@@ -2,6 +2,15 @@ using System.Text.Json;
 using System.Diagnostics;
 using LWBridge.Desktop;
 
+int campaign007R1Index = Array.FindIndex(args,
+    value => string.Equals(value, "--campaign007-r1-engine-sink", StringComparison.OrdinalIgnoreCase));
+if (campaign007R1Index >= 0)
+{
+    if (campaign007R1Index + 1 >= args.Length)
+        throw new ArgumentException("--campaign007-r1-engine-sink <evidence-json>");
+    await LWBridge.Desktop.Checks.Campaign007R1EngineSinkChecks.RunAsync(args[campaign007R1Index + 1]);
+    return 0;
+}
 int campaign007CancelIndex = Array.FindIndex(args,
     value => string.Equals(value, "--campaign007-positive-stage-cancel", StringComparison.OrdinalIgnoreCase));
 if (campaign007CancelIndex >= 0)
