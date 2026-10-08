@@ -1,0 +1,19 @@
+startedUtc=2026-10-08T03:22:42.1096287Z head=d59a4aaa3540493bcbaadea46992202559d074d0
+tests/pipe_heartbeat_world004_checks.py exit=0 passed=True elapsed=0.2
+tests/pipe_delegate_current_checks.py exit=0 passed=True elapsed=0.1
+tests/home_runtime_file_ownership_checks.py exit=0 passed=True elapsed=0.3
+tests/home_runtime_lease_lua_checks.py exit=0 passed=True elapsed=0.2
+world-resource-004-inverses exit=0 passed=True elapsedSeconds=15.2
+map317-native-boundary-check exit=0 passed=True elapsedSeconds=15.6
+overview-bridge-host-transport-check exit=0 passed=True elapsedSeconds=15.1
+overview-bridge-isolated-handshake-check exit=0 passed=True elapsedSeconds=15.2
+overview-bridge-rpc-session-transport-check exit=0 passed=True elapsedSeconds=14.7
+production-root-isolation-check exit=0 passed=True elapsedSeconds=15.1
+overview-status-transport-check exit=0 passed=True elapsedSeconds=34.9
+canonical-frontend-Release-publish exit=0 passed=True elapsedSeconds=13.1
+publish-file LWBridge.Desktop.exe exists=True
+publish-file OverviewBridge\LWBridge.GamePipeAdapter.dll exists=True
+publish-file OverviewBridge\current_overview_bridge.lua exists=True
+publish-file ProductionUi\index.html exists=True
+packaged-current-overview-lua-equals-source-sha256=True
+packaged-adapter-equals-release-dll-sha256=True

@@ -1,0 +1,8 @@
+startedUtc=2026-10-08T03:22:41.9795968Z HEAD=d59a4aaa3540493bcbaadea46992202559d074d0
+world-resource-004-inverses exit=0 passed=True seconds=15.3
+map317-native-boundary-check exit=0 passed=True seconds=15.5
+map317-restart-check exit=0 passed=True seconds=15.4
+production-root-isolation-check exit=0 passed=True seconds=15.3
+tests/home_runtime_file_ownership_checks.py exit=0 passed=True
+tests/home_runtime_lease_lua_checks.py exit=0 passed=True
+tests/pipe_heartbeat_world004_checks.py exit=0 passed=True

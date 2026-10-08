@@ -1,6 +1,27 @@
 # LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001
 
 Status: **PARTIAL CHECKPOINT / BACKGROUND-ONLY CONTINUATION**, 2026-10-08.
+**2026-10-08 WORLD-RESOURCE-004 worker checkpoint:** the 003 lead's BW004-01
+premature city gate is corrected only in the checks runner; actual
+production `map_scan_start` reaches existing world-ready
+(`already_world_scene`, current server 2212, 1000x1000).
+Real Resource scan `b439bfa57cd54405a14e803d21964c9d`
+completed 2500/2500, 0 failed, publishing 8008 actual rows.
+Independent production MapStore reopen/pagination/filter passed.
+A distinct fresh active Stop run
+`b9fc31a14f6f4c3d819c0e17efaddbe8` was terminated
+during one inflight block, durable status cancelled, zero staged/published
+rows, unlike completed publication. Each owned session stopped and
+restored scripts/journals exactly. The first checks runner's post-completion
+query shape was wrong; corrected, with honest separation between its
+initial error and the already completed durable run.
+For provenance, a simultaneous process initiated the Stop run separately,
+not by delegation; the 004 worker independently verified it.
+See `background-world-resource-004/checkpoint-B.md`.
+The full pilot remains PARTIAL for canonical UI and original A-to-A
+behavioral parity. No Resource export exists in the current City-only
+production exporter.
+
 **2026-10-08 PIPE-CONNECT-003 worker checkpoint:** current-client game
 adapter reflection invocation repaired by a single direct xLua userdata
 delegate call; three isolated live attempts and independent audit establish

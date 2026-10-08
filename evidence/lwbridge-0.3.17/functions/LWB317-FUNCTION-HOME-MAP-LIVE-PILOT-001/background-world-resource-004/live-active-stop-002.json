@@ -1,0 +1,530 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-BACKGROUND-WITNESS-002",
+  "attemptId": "6d81af33c042452d96baa96b25d03422",
+  "mode": "explicit-real-launch-active-stop",
+  "createdAtUtc": "2026-10-08T03:20:39.694679+00:00",
+  "profileId": "lwb317-background-witness-002-6d81af33",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6d81af33c042452d96baa96b25d03422",
+  "outputFile": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\evidence\\lwbridge-0.3.17\\functions\\LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001\\background-world-resource-004\\live-active-stop-002.json",
+  "productionMapProvider": "ProfileRuntimeOwner.Create mapProvider:null -\u003E Map317CommandService(lifecycle) -\u003E CurrentClientMap317ScanProvider",
+  "autoSchedulerStarted": false,
+  "uiInteraction": false,
+  "events": [
+    {
+      "atUtc": "2026-10-08T03:20:39.9673892+00:00",
+      "kind": "independent-exact-original-backup",
+      "details": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6d81af33c042452d96baa96b25d03422\\overview-bridge-backups\\preflight-originals-6d81af33c042452d96baa96b25d03422",
+        "hashes": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:20:40.2155652+00:00",
+      "kind": "real-provider-composed",
+      "details": {
+        "profile": "lwb317-background-witness-002-6d81af33",
+        "root": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6d81af33c042452d96baa96b25d03422",
+        "hostStarted": true,
+        "PendingRegistrationCount": 0,
+        "ConnectedRouteCount": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:20:40.233615+00:00",
+      "kind": "stale-stop-rejected",
+      "details": {
+        "Code": "INSTANCE_NOT_OWNED"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:10.9191287+00:00",
+      "kind": "real-home-start-returned",
+      "details": {
+        "instance": "e31817175ef4460699636b8168810250",
+        "ownedPid": 51504,
+        "ownedStartUtc": "2026-10-08T03:21:00.5722667Z",
+        "started": {
+          "phase": "running",
+          "pid": 51504,
+          "instanceId": "e31817175ef4460699636b8168810250",
+          "connectionState": "connected",
+          "error": null
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:10.9370444+00:00",
+      "kind": "authenticated-host-observation",
+      "details": {
+        "profile": "lwb317-background-witness-002-6d81af33",
+        "instance": "e31817175ef4460699636b8168810250",
+        "ownedPid": 51504,
+        "ownedStartUtc": "2026-10-08T03:21:00.5722667Z",
+        "profileStatus": {
+          "profileId": "lwb317-background-witness-002-6d81af33",
+          "instanceId": "e31817175ef4460699636b8168810250",
+          "phase": "running",
+          "pid": 51504,
+          "startedAt": 1791429640250,
+          "lastError": null,
+          "identityConfirmed": true,
+          "leaseRequired": false,
+          "connectionState": "connected",
+          "bridgeConnected": true,
+          "lastHeartbeatAt": 1791429670000,
+          "leaseActive": false
+        },
+        "accepted": true,
+        "hostTrace": [
+          {
+            "atUtc": "2026-10-08T03:21:10.935526+00:00",
+            "accepted": true,
+            "profileState": "connected",
+            "bridgeConnected": true,
+            "authenticated": 1,
+            "routes": 1,
+            "listenerInstances": 1,
+            "listenerFailedConnects": 0,
+            "listenerLastConnectDisposition": "Pending",
+            "listenerLastConnectError": 997,
+            "listenerRejectedHandshakes": 0,
+            "handshakeError": null,
+            "adapterState": "connected",
+            "luaReceipt": {
+              "adapterLoaded": true,
+              "delegateValueType": "userdata",
+              "gamePid": 51504,
+              "profileId": "lwb317-background-witness-002-6d81af33",
+              "rootFromIsolatedEnvironment": true,
+              "route": "delegate_direct_once",
+              "sessionId": "e31817175ef4460699636b8168810250",
+              "stage": "pcall_returned",
+              "timestamp": 1791429670000
+            },
+            "nativeReceipts": [
+              "2026-10-08T03:21:10.2239784Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=begin_connect_entry|detail=runtimeDirMatches=True",
+              "2026-10-08T03:21:10.2269776Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=native_startup|detail=stateFileExists=True",
+              "2026-10-08T03:21:10.2269776Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=worker_created",
+              "2026-10-08T03:21:10.2282030Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=worker_start_called",
+              "2026-10-08T03:21:10.2297097Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=worker_entry",
+              "2026-10-08T03:21:10.2372244Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=wait_named_pipe_success",
+              "2026-10-08T03:21:10.2382314Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=native_pipe_opened",
+              "2026-10-08T03:21:10.2392322Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=hello_frame_written",
+              "2026-10-08T03:21:10.2402332Z|pid=51504|session=e31817175ef4460699636b8168810250|stage=worker_connected"
+            ]
+          }
+        ],
+        "AuthenticatedSessionCount": 1,
+        "ConnectedRouteCount": 1,
+        "RejectedHandshakeCount": 0,
+        "PendingCallCount": 0,
+        "LastHandshakeError": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:11.0745184+00:00",
+      "kind": "production-authenticated-getStatus-rpc",
+      "details": {
+        "instance": "e31817175ef4460699636b8168810250",
+        "ownedPid": 51504,
+        "sentAt": 1791429670952,
+        "completedAtUtc": "2026-10-08T03:21:11.0743547+00:00",
+        "resultWasNull": false,
+        "resultKind": "Object",
+        "ConnectedRouteCount": 1,
+        "PendingCallCount": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:14.740107+00:00",
+      "kind": "production-map-context-rpc-attempt",
+      "details": {
+        "context": {
+          "serverId": 2212,
+          "serverIdSource": "live",
+          "scanRunId": "",
+          "isReading": false,
+          "phase": "idle",
+          "selectedTypes": [
+            "city",
+            "resource",
+            "monster",
+            "truck",
+            "railway",
+            "dispatch",
+            "ghost",
+            "treasure"
+          ],
+          "totalBlocks": 0,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "nativeCaptureReady": false,
+          "nativePendingRecords": 0,
+          "nativeDroppedRecords": 0,
+          "resumeAvailable": false,
+          "lastError": null,
+          "startedAt": 0,
+          "isInWorld": false,
+          "homeServerId": 2212,
+          "seasonServerIds": [],
+          "truckMatchServerIds": [
+            2197,
+            2208,
+            2211,
+            2212
+          ]
+        },
+        "PendingCallCount": 0,
+        "protocol": [
+          {
+            "file": "overview-bridge\\world-state-result.json",
+            "fileUpdatedAtUtc": "2026-10-08T03:21:14.693471Z",
+            "requestId": "stateae73240f844c44b5a5a9afd29c9f97fd",
+            "profileMatched": true,
+            "sessionMatched": true,
+            "gamePidMatched": true,
+            "status": null,
+            "state": "proven",
+            "reason": null,
+            "serverId": 2212
+          }
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:14.7607064+00:00",
+      "kind": "world-entry-before-production-start",
+      "details": {
+        "initialIsInWorld": false,
+        "liveServerId": 2212,
+        "profile": "lwb317-background-witness-002-6d81af33",
+        "instance": "e31817175ef4460699636b8168810250",
+        "ownedPid": 51504,
+        "requestedPath": "MapScanStateMachine.StartAsync -\u003E EnterWorldMapAsync"
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:15.7573068+00:00",
+      "kind": "resource-start",
+      "details": {
+        "run": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "serverId": 2212,
+        "start": {
+          "serverId": 2212,
+          "serverIdSource": "live",
+          "scanRunId": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+          "isReading": true,
+          "phase": "scanning",
+          "selectedTypes": [
+            "resource"
+          ],
+          "totalBlocks": 2500,
+          "completedBlocks": 0,
+          "readBlocks": 0,
+          "failedBlocks": 0,
+          "unreadBlocks": 2500,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 0,
+          "progressPercent": 0,
+          "nativeCaptureReady": true,
+          "nativePendingRecords": 0,
+          "nativeDroppedRecords": 0,
+          "resumeAvailable": false,
+          "lastError": null,
+          "startedAt": 1791429675,
+          "isInWorld": false,
+          "homeServerId": 0,
+          "seasonServerIds": null,
+          "truckMatchServerIds": null
+        },
+        "worldReady": {
+          "observed": true,
+          "updatedAtUtc": "2026-10-08T03:21:15.7223655Z",
+          "requestId": "worldaecf57cf40f8457f96104216e4eaf2fe",
+          "profileMatched": true,
+          "sessionMatched": true,
+          "pidMatched": true,
+          "state": "proven",
+          "method": "already_world_scene",
+          "error": null,
+          "serverId": 2212,
+          "worldId": 0,
+          "tileWidth": 1000,
+          "tileHeight": 1000
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.820145+00:00",
+      "kind": "resource-owned-active-stop-admission",
+      "details": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2499,
+        "inflightBlocks": 1,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1791429675,
+        "isInWorld": false,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.8616518+00:00",
+      "kind": "production-active-stop-before",
+      "details": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "isReading": true,
+        "phase": "scanning",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2499,
+        "inflightBlocks": 1,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1791429675,
+        "isInWorld": false,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.8745679+00:00",
+      "kind": "production-map-stop",
+      "details": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "resource"
+        ],
+        "totalBlocks": 2500,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 2499,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": true,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 1791429675,
+        "isInWorld": false,
+        "homeServerId": 0,
+        "seasonServerIds": null,
+        "truckMatchServerIds": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.8939272+00:00",
+      "kind": "production-resource-query",
+      "details": {
+        "run": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "result": {
+          "rows": [],
+          "total": 0
+        },
+        "protocol": [
+          {
+            "file": "overview-bridge\\world-state-result.json",
+            "fileUpdatedAtUtc": "2026-10-08T03:21:24.8691199Z",
+            "requestId": "stateb45827ac37454ac59ef0d87050893ccf",
+            "profileMatched": true,
+            "sessionMatched": true,
+            "gamePidMatched": true,
+            "status": null,
+            "state": "proven",
+            "reason": null,
+            "serverId": 2212
+          },
+          {
+            "file": "overview-bridge\\world-ready-result.json",
+            "fileUpdatedAtUtc": "2026-10-08T03:21:15.7223655Z",
+            "requestId": "worldaecf57cf40f8457f96104216e4eaf2fe",
+            "profileMatched": true,
+            "sessionMatched": true,
+            "gamePidMatched": true,
+            "status": null,
+            "state": "proven",
+            "reason": null,
+            "serverId": 2212
+          }
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.8975973+00:00",
+      "kind": "production-resource-page-2",
+      "details": {
+        "rows": [],
+        "total": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.902115+00:00",
+      "kind": "production-resource-filter",
+      "details": {
+        "rows": [],
+        "total": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:24.9079813+00:00",
+      "kind": "sqlite-reopened-actual-run",
+      "details": {
+        "run": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+        "durable": {
+          "Id": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+          "ServerId": 2212,
+          "SelectedTypes": [
+            "resource"
+          ],
+          "Status": "cancelled",
+          "TotalBlocks": 2500,
+          "CompletedBlocks": 0,
+          "FailedBlocks": 0,
+          "CreatedAt": 1791429675738,
+          "UpdatedAt": 1791429684867,
+          "Error": null
+        },
+        "total": 0,
+        "firstPageCount": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:28.3738733+00:00",
+      "kind": "owned-home-stop",
+      "details": {
+        "phase": "stopped",
+        "pid": null,
+        "instanceId": null,
+        "connectionState": "offline",
+        "error": null
+      }
+    },
+    {
+      "atUtc": "2026-10-08T03:21:28.5667459+00:00",
+      "kind": "final-restoration-inventory",
+      "details": {
+        "originalHashesRestored": true,
+        "ownedGameStopSucceeded": true,
+        "installedAfter": {
+          "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+          "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+          "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+        },
+        "activeProcesses": []
+      }
+    }
+  ],
+  "installedBefore": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "preflightOriginalBackup": {
+    "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-BACKGROUND-WITNESS-002-6d81af33c042452d96baa96b25d03422\\overview-bridge-backups\\preflight-originals-6d81af33c042452d96baa96b25d03422",
+    "hashes": {
+      "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+      "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+      "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+    }
+  },
+  "recoveryJournalBefore": false,
+  "priorProcesses": [],
+  "gameAdmission": {
+    "Valid": true,
+    "Path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "Error": null,
+    "GamePath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "XluaPath": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game\\Game\\LastWar_Data\\Plugins\\x86_64\\xlua.dll",
+    "Is64Bit": true
+  },
+  "reopenedPersistence": {
+    "run": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+    "durable": {
+      "Id": "b9fc31a14f6f4c3d819c0e17efaddbe8",
+      "ServerId": 2212,
+      "SelectedTypes": [
+        "resource"
+      ],
+      "Status": "cancelled",
+      "TotalBlocks": 2500,
+      "CompletedBlocks": 0,
+      "FailedBlocks": 0,
+      "CreatedAt": 1791429675738,
+      "UpdatedAt": 1791429684867,
+      "Error": null
+    },
+    "total": 0,
+    "firstPageCount": 0
+  },
+  "resourceExport": "NOT_AVAILABLE: production Map317 exporter is City-only; no Resource export or UI claim",
+  "resourceCompletionObserved": false,
+  "resourcePublishedPositiveRowsObserved": false,
+  "terminal": "LIVE_CANCELLED_RESOURCE_STAGING_NOT_COMPLETED",
+  "recoveryJournalAfter": false,
+  "installedAfter": {
+    "LWScripts.data": "248f3aeac712b3f14f86bff37a0c365e467897a2248403837c44c1b774f05b22",
+    "LWScripts.txt": "d2f9bcc165f41427d4b3b7b9243e4a483bf316519a16b4ce9be658ba9afa783a",
+    "version.txt": "785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09"
+  },
+  "originalHashesRestored": true,
+  "ownedGameStopSucceeded": true,
+  "resourceStopSucceeded": true,
+  "finishedAtUtc": "2026-10-08T03:21:28.5569687+00:00"
+}

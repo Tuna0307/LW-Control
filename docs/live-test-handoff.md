@@ -58,6 +58,49 @@ canonical frontend/Release build and publish package pass. Existing
 City-only exporter and original encrypted controller restrictions
 unchanged. Parent LIVE-PILOT-001 remains PARTIAL. No new delegated task
 or owner desktop interaction was initiated.
+## 2026-10-08 — BACKGROUND-WORLD-RESOURCE-004 A/B (AWAITING_REVIEW)
+
+The existing direct xLua delegate/pipe authentication fix is preserved.
+Source-backed checks-only correction removes the false
+`isInWorld=false` pre-Start failure: actual production Scan Start
+uses `MapScanStateMachine.StartAsync -> EnterWorldMapAsync` and a
+fresh identity-matched `world-ready-result.json`. First live request
+was `already_world_scene`, proven worldId 0/server 2212,
+1000x1000 dimensions. Production current-client Resource capture
+**completed 2500/2500 blocks**, zero failed, publishing **8008**
+Resource rows under new exact run
+`b439bfa57cd54405a14e803d21964c9d`.
+Independent production `MapStore` reopened the exact database,
+confirmed completed status, 50-row pages 1/2 nonoverlapping,
+and zero impossible-keyword matches. The initial runner
+`map_search` request was malformed AFTER durable completion; it
+was corrected. Do not claim the positive completed-run query
+passed at the higher command layer when only reopened store queries did.
+
+A separate concurrently initiated but valid, isolated actual
+background test runner produced an exact active Map Stop:
+run `b9fc31a14f6f4c3d819c0e17efaddbe8` had one
+inflight block, then production Stop committed idle/zero inflight,
+durable `cancelled`, zero published/staged rows; corrected
+`map_search` returned zero. The 004 worker did not launch
+or delegate this additional process; it independently audited
+the complete packet. Both owned Home sessions stopped, original
+installed triplet restored byte-for-byte, recovery journals cleared,
+and no game/clone processes remain. The concurrent heartbeat
+commit `df4c9551` was retained without claiming authorship.
+Six production state-machine boundary inverses and all applicable
+headless/Release/build/package checks passed.
+Review evidence in
+`evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-LIVE-PILOT-001/background-world-resource-004/`
+(`checkpoint-A.md`, `checkpoint-B.md`,
+`completed-reopen-proof-001.json`, `read-only-audit.json`).
+
+The full parent pilot remains **PARTIAL**: the particular live
+world-ready result used `already_world_scene`, not an observed
+`ChangeToWorld` callback. Canonical UI visual/click/manual
+Stop/reopen A-to-A, original controller Lua semantics, and
+unsupported Resource export remain unproven. No foreground
+input/capture/focus was used.
 # Current live-test handoff — strict parity phase
 
 ## Current 2026-10-08 background-only checkpoint
