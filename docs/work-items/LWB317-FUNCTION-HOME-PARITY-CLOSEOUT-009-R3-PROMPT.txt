@@ -1,0 +1,117 @@
+You are the solo worker for LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3. Complete the entire scope below through sequential checkpoints; do not stop for relay after each checkpoint. Treat this as a fresh chat and read the listed project files first.
+
+# LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R3
+
+Status: **READY — project-lead continuation**, 2026-10-08.
+Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
+Branch: `research/offline-controller`. Submitted R2: `79617a18d493fbb722f4cc2179279bff954472be`.
+Start from the current descendant containing this lead review. Never reset.
+
+Goal: finish the remaining recoverable Home native semantics and correct the R2
+handoff failure, with original0.3.17 A→A contracts. This is one combined assignment;
+continue all ready branches through sequential medium checkpoints without relay
+after each checkpoint. The assignment ends when its acceptance criteria are met
+or every remaining branch has a concrete missing input, not because tests pass
+or another clone capability has not yet been implemented.
+
+Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, current background-only/A→A directions,
+Home master, R2 work item, worker report/continuation, and
+`docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2-LEAD.md`.
+Use the R2 lead-review packet as immutable negative/current evidence.
+
+## Preserve
+
+Keep R1 restoration-only-after-exit/retryable journals, same-handle process
+identity, issuing-session cleanup and closeUnmanaged; R2 payload-only admission,
+the recovered 90s wall-clock/final lookup, closed-owner fence and inert test
+protection. Keep original/current artifact hashes, accepted recovery/profile/Map
+ownership, Resource cancellation/staging/query fixes, UIUX, archived real Resource
+data and all old evidence. Do not weaken original or safety contracts, redesign
+defaults/workflows, add fallback, fake success, or repin negative/oracle records.
+
+## A — reliable report/registration handoff (LEAD009R2-01)
+
+Reproduce the lead's actual RunHelperAsync refresh-error inverse before editing.
+Fix error precedence for fulfilled, rejected, canceled and concurrently completed
+helpers. Success requires the owned handoff to complete successfully, not merely
+that a helper returned before its observer checked. Recover and preserve exact
+source precedence; implement appropriate current-client interprocess ordering.
+Audit exposing control before report, initial observer delay, host refresh,
+expiry/acquisition transitions, helper exit, retry and cleanup ownership.
+Keep claimed-binding validation, token/profile/session identity and restoration.
+Tests must exercise actual production host/registry/helper boundaries with held
+responses: completed refresh failure followed by helper success, helper rejection,
+refresh pending at helper fulfillment, immediate connection, delayed report,
+wrong/obsolete identity, report/read error, Close/Stop/replacement and teardown.
+No sleep-until-observer proof as the sole evidence. Preserve lead negatives and
+write new corrected outputs. Map original error precedence without normalizing it
+away. Commit the coherent correction and its distinguishing proof.
+
+## B — finish available local native branches (LEAD009R2-02)
+
+Decode finalizer `0x1DDDE3` async frames `0x1DDF66–0x1DE357` and relevant
+`0x1DE6F0/0x1DFEE6/0x1E0BBD/0x1E0C27`; local cleanup/error/cancel/bounded outcomes
+around protected calls remain assigned. Recover the A8-byte recovery-record
+schema through read `0x2DBEBA`, commit `0x2DB7CC` and their serializer/parser.
+Recover exact launch-failure error value construction at `0x2054CB` and mismatch
+condition `0x203D4D–0x203DCC`. Use hash-gated machine instructions, data flow and
+counterexamples, not nearby error strings or guessed structures. Trace callers/
+callees until each finite obligation is closed or its exact missing input and
+last available boundary are documented. Compare current production return shape
+and transitions; correct demonstrated differences only. Protected service request
+execution is not authorized and is not needed to decode supplied local bytes.
+
+## C — primary-profile restore/adoption and restart (LEAD009R2-03)
+
+Use recovered same-build restore versus outdated-build restartRequired contracts,
+record identity and post-connect ordering. Audit current Lua/pipe reconnect and
+persisted session/material ownership. Implement supported primary-profile host
+restart/adoption without closing a same-build game original keeps; implement the
+source-backed outdated-build reconcile/restart rule even when autoLaunchAll=false
+where supported. Retain PID/path/creation-time, profile/run/lease generation,
+backup/restore and authentication. Do not retrofit fake original entitlements or
+close every old session. Prove same-build, outdated-build, missing/invalid record,
+process mismatch, A→B→A, stale completion, failed reconnect, consumed reconcile,
+explicit Stop and journal cleanup through actual inert production boundaries.
+If implementation genuinely depends on unrecovered contract bytes/material,
+provide exact evidence and continue independent branches. Merely saying the clone
+does not yet have this capability is not an external blocker or a completed pass.
+Multi-profile protected leases remain separately incomplete; do not fabricate them.
+
+## D — launcher retries and failure parity
+
+Compare recovered two attempts/first OFFICIAL_LAUNCHER_RESTARTED-only retry with
+current Lua-update/game-spawn retries. Trace the available current-client launcher
+producer and lifecycle using static artifacts and controlled process seams.
+Implement only established equivalent event/error mapping. Do not broaden retries
+or invent a trigger and count it recovered. Exercise retry/non-retry, attempts,
+record commit failure and rollback/restore/cancel precedence. If the exact current
+producer requires a live witness, keep that individual mapping unproved; finish
+the available original/local branches and distinguish adapter policy from parity.
+
+## E — integrated verification and delivery
+
+Preserve and replay all applicable R2 38-command checks, 230 normalized comparisons
+(unchanged limits), 20 mounted App cases, current frontend/build/package, Release
+build/publish and affected native/Home/profile/Map/ownership checks. Extend actual
+App/profile boundaries for new transitions, EN/light and JA/dark headless. New
+distinguishing tests must fail against the immutable pre-fix behavior. Audit the
+complete production diff and semantic obligations; passing clone-only tests never
+closes original unknowns. Keep exact reference/original/historical/archive integrity
+and prove cleanup of task-owned roots/process seams. Update current masters,
+matrix/ledger/handoff, queue/continuation and dated worker review honestly.
+
+Work alone: no subagents, AI chat delegation, GPT Work or Codex execution. All work
+here is static/headless/inert; **no game launch/Stop, owner installation/config/
+runtime changes, desktop screenshots/snapshots/input/focus through any tool,
+gameplay/updater actions, credentials or protected-original service access**.
+The owner's game stays untouched. Use isolated roots and controlled providers,
+helpers/process APIs; a native preference false is not a test launch-suppression
+mechanism. No new live pilot is assigned. Preserve unrelated work.
+
+Commit medium coherent checkpoints, push normally and verify direct remote SHA.
+No force push or reset. Return once with **AWAITING_REVIEW** only for completed
+assigned ready scope, otherwise an honest PARTIAL packet and exact dependencies.
+List corrected finding IDs, original source locators, executed checks/proof limits,
+commits, preservation/cleanup and exact continuation. Full Home/Map A→A and
+LIVE_PROVEN acceptance remain the project lead's decision.

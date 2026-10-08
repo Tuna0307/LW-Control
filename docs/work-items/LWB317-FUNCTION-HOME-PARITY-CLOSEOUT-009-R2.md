@@ -1,6 +1,6 @@
 # LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2
 
-Status: **AWAITING_REVIEW** (worker report: docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2-WORKER.md), 2026-10-08. Parent 009/R1: **PARTIAL / CHANGES_REQUIRED**, with bounded R1 safety fixes accepted.
+Status: **PARTIALLY_ACCEPTED / CHANGES_REQUIRED — independent lead review**, 2026-10-08. Reviewed `79617a18d493fbb722f4cc2179279bff954472be`: payload-only admission, bounded timer arithmetic and closed-owner fencing accepted; LEAD009R2-01 refresh-error suppression reproduced, local static branches and restore/adoption parity incomplete. Continue HOME-PARITY-CLOSEOUT-009-R3. See `docs/reviews/2026-10-08-LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009-R2-LEAD.md`. Full original Home/Map remains PARTIAL; prior worker report preserved.
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`; branch `research/offline-controller`.
 Reviewed worker checkpoint: `17095dc1e250f5ad907110db80d695dcc2c82f5b`. Start from its current descendant with this review; never reset.

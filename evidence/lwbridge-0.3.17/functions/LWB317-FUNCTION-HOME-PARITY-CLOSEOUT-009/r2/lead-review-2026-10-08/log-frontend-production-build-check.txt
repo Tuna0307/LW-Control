@@ -1,0 +1,5 @@
+
+> lwbridge-ui-0.3.17@0.3.17-ui-preview check:production-build
+> node scripts/check-production-build.mjs
+
+LWB317_PRODUCTION_UI_PACKAGE_OK 6d83a69870ad62131d7b21895b485ad2acf126ccc074d0759ea249be1360a685 6633977812436f36c2f9a0d0e887e5224a5e664e6f27441324c5a7a0b7ae3909

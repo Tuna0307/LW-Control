@@ -1,0 +1,1298 @@
+{
+  "reviewedCheckpoint": "79617a18d493fbb722f4cc2179279bff954472be",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "integratedCommands": 38,
+  "commandFailures": 0,
+  "admissionComparisons": 4,
+  "refreshErrorComparisons": 2,
+  "demonstratedRefreshErrorMismatches": 1,
+  "verificationScratchRemoved": true,
+  "historicalRecordCount": 183,
+  "historicalRecords": [
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/after-C-recovery-compare-with-status.json",
+      "committedSha256": "1af914a04ce85797ffaa929f32baf791c8caeca41b3f45c4b6615f150c93dae2",
+      "workingSha256": "f576237bcd63874f6c05eeb0b29eb1d3b5d13d2cd2f1f36fbec4890cb02a80e4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/after-C-recovery-compare.json",
+      "committedSha256": "8d33aea10962c02f691f5eda2f8032a5a4b5fadae87857735a225a896751828d",
+      "workingSha256": "d8eb29dd0602af52e7a692459e241aeedbdd228f06f1130e4942d0a98315cc51",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/after-C-recovery-production-trace.json",
+      "committedSha256": "77bfbd8f7b7ed108b7ed3a699b63e28f8c0e0770cca5218938a0f09036885c6f",
+      "workingSha256": "8f2fe6865e93cdb770eb512aca3a591fdd464d7756f39bcc0fb6356b789941cb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/baseline-A-stop-before-fix.json",
+      "committedSha256": "e0ca63dca405458703d5fe106cfd72222f50100a600f3f2555201b3d4fd13b10",
+      "workingSha256": "0a350112f88e0ef55644e46bd1d94fa600750697fe3f084f3c28ab8f123b915c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/baseline-C-recovery-compare-before-port.json",
+      "committedSha256": "7ebdb611d83d33cf75bb9516f0cdf3ef5770206e0c99b084777747821b1a5436",
+      "workingSha256": "56c83fcc41950a9bb25e603048afd202a368bf33f79f7ce0ba7febd9c72fb0d0",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/baseline-C-recovery-oracle-trace.json",
+      "committedSha256": "577c7a09e79e98db541318b9a3cacf81974ba21f817d0edc6b97be515a9ea08b",
+      "workingSha256": "577c7a09e79e98db541318b9a3cacf81974ba21f817d0edc6b97be515a9ea08b",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/baseline-C-recovery-production-before-port.json",
+      "committedSha256": "28ecf56871d3e2207606b8e728de8b991b93fb02db49c115d80a8f2fe5967a54",
+      "workingSha256": "8120858c4fcc27bbd2d462459b772a92ce9f1c6cfd1d1eee94941d972e93e7e3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/baseline-C-recovery-scenarios.json",
+      "committedSha256": "7a603dfe288c1384c8d8ff4a2d68f276f1cd09d981b8cec6d68694c8e2da7403",
+      "workingSha256": "7a603dfe288c1384c8d8ff4a2d68f276f1cd09d981b8cec6d68694c8e2da7403",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/comparison-A-stop-after-fix.json",
+      "committedSha256": "1437dd18ce49cd765e3af9e49df044e23863f206048b3a7b751b4626b5478cd1",
+      "workingSha256": "7970d11a799a1706dcc60cf37325f502ccf0d942926d088967b23913b8341cbe",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/continuation.md",
+      "committedSha256": "c4f0c49cc7249a576f017b72488196b28cba086dde9782828f91a4becec3114d",
+      "workingSha256": "c4f0c49cc7249a576f017b72488196b28cba086dde9782828f91a4becec3114d",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/handler-skeletons.txt",
+      "committedSha256": "170d2f93540275f43168b900078a74b7bb5c1b07ce3cc39e84364e9656dab33b",
+      "workingSha256": "8c099eaf41480daa14e3938e16cad79681ddcbcb5f391028be09b16adbe5f69a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-00.log",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-01.log",
+      "committedSha256": "46e215b0052c858090868d732f3a5a11888c5e61f7752dc00a77136d1ad012c5",
+      "workingSha256": "08a5c5024dd5ccaf24ff2c8bd30290c278207603e50f4aca3fd2640e9f08863c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-02.log",
+      "committedSha256": "f2cfad65dd0efc779c47b9f0e8667e3259c15866d9823ee800271de181d92213",
+      "workingSha256": "a3e8ea115eab38dace031e4d87787a39ac7c7d58856ff85fbb52b4f26464a942",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-03.log",
+      "committedSha256": "4115123c2cf4a64cd105072e70c65a7d4e687f48306edc569ebe2187bf802798",
+      "workingSha256": "407f37ad4d90867ee7fdc3f40846493ad02936aa501d8ce2d19a0ccfed6e627b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-04.log",
+      "committedSha256": "6c4dd95850aa9700a01897b73f5c9c98623d8e0c069da9373914cb7b7581a7b7",
+      "workingSha256": "a4426d728ecd2f4a629947cb103beaa15bf7f7f5f0f7529f740fb1903383ad31",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-05.log",
+      "committedSha256": "c712ac3e212805c6ed1151d62c59c073ce875c285cda15e7a0dbe0b6106d3c5e",
+      "workingSha256": "60fb8517a9b268b1fb5e692730d22101e3eeba7ef5c718b7bbe9ff5b9f265ac5",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-06.log",
+      "committedSha256": "6b9e4e9bad064c30c6ec656bd708ff0983e1209b2825ee1d300453ec8ab34e0b",
+      "workingSha256": "5896fef28861e25b1123015186ec9ad180b3ad6405470d25ba3299079d7d3a6b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-07.log",
+      "committedSha256": "6b1a6a8fc259411692d0c3aadc7ab5551f8c8ca7518da1f8e6ee48c22e86e662",
+      "workingSha256": "6fadf07705603a929f9d9c842758c79cbfb93c636de7c3192528aead511ea647",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-08.log",
+      "committedSha256": "f31f740fad4d6bc1d64645c3899e6b1debb03548be802d4aca90cef10d89f9a2",
+      "workingSha256": "a12fa684950d243126e5f17c8f1803d33dfe5442b41bf4f987855af287f1bbd7",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-09.log",
+      "committedSha256": "b3d03623744a7f4afc94749e5b0cc4dd7d496692bdff1b85e1833e1402451fca",
+      "workingSha256": "c97a0318e2621d5fc9769787dded70871eb942a032a5afc0be13463dcb4df4b8",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-10.log",
+      "committedSha256": "875aecda513b34b7c7a3008b90a443347aae682bd5a3ba138298d864c3cba9d0",
+      "workingSha256": "f1cd4cd3256232f97397bdd04d5e91aa1288298fb1f0d937e01f863573c41b06",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-11.log",
+      "committedSha256": "b6f39852b2277d8786ad367b4c70f63693ed9949cc56ca3923dd2162864b405c",
+      "workingSha256": "959374f02ad5c86c75fc093e483e807d304c6794dc92dd5f01dae8e69881052e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-12.log",
+      "committedSha256": "39d00bf8fb510e3213bcd6826c797694efb5caf4737303b5d39410c4fd8add8c",
+      "workingSha256": "21a8b0ad5a6a741537cadae84dbe759c9684f483ab050fd0c922894d977ab8a3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-13.log",
+      "committedSha256": "2e27646b8a49352b46c243878b1b80920bfbce21760fabd2737796fe47b177ff",
+      "workingSha256": "84e2072c1bc11f48cd157210e3026a8ea6bb792f3d770b12493d1adaadd0e318",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-preservation.py",
+      "committedSha256": "c9966f107b91019d2a2e1d540a4805adc68e161308f06ce343f78c9a2df22122",
+      "workingSha256": "c9966f107b91019d2a2e1d540a4805adc68e161308f06ce343f78c9a2df22122",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/check-stop-ownership.py",
+      "committedSha256": "147a0d73628d434868d1470e4a3e2d3ea1af96f00a2ba0b58d0b85a939bec48a",
+      "workingSha256": "147a0d73628d434868d1470e4a3e2d3ea1af96f00a2ba0b58d0b85a939bec48a",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/close-comparison.json",
+      "committedSha256": "1437dd18ce49cd765e3af9e49df044e23863f206048b3a7b751b4626b5478cd1",
+      "workingSha256": "7970d11a799a1706dcc60cf37325f502ccf0d942926d088967b23913b8341cbe",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/executed-checks.json",
+      "committedSha256": "dd9a16ab442b9810d93af1108e862c5cec03bf7fb31f9e13ef07d771ebf81c7d",
+      "workingSha256": "dc08d3ca7f4024bfb81a1d66933f2646e304513fc456dfdd0ee39a03a02215b2",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/mounted-app-profiles.json",
+      "committedSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "workingSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/oracle.json",
+      "committedSha256": "df7a5810b5d9ff6194974f6175c5be72d28746e1a619bb182d409807d90dcf0d",
+      "workingSha256": "ac021626559f47aad16a72da393e0d7d2a9a9bdbabcfc1cc020aa2a0bdf8f63e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/preservation.json",
+      "committedSha256": "aec47643b10c99a23e5360f191b9bb4f7a1e0f7181479a3508dc27d2c4aa9e4a",
+      "workingSha256": "96a745b3442f7d30f887a43ee6ad76fb7f4c496cc3e0f79a771d2d3b4cdc8be6",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/production-trace.json",
+      "committedSha256": "77bfbd8f7b7ed108b7ed3a699b63e28f8c0e0770cca5218938a0f09036885c6f",
+      "workingSha256": "8f2fe6865e93cdb770eb512aca3a591fdd464d7756f39bcc0fb6356b789941cb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/recovery-comparison.json",
+      "committedSha256": "1af914a04ce85797ffaa929f32baf791c8caeca41b3f45c4b6615f150c93dae2",
+      "workingSha256": "f576237bcd63874f6c05eeb0b29eb1d3b5d13d2cd2f1f36fbec4890cb02a80e4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/review-summary.json",
+      "committedSha256": "a2add56cd86c5bba4fa0bebda4ee67da0f32559089c1f260c6bc371876e36bba",
+      "workingSha256": "eddb265079276e96599119a95dfaf8e2c06b7a4ebd6a975e35153494d6d7a34d",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/run-review-checks.py",
+      "committedSha256": "8ec8ea467d880a87df803664f5ef697cf38542123baf73bf5bf64b04b1cc04f7",
+      "workingSha256": "8ec8ea467d880a87df803664f5ef697cf38542123baf73bf5bf64b04b1cc04f7",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/scenarios.json",
+      "committedSha256": "96e18bab6d73519609380f5a84033d841c1d0e7b88b65bb1c6e66bbb1dee2ed5",
+      "workingSha256": "a04e5219fc06354f30e75c6bd25fcbcbeb0592b2693a6912d84abe08fab00dbe",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/lead-review-2026-10-08/stop-ownership-negative.json",
+      "committedSha256": "bc0fe57553fb67afd1b12f95c6c6b79e2a240159164b8001e1de045c990d68ce",
+      "workingSha256": "03dcbdcb80f66656fa74e09684ab8f393359706d464175414dcf1262f4e3b527",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/monitor-recovery-analysis.md",
+      "committedSha256": "bea3fb3143291224e27be63e0165a2050829e1d5b2b494a3ea64e27a5d735efd",
+      "workingSha256": "bea3fb3143291224e27be63e0165a2050829e1d5b2b494a3ea64e27a5d735efd",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/progress.md",
+      "committedSha256": "2cd9905b6663732d9d25aeca30249e516e7466a309c588f8b5ff998ad822abe1",
+      "workingSha256": "109d4c5282450e8f0686bb6b245be9c8ab8ebb8f3ffca89f94316ee1faeb529e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/close-compare-after-r1.json",
+      "committedSha256": "df4efabd01fcb4b26e3c0533194d85dda32caba5d9922c65b052644d4bcb618a",
+      "workingSha256": "ad03394efddb38735cbcf863c498d0aa97ccf86550efa9038fe31615d6262b36",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/continuation.md",
+      "committedSha256": "deb8955358bf2050571e07b1c89a257d1640a6a91b4c4e4c9ace625ede13ff1f",
+      "workingSha256": "deb8955358bf2050571e07b1c89a257d1640a6a91b4c4e4c9ace625ede13ff1f",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/close-compare.json",
+      "committedSha256": "df4efabd01fcb4b26e3c0533194d85dda32caba5d9922c65b052644d4bcb618a",
+      "workingSha256": "ad03394efddb38735cbcf863c498d0aa97ccf86550efa9038fe31615d6262b36",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/final-checks.json",
+      "committedSha256": "60a31e81a5090d377244f5efd3b69a0dd54ce04add8e993bcb1f6c3923368ba4",
+      "workingSha256": "7fd976cc9ab029259a8cd0ef7ba11a15c6d1a3eec787212905b86c5c62fc5a96",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-build-release-checks.txt",
+      "committedSha256": "22eb5f9300075d936b1f402725770f67ada0b70ace1e6c3798f6f4198e20d9c5",
+      "workingSha256": "9ccc4d77078d5b7811204f9b51ddd87ad23330f00b456fc505edb4476dcbb16a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-current-client-contract.txt",
+      "committedSha256": "4d2f938ca779c009a5566bb8ee629590bf482403916b93f71b31de841e87c08a",
+      "workingSha256": "63ba471942f5dafc70202aeb54db7112c84156ceb63791c2500750d7c51a3417",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-frontend-check.txt",
+      "committedSha256": "39d00bf8fb510e3213bcd6826c797694efb5caf4737303b5d39410c4fd8add8c",
+      "workingSha256": "21a8b0ad5a6a741537cadae84dbe759c9684f483ab050fd0c922894d977ab8a3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-frontend-production-build-check.txt",
+      "committedSha256": "2e27646b8a49352b46c243878b1b80920bfbce21760fabd2737796fe47b177ff",
+      "workingSha256": "84e2072c1bc11f48cd157210e3026a8ea6bb792f3d770b12493d1adaadd0e318",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-mounted-app-profiles-aba-deferred.txt",
+      "committedSha256": "e7bac0493ccf34945f6f2d0b0d434307b6f700975a9772c5a37b687004de1f8e",
+      "workingSha256": "e62a87e46ef904662c19028978a3ce24b10b76bb83f76fef1cb303ef9dcff5bb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--home-campaign-lifecycle-check.txt",
+      "committedSha256": "0418ceba950cae62af19910199088a7c316fea3ba8f6178d1ba74680a3be8bc4",
+      "workingSha256": "01c3835067ba6e0222d3f90b5b11e32b9190544ae8d845dae2ed50a5fdd3caaa",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--map-campaign-canonical-check.txt",
+      "committedSha256": "6b1a6a8fc259411692d0c3aadc7ab5551f8c8ca7518da1f8e6ee48c22e86e662",
+      "workingSha256": "6fadf07705603a929f9d9c842758c79cbfb93c636de7c3192528aead511ea647",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--map317-native-boundary-check.txt",
+      "committedSha256": "f31f740fad4d6bc1d64645c3899e6b1debb03548be802d4aca90cef10d89f9a2",
+      "workingSha256": "a12fa684950d243126e5f17c8f1803d33dfe5442b41bf4f987855af287f1bbd7",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--overview-close-timing-check.txt",
+      "committedSha256": "4115123c2cf4a64cd105072e70c65a7d4e687f48306edc569ebe2187bf802798",
+      "workingSha256": "407f37ad4d90867ee7fdc3f40846493ad02936aa501d8ce2d19a0ccfed6e627b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--overview-launch-spam-check.txt",
+      "committedSha256": "00d8437159690bbcc18ba965c2ed32c1776b6f0c37253d78c712b454106550dc",
+      "workingSha256": "3f15cc54a61db61be590bc0a58e8e58cc93363b6f19efdd655de72c49c2cb949",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--overview-official-settle-check.txt",
+      "committedSha256": "3a6c020d74d4cd8272821b4e6a9968ceadf6512f7b270109c5032d0f518a4a70",
+      "workingSha256": "85caa2c2624bf2d7bc13deb67346754e7e100224f01902472fddd1cd381f1cef",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--overview-process-ownership-check.txt",
+      "committedSha256": "cbf4cd8494fe1c1ff8afed9a14dfca0925a726f64654140b833a1738d064e8d7",
+      "workingSha256": "1698ae39b060d80fb10169da81d35c100d9d4bea1f47825c1fd5731a92e1e0cd",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--overview-reconnect-policy-check.txt",
+      "committedSha256": "6c4dd95850aa9700a01897b73f5c9c98623d8e0c069da9373914cb7b7581a7b7",
+      "workingSha256": "a4426d728ecd2f4a629947cb103beaa15bf7f7f5f0f7529f740fb1903383ad31",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--owned-process-handle-binding-check.txt",
+      "committedSha256": "2779bfffa774d8af464b69a13b39ad9995d5f0084ed997594684ec2453062330",
+      "workingSha256": "a062088f35c5b301164a2e4040ec8de79e738c51065ef18dd08cb2bf993fcb29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--profile-runtime-owner-check.txt",
+      "committedSha256": "6b9e4e9bad064c30c6ec656bd708ff0983e1209b2825ee1d300453ec8ab34e0b",
+      "workingSha256": "5896fef28861e25b1123015186ec9ad180b3ad6405470d25ba3299079d7d3a6b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--recovery-async-ownership-check.txt",
+      "committedSha256": "b2989e3680e259c596a94292a1d12a7928b0b562b74062addb7cde97d3bfa5b1",
+      "workingSha256": "52fb15853c07c7e666acb8786636b1bea191b3777777996967a63b7e29a1dcac",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--recovery-boundary-check.txt",
+      "committedSha256": "83b1f11cb5b61cd67a53dcc6691e3d6ac9c2c503d930c82ca54602b9171d6c8b",
+      "workingSha256": "fc055e3d1a5042c1af09b2c6dabe74a41e5116ec501c39937d81a7f18923d964",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-native--unmanaged-close-check.txt",
+      "committedSha256": "fd4b4646656bd02ab89030677d9154f7559ba5eaf7a21d01f150bffcbf881d7e",
+      "workingSha256": "e6dff231b76687793e8097b48f83afe5be665977050e2bdabb4058902db16326",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-close-comparator-21.txt",
+      "committedSha256": "c9df819e1886c5e2fdc46e2f3da7d748284b7c29ac3f465b9de0c976b4f50032",
+      "workingSha256": "b929149bb619e30e91d22ef67cd02f5a6a4325f9ec1d3629b4ad4eeafd3397f3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-launch-contract.txt",
+      "committedSha256": "49ca5ceb2beb66517d382fffc5fcb4d0d9ece46611dd143b3d1901f360d2a38d",
+      "workingSha256": "f07f13372fbb3d2fa52b131d36238a2f703dc53b1f1916a9fba33ae807540114",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-original-byte-contract.txt",
+      "committedSha256": "875aecda513b34b7c7a3008b90a443347aae682bd5a3ba138298d864c3cba9d0",
+      "workingSha256": "f1cd4cd3256232f97397bdd04d5e91aa1288298fb1f0d937e01f863573c41b06",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-overview-lifecycle.txt",
+      "committedSha256": "b3d03623744a7f4afc94749e5b0cc4dd7d496692bdff1b85e1833e1402451fca",
+      "workingSha256": "c97a0318e2621d5fc9769787dded70871eb942a032a5afc0be13463dcb4df4b8",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-profile-contract.txt",
+      "committedSha256": "4edaf519f44cf3fe7c78a183552ab513a24523a2d0f2f8dd76a4f19796a00c1b",
+      "workingSha256": "dcd3ff9d9917e89e113c5333216c7d483f3f6d221030040b38be24f34a9b4752",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-recovery-contract.txt",
+      "committedSha256": "b6f39852b2277d8786ad367b4c70f63693ed9949cc56ca3923dd2162864b405c",
+      "workingSha256": "959374f02ad5c86c75fc093e483e807d304c6794dc92dd5f01dae8e69881052e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-py-stop-ownership-r1.txt",
+      "committedSha256": "1014c38cf094c4a9f0042d8d6c2b0acfc8e2221cf4b85bd0c082365232026af4",
+      "workingSha256": "0f87079c97d5961e7ed509ffe1bb21e6c4c0057e6e4fe23a7004ae227209fe7a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-recovery-trace-actual.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-recovery-trace-compare-normalized.txt",
+      "committedSha256": "46e215b0052c858090868d732f3a5a11888c5e61f7752dc00a77136d1ad012c5",
+      "workingSha256": "08a5c5024dd5ccaf24ff2c8bd30290c278207603e50f4aca3fd2640e9f08863c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/log-release-publish-scratch.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/mounted-app-profiles.json",
+      "committedSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "workingSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/production-trace.json",
+      "committedSha256": "77bfbd8f7b7ed108b7ed3a699b63e28f8c0e0770cca5218938a0f09036885c6f",
+      "workingSha256": "8f2fe6865e93cdb770eb512aca3a591fdd464d7756f39bcc0fb6356b789941cb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/final/recovery-comparison.json",
+      "committedSha256": "1af914a04ce85797ffaa929f32baf791c8caeca41b3f45c4b6615f150c93dae2",
+      "workingSha256": "f576237bcd63874f6c05eeb0b29eb1d3b5d13d2cd2f1f36fbec4890cb02a80e4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/launch-contract-run.json",
+      "committedSha256": "49ca5ceb2beb66517d382fffc5fcb4d0d9ece46611dd143b3d1901f360d2a38d",
+      "workingSha256": "f07f13372fbb3d2fa52b131d36238a2f703dc53b1f1916a9fba33ae807540114",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/launch-readiness-recovery.md",
+      "committedSha256": "718e034cff076ca2cf6bfcb19d68c23acd3deb0958cda8919828f62d1ad28daf",
+      "workingSha256": "51533a9c9b0c9ec429d04e11a59a53ac927aec127a270886e2702a6e4de24a29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/check-readiness-window.py",
+      "committedSha256": "e4f8fbc987ddb7d18f7a76314d00ce42375b4d827efb8eca45466ff258e393e7",
+      "workingSha256": "e4f8fbc987ddb7d18f7a76314d00ce42375b4d827efb8eca45466ff258e393e7",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/close-compare.json",
+      "committedSha256": "df4efabd01fcb4b26e3c0533194d85dda32caba5d9922c65b052644d4bcb618a",
+      "workingSha256": "ad03394efddb38735cbcf863c498d0aa97ccf86550efa9038fe31615d6262b36",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/final-checks.json",
+      "committedSha256": "edeabb3ae73af120157fa65a5e321dd1f2ba1d547aa530c80553eebe56a81258",
+      "workingSha256": "d5caa5a8f8abe3508242c1f52af71ef787052813566f05f29d23c18d171b079a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-build-release-checks.txt",
+      "committedSha256": "b9e4060a8f6329c829486b17759a8160da8a13f8f3b54c55809324516c557bef",
+      "workingSha256": "38252bc54f198834978fe177f5a2c07e272edb902bc9851a7f4651a3bce178ba",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-current-client-contract.txt",
+      "committedSha256": "4d2f938ca779c009a5566bb8ee629590bf482403916b93f71b31de841e87c08a",
+      "workingSha256": "63ba471942f5dafc70202aeb54db7112c84156ceb63791c2500750d7c51a3417",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-frontend-check.txt",
+      "committedSha256": "39d00bf8fb510e3213bcd6826c797694efb5caf4737303b5d39410c4fd8add8c",
+      "workingSha256": "21a8b0ad5a6a741537cadae84dbe759c9684f483ab050fd0c922894d977ab8a3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-frontend-production-build-check.txt",
+      "committedSha256": "2e27646b8a49352b46c243878b1b80920bfbce21760fabd2737796fe47b177ff",
+      "workingSha256": "84e2072c1bc11f48cd157210e3026a8ea6bb792f3d770b12493d1adaadd0e318",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-mounted-app-profiles-aba-deferred.txt",
+      "committedSha256": "e7bac0493ccf34945f6f2d0b0d434307b6f700975a9772c5a37b687004de1f8e",
+      "workingSha256": "e62a87e46ef904662c19028978a3ce24b10b76bb83f76fef1cb303ef9dcff5bb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--home-campaign-lifecycle-check.txt",
+      "committedSha256": "3d6223bfde7d6783dfa816bd2b1bda4b38b2bf8896c45c7a41266cfcc8872567",
+      "workingSha256": "de966e8fc1ac8cc7e60b7ca8c8d6ec667178d6f290779f209cecf19b3918061d",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--map-campaign-canonical-check.txt",
+      "committedSha256": "6b1a6a8fc259411692d0c3aadc7ab5551f8c8ca7518da1f8e6ee48c22e86e662",
+      "workingSha256": "6fadf07705603a929f9d9c842758c79cbfb93c636de7c3192528aead511ea647",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--map317-native-boundary-check.txt",
+      "committedSha256": "f31f740fad4d6bc1d64645c3899e6b1debb03548be802d4aca90cef10d89f9a2",
+      "workingSha256": "a12fa684950d243126e5f17c8f1803d33dfe5442b41bf4f987855af287f1bbd7",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--overview-close-timing-check.txt",
+      "committedSha256": "4115123c2cf4a64cd105072e70c65a7d4e687f48306edc569ebe2187bf802798",
+      "workingSha256": "407f37ad4d90867ee7fdc3f40846493ad02936aa501d8ce2d19a0ccfed6e627b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--overview-launch-spam-check.txt",
+      "committedSha256": "0f9718da353718ab71d79840b686445b0cb8461c8174d0a4952adf6c7e173ddd",
+      "workingSha256": "00b8af5c11fe829599cc3904476c6bc91bd11ea9a73fd6b9bfd95c3d0f6a9e29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--overview-official-settle-check.txt",
+      "committedSha256": "3a6c020d74d4cd8272821b4e6a9968ceadf6512f7b270109c5032d0f518a4a70",
+      "workingSha256": "85caa2c2624bf2d7bc13deb67346754e7e100224f01902472fddd1cd381f1cef",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--overview-process-ownership-check.txt",
+      "committedSha256": "7211707c3e059175dc3d88ef3bd60c739a4aa7c1ddd21cb6e3079aa60fa0578e",
+      "workingSha256": "be20e3d0ccfac140b2decd6f11beaf6091dd70f700515ca0a5bf49e2dd92bed2",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--overview-reconnect-policy-check.txt",
+      "committedSha256": "6c4dd95850aa9700a01897b73f5c9c98623d8e0c069da9373914cb7b7581a7b7",
+      "workingSha256": "a4426d728ecd2f4a629947cb103beaa15bf7f7f5f0f7529f740fb1903383ad31",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--owned-process-handle-binding-check.txt",
+      "committedSha256": "2779bfffa774d8af464b69a13b39ad9995d5f0084ed997594684ec2453062330",
+      "workingSha256": "a062088f35c5b301164a2e4040ec8de79e738c51065ef18dd08cb2bf993fcb29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--profile-runtime-owner-check.txt",
+      "committedSha256": "6b9e4e9bad064c30c6ec656bd708ff0983e1209b2825ee1d300453ec8ab34e0b",
+      "workingSha256": "5896fef28861e25b1123015186ec9ad180b3ad6405470d25ba3299079d7d3a6b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--recovery-async-ownership-check.txt",
+      "committedSha256": "dd5b1cf1e78733eff9a8a7e6b8274e7f700d92b1c655570de86d92f560ef3e57",
+      "workingSha256": "4829629e2ce3d6a2641d2adf1c6e36ea70e7f59fbf10acbe58d9ed57735ab025",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--recovery-boundary-check.txt",
+      "committedSha256": "22afbb93466c12ca5fc9dbc7c02481155f8bf305607a37b78b49c74e79d0bf95",
+      "workingSha256": "c20722f0487882c28587410855b7743d6e0f1a74c4a8926d32353a61511d3b92",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-native--unmanaged-close-check.txt",
+      "committedSha256": "fd4b4646656bd02ab89030677d9154f7559ba5eaf7a21d01f150bffcbf881d7e",
+      "workingSha256": "e6dff231b76687793e8097b48f83afe5be665977050e2bdabb4058902db16326",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-close-comparator-21.txt",
+      "committedSha256": "c9df819e1886c5e2fdc46e2f3da7d748284b7c29ac3f465b9de0c976b4f50032",
+      "workingSha256": "b929149bb619e30e91d22ef67cd02f5a6a4325f9ec1d3629b4ad4eeafd3397f3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-launch-contract.txt",
+      "committedSha256": "49ca5ceb2beb66517d382fffc5fcb4d0d9ece46611dd143b3d1901f360d2a38d",
+      "workingSha256": "f07f13372fbb3d2fa52b131d36238a2f703dc53b1f1916a9fba33ae807540114",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-original-byte-contract.txt",
+      "committedSha256": "875aecda513b34b7c7a3008b90a443347aae682bd5a3ba138298d864c3cba9d0",
+      "workingSha256": "f1cd4cd3256232f97397bdd04d5e91aa1288298fb1f0d937e01f863573c41b06",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-overview-lifecycle.txt",
+      "committedSha256": "b3d03623744a7f4afc94749e5b0cc4dd7d496692bdff1b85e1833e1402451fca",
+      "workingSha256": "c97a0318e2621d5fc9769787dded70871eb942a032a5afc0be13463dcb4df4b8",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-profile-contract.txt",
+      "committedSha256": "4edaf519f44cf3fe7c78a183552ab513a24523a2d0f2f8dd76a4f19796a00c1b",
+      "workingSha256": "dcd3ff9d9917e89e113c5333216c7d483f3f6d221030040b38be24f34a9b4752",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-recovery-contract.txt",
+      "committedSha256": "b6f39852b2277d8786ad367b4c70f63693ed9949cc56ca3923dd2162864b405c",
+      "workingSha256": "959374f02ad5c86c75fc093e483e807d304c6794dc92dd5f01dae8e69881052e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-py-stop-ownership-r1.txt",
+      "committedSha256": "1014c38cf094c4a9f0042d8d6c2b0acfc8e2221cf4b85bd0c082365232026af4",
+      "workingSha256": "0f87079c97d5961e7ed509ffe1bb21e6c4c0057e6e4fe23a7004ae227209fe7a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-recovery-trace-actual.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-recovery-trace-compare-normalized.txt",
+      "committedSha256": "46e215b0052c858090868d732f3a5a11888c5e61f7752dc00a77136d1ad012c5",
+      "workingSha256": "08a5c5024dd5ccaf24ff2c8bd30290c278207603e50f4aca3fd2640e9f08863c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/log-release-publish-scratch.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/mounted-app-profiles.json",
+      "committedSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "workingSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/production-trace.json",
+      "committedSha256": "77bfbd8f7b7ed108b7ed3a699b63e28f8c0e0770cca5218938a0f09036885c6f",
+      "workingSha256": "8f2fe6865e93cdb770eb512aca3a591fdd464d7756f39bcc0fb6356b789941cb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/readiness-window-negative.json",
+      "committedSha256": "be97a62547eb538336044371217b137ad923b6b444cd800825f70393224f7965",
+      "workingSha256": "f9a8f4d4deecaf621736d15069c27f95aeccb4b03ab8684b1ea215b82714aea3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/reconcile-gate-negative.json",
+      "committedSha256": "9ef34278b971c6c050b0d74a7e8fe8460be4f4d66a8f61a895b1ddee4f4d4beb",
+      "workingSha256": "a4d419d4537138a02da765ffb093122371f837ffe77a971f59e758cde623c73f",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/reconcile-probe/Program.cs",
+      "committedSha256": "413ef835d25f80fe522c88a9f3fddfe379a36334293c45bda7cd688912589e01",
+      "workingSha256": "413ef835d25f80fe522c88a9f3fddfe379a36334293c45bda7cd688912589e01",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/reconcile-probe/ReconcileProbe.csproj",
+      "committedSha256": "20b07c361eea78ae39842a2bd89677dfb753886e2857a5dfe416ed1ffa3cbd84",
+      "workingSha256": "20b07c361eea78ae39842a2bd89677dfb753886e2857a5dfe416ed1ffa3cbd84",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/recovery-comparison.json",
+      "committedSha256": "1af914a04ce85797ffaa929f32baf791c8caeca41b3f45c4b6615f150c93dae2",
+      "workingSha256": "f576237bcd63874f6c05eeb0b29eb1d3b5d13d2cd2f1f36fbec4890cb02a80e4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/lead-review-2026-10-08/review-summary.json",
+      "committedSha256": "f7aa3681353c19183d9c258fd42c09dc02feb9b58418eb8b2670a1354ad3e87b",
+      "workingSha256": "4f3662c10955698726ca6e0da95b6bc4df131fb85cf63fcd3f3a33c8bf2b214e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/owned-process-handle-binding-check.json",
+      "committedSha256": "2779bfffa774d8af464b69a13b39ad9995d5f0084ed997594684ec2453062330",
+      "workingSha256": "a062088f35c5b301164a2e4040ec8de79e738c51065ef18dd08cb2bf993fcb29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/profile-contract-run.json",
+      "committedSha256": "4edaf519f44cf3fe7c78a183552ab513a24523a2d0f2f8dd76a4f19796a00c1b",
+      "workingSha256": "dcd3ff9d9917e89e113c5333216c7d483f3f6d221030040b38be24f34a9b4752",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/profile-intent-recovery.md",
+      "committedSha256": "3f8a7eb6db336cde232d949771a55e41f8f1a437548b4158b2137a55e54a63e4",
+      "workingSha256": "c955c0cb5eb3ae904a65bdc1225eff5e9d8928de331b684fabccc72285ff6a66",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/progress.md",
+      "committedSha256": "9b11067f3ac86b175513b49655fd358651f9909e11f57b1887f7a554ae2801b0",
+      "workingSha256": "3504d1e006af298f181b77beb8087a02eb6ee753ed959e6a5d2baf8d11d30659",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/recovery-async-ownership-BEFORE-fix.txt",
+      "committedSha256": "03c66dcb7e0354332d41fd93f7f14c6937ac11a722e7ed6fe40f0b2f2054b664",
+      "workingSha256": "f6bd0e534e7f9553a66987c9d00150585c88483735291145557b6ef800dde705",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/recovery-async-ownership-check.json",
+      "committedSha256": "dd5b1cf1e78733eff9a8a7e6b8274e7f700d92b1c655570de86d92f560ef3e57",
+      "workingSha256": "4829629e2ce3d6a2641d2adf1c6e36ea70e7f59fbf10acbe58d9ed57735ab025",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/recovery-boundary-check.json",
+      "committedSha256": "22afbb93466c12ca5fc9dbc7c02481155f8bf305607a37b78b49c74e79d0bf95",
+      "workingSha256": "c20722f0487882c28587410855b7743d6e0f1a74c4a8926d32353a61511d3b92",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/retired-assertion-map.md",
+      "committedSha256": "6821cca837c80bc17ed19ddf81195d69854dc50f5aeca391758def9b30ac673e",
+      "workingSha256": "6821cca837c80bc17ed19ddf81195d69854dc50f5aeca391758def9b30ac673e",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/semantic-obligations-r1.json",
+      "committedSha256": "99cb61b08771df74ceb40c37e2ea20545a0cab6a3b0854e6e707ec8041ea5f75",
+      "workingSha256": "99cb61b08771df74ceb40c37e2ea20545a0cab6a3b0854e6e707ec8041ea5f75",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/stop-ownership-before-after.json",
+      "committedSha256": "7e2f2d063d46392b22b7d1bfb45544c63b041d003de74d85bb42603c6270968b",
+      "workingSha256": "95d3c548d3cbca46c95653c106668f89b8f93cad261f9bc294385bc249675e73",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/stop-ownership-r1-cases.json",
+      "committedSha256": "90a4de1766ebf31637c7fa25a5a05828550f25e5ea77ae5fe17fc23998edab6d",
+      "workingSha256": "36ea051deb98faed45f722be3a71afe96048bfbb6b9a11010f9b6abaa6414286",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r1/unmanaged-close-check.json",
+      "committedSha256": "fd4b4646656bd02ab89030677d9154f7559ba5eaf7a21d01f150bffcbf881d7e",
+      "workingSha256": "e6dff231b76687793e8097b48f83afe5be665977050e2bdabb4058902db16326",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/bridge-ready-window-check.json",
+      "committedSha256": "4149612d2a800f344b326a822f1dfe58148d7006b2a08b8a396d0e008adb792d",
+      "workingSha256": "c241c172ffe117fcc9b419d1f1afc96041b4ae8591035cded31f732877ee219b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/continuation.md",
+      "committedSha256": "19681cbd5f0a68a4ea3d3e5eecc65463b329dcce57ed17a14a7ead3189185fd9",
+      "workingSha256": "19681cbd5f0a68a4ea3d3e5eecc65463b329dcce57ed17a14a7ead3189185fd9",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/close-compare.json",
+      "committedSha256": "df4efabd01fcb4b26e3c0533194d85dda32caba5d9922c65b052644d4bcb618a",
+      "workingSha256": "ad03394efddb38735cbcf863c498d0aa97ccf86550efa9038fe31615d6262b36",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/final-checks.json",
+      "committedSha256": "0c600afa379c543710a1c0361facf83444608ccc70d93c193cf66c127a4c62cc",
+      "workingSha256": "6399f523384e5bf375cf9d035941d1ac8b8897ced7e5d57d01cc66cd04faef4b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-build-release-checks.txt",
+      "committedSha256": "b425ea22644ac2072ae63c524f0e17e419d559a2a818ea0f0bf30c5378c63737",
+      "workingSha256": "ee0ade0955e11ad5693420c24f82873fda04423ab3ee8e42d7cd6f14dca2bbf8",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-current-client-contract.txt",
+      "committedSha256": "4d2f938ca779c009a5566bb8ee629590bf482403916b93f71b31de841e87c08a",
+      "workingSha256": "63ba471942f5dafc70202aeb54db7112c84156ceb63791c2500750d7c51a3417",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-frontend-check.txt",
+      "committedSha256": "39d00bf8fb510e3213bcd6826c797694efb5caf4737303b5d39410c4fd8add8c",
+      "workingSha256": "21a8b0ad5a6a741537cadae84dbe759c9684f483ab050fd0c922894d977ab8a3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-frontend-production-build-check.txt",
+      "committedSha256": "2e27646b8a49352b46c243878b1b80920bfbce21760fabd2737796fe47b177ff",
+      "workingSha256": "84e2072c1bc11f48cd157210e3026a8ea6bb792f3d770b12493d1adaadd0e318",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-mounted-app-profiles-aba-deferred.txt",
+      "committedSha256": "e7bac0493ccf34945f6f2d0b0d434307b6f700975a9772c5a37b687004de1f8e",
+      "workingSha256": "e62a87e46ef904662c19028978a3ce24b10b76bb83f76fef1cb303ef9dcff5bb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--bridge-ready-window-check.txt",
+      "committedSha256": "4149612d2a800f344b326a822f1dfe58148d7006b2a08b8a396d0e008adb792d",
+      "workingSha256": "c241c172ffe117fcc9b419d1f1afc96041b4ae8591035cded31f732877ee219b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--home-campaign-lifecycle-check.txt",
+      "committedSha256": "3a2fe0e868940ed955b03c14855a5f91ac9c9b3f7f0608c40b7d48058b50c204",
+      "workingSha256": "41830198d03d66db53a417ef54436710fce9344f6b47033bfc6d35d8e732e704",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--map-auto-scan-campaign-check.txt",
+      "committedSha256": "1ba67ad28aab8729089f9464c1adc17b1e037f14adc1bcc13e85026f0b8be8d9",
+      "workingSha256": "e0425ed1960723da4907249b19bab90135cfd8334886fb034d5f23314de9d2a4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--map-campaign-canonical-check.txt",
+      "committedSha256": "6b1a6a8fc259411692d0c3aadc7ab5551f8c8ca7518da1f8e6ee48c22e86e662",
+      "workingSha256": "6fadf07705603a929f9d9c842758c79cbfb93c636de7c3192528aead511ea647",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--map317-native-boundary-check.txt",
+      "committedSha256": "f31f740fad4d6bc1d64645c3899e6b1debb03548be802d4aca90cef10d89f9a2",
+      "workingSha256": "a12fa684950d243126e5f17c8f1803d33dfe5442b41bf4f987855af287f1bbd7",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-bridge-lifecycle-launch-binding-check.txt",
+      "committedSha256": "95622f8f6c7ce6e0cf8323fc743c618a900dc99ca7a304a7334102cf895bba2f",
+      "workingSha256": "7035c7347adf817cc8e76f2e1cbfffdd2aa434cfe6640204edeef474d83f11d3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-bridge-normal-composition-check.txt",
+      "committedSha256": "43987627b55cdeea20e5d522eaae2c6d83ba749726d3fd1bba9a7a043c90c24f",
+      "workingSha256": "a35b14a6166505f62ae096b787823c1424e33d5b22ead302c87dcc16a26e3142",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-close-timing-check.txt",
+      "committedSha256": "4115123c2cf4a64cd105072e70c65a7d4e687f48306edc569ebe2187bf802798",
+      "workingSha256": "407f37ad4d90867ee7fdc3f40846493ad02936aa501d8ce2d19a0ccfed6e627b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-launch-spam-check.txt",
+      "committedSha256": "323dc4c721989f7319691bc36a1697f21f7a28e99662f9afd59fb505cfa20fc3",
+      "workingSha256": "0e2964ede21eaa030f45a76828b95196b5e0d8ac3127ef7f9de3dafd344efad2",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-official-settle-check.txt",
+      "committedSha256": "3a6c020d74d4cd8272821b4e6a9968ceadf6512f7b270109c5032d0f518a4a70",
+      "workingSha256": "85caa2c2624bf2d7bc13deb67346754e7e100224f01902472fddd1cd381f1cef",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-process-ownership-check.txt",
+      "committedSha256": "3605949c17a42605cb13443a8af43719021cec3045c719903937d93d32a141bd",
+      "workingSha256": "4f16deb574b915c57f1e6989caff97d098bc097011b615e143de06b11a4f56e6",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--overview-reconnect-policy-check.txt",
+      "committedSha256": "6c4dd95850aa9700a01897b73f5c9c98623d8e0c069da9373914cb7b7581a7b7",
+      "workingSha256": "a4426d728ecd2f4a629947cb103beaa15bf7f7f5f0f7529f740fb1903383ad31",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--owned-process-handle-binding-check.txt",
+      "committedSha256": "2779bfffa774d8af464b69a13b39ad9995d5f0084ed997594684ec2453062330",
+      "workingSha256": "a062088f35c5b301164a2e4040ec8de79e738c51065ef18dd08cb2bf993fcb29",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--production-root-isolation-check.txt",
+      "committedSha256": "7ab6005081613c7e46b6428792ca63af8ec3112a5f0736520af666253da455cb",
+      "workingSha256": "127a528c912b18e5e426154688acc55edee818f11a605026d7384d4155b8c899",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--profile-runtime-owner-check.txt",
+      "committedSha256": "6b9e4e9bad064c30c6ec656bd708ff0983e1209b2825ee1d300453ec8ab34e0b",
+      "workingSha256": "5896fef28861e25b1123015186ec9ad180b3ad6405470d25ba3299079d7d3a6b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--reconcile-admission-check.txt",
+      "committedSha256": "cb940248b7506d2bf06578e118b9b46ab3ddb02f99d517a29d5bf9694c550c99",
+      "workingSha256": "7659b921fde140a38a7de968a57ce7f74b9c6658c2216f0be974d3f40e3e8f40",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--recovery-async-ownership-check.txt",
+      "committedSha256": "dd5b1cf1e78733eff9a8a7e6b8274e7f700d92b1c655570de86d92f560ef3e57",
+      "workingSha256": "4829629e2ce3d6a2641d2adf1c6e36ea70e7f59fbf10acbe58d9ed57735ab025",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--recovery-boundary-check.txt",
+      "committedSha256": "22afbb93466c12ca5fc9dbc7c02481155f8bf305607a37b78b49c74e79d0bf95",
+      "workingSha256": "c20722f0487882c28587410855b7743d6e0f1a74c4a8926d32353a61511d3b92",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native--unmanaged-close-check.txt",
+      "committedSha256": "b379f1a7b019d23d96f7bde6878df2ecaf40a6c4a0f39bf82ad6a9a3feb768ca",
+      "workingSha256": "7c0b3d188490d1ba5a9e5af4035bfd86316566f330f51ea6944eaddb5c0ec94b",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-native-default-flow.txt",
+      "committedSha256": "5c34f45e4d746ed4f3516d75cd88b7a8261efa832498e45b4590c1b66667e9aa",
+      "workingSha256": "9c1fa53c59cb182a0d67d0aa4fe9ce6d42809be8b8f27f37436790380dc9cd11",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-close-comparator-21.txt",
+      "committedSha256": "c9df819e1886c5e2fdc46e2f3da7d748284b7c29ac3f465b9de0c976b4f50032",
+      "workingSha256": "b929149bb619e30e91d22ef67cd02f5a6a4325f9ec1d3629b4ad4eeafd3397f3",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-launch-contract-r2.txt",
+      "committedSha256": "777ae05f45135965346e263ff11dab49f21f504dc3d254be8e0bf776c3072c54",
+      "workingSha256": "d8fb1db1107e8d1648828b2a7a586980c6f9c3135fadcce233e2887752e174a0",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-launch-contract.txt",
+      "committedSha256": "49ca5ceb2beb66517d382fffc5fcb4d0d9ece46611dd143b3d1901f360d2a38d",
+      "workingSha256": "f07f13372fbb3d2fa52b131d36238a2f703dc53b1f1916a9fba33ae807540114",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-original-byte-contract.txt",
+      "committedSha256": "875aecda513b34b7c7a3008b90a443347aae682bd5a3ba138298d864c3cba9d0",
+      "workingSha256": "f1cd4cd3256232f97397bdd04d5e91aa1288298fb1f0d937e01f863573c41b06",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-overview-lifecycle.txt",
+      "committedSha256": "b3d03623744a7f4afc94749e5b0cc4dd7d496692bdff1b85e1833e1402451fca",
+      "workingSha256": "c97a0318e2621d5fc9769787dded70871eb942a032a5afc0be13463dcb4df4b8",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-profile-contract.txt",
+      "committedSha256": "4edaf519f44cf3fe7c78a183552ab513a24523a2d0f2f8dd76a4f19796a00c1b",
+      "workingSha256": "dcd3ff9d9917e89e113c5333216c7d483f3f6d221030040b38be24f34a9b4752",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-readiness-window-r2.txt",
+      "committedSha256": "a4ee2aa838607455d67a332c81838b6600d9eabfa32f00d5e72a3a4115cdc667",
+      "workingSha256": "615cab654fd020bc444d17cda35c7121869dbf3d2f51dbe03c2f6296b0f0b479",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-recovery-contract.txt",
+      "committedSha256": "b6f39852b2277d8786ad367b4c70f63693ed9949cc56ca3923dd2162864b405c",
+      "workingSha256": "959374f02ad5c86c75fc093e483e807d304c6794dc92dd5f01dae8e69881052e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-start-failure-matrix.txt",
+      "committedSha256": "280ab0be16533de392ff2f0a40e86e9ec904a8915ac7239cd681fa6ba4da706a",
+      "workingSha256": "166b4c711da7d636ef95290782aa13f9f596c7c9fa4f68d19fbcb01bda2bb513",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-py-stop-ownership-r1.txt",
+      "committedSha256": "1014c38cf094c4a9f0042d8d6c2b0acfc8e2221cf4b85bd0c082365232026af4",
+      "workingSha256": "0f87079c97d5961e7ed509ffe1bb21e6c4c0057e6e4fe23a7004ae227209fe7a",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-recovery-trace-actual.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-recovery-trace-compare-normalized.txt",
+      "committedSha256": "46e215b0052c858090868d732f3a5a11888c5e61f7752dc00a77136d1ad012c5",
+      "workingSha256": "08a5c5024dd5ccaf24ff2c8bd30290c278207603e50f4aca3fd2640e9f08863c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/log-release-publish-scratch.txt",
+      "committedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "workingSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/mounted-app-profiles.json",
+      "committedSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "workingSha256": "fe7b32684b6246f00ac9840433a47f0aedb9540e891e877aaee734ed70c519a4",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/production-trace.json",
+      "committedSha256": "77bfbd8f7b7ed108b7ed3a699b63e28f8c0e0770cca5218938a0f09036885c6f",
+      "workingSha256": "8f2fe6865e93cdb770eb512aca3a591fdd464d7756f39bcc0fb6356b789941cb",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/final/recovery-comparison.json",
+      "committedSha256": "1af914a04ce85797ffaa929f32baf791c8caeca41b3f45c4b6615f150c93dae2",
+      "workingSha256": "f576237bcd63874f6c05eeb0b29eb1d3b5d13d2cd2f1f36fbec4890cb02a80e4",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/launch-contract-r2-run.json",
+      "committedSha256": "777ae05f45135965346e263ff11dab49f21f504dc3d254be8e0bf776c3072c54",
+      "workingSha256": "d8fb1db1107e8d1648828b2a7a586980c6f9c3135fadcce233e2887752e174a0",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/launch-report-profile-recovery.md",
+      "committedSha256": "cd6586d7ab231b101ee4e89a58a98dcb86915931002413d94e4ade174bb60081",
+      "workingSha256": "79b87bdcd837418082f70dbc64c853e4fc9a319076034c6e98e9df4f54e91838",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/readiness-window-after.json",
+      "committedSha256": "99a15716167a66657e9a5bac1f16588e9013f0b5c944552d55c947c14f59b88a",
+      "workingSha256": "033744bf8a6cf9d715187ab4f4380756fae0c5a0530a1e9c905514b67560e0fe",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/reconcile-admission-check.json",
+      "committedSha256": "cb940248b7506d2bf06578e118b9b46ab3ddb02f99d517a29d5bf9694c550c99",
+      "workingSha256": "7659b921fde140a38a7de968a57ce7f74b9c6658c2216f0be974d3f40e3e8f40",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/semantic-obligations-r2.json",
+      "committedSha256": "22c8282b7e4decfc5ca1e6eade7c4ff4c02aac3654feeecbc21e05c931df7653",
+      "workingSha256": "22c8282b7e4decfc5ca1e6eade7c4ff4c02aac3654feeecbc21e05c931df7653",
+      "byteExact": true,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/start-failure-matrix-after.json",
+      "committedSha256": "280ab0be16533de392ff2f0a40e86e9ec904a8915ac7239cd681fa6ba4da706a",
+      "workingSha256": "166b4c711da7d636ef95290782aa13f9f596c7c9fa4f68d19fbcb01bda2bb513",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/r2/unmanaged-close-closed-owner-BEFORE-fix.txt",
+      "committedSha256": "691abf0ccf518b53969d1905740576fe1638c60007df0f1d9589d5d8134a53f2",
+      "workingSha256": "25565e0026e01fc8a86e5b2ac1dc10ca5a863f07707157228a8449736838423c",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/recovery-oracle-trace.json",
+      "committedSha256": "df7a5810b5d9ff6194974f6175c5be72d28746e1a619bb182d409807d90dcf0d",
+      "workingSha256": "ac021626559f47aad16a72da393e0d7d2a9a9bdbabcfc1cc020aa2a0bdf8f63e",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/recovery-scenarios.json",
+      "committedSha256": "96e18bab6d73519609380f5a84033d841c1d0e7b88b65bb1c6e66bbb1dee2ed5",
+      "workingSha256": "a04e5219fc06354f30e75c6bd25fcbcbeb0592b2693a6912d84abe08fab00dbe",
+      "byteExact": false,
+      "contentPreserved": true
+    },
+    {
+      "path": "evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-PARITY-CLOSEOUT-009/semantic-obligations.json",
+      "committedSha256": "c0499b48ade1484070c66b83f162a87d7682e8c6d96a8fb7fd66367f6e2e2163",
+      "workingSha256": "2f0da478dde45c1e8627e0cb2226a1078bbeae7c1181a4776929cb3f57126a9a",
+      "byteExact": false,
+      "contentPreserved": true
+    }
+  ],
+  "leadProductCodeChanges": 0,
+  "leadGameLaunches": 0,
+  "desktopCaptureOrInput": false,
+  "fullOriginalParity": "PARTIAL"
+}

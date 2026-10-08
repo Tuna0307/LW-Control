@@ -1,0 +1,25 @@
+PASS [oracle] process exit: two observations then launch next run tick
+PASS [oracle] disconnect: 60 s + 60 s before terminate, relaunch next tick
+PASS [oracle] login unavailable: 180 s + 180 s, maintenance first retry 120 s
+PASS [oracle] unhealthy after event-origin disconnect escalates to terminate+maintenance
+PASS [oracle] hang: 30 s then terminate
+PASS [oracle] normal retry table 15 s/30 s/60 s
+PASS [oracle] auto reconnect disabled finishes idle
+PASS [oracle] event-unconfirmed-ignored starts nothing
+PASS [oracle] event-ambiguous-ignored starts nothing
+PASS [oracle] event-unsupported-reason-ignored starts nothing
+PASS [oracle] event-while-reconnect-disabled starts nothing
+PASS [oracle] healthy idle emits no effects
+PASS [production] process exit: two observations then launch next run tick
+PASS [production] disconnect: 60 s + 60 s before terminate, relaunch next tick
+PASS [production] login unavailable: 180 s + 180 s, maintenance first retry 120 s
+PASS [production] unhealthy after event-origin disconnect escalates to terminate+maintenance
+PASS [production] hang: 30 s then terminate
+PASS [production] normal retry table 15 s/30 s/60 s
+PASS [production] auto reconnect disabled finishes idle
+PASS [production] event-unconfirmed-ignored starts nothing
+PASS [production] event-ambiguous-ignored starts nothing
+PASS [production] event-unsupported-reason-ignored starts nothing
+PASS [production] event-while-reconnect-disabled starts nothing
+PASS [production] healthy idle emits no effects
+0 failed
