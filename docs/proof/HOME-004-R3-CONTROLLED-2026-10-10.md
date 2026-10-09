@@ -91,6 +91,22 @@ identity was authorized for perturbation. No external process was
 stopped, suspended, adopted or taken over. The pre-existing
 `r3-live` evidence remains untouched.
 
+**Later passive safety snapshot, 2026-10-10 01:05:30 +08:00:**
+the competing `r2-final-rc/publish/LWBridge.Desktop.exe` host
+**PID 55796** (created 00:55:48 local) remained active and had
+`LastWar.exe` **PID 47684** (created 00:58:35 local). Read-only
+script hash comparison at approximately the same time found
+`LWScripts.data` and `LWScripts.txt` different from their
+original preflight hashes; `version.txt` still matched.
+Thus **global game-process exit and installed-script restoration are
+not verified**. This worker neither created nor owns that game
+session and did not interrupt it, delete another session's journal,
+or restore another owner's active patched scripts. The process and
+script state is a dated observation, not an outcome or failure
+attributed to a task-owned R3 solo run. Exclusive ownership and
+verified restoration are outstanding before any further live R3
+attempt or lead acceptance.
+
 This is an **isolation/ownership preflight denial**. It does not prove
 any live 30/60-second detector, OFF suppression, ON authenticated
 successor, 15-second native stable interval, pending-recovery Stop, or
