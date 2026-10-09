@@ -57,11 +57,13 @@ verification did not repeat that live launch.
    Adverse launcher/Lua errors and cancellation need matching proof.
 3. R1 **packaged live** manual Launch/Connected/Close, automatic startup and
    same-build host close/reopen adoption with Automatic Reconnection both OFF
-   and ON are now witnessed with exact real game PID/session and full script
-   restoration. Still NOT witnessed: real unhealthy-state monitor recovery
-   effects ON versus OFF, forced host crash, broken-journal repair, adverse
-   launcher timeout/cancellation and actual outdated-build relaunch.
-   Controlled native seams do not substitute for these.
+   and ON were witnessed with exact real game PID/session and full script
+   restoration. At R1, unhealthy-state recovery was NOT witnessed; the R2
+   continuation below now supersedes that one proof gap specifically for an
+   externally induced unexpected owned-game exit. Forced host crash,
+   broken-journal repair, adverse launcher timeout/cancellation and outdated-
+   build relaunch remain separate. Controlled native seams do not substitute
+   for those genuine game cases.
 4. H-38 independent simultaneous per-profile owner sessions and protected
    admission/capacity remain unavailable; ordered registry reconciliation
    alone is insufficient.
@@ -99,3 +101,54 @@ H-13, current typed launcher event H-08, forwarded automation H-33,
 independent multi-owner H-38, active-profile selection H-39, running-root
 monitor difference H-41 and unexecuted actual native adverse recovery,
 repair, expiry, cancellation and teardown per R1 matrix remain open.
+
+## R2 continuation — genuine automatic recovery after unexpected owned-game exit
+
+**Scoped disposition: READY_FOR_LEAD_REVIEW for R2 checkpoints A–C once final
+release-candidate and remote checks are recorded; whole Home still PARTIAL.**
+The [R2 native proof](proof/HOME-004-R2-NATIVE-2026-10-09.md) distinguishes
+the original recovered 0.3.17 recovery monitor thresholds, actual controlled
+production boundaries, the first *failed* real native campaign and the
+corrected second campaign. The [current 47-row audit](HOME_004_R1_CURRENT_MATRIX.md)
+updates H-26, H-32–37, H-40, H-42–43, H-45 and H-47 without changing the
+other incomplete Home classifications.
+
+The first task-specific Release game witness found a genuine gap: after an
+exact Win32-handle-verified unexpected owned LastWar exit, turning Automatic
+Reconnection ON reached a replacement game that was immediately rolled back.
+Its original protected adoption record survived helper restoration and
+rejected the replacement session. This attempt and all per-session receipts
+remain in the original ignored `artifacts/home-004/r2-live` task root.
+Production `CleanupExitedOwnedSessionAsync` now retires only that old restored
+session's control-pipe registration and protected adoption record before a
+successor can be adopted; an actual protected-record regression failed before
+the correction and passed afterwards.
+
+With a **fresh task root, compatibility preflight and original-script backup**,
+the corrected genuine packaged Home connected to owned PID 65980. A guarded
+external exit while reconnection was **OFF** yielded **no relaunch**, with
+desired-running still true. Enabling reconnection **ON via the real Home**
+automatically restored the old session, started the official launcher and
+regained authenticated Connected at PID 15072 without manual Launch. A second
+identity-verified unexpected exit of PID 15072 while ON automatically regained
+authenticated Connected with PID 40540. In both recovery cycles the current
+adoption, journal, live heartbeat and 15-second healthy verification matched.
+Real Home user Stop while ON exited PID 40540, cleared desired-running and
+prevented any late relaunch. The final task gate confirmed no game, launcher
+or host process, no recovery journal and all three original script hashes
+exactly restored. The first failure and the corrected witness remain separate
+ignored evidence, without private tokens or installed game content in Git.
+
+The actual `OverviewLifecycleService` checks cover two consecutive 2-second
+missing-process observations, hang+offline at 30 s, offline at 60 s, online
+unhealthy at 180 s, 15 s initial failed-launch retry, retry-policy arrays,
+15 s stable verification, original end-of-iteration disable behavior, Stop
+and a held obsolete termination completing after successor Start. These are
+controlled native production-boundary results, **not** claims of live
+30/60/180-second still-running illness, a genuine failed-launch retry ladder,
+maintenance/updater events or live simultaneous successor race. The recovered
+original encrypted game-side Lua, protected H-05/H-13 responses, forwarded
+automation, full per-profile ownership and outstanding Home UI/error/status
+paths remain unverified or different. The assigned exit-recovery slice is
+ready for independent lead review; **do not merge or publish PR #6 or claim
+the entire Home tab DONE**.

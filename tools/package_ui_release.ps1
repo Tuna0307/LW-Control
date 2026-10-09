@@ -66,13 +66,17 @@ is NOT claimed. See docs/FEATURE_STATUS.md and task review in source Git checkou
 
 KNOWN LIMITATIONS
 This is a usable UI baseline, NOT a fully recovered native product.
-One bounded Home Launch -> authenticated current-client Connected -> Close
-has been demonstrated through real packaged native controls, with exact PID
-exit and verified script restoration on a single isolated profile.
-Full original 0.3.17 licensed-runtime equivalence, adverse recovery/retry,
-multi-owner entitlements, Map scanners, mini-game execution, updater,
-protected original service and full original runtime pixel parity are NOT
-certified. Some actions require later native work.
+Packaged Home Launch -> authenticated current-client Connected -> Close,
+automatic startup and exact same-build host adoption have been demonstrated.
+HOME-004 R2 separately verified an unexpected exact owned-game process exit:
+Automatic Reconnection OFF did not relaunch, while ON automatically restored
+authenticated Connected twice with fresh game PIDs. Real Home Stop while ON
+prevented a further relaunch, with exact installed-script restoration.
+Full original 0.3.17 licensed-runtime equivalence, live hung/network-only
+disconnect and long retry/maintenance/updater behavior, multi-owner
+entitlements, Map scanners, mini-game execution, protected original service
+and full runtime pixel parity are NOT certified. Some actions require later
+native work; see HOME-004 R2 proof and current 47-row Home matrix in source.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):
