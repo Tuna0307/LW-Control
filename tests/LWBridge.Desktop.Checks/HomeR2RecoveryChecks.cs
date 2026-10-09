@@ -26,6 +26,7 @@ internal static class HomeR2RecoveryChecks
         internal readonly string Profile;
         internal readonly LocalConfigStore Config;
         internal readonly OverviewLifecycleService Service;
+        internal readonly LWBridgeControlPipeHostState? Host;
         internal long Now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         internal int StartCalls, StopCalls, TerminateCalls, Pid = 31000;
         internal bool Alive;
@@ -36,8 +37,9 @@ internal static class HomeR2RecoveryChecks
         internal readonly string Created;
         internal TaskCompletionSource? HeldTerminate = null;
         internal TaskCompletionSource? TerminationReached = null;
+        internal byte[]? GameReport;
 
-        internal Case(string name, bool enabled)
+        internal Case(string name, bool enabled, bool withActualAdoptionRecord = false)
         {
             Root = Path.Combine(Path.GetTempPath(), "home004-r2-" + name + "-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(Path.Combine(Root, "Game"));
@@ -58,11 +60,13 @@ internal static class HomeR2RecoveryChecks
                     string.Equals(path, Exe, StringComparison.OrdinalIgnoreCase) &&
                     creation == Created,
                 ReadAllBytes = path => BridgeOnline && path.EndsWith("heartbeat.json", StringComparison.OrdinalIgnoreCase)
-                    ? MakeHeartbeat() : throw new FileNotFoundException(path),
+                    ? MakeHeartbeat() : path.EndsWith("game-reported.txt", StringComparison.OrdinalIgnoreCase)
+                    && GameReport is not null ? GameReport
+                    : File.ReadAllBytes(path),
                 RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
                 WriteLease = (_, _, _) => { },
                 DeleteFile = _ => { },
-                DelayAsync = (_, token) => { token.ThrowIfCancellationRequested(); return Task.CompletedTask; },
+                DelayAsync = (_, token) => Task.Delay(1, token),
                 CreateRecoveryLogReader = _ => new EmptyLog(),
                 UpdateProcessRunning = () => Updating,
                 UpdateActivityFingerprint = () => "constant",
@@ -105,6 +109,10 @@ internal static class HomeR2RecoveryChecks
                     Session = inv.SessionId!;
                     Challenge = inv.Challenge!;
                     Alive = true;
+                    GameReport = Encoding.UTF8.GetBytes(
+                        "schema=1\nsessionId=" + Session + "\nchallenge=" + Challenge +
+                        "\ndeadlineMilliseconds=" + (Now + 90000) +
+                        "\ngamePid=" + Pid + "\n");
                     long unix = Now / 1000;
                     return Task.FromResult(JsonSerializer.SerializeToElement(new
                     {
@@ -126,10 +134,14 @@ internal static class HomeR2RecoveryChecks
                     }));
                 }
             };
+            if (withActualAdoptionRecord)
+                Host = new LWBridgeControlPipeHostState(
+                    pipePath: @"\\.\pipe\home-r2-adoption-" + Guid.NewGuid().ToString("N"));
             Service = new OverviewLifecycleService(Profile, Root, config: Config, testHooks: hooks,
                 startRecoveryMonitor: false, requireCurrentClientEvidence: false,
                 runtimeRoot: Path.Combine(Root, "runtime"),
-                applicationDataRoot: Root, backupRoot: Path.Combine(Root, "backup"));
+                applicationDataRoot: Root, backupRoot: Path.Combine(Root, "backup"),
+                bridgeHostState: Host, enableBridgeControlPipeLaunchBinding: withActualAdoptionRecord);
         }
 
         private byte[] MakeHeartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
@@ -165,6 +177,7 @@ internal static class HomeR2RecoveryChecks
         {
             HeldTerminate?.TrySetResult();
             Service.Dispose();
+            Host?.Dispose();
             if (Directory.Exists(Root)) Directory.Delete(Root, true);
         }
     }
@@ -172,6 +185,7 @@ internal static class HomeR2RecoveryChecks
     internal static async Task RunAsync()
     {
         await ProcessExitOffAndOn();
+        await RealAdoptionRecordRecovery();
         await FailedLaunchAndRetry();
         await DisableAndStop();
         await HungAndDisconnectedEdges();
@@ -227,6 +241,32 @@ internal static class HomeR2RecoveryChecks
         Require(enabled.Service.CurrentRecoveryStatus.State == "succeeded", "stable >=15 sec succeeds");
         await enabled.Stop();
         Require(!enabled.Config.Snapshot.GameDesiredRunning, "user Stop clears desire");
+    }
+
+    private static async Task RealAdoptionRecordRecovery()
+    {
+        using var c = new Case("protected-adoption-commit", true, withActualAdoptionRecord: true);
+        await c.Start();
+        string originalSession = c.Session;
+        string path = Path.Combine(c.Root, "runtime", "adoption.json");
+        Require(File.Exists(path), "first start committed an actual protected adoption record");
+        c.Alive = false;
+        await c.Observe();
+        c.Advance(2000);
+        await c.Observe();
+        Require(c.Service.CurrentRecoveryStatus.Reason == "processExit", "actual protected owner triggers recovery");
+        await c.Tick();
+        Require(c.Alive && c.StartCalls == 2 && c.StopCalls == 1 &&
+                c.Service.CurrentRecoveryStatus.Restarted && File.Exists(path),
+            "native successor must launch, old session must restore exactly once and persist replacement record: " +
+            "starts=" + c.StartCalls + " stops=" + c.StopCalls +
+            " recovery=" + c.Service.CurrentRecoveryStatus);
+        Require(OverviewAdoptionRecord.TryDeserialize(File.ReadAllBytes(path), out var stored) &&
+                stored is not null && stored.InstanceId == c.Session &&
+                stored.InstanceId != originalSession,
+            "protected adoption file belongs solely to replacement session");
+        await c.Stop();
+        Require(!File.Exists(path), "native user Stop removes exact successor adoption record");
     }
 
     private static async Task FailedLaunchAndRetry()

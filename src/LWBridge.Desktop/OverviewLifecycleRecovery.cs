@@ -892,6 +892,17 @@ internal sealed partial class OverviewLifecycleService
         ValidateStopResult(result, profileId, snapshot.InstanceId,
             snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
         if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
+        // R2 native inverse: after a real unexpected exit the old DPAPI
+        // adoption.json remained even though exact-session Stop restored the
+        // journal. A recovered launch then passed game-ready, but committing
+        // its new adoption record failed the protected ownership fence and
+        // rolled back that otherwise healthy successor. Retire ONLY this
+        // confirmed-restored session's registration and adoption record;
+        // the exact-session checks in both operations protect a successor
+        // when an old helper completion arrives late.
+        if (bridgeControlPipeLaunchBindingEnabled)
+            bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);
+        RemoveAdoptionRecord(snapshot.InstanceId, snapshot.Challenge);
         StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
         ClearRuntimeSessionFiles(snapshot.InstanceId, snapshot.Challenge);
         lock (stateGate)

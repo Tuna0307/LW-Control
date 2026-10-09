@@ -17,9 +17,11 @@ import sys
 import time
 import home_launch_002_gate as gate
 
-TASK = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "r2-live"
+CORRECTED = "--corrected" in sys.argv[1:]
+TASK = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / (
+    "r2-live-corrected" if CORRECTED else "r2-live")
 RUNTIME = TASK / "isolated" / "overview-bridge"
-PROFILE = "home-004-r2-live"
+PROFILE = "home-004-r2-corrected" if CORRECTED else "home-004-r2-live"
 QUERY_LIMITED = 0x1000
 PROCESS_TERMINATE = 0x0001
 SYNCHRONIZE = 0x00100000
@@ -49,7 +51,7 @@ def read_owned():
     apid = adoption.get("pid") or adoption.get("gamePid")
     if type(apid) is not int or apid <= 0 or journal.get("gamePid") != apid:
         raise RuntimeError("Adoption and journal game PID disagree")
-    start = adoption.get("gameStartedAtUtc")
+    start = adoption.get("processCreatedAt")
     if not start or journal.get("gameStartedAtUtc") != start:
         raise RuntimeError("Exact session process creation identity disagrees")
     session = adoption.get("instanceId") or adoption.get("sessionId")
@@ -57,7 +59,7 @@ def read_owned():
         raise RuntimeError("Adoption/journal session mismatch")
     game_root = json.loads((TASK / "preflight.json").read_text())["gameRoot"]
     expected_path = os.path.normcase(os.path.abspath(os.path.join(game_root, "Game", "LastWar.exe")))
-    apath = adoption.get("gamePath")
+    apath = adoption.get("gameExecutable")
     if not apath or os.path.normcase(os.path.abspath(apath)) != expected_path or \
        os.path.normcase(os.path.abspath(journal.get("gamePath", ""))) != expected_path:
         raise RuntimeError("Recorded owned game executable path differs")
@@ -74,7 +76,7 @@ def read_owned():
         raise RuntimeError("Exactly one authorized task host must own the game")
     return apid, expected_path, start, session
 
-def trigger():
+def trigger(check_only: bool):
     if os.name != "nt":
         raise RuntimeError("This handle-bound action is Windows-only")
     pid, expected_path, start, session = read_owned()
@@ -107,10 +109,13 @@ def trigger():
         expected_ticks = creation_ticks(start)
         if actual_ticks != expected_ticks:
             raise RuntimeError(f"Handle creation mismatch (no action): delta100ns={actual_ticks-expected_ticks}")
-        print(json.dumps({"phase": "exact-owned-process-exit", "identityValidated": True,
+        print(json.dumps({"phase": "exact-owned-process-handle-verified", "identityValidated": True,
                           "pid": pid, "sessionDigest": hashlib.sha256(session.encode()).hexdigest()[:20],
                           "pathMatched": True, "creationMatched100ns": True,
-                          "noHomeStop": True, "hostRetained": True}), flush=True)
+                          "noHomeStop": True, "hostRetained": True,
+                          "checkOnly": check_only}), flush=True)
+        if check_only:
+            return
         if not kernel.TerminateProcess(handle, 0):
             raise RuntimeError("Handle-verified terminate failed; preserve installation/ownership")
         wait_result = kernel.WaitForSingleObject(handle, 10_000)
@@ -125,6 +130,7 @@ def trigger():
     finally:
         kernel.CloseHandle(handle)
 if __name__ == "__main__":
-    if sys.argv[1:] != ["one-shot"]:
-        raise SystemExit("Use one-shot after verifying task-owned live ready session")
-    trigger()
+    action = [a for a in sys.argv[1:] if a != "--corrected"]
+    if action not in (["one-shot"], ["check-only"]) or sys.argv[1:].count("--corrected") > 1:
+        raise SystemExit("Use check-only / one-shot [--corrected] after exact task-owned ready session")
+    trigger(check_only=action == ["check-only"])
