@@ -2,6 +2,14 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest lead review, 2026-10-10: worker 48fe84354b47733fca48d9a15e9d9cdc3f997b5e
+receives bounded acceptance for the corrected shared listener and inspected native
+hang-recovery witness. Independent actual-pipe and Desktop checks pass. Whole Home
+remains PARTIAL and PR #6 remains draft; no main merge/publication is approved.
+Next only on owner relay: HOME_004_R4_RUNNING_ROOT_CONTINUATION.md, one medium
+H-41 active-root contract task on this same branch/checkout. Read
+HOME_004_R3_R1_LEAD_REVIEW.md. Preserve historical failed R3 records and all fixes.
+
 Latest lead review, 2026-10-10: R3 checkpoint 7b36bfdd8de04a2193a32f49eb8465c64dcfd659
 remains PARTIAL / CHANGES_REQUIRED. Controlled delayed-cleanup checks and retained
 EN/light, JA/dark relaunch images receive bounded credit, not successful recovery.
