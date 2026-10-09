@@ -1,3 +1,7 @@
+# Lead closeout — ACCEPTED / MERGED / PUBLISHED
+
+PR #5 merged into main 62d2bfd3fde3027e3d500d759244f2c558d1f06d; release map-data-v0.3.0. See dated 003-LEAD review. Worker scope stops. Stored-data acceptance does not close scanner parity.
+
 # LWB317-MAP-DATA-DELIVERY-003
 
 Begin only when the owner forwards this assignment. Work solo. Complete A–C sequentially, commit durable checkpoints, then return once for lead review. No subagents, other AI chats, GPT Work or Codex delegation.

@@ -1,5 +1,8 @@
 # Mandatory rules for every AI and contributor
 
+Latest lead delivery, 2026-10-09: MAP-DATA-DELIVERY-003 is accepted for stored City/Resource search/filter/sort/page/tab retention/reopen and City export. Lead corrected original wrapped OFFSET; PR #5 merged into main 62d2bfd3fde3027e3d500d759244f2c558d1f06d and published as map-data-v0.3.0. No scanner parity is promoted. Next only on owner relay: docs/work-items/LWB317-MAP-CITY-MARK-DELIVERY-004.md, a solo local-data marking slice. Preserve published Home/UI, identity/restoration/access and earlier evidence. Earlier dispatch paragraphs are history where inconsistent.
+
+
 Latest lead delivery, 2026-10-09: HOME-LAUNCH-DELIVERY-002 is accepted for the supported single-profile Launch -> authenticated Connected -> Close feature, merged via PR #4 into main a8b485aa7544ee912b49de44005941818519848e and published as home-launch-v0.2.0. The lead corrected original optional Close identity and independently repeated native Launch/Close/restoration. Full Home/Map parity remains PARTIAL. Worker stops until owner relay; next scoped candidate is docs/work-items/LWB317-MAP-DATA-DELIVERY-003.md (stored City/Resource browsing and City export, not scan parity). Lead alone merges/publishes. Earlier continuation text is historical where inconsistent.
 
 

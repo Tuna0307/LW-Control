@@ -1,3 +1,13 @@
+# Published stored Map feature — 2026-10-09
+
+MAP-DATA-DELIVERY-003 is independently accepted and published through PR #5. Main/tag map-data-v0.3.0: 62d2bfd3fde3027e3d500d759244f2c558d1f06d.
+Download: https://github.com/Tuna0307/LW-Control/releases/tag/map-data-v0.3.0
+ZIP: LW-Control-v0.3.0-win-x64.zip; 26,123,852 bytes; 103 runtime files.
+SHA-256: EB3B1D62688296022CD5FC6DCE52B6CE7FDA80815ADFB10E4FC1D3C04B8DABCD.
+Original level/page fixes plus lead unchecked-offset correction pass; genuine City/Resource native queries and both 7,000-row localized workbooks independently revalidated. Main package rebuilt/extracted/smoke and uploaded digest pass. See dated MAP-DATA-DELIVERY-003-LEAD review. Production changes are not a research-source backport.
+
+Delivered: reviewed source/local UI baseline, bounded real Home Launch/Connected/Close, stored City/Resource browsing/persistence and City export. Scanner traversal/retry and other Home/Map gaps remain PARTIAL. Next only after owner relay: MAP-CITY-MARK-DELIVERY-004. Preserve archived evidence and prior cleanup denials; no broad campaign automatically resumes.
+
 # Published Home feature — 2026-10-09
 
 HOME-LAUNCH-DELIVERY-002 is lead-accepted for supported single-profile Home Launch -> genuine Connected -> Close, merged through PR #4. Main and home-launch-v0.2.0 tag: a8b485aa7544ee912b49de44005941818519848e.
