@@ -68,3 +68,27 @@ No whole-Home DONE assertion follows from this matrix.
 Affected rows above supersede their R1 proof classifications. Original locators, paths and all 47 IDs remain. Proof: [R2 native witness](proof/HOME-004-R2-NATIVE-2026-10-09.md) and HomeR2RecoveryChecks.cs. The first failed package and corrected live witness have separate ignored task roots; no failed evidence was overwritten.
 
 This R2 unit proves OFF no relaunch after exact unexpected owned-process exit, ON native automatic recovery, two successful repeat ON relaunches to distinct authenticated Connected processes, stable 15-second confirmation, user Stop/no relaunch, restoration and cleanup. It does not certify all original licensed runtime, multi-profile, encrypted game-side Lua, maintenance, timed live network/hang or updater paths. Whole Home PARTIAL.
+
+## R3 still-running continuation (2026-10-10; PARTIAL)
+
+The rows above retain their original locators and their **R2 live scope**.
+[R3 controlled and preflight-denial proof](proof/HOME-004-R3-CONTROLLED-2026-10-10.md)
+adds the following current evidence without upgrading a controlled
+observation into a packaged real-game witness:
+
+| Affected row | Additional R3 current evidence | Outstanding R3 gate |
+| --- | --- | --- |
+| H-34 | CONTROLLED_R3: real production monitor uses alive process + offline/hung 29,999/30,000 ms and offline-only 59,999/60,000 ms exact thresholds, with original hang priority; online invalid state 179,999/180,000 ms | No independent live hung/offline PID + actual detector/state timeline |
+| H-35 | CONTROLLED_R3: unchanged retry/stable/cancellation producers pass the native suite with held async acknowledgements | Actual long retry/maintenance and live verification intervals for R3 path |
+| H-36 | CONTROLLED_R3: old Stop-helper acknowledgement held after actual production hang init; late completion leaves successor adoption, pipe registration and lease protected | Real game helper stop/restore after a still-alive unhealthy process |
+| H-40 | CONTROLLED_R3: user Stop retires pending old run, new Start creates real test protected record/registration/timer lease; obsolete cleanup cannot remove them | Live Stop while relaunching and independent multi-owner |
+| H-43 | R2 packaged evidence unchanged; CONTROLLED_R3 hang waiting/cleanup and subsequent idle | Actual packaged R3 state/event timeline |
+| H-45 | LEADHOME004R2-01 **OPEN**: EN/light native recovery image missing; R2 Chinese/light + JA/dark retained | Actual settled EN/light and JA/dark native recovery captures |
+| H-47 | CONTROLLED_R3 user Stop + successor/released old acknowledgement protects new owner and desired intent | Real overlapping native user Stop and launch |
+
+R3's fresh compatibility/script hashes passed, but separate
+pre-existing R3 setup artifacts and then active unowned packaged
+hosts (PIDs 10036 and 55796) blocked independent isolated admission.
+No independent R3 game attempt was started or finished, and no
+global process-exit/restoration result is claimed for those other
+hosts. Whole Home remains **PARTIAL**.
