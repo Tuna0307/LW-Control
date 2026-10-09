@@ -1,5 +1,25 @@
 # LW-Control current checkpoint — 2026-10-09
 
+## Delivered on main
+
+UI baseline v0.1.0 is accepted for recovered-source/local UI scope and published:
+https://github.com/Tuna0307/LW-Control/releases/tag/ui-baseline-v0.1.0
+PR #3 is merged. Main source: f0cc0a656cafd777de151988a8e8b44d6a199bd8.
+ZIP SHA-256: 7147D24BB8CDCF45C1B7135364ED00C3EC4E2BA356E5B6E01006CC3BBB8A22BD.
+The independently built/extracted main package identifies that commit and passes
+inert native boot/render/cleanup. The strengthened UI replay passes 24 route/
+viewport combinations, ten conditional states and 34 full-page captures with no
+page/console/request errors or document overflow. Backend root/ordered-registry
+checks and fresh Release builds pass. No game launch was performed for this review.
+Lead acceptance is in main docs/UI_MAIN_LEAD_ACCEPTANCE.md. Research archival
+payload was not merged into main. Full native Home/Map and protected-runtime
+visual parity remain PARTIAL; this is a UI-first delivery, not a complete clone.
+
+The UI worker has finished. Next dispatch, only after owner relay, is the bounded
+HOME-LAUNCH-DELIVERY-002 feature on a fresh branch from main. It targets actual
+canonical Launch -> Connected -> Close rather than another all-project campaign.
+The status paragraphs below describe historical checkpoints, not new dispatches.
+
 **Owner requested worker resumption for UI-MAIN-DELIVERY-001 through manual relay.
 Home/Map functionality: PARTIAL / CHANGES_REQUIRED.**
 

@@ -1,4 +1,25 @@
-# Latest feature delivery — 2026-10-09
+# Published UI baseline — 2026-10-09
+
+PR #3 is merged into main f0cc0a656cafd777de151988a8e8b44d6a199bd8.
+Download: https://github.com/Tuna0307/LW-Control/releases/tag/ui-baseline-v0.1.0
+Windows ZIP: LW-Control-UI-v0.1.0-win-x64.zip (26,123,311 bytes, 103 files).
+SHA-256: 7147D24BB8CDCF45C1B7135364ED00C3EC4E2BA356E5B6E01006CC3BBB8A22BD.
+GitHub's uploaded digest matches; local Downloads copy matches. Main and release
+tag point to the same verified commit. Extracted executable identifies main and
+passes packaged inert boot/render/disposal with zero residual capture roots.
+Lead strengthened and passed the UI replay: 24 route/variant combinations,
+ten conditional states, 34 full-page screenshots, no page/console/request errors
+or document overflow, including 375px JA/dark. Earlier failed assertion/history
+remains preserved; no product UI/native behavior changed in this review.
+
+Accepted scope is recovered-source/local UI baseline, not complete original
+native/Home/Map/runtime-pixel parity. Research archive remains separate.
+Production worktree now checks out main. Other worker has completed its UI task;
+next owner-relayed assignment is the new HOME-LAUNCH-DELIVERY-002.md, creating a
+fresh feature branch from main. Lead reviews, merges and publishes each accepted
+feature. Old draft-candidate and research-only dispatch paragraphs below are history.
+
+# Earlier feature candidate — 2026-10-09
 
 Owner requested feature-by-feature main delivery. Draft PR #3:
 https://github.com/Tuna0307/LW-Control/pull/3

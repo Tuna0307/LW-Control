@@ -1,5 +1,10 @@
 Future owner-relayed assignment: LWB317-HOME-LAUNCH-DELIVERY-002
 
+SUPERSEDED DELIVERY PLAN: read the sibling LWB317-HOME-LAUNCH-DELIVERY-002.md.
+UI baseline is now merged and published. New product work uses a fresh
+codex/home-launch-delivery-002 branch from main in the production worktree.
+The old research-branch/PR #3 continuation below is historical, not current.
+
 This prompt does not automatically resume the stopped worker. Begin only when the owner forwards it as a new assignment.
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control

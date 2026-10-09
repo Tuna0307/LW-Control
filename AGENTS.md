@@ -1,5 +1,16 @@
 # Mandatory rules for every AI and contributor
 
+Latest lead delivery, 2026-10-09: UI-MAIN-DELIVERY-001 is accepted for recovered-
+source/local UI scope, merged via PR #3 into main f0cc0a656cafd777de151988a8e8b44d6a199bd8,
+and published as ui-baseline-v0.1.0. The UI worker stops. Next owner-relayed task
+is HOME-LAUNCH-DELIVERY-002, a single Home Launch -> Connected -> Close feature
+on a fresh codex/home-launch-delivery-002 branch based on main in the existing
+production worktree. Read its new .md work item. Existing bounded Home pilot
+permission applies only to that assigned verification with identity/isolation/
+backup/restoration gates; no Map/gameplay/updater/protected-service scope is added.
+The lead alone accepts, merges and publishes. Research remains the evidence
+archive; the other worker stays solo and resumes only upon owner relay.
+
 Latest owner-relayed assignment, 2026-10-09: worker resumption is authorized only
 for LWB317-UI-MAIN-DELIVERY-001. Deliver the reviewed UI baseline in the existing
 main candidate worktree/branch, through three sequential checkpoints. Preserve

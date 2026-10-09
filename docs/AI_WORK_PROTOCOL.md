@@ -1,5 +1,12 @@
 # AI work protocol
 
+Latest delivery, 2026-10-09: UI-MAIN-DELIVERY-001 has been lead-accepted, merged
+and published on main as ui-baseline-v0.1.0. Stop its worker scope. Next manual-
+relay assignment is HOME-LAUNCH-DELIVERY-002 on codex/home-launch-delivery-002
+from main in the production worktree. Use the new .md work item. No automatic
+resumption of old Home/Map campaigns. Solo worker, bounded original-contract
+and canonical Home verification, compact proof, lead merge/publication remain.
+
 Latest dispatch, 2026-10-09: upon owner relay, UI-MAIN-DELIVERY-001 resumes the
 solo worker on codex/home-feature-release-001 in the existing managed worktree.
 Deliver the accepted UI baseline, audit changes since UI acceptance, and return
