@@ -80,6 +80,30 @@ function deliver(fixture, message) {
 }
 
 {
+  // The original Home start/reconcile/repair caller does not cancel a live
+  // lifecycle request after a fixed frontend timeout. The native command
+  // retains its own deadlines and the bridge still retires it on teardown.
+  const fixture = nativeHost("profile-home");
+  let scheduled = 0;
+  fixture.host.setTimeout = () => { scheduled += 1; return scheduled; };
+  const bridge = createBackendBridge(fixture.host);
+  const longStart = bridge.invokeProfileScoped("profile_instance_start", { closeUnmanaged: true }, null);
+  assert.equal(scheduled, 0, "original Home start must not install a frontend timeout");
+  const request = fixture.posted.at(-1);
+  deliver(fixture, { kind: "response", id: request.id, ok: true, result: { phase: "running" } });
+  assert.equal((await longStart).phase, "running", "late native Home completion should still be accepted");
+  const shortStatus = bridge.invokeProfileScoped("profile_instance_status", {});
+  assert.equal(scheduled, 1, "short native status requests retain a finite deadline");
+  const statusRequest = fixture.posted.at(-1);
+  deliver(fixture, { kind: "response", id: statusRequest.id, ok: true, result: { phase: "stopped" } });
+  await shortStatus;
+  const retiringStart = bridge.invokeProfileScoped("profile_instance_start", { closeUnmanaged: true }, null);
+  bridge.dispose();
+  await assert.rejects(() => retiringStart, (error) => error.code === "NATIVE_BRIDGE_CLOSED",
+    "teardown must retire unbounded native requests");
+}
+
+{
   const fixture = nativeHost("profile-a");
   const bridge = createBackendBridge(fixture.host);
   const mapApi = createMapApi(bridge);
@@ -258,7 +282,7 @@ const startupReconcileEffectEnd = appSource.indexOf("useEffect(() => {", startup
 const startupReconcileEffect = appSource.slice(startupReconcileEffectStart, startupReconcileEffectEnd);
 assert.match(startupReconcileEffect, /autoLaunchAll: startupAutoLaunchGameRef\.current/, "startup reconcile must use the immutable startup Auto Launch snapshot");
 assert.doesNotMatch(startupReconcileEffect, /\[autoLaunchGame,/, "changing Auto Launch while startup reconcile is pending must not dispose the one-shot reconcile owner");
-assert.match(appSource, /backendBridge\.invoke\("local_game_launch_status", \{\}\)/, "Home must query clone-internal strict launch admission separately from recovered game_root_status");
+assert.match(appSource, /backendBridge\.invoke\("game_root_status", \{\}\)/, "Home must use the recovered root-status command");
 const refreshBody = appSource.slice(appSource.indexOf("const refreshStatus"), appSource.indexOf("const selectRoute"));
 assert.doesNotMatch(refreshBody, /game_recovery_status/, "recurring status refresh must not overwrite recovery ownership");
 assert.match(appSource, /backendBridge\.invokeProfileScoped\("game_recovery_status", \{\}\)/, "recovery status must use the current profile generation");
@@ -369,8 +393,10 @@ assert.match(appSource, /profileDraftGeneration = backendBridge\.mode === "nativ
 assert.match(appSource, /<Activity key=\{route\.key\} mode=\{route\.key === activeRoute \? "visible" : "hidden"\}>/, "Home/Map route transitions must preserve retained Activity ownership");
 
 const pagesSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
-assert.match(pagesSource, /const launchAdmitted = state\.gameLaunchStatus\?\.valid === true/);
-assert.match(pagesSource, /const canStart = lifecycleProviderAvailable && launchAdmitted && rootResolved && rootValid/, "Home Start must require strict launch admission without changing the public root predicate");
+assert.doesNotMatch(pagesSource, /launchAdmitted|gameLaunchStatus/, "clone-only launch diagnostic must not gate original Home Start");
+assert.match(pagesSource, /const canStart = lifecycleProviderAvailable && rootResolved && rootValid/, "Home Start follows original root and busy state gates");
+assert.doesNotMatch(appSource, /invoke\("local_game_launch_status"/, "original Home root status must not depend on clone-only launch diagnostics");
+assert.match(appSource, /const HOME_LIFECYCLE_TIMEOUT_MS = null/, "original Home lifecycle requests must not impose an extra frontend deadline");
 assert.match(
   pagesSource,
   /disabled=\{state\.autoReconnect == null \|\| !state\.production\}/,

@@ -102,10 +102,7 @@ internal sealed partial class OverviewLifecycleService
             using JsonDocument json = JsonDocument.Parse(JsonSerializer.Serialize(repairResult));
             JsonElement errors = json.RootElement.GetProperty("errors");
             if (errors.GetArrayLength() == 0) return null;
-            JsonElement e = errors[0];
-            return new OverviewStartupError(profileId,
-                e.GetProperty("Error").GetString() ?? "GAME_CLOSE_FAILED",
-                e.GetProperty("Message").GetString() ?? "Unable to repair an outdated bridge session.");
+            return DecodeOutdatedRepairFailure(profileId, errors[0]);
         }
 
         lock (stateGate)
@@ -195,6 +192,14 @@ internal sealed partial class OverviewLifecycleService
             return new OverviewStartupError(profileId, "BRIDGE_HOST_UNAVAILABLE", ex.Message);
         }
     }
+
+    // Read the same wire-level camelCase record as the native restart response.
+    // The previous PascalCase lookup threw KeyNotFoundException on any failed
+    // outdated-build repair, concealing its original error code in reconcile.
+    internal static OverviewStartupError DecodeOutdatedRepairFailure(string profileId, JsonElement error) =>
+        new(profileId,
+            error.GetProperty("error").GetString() ?? "GAME_CLOSE_FAILED",
+            error.GetProperty("message").GetString() ?? "Unable to repair an outdated bridge session.");
 
     private async Task<bool> WaitFreshAdoptionHeartbeatAsync(
         OverviewAdoptionSnapshot record, long deadlineMilliseconds,

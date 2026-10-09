@@ -77,7 +77,10 @@ export function createBackendBridge(host = {}) {
     if (!available || disposed) return Promise.reject(unavailableError(mode));
     const id = nextRequestId();
     return new Promise((resolve, reject) => {
-      const timer = host.setTimeout?.(() => {
+      // A null deadline is intentional for original Home lifecycle commands.
+      // Their native lifecycle owns completion/cancellation; default finite
+      // deadlines continue to protect short status/config requests.
+      const timer = timeoutMs == null ? undefined : host.setTimeout?.(() => {
         pending.delete(id);
         nativeWebView.postMessage({ kind: "cancel", sessionId, id });
         const error = new Error(`Native command timed out: ${command}`);

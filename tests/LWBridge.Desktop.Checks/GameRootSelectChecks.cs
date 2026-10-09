@@ -16,6 +16,57 @@ internal static class GameRootSelectChecks
         {
             var config = new LocalConfigStore(
                 Path.Combine(root, "config"));
+            // H-03: original Start checks the selected root before launcher work.
+            // Keep the helper physically absent to expose the former regression:
+            // OVERVIEW_HELPER_MISSING used to preempt GAME_ROOT_NOT_FOUND.
+            using (var missingHelper = new OverviewLifecycleService(
+                "home-004-missing-root", null,
+                helperPath: Path.Combine(root, "no-such-helper.py"),
+                startRecoveryMonitor: false,
+                runtimeRoot: Path.Combine(root, "missing-helper-runtime"),
+                evidenceRoot: Path.Combine(root, "missing-helper-evidence"),
+                backupRoot: Path.Combine(root, "missing-helper-backups"),
+                applicationDataRoot: Path.Combine(root, "missing-helper-data")))
+            {
+                await ExpectCommandCodeAsync(() => missingHelper.InvokeAsync(
+                    "profile_instance_start",
+                    JsonSerializer.SerializeToElement(new { profileId = "home-004-missing-root" }),
+                    CancellationToken.None), "GAME_ROOT_NOT_FOUND",
+                    "missing root takes original precedence over local missing helper");
+            }
+            foreach (string primitive in new[] { "null", "false", "42", "\"unexpected\"", "[]" })
+            {
+                // H-21: non-object/missing/nonboolean autoLaunchAll preserves
+                // the native original true default; a root error distinguishes
+                // attempting Start from silently skipping the one-shot launch.
+                string owner = "home-004-reconcile-default";
+                using var reconcile = new OverviewLifecycleService(owner, null,
+                    helperPath: Path.Combine(root, "no-such-helper.py"),
+                    startRecoveryMonitor: false,
+                    runtimeRoot: Path.Combine(root, "reconcile-" + Guid.NewGuid().ToString("N")),
+                    evidenceRoot: Path.Combine(root, "reconcile-evidence"),
+                    backupRoot: Path.Combine(root, "reconcile-backups"),
+                    applicationDataRoot: Path.Combine(root, "reconcile-data"));
+                JsonElement value = JsonSerializer.SerializeToElement(
+                    await reconcile.InvokeAsync("profile_instances_reconcile",
+                        JsonDocument.Parse(primitive).RootElement, CancellationToken.None),
+                    JsonOptions.Default);
+                Require(value.GetProperty("errors")[0].GetProperty("error").GetString() == "GAME_ROOT_NOT_FOUND",
+                    "non-object reconcile payload still attempts the original default Auto Launch");
+            }
+            // H-20: the genuine native restart result is serialized using the
+            // web/camelCase wire contract. Outdated-build adoption must retain
+            // its failure instead of throwing on a PascalCase property lookup.
+            JsonElement repairResult = JsonSerializer.SerializeToElement(new
+            {
+                errors = new[] { new OverviewStartupError("home-004-repair", "GAME_CLOSE_TIMEOUT", "GAME_CLOSE_TIMEOUT") },
+            }, JsonOptions.Default);
+            OverviewStartupError repairFailure = OverviewLifecycleService.DecodeOutdatedRepairFailure(
+                "home-004-repair", repairResult.GetProperty("errors")[0]);
+            Require(repairFailure.Error == "GAME_CLOSE_TIMEOUT" &&
+                    repairFailure.Message == "GAME_CLOSE_TIMEOUT" &&
+                    repairFailure.ProfileId == "home-004-repair",
+                "outdated-build repair failure preserves native restart error and exact profile owner");
             string previous = CreateNativeRoot(
                 Path.Combine(root, "previous"));
             config.Update(c => c with { GameRoot = previous });

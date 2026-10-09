@@ -33,7 +33,9 @@ const AUTO_WEEKEND_SHIELD_FLAG_KEY = "flag:autoWeekendShield";
 const AUTO_ATTACK_SHIELD_FLAG_KEY = "flag:autoAttackShield";
 const AUTO_RECONNECT_FLAG_KEY = "flag:autoForceUpdateReload";
 const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
-const HOME_LIFECYCLE_TIMEOUT_MS = 360_000;
+// Original 0.3.17 Home lifecycle invokes have no frontend request deadline.
+// The native owner and transport close/profile-generation guards still cancel retired work.
+const HOME_LIFECYCLE_TIMEOUT_MS = null;
 const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
@@ -176,7 +178,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [autoClosePopupIncoming, setAutoClosePopupIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
-  const [gameLaunchStatus, setGameLaunchStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(initialAutoLaunchGame);
   const [homeBusy, setHomeBusy] = useState("");
@@ -408,7 +409,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       setRuntimeStatus(null);
       setProxyStatus(null);
       setGameRootStatus(null);
-      setGameLaunchStatus(null);
       setGameRecoveryStatus(null);
       setGameRootError("");
       setGameActionError("");
@@ -665,15 +665,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     let closed = false;
     const owner = { ...selectedProfileOwnerRef.current };
-    Promise.allSettled([
-      backendBridge.invoke("game_root_status", {}),
-      backendBridge.invoke("local_game_launch_status", {}),
-    ]).then(([rootResult, launchResult]) => {
+    backendBridge.invoke("game_root_status", {}).then((rootStatus) => {
       if (closed || !isCurrentProfileOwner(owner)) return;
-      if (rootResult.status === "fulfilled") acknowledgeGameRootStatus(rootResult.value);
-      else setGameRootError(rootResult.reason?.message || String(rootResult.reason));
-      if (launchResult.status === "fulfilled") setGameLaunchStatus(launchResult.value);
-      else setGameLaunchStatus({ valid: false, error: launchResult.reason?.code || launchResult.reason?.message || String(launchResult.reason) });
+      acknowledgeGameRootStatus(rootStatus);
+    }).catch((error) => {
+      if (!closed && isCurrentProfileOwner(owner)) setGameRootError(error?.message || String(error));
     });
     return () => { closed = true; };
   }, [acknowledgeGameRootStatus, isCurrentProfileOwner, selectedProfileId]);
@@ -890,8 +886,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       const next = await backendBridge.invoke("game_root_status", {});
       if (!isCurrentProfileOwner(owner)) return;
       acknowledgeGameRootStatus(next);
-      const launchStatus = await backendBridge.invoke("local_game_launch_status", {});
-      if (isCurrentProfileOwner(owner)) setGameLaunchStatus(launchStatus);
     } catch (error) {
       if (isCurrentProfileOwner(owner)) setGameRootError(error?.message || String(error));
     } finally {
@@ -1072,7 +1066,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     homeState: {
       rootResolved: gameRootStatus !== null,
       gameRootStatus,
-      gameLaunchStatus,
       proxyStatus,
       online,
       gameRecoveryStatus,

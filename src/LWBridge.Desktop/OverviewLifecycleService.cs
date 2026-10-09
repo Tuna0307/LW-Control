@@ -483,7 +483,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private async Task<object?> ReconcileStartupAsync(JsonElement payload, CancellationToken cancellationToken)
     {
-        bool autoLaunchAll = !payload.TryGetProperty("autoLaunchAll", out JsonElement requested) ||
+        bool autoLaunchAll = payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("autoLaunchAll", out JsonElement requested) ||
             requested.ValueKind is not (JsonValueKind.True or JsonValueKind.False) || requested.GetBoolean();
         bool shouldAttempt;
         lock (stateGate)
@@ -681,9 +682,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     private async Task<object?> StartAsync(CancellationToken cancellationToken, bool closeUnmanaged = false)
     {
-        if (!File.Exists(helperPath) && testHooks?.RunHelperAsync is null)
-            throw new BridgeCommandException("OVERVIEW_HELPER_MISSING", "The Overview bridge helper was not deployed with LWBridge.Desktop.");
-
         string newSession = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
         string selectedRoot;
@@ -715,6 +713,12 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (unmanagedPids.Count > 0 && !closeUnmanaged)
                 // 0x1d6781-0x1d6828: code == message == "UNMANAGED_GAME_RUNNING", details {pids:[ascending]}.
                 throw new BridgeCommandException("UNMANAGED_GAME_RUNNING", "UNMANAGED_GAME_RUNNING", new { pids = unmanagedPids });
+            // Packaging errors must not preempt the recovered original Start
+            // preconditions. Root and running-profile errors are observable even
+            // when a local helper is missing; do not publish a starting owner.
+            if (!File.Exists(helperPath) && testHooks?.RunHelperAsync is null)
+                throw new BridgeCommandException("OVERVIEW_HELPER_MISSING",
+                    "The Overview bridge helper was not deployed with LWBridge.Desktop.");
             phase = "starting";
             connectionState = "starting";
             instanceId = newSession;

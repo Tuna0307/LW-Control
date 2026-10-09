@@ -79,7 +79,6 @@ export function HomePage({
   const state = preview || homeState || {};
   const rootResolved = state.rootResolved === true;
   const rootValid = state.gameRootStatus?.valid === true;
-  const launchAdmitted = state.gameLaunchStatus?.valid === true;
   const gameRunning = state.proxyStatus?.gameRunning === true;
   const repairRequired = state.proxyStatus?.repairRequired === true;
   const recoveryState = state.gameRecoveryStatus?.state || "idle";
@@ -93,7 +92,7 @@ export function HomePage({
     && typeof onStartGame === "function"
     && typeof onStopGame === "function"
     && typeof onUpdateAndRestart === "function";
-  const canStart = lifecycleProviderAvailable && launchAdmitted && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching;
+  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching;
   const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching;
 
   let status = t("setup.checking");
