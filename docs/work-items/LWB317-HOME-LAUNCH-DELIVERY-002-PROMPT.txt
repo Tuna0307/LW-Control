@@ -1,0 +1,26 @@
+Future owner-relayed assignment: LWB317-HOME-LAUNCH-DELIVERY-002
+
+This prompt does not automatically resume the stopped worker. Begin only when the owner forwards it as a new assignment.
+
+Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
+Branch: research/offline-controller
+Required ancestor: c8acbf38fa387bc3b8236d0615a6cc832eb4478a
+Reference: C:\Users\chimw\OneDrive\Desktop\Github\LW\lwbridge-0.3.17.exe
+Reference SHA-256: 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783
+
+Work alone, through three sequential checkpoints. Do not use subagents, GPT Work, Codex or another AI chat. Preserve the source fixes, research archive and main candidate PR #3. Read AGENTS.md, docs/AI_WORK_PROTOCOL.md, docs/PROJECT_STATUS.md, the HOME-FEATURE-RELEASE-001 lead review and existing Home native/parity obligation records.
+
+Concrete goal: deliver one user-visible Home Launch -> Connected -> Close feature, suitable for the lead to port into the clean application candidate. The user should be able to perform this sequence in the canonical packaged UI. Do not start another broad Home/Map inventory campaign or call the whole Home tab complete.
+
+A. Define and close this feature's original contract.
+Use existing exact 0.3.17 handlers/callers as authority. Cover root admission, profile/instance identity, duplicate/in-flight requests, launch readiness, cancellation, failure precedence, Stop timeout and restoration. Identify relevant unresolved original facts explicitly. Correct demonstrated differences; do not replace unknown behavior with a guessed rule. Preserve recent registry-first reconcile dispatch and isolated capture/storage/diagnostics fixes. The native Auto Launch mirror is a clone adaptation, not original authority.
+
+B. Verify the complete feature through canonical packaged controls.
+Within the owner's existing bounded Home pilot authorization, pass current executable/client/session identity, isolated-root, compatibility, backup and restoration gates before touching the game. Use actual Launch/Close UI controls and real providers. Prove fresh Connected with a genuine native status result, exact owned instance Stop, confirmed process exit and exact script restoration. Include a bounded repeat launch/close if it distinguishes a known remaining lifetime issue. Preserve any failure/retry history. No updater, cross-server movement, scans, claims, plunder, spending, combat, protected-original service access or account automation is assigned here.
+
+Use Remote Desktop Commander and Windows-MCP as complementary tools; inspect their actual available capabilities. Do not bypass a tool/automatic approval denial. If denied, record the exact action/reason and continue ready static/inert corrections. Never substitute fixture/callback results for the canonical positive UI witness. Do not claim exact launch counts without instrumentation. Keep original and current-client proof separate.
+
+C. Deliver the feature, not another archive.
+Run focused distinguishing inverse cases, affected Home/root/registry/ownership/recovery checks, canonical frontend checks and fresh Release publish/package checks. Preserve compact replayable receipts, two or three useful settled UI captures, exact exit/restoration hashes and failure history. No bulk copied disassembly or repetitive screenshot inventory. Retain needed DB/runtime receipts before cleanup. Leave no task-owned running process, pending restoration journal or installation mutation.
+
+Commit/push coherent checkpoints; verify direct remote SHA. Update feature status and a short dated review with the exact user procedure and acceptance limits. Return a runnable package location, original-contract findings, corrections, actual UI/provider results and any exact remaining dependency. Passing compilation alone is not completion. Return AWAITING_REVIEW only when this feature's assigned gates are met; otherwise PARTIAL with a precise continuation. Final original-parity acceptance remains with the project lead.

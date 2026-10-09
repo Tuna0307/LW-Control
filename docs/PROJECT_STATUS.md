@@ -4,6 +4,7 @@
 
 Owner requested a runnable feature-by-feature main delivery. Lead has prepared
 `codex/home-feature-release-001`, a clean application candidate based on main.
+Draft PR: https://github.com/Tuna0307/LW-Control/pull/3. Candidate SHA: `15a90ae9`.
 Fresh independent build/publish, actual backend root/registry checks, fixture
 capture/cleanup and real mounted Home preference/reload checks pass. The lead
 fixed capture initialization/isolation/diagnostics and a real backend dispatch

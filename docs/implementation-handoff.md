@@ -1,3 +1,22 @@
+# Latest feature delivery — 2026-10-09
+
+Owner requested feature-by-feature main delivery. Draft PR #3:
+https://github.com/Tuna0307/LW-Control/pull/3
+Candidate: codex/home-feature-release-001 at 15a90ae94959ff5b924b1ee25f43dec9fd703dd0.
+Research fixes: 352df0d4; whitespace-only import preparation: c8acbf38.
+
+Clean candidate builds/publishes without the large archive. Actual normal Home
+preference saving/reload and registry startup admission are verified within the
+bounded review; original Home/Map remains PARTIAL. Runnable local package:
+.codex-live/home-feature-release-001/LW-Control-Home-candidate.zip (130 entries,
+26,404,683 bytes). No LastWar/launcher/clone process remains after verification.
+
+Other worker remains stopped. A future self-contained Home Launch -> Connected
+-> Close assignment is saved as LWB317-HOME-LAUNCH-DELIVERY-002-PROMPT.txt; it is
+not an automatic dispatch. Do not restart the broad recovery campaign.
+
+---
+
 **Current lead checkpoint, 2026-10-09: worker STOPPED by owner; Home/Map PARTIAL / CHANGES_REQUIRED.** Independent audit credits the captured-run ownership fix and bounded live receipts, but returns four query/status/publication-proof corrections. Current authority: `docs/PROJECT_STATUS.md` and the dated `COMPLETION-010-R1-LEAD` review. Earlier entries below are historical and do not resume the worker.
 
 **2026-10-09 COMPLETION-010-R1 FOLLOW-UP — PARTIAL, NOT LEAD ACCEPTANCE.** Additional independently reproduced Map native malformed-`markedOnly` coercion and stale Auto due-admission-after-disable race are now fixed: both red-before/green-after in actual command/scheduler checks; native default flow exit 0. Entirely inert, no new Last War launch or UI input. Prior two live City/Resource pilot receipts, 133-obligation derivative, negative packaged-UI crash and all unresolved Home/Map original A→A branches remain unchanged. See `docs/reviews/2026-10-09-LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1-FOLLOWUP.md`.
