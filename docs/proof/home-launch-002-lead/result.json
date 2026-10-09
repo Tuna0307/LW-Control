@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-09",
+  "workerSource": "6d8f4bdcd93d43e484a4f268f4c45da4f64869fd",
+  "sourceScope": "lead optional-instance-ID correction, identical source committed after this live repeat",
+  "referenceSha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+  "profileId": "home-002-a7aba6f99457",
+  "hostPid": 4284,
+  "gamePid": 4580,
+  "gameCreatedAtUtc": "2026-10-09T10:01:58.6398322Z",
+  "serverId": 2212,
+  "nativeEvidence": {
+    "ready": true,
+    "heartbeatReady": true,
+    "heartbeatConnected": true,
+    "pipeState": "connected",
+    "sameProfileSessionChallengePid": true,
+    "matchingProcessCreation": true,
+    "heartbeatAgeSeconds": 0.742,
+    "originalRuntimeComparison": false
+  },
+  "rawRecordHashes": {
+    "adoption.json": "838dbb54b9be82230eefa9a4ca9416fb4c307de3caaf7ce2c5fd43a166e9746c",
+    "heartbeat.json": "d2cf26ce223bc2de37d5e4861eebf7a2b868041dcf6dc0a77fe592f36f3d9cb0",
+    "pipe-transport.json": "4f86d74d4bea3aa11d8de276c03d18ef55bfdc721a7605976fb5bdb7ed96e170",
+    "ready.json": "3d288716add58c78a01743ff8550d9c9312cc681c13e09ab492260e63a7f50d6",
+    "recovery.json": "d5feb1713bbcc631aa7f7b3f56564fcefe94d8cfbca8c568098f95684e0c78f4"
+  },
+  "stop": {
+    "ok": true,
+    "gamePid": 4580,
+    "sameSession": true,
+    "processExited": true,
+    "exitProof": {
+      "established": true,
+      "method": "process-handle-signalled",
+      "waitedMilliseconds": 9700
+    },
+    "restored": true
+  },
+  "installedTriplet": {
+    "LWScripts.data": {
+      "sha256": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+      "bytes": 41320953
+    },
+    "LWScripts.txt": {
+      "sha256": "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+      "bytes": 19
+    },
+    "version.txt": {
+      "sha256": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790",
+      "bytes": 2
+    }
+  },
+  "cleanup": {
+    "processesRemaining": [],
+    "journalRemaining": false,
+    "installedTripletRestored": true,
+    "isolatedRootRetained": true,
+    "isolatedRootDeletion": "automatic approval review rejected deletion; preserved without retry"
+  },
+  "screenshots": [
+    {
+      "file": "connected-en-light.png",
+      "sha256": "71a9d55fc07eab9a2210f415ea9f4360db5aeba0ecaa2555a23b2598c50a92a1"
+    },
+    {
+      "file": "connected-ja-dark.png",
+      "sha256": "9d64c0d8ed9ad69daa55ca2ba086b8c17fb60eff8a69e5aa69a1cf6ef4e3c572"
+    },
+    {
+      "file": "closed-ja-dark.png",
+      "sha256": "faf31e5c33f9a6ad510e7356c51503e708a2c30117e54d267ebf92fb0250c7a7"
+    }
+  ],
+  "liveGameLaunches": 1,
+  "scansGameplayUpdaterProtectedOriginalActions": 0,
+  "issues": [
+    "hidden setup had no visible window; no game launch",
+    "dropdown coordinate input rejected by target guard; ordinary keyboard selection used after reobservation",
+    "language and theme acknowledgement transient states not counted as settled",
+    "game loading window required foreground Home reobservation"
+  ]
+}

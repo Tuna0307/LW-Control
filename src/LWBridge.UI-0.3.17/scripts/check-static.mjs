@@ -77,11 +77,14 @@ for (const selector of [".app-shell", ".top-bar", ".app-layout", ".side-nav", ".
 }
 
 function sha256(relativePath) {
-  return crypto
-    .createHash("sha256")
-    .update(fs.readFileSync(path.join(root, relativePath)))
-    .digest("hex")
-    .toUpperCase();
+  const raw = fs.readFileSync(path.join(root, relativePath));
+  // The tracked recovered stylesheet is LF text. On Windows, Git can check
+  // out a CRLF copy without changing its original-source meaning; binary
+  // image hashes must still be compared byte-for-byte.
+  const source = relativePath === "src/reference.css"
+    ? Buffer.from(raw.toString("utf8").replace(/\r\n/g, "\n"), "utf8")
+    : raw;
+  return crypto.createHash("sha256").update(source).digest("hex").toUpperCase();
 }
 
 const exactAssets = new Map([

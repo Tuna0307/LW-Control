@@ -1,9 +1,10 @@
 # LW-Control application candidate
 
-**Download the reviewed Windows UI baseline:** [UI baseline v0.1.0](https://github.com/Tuna0307/LW-Control/releases/tag/ui-baseline-v0.1.0).
+**Download the reviewed Windows application:** [Home Launch v0.2.0](https://github.com/Tuna0307/LW-Control/releases/tag/home-launch-v0.2.0).
 Extract the complete ZIP and run **Launch LWBridge.cmd**. Requires the .NET 10
-Desktop Runtime and Microsoft Edge WebView2 Runtime. The UI baseline is delivered
-first; native functions are being accepted and released separately.
+Desktop Runtime and Microsoft Edge WebView2 Runtime. Game integration additionally
+requires Python and the verified current Last War installation. The UI baseline and single-profile Home Launch → Connected → Close are delivered;
+additional native features are accepted and released separately.
 
 A runnable Windows application reconstructed from LWBridge 0.3.17. This is an incremental release candidate, **not a completed 1-to-1 Home/Map clone**. Read [feature status](docs/FEATURE_STATUS.md) for the exact accepted scope and remaining gaps.
 
@@ -54,4 +55,10 @@ npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:release-ui
 pwsh -NoProfile -File tools/check_packaged_home.ps1 -Executable "artifacts/application/LWBridge.Desktop.exe"
 ```
 
-See [UI release review](docs/UI_MAIN_RELEASE_REVIEW.md) for the page/state matrix and unrecovered native behavior. The UI candidate is not an endorsement of complete native Home/Map parity, updater functionality or protected-original service access.
+See [UI release review](docs/UI_MAIN_RELEASE_REVIEW.md) for the baseline page/state matrix and unrecovered native behavior. The UI candidate is not an endorsement of complete native Home/Map parity, updater functionality or protected-original service access.
+
+## Home Launch → Connected → Close (focused native delivery)
+
+A bounded single-profile Home Launch/Connected/Close flow has additionally been demonstrated from the **actual packaged Windows WebView2 UI** against the compatible current Last War client. The game authenticated through the native control pipe, the Home page showed Connected in English/light and Japanese/dark, and the real Close button exited the exact owned game and restored all three original script-file hashes. The task-only isolated root was removed after normal cleanup. The original Auto Launch default remains **ON** for ordinary user profiles; the isolated proof disabled it through its own UI. See [feature proof and original-source comparison](docs/reviews/2026-10-09-LWB317-HOME-LAUNCH-DELIVERY-002.md). This does **not** certify the original protected 0.3.17 runtime, advanced reconnection, Map scans, gameplay or updater.
+
+To build the focused feature release on a **committed clean branch**, publish the application with `dotnet publish src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release -o artifacts/application`, then run `pwsh -NoProfile -File tools/package_ui_release.ps1 -ReleaseLabel Home-Launch`. Extract the complete ZIP and run **Launch LWBridge.cmd**. Both .NET 10 Desktop Runtime (x64) and Edge WebView2 Runtime are required.
