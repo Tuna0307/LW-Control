@@ -16,11 +16,11 @@ public sealed partial class MapStore
         int pageSize = Math.Clamp(query.PageSize <= 0 ? 50 : query.PageSize, 1, 200);
         IReadOnlyList<MapSort> sorts = NormalizeSorts(query);
         long now = nowUnixMilliseconds ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        // Preserve recovered original i64 page value. SQLite OFFSET is a separate
-        // internal adaptation: a page beyond the 64-bit product range has no
-        // corresponding rows, so saturate its offset instead of wrapping or throwing.
-        long offset = (pageNumber - 1) > long.MaxValue / pageSize
-            ? long.MaxValue : (pageNumber - 1) * pageSize;
+        // Original 0.3.17 0x3E5883-0x3E58B8 subtracts one and multiplies
+        // with unchecked signed-i64 machine arithmetic, then binds that exact
+        // result as SQL OFFSET. Negative offsets are handled by SQLite itself.
+        // Saturating here changes the original returned rows on overflow.
+        long offset = unchecked((pageNumber - 1) * pageSize);
         bool city = query.Kind == "city";
         bool treasure = query.Kind == "treasure";
         bool staging = !string.IsNullOrWhiteSpace(query.ScanRunId);

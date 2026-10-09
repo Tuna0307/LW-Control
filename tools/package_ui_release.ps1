@@ -54,7 +54,7 @@ Home, Map, Automation, Squads/Equipment, City Layout, Hotkeys, Mini Games,
 Settings and the shared shell. English/light, Japanese/dark, and narrow
 viewport were checked using the canonical production frontend.
 
-STORED MAP DATA (LWB317-MAP-DATA-DELIVERY-003 candidate)
+STORED MAP DATA (LWB317-MAP-DATA-DELIVERY-003 reviewed slice)
 City and Resource published-data search, filters, sorting, paging and tab return,
 plus City XLSX Save As were checked via the actual packaged Map controls against
 archived genuine published copies (7,000 City / 8,008 Resource rows on server 2212).

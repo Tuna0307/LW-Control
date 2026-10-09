@@ -78,8 +78,36 @@ internal static class MapStoredDeliveryChecks
                     "original signed i64 page envelope must not be int32-capped");
                 var huge = await Search(service, new { serverId = 317, page = long.MaxValue, pageSize = 200 });
                 Require(huge.GetProperty("page").GetInt64() == long.MaxValue &&
-                        huge.GetProperty("rows").GetArrayLength() == 0,
-                    "i64 page must remain representable with overflow-safe SQLite offset");
+                        huge.GetProperty("rows").GetArrayLength() == 4,
+                    "original unchecked offset wraps negative; SQLite returns the first rows");
+                // Around 2^64 / 200: the unchecked product can wrap to either
+                // negative or small positive offsets, not only long.MaxValue.
+                foreach (var (page, count) in new (long, int)[]
+                {
+                    (long.MaxValue / 200 + 1, 0), // largest non-overflowing product
+                    (long.MaxValue / 200 + 2, 4), // negative wrapped offset
+                    (92233720368547759L, 4),      // -16 offset
+                    (92233720368547760L, 0),      // 184 offset
+                })
+                {
+                    var boundary = await Search(service, new { serverId = 317, page, pageSize = 200 });
+                    Require(boundary.GetProperty("page").GetInt64() == page &&
+                            boundary.GetProperty("rows").GetArrayLength() == count,
+                        "original signed-i64 offset boundary " + page);
+                }
+                foreach (var (query, count) in new (object, int)[]
+                {
+                    (new { serverId = 317, minLevel = 3, maxLevel = 1 }, 2),
+                    (new { serverId = 317, minLevel = -1, maxLevel = -1 }, 0),
+                    (new { serverId = 317, minLevel = "0.5", maxLevel = "2.5" }, 1),
+                    (new { serverId = 317, minLevel = "NaN", maxLevel = "Infinity" }, 4),
+                    (new { serverId = 317, minLevel = double.MaxValue }, 0),
+                })
+                {
+                    var bounds = await Search(service, query);
+                    Require(bounds.GetProperty("total").GetInt32() == count,
+                        "original finite f64 inversion/string/nonfinite/extreme bounds");
+                }
                 var sort = await Search(service, new { serverId = 317,
                     sorts = new[] { new { sortBy = "level", sortOrder = "desc" } } });
                 Require(sort.GetProperty("total").GetInt32() == 4, "original admitted City level sort");
