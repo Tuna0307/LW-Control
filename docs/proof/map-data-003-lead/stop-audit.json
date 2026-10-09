@@ -1,0 +1,21 @@
+{
+  "ownedStopReceipts": [
+    {
+      "fileSha256": "668b199fb5474c3370e2a2eadfe9550cb0b825202551a7ed6f6fa04f926cd73d",
+      "profileId": "map-data-003-21c67f50ae91",
+      "gamePid": 30256,
+      "processExited": true,
+      "exitEstablished": true,
+      "restored": true
+    },
+    {
+      "fileSha256": "184d961851ab180dd7d1ac1399258b37bfd36fff77631dc9404e2ebeca65aed8",
+      "profileId": "map-data-003-21c67f50ae91",
+      "gamePid": 63320,
+      "processExited": true,
+      "exitEstablished": true,
+      "restored": true
+    }
+  ],
+  "recoveryJournalRemaining": false
+}

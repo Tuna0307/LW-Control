@@ -34,7 +34,7 @@ public sealed record MapSort(string SortBy, string SortOrder);
 public sealed record MapQuery(
     string Kind,
     int ServerId,
-    int Page = 1,
+    long Page = 1,
     int PageSize = 50,
     IReadOnlyList<MapSort>? Sorts = null,
     string? Keyword = null,
@@ -55,13 +55,13 @@ public sealed record MapQuery(
     bool LuckyFirst = false,
     string? ViewerUid = null,
     string? ViewerAllianceId = null,
-    int? MinLevel = null,
-    int? MaxLevel = null,
+    double? MinLevel = null,
+    double? MaxLevel = null,
     string? ScanRunId = null,
     double? MinPower = null,
     double? MaxPower = null);
 
-public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, int Page = 1, int PageSize = 50);
+public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, long Page = 1, int PageSize = 50);
 
 public sealed record MapScanState(
     int ServerId,

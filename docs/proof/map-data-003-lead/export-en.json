@@ -1,0 +1,43 @@
+{
+  "task": "LWB317-MAP-DATA-DELIVERY-003",
+  "sourceKind": "published genuine City copy",
+  "serverId": 2212,
+  "sourcePublishedRows": 7000,
+  "nativeWorkbookDataRows": 7000,
+  "orderedColumns": [
+    "Server",
+    "X",
+    "Y",
+    "Player",
+    "UID",
+    "UUID",
+    "Alliance",
+    "Level",
+    "HP",
+    "Shield Ends",
+    "Marked",
+    "Updated At"
+  ],
+  "language": "en",
+  "allCellValueMismatchCounts": {
+    "server": 0,
+    "coordinate": 0,
+    "name": 0,
+    "ownerUid": 0,
+    "uuid": 0,
+    "alliance": 0,
+    "level": 0,
+    "health": 0,
+    "updatedAt": 0,
+    "marked": 0,
+    "shield": 0
+  },
+  "missingRecords": 0,
+  "distinctWorkbookSourceIdentities": 7000,
+  "distinctSourceUuids": 6999,
+  "sourceUuidCollisionPreserved": true,
+  "xlsxSha256": "27dad97202aad26ab9a13d7c8af545aff359e5ea8e0247f4a1a8b08ae8d39cab",
+  "xlsxBytes": 559867,
+  "sourceDbSha256": "45ef8dc5c513eb753677dadb048dc89d20716d3efee3c829f5913f0961b5bcf5",
+  "validation": "PASS"
+}

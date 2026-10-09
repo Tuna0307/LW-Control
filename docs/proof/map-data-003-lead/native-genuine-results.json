@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "cases": [
+    {
+      "kind": "city",
+      "total": 7000,
+      "pagesDistinct": true,
+      "sortOrder": true,
+      "empty": true,
+      "marked": true
+    },
+    {
+      "kind": "resource",
+      "total": 8008,
+      "pagesDistinct": true,
+      "sortOrder": true,
+      "empty": true,
+      "marked": true
+    },
+    {
+      "cityKeyword": 1,
+      "resourceName": 2675,
+      "filteredExport": 1
+    }
+  ],
+  "reopenedResource": 8008,
+  "gameLaunches": 0,
+  "scans": 0
+}

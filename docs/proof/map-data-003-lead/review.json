@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-09",
+  "workerSource": "ba14ac6a5de26873e5ee0d79959c34371b2fbd49",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "exactOriginalFactsRevalidated": 62,
+  "offset": {
+    "originalLocations": [
+      "0x3E1157",
+      "0x3E1218",
+      "0x3E583B-0x3E58B8",
+      "0xD6057E"
+    ],
+    "multiplicationInstruction": "4c0faff9",
+    "page": 9223372036854775807,
+    "pageSize": 200,
+    "originalSignedOffset": -400,
+    "workerRows": 0,
+    "correctedRows": 4,
+    "fixtureRows": 4,
+    "inverseFailedBefore": true,
+    "passedAfter": true,
+    "extraOverflowBoundaryCases": 4,
+    "extraF64Cases": 5,
+    "originalProtectedRuntimeExecuted": false
+  },
+  "workerZipSha256": "350190B2822D5B937DD069E4BEC64089F00ABF3FFFDCE96259F56BAA70873456",
+  "leadGameLaunches": 0,
+  "leadScans": 0,
+  "installedTripletMatchesWorkerRestoration": true,
+  "reviewIssues": [
+    "one lead overflow expectation had an off-by-one page constant; corrected after independent arithmetic",
+    "one lead probe incorrectly expected Resource marked-only filtering; corrected to City-scoped semantics",
+    "temporary probe initially included unused WPF reference; removed from probe only"
+  ]
+}

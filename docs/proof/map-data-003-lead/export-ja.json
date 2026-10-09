@@ -1,0 +1,43 @@
+{
+  "task": "LWB317-MAP-DATA-DELIVERY-003",
+  "sourceKind": "published genuine City copy",
+  "serverId": 2212,
+  "sourcePublishedRows": 7000,
+  "nativeWorkbookDataRows": 7000,
+  "orderedColumns": [
+    "\u30b5\u30fc\u30d0\u30fc",
+    "X",
+    "Y",
+    "\u30d7\u30ec\u30a4\u30e4\u30fc",
+    "UID",
+    "UUID",
+    "\u9023\u76df",
+    "\u30ec\u30d9\u30eb",
+    "HP",
+    "\u30b7\u30fc\u30eb\u30c9\u7d42\u4e86\u6642\u523b",
+    "\u30de\u30fc\u30af",
+    "\u66f4\u65b0\u65e5\u6642"
+  ],
+  "language": "ja",
+  "allCellValueMismatchCounts": {
+    "server": 0,
+    "coordinate": 0,
+    "name": 0,
+    "ownerUid": 0,
+    "uuid": 0,
+    "alliance": 0,
+    "level": 0,
+    "health": 0,
+    "updatedAt": 0,
+    "marked": 0,
+    "shield": 0
+  },
+  "missingRecords": 0,
+  "distinctWorkbookSourceIdentities": 7000,
+  "distinctSourceUuids": 6999,
+  "sourceUuidCollisionPreserved": true,
+  "xlsxSha256": "6cb8d81dbfa8012201417bb3b514a37b0481f74843e23147cbaaebfbee65970e",
+  "xlsxBytes": 561298,
+  "sourceDbSha256": "45ef8dc5c513eb753677dadb048dc89d20716d3efee3c829f5913f0961b5bcf5",
+  "validation": "PASS"
+}
