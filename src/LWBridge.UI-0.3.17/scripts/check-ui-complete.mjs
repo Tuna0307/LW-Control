@@ -1,0 +1,77 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, "..");
+const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "AutomationPage.jsx", "SquadsPage.jsx", "CityLayoutPage.jsx", "HotkeyPages.jsx", "SettingsPage.jsx", "MapRoutePage.jsx"];
+const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
+const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
+
+const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
+const literalKeys = new Set();
+for (const relative of sourceFiles) {
+  const source = fs.readFileSync(path.join(root, relative), "utf8");
+  for (const match of source.matchAll(/\bt\(["`]([A-Za-z0-9._]+)["`]/g)) literalKeys.add(match[1]);
+}
+
+// Exact original Gather me requests common.loading, absent from the original
+// English catalog. Preserve its key-as-text result rather than invent a label.
+const recoveredMissingKeys = new Set(["common.loading"]);
+const originalPanel = fs.readFileSync(path.join(root, "../../evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/AutomationPanel-BJ0gIqFh.js"), "utf8");
+if (!originalPanel.includes("a(`common.loading`)") || "common.loading" in en) throw new Error("Revalidate original Gather missing-key exception.");
+const missing = [...literalKeys].filter((key) => !key.includes("${") && !(key in en) && !recoveredMissingKeys.has(key)).sort();
+if (missing.length) throw new Error(`Missing recovered English locale keys:\n${missing.join("\n")}`);
+
+const localeCounts = {};
+let englishKeys = null;
+for (const code of localeCodes) {
+  const messages = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
+  const keys = Object.keys(messages);
+  if (keys.length === 0) throw new Error(`Recovered ${code} locale catalog is empty.`);
+  if (code === "en") englishKeys = keys.sort();
+  else {
+    const missingFromLocale = englishKeys.filter((key) => !(key in messages));
+    if (missingFromLocale.length) throw new Error(`Recovered ${code} locale is missing inherited keys:\n${missingFromLocale.join("\n")}`);
+  }
+  localeCounts[code] = keys.length;
+}
+for (const inheritedKey of [
+  "error.OFFICIAL_LAUNCHER_HOOK_FAILED",
+  "auth.error.ACCOUNT_BANNED",
+  "update.error.UPDATE_STATUS_FAILED",
+]) {
+  for (const code of localeCodes) {
+    const messages = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
+    if (!(inheritedKey in messages)) throw new Error(`Recovered ${code} locale lost inherited key ${inheritedKey}.`);
+  }
+}
+
+const app = fs.readFileSync(path.join(root, "src", "App.jsx"), "utf8");
+if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window.location.search).get("previewState") || "" : ""')) {
+  throw new Error("Preview state must remain fenced to browser preview mode.");
+}
+
+const pages = pageModules.map((file) => fs.readFileSync(path.join(root, "src", file), "utf8")).join("\n");
+const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
+const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
+const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmentContracts.js"), "utf8");
+const previewCoverageSource = [app, pages, mapPage, mapPreview, equipmentPreview].join("\n");
+for (const marker of [
+  "home-missing", "home-connected", "home-repair", "home-recovery-failed",
+  "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
+  "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure", "map-scheduled",
+  "map-auto-scheduled", "map-loading", "map-error",
+  "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
+  "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-error", "squads-equipment-progress", "squads-equipment-offline",
+  "hotkeys-connected", "hotkeys-load-error", "hotkeys-save-error",
+  "mini-games-active", "mini-games-solving", "mini-games-executing", "mini-games-complete", "mini-games-all-complete",
+  "mini-games-activity-ended", "mini-games-ui-open", "mini-games-conflict", "mini-games-solve-failed", "mini-games-unsupported", "mini-games-start-failed",
+  "mini-games-land-success", "mini-games-land-error",
+  "settings-multiprofile", "settings-complete", "settings-visual-error", "settings-feedback", "settings-feedback-success", "settings-feedback-error",
+  "settings-update-checking", "settings-update-available", "settings-update-downloading", "settings-update-error",
+]) {
+  if (!previewCoverageSource.includes(marker)) throw new Error(`Missing preview coverage marker: ${marker}`);
+}
+
+console.log(`LWB317_UI_COMPLETE_CHECKS_OK ${literalKeys.size} referenced keys ${JSON.stringify(localeCounts)}`);

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "feature": "Home startup/configuration delivery",
+  "originalReferenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "beforeCapture": {
+    "exitCode": -1073741819,
+    "captureExists": false
+  },
+  "dispatchMutation": {
+    "mutationBuildExit": 0,
+    "oldRoutingCheckExit": 3762504530,
+    "oldRoutingFailure": "Unhandled exception. System.InvalidOperationException: ORDERED_RECONCILE: actual backend uses registry admission/order rather than its disabled selected runtime\n   at LWBridge.Desktop.Checks.OrderedProfileReconcileChecks.Require(Boolean valid, String reason) in C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\OrderedProfileReconcileChecks.cs:line 13\n   at LWBridge.Desktop.Checks.OrderedProfileReconcileChecks.RunAsync() in C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\OrderedProfileReconcileChecks.cs:line 120\n   at Program.<Main>$(String[] args) in C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tests\\LWBridge.Desktop.Checks\\Program.cs:line 82\n   at Program.<Main>(String[] args)",
+    "restoredBuildExit": 0
+  },
+  "fixtureCapture": {
+    "view": "overview",
+    "mode": "fixture",
+    "homeRendered": true,
+    "errors": [],
+    "text": "LW\nlwbridge\nv-\nPreview\n待处理任务\n0\n语言\nEnglish\nChinese (Simplified)\nChinese (Traditional)\nJapanese\nKorean\nVietnamese\nIndonesian\nРусский\nPortuguês\n跨区\n刷新状态\n导航\n首页\n自动化\n地图数据\n小队/挂机\n内城编辑\n快捷键\n小游戏\n设置\n游戏设置\n正在检查游戏设置…\n启动时打开游戏\n自动重连"
+  },
+  "normalWindowObservations": {
+    "autoLaunch": false,
+    "autoReconnect": true,
+    "retainedAfterRestart": true,
+    "profileEnabled": false,
+    "normalConsoleCapture": "not instrumented",
+    "unexpectedGameProcessesObserved": 1,
+    "totalPreFixLaunches": "not instrumented",
+    "postFixGameProcessesObserved": 0
+  },
+  "fullHomeMapParity": "PARTIAL",
+  "screenshots": [
+    {
+      "file": "images/home-reloaded-en-light.jpg",
+      "sha256": "da8be63a35cde634e617c7aee2f967c3374b358070a2fb9337db3bc83eaa3bbc"
+    },
+    {
+      "file": "images/home-reloaded-ja-dark.jpg",
+      "sha256": "e4fdcd27aa382dcf33e024cf846da374380c0fef2be7f1f518cf7c25efdf471c"
+    }
+  ]
+}

@@ -1,0 +1,1468 @@
+using System.Text.Json;
+
+namespace LWBridge.Desktop;
+
+internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
+{
+    private readonly object gate = new();
+    private readonly MapDataStore store;
+    private readonly CurrentClientMapBlockSource currentClientSource;
+    private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
+    private readonly Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer;
+    private readonly Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch;
+    private readonly Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage;
+    private readonly Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates;
+    private readonly Func<int?>? getLiveServerId;
+    private readonly Func<CancellationToken, Task<CurrentClientMapStatusContext>>? getStatusContext;
+    private readonly Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage;
+    private readonly IMapScanBlockSource blockSource;
+    private CancellationTokenSource? activeCancellation;
+    private MapScanProcessLease? activeScanLease;
+    private Task? activeTask;
+    private TaskCompletionSource<object?>? activeTerminal;
+    private bool closed;
+    private bool startPending;
+    private bool isReading;
+    private string phase = "idle";
+    private string scanRunId = string.Empty;
+    private string scanMode = "normal";
+    private string scanStrategy = "none";
+    private IReadOnlyList<string> selectedTypes = MapScanContract.RecoveredDefaultTypes.ToArray();
+    private int serverId;
+    private string serverIdSource = "none";
+    private bool isInWorld;
+    private bool worldStatePresent;
+    private int homeServerId = 0;
+    private int[] seasonServerIds = [];
+    private long worldId;
+    private int tileWidth;
+    private int tileHeight;
+    private int? tileX;
+    private int? tileY;
+    private bool hasWorldDimensions;
+    private int concurrency = 8;
+    private int totalBlocks;
+    private int completedBlocks;
+    private int failedBlocks;
+    private int inflightBlocks;
+    private int unreadBlocks;
+    private double scanRate;
+    private double progressPercent;
+    private double? acquisitionProgressPercent;
+    private bool nativeCaptureReady;
+    private int nativePendingRecords;
+    private int nativeDroppedRecords;
+    private bool resumeAvailable;
+    private long? startedAt;
+    private bool startedAtPresent;
+    private bool lastErrorPresent;
+    private bool nativeCaptureReadyPresent;
+    private bool nativeCountersPresent;
+    private bool resumeAvailablePresent;
+    private bool coordinateJumping;
+    private bool serverJumping;
+    private bool treasureInspecting;
+    private bool trainCoverageReading;
+    private int liveServerId;
+    private int[] truckMatchServerIds = [];
+    private string? lastError;
+    private string? cancellationCleanupError;
+
+    public ManualMapScanCommandService(
+        OverviewLifecycleService lifecycle,
+        MapDataStore store)
+    {
+        ArgumentNullException.ThrowIfNull(lifecycle);
+        this.store = store ?? throw new ArgumentNullException(nameof(store));
+        currentClientSource = new CurrentClientMapBlockSource(lifecycle);
+        getContext = currentClientSource.GetCurrentContextAsync;
+        jumpToServer = currentClientSource.JumpToServerAsync;
+        followMarch = currentClientSource.FollowMarchAsync;
+        getAssetImage = currentClientSource.GetAssetImageAsync;
+        inspectTreasureStates = currentClientSource.InspectTreasureStatesAsync;
+        getLiveServerId = lifecycle.GetLiveServerId;
+        getStatusContext = currentClientSource.GetMapStatusContextAsync;
+        getTrainListCoverage = currentClientSource.GetTrainListCoverageAsync;
+        blockSource = currentClientSource;
+        ReconcileInterruptedScansAtStartup();
+    }
+
+    internal ManualMapScanCommandService(
+        MapDataStore store,
+        Func<CancellationToken, Task<CurrentClientMapContext>> getContext,
+        IMapScanBlockSource blockSource,
+        Func<int, CancellationToken, Task<CurrentClientServerJumpResult>>? jumpToServer = null,
+        Func<int?>? getLiveServerId = null,
+        Func<int, long, CancellationToken, Task<CurrentClientMarchFollowResult>>? followMarch = null,
+        Func<string?, string?, CancellationToken, Task<CurrentClientAssetImageResult>>? getAssetImage = null,
+        Func<int, IReadOnlyList<CurrentClientTreasureInspectionRecord>, bool, CancellationToken, Task<CurrentClientTreasureInspectionResult>>? inspectTreasureStates = null,
+        Func<CancellationToken, Task<CurrentClientTrainListCoverageResult>>? getTrainListCoverage = null,
+        Func<CancellationToken, Task<CurrentClientMapStatusContext>>? getStatusContext = null)
+    {
+        this.store = store ?? throw new ArgumentNullException(nameof(store));
+        this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
+        this.blockSource = blockSource ?? throw new ArgumentNullException(nameof(blockSource));
+        this.jumpToServer = jumpToServer;
+        this.getLiveServerId = getLiveServerId;
+        this.getStatusContext = getStatusContext;
+        this.followMarch = followMarch;
+        this.getAssetImage = getAssetImage;
+        this.inspectTreasureStates = inspectTreasureStates;
+        this.getTrainListCoverage = getTrainListCoverage;
+        currentClientSource = null!;
+        ReconcileInterruptedScansAtStartup();
+    }
+
+    public event Action<object>? StatusChanged;
+    public event Action? DispatchPlunderChanged;
+    public event Action? TruckPlunderChanged;
+
+    public bool CanHandle(string command) =>
+        command is "map_scan_start" or "map_scan_stop" or "map_scan_status" or "map_scan_clear" or
+            "map_coordinate_jump" or "map_march_follow" or "server_jump" or
+            "map_plunder_jobs_list" or "map_dispatch_plunder_schedule" or
+            "map_dispatch_plunder_cancel" or "map_truck_plunder_schedule" or
+            "map_truck_plunder_cancel" or
+            "game_asset_image" or "map_train_list_coverage" or
+            "map_treasure_state_refresh" or "map_treasure_state_refresh_all" or
+            "map_treasure_claim_status";
+
+    public async Task<object?> InvokeAsync(
+        string command,
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        if (command == "map_plunder_jobs_list")
+        {
+            MapPlunderJobsSnapshot jobs = store.ReadPlunderJobs();
+            return new { dispatchJobs = jobs.DispatchJobs, truckJobs = jobs.TruckJobs };
+        }
+        if (command == "map_dispatch_plunder_schedule")
+            return ScheduleDispatchPlunder(payload);
+        if (command == "map_dispatch_plunder_cancel")
+        {
+            CancelDispatchPlunder(payload);
+            return null;
+        }
+        if (command == "map_truck_plunder_schedule")
+        {
+            ScheduleTruckPlunder(payload, cancellationToken);
+            return null;
+        }
+        if (command == "map_truck_plunder_cancel")
+        {
+            CancelTruckPlunder(payload);
+            return null;
+        }
+        if (command == "game_asset_image")
+            return await GetAssetImageAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_train_list_coverage")
+            return await ReadTrainListCoverageAsync(cancellationToken).ConfigureAwait(false);
+        if (command is "map_treasure_state_refresh" or
+            "map_treasure_state_refresh_all" or
+            "map_treasure_claim_status")
+        {
+            return await InspectTreasureStateAsync(command, payload, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        if (command == "map_scan_status")
+        {
+            await RefreshStatusAsync(cancellationToken).ConfigureAwait(false);
+            return CreateStatus();
+        }
+        if (command == "map_scan_clear") return ClearMapScan(payload);
+        if (command == "server_jump")
+            return await JumpToServerAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_coordinate_jump")
+            return await JumpToCoordinateAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_march_follow")
+            return await FollowMarchAsync(payload, cancellationToken).ConfigureAwait(false);
+        if (command == "map_scan_stop")
+        {
+            await StopAsync(cancellationToken).ConfigureAwait(false);
+            return CreateStatus();
+        }
+        if (command != "map_scan_start")
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                $"Manual Map Scan cannot handle '{command}'.");
+
+        MapScanStartOptions options = MapScanContract.NormalizeStart(payload);
+        return await StartAsync(options, cancellationToken).ConfigureAwait(false);
+    }
+
+
+    private async Task<object> ReadTrainListCoverageAsync(CancellationToken cancellationToken)
+    {
+        if (getTrainListCoverage is null)
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Train-list coverage requires the live current-client source.");
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException("SCAN_RUNNING", "stop the map scan first");
+            if (coordinateJumping || serverJumping || treasureInspecting || trainCoverageReading)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            trainCoverageReading = true;
+        }
+
+        try
+        {
+            CurrentClientTrainListCoverageResult result =
+                await getTrainListCoverage(cancellationToken).ConfigureAwait(false);
+            int[] match = result.MatchServerIds.Distinct().OrderBy(id => id).ToArray();
+            lock (gate)
+            {
+                liveServerId = result.LiveServerId;
+                if (serverId <= 0) serverId = result.LiveServerId;
+                truckMatchServerIds = match;
+            }
+            PublishStatusChanged();
+            return new
+            {
+                liveServerId = result.LiveServerId,
+                matchServerIds = match,
+                truckServerIds = result.TruckServerIds.ToArray(),
+                railwayServerIds = result.RailwayServerIds.ToArray(),
+            };
+        }
+        finally
+        {
+            lock (gate) trainCoverageReading = false;
+        }
+    }
+
+    private async Task<object> InspectTreasureStateAsync(
+        string command,
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        if (inspectTreasureStates is null)
+            throw new BridgeCommandException(
+                "COMMAND_NOT_IMPLEMENTED",
+                "Treasure state inspection requires the live current-client source.");
+
+        int requestedServerId;
+        if (command == "map_treasure_claim_status")
+        {
+            requestedServerId = getLiveServerId?.Invoke() ?? 0;
+            if (requestedServerId <= 0)
+                throw new BridgeCommandException("GAME_DISCONNECTED", "game disconnected");
+        }
+        else
+        {
+            requestedServerId = MapDataQueryContract.RequiredServerId(payload);
+        }
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException(
+                    "MAP_SCAN_CLOSED",
+                    "The Map Data window is closing.");
+            if (isReading)
+                throw new BridgeCommandException(
+                    "SCAN_RUNNING",
+                    "stop the map scan first");
+            if (coordinateJumping || serverJumping || treasureInspecting)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            treasureInspecting = true;
+        }
+
+        try
+        {
+            int liveServerId = getLiveServerId?.Invoke() ?? 0;
+            if (liveServerId <= 0)
+                throw new BridgeCommandException("GAME_DISCONNECTED", "game disconnected");
+            if (requestedServerId != liveServerId)
+                throw new BridgeCommandException(
+                    "SERVER_MISMATCH",
+                    "current game server does not match map data server");
+
+            IReadOnlyList<MapStoredRecord> published = store.ReadRecords("treasure", requestedServerId);
+            IReadOnlyList<MapStoredRecord> selected;
+            if (command == "map_treasure_claim_status")
+            {
+                selected = Array.Empty<MapStoredRecord>();
+            }
+            else if (command == "map_treasure_state_refresh_all")
+            {
+                selected = published;
+            }
+            else
+            {
+                selected = SelectRequestedTreasureRecords(payload, published);
+            }
+
+            CurrentClientTreasureInspectionRecord[] records =
+                selected.Select(BuildTreasureInspectionRecord).ToArray();
+
+            string? playerUid = null;
+            string? allianceId = null;
+            var states = new List<JsonElement>(records.Length);
+            if (records.Length == 0)
+            {
+                CurrentClientTreasureInspectionResult empty = await inspectTreasureStates(
+                        requestedServerId,
+                        Array.Empty<CurrentClientTreasureInspectionRecord>(),
+                        false,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+                playerUid = empty.PlayerUid;
+                allianceId = empty.AllianceId;
+                states.AddRange(empty.States.Select(state => state.Clone()));
+            }
+            else
+            {
+                for (int offset = 0; offset < records.Length; offset += 100)
+                {
+                    CurrentClientTreasureInspectionRecord[] batch =
+                        records.Skip(offset).Take(Math.Min(100, records.Length - offset)).ToArray();
+                    CurrentClientTreasureInspectionResult result = await inspectTreasureStates(
+                            requestedServerId,
+                            batch,
+                            true,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                    if (playerUid is null)
+                    {
+                        playerUid = result.PlayerUid;
+                        allianceId = result.AllianceId;
+                    }
+                    else if (!string.Equals(playerUid, result.PlayerUid, StringComparison.Ordinal) ||
+                             !string.Equals(allianceId, result.AllianceId, StringComparison.Ordinal))
+                    {
+                        throw new InvalidDataException(
+                            "Treasure inspection player identity changed between internal batches.");
+                    }
+                    states.AddRange(result.States.Select(state => state.Clone()));
+                }
+            }
+
+            if (string.IsNullOrEmpty(playerUid) || allianceId is null)
+                throw new InvalidDataException("Treasure inspection omitted player identity.");
+
+            if (states.Count > 0)
+            {
+                var sourceByUuid = records.ToDictionary(record => record.Uuid, StringComparer.Ordinal);
+                long updatedAt = RecoveredWallClock.UnixTimeMilliseconds();
+                var cacheRows = new List<MapTreasureClaimState>(states.Count);
+                foreach (JsonElement state in states)
+                {
+                    string uuid = state.GetProperty("uuid").GetString()!;
+                    CurrentClientTreasureInspectionRecord source = sourceByUuid[uuid];
+                    long? expireTime = ReadOptionalNonNegativeInt64(state, "expireTime") ??
+                                       source.ExpireTime;
+                    cacheRows.Add(new MapTreasureClaimState(
+                        requestedServerId,
+                        playerUid,
+                        uuid,
+                        expireTime,
+                        updatedAt,
+                        state.GetRawText()));
+                }
+                store.UpsertTreasureClaimStates(cacheRows, updatedAt);
+            }
+
+            return new
+            {
+                playerUid,
+                allianceId,
+                states = states.ToArray(),
+            };
+        }
+        finally
+        {
+            lock (gate) treasureInspecting = false;
+        }
+    }
+
+    private static IReadOnlyList<MapStoredRecord> SelectRequestedTreasureRecords(
+        JsonElement payload,
+        IReadOnlyList<MapStoredRecord> published)
+    {
+        if (!payload.TryGetProperty("records", out JsonElement rows) ||
+            rows.ValueKind != JsonValueKind.Array)
+        {
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "Treasure state records are required.");
+        }
+        if (rows.GetArrayLength() > 200)
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "Treasure page refresh cannot exceed 200 records.");
+
+        var byUuid = published
+            .Where(record => !string.IsNullOrEmpty(record.Uuid))
+            .ToDictionary(record => record.Uuid!, StringComparer.Ordinal);
+        var selected = new List<MapStoredRecord>(rows.GetArrayLength());
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object ||
+                !row.TryGetProperty("uuid", out JsonElement uuidValue) ||
+                uuidValue.ValueKind != JsonValueKind.String)
+            {
+                throw new BridgeCommandException(
+                    "INVALID_REQUEST",
+                    "Treasure state record UUID is required.");
+            }
+            string uuid = uuidValue.GetString() ?? string.Empty;
+            if (uuid.Length == 0 || !seen.Add(uuid) || !byUuid.TryGetValue(uuid, out MapStoredRecord? record))
+            {
+                throw new BridgeCommandException(
+                    "INVALID_REQUEST",
+                    "Treasure state records must uniquely match published rows.");
+            }
+            selected.Add(record);
+        }
+        return selected;
+    }
+
+    private static CurrentClientTreasureInspectionRecord BuildTreasureInspectionRecord(
+        MapStoredRecord record)
+    {
+        if (record.PointIndex is not > 0)
+            throw new BridgeCommandException(
+                "TREASURE_STATE_UNAVAILABLE",
+                "Treasure state is unavailable.",
+                "published Treasure row has no point index");
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(record.DataJson);
+            JsonElement row = document.RootElement;
+            string uuid = record.Uuid ??
+                (row.TryGetProperty("uuid", out JsonElement uuidValue) &&
+                 uuidValue.ValueKind == JsonValueKind.String
+                    ? uuidValue.GetString() ?? string.Empty
+                    : string.Empty);
+            int treasureType = checked((int)(ReadOptionalNonNegativeInt64(row, "treasureType") ?? 0));
+            int suppliesType = checked((int)(ReadOptionalNonNegativeInt64(row, "suppliesType") ?? 0));
+            if (uuid.Length == 0 ||
+                !((treasureType > 0 && suppliesType == 0) ||
+                  (treasureType == 0 && suppliesType > 0)))
+            {
+                throw new BridgeCommandException(
+                    "TREASURE_STATE_UNAVAILABLE",
+                    "Treasure state is unavailable.",
+                    "published Treasure row has invalid type identity");
+            }
+
+            return new CurrentClientTreasureInspectionRecord(
+                record.ServerId,
+                record.PointIndex.Value,
+                uuid,
+                treasureType,
+                suppliesType,
+                ReadOptionalString(row, "allianceId") ?? string.Empty,
+                ReadOptionalString(row, "viewerUid") ?? string.Empty,
+                ReadOptionalString(row, "viewerAllianceId") ?? string.Empty,
+                ReadOptionalBoolean(row, "viewerHasReward"),
+                ReadOptionalBoolean(row, "viewerIsWorking"),
+                ReadOptionalBoolean(row, "complete"),
+                ReadOptionalNonNegativeInt64(row, "expireTime"),
+                ReadOptionalNonNegativeInt64(row, "startTime"),
+                ReadOptionalNonNegativeInt64(row, "completionTime"),
+                ReadOptionalNonNegativeInt32(row, "rewardedCount"),
+                ReadOptionalNonNegativeInt32(row, "diggingCount"),
+                ReadOptionalNonNegativeInt32(row, "rewardMax"),
+                ReadOptionalNonNegativeInt32(row, "remainingBoxes"),
+                ReadOptionalNonNegativeInt64(row, "createTime"),
+                ReadOptionalString(row, "discovererAllianceId") ?? string.Empty,
+                ReadOptionalString(row, "discovererUid") ?? string.Empty,
+                ReadOptionalNonNegativeInt32(row, "workState"),
+                ReadOptionalNonNegativeInt32(row, "userCount"));
+        }
+        catch (JsonException error)
+        {
+            throw new BridgeCommandException(
+                "MAP_INDEX_CORRUPT",
+                "Stored Treasure row contains invalid JSON.",
+                error.Message);
+        }
+    }
+
+    private static long? ReadOptionalNonNegativeInt64(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out long numeric))
+            return numeric >= 0 ? numeric : null;
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out long parsed))
+            return parsed >= 0 ? parsed : null;
+        return null;
+    }
+
+    private static int? ReadOptionalNonNegativeInt32(JsonElement row, string name)
+    {
+        long? value = ReadOptionalNonNegativeInt64(row, name);
+        return value is >= 0 and <= int.MaxValue ? checked((int)value.Value) : null;
+    }
+
+    private static string? ReadOptionalString(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+        return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+    }
+
+    private static bool? ReadOptionalBoolean(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value)) return null;
+        return value.ValueKind switch
+        {
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            _ => null,
+        };
+    }
+
+    private async Task<object> GetAssetImageAsync(
+        JsonElement payload,
+        CancellationToken cancellationToken)
+    {
+        string? assetPath = ReadOptionalAssetImageString(payload, "assetPath")?.Trim();
+        string? spriteName = ReadOptionalAssetImageString(payload, "spriteName")?.Trim();
+        bool hasAssetPath = !string.IsNullOrEmpty(assetPath);
+        bool hasSpriteName = !string.IsNullOrEmpty(spriteName);
+        if (hasAssetPath == hasSpriteName)
+            throw new BridgeCommandException(
+                "INVALID_REQUEST",
+                "exactly one image source is required");
+
+        if (getAssetImage is null)
+            throw new BridgeCommandException(
+                "GAME_DISCONNECTED",
+                "game disconnected");
+
+        CurrentClientAssetImageResult result = await getAssetImage(
+                hasAssetPath ? assetPath : null,
+                hasSpriteName ? spriteName : null,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return new
+        {
+            dataUrl = result.DataUrl,
+        };
+    }
+
+    private static string? ReadOptionalAssetImageString(JsonElement payload, string name)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) ||
+            value.ValueKind != JsonValueKind.String)
+            return null;
+        return value.GetString();
+    }
+
+    private int? TryResolveLiveServerId()
+    {
+        if (getLiveServerId is null) return null;
+        try
+        {
+            return getLiveServerId();
+        }
+        catch (Exception)
+        {
+            // Live-server resolution is advisory. Strict Clear admission still
+            // validates the current scan-state identity/source and fails closed when
+            // no authoritative live server can be established.
+            return null;
+        }
+    }
+
+    private object ClearMapScan(JsonElement payload)
+    {
+        int requestedServerId = MapDataQueryContract.RequiredServerIdOrAll(payload);
+        bool shouldResolveLiveServer;
+        lock (gate)
+            shouldResolveLiveServer = !closed && !isReading;
+
+        int? resolvedServerId = shouldResolveLiveServer ? TryResolveLiveServerId() : null;
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (resolvedServerId is > 0)
+            {
+                liveServerId = resolvedServerId.Value;
+                serverId = resolvedServerId.Value;
+                serverIdSource = MapScanClearOwnership.LiveServerSource;
+            }
+            else if (serverId <= 0)
+            {
+                serverIdSource = "none";
+            }
+
+            MapScanClearOwnership.Validate(
+                requestedServerId,
+                isReading,
+                serverId,
+                serverIdSource);
+
+            store.ClearServer(requestedServerId);
+            scanRunId = string.Empty;
+            phase = "idle";
+            scanStrategy = "none";
+            selectedTypes = MapScanContract.RecoveredDefaultTypes.ToArray();
+            totalBlocks = 0;
+            completedBlocks = 0;
+            failedBlocks = 0;
+            inflightBlocks = 0;
+            unreadBlocks = 0;
+            scanRate = 0;
+            progressPercent = 0;
+            nativePendingRecords = 0;
+            nativeDroppedRecords = 0;
+            nativeCountersPresent = true;
+            startedAt = null;
+            startedAtPresent = true;
+            lastError = null;
+            lastErrorPresent = true;
+            resumeAvailable = false;
+            resumeAvailablePresent = true;
+            acquisitionProgressPercent = null;
+        }
+
+        PublishStatusChanged();
+        return CreateStatus();
+    }
+
+    private IReadOnlyList<JsonElement> ScheduleDispatchPlunder(JsonElement payload)
+    {
+        IReadOnlyList<DispatchPlunderScheduleRow> rows =
+            DispatchPlunderContract.NormalizeScheduleRows(payload);
+        var scheduled = new List<JsonElement>(rows.Count);
+        foreach (DispatchPlunderScheduleRow row in rows)
+        {
+            JsonElement? persisted = store.ScheduleDispatchPlunderRow(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.CompletionTime,
+                row.PlunderAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+            if (!persisted.HasValue)
+                throw new BridgeCommandException("MAP_DATA_ERROR", "scheduled plunder job is missing");
+            scheduled.Add(persisted.Value);
+        }
+
+        DispatchPlunderChanged?.Invoke();
+        return scheduled;
+    }
+
+    private void CancelDispatchPlunder(JsonElement payload)
+    {
+        DispatchPlunderTarget target = DispatchPlunderContract.NormalizeCancel(payload);
+        bool cancelled = store.CancelDispatchPlunder(
+            target.ServerId,
+            target.TaskUuid,
+            RecoveredWallClock.UnixTimeMilliseconds());
+        if (!cancelled)
+            throw new BridgeCommandException("NOT_FOUND", "scheduled plunder job not found");
+
+        DispatchPlunderChanged?.Invoke();
+    }
+
+    private sealed record TruckScheduleRow(
+        long ServerId,
+        string Uuid,
+        string Json,
+        long ExecuteAt,
+        long? ExpireAt);
+
+    private void ScheduleTruckPlunder(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("rows", out JsonElement rows) ||
+            rows.ValueKind != JsonValueKind.Array)
+        {
+            throw new BridgeCommandException("INVALID_REQUEST", "truck rows are required");
+        }
+
+        int count = rows.GetArrayLength();
+        if (count is < 1 or > 200)
+            throw new BridgeCommandException("INVALID_REQUEST", "select between 1 and 200 trucks");
+
+        var validated = new List<TruckScheduleRow>(count);
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object)
+                throw InvalidTruckSchedule();
+
+            long serverId = ReadRecoveredIntegerLike(row, "serverId");
+            string? uuid = row.TryGetProperty("uuid", out JsonElement uuidValue) &&
+                           uuidValue.ValueKind == JsonValueKind.String
+                ? uuidValue.GetString()
+                : null;
+            long executeAt = ReadRecoveredIntegerLike(row, "executeAt");
+            if (executeAt <= 0)
+                executeAt = ReadRecoveredIntegerLike(row, "protectTime");
+            long robTimes = ReadRecoveredIntegerLike(row, "robTimes");
+            long maxLootCount = ReadRecoveredIntegerLike(row, "maxLootCount");
+
+            bool decimalUuid = !string.IsNullOrEmpty(uuid) &&
+                               uuid.All(ch => ch is >= '0' and <= '9');
+            if (serverId <= 0 ||
+                !decimalUuid ||
+                executeAt <= 0 ||
+                maxLootCount <= 0 ||
+                robTimes >= maxLootCount)
+            {
+                throw InvalidTruckSchedule();
+            }
+
+            long expireValue = ReadRecoveredIntegerLike(row, "expireAt");
+            validated.Add(new TruckScheduleRow(
+                serverId,
+                uuid!,
+                row.GetRawText(),
+                executeAt,
+                expireValue > 0 ? expireValue : null));
+        }
+
+        foreach (TruckScheduleRow row in validated)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            store.ScheduleTruckPlunder(
+                row.ServerId,
+                row.Uuid,
+                row.Json,
+                row.ExecuteAt,
+                row.ExpireAt,
+                RecoveredWallClock.UnixTimeMilliseconds());
+        }
+
+        TruckPlunderChanged?.Invoke();
+    }
+
+    private void CancelTruckPlunder(JsonElement payload)
+    {
+        long serverId = ReadRecoveredIntegerLike(payload, "serverId");
+        string? trainUuid =
+            payload.TryGetProperty("trainUuid", out JsonElement uuidValue) &&
+            uuidValue.ValueKind == JsonValueKind.String
+                ? uuidValue.GetString()
+                : null;
+        if (serverId <= 0 || string.IsNullOrWhiteSpace(trainUuid))
+            throw new BridgeCommandException("INVALID_TARGET", "truck target is required");
+
+        bool cancelled = store.CancelTruckPlunder(
+            serverId,
+            trainUuid!,
+            RecoveredWallClock.UnixTimeMilliseconds());
+        if (!cancelled)
+            throw new BridgeCommandException("NOT_FOUND", "scheduled truck job not found");
+
+        TruckPlunderChanged?.Invoke();
+    }
+
+    private static BridgeCommandException InvalidTruckSchedule() =>
+        new("INVALID_REQUEST", "truck scheduling data is invalid");
+
+    private static long ReadRecoveredIntegerLike(JsonElement row, string name)
+    {
+        if (!row.TryGetProperty(name, out JsonElement value)) return 0;
+        if (value.ValueKind == JsonValueKind.Number)
+        {
+            if (value.TryGetInt64(out long integer)) return integer;
+            if (value.TryGetDouble(out double floating) && double.IsFinite(floating))
+            {
+                if (floating >= long.MaxValue) return long.MaxValue;
+                if (floating <= long.MinValue) return long.MinValue;
+                return (long)floating;
+            }
+            return 0;
+        }
+
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.AllowLeadingSign,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out long parsed))
+        {
+            return parsed;
+        }
+
+        return 0;
+    }
+
+    private async Task<object> JumpToServerAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("serverId", out JsonElement value) ||
+            !value.TryGetInt32(out int targetServerId) ||
+            targetServerId is < 1 or > 99999)
+        {
+            throw new BridgeCommandException(
+                "INVALID_SERVER_ID",
+                "server ID must be an integer from 1 to 99999");
+        }
+
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            if (isReading || coordinateJumping || serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (jumpToServer is null)
+                throw new BridgeCommandException(
+                    "COMMAND_NOT_IMPLEMENTED",
+                    "Server jump requires the live current-client source.");
+            serverJumping = true;
+        }
+
+        try
+        {
+            CurrentClientServerJumpResult result = await jumpToServer(
+                targetServerId, cancellationToken).ConfigureAwait(false);
+            lock (gate)
+            {
+                serverId = targetServerId;
+                serverIdSource = "live";
+                liveServerId = targetServerId;
+                truckMatchServerIds = [];
+                lastError = null;
+            }
+            PublishStatusChanged();
+            return new
+            {
+                previousServerId = result.PreviousServerId,
+                serverId = result.ServerId,
+                changed = result.Changed,
+            };
+        }
+        finally
+        {
+            lock (gate) serverJumping = false;
+        }
+    }
+
+
+    private async Task<object> FollowMarchAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        if (!payload.TryGetProperty("serverId", out JsonElement serverValue) ||
+            !serverValue.TryGetInt32(out int requestedServerId) ||
+            requestedServerId <= 0 ||
+            !payload.TryGetProperty("marchUuid", out JsonElement marchValue) ||
+            !TryReadPositiveInt64(marchValue, out long marchUuid))
+        {
+            throw new BridgeCommandException(
+                "INVALID_MARCH",
+                "server ID and march UUID are required");
+        }
+
+        lock (gate)
+        {
+            if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (coordinateJumping)
+                throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
+            if (followMarch is null)
+                throw new BridgeCommandException(
+                    "COMMAND_NOT_IMPLEMENTED",
+                    "March Follow requires the live current-client source.");
+            coordinateJumping = true;
+        }
+
+        try
+        {
+            CurrentClientMarchFollowResult result = await followMarch(
+                requestedServerId, marchUuid, cancellationToken).ConfigureAwait(false);
+            return new
+            {
+                serverId = result.ServerId,
+                marchUuid = result.MarchUuid.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            };
+        }
+        finally
+        {
+            lock (gate) coordinateJumping = false;
+        }
+    }
+
+    private static bool TryReadPositiveInt64(JsonElement value, out long parsed)
+    {
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out parsed))
+            return parsed > 0;
+        if (value.ValueKind == JsonValueKind.String &&
+            long.TryParse(
+                value.GetString(),
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out parsed))
+        {
+            return parsed > 0;
+        }
+        parsed = 0;
+        return false;
+    }
+
+    private async Task<object> JumpToCoordinateAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        int requestedServerId = RequirePayloadInt(payload, "serverId", positive: true);
+        int x = RequirePayloadInt(payload, "x", positive: false);
+        int y = RequirePayloadInt(payload, "y", positive: false);
+        lock (gate)
+        {
+            if (closed) throw new BridgeCommandException("MAP_SCAN_CLOSED", "The Map Data window is closing.");
+            MapScanStartOwnership.RejectAlreadyRunning(isReading);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (coordinateJumping) throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
+            if (currentClientSource is null) throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Map coordinate jump requires the live current-client source.");
+            coordinateJumping = true;
+        }
+        try
+        {
+            CurrentClientCoordinateJumpResult result = await currentClientSource.JumpToCoordinateAsync(
+                requestedServerId, x, y, cancellationToken).ConfigureAwait(false);
+            return new { serverId = result.ServerId, x = result.X, y = result.Y };
+        }
+        finally
+        {
+            lock (gate) coordinateJumping = false;
+        }
+    }
+
+    private static int RequirePayloadInt(JsonElement payload, string name, bool positive)
+    {
+        if (!payload.TryGetProperty(name, out JsonElement value) || !value.TryGetInt32(out int parsed) ||
+            (positive ? parsed <= 0 : parsed < 0))
+            throw new BridgeCommandException("INVALID_PAYLOAD", $"{name} is invalid.");
+        return parsed;
+    }
+
+    private void ReconcileInterruptedScansAtStartup()
+    {
+        using MapScanProcessLease? lease = MapScanProcessLease.TryAcquire(store);
+        if (lease is null) return;
+        store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
+    }
+
+    private async Task<object> StartAsync(
+        MapScanStartOptions options,
+        CancellationToken cancellationToken)
+    {
+        CancellationTokenSource scanCancellation;
+        string runId;
+        lock (gate)
+        {
+            if (closed)
+                throw new BridgeCommandException(
+                    "MAP_SCAN_CLOSED",
+                    "The Map Data window is closing and cannot start another scan.");
+            MapScanStartOwnership.RejectAlreadyRunning(isReading || startPending);
+            if (serverJumping)
+                throw new BridgeCommandException(
+                    "GAME_OPERATION_IN_PROGRESS",
+                    "another game operation is already in progress");
+            if (coordinateJumping)
+                throw new BridgeCommandException("MAP_NAVIGATION_RUNNING", "A map coordinate jump is already in progress.");
+
+            MapScanProcessLease? scanLease = MapScanProcessLease.TryAcquire(store);
+            if (scanLease is null)
+                throw new BridgeCommandException(
+                    MapScanStartOwnership.ActiveScanErrorCode,
+                    MapScanStartOwnership.ActiveScanErrorMessage);
+            try
+            {
+                // IMPLEMENTATION POLICY R7-136: public resume remains unsupported. Once
+                // this process owns the exclusive per-profile scan lease, any persisted
+                // running row is necessarily orphaned by a prior owner and is failed
+                // durably before a fresh run can start. Staging/checkpoints are retained
+                // as interruption evidence and can never publish from the failed run.
+                store.ReconcileInterruptedEngineScans(RecoveredWallClock.UnixTimeMilliseconds());
+                startPending = true;
+                cancellationCleanupError = null;
+                runId = string.Empty;
+                scanCancellation = new CancellationTokenSource();
+                activeCancellation = scanCancellation;
+                activeScanLease = scanLease;
+                scanLease = null;
+                activeTerminal = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            }
+            finally
+            {
+                scanLease?.Dispose();
+            }
+        }
+
+        try
+        {
+            CurrentClientMapContext context;
+            using (CancellationTokenSource linked =
+                   CancellationTokenSource.CreateLinkedTokenSource(
+                       cancellationToken, scanCancellation.Token))
+            {
+                context = await getContext(linked.Token).ConfigureAwait(false);
+            }
+            MapScanStartOwnership.RequireLiveServer(context.ServerId, "live");
+            MapScanBlockGrid grid = MapScanGeometry.FromTileDimensions(
+                context.TileWidth,
+                context.TileHeight);
+            if (grid.TotalBlocks > int.MaxValue)
+                throw new BridgeCommandException(
+                    "MAP_SIZE_UNAVAILABLE",
+                    "world map dimensions are unavailable");
+
+            int targetServerId = context.ServerId;
+            MapScanStrategyPlan strategy = MapScanStrategyPlanner.Plan(
+                context,
+                options.SelectedTypes,
+                options.ScanMode);
+            runId = Guid.NewGuid().ToString("N");
+            var request = new MapScanExecutionRequest(
+                runId,
+                targetServerId,
+                context.WorldId,
+                context.TileWidth,
+                context.TileHeight,
+                options.SelectedTypes,
+                strategy.Concurrency,
+                MaxAttemptsPerBlock: 2,
+                PlayerTileX: context.PlayerTileX,
+                PlayerTileY: context.PlayerTileY,
+                ScanMode: strategy.ScanMode,
+                LaunchSessionId: context.LaunchSessionId,
+                LiveServerId: context.ServerId);
+
+            lock (gate)
+            {
+                if (closed || !ReferenceEquals(activeCancellation, scanCancellation) ||
+                    scanCancellation.IsCancellationRequested)
+                    throw new OperationCanceledException(scanCancellation.Token);
+                startPending = false;
+                isReading = true;
+                serverId = targetServerId;
+                serverIdSource = "live";
+                liveServerId = context.ServerId;
+                isInWorld = true;
+                worldStatePresent = true;
+                worldId = context.WorldId;
+                tileWidth = context.TileWidth;
+                tileHeight = context.TileHeight;
+                tileX = context.PlayerTileX;
+                tileY = context.PlayerTileY;
+                hasWorldDimensions = true;
+                scanRunId = runId;
+                selectedTypes = options.SelectedTypes.ToArray();
+                scanMode = strategy.ScanMode;
+                scanStrategy = strategy.StrategyId;
+                concurrency = strategy.Concurrency;
+                totalBlocks = checked((int)grid.TotalBlocks);
+                completedBlocks = 0;
+                failedBlocks = 0;
+                inflightBlocks = 0;
+                unreadBlocks = totalBlocks;
+                scanRate = 0;
+                progressPercent = 0;
+                acquisitionProgressPercent = null;
+                phase = "scanning";
+                nativePendingRecords = 0;
+                nativeDroppedRecords = 0;
+                nativeCountersPresent = true;
+                nativeCaptureReady = false;
+                nativeCaptureReadyPresent = true;
+                startedAt = RecoveredWallClock.UnixTimeMilliseconds();
+                startedAtPresent = true;
+                lastError = null;
+                lastErrorPresent = true;
+                resumeAvailable = false;
+                resumeAvailablePresent = true;
+            }
+            PublishStatusChanged();
+
+            // Compatibility acquisition is host-driven; treat successful host setup as
+            // the accepted boundary for the original mutable nativeCaptureReady field.
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation) && isReading)
+                    nativeCaptureReady = true;
+            }
+            PublishStatusChanged();
+
+            var engine = new MapScanEngine(
+                blockSource,
+                new MapDataStoreScanSink(store),
+                UpdateProgress);
+            Task task = RunEngineAsync(engine, request, scanCancellation);
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                    activeTask = task;
+            }
+            return CreateStatus();
+        }
+        catch (Exception error)
+        {
+            CleanupFailedStart(scanCancellation, error);
+            throw;
+        }
+    }
+
+    private async Task RunEngineAsync(
+        MapScanEngine engine,
+        MapScanExecutionRequest request,
+        CancellationTokenSource scanCancellation)
+    {
+        try
+        {
+            await engine.ExecuteAsync(request, scanCancellation.Token).ConfigureAwait(false);
+            bool changed = false;
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "idle";
+                    inflightBlocks = 0;
+                    unreadBlocks = 0;
+                    progressPercent = totalBlocks > 0 ? 100d : 0d;
+                    resumeAvailable = false;
+                    resumeAvailablePresent = true;
+                    acquisitionProgressPercent = null;
+                    changed = true;
+                }
+            }
+            if (changed) PublishStatusChanged();
+        }
+        catch (OperationCanceledException) when (scanCancellation.IsCancellationRequested)
+        {
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "idle";
+                    inflightBlocks = 0;
+                    lastError = cancellationCleanupError;
+                    lastErrorPresent = true;
+                    resumeAvailable = false;
+                    resumeAvailablePresent = true;
+                    cancellationCleanupError = null;
+                    acquisitionProgressPercent = null;
+                }
+            }
+        }
+        catch (Exception error)
+        {
+            bool changed = false;
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    isReading = false;
+                    phase = "error";
+                    inflightBlocks = 0;
+                    lastError = error.Message;
+                    lastErrorPresent = true;
+                    acquisitionProgressPercent = null;
+                    changed = true;
+                }
+            }
+            if (changed) PublishStatusChanged();
+        }
+        finally
+        {
+            TaskCompletionSource<object?>? terminal = null;
+            MapScanProcessLease? scanLease = null;
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, scanCancellation))
+                {
+                    activeCancellation = null;
+                    activeTask = null;
+                    scanLease = activeScanLease;
+                    activeScanLease = null;
+                    terminal = activeTerminal;
+                    activeTerminal = null;
+                }
+            }
+            scanLease?.Dispose();
+            terminal?.TrySetResult(null);
+            scanCancellation.Dispose();
+        }
+    }
+
+    private void UpdateProgress(MapScanEngineProgress progress)
+    {
+        lock (gate)
+        {
+            if (!isReading) return;
+            phase = progress.Phase;
+            totalBlocks = progress.TotalBlocks;
+            completedBlocks = progress.CompletedBlocks;
+            failedBlocks = progress.FailedBlocks;
+            inflightBlocks = progress.InflightBlocks;
+            unreadBlocks = progress.UnreadBlocks;
+            scanRate = progress.ScanRate;
+            progressPercent = MapScanProgress.Derive(
+                totalBlocks, completedBlocks, failedBlocks, progress.Phase).ProgressPercent;
+            if (progress.AcquisitionProgressPercent.HasValue)
+                acquisitionProgressPercent = Math.Clamp(progress.AcquisitionProgressPercent.Value, 0d, 100d);
+            else if (!string.Equals(progress.Phase, "scanning", StringComparison.Ordinal))
+                acquisitionProgressPercent = null;
+        }
+        PublishStatusChanged();
+    }
+
+    private void CleanupFailedStart(
+        CancellationTokenSource scanCancellation,
+        Exception error)
+    {
+        TaskCompletionSource<object?>? terminal = null;
+        MapScanProcessLease? scanLease = null;
+        bool changed = false;
+        lock (gate)
+        {
+            if (!ReferenceEquals(activeCancellation, scanCancellation)) return;
+            bool activeStateWasConstructed = !startPending && isReading;
+            startPending = false;
+            activeCancellation = null;
+            activeTask = null;
+            scanLease = activeScanLease;
+            activeScanLease = null;
+            terminal = activeTerminal;
+            activeTerminal = null;
+            cancellationCleanupError = null;
+
+            if (activeStateWasConstructed)
+            {
+                isReading = false;
+                bool cancelled = scanCancellation.IsCancellationRequested || error is OperationCanceledException;
+                phase = cancelled ? "idle" : "error";
+                inflightBlocks = 0;
+                lastError = cancelled ? null : error.Message;
+                lastErrorPresent = true;
+                resumeAvailable = false;
+                resumeAvailablePresent = true;
+                acquisitionProgressPercent = null;
+                changed = true;
+            }
+        }
+        scanLease?.Dispose();
+        terminal?.TrySetResult(null);
+        if (changed) PublishStatusChanged();
+        scanCancellation.Dispose();
+    }
+
+    private async Task RefreshStatusAsync(CancellationToken cancellationToken)
+    {
+        CurrentClientMapStatusContext? context = null;
+        if (getStatusContext is not null)
+        {
+            context = await getStatusContext(cancellationToken).ConfigureAwait(false);
+        }
+        else if (TryResolveLiveServerId() is int fallbackServerId && fallbackServerId > 0)
+        {
+            context = new CurrentClientMapStatusContext(
+                false, fallbackServerId, 0, [], [], 0, 0, 0, null, null);
+        }
+        if (context is null) return;
+
+        CancellationTokenSource? scanCancellation = null;
+        Task terminalTask = Task.CompletedTask;
+        lock (gate)
+        {
+            worldStatePresent = true;
+            isInWorld = context.IsInWorld;
+            if (context.HomeServerId > 0)
+                homeServerId = context.HomeServerId;
+            seasonServerIds = NormalizeServerIds(context.SeasonServerIds);
+            truckMatchServerIds = NormalizeServerIds(context.TruckMatchServerIds);
+
+            if (context.IsInWorld && context.TileWidth > 0 && context.TileHeight > 0)
+            {
+                worldId = Math.Max(context.WorldId, 0);
+                tileWidth = context.TileWidth;
+                tileHeight = context.TileHeight;
+                tileX = context.TileX;
+                tileY = context.TileY;
+                hasWorldDimensions = true;
+            }
+
+            if (context.ServerId > 0)
+            {
+                if (isReading && serverId > 0 && serverId != context.ServerId)
+                {
+                    cancellationCleanupError = "current server changed during map scan";
+                    scanCancellation = activeCancellation;
+                    terminalTask = activeTerminal?.Task ?? activeTask ?? Task.CompletedTask;
+                }
+                else
+                {
+                    serverId = context.ServerId;
+                    liveServerId = context.ServerId;
+                    serverIdSource = "live";
+                }
+            }
+            else if (!isReading)
+            {
+                serverId = 0;
+                serverIdSource = "none";
+                tileWidth = 0;
+                tileHeight = 0;
+                tileX = null;
+                tileY = null;
+                hasWorldDimensions = true;
+            }
+        }
+
+        if (scanCancellation is null) return;
+        try { scanCancellation.Cancel(); }
+        catch (ObjectDisposedException) { }
+        if (!terminalTask.IsCompleted)
+            await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+        PublishStatusChanged();
+    }
+
+    private static int[] NormalizeServerIds(IEnumerable<int> serverIds) =>
+        serverIds.Where(serverId => serverId is >= 1 and <= 99999)
+            .Distinct()
+            .OrderBy(serverId => serverId)
+            .ToArray();
+
+    private async Task StopAsync(CancellationToken cancellationToken)
+    {
+        CancellationTokenSource? cancellation;
+        Task terminalTask;
+        lock (gate)
+        {
+            bool wasReading = isReading;
+            cancellation = wasReading ? activeCancellation : null;
+            terminalTask = wasReading ? activeTerminal?.Task ?? activeTask ?? Task.CompletedTask : Task.CompletedTask;
+            if (wasReading)
+                cancellationCleanupError = null;
+        }
+
+        try { cancellation?.Cancel(); }
+        catch (ObjectDisposedException) { }
+        if (!terminalTask.IsCompleted)
+            await terminalTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        lock (gate)
+        {
+            isReading = false;
+            phase = "idle";
+            inflightBlocks = 0;
+            lastError = null;
+            lastErrorPresent = true;
+            resumeAvailable = false;
+            resumeAvailablePresent = true;
+            cancellationCleanupError = null;
+            acquisitionProgressPercent = null;
+        }
+        PublishStatusChanged();
+    }
+
+    private void PublishStatusChanged()
+    {
+        Action<object>? handler = StatusChanged;
+        if (handler is null) return;
+        handler(CreateStatus());
+    }
+
+    public object CreateStatus()
+    {
+        lock (gate)
+        {
+            if (serverId <= 0)
+                serverIdSource = "none";
+
+            var state = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["serverId"] = serverId,
+                ["serverIdSource"] = serverIdSource,
+                ["scanRunId"] = scanRunId,
+                ["isReading"] = isReading,
+                ["phase"] = phase,
+                ["selectedTypes"] = selectedTypes.ToArray(),
+                ["totalBlocks"] = totalBlocks,
+                ["readBlocks"] = completedBlocks,
+                ["unreadBlocks"] = unreadBlocks,
+                ["failedBlocks"] = failedBlocks,
+                ["inflightBlocks"] = inflightBlocks,
+                ["scanMode"] = scanMode,
+                ["concurrency"] = concurrency,
+                ["scanRate"] = scanRate,
+                ["progressPercent"] = progressPercent,
+            };
+
+            if (worldStatePresent)
+            {
+                state["isInWorld"] = isInWorld;
+                if (homeServerId > 0)
+                    state["homeServerId"] = homeServerId;
+                state["seasonServerIds"] = seasonServerIds.ToArray();
+                state["truckMatchServerIds"] = truckMatchServerIds.ToArray();
+                state["worldId"] = worldId;
+            }
+            if (hasWorldDimensions)
+            {
+                state["tileWidth"] = tileWidth;
+                state["tileHeight"] = tileHeight;
+                if (tileX.HasValue && tileY.HasValue)
+                {
+                    state["tileX"] = tileX.Value;
+                    state["tileY"] = tileY.Value;
+                }
+            }
+            if (nativeCountersPresent)
+            {
+                state["nativePendingRecords"] = nativePendingRecords;
+                state["nativeDroppedRecords"] = nativeDroppedRecords;
+            }
+            if (nativeCaptureReadyPresent)
+                state["nativeCaptureReady"] = nativeCaptureReady;
+            if (startedAtPresent)
+                state["startedAt"] = startedAt;
+            if (lastErrorPresent)
+                state["lastError"] = lastError;
+            if (resumeAvailablePresent)
+                state["resumeAvailable"] = resumeAvailable;
+            return state;
+        }
+    }
+
+    public void Close()
+    {
+        Task? terminalTask;
+        CancellationTokenSource? cancellation;
+        lock (gate)
+        {
+            closed = true;
+            cancellation = activeCancellation;
+            terminalTask = activeTerminal?.Task ?? activeTask;
+        }
+        try { cancellation?.Cancel(); }
+        catch (ObjectDisposedException) { }
+        if (terminalTask is null) return;
+        try { terminalTask.GetAwaiter().GetResult(); }
+        catch { }
+    }
+}

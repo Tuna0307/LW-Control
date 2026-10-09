@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.venv/
+upload/
+analysis/
+*.exe
+*.dll
+*.zip
+*.log
+.env
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.vs/
+.codex-live/
+
+# Machine-local third-party MCP checkout, runtimes and preserved installation data.
+/Windows-MCP/
+
+# Local reverse-engineering/build scratch (never commit).
+tmp*/
+tmp_*
+tmp-*
+
+# Preserved in PENDING-WIP-CLOSEOUT-001; these original local files are cache/empty placeholder.
+/.scratch-lwb317/
+/evidence/lwbridge-0.3.17/ui/LWB317-UI-CORRECT-003/screenshots/weekly-save-error-light-en.png
