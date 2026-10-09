@@ -96,7 +96,7 @@ try {
     # Windows Compress-Archive may record backslash separators. Zip entry
     # identity is separator-insensitive for our Windows package, while the
     # executable and excluded-path checks must work on either spelling.
-    $entries = @($zipEntries.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
+    $entries = @($zipEntries.Entries | ForEach-Object { $_.FullName.Replace([char]92, [char]47) })
     if (!$entries.Where({$_ -eq 'LW-Control-UI/LWBridge.Desktop.exe'}).Count) { throw 'Packaged executable missing from ZIP.' }
     if ($entries.Where({$_ -match '(^|/)(node_modules|tests|evidence)/'}).Count) { throw 'Fixture or research files included in runtime ZIP.' }
 } finally { $zipEntries.Dispose() }
