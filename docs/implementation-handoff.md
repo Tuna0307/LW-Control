@@ -9,7 +9,7 @@ Clean candidate builds/publishes without the large archive. Actual normal Home
 preference saving/reload and registry startup admission are verified within the
 bounded review; original Home/Map remains PARTIAL. Runnable local package:
 .codex-live/home-feature-release-001/LW-Control-Home-candidate.zip (130 entries,
-26,404,683 bytes). No LastWar/launcher/clone process remains after verification.
+about 26.4 MB). No LastWar/launcher/clone process remains after verification.
 
 Other worker remains stopped. A future self-contained Home Launch -> Connected
 -> Close assignment is saved as LWB317-HOME-LAUNCH-DELIVERY-002-PROMPT.txt; it is
