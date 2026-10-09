@@ -128,3 +128,36 @@ JA/dark recovery captures, pending user Stop/cancel when reachable,
 and the exact end-of-attempt process/restore/journal gate. Independent
 lead review must still approve the unit. No whole-Home parity or merge
 is claimed.
+
+### Source-identified review package (inert-only)
+
+After committing this controlled proof baseline at
+`597bd10603b310dbc12460e195677d1879dfee14`, fresh
+`dotnet publish -c Release -r win-x64 --self-contained false`
+passed. The published EXE ProductVersion ended in that exact full SHA.
+The canonical `package_ui_release.ps1` intentionally refused packaging
+because a **different session** created untracked
+`tools/home_004_r3_owned_pause.py` during this checkpoint. That file
+was neither deleted nor staged; source tracked/cached diffs remained
+empty. With the strict packager refused, a separate manual review ZIP
+was produced from the just-verified publish directory and labeled as
+such, preserving a separate SHA receipt in ignored artifacts.
+
+* ZIP: `artifacts/home-004/r3-final-rc/LW-Control-HOME004R3-REVIEW-RC-597bd10603b3.zip`
+  (9,497,720 bytes, 81 entries).
+* ZIP SHA-256:
+  `bf093c0674e9317ea0340891046f58ad0b7661fd00155d59f15a0280ef92c76a`.
+* Extracted `SOURCE-COMMIT.txt` matched `597bd106...`, shipped UI
+  `check-production-build.mjs` PASS with the fingerprints above.
+* Extracted packaged `LWBridge.Desktop.exe`, using only
+  `check_packaged_home.ps1` **inert fixture capture**, PASS, exit 0,
+  valid Home PNG, zero frontend errors and zero leftover temporary
+  capture roots. Local receipt/image:
+  `artifacts/home-004/r3-final-extracted-smoke/home.png`.
+
+This extracted screenshot is **fixture**, not an English/light or
+Japanese/dark native recovery capture. The manual archive is
+reviewable and source-bound but the canonical clean-tree packager
+gate remains refused until the other session's untracked work is
+properly resolved. No user game processes were started for this
+packaging/smoke check.
