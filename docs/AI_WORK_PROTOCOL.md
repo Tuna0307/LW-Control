@@ -1,5 +1,11 @@
 # AI work protocol
 
+Latest dispatch, 2026-10-09: upon owner relay, UI-MAIN-DELIVERY-001 resumes the
+solo worker on codex/home-feature-release-001 in the existing managed worktree.
+Deliver the accepted UI baseline, audit changes since UI acceptance, and return
+a reproducible package and PR for the lead's main integration. Older functional
+campaign continuations remain parked. No game launch is assigned.
+
 Current owner checkpoint, 2026-10-09: the other worker is STOPPED by owner while
 the project lead audits and answers questions. Do not treat older continuation
 or loop paragraphs below as a new dispatch. Current authority is

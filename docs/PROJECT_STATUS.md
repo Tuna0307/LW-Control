@@ -1,6 +1,16 @@
 # LW-Control current checkpoint — 2026-10-09
 
-**Worker stopped by owner. Home/Map: PARTIAL / CHANGES_REQUIRED.**
+**Owner requested worker resumption for UI-MAIN-DELIVERY-001 through manual relay.
+Home/Map functionality: PARTIAL / CHANGES_REQUIRED.**
+
+Current delivery priority is the accepted recovered-source/local UI baseline on
+main, followed by separately approved working features. The 2026-10-06 R2 lead
+review already accepts that bounded UI phase; do not restart it as an open-ended
+research campaign. Audit subsequent frontend changes and actual packaged boot,
+correct demonstrated release defects, and finish existing draft PR #3. The lead
+will independently review and merge approved delivery into main, then publish
+its runnable build. The new work item supersedes stopped-worker and next-Home
+dispatch text below; earlier functional findings remain unresolved.
 
 Owner requested a runnable feature-by-feature main delivery. Lead has prepared
 `codex/home-feature-release-001`, a clean application candidate based on main.

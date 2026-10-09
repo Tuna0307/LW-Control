@@ -1,5 +1,14 @@
 # Mandatory rules for every AI and contributor
 
+Latest owner-relayed assignment, 2026-10-09: worker resumption is authorized only
+for LWB317-UI-MAIN-DELIVERY-001. Deliver the reviewed UI baseline in the existing
+main candidate worktree/branch, through three sequential checkpoints. Preserve
+the accepted 2026-10-06 source/local UI review, audit subsequent UI changes, and
+produce a runnable release candidate for lead review/merge into main. Do not
+restart Home/Map research or launch a game. The worker is solo; final main merge
+and publication belong to the lead. This supersedes the worker-stop paragraphs
+below only when the owner forwards this assignment. Read its work item first.
+
 Latest lead delivery, 2026-10-09: owner requested a runnable feature-by-feature
 main candidate. Lead works on HOME-FEATURE-RELEASE-001; the other worker remains
 stopped. Preserve original parity limits and the research archive. Candidate
