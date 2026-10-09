@@ -12,11 +12,15 @@ public sealed partial class MapStore
         ArgumentNullException.ThrowIfNull(query);
         ValidateKind(query.Kind);
         ValidateServerId(query.ServerId);
-        int pageNumber = Math.Max(query.Page, 1);
+        long pageNumber = Math.Max(query.Page, 1L);
         int pageSize = Math.Clamp(query.PageSize <= 0 ? 50 : query.PageSize, 1, 200);
         IReadOnlyList<MapSort> sorts = NormalizeSorts(query);
         long now = nowUnixMilliseconds ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        long offset = checked(((long)pageNumber - 1L) * pageSize);
+        // Preserve recovered original i64 page value. SQLite OFFSET is a separate
+        // internal adaptation: a page beyond the 64-bit product range has no
+        // corresponding rows, so saturate its offset instead of wrapping or throwing.
+        long offset = (pageNumber - 1) > long.MaxValue / pageSize
+            ? long.MaxValue : (pageNumber - 1) * pageSize;
         bool city = query.Kind == "city";
         bool treasure = query.Kind == "treasure";
         bool staging = !string.IsNullOrWhiteSpace(query.ScanRunId);

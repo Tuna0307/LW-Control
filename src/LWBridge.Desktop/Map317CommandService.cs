@@ -796,7 +796,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         long? page = LooseInt64(query, "page");
         long? size = LooseInt64(query, "pageSize");
         return new Map317.MapSearchResult([], 0,
-            (int)Math.Clamp(page ?? 1, 1, int.MaxValue),
+            Math.Max(page ?? 1L, 1L),
             (int)Math.Clamp(size ?? 50, 1, 200));
     }
 
@@ -812,23 +812,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 System.Globalization.CultureInfo.InvariantCulture, out number))
             return double.IsFinite(number) ? number : null;
         return null;
-    }
-
-    private static void NormalizeOriginalNumericRanges(
-        System.Text.Json.Nodes.JsonObject query, JsonElement original)
-    {
-        double? min = LooseFiniteDouble(original, "minLevel");
-        double? max = LooseFiniteDouble(original, "maxLevel");
-        if (min.HasValue && max.HasValue && min > max)
-            (min, max) = (max, min);
-        // Indexed levels are non-negative integers. Ceil(min) / floor(max)
-        // is equivalent to the original f64 comparisons on those values.
-        query.Remove("minLevel");
-        query.Remove("maxLevel");
-        if (min.HasValue && min.Value > 0)
-            query["minLevel"] = (int)Math.Clamp(Math.Ceiling(min.Value), 0, int.MaxValue);
-        if (max.HasValue)
-            query["maxLevel"] = (int)Math.Clamp(Math.Floor(max.Value), 0, int.MaxValue);
     }
 
     private Map317.MapQuery? NormalizeOriginalSearch(JsonElement payload)
@@ -852,7 +835,10 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         if (server <= 0) server = control.ScanState.ServerId;
         if (server is < 1 or > 99_999) return null; // final non-positive server -> empty page; >99999 matches nothing
 
-        query["page"] = (int)Math.Clamp(page ?? 1, 1, int.MaxValue);
+        long originalPage = Math.Max(page ?? 1L, 1L);
+        // The legacy normalization DTO is int32. Give it only a representable
+        // parsing value; restore the original i64 for actual query and response.
+        query["page"] = (int)Math.Min(originalPage, int.MaxValue);
         query["pageSize"] = pageSize is null ? 50 : (int)Math.Clamp(pageSize.Value, 1, 200);
         query["serverId"] = (int)server;
         foreach (string name in new[] { "treasureType", "suppliesType" })
@@ -862,7 +848,16 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             if (loose is null) query.Remove(name);
             else query[name] = (int)Math.Clamp(loose.Value, 0, int.MaxValue);
         }
-        NormalizeOriginalNumericRanges(query, queryElement);
+        // Original 0x3E27F6 takes finite f64 bounds and swaps inversions.
+        // Do not clamp to a nonnegative integer: level 0, NULL and -1 differ.
+        double? minLevel = LooseFiniteDouble(queryElement, "minLevel");
+        double? maxLevel = LooseFiniteDouble(queryElement, "maxLevel");
+        if (minLevel.HasValue && maxLevel.HasValue && minLevel > maxLevel)
+            (minLevel, maxLevel) = (maxLevel, minLevel);
+        // The internal older DTO accepts nonnegative int only; preserve f64
+        // exactly on MapQuery after the other validation is complete.
+        query.Remove("minLevel");
+        query.Remove("maxLevel");
         // The original Map search projects optional booleans with as_bool:
         // a string/number/array/object is absent, not INVALID_MAP_QUERY.
         // The strict clone DTO parser still serves other callers; normalize
@@ -890,6 +885,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new { kind, query }));
         return NormalizeQuery(envelope.RootElement) with
         {
+            Page = originalPage,
+            MinLevel = minLevel,
+            MaxLevel = maxLevel,
             MinPower = minPower,
             MaxPower = maxPower,
         };
