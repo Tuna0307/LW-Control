@@ -3,9 +3,10 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const base = "http://127.0.0.1:45317/";
-const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(?=[A-Za-z]:)/, "")), "..");
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const preview = spawn(process.execPath, [path.join(projectRoot, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "45317", "--strictPort"], { cwd: projectRoot, windowsHide: true, stdio: "ignore" });
 let ready = false;
 for (let attempt = 0; attempt < 80; attempt++) {
@@ -14,18 +15,18 @@ for (let attempt = 0; attempt < 80; attempt++) {
   await new Promise(resolve => setTimeout(resolve, 125));
 }
 if (!ready || preview.exitCode !== null) { preview.kill(); throw new Error("Release preview server did not start exclusively"); }
-const target = path.join(os.tmpdir(), "lwbridge-ui-release-proof");
-fs.mkdirSync(target, { recursive: true });
+const target = fs.mkdtempSync(path.join(os.tmpdir(), "lwbridge-ui-release-proof-"));
 const routes = ["overview", "automation", "map-data", "march", "city-layout", "hotkeys", "mini-games", "settings"];
 const cases = [
   { code: "en", theme: "light", width: 1365, height: 900 },
   { code: "ja", theme: "dark", width: 640, height: 840 },
+  { code: "ja", theme: "dark", width: 375, height: 1000 },
 ];
 const result = { browser: "installed Microsoft Edge / Chromium headless", url: base, cases: [], conditionalStates: [], errors: [], screenshots: [] };
 const browser = await chromium.launch({ executablePath: "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", headless: true, args: ["--no-first-run"] });
 async function capture(page, name) {
   const filename = path.join(target, name + ".png");
-  await page.screenshot({ path: filename, animations: "disabled" });
+  await page.screenshot({ path: filename, animations: "disabled", fullPage: true });
   result.screenshots.push(filename);
 }
 async function wait(page) {
@@ -62,11 +63,11 @@ try {
         lang: document.documentElement.lang,
         theme: document.documentElement.dataset.theme,
       }));
-      if (!info.visibleShell || !info.bodyTextLength || info.lang !== variant.code || info.theme !== variant.theme) {
+      if (!info.visibleShell || !info.bodyTextLength || info.lang !== variant.code || info.theme !== variant.theme || info.scrollWidth > info.viewport) {
         throw new Error(JSON.stringify({route:routes[i],variant,info}));
       }
       coverage.pages.push({ route: routes[i], ...info });
-      await capture(page, variant.code+"-"+variant.theme+"-"+routes[i]);
+      await capture(page, variant.code+"-"+variant.theme+"-"+variant.width+"-"+routes[i]);
     }
     await page.locator(".side-nav button").first().click();
     await page.waitForFunction(() => document.querySelector(".side-nav button")?.getAttribute("aria-current") === "page",null,{timeout:10000});
@@ -107,6 +108,16 @@ try {
     if (state !== "shell-exit-busy") await page.locator(".side-nav button").nth(i).click();
     else await page.locator("dialog[aria-busy=true]").waitFor();
     await page.waitForTimeout(200);
+    if (state === "squads-equipment-rename") await page.locator("[role=dialog]").waitFor({ state: "visible" });
+    if (["hotkeys-save-error", "settings-update-error"].includes(state)) {
+      await page.locator("[role=alert]").first().waitFor({ state: "visible" });
+    }
+    if (state === "map-error") {
+      // Original rr handles rejected search with empty rows; it adds no visible error banner.
+      await page.locator(".map-table[aria-busy=false] .map-empty").waitFor({ state: "visible" });
+      if (await page.locator(".map-scan-error[role=alert]").count()) throw new Error("Search rejection added an unsupported Map error banner");
+    }
+    if (state === "automation-save-error") await page.locator(".error-text").first().waitFor({ state: "visible" });
     const data=await page.evaluate(() => ({
       textLength: document.querySelector(".main-view")?.innerText.length || 0,
       dialogs: document.querySelectorAll("[role=dialog]").length,

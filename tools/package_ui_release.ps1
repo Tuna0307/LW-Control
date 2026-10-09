@@ -14,9 +14,15 @@ if ($LASTEXITCODE -ne 0 -or $dirty) { throw "Source tree has uncommitted changes
 foreach ($required in @('LWBridge.Desktop.exe','LWBridge.Desktop.dll','LWBridge.Desktop.runtimeconfig.json','ProductionUi/index.html','OverviewBridge','LiveResourceProbe','runtimes','Microsoft.Web.WebView2.Core.dll')) {
     if (!(Test-Path -LiteralPath (Join-Path $PublishDirectory $required))) { throw "Publish dependency missing: $required" }
 }
+$version = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $PublishDirectory 'LWBridge.Desktop.exe')).ProductVersion
+if ($version -notmatch ('\+' + [regex]::Escape($sourceCommit) + '$')) { throw "Published executable does not identify current source commit: $version" }
+& node (Join-Path $repo 'src/LWBridge.UI-0.3.17/scripts/check-production-build.mjs') (Join-Path $PublishDirectory 'ProductionUi')
+if ($LASTEXITCODE -ne 0) { throw 'Published production UI does not match current source.' }
 New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
-$stage = Join-Path $OutputDirectory '_stage'
-if (Test-Path $stage) { Remove-Item -LiteralPath $stage -Force -Recurse }
+$outputRoot = (Resolve-Path -LiteralPath $OutputDirectory).Path
+$stage = [IO.Path]::GetFullPath((Join-Path $outputRoot '_stage'))
+if ([IO.Path]::GetDirectoryName($stage) -ne $outputRoot) { throw 'Staging path escaped the selected output directory.' }
+if (Test-Path -LiteralPath $stage) { throw "Existing staging directory preserved: $stage. Choose a fresh output directory." }
 $appRoot = Join-Path $stage 'LW-Control-UI'
 New-Item -ItemType Directory -Force -Path $appRoot | Out-Null
 # Stage all publish children explicitly (LiteralPath does not expand wildcards).

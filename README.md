@@ -1,5 +1,10 @@
 # LW-Control application candidate
 
+**Download the reviewed Windows UI baseline:** [UI baseline v0.1.0](https://github.com/Tuna0307/LW-Control/releases/tag/ui-baseline-v0.1.0).
+Extract the complete ZIP and run **Launch LWBridge.cmd**. Requires the .NET 10
+Desktop Runtime and Microsoft Edge WebView2 Runtime. The UI baseline is delivered
+first; native functions are being accepted and released separately.
+
 A runnable Windows application reconstructed from LWBridge 0.3.17. This is an incremental release candidate, **not a completed 1-to-1 Home/Map clone**. Read [feature status](docs/FEATURE_STATUS.md) for the exact accepted scope and remaining gaps.
 
 The main candidate contains production source and runtime dependencies. The large historical reverse-engineering archive stays on `research/offline-controller`; one small original frontend asset is retained because the locale checker uses it directly.
