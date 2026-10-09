@@ -1,0 +1,23 @@
+﻿{
+    "task":  "LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1",
+    "type":  "canonical-UI-capture-failure",
+    "attempt":  "overview-en-light",
+    "tool":  "Remote Desktop Commander start_process -\u003e PowerShell Start-Process",
+    "mode":  "installed product Release exe --capture overview --language en --theme light -WindowStyle Hidden",
+    "exitCode":  -1073741819,
+    "wer":  {
+                "source":  "Windows Application Error event 1000 / Windows Error Reporting event 1001",
+                "exceptionCode":  "0xc0000005",
+                "faultModule":  "KERNELBASE.dll",
+                "faultOffset":  "0x00000000000c41ca"
+            },
+    "pngProduced":  false,
+    "gameLaunched":  false,
+    "followingActions":  "Historical lead evidence intact; do not treat missing screenshots as parity proof. No orphan/unknown WebView2 processes terminated.",
+    "normalWindowRetry":  {
+                              "pngProduced":  false,
+                              "exitCode":  -1073741819,
+                              "approvalRejected":  false,
+                              "mode":  "same own Release executable --capture overview-en-light, WindowStyle Normal"
+                          }
+}

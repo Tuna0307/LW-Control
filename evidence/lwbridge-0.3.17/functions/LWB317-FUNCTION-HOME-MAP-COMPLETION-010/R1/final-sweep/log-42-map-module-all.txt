@@ -1,0 +1,2 @@
+LWBridge.Map-0.3.17 scan-state checks passed.
+LWB317_MAP_CHECKS_OK
