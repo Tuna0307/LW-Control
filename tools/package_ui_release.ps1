@@ -1,6 +1,7 @@
 param(
     [string]$PublishDirectory,
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [ValidatePattern('^[A-Za-z0-9-]+$')][string]$ReleaseLabel = 'UI'
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -33,7 +34,7 @@ Get-ChildItem -LiteralPath $appRoot -Recurse -File | Where-Object { $_.Extension
 $launcher = '@echo off' + "`r`n" + 'setlocal' + "`r`n" + 'set "APP=%~dp0LWBridge.Desktop.exe"' + "`r`n" + 'if not exist "%APP%" (echo Missing LWBridge.Desktop.exe & exit /b 2)' + "`r`n" + 'start "" "%APP%" %*' + "`r`n"
 [IO.File]::WriteAllText((Join-Path $appRoot 'Launch LWBridge.cmd'), $launcher, [Text.Encoding]::ASCII)
 $readme = @"
-LW-Control UI release candidate
+LW-Control $ReleaseLabel release candidate
 ================================
 Build source commit: $sourceCommit
 Target UI behavior: LWBridge 0.3.17 (post-auth only)
@@ -54,9 +55,13 @@ viewport were checked using the canonical production frontend.
 
 KNOWN LIMITATIONS
 This is a usable UI baseline, NOT a fully recovered native product.
-Game launch/connection, Map scanners and associated producers, mini-game
-execution, updater, game assets, protected original service and full original
-runtime pixel parity are not certified. Some actions require later native work.
+One bounded Home Launch -> authenticated current-client Connected -> Close
+has been demonstrated through real packaged native controls, with exact PID
+exit and verified script restoration on a single isolated profile.
+Full original 0.3.17 licensed-runtime equivalence, adverse recovery/retry,
+multi-owner entitlements, Map scanners, mini-game execution, updater,
+protected original service and full original runtime pixel parity are NOT
+certified. Some actions require later native work.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):
@@ -64,11 +69,12 @@ Windows x64, .NET 10 SDK and Node.js/npm. Optional UI browser test uses
 installed Microsoft Edge and Playwright dev dependency.
 
 Repository: https://github.com/Tuna0307/LW-Control
-PR: https://github.com/Tuna0307/LW-Control/pull/3
+Feature branch: codex/home-launch-delivery-002
+Review PRs: https://github.com/Tuna0307/LW-Control/pulls
 "@
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
-$destination = Join-Path $OutputDirectory ("LW-Control-UI-RC-" + $sourceCommit.Substring(0,12) + ".zip")
+$destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")
 if (Test-Path -LiteralPath $destination) { throw "ZIP already exists: $destination. Remove only an owned older ZIP before rerunning." }
 Compress-Archive -Path $appRoot -DestinationPath $destination -CompressionLevel Optimal
 $zip = Get-Item -LiteralPath $destination

@@ -1,0 +1,62 @@
+{
+  "task": "LWB317-HOME-LAUNCH-DELIVERY-002",
+  "date": "2026-10-09",
+  "mainAncestor": "f0cc0a656cafd777de151988a8e8b44d6a199bd8",
+  "referenceSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783",
+  "currentClientCriticalCompatibility": "ok:true, package v23 and critical assets matched",
+  "isolatedRoot": "%TEMP%\\LWB317-HOME-LAUNCH-002-23jhmyvh",
+  "profileId": "home-002-24fdab204b5c",
+  "shippedAutoLaunchDefault": true,
+  "testIsolatedAutoLaunchPreference": false,
+  "initialProcesses": [],
+  "setupHostPid": 63220,
+  "packagedNativeHostPid": 58376,
+  "nativeLaunchClick": "Windows-MCP at (995,528), real packaged Home EN/light",
+  "transientGamePid": 68200,
+  "connectedGame": {
+    "pid": 46844,
+    "path": "%LOCALAPPDATA%\\FunFly\\Last War-Survival Game\\Game\\LastWar.exe",
+    "startedAtUtc": "2026-10-09T09:15:36.8326949Z",
+    "nativeReady": true,
+    "heartbeatReady": true,
+    "authenticatedControlPipeState": "connected",
+    "canonicalHomeEnglish": "Connected / Game running",
+    "canonicalHomeJapaneseDark": "接続済み / ゲーム実行中",
+    "serverId": 2212
+  },
+  "nativeCloseClick": "Windows-MCP at (1129,540), packaged Japanese/dark Home",
+  "close": {
+    "selectedGamePidExited": true,
+    "launcherExited": true,
+    "canonicalHomeJapanese": "ゲーム停止中",
+    "recoveryJournalRemaining": false,
+    "gameProcessesRemaining": 0,
+    "ownedHostExited": true,
+    "installationRestored": true
+  },
+  "installedScriptSha256": {
+    "LWScripts.data": "2187DE71F426741EB61482F6E85639314526E6BDEFC9445319B1FF52B31CFAC0",
+    "LWScripts.txt": "988C36BD7D3758404193F9CB380EF5B7F6484621061443FD95A90C8FC1D97306",
+    "version.txt": "535FA30D7E25DD8A49F1536779734EC8286108D115DA5045D77F3B4185D8F790"
+  },
+  "screenshots": [
+    {
+      "file": "connected-en-light.png",
+      "sha256": "7A145729B90E0E851F3005BEF825AB2BC786502721238D41CBE54262001B706D"
+    },
+    {
+      "file": "connected-ja-dark.png",
+      "sha256": "12D12C363B6FE726226C58B5491C1EC40F89AF93B2B19F245C780CA341DA5A53"
+    },
+    {
+      "file": "closed-ja-dark.png",
+      "sha256": "FA5D7E79B51A2BC5E218FD3B5465489A233ADE6B03CE502ED318CED6A2975074"
+    }
+  ],
+  "taskOnlyRootRemovedAfterExactExitAndRestoration": true,
+  "strictLimits": [
+    "Only bounded current-client canonical positive verified; not original licensed runtime positive",
+    "No Map scans, gameplay, protected-service, updater, or cross-server action",
+    "Original full finalizer/cancellation/error producer still partly UNKNOWN"
+  ]
+}

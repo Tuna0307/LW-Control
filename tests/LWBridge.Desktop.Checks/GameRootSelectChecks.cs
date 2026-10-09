@@ -370,6 +370,23 @@ internal static class GameRootSelectChecks
         string instanceId =
             started.GetProperty("instanceId").GetString() ??
             throw new InvalidDataException("started instance ID missing");
+        // HOME-LAUNCH-002: exact original 0x199D4B-0x199D6F explicit
+        // stale-instance mismatch and original PROFILE_ALREADY_RUNNING Start.
+        // Run against the actual backend command routing with inert providers.
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync(
+            "profile_instance_start", profilePayload, CancellationToken.None),
+            "PROFILE_ALREADY_RUNNING", "duplicate Launch while an instance exists");
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync(
+            "profile_instance_stop", JsonSerializer.SerializeToElement(new
+            { profileId, instanceId = "stale-" + instanceId }), CancellationToken.None),
+            "INSTANCE_MISMATCH", "delayed Close targets another instance");
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync(
+            "profile_instance_stop", JsonSerializer.SerializeToElement(new { profileId }),
+            CancellationToken.None), "INSTANCE_NOT_OWNED", "missing Close identity");
+        Require(processAlive && startCalls == 1 && stopCalls == 0 &&
+                SamePath(capturedActiveRoot, rootB) &&
+                config.Snapshot.GameDesiredRunning,
+            "duplicate/stale/malformed actions retain exact active session and desired-running");
         JsonElement stopPayload =
             JsonSerializer.SerializeToElement(new { profileId, instanceId });
         await lifecycle.InvokeAsync(
@@ -392,6 +409,7 @@ internal static class GameRootSelectChecks
             }), CancellationToken.None);
         Require(stopCalls == 2 && !processAlive && SamePath(capturedActiveRoot, rootA),
             "new-root exact Stop must not reopen old-root ownership");
+        Console.WriteLine("HOME_LAUNCH_002_NATIVE_NEGATIVE_CHECKS_OK duplicate Start, stale/missing Close, exact Close, active-root ownership; game launches=0");
     }
 
     private static async Task VerifyFreshHostSelectionOwnershipAsync(string root)
@@ -569,6 +587,21 @@ internal static class GameRootSelectChecks
             Path.TrimEndingDirectorySeparator(Path.GetFullPath(left)),
             Path.TrimEndingDirectorySeparator(Path.GetFullPath(right)),
             StringComparison.OrdinalIgnoreCase);
+    private static async Task ExpectCommandCodeAsync(
+        Func<Task<object?>> action, string expectedCode, string label)
+    {
+        try
+        {
+            _ = await action();
+            throw new InvalidOperationException($"{label}: expected {expectedCode}.");
+        }
+        catch (BridgeCommandException error)
+        {
+            Require(error.Code == expectedCode,
+                $"{label}: expected {expectedCode}, received {error.Code}");
+        }
+    }
+
     private static void ExpectError(
         Action action,
         string expectedCode,
