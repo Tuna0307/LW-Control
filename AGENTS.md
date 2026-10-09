@@ -2,6 +2,14 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest lead review: HOME-004 worker checkpoint 5296ad58430e5aadd4164a19f9f44bdf7391c521
+is PARTIAL / CHANGES_REQUIRED. PR #6 is draft, not accepted or merged. Read
+docs/HOME_004_LEAD_REVIEW.md and docs/HOME_004_R1_CONTINUATION.md. Continue on
+the existing codex/home-complete-delivery-004 branch only after owner relay;
+do not create another branch/worktree or begin Map. Preserve the lead inverse
+LEADHOME004-01 and unrelated untracked evidence. Earlier readiness text is history.
+
+
 Home is the only new feature priority until the entire in-scope Home checklist
 is complete. New City marking/Map work is deferred. Next owner-relayed scope:
 LWB317-HOME-COMPLETE-DELIVERY-004; read its work item and current directions from
