@@ -381,8 +381,8 @@ internal static class GameRootSelectChecks
             { profileId, instanceId = "stale-" + instanceId }), CancellationToken.None),
             "INSTANCE_MISMATCH", "delayed Close targets another instance");
         await ExpectCommandCodeAsync(() => backend.InvokeAsync(
-            "profile_instance_stop", JsonSerializer.SerializeToElement(new { profileId }),
-            CancellationToken.None), "INSTANCE_NOT_OWNED", "missing Close identity");
+            "profile_instance_stop", JsonSerializer.SerializeToElement(new { profileId, instanceId = "" }),
+            CancellationToken.None), "INSTANCE_MISMATCH", "explicit empty Close identity");
         Require(processAlive && startCalls == 1 && stopCalls == 0 &&
                 SamePath(capturedActiveRoot, rootB) &&
                 config.Snapshot.GameDesiredRunning,
@@ -409,7 +409,28 @@ internal static class GameRootSelectChecks
             }), CancellationToken.None);
         Require(stopCalls == 2 && !processAlive && SamePath(capturedActiveRoot, rootA),
             "new-root exact Stop must not reopen old-root ownership");
-        Console.WriteLine("HOME_LAUNCH_002_NATIVE_NEGATIVE_CHECKS_OK duplicate Start, stale/missing Close, exact Close, active-root ownership; game launches=0");
+        JsonElement[] optionalIdentityPayloads =
+        [
+            JsonSerializer.SerializeToElement(new { profileId }),
+            JsonSerializer.SerializeToElement(new { profileId, instanceId = (object?)null }),
+            JsonSerializer.SerializeToElement(new { profileId, instanceId = 42 }),
+            JsonSerializer.SerializeToElement(new { profileId, instanceId = true }),
+            JsonSerializer.SerializeToElement(new { profileId, instanceId = new[] { "ignored" } }),
+            JsonSerializer.SerializeToElement(new { profileId, instanceId = new { ignored = true } }),
+        ];
+        foreach (JsonElement optionalPayload in optionalIdentityPayloads)
+        {
+            await backend.InvokeAsync("profile_instance_start", profilePayload, CancellationToken.None);
+            int beforeStop = stopCalls;
+            Require(processAlive, "optional Close begins with an active captured owner");
+            await backend.InvokeAsync("profile_instance_stop", optionalPayload, CancellationToken.None);
+            Require(!processAlive && stopCalls == beforeStop + 1 &&
+                    !config.Snapshot.GameDesiredRunning && SamePath(capturedActiveRoot, rootA),
+                "original optional identity closes the captured owner, not another root/session");
+        }
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync("profile_instance_stop", profilePayload,
+            CancellationToken.None), "INSTANCE_NOT_OWNED", "no active Close owner");
+        Console.WriteLine("HOME_LAUNCH_002_NATIVE_NEGATIVE_CHECKS_OK duplicate Start, stale/empty Close, optional identity 6/6, exact Close, active-root ownership; game launches=0");
     }
 
     private static async Task VerifyFreshHostSelectionOwnershipAsync(string root)

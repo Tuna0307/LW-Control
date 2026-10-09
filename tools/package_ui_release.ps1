@@ -43,7 +43,8 @@ Reference executable SHA-256: 4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A50
 INSTALL
 1. Extract the WHOLE ZIP into a writable Windows x64 folder. Keep all files/subfolders together.
 2. Install Microsoft .NET 10 Desktop Runtime (x64) and Microsoft Edge WebView2 Runtime if not already installed.
-3. Double-click Launch LWBridge.cmd or LWBridge.Desktop.exe.
+3. For native game integration, Python must be installed and available to the application.
+4. Double-click Launch LWBridge.cmd or LWBridge.Desktop.exe.
 
 IMPORTANT: The recovered Auto Launch Game preference is ON by default. Normal startup
 may start Last War. Do not use the program against an active game unless authorized.
@@ -69,7 +70,7 @@ Windows x64, .NET 10 SDK and Node.js/npm. Optional UI browser test uses
 installed Microsoft Edge and Playwright dev dependency.
 
 Repository: https://github.com/Tuna0307/LW-Control
-Feature branch: codex/home-launch-delivery-002
+Released features and known limits: docs/FEATURE_STATUS.md in the source repository
 Review PRs: https://github.com/Tuna0307/LW-Control/pulls
 "@
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))

@@ -1140,14 +1140,17 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
             if (gamePid is null || instanceId is null || challenge is null || gamePath is null)
                 throw new BridgeCommandException("INSTANCE_NOT_OWNED", "No LWBridge-owned game instance is active.");
-            if (!payload.TryGetProperty("instanceId", out JsonElement supplied) ||
-                supplied.ValueKind != JsonValueKind.String)
-                throw new BridgeCommandException("INSTANCE_NOT_OWNED", "The requested game instance is not owned by this LWBridge session.");
             // Original 0.3.17 profile_instance_stop: 0x199D4B-0x199D6F
             // distinguishes an explicitly different instance identity from
             // the absent/unusable owner. Do not terminate or clear the active
             // owner when a delayed Close targets a prior instance.
-            if (!string.Equals(supplied.GetString(), instanceId, StringComparison.Ordinal))
+            // Original 0x199AC4-0x199B38 extracts an optional JSON string;
+            // missing/non-string values skip the compare at 0x199D4B.
+            // The captured active owner still supplies all process/session
+            // identity to the helper and restoration path.
+            if (payload.TryGetProperty("instanceId", out JsonElement supplied) &&
+                supplied.ValueKind == JsonValueKind.String &&
+                !string.Equals(supplied.GetString(), instanceId, StringComparison.Ordinal))
                 throw new BridgeCommandException("INSTANCE_MISMATCH", "INSTANCE_MISMATCH");
             SetDesiredRunning(false);
             phase = "stopping";
