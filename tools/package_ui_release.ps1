@@ -93,7 +93,10 @@ $sha = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
 $fileCount = @(Get-ChildItem -LiteralPath $appRoot -Recurse -File).Count
 $zipEntries = [IO.Compression.ZipFile]::OpenRead($destination)
 try {
-    $entries = @($zipEntries.Entries | ForEach-Object FullName)
+    # Windows Compress-Archive may record backslash separators. Zip entry
+    # identity is separator-insensitive for our Windows package, while the
+    # executable and excluded-path checks must work on either spelling.
+    $entries = @($zipEntries.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
     if (!$entries.Where({$_ -eq 'LW-Control-UI/LWBridge.Desktop.exe'}).Count) { throw 'Packaged executable missing from ZIP.' }
     if ($entries.Where({$_ -match '(^|/)(node_modules|tests|evidence)/'}).Count) { throw 'Fixture or research files included in runtime ZIP.' }
 } finally { $zipEntries.Dispose() }
