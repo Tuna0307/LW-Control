@@ -37,3 +37,16 @@ dotnet publish src/LWBridge.Desktop/LWBridge.Desktop.csproj -c Release -o artifa
 ```
 
 Keep the whole output folder: it contains the canonical frontend, WebView dependencies, game-pipe adapter and Python/Lua helpers. The research directory is not required to build or launch it.
+
+## Downloadable UI candidate
+
+The reviewed UI release is built from this branch using `pwsh -NoProfile -File tools/package_ui_release.ps1` after a clean `dotnet publish`. This creates a ZIP under `artifacts/release/` with a complete publish folder, **Launch LWBridge.cmd**, a short `README-RELEASE.txt`, and the exact source commit. Extract the entire ZIP to a writable folder on Windows x64; install the **.NET 10 Desktop Runtime** and **Microsoft Edge WebView2 Runtime** if missing. Double-click **Launch LWBridge.cmd**. **The original Auto Launch setting is enabled by default**; on a normal user profile startup may launch Last War. The safe disabled-profile proof in the release review uses a separate test data root, not altered shipped defaults.
+
+Release verifier (Windows; optional Microsoft Edge and dev-only Playwright required for the full browser sweep):
+
+```powershell
+npm.cmd --prefix src/LWBridge.UI-0.3.17 run check:release-ui
+pwsh -NoProfile -File tools/check_packaged_home.ps1 -Executable "artifacts/application/LWBridge.Desktop.exe"
+```
+
+See [UI release review](docs/UI_MAIN_RELEASE_REVIEW.md) for the page/state matrix and unrecovered native behavior. The UI candidate is not an endorsement of complete native Home/Map parity, updater functionality or protected-original service access.

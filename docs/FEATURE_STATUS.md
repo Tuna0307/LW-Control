@@ -2,6 +2,8 @@
 
 This application candidate is an incremental delivery, not a completed 1-to-1 clone. Behavior reference: LWBridge 0.3.17, SHA-256 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
 
+**UI main release candidate (2026-10-09):** imported production UI source/assets match the 88-file reviewed post-acceptance snapshot, except two intentional dev-only test-dependency manifests; no new proven local-presentation mismatch. The release sweep mounts the actual canonical production frontend in Edge: eight routes EN/light, eight routes JA/dark at 640px, 10 conditional fixture captures, reload/navigation/dialogs and zero page/console errors. A normally published executable with isolated disabled profile opened its real window without launching Last War, plus a packaged WebView2 fixture capture passed. The normal window's offscreen compositor could not be visually captured: do not interpret this as new original runtime pixel proof. See [release review](UI_MAIN_RELEASE_REVIEW.md) and [source manifest](product-source-manifest.json). Browser-only fixture states do not certify native functionality.
+
 | Feature | Evidence in this delivery | Acceptance limit |
 |---|---|---|
 | Normal packaged Home | Mounted production WebView; stopped state, real language control and native preference saving | Complete original runtime pixels remain unproved |

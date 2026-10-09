@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "node scripts/build-production.mjs",
     "check:production-build": "node scripts/check-production-build.mjs",
+    "check:release-ui": "node scripts/check-release-ui.mjs",
     "preview": "vite preview",
     "check": "node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs"
   },
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.4",
+    "playwright": "^1.64.0",
     "vite": "^7.1.7"
   }
 }

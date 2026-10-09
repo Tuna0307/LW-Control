@@ -5,6 +5,19 @@
   "productBytes": 5344296,
   "hashNote": "Normalized LF for text files; raw bytes for binary assets. Git checkout line ending normalization is not a product change.",
   "fullParity": "PARTIAL",
+  "manifestScope": "Original import-only product files and normalized hashes, not newer release tools or a claim of final binary identity.",
+  "uiDeliveryAudit": {
+    "workItem": "LWB317-UI-MAIN-DELIVERY-001",
+    "acceptedUiCommit": "75b7b215679a8ea7986af72bdbdd7039c5278b70",
+    "importedResearchCommit": "c8acbf38fa387bc3b8236d0615a6cc832eb4478a",
+    "acceptedFrontendFiles": 82,
+    "importedFrontendFiles": 88,
+    "postAcceptedUiChangedOrAddedFiles": 16,
+    "missingOrDivergentImportedFrontendFiles": 0,
+    "verificationOnlyChangedManifests": ["src/LWBridge.UI-0.3.17/package.json", "src/LWBridge.UI-0.3.17/package-lock.json"],
+    "testEvidence": "docs/UI_MAIN_RELEASE_REVIEW.md",
+    "runtimeAssetLimit": "No protected-original runtime pixels or unavailable native producer state certified"
+  },
   "files": [
     {
       "path": "src/LWBridge.Desktop/AllianceGarrisonConfigCommandService.cs",

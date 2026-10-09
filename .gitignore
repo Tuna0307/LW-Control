@@ -18,6 +18,9 @@ analysis/
 # Machine-local third-party MCP checkout, runtimes and preserved installation data.
 /Windows-MCP/
 
+# Local publish bundles and release ZIPs; do not import runtime artifacts into Git.
+/artifacts/
+
 # Local reverse-engineering/build scratch (never commit).
 tmp*/
 tmp_*
