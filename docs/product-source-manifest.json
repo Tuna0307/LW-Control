@@ -1,0 +1,1011 @@
+{
+  "researchSourceCommit": "c8acbf38fa387bc3b8236d0615a6cc832eb4478a",
+  "mainBaseCommit": "2d2450b1",
+  "copiedProductFiles": 247,
+  "productBytes": 5344296,
+  "hashNote": "Normalized LF for text files; raw bytes for binary assets. Git checkout line ending normalization is not a product change.",
+  "fullParity": "PARTIAL",
+  "manifestScope": "Original import-only product files and normalized hashes, not newer release tools or a claim of final binary identity.",
+  "uiDeliveryAudit": {
+    "workItem": "LWB317-UI-MAIN-DELIVERY-001",
+    "acceptedUiCommit": "75b7b215679a8ea7986af72bdbdd7039c5278b70",
+    "importedResearchCommit": "c8acbf38fa387bc3b8236d0615a6cc832eb4478a",
+    "acceptedFrontendFiles": 82,
+    "importedFrontendFiles": 88,
+    "postAcceptedUiChangedOrAddedFiles": 16,
+    "missingOrDivergentImportedFrontendFiles": 0,
+    "verificationOnlyChangedManifests": ["src/LWBridge.UI-0.3.17/package.json", "src/LWBridge.UI-0.3.17/package-lock.json"],
+    "testEvidence": "docs/UI_MAIN_RELEASE_REVIEW.md",
+    "runtimeAssetLimit": "No protected-original runtime pixels or unavailable native producer state certified"
+  },
+  "files": [
+    {
+      "path": "src/LWBridge.Desktop/AllianceGarrisonConfigCommandService.cs",
+      "sha256": "a6098c63a55ee64e3520552031ac00be6084a6787097e28ff7f817590b6e8946"
+    },
+    {
+      "path": "src/LWBridge.Desktop/AppendLogCommandService.cs",
+      "sha256": "d8c2d0f2798568ea7dc493b7db76dad73856fcf7d88e3397f3177efead8bf860"
+    },
+    {
+      "path": "src/LWBridge.Desktop/AssemblyInfo.cs",
+      "sha256": "17e5f149a8f2d6e6a353dbc1e0697420dfa3ab4c6b32d49dc217204d96efb920"
+    },
+    {
+      "path": "src/LWBridge.Desktop/AutomationStatusCommandService.cs",
+      "sha256": "7b80f569a2be98023dea5425b892f41f992bc228a202a38de196edcbf614ac3b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/BridgeCommandException.cs",
+      "sha256": "5cacf86d1e0bc9d4d56a5eae9b523cace972f70843ad838031298bb797c02d40"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CityExportWorkbookWriter.cs",
+      "sha256": "b1f9693693c29e3151fae8c4361463c4e538b18b49f56c37cdd6f8894be5485a"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CityLayoutDraftCommandService.cs",
+      "sha256": "65bb15b4b3c53f88db28488f3d2a4f02d615956112674cd641807a9a451df4ed"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ClaimDelayConfigCommandService.cs",
+      "sha256": "7cd028f5425213a604d4d74a9ffeed4895d6fa9cbca5c28fdffb2da04ea3784c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CompositeAsyncCommandService.cs",
+      "sha256": "f32d0a463923fbb68bbc30c7a06e687847635a9e5fa1db04559ec31d8acedb9e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientAoiCoveragePlanner.cs",
+      "sha256": "97a6075d127c383b88b22cdc41d190f6715ea42c094ea33e04a1df5ea58c6ddf"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientCompatibility.cs",
+      "sha256": "5dd85f420d82b7e114ad0b28a38863f83d3c062ed88445d7dfda304a57a8f1e3"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMap317ActionProvider.cs",
+      "sha256": "f90a62baa9a189344fea0bfce769d4ab45215f29aea1e2be379605d81c1cd3b8"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs",
+      "sha256": "7942351a09eb254e1d7e5c49240eeb5fd9eb67de8de55f5cce2ca13cd355b3c2"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.Aoi.cs",
+      "sha256": "bcfde742a252c2cca5eb5295bebd2842e310870dd3536a7a63525534f37a2c0c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.AssetImage.cs",
+      "sha256": "7e04ef79dd4baf9bd2908e96fb2b563faa999175ed06dde6a02e0b1858b03f40"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs",
+      "sha256": "52cdad065a4de830b6b7e9ba95e87ab8929ac007c9f7e767d77271f2f785f0b2"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.MapActions.cs",
+      "sha256": "2aa5170b8259ff56760c92a7831ad01ae63fc92dff19fb818d06fc11a2bd34ff"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.StatusState.cs",
+      "sha256": "c0eae7925cce9bfce88c761bbe4ddbfe164534566a41c66081a7f573363a5338"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.TreasureState.cs",
+      "sha256": "8a77a00d4788403549ba95b40a2b61a015738a2a2e7a1770b94b8494ef523755"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.WorldReady.cs",
+      "sha256": "c3e6d2d6e96c0cf6782c7949c788307581f55f234c1480e30c2c43fea3971fac"
+    },
+    {
+      "path": "src/LWBridge.Desktop/CurrentClientMapBlockSource.cs",
+      "sha256": "ab58eea337e62d64fb5b336b88d53ea95a4ecaf42bd21dcf1872580980e5cb27"
+    },
+    {
+      "path": "src/LWBridge.Desktop/DesktopApplicationPaths.cs",
+      "sha256": "a9abe414aaaff07c0d88ffafc1b66d1d7223b5e550294786c11d883ba373b2c0"
+    },
+    {
+      "path": "src/LWBridge.Desktop/DesktopUiContentRoot.cs",
+      "sha256": "113d0e8eaaefbb93d65b5836149e7a0d822d369113ef1aa433ed69a0522da994"
+    },
+    {
+      "path": "src/LWBridge.Desktop/DispatchAllianceShareContract.cs",
+      "sha256": "60fa17fd48b68352d78b02f394822b538b2dc1f884c654a873de2daca83c2c55"
+    },
+    {
+      "path": "src/LWBridge.Desktop/DispatchPlunderContract.cs",
+      "sha256": "a495579215948015b8c63cd958c101066af8d856785c18ec0c1812b9d16d295c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/EquipmentConfigCommandService.cs",
+      "sha256": "411da1ff6186da66a9b40e3f6d658ea67f6972ebb5e39059bdeb0014aeb9aec6"
+    },
+    {
+      "path": "src/LWBridge.Desktop/FirstLiveResultImporter.cs",
+      "sha256": "cfd728ccd7212d5d0ea55ef317988a2e726c98e8847c2460f8fa77dbc7207259"
+    },
+    {
+      "path": "src/LWBridge.Desktop/GameInstallationService.cs",
+      "sha256": "2b0c3efece93014d49b812709efa5187ce7b9bd0a7c24f31078b0bfd8a2c13a1"
+    },
+    {
+      "path": "src/LWBridge.Desktop/GameRecoveryStatusCommandService.cs",
+      "sha256": "579430f0e3921ab05ef7094ca9592d85b834df12c414f57e4ff68b17beb4162a"
+    },
+    {
+      "path": "src/LWBridge.Desktop/HostProbeCommandService.cs",
+      "sha256": "90a454dddfc273aa8dfb3bb4b1b9ecc07044bfe5659ff121fcb780b54e4e2418"
+    },
+    {
+      "path": "src/LWBridge.Desktop/HotkeyConfigCommandService.cs",
+      "sha256": "8c1557b5d7dfb4c666a5e8e47d20397441801fa6e3a5f9e39c5cbcc10759d4b8"
+    },
+    {
+      "path": "src/LWBridge.Desktop/IMap317RunScopedProvider.cs",
+      "sha256": "473ddf51bb4ef3b99abdd764f492f7227f7c5c92d01e8e1eadd84daf6c0a43c9"
+    },
+    {
+      "path": "src/LWBridge.Desktop/INativeAsyncCommandService.cs",
+      "sha256": "fe37c100c450c4d6e03579058952c735c27a433e91850da8887edd14f4a4dbc7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridge.Desktop.csproj",
+      "sha256": "4e616afc5ce57bb89c57810b9428e67cc64d6859dfaa79348857951cba9ca74a"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeBackend.cs",
+      "sha256": "7ea54141c9e215ba9a6492a0f4c735153552f869574e8c1035f8a0fdbe45aa8b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs",
+      "sha256": "06ad3aeed6c64f2fadfe45f01523ae3592aaf452b366b2dd2f30d6ffbd5369f1"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeClientPathContract.cs",
+      "sha256": "151a405826d63d6434ac6eaa33df6ba28ddb027e95e4133b3bd5f8dad7889b24"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeContract.cs",
+      "sha256": "6159fee479c8c985550015b588a71c4bbc80d6e484de3caf68e3f764808b135f"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeHandshakeContract.cs",
+      "sha256": "d9c1520a21fb6d6172e8bde722c48e682951f4bac4be17916bebe7c36583a146"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeHostState.cs",
+      "sha256": "0b3365e7e9553394c8e409a494b279eaaf35e8e552429fd64e278b8fa8385f3e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedAcceptLoop.cs",
+      "sha256": "edc74b4734387b7276daece98cb6963f6dfae37a44a9d797e19461c310e62888"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeIsolatedHandshake.cs",
+      "sha256": "7c3bf8d6f54a62ef62b648ab6fe4ee2e00e036152e3f1ec11571c44d0cc110df"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeLaunchBinding.cs",
+      "sha256": "842fb72b28548abec1526509cf1a6061a68babbcf8edd45088bfd24fa8aec85b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeListenerContract.cs",
+      "sha256": "3bce5dc6825f389e382a3f4b7e3707ec21d798b282d4d4d0a2edaf0c697eeed2"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeNativeServer.cs",
+      "sha256": "3c61949a4b5f7481c50e12c2e0d8c0cb61c90d0e96c68caa330e4ddbf3b5bda9"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeProtocol.cs",
+      "sha256": "cbd6ae0a7f3a1885eb2786c6aa13a4fb307d22fdfc127775f1261a171ad55343"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeRegistry.cs",
+      "sha256": "bb10d965f4ec2617edb4072a8d58053a2706d314e4dc01ca589e2d4f0e3f6ef8"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeRpcSessionTransport.cs",
+      "sha256": "68a30872ff2c45d47d2c6fbfbc982a4e65e57fd68f61f994d65a7cb2c2d1ca69"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeStartupContract.cs",
+      "sha256": "ed25c6353026347ba5526c3b4f6707a6b8f1265cf985e9ecfef2a3e8a2e9b50b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeControlPipeTransportLimits.cs",
+      "sha256": "06174b2f5472cc2e5bf686a6f8ec73545392d2fb98d647f3a22cb18350466812"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeProxyLaunchEnvironmentContract.cs",
+      "sha256": "0ee6c546b241dd694c22d614746e8a988c6919378e4539a05549b6543cb7338c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LWBridgeWindow.cs",
+      "sha256": "56ecab7487172e9e92af85f0ebe6597730bedf63ea632e3d6f9fae8a6d19876e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LastWarLocaleService.cs",
+      "sha256": "0b75439d32fef1f59cf2eeafa61bd986148f6b13949973e26a22c8e243ee4385"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LiveResourceProbeCommandService.cs",
+      "sha256": "f52304b172d63461b8dc015c76f0fedb1c0ecf022178cc435d036fa5f8c61b07"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LiveResourceProofRunner.cs",
+      "sha256": "5b09e739fd2e2af45806de64a866d40f2853f5e1380410eee103d762bd513930"
+    },
+    {
+      "path": "src/LWBridge.Desktop/LocalConfigStore.cs",
+      "sha256": "c7eb415fea5b18772538ce6e56295438fcc85f1edf2ab3d542245597743278fa"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ManualMapScanCommandService.cs",
+      "sha256": "966ec424a14a128b2bea88ef838430fdbb16b95d0d1f949ba9f07e052d48017d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Map317CommandService.cs",
+      "sha256": "87d09a36ed1f5d3dc8f6d5392dda84f3eb6e355f9e9b584c996dcddcfd5eca4e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Map317ScanProcessLease.cs",
+      "sha256": "900e0c9008d6b084abcc1485ecaf34f5789a4834d6f3e0d59b02bf380f5e662b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapAutoScanCommandService.cs",
+      "sha256": "0852264685cf658f2c063a2f70e1771230454bc23b2ed815f862d7cb64e0aac7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataQueryContract.cs",
+      "sha256": "f69d098c8b621a268f8081fbf1e3c1674eeb163ae0bac7ba16aa2ec59c462510"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataStore.PlunderControlPlane.cs",
+      "sha256": "9991b6a05bb5c3ad2816880976a64612c1671252dca49a962e00e994107034b6"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataStore.ScanEngine.cs",
+      "sha256": "96afb213f2826325da0d48d6bf890249702208be7a26b852fdeb5a1aaf608d8e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataStore.TreasureClaim.cs",
+      "sha256": "4731e6495c6934aab050bb738a51b539cec0364986ba97e9034237b5a1702c8c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataStore.cs",
+      "sha256": "e7bf635c427dc22e2e4d84381b6bb2e923567a948694494929f0a28e0c645d54"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapDataStoreScanSink.cs",
+      "sha256": "fc4ba660d588a5e36a2ed1492113e8e56221c8b70cfd4f2fd41f07b1462bea6e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanClearOwnership.cs",
+      "sha256": "59b16abb98d44669fd083fbc67be281b81815835c3d6da30c393c0893954e9db"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanCompletionSafety.cs",
+      "sha256": "0a0b515a01173c5311427f08c15bfaa9a154b907899de9d4b8af6bad9bb85877"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanContract.cs",
+      "sha256": "ebfc84310a389eb3ae9420d59b25129c065b500f7b3685c51cbbdee6d15c324c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanEngine.cs",
+      "sha256": "79db696b02a410dbcfd92be144c14805badcf127c38e76f703559aeb7f2baf1e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanEngineContracts.cs",
+      "sha256": "fca722aa1befdc93eb9c9655a64d05d2a99f937734d6c33b52f290b4845b4275"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanGeometry.cs",
+      "sha256": "01a55764cfec26b70f45235371dc02ddf58537d85a8b43999800cd374a5eb1ed"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanProcessLease.cs",
+      "sha256": "24f8d2f5aafbc5a91e467170ef3ec8c684e5ac50b935a46600b278da79dbd773"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanProgress.cs",
+      "sha256": "c44833baa003e72b5c3e50ed31b0165b7ee1290b92ea5fcc1ca8fe3a4125afd7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanPublicationOwnership.cs",
+      "sha256": "e2c43cc7232339561fa7ef5029c930cf250bbe15bf0a1b3ac3311113773426a1"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanSchedulerProgress.cs",
+      "sha256": "f6a5d03f75f163f1a56eae3e5ab233fddb43df92cbf5efa9342087b1879f7b64"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanStartOwnership.cs",
+      "sha256": "02e59ec928e91e3d91a587ff19ce40e9f5174bd9a4e8e1606f7c6ceda574173d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanTerminalPublicationGate.cs",
+      "sha256": "ba59d4ea53770aa62707881252a8ae27dcccb9593879db8e33a2f5d56db01b8b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MapScanTraversal.cs",
+      "sha256": "88f8b5badf1afb862546249d7adcc7ee16a32e0ddd754a7b68dc055ceeb4acb6"
+    },
+    {
+      "path": "src/LWBridge.Desktop/MonsterAfkConfigCommandService.cs",
+      "sha256": "c094a90bc18f5a49e3fc66c4857871e7b0487edfbd2563edab6c7349ea8332e6"
+    },
+    {
+      "path": "src/LWBridge.Desktop/NativeRequestExecutor.cs",
+      "sha256": "e4182486c2855a09843accbf792ee68af6e0871ac0a164b86e081f390661d9b5"
+    },
+    {
+      "path": "src/LWBridge.Desktop/NativeRequestRegistry.cs",
+      "sha256": "230e9667bad6512ac446aad1d0572e012d82518925812bd5073793ee1ebb3080"
+    },
+    {
+      "path": "src/LWBridge.Desktop/NativeSubscriptionRegistry.cs",
+      "sha256": "09b5fb71edf84c067875e82e4dcf5e1697b715688c829573ab30376a34590c3c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/NormalUiResourceProofContract.cs",
+      "sha256": "5414390d131dbf83ca2c9e07244fe4ea8d3344125dad65bed41c014f9688938d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OrderedProfileReconcileCommandService.cs",
+      "sha256": "2dba834741679bb5233dd9e85595f82a5931d8bdf59012fcc773f09b64c803a2"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewAdoptionRecord.cs",
+      "sha256": "e58930f5768fd478fc34391cb78f39844b4c4356ac2839de66a2e0810cc3f2d7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleAdoption.cs",
+      "sha256": "3b082a07b2bcb3f4befab84b62d400e83953a43058f73f6d70c522df6f0f901d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleOfficialSettle.cs",
+      "sha256": "90681b35765f9c4d0456e85d964137b963ace9fab44a67a6a4cd741944c4b73b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleProfileInstanceStatus.cs",
+      "sha256": "b2d9844a450819cdbb61325db00c9a5f56f23bca032b0d4784beb2cde09bba1b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleRecovery.cs",
+      "sha256": "9a0c22c0d8e042eb8d75a0ffc12c1408acbf0c36ea387585756d8d5f470d383a"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewLifecycleService.cs",
+      "sha256": "c8ace155c197ae57313035ef04c7875b3eab6a84af1a2e8e75b64aea7ef99487"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewMapScanSession.cs",
+      "sha256": "a44d708f371693ba12320ebe08afbf41bf2e5c11d9d97b107dceac21acb406c0"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewRecoveryLogReader.cs",
+      "sha256": "2660d0097053b930dcf8f604218b15502d789b0a1aabc43d34fa6c429b115ae5"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewRecoveryPolicy.cs",
+      "sha256": "c6c6e15e3d0c17cf87b986cd9f0777544438bad90c1b13e4c8930223a3ee5a57"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OverviewRuntimeFileOwnership.cs",
+      "sha256": "08e0291d0b8a8ebcad1215315b559fa5e9590a6ee42bdec902001d13871639b7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OwnedProcessTermination.cs",
+      "sha256": "219884b652658d06e64992cb21553816e7e8bdd9e1f3f0d925a1510e32a2b236"
+    },
+    {
+      "path": "src/LWBridge.Desktop/OwnerEvidenceRecorder.cs",
+      "sha256": "4084ab6218136263419966e29425d1fdaf342c9c7b77de25f63bfea5f8ae064c"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileRegistryCommandService.cs",
+      "sha256": "6bfdcf9b2a466600c21ad2618b4eb19fbeed7dac8742301ce16c05dbe915bf95"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileRegistryStore.cs",
+      "sha256": "dd504f4a4eff1aaefc022a6b17b6e4fd18539e2b7ec35e77dcf1c764daa3ead7"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileRuntimeOwner.cs",
+      "sha256": "3503a677f281747afbd5817d43fae7ee922352fc8ad8ed26c0f6aa4e78cdca42"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileSettingsCommandService.cs",
+      "sha256": "847a3436c4836be607028b33e34da4b7128664de4263b0ab59f32f005a81c04d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileSettingsStore.cs",
+      "sha256": "e7582e3c3aa9a0254fd80cf0eb4783c855341a54a791a4eae5cf6ae846df7dd9"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileStateStore.cs",
+      "sha256": "9e90d3e5941f519e00366599fdc68b5198009960f6b06edf31f0587f5f7d3bff"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProfileWindowFocusService.cs",
+      "sha256": "e03fb165ba2037dc473fbd35fd0208d20f4d5697c3d7a6668bfa29a4aec4e434"
+    },
+    {
+      "path": "src/LWBridge.Desktop/Program.cs",
+      "sha256": "05516e4988284062b97114f93f8554e72be0c052e190fd42b26df8b52beffc19"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ProxyStatusCommandService.cs",
+      "sha256": "585c7809d911cb380726afb0f1dd34f0303912e82d2954a8edca568f0b5be884"
+    },
+    {
+      "path": "src/LWBridge.Desktop/RecoveredWallClock.cs",
+      "sha256": "4b043f30e4aa46dc300429cc4c476223b90ca69d3bd783e8b9e1f65f847782ea"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ResourceAutomationConfigCommandService.cs",
+      "sha256": "55a56d1e3265f7c11166cca2a6be310bf687c005e92541d7b339fa6cb307c489"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ResourceCompletenessDiagnostics.cs",
+      "sha256": "500d81e782edb381dedaee49239ff5e56317fa8e07005a14163bc5137ae065f9"
+    },
+    {
+      "path": "src/LWBridge.Desktop/ServerJumpHistoryCommandService.cs",
+      "sha256": "47ae9b466df909b86f7cf971d522676247f62c2e6e2bb5362757c1b299004573"
+    },
+    {
+      "path": "src/LWBridge.Desktop/TreasureClaimContract.cs",
+      "sha256": "1e532120cc2d39d66f4e3b7004ff6c2e246f00eab9de2ea72c39dfe8dcd8f0ec"
+    },
+    {
+      "path": "src/LWBridge.Desktop/VisualMetricsConfigCommandService.cs",
+      "sha256": "7c3a014a4ba9c129ebf0422ccc3406a5ee555d38488dbfb581e503aea2aa491b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/AdvancedPanel-BpMaXJ2V.js",
+      "sha256": "132b38bad1380686391e08f00d789543b39ceb5a040e20af0a73c9b6d31efbfc"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/AutomationPanel-D06CxhPI.js",
+      "sha256": "6ceabc4c1e1e7fba512d1e6b6b9d0e1639aaf0adf5212ae27151b6bdb7d714ca"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/CityLayoutPanel-B4B03XEi.js",
+      "sha256": "97dc2c5e0bf4fc5e3b3a058e704c02e21385b9c9511aeb9b3297ec3272c78022"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/GameAssetImage-DEJtwPJL.js",
+      "sha256": "14dce332a63f9cb9f09db146c19bf7c2116f90c8c15d1554df1f95390983a303"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/HotkeyPanel-Do0ai_ZB.js",
+      "sha256": "cbcb1293fda94a82ccd7b958d2f1ed0a751cc251e4c62d4a5abd28220b37ee31"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/MapDataPanel-C1HVeNHr.js",
+      "sha256": "9a8de44d055c701dc717077b5cebe76ab0495491639645bd07a3a9f2bfc9963e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/SettingsPanel-CjjIQp-r.js",
+      "sha256": "669c614914cd7b5a00c5d71d1cd9996cdb300b6a2609768fb931f554929bd69e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/SquadPanel-ClRUC9pv.js",
+      "sha256": "3211da6582edb72e99db942c1b5ad4a0d7b3ed831df7548e020e0eab666c03af"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/api-ClPPi2JT.js",
+      "sha256": "8b978e9fa87f412990be510ca567b1a74d2a1acb14ef637b15d65d1428337064"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/dot-offline-CDBA2902.png",
+      "sha256": "f118d321ccd185313695db337823e1cfd04cca96eb9fa3447b65455e2673c31d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/dot-online-gjSbTzBh.png",
+      "sha256": "2875cc9945b55f113a7d1e194ee2a13050bf9de6aaec94d1de1d664112a027d6"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/en-CglaO9J7.js",
+      "sha256": "aa6a6bef29ea95e1e68c7b7a54e7e608a7a2b1ac4606796088f7f9be9c780206"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/icon-warning-D9WXqS3t.png",
+      "sha256": "da1a18e0007068c11d371a9d130c598f9b9a38f39f87d758fcc7fb9cc467853f"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/id-BGOB3Da8.js",
+      "sha256": "713841e1a97307cbd858bf8dc73768c9d19b1d63f58c11cf0496d768c8095e1d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/index-C5e98iqj.css",
+      "sha256": "8cbced39aa6c3cf720424146cd4decc69df5f233ee61c6fada19f2679636f1b8"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/index-sfL2sT3K.js",
+      "sha256": "54ef8a40a45cfe6a91196c6a6be31c1f783a01388d65ecf1f48c9da00ed28614"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/ja-CHIoXeMN.js",
+      "sha256": "938033d029114591d1a0f6a6af00a7892339ab9a50159957cddf38fdcd412110"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/ko-DwFOskdb.js",
+      "sha256": "31cc36737fad129dfbc9968580edcb9a095aa22e7918f376f180d31731013501"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/pt-Dx8R8Ips.js",
+      "sha256": "4d5e5b28ed39726be6f76558c0a374f5a56e9790cf58b84b0ddd61ec80d96cba"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/rewardDisplay-eZWrd6iS.js",
+      "sha256": "7f65dd3f5b81c96117af5e83e8310d6c6a3a48787b1f693d387020255c78e73e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/ru-CyPgDBg3.js",
+      "sha256": "9a51bfbe608da6365ea3674d075c287903ae906cc2881badebeb0ec208c7b148"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/vi-C4-IMJTR.js",
+      "sha256": "e32ca790ff0d645b057300bbaf5629fa94dbaa700406b99ddab04249e400e74a"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/zh-CN-L1LjMs4w.js",
+      "sha256": "e4de732d4c5002830a94c7a64876255089a83364fed93412a622482a610d410f"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/assets/zh-TW-DUHm529o.js",
+      "sha256": "91511c73876ce3ca9b66e72aacec905b9f80ef973f67d3b71148dc8f11ce32aa"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/index.html",
+      "sha256": "1e8d084abfdd78857a0302822d1151a6634e287f1ff9551a2e3d33e2ff5c55f5"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/local-providers.js",
+      "sha256": "70b929093209d1fccad829ecdbaebc271d62ca2ca760a8ab7235faa27ebc8129"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/presentation.css",
+      "sha256": "fd1e7bfe684b06c6eda73d24b2531327dfa0dd0befbda9a08df55805b674090d"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WebUi/preview-host.js",
+      "sha256": "27017105b716a18ba6b52d9f61aac11ac7dfcf431485a6f352bec7d2fc1d347e"
+    },
+    {
+      "path": "src/LWBridge.Desktop/WindowThemeService.cs",
+      "sha256": "93de46d97ff4da6541d89d64b9e8cf943a821d27536a98ed9ac0e0d8227cc96b"
+    },
+    {
+      "path": "src/LWBridge.Desktop/lwbridge.ico",
+      "sha256": "a256e6e533627a9446cbb9c9f726b2df657ea1ccf9a63de97e673c99026b4bd7"
+    },
+    {
+      "path": "src/LWBridge.GamePipeAdapter/LWBridge.GamePipeAdapter.csproj",
+      "sha256": "3dfa6ba3fd162059d9b3c54536c11c6213983a46a0cdfc79c5a8874dff1b97f6"
+    },
+    {
+      "path": "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs",
+      "sha256": "4face3b80a39323866cf9fe815737ef94211f72b32930db58d38410cb21e7514"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/BridgeCommandException.cs",
+      "sha256": "2d3b6dc87455064e444ede9e663f9fcbda95ec00bf12522c05c26ec1a833b756"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/CityExportWorkbookWriter.cs",
+      "sha256": "588609021cab794ff50bf836e604f4e580ca2ba98217fa6be5ec3949331a1ef6"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/LWBridge.Map-0.3.17.csproj",
+      "sha256": "58ad865a9e6cdae52027f8249deaa8810718da751da250707eeb851f43f9f5d0"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapActionControlPlane.cs",
+      "sha256": "d697b60c29e81e021da3a260745ebbf942243caeeb0a85c833acf94065edebb9"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapActionProvider.cs",
+      "sha256": "79b7f30e057a049f36c9a308d749c1fdc70c18ef44bda8ad1f1aa518670445e9"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapContracts.cs",
+      "sha256": "2bd9e453dd6a4d092995e3d9569e129e8be8c2e3ab7406d38764d218af4a1ab3"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapControlPlane.cs",
+      "sha256": "4b3768fd4bfe1fb33de84a1f37d5c388f569c80e31e10253b5d77c609a7023b2"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapExporter.cs",
+      "sha256": "d84fcef70e8af7ffad7079a2fb35fa65395918ef28dda1d9a9281f94d2ed3b2d"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapPlunderWorker.cs",
+      "sha256": "f0728323d8f20dfa87d944632f62516dfb2415cf03e3f4f002f06964c7cffeaf"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapProvider.cs",
+      "sha256": "83051ddeef5aa87108b970c67345b239f6686e9110c827800200a716f35876b0"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapScanStateMachine.cs",
+      "sha256": "4430992f47f37448bbaee29f92a65f2ea4c562c213c428efa50c8aec1badf89e"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapStore.Actions.cs",
+      "sha256": "232b75630b6f6b84926bafcf6ee0e2aa212f82ab4f66583d8ab7ac89ab50f4ed"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapStore.Plunder.cs",
+      "sha256": "e972b2d06f1796b98322eb9d78e30d4afebef5ba8eba1f43a2e30c9d58412466"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapStore.Query.cs",
+      "sha256": "0c1190712410493089d5ef5418fabea45efedeeb672b1f3b190e1dee96b2eddf"
+    },
+    {
+      "path": "src/LWBridge.Map-0.3.17/MapStore.cs",
+      "sha256": "69ff0bf10a862f82c0593fba21ded62583b0ca8030d5b7334ae865bf127daf22"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/README.md",
+      "sha256": "c01777dfa2a4f9d91365b59710868a549150bb60a9af88f5b8efa97a27418cd0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/index.html",
+      "sha256": "b3914aba47de2ac602a63f5c7363c0d25a7de32e426c43a91478116c78a74bfc"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/package-lock.json",
+      "sha256": "3fb383958e650368194a3bc9112003a9f88189d4c0505f74900fa99bdbf5ac74"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/package.json",
+      "sha256": "4f55749289b6a84ea9b7ad9cb38ab0af4a1b73e2d815a673333afa943d3314dd"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/build-production.mjs",
+      "sha256": "28aec006dcf0d192481d1eed5dfc6d56d981d9cd38c6151bde1d692774d7f03a"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-campaign007-mounted-real-app.mjs",
+      "sha256": "b12f9a4e5f3d94babac6c927b07ef418502455d841757091abf724943951bb1a"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-campaign007-mounted-real-resource.mjs",
+      "sha256": "05d5ed482847fecd98c2b31c6216d35d14ac69c839edb2cfb5ed0388342224a7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-campaign007-r1-mounted-app-profiles.mjs",
+      "sha256": "0c9c9b17f095328b6495201fd66ff6e5b5ff7b275870ad9fac15ab018bc25640"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-campaign007-real-resource-frontend.mjs",
+      "sha256": "17d3f7c12e8b25cf147821cc6a1c263ed0755c57d2b0cb2149cc155499386ebc"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-home-integration.mjs",
+      "sha256": "1c06de88d6c9c0e3b57a03b839dd2f2be70c4f0211b2c8033a7d10a37affa553"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-home009-r3-reconcile-errors.mjs",
+      "sha256": "2e0f056380dfa15a2801e8732dd0a50a972acb54937425261d8511b83bfa9fcb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-map-integration.mjs",
+      "sha256": "4cb5a353e0b147843c0b10a07c6ab60bb3524490e71d9651cee06203ba0a8529"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-production-build.mjs",
+      "sha256": "b492dc12077ab767fb7a48f2092acb06a75494fe1856cb8a6b1b4ebad66433e0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-static.mjs",
+      "sha256": "f5441fffc6303e1c5300e36f14bc6814978a71706bbe91258b155459601c9075"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-ui-complete.mjs",
+      "sha256": "52937b6f9fa24f6f31a4f57d2e353ce67cce2f9502ac6ae92aeaba6c71240b4f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/check-ui-drafts.mjs",
+      "sha256": "5d4c19dcb417fee9c000b75ad1d9f6babd2067c6df3a1e2f493875e7fc81465d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/generate-recovered-locales.mjs",
+      "sha256": "eec90a47f02a6e0c1707539e2a384e76081d690a67e2b20275b5338d449affe1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/scripts/production-build-identity.mjs",
+      "sha256": "a16f9bcddbcbaccc6191350011747d8ded8d7918f5af616ca3ee516f3963b6af"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/App.jsx",
+      "sha256": "e1df004e8eab591633364934d3eafa5f48e2ede7e0a6d2f3895a4a5b6dbfe5a6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AppExitDialog.jsx",
+      "sha256": "afa79399788e4f8c58fa81c11ff86cb7128cbf5dd02a84bd511e88a928a6549d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationMeta.jsx",
+      "sha256": "47f84ded5d76e037bcbabc2f81d8c294d63ecd6409137320b46078985bf95678"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/AutomationPage.jsx",
+      "sha256": "62e4a9fa5ed0271cdc0f5bb7210b28b28d71759c61ea502fb26f51cb416feeb3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/CityLayoutPage.jsx",
+      "sha256": "c2c3e9445f607c82954a4319e19c6a8a1be64368038293d7b1fadc8be9372061"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/DispatchAssistManual.jsx",
+      "sha256": "1ce38103690c72df87146b3f52791999374a2e841c2ddadcc84c9c417e69771b"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/EquipmentMotion.jsx",
+      "sha256": "27cb30a8addf84dc007fa2d686524f649afb470996cf386b23d8c7ba277fec68"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/GameAssetImage.jsx",
+      "sha256": "2bfca11136f2495780ea6a2037bd5007f1d7653284849452e430d2a4fa05d379"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HomePage.jsx",
+      "sha256": "58c7d600eb1a5e2925db1f4e7931f2650712ba92c7aa41a6ece802eff799ebd4"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
+      "sha256": "5dae6e4ffe8875bcebc366109ad4c1e3fff690ea17273ebb50226e9107551634"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapDataPage.jsx",
+      "sha256": "9673b043d47636a78fc2cf77598512b3ccf1d7cdd3c4a58bedc8c76d9f7f9a15"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapRetainedGoodsFilter.jsx",
+      "sha256": "d890612c6208ce306bb57eee759cfe79ad9cf86064b3b50526d65d0512657c51"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapRoutePage.jsx",
+      "sha256": "5c01a4c857c8916a830e8973b8a02232ce760484985bad6f78d1cd058dff116c"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/MapTreasureTypeFilter.jsx",
+      "sha256": "675e0bf8c2c7e6b6e7a5f90e368c6f8796b100581b24987eb6c7536bc4926ab7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/NavIcon.jsx",
+      "sha256": "e7f46c932609df28c1ca0cf829399be3c4bb1e67aec52560155d4fa36f47a2b6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/Pages.jsx",
+      "sha256": "c5df951e95561a08a4614445ed61586aa6df4e4b7ae3f11a6a546a52eba19191"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ProfileSidebar.jsx",
+      "sha256": "96e480f3bba897ab18be29891a346651e933c6c743a908de36bac67b0e86da9d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ProfileSwitchState.jsx",
+      "sha256": "01fc87f704cc45be3476bcaf461fa057f70dce57a7453ddd00188b756f9e83f5"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/RallyJoinSettings.jsx",
+      "sha256": "1579fa189eb6f5a34f62af211662cc995fe314c6c13c8681c29a85b6a7a6f11a"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ScheduledPlunder.jsx",
+      "sha256": "9d6814a70a62c9198720ce15faa84403f43e1de172a88e285179151d017b5534"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SettingsPage.jsx",
+      "sha256": "8622be39e06fe82fcf31bd2e092358987f3f304d447ada061685727436737771"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/ShellPresentation.jsx",
+      "sha256": "b1dd1278f274a1fd347ad4c27787b5ae8dc1db32230d49b55f7a471de34a904f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/SquadsPage.jsx",
+      "sha256": "5d0ae58cbe199441a046e326d699808ca31aeb96d6cc7daa0e7ec0a8c3b231d7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/assets/dot-offline.png",
+      "sha256": "f118d321ccd185313695db337823e1cfd04cca96eb9fa3447b65455e2673c31d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/assets/dot-online.png",
+      "sha256": "2875cc9945b55f113a7d1e194ee2a13050bf9de6aaec94d1de1d664112a027d6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/assets/icon-warning.png",
+      "sha256": "da1a18e0007068c11d371a9d130c598f9b9a38f39f87d758fcc7fb9cc467853f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/autoLaunchPreference.js",
+      "sha256": "c16feb94563b445cafdc3189c980025a6f8a9ae5ddd24085ce28887d0f828286"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/autoScanNativeCoordinator.js",
+      "sha256": "0f5d4319c0f25f5379e9d9a266ad34245298b4e60eb791bb1bbb55ec8c2859d7"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/backendBridge.js",
+      "sha256": "db80bc5bd9853229200a6d60ca218d62884b23ac1f0dee6030faa128f3b2c10b"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/i18n.jsx",
+      "sha256": "d4290741ab2c7acb0546ed47156bef434ddf210775cad9b9a3a261d401ce4891"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/en.js",
+      "sha256": "357682d9179ae712ee563950467b7a93b5aea89322afc993e079fedee28432c1"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/id.js",
+      "sha256": "52c0ae28f9c4428a481f6d911a1a4308eddd022af24ec48e518531803f7b375f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ja.js",
+      "sha256": "e1fed1e9aaf052963e3d8f5a5f8b9ae96b002a05a9dd7bb06a460a66187755eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ko.js",
+      "sha256": "7b4aef2d9000dc9bee00cf7bd13fe64fc35753aea728a66dc67f59f5a6a46c86"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/pt.js",
+      "sha256": "87aee8fa12e8ff6868380a316b6b1f447473b0edc1141c838cc0b2225f15036d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/ru.js",
+      "sha256": "07f39b5d3ac71148c9c5e5143bcb26cd079d55f16ff3a3ff1fc4c58e4111c44c"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/vi.js",
+      "sha256": "954be08aacae40a81d117e48e03bacdede39fa1439d0823c2bd6fd03efdc8b07"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/zh-CN.js",
+      "sha256": "faf55a16171db0fb3f96f51fbae7fbc3c675176d52eed29a0a303a2f7a8304d3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/locales/zh-TW.js",
+      "sha256": "5b2467e0d005e6d726e92bd21eda56e38321233d9d29bfdbaa8dbe3c0c4c2269"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/main.jsx",
+      "sha256": "edb05f29601925f38f2b31647ba391f670a22cfae16c300349af477587b702d9"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapAutoConfig.js",
+      "sha256": "329bf1871c12184bc71b7dec5d50c65138dd5f8886fa7fee7a2527db71784a16"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapBackend.js",
+      "sha256": "da8aced604f6c53abd1acfcdc9c4977bed77fe7a060c3ccbc041f3f05a7b4969"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapInteractions.js",
+      "sha256": "fb3eaa59228c7a9034c13690926a90ec3762dc3689788cf96d9cdb8521b465eb"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapPlunderFixtures.js",
+      "sha256": "73b6bf73db557088bdc8bc45286095f61b0af7c829a55e6c1b5bc9e1abb72b60"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapPlunderPresentation.js",
+      "sha256": "6e4bf5315990966823c5e162cf4875c9d1db3a897cd7bacc40752c9a7c2a62fd"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapPreviewApi.js",
+      "sha256": "ce6b1c18606a99c191e39734280e31336213d99a471e621c816656a0f9236b05"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapScanHeaderFixtures.js",
+      "sha256": "437d5f4cbdaf2fb95e52a2496b02f57b5233d29bca51a4f7428b0bc9c5b98720"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapScanPresentation.js",
+      "sha256": "76c2ac646e79ea372965f9c2da61d90356daf7fa2f47e52dd9180d745e2dc5d0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/mapTablePresentation.js",
+      "sha256": "b6c0d9b369d3e78ccc74aa7296f2b88eabf6b6560c3669a199546fc299839427"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkCloseoutFixtures.js",
+      "sha256": "11b5ae1d449b61296e5150dea355a82afe8bf0c23497583d840057aaec8cf3dd"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkContracts.js",
+      "sha256": "f75b4d22eccd19f69d4ad139abc2ffbc150b0007662ba47127cfb600cbf61ee3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAfkFixtures.js",
+      "sha256": "b143e6b6a2178e54d8b60a5cacaf0c950c1e25c5b91064864a6ac33b245e132c"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationContracts.js",
+      "sha256": "2c486dcb320e99a5d22292371cc1346ec2c006446c34d8a2a5177c658b0df8c3"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewAutomationFixtures.js",
+      "sha256": "df236fdba38d02eb3faa95c512a12f5fba90cc6e43a48a892fc923dfe74aa56d"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfig.js",
+      "sha256": "8bedec11d07a8245ebb6ff9df78e13e872c20f850c9b887919360bf209397b7a"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewConfigHook.jsx",
+      "sha256": "b43a17f2bbd966878bd2a0a5114446cdbdca4785fb8309ee4df8dbad0500ef44"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewEquipmentContracts.js",
+      "sha256": "2e57b79b1211582a9ff5e9a96a2158f8918c2d690694a6ddddc338af95ba44b0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/previewRemainingPagesContracts.js",
+      "sha256": "2f0c9ef1e28734ed3131a41e734a8d4a2b09cfff56c3d23a5a359df979769810"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/profileConfigDraft.js",
+      "sha256": "31e255735fa77ce3d780d7df563833c2d3afba26d16c0091f70db486ebcd3e7a"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/reference.css",
+      "sha256": "3d87e9f65b39eace6a1a254bfc90a38acb72613d1fff7236c7cee7ab9bfaf545"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/routes.js",
+      "sha256": "5e700b5ed35fee5eb539bab7dc126434f8a698cd1434927943cd431f388cbfd4"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/sharedPageUI.jsx",
+      "sha256": "c87499f69094180bb5ff6af1b03dcefa0fa9a36fa05251eb2a3463c17154162f"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/shellState.js",
+      "sha256": "29df81af8a791ca4d14535e9eec0052f91a2ff45e18b7b272042dbaec7c28195"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/shellTheme.js",
+      "sha256": "d6131e15de7036a9091dd1fb2a1f0be2ee8c046d909edbb0fbce0f90526310ec"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/styles.css",
+      "sha256": "94e4aab88534833c84621573ef4821a868b76347312c0ac0e9e07c449f57ad44"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/tradePurchaseHistory.js",
+      "sha256": "5fe401b6b57d5e2707bce7a5a38842e876dbefe69608efe434dd28b7abddd88b"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.LICENSE.md",
+      "sha256": "5ff46083b88563822b0560dd6221ab89d2f74bc97a52d4c97a75020fd62c6f32"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.NOTICE.md",
+      "sha256": "b4b598bc2ccc0f5fc12d3b503eae96862b02fe863089641b91fd390ee342c5b6"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/src/vendor/equipmentMotion317.js",
+      "sha256": "e3793ce042ecf9ab24bc8849403e5f3b968d685eba38dab80949a2f883dcbbd0"
+    },
+    {
+      "path": "src/LWBridge.UI-0.3.17/vite.config.js",
+      "sha256": "12783ea956bf6ca6569859f2150f477259afbd6f890d7fbda62859bcd4e3a083"
+    }
+  ]
+}
