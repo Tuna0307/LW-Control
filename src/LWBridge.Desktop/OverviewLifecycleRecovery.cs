@@ -34,6 +34,7 @@ internal sealed partial class OverviewLifecycleService
     private int healthRecordPid;
     private bool healthRecordValid;
     private readonly RecoveryMonitorObservation monitorObservation = new();
+    private readonly object recoveryTraceGate = new();
     private ulong recoveryNoticeId;
     private OverviewRecoveryStatus recoveryStatus = IdleRecoveryStatus();
 
@@ -766,6 +767,39 @@ internal sealed partial class OverviewLifecycleService
 
     private void PublishRecoveryStatus(OverviewRecoveryStatus status)
     {
+        // HOME-004 R3-R1: opt-in, sanitized native event receipt for a bounded
+        // isolated Home run. No tokens, profiles, paths or process identities.
+        // Disabled in normal usage. The native status producer remains the
+        // authority for reason/state, not an external timing inference.
+        if (testHooks is null &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_HOME004_RECOVERY_TRACE") == "1")
+        {
+            try
+            {
+                var row = new
+                {
+                    utc = DateTimeOffset.UtcNow.ToString("O"),
+                    state = status.State,
+                    reason = status.Reason,
+                    restarted = status.Restarted,
+                    attempts = status.Attempts,
+                    startedAt = status.StartedAt,
+                    completedAt = status.CompletedAt,
+                    error = status.Error,
+                    authenticatedRoutes = bridgeHostState?.ConnectedRouteCount,
+                    listenerStarted = bridgeHostState?.IsRpcTransportStarted,
+                    failedRpcSessions = bridgeHostState?.FailedRpcSessionCount,
+                };
+                lock (recoveryTraceGate)
+                {
+                    Directory.CreateDirectory(runtimeRoot);
+                    File.AppendAllText(Path.Combine(runtimeRoot, "home004-recovery-events.jsonl"),
+                        JsonSerializer.Serialize(row) + Environment.NewLine);
+                }
+            }
+            catch (IOException) { } // Diagnostics never alter recovery effects.
+            catch (UnauthorizedAccessException) { }
+        }
         try { RecoveryStatusChanged?.Invoke(status); }
         catch { }
     }

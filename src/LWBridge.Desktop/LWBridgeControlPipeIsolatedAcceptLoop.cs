@@ -1,5 +1,6 @@
 using System.IO.Pipes;
 using System.Security.Principal;
+using System.Text.Json;
 using Microsoft.Win32.SafeHandles;
 
 namespace LWBridge.Desktop;
@@ -27,7 +28,9 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     private int failedConnects;
     private int rejectedHandshakes;
     private int authenticatedSessions;
+    private int failedRpcSessions;
     private string? lastHandshakeError;
+    private string? lastRpcSessionError;
     private string? lastConnectInitialDisposition;
     private int lastConnectInitialError;
 
@@ -73,7 +76,9 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     public int FailedConnects => Volatile.Read(ref failedConnects);
     public int RejectedHandshakes => Volatile.Read(ref rejectedHandshakes);
     public int AuthenticatedSessions => Volatile.Read(ref authenticatedSessions);
+    public int FailedRpcSessions => Volatile.Read(ref failedRpcSessions);
     public string? LastHandshakeError => Volatile.Read(ref lastHandshakeError);
+    public string? LastRpcSessionError => Volatile.Read(ref lastRpcSessionError);
     public string? LastConnectInitialDisposition => Volatile.Read(ref lastConnectInitialDisposition);
     public int LastConnectInitialError => Volatile.Read(ref lastConnectInitialError);
 
@@ -191,6 +196,12 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                         Interlocked.Increment(ref rejectedHandshakes);
                         continue;
                     }
+                    catch (JsonException error)
+                    {
+                        Volatile.Write(ref lastHandshakeError, $"JsonException: {error.Message}");
+                        Interlocked.Increment(ref rejectedHandshakes);
+                        continue;
+                    }
                     catch (EndOfStreamException error)
                     {
                         Volatile.Write(ref lastHandshakeError, $"EndOfStreamException: {error.Message}");
@@ -206,6 +217,30 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                     {
                         await sessionHandler(session, cancellationToken)
                             .ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException) when (
+                        !cancellationToken.IsCancellationRequested)
+                    {
+                        // A session's own 30-second reader idle/write/backpressure
+                        // cancellation is not cancellation of the shared host.
+                        RecordRpcSessionFailure("OperationCanceledException");
+                    }
+                    catch (InvalidDataException)
+                    {
+                        // InvalidDataException derives from SystemException,
+                        // not IOException; malformed authenticated envelopes
+                        // must be retired without escaping the shared loop.
+                        RecordRpcSessionFailure("InvalidDataException");
+                    }
+                    catch (IOException error)
+                    {
+                        // EOF partway through a frame, invalid frame bounds and
+                        // broken pipe I/O retire only this authenticated route.
+                        RecordRpcSessionFailure(error.GetType().Name);
+                    }
+                    catch (JsonException)
+                    {
+                        RecordRpcSessionFailure("JsonException");
                     }
                     finally
                     {
@@ -226,6 +261,12 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                 }
             }
         }
+    }
+
+    private void RecordRpcSessionFailure(string errorType)
+    {
+        Volatile.Write(ref lastRpcSessionError, errorType);
+        Interlocked.Increment(ref failedRpcSessions);
     }
 
     private static async Task<LWBridgePipeConnectDisposition> WaitForConnectAsync(

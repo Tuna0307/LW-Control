@@ -95,6 +95,16 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         get { lock (gate) return acceptLoop?.LastHandshakeError; }
     }
 
+    internal int FailedRpcSessionCount
+    {
+        get { lock (gate) return acceptLoop?.FailedRpcSessions ?? 0; }
+    }
+
+    internal string? LastRpcSessionError
+    {
+        get { lock (gate) return acceptLoop?.LastRpcSessionError; }
+    }
+
     public int? PendingCallCount
     {
         get
@@ -109,7 +119,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         get
         {
             lock (gate)
-                return acceptLoop is not null;
+                return acceptLoop is not null && acceptLoopTask is { IsCompleted: false };
         }
     }
 
@@ -131,6 +141,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
             ThrowIfStopped();
             if (acceptLoop is not null)
             {
+                ThrowIfRpcListenerEnded();
                 if (string.Equals(
                         rpcExpectedBuildId,
                         expectedBuildId,
@@ -224,6 +235,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                          canonicalClientPath,
                          StringComparison.OrdinalIgnoreCase))
             {
+                ThrowIfRpcListenerEnded();
                 return;
             }
             else
@@ -477,6 +489,20 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 "BRIDGE_STOPPED",
                 "The shared bridge host is stopped.");
         }
+    }
+
+    // Fatal listener construction/host failures are never treated as healthy
+    // idempotent startup. Session-level failures are handled inside the loop.
+    private void ThrowIfRpcListenerEnded()
+    {
+        if (acceptLoopTask is not { IsCompleted: true } ended)
+            return;
+
+        // Re-throw the original fatal fault, if present, rather than silently
+        // preserving or replacing a dead shared listener.
+        ended.GetAwaiter().GetResult();
+        throw new InvalidOperationException(
+            "The shared bridge RPC listener ended without host shutdown.");
     }
 
     public void Close()
