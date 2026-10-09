@@ -2,6 +2,15 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest lead review, 2026-10-10: R2 checkpoint 561134cc739044e15f281ddc0c8b78829b865703
+receives bounded credit for the corrected stale-adoption recovery and saved genuine
+unexpected-process-exit ON/OFF receipts. Independent forced-rebuild before/after
+comparison distinguishes the fix. R2's required EN/light recovery captures are
+not present; the receipt describes Chinese/light and Japanese/dark instead.
+Whole Home remains PARTIAL and PR #6 remains draft. Next owner-relayed medium
+Home-only unit: docs/HOME_004_R3_CONTINUATION.md. Read HOME_004_R2_LEAD_REVIEW.md.
+Preserve prior fixes, use the existing branch/checkout, no new Map work or merge.
+
 Latest Home R1 lead review: df0baa4fa2b2a6d3d684fa43f47be531edab97a1 receives
 bounded credit for typed repair integration, current matrix and saved native
 startup/adoption/Close receipts. Whole Home remains PARTIAL; PR #6 stays draft.
