@@ -725,6 +725,17 @@ internal static class Map317NativeBoundaryChecks
             minLevel = "not-a-number", maxLevel = new[] { 3 }, sorts = "invalid" } });
         Require(Total(wrongTyped) == 1,
             "non-page mistyped filters/sorts/min-max must not throw or erase valid City rows");
+        // Original native query projection treats a non-boolean markedOnly like an
+        // absent filter, rather than surfacing the clone parser's INVALID_MAP_QUERY.
+        foreach (object? wrongMark in new object?[] { "true", 1, new[] { true }, null })
+        {
+            JsonElement looseMark = Search(new { kind = "city", query = new
+            {
+                serverId = 317, markedOnly = wrongMark,
+            } });
+            Require(Total(looseMark) == 1,
+                "non-boolean markedOnly must not reject or hide the unmarked City");
+        }
         JsonElement inverted = Search(new { kind = "city", query = new {
             serverId = 317, minLevel = "50.5", maxLevel = 20.1 } });
         Require(Total(inverted) == 1, "f64 min/max level inversion swaps before integer coercion");

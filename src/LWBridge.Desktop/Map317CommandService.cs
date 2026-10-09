@@ -863,7 +863,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             else query[name] = (int)Math.Clamp(loose.Value, 0, int.MaxValue);
         }
         NormalizeOriginalNumericRanges(query, queryElement);
-        foreach (string name in new[] { "includeForeignRadarTreasures", "luckyFirst" })
+        // The original Map search projects optional booleans with as_bool:
+        // a string/number/array/object is absent, not INVALID_MAP_QUERY.
+        // The strict clone DTO parser still serves other callers; normalize
+        // this native boundary before handing the query to that parser.
+        foreach (string name in new[] { "markedOnly", "includeForeignRadarTreasures", "luckyFirst" })
         {
             if (queryElement.TryGetProperty(name, out JsonElement flag) &&
                 flag.ValueKind is not (JsonValueKind.True or JsonValueKind.False))

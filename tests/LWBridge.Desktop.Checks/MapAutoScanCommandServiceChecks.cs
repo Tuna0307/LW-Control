@@ -13,6 +13,7 @@ internal static class MapAutoScanCommandServiceChecks
         await EnableDisableRunNowAndPersistenceStayProfileOwnedAsync();
         await OrdinaryEditsPreserveCompletedDeadlineAsync();
         await PersistenceFailureDoesNotMutateLiveStateAsync();
+        await DisabledConfigCannotAdmitStaleDueCycleAsync();
         await TerminalLastErrorContinuesAcrossServersAsync();
         await ThrownTargetFailuresAbortRemainingServersAsync();
         await ExplicitTargetsRunWhenCurrentServerIsUnknownAsync();
@@ -170,6 +171,53 @@ internal static class MapAutoScanCommandServiceChecks
             Check(!persisted.Config.Enabled && persisted.Config.IntervalMinutes == 45 &&
                   persisted.Config.ServerIds!.SequenceEqual(new[] { 5, 4 }) && persisted.Config.NextRunAt == 0,
                 "profile-owned Auto Scan config must survive service restart");
+        }
+        finally { DeleteRoot(root); }
+    }
+
+    // A due read must not reserve a cycle from a stale config after disable
+    // has committed, even when the final admission lock has not run yet.
+    private static async Task DisabledConfigCannotAdmitStaleDueCycleAsync()
+    {
+        string root = TempRoot("atomic-due-disable");
+        try
+        {
+            var clock = new FakeClock(500_000);
+            var execution = new FakeExecution { Online = false, CurrentServerId = 317 };
+            var readDue = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var releaseAdmission = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            await using var service = new MapAutoScanCommandService(
+                Path.Combine(root, "state.json"),
+                execution.Boundary,
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => clock.Now,
+                    BeforeDueAdmissionAsync = async () =>
+                    {
+                        readDue.TrySetResult();
+                        await releaseAdmission.Task.ConfigureAwait(false);
+                    },
+                },
+                startScheduler: false);
+            _ = await service.UpdateConfigAsync(MapAutoScanConfig.Default with
+            {
+                Enabled = true,
+                ServerIds = new[] { 318 },
+            });
+            execution.Online = true;
+            Task<bool> admit = service.CheckDueAsync();
+            await readDue.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot disabled = await service.UpdateConfigAsync(
+                MapAutoScanConfig.Default with { Enabled = false });
+            Check(!disabled.Config.Enabled && disabled.Config.NextRunAt == 0,
+                "disable must commit and clear the due deadline before admission resumes");
+            releaseAdmission.TrySetResult();
+            bool started = await admit.WaitAsync(TimeSpan.FromSeconds(5));
+            await service.WaitForIdleAsync(new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
+            MapAutoScanSnapshot final = await service.GetSnapshotAsync();
+            Check(!started && !final.Running && final.LastCycle is null &&
+                  execution.StartAttempts.Count == 0,
+                "old enabled/due observation must not launch even a ghost cycle after disable commits");
         }
         finally { DeleteRoot(root); }
     }

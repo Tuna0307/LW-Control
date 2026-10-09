@@ -59,6 +59,8 @@ internal sealed class MapAutoScanSchedulerHooks
 {
     internal Func<long>? UtcNowMilliseconds { get; init; }
     internal Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
+    // Deterministic test seam for the window between due read and admission.
+    internal Func<Task>? BeforeDueAdmissionAsync { get; init; }
 }
 
 /// <summary>
@@ -108,6 +110,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     private readonly MapAutoScanExecutionBoundary execution;
     private readonly Func<long> utcNowMilliseconds;
     private readonly Func<TimeSpan, CancellationToken, Task> delayAsync;
+    private readonly Func<Task>? beforeDueAdmissionAsync;
     private readonly SemaphoreSlim stateGate = new(1, 1);
     private readonly SemaphoreSlim stopGate = new(1, 1);
     private readonly CancellationTokenSource lifetimeCancellation = new();
@@ -140,6 +143,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         utcNowMilliseconds = hooks?.UtcNowMilliseconds ??
             (() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         delayAsync = hooks?.DelayAsync ?? Task.Delay;
+        beforeDueAdmissionAsync = hooks?.BeforeDueAdmissionAsync;
         state = LoadState(this.statePath);
         ReconcileRestartState();
         if (startScheduler)
@@ -410,19 +414,37 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             stateGate.Release();
         }
 
-        lock (cycleGate)
-        {
-            if (Volatile.Read(ref retired) != 0 ||
-                activeCycleTask is { IsCompleted: false } ||
-                !execution.IsOnline() ||
-                execution.IsMapScanActive())
-                return false;
+        if (beforeDueAdmissionAsync is not null)
+            await beforeDueAdmissionAsync().ConfigureAwait(false);
 
-            activeCycleCancellation?.Dispose();
-            activeCycleCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetimeCancellation.Token);
-            CancellationToken cycleToken = activeCycleCancellation.Token;
-            activeCycleTask = Task.Run(() => RunCycleAsync(config, cycleToken));
-            return true;
+        // A config update (especially Disable) can commit after the first
+        // due read. The final reservation must therefore re-read the durable
+        // config under stateGate, and hold it until cycleGate publishes the
+        // active owner. Keep the established lock order stateGate -> cycleGate.
+        await stateGate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            config = state.Config;
+            if (!config.Enabled || utcNowMilliseconds() < config.NextRunAt)
+                return false;
+            lock (cycleGate)
+            {
+                if (Volatile.Read(ref retired) != 0 ||
+                    activeCycleTask is { IsCompleted: false } ||
+                    !execution.IsOnline() ||
+                    execution.IsMapScanActive())
+                    return false;
+
+                activeCycleCancellation?.Dispose();
+                activeCycleCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetimeCancellation.Token);
+                CancellationToken cycleToken = activeCycleCancellation.Token;
+                activeCycleTask = Task.Run(() => RunCycleAsync(config, cycleToken));
+                return true;
+            }
+        }
+        finally
+        {
+            stateGate.Release();
         }
     }
 
