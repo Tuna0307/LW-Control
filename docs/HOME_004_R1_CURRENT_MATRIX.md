@@ -110,3 +110,24 @@ completed and restored; see [the genuine native R3 attempt](proof/HOME-004-R3-LI
 The original 47 obligation rows and R2 successful **unexpected-process-exit**
 credit are unchanged. This R3 hang attempt is a **PARTIAL** outcome, not a
 new success claim and not an upgrade to whole Home acceptance.
+
+## R3-R1 corrected listener and later successful owned hang attempt (2026-10-10)
+
+This is a **new isolated owner** and a **later source revision**; it does not
+rewrite the separate failed `r3-live` witness above or the lead's original
+negative pipe inverse. See [R3-R1 isolated transport proof](proof/HOME-004-R3-R1-PIPE-2026-10-10.md)
+and [actual packaged R3-R1 receipt](proof/HOME-004-R3-R1-NATIVE-2026-10-10.md).
+The 47 original Home contracts, original locators and earlier R1/R2
+credits remain intact. Only the affected current evidence changes:
+
+| Affected row | Additional real R3-R1 current evidence | Remaining limit |
+| --- | --- | --- |
+| H-27/H-29 | Corrected production listener survives one authenticated reader idle cancellation, malformed authenticated traffic and broken pipe; separate real isolated Windows named-pipe probe passes six invalid-admission/frame rejections, wrong image, higher route generation and freshly authenticated successor RPC on the **same host**. Completed fatal listener task no longer reports started. | Adapter idle **30 s derives from 0.3.1**; original 0.3.17 exact timer/error-control flow not independently decoded. |
+| H-32–34 | Actual packaged ON still-alive hung PID 28848: native event `reason=hang`, `waiting→repairing→launching`, automatic replacement PID 28176, fresh authenticated route, `verifying→succeeded`. Native trace shows listener alive and old RPC failure retired. Earlier separately owned OFF suppression retained. | Independent live offline-only 60 s/disconnect and full original protected service equivalence. |
+| H-35/H-36 | Native `succeeded,restarted=true,attempts=1,error=null`, 18.34 s verifying interval plus independently sampled **15.438 s** of exact-session, ready/connected, logged-in, fresh heartbeat and attached transport; original hung PID exited and cleanup completed without destroying the new route. | Actual long live maintenance/updater retries and artificially delayed native helper failures unobserved. |
+| H-40/H-47 | After stable recovery, actual packaged user Close game stopped PID 28176 with Reconnection ON, cleared adoption/journal and prevented relaunch for another 16 s. Existing controlled pending-user-Stop/late-original race remains passing. | Stop clicked *during* a live pending recovery remains controlled-only; no second fault was induced. |
+| H-43 | Real `RecoveryStatusChanged` reason/state/attempt/route events timestamped, `hang→waiting→repairing→launching→verifying→succeeded`. No surrogate detector event. | Other original recovery reasons, protected error handling and full UI notice/error parity remain open. |
+| H-45 | Genuine packaged **EN/light** and **JA/dark**, separately captured and visually inspected while the successful successor was **Connected**. JA/dark stopped screenshot retained. Previous failed-attempt relaunch images remain negative history. | Original licensed client full side-by-side conditional-pixel equality unproved. |
+
+**R3-R1 unit: READY_FOR_LEAD_REVIEW after exact exit/restoration and source-identified
+release/smoke checks; whole Home remains PARTIAL until lead acceptance.**
