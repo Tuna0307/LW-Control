@@ -1,3 +1,13 @@
+# Current owner priority — Home complete before another feature (2026-10-09)
+
+MAP-CITY-MARK-DELIVERY-004 is deferred before dispatch. Next only on owner relay:
+LWB317-HOME-COMPLETE-DELIVERY-004, covering all remaining in-scope Home obligations
+with original-contract comparisons and actual packaged native verification.
+Published main remains 62d2bfd3fde3027e3d500d759244f2c558d1f06d (v0.3.0).
+Home Launch/Connected/Close is a delivered subset; whole Home remains PARTIAL.
+Strict main acceptance and post-merge branch/worktree cleanup are now recorded
+in AGENTS.md, AI_WORK_PROTOCOL.md and the dated owner-direction document.
+
 # Published stored Map feature — 2026-10-09
 
 MAP-DATA-DELIVERY-003 is independently accepted and published through PR #5. Main/tag map-data-v0.3.0: 62d2bfd3fde3027e3d500d759244f2c558d1f06d.

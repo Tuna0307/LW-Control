@@ -1,3 +1,14 @@
+# Current Home-only direction — 2026-10-09
+
+Owner now prioritizes completing Home before any new Map feature. City marking
+is deferred. Read docs/work-items/LWB317-HOME-COMPLETE-DELIVERY-004.md and the
+dated HOME-FIRST-MAIN-AND-CLEANUP owner direction. Start from current main in
+the existing checkout on one temporary Home branch after owner relay. The
+retired production worktree path in older prompts must not be recreated blindly.
+Main merges require independently verified original A -> A contract and working
+native packaged feature; unknown required behavior is not acceptance. Lead owns
+merged branch deletion and worktree retirement, preserving unique work/evidence.
+
 # Published stored Map feature — 2026-10-09
 
 MAP-DATA-DELIVERY-003 is independently accepted and published through PR #5. Main/tag map-data-v0.3.0: 62d2bfd3fde3027e3d500d759244f2c558d1f06d.

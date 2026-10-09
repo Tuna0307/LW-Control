@@ -1,5 +1,21 @@
 # AI work protocol
 
+## Current priority and lead obligations — 2026-10-09
+
+Home first: read docs/work-items/LWB317-HOME-COMPLETE-DELIVERY-004.md. City marking
+and other Map work are deferred. Finish original-contract recovery, actual native
+implementation and packaged Home verification before moving to another feature.
+Owner relay still controls worker start; older dispatch paragraphs are history.
+
+The lead merges only independently verified working A -> A feature scope, never
+an unresolved required behavior or clone-only pass. A supported subset is named
+as a subset, not the whole Home tab. After merge/publication, the lead removes
+merged local/remote feature branches and closes task worktrees after checking
+unique commits, current activity and preserving needed local artifacts. Keep
+main and research; create only the currently necessary feature branch. See
+docs/owner-directions/2026-10-09-HOME-FIRST-MAIN-AND-CLEANUP.md.
+
+
 Latest lead delivery, 2026-10-09: MAP-DATA-DELIVERY-003 is accepted for stored City/Resource search/filter/sort/page/tab retention/reopen and City export. Lead corrected original wrapped OFFSET; PR #5 merged into main 62d2bfd3fde3027e3d500d759244f2c558d1f06d and published as map-data-v0.3.0. No scanner parity is promoted. Next only on owner relay: docs/work-items/LWB317-MAP-CITY-MARK-DELIVERY-004.md, a solo local-data marking slice. Preserve published Home/UI, identity/restoration/access and earlier evidence. Earlier dispatch paragraphs are history where inconsistent.
 
 

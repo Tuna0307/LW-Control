@@ -1,5 +1,30 @@
 # Mandatory rules for every AI and contributor
 
+## Current owner direction — 2026-10-09, Home first and strict main acceptance
+
+Complete the Home tab before starting another feature. MAP-CITY-MARK-DELIVERY-004
+is deferred; older next-Map dispatches below are historical. The active next
+owner-relayed assignment is docs/work-items/LWB317-HOME-COMPLETE-DELIVERY-004.md.
+Do not resume a worker until the owner relays it.
+
+Only merge a feature into main after the lead independently verifies BOTH its
+recovered LWBridge 0.3.17 A -> A observable contract and working actual packaged
+native behavior. Passing clone-only tests, a UI fixture, a plausible adaptation,
+or worker completion does not establish acceptance. Known differences or unknown
+required behavior keep that feature incomplete and off main. Do not declare the
+whole Home tab complete from its accepted Launch/Connected/Close subset.
+
+The project lead owns post-merge cleanup: inspect local/remote refs, ancestry,
+open PRs, all worktrees, dirty/untracked/ignored work and active processes;
+delete completed merged feature branches locally and remotely, preserve any
+unique unfinished commits, and archive/remove task worktrees after retaining
+needed ignored evidence. Keep main as the product and research/offline-controller
+as recovery authority. Prefer a temporary feature branch in the existing checkout;
+create another worktree only when isolation is needed, explain its purpose and
+record its cleanup. Never reset/force-delete unfinished work or bulk-copy the
+research archive into main. Read docs/owner-directions/2026-10-09-HOME-FIRST-MAIN-AND-CLEANUP.md.
+
+
 Latest lead delivery, 2026-10-09: MAP-DATA-DELIVERY-003 is accepted for stored City/Resource search/filter/sort/page/tab retention/reopen and City export. Lead corrected original wrapped OFFSET; PR #5 merged into main 62d2bfd3fde3027e3d500d759244f2c558d1f06d and published as map-data-v0.3.0. No scanner parity is promoted. Next only on owner relay: docs/work-items/LWB317-MAP-CITY-MARK-DELIVERY-004.md, a solo local-data marking slice. Preserve published Home/UI, identity/restoration/access and earlier evidence. Earlier dispatch paragraphs are history where inconsistent.
 
 

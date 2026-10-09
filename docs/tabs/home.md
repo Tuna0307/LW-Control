@@ -1,4 +1,14 @@
-**Current lead checkpoint, 2026-10-09: worker STOPPED by owner; Home/Map PARTIAL / CHANGES_REQUIRED.** Independent audit credits the captured-run ownership fix and bounded live receipts, but returns four query/status/publication-proof corrections. Current authority: `docs/PROJECT_STATUS.md` and the dated `COMPLETION-010-R1-LEAD` review. Earlier entries below are historical and do not resume the worker.
+**Latest owner priority, 2026-10-09: HOME FIRST; whole Home remains PARTIAL.**
+Main v0.3.0 includes accepted single-profile Launch -> authenticated Connected ->
+Close, recovered source/local UI and settings, and stored Map-data delivery.
+This is not full Home acceptance. Complete the remaining original-contract and
+native Home checklist via LWB317-HOME-COMPLETE-DELIVERY-004 before new Map work.
+Worker starts only on owner relay; City marking is deferred. Main requires lead-
+verified working A -> A scope. See current PROJECT_STATUS, the new work item and
+owner-directions/2026-10-09-HOME-FIRST-MAIN-AND-CLEANUP.md. The older checkpoints
+below are history, preserving their original limits and evidence.
+
+**Historical lead checkpoint, 2026-10-09: worker STOPPED by owner; Home/Map PARTIAL / CHANGES_REQUIRED.** Independent audit credits the captured-run ownership fix and bounded live receipts, but returns four query/status/publication-proof corrections. Current authority: `docs/PROJECT_STATUS.md` and the dated `COMPLETION-010-R1-LEAD` review. Earlier entries below are historical and do not resume the worker.
 
 **2026-10-09 COMPLETION-010-R1 WORKER CONTINUATION — PARTIAL; NOT ORIGINAL 0.3.17 A→A OR LEAD ACCEPTANCE.** LEAD010-01 delayed Map status ownership corrected at actual production command/control/provider/SQLite boundaries (5/5 held tests, true same-run server change preserved); LEAD010-02 repaired City/Resource live-runner proof (21/21 inert positive/inverses, twelve-column XLSX, durable publication, exact owned exit/restoration/root cleanup). Ready Home/Map source-backed work adds post-publication Home readiness cleanup, configured-versus-active root lifetime, ordered local profile reconciliation without faking entitlement, enter-world polling, all-eight-kind numeric coercion/page envelope, mark deletion and Dispatch-only daily-limit fan-out. Current-client live evidence: live-attempt-r1.json: PILOT_COMPLETED, city=6780, resource=8010; staged Stop: not attempted/unknown; live-attempt-stage-stop.json: PILOT_COMPLETED, city=6780, resource=8011; staged Stop: True. Full 47 Home + 86 Map reconciled in `evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-HOME-MAP-COMPLETION-010/R1/obligations-r1-derivative.json`; previous lead/worker inventories remain immutable. Protected Lua/lease, remaining native mapping, actual multi-owner startup, native EN/light capture twice crashed with 0xc0000005; JA/dark desktop and adverse Home repair/reconnect remain unresolved; no full original parity or protected-service claim. See dated R1 worker report.
 

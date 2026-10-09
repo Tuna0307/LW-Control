@@ -19,6 +19,7 @@ analysis/
 /Windows-MCP/
 
 # Local reverse-engineering/build scratch (never commit).
+/artifacts/
 tmp*/
 tmp_*
 tmp-*

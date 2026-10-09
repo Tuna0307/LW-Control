@@ -1,5 +1,10 @@
 # LWB317-MAP-CITY-MARK-DELIVERY-004
 
+**DEFERRED BY OWNER, 2026-10-09, before dispatch.** Complete Home first via
+LWB317-HOME-COMPLETE-DELIVERY-004. Do not start this task from an earlier prompt.
+The linked production worktree is being retired; its path below is historical.
+
+
 Begin only after owner relay. Work solo, without subagents, other AI chats, GPT Work or Codex delegation. Finish A–C sequentially and return once. This is one medium feature delivery, not another all-project recovery campaign.
 
 ## Deliverable and checkout
