@@ -15,10 +15,10 @@ import time
 
 import home_004_r2_owned_exit as identity
 
-TASK = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "r3-live"
+TASK = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "r3-live-solo"
 identity.TASK = TASK
 identity.RUNTIME = TASK / "isolated" / "overview-bridge"
-identity.PROFILE = "home-004-r3-live"
+identity.PROFILE = "home-004-r3-live-solo"
 PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 PROCESS_SUSPEND_RESUME = 0x0800
 SYNCHRONIZE = 0x100000

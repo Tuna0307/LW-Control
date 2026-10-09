@@ -2,10 +2,10 @@
 from pathlib import Path
 import home_004_r1_live_gate as gate
 
-gate.task = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "r3-live"
+gate.task = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "r3-live-solo"
 gate.profile_root = gate.task / "isolated"
 gate.receipt_file = gate.task / "preflight.json"
-gate.profile = "home-004-r3-live"
+gate.profile = "home-004-r3-live-solo"
 
 if __name__ == "__main__":
     import sys
