@@ -1,0 +1,14 @@
+{
+  "profileStore": {
+    "db": "controller.db",
+    "order": "display_order, created_at, id",
+    "record": "0xd8 bytes: enabled @+0xd0, isPrimary @+0xd1, id String @+0x18/+0x20"
+  },
+  "reconcile": {
+    "input": "payload autoLaunchAll (default true); NO persisted launch preference is read natively",
+    "selection": "enabled profiles in display_order, created_at, id",
+    "filter": "reason == restartRequired (any autoLaunchAll) | reason absent && autoLaunchAll | otherwise dropped",
+    "launch": "sequential 0x1d5009 with closeUnmanaged=false; per-profile errors {profileId, error} appended, loop continues",
+    "supersedes": "008/009 reading of [cfg+0x140] as a global auto-launch gate (it is the authorization-state lock poison flag)"
+  }
+}

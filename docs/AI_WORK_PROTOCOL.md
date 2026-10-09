@@ -1,5 +1,12 @@
 # AI work protocol
 
+Current owner checkpoint, 2026-10-09: the other worker is STOPPED by owner while
+the project lead audits and answers questions. Do not treat older continuation
+or loop paragraphs below as a new dispatch. Current authority is
+docs/PROJECT_STATUS.md and the dated COMPLETION-010-R1-LEAD review. Preserve
+the checkpoint; Home/Map remains PARTIAL / CHANGES_REQUIRED. Resume only after
+a new owner-relayed assignment.
+
 Latest lead continuation, 2026-10-09: COMPLETION-010-R1 A–F is the active solo continuation after partial review. Preserve completed fixes, correct the stale Map guard and pilot proof defects before live execution, reconcile the obligation table, finish independent ready Home/Map code/static work, then perform currently authorized verification if tooling permits. Do not return solely because a live action was denied while ready work remains. See AGENTS.md, dated 010-LEAD review and the R1 work item.
 
 Latest lead assignment, 2026-10-09: HOME-MAP-COMPLETION-010 consolidates the owner's

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "defaultRoot": "C:\\Users\\chimw\\AppData\\Local\\LWBridgeRebuild",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae",
+  "profileSequence": [
+    "live-pilot-isolation-A",
+    "live-pilot-isolation-B",
+    "live-pilot-isolation-A"
+  ],
+  "paths": {
+    "ControllerDatabasePath": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\controller.db",
+    "overviewRuntime": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\overview-bridge",
+    "overviewEvidence": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\overview-evidence",
+    "overviewBackups": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\overview-bridge-backups",
+    "liveResourceRuntime": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\live-resource",
+    "webView": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\Presentation",
+    "profileA": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\profiles\\live-pilot-isolation-A",
+    "profileB": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-production-root-871e231fb7b64f6b839570bf19cf69ae\\profiles\\live-pilot-isolation-B"
+  },
+  "realCurrentClientMapProvider": true,
+  "autoSchedulerStarted": false,
+  "bridgeTransportStarted": false
+}

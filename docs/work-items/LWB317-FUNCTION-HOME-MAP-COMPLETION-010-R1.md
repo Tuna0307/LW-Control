@@ -1,6 +1,10 @@
 # LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1
 
-Status: **READY — partial-work corrections and combined continuation**, 2026-10-09.
+Status: **PARTIAL / CHANGES_REQUIRED — worker stopped by owner**, 2026-10-09.
+Latest audit: `docs/reviews/2026-10-09-LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1-LEAD.md`.
+Current checkpoint: `docs/PROJECT_STATUS.md`. Preserve completed branches and
+new lead negatives; do not resume this historical dispatch before the owner
+finishes questions and requests another assignment.
 Repo: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `research/offline-controller`.
 Reviewed worker checkpoint: `76018780d017321cd7fa2a819392c97c1e2888f0`.
