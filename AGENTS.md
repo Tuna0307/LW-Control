@@ -2,6 +2,15 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest lead review, 2026-10-10: R3 checkpoint 7b36bfdd8de04a2193a32f49eb8465c64dcfd659
+remains PARTIAL / CHANGES_REQUIRED. Controlled delayed-cleanup checks and retained
+EN/light, JA/dark relaunch images receive bounded credit, not successful recovery.
+LEADHOME004R3-01 reproduces an isolated authenticated client idle timeout ending
+the shared pipe listener while the host still reports transport started; a new
+client cannot connect. Live evidence records pipe-not-found before successor Stop.
+Read HOME_004_R3_LEAD_REVIEW.md and HOME_004_R3_R1_CONTINUATION.md; next solo worker
+starts only on owner relay, same branch/checkout, no Map or main merge/publication.
+
 Latest lead review, 2026-10-10: R2 checkpoint 561134cc739044e15f281ddc0c8b78829b865703
 receives bounded credit for the corrected stale-adoption recovery and saved genuine
 unexpected-process-exit ON/OFF receipts. Independent forced-rebuild before/after
