@@ -152,3 +152,31 @@ automation, full per-profile ownership and outstanding Home UI/error/status
 paths remain unverified or different. The assigned exit-recovery slice is
 ready for independent lead review; **do not merge or publish PR #6 or claim
 the entire Home tab DONE**.
+
+## R3 continuation — still-running fault (2026-10-10)
+
+**PARTIAL.** Controlled service tests now exercise the original 29,999/30,000
+ms hung+offline and 59,999/60,000 ms disconnected-alive boundaries plus a
+delayed old helper Stop acknowledgment. The successor's actual protected
+adoption record, pipe registration and lease survive that obsolete completion.
+See [controlled proof](proof/HOME-004-R3-CONTROLLED-2026-10-10.md).
+
+The separate `r3-live` packaged UI attempt (distinct from the controlled
+worker's appropriately denied `r3-live-solo` ownership) passed compatible-v23,
+profile-isolation and original-script-backup gates. An exact owned still-running
+PID was suspended while Automatic Reconnection was OFF: same PID survived,
+no relaunch. The real Home toggle was then switched ON and an exact process
+suspend produced an exit after 37.57 seconds, followed by an automatic official
+launcher successor. Both genuine **English/light** and **Japanese/dark**
+relaunch-in-progress screenshots were saved. However, the successor stopped
+and was restored before any verified authenticated Connected/15-second stable
+success. The reason field of the detector was not separately recorded. This is
+**real native partial/failing proof**, not an R3 success or proof of original
+runtime equivalence. Exact host/game exit, original script restoration and
+recovery-journal absence passed after closing the isolated host.
+
+See [R3 live receipt](proof/HOME-004-R3-LIVE-2026-10-10.md) and current
+[47-row matrix](HOME_004_R1_CURRENT_MATRIX.md). The prior R2 successful
+unexpected-exit witness remains valid, while the new still-running recovery,
+pending user Stop and authenticated successor gates remain incomplete. Keep
+PR #6 **draft**; whole Home **PARTIAL** and no merge/publication.

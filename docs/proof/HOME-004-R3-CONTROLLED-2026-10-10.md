@@ -177,3 +177,15 @@ reviewable and source-bound but the canonical clean-tree packager
 gate remains refused until the other session's untracked work is
 properly resolved. No user game processes were started for this
 packaging/smoke check.
+
+## Later independent owner closeout (same date; preserved chronology)
+
+The above admission refusal and unfinished-owner observation concern the
+**separate `r3-live-solo` worker at 01:05:30**. The original `r3-live` owner
+later continued the existing bounded native session, collected a real ON
+hang/relaunch witness with EN/light and JA/dark screenshots, and completed
+exact restoration with zero remaining game/host processes at 01:12:52 local.
+Its successor did **not** sustain verified Connected/15-second stability,
+so the R3 live gate remains **PARTIAL**. See the separately dated
+[actual native attempt](HOME-004-R3-LIVE-2026-10-10.md); none of the
+controlled-only results above is reclassified as an authenticated live success.

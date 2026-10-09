@@ -92,3 +92,21 @@ hosts (PIDs 10036 and 55796) blocked independent isolated admission.
 No independent R3 game attempt was started or finished, and no
 global process-exit/restoration result is claimed for those other
 hosts. Whole Home remains **PARTIAL**.
+
+## R3 separately owned packaged hang attempt (later on 2026-10-10; PARTIAL)
+
+The earlier `r3-live-solo` owner was correctly denied admission while a
+different `r3-live` session existed. Its denial above remains accurate for
+**that owner**. The separately authorized `r3-live` session was subsequently
+completed and restored; see [the genuine native R3 attempt](proof/HOME-004-R3-LIVE-2026-10-10.md).
+
+| Affected row | Additional real packaged evidence | Still unmet |
+| --- | --- | --- |
+| H-32–34 | `r3-live` OFF: exact owned alive PID 47684 survived a bounded 46 s suspend with no relaunch. ON: exact same PID was suspended and exited after 37.57 s; automatic official launcher created successor PID 40668 | No native live `hang` reason/event trace, successful authenticated ON return or standalone offline 60 s witness |
+| H-35–36 | Two actual helper restoration receipts; first at 17:09:55 UTC and successor at 17:11:54. Real launch shown in Home; successor stopped rather than reaching verified stable success | ON native Connected + 15 s stable verification FAILED/unproved, cause of successor stop unresolved |
+| H-40/47 | Real Home Close was available for disconnected owned game; controlled R3 Stop/held old acknowledgement still passes; exact final host/game exit and journal/script cleanup verified | Stop clicked while recovery still pending not witnessed; old protected successor race controlled only |
+| H-43/45 | Genuine EN/light and JA/dark **relaunch-in-progress** captures saved and inspected in ignored task root; earlier LEADHOME004R2-01 missing-EN-capture issue receives scoped visual evidence | Authenticated Connected after R3 still-running recovery and full original conditional-pixel parity remain open |
+
+The original 47 obligation rows and R2 successful **unexpected-process-exit**
+credit are unchanged. This R3 hang attempt is a **PARTIAL** outcome, not a
+new success claim and not an upgrade to whole Home acceptance.

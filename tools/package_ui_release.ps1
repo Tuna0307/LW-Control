@@ -77,6 +77,11 @@ disconnect and long retry/maintenance/updater behavior, multi-owner
 entitlements, Map scanners, mini-game execution, protected original service
 and full runtime pixel parity are NOT certified. Some actions require later
 native work; see HOME-004 R2 proof and current 47-row Home matrix in source.
+HOME-004 R3 observed an exact owned still-running/hung game exit and automatic
+official-launcher successor on Reconnection ON. That replacement did not
+remain in an authenticated Connected state: the game stopped and the session
+was restored. EN/light and JA/dark native recovery-in-progress captures are
+preserved; this is PARTIAL/failing live evidence, not a successful recovery.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):
