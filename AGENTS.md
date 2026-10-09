@@ -1,5 +1,7 @@
 # Mandatory rules for every AI and contributor
 
+Latest lead continuation, 2026-10-09: partial COMPLETION-010 is independently reviewed. Continue COMPLETION-010-R1 A–F, correcting LEAD010-01/02 and completing remaining ready Home/Map work. LEAD009R3-01 is credited for controlled scope. Existing Home/City-Resource live permission remains; an auto-mode approval denial is not owner revocation, and must not be bypassed. Preserve evidence and technical identity/isolation/restore/access boundaries. Read docs/work-items/LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1.md and the dated 010-LEAD review. This continuation uses solo manual relay; a reported prior one-time subagent permission does not automatically extend.
+
 Read this file before doing any work.
 
 Latest lead assignment, 2026-10-09: the owner requested review of partial R3 work

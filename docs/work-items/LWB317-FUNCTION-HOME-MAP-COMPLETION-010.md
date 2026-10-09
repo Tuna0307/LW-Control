@@ -1,3 +1,5 @@
+**2026-10-09 COMPLETION-010 LEAD REVIEW: PARTIAL / CHANGES_REQUIRED.** Worker source `76018780` reviewed; fresh 38/38 sweep, original static inspections, adoption 26/26 and immutable lead inverse 2/2 credit LEAD009R3-01. New LEAD010-01 fails a successor scan from an old status snapshot; LEAD010-02 exposes cancelled-as-completed and invalid eight-header export in the unrun pilot. LEAD010-03 reconciles stale obligation claims and remaining ready code/static work. One historical Chinese/light live launch does not close EN/light, JA/dark or City/Resource pilot proof. Existing bounded live authorization remains; auto-mode denials are not owner revocation and must not be bypassed. Continue **LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1** A–F; see dated 010-LEAD review and work item. Old inventories/evidence stay historical; no final Home/Map A-to-A promotion.
+
 # LWB317-FUNCTION-HOME-MAP-COMPLETION-010
 
 Status: **READY — combined solo continuation**, 2026-10-09.

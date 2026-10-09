@@ -1,0 +1,31 @@
+{
+  "reviewedSource": "76018780d017321cd7fa2a819392c97c1e2888f0",
+  "decision": "PARTIAL_CHANGES_REQUIRED",
+  "leadProductChanges": 0,
+  "leadRealGameLaunches": 0,
+  "leadDesktopInputOrCapture": false,
+  "integratedCommandsPassed": 38,
+  "adoptionInverseCasesPassed": 2,
+  "adoptionNativeAssertionsPassed": 26,
+  "adoptionNativeReceipt": "lead tool transcript; summary count only, no standalone raw output saved",
+  "originalMapFactsPassed": 62,
+  "finalizerFactGroupsPassed": 15,
+  "handlerFactBlocksPassed": 15,
+  "localeInspector": "PASS",
+  "newInverseCases": 3,
+  "newInverseMismatches": 3,
+  "negativeSha256": "e1382b3489071407479d1c32be1365249fed0f39ca420e7fc299483a1961ec2f",
+  "productionDllSha256": "2648147b099976fe64b52a26067a24d14ab87a9ab5457840f9f79afa17cc8ab1",
+  "inheritedAdoptionProbeMetadata": "adoption-current.json embeds old 98b9d4f7 checkpoint from original probe; actual execution source is reviewedSource above",
+  "tripletMatchesWorkerPreflight": true,
+  "workerHistoricalLiveLaunches": 1,
+  "currentPassiveGameProcessCount": 1,
+  "currentProcessUntouched": true,
+  "cleanupDeniedAuditRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\lwb317-lead010-map-f440eaf16f494633abf72bb0825f51f5",
+  "cleanupDenialReason": "automatic approval review blocked by policy, generic and exact-path requests rejected; no bypass",
+  "probeSetupFailures": [
+    "SQLite bundle dependency absent from independent probe project, resolved with same existing package",
+    "Pooled SQLite handles prevented first attempt cleanup; corrected probe clears pools; one old attempt root cleanup denied"
+  ],
+  "continuation": "LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1"
+}

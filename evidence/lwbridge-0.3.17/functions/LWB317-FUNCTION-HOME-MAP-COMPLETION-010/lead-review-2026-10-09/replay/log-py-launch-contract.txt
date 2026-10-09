@@ -1,0 +1,25 @@
+{
+  "closeUnmanaged": {
+    "command": "payload bool, default false",
+    "reconcile": false,
+    "restart": false
+  },
+  "unmanagedClose": {
+    "deadlineSeconds": 5,
+    "pollMilliseconds": 100,
+    "order": "list, empty?, deadline?, sleep",
+    "timeoutCode": "GAME_CLOSE_TIMEOUT",
+    "comparison": "now >= deadline"
+  },
+  "bridgeConnect": {
+    "deadlineMilliseconds": 90000,
+    "pollMilliseconds": 250,
+    "clock": "0x2c9034 wall clock ms",
+    "order": "now>=deadline?, pid_of?, sleep",
+    "timeoutCode": "BRIDGE_START_TIMEOUT"
+  },
+  "registry": {
+    "0x2c75ca": "refresh_pending(key, expiry_ms>0)",
+    "0x2c6a65": "pid_of(key)->Option<u32>"
+  }
+}

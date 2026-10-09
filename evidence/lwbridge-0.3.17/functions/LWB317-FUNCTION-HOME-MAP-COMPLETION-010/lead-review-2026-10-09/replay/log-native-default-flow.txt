@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "deterministic": {
+    "profileRouting": true,
+    "persistence": true,
+    "requestLifetime": true,
+    "mapPersistence": true,
+    "mapContract": true,
+    "bridgeControlPipeContract": true,
+    "productionUiSelection": true
+  },
+  "installedDiagnostic": {
+    "required": false,
+    "valid": true,
+    "source": "diagnostic",
+    "path": "C:\\Users\\chimw\\AppData\\Local\\FunFly\\Last War-Survival Game",
+    "error": null,
+    "is64Bit": true,
+    "gameMachine": "0x8664/Amd64/PE32\u002B",
+    "xluaMachine": "0x8664/Amd64/PE32\u002B"
+  },
+  "process": {
+    "gameRunning": true,
+    "launcherRunning": false,
+    "gamePid": 66736,
+    "launcherPid": null
+  },
+  "failures": []
+}

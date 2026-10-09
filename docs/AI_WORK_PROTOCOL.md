@@ -1,5 +1,7 @@
 # AI work protocol
 
+Latest lead continuation, 2026-10-09: COMPLETION-010-R1 A–F is the active solo continuation after partial review. Preserve completed fixes, correct the stale Map guard and pilot proof defects before live execution, reconcile the obligation table, finish independent ready Home/Map code/static work, then perform currently authorized verification if tooling permits. Do not return solely because a live action was denied while ready work remains. See AGENTS.md, dated 010-LEAD review and the R1 work item.
+
 Latest lead assignment, 2026-10-09: HOME-MAP-COMPLETION-010 consolidates the owner's
 requested remaining Home/Map work after the partial R3 audit. Continue A–H through
 medium durable checkpoints in one solo assignment and return once after ready work

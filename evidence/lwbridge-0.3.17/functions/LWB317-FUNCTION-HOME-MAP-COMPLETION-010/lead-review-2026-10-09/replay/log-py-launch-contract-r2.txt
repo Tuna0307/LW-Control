@@ -1,0 +1,23 @@
+{
+  "launcherAttempts": {
+    "max": 2,
+    "retryOnlyAfterAttempt": 1,
+    "retryCondition": "error code == OFFICIAL_LAUNCHER_RESTARTED",
+    "otherErrors": "final",
+    "taskJoinFailure": "LAUNCH_TASK_FAILED"
+  },
+  "launcherReport": {
+    "pidMissingOrNonNumeric": "LAUNCH_REPORT_FAILED after rollback",
+    "pidImageMismatch": "LAUNCH_REPORT_FAILED"
+  },
+  "postConnect": {
+    "order": "image check -> read+validate+update recovery.json (game pid) -> instances.insert -> complete recovery (running, pid tracked)",
+    "recordFailure": "terminate game (0x41E543), rollback 0x1D420D, return the record error"
+  },
+  "finalizer": "instance teardown helper: contains the lease-release endpoint literal (protected) and the recovery-record removal call; callers 0x1D420D and reconcile 0x2046EE",
+  "reconcileRecoveryErrors": [
+    "RECOVERY_RECORD_NOT_FOUND",
+    "RECOVERY_PROCESS_MISMATCH",
+    "validated recovery record has a pid"
+  ]
+}
