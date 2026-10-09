@@ -2,6 +2,16 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest Home R1 lead review: df0baa4fa2b2a6d3d684fa43f47be531edab97a1 receives
+bounded credit for typed repair integration, current matrix and saved native
+startup/adoption/Close receipts. Whole Home remains PARTIAL; PR #6 stays draft.
+Next only after owner relay: docs/HOME_004_R2_CONTINUATION.md, a medium native
+automatic recovery ON/OFF and cancellation unit. Read HOME_004_R1_LEAD_REVIEW.md.
+Do not interpret host reopening as unhealthy-state recovery. Use the same branch
+and checkout; no main merge, new worktree or Map dispatch. Older continuation
+paragraphs are historical where inconsistent.
+
+
 Latest lead review: HOME-004 worker checkpoint 5296ad58430e5aadd4164a19f9f44bdf7391c521
 is PARTIAL / CHANGES_REQUIRED. PR #6 is draft, not accepted or merged. Read
 docs/HOME_004_LEAD_REVIEW.md and docs/HOME_004_R1_CONTINUATION.md. Continue on
