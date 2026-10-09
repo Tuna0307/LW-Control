@@ -97,7 +97,32 @@ internal static class OrderedProfileReconcileChecks
             }
             catch (OperationCanceledException) when (cancelled.IsCancellationRequested) { }
 
-            Console.WriteLine("ORDERED profile reconcile 5/5: ordered, disabled/locked, per-owner errors, consumed-once, foreign reply/cancellation; game launches=0");
+            // Exercise the actual backend dispatcher, not just the ordered
+            // service: a lifecycle is also registered and used to shadow it.
+            var config = new LocalConfigStore(persistent: false,
+                initialValue: LWBridgeLocalConfig.CreateDefault() with { ProfileId = "profile-D" });
+            using var lifecycle = new OverviewLifecycleService(
+                "profile-D", gameRoot: null, config: config,
+                testHooks: new OverviewLifecycleTestHooks(), startRecoveryMonitor: false);
+            int dispatchedOwners = 0;
+            var dispatcherService = new OrderedProfileReconcileCommandService(registry,
+                (_, _, _) =>
+                {
+                    dispatchedOwners++;
+                    return Task.FromResult<object?>(new { errors = Array.Empty<object>() });
+                });
+            var backend = new LWBridgeBackend(config,
+                asyncCommands: new CompositeAsyncCommandService(dispatcherService, lifecycle),
+                overviewLifecycle: lifecycle);
+            JsonElement dispatched = JsonSerializer.SerializeToElement(
+                await backend.InvokeAsync("profile_instances_reconcile", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(dispatched.GetProperty("errors").GetArrayLength() == 0 && dispatchedOwners == 3,
+                "actual backend uses registry admission/order rather than its disabled selected runtime");
+            _ = await backend.InvokeAsync("profile_instances_reconcile", empty, CancellationToken.None);
+            Require(dispatchedOwners == 3, "actual backend preserves consumed-once startup reconciliation");
+
+            Console.WriteLine("ORDERED profile reconcile: service and actual backend routing PASS; game launches=0");
         }
         finally
         {

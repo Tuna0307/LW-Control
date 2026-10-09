@@ -1,5 +1,11 @@
 # Mandatory rules for every AI and contributor
 
+Latest lead delivery, 2026-10-09: owner requested a runnable feature-by-feature
+main candidate. Lead works on HOME-FEATURE-RELEASE-001; the other worker remains
+stopped. Preserve original parity limits and the research archive. Candidate
+branch codex/home-feature-release-001 is expressly assigned for this delivery.
+Read its work item and dated lead review; no new live scan/gameplay scope is added.
+
 Latest owner checkpoint, 2026-10-09: the owner stopped the other worker and asked
 the lead to audit/tidy before discussing questions. Worker dispatch is STOPPED;
 do not autonomously resume prior COMPLETION-010-R1 or loop instructions. See

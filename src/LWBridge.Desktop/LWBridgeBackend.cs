@@ -248,6 +248,15 @@ internal sealed class LWBridgeBackend
                 .ConfigureAwait(false);
         }
 
+        // Startup reconciliation belongs to the registry before the selected
+        // runtime. Calling that runtime directly skips enabled/locked admission
+        // and the recovered profile ordering supplied by the composite service.
+        if (command == "profile_instances_reconcile" &&
+            asyncCommands?.CanHandle(command) == true)
+        {
+            ValidateCommandScope(command, payload);
+            return await asyncCommands.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+        }
         if (overviewLifecycle?.CanHandle(command) == true)
         {
             ValidateCommandScope(command, payload);

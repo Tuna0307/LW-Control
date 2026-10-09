@@ -91,6 +91,7 @@ internal static class Program
             Application.Run(window);
             if (homeMapCampaignProofPath is not null)
                 window.FinalizeHomeMapCampaignProof();
+            window.FinalizeIsolatedProbeStorage();
             return;
         }
 
@@ -101,6 +102,7 @@ internal static class Program
         window.HostProbeFinished += (_, _) => context.ExitThread();
         window.Show();
         Application.Run(context);
+        window.FinalizeIsolatedProbeStorage();
     }
 
     private static string? ReadPathOption(string[] args, string name)

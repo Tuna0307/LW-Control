@@ -2,13 +2,22 @@
 
 **Worker stopped by owner. Home/Map: PARTIAL / CHANGES_REQUIRED.**
 
+Owner requested a runnable feature-by-feature main delivery. Lead has prepared
+`codex/home-feature-release-001`, a clean application candidate based on main.
+Fresh independent build/publish, actual backend root/registry checks, fixture
+capture/cleanup and real mounted Home preference/reload checks pass. The lead
+fixed capture initialization/isolation/diagnostics and a real backend dispatch
+bug that skipped disabled/locked registry admission. Full original Home/Map
+acceptance and the four Map review findings remain open. See the dated
+HOME-FEATURE-RELEASE-001 lead review. The other worker has not been resumed.
+
 The lead audited worker checkpoint `faec6f61c3fe7ddd529d5dca0155512d2c439899`.
 No worker has been dispatched again. Earlier queue/continuation paragraphs are
 historical; this status takes precedence until the owner requests continuation.
 
 | Area | Current result | Still needed |
 |---|---|---|
-| Recovered source/local UIUX | Earlier bounded acceptance retained | Original authenticated full-app pixels and loaded native assets remain unproved; current packaged UI capture crashed twice |
+| Recovered source/local UIUX | Earlier bounded acceptance retained | Original authenticated full-app pixels and loaded native assets remain unproved; isolated packaged capture crash fixed and verified; actual mounted Home preferences/reload checked |
 | Home launch/connect/Stop | Two R1 production-provider live pilot receipts pass their final gates; current script restoration independently checked | Repair/restart/retained-game reconnect adversity, remaining native launch mappings, simultaneous profile owners and protected lease/capacity contracts |
 | City / Resource | Two R1 pilots report City 6,780; Resource 8,010 and 8,011; City export/query/paging/reopen receipts present | Exact original encrypted scanner traversal/retry/result equivalence; canonical native UI operation/captures |
 | Map Stop | Delayed predecessor status can no longer stop the successor; saved live City Stop observed 404 staged rows, then cancellation and staging clearance | Correct the proof's staging-versus-published-table confusion; retain a published snapshot/hash and export evidence before cleanup |

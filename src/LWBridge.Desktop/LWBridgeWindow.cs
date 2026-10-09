@@ -180,11 +180,13 @@ internal sealed class LWBridgeWindow : Form
         // exactly the recovered per-profile Map317 database below.
         sessionScopedMapData = !isolated && normalUiLiveResourceProofPath is not null;
         LocalConfigStore config;
-        if (hostProbePath is not null || homeMapCampaignProofPath is not null)
+        if (isolated)
         {
             isolatedConfigRoot = Path.Combine(
                 Path.GetTempPath(),
-                (homeMapCampaignProofPath is not null ? "lwb317-home-map-campaign-" : "lwbridge-host-probe-") + Guid.NewGuid().ToString("N"));
+                (homeMapCampaignProofPath is not null ? "lwb317-home-map-campaign-" :
+                    hostProbePath is not null ? "lwbridge-host-probe-" :
+                    "lwbridge-capture-probe-") + Guid.NewGuid().ToString("N"));
             config = homeMapCampaignProofPath is null
                 ? new LocalConfigStore(isolatedConfigRoot)
                 : new LocalConfigStore(
@@ -890,8 +892,8 @@ internal sealed class LWBridgeWindow : Form
                 liveProbePath is not null ? "LiveProbe" :
                 hostProbePath is not null ? "HostProbe" :
                 firstLiveResult is not null ? "FirstLiveResult" : "Presentation";
-            string userDataDirectory = homeMapCampaignProofPath is not null
-                ? Path.Combine(isolatedConfigRoot!, "webview-user-data")
+            string userDataDirectory = isolatedConfigRoot is not null
+                ? Path.Combine(isolatedConfigRoot, homeMapCampaignProofPath is not null ? "webview-user-data" : webViewMode)
                 : productionPaths is not null
                     ? productionPaths.WebViewUserDataRoot(webViewMode)
                     : Path.Combine(DesktopApplicationPaths.DefaultRoot, webViewMode);
@@ -910,6 +912,12 @@ internal sealed class LWBridgeWindow : Form
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";" +
                 "(()=>{try{const s=new URL(location.href).searchParams.get('nativeSession');if(s)window.__LWBridgeBootstrap.sessionId=s;}catch{}})();");
+            if (capturePath is not null)
+                await core.AddScriptToExecuteOnDocumentCreatedAsync("""
+                    window.__LWBridgeCaptureErrors = [];
+                    window.addEventListener('error', event => window.__LWBridgeCaptureErrors.push(String(event.message)));
+                    window.addEventListener('unhandledrejection', event => window.__LWBridgeCaptureErrors.push(String(event.reason)));
+                    """);
             if (firstLiveResult is not null)
             {
                 string capturedAt = JsonSerializer.Serialize(
@@ -1079,7 +1087,7 @@ internal sealed class LWBridgeWindow : Form
                 }
                 if (!rendered) throw new InvalidOperationException("The recovered feature page did not render.");
                 await Task.Delay(600);
-                string diagnostics = await core.ExecuteScriptAsync("JSON.stringify({view:window.LWBridgePreview.view,errors:window.LWBridgePreview.failures,commands:window.LWBridgePreview.calls,text:document.body.innerText})");
+                string diagnostics = await core.ExecuteScriptAsync("JSON.stringify({view:new URL(location.href).searchParams.get('view'),mode:window.__LWBridgeBootstrap.mode,homeRendered:!!document.querySelector('.quick-actions-panel'),errors:window.__LWBridgeCaptureErrors,text:document.body.innerText})");
                 Directory.CreateDirectory(Path.GetDirectoryName(capturePath)!);
                 await File.WriteAllTextAsync(Path.ChangeExtension(capturePath, ".json"), JsonSerializer.Deserialize<string>(diagnostics));
                 await using (var output = File.Create(capturePath))
@@ -5595,6 +5603,20 @@ internal sealed class LWBridgeWindow : Form
         finally
         {
             profileSwapGate.Release();
+        }
+    }
+
+    internal void FinalizeIsolatedProbeStorage()
+    {
+        if (isolatedConfigRoot is null || homeMapCampaignProofPath is not null) return;
+        // FormClosed runs before WebView disposal. Retry after the message loop
+        // ends, when its temporary browser cache no longer has an active owner.
+        webView.Dispose();
+        for (int attempt = 0; attempt < 40 && Directory.Exists(isolatedConfigRoot); attempt++)
+        {
+            try { Directory.Delete(isolatedConfigRoot, recursive: true); }
+            catch (IOException) when (attempt < 39) { Thread.Sleep(50); }
+            catch (UnauthorizedAccessException) when (attempt < 39) { Thread.Sleep(50); }
         }
     }
 
