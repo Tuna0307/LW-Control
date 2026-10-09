@@ -114,6 +114,30 @@ internal static class Map317NativeBoundaryChecks
         Require(File.Exists(exportPath) && exported.GetProperty("rowCount").GetInt32() == 1,
             "fresh native service export must write the provider-published City row");
 
+        JsonElement publishedCity = search.GetProperty("rows")[0].Clone();
+        string markerUid = publishedCity.GetProperty("ownerUid").GetString()!;
+        foreach (object? nonTrue in new object?[] { false, "true", 1, null })
+        {
+            JsonElement enable = JsonSerializer.SerializeToElement(new
+                { row = publishedCity, marked = true }, JsonOptions.Default);
+            _ = await fresh.InvokeAsync("map_player_mark_set", enable, CancellationToken.None);
+            using (var marks = new Map317.MapStore(database))
+                Require(marks.ReadPlayerMark(317, markerUid) is not null,
+                    "mark true must persist in production native store");
+            JsonElement remove = JsonSerializer.SerializeToElement(new
+                { row = publishedCity, marked = nonTrue }, JsonOptions.Default);
+            JsonElement removed = JsonSerializer.SerializeToElement(
+                await fresh.InvokeAsync("map_player_mark_set", remove, CancellationToken.None),
+                JsonOptions.Default);
+            using var reopenedMarks = new Map317.MapStore(database);
+            Require(!removed.GetProperty("marked").GetBoolean() &&
+                    reopenedMarks.ReadPlayerMark(317, markerUid) is null,
+                "non-true player mark must remove persisted mark without rejecting");
+        }
+        JsonElement missingMark = JsonSerializer.SerializeToElement(
+            new { row = publishedCity }, JsonOptions.Default);
+        _ = await fresh.InvokeAsync("map_player_mark_set", missingMark, CancellationToken.None);
+
         _ = await fresh.InvokeAsync(
             "map_scan_clear",
             JsonSerializer.SerializeToElement(new { serverId = 317 }, JsonOptions.Default),
@@ -687,7 +711,48 @@ internal static class Map317NativeBoundaryChecks
         Require(Total(Search(new { kind = 5, query = new { serverId = 317 } })) == 0, "non-string kind answers an empty page");
         Require(Total(Search(new { kind = "city", query = new { serverId = 100000 } })) == 0, "server above 99999 matches nothing");
         JsonElement paged = Search(new { kind = "city", query = new { serverId = 317, page = -4, pageSize = 0 } });
-        Require(Total(paged) == 1 && paged.GetProperty("rows").GetArrayLength() == 1, "page<1 and pageSize<1 clamp to 1");
+        Require(Total(paged) == 1 && paged.GetProperty("rows").GetArrayLength() == 1 &&
+                paged.GetProperty("page").GetInt32() == 1 && paged.GetProperty("pageSize").GetInt32() == 1,
+            "page<1 and pageSize<1 clamp to 1 and return native pagination fields");
+        JsonElement emptyCoerced = Search(new { kind = "not-a-kind",
+            query = new { serverId = 0, page = -3, pageSize = 900 } });
+        Require(Total(emptyCoerced) == 0 && emptyCoerced.GetProperty("rows").GetArrayLength() == 0 &&
+                emptyCoerced.GetProperty("page").GetInt32() == 1 &&
+                emptyCoerced.GetProperty("pageSize").GetInt32() == 200,
+            "unknown kind still returns complete native empty-page envelope");
+        JsonElement wrongTyped = Search(new { kind = "city", query = new {
+            serverId = "317", includeForeignRadarTreasures = 123, luckyFirst = "no",
+            minLevel = "not-a-number", maxLevel = new[] { 3 }, sorts = "invalid" } });
+        Require(Total(wrongTyped) == 1,
+            "non-page mistyped filters/sorts/min-max must not throw or erase valid City rows");
+        JsonElement inverted = Search(new { kind = "city", query = new {
+            serverId = 317, minLevel = "50.5", maxLevel = 20.1 } });
+        Require(Total(inverted) == 1, "f64 min/max level inversion swaps before integer coercion");
+        Require(Total(Search(new { kind = "city", query = new {
+            serverId = 317, minPower = "1e30" } })) == 0,
+            "finite loose f64 minimum power is an actual indexed predicate");
+        Require(Total(Search(new { kind = "city", query = new {
+            serverId = 317, minPower = "1e30", maxPower = "0" } })) == 1,
+            "inverted f64 power bounds swap before numeric predicate application");
+        foreach (string kind in Map317.MapKinds.All)
+        {
+            JsonElement native = Search(new { kind, query = new { serverId = 317,
+                page = "0", pageSize = "300", minLevel = "nope",
+                maxLevel = false, treasureType = "abc", suppliesType = new[] { 9 } } });
+            Require(native.GetProperty("page").GetInt32() == 1 &&
+                    native.GetProperty("pageSize").GetInt32() == 200 &&
+                    (kind != "city" || Total(native) == 1),
+                "eight-kind search coercion must remain nonthrowing: " + kind);
+        }
+
+        // Original export header collector ignores non-string JSON entries
+        // before checking the final exact twelve-column count.
+        object[] mixedHeaders = [123, .. twelve.Cast<object>()];
+        Map317CityExportRequest collectedHeaders = service.PrepareCityExport(
+            JsonSerializer.SerializeToElement(new { headers = mixedHeaders,
+                query = new { serverId = 317 } }, JsonOptions.Default));
+        Require(collectedHeaders.Options.Headers.SequenceEqual(twelve),
+            "non-string headers are ignored when twelve valid string headers remain");
 
         // Export server derivation: query.serverId <= 0 / missing -> shared-state server (317).
         Map317CityExportRequest derived = service.PrepareCityExport(JsonSerializer.SerializeToElement(new

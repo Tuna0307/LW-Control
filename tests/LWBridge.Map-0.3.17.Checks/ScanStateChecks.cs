@@ -10,6 +10,7 @@ internal static class ScanStateChecks
     {
         DefaultIdleStateMatchesContract();
         await StartAndModeChecksAsync();
+        await EnterWorldPollsUntilReadyAndRespectsCancellationAsync();
         await DuplicateStartIsRejectedAsync();
         await InvalidModeAndTypesAreRejectedAsync();
         await ProgressContractIsDerivedAsync();
@@ -70,6 +71,39 @@ internal static class ScanStateChecks
         Check(provider.LastStart is not null && provider.LastStart.ScanMode == "fast" &&
               provider.LastStart.Concurrency == 20,
             "fast provider request");
+    }
+
+    private static async Task EnterWorldPollsUntilReadyAndRespectsCancellationAsync()
+    {
+        int polls = 0, enters = 0, starts = 0;
+        MapProviderContext outside = new(true, false, 317, "live", 1, 100, 100, 1);
+        var provider = new MapProviderAdapter(
+            _ => ValueTask.FromResult(++polls >= 3 ? outside with { IsInWorld = true } : outside),
+            _ => { enters++; return ValueTask.FromResult(outside); },
+            (_, _) => { starts++; return ValueTask.FromResult(new MapProviderStartResult(true, 1)); },
+            _ => ValueTask.CompletedTask);
+        var machine = new MapScanStateMachine(provider, new FakeLocalSink());
+        MapScanState started = await machine.StartAsync();
+        Check(started.IsReading && starts == 1 && enters == 1 && polls >= 3,
+            "delayed current-client enterWorld must poll before accepting scan");
+        await machine.StopAsync();
+
+        int neverWorldStarts = 0;
+        var delayed = new MapProviderAdapter(
+            _ => ValueTask.FromResult(outside),
+            _ => ValueTask.FromResult(outside),
+            (_, _) => { neverWorldStarts++; return ValueTask.FromResult(new MapProviderStartResult(true, 1)); },
+            _ => ValueTask.CompletedTask);
+        var cancelled = new MapScanStateMachine(delayed, new FakeLocalSink());
+        using var stop = new CancellationTokenSource(TimeSpan.FromMilliseconds(700));
+        try
+        {
+            _ = await cancelled.StartAsync(cancellationToken: stop.Token);
+            throw new InvalidOperationException("cancellation should interrupt enter-world polling");
+        }
+        catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
+        Check(neverWorldStarts == 0 && !cancelled.State.IsReading,
+            "cancelled world wait must not start provider or publish a run");
     }
 
     private static async Task DuplicateStartIsRejectedAsync()

@@ -424,6 +424,18 @@ internal sealed class LWBridgeWindow : Form
         if (homeMapCampaignProofPath is null && productionCommands is null)
         {
             var services = new List<INativeAsyncCommandService>();
+            if (profileRegistryService is not null)
+                services.Add(new OrderedProfileReconcileCommandService(
+                    profileRegistryService,
+                    (ownerId, payload, token) =>
+                        overviewLifecycleService is not null &&
+                        string.Equals(ownerId, activeProfileConfig.Snapshot.ProfileId,
+                            StringComparison.Ordinal)
+                            ? overviewLifecycleService.InvokeAsync(
+                                "profile_instances_reconcile", payload, token)
+                            : Task.FromException<object?>(new BridgeCommandException(
+                                "PROFILE_RUNTIME_UNAVAILABLE",
+                                "The requested profile has no active local runtime owner."))));
             if (overviewLifecycleService is not null) services.Add(overviewLifecycleService);
             if (map317CommandService is not null) services.Add(map317CommandService);
             if (mapAutoScanService is not null) services.Add(mapAutoScanService);

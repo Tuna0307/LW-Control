@@ -524,10 +524,43 @@ public sealed class MapScanStateMachine
 
     private async ValueTask<MapProviderContext> EnterWorldMapAsync(CancellationToken cancellationToken)
     {
+        // Recovered 0.3.17 service 0xFA35D/0xFA440/0xFA4AF:
+        // enterWorldMap has a 5 s request budget; world-state becomes ready
+        // asynchronously and is polled every 500 ms for at most 10 s.
+        // A single non-world reply is not proof that entry failed.
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
         try
         {
-            MapProviderContext context =
-                await provider.EnterWorldMapAsync(cancellationToken).ConfigureAwait(false);
+            using var enterBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            enterBudget.CancelAfter(TimeSpan.FromSeconds(5));
+            MapProviderContext context;
+            try
+            {
+                context = await provider.EnterWorldMapAsync(enterBudget.Token)
+                    .AsTask().WaitAsync(enterBudget.Token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new BridgeCommandException(WorldMapFailedCode, WorldMapFailedMessage);
+            }
+            using var worldBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            TimeSpan remaining = TimeSpan.FromSeconds(10) - elapsed.Elapsed;
+            if (remaining > TimeSpan.Zero)
+                worldBudget.CancelAfter(remaining);
+            while (!context.IsInWorld && elapsed.Elapsed < TimeSpan.FromSeconds(10))
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(500), worldBudget.Token)
+                        .ConfigureAwait(false);
+                    context = await GetContextAsync(worldBudget.Token)
+                        .AsTask().WaitAsync(worldBudget.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    throw new BridgeCommandException(WorldMapFailedCode, WorldMapFailedMessage);
+                }
+            }
             if (!context.IsInWorld)
                 throw new BridgeCommandException(WorldMapFailedCode, WorldMapFailedMessage);
             return context;

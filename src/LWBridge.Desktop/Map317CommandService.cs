@@ -283,7 +283,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         // it coerces loosely and answers an EMPTY page when nothing is usable.
                         Map317.MapQuery? query = NormalizeOriginalSearch(payload);
                         return query is null
-                            ? new Map317.MapSearchResult(Array.Empty<JsonElement>(), 0)
+                            ? EmptyOriginalSearch(payload)
                             : control.Search(query);
                     }
                 case "map_city_export":
@@ -730,13 +730,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         if (!payload.TryGetProperty("row", out JsonElement row) ||
             row.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PLAYER_MARK", "player mark row must be an object.");
-        if (!payload.TryGetProperty("marked", out JsonElement markedValue) ||
-            markedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
-            throw new BridgeCommandException("INVALID_PLAYER_MARK", "marked must be a boolean.");
-
+        // Recovered 0.3.17 handler 0x151985 tests marked === true;
+        // false, missing, null and other non-true values all remove the mark.
+        bool marked = payload.TryGetProperty("marked", out JsonElement markedValue) &&
+            markedValue.ValueKind == JsonValueKind.True;
         int serverId = RequiredInt(row, "serverId");
         string ownerUid = RequiredString(row, "ownerUid");
-        bool marked = markedValue.GetBoolean();
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         control.SetPlayerMark(
             new Map317.MapPlayerMark(serverId, ownerUid, "active", now, null, row.GetRawText()), marked);
@@ -787,6 +786,51 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         return requested is >= 0 and <= int.MaxValue ? (int)requested : 0;
     }
 
+    // The original Map handler returns the full native empty-page envelope,
+    // even for unknown kinds/unavailable servers; it preserves coerced paging.
+    private static Map317.MapSearchResult EmptyOriginalSearch(JsonElement payload)
+    {
+        JsonElement query = payload.ValueKind == JsonValueKind.Object &&
+            payload.TryGetProperty("query", out var value) &&
+            value.ValueKind == JsonValueKind.Object ? value : default;
+        long? page = LooseInt64(query, "page");
+        long? size = LooseInt64(query, "pageSize");
+        return new Map317.MapSearchResult([], 0,
+            (int)Math.Clamp(page ?? 1, 1, int.MaxValue),
+            (int)Math.Clamp(size ?? 50, 1, 200));
+    }
+
+    private static double? LooseFiniteDouble(JsonElement owner, string name)
+    {
+        if (owner.ValueKind != JsonValueKind.Object ||
+            !owner.TryGetProperty(name, out JsonElement value))
+            return null;
+        double number;
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out number) ||
+            value.ValueKind == JsonValueKind.String &&
+            double.TryParse(value.GetString(), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out number))
+            return double.IsFinite(number) ? number : null;
+        return null;
+    }
+
+    private static void NormalizeOriginalNumericRanges(
+        System.Text.Json.Nodes.JsonObject query, JsonElement original)
+    {
+        double? min = LooseFiniteDouble(original, "minLevel");
+        double? max = LooseFiniteDouble(original, "maxLevel");
+        if (min.HasValue && max.HasValue && min > max)
+            (min, max) = (max, min);
+        // Indexed levels are non-negative integers. Ceil(min) / floor(max)
+        // is equivalent to the original f64 comparisons on those values.
+        query.Remove("minLevel");
+        query.Remove("maxLevel");
+        if (min.HasValue && min.Value > 0)
+            query["minLevel"] = (int)Math.Clamp(Math.Ceiling(min.Value), 0, int.MaxValue);
+        if (max.HasValue)
+            query["maxLevel"] = (int)Math.Clamp(Math.Floor(max.Value), 0, int.MaxValue);
+    }
+
     private Map317.MapQuery? NormalizeOriginalSearch(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object ||
@@ -818,8 +862,33 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             if (loose is null) query.Remove(name);
             else query[name] = (int)Math.Clamp(loose.Value, 0, int.MaxValue);
         }
+        NormalizeOriginalNumericRanges(query, queryElement);
+        foreach (string name in new[] { "includeForeignRadarTreasures", "luckyFirst" })
+        {
+            if (queryElement.TryGetProperty(name, out JsonElement flag) &&
+                flag.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                query.Remove(name);
+        }
+        if (queryElement.TryGetProperty("sorts", out JsonElement sorts) &&
+            (sorts.ValueKind != JsonValueKind.Array ||
+             sorts.EnumerateArray().Any(item => item.ValueKind != JsonValueKind.Object ||
+                !item.TryGetProperty("sortBy", out var sortBy) || sortBy.ValueKind != JsonValueKind.String ||
+                !item.TryGetProperty("sortOrder", out var sortOrder) ||
+                sortOrder.ValueKind != JsonValueKind.String ||
+                sortOrder.GetString() is not ("asc" or "desc"))))
+            query.Remove("sorts");
+        // Native search also accepts finite loose f64 power bounds, swapping
+        // inversions before applying them to the indexed numeric power column.
+        double? minPower = LooseFiniteDouble(queryElement, "minPower");
+        double? maxPower = LooseFiniteDouble(queryElement, "maxPower");
+        if (minPower.HasValue && maxPower.HasValue && minPower > maxPower)
+            (minPower, maxPower) = (maxPower, minPower);
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new { kind, query }));
-        return NormalizeQuery(envelope.RootElement);
+        return NormalizeQuery(envelope.RootElement) with
+        {
+            MinPower = minPower,
+            MaxPower = maxPower,
+        };
     }
 
     private static Map317.MapQuery NormalizeQuery(JsonElement payload)
@@ -946,8 +1015,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     {
         if (!payload.TryGetProperty("headers", out JsonElement value) || value.ValueKind != JsonValueKind.Array)
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export headers are invalid");
+        // Original 0x39D084 collects only string array elements before
+        // checking the resulting 12-column count. An ignored non-string
+        // element must not invalidate twelve otherwise valid labels.
         string[] headers = value.EnumerateArray()
-            .Select(item => item.ValueKind == JsonValueKind.String ? item.GetString() ?? string.Empty : string.Empty)
+            .Where(item => item.ValueKind == JsonValueKind.String)
+            .Select(item => item.GetString() ?? string.Empty)
             .ToArray();
         if (headers.Length != 12 || headers.Any(string.IsNullOrWhiteSpace))
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export headers are invalid");

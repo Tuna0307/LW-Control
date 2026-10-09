@@ -257,10 +257,21 @@ internal static class Completion010LivePilot
                             workbookRows = sheetRows.Length;
                             workbookHeaders = sheetRows[0].Elements(ns + "c")
                                 .Select(c => string.Concat(c.Descendants(ns + "t").Select(t => t.Value))).ToArray();
-                            workbookContentsValid = sheetRows.Skip(1).All(row =>
-                                row.Elements(ns + "c").Count() == 12 &&
-                                row.Elements(ns + "c").First().Element(ns + "v")?.Value ==
-                                    serverId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                            var expectedRows = new List<JsonElement>();
+                            using (var snapshot = new MapStore(paths.MapDatabasePath(profile)))
+                            {
+                                for (int page = 1; page <= 1000; page++)
+                                {
+                                    LWBridge.Map317.MapSearchResult slice = snapshot.Search(
+                                        new MapQuery("city", serverId, Page: page, PageSize: 200),
+                                        cityExportRows: true);
+                                    expectedRows.AddRange(slice.Rows);
+                                    if (slice.Rows.Count == 0 || expectedRows.Count >= slice.Total) break;
+                                }
+                            }
+                            workbookContentsValid = expectedRows.Count == sheetRows.Length - 1 &&
+                                sheetRows.Skip(1).Select((row, i) =>
+                                    MatchCityCells(row, expectedRows[i], ns)).All(ok => ok);
                         }
                         export = new { path = xlsx, bytes = new FileInfo(xlsx).Length,
                             workbookRows, workbookHeaders, workbookContentsValid, exportedCount };
@@ -466,6 +477,60 @@ internal static class Completion010LivePilot
                 $"COMPLETION010_PILOT: failed to inspect SQLite staging for {kind}/{run} at {db}", error);
         }
     }
+
+    // Independent actual DB export-row -> XLSX cell comparison, all twelve
+    // columns, including exact inline strings and Excel serial timestamps.
+    // This rejects correctly sized but shifted/corrupted export workbooks.
+    private static bool MatchCityCells(XElement worksheetRow, JsonElement source, XNamespace ns)
+    {
+        XElement[] cells = worksheetRow.Elements(ns + "c").ToArray();
+        if (cells.Length != 12) return false;
+        string? Value(int index) => cells[index].Element(ns + "v")?.Value;
+        string Text(int index) =>
+            string.Concat(cells[index].Descendants(ns + "t").Select(t => t.Value));
+        bool Number(int index, string key)
+        {
+            if (!source.TryGetProperty(key, out JsonElement expected) ||
+                expected.ValueKind != JsonValueKind.Number ||
+                !expected.TryGetDouble(out double original) ||
+                !double.IsFinite(original))
+                return Value(index) is null;
+            return NumericSame(Value(index), original);
+        }
+        bool String(int index, string key) =>
+            Text(index) == (source.TryGetProperty(key, out JsonElement expected) &&
+                expected.ValueKind == JsonValueKind.String ? expected.GetString() : "") &&
+            cells[index].Attribute("t")?.Value == "inlineStr";
+        bool Timestamp(int index, JsonElement? raw)
+        {
+            if (raw is not { ValueKind: JsonValueKind.Number } value ||
+                !value.TryGetDouble(out double timestamp) ||
+                !double.IsFinite(timestamp) || timestamp <= 0)
+                return Value(index) is null;
+            double ms = timestamp < 100_000_000_000d ? timestamp * 1_000d : timestamp;
+            return NumericSame(Value(index), ms / 86_400_000d + 25_569d);
+        }
+        JsonElement? JsonValue(string name) =>
+            source.TryGetProperty(name, out JsonElement value) ? value : null;
+        JsonElement? protect =
+            source.TryGetProperty("protectEndTime", out JsonElement primary)
+                ? primary : JsonValue("shieldEndTime");
+        bool marked = source.TryGetProperty("marked", out JsonElement flag) &&
+            flag.ValueKind == JsonValueKind.True;
+        return Number(0, "serverId") && Number(1, "x") && Number(2, "y") &&
+            String(3, "ownerName") && String(4, "ownerUid") &&
+            String(5, "uuid") && String(6, "allianceName") &&
+            Number(7, "level") && Number(8, "health") &&
+            Timestamp(9, protect) && Text(10) == (marked ? "Yes" : "No") &&
+            Timestamp(11, JsonValue("updatedAt"));
+    }
+
+    private static bool NumericSame(string? cell, double expected) =>
+        cell is not null &&
+        double.TryParse(cell, System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out double actual) &&
+        double.IsFinite(actual) &&
+        Math.Abs(actual - expected) <= 1e-8 * Math.Max(1.0, Math.Abs(expected));
 
     private static string[] PageKeys(JsonElement search)
     {

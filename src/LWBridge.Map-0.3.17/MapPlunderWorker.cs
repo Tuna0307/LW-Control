@@ -392,7 +392,9 @@ public sealed class MapPlunderWorker
                 false,
                 now);
             dispatchPending.Remove((pending.ServerId, pending.DurableTaskUuid));
-            if (error == "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED")
+            // RE5: only a terminal Dispatch result can apply the Dispatch
+            // daily-limit fan-out; a Ghost result must not disable other jobs.
+            if (pending.Kind == "dispatch" && error == "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED")
                 changed |= store.StopActiveDispatchPlunderAtDailyLimit(now) > 0;
             changed |= ApplyServerDay(result.ServerDayStartAt, now);
         }

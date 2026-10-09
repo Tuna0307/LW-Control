@@ -1,0 +1,1222 @@
+{
+  "workItem": "LWB317-FUNCTION-HOME-MAP-COMPLETION-010/G",
+  "attemptId": "cb12fb01f82147c893baec3ce05680a6",
+  "createdAtUtc": "2026-10-09T04:55:22.5135057+00:00",
+  "profileId": "lwb317-comp010-pilot-cb12fb01",
+  "isolatedRoot": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-COMP010-R1-ISO2-20261009",
+  "productionMapProvider": "ProfileRuntimeOwner.Create -\u003E Map317CommandService(lifecycle) -\u003E CurrentClientMap317ScanProvider",
+  "autoSchedulerStarted": false,
+  "uiInteraction": false,
+  "events": [
+    {
+      "atUtc": "2026-10-09T04:55:22.7466054+00:00",
+      "kind": "real-provider-composed",
+      "details": {
+        "profile": "lwb317-comp010-pilot-cb12fb01",
+        "root": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-COMP010-R1-ISO2-20261009"
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:55:55.818486+00:00",
+      "kind": "home-start-returned",
+      "details": {
+        "instance": "c48be6e4136347879fc474d39bb81ff9",
+        "ownedPid": 24472,
+        "started": {
+          "phase": "running",
+          "pid": 24472,
+          "instanceId": "c48be6e4136347879fc474d39bb81ff9",
+          "connectionState": "connected",
+          "error": null
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:55:55.8241461+00:00",
+      "kind": "authenticated-host",
+      "details": {
+        "accepted": true,
+        "AuthenticatedSessionCount": 1,
+        "ConnectedRouteCount": 1
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:55:55.856248+00:00",
+      "kind": "production-getStatus-rpc",
+      "details": {
+        "resultKind": "Object"
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:56:00.2825525+00:00",
+      "kind": "map-context",
+      "details": {
+        "serverId": 2212,
+        "serverIdSource": "live",
+        "scanRunId": "",
+        "isReading": false,
+        "phase": "idle",
+        "selectedTypes": [
+          "city",
+          "resource",
+          "monster",
+          "truck",
+          "railway",
+          "dispatch",
+          "ghost",
+          "treasure"
+        ],
+        "totalBlocks": 0,
+        "completedBlocks": 0,
+        "readBlocks": 0,
+        "failedBlocks": 0,
+        "unreadBlocks": 0,
+        "inflightBlocks": 0,
+        "scanMode": "normal",
+        "concurrency": 8,
+        "scanRate": 0,
+        "progressPercent": 0,
+        "nativeCaptureReady": false,
+        "nativePendingRecords": 0,
+        "nativeDroppedRecords": 0,
+        "resumeAvailable": false,
+        "lastError": null,
+        "startedAt": 0,
+        "isInWorld": false,
+        "homeServerId": 2212,
+        "seasonServerIds": [],
+        "truckMatchServerIds": [
+          2197,
+          2208,
+          2211,
+          2212
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:58:03.0150195+00:00",
+      "kind": "city-terminal",
+      "details": {
+        "run": "0fe2947ccd004e8d8cefeb39c80dc07a",
+        "seconds": 121.7246924,
+        "last": {
+          "serverId": 2212,
+          "serverIdSource": "live",
+          "scanRunId": "0fe2947ccd004e8d8cefeb39c80dc07a",
+          "isReading": false,
+          "phase": "completed",
+          "selectedTypes": [
+            "city"
+          ],
+          "totalBlocks": 2500,
+          "completedBlocks": 2500,
+          "readBlocks": 2500,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 20.66,
+          "progressPercent": 100,
+          "nativeCaptureReady": true,
+          "nativePendingRecords": 0,
+          "nativeDroppedRecords": 0,
+          "resumeAvailable": false,
+          "lastError": null,
+          "startedAt": 1791521761,
+          "isInWorld": false,
+          "homeServerId": 0,
+          "seasonServerIds": null,
+          "truckMatchServerIds": null
+        },
+        "stagedPositiveWhileReading": true,
+        "timeline": [
+          {
+            "tSec": 0.0029084,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 5.3164145,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 10.2124439,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 15.1003792,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 20.0025213,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 25.2999953,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 30.1702104,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 35.0468498,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 40.3392731,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 45.2073459,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 50.0912852,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 55.3708686,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 60.2509019,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 65.1393345,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 70.0949266,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 75.3688866,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 80.241802,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 85.1156238,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 90.4024099,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 95.2886512,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 100.1802399,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 105.0574069,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 110.3427537,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 115.2234554,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 120.1010412,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          }
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:58:03.5676121+00:00",
+      "kind": "city-query-surface",
+      "details": {
+        "total": 6780,
+        "page1Rows": 50,
+        "page2Rows": 50,
+        "summaryCount": 6780,
+        "missTotal": 0,
+        "filterProbe": "lufe",
+        "filteredTotal": 1,
+        "optionsTopLevelKeys": [
+          "serverId",
+          "counts",
+          "alliances",
+          "names",
+          "dispatchLevels",
+          "noAllianceCount",
+          "rewardItems",
+          "treasureTypes",
+          "scanProgress"
+        ],
+        "firstRowKeys": [
+          "allianceId",
+          "allianceName",
+          "health",
+          "healthCalculationMode",
+          "healthFireSpeed",
+          "healthLastHpTime",
+          "healthMaxHp",
+          "healthRawCurHp",
+          "healthRecoverSpeed",
+          "healthUnavailableTime",
+          "id",
+          "kind",
+          "level",
+          "ownerName",
+          "ownerUid",
+          "pointId",
+          "pointType",
+          "protectEndTime",
+          "runtimeClass",
+          "serverId",
+          "source",
+          "srcServerId",
+          "uuid",
+          "worldId",
+          "x",
+          "y",
+          "sourceKind",
+          "recordKey",
+          "pointIndex",
+          "updatedAt",
+          "marked"
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:58:03.5751194+00:00",
+      "kind": "city-durable-terminal",
+      "details": {
+        "durableStatus": "completed",
+        "terminalClass": "completed",
+        "completed": true
+      }
+    },
+    {
+      "atUtc": "2026-10-09T04:58:10.581877+00:00",
+      "kind": "city-export",
+      "details": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-COMP010-R1-ISO2-20261009\\city-export.xlsx",
+        "bytes": 530766,
+        "workbookRows": 6781,
+        "workbookHeaders": [
+          "Server",
+          "X",
+          "Y",
+          "Player",
+          "UID",
+          "UUID",
+          "Alliance",
+          "Level",
+          "HP",
+          "Shield Ends",
+          "Marked",
+          "Updated At"
+        ],
+        "workbookContentsValid": true,
+        "exportedCount": 6780
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:54.8283839+00:00",
+      "kind": "resource-terminal",
+      "details": {
+        "run": "2386995551974ca3b62f9314fe779152",
+        "seconds": 224.0133495,
+        "last": {
+          "serverId": 2212,
+          "serverIdSource": "live",
+          "scanRunId": "2386995551974ca3b62f9314fe779152",
+          "isReading": false,
+          "phase": "completed",
+          "selectedTypes": [
+            "resource"
+          ],
+          "totalBlocks": 2500,
+          "completedBlocks": 2500,
+          "readBlocks": 2500,
+          "failedBlocks": 0,
+          "unreadBlocks": 0,
+          "inflightBlocks": 0,
+          "scanMode": "normal",
+          "concurrency": 8,
+          "scanRate": 11.16,
+          "progressPercent": 100,
+          "nativeCaptureReady": true,
+          "nativePendingRecords": 0,
+          "nativeDroppedRecords": 0,
+          "resumeAvailable": false,
+          "lastError": null,
+          "startedAt": 1791521890,
+          "isInWorld": false,
+          "homeServerId": 0,
+          "seasonServerIds": null,
+          "truckMatchServerIds": null
+        },
+        "stagedPositiveWhileReading": true,
+        "timeline": [
+          {
+            "tSec": 0.0022459,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 5.2955706,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 10.1843207,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 15.0558194,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 20.3307749,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 25.2030929,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 30.0700666,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 35.353428,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 40.235487,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 45.1199344,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 50.400727,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 55.2741824,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 60.1578823,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 65.0414448,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 70.3439719,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 75.2209225,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 80.1057999,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 85.3876443,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 90.2573831,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 95.1275081,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 100.4049835,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 105.2831051,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 110.1691177,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 115.048203,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 120.3297964,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 125.2099646,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 130.0977903,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 135.3786134,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 140.2775321,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 145.151926,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 150.0212144,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 155.3095761,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 160.1894513,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 165.0846653,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 170.3551108,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 175.2336151,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 180.1056928,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 185.3793067,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 190.2586614,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 195.1380458,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 200.023561,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 205.3011551,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 210.1744264,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 215.0590064,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          },
+          {
+            "tSec": 220.3445312,
+            "completed": 0,
+            "inflight": 1,
+            "failed": 0,
+            "staged": 0
+          }
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.3907169+00:00",
+      "kind": "resource-query-surface",
+      "details": {
+        "total": 8010,
+        "page1Rows": 50,
+        "page2Rows": 50,
+        "summaryCount": 8010,
+        "missTotal": 0,
+        "filterProbe": "100281",
+        "filteredTotal": 2716,
+        "optionsTopLevelKeys": [
+          "serverId",
+          "counts",
+          "alliances",
+          "names",
+          "dispatchLevels",
+          "noAllianceCount",
+          "rewardItems",
+          "treasureTypes",
+          "scanProgress"
+        ],
+        "firstRowKeys": [
+          "blackTileKnown",
+          "gatherOccupancyKnown",
+          "gatherOccupied",
+          "id",
+          "isBlackTile",
+          "kind",
+          "level",
+          "pointId",
+          "pointType",
+          "resourceConfigId",
+          "resourceMaxAmount",
+          "resourceNameKey",
+          "resourceSourceType",
+          "resourceTypeId",
+          "runtimeClass",
+          "serverId",
+          "source",
+          "srcServerId",
+          "worldId",
+          "x",
+          "y",
+          "sourceKind",
+          "recordKey",
+          "pointIndex",
+          "updatedAt",
+          "rebuildGatherOccupancyKnown",
+          "rebuildGatherOccupied",
+          "resourceDetailKnown",
+          "resourceRemainingAmount",
+          "resourceFullAmount",
+          "resourceFull",
+          "resourceCapacityMatchesConfig"
+        ]
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.3937079+00:00",
+      "kind": "resource-durable-terminal",
+      "details": {
+        "durableStatus": "completed",
+        "terminalClass": "completed",
+        "completed": true
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.4559978+00:00",
+      "kind": "sqlite-reopen",
+      "details": {
+        "reopenTotals": {
+          "city": 6780,
+          "resource": 8010
+        },
+        "cityRun": null
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.4628723+00:00",
+      "kind": "city-proof-gate",
+      "details": {
+        "errors": [],
+        "proof": {
+          "Kind": "city",
+          "DurableStatus": "completed",
+          "TimedOut": false,
+          "Total": 6780,
+          "Page1Count": 50,
+          "Page2Count": 50,
+          "SummaryCount": 6780,
+          "MissTotal": 0,
+          "FilteredTotal": 1,
+          "FilterRequired": true,
+          "Page1Keys": [
+            "901930",
+            "903945",
+            "906936",
+            "922938",
+            "926960",
+            "926998",
+            "941964",
+            "944921",
+            "946969",
+            "946989",
+            "948975",
+            "950936",
+            "950957",
+            "951929",
+            "952993",
+            "953966",
+            "954997",
+            "955946",
+            "958983",
+            "962922",
+            "962937",
+            "964995",
+            "967945",
+            "968961",
+            "972995",
+            "975959",
+            "986998",
+            "989954",
+            "991948",
+            "991957",
+            "993931",
+            "903827",
+            "904904",
+            "906855",
+            "907837",
+            "907908",
+            "909828",
+            "915828",
+            "919890",
+            "920904",
+            "920913",
+            "922856",
+            "925874",
+            "925917",
+            "927852",
+            "927910",
+            "931903",
+            "932845",
+            "933837",
+            "933873"
+          ],
+          "Page2Keys": [
+            "933894",
+            "934890",
+            "934903",
+            "935845",
+            "939911",
+            "946854",
+            "949871",
+            "950886",
+            "953848",
+            "954826",
+            "954896",
+            "954911",
+            "955893",
+            "956907",
+            "959909",
+            "959918",
+            "961850",
+            "961887",
+            "962858",
+            "964834",
+            "967838",
+            "968851",
+            "970885",
+            "972871",
+            "974907",
+            "977873",
+            "980913",
+            "983892",
+            "986903",
+            "987895",
+            "989872",
+            "990846",
+            "991877",
+            "992906",
+            "994855",
+            "994910",
+            "996844",
+            "996887",
+            "998836",
+            "910787",
+            "912869",
+            "914817",
+            "925781",
+            "926799",
+            "926809",
+            "927793",
+            "931785",
+            "931799",
+            "934779",
+            "936785"
+          ],
+          "ReopenedTotal": 6780,
+          "ExportCount": 6780,
+          "WorkbookRows": 6781,
+          "WorkbookHeaders": [
+            "Server",
+            "X",
+            "Y",
+            "Player",
+            "UID",
+            "UUID",
+            "Alliance",
+            "Level",
+            "HP",
+            "Shield Ends",
+            "Marked",
+            "Updated At"
+          ],
+          "WorkbookContentsValid": true
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.470047+00:00",
+      "kind": "resource-proof-gate",
+      "details": {
+        "errors": [],
+        "proof": {
+          "Kind": "resource",
+          "DurableStatus": "completed",
+          "TimedOut": false,
+          "Total": 8010,
+          "Page1Count": 50,
+          "Page2Count": 50,
+          "SummaryCount": 8010,
+          "MissTotal": 0,
+          "FilteredTotal": 2716,
+          "FilterRequired": true,
+          "Page1Keys": [
+            "910991",
+            "914999",
+            "917992",
+            "932973",
+            "936979",
+            "941982",
+            "946987",
+            "961990",
+            "965990",
+            "972973",
+            "973997",
+            "974990",
+            "976000",
+            "977979",
+            "981980",
+            "989991",
+            "990998",
+            "992982",
+            "993994",
+            "997992",
+            "900938",
+            "902928",
+            "904947",
+            "905942",
+            "907930",
+            "908934",
+            "908957",
+            "909970",
+            "911925",
+            "914950",
+            "915930",
+            "915937",
+            "918957",
+            "918967",
+            "919962",
+            "922942",
+            "925936",
+            "929951",
+            "933956",
+            "933968",
+            "935963",
+            "937940",
+            "938956",
+            "941967",
+            "942936",
+            "945941",
+            "945967",
+            "949951",
+            "956926",
+            "956965"
+          ],
+          "Page2Keys": [
+            "957946",
+            "958936",
+            "958968",
+            "964942",
+            "964965",
+            "968947",
+            "970952",
+            "973947",
+            "982957",
+            "984960",
+            "990927",
+            "992964",
+            "994926",
+            "900887",
+            "900901",
+            "907889",
+            "907892",
+            "916916",
+            "925909",
+            "925914",
+            "926912",
+            "928875",
+            "929884",
+            "930900",
+            "931877",
+            "931883",
+            "934882",
+            "934911",
+            "935906",
+            "936891",
+            "937873",
+            "938892",
+            "939894",
+            "943885",
+            "943888",
+            "945884",
+            "949902",
+            "951896",
+            "955890",
+            "955919",
+            "956914",
+            "957896",
+            "960915",
+            "969888",
+            "974913",
+            "976903",
+            "977914",
+            "978910",
+            "980907",
+            "981897"
+          ],
+          "ReopenedTotal": 8010,
+          "ExportCount": -1,
+          "WorkbookRows": -1,
+          "WorkbookHeaders": [],
+          "WorkbookContentsValid": false
+        }
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:55.4832961+00:00",
+      "kind": "profile-isolation",
+      "details": {
+        "otherProfile": "lwb317-comp010-other-cb12fb",
+        "cityTotal": 0,
+        "resourceTotal": 0
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:58.2283538+00:00",
+      "kind": "owned-home-stop",
+      "details": {
+        "phase": "stopped",
+        "pid": null,
+        "instanceId": null,
+        "connectionState": "offline",
+        "error": null
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:58.3619985+00:00",
+      "kind": "final-restoration-inventory",
+      "details": {
+        "originalHashesRestored": true,
+        "ownedGameStopSucceeded": true,
+        "confirmedExactProcessExit": true,
+        "mapStopSucceeded": true,
+        "journalAbsent": true,
+        "processes": []
+      }
+    },
+    {
+      "atUtc": "2026-10-09T05:01:58.3826088+00:00",
+      "kind": "final-proof-gate",
+      "details": {
+        "proof": {
+          "PreflightRootAndBackupsVerified": true,
+          "OwnedSessionStarted": true,
+          "OwnedHomeStopSucceeded": true,
+          "ConfirmedExactProcessExit": true,
+          "OriginalHashesRestored": true,
+          "RecoveryJournalAbsent": true,
+          "IsolatedRootRemoved": true,
+          "NoTaskOwnedGameProcesses": true,
+          "AllRequiredRunsPositive": true,
+          "RequestedPositiveStopVerified": null
+        },
+        "errors": []
+      }
+    }
+  ],
+  "installedBefore": {
+    "data": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+    "metadata": "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+    "version": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790"
+  },
+  "runs": [
+    {
+      "kind": "city",
+      "run": "0fe2947ccd004e8d8cefeb39c80dc07a",
+      "durableStatus": "completed",
+      "completed": true,
+      "total": 6780,
+      "page1Rows": 50,
+      "page2Rows": 50,
+      "summaryCount": 6780,
+      "export": {
+        "path": "C:\\Users\\chimw\\AppData\\Local\\Temp\\LWB317-COMP010-R1-ISO2-20261009\\city-export.xlsx",
+        "bytes": 530766,
+        "workbookRows": 6781,
+        "workbookHeaders": [
+          "Server",
+          "X",
+          "Y",
+          "Player",
+          "UID",
+          "UUID",
+          "Alliance",
+          "Level",
+          "HP",
+          "Shield Ends",
+          "Marked",
+          "Updated At"
+        ],
+        "workbookContentsValid": true,
+        "exportedCount": 6780
+      }
+    },
+    {
+      "kind": "resource",
+      "run": "2386995551974ca3b62f9314fe779152",
+      "durableStatus": "completed",
+      "completed": true,
+      "total": 8010,
+      "page1Rows": 50,
+      "page2Rows": 50,
+      "summaryCount": 8010,
+      "export": null
+    }
+  ],
+  "terminal": "PILOT_COMPLETED",
+  "recoveryJournalAfter": false,
+  "installedAfter": {
+    "data": "2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0",
+    "metadata": "988c36bd7d3758404193f9cb380ef5b7f6484621061443fd95a90c8fc1d97306",
+    "version": "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790"
+  },
+  "originalHashesRestored": true,
+  "ownedGameStopSucceeded": true,
+  "confirmedExactProcessExit": true,
+  "mapStopSucceeded": true,
+  "requiredRunsPositive": true,
+  "requestedPositiveStopVerified": null,
+  "finalProofErrors": [],
+  "finishedAtUtc": "2026-10-09T05:01:58.382564+00:00"
+}

@@ -72,6 +72,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly object leaseWriteGate = new();
     private readonly string helperPath;
     private string? gameRoot;
+    // Picker selection is persistent configuration; gameRoot remains the active
+    // launch/restore binding until its exact owned session retires. Never let a
+    // new picker choice silently redirect an old game's Stop or recovery.
+    private bool hasStagedConfiguredRoot;
+    private string? stagedConfiguredRoot;
     private readonly string profileId;
     private readonly string applicationDataRoot;
     private readonly string runtimeRoot;
@@ -237,8 +242,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             if (phase is "starting" or "stopping" or "running" ||
                 gamePid is not null || activeHelperProcess is not null || activeRecoveryCancellation is not null)
-                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
-                    "The selected installation cannot change while an owned game lifecycle operation is active.");
+            {
+                // Original game_root_select (0x188f12) persists the picker
+                // choice even with a running game. Do not rebind the active
+                // process: its exact path/creation and restoration own the old
+                // root until the next eligible launch.
+                persistSelection();
+                stagedConfiguredRoot = normalized;
+                hasStagedConfiguredRoot = true;
+                return;
+            }
             RecoveryJournalState journalState = ClassifyRecoveryJournal();
             if (journalState is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
                 throw new BridgeCommandException("GAME_REPAIR_REQUIRED",
@@ -258,6 +271,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (releaseAbandonedAttempt)
                 ClearAbandonedLaunchIdentityLocked();
             gameRoot = normalized;
+            stagedConfiguredRoot = null;
+            hasStagedConfiguredRoot = false;
             if (phase == "error")
             {
                 phase = "stopped";
@@ -678,6 +693,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (profileReplacementPending)
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
                     "The selected profile is changing; wait for the current profile owner to finish retiring.");
+            // Consume configured-root choice only after the old owner is absent.
+            // A running/uncertain session must continue to use its captured root.
+            if (hasStagedConfiguredRoot && phase is not ("starting" or "stopping" or "running") &&
+                gamePid is null && instanceId is null)
+            {
+                gameRoot = stagedConfiguredRoot;
+                stagedConfiguredRoot = null;
+                hasStagedConfiguredRoot = false;
+            }
             if (gameRoot is null)
                 throw new BridgeCommandException("GAME_ROOT_NOT_FOUND", "No validated Last War installation is selected.");
             // Original profile_instance_start (0x23e9dc; COMPLETION-010 c-handlers 5.1): GAME_ROOT_NOT_FOUND, then
@@ -841,7 +865,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     "The game was launched, but no authenticated bridge connection was accepted before registration expired.");
             }
             if (!IsReady)
-                throw new BridgeCommandException("BRIDGE_START_TIMEOUT", "The game started, but the current Overview bridge response is not fresh.");
+            {
+                // The game/session has already been published. Original 0.3.17
+                // unregisters/unbinds on launch failure; retain our additional
+                // captured-process exit and journal restoration requirements.
+                await StopCancelledSuccessfulStartAsync(start, newSession, newChallenge)
+                    .ConfigureAwait(false);
+                throw new BridgeCommandException("BRIDGE_START_TIMEOUT",
+                    "The game started, but the current Overview bridge response is not fresh.");
+            }
             if (controlPipeLaunchBinding is not null)
             {
                 try

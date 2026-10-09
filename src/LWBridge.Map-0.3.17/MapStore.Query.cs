@@ -79,7 +79,7 @@ public sealed partial class MapStore
                         treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
             }
             snapshot.Commit();
-            return new MapSearchResult(rows, total);
+            return new MapSearchResult(rows, total, pageNumber, pageSize);
         }
     }
 
@@ -376,6 +376,8 @@ public sealed partial class MapStore
         if (query.ReindeerOnly) predicates.Add("CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER)=1");
         if (query.MinLevel is not null) predicates.Add("page.level>=$minLevel");
         if (query.MaxLevel is not null) predicates.Add("page.level<=$maxLevel");
+        if (query.MinPower is not null) predicates.Add("page.power>=$minPower");
+        if (query.MaxPower is not null) predicates.Add("page.power<=$maxPower");
         return predicates;
     }
 
@@ -480,6 +482,8 @@ public sealed partial class MapStore
             command.Parameters.AddWithValue("$nowUnixSeconds", now / 1000L);
         if (query.MinLevel is not null) command.Parameters.AddWithValue("$minLevel", query.MinLevel.Value);
         if (query.MaxLevel is not null) command.Parameters.AddWithValue("$maxLevel", query.MaxLevel.Value);
+        if (query.MinPower is not null) command.Parameters.AddWithValue("$minPower", query.MinPower.Value);
+        if (query.MaxPower is not null) command.Parameters.AddWithValue("$maxPower", query.MaxPower.Value);
     }
 
     private static string KeywordPattern(string keyword) => "%" + keyword

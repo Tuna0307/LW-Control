@@ -240,6 +240,7 @@ internal static class GameRootSelectChecks
         string? challenge = null;
         int startCalls = 0;
         int stopCalls = 0;
+        string capturedActiveRoot = rootB;
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -252,10 +253,11 @@ internal static class GameRootSelectChecks
                     startCalls++;
                     session = invocation.SessionId;
                     challenge = invocation.Challenge;
+                    capturedActiveRoot = config.Snapshot.GameRoot!;
                     processAlive = true;
                     return Task.FromResult(StartResult(
                         invocation,
-                        rootB,
+                        capturedActiveRoot,
                         gamePid,
                         launcherPid,
                         startedAt));
@@ -265,7 +267,7 @@ internal static class GameRootSelectChecks
                 processAlive = false;
                 return Task.FromResult(StopResult(
                     invocation,
-                    rootB,
+                    capturedActiveRoot,
                     gamePid,
                     startedAt));
             },
@@ -273,7 +275,7 @@ internal static class GameRootSelectChecks
                 processAlive &&
                 pid == gamePid &&
                 created == startedAt &&
-                SamePath(path, Path.Combine(rootB, "Game", "LastWar.exe")),
+                SamePath(path, Path.Combine(capturedActiveRoot, "Game", "LastWar.exe")),
             ReadAllBytes = path =>
             {
                 if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
@@ -350,20 +352,20 @@ internal static class GameRootSelectChecks
             started.GetProperty("phase").GetString() == "running",
             "existing lifecycle launches from picker-selected strict root without host restart");
 
-        bool activeRetargetRejected = false;
-        try
-        {
-            backend.SaveNativeGameRootSelection(rootA);
-        }
-        catch (BridgeCommandException error)
-        {
-            activeRetargetRejected =
-                error.Code == "GAME_OPERATION_IN_PROGRESS";
-        }
+        NativeGameRootSelectionResult retargeted = backend.SaveNativeGameRootSelection(rootA);
         Require(
-            activeRetargetRejected &&
-            SamePath(config.Snapshot.GameRoot!, rootB),
-            "active owned lifecycle rejects picker retarget and preserves persisted root");
+            retargeted.Valid && SamePath(config.Snapshot.GameRoot!, rootA) &&
+            SamePath(capturedActiveRoot, rootB) && processAlive &&
+            startCalls == 1 && stopCalls == 0,
+            "picker persists next configured root while exact old-root owner remains untouched");
+        JsonElement stillRunning = JsonSerializer.SerializeToElement(
+            await lifecycle.InvokeAsync("profile_instance_status",
+                JsonSerializer.SerializeToElement(new { profileId }), CancellationToken.None),
+            JsonOptions.Default);
+        Require(stillRunning.GetProperty("instanceId").GetString() ==
+                    started.GetProperty("instanceId").GetString() &&
+                stillRunning.GetProperty("phase").GetString() == "running",
+            "picker update preserves the active old-root session identity");
 
         string instanceId =
             started.GetProperty("instanceId").GetString() ??
@@ -375,8 +377,21 @@ internal static class GameRootSelectChecks
             stopPayload,
             CancellationToken.None);
         Require(
-            stopCalls == 1 && !processAlive,
-            "isolated picker/rebind proof stops only its synthetic owned process");
+            stopCalls == 1 && !processAlive && SamePath(capturedActiveRoot, rootB),
+            "exact Stop restores old-root process after picker selected a different root");
+        JsonElement restarted = JsonSerializer.SerializeToElement(
+            await lifecycle.InvokeAsync("profile_instance_start", profilePayload, CancellationToken.None),
+            JsonOptions.Default);
+        Require(
+            startCalls == 2 && processAlive && SamePath(capturedActiveRoot, rootA) &&
+            restarted.GetProperty("phase").GetString() == "running",
+            "subsequent eligible launch consumes configured new root");
+        _ = await lifecycle.InvokeAsync("profile_instance_stop",
+            JsonSerializer.SerializeToElement(new {
+                profileId, instanceId = restarted.GetProperty("instanceId").GetString()
+            }), CancellationToken.None);
+        Require(stopCalls == 2 && !processAlive && SamePath(capturedActiveRoot, rootA),
+            "new-root exact Stop must not reopen old-root ownership");
     }
 
     private static async Task VerifyFreshHostSelectionOwnershipAsync(string root)

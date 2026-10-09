@@ -8,6 +8,7 @@ internal static class PlunderWorkerChecks
     {
         DispatchBatchArmIsNonTerminalUntilResult();
         DispatchDailyLimitFansOutOnlyOnResult();
+        GhostResultMustNotFanOutDispatchDailyLimit();
         DispatchTimeoutDisconnectAndRestartAreExact();
         TruckUuidIsTrainUuidAndResultMerges();
         TruckStaleResultTimeoutClearAndMalformedTargetAreExact();
@@ -108,6 +109,34 @@ internal static class PlunderWorkerChecks
             "daily-limit fanout must exclude Ghost rows");
         TestAssert.Equal(1, ghost.GetProperty("attempts").GetInt32(),
             "Ghost row should arm normally after Dispatch daily-limit fanout");
+    }
+
+    private static void GhostResultMustNotFanOutDispatchDailyLimit()
+    {
+        long now = 5_000;
+        using MapStore store = MapStore.CreateInMemory();
+        var provider = new WorkerProvider { CurrentServerId = 10 };
+        var actions = new MapActionControlPlane(store, provider, () => now);
+        actions.ScheduleDispatchPlunderAsync([Dispatch("301", "ghost", 5_200)])
+            .AsTask().GetAwaiter().GetResult();
+        var worker = new MapPlunderWorker(store, provider, () => now);
+        worker.RunDispatchOnceAsync().AsTask().GetAwaiter().GetResult();
+        TestAssert.True(provider.DispatchArmBatches.SelectMany(batch => batch)
+            .Any(job => job.Kind == "ghost" && job.TaskUuid == "301"),
+            "inert Ghost result inverse requires an accepted Ghost-kind pending identity");
+        actions.ScheduleDispatchPlunderAsync([Dispatch("302", "dispatch", 5_300)])
+            .AsTask().GetAwaiter().GetResult();
+        provider.DispatchResultBatches.Enqueue([
+            new DispatchPlunderResultEvent(
+                "ghost", 10, "301", false, "DISPATCH_PLUNDER_DAILY_LIMIT_REACHED"),
+        ]);
+        worker.RunDispatchOnceAsync().AsTask().GetAwaiter().GetResult();
+        TestAssert.Equal("failed", DispatchRow(actions, "301").GetProperty("scheduleStatus").GetString(),
+            "inert Ghost terminal result must update only its own row");
+        TestAssert.Equal("running", DispatchRow(actions, "302").GetProperty("scheduleStatus").GetString(),
+            "Ghost error must not fail an independently armable Dispatch");
+        TestAssert.Equal(1, DispatchRow(actions, "302").GetProperty("attempts").GetInt32(),
+            "ordinary Dispatch arming, not Ghost fan-out, consumes its single attempt");
     }
 
     private static void DispatchTimeoutDisconnectAndRestartAreExact()

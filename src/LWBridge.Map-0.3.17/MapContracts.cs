@@ -57,9 +57,11 @@ public sealed record MapQuery(
     string? ViewerAllianceId = null,
     int? MinLevel = null,
     int? MaxLevel = null,
-    string? ScanRunId = null);
+    string? ScanRunId = null,
+    double? MinPower = null,
+    double? MaxPower = null);
 
-public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total);
+public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, int Page = 1, int PageSize = 50);
 
 public sealed record MapScanState(
     int ServerId,

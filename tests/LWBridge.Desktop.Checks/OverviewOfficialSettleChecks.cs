@@ -314,6 +314,7 @@ internal static class OverviewOfficialSettleChecks
     private static async Task PostHelperReadinessFailureCanCloseThenRetry()
     {
         int startCalls = 0;
+        int stopCalls = 0;
         bool processAlive = false;
         bool heartbeatFresh = false;
         string? session = null;
@@ -337,6 +338,7 @@ internal static class OverviewOfficialSettleChecks
                     processAlive = true;
                     return Task.FromResult(StartResult(invocation, gamePath, gamePid, launcherPid, startedAt));
                 }
+                stopCalls++;
                 processAlive = false;
                 return Task.FromResult(StopResult(invocation, gamePath, gamePid, startedAt));
             },
@@ -374,12 +376,12 @@ internal static class OverviewOfficialSettleChecks
         {
         }
         JsonElement retained = JsonSerializer.SerializeToElement(lifecycle.CreateInstanceStatus(), JsonOptions.Default);
-        string retainedSession = retained.GetProperty("instanceId").GetString()!;
-        Check(retained.GetProperty("pid").GetInt32() == gamePid && processAlive,
-            "post-helper readiness failure must retain exact owned process identity for safe cleanup");
-        await lifecycle.InvokeAsync("profile_instance_stop",
-            JsonSerializer.SerializeToElement(new { instanceId = retainedSession }), CancellationToken.None);
-        Check(!processAlive, "post-helper readiness failure cleanup must close the exact owned process");
+        Check(retained.GetProperty("phase").GetString() == "error" &&
+              retained.GetProperty("pid").ValueKind == JsonValueKind.Null &&
+              retained.GetProperty("error").GetString() == "BRIDGE_START_TIMEOUT" &&
+              lifecycle.CreateProfileInstanceStatus() is null &&
+              !processAlive && stopCalls == 1,
+            "source-backed post-publication readiness failure must complete exact owned rollback before returning");
 
         heartbeatFresh = true;
         JsonElement retry = JsonSerializer.SerializeToElement(
@@ -391,7 +393,8 @@ internal static class OverviewOfficialSettleChecks
             "post-helper readiness cleanup must permit a successful subsequent retry");
         await lifecycle.InvokeAsync("profile_instance_stop",
             JsonSerializer.SerializeToElement(new { instanceId = retrySession }), CancellationToken.None);
-        Check(!processAlive, "post-helper readiness retry must close cleanly");
+        Check(!processAlive && stopCalls == 2,
+            "post-helper readiness retry must close cleanly with independent ownership");
     }
 
     private static JsonElement StopResult(

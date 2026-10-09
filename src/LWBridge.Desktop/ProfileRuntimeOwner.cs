@@ -183,8 +183,17 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 },
                 startScheduler: startAutoScheduler);
 
+            var orderedReconcile = new OrderedProfileReconcileCommandService(
+                profileRegistryService,
+                (ownerId, payload, token) =>
+                    string.Equals(ownerId, profileId, StringComparison.Ordinal)
+                        ? lifecycle.InvokeAsync("profile_instances_reconcile", payload, token)
+                        : Task.FromException<object?>(new BridgeCommandException(
+                            "PROFILE_RUNTIME_UNAVAILABLE",
+                            "The requested profile has no active local runtime owner.")));
             INativeAsyncCommandService[] commands =
             [
+                orderedReconcile,
                 lifecycle,
                 map,
                 auto,

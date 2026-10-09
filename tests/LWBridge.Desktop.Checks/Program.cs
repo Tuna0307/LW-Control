@@ -77,6 +77,11 @@ if (args.Contains("--completion010-pilot-inverses", StringComparer.OrdinalIgnore
     LWBridge.Desktop.Checks.Completion010PilotAssertions.RunInverseChecks();
     return 0;
 }
+if (args.Contains("--ordered-profile-reconcile-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.OrderedProfileReconcileChecks.RunAsync();
+    return 0;
+}
 int completion010PilotIndex = Array.FindIndex(args,
     value => string.Equals(value, "--completion010-live-pilot", StringComparison.OrdinalIgnoreCase));
 if (completion010PilotIndex >= 0)
@@ -6707,12 +6712,11 @@ async Task RunRootRebindCase(string initialRoot, string selectedRoot, string lab
         if (!string.IsNullOrWhiteSpace(initialRoot) &&
             !string.Equals(Path.GetFullPath(initialRoot), Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase))
         {
-            bool activeRetargetRejected = false;
-            try { integrated.SaveGameRoot(initialRoot); }
-            catch (BridgeCommandException ex) { activeRetargetRejected = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
-            Check(activeRetargetRejected &&
-                  string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(selectedRoot), StringComparison.OrdinalIgnoreCase),
-                $"{label}: active owned session stays bound to its launch root and rejects retargeting");
+            GameRootStatus nextConfigured = integrated.SaveGameRoot(initialRoot);
+            Check(nextConfigured.Valid &&
+                  string.Equals(cfg.Snapshot.GameRoot, Path.GetFullPath(initialRoot), StringComparison.OrdinalIgnoreCase) &&
+                  invocations.Count(i => i.Operation == "start") == 1,
+                $"{label}: native picker persists next root while the active owned session remains on its captured root");
         }
         string active = session!;
         using JsonDocument stop = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = cfg.Snapshot.ProfileId, instanceId = active }));
@@ -6960,11 +6964,12 @@ using (var pm17ActiveLifecycle = new OverviewLifecycleService(pm17ActiveConfig.S
     using JsonDocument pm17TimeoutPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17ActiveConfig.Snapshot.ProfileId }));
     Task<object?> activeStart = pm17ActiveLifecycle.InvokeAsync("profile_instance_start", pm17TimeoutPayload.RootElement.Clone(), CancellationToken.None);
     await pm17ActiveEntered.Task;
-    bool activeBlocked = false;
-    try { pm17ActiveBackend.SaveGameRoot(o01RootB); }
-    catch (BridgeCommandException ex) { activeBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
-    Check(activeBlocked && string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
-        "PM17-01 active helper prevents installation retargeting");
+    GameRootStatus activePersisted = pm17ActiveBackend.SaveGameRoot(o01RootB);
+    JsonElement activePhase = JsonSerializer.SerializeToElement(pm17ActiveLifecycle.CreateInstanceStatus(), JsonOptions.Default);
+    Check(activePersisted.Valid &&
+          string.Equals(pm17ActiveConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase) &&
+          activePhase.GetProperty("phase").GetString() == "starting",
+        "Original picker persists next configured root during active helper without retiring its launch");
     pm17ActiveRelease.TrySetException(new InvalidOperationException("synthetic active helper failure"));
     try { await activeStart; } catch (BridgeCommandException) { }
     GameRootStatus afterActiveExit = pm17ActiveBackend.SaveGameRoot(o01RootB);
@@ -6990,11 +6995,10 @@ using (var pm17TimeoutLifecycle = new OverviewLifecycleService(pm17TimeoutConfig
     using JsonDocument pm17PendingPayload = JsonDocument.Parse(JsonSerializer.Serialize(new { profileId = pm17TimeoutConfig.Snapshot.ProfileId }));
     try { await pm17TimeoutLifecycle.InvokeAsync("profile_instance_start", pm17PendingPayload.RootElement.Clone(), CancellationToken.None); }
     catch (BridgeCommandException) { }
-    bool timeoutBlocked = false;
-    try { pm17TimeoutBackend.SaveGameRoot(o01RootB); }
-    catch (BridgeCommandException ex) { timeoutBlocked = ex.Code == "GAME_OPERATION_IN_PROGRESS"; }
-    Check(timeoutBlocked && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootA), StringComparison.OrdinalIgnoreCase),
-        "PM17-01 timed-out helper retains ownership and blocks retargeting while it is still alive");
+    GameRootStatus timeoutPersisted = pm17TimeoutBackend.SaveGameRoot(o01RootB);
+    Check(timeoutPersisted.Valid &&
+          string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),
+        "Original picker persists configured root while timed-out helper ownership remains captured");
     await Task.Delay(600);
     GameRootStatus afterTimeoutExit = pm17TimeoutBackend.SaveGameRoot(o01RootB);
     Check(afterTimeoutExit.Valid && string.Equals(pm17TimeoutConfig.Snapshot.GameRoot, Path.GetFullPath(o01RootB), StringComparison.OrdinalIgnoreCase),

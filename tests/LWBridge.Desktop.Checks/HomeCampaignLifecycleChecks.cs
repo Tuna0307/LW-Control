@@ -24,6 +24,8 @@ internal static class HomeCampaignLifecycleChecks
                 Path.Combine(root, "stale-identity-stop")).WaitAsync(TimeSpan.FromSeconds(10));
             JsonElement nativeRejectionRetry = await RunNativeRejectionRetryAsync(
                 Path.Combine(root, "native-rejection-retry")).WaitAsync(TimeSpan.FromSeconds(10));
+            JsonElement lateReadinessFailure = await RunPostPublicationReadinessFailureAsync(
+                Path.Combine(root, "late-readiness-failure")).WaitAsync(TimeSpan.FromSeconds(10));
             JsonElement profileMismatch = await RunProfileMismatchAsync(
                 Path.Combine(root, "profile-mismatch")).WaitAsync(TimeSpan.FromSeconds(10));
             JsonElement recoveryAndShutdown = await RunRecoveryAndShutdownAsync(
@@ -38,6 +40,7 @@ internal static class HomeCampaignLifecycleChecks
                 closeDuringStart,
                 staleIdentityAndStop,
                 nativeRejectionRetry,
+                lateReadinessFailure,
                 profileMismatch,
                 recoveryAndShutdown,
             });
@@ -558,6 +561,66 @@ internal static class HomeCampaignLifecycleChecks
             missingStart,
             foreignStatus,
             lifecycleHelperCalls = helperCalls,
+        });
+    }
+
+    private static async Task<JsonElement> RunPostPublicationReadinessFailureAsync(string root)
+    {
+        Directory.CreateDirectory(Path.Combine(root, "Game"));
+        const string profileId = "home-campaign-late-ready-failure";
+        const int gamePid = 53991;
+        const string startedAtUtc = "2026-10-09T04:00:00.0000000Z";
+        string gamePath = Path.Combine(root, "Game", "LastWar.exe");
+        bool alive = false;
+        int startCalls = 0, stopCalls = 0;
+        var hooks = new OverviewLifecycleTestHooks
+        {
+            RunOfficialRecoverAsync = (_, _) => Task.CompletedTask,
+            RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+            RunHelperAsync = (invocation, _) =>
+            {
+                if (invocation.Operation == "start")
+                {
+                    startCalls++;
+                    alive = true;
+                    return Task.FromResult(StartResult(invocation, gamePath, gamePid, startedAtUtc));
+                }
+                stopCalls++;
+                bool wasAlive = alive;
+                alive = false;
+                return Task.FromResult(StopResult(invocation, wasAlive));
+            },
+            ProcessMatches = (pid, path, started) =>
+                alive && pid == gamePid && started == startedAtUtc && PathEquals(path, gamePath),
+            ReadAllBytes = _ => throw new FileNotFoundException("synthetic game heartbeat absent after helper success"),
+            WriteLease = (_, _, _) => { },
+            DeleteFile = _ => { },
+        };
+        using var lifecycle = new OverviewLifecycleService(
+            profileId, root,
+            helperPath: Path.Combine(root, "fake-overview-helper.py"),
+            requireCurrentClientEvidence: false,
+            testHooks: hooks,
+            startRecoveryMonitor: false,
+            runtimeRoot: Path.Combine(root, "overview-runtime"),
+            evidenceRoot: Path.Combine(root, "overview-evidence"),
+            backupRoot: Path.Combine(root, "overview-backups"));
+        JsonElement payload = JsonSerializer.SerializeToElement(new { profileId });
+        string rejection = await CaptureBridgeErrorAsync(async () =>
+            _ = await lifecycle.InvokeAsync("profile_instance_start", payload, CancellationToken.None));
+        object? nativeAfter = await lifecycle.InvokeAsync(
+            "profile_instance_status", payload, CancellationToken.None);
+        JsonElement snapshot = Status(lifecycle.CreateInstanceStatus());
+        Check(rejection == "BRIDGE_START_TIMEOUT" && startCalls == 1 && stopCalls == 1 &&
+            !alive && nativeAfter is null &&
+            snapshot.GetProperty("pid").ValueKind == JsonValueKind.Null &&
+            snapshot.GetProperty("error").GetString() == "BRIDGE_START_TIMEOUT",
+            "post-publication readiness loss must call exact owned Stop, clear native owner and retain error");
+        return JsonSerializer.SerializeToElement(new {
+            rejection, startCalls, stopCalls, alive,
+            nativeStatusCleared = nativeAfter is null,
+            phase = snapshot.GetProperty("phase").GetString(),
+            error = snapshot.GetProperty("error").GetString()
         });
     }
 
