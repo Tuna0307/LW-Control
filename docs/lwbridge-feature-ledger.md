@@ -1,3 +1,13 @@
+# Published Home feature — 2026-10-09
+
+HOME-LAUNCH-DELIVERY-002 is lead-accepted for supported single-profile Home Launch -> genuine Connected -> Close, merged through PR #4. Main and home-launch-v0.2.0 tag: a8b485aa7544ee912b49de44005941818519848e.
+Download: https://github.com/Tuna0307/LW-Control/releases/tag/home-launch-v0.2.0
+Windows ZIP: LW-Control-v0.2.0-win-x64.zip; 26,123,539 bytes; 103 runtime files.
+SHA-256: 91397AD1DFA6A6A2025EB779105820EAE348230D49F6D4044FDEE4676BF212D9.
+Independent original optional-Close correction, native live repeat, exact script restoration, fresh main publication/extracted smoke and uploaded digest are recorded in docs/reviews/2026-10-09-LWB317-HOME-LAUNCH-DELIVERY-002-LEAD.md and main docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md. Research archive was not imported. Full Home/Map/native original-runtime parity remains PARTIAL. One restored, inactive isolated lead test root is retained because automatic approval review rejected deletion.
+
+The worker has finished this feature. Next only upon owner relay: LWB317-MAP-DATA-DELIVERY-003, a fresh main-based data browsing/export slice. No broad campaign resumes automatically. Historical entries below remain preserved.
+
 **Current lead checkpoint, 2026-10-09: worker STOPPED by owner; Home/Map PARTIAL / CHANGES_REQUIRED.** Independent audit credits the captured-run ownership fix and bounded live receipts, but returns four query/status/publication-proof corrections. Current authority: `docs/PROJECT_STATUS.md` and the dated `COMPLETION-010-R1-LEAD` review. Earlier entries below are historical and do not resume the worker.
 
 **2026-10-09 COMPLETION-010-R1 FOLLOW-UP — PARTIAL, NOT LEAD ACCEPTANCE.** Additional independently reproduced Map native malformed-`markedOnly` coercion and stale Auto due-admission-after-disable race are now fixed: both red-before/green-after in actual command/scheduler checks; native default flow exit 0. Entirely inert, no new Last War launch or UI input. Prior two live City/Resource pilot receipts, 133-obligation derivative, negative packaged-UI crash and all unresolved Home/Map original A→A branches remain unchanged. See `docs/reviews/2026-10-09-LWB317-FUNCTION-HOME-MAP-COMPLETION-010-R1-FOLLOWUP.md`.

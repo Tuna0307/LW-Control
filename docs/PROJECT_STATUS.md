@@ -1,3 +1,13 @@
+# Published Home feature — 2026-10-09
+
+HOME-LAUNCH-DELIVERY-002 is lead-accepted for supported single-profile Home Launch -> genuine Connected -> Close, merged through PR #4. Main and home-launch-v0.2.0 tag: a8b485aa7544ee912b49de44005941818519848e.
+Download: https://github.com/Tuna0307/LW-Control/releases/tag/home-launch-v0.2.0
+Windows ZIP: LW-Control-v0.2.0-win-x64.zip; 26,123,539 bytes; 103 runtime files.
+SHA-256: 91397AD1DFA6A6A2025EB779105820EAE348230D49F6D4044FDEE4676BF212D9.
+Independent original optional-Close correction, native live repeat, exact script restoration, fresh main publication/extracted smoke and uploaded digest are recorded in docs/reviews/2026-10-09-LWB317-HOME-LAUNCH-DELIVERY-002-LEAD.md and main docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md. Research archive was not imported. Full Home/Map/native original-runtime parity remains PARTIAL. One restored, inactive isolated lead test root is retained because automatic approval review rejected deletion.
+
+The worker has finished this feature. Next only upon owner relay: LWB317-MAP-DATA-DELIVERY-003, a fresh main-based data browsing/export slice. No broad campaign resumes automatically. Historical entries below remain preserved.
+
 # LW-Control current checkpoint — 2026-10-09
 
 ## Delivered on main

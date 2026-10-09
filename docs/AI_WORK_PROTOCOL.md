@@ -1,5 +1,8 @@
 # AI work protocol
 
+Latest lead delivery, 2026-10-09: HOME-LAUNCH-DELIVERY-002 is accepted for the supported single-profile Launch -> authenticated Connected -> Close feature, merged via PR #4 into main a8b485aa7544ee912b49de44005941818519848e and published as home-launch-v0.2.0. The lead corrected original optional Close identity and independently repeated native Launch/Close/restoration. Full Home/Map parity remains PARTIAL. Worker stops until owner relay; next scoped candidate is docs/work-items/LWB317-MAP-DATA-DELIVERY-003.md (stored City/Resource browsing and City export, not scan parity). Lead alone merges/publishes. Earlier continuation text is historical where inconsistent.
+
+
 Latest delivery, 2026-10-09: UI-MAIN-DELIVERY-001 has been lead-accepted, merged
 and published on main as ui-baseline-v0.1.0. Stop its worker scope. Next manual-
 relay assignment is HOME-LAUNCH-DELIVERY-002 on codex/home-launch-delivery-002

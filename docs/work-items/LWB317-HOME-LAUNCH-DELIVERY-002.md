@@ -1,3 +1,7 @@
+# Lead closeout — ACCEPTED / MERGED / PUBLISHED
+
+PR #4 merged into main a8b485aa7544ee912b49de44005941818519848e, release home-launch-v0.2.0. See the dated 002-LEAD review. Worker scope is stopped. Full Home/Map parity remains PARTIAL.
+
 # LWB317-HOME-LAUNCH-DELIVERY-002
 
 Begin only after the owner forwards this assignment. Work solo, no subagents,
