@@ -67,6 +67,16 @@ if (args.Contains("--background-witness-002-self-test", StringComparer.OrdinalIg
     LWBridge.Desktop.Checks.BackgroundHomeMapWitness002.RunInverseChecks();
     return 0;
 }
+if (args.Contains("--completion010-status-guard-check", StringComparer.OrdinalIgnoreCase))
+{
+    await LWBridge.Desktop.Checks.Completion010StatusGuardChecks.RunAsync();
+    return 0;
+}
+if (args.Contains("--completion010-pilot-inverses", StringComparer.OrdinalIgnoreCase))
+{
+    LWBridge.Desktop.Checks.Completion010PilotAssertions.RunInverseChecks();
+    return 0;
+}
 int completion010PilotIndex = Array.FindIndex(args,
     value => string.Equals(value, "--completion010-live-pilot", StringComparison.OrdinalIgnoreCase));
 if (completion010PilotIndex >= 0)

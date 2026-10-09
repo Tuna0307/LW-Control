@@ -353,13 +353,19 @@ public sealed class MapScanStateMachine
     }
 
     public async ValueTask<MapScanState> FailAndStopAsync(
-        string error, MapStore store, Func<long> nowMilliseconds, CancellationToken cancellationToken = default)
+        string error, string expectedScanRunId, int expectedServerId,
+        MapStore store, Func<long> nowMilliseconds, CancellationToken cancellationToken = default)
     {
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             MapScanState before = State;
-            if (!before.IsReading || string.IsNullOrEmpty(before.ScanRunId)) return before;
+            // Check the captured owner *under* the same operation gate as Start/Stop.
+            // An old status request must never fail, stop or publish into its successor.
+            if (!before.IsReading || string.IsNullOrEmpty(expectedScanRunId) ||
+                !string.Equals(before.ScanRunId, expectedScanRunId, StringComparison.Ordinal) ||
+                before.ServerId != expectedServerId)
+                return before;
             store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
             try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
             catch { /* best effort, like the original stopMapScan after the local boundary */ }

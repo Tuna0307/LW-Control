@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Xml.Linq;
 using LWBridge.Desktop;
 using LWBridge.Map317;
 
@@ -28,8 +29,11 @@ internal static class Completion010LivePilot
         string output = Path.GetFullPath(outputFile);
         Directory.CreateDirectory(Path.GetDirectoryName(output)!);
         string attemptId = Guid.NewGuid().ToString("N");
+        // The preflight backs up this exact root. Never fabricate a second root
+        // without reversible backups or silently operate on owner/default data.
+        JsonElement pre = JsonDocument.Parse(File.ReadAllText(preflightJson)).RootElement.Clone();
         string profile = "lwb317-comp010-pilot-" + attemptId[..8];
-        string root = Path.Combine(Path.GetTempPath(), "LWB317-COMP010-PILOT-" + attemptId);
+        string root = Path.GetFullPath(pre.GetProperty("isolatedRoot").GetString()!);
         DesktopApplicationPaths paths = DesktopApplicationPaths.Create(root);
         var events = new List<object>();
         var report = new Dictionary<string, object?>
@@ -49,7 +53,6 @@ internal static class Completion010LivePilot
         }
 
         // Expected originals come from the python preflight (current-client compat + SHA-256).
-        JsonElement pre = JsonDocument.Parse(File.ReadAllText(preflightJson)).RootElement.Clone();
         Assert(pre.GetProperty("allowLiveHomeLaunch").GetBoolean(), "preflight must allow a live launch");
         var files = new Dictionary<string, (string Path, string Sha)>();
         foreach (var item in pre.GetProperty("triplet").EnumerateObject())
@@ -59,13 +62,35 @@ internal static class Completion010LivePilot
         bool OriginalMatches(Dictionary<string, string?> h) => files.All(
             p => string.Equals(h[p.Key], p.Value.Sha, StringComparison.OrdinalIgnoreCase));
 
-        string? instance = null; int? ownedPid = null; bool stopSucceeded = false;
+        string? instance = null; int? ownedPid = null;
+        DateTime? ownedProcessCreationUtc = null;
+        bool stopSucceeded = false, exactExit = false, preflightVerified = false;
+        bool mapStopSucceeded = true, requestedStageStopVerified = !positiveStageAttempt;
+        bool requiredRunsPositive = false, rootRemoved = false;
         var runs = new List<object>();
+        var runProofs = new Dictionary<string, Completion010PilotAssertions.RunProof>(StringComparer.Ordinal);
         try
         {
             report["installedBefore"] = Hashes();
             Assert(OriginalMatches((Dictionary<string, string?>)report["installedBefore"]!), "installed originals must match the preflight");
-            Assert(!Directory.Exists(root), "isolated root must be fresh");
+            Assert(Directory.Exists(root) && Path.GetRelativePath(Path.GetTempPath(), root) is { } relative &&
+                !relative.StartsWith("..", StringComparison.Ordinal) &&
+                Path.GetFileName(root).StartsWith("LWB317-", StringComparison.OrdinalIgnoreCase),
+                "preflight must provide its own temporary isolated root");
+            Assert(pre.GetProperty("existingIsolatedFilesBeforeGate").GetArrayLength() == 0,
+                "preflight root must have been fresh before backing up");
+            foreach (var item in pre.GetProperty("verifiedReversibleBackups").EnumerateObject())
+            {
+                string path = Path.GetFullPath(item.Value.GetProperty("path").GetString()!);
+                Assert(Path.GetRelativePath(root, path) is { } relativeBackup &&
+                    !relativeBackup.StartsWith("..", StringComparison.Ordinal) &&
+                    File.Exists(path) && files.TryGetValue(item.Name, out var expected) &&
+                    string.Equals(HashFile(path), expected.Sha, StringComparison.OrdinalIgnoreCase),
+                    "reversible backup must match the actual execution root and original file: " + item.Name);
+            }
+            Assert(pre.GetProperty("verifiedReversibleBackups").EnumerateObject().Count() == 3,
+                "three reversible backups required");
+            preflightVerified = true;
             Assert(Process.GetProcesses().All(p => p.ProcessName is not ("LastWar" or "LastWarLauncher" or "LWBridge.Desktop")),
                 "refuses to launch while a game/clone process exists");
             Assert(paths.ExplicitIsolation && !paths.Contains(DesktopApplicationPaths.DefaultRoot), "isolated root must not overlap owner data");
@@ -101,9 +126,12 @@ internal static class Completion010LivePilot
             ownedPid = Int(started, "pid");
             Assert(instance is not null && ownedPid is not null, "start session and PID");
             using (Process process = Process.GetProcessById(ownedPid!.Value))
+                {
                 Assert(string.Equals(Path.GetFullPath(process.MainModule?.FileName ?? ""),
                     Path.GetFullPath(Path.Combine(GameRoot, "Game", "LastWar.exe")), StringComparison.OrdinalIgnoreCase),
                     "owned process is the exact installed LastWar.exe");
+                ownedProcessCreationUtc = process.StartTime.ToUniversalTime();
+            }
             Record("home-start-returned", new { instance, ownedPid, started });
 
             // Authenticated route (production host -> game) before any Map command.
@@ -131,7 +159,7 @@ internal static class Completion010LivePilot
             int serverId = Int(context, "serverId") ?? 0;
             Assert(serverId > 0, "live server id");
 
-            bool stagingPositiveBeforeTerminal = false;
+            string? stagedKindForStop = null;
             string? cityRunId = null;
             foreach (string kind in new[] { "city", "resource" })
             {
@@ -149,19 +177,24 @@ internal static class Completion010LivePilot
                     state = J(owner.Map317.CreateStatus());
                     Assert(String(state, "scanRunId") == run, "same run identity");
                     int staged = StagingCount(paths.MapDatabasePath(profile), run, kind);
-                    if (staged > 0 && Bool(state, "isReading")) { stagedPositive = true; stagingPositiveBeforeTerminal = true; }
+                    if (staged > 0 && Bool(state, "isReading"))
+                    { stagedPositive = true; stagedKindForStop ??= kind; }
                     if (timeline.Count == 0 || sw.ElapsedMilliseconds / 5000 > (timeline.Count - 1))
                         timeline.Add(new { tSec = sw.Elapsed.TotalSeconds, completed = Int(state, "completedBlocks"),
                             inflight = Int(state, "inflightBlocks"), failed = Int(state, "failedBlocks"), staged });
                     if (!Bool(state, "isReading")) break;
-                    if (sw.Elapsed > TimeSpan.FromMinutes(9)) { Record("run-too-long-stopping", new { kind, run }); await owner.Map317.InvokeAsync("map_scan_stop", empty, overall.Token); break; }
+                    if (sw.Elapsed > TimeSpan.FromMinutes(9))
+                    {
+                        Record("run-timed-out-stopping", new { kind, run });
+                        await owner.Map317.InvokeAsync("map_scan_stop", empty, overall.Token);
+                        throw new TimeoutException(kind + " scan timed out before durable completion");
+                    }
                     await Task.Delay(400, overall.Token);
                 }
                 JsonElement last = J(owner.Map317.CreateStatus());
                 Record(kind + "-terminal", new { run, seconds = sw.Elapsed.TotalSeconds, last, stagedPositiveWhileReading = stagedPositive, timeline });
 
                 // Query surface through the production command service.
-                var q = new List<object>();
                 JsonElement p1 = J(await owner.Map317.InvokeAsync("map_search", J(new { kind, query = new { serverId, page = 1, pageSize = 50 } }), overall.Token));
                 JsonElement p2 = J(await owner.Map317.InvokeAsync("map_search", J(new { kind, query = new { serverId, page = 2, pageSize = 50 } }), overall.Token));
                 int total = Int(p1, "total") ?? -1;
@@ -178,6 +211,10 @@ internal static class Completion010LivePilot
                         ? new { kind, query = new { serverId, page = 1, pageSize = 50, resourceNameKey = probe } }
                         : (object)new { kind, query = new { serverId, page = 1, pageSize = 50, alliance = probe } }), overall.Token));
                 int? summaryCount = summary.TryGetProperty("counts", out var counts) ? Int(counts, kind) : null;
+                Assert(Int(summary, "serverId") == serverId && summaryCount is not null,
+                    kind + " summary must resolve the active server and kind");
+                Assert(options.ValueKind == JsonValueKind.Object && options.EnumerateObject().Any(),
+                    kind + " native options must be present");
                 Record(kind + "-query-surface", new
                 {
                     total, page1Rows = rows1, page2Rows = rows2, summaryCount,
@@ -185,8 +222,16 @@ internal static class Completion010LivePilot
                     optionsTopLevelKeys = options.ValueKind == JsonValueKind.Object ? options.EnumerateObject().Select(x => x.Name).ToArray() : [],
                     firstRowKeys = FirstRowKeys(p1),
                 });
-                bool completed = String(last, "status") == "completed" || !Bool(last, "isReading");
+                using var terminalStore = new MapStore(paths.MapDatabasePath(profile));
+                string? durableStatus = terminalStore.ReadScanRun(run)?.Status;
+                string terminalClass = Completion010PilotAssertions.TerminalClass(durableStatus, timedOut: false);
+                bool completed = terminalClass == "completed" && !Bool(last, "isReading");
+                Record(kind + "-durable-terminal", new { durableStatus, terminalClass, completed });
+                Assert(completed, kind + " requires durable completed (not cancelled, failed or idle)");
                 object? export = null;
+                int exportedCount = -1, workbookRows = -1;
+                string[] workbookHeaders = [];
+                bool workbookContentsValid = false;
                 if (kind == "city")
                 {
                     cityRunId = run;
@@ -196,27 +241,44 @@ internal static class Completion010LivePilot
                         JsonElement exportPayload = J(new
                         {
                             query = new { serverId, page = 1, pageSize = 50 },
-                            headers = new[] { "Name", "Alliance", "Level", "Power", "X", "Y", "Shield", "Updated" },
+                            headers = Completion010PilotAssertions.CityHeaders,
                         });
                         var request = owner.Map317.PrepareCityExport(exportPayload);
                         object? written = owner.Map317.WriteCityExport(request, xlsx);
-                        int sheetRows = -1;
+                        exportedCount = Int(J(written), "rowCount") ?? -1;
                         using (var zip = ZipFile.OpenRead(xlsx))
                         {
-                            var sheet = zip.Entries.FirstOrDefault(e => e.FullName.StartsWith("xl/worksheets/sheet", StringComparison.Ordinal));
-                            if (sheet is not null)
-                            {
-                                using var reader = new StreamReader(sheet.Open());
-                                string xml = reader.ReadToEnd();
-                                sheetRows = System.Text.RegularExpressions.Regex.Matches(xml, "<row ").Count;
-                            }
+                            var sheet = zip.GetEntry("xl/worksheets/sheet1.xml") ??
+                                throw new InvalidDataException("City workbook worksheet missing");
+                            using var stream = sheet.Open();
+                            XDocument xml = XDocument.Load(stream);
+                            XNamespace ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+                            var sheetRows = xml.Descendants(ns + "sheetData").Elements(ns + "row").ToArray();
+                            workbookRows = sheetRows.Length;
+                            workbookHeaders = sheetRows[0].Elements(ns + "c")
+                                .Select(c => string.Concat(c.Descendants(ns + "t").Select(t => t.Value))).ToArray();
+                            workbookContentsValid = sheetRows.Skip(1).All(row =>
+                                row.Elements(ns + "c").Count() == 12 &&
+                                row.Elements(ns + "c").First().Element(ns + "v")?.Value ==
+                                    serverId.ToString(System.Globalization.CultureInfo.InvariantCulture));
                         }
-                        export = new { path = xlsx, bytes = new FileInfo(xlsx).Length, sheetRows, written = J(written) };
+                        export = new { path = xlsx, bytes = new FileInfo(xlsx).Length,
+                            workbookRows, workbookHeaders, workbookContentsValid, exportedCount };
                     }
-                    catch (Exception e) { export = new { error = e.GetType().Name, (e as BridgeCommandException)?.Code, e.Message }; }
+                    catch (Exception e)
+                    {
+                        Record("city-export-error", new { e.GetType().Name, (e as BridgeCommandException)?.Code, e.Message });
+                        throw;
+                    }
                     Record("city-export", export);
                 }
-                runs.Add(new { kind, run, completed, total, page1Rows = rows1, page2Rows = rows2, summaryCount, export });
+                runProofs[kind] = new Completion010PilotAssertions.RunProof(
+                    kind, durableStatus, false, total, rows1, rows2, summaryCount ?? -1,
+                    Int(miss, "total") ?? -1, filtered is null ? null : Int(filtered.Value, "total"),
+                    probe is not null, PageKeys(p1), PageKeys(p2), -1, exportedCount,
+                    workbookRows, workbookHeaders, workbookContentsValid);
+                runs.Add(new { kind, run, durableStatus, completed, total, page1Rows = rows1,
+                    page2Rows = rows2, summaryCount, export });
             }
 
             // Reopen and profile isolation.
@@ -226,42 +288,62 @@ internal static class Completion010LivePilot
                 foreach (string kind in new[] { "city", "resource" })
                     reopenTotals[kind] = reopened.Search(new MapQuery(kind, serverId)).Total;
                 Record("sqlite-reopen", new { reopenTotals, cityRun = reopened.ReadScanRun(cityRunId!) });
+                foreach (string kind in new[] { "city", "resource" })
+                {
+                    var proof = runProofs[kind] with { ReopenedTotal = reopenTotals[kind] };
+                    runProofs[kind] = proof;
+                    string[] errors = Completion010PilotAssertions.RunErrors(proof).ToArray();
+                    Record(kind + "-proof-gate", new { errors, proof });
+                    Assert(errors.Length == 0, kind + " proof failed: " + string.Join("; ", errors));
+                }
+                requiredRunsPositive = true;
             }
             string otherProfile = "lwb317-comp010-other-" + attemptId[..6];
             Directory.CreateDirectory(Path.GetDirectoryName(paths.MapDatabasePath(otherProfile))!);
             using (var other = new MapStore(paths.MapDatabasePath(otherProfile)))
-                Record("profile-isolation", new { otherProfile, cityTotal = other.Search(new MapQuery("city", serverId)).Total,
-                    resourceTotal = other.Search(new MapQuery("resource", serverId)).Total });
+            {
+                int cityTotal = other.Search(new MapQuery("city", serverId)).Total;
+                int resourceTotal = other.Search(new MapQuery("resource", serverId)).Total;
+                Record("profile-isolation", new { otherProfile, cityTotal, resourceTotal });
+                Assert(cityTotal == 0 && resourceTotal == 0, "foreign profile must have no pilot rows");
+            }
 
             // Optional positive-stage Stop with the distinguishing plan: only when the
             // observation timeline proved durable staging precedes terminal completion.
             if (positiveStageAttempt)
             {
-                if (!stagingPositiveBeforeTerminal)
-                    Record("positive-stage-skipped", new { reason = "durable staging was never observed while reading; a Stop could not cut staged rows" });
+                if (stagedKindForStop is null)
+                {
+                    requestedStageStopVerified = false;
+                    Record("positive-stage-pending", new { reason = "neither kind had a naturally observed staging window" });
+                }
                 else
                 {
                     JsonElement start = J(await owner.Map317.InvokeAsync("map_scan_start",
-                        J(new { profileId = profile, scanMode = "normal", selectedTypes = new[] { "resource" } }), overall.Token));
+                        J(new { profileId = profile, scanMode = "normal", selectedTypes = new[] { stagedKindForStop! } }), overall.Token));
                     string run = String(start, "scanRunId")!;
                     int staged = 0; DateTimeOffset until = DateTimeOffset.UtcNow.AddMinutes(8);
                     while (DateTimeOffset.UtcNow < until && Bool(J(owner.Map317.CreateStatus()), "isReading"))
                     {
-                        staged = StagingCount(paths.MapDatabasePath(profile), run, "resource");
+                        staged = StagingCount(paths.MapDatabasePath(profile), run, stagedKindForStop!);
                         if (staged > 0) break;
                         await Task.Delay(150, overall.Token);
                     }
                     JsonElement stopped = staged > 0 ? J(await owner.Map317.InvokeAsync("map_scan_stop", empty, overall.Token)) : default;
                     using var reopened = new MapStore(paths.MapDatabasePath(profile));
                     var runRow = reopened.ReadScanRun(run);
-                    Record("positive-stage-stop", new { run, stagedBeforeStop = staged, stopped, runRow,
-                        stagedAfterStop = StagingCount(paths.MapDatabasePath(profile), run, "resource"),
-                        publishedForRun = reopened.Search(new MapQuery("resource", serverId, ScanRunId: run)).Total });
-                    if (staged <= 0) await owner.Map317.InvokeAsync("map_scan_stop", empty, CancellationToken.None);
+                    int remainingStaged = StagingCount(paths.MapDatabasePath(profile), run, stagedKindForStop!);
+                    int publishedForRun = reopened.Search(new MapQuery(stagedKindForStop!, serverId, ScanRunId: run)).Total;
+                    requestedStageStopVerified = staged > 0 && !Bool(stopped, "isReading") &&
+                        runRow?.Status == "cancelled" && remainingStaged == 0 && publishedForRun == 0;
+                    Record("positive-stage-stop", new { kind = stagedKindForStop, run, stagedBeforeStop = staged,
+                        stopped, runRow, remainingStaged, publishedForRun, requestedStageStopVerified });
+                    if (staged <= 0 && owner.Map317.IsScanActive)
+                        await owner.Map317.InvokeAsync("map_scan_stop", empty, CancellationToken.None);
                 }
             }
             report["runs"] = runs;
-            report["terminal"] = "PILOT_COMPLETED";
+            report["terminal"] = "PILOT_PROOFS_PASSED_PENDING_STOP_RESTORATION";
             }
             finally
             {
@@ -274,7 +356,11 @@ internal static class Completion010LivePilot
                         Record("finally-owned-map-stop", J(stoppedScan));
                     }
                 }
-                catch (Exception e) { Record("finally-map-stop-failed", new { e.GetType().Name, e.Message }); }
+                catch (Exception e)
+                {
+                    mapStopSucceeded = false;
+                    Record("finally-map-stop-failed", new { e.GetType().Name, e.Message });
+                }
                 JsonElement status = J(owner.OverviewLifecycle.CreateProfileInstanceStatus());
                 if (instance is not null && String(status, "instanceId") == instance && Int(status, "pid") == ownedPid)
                 {
@@ -299,19 +385,66 @@ internal static class Completion010LivePilot
         finally
         {
             report["runs"] ??= runs;
-            report["recoveryJournalAfter"] = File.Exists(Path.Combine(paths.OverviewRuntimeRoot, "recovery.json"));
+            if (ownedPid is { } capturedPid)
+            {
+                try
+                {
+                    using Process process = Process.GetProcessById(capturedPid);
+                    // PID reuse is not evidence that the original owned process survived.
+                    exactExit = ownedProcessCreationUtc.HasValue &&
+                        process.StartTime.ToUniversalTime() != ownedProcessCreationUtc.Value;
+                }
+                catch (ArgumentException) { exactExit = true; }
+            }
+            var processes = Process.GetProcesses()
+                .Where(p => p.ProcessName is "LastWar" or "LastWarLauncher")
+                .Select(p => new { p.Id, p.ProcessName }).ToArray();
+            bool journalAbsent = !File.Exists(Path.Combine(paths.OverviewRuntimeRoot, "recovery.json"));
+            report["recoveryJournalAfter"] = !journalAbsent;
             report["installedAfter"] = Hashes();
-            report["originalHashesRestored"] = OriginalMatches((Dictionary<string, string?>)report["installedAfter"]!);
+            bool restored = OriginalMatches((Dictionary<string, string?>)report["installedAfter"]!);
+            report["originalHashesRestored"] = restored;
             report["ownedGameStopSucceeded"] = stopSucceeded;
-            report["finishedAtUtc"] = DateTimeOffset.UtcNow;
+            report["confirmedExactProcessExit"] = exactExit;
+            report["mapStopSucceeded"] = mapStopSucceeded;
+            report["requiredRunsPositive"] = requiredRunsPositive;
+            report["requestedPositiveStopVerified"] = positiveStageAttempt ? requestedStageStopVerified : null;
             Record("final-restoration-inventory", new
             {
-                originalHashesRestored = report["originalHashesRestored"], ownedGameStopSucceeded = stopSucceeded,
-                activeProcesses = Process.GetProcesses()
-                    .Where(p => p.ProcessName is "LastWar" or "LastWarLauncher")
-                    .Select(p => new { p.Id, p.ProcessName }).ToArray(),
+                originalHashesRestored = restored, ownedGameStopSucceeded = stopSucceeded,
+                confirmedExactProcessExit = exactExit, mapStopSucceeded, journalAbsent, processes,
             });
+
+            // The preflight root was empty before its three backed-up files. Only
+            // clean that proven task-owned root after exit and restoration; otherwise
+            // preserve the backup and recovery journal for manual recovery.
+            if (preflightVerified && exactExit && restored && journalAbsent && processes.Length == 0)
+            {
+                try
+                {
+                    Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                    Directory.Delete(root, recursive: true);
+                    rootRemoved = !Directory.Exists(root);
+                }
+                catch (Exception error)
+                {
+                    Record("task-owned-cleanup-failed", new { error.GetType().Name, error.Message });
+                }
+            }
+            var proof = new Completion010PilotAssertions.FinalProof(
+                preflightVerified, instance is not null && ownedPid.HasValue,
+                stopSucceeded && mapStopSucceeded, exactExit, restored, journalAbsent,
+                rootRemoved, processes.Length == 0, requiredRunsPositive,
+                positiveStageAttempt ? requestedStageStopVerified : null);
+            var errors = Completion010PilotAssertions.FinalErrors(proof).ToList();
+            if (report.ContainsKey("failure")) errors.Add("earlier pilot exception");
+            report["finalProofErrors"] = errors;
+            report["terminal"] = errors.Count == 0 ? "PILOT_COMPLETED" : "PILOT_FAILED";
+            report["finishedAtUtc"] = DateTimeOffset.UtcNow;
+            Record("final-proof-gate", new { proof, errors });
         }
+        if (!string.Equals(report["terminal"] as string, "PILOT_COMPLETED", StringComparison.Ordinal))
+            throw new InvalidDataException("COMPLETION010_PILOT: required witnesses or Stop/restoration/cleanup failed; see " + output);
     }
 
     private static int StagingCount(string db, string run, string kind)
@@ -327,7 +460,25 @@ internal static class Completion010LivePilot
             cmd.Parameters.AddWithValue("$r", run); cmd.Parameters.AddWithValue("$k", kind);
             return checked((int)(long)(cmd.ExecuteScalar() ?? 0L));
         }
-        catch { return 0; }
+        catch (Exception error)
+        {
+            throw new InvalidDataException(
+                $"COMPLETION010_PILOT: failed to inspect SQLite staging for {kind}/{run} at {db}", error);
+        }
+    }
+
+    private static string[] PageKeys(JsonElement search)
+    {
+        if (!search.TryGetProperty("rows", out var rows) || rows.ValueKind != JsonValueKind.Array)
+            return [];
+        return rows.EnumerateArray().Select(row =>
+        {
+            if (row.ValueKind != JsonValueKind.Object) return "";
+            foreach (string key in new[] { "recordKey", "uuid", "ownerUid", "id" })
+                if (row.TryGetProperty(key, out var property))
+                    return property.ToString();
+            return "";
+        }).ToArray();
     }
 
     private static string? FirstString(JsonElement value, string propertyHint, string key)

@@ -124,8 +124,9 @@ public sealed class MapControlPlane : IDisposable
     // the run failed (staging DISCARDED, not preserved), stops the provider scan and leaves
     // the shared state idle with the error text; the status call itself still succeeds.
     public ValueTask<MapScanState> FailForServerChangeAsync(
-        string error, CancellationToken cancellationToken = default) =>
-        scan.FailAndStopAsync(error, store, nowMilliseconds, cancellationToken);
+        MapScanState capturedRun, string error, CancellationToken cancellationToken = default) =>
+        scan.FailAndStopAsync(error, capturedRun.ScanRunId, capturedRun.ServerId,
+            store, nowMilliseconds, cancellationToken);
 
     public ValueTask<MapScanState> ClearScanAsync(int serverId, CancellationToken cancellationToken = default) =>
         scan.ClearAsync(serverId, cancellationToken);

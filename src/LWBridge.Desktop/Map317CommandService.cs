@@ -28,6 +28,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private readonly Map317.MapStore store;
     private readonly CurrentClientMapBlockSource? currentSource;
+    // Inert actual-handler tests may defer the external world-state request without a game.
+    private readonly Func<CancellationToken, Task<CurrentClientMapStatusContext>>? statusReader;
+    private long statusReadSerial;
     private readonly IMap317RunScopedProvider? scanRunProvider;
     private readonly Map317.MapControlPlane control;
     private readonly Map317.MapActionControlPlane actions;
@@ -49,6 +52,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         ArgumentNullException.ThrowIfNull(lifecycle);
         store = new Map317.MapStore(databasePath);
         currentSource = new CurrentClientMapBlockSource(lifecycle);
+        statusReader = currentSource.GetMapStatusContextAsync;
         scanRunProvider = new CurrentClientMap317ScanProvider(currentSource);
         control = new Map317.MapControlPlane(store, scanRunProvider);
         using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
@@ -86,13 +90,15 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         string databasePath,
         Map317.IMapProvider mapProvider,
         Map317.IMapActionProvider actionProvider,
-        bool startPlunderWorkers)
+        bool startPlunderWorkers,
+        Func<CancellationToken, Task<CurrentClientMapStatusContext>>? statusReader = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         ArgumentNullException.ThrowIfNull(mapProvider);
         ArgumentNullException.ThrowIfNull(actionProvider);
         store = new Map317.MapStore(databasePath);
         currentSource = null;
+        this.statusReader = statusReader;
         scanRunProvider = mapProvider as IMap317RunScopedProvider;
         control = new Map317.MapControlPlane(store, mapProvider);
         using (Map317ScanProcessLease? startupLease = Map317ScanProcessLease.TryAcquire(store.DatabasePath))
@@ -551,7 +557,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
     }
 
-    private CurrentClientMapStatusContext? lastStatusContext;
+    private sealed record ObservedStatus(Map317.MapScanState Captured, CurrentClientMapStatusContext Context);
+    private ObservedStatus? lastStatusContext;
+
+    private static bool SameStatusOwner(Map317.MapScanState a, Map317.MapScanState b) =>
+        string.Equals(a.ScanRunId, b.ScanRunId, StringComparison.Ordinal) &&
+        a.ServerId == b.ServerId && a.StartedAt == b.StartedAt && a.IsReading == b.IsReading;
 
     // Original status service (0xF8CB2; trigger 0xF9559-0xF975C): while the shared state is reading,
     // a live server id L > 0 (game not known to be outside the world) that differs from the
@@ -563,7 +574,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     {
         if (state.IsReading && liveInWorld && liveServerId > 0 &&
             state.ServerId > 0 && state.ServerId != liveServerId)
-            return await control.FailForServerChangeAsync(ServerChangedDuringScanText, cancellationToken)
+            return await control.FailForServerChangeAsync(state, ServerChangedDuringScanText, cancellationToken)
                 .ConfigureAwait(false);
         return state;
     }
@@ -574,8 +585,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     // poll. (The server id/source of a running scan is never overlaid on an event.)
     private Map317.MapScanState ApplyStatusOverlay(Map317.MapScanState state)
     {
-        CurrentClientMapStatusContext? context = lastStatusContext;
-        if (context is null) return state;
+        ObservedStatus? observation = Volatile.Read(ref lastStatusContext);
+        if (observation is null || !SameStatusOwner(state, observation.Captured)) return state;
+        CurrentClientMapStatusContext context = observation.Context;
         return state with
         {
             IsInWorld = context.IsInWorld,
@@ -587,6 +599,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private async Task<Map317.MapScanState> ReadScanStatusAsync(CancellationToken cancellationToken)
     {
+        long requestSerial = Interlocked.Increment(ref statusReadSerial);
         Map317.MapScanState state = control.ScanState;
         if (!state.IsReading)
         {
@@ -599,19 +612,34 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 state = control.ScanState;
             }
         }
-        if (currentSource is null)
+        if (statusReader is null)
             return state;
         try
         {
             CurrentClientMapStatusContext context =
-                await currentSource.GetMapStatusContextAsync(cancellationToken).ConfigureAwait(false);
-            lastStatusContext = context;
-            state = await ApplyLiveServerGuardAsync(
+                await statusReader(cancellationToken).ConfigureAwait(false);
+            // No stale reply (or failed previous poll) may apply a server overlay
+            // to the successor's run, profile session or newer status observation.
+            if (Volatile.Read(ref disposed) != 0 ||
+                requestSerial != Volatile.Read(ref statusReadSerial) ||
+                !SameStatusOwner(state, control.ScanState))
+                return control.ScanState;
+
+            Map317.MapScanState guarded = await ApplyLiveServerGuardAsync(
                 state, context.IsInWorld, context.ServerId, cancellationToken).ConfigureAwait(false);
-            return state with
+            Map317.MapScanState current = control.ScanState;
+            // The guarded operation can wait behind Stop/Start; never publish
+            // an old observation once a new run has acquired the control plane.
+            if (Volatile.Read(ref disposed) != 0 ||
+                requestSerial != Volatile.Read(ref statusReadSerial) ||
+                !string.Equals(guarded.ScanRunId, current.ScanRunId, StringComparison.Ordinal) ||
+                guarded.StartedAt != current.StartedAt || guarded.ServerId != current.ServerId)
+                return current;
+            Volatile.Write(ref lastStatusContext, new ObservedStatus(current, context));
+            return current with
             {
-                ServerId = context.ServerId > 0 ? context.ServerId : state.ServerId,
-                ServerIdSource = context.ServerId > 0 ? "live" : state.ServerIdSource,
+                ServerId = context.ServerId > 0 ? context.ServerId : current.ServerId,
+                ServerIdSource = context.ServerId > 0 ? "live" : current.ServerIdSource,
                 IsInWorld = context.IsInWorld,
                 HomeServerId = context.HomeServerId,
                 SeasonServerIds = context.SeasonServerIds,
@@ -620,7 +648,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         catch (BridgeCommandException)
         {
-            return state;
+            return control.ScanState;
         }
     }
 
