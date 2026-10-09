@@ -2,6 +2,16 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest owner-expanded lead assignment, 2026-10-10: owner will be away for at least
+five hours and requests one large Home-only task rather than the H-41-only relay.
+Read HOME_004_R4_FULL_HOME_CONTINUATION.md. Complete sequential A–G checkpoints
+covering root, independent profile owners/selection, launcher/repair, recovery
+edges and complete-Home integration. This supersedes the narrower R4 assignment
+below; preserve R3-R1 scoped acceptance and all existing technical/live boundaries.
+Same branch/checkout, solo manual relay, no new Map scope or main merge/publication.
+Owner absence is not a fixed work deadline or automatic revocation of existing
+bounded Home authorization. Full Home remains PARTIAL pending independent review.
+
 Latest lead review, 2026-10-10: worker 48fe84354b47733fca48d9a15e9d9cdc3f997b5e
 receives bounded acceptance for the corrected shared listener and inspected native
 hang-recovery witness. Independent actual-pipe and Desktop checks pass. Whole Home

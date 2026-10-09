@@ -5,7 +5,10 @@ shared-listener correction and inspected current-client native hang-recovery
 witness. Independent real-pipe, native and frontend checks passed. This supersedes
 the pending lead review for that unit only; whole Home remains **PARTIAL** and
 PR #6 remains draft. See [lead review](HOME_004_R3_R1_LEAD_REVIEW.md).
-Next owner-relayed task is the [H-41 active-root contract](HOME_004_R4_RUNNING_ROOT_CONTINUATION.md).
+Owner expanded the next relay to the [remaining full Home campaign](HOME_004_R4_FULL_HOME_CONTINUATION.md):
+active root, independent profile owners/selection, launcher/repair, remaining
+recovery edges and complete-Home integration. The earlier H-41 contract remains
+the campaign's root subtask, not its entire scope.
 
 This application candidate is an incremental delivery, not a completed 1-to-1 clone. Behavior reference: LWBridge 0.3.17, SHA-256 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
 
