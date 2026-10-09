@@ -40,6 +40,17 @@ internal static class OrderedProfileReconcileChecks
                 command.ExecuteNonQuery();
             }
             using var registry = new ProfileRegistryCommandService(store, maxProfiles: 1);
+            // 010 c-handlers 0x1a4d26: validate ID before note payload.
+            // A bad ID and missing note must produce INVALID_PROFILE_ID,
+            // rather than the clone's former INVALID_REQUEST.
+            try
+            {
+                _ = await registry.InvokeAsync("profile_note_set",
+                    JsonSerializer.SerializeToElement(new { profileId = "bad/id" }),
+                    CancellationToken.None);
+                throw new InvalidOperationException("invalid note owner unexpectedly accepted");
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_PROFILE_ID") { }
             var called = new List<string>();
             var service = new OrderedProfileReconcileCommandService(registry,
                 (owner, _, token) =>

@@ -601,12 +601,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
-    private object CreateUpdateRestartResult(bool restarted, string? error = null, string? message = null) => new
-    {
+    // Keep this result typed between native lifecycle commands. The external
+    // command dispatcher serializes with JsonOptions.Default (camelCase);
+    // internal adoption must never re-serialize it with different options.
+    private sealed record OverviewRestartResult(string[] Restarted, OverviewStartupError[] Errors);
+
+    private OverviewRestartResult CreateUpdateRestartResult(bool restarted, string? error = null, string? message = null) => new(
         // IMPLEMENTATION POLICY: the recovered frontend only consumes the successful array length.
-        restarted = restarted ? new[] { profileId } : Array.Empty<string>(),
-        errors = error is null ? Array.Empty<OverviewStartupError>() : new[] { new OverviewStartupError(profileId, error, message ?? error) },
-    };
+        restarted ? new[] { profileId } : Array.Empty<string>(),
+        error is null ? Array.Empty<OverviewStartupError>() : new[] { new OverviewStartupError(profileId, error, message ?? error) });
 
     private void SetRepairFailureState(string error)
     {

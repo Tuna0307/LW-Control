@@ -54,19 +54,8 @@ internal static class GameRootSelectChecks
                 Require(value.GetProperty("errors")[0].GetProperty("error").GetString() == "GAME_ROOT_NOT_FOUND",
                     "non-object reconcile payload still attempts the original default Auto Launch");
             }
-            // H-20: the genuine native restart result is serialized using the
-            // web/camelCase wire contract. Outdated-build adoption must retain
-            // its failure instead of throwing on a PascalCase property lookup.
-            JsonElement repairResult = JsonSerializer.SerializeToElement(new
-            {
-                errors = new[] { new OverviewStartupError("home-004-repair", "GAME_CLOSE_TIMEOUT", "GAME_CLOSE_TIMEOUT") },
-            }, JsonOptions.Default);
-            OverviewStartupError repairFailure = OverviewLifecycleService.DecodeOutdatedRepairFailure(
-                "home-004-repair", repairResult.GetProperty("errors")[0]);
-            Require(repairFailure.Error == "GAME_CLOSE_TIMEOUT" &&
-                    repairFailure.Message == "GAME_CLOSE_TIMEOUT" &&
-                    repairFailure.ProfileId == "home-004-repair",
-                "outdated-build repair failure preserves native restart error and exact profile owner");
+            // Real producer/adoption integration is exercised separately by
+            // HomeR1AdoptionChecks; do not fabricate the caller's serializer.
             string previous = CreateNativeRoot(
                 Path.Combine(root, "previous"));
             config.Update(c => c with { GameRoot = previous });

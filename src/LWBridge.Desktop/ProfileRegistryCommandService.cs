@@ -94,8 +94,8 @@ internal sealed class ProfileRegistryCommandService :
         else if (command == "profile_note_set")
         {
             string profileId = RequiredString(payload, "profileId");
-            string note = RequiredString(payload, "note");
             ValidateProfileId(profileId); // original 0x1a4d26 validates the id FIRST (INVALID_PROFILE_ID)
+            string note = RequiredString(payload, "note");
             ValidateNote(note);
             store.UpdateNote(
                 profileId,
