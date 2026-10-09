@@ -37,6 +37,8 @@ internal static class HomeR2RecoveryChecks
         internal readonly string Created;
         internal TaskCompletionSource? HeldTerminate = null;
         internal TaskCompletionSource? TerminationReached = null;
+        internal TaskCompletionSource? HeldOldStopAcknowledgement = null;
+        internal TaskCompletionSource? OldStopAcknowledgementReached = null;
         internal byte[]? GameReport;
 
         internal Case(string name, bool enabled, bool withActualAdoptionRecord = false)
@@ -64,7 +66,7 @@ internal static class HomeR2RecoveryChecks
                     && GameReport is not null ? GameReport
                     : File.ReadAllBytes(path),
                 RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
-                WriteLease = (_, _, _) => { },
+                WriteLease = withActualAdoptionRecord ? null : (_, _, _) => { },
                 DeleteFile = _ => { },
                 DelayAsync = (_, token) => Task.Delay(1, token),
                 CreateRecoveryLogReader = _ => new EmptyLog(),
@@ -79,16 +81,25 @@ internal static class HomeR2RecoveryChecks
                     if (HeldTerminate is not null) await HeldTerminate.Task;
                     if (Pid == pid) Alive = false;
                 },
-                RunHelperAsync = (inv, _) =>
+                RunHelperAsync = async (inv, _) =>
                 {
                     if (inv.Operation == "stop")
                     {
                         StopCalls++;
                         Require(inv.ProfileId == Profile && inv.GamePath == Exe &&
-                                inv.GameStartedAtUtc == Created && inv.SessionId == Session &&
-                                inv.Challenge == Challenge, "stop exact issued session");
-                        Alive = false;
-                        return Task.FromResult(JsonSerializer.SerializeToElement(new
+                                inv.GameStartedAtUtc == Created, "stop exact issued game path");
+                        if (HeldOldStopAcknowledgement is not null &&
+                            OldStopAcknowledgementReached is not null &&
+                            !OldStopAcknowledgementReached.Task.IsCompleted)
+                        {
+                            OldStopAcknowledgementReached.TrySetResult();
+                            await HeldOldStopAcknowledgement.Task;
+                        }
+                        // An obsolete helper acknowledgement may arrive AFTER a
+                        // successor was published. Only an exact owner may affect Alive.
+                        if (inv.SessionId == Session && inv.Challenge == Challenge &&
+                            inv.GamePid == Pid) Alive = false;
+                        return JsonSerializer.SerializeToElement(new
                         {
                             mode = "overview_exact_pid_close_restore",
                             bridgeVersion = OverviewLifecycleService.BridgeVersion,
@@ -97,7 +108,7 @@ internal static class HomeR2RecoveryChecks
                             installedFilesChanged = false,
                             close = new { accepted = true, processExited = true, alreadyExited = false },
                             restore = new { restored = true }
-                        }));
+                        });
                     }
                     StartCalls++;
                     if (FailNextLaunch)
@@ -114,7 +125,7 @@ internal static class HomeR2RecoveryChecks
                         "\ndeadlineMilliseconds=" + (Now + 90000) +
                         "\ngamePid=" + Pid + "\n");
                     long unix = Now / 1000;
-                    return Task.FromResult(JsonSerializer.SerializeToElement(new
+                    return JsonSerializer.SerializeToElement(new
                     {
                         mode = "overview_install_launch_ready_deferred_restore",
                         bridgeVersion = OverviewLifecycleService.BridgeVersion,
@@ -131,7 +142,7 @@ internal static class HomeR2RecoveryChecks
                             messageText = OverviewLifecycleService.ReadyMessage,
                             readyAt = unix, updatedAt = unix
                         }
-                    }));
+                    });
                 }
             };
             if (withActualAdoptionRecord)
@@ -176,6 +187,7 @@ internal static class HomeR2RecoveryChecks
         public void Dispose()
         {
             HeldTerminate?.TrySetResult();
+            HeldOldStopAcknowledgement?.TrySetResult();
             Service.Dispose();
             Host?.Dispose();
             if (Directory.Exists(Root)) Directory.Delete(Root, true);
@@ -189,7 +201,9 @@ internal static class HomeR2RecoveryChecks
         await FailedLaunchAndRetry();
         await DisableAndStop();
         await HungAndDisconnectedEdges();
+        await StillAliveOfflineRecoveryRunEdges();
         await HeldOldEffectVsStopSuccessor();
+        await HeldOldStopAckVsProtectedSuccessor();
         await LoginUnavailableThreshold();
         Require(OverviewRecoveryPolicy.NormalRetryDelays.Select(d => d.TotalMilliseconds)
             .SequenceEqual(new double[] { 15000, 30000, 60000, 120000, 300000 }),
@@ -361,6 +375,52 @@ internal static class HomeR2RecoveryChecks
         await c.Stop();
     }
 
+    // Real monitor/run methods: original 0x41ac34 disconnect classification
+    // and 0xe6544 terminate check each use their own exact 60000ms clock.
+    private static async Task StillAliveOfflineRecoveryRunEdges()
+    {
+        using (var off = new Case("still-alive-off", false))
+        {
+            await off.Start();
+            int ownedPid = off.Pid;
+            off.BridgeOnline = false;
+            off.Hung = false;
+            await off.Observe();
+            off.Advance(59999); await off.Observe();
+            off.Advance(1); await off.Observe();
+            Require(off.Alive && off.Pid == ownedPid && off.StartCalls == 1 &&
+                    off.TerminateCalls == 0 && off.Service.CurrentRecoveryStatus.State == "idle",
+                "OFF at threshold leaves exact tracked process alive and no recovery");
+            await off.Stop();
+        }
+        using var on = new Case("still-alive-on", true);
+        await on.Start();
+        int originalPid = on.Pid;
+        on.BridgeOnline = false;
+        on.Hung = false;
+        await on.Observe();
+        on.Advance(59999); await on.Observe();
+        Require(on.Alive && on.TerminateCalls == 0 && on.Service.CurrentRecoveryStatus.State == "idle",
+            "ON monitor at 59999ms leaves offline process alive");
+        on.Advance(1); await on.Observe();
+        Require(on.Alive && on.Pid == originalPid && on.TerminateCalls == 0 &&
+                on.Service.CurrentRecoveryStatus.Reason == "disconnect" &&
+                on.Service.CurrentRecoveryStatus.State == "waiting",
+            "ON monitor at 60000ms classifies disconnect while process still alive");
+        await on.Tick();
+        on.Advance(59999); await on.Tick();
+        Require(on.Alive && on.TerminateCalls == 0 && on.StopCalls == 0,
+            "run waits separate 59999ms before terminating disconnected process");
+        on.Advance(1); await on.Tick();
+        Require(!on.Alive && on.TerminateCalls == 1 && on.StopCalls == 1 && on.StartCalls == 1,
+            "run terminates and restores exact owner at independent 60000ms threshold");
+        on.BridgeOnline = true;
+        await on.Tick();
+        Require(on.Alive && on.Pid != originalPid && on.StartCalls == 2,
+            "next native run tick starts a successor after disconnect cleanup");
+        await on.Stop();
+    }
+
     private static async Task HeldOldEffectVsStopSuccessor()
     {
         using var c = new Case("held-effect", true);
@@ -387,12 +447,73 @@ internal static class HomeR2RecoveryChecks
         string successorSession = c.Session;
         Require(successorPid != oldPid && successorSession != oldSession && c.Alive,
             "new Start must be independent owner");
-        c.HeldTerminate.TrySetResult();
+        c.HeldTerminate!.TrySetResult();
         await heldObservation.WaitAsync(TimeSpan.FromSeconds(5));
         Require(c.Pid == successorPid && c.Session == successorSession && c.Alive &&
                 c.StopCalls == 1 && c.StartCalls == 2 &&
                 c.Service.CurrentRecoveryStatus.State == "idle",
             "late old termination must not clear/stop new owner or publish stale recovery status");
         await c.Stop();
+    }
+
+    private static async Task HeldOldStopAckVsProtectedSuccessor()
+    {
+        using var c = new Case("delayed-stop-ack", true, withActualAdoptionRecord: true);
+        await c.Start();
+        string oldSession = c.Session;
+        string adoption = Path.Combine(c.Root, "runtime", "adoption.json");
+        string lease = Path.Combine(c.Root, "runtime", "lease.txt");
+        Require(File.Exists(adoption) && c.Host!.GetPendingExpiration(oldSession) is not null,
+            "old native launch has protected adoption and actual pipe registration");
+        c.BridgeOnline = false;
+        c.Hung = true;
+        c.HeldOldStopAcknowledgement = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        c.OldStopAcknowledgementReached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        await c.Observe();
+        c.Advance(29999);
+        await c.Observe();
+        Require(c.Service.CurrentRecoveryStatus.State == "idle", "held cleanup not admitted at hang 29999ms");
+        c.Advance(1);
+        Task heldObservation = c.Observe();
+        await c.OldStopAcknowledgementReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Require(c.StopCalls == 1 && c.Service.CurrentRecoveryStatus.Reason == "hang",
+            "old exact helper Stop acknowledgement held after production hang detector");
+
+        // User Stop retires the run while its OLD helper completion is pending.
+        // Its own helper acknowledgement remains unblocked.
+        await c.Stop();
+        c.BridgeOnline = true;
+        c.Hung = false;
+        await c.Start();
+        string successorSession = c.Session;
+        string successorChallenge = c.Challenge;
+        int successorPid = c.Pid;
+        Require(successorSession != oldSession &&
+                OverviewAdoptionRecord.TryDeserialize(File.ReadAllBytes(adoption), out var before) &&
+                before is not null && before.InstanceId == successorSession &&
+                c.Host!.GetPendingExpiration(successorSession) is not null,
+            "successor has new protected adoption record and real pipe registration");
+        // Timer callback is asynchronous; observe the real current-owner lease producer.
+        for (int i = 0; i < 100 && !File.Exists(lease); i++)
+            await Task.Delay(20);
+        Require(File.Exists(lease) &&
+                File.ReadAllText(lease).Contains("sessionId=" + successorSession + "\n", StringComparison.Ordinal) &&
+                File.ReadAllText(lease).Contains("challenge=" + successorChallenge + "\n", StringComparison.Ordinal),
+            "successor lease is written by the production renewal timer");
+
+        c.HeldOldStopAcknowledgement!.TrySetResult();
+        await heldObservation.WaitAsync(TimeSpan.FromSeconds(5));
+        Require(c.Alive && c.Pid == successorPid && c.Session == successorSession &&
+                c.Service.CurrentRecoveryStatus.State == "idle" &&
+                OverviewAdoptionRecord.TryDeserialize(File.ReadAllBytes(adoption), out var after) &&
+                after is not null && after.InstanceId == successorSession &&
+                c.Host!.GetPendingExpiration(successorSession) is not null &&
+                File.Exists(lease) &&
+                File.ReadAllText(lease).Contains("sessionId=" + successorSession + "\n", StringComparison.Ordinal),
+            "obsolete acknowledged cleanup cannot retire successor adoption, registration, lease or state");
+        await c.Stop();
+        Require(!File.Exists(adoption) && !File.Exists(lease) &&
+                c.Host!.GetPendingExpiration(successorSession) is null,
+            "new owner Stop retires its protected record, registration and lease");
     }
 }
