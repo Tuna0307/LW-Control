@@ -1,5 +1,17 @@
 # Feature delivery status
 
+**HOME-004 R9 native profile registry acknowledgement (2026-10-10;
+whole Home PARTIAL_NEEDS_INPUT):** Real production mounted native/WebView
+inverse committed explicit A note in SQLite while selecting B, then
+erroneously returned `PROFILE_GENERATION_RETIRED`. Fixed narrow
+independent replies for durable `profile_note_set` and global
+`profile_reorder` without disabling selected-Home reply generation
+fencing. EN/light and JA/dark actual held A note/reorder proofs pass,
+along with R6 reverse error ordering, R7 per-owner busy and R8 exact
+clicked-owner Home Close. See [R9 receipt](HOME_004_R9_INDEPENDENT_REGISTRY_REPLY_RECEIPT.md).
+Commercial multi-owner/lease and all original/genuine fault acceptance
+remain open. PR #6 draft; no merge/release.
+
 **HOME-004 R8 captured-owner Close and original conditional Home oracle
 (2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Original `Pt` captures
 selected A through awaited status/Stop. Real production mounted native

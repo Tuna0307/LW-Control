@@ -5162,8 +5162,15 @@ internal sealed partial class LWBridgeWindow : Form
             LWBridgeBackend requestBackend = backend;
             long requestProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
             bool explicitHomeOwnerCommand = IsExplicitHomeOwnerCommand(command);
+            // Profile note and display order mutate the persistent registry,
+            // not the currently selected Home runtime. Completion may race a
+            // successful A→B selection: retain the exact mutation result
+            // rather than returning PROFILE_GENERATION_RETIRED after commit.
+            // Frontend metadata/selected-view acknowledgements have their own
+            // request revision fencing; selected Home status remains fenced.
             bool independentProfileOwnerReply = explicitHomeOwnerCommand ||
-                command == "profile_instances_update_and_restart";
+                command is "profile_instances_update_and_restart" or
+                    "profile_note_set" or "profile_reorder";
             try
             {
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>

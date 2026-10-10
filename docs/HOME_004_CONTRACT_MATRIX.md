@@ -79,6 +79,21 @@ supersedes the old first-code prose above). R8 receipt:
 [HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md).
 All original protected and genuine-client acceptability limits remain.
 
+### R9 additive H-39/H-40/H-45 native registry acknowledgement (2026-10-10)
+
+The historical H-39 row predates the R4–R9 retained production owners.
+The original 0.3.17 profile note editor and reorder handler target the
+profile registry independently of current Home runtime. The R9 actual
+mounted negative proves native `profile_note_set` committed exact A
+under A→B selection but the former selected-view reply fence reported
+`PROFILE_GENERATION_RETIRED`. Native `profile_note_set` and
+`profile_reorder` now acknowledge completed writes independent of the
+selected Home view; other view-scoped commands are unchanged.
+The held-note/reorder EN/light and JA/dark production WebView/native
+regressions pass, profile ordering restored. [R9 receipt](HOME_004_R9_INDEPENDENT_REGISTRY_REPLY_RECEIPT.md).
+Original protected capacity, genuine paired race and full Home parity
+remain open.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.

@@ -233,6 +233,65 @@ internal sealed partial class LWBridgeWindow
         await using (var picture = File.Create(connectedScreenshot))
             await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, picture);
 
+        // R9 H-39: profile_note_set is a registry mutation addressed to an
+        // explicit profile; its durable acknowledgement must not be mistaken
+        // for a selected-Home-view status reply. Delay its native execution,
+        // select B through the actual App, then complete A's note write.
+        // Before correction the native dispatcher returned
+        // PROFILE_GENERATION_RETIRED despite persisting the A note.
+        string expectedAIndependentNote = "r9-note-A-during-B-selection";
+        Task<HomeMapCampaignDelayedRequest> heldANoteCommand =
+            ArmHomeMapCampaignCommandDelay("profile_note_set");
+        Task<JsonElement> pendingANote = InvokeNativeAsync("profile_note_set",
+            new { profileId = "campaign-A", note = expectedAIndependentNote });
+        HomeMapCampaignDelayedRequest heldANote =
+            await heldANoteCommand.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldANote.ProfileId != "campaign-A")
+            throw new InvalidDataException("R9 held note mutation was not issued from native A.");
+        await SelectAsync("Campaign B", "campaign-B");
+        ReleaseHomeMapCampaignCommandDelay();
+        JsonElement noteReply = await pendingANote.WaitAsync(TimeSpan.FromSeconds(8));
+        string? savedANote = profileRegistryService.Snapshot.Profiles
+            .Single(profile => profile.Id == "campaign-A").Note;
+        if (savedANote != expectedAIndependentNote)
+            throw new InvalidDataException("R9 native note mutation was not durably attributed to A.");
+        if (!noteReply.GetProperty("ok").GetBoolean() ||
+            noteReply.GetProperty("result").GetProperty("selectedProfileId").GetString() != "campaign-B" ||
+            backend.ProfileId != "campaign-B")
+            throw new InvalidDataException(
+                "A profile note was committed but its acknowledgement was retired by unrelated B selection: " + noteReply);
+        await SelectAsync("Campaign A", "campaign-A");
+
+        // R9 same global-registry invariant, independent operation family:
+        // reorder is committed by the registry even if native selection
+        // changes while the command is held. Its acknowledgement must be a
+        // successful B-selected snapshot, never PROFILE_GENERATION_RETIRED.
+        Task<HomeMapCampaignDelayedRequest> heldReorderCommand =
+            ArmHomeMapCampaignCommandDelay("profile_reorder");
+        Task<JsonElement> pendingReorder = InvokeNativeAsync("profile_reorder",
+            new { profileIds = new[] { "campaign-B", "campaign-A" } });
+        HomeMapCampaignDelayedRequest heldReorder =
+            await heldReorderCommand.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldReorder.ProfileId != "campaign-A")
+            throw new InvalidDataException("R9 pending registry reorder did not begin with selected A.");
+        await SelectAsync("Campaign B", "campaign-B");
+        ReleaseHomeMapCampaignCommandDelay();
+        JsonElement reorderReply = await pendingReorder.WaitAsync(TimeSpan.FromSeconds(8));
+        if (!profileRegistryService.Snapshot.Profiles.Select(profile => profile.Id)
+                .SequenceEqual(new[] { "campaign-B", "campaign-A" }) ||
+            !reorderReply.GetProperty("ok").GetBoolean() ||
+            reorderReply.GetProperty("result").GetProperty("selectedProfileId").GetString() != "campaign-B" ||
+            backend.ProfileId != "campaign-B")
+            throw new InvalidDataException(
+                "A committed native profile reorder lost its acknowledgement across B selection: " + reorderReply);
+        JsonElement resetOrder = await InvokeNativeAsync("profile_reorder",
+            new { profileIds = new[] { "campaign-A", "campaign-B" } });
+        if (!resetOrder.GetProperty("ok").GetBoolean() ||
+            !profileRegistryService.Snapshot.Profiles.Select(profile => profile.Id)
+                .SequenceEqual(new[] { "campaign-A", "campaign-B" }))
+            throw new InvalidDataException("R9 test-owned profile display order was not restored.");
+        await SelectAsync("Campaign A", "campaign-A");
+
         // Hold an actual A Home status request at the native command boundary;
         // selecting B must not retire A or render A's late response into B.
         long oldAGeneration = Volatile.Read(ref profileRuntimeGeneration);
@@ -870,8 +929,17 @@ internal sealed partial class LWBridgeWindow
         for (int i = 0; i < 240 && backend.ProfileId != "campaign-B"; i++) await Task.Delay(40);
         if (backend.ProfileId != "campaign-B")
             throw new InvalidDataException("R8 ABA intermediate B was not selected.");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row .profile-item')]
+              .some(button => button.querySelector('strong')?.textContent?.includes('Campaign B') &&
+                button.closest('.profile-row')?.classList.contains('active')) &&
+            [...document.querySelectorAll('.profile-row .profile-item')]
+              .some(button => button.querySelector('strong')?.textContent?.includes('Campaign A') &&
+                !button.disabled)
+            """, "R8 ABA B selected and A re-selection admitted");
         await ClickAsync("""
-            (() => {const button=document.querySelectorAll('.profile-row .profile-item')[0];
+            (() => {const button=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item => item.querySelector('strong')?.textContent?.includes('Campaign A'));
               if (!button || button.disabled) return false; button.click(); return true;})()
             """, "ABA select A again before A Close acknowledgement");
         for (int i = 0; i < 240 && backend.ProfileId != "campaign-A"; i++) await Task.Delay(40);
@@ -937,6 +1005,8 @@ internal sealed partial class LWBridgeWindow
                 homeCloseRetainsCapturedOwnerAcrossProfileSwitch = true,
                 independentBWhileHomeAClosePending = true,
                 homeCloseRetainsCapturedOwnerAcrossABA = true,
+                noteSaveAcknowledgedAcrossSelection = true,
+                profileReorderAcknowledgedAcrossSelection = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

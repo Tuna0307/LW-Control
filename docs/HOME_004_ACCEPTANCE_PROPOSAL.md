@@ -1,5 +1,19 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R9 native persistent profile registry acknowledgment (2026-10-10):
+PARTIAL_NEEDS_INPUT.** Before-fix production WebView/native proof:
+`profile_note_set` committed A's note but replied
+`PROFILE_GENERATION_RETIRED` after selection changed to B. Corrected
+explicit note and global reorder command acknowledgement to be
+independent of selected Home view, retaining other view-scoped fencing.
+EN/light and JA/dark final mounted tests verify held native note and
+reorder writes, exact selected owner, restored A,B order and R4–R8
+controls. Read [R9 receipt](HOME_004_R9_INDEPENDENT_REGISTRY_REPLY_RECEIPT.md)
+and [all 47 rows](HOME_004_R4_QUEUE.md). This is a controlled
+current-client consistency fix, **not** proof of commercial profile
+entitlement, original exact concurrent response or whole original
+Home acceptance. PR #6 still draft; no merge or public release.
+
 **R8 original captured-owner Home Close (2026-10-10): PARTIAL_NEEDS_INPUT.**
 Before-fix actual native mounted A Home Close status held across selecting B
 reproduced an abandoned Close; original frontend `Pt` keeps the clicked

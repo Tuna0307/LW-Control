@@ -236,3 +236,13 @@ original multi-instance admission proof. **Whole Home PARTIAL_NEEDS_INPUT.**
 
 These bounded R8 fixes and original oracle checks do not make
 H-01–H-47 fully accepted. Whole Home **PARTIAL_NEEDS_INPUT**.
+
+## R9 independent persisted registry acknowledgements (2026-10-10)
+
+| H-ID / authority | Concrete current-client native inverse and correction | Limit |
+| --- | --- | --- |
+| H-39/H-40: original `Yr` sidebar reorder and note editor, original native `profile_note_set` ID-first validation 0x1a4d26; clone native `ProfileRegistryCommandService` | R9 real mounted A note native command held, select B in App, then release: SQLite saved exact A note but WebView returned spurious `PROFILE_GENERATION_RETIRED`. Narrow native `independentProfileOwnerReply` includes `profile_note_set` and global `profile_reorder`, preserving strict selected-runtime reply fencing. Expanded held B,A reorder success and restored A,B, EN/light and JA/dark with R4–R8 native proofs. [R9 receipt](HOME_004_R9_INDEPENDENT_REGISTRY_REPLY_RECEIPT.md). | Original exact concurrent metadata acknowledgement not independently witnessed; current-app race fix only. Protected commercial profile capacity/genuine concurrent original/current installation remains missing. |
+| H-45: original `Yr` and 0.3.17 `Kr` control state source | Actual production EN/light and JA/dark source/native tests preserve original Home labels, conditional Start/Close/repair gates and independent error/metadata update results. | Conditional original 0.3.17 physical UI pixels and genuine mixed-client faults still open. |
+
+Whole Home **PARTIAL_NEEDS_INPUT**; this is not evidence for
+protected lease/finalizer or original entitlement.
