@@ -28,6 +28,33 @@ preserve their facts and negatives. Do not restart completed R4–R16/H-33 work.
 | 4 | Run one finite actual Home integration pass in EN/light and JA/dark across settings, selected/background owners, status/error/busy states, restart/adoption and late replies. | No incorrect persistence, stuck state, cross-profile effect or fake success; previous negatives/regressions retained. |
 | 5 | Review the complete ready pass, differences and F catalogue; run affected checks sequentially; build/verify one final extracted Windows candidate and relevant native Home flows. | READY_FOR_LEAD_FUNCTIONAL_REVIEW with source/ZIP identity, concise functional results and cleanup, or truthful PARTIAL for an actual missing operation. |
 
+## 2026-10-10 functional worker continuation (no new campaign)
+
+Reconciled the owner-specified clean starting checkpoint `d568cad68a77c8ee75b2ba8025f99b2c087f5d1f`.
+One current F-01–F-09 inventory and exact remaining genuine gates are in
+`HOME_004_CURRENT_STATUS.md`; deliberate implementation differences D-06–D-09
+are in `HOME_004_BEHAVIOR_DIFFERENCES.md`. All R4–R16/H-33 history remains
+in place, including the original actual failed pending Stop, later genuine
+successful Stop, and the newly preserved extracted JA profile independence
+negative from the superseded functional candidate.
+
+Corrections in `cb438bfb` and `5fc9b0d2`: optional-ID pending-recovery Home
+Close, real local profile Add/Delete/capacity and safe service retirement,
+valid-root picker, journal-free repair attempt with authenticated result,
+and independent B lifecycle under A busy while native deletion is fenced.
+Release native/pipe, frontend, both locale mounted source/extracted, normal
+GUI, read-only game compatibility, SHA/source and cleanup all pass as
+classified in the current status. **Whole Home remains PARTIAL** until
+the real responsive transport-only, real damaged-bridge repair, and genuine
+independent compatible multi-game supported inputs pass; unknown original
+ticket/byte/screenshot parity is no longer an automatic blocker.
+
+One final review ZIP after correction source `5fc9b0d24c6ebf2c343d3fee92a5af81a02bbf41`:
+`artifacts/release/home004-functional-5fc9b0d2/LW-Control-HOME004-FUNCTIONAL-RC-5fc9b0d24c6e.zip`,
+SHA-256 `A39216FBFB3E9DDDAFDDB4C74B91EEB17536031F6D1988D2B55A65123939AA39`.
+Keep PR #6 draft; no merge/publication. Further attempts target only actual
+functional evidence, without another R4–R16 round or new campaign.
+
 No original ticket, paired protected-runtime pixel, exact legacy idle constant
 or unavailable original finalizer reply automatically blocks a working feature.
 Use a supported local method if it achieves the feature and passes testing.
