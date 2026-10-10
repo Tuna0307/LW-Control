@@ -284,7 +284,10 @@ internal sealed partial class LWBridgeWindow : Form
                 // OWN_DESIGN F-07: a local four-profile metadata ceiling is
                 // independent of original commercial entitlement. A real
                 // second game's compatibility is NOT established by it.
-                maxProfiles: homeMapCampaignProofPath is not null ? 2 : 4,
+                // Full legacy A/B proofs retain their two-slot fixture. The
+                // Home-only functional proof uses the shipped four-slot local
+                // capacity so its real sidebar Add/Delete can be exercised.
+                maxProfiles: homeMapCampaignProofPath is not null && !homeMapCampaignHomeOnly ? 2 : 4,
                 focusProfile: profileWindowFocus is null
                     ? null
                     : profileWindowFocus.TryFocus,

@@ -40,8 +40,19 @@ internal static class HomeFunctionalProfileCrudChecks
                         delete();
                         return Task.CompletedTask;
                     });
+                // Exercise the same production LWBridgeBackend command scope
+                // that the real WebView uses, not only the lower-level registry.
+                // profile_create has no profileId, and profile_delete carries
+                // its own explicit target rather than selected runtime scope.
+                var routedBackend = new LWBridgeBackend(
+                    new LocalConfigStore(persistent: false,
+                        initialValue: LWBridgeLocalConfig.CreateDefault() with { ProfileId = "primary" }),
+                    asyncCommands: registry, applicationDataRoot: root);
                 for (int i = 0; i < 3; i++)
-                    await registry.InvokeAsync("profile_create", empty, CancellationToken.None);
+                    if (i == 0)
+                        await routedBackend.InvokeAsync("profile_create", empty, CancellationToken.None);
+                    else
+                        await registry.InvokeAsync("profile_create", empty, CancellationToken.None);
                 var roster = registry.Snapshot;
                 created = roster.Profiles.Skip(1).Select(p => p.Id).ToArray();
                 Require(created.Length == 3 && created.Distinct(StringComparer.Ordinal).Count() == 3 &&
@@ -95,7 +106,7 @@ internal static class HomeFunctionalProfileCrudChecks
                 Require(registry.Snapshot.Profiles.Count == 4,
                     "rejected deletion retains the exact registry owner");
                 deleteSafe = true;
-                _ = await registry.InvokeAsync("profile_delete",
+                _ = await routedBackend.InvokeAsync("profile_delete",
                     JsonSerializer.SerializeToElement(new { profileId = created[0] }), CancellationToken.None);
                 Require(registry.Snapshot.Profiles.Count == 3 &&
                         registry.Snapshot.Profiles.All(p => p.Id != created[0]),

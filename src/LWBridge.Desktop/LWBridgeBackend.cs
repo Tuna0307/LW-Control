@@ -19,6 +19,11 @@ internal sealed class LWBridgeBackend
         "auth_state",
         "multi_entitlement_get",
         "profile_list",
+        // Local roster mutations act on the controller registry, not on a
+        // selected game's profile-scoped bridge transport. Profile deletion
+        // carries its explicit target and still passes the native owner gate.
+        "profile_create",
+        "profile_delete",
         "profile_select",
         "profile_note_set",
         "profile_enabled_set",

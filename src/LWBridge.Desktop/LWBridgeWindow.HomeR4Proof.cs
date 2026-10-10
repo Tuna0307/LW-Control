@@ -2143,6 +2143,113 @@ internal sealed partial class LWBridgeWindow
                 .GetProperty("enabled").GetBoolean() || backend.ProfileId != "campaign-A")
             throw new InvalidDataException("F-07 sidebar re-enable failed durable B or changed selected A.");
 
+        // F-07 OWN_DESIGN: execute the normal shipped Add/Delete controls through
+        // this production WebView and native SQLite dispatcher. The test-only
+        // extra profile has no LastWar process or game installation, and must be
+        // retired without mutating A/B. Merely invoking registry APIs is not a
+        // proof that the visible controls are wired correctly.
+        await WaitForUiAsync(
+            "document.querySelector('.profile-quota-badge')?.textContent?.trim() === '2/4'",
+            "F-07 four-slot production sidebar quota before Add");
+        await ClickAsync("""
+            (() => {const button=document.querySelector('.profile-list .profile-add');
+              if (!button || button.disabled) return false;
+              button.click(); return true;})()
+            """, "F-07 add a local profile through mounted sidebar");
+        try
+        {
+            await WaitForUiAsync("""
+                document.querySelector('.profile-quota-badge')?.textContent?.trim() === '3/4' &&
+                document.querySelectorAll('.profile-row').length === 3
+                """, "F-07 local Add persisted and projected in actual sidebar");
+        }
+        catch (TimeoutException failure)
+        {
+            JsonElement diagnostics = await ReadUiAsync("""
+                (() => ({quota:document.querySelector('.profile-quota-badge')?.textContent,
+                  rows:document.querySelectorAll('.profile-row').length,
+                  actionError:document.querySelector('.profile-error')?.textContent,
+                  addDisabled:document.querySelector('.profile-list .profile-add')?.disabled,
+                  names:[...document.querySelectorAll('.profile-row strong')].map(node=>node.textContent)}))()
+                """);
+            throw new InvalidDataException("Mounted F-07 Add mismatch; registry=" +
+                JsonSerializer.Serialize(profileRegistryService.Snapshot, JsonOptions.Default) +
+                "; UI=" + diagnostics, failure);
+        }
+        ProfileRegistrySnapshot afterAdd = profileRegistryService.Snapshot;
+        ProfileRegistryEntry[] added = afterAdd.Profiles.Where(profile =>
+            profile.Id.StartsWith("local-", StringComparison.Ordinal)).ToArray();
+        if (added.Length != 1 || afterAdd.Profiles.Count != 3 ||
+            afterAdd.SelectedProfileId != "campaign-A" ||
+            !afterAdd.Profiles.Any(profile => profile.Id == "campaign-B") ||
+            a.ProcessAlive || b.ProcessAlive)
+            throw new InvalidDataException("F-07 mounted Add changed existing selected owner, roster or process.");
+        string newProfileId = added[0].Id;
+        JsonElement createdRoster = await InvokeNativeAsync("profile_list", new { });
+        if (!createdRoster.GetProperty("ok").GetBoolean() ||
+            !createdRoster.GetProperty("result").GetProperty("profiles")
+                .EnumerateArray().Any(profile => profile.GetProperty("id").GetString() == newProfileId))
+            throw new InvalidDataException("F-07 visible Add was not durably readable through native profile_list.");
+
+        // Scripted WebView ExecuteScriptAsync cannot wait on its own modal
+        // JavaScript confirm dialog. Replace only the confirmation response
+        // in the isolated fixture; call the unmodified React Delete button,
+        // first cancelling and then accepting the real handler's prompt.
+        await core.ExecuteScriptAsync("""
+            (() => {window.__homeCrudConfirmOriginal=window.confirm;
+              window.__homeCrudConfirmRequests=[];
+              window.__homeCrudConfirmAccept=false;
+              window.confirm=message=>{
+                window.__homeCrudConfirmRequests.push(String(message));
+                return window.__homeCrudConfirmAccept;
+              };})()
+            """);
+        bool confirmationReceived = false;
+        try
+        {
+            await ClickAsync("""
+                (() => {const button=document.querySelectorAll('.profile-row .profile-delete')[2];
+                  if (!button || button.disabled) return false;
+                  button.click(); return true;})()
+                """, "F-07 cancel local Delete through mounted sidebar");
+            await WaitForUiAsync("""
+                window.__homeCrudConfirmRequests?.length === 1 &&
+                document.querySelector('.profile-quota-badge')?.textContent?.trim() === '3/4'
+                """, "F-07 cancelled Delete must leave the created profile visible");
+            if (profileRegistryService.Snapshot.Profiles.Count != 3)
+                throw new InvalidDataException("F-07 cancelled native Delete unexpectedly removed the profile.");
+            await core.ExecuteScriptAsync("window.__homeCrudConfirmAccept=true");
+            await ClickAsync("""
+                (() => {const button=document.querySelectorAll('.profile-row .profile-delete')[2];
+                  if (!button || button.disabled) return false;
+                  button.click(); return true;})()
+                """, "F-07 confirm local Delete through mounted sidebar");
+            await WaitForUiAsync("""
+                document.querySelector('.profile-quota-badge')?.textContent?.trim() === '2/4' &&
+                document.querySelectorAll('.profile-row').length === 2
+                """, "F-07 confirmed native local Delete persisted in sidebar");
+            JsonElement requests = await ReadUiAsync("window.__homeCrudConfirmRequests");
+            confirmationReceived = requests.ValueKind == JsonValueKind.Array &&
+                requests.GetArrayLength() == 2 && requests.EnumerateArray().All(message =>
+                    message.ValueKind == JsonValueKind.String &&
+                    message.GetString()!.Contains(added[0].DisplayName, StringComparison.Ordinal));
+        }
+        finally
+        {
+            await core.ExecuteScriptAsync("""
+                (() => {if(window.__homeCrudConfirmOriginal){
+                    window.confirm=window.__homeCrudConfirmOriginal;
+                    delete window.__homeCrudConfirmOriginal;}})()
+                """);
+        }
+        ProfileRegistrySnapshot afterDelete = profileRegistryService.Snapshot;
+        if (!confirmationReceived || afterDelete.Profiles.Count != 2 ||
+            afterDelete.Profiles.Any(profile => profile.Id == newProfileId) ||
+            afterDelete.SelectedProfileId != "campaign-A" ||
+            !afterDelete.Profiles.Any(profile => profile.Id == "campaign-B") ||
+            a.ProcessAlive || b.ProcessAlive)
+            throw new InvalidDataException("F-07 sidebar Delete failed confirmation, durable removal or A/B isolation.");
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -2211,6 +2318,7 @@ internal sealed partial class LWBridgeWindow
                 failedFirstReorderAllowsNewerDurableRetry = true,
                 selectionAbaWithPendingNoteAndFailedReorder = true,
                 nativeEnabledTogglePersistedAndStartDenied = true,
+                nativeAddDeleteConfirmedAndPersisted = confirmationReceived,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,
