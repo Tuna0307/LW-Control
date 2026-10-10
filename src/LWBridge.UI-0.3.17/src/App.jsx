@@ -1202,13 +1202,21 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         return;
       }
       const repairStatus = await refreshHomeProxyStatus(owner);
+      const selectedRestarted = result.restarted.includes(owner.profileId);
       // F-06 OWN_DESIGN: a game updated outside our journal can have a
       // damaged bridge but no saved repair session. The global legacy repair
       // command correctly cannot restore an absent journal. Rather than
       // acknowledging a silent noop, explicitly launch this captured owner
       // through the supported helper's closeUnmanaged repair/install path.
       // Native start checks the selected installation and foreign ownership.
-      if (repairStatus?.repairRequired === true && !result.restarted.includes(owner.profileId)) {
+      if (!selectedRestarted && repairStatus?.repairRequired !== true) {
+        // No journal was repaired, and the status no longer exposes a repair
+        // target (for example the game exited or the selected view changed).
+        // An empty global result is not evidence that the advertised repair
+        // actually happened. Never acknowledge this as successful.
+        throw new Error("GAME_REPAIR_NOT_APPLIED");
+      }
+      if (repairStatus?.repairRequired === true && !selectedRestarted) {
         const started = await backendBridge.invoke(
           "profile_instance_start",
           { profileId: owner.profileId, closeUnmanaged: true },

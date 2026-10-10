@@ -1112,8 +1112,17 @@ internal sealed partial class OverviewLifecycleService
             }
             recoveryConfirmed = recoveryReason is not null;
 
+            // F-04 CURRENT_CLIENT_ADAPTATION: fresh game-side disk heartbeat
+            // does not imply that the authenticated host route is still live.
+            // Both are required before declaring the bridge online, matching
+            // IsSnapshotReady / CurrentConnectionState. When the pipe alone
+            // drops, the still-responsive game may continue writing heartbeat.
+            // Treat it as transport offline and allow the 60s recovery policy.
+            bool routeConnected = !bridgeControlPipeLaunchBindingEnabled ||
+                (testHooks?.AuthenticatedRouteConnected?.Invoke(snapshot.InstanceId) ??
+                 (testHooks is not null || bridgeHostState?.IsRouteConnected(snapshot.InstanceId) == true));
             bool observed = MatchesBool(root, "gameStateObserved", true);
-            if (!observed) return new(true, false, false, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            if (!observed) return new(routeConnected, false, false, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
             bool healthy = MatchesBool(root, "gameReady", true) &&
                 MatchesBool(root, "loggedIn", true) &&
                 MatchesBool(root, "connected", true) &&
@@ -1122,7 +1131,7 @@ internal sealed partial class OverviewLifecycleService
                 !string.IsNullOrWhiteSpace(uid.GetString()) &&
                 root.TryGetProperty("serverId", out JsonElement server) && server.TryGetInt32(out int serverId) && serverId > 0 &&
                 root.TryGetProperty("worldPos", out JsonElement world) && world.TryGetInt64(out long worldPos) && worldPos > 0;
-            return new(true, true, healthy, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            return new(routeConnected, true, healthy, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
         }
         catch
         {

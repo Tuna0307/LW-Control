@@ -404,7 +404,7 @@ const repairBody = appSource.slice(appSource.indexOf("const updateAndRestartGame
   appSource.indexOf("const requestServerJump = useCallback"));
 assert.match(repairBody, /"profile_instances_update_and_restart"/,
   "F-06 repair must first use the native retained-session restoration contract");
-assert.match(repairBody, /repairStatus\?\.repairRequired === true && !result\.restarted\.includes\(owner\.profileId\)/,
+assert.match(repairBody, /repairStatus\?\.repairRequired === true && !selectedRestarted/,
   "F-06 journal-free repair must not return without attempting the supported installed-root launcher");
 assert.match(repairBody, /"profile_instance_start",\s*\{ profileId: owner\.profileId, closeUnmanaged: true \}/,
   "F-06 fallback must launch the exact captured owner via the supported install helper");
@@ -451,6 +451,12 @@ assert.match(repairBody, /started\?\.connectionState !== "connected"/,
     ["profile_instances_update_and_restart", "proxy_status", "profile_instance_start"], "GAME_REPAIR_CONNECT_NOT_READY");
   await checkRepair({ errors: [], restarted: ["profile-A"] }, false, "",
     ["profile_instances_update_and_restart", "proxy_status"], "");
+  await checkRepair({ errors: [], restarted: [] }, false, "",
+    ["profile_instances_update_and_restart", "proxy_status"], "GAME_REPAIR_NOT_APPLIED");
+  await checkRepair({ errors: [], restarted: ["profile-B"] }, false, "",
+    ["profile_instances_update_and_restart", "proxy_status"], "GAME_REPAIR_NOT_APPLIED");
+  await checkRepair({ errors: [], restarted: [] }, null, "",
+    ["profile_instances_update_and_restart", "proxy_status"], "GAME_REPAIR_NOT_APPLIED");
   await checkRepair({ errors: [{ profileId: "profile-A", error: "GAME_CLOSE_FAILED" }], restarted: [] }, true, "",
     ["profile_instances_update_and_restart"], "GAME_CLOSE_FAILED");
 }

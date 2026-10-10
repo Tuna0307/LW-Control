@@ -36,6 +36,7 @@ internal static class HomeR2RecoveryChecks
         internal int StartCalls, StopCalls, TerminateCalls, Pid = 31000;
         internal bool Alive;
         internal bool Hung, Updating = false, StateObserved = true, Healthy = true, BridgeOnline = true;
+        internal bool RouteConnected = true;
         internal bool FailNextLaunch;
         internal string PlayerLog = "", LauncherLog = "", UpdaterLog = "";
         internal int UpdateTerminationCalls;
@@ -72,6 +73,7 @@ internal static class HomeR2RecoveryChecks
                 ProcessMatches = (pid, path, creation) => Alive && pid == Pid &&
                     string.Equals(path, Exe, StringComparison.OrdinalIgnoreCase) &&
                     creation == Created,
+                AuthenticatedRouteConnected = _ => RouteConnected,
                 ReadAllBytes = path => BridgeOnline && path.EndsWith("heartbeat.json", StringComparison.OrdinalIgnoreCase)
                     ? MakeHeartbeat() : path.EndsWith("game-reported.txt", StringComparison.OrdinalIgnoreCase)
                     && GameReport is not null ? GameReport
@@ -251,6 +253,7 @@ internal static class HomeR2RecoveryChecks
         await DisableAndStop();
         await HungAndDisconnectedEdges();
         await StillAliveOfflineRecoveryRunEdges();
+        await FreshHeartbeatButDisconnectedAuthenticatedRoute();
         await HeldOldEffectVsStopSuccessor();
         await HeldOldStopAckVsProtectedSuccessor();
         await StopWhileRecoveryLaunchIsPending();
@@ -729,6 +732,57 @@ internal static class HomeR2RecoveryChecks
         Require(on.Alive && on.Pid != originalPid && on.StartCalls == 2,
             "next native run tick starts a successor after disconnect cleanup");
         await on.Stop();
+    }
+
+    // An otherwise healthy game keeps writing exact current-session heartbeat
+    // after the native authenticated pipe disappears. Previous monitor code
+    // took fresh heartbeat as "online" and would NEVER start F-04 recovery.
+    private static async Task FreshHeartbeatButDisconnectedAuthenticatedRoute()
+    {
+        using (var off = new Case("fresh-heartbeat-pipe-off", false,
+                   withActualAdoptionRecord: true))
+        {
+            await off.Start();
+            int originalPid = off.Pid;
+            off.RouteConnected = false;
+            await off.Observe();
+            off.Advance(60_001);
+            await off.Observe();
+            Require(off.Alive && off.Pid == originalPid && off.StartCalls == 1 &&
+                    off.Service.CurrentRecoveryStatus.State == "idle",
+                "AutoReconnect OFF preserves responsive owner even when authenticated pipe is absent");
+            await off.Stop();
+        }
+        using var on = new Case("fresh-heartbeat-pipe-on", true,
+            withActualAdoptionRecord: true);
+        await on.Start();
+        int firstPid = on.Pid;
+        Require(on.BridgeOnline && on.Healthy && on.Alive && on.RouteConnected,
+            "started owner has fresh healthy heartbeat and controlled authenticated route");
+        on.RouteConnected = false;
+        await on.Observe();
+        on.Advance(59_999); await on.Observe();
+        Require(on.Service.CurrentRecoveryStatus.State == "idle" && on.Alive &&
+                on.TerminateCalls == 0 && on.Pid == firstPid,
+            "fresh heartbeat cannot hide a disconnected route; no recovery before 60s");
+        on.Advance(1); await on.Observe();
+        Require(on.Service.CurrentRecoveryStatus.Reason == "disconnect" &&
+                on.Service.CurrentRecoveryStatus.State == "waiting" && on.Alive &&
+                on.TerminateCalls == 0,
+            "missing authenticated route triggers disconnect at 60s despite continuously fresh heartbeat");
+        await on.Tick();
+        on.Advance(60_000); await on.Tick();
+        Require(!on.Alive && on.TerminateCalls == 1 && on.StopCalls == 1,
+            "route-only recovery retires and restores only the exact original game");
+        on.RouteConnected = true;
+        await on.Tick();
+        Require(on.Alive && on.Pid != firstPid && on.StartCalls == 2 &&
+                on.Service.CurrentConnectionState == "connected",
+            "route-only recovery replacement reaches real service readiness in the controlled case");
+        await on.Stop();
+        Require(!on.Alive && !on.Config.Snapshot.GameDesiredRunning &&
+                on.Service.CurrentRecoveryStatus.State == "idle",
+            "Stop after route-only recovery retires successor and ends pending recovery");
     }
 
     private static async Task HeldOldEffectVsStopSuccessor()

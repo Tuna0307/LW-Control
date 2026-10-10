@@ -16,6 +16,9 @@ internal sealed class OverviewLifecycleTestHooks
     public Func<string, CancellationToken, Task>? RunOfficialRecoverAsync { get; init; }
     public Func<string, CancellationToken, Task>? RunOfficialSettleAsync { get; init; }
     public Func<int, string, string?, bool>? ProcessMatches { get; init; }
+    // Controlled transport-only loss: the game can keep producing a fresh
+    // heartbeat while its authenticated host pipe route is absent.
+    public Func<string, bool>? AuthenticatedRouteConnected { get; init; }
     public Func<string, byte[]>? ReadAllBytes { get; init; }
     // Inert producer seam: fires only after the actual host registry accepted
     // the launch report. Tests wait on this signal instead of a timing sleep.
