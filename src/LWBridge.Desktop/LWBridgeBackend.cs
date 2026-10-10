@@ -737,7 +737,13 @@ internal sealed class LWBridgeBackend
         bool enabled = payload.TryGetProperty("enabled", out JsonElement enabledElement) &&
                        enabledElement.ValueKind == JsonValueKind.True;
         if (name == "autoClosePopup")
+        {
+            // 0.3.17 writes the effective false value before acknowledging.
+            // A failed write must not be silently reported as a successful
+            // toggle. No protected game-side forward is claimed here.
+            UpdateConfig(c => c with { AutoClosePopup = false });
             return new { ok = true, name, enabled = false };
+        }
         if (name == "autoForceUpdateReload")
         {
             UpdateConfig(c => c with { AutoReconnect = enabled });
@@ -779,7 +785,7 @@ internal sealed class LWBridgeBackend
                 auto_weekend_shield = false,
                 auto_attack_shield = false,
                 auto_force_update_reload = config.Snapshot.AutoReconnect,
-                auto_close_popup = false,
+                auto_close_popup = config.Snapshot.AutoClosePopup,
                 tasks = runtimeTasksProvider?.Invoke() ?? new Dictionary<string, object>(),
             },
         };

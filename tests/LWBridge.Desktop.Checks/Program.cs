@@ -2,6 +2,7 @@ using LWBridge.Desktop.Checks;
 
 // Small delivery suite. The research branch retains the wider campaign suites.
 await GameRootSelectChecks.RunAsync();
+await HomeAutomationParityChecks.RunAsync();
 await HomeR1AdoptionChecks.RunAsync();
 await HomeR2RecoveryChecks.RunAsync();
 await OrderedProfileReconcileChecks.RunAsync();

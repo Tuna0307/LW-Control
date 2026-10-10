@@ -226,6 +226,22 @@ internal sealed partial class LWBridgeWindow
                 $"Production ordered reconcile did not start two retained inert owners: A={a?.StartCalls}, B={b?.StartCalls}.");
         if (backend.ProfileId != "campaign-A")
             throw new InvalidDataException("The R4 mounted proof lost the selected original profile A.");
+        // H-33 source-backed native/WebView inverse: the original local
+        // autoClosePopup setter writes the effective false into this owner's
+        // profile config BEFORE returning success, even when true is requested.
+        // Check the actual on-disk file instead of the always-false UI default.
+        JsonElement popupReply = await InvokeNativeAsync("set_automation",
+            new { profileId = "campaign-A", name = "autoClosePopup", enabled = true });
+        if (!popupReply.GetProperty("ok").GetBoolean() ||
+            popupReply.GetProperty("result").GetProperty("enabled").GetBoolean())
+            throw new InvalidDataException("H-33 native local forced-OFF acknowledgement is incorrect: " + popupReply);
+        using (JsonDocument popupConfig = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(isolatedConfigRoot, "config.json"))))
+        {
+            if (!popupConfig.RootElement.TryGetProperty("autoClosePopup", out JsonElement savedPopup) ||
+                savedPopup.ValueKind != JsonValueKind.False)
+                throw new InvalidDataException("H-33 actual mounted native command did not persist forced-OFF before replying.");
+        }
         JsonElement initialA = await InstanceStatusAsync("campaign-A");
         string aInstanceId = initialA.GetProperty("instanceId").GetString() ??
             throw new InvalidDataException("Initial A instance lacks an exact session identifier.");

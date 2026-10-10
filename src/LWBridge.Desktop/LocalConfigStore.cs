@@ -16,6 +16,9 @@ internal sealed record LWBridgeLocalConfig
     public string? GameRoot { get; init; }
     public bool AutoLaunchGame { get; init; } = true;
     public bool AutoReconnect { get; init; }
+    // Original 0.3.17 set_automation(autoClosePopup) persists the effective
+    // false value even when true was requested (handler 0x12d080).
+    public bool AutoClosePopup { get; init; }
     // OVL-05 rebuild persistence for the recovered native game_desired_running gate.
     // This preserves the original boolean contract without claiming the original
     // Rust store's on-disk representation.
