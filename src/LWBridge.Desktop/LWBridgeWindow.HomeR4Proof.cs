@@ -449,7 +449,7 @@ internal sealed partial class LWBridgeWindow
             (() => {
               const row=[...document.querySelectorAll('.profile-row')]
                 .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const button=row?.querySelector('.profile-note-edit');
+              const button=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if (!button || button.disabled) return false; button.click(); return true;
             })()
             """, "open real R11 A note dialog");
@@ -735,7 +735,7 @@ internal sealed partial class LWBridgeWindow
         await ClickAsync("""
             (()=>{const row=[...document.querySelectorAll('.profile-row')]
               .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const edit=row?.querySelector('.profile-note-edit');
+              const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if(!edit||edit.disabled)return false;edit.click();return true;})()
             """, "R13 open actual A note JSX dialog");
         await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
@@ -798,7 +798,7 @@ internal sealed partial class LWBridgeWindow
         await ClickAsync("""
             (()=>{const row=[...document.querySelectorAll('.profile-row')]
               .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const edit=row?.querySelector('.profile-note-edit');
+              const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if(!edit||edit.disabled)return false;edit.click();return true;})()
             """, "R14 open real A note dialog before failed second submit");
         await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
@@ -863,7 +863,7 @@ internal sealed partial class LWBridgeWindow
         await ClickAsync("""
             (()=>{const row=[...document.querySelectorAll('.profile-row')]
               .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const edit=row?.querySelector('.profile-note-edit');
+              const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if(!edit||edit.disabled)return false;edit.click();return true;})()
             """, "R14 reopen A note dialog for successful fixture error clear");
         await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
@@ -891,7 +891,7 @@ internal sealed partial class LWBridgeWindow
         await ClickAsync("""
             (()=>{const row=[...document.querySelectorAll('.profile-row')]
               .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const edit=row?.querySelector('.profile-note-edit');
+              const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if(!edit||edit.disabled)return false;edit.click();return true;})()
             """, "R14 open A note editor for failed-predecessor retry");
         await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
@@ -952,7 +952,7 @@ internal sealed partial class LWBridgeWindow
             await ClickAsync("""
                 (()=>{const row=[...document.querySelectorAll('.profile-row')]
                   .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
-                  const edit=row?.querySelector('.profile-note-edit');
+                  const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
                   if(!edit||edit.disabled)return false;edit.click();return true;})()
                 """, "R14 reopen saved Y note for exact error reset");
             await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
@@ -1294,7 +1294,7 @@ internal sealed partial class LWBridgeWindow
         await ClickAsync("""
             (()=>{const row=[...document.querySelectorAll('.profile-row')]
               .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
-              const edit=row?.querySelector('.profile-note-edit');
+              const edit=row?.querySelector('.profile-note-edit:not(.profile-enable-toggle)');
               if(!edit||edit.disabled)return false;edit.click();return true;})()
             """, "combined pass open A note editor");
         await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
