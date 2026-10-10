@@ -108,6 +108,17 @@ exact profile/owner restoration and R4–R9 gates. See
 [R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md).
 Genuine/original commercial multi-profile acceptance remains open.
 
+### R11 additive H-39/H-40/H-45 exact note projection (2026-10-10)
+
+Original 0.3.17 `Yr` note editor passes the captured profile ID and note
+to its profile registry handler. Actual production JSX/native A note
+Save held during B selection persisted new A note but left the visible
+A row stale. A latest-per-owner revision and note-only acknowledged
+field projection correct this without replacing B selection, profile
+order or other owners. Controlled EN/light and JA/dark mounted proof;
+see [R11](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md). Whole
+commercial/real-client Home remains **PARTIAL_NEEDS_INPUT**.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.

@@ -254,3 +254,11 @@ protected lease/finalizer or original entitlement.
 | H-39/H-45: original 0.3.17 `Yr` account drag/drop invokes `r.reorder`; H-39 `profile_reorder` registry semantics | Actual mounted production WebView synthesized the exact native JSX DragStart/Drop B before A, held the resulting `profile_reorder` through an actual B selection. Before-fix SQLite became B,A but UI remained A,B; recorded negative. `App.jsx` now preserves latest order-only acknowledgement across selected-view request generation while retaining exact B selection and current per-profile objects. EN/light and JA/dark both pass B,A visible/persisted and fixture A,B restored, R4–R9 exact-owner/cleanup. [R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md). | Original protected multi-client admission, authoritative paired original reorder timing and genuine multi-profile UI pixels. |
 
 Whole Home **PARTIAL_NEEDS_INPUT**.
+
+## R11 exact-owner visible note after newer selected view (2026-10-10)
+
+| H-ID / authority | Source/actual production difference and bounded correction | Still missing |
+| --- | --- | --- |
+| H-39/H-40/H-45: original 0.3.17 `Yr` note dialog `updateNote(profileId,note)`, original native `profile_note_set` ID-first validation 0x1a4d26 | Actual WebView note input/Submit held at native A note command, programmatically selected B in React before release. Before-fix SQLite saved new A note and dialog closed but sidebar displayed stale A note. `App.jsx` latest-per-exact-ID note revision now applies only saved A note to current profile objects if full selected-view acknowledgement is retired; selected B and unrelated metadata protected. Corrected mounted EN/light + JA/dark and source check. [R11 receipt](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md) | Genuine paired original/current concurrent metadata UI, protected commercial admission and original conditional pixel states. |
+
+Whole Home **PARTIAL_NEEDS_INPUT**.

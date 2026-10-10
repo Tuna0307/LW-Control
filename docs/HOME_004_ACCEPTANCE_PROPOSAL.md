@@ -1,5 +1,16 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R11 exact profile note after selected B (2026-10-10):
+PARTIAL_NEEDS_INPUT.** Mounted actual JSX note form/held native
+`profile_note_set` reproduced saved A note but stale A row after B
+selection. Exact-owner latest-note-only UI projection corrects it,
+without adopting retired full selected snapshots. Mounted EN/light
+and JA/dark pass with R6–R10 guards; evidence is controlled,
+not original commercial multi-owner or genuine fault parity.
+See [R11 receipt](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md)
+and complete [47-row queue](HOME_004_R4_QUEUE.md). Lead
+review and whole original acceptance remain open, draft PR unmerged.
+
 **R10 actual profile-sidebar reorder across selected Home change
 (2026-10-10): PARTIAL_NEEDS_INPUT.** Production native/WebView
 before-fix inverse: actual JSX drag/drop changed persisted SQLite

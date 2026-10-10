@@ -1,5 +1,17 @@
 # Feature delivery status
 
+**HOME-004 R11 exact saved-note presentation (2026-10-10;
+whole Home PARTIAL_NEEDS_INPUT):** actual React profile A note dialog
+submitted while its native command was held and B became selected:
+SQLite persisted new A note and dialog closed, but sidebar still
+displayed the old note. `App.jsx` now latest-revision-fences note
+mutations per exact profile and projects only the confirmed note
+to its owner after a selected-view change. Controlled mounted EN/JA
+pass, preserving R6–R10 lifecycle/error/reorder, exact A/B teardown.
+See [R11 receipt](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md).
+Genuine original licensed multi-client, protected service and
+paired adverse-client evidence remain missing. Draft PR #6, no merge.
+
 **HOME-004 R10 visible profile reorder under concurrent selection
 (2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Real production mounted
 JSX drag/drop B ahead of A, held native reorder, then selected B.

@@ -78,6 +78,14 @@ internal sealed partial class LWBridgeWindow
         async Task SelectAsync(string displayName, string expectedProfileId)
         {
             string name = JsonSerializer.Serialize(displayName, JsonOptions.Default);
+            // Native selected-owner changes can be committed before React
+            // finishes clearing its brief profile-selection busy gate.
+            // Require the real visible target control to be enabled rather
+            // than racing an ignored synthetic click; no assertion removed.
+            await WaitForUiAsync($$"""
+                [...document.querySelectorAll('.profile-compact-item')]
+                  .some(item => item.querySelector('strong')?.textContent?.includes({{name}}) && !item.disabled)
+                """, "enabled profile " + displayName);
             await ClickAsync($$"""
                 (() => {
                   const button = [...document.querySelectorAll('.profile-compact-item')]
@@ -399,6 +407,102 @@ internal sealed partial class LWBridgeWindow
             """, "restore compact profile list for existing Home tests");
         await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length === 2",
             "R10 compact sidebar restored");
+
+        // R11 H-39: R9 repaired native note acknowledgements, but the React
+        // note caller still retires a successful note snapshot on a newer
+        // selected-view request. Exercise the mounted note-dialog JSX,
+        // hold its real native command, and switch B before it completes.
+        // The test selects B via an actual DOM handler while the modal is
+        // open to force this concurrency; this is a controlled scheduling
+        // inverse, not a claim that a person can click through a modal.
+        const string r11Note = "r11-note-A-during-selected-B";
+        await ClickAsync("""
+            (() => {
+              const toggle=document.querySelector('.profile-collapse');
+              if (!toggle) return false; toggle.click(); return true;
+            })()
+            """, "expand R11 A profile note editor");
+        await WaitForUiAsync("document.querySelectorAll('.profile-row').length === 2",
+            "R11 two editable profile rows");
+        await ClickAsync("""
+            (() => {
+              const row=[...document.querySelectorAll('.profile-row')]
+                .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const button=row?.querySelector('.profile-note-edit');
+              if (!button || button.disabled) return false; button.click(); return true;
+            })()
+            """, "open real R11 A note dialog");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input') !== null",
+            "R11 mounted note dialog opened");
+        await ClickAsync("""
+            (() => {
+              const input=document.querySelector('dialog[open] .profile-dialog input');
+              if (!input) return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r11-note-A-during-selected-B');
+              input.dispatchEvent(new Event('input',{bubbles:true}));
+              return input.value==='r11-note-A-during-selected-B';
+            })()
+            """, "edit A note through actual mounted input");
+        await WaitForUiAsync("""
+            document.querySelector('dialog[open] .profile-dialog input')
+              ?.value==='r11-note-A-during-selected-B'
+            """, "R11 note value rendered before submitting");
+        Task<HomeMapCampaignDelayedRequest> heldUiNote =
+            ArmHomeMapCampaignCommandDelay("profile_note_set");
+        await ClickAsync("""
+            (() => {
+              const submit=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if (!submit || submit.disabled) return false; submit.click(); return true;
+            })()
+            """, "save A note through real R11 JSX form");
+        HomeMapCampaignDelayedRequest heldUiNoteRequest =
+            await heldUiNote.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldUiNoteRequest.ProfileId != "campaign-A")
+            throw new InvalidDataException("R11 note dialog did not issue native A mutation.");
+        await ClickAsync("""
+            (() => {
+              const item=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if (!item || item.disabled) return false; item.click(); return true;
+            })()
+            """, "R11 controlled selected B change during pending A note dialog");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-B"; i++) await Task.Delay(40);
+        if (backend.ProfileId != "campaign-B")
+            throw new InvalidDataException("R11 selected B did not advance past A note mutation.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for (int i = 0; i < 240 &&
+            profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-A").Note!=r11Note; i++)
+            await Task.Delay(40);
+        if (profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-A").Note!=r11Note)
+            throw new InvalidDataException("R11 A note was not durably saved.");
+        await WaitForUiAsync("document.querySelector('dialog[open]')===null",
+            "R11 actual note save acknowledgement closed dialog");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+                row.querySelector('.profile-note')?.textContent?.includes('r11-note-A-during-selected-B')) &&
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign B') &&
+                row.classList.contains('active') &&
+                !row.querySelector('.profile-note')?.textContent?.includes('r11-note-A-during-selected-B'))
+            """, "R11 committed A note visibly owned by A with B still selected", attempts: 40);
+        await ClickAsync("""
+            (() => {
+              const item=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if (!item || item.disabled) return false; item.click(); return true;
+            })()
+            """, "R11 return to A after delayed note save");
+        for (int i=0;i<240 && backend.ProfileId!="campaign-A";i++) await Task.Delay(40);
+        if (backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R11 A selected view was not restored.");
+        await ClickAsync("""
+            (() => {const toggle=document.querySelector('.profile-collapse');
+              if (!toggle) return false; toggle.click();return true;})()
+            """, "R11 restore compact profile sidebar");
+        await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length===2",
+            "R11 compact profile UI restored");
 
         // Hold an actual A Home status request at the native command boundary;
         // selecting B must not retire A or render A's late response into B.
@@ -754,7 +858,11 @@ internal sealed partial class LWBridgeWindow
         if (a.StartCalls != aStartsBeforeForeignError + 1 || !a.ProcessAlive ||
             b.StartCalls != bStartsBeforeForeignError || !b.RepairJournalActive ||
             !b.ProcessAlive || b.FailNextRepairStop)
-            throw new InvalidDataException("Native B-only failure did not preserve successful A repair.");
+            throw new InvalidDataException(
+                "Native B-only failure did not preserve successful A repair." +
+                $" A starts={a.StartCalls}/{aStartsBeforeForeignError + 1} alive={a.ProcessAlive}" +
+                $" B starts={b.StartCalls}/{bStartsBeforeForeignError} alive={b.ProcessAlive}" +
+                $" journal={b.RepairJournalActive} failFlag={b.FailNextRepairStop}");
         await WaitForUiAsync(
             "document.querySelector('.game-controls button.primary') !== null",
             "selected A repaired Home returned to normal controls");
@@ -1116,6 +1224,7 @@ internal sealed partial class LWBridgeWindow
                 noteSaveAcknowledgedAcrossSelection = true,
                 profileReorderAcknowledgedAcrossSelection = true,
                 sidebarReorderVisibleAfterSelection = true,
+                sidebarNoteVisibleAfterSelection = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

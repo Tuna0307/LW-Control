@@ -236,6 +236,20 @@ function deliver(fixture, message) {
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
+{
+  const noteAction = appSource.slice(
+    appSource.indexOf("const updateNativeProfileNote ="),
+    appSource.indexOf("// Sidebar actions address retained native owners"),
+  );
+  assert.match(noteAction, /nativeNoteRevisionsRef\.current\.get\(profileId\) === noteRevision/,
+    "H-39 a late confirmed A note must be scoped to the latest exact A mutation");
+  assert.match(noteAction, /profile\.id === profileId \? \{ \.\.\.profile, note: saved\.note \} : profile/,
+    "H-39 committed note is projected to only its retained profile");
+  assert.match(noteAction, /if \(nativeProfileRequestRef\.current !== request\)/,
+    "H-39 note projection remains separate from selected Home-view acknowledgement");
+  assert.doesNotMatch(noteAction, /setShellProfiles\(authoritative\)/,
+    "H-39 a late note may not replace B selection or unrelated registry data");
+}
 const homeCloseBody = appSource.slice(appSource.indexOf("const stopGame = useCallback"), appSource.indexOf("const updateAndRestartGame"));
 assert.match(homeCloseBody, /"profile_instance_status",\s*\{ profileId: owner\.profileId \}/,
   "original Pt Home Close must retain the clicked A owner across pending status and a B selection");
