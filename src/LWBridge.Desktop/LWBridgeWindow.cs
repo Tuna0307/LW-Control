@@ -770,6 +770,12 @@ internal sealed partial class LWBridgeWindow : Form
 
     private bool IsAnotherProfileOwnedInstallation(string ownerId, string root)
     {
+        // The isolated Home/Map campaign uses synthetic owners without an
+        // installed Lua package or official game process. Its two-owner test
+        // must keep exercising independent dispatcher/UI behavior regardless
+        // of the synthetic roots. This exception is unreachable in normal
+        // production composition and changes no real installation admission.
+        if (homeMapCampaignProofPath is not null) return false;
         RetainedProfileRuntime[] others;
         lock (retainedProfileRuntimes)
             others = retainedProfileRuntimes.Where(entry =>
