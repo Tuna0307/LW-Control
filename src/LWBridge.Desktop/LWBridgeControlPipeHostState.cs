@@ -52,6 +52,29 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         !string.IsNullOrWhiteSpace(instanceId) &&
         registry.Resolve(instanceId) is not null;
 
+    // HOME004 F-04: task-only fault entrypoint. A failed authenticated transport
+    // must be produced by closing the actual pipe, rather than lying about the
+    // route status. The caller must first check an exact owned game/session.
+    // This method is never exposed to a normal frontend command.
+    internal bool DisconnectExactAuthenticatedRouteForIsolatedTest(string instanceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        LWBridgeControlPipeAcceptedSession? session;
+        lock (gate)
+        {
+            if (registry.Resolve(instanceId)?.Route is not
+                LWBridgeControlPipeAcceptedSession accepted)
+                return false;
+            session = accepted;
+            // Reauthentication of the old token must remain impossible while
+            // the real game continues to write fresh heartbeat. A replacement
+            // Start creates its own new registration.
+            registry.Unregister(instanceId);
+        }
+        session.Dispose();
+        return true;
+    }
+
     internal long? GetPendingExpiration(string instanceId) =>
         registry.GetPendingExpiration(instanceId);
 
@@ -95,6 +118,16 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         get { lock (gate) return acceptLoop?.LastHandshakeError; }
     }
 
+    internal int FailedRpcSessionCount
+    {
+        get { lock (gate) return acceptLoop?.FailedRpcSessions ?? 0; }
+    }
+
+    internal string? LastRpcSessionError
+    {
+        get { lock (gate) return acceptLoop?.LastRpcSessionError; }
+    }
+
     public int? PendingCallCount
     {
         get
@@ -109,7 +142,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         get
         {
             lock (gate)
-                return acceptLoop is not null;
+                return acceptLoop is not null && acceptLoopTask is { IsCompleted: false };
         }
     }
 
@@ -131,6 +164,7 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
             ThrowIfStopped();
             if (acceptLoop is not null)
             {
+                ThrowIfRpcListenerEnded();
                 if (string.Equals(
                         rpcExpectedBuildId,
                         expectedBuildId,
@@ -199,7 +233,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         string expectedBuildId,
         string expectedClientPath,
         string? currentUserSid = null,
-        Func<long>? clockMilliseconds = null)
+        Func<long>? clockMilliseconds = null,
+        bool permitPerRegistrationClientPath = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedBuildId);
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedClientPath);
@@ -222,8 +257,12 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                      string.Equals(
                          rpcExpectedCanonicalClientPath,
                          canonicalClientPath,
-                         StringComparison.OrdinalIgnoreCase))
+                         StringComparison.OrdinalIgnoreCase) ||
+                     (permitPerRegistrationClientPath &&
+                      string.Equals(rpcExpectedBuildId, expectedBuildId,
+                          StringComparison.Ordinal)))
             {
+                ThrowIfRpcListenerEnded();
                 return;
             }
             else
@@ -347,7 +386,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         string profileId,
         string instanceId,
         string buildId,
-        long nowMilliseconds)
+        long nowMilliseconds,
+        string? expectedClientPath = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
@@ -373,7 +413,11 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 nowMilliseconds +
                 LWBridgeControlPipeRegistry
                     .StartupRegistrationLifetimeMilliseconds);
-            registry.Register(profileId, instanceId, token, expiresAt);
+            string? exactExpectedClientPath = expectedClientPath is null ? null :
+                LWBridgeControlPipeIsolatedHandshake
+                    .CanonicalizeExpectedClientPath(expectedClientPath);
+            registry.Register(profileId, instanceId, token, expiresAt,
+                exactExpectedClientPath);
 
             IReadOnlyDictionary<string, string> environment =
                 LWBridgeProxyLaunchEnvironmentContract.CreateBindings(
@@ -405,8 +449,12 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         lock (gate)
         {
             ThrowIfStopped();
+            string expectedImage =
+                LWBridgeControlPipeIsolatedHandshake.CanonicalizeExpectedClientPath(
+                    record.GameExecutable);
             return registry.Register(record.ProfileId, record.InstanceId, record.PipeToken,
-                checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds));
+                checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds),
+                expectedImage);
         }
     }
 
@@ -477,6 +525,20 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 "BRIDGE_STOPPED",
                 "The shared bridge host is stopped.");
         }
+    }
+
+    // Fatal listener construction/host failures are never treated as healthy
+    // idempotent startup. Session-level failures are handled inside the loop.
+    private void ThrowIfRpcListenerEnded()
+    {
+        if (acceptLoopTask is not { IsCompleted: true } ended)
+            return;
+
+        // Re-throw the original fatal fault, if present, rather than silently
+        // preserving or replacing a dead shared listener.
+        ended.GetAwaiter().GetResult();
+        throw new InvalidOperationException(
+            "The shared bridge RPC listener ended without host shutdown.");
     }
 
     public void Close()

@@ -1,25 +1,48 @@
-# Feature delivery status
+# Feature delivery — faithful functional replacement
 
-This application candidate is an incremental delivery, not a completed 1-to-1 clone. Behavior reference: LWBridge 0.3.17, SHA-256 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
+Current owner direction:
+[functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
+Exact original equality is no longer a universal release condition.
+Familiar features, real results and reliability remain mandatory.
 
-**UI main release candidate (2026-10-09):** imported production UI source/assets match the 88-file reviewed post-acceptance snapshot, except two intentional dev-only test-dependency manifests; no new proven local-presentation mismatch. The release sweep mounts the actual canonical production frontend in Edge: eight routes EN/light, eight routes JA/dark at 640px, 10 conditional fixture captures, reload/navigation/dialogs and zero page/console errors. A normally published executable with isolated disabled profile opened its real window without launching Last War, plus a packaged WebView2 fixture capture passed. The normal window's offscreen compositor could not be visually captured: do not interpret this as new original runtime pixel proof. See [release review](UI_MAIN_RELEASE_REVIEW.md) and [source manifest](product-source-manifest.json). Browser-only fixture states do not certify native functionality.
+Home is first. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md),
+[current status](HOME_004_CURRENT_STATUS.md) and
+[loop campaign](HOME_004_LOOP_CAMPAIGN.md) are current.
+Single-game Home is lead accepted on 2026-10-11 after genuine route recovery/
+repair and current regression/package review. The owner authorises this scope
+first; simultaneous two-game support remains unfinished F-07. See
+[the acceptance](HOME_004_SINGLE_GAME_LEAD_ACCEPTANCE_2026-10-11.md).
 
-| Feature | Evidence in this delivery | Acceptance limit |
-|---|---|---|
-| Normal packaged Home | Mounted production WebView; stopped state, real language control and native preference saving | Complete original runtime pixels remain unproved |
-| Auto Launch preference | Recovered local key/default/immediate-write contract; real mounted switch/native save and reload | Native mirror/rollback is an adaptation; complete launch behavior is separate |
-| Automatic Reconnection setting | Actual native boolean save and mounted control/reload | Recovery execution and all original error paths are separate |
-| Startup profile admission | Actual backend now invokes ordered registry reconciliation; disabled/locked profiles excluded, consumed once | Protected multi-profile lease/capacity behavior remains incomplete |
-| Game-root selection/status | Actual backend tests: cancel, invalid no-save, valid save, normalization, unavailable state, ownership/root rebinding | Normal installed-game autodetection hides the picker; OS-dialog interaction not verified here |
-| **Home Launch â†’ Connected â†’ Close** (HOME-LAUNCH-DELIVERY-002) | **Genuine packaged native Home controls** clicked on isolated single profile: EN/light Launch, authenticated current-client named-pipe + fresh game-ready heartbeat for exact real LastWar PID, EN/light and JA/dark Connected, JA/dark Close, verified PID exit, script SHA restoration, cleared recovery journal, 0 remaining game/clone processes; duplicate Start and stale/empty Stop rejection plus six optional-ID Close cases PASS | **This single supported current-client feature is live-proven.** Original 0.3.17 full licensed-runtime equality, adverse start/retry/finalizer mappings and independent multi-profile lease remain incomplete. See [HOME-LAUNCH-002 review](reviews/2026-10-09-LWB317-HOME-LAUNCH-DELIVERY-002.md). |
-| **Stored City/Resource Map delivery** (LWB317-MAP-DATA-DELIVERY-003, lead-accepted stored-data scope) | Real packaged Map controls on isolated genuine published server-2212 records: City 7,000 and Resource 8,008; City search/alliance/marked/sort, Resource name/sort, pages 1/2 and tab return, Save-As City XLSX with 7,000/7,000 source-matched rows and exact 12 columns in EN and JA. Original f64 level range and signed-i64 page defects fixed and covered by actual native command tests; Home remained restored. [Review](reviews/2026-10-09-LWB317-MAP-DATA-DELIVERY-003.md) | **Stored browsing/export only.** Offline app restart does not select a server until a real Home connection re-establishes current server 2212; archived SQLite remains intact. No new scanner or scanner parity; LEAD010R1-02 and -04, original protected/runtime and all other Map function gaps remain open. |
-| City/Resource scanning | Existing implementations and prior current-client live witnesses retained | Original encrypted traversal/retry/result equivalence, running-server status and cancelled-run publication proof remain open; do not count browsing as scanning. |
-| Treasure/Ghost and other pages | Recovered UI plus partial native services retained | No complete functional acceptance |
+Latest lead acceptance: genuine F-04 transport-only recovery and F-06 repair now
+pass. Single-game Home may merge/release; simultaneous-game F-07 remains backlog.
+The earlier d09b8328 progress review is historical. Current package source is
+234480bc; see HOME_004_CURRENT_STATUS.md and the scoped acceptance.
 
-Original Auto Launch source: recovered `index-BVfnK1wp.js` bytes 246750/246758, 247632, 248381, 338639. Original startup enabled/unlocked ordering is recorded in HOME009-R2 and the ordered reconciliation source. Original root handlers: `game_root_select` RVA `0x188F12â€“0x18A2AD`, `game_root_status` RVA `0x12816Eâ€“0x128A38`. Detailed authority and negative records are retained on the research branch.
+## Retained scoped evidence
 
-Lead accepted HOME-LAUNCH-DELIVERY-002 after correcting optional Close identity and independently repeating the native flow; see [lead acceptance](HOME_LAUNCH_LEAD_ACCEPTANCE.md). Full Home/Map remains partial.
+- Reviewed recovered source/local UI and packaged startup; no new redesign.
+- Genuine Home Launch -> authenticated Connected -> exact Close.
+- Bounded startup/adoption and exit/hang-recovery evidence from earlier reviews.
+- Worker subsequent pending-recovery Stop, concurrency/status/local config and
+  packaged candidate results await affected independent review.
+- Stored City/Resource browsing/export accepted only in stored-data scope;
+  scanner/provider features are separate. No new Map work assigned now.
 
-Next after HOME-LAUNCH-DELIVERY-002 lead review: the one bounded native Home Launch â†’ Connected â†’ Close flow is witnessed; separately schedule City/Resource or later Home adverse-case work only with new scope and necessary permissions. Do not restart broad Home/Map campaigns. The 2026-10-09 UI-baseline paragraph above is historical; this new live Home witness does not retroactively certify the full UI original-runtime pixels or other native features.
+Missing original-only facts can remain research notes while a documented
+supported implementation passes functional acceptance. Missing actual operations,
+incorrect outputs/persistence, unreliable cleanup and fixture-only positives
+still prevent accepting the affected feature.
 
-MAP-DATA-DELIVERY-003 is independently accepted after an additional original unchecked-offset correction. See [lead acceptance](MAP_DATA_LEAD_ACCEPTANCE.md); original scanner parity remains incomplete.
+## Main and repository lifecycle
+
+The lead independently reviews the actual working feature, current source/package
+identity, differences and supported scope, then merges approved deliveries into
+main. Do not wait for unavailable original detail that no longer prevents the
+function; do not accept unavailable functionality by changing its label.
+
+One worktree and main/research/current Home branches remain at the latest
+inspection. Retain unfinished work; retire merged branches/worktrees after
+preserving required artifacts. No new branch/package per tiny correction.
+
+Prior exact-parity statuses and evidence remain in Git history and detailed
+receipts. They are historical under the new owner acceptance direction.

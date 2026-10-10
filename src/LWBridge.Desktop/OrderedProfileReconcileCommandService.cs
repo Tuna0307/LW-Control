@@ -13,20 +13,24 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
 {
     private readonly ProfileRegistryCommandService profiles;
     private readonly Func<string, JsonElement, CancellationToken, Task<object?>> reconcileOwner;
+    private readonly Func<string, JsonElement, CancellationToken, Task<object?>>? restartOwner;
     private readonly SemaphoreSlim gate = new(1, 1);
     private bool consumed;
     private OverviewStartupError[] priorErrors = [];
 
     internal OrderedProfileReconcileCommandService(
         ProfileRegistryCommandService profiles,
-        Func<string, JsonElement, CancellationToken, Task<object?>> reconcileOwner)
+        Func<string, JsonElement, CancellationToken, Task<object?>> reconcileOwner,
+        Func<string, JsonElement, CancellationToken, Task<object?>>? restartOwner = null)
     {
         this.profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
         this.reconcileOwner = reconcileOwner ?? throw new ArgumentNullException(nameof(reconcileOwner));
+        this.restartOwner = restartOwner;
     }
 
     public bool CanHandle(string command) =>
-        command == "profile_instances_reconcile";
+        command == "profile_instances_reconcile" ||
+        (command == "profile_instances_update_and_restart" && restartOwner is not null);
 
     public async Task<object?> InvokeAsync(
         string command, JsonElement payload, CancellationToken cancellationToken)
@@ -37,6 +41,8 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
         await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            if (command == "profile_instances_update_and_restart")
+                return await UpdateAndRestartOwnersAsync(payload, cancellationToken).ConfigureAwait(false);
             if (consumed) return new { errors = priorErrors };
             var errors = new List<OverviewStartupError>();
             // Do not silently truncate to maxProfiles: that number is an
@@ -58,21 +64,30 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
                         items.ValueKind != JsonValueKind.Array)
                         throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
                             "The profile owner did not return reconciliation errors.");
+                    var ownerErrors = new List<OverviewStartupError>();
                     foreach (JsonElement item in items.EnumerateArray())
                     {
-                        if (item.ValueKind != JsonValueKind.Object) continue;
+                        if (item.ValueKind != JsonValueKind.Object)
+                            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                                "The profile owner returned an invalid reconciliation error entry.");
                         string? ownerId = item.TryGetProperty("profileId", out var p) &&
                             p.ValueKind == JsonValueKind.String ? p.GetString() : null;
                         string? code = item.TryGetProperty("error", out var e) &&
                             e.ValueKind == JsonValueKind.String ? e.GetString() : null;
-                        if (string.IsNullOrWhiteSpace(code)) continue;
                         if (!string.Equals(ownerId, profile.Id, StringComparison.Ordinal))
                             throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH",
                                 "A profile reconciliation response belonged to a different owner.");
+                        if (string.IsNullOrWhiteSpace(code))
+                            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                                "The profile owner returned an empty reconciliation error code.");
                         string message = item.TryGetProperty("message", out var m) &&
                             m.ValueKind == JsonValueKind.String ? m.GetString() ?? code : code;
-                        errors.Add(new OverviewStartupError(profile.Id, code, message));
+                        ownerErrors.Add(new OverviewStartupError(profile.Id, code, message));
                     }
+                    // Validate the full owner result before publishing any
+                    // entry: a later foreign/error entry invalidates this
+                    // owner's whole response, not merely its final element.
+                    errors.AddRange(ownerErrors);
                 }
                 catch (BridgeCommandException error)
                 {
@@ -93,5 +108,67 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
             return new { errors = priorErrors };
         }
         finally { gate.Release(); }
+    }
+
+    private async Task<object> UpdateAndRestartOwnersAsync(JsonElement payload, CancellationToken cancellationToken)
+    {
+        var restarted = new List<string>();
+        var errors = new List<OverviewStartupError>();
+        foreach (ProfileRegistryEntry profile in profiles.Snapshot.Profiles)
+        {
+            if (!profile.Enabled || profile.LockedReason is not null) continue;
+            cancellationToken.ThrowIfCancellationRequested();
+            try
+            {
+                object? result = await restartOwner!(profile.Id, payload, cancellationToken)
+                    .ConfigureAwait(false);
+                JsonElement response = JsonSerializer.SerializeToElement(result, JsonOptions.Default);
+                if (response.ValueKind != JsonValueKind.Object ||
+                    !response.TryGetProperty("restarted", out JsonElement started) ||
+                    started.ValueKind != JsonValueKind.Array ||
+                    !response.TryGetProperty("errors", out JsonElement failures) ||
+                    failures.ValueKind != JsonValueKind.Array)
+                    throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                        "The profile owner did not return a restart result.");
+                var ownerRestarted = new List<string>();
+                var ownerErrors = new List<OverviewStartupError>();
+                foreach (JsonElement item in started.EnumerateArray())
+                {
+                    if (item.ValueKind != JsonValueKind.String || item.GetString() != profile.Id)
+                        throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH",
+                            "A profile restart result belonged to a different owner.");
+                    if (ownerRestarted.Count != 0)
+                        throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                            "The profile owner returned a duplicate restart result.");
+                    ownerRestarted.Add(profile.Id);
+                }
+                foreach (JsonElement item in failures.EnumerateArray())
+                {
+                    string? owner = item.ValueKind == JsonValueKind.Object &&
+                        item.TryGetProperty("profileId", out JsonElement p) && p.ValueKind == JsonValueKind.String
+                        ? p.GetString() : null;
+                    if (owner != profile.Id)
+                        throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH",
+                            "A profile restart error belonged to a different owner.");
+                    string code = item.TryGetProperty("error", out JsonElement e) && e.ValueKind == JsonValueKind.String
+                        ? e.GetString() ?? "PROFILE_RUNTIME_UNAVAILABLE" : "PROFILE_RUNTIME_UNAVAILABLE";
+                    string message = item.TryGetProperty("message", out JsonElement m) && m.ValueKind == JsonValueKind.String
+                        ? m.GetString() ?? code : code;
+                    ownerErrors.Add(new OverviewStartupError(profile.Id, code, message));
+                }
+                restarted.AddRange(ownerRestarted);
+                errors.AddRange(ownerErrors);
+            }
+            catch (BridgeCommandException error)
+            {
+                errors.Add(new OverviewStartupError(profile.Id, error.Code, error.Message));
+            }
+            catch (Exception error) when (error is not OperationCanceledException)
+            {
+                errors.Add(new OverviewStartupError(profile.Id, "PROFILE_RUNTIME_UNAVAILABLE",
+                    "Local profile update-and-restart failed."));
+            }
+        }
+        return new { restarted = restarted.ToArray(), errors = errors.ToArray() };
     }
 }

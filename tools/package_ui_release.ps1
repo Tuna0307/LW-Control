@@ -66,13 +66,23 @@ is NOT claimed. See docs/FEATURE_STATUS.md and task review in source Git checkou
 
 KNOWN LIMITATIONS
 This is a usable UI baseline, NOT a fully recovered native product.
-One bounded Home Launch -> authenticated current-client Connected -> Close
-has been demonstrated through real packaged native controls, with exact PID
-exit and verified script restoration on a single isolated profile.
-Full original 0.3.17 licensed-runtime equivalence, adverse recovery/retry,
-multi-owner entitlements, Map scanners, mini-game execution, updater,
-protected original service and full original runtime pixel parity are NOT
-certified. Some actions require later native work.
+Packaged Home Launch -> authenticated current-client Connected -> Close,
+automatic startup and exact same-build host adoption have been demonstrated.
+HOME-004 2026-10-11 live follow-up verified responsive game heartbeat after
+actual task-owned authenticated transport loss: Reconnection OFF preserved
+the game; ON restored a fresh authenticated Connected successor stable for
+more than 15 seconds. Home Close with recovery ON prevented a later successor.
+An isolated legitimate replacement-bridge journal/adoption failure was also
+repaired through the actual Home Update-and-Launch control, with new genuine
+authenticated Connected and exact restoration of the original game files.
+The shared per-Windows-user mutable Lua package prevents the current
+replacement from certifying two simultaneously independent official game
+installations. Two local metadata profiles and two isolated RPC routes are
+NOT two independently supported game sessions. HOME is still PARTIAL pending
+this F-07 capability. Full original 0.3.17 licensed-runtime equivalence,
+independent multi-game ownership, long external updater/maintenance paths,
+Map scanners, mini-game execution, protected services and pixel parity are
+not certified. See docs/HOME_004_CURRENT_STATUS.md in source.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):
@@ -93,7 +103,10 @@ $sha = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash
 $fileCount = @(Get-ChildItem -LiteralPath $appRoot -Recurse -File).Count
 $zipEntries = [IO.Compression.ZipFile]::OpenRead($destination)
 try {
-    $entries = @($zipEntries.Entries | ForEach-Object FullName)
+    # Windows Compress-Archive may record backslash separators. Zip entry
+    # identity is separator-insensitive for our Windows package, while the
+    # executable and excluded-path checks must work on either spelling.
+    $entries = @($zipEntries.Entries | ForEach-Object { $_.FullName.Replace([char]92, [char]47) })
     if (!$entries.Where({$_ -eq 'LW-Control-UI/LWBridge.Desktop.exe'}).Count) { throw 'Packaged executable missing from ZIP.' }
     if ($entries.Where({$_ -match '(^|/)(node_modules|tests|evidence)/'}).Count) { throw 'Fixture or research files included in runtime ZIP.' }
 } finally { $zipEntries.Dispose() }

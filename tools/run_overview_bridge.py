@@ -54,6 +54,28 @@ class OverviewBridgeError(RuntimeError):
     pass
 
 
+class LauncherSpawnError(OverviewBridgeError):
+    """Only failure to create the selected official launcher process.
+
+    This is the current-client launcher task boundary. A later launcher update,
+    restart, report timeout or Lua installation error must retain its distinct
+    error type, not acquire the original self-restart retry policy.
+    """
+
+
+def spawn_selected_launcher(p: dict[str, Path], environment: dict[str, str]):
+    try:
+        return lr.subprocess.Popen(
+            [str(p["launcher"])],
+            cwd=str(p["launcher"].parent),
+            env=environment,
+        )
+    except OSError as error:
+        raise LauncherSpawnError(
+            f"could not start selected official launcher: {error}"
+        ) from error
+
+
 class ServerMaintenanceError(OverviewBridgeError):
     pass
 
@@ -957,11 +979,7 @@ def run_start(
                 for item in selected_launcher_processes(p)
                 if isinstance(item.get("pid"), int)
             }
-            launcher_process = lr.subprocess.Popen(
-                [str(p["launcher"])],
-                cwd=str(p["launcher"].parent),
-                env=launch_env,
-            )
+            launcher_process = spawn_selected_launcher(p, launch_env)
             deadline = launch_started + timeout_seconds
             throw_if_start_cancelled(p, session_id, challenge)
             owned_game = await_owned_game_process_update_aware(
@@ -1297,7 +1315,11 @@ def main() -> int:
     stop = sub.add_parser("stop")
     stop.add_argument("--profile-id", required=True)
     stop.add_argument("--session-id", required=True)
-    stop.add_argument("--challenge", required=True)
+    # A real repair journal may outlive the protected adoption record. The
+    # challenge is needed for scoped ephemeral session-file cleanup only;
+    # the durable journal, exact PID/path/creation and backup authenticate the
+    # stop/restoration target independently.
+    stop.add_argument("--challenge")
     stop.add_argument("--game-pid", type=int, required=True)
     stop.add_argument("--game-path", required=True)
     stop.add_argument("--game-started-at-utc")

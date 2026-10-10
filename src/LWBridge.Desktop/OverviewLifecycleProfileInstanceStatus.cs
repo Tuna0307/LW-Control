@@ -19,7 +19,28 @@ internal sealed partial class OverviewLifecycleService
         lock (stateGate)
         {
             if (instanceId is null)
-                return null;
+            {
+                if (!IsActiveRecoveryState(recoveryStatus.State)) return null;
+                // F-04/F-07 OWN_DESIGN: recovery may wait after exact-owner
+                // restoration but before replacement Start publishes an ID.
+                // Report the native recovery state for optional-ID sidebar Stop.
+                // An idle owner retains the original null response.
+                return new
+                {
+                    profileId,
+                    instanceId = (string?)null,
+                    phase = "recovering",
+                    pid = (int?)null,
+                    startedAt = (long?)null,
+                    lastError,
+                    identityConfirmed = false,
+                    leaseRequired = false,
+                    connectionState = "recovering",
+                    bridgeConnected = false,
+                    lastHeartbeatAt = (long?)null,
+                    leaseActive = false,
+                };
+            }
             if (instanceStartedAtUnixMilliseconds is not long startedAt)
                 throw new InvalidOperationException(
                     "An active Overview instance is missing its native startedAt timestamp.");
@@ -50,7 +71,15 @@ internal sealed partial class OverviewLifecycleService
         const bool leaseActive = false;
 
         string nativeConnectionState;
-        if (currentLastError is not null)
+        if (currentLastError is not null && IsActiveRecoveryState(CurrentRecoveryStatus.State))
+        {
+            // The old exact owner may have exited and left a restoration
+            // error while an automatic run is actively replacing it. Keep the
+            // diagnostic lastError, but project the current recovery state to
+            // the profile indicator instead of a terminal failure.
+            nativeConnectionState = "recovering";
+        }
+        else if (currentLastError is not null)
         {
             nativeConnectionState = "error";
         }

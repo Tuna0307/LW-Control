@@ -1,0 +1,12 @@
+{
+  "finding": "LEADHOME004-01",
+  "sourceCommit": "5296ad58430e5aadd4164a19f9f44bdf7391c521",
+  "actualProducer": "OverviewLifecycleService.CreateUpdateRestartResult",
+  "callerSerialization": "JsonSerializer.Serialize(repairResult) without JsonOptions.Default",
+  "actualInternalJson": "{\"restarted\":[],\"errors\":[{\"ProfileId\":\"lead-home004-inert\",\"Error\":\"GAME_CLOSE_TIMEOUT\",\"Message\":\"GAME_CLOSE_TIMEOUT\"}]}",
+  "workerTestJson": "{\"restarted\":[],\"errors\":[{\"profileId\":\"lead-home004-inert\",\"error\":\"GAME_CLOSE_TIMEOUT\",\"message\":\"GAME_CLOSE_TIMEOUT\"}]}",
+  "syntheticCode": "GAME_CLOSE_TIMEOUT",
+  "observedFailure": "KeyNotFoundException",
+  "liveGameActions": 0,
+  "defectReproduced": true
+}

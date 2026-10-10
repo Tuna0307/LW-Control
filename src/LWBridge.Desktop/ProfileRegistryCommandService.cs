@@ -11,6 +11,7 @@ internal sealed class ProfileRegistryCommandService :
     private readonly int maxProfiles;
     private readonly Action<string>? focusProfile;
     private readonly Func<string, bool, CancellationToken, Task>? selectProfileOwner;
+    private readonly Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate;
 
     internal ProfileRegistryCommandService(
         string currentProfileId,
@@ -18,12 +19,14 @@ internal sealed class ProfileRegistryCommandService :
         string displayName,
         int maxProfiles = 1,
         Action<string>? focusProfile = null,
-        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null,
+        Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate = null)
     {
         store = new ProfileRegistryStore(databasePath);
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
         this.selectProfileOwner = selectProfileOwner;
+        this.deleteProfileUnderOwnerGate = deleteProfileUnderOwnerGate;
         store.EnsureLocalProfile(
             currentProfileId,
             displayName,
@@ -33,7 +36,8 @@ internal sealed class ProfileRegistryCommandService :
         ProfileRegistryStore store,
         int maxProfiles = 1,
         Action<string>? focusProfile = null,
-        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null,
+        Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate = null)
     {
         this.store = store ??
             throw new ArgumentNullException(nameof(store));
@@ -42,14 +46,18 @@ internal sealed class ProfileRegistryCommandService :
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
         this.selectProfileOwner = selectProfileOwner;
+        this.deleteProfileUnderOwnerGate = deleteProfileUnderOwnerGate;
     }
 
     internal ProfileRegistrySnapshot Snapshot => store.Read(maxProfiles);
 
     public bool CanHandle(string command) =>
         command is "profile_list" or
+            "profile_create" or
+            "profile_delete" or
             "profile_select" or
             "profile_note_set" or
+            "profile_enabled_set" or
             "profile_reorder" or
             "profile_primary_set";
 
@@ -64,7 +72,22 @@ internal sealed class ProfileRegistryCommandService :
                 "COMMAND_NOT_IMPLEMENTED",
                 "Profile registry command is not implemented.");
 
-        if (command == "profile_select")
+        if (command == "profile_create")
+        {
+            store.CreateLocalSecondaryProfile(maxProfiles,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        else if (command == "profile_delete")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            Action delete = () => store.DeleteLocalSecondaryProfile(profileId);
+            if (deleteProfileUnderOwnerGate is not null)
+                await deleteProfileUnderOwnerGate(profileId, delete, cancellationToken)
+                    .ConfigureAwait(false);
+            else delete();
+        }
+        else if (command == "profile_select")
         {
             string profileId = RequiredString(payload, "profileId");
             ValidateProfileId(profileId);
@@ -94,12 +117,22 @@ internal sealed class ProfileRegistryCommandService :
         else if (command == "profile_note_set")
         {
             string profileId = RequiredString(payload, "profileId");
-            string note = RequiredString(payload, "note");
             ValidateProfileId(profileId); // original 0x1a4d26 validates the id FIRST (INVALID_PROFILE_ID)
+            string note = RequiredString(payload, "note");
             ValidateNote(note);
             store.UpdateNote(
                 profileId,
                 note,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        else if (command == "profile_enabled_set")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            if (!payload.TryGetProperty("enabled", out JsonElement enabled) ||
+                enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                throw new BridgeCommandException("INVALID_REQUEST", "INVALID_REQUEST");
+            store.UpdateEnabled(profileId, enabled.GetBoolean(),
                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
         else if (command == "profile_reorder")
@@ -181,7 +214,7 @@ internal sealed class ProfileRegistryCommandService :
         return profileIds;
     }
 
-    private static void ValidateProfileId(string profileId)
+    internal static void ValidateProfileId(string profileId)
     {
         int byteCount = Encoding.UTF8.GetByteCount(profileId);
         if (byteCount is < 1 or > 64 ||

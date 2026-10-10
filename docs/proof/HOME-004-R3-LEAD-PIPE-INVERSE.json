@@ -1,0 +1,25 @@
+{
+  "reviewDate": "2026-10-10",
+  "sourceCommit": "7b36bfdd8de04a2193a32f49eb8465c64dcfd659",
+  "observedAuthenticatedSessions": 1,
+  "firstRouteConnected": true,
+  "currentIdleTimeoutSeconds": 30,
+  "acceptLoopSourceSha256": "E7C0F45F3F8C47A6D8BCF85C450D935A2F18D3208ADC2D6D56FE4A8306D93D40",
+  "hostStateSourceSha256": "746EABF26F2E4AC2DCB681437F91BE26D429F8CB0B91A6A2D469E0B46F9DB930",
+  "proofType": "isolated real Windows named pipe with inert owned client; no LastWar",
+  "result": {
+    "phase": "idle-listener-survival-inverse",
+    "listenerError": "OperationCanceledException",
+    "listenerCompletedWithoutHostStop": true,
+    "hostReportedStopped": false,
+    "transportStillReportedStarted": true,
+    "successorConnected": false,
+    "successorError": "TimeoutException",
+    "gameLaunches": 0,
+    "defectReproduced": true
+  },
+  "liveCausalChain": "SUPPORTED_HYPOTHESIS_NOT_FULLY_TRACED",
+  "original317SessionFailurePolicy": "REQUIRES_TARGETED_REVALIDATION",
+  "command": "dotnet run --project tools/home_004_pipe_idle_probe/Probe.csproj -c Release",
+  "expectedExitSemantics": "exit 0 confirms historical defect reproduced; it is not a product PASS"
+}

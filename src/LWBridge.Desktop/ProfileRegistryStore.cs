@@ -165,6 +165,57 @@ internal sealed class ProfileRegistryStore : IDisposable
         }
     }
 
+    // OWN_DESIGN F-07: local profiles are not original commercial slots.
+    // A creation takes the registry lock for its capacity check and insert;
+    // concurrent Create calls cannot each claim the last available slot.
+    internal void CreateLocalSecondaryProfile(int maxProfiles, long nowUnixMilliseconds)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            List<ProfileRegistryEntry> existing = ReadProfiles();
+            if (maxProfiles < 2 || existing.Count >= maxProfiles)
+                throw new BridgeCommandException("PROFILE_LIMIT_REACHED", "Local profile capacity has been reached.");
+
+            string profileId = "local-" + Guid.NewGuid().ToString("N");
+            long order = existing.Count == 0 ? 0 : existing.Max(profile => profile.DisplayOrder) + 1;
+            using SqliteCommand insert = connection.CreateCommand();
+            insert.CommandText = """
+                INSERT INTO profiles(id, display_name, role_name, server_id, game_uid,
+                    note, display_order, enabled, locked_reason, is_primary, created_at, updated_at)
+                VALUES ($id, $name, NULL, NULL, NULL, '', $order, 1, NULL, 0, $now, $now)
+                """;
+            insert.Parameters.AddWithValue("$id", profileId);
+            insert.Parameters.AddWithValue("$name", "Local " + (existing.Count + 1));
+            insert.Parameters.AddWithValue("$order", order);
+            insert.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+            insert.ExecuteNonQuery();
+        }
+    }
+
+    // Deliberately preserve per-profile on-disk backup/runtime data; removing a
+    // registry identity must never delete an installation or recovery journal.
+    internal void DeleteLocalSecondaryProfile(string profileId)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            ProfileRegistryEntry? entry = ReadProfiles().FirstOrDefault(
+                profile => string.Equals(profile.Id, profileId, StringComparison.Ordinal));
+            if (entry is null)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
+            if (entry.IsPrimary)
+                throw new BridgeCommandException("PROFILE_PRIMARY_FIXED", "The primary local profile cannot be deleted.");
+            if (string.Equals(ReadSelectedProfileId(), profileId, StringComparison.Ordinal))
+                throw new BridgeCommandException("PROFILE_SELECTED", "Select another profile before deleting this one.");
+            using SqliteCommand delete = connection.CreateCommand();
+            delete.CommandText = "DELETE FROM profiles WHERE id = $id";
+            delete.Parameters.AddWithValue("$id", profileId);
+            if (delete.ExecuteNonQuery() != 1)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
+        }
+    }
+
     internal ProfileRegistrySnapshot Read(int maxProfiles = 1)
     {
         if (maxProfiles < 1)
@@ -244,6 +295,28 @@ internal sealed class ProfileRegistryStore : IDisposable
                     "PROFILE_NOT_FOUND",
                     "PROFILE_NOT_FOUND");
             }
+        }
+    }
+
+    // F-07 OWN_DESIGN: the local profile flag is user-controlled. Disabling
+    // changes future start/reconcile admission; it does not terminate an
+    // already owned game or redirect the selected profile's runtime.
+    internal void UpdateEnabled(string profileId, bool enabled, long nowUnixMilliseconds)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE profiles
+                SET enabled = $enabled, updated_at = $now
+                WHERE id = $id
+                """;
+            command.Parameters.AddWithValue("$id", profileId);
+            command.Parameters.AddWithValue("$enabled", enabled ? 1 : 0);
+            command.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+            if (command.ExecuteNonQuery() != 1)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
         }
     }
 

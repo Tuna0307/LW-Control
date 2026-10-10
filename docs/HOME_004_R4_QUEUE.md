@@ -1,0 +1,266 @@
+# HOME-004 R4 — reconciled 47-obligation queue
+
+2026-10-10 owner direction change: this table is original-recovery history,
+not the current release gate. Follow OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md
+and F-01–F-09 in HOME_004_ACCEPTANCE_PROPOSAL.md. Translate relevant rows into
+functional defects/verification or documented original research gaps. Known source
+facts and historical negatives remain valid; commercial response equality and
+protected-original pixel pairing are no longer universally required for release.
+Completed R16/H-33 and later corrections must not be restarted from old text.
+
+2026-10-10 consolidated continuation: [HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md)
+and [current status](HOME_004_CURRENT_STATUS.md). Worker R4-R2 records corrections
+for LEADHOME004R4-01/02; do not blindly repeat those original assignments.
+The lead's current native suite passes but full campaign acceptance remains pending.
+First finish the preserved R16 candidate, then the finite systematic pass and
+remaining ready native/original work. The table is the carried-forward 47-row
+inventory, not proof of complete parity; reconcile later receipt overrides.
+Preserve historical negatives and excluded commercial scope.
+
+Reference: LWBridge **0.3.17**, original EXE SHA-256
+`4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783`.
+The authoritative original locators, complete conditions, and historical
+negative cases remain in [HOME_004_R1_CURRENT_MATRIX.md](HOME_004_R1_CURRENT_MATRIX.md)
+and [HOME_004_CONTRACT_MATRIX.md](HOME_004_CONTRACT_MATRIX.md). The later
+[R3-R1 independent lead review](HOME_004_R3_R1_LEAD_REVIEW.md) supersedes the
+old R1/R2 description of successful hang recovery. This queue records the
+**next distinguishing action for every row**, rather than converting an old
+source audit into a claim of present-day native parity.
+
+Evidence vocabulary: **accepted live** = existing separately approved
+single-profile current-client executable proof; **R4 native** = executed
+production C# boundaries with isolated inert providers, and/or the Windows
+pipe probe; **R4 mounted** = actual production App/WebView/command routing
+with isolated inert owners; **source** = original reference static authority;
+**open** = a particular original or genuine-client witness still needed.
+R4 mounted and R4 native never imply original licensed-server behavior.
+
+| ID | Current evidence / distinction | Specific remaining next action or dependency |
+| --- | --- | --- |
+| H-01 | Accepted live: actual Home Launch/Connected/Close. Mounted R4 preserves Launch. | Paired original adverse late-Start and user-cancel observation when safely available. |
+| H-02 | Source-backed Launch root/status/busy gates and removed clone 360 s frontend deadline; accepted live. R8 executes actual HomePage control gate expressions against recovered original `Kr` for all 128 root/running/repair/recovery/busy combinations with production providers. | Verify long-running genuine launcher cancellation if one occurs; source gate truth table is not a native launcher timeout witness. |
+| H-03 | Source/controlled original error precedence and missing-helper inverse; native R4 regression. | Genuine installed-root negative only with an isolated test installation; avoid modifying owner installation to induce errors. |
+| H-04 | Source/controlled ascending unmanaged termination + 5 s/100 ms window. R4 protects foreign exact profile owner. | Witness genuine original unmanaged timeout/OS failure before claiming all exact error text. |
+| H-05 | Original entitlement/ticket/lease stage is protected, absent from supplied runtime response. | Legitimate original 0.3.17 successful ticket/lease response schema and admission witness; no fabricated entitlement. |
+| H-06 | R4 current helper `LauncherSpawnError` typed producer maps to `LAUNCH_TASK_FAILED`; original descriptor/mutex ordering remains only partly static. | Original descriptor/mutex negative with exact 0.3.17 error/order and genuine current launcher producer; do not infer entitlement. |
+| H-07 | Source-backed original two attempts and first-only `OFFICIAL_LAUNCHER_RESTARTED` retry. | Original typed restart producer/negative before enabling any retry in current helper. |
+| H-08 | Genuine current official-launcher self-restart producer not established. Generic spawn, timeout, updater and Lua errors are distinct. | Isolated supported official launcher update/restart trace, without inducing an update or guessing from a status string. |
+| H-09 | R4 real Python launch-spawn boundary now preserves typed spawn error, other failures keep their types; 3 controlled unit checks. | Original 0.3.17 Lua-update and game-PID timeout serialization plus native evidence for their actual helper producers. |
+| H-10 | Source-backed 90 s report-to-bridge readiness, 250 ms poll, registration; prior accepted live Connected. | Genuine timeout/final-lookup negative, no artificial ready.json. |
+| H-11 | R5 native production ordered reconcile now validates each entire per-owner `errors[]` before publishing entries: a valid error preceding a foreign/malformed one cannot leak as partial success; exact profile/error code serialization retained. | Paired original malformed/multiple-error producer and genuine native failure remain unavailable. |
+| H-12 | Accepted live game-ready/registration and same-build adoption; native exact owner tests. | Native failed-registration post-game spawn/inverse under safely isolated launch. |
+| H-13 | Protected original finalizer future/callback, lease and ticket outcome unavailable. | Legitimate original finalizer callback/serialized failure/precedence; maintain current exact owner cleanup meanwhile. |
+| H-14 | Accepted live real Home Close and exact owned PID exit. R8 original `Pt` source shows captured profile used for both awaited status and Stop; an actual mounted A Home Close status held across B selection previously abandoned A. Explicit exact A owner status/Stop fixes it, including B independence and A/B/A ABA in EN/JA. | Separate genuine Close cancellation/failed helper observation when available; controlled profile switch is not a genuine late Close fault. |
+| H-15 | Source-backed stop ordering and process identity; accepted live restore and native negative cases. | Genuine path/handle-error branch under safe ownership gates. |
+| H-16 | Native six optional-ID cases, mismatch and no-owned errors, accepted live Close. R8 confirms selected A Home Close uses exact instanceId from its own captured status across B switch/ABA; no foreign B Stop allowed. | Genuine late Close error exact text where safe; do not terminate other profiles. |
+| H-17 | Accepted live original triplet hash restoration, journal absent and zero process; R4 mounted old-root Stop inert. | Adverse actual restore-failure/error path only on isolated backed-up installation. |
+| H-18 | Original Home manual Update-and-Launch exposes first **global** restart error, unlike H-23 startup selected-only reconcile. R6 mounted dispatcher injects B-only repair Stop failure after A succeeds, renders B error on A Home then retries B. R8 actual-source 128-case `Kr` comparisons additionally prove when repair replaces Close and controls disable on busy/recovery. | Real supported outdated-build package and genuine positive/failed repair response. |
+| H-19 | R4-R2 production global ordered multi-owner restart remains. R5 prevents an apparent `restarted` owner from leaking out of a result that contains a later foreign error, and rejects duplicate owner success; native mixed response test passes. Actual mounted EN/JA repair/relaunch of A+B, Stop All and disabled-owner exclusion pass. | Genuine officially outdated client repair, original restoration errors and exact retry result. |
+| H-20 | Outdated-build restartRequired is an original code path; R1 typed repair decoding fixed, controlled only. | Authentic current-client outdated-build witness, no synthetic JSON masquerading as an official update. |
+| H-21 | Source-backed `autoLaunchAll` default true, actual ordered registry service. | No new test unless original default behavior changes. |
+| H-22 | Native R4 production ordered enabled-owner reconcile and independent retained A/B lifecycle; no original protected admission. | Original protected capacity/admission and real isolated multi-game authority, if available. |
+| H-23 | Startup reconcile UI filters errors to matching profile; H-18 manual global repair intentionally surfaces first returned error regardless owner. R6 actual mounted B-only native repair failure preserves this distinction and A's independent success; prior startup selected-only projection is retained. | Genuine original mixed-owner startup reconcile negative and protected owner failure. |
+| H-24 | Accepted live same-build restart/adoption with AutoReconnect ON/OFF. | Multi-profile same-build adoption and host exit only when independently safe for real clients. |
+| H-25 | Controlled strict recovery-record identity/creation/build validation; accepted live adoption/restore. | Genuine corrupt-record inversion with exact recoverability and backup gates. |
+| H-26 | Native held old cleanup/late ACK preserves successor lease, route and adoption; accepted R3-R1 repair. | No new single-owner tests; retain current regression. |
+| H-27 | Real Windows named-pipe pending registration/generation probe and accepted live route; original timeout authoritative. | Original final negative registration error and protected transport match. |
+| H-28 | Current-client 5 s heartbeat and 1 s lease are proven adaptions; original uses a protected lease service. | Original 0.3.17 lease semantics must be recovered; cannot call adaptation exact original. |
+| H-29 | R3-R1 real Windows shared listener correction and live hung reconnect accepted. | Original 0.3.17 encrypted transport worker authority; adapter 30 s reader timer derives from 0.3.1 only. |
+| H-30 | Source default true and immediate save; prior packaged switch/reopen proof. | Preserve original same-owner busy editing and rollback; no repeat of accepted single-profile case. |
+| H-31 | Controlled native mirror and queued edits, R1 mounted. | Original simultaneous profile save race/rollback with protected owner where possible. |
+| H-32 | Mounted R4 B AutoReconnect toggle persists only B, A unchanged; prior real preferences proof. | Original queued pending save race with B while A remains live. |
+| H-33 | Original handler + native saved boolean and monitor notifications, R4 controlled. A new H-33 source contrast proved that `autoClosePopup` previously acknowledged forced `false` **without** persisting it. Original 010 handler `0x12c98c–0x12d3a7` persists the effective local value before success. Added durable `AutoClosePopup` storage, original forced-OFF backend write, native red→green regression and actual mounted EN/light + JA/dark dispatcher→on-disk profile checks; zero game launches. | Current-client OFF/ON reconnect flag and recovery tick retained. Original host's local `autoForceUpdateReload` storage, synchronous tick and best-effort 5 s connected `setAutomation` forward are source-recovered; exact protected game-side successful/rejected forwarding result and genuine responsive 60 s transport loss remain unverified. Do not guess encrypted Lua error bodies. |
+| H-34 | Native 2 s/2 misses, 30 s hang, 60 s offline and 180 s unready. Actual controlled `StillAliveOfflineRecoveryRunEdges` **already proves** still-alive offline OFF/ON, 59999/60000 ms monitor, independent 59999/60000 ms run cleanup and successor. Accepted genuine R3-R1 hang success remains a distinct witness. | Paired **genuine current-client** still-alive offline-only transport loss/recovery, not inferred from controlled case or hang. |
+| H-35 | R5 **actual production native** controlled clock/log hooks exercise source-backed maintenance 120/300/600/600 s retry ladder (including 1 ms early rejection) and 15-minute updater stall → first 15 s retry. Original 15 s stable and first failure tests retained. No genuine updater was touched. | Genuine prolonged maintenance, repeated updater/launcher faults and original-side error/notice timing. |
+| H-36 | Native exact old stop/restore, protected successor late-ack and failed retry; accepted genuine unexpected exit + hang. | Real incomplete restoration/official launcher failure/adverse update-process path. |
+| H-37 | Accepted live AutoLaunch and same-build host adoption; native `GameDesiredRunning` gating. | Multi-profile host restart with independent original protected admission. |
+| H-38 | R4 native retained A/B owners and real Windows shared transport preserved; R5 mounted EN/JA additionally proves real registry **disabled** B Start rejection and global restart exclusion, alongside earlier locked selected/unselected admission, with exact fixture restoration. | Original commercial maxProfiles/admission and verified distinct compatible real client installation capability remain unknown; do not invent limit. |
+| H-39 | R4–R8 retained exact owners; R9 native independent note/reorder ack, R10 visible order-only, R11 exact note-only, R12 independent B selection/busy all retained. R13 adds **two further actual production WebView inverses**: (a) hold native B selection **after** its old A,B snapshot but before WebView ack, complete actual JSX B,A reorder → UI wrongly rolled back to A,B; now roster-matched selection preserves newer current metadata. (b) hold first JSX A note X before native dispatch, submit newer Y → SQLite X but UI Y; now exact-owner note saves serialize in submit order, B independent. **R14 actual production inverse:** successful saved A=X acknowledgement was suppressed because newer submitted A=Y later failed; SQLite X but React old. Now successful per-owner ordered acknowledgement is separately tracked, projecting each exact note irrespective of later requested failures and without replacing selection/order. **R15 actual production inverse:** first JSX B,A drag native execution held, second JSX B,A completes, newer JSX A,B persists, then releasing old B,A reverts SQLite to B,A while JSX stays A,B; reorder-only native write queue now preserves original drag submit order, with error-tolerant predecessor, selected A and exact A/B notes/lifecycles unchanged. Mounted EN/light+JA/dark full R4–R14 PASS and exact cleanup. | Paired original 0.3.17 concurrent select/reorder/note result ordering, protected capacity/admission and independently compatible real client installs. |
+| H-40 | R4 mounted A/B retained exact separate Start/Close and R8 pending A Home Close across B/ABA retained. R9/R10/R11/R12 independent metadata/selection and R13 late B selected-view metadata roster protection plus A-only queued note saves do not change the B native lifecycle or either retained owner. R14 confirmed A successful-note/error/retry projection remains exact A, B's note and both lifecycle owners independent. R15 serializes only shared registry reorder writes, never per-owner A/B notes, selection, lifecycle or transport. Native Stop during held recovery retained. | Genuine current-client pending recovery user Stop **post-fix** passed: exact-owned exited game, official preflight launcher active, Home Close, no late child, desired false and verified zero-process/no-journal restoration in `pending-stop-live-followup`; original simultaneous two independently supported real games and late replies remain unavailable. |
+| H-41 | Baseline mismatch: a pending/unknown A repair journal rejected picker persistence. R4 persists B for next Start, prevents Start before A restoration; native cases and mounted A→B→Stop→B Start. | Genuine current-client running-root picker and original exact status/monitor negative, unavailable without risk-free second supported installation. |
+| H-42 | Original 0.3.17 010 c-handlers source `0x1a0da4` and `0x2d7ff3` confirms all 12 `profile_instance_status` fields and exact connection classifier. R5 repaired stale error during active recovery; R8 compares nine original `Jr` labels and 3 s sidebar/5 s Home polls. New native inverse fixes missing/non-string `profileId` error (`INVALID_REQUEST` instead of clone `PROFILE_ID_REQUIRED`); mounted EN/JA absent, numeric, null, invalid ID and unknown owner pass. | Protected original lease/grace state remains unavailable, along with a genuine responsive offline-only EN/JA observation. Do not classify the 12 key names as unknown. |
+| H-43 | Source-backed recovery command/event, native monitor and accepted genuine recovery event receipt. | Paired original maintenance/failure/retry notification ordering. |
+| H-44 | Accepted live current official-settle-before-launch baseline, source 10 min/15 s/3 s. | Genuine current-client official launcher preflight cancellation after recovery Stop passed with no late orphan; launcher-generated v24 Lua bytes archived and original v23 baseline restored from exact verified task backup after zero processes. Original updater-specific adverse settle branch has no original counterpart; no forced update/timeout was induced. |
+| H-45 | R6–R8 EN/JA recovery/error, 128 original `Kr` control-gate states/nine `Jr` labels, R9–R12 independent native registry/UI B/A selected-note-order controls retained. R13 mounted **both** orderings of B selection/reorder and rapid same-owner two-note Save confirms native SQLite and visible UI convergence EN/light JA/dark. R14 adds two actual note failure/acknowledgement orders (success X→failed Y and failed X→success Y). R15 adds actual multi-reorder native execution inverse, now native/JSX order converge on last intended A,B after B,A overlapped drag, with B lifecycle unchanged. Mounted EN/light JA/dark retains R4–R14 cleanup. | Original conditional EN/JA pixels, authentic pending Stop/maintenance/offline-only and original concurrent metadata errors still missing; controlled locale UI is not original pixel parity. Shared Home header version source also matched: native `update_status.currentVersion` changed from stale `0.3.1` to original `0.3.17`, with fresh actual EN/light+JA/dark mounted UI assertions (`artifacts/home-004/version-parity-*.json`). |
+| H-46 | **R6 source-authority correction:** original 0.3.17 Ir byte 328453 explicitly calls reverse on distinct candidates before Lr byte 328684 locale lookup. R5 incorrectly removed reversal; R6 restores it in Home/sidebar and updates source helper tests for later message priority, structured code, dedupe, unknown fallback. R4 typed spawn producer retained. | Original descriptor/mutex/Lua/restart and protected finalizer native error serializations still unknown. |
+| H-47 | R4-R2 pending recovery Stop/late helper cleanup, R6 shared Home/sidebar duplicate-Start admission and R7 per-profile visible busy Set retained. R8 actual native mounted inverse proved Home A Close silently abandoned after A status read across B selection; exact owner A status/Stop preserved across A→B and A→B→A, independent B, no native cross-owner side effects. Original `Pt` captures profile across both awaits; source-executed `Kr` 128-state UI gate matrix passes. | Genuine post-fix Home Close during in-flight official recovery launcher passed with no late replacement and desired off; R8 A/B/A exact-owner busy/captured Close remains mounted. Still missing paired original `proxyBusy` vs `gameLaunchBusy` late-error ordering and responsive still-running offline-only Stop/pixels. |
+
+### R4-R2 applied correction overlay (source-backed, not new original acceptance)
+
+The original authority for each row remains in `HOME_004_R1_CURRENT_MATRIX.md`.
+Both `LEADHOME004R4-01` (H-14/H-16/H-34/H-40/H-47) and
+`LEADHOME004R4-02` (H-19/H-22/H-23/H-38/H-39/H-40/H-42/H-45)
+are **locally corrected**. Actual `HomeR2RecoveryChecks` includes a held
+native pending recovery target inverse and rejected manual Start; actual
+packaged EN/light and JA/dark mounted UI/host includes explicit unselected B
+status/Start/Stop while A selected, invalid/missing/locked target errors,
+exact stale B Stop rejection, delayed B status reply across A/B/A,
+per-profile polling, Start-All failure continuation, Stop-All, global native
+ordered A+B Update-and-Restart and exact inert cleanup. `H-16` valid current,
+absent and non-string optional target IDs remain supported. The H-22/23
+independent owner failure succeeds without being assigned to A, but genuine
+original capacity and per-owner launch error projection are still open. H-38/39
+protected commercial capacity and persisted real-client A/B restart remain
+open; H-42 original error/pixel cases and H-45 full conditional native/original
+visual comparison remain open. These corrected controlled boundaries do not
+prove genuine simultaneous Last War processes. See
+`HOME_004_R4_R2_CORRECTION_RECEIPT.md` for distinguishing receipts and missing
+inputs; **whole Home PARTIAL_NEEDS_INPUT**.
+
+### R5 second-pass correction overlay — 2026-10-10
+
+The R5 correction is additional to the completed R4-R2 lead findings and
+accepted earlier live single-game observations. See
+`HOME_004_R5_SECOND_PASS_RECEIPT.md` for actual before/after inverses and
+source locators. Production H-46 error choice, H-42 recovering projection,
+H-38 sidebar stale-poll/disabled admission, and H-11/H-19 atomic owner-result
+validation are corrected. H-35 long original retry/update policy was exercised
+with isolated, controlled clocks/logs rather than genuine maintenance. All 47
+obligations retain their row-specific outstanding original/genuine-input gates.
+Read-only archive lookup of original `handlers-locale.json` confirms all nine
+connection display labels and identical EN error-block membership, but does
+not reveal authenticated launcher/update, original ticket, complete recovery
+state payload or protected lease result. No fabricated original/real-game
+proof was added. **Whole Home remains PARTIAL_NEEDS_INPUT**.
+
+### R6 original-oracle correction and shared Home/sidebar admission
+
+R5's H-46 claim of original first-token translation was incorrect:
+read-only original `LWB317-UI-HOME-ERROR-001/helper-render-results.json`
+recovers Ir at byte 328453 with `[...new Set(codes)].reverse()`, and Lr
+at byte 328684. R6 restores original priority. Original manual global
+repair first-result error (H-18) differs from selected-only startup reconcile
+(H-23); an actual mounted B-only repair failure proved the distinction.
+Another mounted inverse reproduced duplicate A Start across Home/sidebar;
+shared exact-owner/global guard prevents it in both directions with B
+independent. See `HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md`.
+Whole Home still **PARTIAL_NEEDS_INPUT**.
+
+### R7 independent sidebar busy indicator
+
+After R6 shared Home/sidebar admission, one sidebar `runBusyId` still
+represented many independently pending native owners. A mounted native
+sidebar A Start was held while B started and stopped; B completion
+incorrectly re-enabled A's Start button. The preserved original negative
+and corrected EN/light, JA/dark production-WebView controls prove
+the source-backed per-owner `runBusyIds` Set fixes this observable race.
+See [R7 receipt](HOME_004_R7_SIDEBAR_CONCURRENT_BUSY_RECEIPT.md).
+This is controlled UI/native correctness, not protected licensed A/B
+genuine game acceptance. **Whole Home PARTIAL_NEEDS_INPUT**.
+
+### R8 captured Home Close owner and source-backed complete control gates
+
+Original 0.3.17 `Pt` captures the selected profile for both its awaited
+instance-status and Stop. Mounted R8 A Home Close held at native status reply
+while selecting B produced a preserved actual product negative: a profile-
+scoped read rejected on view retirement, silently abandoning A Close.
+`App.jsx stopGame` now issues status and exact instance Stop explicitly
+to the clicked A owner, while selected-view status acknowledgements remain
+fenced. Expanded EN/light and JA/dark prove B may Start/Stop while A Close
+is held, and A→B→A ABA cannot cancel/misroute that Stop. Executable
+`HomePage` gates match recovered original `Kr` across all 128 boolean
+states; `ProfileSidebar` nine connection labels match `Jr`. See
+[R8 distinguishing receipt](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md).
+Protected, genuine-current-client and original conditional pixel gates
+remain unresolved. Whole Home **PARTIAL_NEEDS_INPUT**.
+
+### R9 independent persistent-profile registry replies (H-39/H-40/H-45)
+
+Actual mounted production native/WebView inverse: a `profile_note_set`
+to explicit A was successfully committed to SQLite after selecting B but
+returned `PROFILE_GENERATION_RETIRED` because a selected-Home-view fence
+was incorrectly applied to a registry mutation. R9 narrowly allows
+`profile_note_set` and global `profile_reorder` to acknowledge their
+completed persistent writes independently of Home selection, preserving
+selected status/other command reply protection. New held A-note and
+held reorder tests pass EN/light and JA/dark; exact profile display
+order, all A/B native sessions, requests and roots restore correctly.
+See [R9 receipt](HOME_004_R9_INDEPENDENT_REGISTRY_REPLY_RECEIPT.md).
+Original commercial capacity, original concurrent response timing and
+genuine multi-game success remain **unverified**. Whole Home
+**PARTIAL_NEEDS_INPUT**.
+
+### R10 persistent reorder visible in the active profile sidebar (H-39/H-45)
+
+R9's independent native reply was not yet sufficient for UI parity:
+actual React drag/drop B ahead of A with a held `profile_reorder`,
+followed by selecting B, durably committed B,A to SQLite but left
+the sidebar showing stale A,B. Immutable actual mounted EN/light
+negative retained. R10 retains the newest completed reorder's
+profile order without replacing current selected owner/notes when a
+newer view selection supersedes the old full snapshot. Actual mounted
+EN/light and JA/dark pass real JSX/native action, B selected,
+B,A visual/registry parity and exact A,B restoration. See
+[R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md).
+Commercial capacity, authentic original interleaving and conditional
+live UI parity remain missing; whole Home **PARTIAL_NEEDS_INPUT**.
+
+### R11 exact committed profile note remains visible across selection (H-39/H-45)
+
+R9 native note acknowledgements were corrected, but actual WebView JSX
+note Save held at the native dispatcher while B was selected reproduced
+a new visible-data defect: SQLite committed new A note, dialog closed,
+sidebar still displayed old A note. R11 retains a latest-per-profile
+note revision and applies **only the acknowledged exact A note**
+when the full snapshot was superseded by B's selected-view request.
+No B selection, A/B order, other notes or native lifecycle is replaced.
+Mounted EN/light and JA/dark corrected proof and historical failure
+retained. See [R11 receipt](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md).
+Original concurrent note/selection witness and the other genuine/
+protected H-IDs remain unavailable. Whole Home **PARTIAL_NEEDS_INPUT**.
+
+### R12 selected profile remains acknowledged across registry reorder (H-39/H-45)
+
+R9–R11 fixed persistent metadata result ordering but shared React
+`nativeProfileRequestRef` still retired an already-started B selection
+if its native reply arrived after a separate completed reorder.
+Mounted original JSX B selection held before dispatcher, B-before-A
+drag/drop committed independently; backend ended B but React remained
+A and `nativeProfileBusy` could stay permanently set. R12 latest
+selection-only revision now governs selection/ack/error/finally busy,
+while metadata requests retain their own revision/field guards.
+Mounted EN/light and JA/dark verify B selected and enabled, B,A
+native+DOM, exact A,B and A selected restoration, and complete
+R4–R11 regression cleanup. See
+[R12 receipt](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md).
+Commercial/original multi-client and adverse evidence remains missing:
+whole Home **PARTIAL_NEEDS_INPUT**.
+
+### R13 late B selection snapshot and ordered A note writes (H-39/H-40/H-45)
+
+Two new before-fix actual mounted product failures after R12:
+native B selection **completed** with old A,B snapshot but its WebView
+reply held; subsequent actual JSX drag/drop committed visible/SQLite
+B,A, then older B selection full snapshot reverted UI to A,B.
+R13 preserves current exact roster metadata while adopting B only
+when the selection's request was overtaken by newer metadata and
+the native roster matches. A second distinct actual JSX failure
+held first `profile_note_set(A,X)` before native, submitted later
+Y while pending, and showed Y while older X committed last to
+SQLite. Per-exact-A serialized native note chain now preserves
+durable last submit; B remains independent. Immutable ignored
+negatives and final EN/light + JA/dark positives; no game/Map
+launch, native request or root leak. See
+[R13 receipt](HOME_004_R13_SELECTED_SNAPSHOT_AND_NOTE_WRITE_RECEIPT.md).
+Original protected and paired genuine multi-client/fault gates
+remain **PARTIAL_NEEDS_INPUT**.
+
+## Source and input fences
+
+R4 uses source authority from original 0.3.17 locators already recorded per
+row in the R1 matrix, the R3-R1 lead accepted live receipts, and the actual
+current-helper/backend paths. Supplemental archive read without altering this
+checkout: `origin/research/offline-controller`,
+`docs/reviews/2026-09-28-r8-141-lwbridge-0317-session-entitlement-parity.md`
+recovers the five field `EntitlementResponse` type and SessionV2 schema but
+does **not** supply a successful protected response. The archived
+`r1-2026-10-08/original-controller-boundary.json` states that the signed
+`package-key.envelope` and corresponding persisted CNG private key needed
+to decrypt the original Lua controller module table are absent; neither a
+proxy nor the carved archive supplies its plaintext. No bypass, fabricated
+schema or protected-original service request was performed.
+
+The 0.3.1-derived adapter reader timeout is **not** established as an exact
+0.3.17 constant. The open original dependencies are named in
+[the R4 final report](HOME_004_R4_FINAL_REPORT.md); this queue must remain
+PARTIAL until those authorities and their distinguishing working proofs exist.

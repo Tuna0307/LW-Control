@@ -34,6 +34,7 @@ internal sealed partial class OverviewLifecycleService
     private int healthRecordPid;
     private bool healthRecordValid;
     private readonly RecoveryMonitorObservation monitorObservation = new();
+    private readonly object recoveryTraceGate = new();
     private ulong recoveryNoticeId;
     private OverviewRecoveryStatus recoveryStatus = IdleRecoveryStatus();
 
@@ -168,8 +169,8 @@ internal sealed partial class OverviewLifecycleService
     // before launching. Recovery relaunches call StartAsync directly and never reset their own status.
     private async Task<object?> StartCommandAsync(bool closeUnmanaged, CancellationToken cancellationToken)
     {
-        ResetRecoveryStatusToIdle(invalidateRun: false);
-        return await StartAsync(cancellationToken, closeUnmanaged).ConfigureAwait(false);
+        return await StartAsync(cancellationToken, closeUnmanaged,
+            resetManualRecoveryStatus: true).ConfigureAwait(false);
     }
 
     // HOME 009 R1 C. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
@@ -209,6 +210,10 @@ internal sealed partial class OverviewLifecycleService
         foreach (int pid in pids)
         {
             ThrowIfStartClosed(cancellationToken);
+            if (foreignOwnedProcess?.Invoke(pid) == true)
+                throw new BridgeCommandException(
+                    "BRIDGE_HOST_BUSY",
+                    "Another profile owns this installation's game process.");
             OwnedProcessTerminationResult result = await OwnedProcessTermination.TerminateAsync(
                 api, pid, expectedPath, null, RecoveryDelayAsync, cancellationToken, awaitExit: false).ConfigureAwait(false);
             switch (result)
@@ -766,6 +771,43 @@ internal sealed partial class OverviewLifecycleService
 
     private void PublishRecoveryStatus(OverviewRecoveryStatus status)
     {
+        // HOME-004 R3-R1: opt-in, sanitized native event receipt for a bounded
+        // isolated Home run. No tokens, profiles, paths or process identities.
+        // Disabled in normal usage. The native status producer remains the
+        // authority for reason/state, not an external timing inference.
+        if (testHooks is null &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_HOME004_RECOVERY_TRACE") == "1")
+        {
+            try
+            {
+                var row = new
+                {
+                    utc = DateTimeOffset.UtcNow.ToString("O"),
+                    state = status.State,
+                    reason = status.Reason,
+                    restarted = status.Restarted,
+                    attempts = status.Attempts,
+                    startedAt = status.StartedAt,
+                    completedAt = status.CompletedAt,
+                    error = status.Error,
+                    authenticatedRoutes = bridgeHostState?.ConnectedRouteCount,
+                    listenerStarted = bridgeHostState?.IsRpcTransportStarted,
+                    failedRpcSessions = bridgeHostState?.FailedRpcSessionCount,
+                };
+                lock (recoveryTraceGate)
+                {
+                    // Runtime files are intentionally erased at exact Stop.
+                    // Keep this optional evidence with the isolated profile's
+                    // other task receipts so a successful cleanup cannot erase
+                    // the very observation the bounded test needs to retain.
+                    Directory.CreateDirectory(evidenceRoot);
+                    File.AppendAllText(Path.Combine(evidenceRoot, "home004-recovery-events.jsonl"),
+                        JsonSerializer.Serialize(row) + Environment.NewLine);
+                }
+            }
+            catch (IOException) { } // Diagnostics never alter recovery effects.
+            catch (UnauthorizedAccessException) { }
+        }
         try { RecoveryStatusChanged?.Invoke(status); }
         catch { }
     }
@@ -892,6 +934,17 @@ internal sealed partial class OverviewLifecycleService
         ValidateStopResult(result, profileId, snapshot.InstanceId,
             snapshot.GamePid, snapshot.GamePath, snapshot.GameStartedAtUtc, requireCurrentClientEvidence);
         if (testHooks is null) WriteHostStopEvidence(snapshot.InstanceId, result);
+        // R2 native inverse: after a real unexpected exit the old DPAPI
+        // adoption.json remained even though exact-session Stop restored the
+        // journal. A recovered launch then passed game-ready, but committing
+        // its new adoption record failed the protected ownership fence and
+        // rolled back that otherwise healthy successor. Retire ONLY this
+        // confirmed-restored session's registration and adoption record;
+        // the exact-session checks in both operations protect a successor
+        // when an old helper completion arrives late.
+        if (bridgeControlPipeLaunchBindingEnabled)
+            bridgeHostState?.CancelLaunchBinding(snapshot.InstanceId);
+        RemoveAdoptionRecord(snapshot.InstanceId, snapshot.Challenge);
         StopLeaseTimer(deleteLease: true, snapshot.InstanceId, snapshot.Challenge);
         ClearRuntimeSessionFiles(snapshot.InstanceId, snapshot.Challenge);
         lock (stateGate)
@@ -1063,8 +1116,17 @@ internal sealed partial class OverviewLifecycleService
             }
             recoveryConfirmed = recoveryReason is not null;
 
+            // F-04 CURRENT_CLIENT_ADAPTATION: fresh game-side disk heartbeat
+            // does not imply that the authenticated host route is still live.
+            // Both are required before declaring the bridge online, matching
+            // IsSnapshotReady / CurrentConnectionState. When the pipe alone
+            // drops, the still-responsive game may continue writing heartbeat.
+            // Treat it as transport offline and allow the 60s recovery policy.
+            bool routeConnected = !bridgeControlPipeLaunchBindingEnabled ||
+                (testHooks?.AuthenticatedRouteConnected?.Invoke(snapshot.InstanceId) ??
+                 (testHooks is not null || bridgeHostState?.IsRouteConnected(snapshot.InstanceId) == true));
             bool observed = MatchesBool(root, "gameStateObserved", true);
-            if (!observed) return new(true, false, false, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            if (!observed) return new(routeConnected, false, false, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
             bool healthy = MatchesBool(root, "gameReady", true) &&
                 MatchesBool(root, "loggedIn", true) &&
                 MatchesBool(root, "connected", true) &&
@@ -1073,7 +1135,7 @@ internal sealed partial class OverviewLifecycleService
                 !string.IsNullOrWhiteSpace(uid.GetString()) &&
                 root.TryGetProperty("serverId", out JsonElement server) && server.TryGetInt32(out int serverId) && serverId > 0 &&
                 root.TryGetProperty("worldPos", out JsonElement world) && world.TryGetInt64(out long worldPos) && worldPos > 0;
-            return new(true, true, healthy, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            return new(routeConnected, true, healthy, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
         }
         catch
         {

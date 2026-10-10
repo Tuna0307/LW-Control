@@ -33,7 +33,9 @@ const AUTO_WEEKEND_SHIELD_FLAG_KEY = "flag:autoWeekendShield";
 const AUTO_ATTACK_SHIELD_FLAG_KEY = "flag:autoAttackShield";
 const AUTO_RECONNECT_FLAG_KEY = "flag:autoForceUpdateReload";
 const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
-const HOME_LIFECYCLE_TIMEOUT_MS = 360_000;
+// Original 0.3.17 Home lifecycle invokes have no frontend request deadline.
+// The native owner and transport close/profile-generation guards still cancel retired work.
+const HOME_LIFECYCLE_TIMEOUT_MS = null;
 const mapApi = createMapApi(backendBridge);
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
@@ -176,7 +178,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [autoClosePopupIncoming, setAutoClosePopupIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
-  const [gameLaunchStatus, setGameLaunchStatus] = useState(null);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(initialAutoLaunchGame);
   const [homeBusy, setHomeBusy] = useState("");
@@ -194,6 +195,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [connectionError, setConnectionError] = useState("");
   const [statusPairReady, setStatusPairReady] = useState(backendBridge.mode === "preview");
   const [nativeProfileBusy, setNativeProfileBusy] = useState(false);
+  const [nativeProfileMutationBusy, setNativeProfileMutationBusy] = useState(false);
+  const nativeProfileMutationInFlightRef = useRef(false);
   const [nativeProfileError, setNativeProfileError] = useState("");
   const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
   const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
@@ -231,9 +234,21 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     generation: selectedProfileGeneration,
   };
   const lifecycleInFlightProfilesRef = useRef(new Set());
+  const sidebarLifecycleInFlightRef = useRef(new Set());
+  // The original Home and the retained native sidebar are separate controls,
+  // but each exact profile owns ONE native lifecycle. A global reconcile/
+  // restart holds every owner until its result returns.
+  const globalNativeLifecycleInFlightRef = useRef(false);
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   const nativeProfileRequestRef = useRef(0);
+  const nativeProfileSelectionRevisionRef = useRef(0);
+  const nativeReorderRevisionRef = useRef(0);
+  const nativeReorderAcknowledgedRevisionRef = useRef(0);
+  const nativeReorderWriteChainRef = useRef(Promise.resolve());
+  const nativeNoteRevisionsRef = useRef(new Map());
+  const nativeNoteAcknowledgedRevisionsRef = useRef(new Map());
+  const nativeNoteWriteChainsRef = useRef(new Map());
   const isCurrentProfileOwner = useCallback((owner) => (
     owner?.profileId === selectedProfileOwnerRef.current.profileId
     && owner?.generation === selectedProfileOwnerRef.current.generation
@@ -306,12 +321,26 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoReconnectStore.getSnapshot,
   );
 
-  const adoptNativeProfileSnapshot = useCallback((snapshot, expectedSelectedProfileId = "") => {
-    const next = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+  const adoptNativeProfileSnapshot = useCallback((
+    snapshot, expectedSelectedProfileId = "", preserveCurrentProfiles = false,
+  ) => {
+    let next = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
     if (expectedSelectedProfileId && next.selectedProfileId !== expectedSelectedProfileId) {
       const error = new Error("Native profile selection acknowledgement did not match the requested profile.");
       error.code = "PROFILE_SELECTION_MISMATCH";
       throw error;
+    }
+    if (preserveCurrentProfiles) {
+      // The native B owner was selected, but its snapshot may have been
+      // captured BEFORE an independent durable A/B note or reorder. Adopt
+      // B selection without rolling the later profile metadata back.
+      const current = shellProfilesRef.current;
+      const authoritativeIds = new Set(next.profiles.map((profile) => profile.id));
+      if (current.profiles.length === next.profiles.length &&
+          current.profiles.every((profile) => authoritativeIds.has(profile.id)) &&
+          current.profiles.some((profile) => profile.id === next.selectedProfileId)) {
+        next = { ...next, profiles: current.profiles };
+      }
     }
     if (next.selectedProfileId && next.selectedProfileId !== backendBridge.profileId) {
       backendBridge.setSelectedProfile(next.selectedProfileId);
@@ -328,49 +357,229 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (profileId === selectedProfileIdRef.current) return shellProfilesRef.current;
     const request = nativeProfileRequestRef.current + 1;
     nativeProfileRequestRef.current = request;
+    // Registry note/reorder may legitimately complete while this selected
+    // native owner is pending. They must not retire its acknowledgement or
+    // permanently hold the selection busy flag; only a newer Select can.
+    const selectionRevision = ++nativeProfileSelectionRevisionRef.current;
     setNativeProfileBusy(true);
     setNativeProfileError("");
     try {
       const snapshot = await backendBridge.invoke("profile_select", { profileId, focusGame: focusGame === true });
-      if (nativeProfileRequestRef.current !== request) return snapshot;
-      return adoptNativeProfileSnapshot(snapshot, profileId);
+      if (nativeProfileSelectionRevisionRef.current !== selectionRevision) return snapshot;
+      return adoptNativeProfileSnapshot(
+        snapshot, profileId, nativeProfileRequestRef.current !== request,
+      );
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileSelectionRevisionRef.current === selectionRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
       return undefined;
     } finally {
-      if (nativeProfileRequestRef.current === request) setNativeProfileBusy(false);
+      if (nativeProfileSelectionRevisionRef.current === selectionRevision) setNativeProfileBusy(false);
     }
   }, [adoptNativeProfileSnapshot]);
+
+  // F-07 OWN_DESIGN: real native local-profile CRUD, not preview Add/Delete.
+  // Keep roster mutations serial and let the registry enforce capacity,
+  // primary/selected invariants and stopped-owner deletion safety.
+  const mutateNativeProfiles = useCallback(async (command, payload = {}) => {
+    if (!backendBridge.available || backendBridge.mode !== "native" || nativeProfileMutationInFlightRef.current)
+      return undefined;
+    nativeProfileMutationInFlightRef.current = true;
+    setNativeProfileMutationBusy(true);
+    setNativeProfileError("");
+    try {
+      const snapshot = await backendBridge.invoke(command, payload);
+      nativeProfileRequestRef.current += 1;
+      return adoptNativeProfileSnapshot(snapshot);
+    } catch (error) {
+      setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    } finally {
+      nativeProfileMutationInFlightRef.current = false;
+      setNativeProfileMutationBusy(false);
+    }
+  }, [adoptNativeProfileSnapshot]);
+  const createNativeProfile = useCallback(() => mutateNativeProfiles("profile_create"), [mutateNativeProfiles]);
+  const removeNativeProfile = useCallback((profileId) => mutateNativeProfiles(
+    "profile_delete", { profileId },
+  ), [mutateNativeProfiles]);
+
+  // F-07 OWN_DESIGN: enable/disable the local native profile for future
+  // selection, manual Start and auto-launch. Only project the acknowledged
+  // target flag: a pending A toggle must not undo a newer B selection, note
+  // or reorder. Existing running owners remain independently stoppable.
+  const setNativeProfileEnabled = useCallback(async (profileId, enabled) => {
+    if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
+    if (nativeProfileMutationInFlightRef.current) {
+      const error = new Error("A profile mutation is already in progress.");
+      error.code = "GAME_OPERATION_IN_PROGRESS";
+      throw error;
+    }
+    nativeProfileMutationInFlightRef.current = true;
+    setNativeProfileMutationBusy(true);
+    setNativeProfileError("");
+    try {
+      const result = await backendBridge.invoke("profile_enabled_set", { profileId, enabled });
+      const acknowledged = normalizeProfileSnapshot(result, shellProfilesRef.current)
+        .profiles.find((profile) => profile.id === profileId);
+      if (!acknowledged || acknowledged.enabled !== enabled)
+        throw new Error("PROFILE_ENABLED_ACK_MISMATCH");
+      nativeProfileRequestRef.current += 1;
+      setShellProfiles((current) => ({
+        ...current,
+        profiles: current.profiles.map((profile) => profile.id === profileId
+          ? { ...profile, enabled: acknowledged.enabled } : profile),
+      }));
+      return result;
+    } catch (error) {
+      setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    } finally {
+      nativeProfileMutationInFlightRef.current = false;
+      setNativeProfileMutationBusy(false);
+    }
+  }, []);
 
   const reorderNativeProfiles = useCallback(async (profileIds) => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
     const request = nativeProfileRequestRef.current + 1;
     nativeProfileRequestRef.current = request;
+    const reorderRevision = ++nativeReorderRevisionRef.current;
     setNativeProfileError("");
+    // Profile display order is ONE shared registry field. Repeated JSX
+    // drags are independently admitted while an earlier native request is
+    // pending; execute reorder writes in submit order or a late older B,A
+    // write can overwrite newer durable A,B while the React revision
+    // fence correctly hides its stale acknowledgement. This queues only
+    // reorders, never independent A/B notes, selects, or lifecycle work.
+    const previous = nativeReorderWriteChainRef.current;
+    const write = previous.catch(() => undefined).then(
+      () => backendBridge.invoke("profile_reorder", { profileIds }),
+    );
+    nativeReorderWriteChainRef.current = write;
     try {
-      const snapshot = await backendBridge.invoke("profile_reorder", { profileIds });
-      if (nativeProfileRequestRef.current !== request) return snapshot;
-      return adoptNativeProfileSnapshot(snapshot);
+      const snapshot = await write;
+      // R15 serializes writes to the shared native order field. A later
+      // *requested* reorder may fail, so always project each successfully
+      // committed ordered result, even when newer metadata/select requests
+      // exist. Only exact order is adopted: never replace the selected owner,
+      // notes or a different registry roster with a stale full snapshot.
+      if (nativeReorderAcknowledgedRevisionRef.current < reorderRevision) {
+        const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+        nativeReorderAcknowledgedRevisionRef.current = reorderRevision;
+        setShellProfiles((current) => {
+          const visibleById = new Map(current.profiles.map((profile) => [profile.id, profile]));
+          const ordered = authoritative.profiles.map((profile) => visibleById.get(profile.id));
+          if (ordered.length !== current.profiles.length || ordered.some((profile) => !profile))
+            return current;
+          return { ...current, profiles: ordered };
+        });
+      }
+      return snapshot;
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileRequestRef.current === request &&
+          nativeReorderRevisionRef.current === reorderRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
       return undefined;
     }
-  }, [adoptNativeProfileSnapshot]);
+  }, []);
 
   const updateNativeProfileNote = useCallback(async (profileId, note) => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
     const request = nativeProfileRequestRef.current + 1;
     nativeProfileRequestRef.current = request;
+    const noteRevision = (nativeNoteRevisionsRef.current.get(profileId) || 0) + 1;
+    nativeNoteRevisionsRef.current.set(profileId, noteRevision);
     setNativeProfileError("");
+    // Two rapid submits for the SAME retained account must commit in the
+    // user's order. Otherwise late native execution of first note X can
+    // overwrite second note Y in SQLite while JSX displays Y. Do not use a
+    // global queue: A and B metadata writes remain independent.
+    const previous = nativeNoteWriteChainsRef.current.get(profileId) || Promise.resolve();
+    const write = previous.catch(() => undefined).then(
+      () => backendBridge.invoke("profile_note_set", { profileId, note }),
+    );
+    nativeNoteWriteChainsRef.current.set(profileId, write);
     try {
-      const snapshot = await backendBridge.invoke("profile_note_set", { profileId, note });
-      if (nativeProfileRequestRef.current !== request) return snapshot;
-      return adoptNativeProfileSnapshot(snapshot);
+      const snapshot = await write;
+      // The per-ID native write chain acknowledges commits in submit order.
+      // A newer *requested* note may fail: suppressing this successful X
+      // because pending Y has a higher revision leaves SQLite X but JSX old.
+      // Project each ordered SUCCESS for this exact owner, never the entire
+      // snapshot (whose selected owner/order may already be stale).
+      if ((nativeNoteAcknowledgedRevisionsRef.current.get(profileId) || 0) < noteRevision) {
+        const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+        const saved = authoritative.profiles.find((profile) => profile.id === profileId);
+        if (saved) {
+          nativeNoteAcknowledgedRevisionsRef.current.set(profileId, noteRevision);
+          setShellProfiles((current) => ({
+            ...current,
+            profiles: current.profiles.map((profile) => (
+              profile.id === profileId ? { ...profile, note: saved.note } : profile
+            )),
+          }));
+        }
+      }
+      return snapshot;
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileRequestRef.current === request &&
+          nativeNoteRevisionsRef.current.get(profileId) === noteRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    } finally {
+      if (nativeNoteWriteChainsRef.current.get(profileId) === write)
+        nativeNoteWriteChainsRef.current.delete(profileId);
+    }
+  }, []);
+
+  // Sidebar actions address retained native owners directly. They must survive
+  // A/B/A view selection without reassigning or retiring either running owner.
+  const readNativeInstance = useCallback((profileId) => backendBridge.invoke(
+    "profile_instance_status", { profileId },
+  ), []);
+  const runNativeProfileAction = useCallback(async (profileId, command, instanceId) => {
+    if (!backendBridge.available || !profileId) return null;
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.has(profileId)) {
+      const error = new Error("A game lifecycle operation is already in progress.");
+      error.code = "GAME_OPERATION_IN_PROGRESS";
       throw error;
     }
-  }, [adoptNativeProfileSnapshot]);
+    sidebarLifecycleInFlightRef.current.add(profileId);
+    try {
+      const payload = { profileId };
+      if (command === "profile_instance_start") payload.closeUnmanaged = true;
+      else if (typeof instanceId === "string") payload.instanceId = instanceId;
+      await backendBridge.invoke(command, payload, HOME_LIFECYCLE_TIMEOUT_MS);
+      return await readNativeInstance(profileId);
+    } finally {
+      sidebarLifecycleInFlightRef.current.delete(profileId);
+    }
+  }, [readNativeInstance]);
+  const startNativeProfile = useCallback((profileId) => runNativeProfileAction(
+    profileId, "profile_instance_start",
+  ), [runNativeProfileAction]);
+  const stopNativeProfile = useCallback((profileId, instanceId) => runNativeProfileAction(
+    profileId, "profile_instance_stop", instanceId,
+  ), [runNativeProfileAction]);
+  const restartAllNativeProfiles = useCallback(async () => {
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.size) {
+      const failure = new Error("A game lifecycle operation is already in progress.");
+      failure.code = "GAME_OPERATION_IN_PROGRESS";
+      throw failure;
+    }
+    globalNativeLifecycleInFlightRef.current = true;
+    try {
+      const result = await backendBridge.invoke("profile_instances_update_and_restart", {}, HOME_LIFECYCLE_TIMEOUT_MS);
+      if (result?.errors?.length) {
+        const failure = new Error(result.errors[0]?.message || result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+        failure.code = result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED";
+        throw failure;
+      }
+      return result;
+    } finally {
+      globalNativeLifecycleInFlightRef.current = false;
+    }
+  }, []);
 
   useEffect(() => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
@@ -408,7 +617,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       setRuntimeStatus(null);
       setProxyStatus(null);
       setGameRootStatus(null);
-      setGameLaunchStatus(null);
       setGameRecoveryStatus(null);
       setGameRootError("");
       setGameActionError("");
@@ -613,6 +821,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId || startupReconcileStartedRef.current) return;
     startupReconcileStartedRef.current = true;
+    globalNativeLifecycleInFlightRef.current = true;
     let closed = false;
     const owner = { ...selectedProfileOwnerRef.current };
     const profileId = owner.profileId;
@@ -639,6 +848,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     }).finally(() => {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      globalNativeLifecycleInFlightRef.current = false;
       if (!closed && isCurrentProfileOwner(owner)) {
         setGameLaunchBusy(false);
       }
@@ -665,15 +875,11 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     let closed = false;
     const owner = { ...selectedProfileOwnerRef.current };
-    Promise.allSettled([
-      backendBridge.invoke("game_root_status", {}),
-      backendBridge.invoke("local_game_launch_status", {}),
-    ]).then(([rootResult, launchResult]) => {
+    backendBridge.invoke("game_root_status", {}).then((rootStatus) => {
       if (closed || !isCurrentProfileOwner(owner)) return;
-      if (rootResult.status === "fulfilled") acknowledgeGameRootStatus(rootResult.value);
-      else setGameRootError(rootResult.reason?.message || String(rootResult.reason));
-      if (launchResult.status === "fulfilled") setGameLaunchStatus(launchResult.value);
-      else setGameLaunchStatus({ valid: false, error: launchResult.reason?.code || launchResult.reason?.message || String(launchResult.reason) });
+      acknowledgeGameRootStatus(rootStatus);
+    }).catch((error) => {
+      if (!closed && isCurrentProfileOwner(owner)) setGameRootError(error?.message || String(error));
     });
     return () => { closed = true; };
   }, [acknowledgeGameRootStatus, isCurrentProfileOwner, selectedProfileId]);
@@ -890,8 +1096,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       const next = await backendBridge.invoke("game_root_status", {});
       if (!isCurrentProfileOwner(owner)) return;
       acknowledgeGameRootStatus(next);
-      const launchStatus = await backendBridge.invoke("local_game_launch_status", {});
-      if (isCurrentProfileOwner(owner)) setGameLaunchStatus(launchStatus);
     } catch (error) {
       if (isCurrentProfileOwner(owner)) setGameRootError(error?.message || String(error));
     } finally {
@@ -910,8 +1114,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || lifecycleInFlightProfilesRef.current.has(ownerKey) ||
+        sidebarLifecycleInFlightRef.current.has(owner.profileId)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    sidebarLifecycleInFlightRef.current.add(owner.profileId);
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -927,6 +1133,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      sidebarLifecycleInFlightRef.current.delete(owner.profileId);
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
@@ -935,19 +1142,29 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || lifecycleInFlightProfilesRef.current.has(ownerKey) ||
+        sidebarLifecycleInFlightRef.current.has(owner.profileId)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    sidebarLifecycleInFlightRef.current.add(owner.profileId);
     setProxyBusy(true);
     setGameActionError("");
     try {
-      const instance = await backendBridge.invokeProfileScoped("profile_instance_status", {});
-      if (instance?.instanceId) {
-        await backendBridge.invokeProfileScoped(
-          "profile_instance_stop",
-          { instanceId: instance.instanceId },
-          HOME_LIFECYCLE_TIMEOUT_MS,
-        );
-      }
+      // Original 0.3.17 Home Pt captures its selected profile ID before the
+      // awaited status read, then Stops that same owner. A view switch must
+      // retire stale UI replies, not silently abandon an already-clicked
+      // Close or redirect it to the newly selected owner.
+      const instance = await backendBridge.invoke(
+        "profile_instance_status", { profileId: owner.profileId },
+      );
+      // F-04 OWN_DESIGN: recovery may be cancelling an official launcher
+      // before an instanceId exists. The native Stop explicitly supports an
+      // absent optional ID for this case and waits for exact-owner cleanup.
+      // Skipping dispatch previously made a clickable Home Close a silent noop.
+      await backendBridge.invoke(
+        "profile_instance_stop",
+        { profileId: owner.profileId, ...(instance?.instanceId ? { instanceId: instance.instanceId } : {}) },
+        HOME_LIFECYCLE_TIMEOUT_MS,
+      );
       await refreshHomeProxyStatus(owner);
     } catch (error) {
       if (isCurrentProfileOwner(owner)) {
@@ -955,6 +1172,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      sidebarLifecycleInFlightRef.current.delete(owner.profileId);
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
@@ -963,8 +1181,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.size ||
+        lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    globalNativeLifecycleInFlightRef.current = true;
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -973,9 +1193,40 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         {},
         HOME_LIFECYCLE_TIMEOUT_MS,
       );
-      await refreshHomeProxyStatus(owner);
-      if (Array.isArray(result?.errors) && result.errors.length > 0 && isCurrentProfileOwner(owner)) {
-        setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+      if (!Array.isArray(result?.errors) || !Array.isArray(result?.restarted)) {
+        throw new Error("GAME_REPAIR_INVALID_RESULT");
+      }
+      if (result.errors.length > 0) {
+        if (isCurrentProfileOwner(owner))
+          setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+        return;
+      }
+      const repairStatus = await refreshHomeProxyStatus(owner);
+      const selectedRestarted = result.restarted.includes(owner.profileId);
+      // F-06 OWN_DESIGN: a game updated outside our journal can have a
+      // damaged bridge but no saved repair session. The global legacy repair
+      // command correctly cannot restore an absent journal. Rather than
+      // acknowledging a silent noop, explicitly launch this captured owner
+      // through the supported helper's closeUnmanaged repair/install path.
+      // Native start checks the selected installation and foreign ownership.
+      if (!selectedRestarted && repairStatus?.repairRequired !== true) {
+        // No journal was repaired, and the status no longer exposes a repair
+        // target (for example the game exited or the selected view changed).
+        // An empty global result is not evidence that the advertised repair
+        // actually happened. Never acknowledge this as successful.
+        throw new Error("GAME_REPAIR_NOT_APPLIED");
+      }
+      if (repairStatus?.repairRequired === true && !selectedRestarted) {
+        const started = await backendBridge.invoke(
+          "profile_instance_start",
+          { profileId: owner.profileId, closeUnmanaged: true },
+          HOME_LIFECYCLE_TIMEOUT_MS,
+        );
+        if (started?.connectionState !== "connected")
+          throw new Error("GAME_REPAIR_CONNECT_NOT_READY");
+        await refreshHomeProxyStatus(owner);
+      } else if (repairStatus?.repairRequired === true) {
+        throw new Error("GAME_REPAIR_INCOMPLETE");
       }
     } catch (error) {
       if (isCurrentProfileOwner(owner)) {
@@ -983,6 +1234,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      globalNativeLifecycleInFlightRef.current = false;
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
@@ -1035,11 +1287,18 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const serverJumpBusyActive = serverJumpBusy > 0;
   const nativeProfileCallbacks = backendBridge.mode === "native" ? {
     onSelect: selectNativeProfile,
+    onCreate: createNativeProfile,
+    onRemove: removeNativeProfile,
+    onSetEnabled: setNativeProfileEnabled,
     onReorder: reorderNativeProfiles,
     onUpdateNote: updateNativeProfileNote,
+    readInstance: readNativeInstance,
+    onStartProfile: startNativeProfile,
+    onStopProfile: stopNativeProfile,
+    onRestartAll: restartAllNativeProfiles,
   } : {};
   const profileCallbacks = profilePreview ? profilePreviewCallbacks : nativeProfileCallbacks;
-  const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy;
+  const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy || nativeProfileMutationBusy;
 
   const stateText = {
     connected: t("status.connected"),
@@ -1072,7 +1331,6 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     homeState: {
       rootResolved: gameRootStatus !== null,
       gameRootStatus,
-      gameLaunchStatus,
       proxyStatus,
       online,
       gameRecoveryStatus,
@@ -1219,7 +1477,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
         {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}
-          busy={nativeProfileBusy}
+          busy={nativeProfileBusy || nativeProfileMutationBusy}
           error={nativeProfileError}
           focusGameOnProfileSelect={focusGameOnProfileSelect}
           {...profileCallbacks}

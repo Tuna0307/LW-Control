@@ -1,0 +1,36 @@
+{
+  "reviewedSourceCommit": "c7f53530a57911b226bce57d047c08a79ba4be42",
+  "leadGameLaunches": 0,
+  "leadDesktopActions": 0,
+  "stalePendingStop": {
+    "proof": "HOME004_R4_LEAD_STALE_PENDING_STOP_INVERSE",
+    "usesActualProductionLifecycle": true,
+    "oldAndPendingOwnerDiffer": true,
+    "rejectedCode": null,
+    "desiredAfterStaleStop": false,
+    "recoveryState": "idle",
+    "defectReproduced": true
+  },
+  "explicitProfileBackendBoundary": {
+    "proof": "HOME004_R4_LEAD_SELECTED_BACKEND_SCOPE_INVERSE",
+    "actualSelectedBackendError": "PROFILE_RUNTIME_UNAVAILABLE",
+    "actualTargetBackendReturnsOwnInstance": true,
+    "scope": "Actual backend boundary plus inspection of current WebView selected-backend-only dispatch. No mounted dispatcher execution was claimed.",
+    "preserveBackendForeignProfileRejection": true
+  },
+  "actualNativeSidebarCallbacks": {
+    "proof": "HOME004_R4_LEAD_ACTUAL_NATIVE_SIDEBAR_CALLBACKS",
+    "actualNativeCallbacks": ["onSelect", "onReorder", "onUpdateNote"],
+    "missing": ["readInstance", "onStartProfile", "onStopProfile", "onRestartAll"],
+    "consumerFencesUnprovidedPollingAndBatchActions": true,
+    "scope": "Executed actual App callback expression and inspected actual JSX consumer. No new mounted screenshot proof was claimed."
+  },
+  "generalChecks": {
+    "nativeDeliverySuite": "PASS",
+    "realWindowsPipeRecoveryAndConcurrentRpc": "PASS",
+    "frontendCheck": "PASS",
+    "productionUiPackage": "PASS"
+  },
+  "workerReleaseZipSha256": "9AB96E868958101440F0C6AE31756D2B0B98B438726AA269644689C9497A6B39",
+  "referenceExeSha256": "4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783"
+}

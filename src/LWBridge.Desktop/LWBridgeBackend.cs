@@ -19,8 +19,14 @@ internal sealed class LWBridgeBackend
         "auth_state",
         "multi_entitlement_get",
         "profile_list",
+        // Local roster mutations act on the controller registry, not on a
+        // selected game's profile-scoped bridge transport. Profile deletion
+        // carries its explicit target and still passes the native owner gate.
+        "profile_create",
+        "profile_delete",
         "profile_select",
         "profile_note_set",
+        "profile_enabled_set",
         "profile_reorder",
         "profile_primary_set",
         "profile_instances_reconcile",
@@ -251,7 +257,7 @@ internal sealed class LWBridgeBackend
         // Startup reconciliation belongs to the registry before the selected
         // runtime. Calling that runtime directly skips enabled/locked admission
         // and the recovered profile ordering supplied by the composite service.
-        if (command == "profile_instances_reconcile" &&
+        if (command is "profile_instances_reconcile" or "profile_instances_update_and_restart" &&
             asyncCommands?.CanHandle(command) == true)
         {
             ValidateCommandScope(command, payload);
@@ -343,7 +349,7 @@ internal sealed class LWBridgeBackend
                 return new
                 {
                     phase = "idle",
-                    currentVersion = "0.3.1",
+                    currentVersion = "0.3.17",
                     latestVersion = (string?)null,
                     releaseNotes = "",
                     publishedAt = (string?)null,
@@ -737,7 +743,13 @@ internal sealed class LWBridgeBackend
         bool enabled = payload.TryGetProperty("enabled", out JsonElement enabledElement) &&
                        enabledElement.ValueKind == JsonValueKind.True;
         if (name == "autoClosePopup")
+        {
+            // 0.3.17 writes the effective false value before acknowledging.
+            // A failed write must not be silently reported as a successful
+            // toggle. No protected game-side forward is claimed here.
+            UpdateConfig(c => c with { AutoClosePopup = false });
             return new { ok = true, name, enabled = false };
+        }
         if (name == "autoForceUpdateReload")
         {
             UpdateConfig(c => c with { AutoReconnect = enabled });
@@ -779,7 +791,7 @@ internal sealed class LWBridgeBackend
                 auto_weekend_shield = false,
                 auto_attack_shield = false,
                 auto_force_update_reload = config.Snapshot.AutoReconnect,
-                auto_close_popup = false,
+                auto_close_popup = config.Snapshot.AutoClosePopup,
                 tasks = runtimeTasksProvider?.Invoke() ?? new Dictionary<string, object>(),
             },
         };
@@ -1166,9 +1178,12 @@ internal sealed class LWBridgeBackend
             property.ValueKind != JsonValueKind.String ||
             string.IsNullOrWhiteSpace(property.GetString()))
         {
+            // 0.3.17 profile_instance_status 0x1a0da4 parses this argument
+            // independently of the general profile resolver. Missing or
+            // non-string profileId is INVALID_REQUEST, not PROFILE_ID_REQUIRED.
             throw new BridgeCommandException(
-                "PROFILE_ID_REQUIRED",
-                "PROFILE_ID_REQUIRED");
+                "INVALID_REQUEST",
+                "INVALID_REQUEST");
         }
 
         if (!string.Equals(property.GetString(), ProfileId, StringComparison.Ordinal))

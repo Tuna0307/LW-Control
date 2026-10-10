@@ -16,6 +16,46 @@ internal static class GameRootSelectChecks
         {
             var config = new LocalConfigStore(
                 Path.Combine(root, "config"));
+            // H-03: original Start checks the selected root before launcher work.
+            // Keep the helper physically absent to expose the former regression:
+            // OVERVIEW_HELPER_MISSING used to preempt GAME_ROOT_NOT_FOUND.
+            using (var missingHelper = new OverviewLifecycleService(
+                "home-004-missing-root", null,
+                helperPath: Path.Combine(root, "no-such-helper.py"),
+                startRecoveryMonitor: false,
+                runtimeRoot: Path.Combine(root, "missing-helper-runtime"),
+                evidenceRoot: Path.Combine(root, "missing-helper-evidence"),
+                backupRoot: Path.Combine(root, "missing-helper-backups"),
+                applicationDataRoot: Path.Combine(root, "missing-helper-data")))
+            {
+                await ExpectCommandCodeAsync(() => missingHelper.InvokeAsync(
+                    "profile_instance_start",
+                    JsonSerializer.SerializeToElement(new { profileId = "home-004-missing-root" }),
+                    CancellationToken.None), "GAME_ROOT_NOT_FOUND",
+                    "missing root takes original precedence over local missing helper");
+            }
+            foreach (string primitive in new[] { "null", "false", "42", "\"unexpected\"", "[]" })
+            {
+                // H-21: non-object/missing/nonboolean autoLaunchAll preserves
+                // the native original true default; a root error distinguishes
+                // attempting Start from silently skipping the one-shot launch.
+                string owner = "home-004-reconcile-default";
+                using var reconcile = new OverviewLifecycleService(owner, null,
+                    helperPath: Path.Combine(root, "no-such-helper.py"),
+                    startRecoveryMonitor: false,
+                    runtimeRoot: Path.Combine(root, "reconcile-" + Guid.NewGuid().ToString("N")),
+                    evidenceRoot: Path.Combine(root, "reconcile-evidence"),
+                    backupRoot: Path.Combine(root, "reconcile-backups"),
+                    applicationDataRoot: Path.Combine(root, "reconcile-data"));
+                JsonElement value = JsonSerializer.SerializeToElement(
+                    await reconcile.InvokeAsync("profile_instances_reconcile",
+                        JsonDocument.Parse(primitive).RootElement, CancellationToken.None),
+                    JsonOptions.Default);
+                Require(value.GetProperty("errors")[0].GetProperty("error").GetString() == "GAME_ROOT_NOT_FOUND",
+                    "non-object reconcile payload still attempts the original default Auto Launch");
+            }
+            // Real producer/adoption integration is exercised separately by
+            // HomeR1AdoptionChecks; do not fabricate the caller's serializer.
             string previous = CreateNativeRoot(
                 Path.Combine(root, "previous"));
             config.Update(c => c with { GameRoot = previous });
@@ -241,6 +281,7 @@ internal static class GameRootSelectChecks
         int startCalls = 0;
         int stopCalls = 0;
         string capturedActiveRoot = rootB;
+        bool pendingJournal = false;
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -279,7 +320,12 @@ internal static class GameRootSelectChecks
             ReadAllBytes = path =>
             {
                 if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (pendingJournal)
+                        return System.Text.Encoding.UTF8.GetBytes(
+                            "{\"schemaVersion\":1,\"stage\":\"backup_ready\"}");
                     throw new FileNotFoundException(path);
+                }
                 return Heartbeat(profileId, session!, challenge!, gamePid);
             },
             WriteLease = (_, _, _) => { },
@@ -430,6 +476,33 @@ internal static class GameRootSelectChecks
         }
         await ExpectCommandCodeAsync(() => backend.InvokeAsync("profile_instance_stop", profilePayload,
             CancellationToken.None), "INSTANCE_NOT_OWNED", "no active Close owner");
+        // Baseline on R4 predecessor: the picker wrongly throws GAME_REPAIR_REQUIRED
+        // when the old installation has a pending journal. Original root_select
+        // saves the choice; restoration still belongs to the journal's old root.
+        pendingJournal = true;
+        NativeGameRootSelectionResult pendingSelection =
+            backend.SaveNativeGameRootSelection(rootB);
+        Require(pendingSelection.Valid && SamePath(config.Snapshot.GameRoot!, rootB) &&
+                stopCalls == 8 && !processAlive,
+            "picker persists the next root while a pending old-root repair journal remains");
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync(
+            "profile_instance_start", profilePayload, CancellationToken.None),
+            "GAME_REPAIR_REQUIRED",
+            "persisted picker change cannot bypass unfinished restoration of previous installation");
+        Require(startCalls == 8 && !processAlive,
+            "unfinished old-root journal prevented helper launch into the selected replacement root");
+        pendingJournal = false;
+        JsonElement postJournalStart = JsonSerializer.SerializeToElement(
+            await backend.InvokeAsync("profile_instance_start", profilePayload,
+                CancellationToken.None), JsonOptions.Default);
+        Require(processAlive && SamePath(capturedActiveRoot, rootB) &&
+                postJournalStart.GetProperty("phase").GetString() == "running",
+            "next eligible Start consumes root selected during pending repair");
+        _ = await backend.InvokeAsync("profile_instance_stop", JsonSerializer.SerializeToElement(new
+        {
+            profileId,
+            instanceId = postJournalStart.GetProperty("instanceId").GetString()
+        }), CancellationToken.None);
         Console.WriteLine("HOME_LAUNCH_002_NATIVE_NEGATIVE_CHECKS_OK duplicate Start, stale/empty Close, optional identity 6/6, exact Close, active-root ownership; game launches=0");
     }
 

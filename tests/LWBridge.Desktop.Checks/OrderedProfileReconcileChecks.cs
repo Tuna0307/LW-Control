@@ -40,6 +40,17 @@ internal static class OrderedProfileReconcileChecks
                 command.ExecuteNonQuery();
             }
             using var registry = new ProfileRegistryCommandService(store, maxProfiles: 1);
+            // 010 c-handlers 0x1a4d26: validate ID before note payload.
+            // A bad ID and missing note must produce INVALID_PROFILE_ID,
+            // rather than the clone's former INVALID_REQUEST.
+            try
+            {
+                _ = await registry.InvokeAsync("profile_note_set",
+                    JsonSerializer.SerializeToElement(new { profileId = "bad/id" }),
+                    CancellationToken.None);
+                throw new InvalidOperationException("invalid note owner unexpectedly accepted");
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_PROFILE_ID") { }
             var called = new List<string>();
             var service = new OrderedProfileReconcileCommandService(registry,
                 (owner, _, token) =>
@@ -84,6 +95,19 @@ internal static class OrderedProfileReconcileChecks
             Require(wrong.GetProperty("errors")[0].GetProperty("profileId").GetString() == "profile-C" &&
                 wrong.GetProperty("errors")[0].GetProperty("error").GetString() == "PROFILE_SCOPE_MISMATCH",
                 "foreign-owner failure cannot leak into another profile");
+            var mixedReconcile = new OrderedProfileReconcileCommandService(registry,
+                (owner, _, _) => Task.FromResult<object?>(new { errors = new[]
+                {
+                    new { profileId = owner, error = "LAUNCH_FAILED" },
+                    new { profileId = "unrelated", error = "GAME_CLOSE_FAILED" },
+                } }));
+            JsonElement mixed = JsonSerializer.SerializeToElement(
+                await mixedReconcile.InvokeAsync("profile_instances_reconcile", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(mixed.GetProperty("errors").EnumerateArray().All(item =>
+                    item.GetProperty("error").GetString() == "PROFILE_SCOPE_MISMATCH") &&
+                mixed.GetProperty("errors").GetArrayLength() == 3,
+                "one malformed mixed-owner reconcile result cannot partly publish an earlier apparent success");
 
             var cancel = new OrderedProfileReconcileCommandService(registry,
                 (_, _, token) => { token.ThrowIfCancellationRequested();
@@ -121,6 +145,60 @@ internal static class OrderedProfileReconcileChecks
                 "actual backend uses registry admission/order rather than its disabled selected runtime");
             _ = await backend.InvokeAsync("profile_instances_reconcile", empty, CancellationToken.None);
             Require(dispatchedOwners == 3, "actual backend preserves consumed-once startup reconciliation");
+
+            var restartedOwners = new List<string>();
+            var multiRestart = new OrderedProfileReconcileCommandService(
+                registry,
+                (_, _, _) => Task.FromResult<object?>(new { errors = Array.Empty<object>() }),
+                (owner, _, _) =>
+                {
+                    restartedOwners.Add(owner);
+                    if (owner == "profile-B")
+                        throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "B is busy");
+                    if (owner == "profile-A")
+                        return Task.FromResult<object?>(new { restarted = Array.Empty<string>(),
+                            errors = new[] { new { profileId = owner, error = "GAME_CLOSE_FAILED", message = "A restore" } } });
+                    return Task.FromResult<object?>(new { restarted = new[] { owner },
+                        errors = Array.Empty<object>() });
+                });
+            var multiBackend = new LWBridgeBackend(config,
+                asyncCommands: new CompositeAsyncCommandService(multiRestart, lifecycle),
+                overviewLifecycle: lifecycle);
+            JsonElement restartResult = JsonSerializer.SerializeToElement(
+                await multiBackend.InvokeAsync("profile_instances_update_and_restart", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(restartedOwners.SequenceEqual(new[] { "profile-C", "profile-B", "profile-A" }),
+                "actual backend visits enabled/unlocked owners for Update-and-Restart in registry order");
+            Require(restartResult.GetProperty("restarted").EnumerateArray().Select(x => x.GetString())
+                    .SequenceEqual(new[] { "profile-C" }) &&
+                restartResult.GetProperty("errors").EnumerateArray().Select(x => x.GetProperty("profileId").GetString())
+                    .SequenceEqual(new[] { "profile-B", "profile-A" }),
+                "one owner restart failure cannot hide a successful later owner or reattribute its errors");
+            var wrongRestart = new OrderedProfileReconcileCommandService(registry,
+                (_, _, _) => Task.FromResult<object?>(new { errors = Array.Empty<object>() }),
+                (_, _, _) => Task.FromResult<object?>(new
+                { restarted = new[] { "other-owner" }, errors = Array.Empty<object>() }));
+            JsonElement wrongRestartResult = JsonSerializer.SerializeToElement(
+                await wrongRestart.InvokeAsync("profile_instances_update_and_restart", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(wrongRestartResult.GetProperty("restarted").GetArrayLength() == 0 &&
+                wrongRestartResult.GetProperty("errors").EnumerateArray().All(x =>
+                    x.GetProperty("error").GetString() == "PROFILE_SCOPE_MISMATCH"),
+                "foreign restart result cannot be attributed to an unrelated registered owner");
+            var mixedRestart = new OrderedProfileReconcileCommandService(registry,
+                (_, _, _) => Task.FromResult<object?>(new { errors = Array.Empty<object>() }),
+                (owner, _, _) => Task.FromResult<object?>(new
+                {
+                    restarted = new[] { owner },
+                    errors = new[] { new { profileId = "unrelated", error = "GAME_CLOSE_FAILED" } },
+                }));
+            JsonElement rejectedMixedRestart = JsonSerializer.SerializeToElement(
+                await mixedRestart.InvokeAsync("profile_instances_update_and_restart", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(rejectedMixedRestart.GetProperty("restarted").GetArrayLength() == 0 &&
+                rejectedMixedRestart.GetProperty("errors").EnumerateArray().All(x =>
+                    x.GetProperty("error").GetString() == "PROFILE_SCOPE_MISMATCH"),
+                "mixed foreign errors cannot leave an owner falsely reported as restarted");
 
             Console.WriteLine("ORDERED profile reconcile: service and actual backend routing PASS; game launches=0");
         }

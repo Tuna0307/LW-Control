@@ -17,11 +17,19 @@ export function reorderProfileIds(ids, sourceId, targetId) {
   return next;
 }
 
+export function profileHasStopTarget(instance) {
+  const failed = instance?.phase === "error" && instance.pid == null;
+  const owned = typeof instance?.instanceId === "string" && instance.instanceId.length > 0;
+  // F-04/F-07: native recovery can still own a relaunch after restoring the
+  // old instance ID. It is cancellable even without a live game process.
+  return (owned && !failed) || instance?.connectionState === "recovering";
+}
+
 export function profileBatchIds(action, profiles, instances) {
   return profiles.flatMap((profile) => {
     const instance = instances[profile.id];
-    const failed = instance?.phase === "error" && instance.pid == null;
-    return (action === "start" ? profile.enabled && (!instance || failed) : instance && !failed) ? [profile.id] : [];
+    const canStop = profileHasStopTarget(instance);
+    return (action === "start" ? profile.enabled && !profile.lockedReason && !canStop : canStop) ? [profile.id] : [];
   });
 }
 
@@ -30,6 +38,8 @@ function errorCodes(value) {
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
   const message = value instanceof Error ? value.message : String(value ?? "");
   codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
+  // Original shared Ir selects later message tokens before earlier ones and
+  // prefers those over a structured code pushed before message extraction.
   return [...new Set(codes)].reverse();
 }
 
@@ -48,6 +58,8 @@ function ProfileIcon({ name }) {
     {name === "add" ? <path d="M8 3v10M3 8h10" /> : null}
     {name === "drag" ? <path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /> : null}
     {name === "edit" ? <><path d="m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z" /><path d="m9.5 4.5 2 2" /></> : null}
+    {name === "enabled" ? <path d="m3 8 3 3 7-7" /> : null}
+    {name === "disabled" ? <path d="M3 8h10" /> : null}
     {name === "remove" ? <path d="m4 4 8 8M12 4l-8 8" /> : null}
     {name === "play" ? <path d="m5 3 8 5-8 5V3Z" /> : null}
     {name === "stop" ? <rect x="4" y="4" width="8" height="8" rx="1" /> : null}
@@ -101,20 +113,45 @@ export function ProfileSidebar({
   state = null, busy = false, error = "", instances = EMPTY_INSTANCES,
   profileLaunchErrors = EMPTY_ERRORS, focusGameOnProfileSelect = true,
   onSelect = null, onCreate = null, onRemove = null, onReorder = null, onUpdateNote = null,
+  onSetEnabled = null,
   readInstance = null, onStartProfile = null, onStopProfile = null, onRestartAll = null,
   onClearProfileLaunchErrors = null,
 }) {
   const { t } = useI18n();
   const [instanceState, setInstanceState] = useState(instances);
-  const [runBusyId, setRunBusyId] = useState("");
+  // Concurrent retained owners must keep independent visible busy states.
+  // One owner's completed Start/Stop cannot clear another owner's pending UI.
+  const [runBusyIds, setRunBusyIds] = useState(() => new Set());
   const [batchBusy, setBatchBusy] = useState("");
   const [actionError, setActionError] = useState("");
+  const [enabledBusyId, setEnabledBusyId] = useState("");
   const [restartRequired, setRestartRequired] = useState(false);
   const [noteId, setNoteId] = useState("");
   const [noteValue, setNoteValue] = useState("");
   const [draggedId, setDraggedId] = useState("");
   const [dragOverId, setDragOverId] = useState("");
   const [collapsed, setCollapsed] = useState(true);
+  const instanceRevisionsRef = useRef(new Map());
+  const profileActionsRef = useRef(new Set());
+  function beginProfileAction(id) {
+    if (profileActionsRef.current.has(id)) {
+      const failure = new Error("A game lifecycle operation is already in progress.");
+      failure.code = "GAME_OPERATION_IN_PROGRESS";
+      throw failure;
+    }
+    profileActionsRef.current.add(id);
+    setRunBusyIds((current) => new Set(current).add(id));
+    instanceRevisionsRef.current.set(id, (instanceRevisionsRef.current.get(id) || 0) + 1);
+  }
+  function endProfileAction(id) {
+    instanceRevisionsRef.current.set(id, (instanceRevisionsRef.current.get(id) || 0) + 1);
+    profileActionsRef.current.delete(id);
+    setRunBusyIds((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  }
   useEffect(() => { setInstanceState(instances); }, [instances]);
   useEffect(() => {
     if (!state || !readInstance) return undefined;
@@ -123,9 +160,23 @@ export function ProfileSidebar({
     const poll = async () => {
       if (polling) return;
       polling = true;
+      const revisions = new Map(state.profiles.map((profile) =>
+        [profile.id, instanceRevisionsRef.current.get(profile.id) || 0]));
       try {
-        const entries = await Promise.all(state.profiles.map(async (profile) => [profile.id, await readInstance(profile.id).catch(() => null)]));
-        if (!closed) setInstanceState(Object.fromEntries(entries));
+        const entries = await Promise.all(state.profiles.map(async (profile) => {
+          try { return [profile.id, true, await readInstance(profile.id)]; }
+          catch { return [profile.id, false, null]; }
+        }));
+        if (!closed) setInstanceState((current) => {
+          const next = { ...current };
+          for (const [id, ok, result] of entries) {
+            // A poll begun before Start/Stop cannot overwrite that action's
+            // newer exact-owner result, even if its native response arrives last.
+            if (ok && !profileActionsRef.current.has(id) &&
+              revisions.get(id) === (instanceRevisionsRef.current.get(id) || 0)) next[id] = result;
+          }
+          return next;
+        });
       } finally { polling = false; }
     };
     poll();
@@ -148,14 +199,19 @@ export function ProfileSidebar({
     onClearProfileLaunchErrors?.();
     setBatchBusy(action); setActionError(""); setRestartRequired(false);
     for (const id of ids) {
+      let acquired = false;
       try {
+        beginProfileAction(id);
+        acquired = true;
         if (action === "start") next[id] = await onStartProfile(id);
-        else if (next[id]) { await onStopProfile(id, next[id].instanceId); next[id] = null; }
-        setInstanceState({ ...next });
+        else if (next[id]) { next[id] = await onStopProfile(id, next[id].instanceId); }
+        setInstanceState((current) => ({ ...current, [id]: next[id] }));
       } catch (failure) {
         const name = profiles.find((profile) => profile.id === id)?.roleName || id;
         failures.push(`${name}：${profileError(t, failure)}`);
         if (errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED")) setRestartRequired(true);
+      } finally {
+        if (acquired) endProfileAction(id);
       }
     }
     setActionError(failures.join("\n")); setBatchBusy("");
@@ -164,14 +220,16 @@ export function ProfileSidebar({
   async function runProfile(profile, instance, running) {
     const provider = running ? onStopProfile : onStartProfile;
     if (!provider) return;
-    setRunBusyId(profile.id); onClearProfileLaunchErrors?.(); setActionError(""); setRestartRequired(false);
+    if (profileActionsRef.current.has(profile.id)) return;
+    beginProfileAction(profile.id);
+    onClearProfileLaunchErrors?.(); setActionError(""); setRestartRequired(false);
     try {
-      const next = running ? (await provider(profile.id, instance.instanceId), null) : await provider(profile.id);
+      const next = running ? await provider(profile.id, instance?.instanceId) : await provider(profile.id);
       setInstanceState((current) => ({ ...current, [profile.id]: next }));
     } catch (failure) {
       setActionError(profileError(t, failure));
       setRestartRequired(errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED"));
-    } finally { setRunBusyId(""); }
+    } finally { endProfileAction(profile.id); }
   }
 
   async function removeProfile(profile, displayName) {
@@ -196,8 +254,7 @@ export function ProfileSidebar({
       <div className="profile-items">{profiles.map((profile) => {
         const display = profileDisplay(profile, t);
         const instance = instanceState[profile.id];
-        const failed = instance?.phase === "error" && instance.pid == null;
-        const running = !!instance && !failed;
+        const running = profileHasStopTarget(instance);
         const connection = profile.lockedReason ? "locked" : instance?.connectionState ?? "offline";
         return <div className={`profile-row${profile.id === state.selectedProfileId ? " active" : ""}${draggedId === profile.id ? " dragging" : ""}${dragOverId === profile.id ? " drag-over" : ""}`} key={profile.id}
           onDragOver={(event) => { if (onReorder && draggedId && draggedId !== profile.id) { event.preventDefault(); setDragOverId(profile.id); } }}
@@ -214,16 +271,34 @@ export function ProfileSidebar({
             <span className={`profile-dot ${connection}`} /><span className="profile-copy"><strong>{display.name}</strong><div className="profile-sub-row"><span className="profile-server">{display.server}</span><span className={`profile-state-label ${connection}`}>{t(CONNECTION_KEYS[connection])}</span>{display.note ? <span className="profile-note" title={display.note}>· {display.note}</span> : null}</div></span>
           </button>
           <div className="profile-row-actions">
+            <button type="button" className="profile-note-edit profile-enable-toggle"
+              aria-pressed={profile.enabled === true}
+              disabled={busy || !!enabledBusyId || !onSetEnabled || !!profile.lockedReason}
+              title={`${display.name} · ${t(profile.enabled ? "common.enabled" : "common.disabled")}`}
+              aria-label={`${display.name} · ${t(profile.enabled ? "common.enabled" : "common.disabled")}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                setEnabledBusyId(profile.id); setActionError("");
+                Promise.resolve().then(() => onSetEnabled(profile.id, !profile.enabled))
+                  .catch((failure) => setActionError(profileError(t, failure)))
+                  .finally(() => setEnabledBusyId(""));
+              }}><ProfileIcon name={profile.enabled ? "enabled" : "disabled"} /></button>
             <button type="button" className="profile-note-edit" disabled={!onUpdateNote} title={t("profile.editNote")} aria-label={t("profile.editNoteLabel", { name: display.name })} onClick={(event) => { event.stopPropagation(); if (onUpdateNote) { setNoteId(profile.id); setNoteValue(profile.note); } }}><ProfileIcon name="edit" /></button>
             <button type="button" className="profile-delete" disabled={busy || !onRemove} title={t("common.delete")} aria-label={`${t("common.delete")} ${display.name}`} onClick={(event) => {
               event.stopPropagation(); setActionError("");
               removeProfile(profile, display.name).catch((failure) => setActionError(profileError(t, failure)));
             }}><ProfileIcon name="remove" /></button>
           </div>
-          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={runBusyId === profile.id || !profile.enabled || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
+          {/* Selection/metadata may be busy on A while retained B still needs
+              independent Start/Stop. Native per-owner admission, not the
+              global view-transition flag, guards concurrent deletion. */}
+          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={!!batchBusy || runBusyIds.has(profile.id) || (!running && (!profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
         </div>;
       })}</div>
-      <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => onCreate?.()}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>
+      <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => {
+        setActionError("");
+        Promise.resolve().then(() => onCreate?.()).catch((failure) => setActionError(profileError(t, failure)));
+      }}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>
       {error ? <small className="profile-error">{profileError(t, error)}</small> : null}
       {launchError || actionError ? <small className="profile-error">{[launchError, actionError].filter(Boolean).join("\n")}</small> : null}
       {restartRequired ? <button type="button" className="profile-add" disabled={!!batchBusy || !onRestartAll} onClick={async () => {
