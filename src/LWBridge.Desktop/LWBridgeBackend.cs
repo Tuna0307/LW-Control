@@ -1166,9 +1166,12 @@ internal sealed class LWBridgeBackend
             property.ValueKind != JsonValueKind.String ||
             string.IsNullOrWhiteSpace(property.GetString()))
         {
+            // 0.3.17 profile_instance_status 0x1a0da4 parses this argument
+            // independently of the general profile resolver. Missing or
+            // non-string profileId is INVALID_REQUEST, not PROFILE_ID_REQUIRED.
             throw new BridgeCommandException(
-                "PROFILE_ID_REQUIRED",
-                "PROFILE_ID_REQUIRED");
+                "INVALID_REQUEST",
+                "INVALID_REQUEST");
         }
 
         if (!string.Equals(property.GetString(), ProfileId, StringComparison.Ordinal))

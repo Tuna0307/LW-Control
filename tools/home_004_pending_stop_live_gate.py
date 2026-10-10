@@ -12,11 +12,13 @@ import sys
 import home_004_r1_live_gate as gate
 import home_004_r2_owned_exit as exact
 
-task = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / "pending-stop-live"
+followup = "--followup" in sys.argv[1:]
+task = Path(__file__).resolve().parents[1] / "artifacts" / "home-004" / (
+    "pending-stop-live-followup" if followup else "pending-stop-live")
 gate.task = task
 gate.profile_root = task / "isolated"
 gate.receipt_file = task / "preflight.json"
-gate.profile = "home-004-pending-stop-live"
+gate.profile = "home-004-pending-stop-live-followup" if followup else "home-004-pending-stop-live"
 exact.TASK = task
 exact.RUNTIME = task / "isolated" / "overview-bridge"
 exact.PROFILE = gate.profile
@@ -63,7 +65,8 @@ def restore_after_verified_exit():
     print(json.dumps(receipt, indent=2))
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    actions = [a for a in sys.argv[1:] if a != "--followup"]
+    if len(actions) != 1 or sys.argv[1:].count("--followup") > 1:
         raise SystemExit(__doc__)
     commands = {
         "prepare": gate.prepare,
@@ -73,6 +76,6 @@ if __name__ == "__main__":
         "finish": gate.finish,
         "restore-owned": restore_after_verified_exit,
     }
-    if sys.argv[1] not in commands:
+    if actions[0] not in commands:
         raise SystemExit(__doc__)
-    commands[sys.argv[1]]()
+    commands[actions[0]]()

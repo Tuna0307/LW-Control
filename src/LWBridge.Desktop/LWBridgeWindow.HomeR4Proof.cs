@@ -1605,7 +1605,9 @@ internal sealed partial class LWBridgeWindow
             throw new InvalidDataException("Unselected B status did not return exact B instance.");
         foreach ((object payload, string expectedCode) in new (object, string)[]
         {
-            (new { }, "PROFILE_ID_REQUIRED"),
+            (new { }, "INVALID_REQUEST"),
+            (new { profileId = 17 }, "INVALID_REQUEST"),
+            (new { profileId = (string?)null }, "INVALID_REQUEST"),
             (new { profileId = "bad/id" }, "INVALID_PROFILE_ID"),
             (new { profileId = "missing-profile" }, "PROFILE_NOT_FOUND"),
         })
