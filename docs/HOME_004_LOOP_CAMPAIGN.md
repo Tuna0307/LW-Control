@@ -1,6 +1,6 @@
 # HOME-004 — finish Home through a self-correcting loop
 
-Status: ACTIVE / READY FOR OWNER RELAY. Whole Home: PARTIAL.
+Status: R4-R2 local correction tested; input-gated continuation. Whole Home: PARTIAL.
 Owner assignment: 2026-10-10. Independent lead acceptance remains required.
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
@@ -78,11 +78,21 @@ do not call whole Home done. Do not merge or publish without lead acceptance.
 
 ## Durable continuation — update in place after each coherent milestone
 
-- Last reviewed checkpoint: 7375c2966f9e844c59599be1af74ec851ca244f5.
-- Current obligation: stage 1, LEADHOME004R4-01.
-- Last result: lead reproduced stale Close cancelling a newer pending recovery;
-  broad suites passed but did not detect it. Stage 2 also remains incomplete.
-- Next action: inspect the immutable lead inverse and actual StopAsync branch,
-  reproduce with tools/home_004_r4_lead_probe, then correct and add positive proof.
-- Cleanup at assignment start: checkout clean; no new task process started.
-- Final acceptance: pending; whole Home PARTIAL; PR #6 remains draft.
+- Baseline checkpoint: `f12dd566bd1410c2ccb17e054cd85978ace1c8a4`;
+  the current source identity is `git rev-parse HEAD` on the assigned branch.
+- Current obligation: finish source/package verification, then
+  `PARTIAL_NEEDS_INPUT` for the exact original/client witnesses listed in
+  [R4-R2 correction receipt](HOME_004_R4_R2_CORRECTION_RECEIPT.md).
+- Last result: both lead negatives reproduced before correction and resolved
+  through production native and actual mounted EN/light and JA/dark positive
+  proof. H-19 ordered all-owner restart, target error/lock/ABA replies, batch
+  continuation and pending host-close/helper-fault cases pass. Actual Windows
+  concurrent named-pipe and canonical frontend checks pass.
+- Next concrete final gate: `dotnet publish src/LWBridge.Desktop/LWBridge.Desktop.csproj
+  -c Release -r win-x64 --self-contained false -o artifacts/application`, then
+  `tools/package_ui_release.ps1`, inspect extracted candidate, run
+  `tools/check_packaged_home.ps1`, verify ZIP/source hashes and `git ls-remote`.
+- Cleanup: every mounted receipt reports both inert owners stopped, native
+  requests/subscriptions zero, listeners detached, isolated roots removed and
+  no cleanup failures. Do not touch unrelated game/launcher processes.
+- Independent lead review remains pending; whole Home PARTIAL and PR #6 draft.

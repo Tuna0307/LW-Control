@@ -216,6 +216,8 @@ internal static class HomeR2RecoveryChecks
         await HeldOldEffectVsStopSuccessor();
         await HeldOldStopAckVsProtectedSuccessor();
         await StopWhileRecoveryLaunchIsPending();
+        await ExplicitPendingRecoveryStopTargets();
+        await PendingRecoveryFaultAndHostClose();
         await LoginUnavailableThreshold();
         Require(OverviewRecoveryPolicy.NormalRetryDelays.Select(d => d.TotalMilliseconds)
             .SequenceEqual(new double[] { 15000, 30000, 60000, 120000, 300000 }),
@@ -262,6 +264,103 @@ internal static class HomeR2RecoveryChecks
         await c.Tick();
         Require(c.StartCalls == 2 && !c.Alive,
             "late run cannot relaunch after the user's Stop");
+    }
+
+    private static async Task ExplicitPendingRecoveryStopTargets()
+    {
+        foreach (string variant in new[] { "current", "absent", "nonstring" })
+        {
+            using var c = new Case("pending-target-" + variant, true, withActualAdoptionRecord: true);
+            await c.Start();
+            string oldId = c.Session;
+            c.Alive = false;
+            await c.Observe(); c.Advance(2000); await c.Observe();
+            c.HeldRecoveryStart = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            c.RecoveryStartReached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            Task pending = c.Tick();
+            await c.RecoveryStartReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            JsonElement status = JsonSerializer.SerializeToElement(c.Service.CreateProfileInstanceStatus());
+            string currentId = status.GetProperty("instanceId").GetString()!;
+            Require(currentId != oldId && c.Config.Snapshot.GameDesiredRunning,
+                "pending recovery publishes a different exact owner before a PID");
+            try
+            {
+                await c.Service.InvokeAsync("profile_instance_stop",
+                    JsonSerializer.SerializeToElement(new { instanceId = oldId }), CancellationToken.None);
+                throw new InvalidOperationException("stale explicit Close accepted during pending recovery");
+            }
+            catch (BridgeCommandException error) when (error.Code == "INSTANCE_MISMATCH") { }
+            Require(c.Config.Snapshot.GameDesiredRunning &&
+                    c.Service.CurrentRecoveryStatus.State != "idle" && c.StartCalls == 2,
+                "stale explicit Close cannot cancel the replacement or clear desired-running");
+            try
+            {
+                await c.Service.InvokeAsync("profile_instance_start",
+                    JsonSerializer.SerializeToElement(new { closeUnmanaged = true }), CancellationToken.None);
+                throw new InvalidOperationException("manual Start was admitted during pending automatic recovery");
+            }
+            catch (BridgeCommandException error) when (error.Code == "PROFILE_ALREADY_RUNNING") { }
+            Require(c.Service.CurrentRecoveryStatus.State != "idle" && c.Config.Snapshot.GameDesiredRunning,
+                "rejected manual Start cannot reset the active pending recovery status");
+            JsonElement stopPayload = variant switch
+            {
+                "current" => JsonSerializer.SerializeToElement(new { instanceId = currentId }),
+                "nonstring" => JsonSerializer.SerializeToElement(new { instanceId = 99 }),
+                _ => JsonSerializer.SerializeToElement(new { }),
+            };
+            await c.Service.InvokeAsync("profile_instance_stop", stopPayload, CancellationToken.None);
+            Require(!c.Config.Snapshot.GameDesiredRunning &&
+                    c.Service.CurrentRecoveryStatus.State == "idle",
+                "valid optional-ID Stop cancels the matching pending recovery: " + variant);
+            c.HeldRecoveryStart.TrySetResult();
+            await pending.WaitAsync(TimeSpan.FromSeconds(5));
+            Require(!c.Alive && c.StopCalls == 2 &&
+                    c.Service.CurrentRecoveryStatus.State == "idle",
+                "late helper cannot publish a cancelled pending owner: " + variant);
+        }
+    }
+
+    private static async Task PendingRecoveryFaultAndHostClose()
+    {
+        foreach (bool closingHost in new[] { false, true })
+        {
+            using var c = new Case(closingHost ? "pending-host-close" : "pending-helper-fault",
+                true, withActualAdoptionRecord: true);
+            await c.Start();
+            string oldId = c.Session;
+            c.Alive = false;
+            await c.Observe(); c.Advance(2000); await c.Observe();
+            c.HeldRecoveryStart = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            c.RecoveryStartReached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            Task pending = c.Tick();
+            await c.RecoveryStartReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            if (closingHost)
+                c.Service.Close();
+            else
+            {
+                await c.Service.InvokeAsync("profile_instance_stop",
+                    JsonSerializer.SerializeToElement(new { instanceId = JsonSerializer.SerializeToElement(
+                        c.Service.CreateProfileInstanceStatus(), JsonOptions.Default)
+                        .GetProperty("instanceId").GetString() }),
+                    CancellationToken.None);
+                c.FailNextLaunch = true;
+            }
+            c.HeldRecoveryStart.TrySetResult();
+            await pending.WaitAsync(TimeSpan.FromSeconds(5));
+            Require(!c.Alive && c.StartCalls == 2 &&
+                    c.Service.CurrentRecoveryStatus.State == "idle",
+                closingHost ? "closed host cannot adopt its pending recovery helper" :
+                    "late helper failure cannot re-arm recovery after explicit user Stop");
+            if (!closingHost)
+                Require(!c.Config.Snapshot.GameDesiredRunning,
+                    "helper fault after user Stop cannot restore desired-running");
+            if (closingHost)
+                Require(c.Session != oldId && c.StopCalls == 2,
+                    "late helper really spawned a new owner and the closed host restored it exactly");
+            else
+                Require(c.Session == oldId,
+                    "faulted helper never spawned a successor after explicit user Stop");
+        }
     }
 
     private static async Task ProcessExitOffAndOn()

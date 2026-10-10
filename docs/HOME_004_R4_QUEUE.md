@@ -45,7 +45,7 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-16 | Native six optional-ID cases, mismatch and no-owned errors, accepted live Close. | Genuine late Close error exact text where safe; do not terminate other profiles. |
 | H-17 | Accepted live original triplet hash restoration, journal absent and zero process; R4 mounted old-root Stop inert. | Adverse actual restore-failure/error path only on isolated backed-up installation. |
 | H-18 | R1 original Home Update-and-Launch caller, R4 actual mounted button and controlled repair/launch producer pass EN/JA. | Real supported outdated-build package and genuine positive/failed repair response. |
-| H-19 | Typed native `profile_instances_update_and_restart` through actual repair/rollback/obsolete PID tests; R4 mounted button. | Original vs current repair cancellation, failed script restoration and exact retry result. |
+| H-19 | R4-R2 production **global multi-profile** `profile_instances_update_and_restart` now visits A+B in enabled/unlocked registry order. Actual mounted EN/JA dispatcher repairs/relaunches both and Stop All restores both; native tests check partial failure/ordered attribution/foreign-result rejection. R4 original mounted repair button retained. | Genuine officially outdated client repair, original restoration errors and exact retry result. |
 | H-20 | Outdated-build restartRequired is an original code path; R1 typed repair decoding fixed, controlled only. | Authentic current-client outdated-build witness, no synthetic JSON masquerading as an official update. |
 | H-21 | Source-backed `autoLaunchAll` default true, actual ordered registry service. | No new test unless original default behavior changes. |
 | H-22 | Native R4 production ordered enabled-owner reconcile and independent retained A/B lifecycle; no original protected admission. | Original protected capacity/admission and real isolated multi-game authority, if available. |
@@ -60,7 +60,7 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-31 | Controlled native mirror and queued edits, R1 mounted. | Original simultaneous profile save race/rollback with protected owner where possible. |
 | H-32 | Mounted R4 B AutoReconnect toggle persists only B, A unchanged; prior real preferences proof. | Original queued pending save race with B while A remains live. |
 | H-33 | Original handler + native saved boolean and monitor notifications, R4 controlled. | Real outcome on automatic reconnect following transport-loss if safely reproducible. |
-| H-34 | Native 2 s/2 misses, 30 s hang, 60 s offline and 180 s unready tests; accepted genuine R3-R1 hang success. | Paired native still-alive offline-only transport-loss recovery, not infer from accepted hang. |
+| H-34 | Native 2 s/2 misses, 30 s hang, 60 s offline and 180 s unready. Actual controlled `StillAliveOfflineRecoveryRunEdges` **already proves** still-alive offline OFF/ON, 59999/60000 ms monitor, independent 59999/60000 ms run cleanup and successor. Accepted genuine R3-R1 hang success remains a distinct witness. | Paired **genuine current-client** still-alive offline-only transport loss/recovery, not inferred from controlled case or hang. |
 | H-35 | Native retry tables, stable verify and failure/disable effects, no fabricated maintenance duration. | Prolonged genuine error and maintenance retry/backoff witnesses when available; preserve exact clocks. |
 | H-36 | Native exact old stop/restore, protected successor late-ack and failed retry; accepted genuine unexpected exit + hang. | Real incomplete restoration/official launcher failure/adverse update-process path. |
 | H-37 | Accepted live AutoLaunch and same-build host adoption; native `GameDesiredRunning` gating. | Multi-profile host restart with independent original protected admission. |
@@ -73,7 +73,29 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-44 | Accepted live current official-settle-before-launch baseline, source 10 min/15 s/3 s. | Original forced settle-timeout negative without changing owner installation. |
 | H-45 | R4 actual mounted EN/light and JA/dark Home controls/status/repair/selection, previous live Connected languages. | All original conditional failures, pending Stop, maintenance and offline-only pixels still require paired evidence. |
 | H-46 | R1 handled code/message error precedence; R4 `LAUNCH_TASK_FAILED` typed current helper producer. | Original 0.3.17 descriptor/mutex/Lua/restart and protected finalizer serialized error text. |
-| H-47 | R4 native Stop during pending recovery launch with late helper result; mounted Home per-profile Close/busy controls. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering, actual offline-only pending Stop. |
+| H-47 | R4-R2 actual held native pending recovery: stale explicit Close rejected without mutating new owner; matching/absent/nonstring valid; rejected Start leaves recovery notice; late helper success/fault and host Close cleanup verified. Mounted Home sidebar exact per-profile/batch controls pass. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering and genuine offline-only pending Stop. |
+
+### R4-R2 applied correction overlay (source-backed, not new original acceptance)
+
+The original authority for each row remains in `HOME_004_R1_CURRENT_MATRIX.md`.
+Both `LEADHOME004R4-01` (H-14/H-16/H-34/H-40/H-47) and
+`LEADHOME004R4-02` (H-19/H-22/H-23/H-38/H-39/H-40/H-42/H-45)
+are **locally corrected**. Actual `HomeR2RecoveryChecks` includes a held
+native pending recovery target inverse and rejected manual Start; actual
+packaged EN/light and JA/dark mounted UI/host includes explicit unselected B
+status/Start/Stop while A selected, invalid/missing/locked target errors,
+exact stale B Stop rejection, delayed B status reply across A/B/A,
+per-profile polling, Start-All failure continuation, Stop-All, global native
+ordered A+B Update-and-Restart and exact inert cleanup. `H-16` valid current,
+absent and non-string optional target IDs remain supported. The H-22/23
+independent owner failure succeeds without being assigned to A, but genuine
+original capacity and per-owner launch error projection are still open. H-38/39
+protected commercial capacity and persisted real-client A/B restart remain
+open; H-42 original error/pixel cases and H-45 full conditional native/original
+visual comparison remain open. These corrected controlled boundaries do not
+prove genuine simultaneous Last War processes. See
+`HOME_004_R4_R2_CORRECTION_RECEIPT.md` for distinguishing receipts and missing
+inputs; **whole Home PARTIAL_NEEDS_INPUT**.
 
 ## Source and input fences
 

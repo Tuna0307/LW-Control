@@ -107,6 +107,7 @@ internal sealed partial class LWBridgeWindow : Form
     private NormalUiResourceProofSearchObservation? normalUiProofSearchObservation;
     private readonly object homeMapCampaignCommandGate = new();
     private string? homeMapCampaignDelayedCommand;
+    private string? homeMapCampaignDelayedOwner;
     private TaskCompletionSource<HomeMapCampaignDelayedRequest>? homeMapCampaignDelayedEntered;
     private TaskCompletionSource? homeMapCampaignDelayedRelease;
     private HomeMapCampaignDelayedRequest? homeMapCampaignDelayedObservation;
@@ -282,7 +283,7 @@ internal sealed partial class LWBridgeWindow : Form
                 selectProfileOwner: SelectProfileOwnerAsync);
         startupProfileReconcile = profileRegistryService is null ? null :
             new OrderedProfileReconcileCommandService(
-                profileRegistryService, ReconcileProfileOwnerAsync);
+                profileRegistryService, ReconcileProfileOwnerAsync, UpdateAndRestartProfileOwnerAsync);
         string? profileDatabasePath = isolated
             ? null
             : productionPaths!.ProfileDatabasePath(config.Snapshot.ProfileId);
@@ -589,6 +590,22 @@ internal sealed partial class LWBridgeWindow : Form
             .ConfigureAwait(false);
     }
 
+    private async Task<object?> UpdateAndRestartProfileOwnerAsync(
+        string profileId, JsonElement payload, CancellationToken cancellationToken)
+    {
+        OverviewLifecycleService lifecycle;
+        await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
+            lifecycle = GetOrCreateProfileRuntime(profileId).Lifecycle;
+        }
+        finally { profileSwapGate.Release(); }
+        return await lifecycle.InvokeAsync("profile_instances_update_and_restart", payload, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     // Must be invoked under profileSwapGate after initial composition.
     private RetainedProfileRuntime GetOrCreateProfileRuntime(string profileId)
     {
@@ -609,6 +626,45 @@ internal sealed partial class LWBridgeWindow : Form
             retainedProfileRuntimes.Add(profileId, runtime);
         owner.TransferOwnership();
         return runtime;
+    }
+
+    private static bool IsExplicitHomeOwnerCommand(string command) =>
+        command is "profile_instance_status" or "profile_instance_start" or "profile_instance_stop";
+
+    private async Task<LWBridgeBackend> ResolveHomeCommandBackendAsync(
+        string command, JsonElement payload, LWBridgeBackend selectedBackend,
+        CancellationToken cancellationToken)
+    {
+        if (!IsExplicitHomeOwnerCommand(command) ||
+            payload.ValueKind != JsonValueKind.Object ||
+            !payload.TryGetProperty("profileId", out JsonElement ownerElement) ||
+            ownerElement.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(ownerElement.GetString()))
+            return selectedBackend; // Preserve the selected backend's original payload validation.
+
+        string ownerId = ownerElement.GetString()!;
+        if (profileRegistryService is null || productionApplicationRoot is null)
+            return selectedBackend; // Existing isolated/single-profile backend rejection.
+
+        await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
+            ProfileRegistryCommandService.ValidateProfileId(ownerId);
+            ProfileRegistryEntry? entry = profileRegistryService.Snapshot.Profiles.FirstOrDefault(
+                item => string.Equals(item.Id, ownerId, StringComparison.Ordinal));
+            if (entry is null)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
+            if (command == "profile_instance_start" && (!entry.Enabled || entry.LockedReason is not null))
+                throw new BridgeCommandException("PROFILE_LOCKED", "PROFILE_LOCKED");
+            if (string.Equals(ownerId, selectedBackend.ProfileId, StringComparison.Ordinal))
+                return selectedBackend;
+            // A retained owner owns its own PID, journal, recovery and lifecycle.
+            // Selecting a profile for display never participates in this lookup.
+            return GetOrCreateProfileRuntime(ownerId).Backend;
+        }
+        finally { profileSwapGate.Release(); }
     }
 
     private bool IsAnotherProfileOwnedProcess(string ownerId, int pid)
@@ -2930,13 +2986,15 @@ internal sealed partial class LWBridgeWindow : Form
 
     private Task<HomeMapCampaignDelayedRequest> ArmHomeMapCampaignCommandDelay(
         string command,
-        bool holdAllMatching = false)
+        bool holdAllMatching = false,
+        string? targetProfileId = null)
     {
         lock (homeMapCampaignCommandGate)
         {
             if (homeMapCampaignDelayedCommand is not null)
                 throw new InvalidOperationException("A campaign command delay is already armed.");
             homeMapCampaignDelayedCommand = command;
+            homeMapCampaignDelayedOwner = targetProfileId;
             homeMapCampaignDelayAllMatching = holdAllMatching;
             homeMapCampaignDelayedObservation = null;
             homeMapCampaignDelayedEntered = new TaskCompletionSource<HomeMapCampaignDelayedRequest>(
@@ -2953,6 +3011,7 @@ internal sealed partial class LWBridgeWindow : Form
         lock (homeMapCampaignCommandGate)
         {
             homeMapCampaignDelayedCommand = null;
+            homeMapCampaignDelayedOwner = null;
             homeMapCampaignDelayAllMatching = false;
             release = homeMapCampaignDelayedRelease;
         }
@@ -2970,7 +3029,9 @@ internal sealed partial class LWBridgeWindow : Form
         lock (homeMapCampaignCommandGate)
         {
             if (homeMapCampaignProofPath is null ||
-                !string.Equals(homeMapCampaignDelayedCommand, command, StringComparison.Ordinal))
+                !string.Equals(homeMapCampaignDelayedCommand, command, StringComparison.Ordinal) ||
+                (homeMapCampaignDelayedOwner is not null &&
+                 !string.Equals(homeMapCampaignDelayedOwner, profileId, StringComparison.Ordinal)))
                 return;
 
             if (!homeMapCampaignDelayAllMatching)
@@ -5094,6 +5155,9 @@ internal sealed partial class LWBridgeWindow : Form
             }
             LWBridgeBackend requestBackend = backend;
             long requestProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
+            bool explicitHomeOwnerCommand = IsExplicitHomeOwnerCommand(command);
+            bool independentProfileOwnerReply = explicitHomeOwnerCommand ||
+                command == "profile_instances_update_and_restart";
             try
             {
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>
@@ -5116,11 +5180,17 @@ internal sealed partial class LWBridgeWindow : Form
                                 await hostProbeService.BeforeProductionCommandAsync(command, cancellationToken).ConfigureAwait(false);
                             await WaitForHomeMapCampaignCommandReleaseAsync(
                                 command,
-                                requestBackend.ProfileId,
+                                explicitHomeOwnerCommand && payload.ValueKind == JsonValueKind.Object &&
+                                    payload.TryGetProperty("profileId", out JsonElement commandOwner) &&
+                                    commandOwner.ValueKind == JsonValueKind.String
+                                    ? commandOwner.GetString() ?? requestBackend.ProfileId
+                                    : requestBackend.ProfileId,
                                 requestProfileGeneration,
                                 cancellationToken).ConfigureAwait(false);
                             ThrowIfHomeMapCampaignCommandRejected(command);
-                            return await requestBackend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+                            LWBridgeBackend targetBackend = await ResolveHomeCommandBackendAsync(
+                                command, payload, requestBackend, cancellationToken).ConfigureAwait(false);
+                            return await targetBackend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
                         }, cancellationToken));
                 if (!IsCurrentDocument(session)) return;
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
@@ -5135,7 +5205,7 @@ internal sealed partial class LWBridgeWindow : Form
                     return;
                 }
                 if (sessionClosed) return;
-                if (command != "profile_select" &&
+                if (command != "profile_select" && !independentProfileOwnerReply &&
                     (requestProfileGeneration != Volatile.Read(ref profileRuntimeGeneration) ||
                      !ReferenceEquals(requestBackend, backend)))
                 {
@@ -5179,7 +5249,7 @@ internal sealed partial class LWBridgeWindow : Form
             {
                 if (IsCurrentDocument(session))
                 {
-                    if (command != "profile_select" &&
+                    if (command != "profile_select" && !independentProfileOwnerReply &&
                         (requestProfileGeneration != Volatile.Read(ref profileRuntimeGeneration) ||
                          !ReferenceEquals(requestBackend, backend)))
                     {
@@ -5196,7 +5266,7 @@ internal sealed partial class LWBridgeWindow : Form
             {
                 if (IsCurrentDocument(session))
                 {
-                    if (command != "profile_select" &&
+                    if (command != "profile_select" && !independentProfileOwnerReply &&
                         (requestProfileGeneration != Volatile.Read(ref profileRuntimeGeneration) ||
                          !ReferenceEquals(requestBackend, backend)))
                         SendError(session, id, "PROFILE_GENERATION_RETIRED",

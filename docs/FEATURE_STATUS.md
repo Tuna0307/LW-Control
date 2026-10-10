@@ -1,5 +1,17 @@
 # Feature delivery status
 
+**HOME-004 R4-R2 verified local correction (2026-10-10; whole Home PARTIAL):**
+The two independent R4 lead failures were reproduced and fixed in the actual
+native recovery and retained-profile routing paths. Mounted EN/light and
+JA/dark Home proves explicit unselected B status/Start/Stop while A is
+selected, delayed B response across A/B/A, invalid/locked/stale identity,
+ordered batch failure continuation and two-owner native Update-and-Restart.
+Held recovery native tests now protect a newer pending owner from stale Close,
+rejected manual Start and late-helper/host-close races. The current 47-row
+queue and [R4-R2 correction receipt](HOME_004_R4_R2_CORRECTION_RECEIPT.md)
+retain the exact unproved original/protected/genuine-client gates. Draft PR #6
+remains draft; no whole-Home acceptance, main merge or release publication.
+
 **Active owner assignment, 2026-10-10: Home self-correction loop.** Start with
 LEADHOME004R4-01/02, then continue every ready remaining Home obligation without
 returning after routine failures or intermediate checkpoints. See

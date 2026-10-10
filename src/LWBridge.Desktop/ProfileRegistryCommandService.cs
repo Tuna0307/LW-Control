@@ -181,7 +181,7 @@ internal sealed class ProfileRegistryCommandService :
         return profileIds;
     }
 
-    private static void ValidateProfileId(string profileId)
+    internal static void ValidateProfileId(string profileId)
     {
         int byteCount = Encoding.UTF8.GetByteCount(profileId);
         if (byteCount is < 1 or > 64 ||

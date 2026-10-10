@@ -21,7 +21,8 @@ export function profileBatchIds(action, profiles, instances) {
   return profiles.flatMap((profile) => {
     const instance = instances[profile.id];
     const failed = instance?.phase === "error" && instance.pid == null;
-    return (action === "start" ? profile.enabled && (!instance || failed) : instance && !failed) ? [profile.id] : [];
+    const owned = typeof instance?.instanceId === "string" && instance.instanceId.length > 0;
+    return (action === "start" ? profile.enabled && !profile.lockedReason && (!owned || failed) : owned && !failed) ? [profile.id] : [];
   });
 }
 
@@ -150,7 +151,7 @@ export function ProfileSidebar({
     for (const id of ids) {
       try {
         if (action === "start") next[id] = await onStartProfile(id);
-        else if (next[id]) { await onStopProfile(id, next[id].instanceId); next[id] = null; }
+        else if (next[id]) { next[id] = await onStopProfile(id, next[id].instanceId); }
         setInstanceState({ ...next });
       } catch (failure) {
         const name = profiles.find((profile) => profile.id === id)?.roleName || id;
@@ -197,7 +198,7 @@ export function ProfileSidebar({
         const display = profileDisplay(profile, t);
         const instance = instanceState[profile.id];
         const failed = instance?.phase === "error" && instance.pid == null;
-        const running = !!instance && !failed;
+        const running = typeof instance?.instanceId === "string" && instance.instanceId.length > 0 && !failed;
         const connection = profile.lockedReason ? "locked" : instance?.connectionState ?? "offline";
         return <div className={`profile-row${profile.id === state.selectedProfileId ? " active" : ""}${draggedId === profile.id ? " dragging" : ""}${dragOverId === profile.id ? " drag-over" : ""}`} key={profile.id}
           onDragOver={(event) => { if (onReorder && draggedId && draggedId !== profile.id) { event.preventDefault(); setDragOverId(profile.id); } }}
@@ -220,7 +221,7 @@ export function ProfileSidebar({
               removeProfile(profile, display.name).catch((failure) => setActionError(profileError(t, failure)));
             }}><ProfileIcon name="remove" /></button>
           </div>
-          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={runBusyId === profile.id || !profile.enabled || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
+          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={!!batchBusy || runBusyId === profile.id || (!running && (!profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
         </div>;
       })}</div>
       <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => onCreate?.()}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>

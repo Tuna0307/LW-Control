@@ -158,3 +158,23 @@ verified. **Whole Home remains PARTIAL**; see
 [R4 final report](HOME_004_R4_FINAL_REPORT.md). No protected entitlement,
 updater action, genuine multi-game experiment or unrelated Map scan was
 undertaken as an R4 acceptance test.
+
+## R4-R2 lead corrections — source/production mounted native supplement (2026-10-10)
+
+This additive overlay supersedes only the pre-lead R4 native sidebar/pending
+Stop and global restart observations. Original authoritative locators remain
+in H-01–H-47 above and the immutable original matrix; genuine accepted
+single-profile Launch/Connected/Close and hang recovery retain their bounded
+credit. See [R4-R2 correction receipt](HOME_004_R4_R2_CORRECTION_RECEIPT.md).
+
+| Obligation and recovered original authority | Corrected production behavior and distinguishing executed proof | Still missing |
+| --- | --- | --- |
+| H-14/H-16/H-34/H-40/H-47: original exact `instanceId` Stop, 0x199D4B; manual Start `PROFILE_ALREADY_RUNNING`, 0x23E9DC; monitor 0x41ac34 | `OverviewLifecycleService.StopAsync` rejects an old explicit target during a different pending recovery **before** changing desired state or run ownership. Matching/no/nonstring target still stops; `StartAsync` now preserves the recovery notice when a manual Start is rejected. Actual held recovery helper tests cover late success, failure, host-close cleanup and exact restoration. | Paired original adverse error/busy and genuine offline-only pending Stop. |
+| H-22/H-23/H-38/H-39/H-40/H-42/H-45: original `profile_instance_status` 0x1a0da4, `profile_select` 0x10b70b, reconcile 0x203021 | `App.jsx` supplies four actual native sidebar providers; production WebView routes explicit target to retained exact backend and preserves selected-view generation fences. Actual packaged mounted EN/JA: A selected while B status/Start/Stop, A/B/A delayed B reply, native invalid/missing/locked/stale IDs, Start-All first-owner failure continuing to B, Stop-All exact cleanup; zero genuine game launches. | Original commercial capacity/entitlement, concurrent supported real client, full original conditional pixels and error projection. |
+| H-19/H-20: original global update/restart ordered, 0x2057DC–0x20715F, `closeUnmanaged=false` | Actual production `OrderedProfileReconcileCommandService` aggregates A/B `restarted` and `errors` by independent owner in registry order; native test proves failure continuation and foreign-result rejection. Actual mounted WebView native request repairs/relaunches A+B then stops/restores both. | Supported authentic outdated-build client and original failing restore/error traces. |
+| H-34/H-35/H-36: original disconnect 0x41ac34 and terminate 0xe6544 | Existing controlled native `StillAliveOfflineRecoveryRunEdges` proves still-alive PID with OFF/ON separate 60 s observation/run deadlines, exact old owner cleanup and successor. R4-R2 adds held helper fault and host Close. | Genuine current-client offline-only transport loss and prolonged original-side maintenance failure witness. |
+
+**Status:** R4-R2 controlled corrections passed production/native boundaries;
+**whole Home PARTIAL_NEEDS_INPUT**. The 47-row queue retains remaining
+per-row original and genuine-client gates. No Map scanner, protected original
+service, updater or game installation was touched by this unit.

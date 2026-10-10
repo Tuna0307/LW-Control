@@ -133,6 +133,46 @@ internal static class OrderedProfileReconcileChecks
             _ = await backend.InvokeAsync("profile_instances_reconcile", empty, CancellationToken.None);
             Require(dispatchedOwners == 3, "actual backend preserves consumed-once startup reconciliation");
 
+            var restartedOwners = new List<string>();
+            var multiRestart = new OrderedProfileReconcileCommandService(
+                registry,
+                (_, _, _) => Task.FromResult<object?>(new { errors = Array.Empty<object>() }),
+                (owner, _, _) =>
+                {
+                    restartedOwners.Add(owner);
+                    if (owner == "profile-B")
+                        throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "B is busy");
+                    if (owner == "profile-A")
+                        return Task.FromResult<object?>(new { restarted = Array.Empty<string>(),
+                            errors = new[] { new { profileId = owner, error = "GAME_CLOSE_FAILED", message = "A restore" } } });
+                    return Task.FromResult<object?>(new { restarted = new[] { owner },
+                        errors = Array.Empty<object>() });
+                });
+            var multiBackend = new LWBridgeBackend(config,
+                asyncCommands: new CompositeAsyncCommandService(multiRestart, lifecycle),
+                overviewLifecycle: lifecycle);
+            JsonElement restartResult = JsonSerializer.SerializeToElement(
+                await multiBackend.InvokeAsync("profile_instances_update_and_restart", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(restartedOwners.SequenceEqual(new[] { "profile-C", "profile-B", "profile-A" }),
+                "actual backend visits enabled/unlocked owners for Update-and-Restart in registry order");
+            Require(restartResult.GetProperty("restarted").EnumerateArray().Select(x => x.GetString())
+                    .SequenceEqual(new[] { "profile-C" }) &&
+                restartResult.GetProperty("errors").EnumerateArray().Select(x => x.GetProperty("profileId").GetString())
+                    .SequenceEqual(new[] { "profile-B", "profile-A" }),
+                "one owner restart failure cannot hide a successful later owner or reattribute its errors");
+            var wrongRestart = new OrderedProfileReconcileCommandService(registry,
+                (_, _, _) => Task.FromResult<object?>(new { errors = Array.Empty<object>() }),
+                (_, _, _) => Task.FromResult<object?>(new
+                { restarted = new[] { "other-owner" }, errors = Array.Empty<object>() }));
+            JsonElement wrongRestartResult = JsonSerializer.SerializeToElement(
+                await wrongRestart.InvokeAsync("profile_instances_update_and_restart", empty, CancellationToken.None),
+                JsonOptions.Default);
+            Require(wrongRestartResult.GetProperty("restarted").GetArrayLength() == 0 &&
+                wrongRestartResult.GetProperty("errors").EnumerateArray().All(x =>
+                    x.GetProperty("error").GetString() == "PROFILE_SCOPE_MISMATCH"),
+                "foreign restart result cannot be attributed to an unrelated registered owner");
+
             Console.WriteLine("ORDERED profile reconcile: service and actual backend routing PASS; game launches=0");
         }
         finally

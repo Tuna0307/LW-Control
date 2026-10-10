@@ -730,7 +730,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         value.ValueKind is JsonValueKind.True or JsonValueKind.False &&
         value.GetBoolean();
 
-    private async Task<object?> StartAsync(CancellationToken cancellationToken, bool closeUnmanaged = false)
+    private async Task<object?> StartAsync(CancellationToken cancellationToken,
+        bool closeUnmanaged = false, bool resetManualRecoveryStatus = false)
     {
         string newSession = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
@@ -785,6 +786,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         bool startTransactionSucceeded = false;
         try
         {
+            // A rejected manual Start must not reset an active pending recovery
+            // to idle. Only an admitted manual Start clears the old UI notice;
+            // automatic recovery and repair Start retain their own run state.
+            if (resetManualRecoveryStatus)
+                ResetRecoveryStatusToIdle(invalidateRun: false);
             if (closeUnmanaged)
             {
                 await CloseUnmanagedSelectedGamesAsync(selectedRoot, cancellationToken).ConfigureAwait(false);
@@ -1206,6 +1212,15 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     throw new BridgeCommandException("INSTANCE_NOT_OWNED",
                         "No LWBridge-owned game instance is active.");
                 }
+                // A recovery helper may already be starting a replacement
+                // instance, even though no PID has been reported yet. Compare
+                // the explicit target with that pending owner before clearing
+                // desired-running or cancelling the helper. Absent/non-string
+                // IDs retain the original optional-ID Stop behavior.
+                if (payload.TryGetProperty("instanceId", out JsonElement pendingTarget) &&
+                    pendingTarget.ValueKind == JsonValueKind.String &&
+                    !string.Equals(pendingTarget.GetString(), instanceId, StringComparison.Ordinal))
+                    throw new BridgeCommandException("INSTANCE_MISMATCH", "INSTANCE_MISMATCH");
                 SetDesiredRunning(false);
                 cancelPendingRecovery = true;
                 snapshot = default!;

@@ -169,8 +169,8 @@ internal sealed partial class OverviewLifecycleService
     // before launching. Recovery relaunches call StartAsync directly and never reset their own status.
     private async Task<object?> StartCommandAsync(bool closeUnmanaged, CancellationToken cancellationToken)
     {
-        ResetRecoveryStatusToIdle(invalidateRun: false);
-        return await StartAsync(cancellationToken, closeUnmanaged).ConfigureAwait(false);
+        return await StartAsync(cancellationToken, closeUnmanaged,
+            resetManualRecoveryStatus: true).ConfigureAwait(false);
     }
 
     // HOME 009 R1 C. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch

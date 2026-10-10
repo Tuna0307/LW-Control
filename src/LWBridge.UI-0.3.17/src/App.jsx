@@ -232,6 +232,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     generation: selectedProfileGeneration,
   };
   const lifecycleInFlightProfilesRef = useRef(new Set());
+  const sidebarLifecycleInFlightRef = useRef(new Set());
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   const nativeProfileRequestRef = useRef(0);
@@ -372,6 +373,45 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       throw error;
     }
   }, [adoptNativeProfileSnapshot]);
+
+  // Sidebar actions address retained native owners directly. They must survive
+  // A/B/A view selection without reassigning or retiring either running owner.
+  const readNativeInstance = useCallback((profileId) => backendBridge.invoke(
+    "profile_instance_status", { profileId },
+  ), []);
+  const runNativeProfileAction = useCallback(async (profileId, command, instanceId) => {
+    if (!backendBridge.available || !profileId) return null;
+    if (sidebarLifecycleInFlightRef.current.has(profileId)) {
+      const error = new Error("A game lifecycle operation is already in progress.");
+      error.code = "GAME_OPERATION_IN_PROGRESS";
+      throw error;
+    }
+    sidebarLifecycleInFlightRef.current.add(profileId);
+    try {
+      const payload = { profileId };
+      if (command === "profile_instance_start") payload.closeUnmanaged = true;
+      else if (typeof instanceId === "string") payload.instanceId = instanceId;
+      await backendBridge.invoke(command, payload, HOME_LIFECYCLE_TIMEOUT_MS);
+      return await readNativeInstance(profileId);
+    } finally {
+      sidebarLifecycleInFlightRef.current.delete(profileId);
+    }
+  }, [readNativeInstance]);
+  const startNativeProfile = useCallback((profileId) => runNativeProfileAction(
+    profileId, "profile_instance_start",
+  ), [runNativeProfileAction]);
+  const stopNativeProfile = useCallback((profileId, instanceId) => runNativeProfileAction(
+    profileId, "profile_instance_stop", instanceId,
+  ), [runNativeProfileAction]);
+  const restartAllNativeProfiles = useCallback(async () => {
+    const result = await backendBridge.invoke("profile_instances_update_and_restart", {}, HOME_LIFECYCLE_TIMEOUT_MS);
+    if (result?.errors?.length) {
+      const failure = new Error(result.errors[0]?.message || result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+      failure.code = result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED";
+      throw failure;
+    }
+    return result;
+  }, []);
 
   useEffect(() => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
@@ -1031,6 +1071,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onSelect: selectNativeProfile,
     onReorder: reorderNativeProfiles,
     onUpdateNote: updateNativeProfileNote,
+    readInstance: readNativeInstance,
+    onStartProfile: startNativeProfile,
+    onStopProfile: stopNativeProfile,
+    onRestartAll: restartAllNativeProfiles,
   } : {};
   const profileCallbacks = profilePreview ? profilePreviewCallbacks : nativeProfileCallbacks;
   const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy;

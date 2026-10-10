@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Data.Sqlite;
 using Microsoft.Web.WebView2.Core;
 
 namespace LWBridge.Desktop;
@@ -43,6 +44,35 @@ internal sealed partial class LWBridgeWindow
             string json = await core.ExecuteScriptAsync(expression);
             using JsonDocument document = JsonDocument.Parse(json);
             return document.RootElement.Clone();
+        }
+
+        async Task<JsonElement> InvokeNativeAsync(string command, object payload)
+        {
+            string requestId = "r4-owner-" + Guid.NewGuid().ToString("N");
+            await core.ExecuteScriptAsync($$"""
+                (() => {
+                  const id = {{JsonSerializer.Serialize(requestId)}};
+                  window.__homeR4OwnerResponse = null;
+                  const handler = event => {
+                    const response = event.data;
+                    if (response?.kind !== 'response' || response.id !== id) return;
+                    window.chrome.webview.removeEventListener('message', handler);
+                    window.__homeR4OwnerResponse = response;
+                  };
+                  window.chrome.webview.addEventListener('message', handler);
+                  window.chrome.webview.postMessage({kind:'invoke',
+                    sessionId:window.__LWBridgeBootstrap.sessionId, id,
+                    command:{{JsonSerializer.Serialize(command)}},
+                    payload:{{JsonSerializer.Serialize(payload, JsonOptions.Default)}}});
+                })()
+                """);
+            for (int i = 0; i < 240; i++)
+            {
+                JsonElement result = await ReadUiAsync("window.__homeR4OwnerResponse");
+                if (result.ValueKind == JsonValueKind.Object) return result;
+                await Task.Delay(40);
+            }
+            throw new TimeoutException("Actual native dispatcher did not respond to " + command);
         }
 
         async Task SelectAsync(string displayName, string expectedProfileId)
@@ -357,6 +387,203 @@ internal sealed partial class LWBridgeWindow
             homeMapCampaignScanStartCount != 0 || homeMapCampaignScanStopCount != 0)
             throw new InvalidDataException("Home-only campaign left B active or exercised unrelated Map scans.");
 
+        // R4 lead inverse 02: exercise the actual sidebar and production
+        // WebView dispatcher while A stays selected. No `profile_select`
+        // occurs during these native per-owner controls.
+        await ClickAsync("""
+            (() => { const button=document.querySelector('.profile-collapse');
+              if (!button) return false; button.click(); return true; })()
+            """, "expand native profile instance controls");
+        await WaitForUiAsync("document.querySelectorAll('.profile-row').length === 2",
+            "expanded native profile rows");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row .profile-run')].length === 2 &&
+            [...document.querySelectorAll('.profile-row .profile-run')].every(button =>
+              !button.disabled && !button.classList.contains('is-running'))
+            """, "two polled stopped native sidebar owners");
+        int aStartsBeforeSidebar = a.StartCalls;
+        int aStopsBeforeSidebar = a.StopCalls;
+        int bStartsBeforeSidebar = b.StartCalls;
+        int bStopsBeforeSidebar = b.StopCalls;
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "unselected B sidebar Start");
+        for (int i = 0; i < 240 && (b.StartCalls != bStartsBeforeSidebar + 1 || !b.ProcessAlive); i++)
+            await Task.Delay(40);
+        if (b.StartCalls != bStartsBeforeSidebar + 1 || !b.ProcessAlive ||
+            backend.ProfileId != "campaign-A" || a.StartCalls != aStartsBeforeSidebar ||
+            a.StopCalls != aStopsBeforeSidebar || a.ProcessAlive)
+            throw new InvalidDataException("Unselected B sidebar Start did not address only retained B.");
+        string activeBInstanceId = (await InstanceStatusForHostAsync()).GetProperty("instanceId").GetString()!;
+        async Task<JsonElement> InstanceStatusForHostAsync()
+        {
+            JsonElement response = await InvokeNativeAsync("profile_instance_status",
+                new { profileId = "campaign-B" });
+            if (!response.GetProperty("ok").GetBoolean())
+                throw new InvalidDataException("Host failed explicit B status while A was selected: " + response);
+            return response.GetProperty("result");
+        }
+        if (string.IsNullOrWhiteSpace(activeBInstanceId) || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("Unselected B status did not return exact B instance.");
+        foreach ((object payload, string expectedCode) in new (object, string)[]
+        {
+            (new { }, "PROFILE_ID_REQUIRED"),
+            (new { profileId = "bad/id" }, "INVALID_PROFILE_ID"),
+            (new { profileId = "missing-profile" }, "PROFILE_NOT_FOUND"),
+        })
+        {
+            JsonElement invalid = await InvokeNativeAsync("profile_instance_status", payload);
+            if (invalid.GetProperty("ok").GetBoolean() ||
+                invalid.GetProperty("error").GetProperty("code").GetString() != expectedCode)
+                throw new InvalidDataException("Native profile status input was not rejected with " + expectedCode + ": " + invalid);
+        }
+        JsonElement mismatch = await InvokeNativeAsync("profile_instance_stop",
+            new { profileId = "campaign-B", instanceId = "stale-previous-owner" });
+        if (mismatch.GetProperty("ok").GetBoolean() ||
+            mismatch.GetProperty("error").GetProperty("code").GetString() != "INSTANCE_MISMATCH" ||
+            !b.ProcessAlive || b.StopCalls != bStopsBeforeSidebar ||
+            backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("Stale explicit B Stop crossed exact retained-owner boundary: " + mismatch);
+        // A targeted B read may complete after A -> B -> A selection. It still
+        // belongs to B and may update B's sidebar row; it cannot replace the
+        // selected Home owner or mutate A's visible state.
+        Task<HomeMapCampaignDelayedRequest> delayedBStatus =
+            ArmHomeMapCampaignCommandDelay("profile_instance_status", targetProfileId: "campaign-B");
+        Task<JsonElement> pendingBStatus = InvokeNativeAsync("profile_instance_status",
+            new { profileId = "campaign-B" });
+        HomeMapCampaignDelayedRequest delayedBOwner =
+            await delayedBStatus.WaitAsync(TimeSpan.FromSeconds(8));
+        if (delayedBOwner.ProfileId != "campaign-B")
+            throw new InvalidDataException("The delayed status request did not target native owner B.");
+        await ClickAsync("""
+            (() => {const button=document.querySelector('.profile-collapse');
+              if (!button) return false; button.click(); return true;})()
+            """, "collapse profile rows before native A/B/A selection");
+        await SelectAsync("Campaign B", "campaign-B");
+        await SelectAsync("Campaign A", "campaign-A");
+        ReleaseHomeMapCampaignCommandDelay();
+        JsonElement completedBStatus = await pendingBStatus.WaitAsync(TimeSpan.FromSeconds(8));
+        if (!completedBStatus.GetProperty("ok").GetBoolean() ||
+            completedBStatus.GetProperty("result").GetProperty("instanceId").GetString() != activeBInstanceId ||
+            backend.ProfileId != "campaign-A" || a.ProcessAlive || !b.ProcessAlive)
+            throw new InvalidDataException("Delayed explicit B status response lost B ownership or replaced A: " + completedBStatus);
+        await ClickAsync("""
+            (() => {const button=document.querySelector('.profile-collapse');
+              if (!button) return false; button.click(); return true;})()
+            """, "restore expanded profile controls after A/B/A");
+        await WaitForUiAsync("document.querySelectorAll('.profile-row').length === 2",
+            "expanded native profile rows after delayed owner response");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === true",
+            "B sidebar independently polled running instance");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "unselected B sidebar Stop");
+        await WaitForOwnerAsync(b, alive: false, bStopsBeforeSidebar + 1, "unselected B sidebar exact Stop");
+        if (backend.ProfileId != "campaign-A" || a.StartCalls != aStartsBeforeSidebar ||
+            a.StopCalls != aStopsBeforeSidebar || a.ProcessAlive)
+            throw new InvalidDataException("Unselected B sidebar Stop mutated selected A.");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === false",
+            "B sidebar independently polled stopped instance");
+
+        // The recovered batch controls visit enabled profiles in their list
+        // order. Their real buttons must receive provider callbacks even when
+        // one native owner fails, then continue with the other exact owner.
+        RejectNextHomeMapCampaignCommand("profile_instance_start");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-batch-actions button')[0];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "native sidebar Start All with first owner failure");
+        for (int i = 0; i < 240 && !b.ProcessAlive; i++) await Task.Delay(40);
+        if (a.ProcessAlive || a.StartCalls != aStartsBeforeSidebar ||
+            b.StartCalls != bStartsBeforeSidebar + 2 || !b.ProcessAlive ||
+            backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("Start All did not continue to B after native A failure.");
+        await WaitForUiAsync("!!document.querySelector('.profile-error')",
+            "batch per-profile failure surfaced to native sidebar");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-batch-actions button')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "native sidebar Stop All B owner");
+        await WaitForOwnerAsync(b, alive: false, bStopsBeforeSidebar + 2, "sidebar batch B Stop");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === false",
+            "batch Stop All refreshed B owner");
+        if (a.ProcessAlive || backend.ProfileId != "campaign-A" || a.StopCalls != aStopsBeforeSidebar)
+            throw new InvalidDataException("Batch Stop All interfered with selected inactive A.");
+
+        // H-19: the original global Update-and-Restart visits distinct owners.
+        // Arm an inert repair record for each stopped runtime and invoke the
+        // real production WebView command; confirm result attribution and both
+        // independent restorations, then Stop All through the same sidebar.
+        a.ArmRepairJournal();
+        b.ArmRepairJournal();
+        int aRepairStartsBefore = a.StartCalls;
+        int bRepairStartsBefore = b.StartCalls;
+        int aRepairStopsBefore = a.StopCalls;
+        int bRepairStopsBefore = b.StopCalls;
+        JsonElement globalRestart = await InvokeNativeAsync("profile_instances_update_and_restart", new { });
+        if (!globalRestart.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("Global native Update-and-Restart rejected: " + globalRestart);
+        JsonElement restartResult = globalRestart.GetProperty("result");
+        string[] restartedProfiles = restartResult.GetProperty("restarted").EnumerateArray()
+            .Select(value => value.GetString() ?? "").ToArray();
+        if (!restartedProfiles.SequenceEqual(new[] { "campaign-A", "campaign-B" }) ||
+            restartResult.GetProperty("errors").GetArrayLength() != 0 ||
+            a.StartCalls != aRepairStartsBefore + 1 || b.StartCalls != bRepairStartsBefore + 1 ||
+            a.StopCalls != aRepairStopsBefore + 1 || b.StopCalls != bRepairStopsBefore + 1 ||
+            !a.ProcessAlive || !b.ProcessAlive || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("Global native restart did not repair and relaunch both exact retained owners: " + globalRestart);
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row .profile-run')].length === 2 &&
+            [...document.querySelectorAll('.profile-row .profile-run')].every(button =>
+              button.classList.contains('is-running'))
+            """, "global native restart refreshed both per-profile sidebar states");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-batch-actions button')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "both-owner Stop All after global Update-and-Restart");
+        await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 2, "A Stop All exact restored owner");
+        await WaitForOwnerAsync(b, alive: false, bRepairStopsBefore + 2, "B Stop All exact restored owner");
+
+        // Validate admission for the selected and unselected owners against
+        // the real isolated controller registry, then restore fixture state.
+        using (var registry = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = Path.Combine(productionApplicationRoot!, "controller.db"),
+        }.ConnectionString))
+        {
+            registry.Open();
+            using (var lockProfiles = registry.CreateCommand())
+            {
+                lockProfiles.CommandText = "UPDATE profiles SET locked_reason='R4_LOCKED_FIXTURE' WHERE id IN ('campaign-A', 'campaign-B')";
+                if (lockProfiles.ExecuteNonQuery() != 2)
+                    throw new InvalidDataException("Mounted locked-profile fixture did not affect both exact owners.");
+            }
+            try
+            {
+                foreach (string id in new[] { "campaign-A", "campaign-B" })
+                {
+                    JsonElement denied = await InvokeNativeAsync("profile_instance_start", new { profileId = id });
+                    if (denied.GetProperty("ok").GetBoolean() ||
+                        denied.GetProperty("error").GetProperty("code").GetString() != "PROFILE_LOCKED")
+                        throw new InvalidDataException("Start bypassed registry admission for " + id + ": " + denied);
+                }
+                if (a.ProcessAlive || b.ProcessAlive || backend.ProfileId != "campaign-A")
+                    throw new InvalidDataException("Denied profile Starts changed exact process ownership.");
+            }
+            finally
+            {
+                using var restore = registry.CreateCommand();
+                restore.CommandText = "UPDATE profiles SET locked_reason=NULL WHERE id IN ('campaign-A', 'campaign-B') AND locked_reason='R4_LOCKED_FIXTURE'";
+                if (restore.ExecuteNonQuery() != 2)
+                    throw new InvalidDataException("Mounted profile fixture locked state could not be restored exactly.");
+            }
+        }
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -393,6 +620,25 @@ internal sealed partial class LWBridgeWindow
             aSessionRetainedAfterBStop = true,
             bStoppedIndependently = true,
             bAutoReconnectPersistedSeparately = true,
+            sidebarProfileCommands = new
+            {
+                aSelectedThroughout = true,
+                bothStatusesPolled = true,
+                targetOwnerStatusAndErrorRouting = true,
+                foreignStaleInstanceRejected = true,
+                delayedBReplyAcrossABA = true,
+                selectedAndUnselectedLockedAdmission = true,
+                bStartStopExact = true,
+                startAllContinuedAfterAError = true,
+                stopAllStoppedB = true,
+                aUntouched = true,
+            },
+            globalProfileUpdateAndRestart = new
+            {
+                repairedProfiles = restartedProfiles,
+                bothOwnersRelaunched = true,
+                sidebarStoppedBoth = true,
+            },
             runningRootSelectedAndNextStart = new
             {
                 oldRoot, newRoot, pickerValid = changed.Valid, aStarts = a.StartCalls,
