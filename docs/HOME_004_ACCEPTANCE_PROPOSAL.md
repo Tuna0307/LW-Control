@@ -1,5 +1,24 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R15 ordered actual native display-order writes (2026-10-10):
+PARTIAL_NEEDS_INPUT.** Actual React JSX drag B,A native
+dispatch was held while second B,A and newest A,B completed.
+Releasing the old B,A wrote stale SQLite order after the
+latest user intent despite React revision protection.
+R15 serializes **only** global registry reorder writes
+in accepted JSX submit order with failure-surviving chain;
+per-owner A/B notes, selected Home, native lifecycle and
+transport remain independent. Mounted actual EN/light and
+JA/dark pass newest A,B SQLite and JSX, R4–R14 controls
+and exact native cleanup. Full original/current authority,
+historical negative and controlled proofs:
+[R15 receipt](HOME_004_R15_REORDER_DURABLE_WRITE_ORDER_RECEIPT.md);
+affected H-39/H-40/H-45 rows in [queue](HOME_004_R4_QUEUE.md).
+Commercial original capacity, authentic protected services,
+official launcher adverse producers, genuine dual-game/recovery
+and paired original EN/JA conditional pixels remain missing.
+Draft PR #6, no lead/main merge or release approval.
+
 **R14 per-owner durable note success/failure order (2026-10-10):
 PARTIAL_NEEDS_INPUT.** Actual production WebView native/SQLite
 negative reproduced first A note X successfully committed while

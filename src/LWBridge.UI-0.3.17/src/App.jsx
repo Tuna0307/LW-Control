@@ -242,6 +242,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const nativeProfileRequestRef = useRef(0);
   const nativeProfileSelectionRevisionRef = useRef(0);
   const nativeReorderRevisionRef = useRef(0);
+  const nativeReorderWriteChainRef = useRef(Promise.resolve());
   const nativeNoteRevisionsRef = useRef(new Map());
   const nativeNoteAcknowledgedRevisionsRef = useRef(new Map());
   const nativeNoteWriteChainsRef = useRef(new Map());
@@ -380,8 +381,19 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     nativeProfileRequestRef.current = request;
     const reorderRevision = ++nativeReorderRevisionRef.current;
     setNativeProfileError("");
+    // Profile display order is ONE shared registry field. Repeated JSX
+    // drags are independently admitted while an earlier native request is
+    // pending; execute reorder writes in submit order or a late older B,A
+    // write can overwrite newer durable A,B while the React revision
+    // fence correctly hides its stale acknowledgement. This queues only
+    // reorders, never independent A/B notes, selects, or lifecycle work.
+    const previous = nativeReorderWriteChainRef.current;
+    const write = previous.catch(() => undefined).then(
+      () => backendBridge.invoke("profile_reorder", { profileIds }),
+    );
+    nativeReorderWriteChainRef.current = write;
     try {
-      const snapshot = await backendBridge.invoke("profile_reorder", { profileIds });
+      const snapshot = await write;
       if (nativeProfileRequestRef.current !== request) {
         // A selected-view switch must retire the reorder's stale selection
         // acknowledgement, NOT discard its successfully committed registry

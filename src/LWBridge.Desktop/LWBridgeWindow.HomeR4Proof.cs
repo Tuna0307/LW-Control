@@ -943,6 +943,132 @@ internal sealed partial class LWBridgeWindow
             await WaitForUiAsync("document.querySelector('dialog[open]')===null && document.querySelector('.profile-error')===null",
                 "R14 newer-success note error panel cleared");
         }
+
+        // R15 H-39/H-45: the same original Yr drag/drop permits overlapping
+        // registry reorders without setting selected-profile busy. Hold first
+        // B,A before native execution, perform a second actual JSX B,A drag,
+        // then (if the second overtakes) drag A,B before releasing the first.
+        // Old B,A must not durably overwrite the newer A,B intent.
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row').length===2 &&
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true &&
+            !document.querySelector('.profile-list')?.classList.contains('busy')
+            """, "R15 actual JSX A,B order and idle selected profile before overlap");
+        Task<HomeMapCampaignDelayedRequest> heldOldR15Reorder =
+            ArmHomeMapCampaignCommandDelay("profile_reorder", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 begin first B-before-A original JSX drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R15 first B drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 submit older held B,A reorder through actual JSX");
+        HomeMapCampaignDelayedRequest oldR15 =
+            await heldOldR15Reorder.WaitAsync(TimeSpan.FromSeconds(8));
+        if(oldR15.ProfileId!="campaign-A" || !profileRegistryService.Snapshot.Profiles
+              .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"}))
+            throw new InvalidDataException("R15 older JSX reorder was not held before SQLite mutation.");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 repeat B-before-A actual drag while older native request pending");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R15 second B drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 submit newer same-order JSX reorder");
+        await Task.Delay(350);
+        bool olderReorderWasOvertaken = profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-B","campaign-A"});
+        if(!olderReorderWasOvertaken)
+        {
+            // Corrected path: a second UI reorder must wait for first native
+            // completion rather than committing out of browser submit order.
+            ReleaseHomeMapCampaignCommandDelay();
+            for(int i=0;i<240 && !profileRegistryService.Snapshot.Profiles
+                .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-B","campaign-A"});i++)
+                await Task.Delay(40);
+            await WaitForUiAsync("""
+                document.querySelectorAll('.profile-row .profile-copy strong')[0]
+                  ?.textContent?.includes('Campaign B')===true
+                """, "R15 serialized first and second B,A acknowledgements visible");
+        }
+        else
+        {
+            // Pre-fix path: second B,A completed while first B,A is still
+            // blocked. The actual sidebar now permits an A-before-B reversal.
+            await WaitForUiAsync("""
+                document.querySelectorAll('.profile-row .profile-copy strong')[0]
+                  ?.textContent?.includes('Campaign B')===true
+                """, "R15 second reorder overtook first and exposed JSX B,A");
+        }
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 start latest A-before-B JSX drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R15 latest A drag accepted");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R15 submit latest A,B through actual JSX");
+        for(int i=0;i<240 && !profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"});i++)
+            await Task.Delay(40);
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true
+            """, "R15 visible latest A,B intent");
+        if(olderReorderWasOvertaken)
+        {
+            ReleaseHomeMapCampaignCommandDelay();
+            await Task.Delay(650);
+        }
+        if(!profileRegistryService.Snapshot.Profiles
+              .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"}) ||
+           await core.ExecuteScriptAsync("""
+               document.querySelectorAll('.profile-row .profile-copy strong')[0]
+                 ?.textContent?.includes('Campaign A')===true
+               """)!="true")
+            throw new InvalidDataException(
+                "R15 late older B,A reorder overwrote newer actual JSX A,B durable registry intent.");
+        if(backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R15 reorder operations unexpectedly selected B.");
         await ClickAsync("""
             (()=>{const toggle=document.querySelector('.profile-collapse');
               if(!toggle)return false;toggle.click();return true;})()
@@ -1680,6 +1806,7 @@ internal sealed partial class LWBridgeWindow
                 rapidNoteWritesPreserveLatestDurableOwnerValue = true,
                 rejectedNewerNotePreservesEarlierDurableOwnerValue = true,
                 failedFirstNoteAllowsNewerDurableRetry = true,
+                overlappingReordersPreserveNewestDurableOrder = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

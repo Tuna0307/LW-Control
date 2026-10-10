@@ -1,5 +1,20 @@
 # Feature delivery status
 
+**HOME-004 R15 ordered actual JSX registry reorders
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Mounted
+React/native/SQLite negative: held first B→A reorder,
+later second B→A and newest A→B committed, then releasing
+the old first order overwrote durable SQLite B,A while React
+correctly displayed latest A,B. Reorder-only native write
+chain now preserves actual drag submission order without
+serializing independent A/B note, selection, Start/Stop or
+transport operations. Mounted EN/light and JA/dark pass
+R15 plus R4–R14 exact-owner/error/repair/metadata and
+shutdown safeguards. Immutable negative and correction:
+[R15 receipt](HOME_004_R15_REORDER_DURABLE_WRITE_ORDER_RECEIPT.md).
+Original protected/real-client/original-conditional evidence
+is still unavailable; draft PR #6, no main merge/publication.
+
 **HOME-004 R14 ordered success/error note acknowledgements
 (2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Actual production
 JSX/native/SQLite negative: A note X persisted, later requested A

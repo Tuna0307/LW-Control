@@ -75,6 +75,27 @@ A/B capacity and paired original conditional pixels remain missing.
 The preceding 47 historical rows are evidence locators, not final
 whole-Home acceptance. **PARTIAL_NEEDS_INPUT**.
 
+### R15 current-client H-39/H-40/H-45 additive correction (2026-10-10)
+
+Original 0.3.17 `Yr` dispatches independent native registry
+`profile_reorder`, returning a whole registry snapshot. Actual
+React JSX/native/SQLite two-profile A/B inverse after R14:
+held older B,A native execution, submitted second B,A then
+newest A,B, released older command and persisted obsolete B,A.
+React visible A,B remained due to its R10 latest-revision
+guard; durable SQLite order diverged. Immutable before-fix
+`artifacts/home-004/r15-overlapping-reorders-before-fix-en-light.json.error.txt`.
+R15 only queues global shared order field's native commits;
+other exact-owner A/B notes, selected-owner and lifecycle
+operations remain independently concurrent. Mounted EN/light
+and JA/dark prove latest JSX and SQLite A,B, R4–R14 regression
+and exact cleanup. See
+[R15 receipt](HOME_004_R15_REORDER_DURABLE_WRITE_ORDER_RECEIPT.md).
+Original licensed simultaneous-client concurrency and capacity
+and other original protected/pixel evidence remain open. The
+47 historical rows retain their original reference locators;
+current verified overlay is bounded. **PARTIAL_NEEDS_INPUT**.
+
 ## Precisely separated blockers
 
 - Protected original inputs: H-05 (ticket/lease/capacity) and H-13 (finalizer callback). The game-side encrypted forwarded setAutomation outcome of H-33 is independently unknown. Excluded commercial account/login UI is not a reason to skip local Home.

@@ -251,6 +251,18 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     "H-39 selecting B must retain complete current owner metadata only with exact roster parity");
 }
 {
+  const reorderAction = appSource.slice(appSource.indexOf("const reorderNativeProfiles ="),
+    appSource.indexOf("const updateNativeProfileNote ="));
+  assert.match(reorderAction, /nativeReorderWriteChainRef\.current/,
+    "H-39 repeated native registry reorder commands must preserve JSX submission order");
+  assert.match(reorderAction, /previous\.catch\(\(\) => undefined\)\.then\(/,
+    "H-39 a failed previous reorder must not poison the next legitimate reorder");
+  assert.match(reorderAction, /nativeReorderRevisionRef\.current === reorderRevision/,
+    "H-39 late acknowledgements may project only current registry order");
+  assert.match(reorderAction, /visibleById\.get\(profile\.id\)/,
+    "H-39 order-only projection may not replace selected owner or exact note metadata");
+}
+{
   const noteAction = appSource.slice(
     appSource.indexOf("const updateNativeProfileNote ="),
     appSource.indexOf("// Sidebar actions address retained native owners"),

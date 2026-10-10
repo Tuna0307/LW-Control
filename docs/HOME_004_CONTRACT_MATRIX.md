@@ -182,6 +182,31 @@ demonstrated **current-client** race, not protected commercial
 capacity, genuine original error timing or original conditional pixels.
 Whole Home **PARTIAL_NEEDS_INPUT**.
 
+### R15 additive H-39/H-40/H-45 native persisted display-order convergence
+
+Original 0.3.17 `Yr` emits independent `r.reorder(profileIds)`
+operations and the original handler persists the ordered registry;
+commercial concurrent scheduling remains unpaired. R15 actual
+production JSX/native/SQLite inverse with just two supported
+inert owners established a real new discrepancy: first B,A drag
+held before native execution; second B,A drag completes and
+renders B,A; subsequent A,B drag commits durable A,B; released
+older native B,A then commits out of order, yielding SQLite
+B,A while React remains A,B. Immutable negative
+`artifacts/home-004/r15-overlapping-reorders-before-fix-en-light.json.error.txt`.
+
+The correction serializes only `profile_reorder` native writes
+in JSX submission order; this is one global registry **order**
+field, not global locking of independent profile note, selection,
+lifecycle or pipe operations. Existing latest-revision order-only
+projection, R14 exact successful note and owner generation
+fences remain. Actual mounted EN/light and JA/dark through
+React/dispatcher/SQLite pass R15 and all R4–R14 controls.
+See [R15 receipt](HOME_004_R15_REORDER_DURABLE_WRITE_ORDER_RECEIPT.md).
+This corrects only the demonstrated current-client inversion;
+original protected/licensed multi-owner and conditional pixels
+still require input. Whole Home **PARTIAL_NEEDS_INPUT**.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.
