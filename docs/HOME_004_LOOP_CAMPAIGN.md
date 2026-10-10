@@ -1,6 +1,6 @@
 # HOME-004 — finish Home through a self-correcting loop
 
-Status: R4-R2 local correction tested; input-gated continuation. Whole Home: PARTIAL.
+Status: R5 second-pass local correction tested; input-gated continuation. Whole Home: PARTIAL.
 Owner assignment: 2026-10-10. Independent lead acceptance remains required.
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
@@ -96,3 +96,11 @@ do not call whole Home done. Do not merge or publish without lead acceptance.
   requests/subscriptions zero, listeners detached, isolated roots removed and
   no cleanup failures. Do not touch unrelated game/launcher processes.
 - Independent lead review remains pending; whole Home PARTIAL and PR #6 draft.
+
+## Durable R5 continuation — 2026-10-10 (second-pass over c8b56e25)
+
+- Last committed **starting** checkpoint: `c8b56e252886785528b527582f071c618302007b`, original campaign `f12dd566bd1410c2ccb17e054cd85978ace1c8a4`. Current committed SHA and direct remote must be checked with `git rev-parse HEAD` / `git ls-remote origin refs/heads/codex/home-complete-delivery-004` after the source/package checkpoint.
+- Ready second-pass local defects corrected: first-match Home/sidebar error projection H-46; late B polling result overriding native B Stop H-38/H-42/H-45; active recovery incorrectly labeled terminal error H-42; mixed per-owner reconciliation/restart results partially published H-11/H-19/H-23. Added actual native controlled 120/300/600 retry and 15-minute updater-stall checks H-35/36, selected/disabled B native admission proof H-38. Read [R5 second-pass receipt](HOME_004_R5_SECOND_PASS_RECEIPT.md).
+- Last positive: canonical frontend + native tests, mounted production EN/light and JA/dark `r5-final-*` records passed; both inert owners stopped, zero genuine game launches/Map scans, zero native requests/subscriptions, removed isolated roots. Historical R4-R2 and R3-R1 positives preserved. Original protected inputs remain unknown.
+- Completed R5 regression: actual Windows concurrent A/B named-pipe/reconnect/idle/shutdown probe passed, including five unauthorized rejects; typed launcher spawn producer Python tests 3/3 pass; Release build zero warnings; canonical frontend check pass. The remaining R5 delivery gates are the **source-identified clean Release publish/ZIP**, independently extracted inert Home capture and normal isolated-disabled-profile GUI start/close, exact temporary-root cleanup, direct remote SHA and draft PR #6 update. Do not treat controlled evidence as new real-game proof.
+- Post-checkpoint continuation: compare the available original 0.3.17 successful ticket/lease/finalizer outcome, signed controller plaintext, official launcher self-restart/outdated-build trace, independent real game installation and genuinely safe offline-only/maintenance/repair witness **if legally and operationally available**. Run one discriminating production inverse per input with recorded identity/backups/restoration. If absent, remain `PARTIAL_NEEDS_INPUT` with this verified receipt and 47-row queue, leaving draft PR for independent lead review. Never merge or publish without acceptance.

@@ -178,3 +178,20 @@ credit. See [R4-R2 correction receipt](HOME_004_R4_R2_CORRECTION_RECEIPT.md).
 **whole Home PARTIAL_NEEDS_INPUT**. The 47-row queue retains remaining
 per-row original and genuine-client gates. No Map scanner, protected original
 service, updater or game installation was touched by this unit.
+
+## R5 second-pass source/production contrast (2026-10-10)
+
+The above original H-01–H-47 locators stay authoritative. This additive
+correction distinguishes actual prior failures from new controlled positives.
+See [R5 second-pass receipt](HOME_004_R5_SECOND_PASS_RECEIPT.md).
+
+| Original obligation and locator | Reproduced difference and corrected production boundary | Limit |
+| --- | --- | --- |
+| H-46 error translation / original UI `index-BVfnK1wp.js` Home caller and recovered 010 handlers-locale EN/JA key map | Executing actual `HomePage.jsx` translatedError and `ProfileSidebar.jsx` profileError chose the *last* of two recognizable codes, contradicting original first-match projection. Both now prefer explicit `Error.code`, then scan message tokens in text order, else translated `common.actionFailed`. Node regression demonstrated fail-before/pass-after with first/later/explicit/fallback cases. | Exact original native helper error composition remains contingent on protected finalizer and genuine launcher failures. |
+| H-38/H-39/H-40/H-42/H-45 / original profile controls `profile_instance_status` 0x1a0da4, select 0x10b70b, recovered 5 s refresh | Actual mounted production WebView B poll response was held *after* it read running; B Stop succeeded and an old poll resurrected the running icon. `ProfileSidebar` now fences per-owner poll revisions across Start/Stop/batch operations, preserves last good state on transient read errors and uses native Stop's fresh returned status. Mounted EN/light and JA/dark inverse pass; disabled/locked registry admission and cleanup pass. | No original 0.3.17 authenticated multi-game admission/capacity or all 5 s status transitions. |
+| H-42/H-34 / original connectionState `recovering`, monitor 0x41ac34 | Actual `OverviewLifecycleService.CreateProfileInstanceStatus()` labeled a still-active automatic process-exit recovery as `error` solely because the old owner retained `GAME_EXITED_RESTORE_REQUIRED`; native inverse failed. Status now projects `recovering` when a run remains active and preserves diagnostic `lastError`. Native controlled recovery regression passes. | No paired genuine client offline-only/maintenance status or protected lease state. |
+| H-11/H-19/H-22/H-23 / original serialized reconcile per-profile code and ordered update/restart 0x2057DC–0x20715F | Actual production ordered service used to publish earlier valid owner entries/restarted IDs before later malformed foreign items invalidated the same response. Mixed native owner-result tests reproduced both; aggregate now validates each whole owner response before publishing, rejects invalid error entries/duplicate success and continues later owners correctly. | Genuine original malformed protected producer and entitlement capacity absent. |
+| H-35/H-36 / original 0xd67b08 and 0xd681b0 retry tables, 0xdbb9f updater stall | Controlled actual recovery native log reader/clock injected maintenance and updater state. Maintenance retry ladder 120/300/600/600 s, precise 1 ms boundaries and updater inactivity 899999/900000 ms → first normal 15 s retry pass. Hooked updater termination was inert and only counted; no real updater/genuine game touched. | Repeated genuine maintenance/updater client trace and original counterpart. |
+
+Previously passed R4-R2 stale explicit pending Close and unselected B routing
+remain tested. Whole Home original A→A acceptance remains **PARTIAL_NEEDS_INPUT**.

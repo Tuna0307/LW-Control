@@ -31,7 +31,7 @@ function errorCodes(value) {
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
   const message = value instanceof Error ? value.message : String(value ?? "");
   codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
-  return [...new Set(codes)].reverse();
+  return [...new Set(codes)];
 }
 
 function profileError(t, error) {
@@ -116,6 +116,21 @@ export function ProfileSidebar({
   const [draggedId, setDraggedId] = useState("");
   const [dragOverId, setDragOverId] = useState("");
   const [collapsed, setCollapsed] = useState(true);
+  const instanceRevisionsRef = useRef(new Map());
+  const profileActionsRef = useRef(new Set());
+  function beginProfileAction(id) {
+    if (profileActionsRef.current.has(id)) {
+      const failure = new Error("A game lifecycle operation is already in progress.");
+      failure.code = "GAME_OPERATION_IN_PROGRESS";
+      throw failure;
+    }
+    profileActionsRef.current.add(id);
+    instanceRevisionsRef.current.set(id, (instanceRevisionsRef.current.get(id) || 0) + 1);
+  }
+  function endProfileAction(id) {
+    instanceRevisionsRef.current.set(id, (instanceRevisionsRef.current.get(id) || 0) + 1);
+    profileActionsRef.current.delete(id);
+  }
   useEffect(() => { setInstanceState(instances); }, [instances]);
   useEffect(() => {
     if (!state || !readInstance) return undefined;
@@ -124,9 +139,23 @@ export function ProfileSidebar({
     const poll = async () => {
       if (polling) return;
       polling = true;
+      const revisions = new Map(state.profiles.map((profile) =>
+        [profile.id, instanceRevisionsRef.current.get(profile.id) || 0]));
       try {
-        const entries = await Promise.all(state.profiles.map(async (profile) => [profile.id, await readInstance(profile.id).catch(() => null)]));
-        if (!closed) setInstanceState(Object.fromEntries(entries));
+        const entries = await Promise.all(state.profiles.map(async (profile) => {
+          try { return [profile.id, true, await readInstance(profile.id)]; }
+          catch { return [profile.id, false, null]; }
+        }));
+        if (!closed) setInstanceState((current) => {
+          const next = { ...current };
+          for (const [id, ok, result] of entries) {
+            // A poll begun before Start/Stop cannot overwrite that action's
+            // newer exact-owner result, even if its native response arrives last.
+            if (ok && !profileActionsRef.current.has(id) &&
+              revisions.get(id) === (instanceRevisionsRef.current.get(id) || 0)) next[id] = result;
+          }
+          return next;
+        });
       } finally { polling = false; }
     };
     poll();
@@ -149,14 +178,19 @@ export function ProfileSidebar({
     onClearProfileLaunchErrors?.();
     setBatchBusy(action); setActionError(""); setRestartRequired(false);
     for (const id of ids) {
+      let acquired = false;
       try {
+        beginProfileAction(id);
+        acquired = true;
         if (action === "start") next[id] = await onStartProfile(id);
         else if (next[id]) { next[id] = await onStopProfile(id, next[id].instanceId); }
-        setInstanceState({ ...next });
+        setInstanceState((current) => ({ ...current, [id]: next[id] }));
       } catch (failure) {
         const name = profiles.find((profile) => profile.id === id)?.roleName || id;
         failures.push(`${name}：${profileError(t, failure)}`);
         if (errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED")) setRestartRequired(true);
+      } finally {
+        if (acquired) endProfileAction(id);
       }
     }
     setActionError(failures.join("\n")); setBatchBusy("");
@@ -165,14 +199,16 @@ export function ProfileSidebar({
   async function runProfile(profile, instance, running) {
     const provider = running ? onStopProfile : onStartProfile;
     if (!provider) return;
+    if (profileActionsRef.current.has(profile.id)) return;
+    beginProfileAction(profile.id);
     setRunBusyId(profile.id); onClearProfileLaunchErrors?.(); setActionError(""); setRestartRequired(false);
     try {
-      const next = running ? (await provider(profile.id, instance.instanceId), null) : await provider(profile.id);
+      const next = running ? await provider(profile.id, instance.instanceId) : await provider(profile.id);
       setInstanceState((current) => ({ ...current, [profile.id]: next }));
     } catch (failure) {
       setActionError(profileError(t, failure));
       setRestartRequired(errorCodes(failure).includes("LAUNCH_TICKET_RESTART_REQUIRED"));
-    } finally { setRunBusyId(""); }
+    } finally { endProfileAction(profile.id); setRunBusyId(""); }
   }
 
   async function removeProfile(profile, displayName) {

@@ -108,6 +108,7 @@ internal sealed partial class LWBridgeWindow : Form
     private readonly object homeMapCampaignCommandGate = new();
     private string? homeMapCampaignDelayedCommand;
     private string? homeMapCampaignDelayedOwner;
+    private bool homeMapCampaignDelayOnReply;
     private TaskCompletionSource<HomeMapCampaignDelayedRequest>? homeMapCampaignDelayedEntered;
     private TaskCompletionSource? homeMapCampaignDelayedRelease;
     private HomeMapCampaignDelayedRequest? homeMapCampaignDelayedObservation;
@@ -2987,7 +2988,8 @@ internal sealed partial class LWBridgeWindow : Form
     private Task<HomeMapCampaignDelayedRequest> ArmHomeMapCampaignCommandDelay(
         string command,
         bool holdAllMatching = false,
-        string? targetProfileId = null)
+        string? targetProfileId = null,
+        bool onReply = false)
     {
         lock (homeMapCampaignCommandGate)
         {
@@ -2995,6 +2997,7 @@ internal sealed partial class LWBridgeWindow : Form
                 throw new InvalidOperationException("A campaign command delay is already armed.");
             homeMapCampaignDelayedCommand = command;
             homeMapCampaignDelayedOwner = targetProfileId;
+            homeMapCampaignDelayOnReply = onReply;
             homeMapCampaignDelayAllMatching = holdAllMatching;
             homeMapCampaignDelayedObservation = null;
             homeMapCampaignDelayedEntered = new TaskCompletionSource<HomeMapCampaignDelayedRequest>(
@@ -3012,6 +3015,7 @@ internal sealed partial class LWBridgeWindow : Form
         {
             homeMapCampaignDelayedCommand = null;
             homeMapCampaignDelayedOwner = null;
+            homeMapCampaignDelayOnReply = false;
             homeMapCampaignDelayAllMatching = false;
             release = homeMapCampaignDelayedRelease;
         }
@@ -3022,13 +3026,15 @@ internal sealed partial class LWBridgeWindow : Form
         string command,
         string profileId,
         long generation,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool onReply = false)
     {
         Task? releaseTask = null;
         HomeMapCampaignDelayedRequest? observation = null;
         lock (homeMapCampaignCommandGate)
         {
             if (homeMapCampaignProofPath is null ||
+                homeMapCampaignDelayOnReply != onReply ||
                 !string.Equals(homeMapCampaignDelayedCommand, command, StringComparison.Ordinal) ||
                 (homeMapCampaignDelayedOwner is not null &&
                  !string.Equals(homeMapCampaignDelayedOwner, profileId, StringComparison.Ordinal)))
@@ -5192,6 +5198,17 @@ internal sealed partial class LWBridgeWindow : Form
                                 command, payload, requestBackend, cancellationToken).ConfigureAwait(false);
                             return await targetBackend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
                         }, cancellationToken));
+                if (explicitHomeOwnerCommand)
+                {
+                    await WaitForHomeMapCampaignCommandReleaseAsync(
+                        command,
+                        payload.ValueKind == JsonValueKind.Object &&
+                            payload.TryGetProperty("profileId", out JsonElement explicitReplyProfile) &&
+                            explicitReplyProfile.ValueKind == JsonValueKind.String
+                            ? explicitReplyProfile.GetString() ?? requestBackend.ProfileId
+                            : requestBackend.ProfileId,
+                        requestProfileGeneration, CancellationToken.None, onReply: true);
+                }
                 if (!IsCurrentDocument(session)) return;
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
                 {

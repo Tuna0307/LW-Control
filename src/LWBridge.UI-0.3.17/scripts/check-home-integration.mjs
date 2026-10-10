@@ -235,6 +235,31 @@ function deliver(fixture, message) {
 }
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+{
+  // Original 0.3.17 Home H-46 projects the first recognized error code,
+  // preferring an explicit native `error.code` to incidental code-like text.
+  // Execute both actual JSX source helpers without a mocked replacement.
+  const homeSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
+  const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
+  const homeFn = new Function(`${homeSource.slice(homeSource.indexOf("function translatedError("), homeSource.indexOf("export function HomePage("))}; return translatedError;`)();
+  const sidebarFn = new Function(`${sidebarSource.slice(sidebarSource.indexOf("function errorCodes("), sidebarSource.indexOf("function ProfileIcon("))}; return profileError;`)();
+  const translations = new Map([
+    ["error.GAME_CLOSE_FAILED", "close failed (original first)"],
+    ["error.LAUNCH_TASK_FAILED", "launch failed (later token)"],
+    ["error.INSTANCE_MISMATCH", "explicit native code"],
+    ["common.actionFailed", "generic action error"],
+  ]);
+  const t = (key) => translations.get(key) || key;
+  const multi = "GAME_CLOSE_FAILED; retrying after LAUNCH_TASK_FAILED";
+  assert.equal(homeFn(t, multi), "close failed (original first)", "H-46 original first recognized code in Home error line");
+  assert.equal(sidebarFn(t, new Error(multi)), "close failed (original first)", "profile error line must preserve original first-code projection");
+  const native = new Error(multi);
+  native.code = "INSTANCE_MISMATCH";
+  assert.equal(homeFn(t, native), "explicit native code", "structured native code must outrank incidental message tokens");
+  assert.equal(sidebarFn(t, native), "explicit native code", "structured sidebar code must outrank incidental tokens");
+  assert.equal(homeFn(t, "unknown wording"), "generic action error", "unknown Home errors keep original generic fallback");
+  assert.equal(sidebarFn(t, "unknown wording"), "generic action error", "unknown profile errors keep original generic fallback");
+}
 const initialAutoLaunchSource = appSource.slice(
   appSource.indexOf("function initialAutoLaunchGame()"),
   appSource.indexOf("function initialAutoScanConfig("),

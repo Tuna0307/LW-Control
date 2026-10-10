@@ -50,7 +50,15 @@ internal sealed partial class OverviewLifecycleService
         const bool leaseActive = false;
 
         string nativeConnectionState;
-        if (currentLastError is not null)
+        if (currentLastError is not null && IsActiveRecoveryState(CurrentRecoveryStatus.State))
+        {
+            // The old exact owner may have exited and left a restoration
+            // error while an automatic run is actively replacing it. Keep the
+            // diagnostic lastError, but project the current recovery state to
+            // the profile indicator instead of a terminal failure.
+            nativeConnectionState = "recovering";
+        }
+        else if (currentLastError is not null)
         {
             nativeConnectionState = "error";
         }

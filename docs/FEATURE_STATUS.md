@@ -1,5 +1,18 @@
 # Feature delivery status
 
+**HOME-004 R5 substantial second pass, 2026-10-10 (whole Home PARTIAL):**
+Reproduced and corrected first-recognized-code Home/profile error order,
+native sidebar stale polling across Stop, active recovery reported as terminal
+error, and partial publication of invalid mixed-owner reconcile/restart results.
+Real production WebView EN/light and JA/dark verified fresh per-owner state,
+disabled/locked admission and retained R4-R2 two-owner behavior; native
+controlled 120/300/600-second maintenance retry and 15-minute updater stall
+tests pass. Read [R5 proof](HOME_004_R5_SECOND_PASS_RECEIPT.md) and the
+[47-row queue](HOME_004_R4_QUEUE.md) for original locators, precise remaining
+genuine/protected inputs and controlled/native evidence boundaries. No new
+live game fault was induced; prior accepted positive receipts remain valid.
+PR #6 remains draft pending independent review, no merge/publication.
+
 **HOME-004 R4-R2 verified local correction (2026-10-10; whole Home PARTIAL):**
 The two independent R4 lead failures were reproduced and fixed in the actual
 native recovery and retained-profile routing paths. Mounted EN/light and

@@ -54,7 +54,7 @@ function translatedError(t, value) {
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
   const message = value instanceof Error ? value.message : String(value ?? "");
   codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
-  for (const code of [...new Set(codes)].reverse()) {
+  for (const code of new Set(codes)) {
     for (const namespace of ["error", "auth.error", "update.error"]) {
       const key = `${namespace}.${code}`;
       const translated = t(key);

@@ -477,6 +477,17 @@ internal sealed partial class LWBridgeWindow
         await WaitForUiAsync(
             "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === true",
             "B sidebar independently polled running instance");
+        // Production race inverse: the real 3 s sidebar poll reads B as
+        // running, but its already-computed native response is held while B
+        // is stopped from the sidebar. A late older poll must never revive
+        // the old running icon or conceal the exact completed Stop.
+        Task<HomeMapCampaignDelayedRequest> staleBRowPoll =
+            ArmHomeMapCampaignCommandDelay("profile_instance_status",
+                targetProfileId: "campaign-B", onReply: true);
+        HomeMapCampaignDelayedRequest staleBRowRequest =
+            await staleBRowPoll.WaitAsync(TimeSpan.FromSeconds(10));
+        if (staleBRowRequest.ProfileId != "campaign-B")
+            throw new InvalidDataException("Sidebar stale poll did not target B.");
         await ClickAsync("""
             (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
               if (!button || button.disabled) return false; button.click(); return true;})()
@@ -488,6 +499,11 @@ internal sealed partial class LWBridgeWindow
         await WaitForUiAsync(
             "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === false",
             "B sidebar independently polled stopped instance");
+        ReleaseHomeMapCampaignCommandDelay();
+        await Task.Delay(450);
+        if (await core.ExecuteScriptAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === false") != "true")
+            throw new InvalidDataException("A stale native B sidebar status poll resurrected the stopped instance icon.");
 
         // The recovered batch controls visit enabled profiles in their list
         // order. Their real buttons must receive provider callbacks even when
@@ -582,6 +598,34 @@ internal sealed partial class LWBridgeWindow
                 if (restore.ExecuteNonQuery() != 2)
                     throw new InvalidDataException("Mounted profile fixture locked state could not be restored exactly.");
             }
+            using (var disable = registry.CreateCommand())
+            {
+                disable.CommandText = "UPDATE profiles SET enabled=0 WHERE id='campaign-B' AND enabled=1";
+                if (disable.ExecuteNonQuery() != 1)
+                    throw new InvalidDataException("Mounted disabled profile fixture could not acquire B.");
+            }
+            try
+            {
+                JsonElement disabledStart = await InvokeNativeAsync("profile_instance_start",
+                    new { profileId = "campaign-B" });
+                if (disabledStart.GetProperty("ok").GetBoolean() ||
+                    disabledStart.GetProperty("error").GetProperty("code").GetString() != "PROFILE_LOCKED")
+                    throw new InvalidDataException("Disabled profile admission unexpectedly launched B: " + disabledStart);
+                int previousBStarts = b.StartCalls;
+                JsonElement disabledBatch = await InvokeNativeAsync("profile_instances_update_and_restart", new { });
+                if (!disabledBatch.GetProperty("ok").GetBoolean() ||
+                    disabledBatch.GetProperty("result").GetProperty("restarted").EnumerateArray()
+                        .Any(item => item.GetString() == "campaign-B") ||
+                    b.StartCalls != previousBStarts || b.ProcessAlive)
+                    throw new InvalidDataException("Global restart visited a disabled native owner B: " + disabledBatch);
+            }
+            finally
+            {
+                using var restore = registry.CreateCommand();
+                restore.CommandText = "UPDATE profiles SET enabled=1 WHERE id='campaign-B' AND enabled=0";
+                if (restore.ExecuteNonQuery() != 1)
+                    throw new InvalidDataException("Mounted disabled profile fixture could not restore B exactly.");
+            }
         }
 
         JsonElement finalUi = await ReadUiAsync("""
@@ -627,7 +671,9 @@ internal sealed partial class LWBridgeWindow
                 targetOwnerStatusAndErrorRouting = true,
                 foreignStaleInstanceRejected = true,
                 delayedBReplyAcrossABA = true,
+                lateRunningPollCannotResurrectStoppedB = true,
                 selectedAndUnselectedLockedAdmission = true,
+                disabledStartAndGlobalRestartAdmission = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

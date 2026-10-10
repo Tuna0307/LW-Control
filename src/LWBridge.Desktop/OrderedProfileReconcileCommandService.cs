@@ -64,21 +64,30 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
                         items.ValueKind != JsonValueKind.Array)
                         throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
                             "The profile owner did not return reconciliation errors.");
+                    var ownerErrors = new List<OverviewStartupError>();
                     foreach (JsonElement item in items.EnumerateArray())
                     {
-                        if (item.ValueKind != JsonValueKind.Object) continue;
+                        if (item.ValueKind != JsonValueKind.Object)
+                            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                                "The profile owner returned an invalid reconciliation error entry.");
                         string? ownerId = item.TryGetProperty("profileId", out var p) &&
                             p.ValueKind == JsonValueKind.String ? p.GetString() : null;
                         string? code = item.TryGetProperty("error", out var e) &&
                             e.ValueKind == JsonValueKind.String ? e.GetString() : null;
-                        if (string.IsNullOrWhiteSpace(code)) continue;
                         if (!string.Equals(ownerId, profile.Id, StringComparison.Ordinal))
                             throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH",
                                 "A profile reconciliation response belonged to a different owner.");
+                        if (string.IsNullOrWhiteSpace(code))
+                            throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                                "The profile owner returned an empty reconciliation error code.");
                         string message = item.TryGetProperty("message", out var m) &&
                             m.ValueKind == JsonValueKind.String ? m.GetString() ?? code : code;
-                        errors.Add(new OverviewStartupError(profile.Id, code, message));
+                        ownerErrors.Add(new OverviewStartupError(profile.Id, code, message));
                     }
+                    // Validate the full owner result before publishing any
+                    // entry: a later foreign/error entry invalidates this
+                    // owner's whole response, not merely its final element.
+                    errors.AddRange(ownerErrors);
                 }
                 catch (BridgeCommandException error)
                 {
@@ -121,12 +130,17 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
                     failures.ValueKind != JsonValueKind.Array)
                     throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
                         "The profile owner did not return a restart result.");
+                var ownerRestarted = new List<string>();
+                var ownerErrors = new List<OverviewStartupError>();
                 foreach (JsonElement item in started.EnumerateArray())
                 {
                     if (item.ValueKind != JsonValueKind.String || item.GetString() != profile.Id)
                         throw new BridgeCommandException("PROFILE_SCOPE_MISMATCH",
                             "A profile restart result belonged to a different owner.");
-                    restarted.Add(profile.Id);
+                    if (ownerRestarted.Count != 0)
+                        throw new BridgeCommandException("PROFILE_RUNTIME_UNAVAILABLE",
+                            "The profile owner returned a duplicate restart result.");
+                    ownerRestarted.Add(profile.Id);
                 }
                 foreach (JsonElement item in failures.EnumerateArray())
                 {
@@ -140,8 +154,10 @@ internal sealed class OrderedProfileReconcileCommandService : INativeAsyncComman
                         ? e.GetString() ?? "PROFILE_RUNTIME_UNAVAILABLE" : "PROFILE_RUNTIME_UNAVAILABLE";
                     string message = item.TryGetProperty("message", out JsonElement m) && m.ValueKind == JsonValueKind.String
                         ? m.GetString() ?? code : code;
-                    errors.Add(new OverviewStartupError(profile.Id, code, message));
+                    ownerErrors.Add(new OverviewStartupError(profile.Id, code, message));
                 }
+                restarted.AddRange(ownerRestarted);
+                errors.AddRange(ownerErrors);
             }
             catch (BridgeCommandException error)
             {

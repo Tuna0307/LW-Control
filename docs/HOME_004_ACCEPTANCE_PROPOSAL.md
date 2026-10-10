@@ -1,5 +1,22 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R5 second-pass follow-up (2026-10-10): PARTIAL_NEEDS_INPUT, draft PR #6.**
+Independent lead review can assess corrected bounded implementation, but
+whole original 0.3.17 Home A→A acceptance is not proposed. After baseline
+`c8b56e252886785528b527582f071c618302007b`, actual source and production
+inverses exposed and corrected reversed Home/sidebar error-code choice (H-46),
+stale native B status poll resurrecting its stopped icon (H-38/H-42/H-45),
+active recovery misprojected as terminal error (H-42), and atomicity of
+mixed-owner native reconcile/restart results (H-11/H-19/H-23). New controlled
+native original-policy tests cover the maintenance 120/300/600-second ladder
+and 15-minute updater stall (H-35/36); mounted EN/light and JA/dark proves
+disabled B Start/global restart admission and restores all inert owners.
+See [R5 differentiating evidence](HOME_004_R5_SECOND_PASS_RECEIPT.md),
+[47-row queue](HOME_004_R4_QUEUE.md), and the additive R5 current-matrix
+overlay. Original protected service responses, typed launcher/updater failures,
+independent real-client capacity and paired genuine offline/maintenance/repair
+are still unavailable, so none of those rows is self-approved.
+
 **Disposition: PARTIAL.** This candidate has source-backed corrections and
 verified real native Home preference/reopen behavior. Whole Home does not yet
 match the original 0.3.17 and is not ready for lead merge as a full feature.

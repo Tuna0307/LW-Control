@@ -19,6 +19,11 @@ internal static class HomeR2RecoveryChecks
         public void Begin() { }
         public string ReadNew() => string.Empty;
     }
+    private sealed class HookLog(Func<string> read) : IRecoveryLogReader
+    {
+        public void Begin() { }
+        public string ReadNew() => read();
+    }
 
     private sealed class Case : IDisposable
     {
@@ -32,6 +37,8 @@ internal static class HomeR2RecoveryChecks
         internal bool Alive;
         internal bool Hung, Updating = false, StateObserved = true, Healthy = true, BridgeOnline = true;
         internal bool FailNextLaunch;
+        internal string PlayerLog = "", LauncherLog = "", UpdaterLog = "";
+        internal int UpdateTerminationCalls;
         internal string Session = "", Challenge = "";
         internal readonly string Exe;
         internal readonly string Created;
@@ -71,9 +78,21 @@ internal static class HomeR2RecoveryChecks
                 WriteLease = withActualAdoptionRecord ? null : (_, _, _) => { },
                 DeleteFile = _ => { },
                 DelayAsync = (_, token) => Task.Delay(1, token),
-                CreateRecoveryLogReader = _ => new EmptyLog(),
+                CreateRecoveryLogReader = name => new HookLog(() => name switch
+                {
+                    "Player.log" => ConsumeLog(ref PlayerLog),
+                    "Launcher.log" => ConsumeLog(ref LauncherLog),
+                    "Updater.log" => ConsumeLog(ref UpdaterLog),
+                    _ => string.Empty,
+                }),
                 UpdateProcessRunning = () => Updating,
                 UpdateActivityFingerprint = () => "constant",
+                TerminateUpdateProcessesAsync = _ =>
+                {
+                    UpdateTerminationCalls++;
+                    Updating = false;
+                    return Task.CompletedTask;
+                },
                 ProcessHung = (_, _) => Hung,
                 TerminateOwnedProcessAsync = async (pid, path, created, _) =>
                 {
@@ -164,6 +183,12 @@ internal static class HomeR2RecoveryChecks
                 applicationDataRoot: Root, backupRoot: Path.Combine(Root, "backup"),
                 bridgeHostState: Host, enableBridgeControlPipeLaunchBinding: withActualAdoptionRecord);
         }
+        private static string ConsumeLog(ref string line)
+        {
+            string value = line;
+            line = "";
+            return value;
+        }
 
         private byte[] MakeHeartbeat() => JsonSerializer.SerializeToUtf8Bytes(new
         {
@@ -208,8 +233,11 @@ internal static class HomeR2RecoveryChecks
     internal static async Task RunAsync()
     {
         await ProcessExitOffAndOn();
+        await RecoveryInstanceStatusProjection();
         await RealAdoptionRecordRecovery();
         await FailedLaunchAndRetry();
+        await OriginalMaintenanceRetryLadder();
+        await OriginalUpdaterStallDeadline();
         await DisableAndStop();
         await HungAndDisconnectedEdges();
         await StillAliveOfflineRecoveryRunEdges();
@@ -406,6 +434,22 @@ internal static class HomeR2RecoveryChecks
         Require(!enabled.Config.Snapshot.GameDesiredRunning, "user Stop clears desire");
     }
 
+    private static async Task RecoveryInstanceStatusProjection()
+    {
+        using var c = new Case("recovery-instance-projection", true);
+        await c.Start();
+        c.Alive = false;
+        await c.Observe(); c.Advance(2000); await c.Observe();
+        Require(c.Service.CurrentRecoveryStatus.State == "waiting" &&
+                c.Service.CurrentRecoveryStatus.Reason == "processExit",
+            "native recovery is active for a missing exact game process");
+        JsonElement instance = JsonSerializer.SerializeToElement(c.Service.CreateProfileInstanceStatus(), JsonOptions.Default);
+        Require(instance.GetProperty("connectionState").GetString() == "recovering" &&
+                instance.GetProperty("lastError").GetString() == "GAME_EXITED_RESTORE_REQUIRED",
+            "H-42 original recovering projection wins over the stale exited-owner failure during automatic recovery");
+        await c.Stop();
+    }
+
     private static async Task RealAdoptionRecordRecovery()
     {
         using var c = new Case("protected-adoption-commit", true, withActualAdoptionRecord: true);
@@ -450,6 +494,64 @@ internal static class HomeR2RecoveryChecks
         c.Advance(1);
         await c.Tick();
         Require(c.StartCalls == 3 && c.Alive, "retry at exact threshold launches");
+        await c.Stop();
+    }
+
+    private static async Task OriginalMaintenanceRetryLadder()
+    {
+        using var c = new Case("maintenance-retries", true);
+        await c.Start();
+        c.Alive = false;
+        await c.Observe(); c.Advance(2000); await c.Observe();
+        c.PlayerLog = "connect to server failed";
+        await c.Tick();
+        Require(c.Service.CurrentRecoveryStatus.State == "maintenance" &&
+                c.Service.CurrentRecoveryStatus.NextRetryAt == c.Now + 120000 &&
+                c.StartCalls == 1,
+            "real log classifier enters original first 120-second maintenance wait");
+        foreach ((long wait, long nextWait, int attempt) in new[]
+        {
+            (120000L, 120000L, 1),
+            (120000L, 300000L, 2),
+            (300000L, 600000L, 3),
+            (600000L, 600000L, 4),
+        })
+        {
+            c.FailNextLaunch = true;
+            c.Advance(wait - 1); await c.Tick();
+            Require(c.StartCalls == attempt,
+                "maintenance cannot retry 1ms early, attempt " + attempt);
+            c.Advance(1); await c.Tick();
+            Require(c.StartCalls == attempt + 1 &&
+                    c.Service.CurrentRecoveryStatus.State == "maintenance" &&
+                    c.Service.CurrentRecoveryStatus.NextRetryAt == c.Now + nextWait &&
+                    c.Service.CurrentRecoveryStatus.Attempts == attempt,
+                "maintenance bounded 120/300/600/600-second retry ladder, attempt " + attempt);
+        }
+        await c.Stop();
+    }
+
+    private static async Task OriginalUpdaterStallDeadline()
+    {
+        using var c = new Case("updater-stall", true);
+        await c.Start();
+        c.Alive = false;
+        await c.Observe(); c.Advance(2000); await c.Observe();
+        c.Updating = true;
+        await c.Tick();
+        Require(c.Service.CurrentRecoveryStatus.State == "updating" &&
+                c.UpdateTerminationCalls == 0,
+            "active updater enters original updating state without premature termination");
+        c.Advance(900000 - 1); await c.Tick();
+        Require(c.UpdateTerminationCalls == 0 && c.StartCalls == 1,
+            "updater remains active below 15-minute no-activity threshold");
+        c.Advance(1); await c.Tick();
+        Require(c.UpdateTerminationCalls == 1 && !c.Updating &&
+                c.Service.CurrentRecoveryStatus.State == "waiting" &&
+                c.Service.CurrentRecoveryStatus.Error == "game update had no activity for 15 minutes" &&
+                c.Service.CurrentRecoveryStatus.NextRetryAt == c.Now + 15000 &&
+                c.StartCalls == 1,
+            "original 15-minute update stall schedules first normal 15-second retry");
         await c.Stop();
     }
 
