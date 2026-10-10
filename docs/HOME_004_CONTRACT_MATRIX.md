@@ -60,6 +60,25 @@ For every row, **input/state** identifies the control under test; **reference ou
 
 ## Acceptance boundary
 
+### R8 additive supersession for affected H-IDs (2026-10-10)
+
+Do not read the pre-R4 product-path or parity claims in the 47 historical
+rows above as current verification. For H-14/H-16/H-39/H-40/H-47 the
+original 0.3.17 frontend `Pt` preserves clicked profile ID across
+`Ze` instance read then `tt` exact Stop. R8 actual production mounted
+native/WebView negative showed the prior clone abandoned an in-flight A
+Close after B became selected. Both commands now address captured A
+explicitly while stale selected-view UI updates remain fenced.
+EN/light and JA/dark positives cover B Start/Stop independently and
+ABA selection before the held Close reply, preserving R6 shared lifecycle
+and R7 per-owner busy. H-02/H-18/H-45 original `Kr` is now compared
+to actual source-executed Home control gates for all 128 boolean cases.
+H-42/H-45 original `Jr` nine connection labels match the source map.
+H-46 original `Ir` uses **reversed unique error codes** (R6 correction
+supersedes the old first-code prose above). R8 receipt:
+[HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md).
+All original protected and genuine-client acceptability limits remain.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.

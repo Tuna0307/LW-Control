@@ -1,5 +1,17 @@
 # Feature delivery status
 
+**HOME-004 R8 captured-owner Close and original conditional Home oracle
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Original `Pt` captures
+selected A through awaited status/Stop. Real production mounted native
+inverse showed A Home Close abandoned when B selected during pending A
+status reply. Fixed `App.jsx stopGame` to use captured explicit A for both
+commands; mounted EN/light and JA/dark now protect B independence and
+A→B→A ABA, with native cleanup. Executable source tests compare original
+`Kr` versus all 128 Home button gate states and `Jr` nine localized
+connection keys. No protected commercial or two-real-game parity claimed.
+See [R8 receipt](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md)
+and [47-row queue](HOME_004_R4_QUEUE.md). Draft PR #6 unmerged.
+
 **HOME-004 R7 independent sidebar busy state (2026-10-10; whole Home
 PARTIAL_NEEDS_INPUT):** Actual mounted production EN/light before-fix
 negative proved that completing B's independent sidebar Start/Stop

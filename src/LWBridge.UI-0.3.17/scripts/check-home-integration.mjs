@@ -236,6 +236,13 @@ function deliver(fixture, message) {
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
+const homeCloseBody = appSource.slice(appSource.indexOf("const stopGame = useCallback"), appSource.indexOf("const updateAndRestartGame"));
+assert.match(homeCloseBody, /"profile_instance_status",\s*\{ profileId: owner\.profileId \}/,
+  "original Pt Home Close must retain the clicked A owner across pending status and a B selection");
+assert.match(homeCloseBody, /"profile_instance_stop",\s*\{ profileId: owner\.profileId, instanceId: instance\.instanceId \}/,
+  "native Close must target the captured exact owner and instance rather than the current view");
+assert.doesNotMatch(homeCloseBody, /invokeProfileScoped/,
+  "profile-view retirement may fence display but must not abandon an already admitted exact-owner Close");
 {
   // ORIGINAL 0.3.17 Ir at UTF-8 byte 328453 from research archive:
   // function Ir(e){let t=[]; e?.code:string && t.push(e.code);
@@ -266,6 +273,72 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     "launch failed (original later priority)", "deduplication precedes reverse iteration in original Ir");
   assert.equal(homeFn(t, "unknown wording"), "generic action error", "unknown Home errors keep original generic fallback");
   assert.equal(sidebarFn(t, "unknown wording"), "generic action error", "unknown profile errors keep original generic fallback");
+}
+{
+  // Original LWBridge 0.3.17 Kr, recovered at UTF-8 byte 336469 of the
+  // identified index-BVfnK1wp.js. Exhaust all seven inputs to compare the
+  // actual HomePage source's executable control gates (not a handwritten
+  // substitute for the clone) to the original oracle.
+  const originalKr = ({rootResolved, rootValid, gameRunning, needsRepair = false, recovering, busy, launching = false}) => ({
+    showRootPicker: rootResolved && !rootValid,
+    canStart: rootResolved && rootValid && !gameRunning && !recovering && !busy && !launching,
+    canStop: rootResolved && rootValid && (gameRunning || recovering) && !busy && !launching,
+    repairOnClose: rootResolved && rootValid && gameRunning && needsRepair && !recovering,
+  });
+  const homeSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
+  const gates = homeSource.slice(homeSource.indexOf("  const rootResolved ="), homeSource.indexOf("  let status ="));
+  assert.ok(gates.includes("const canStart =") && gates.includes("const canStop ="),
+    "source executable Home control gates must be extracted, not recreated");
+  const actual = new Function("state", "RECOVERY_ACTIVE_STATES", "onStartGame", "onStopGame",
+    "onUpdateAndRestart", `${gates}\nreturn {showRootPicker, canStart, canStop, repairOnClose};`);
+  const activeStates = new Set(["waiting", "updating", "repairing", "launching", "verifying", "maintenance"]);
+  const provider = () => {};
+  for (let flags = 0; flags < 128; flags++) {
+    const rootResolved = !!(flags & 1);
+    const rootValid = !!(flags & 2);
+    const gameRunning = !!(flags & 4);
+    const needsRepair = !!(flags & 8);
+    const recovering = !!(flags & 16);
+    const busy = !!(flags & 32);
+    const launching = !!(flags & 64);
+    const state = {
+      rootResolved,
+      gameRootStatus: rootValid ? {valid:true} : {valid:false},
+      proxyStatus: {gameRunning, repairRequired:needsRepair},
+      gameRecoveryStatus: {state:recovering ? "waiting" : "idle"},
+      proxyBusy:busy,
+      gameLaunchBusy:launching,
+      busy:"",
+      production:true,
+    };
+    assert.deepEqual(
+      actual(state, activeStates, provider, provider, provider),
+      originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}),
+      `H-02/H-18/H-45 original Kr conditional Home gate parity flags=${flags}`,
+    );
+  }
+}
+{
+  // Original 0.3.17 Jr immediately after the Home renderer at byte ~337000:
+  // every native per-profile connection state resolves a named translated
+  // label, including grace/locked/error, without inventing a new state.
+  const keysBody = sidebarSource.slice(
+    sidebarSource.indexOf("const CONNECTION_KEYS ="),
+    sidebarSource.indexOf("const EMPTY_INSTANCES"),
+  );
+  assert.ok(keysBody.startsWith("const CONNECTION_KEYS ="), "extract actual sidebar source translation table");
+  const actualConnectionKeys = new Function(`${keysBody}\nreturn CONNECTION_KEYS;`)();
+  assert.deepEqual(actualConnectionKeys, {
+    offline:"profile.connection.offline",
+    starting:"profile.connection.starting",
+    recovering:"profile.connection.recovering",
+    awaitingLogin:"profile.connection.awaitingLogin",
+    connected:"profile.connection.connected",
+    reconnecting:"profile.connection.reconnecting",
+    grace:"profile.connection.grace",
+    locked:"profile.connection.locked",
+    error:"profile.connection.error",
+  }, "H-42/H-45 original 0.3.17 Jr connection-state localization mapping");
 }
 const initialAutoLaunchSource = appSource.slice(
   appSource.indexOf("function initialAutoLaunchGame()"),

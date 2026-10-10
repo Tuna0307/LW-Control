@@ -1,5 +1,18 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R8 original captured-owner Home Close (2026-10-10): PARTIAL_NEEDS_INPUT.**
+Before-fix actual native mounted A Home Close status held across selecting B
+reproduced an abandoned Close; original frontend `Pt` keeps the clicked
+profile for status and exact Stop. R8 explicit captured owner commands
+resolve it, with independent B Start/Stop during A Close and A→B→A
+pending-status ABA verified in EN/light and JA/dark. Original `Kr`
+128-case conditional Home button oracle and `Jr` nine connection labels
+also match executed source. [R8 receipt](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md)
+documents original locators, negative, corrections, controlled scope and
+missing original/genuine acceptance witnesses. Do **not** interpret
+these bounded checks as whole original Home parity. Draft PR #6 not merged;
+no release publication or independent lead acceptance.
+
 **R7 per-owner sidebar busy correction (2026-10-10): PARTIAL_NEEDS_INPUT.**
 Actual mounted production WebView/native inverse: while A's sidebar Start
 was held, B's independent sidebar Start/Stop completed and reset the shared

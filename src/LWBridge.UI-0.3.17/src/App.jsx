@@ -995,11 +995,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     setProxyBusy(true);
     setGameActionError("");
     try {
-      const instance = await backendBridge.invokeProfileScoped("profile_instance_status", {});
+      // Original 0.3.17 Home Pt captures its selected profile ID before the
+      // awaited status read, then Stops that same owner. A view switch must
+      // retire stale UI replies, not silently abandon an already-clicked
+      // Close or redirect it to the newly selected owner.
+      const instance = await backendBridge.invoke(
+        "profile_instance_status", { profileId: owner.profileId },
+      );
       if (instance?.instanceId) {
-        await backendBridge.invokeProfileScoped(
+        await backendBridge.invoke(
           "profile_instance_stop",
-          { instanceId: instance.instanceId },
+          { profileId: owner.profileId, instanceId: instance.instanceId },
           HOME_LIFECYCLE_TIMEOUT_MS,
         );
       }

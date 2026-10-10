@@ -225,3 +225,14 @@ original parity. **Whole Home PARTIAL_NEEDS_INPUT.**
 
 R7 is a corrected bounded **current application** UI-native race, not
 original multi-instance admission proof. **Whole Home PARTIAL_NEEDS_INPUT.**
+
+## R8 original captured-owner Home Close and conditional state verification (2026-10-10)
+
+| H-ID / original byte contract | Corrected or confirmed production path and actual evidence | Not yet accepted |
+| --- | --- | --- |
+| H-14/H-16/H-39/H-40/H-47: original Home `Pt` ~365962 holds `r.selectedProfileId` through `Ze` status then `tt` Stop with exact ID | Native-mounted actual EN/light negative: A Home Close awaiting a held native A status reply was silently abandoned after selecting B, because `invokeProfileScoped` treated the UI generation as lifecycle ownership. `App.jsx stopGame` now sends explicit captured owner `profileId` for both commands and keeps the exact read `instanceId`. EN/light and JA/dark verify independent B Start/Stop during pending A Close and selected-view A→B→A before release. Historical R4–R7 owner fences retained. [R8 receipt](HOME_004_R8_CAPTURED_CLOSE_AND_HOME_CONTRACT_RECEIPT.md). | Genuine paired original/current adverse Close and two licensed real-client installations. |
+| H-02/H-18/H-45: original UI `Kr` byte 336469 | `check-home-integration.mjs` evaluates actual HomePage JSX gate bodies across all 128 root/running/repair/recovery/busy/launch combinations and compares to recovered original `Kr` results. No defect found or speculative code modification. | Original conditional UI pixels/real unsupported faults, genuine EN/JA physical-client states. |
+| H-42/H-45: original `Jr` following renderer, nine connection labels | Executes current ProfileSidebar label map source and verifies all nine original key mappings. Original sidebar 3 s versus Home status 5 s source cadence confirmed previously and current matches. EN/JA frontend complete-key suite retained. | Original protected status/lease and genuine current-client offline/maintenance visual sequence. |
+
+These bounded R8 fixes and original oracle checks do not make
+H-01–H-47 fully accepted. Whole Home **PARTIAL_NEEDS_INPUT**.

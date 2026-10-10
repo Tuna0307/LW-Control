@@ -783,6 +783,106 @@ internal sealed partial class LWBridgeWindow
         await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 6,
             "A exact close after reverse cross-control Start");
 
+        // R8 H-14/H-39/H-47: the original Home Pt closes its captured
+        // selected profile after awaiting the instance status. A switch to B
+        // while that native read is held must not abandon A's acknowledged
+        // user Close or accidentally apply it to selected B.
+        int aStartsBeforeSwitchClose = a.StartCalls;
+        JsonElement aStartForSwitchClose = await InvokeNativeAsync(
+            "profile_instance_start", new { profileId = "campaign-A", closeUnmanaged = true });
+        if (!aStartForSwitchClose.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("Could not start owned A for R8 delayed Close.");
+        for (int i = 0; i < 240 && !a.ProcessAlive; i++) await Task.Delay(40);
+        if (!a.ProcessAlive || a.StartCalls != aStartsBeforeSwitchClose + 1)
+            throw new InvalidDataException("R8 selected A was not running before Close race.");
+        await WaitForUiAsync(
+            "document.querySelector('.game-controls > button:not(.primary)')?.disabled === false",
+            "A Home Close enabled before delayed owner status");
+        int aStopsBeforeSwitchClose = a.StopCalls;
+        Task<HomeMapCampaignDelayedRequest> heldCloseStatus =
+            ArmHomeMapCampaignCommandDelay("profile_instance_status",
+                targetProfileId: "campaign-A", onReply: true);
+        await ClickCloseAsync("A Home Close while A status reply is held");
+        HomeMapCampaignDelayedRequest heldClose = await heldCloseStatus.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldClose.ProfileId != "campaign-A" || heldClose.Cancelled)
+            throw new InvalidDataException("R8 Home Close did not read A's exact native status.");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-item')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "switch to B while selected A Home Close status is pending");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-B"; i++) await Task.Delay(40);
+        if (backend.ProfileId != "campaign-B")
+            throw new InvalidDataException("R8 profile B selection could not proceed past A pending Close.");
+        int bStartsBeforeSwitchClose = b.StartCalls;
+        int bStopsBeforeSwitchClose = b.StopCalls;
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "independent selected B Start while A Home Close is pending");
+        await WaitForOwnerAsync(b, alive: true, bStopsBeforeSwitchClose,
+            "B running independently during A pending Close");
+        if (b.StartCalls != bStartsBeforeSwitchClose + 1 || !a.ProcessAlive)
+            throw new InvalidDataException("R8 B Start interfered with A pending Close.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for (int i = 0; i < 240 && a.StopCalls == aStopsBeforeSwitchClose; i++)
+            await Task.Delay(40);
+        if (a.ProcessAlive || a.StopCalls != aStopsBeforeSwitchClose + 1 || !b.ProcessAlive)
+            throw new InvalidDataException("A Home Close was abandoned or misrouted after switching to B.");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === true",
+            "independent B remained running after A pending Close");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "B independent exact Stop after A pending Close");
+        await WaitForOwnerAsync(b, alive: false, bStopsBeforeSwitchClose + 1,
+            "B exact Stop after cross-profile pending A Close");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-item')[0];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "return to A after cross-selection Home Close");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-A"; i++) await Task.Delay(40);
+        if (backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("R8 Home A selection was not restored.");
+
+        // Generation ABA: A is selected again before its old Home Close
+        // status reply arrives. The captured instance ID still owns the
+        // original Close and cannot be replaced by a selected-view generation.
+        JsonElement aStartForAbaClose = await InvokeNativeAsync(
+            "profile_instance_start", new { profileId = "campaign-A", closeUnmanaged = true });
+        if (!aStartForAbaClose.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("Could not start A for R8 ABA Home Close.");
+        await WaitForUiAsync(
+            "document.querySelector('.game-controls > button:not(.primary)')?.disabled === false",
+            "A Home Close enabled before ABA status");
+        int aStopsBeforeAba = a.StopCalls;
+        Task<HomeMapCampaignDelayedRequest> heldAbaStatus =
+            ArmHomeMapCampaignCommandDelay("profile_instance_status",
+                targetProfileId: "campaign-A", onReply: true);
+        await ClickCloseAsync("A Home Close with pending ABA status reply");
+        HomeMapCampaignDelayedRequest heldAba = await heldAbaStatus.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldAba.ProfileId != "campaign-A")
+            throw new InvalidDataException("R8 ABA status reply was not exact A.");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-item')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "ABA select B before A Close acknowledgement");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-B"; i++) await Task.Delay(40);
+        if (backend.ProfileId != "campaign-B")
+            throw new InvalidDataException("R8 ABA intermediate B was not selected.");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-item')[0];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "ABA select A again before A Close acknowledgement");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-A"; i++) await Task.Delay(40);
+        if (backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("R8 ABA final A was not selected.");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForOwnerAsync(a, alive: false, aStopsBeforeAba + 1,
+            "A exact Stop after view generation ABA");
+        if (b.ProcessAlive)
+            throw new InvalidDataException("R8 ABA A Close disturbed stopped B.");
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -834,6 +934,9 @@ internal sealed partial class LWBridgeWindow
                 independentBStartStopWhileAHeld = true,
                 reverseSidebarFirstHomeStartDedupe = true,
                 concurrentSidebarBusyOwnerRetained = true,
+                homeCloseRetainsCapturedOwnerAcrossProfileSwitch = true,
+                independentBWhileHomeAClosePending = true,
+                homeCloseRetainsCapturedOwnerAcrossABA = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,
