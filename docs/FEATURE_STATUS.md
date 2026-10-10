@@ -14,7 +14,8 @@ first; simultaneous two-game support remains unfinished F-07. See
 [the acceptance](HOME_004_SINGLE_GAME_LEAD_ACCEPTANCE_2026-10-11.md).
 
 Latest lead acceptance: genuine F-04 transport-only recovery and F-06 repair now
-pass. Single-game Home may merge/release; simultaneous-game F-07 remains backlog.
+pass. Single-game Home is merged and published; simultaneous-game F-07 remains backlog.
+Download the accepted package via HOME_004_RELEASE_RECEIPT_2026-10-11.md.
 The earlier d09b8328 progress review is historical. Current package source is
 234480bc; see HOME_004_CURRENT_STATUS.md and the scoped acceptance.
 

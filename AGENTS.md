@@ -39,8 +39,9 @@ Historical evidence and reviews remain unchanged.
 - Home is the only new feature priority; other pages are affected regressions.
   No new Map feature/scan campaign. Follow the finite functional acceptance
   catalogue, not every historical exact-original research gap.
-- Use the existing checkout and `codex/home-complete-delivery-004`. Read research
-  with `git show` on the archive branch; do not import its bulk into the product.
+- Single-game Home is merged and published; use the existing main checkout.
+  Its merged feature branch was retired. Future implementation branches require
+  a concrete lead assignment. Read research with `git show`; do not import bulk.
 - External owner-relayed workers work solo: no subagents, other AI chats,
   GPT Work or Codex delegation. Preserve completed corrections and unrelated work.
 - Diagnose -> fix -> retest -> self-review -> coherent checkpoint -> next ready

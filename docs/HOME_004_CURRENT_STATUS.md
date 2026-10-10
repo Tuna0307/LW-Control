@@ -15,8 +15,9 @@ Read [owner scope](OWNER_DIRECTION_SINGLE_GAME_HOME_2026-10-11.md),
 - ZIP: `artifacts/release/home004-functional-234480bc/LW-Control-HOME004-FUNCTIONAL-RC-234480bcbffb.zip`.
 - ZIP SHA-256: `474BCEF416640236D6DF1790084192115B49E649FB89BB04210A1D8CCD2D1D63`.
 - Extracted EXE SHA-256: `0117BDE4B3E91130400CCB3F15FB58A20ED3B8983A865D06A1AE0C05E1A5B06A`.
-- PR #6 may merge for the accepted single-game scope. The lead records final
-  merge/publication identity in HOME_004_RELEASE_RECEIPT_2026-10-11.md.
+- PR #6 is merged; release `home-single-game-v0.4.0` is published. Current checkout
+  is main and the merged feature branch is retired. See
+  [release receipt](HOME_004_RELEASE_RECEIPT_2026-10-11.md) for exact identity.
 
 ## Verification
 
