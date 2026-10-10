@@ -191,6 +191,18 @@ internal sealed partial class MapDataStore
             command.Parameters.AddWithValue("$updated", updatedAt);
             command.Parameters.AddWithValue("$run", request.RunId);
             MapScanPublicationOwnership.ValidateCompletionTransition(command.ExecuteNonQuery());
+            // Engine-local failures/stops can occur before the Map317 control
+            // plane performs its own terminal cleanup (for example a cancelled
+            // publishing callback or host shutdown). Discard this exact run's
+            // staging atomically with the terminal status transition.
+            foreach (string table in new[] { "scan_records", "scan_blocks" })
+            {
+                using SqliteCommand cleanup = connection.CreateCommand();
+                cleanup.Transaction = transaction;
+                cleanup.CommandText = $"DELETE FROM {table} WHERE run_id=$run";
+                cleanup.Parameters.AddWithValue("$run", request.RunId);
+                cleanup.ExecuteNonQuery();
+            }
             transaction.Commit();
         }
     }
