@@ -1,107 +1,85 @@
-# LW-Control application candidate
+# LW-Control — current contributor instructions
 
-## Current owner direction — 2026-10-09
+Updated lead assignment, 2026-10-10: **Home stabilisation and functional completion**.
+Read docs/HOME_004_CURRENT_STATUS.md, docs/HOME_004_LOOP_CAMPAIGN.md and
+docs/LOOP_WORKER_PROTOCOL.md before working. They replace older per-round next-task
+instructions. Historical directions and reviews remain preserved in
+docs/AGENTS_HOME_HISTORY_2026-10-10.md and the referenced receipts.
 
-Latest owner workflow direction, 2026-10-10: run the remaining Home assignment
-as one self-correcting loop. Read docs/LOOP_WORKER_PROTOCOL.md and
-docs/HOME_004_LOOP_CAMPAIGN.md. Correct LEADHOME004R4-01/02 first, then continue
-all ready H-01–H-47 obligations on codex/home-complete-delivery-004. Ordinary
-failures require diagnosis, correction and retesting, not a handoff to the lead.
-Coherent checkpoints are progress saves, not permission boundaries. This
-supersedes older instructions to stop after R4-R1 or each medium unit. Return
-for independent lead review when whole Home meets its acceptance gates; if
-genuinely missing inputs prevent that, exhaust other ready work and return an
-exact PARTIAL_NEEDS_INPUT receipt. Never call a blocked feature complete.
-Same checkout, solo manual relay, no new Map scope or main merge/publication.
-Existing original-authority, identity, isolation, restoration and access gates
-remain; explicit owner pause and actual approval denials must be respected.
+## Product and acceptance
 
-Latest lead review, 2026-10-10: R4 worker c7f53530a57911b226bce57d047c08a79ba4be42
-is CHANGES_REQUIRED. Actual production inverse shows an old-instance Close can
-cancel a newer pending recovery owner (LEADHOME004R4-01). Native sidebar instance
-providers and explicit retained-profile routing remain incomplete (-02). Read
-HOME_004_R4_LEAD_REVIEW.md and HOME_004_R4_R1_CONTINUATION.md. Next on owner relay:
-correct both findings through sequential medium checkpoints on the same branch
-and checkout. Preserve R4 transport/runtime progress and all earlier positives
-and negative records. Whole Home PARTIAL, PR #6 draft, no main merge/publication.
+- Reference: post-auth LWBridge **0.3.17**, EXE SHA-256
+  `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
+- Original A must produce A for equivalent supported inputs/states: preserve
+  labels, defaults, ordering, validation, timing, retry, cancellation, errors,
+  persistence and success meanings. Adapt bindings to the admitted current
+  client; do not replace unknown original behavior with a plausible workflow.
+- Login/licensing UI and the original commercial account system are excluded.
+  Research legitimate dependency artifacts when needed for an included feature.
+  No credential collection, protected-service access or access-control bypass.
+  Do not demand excluded commercial features as product acceptance gates.
+- Distinguish original authority, current-client adaptation, controlled tests,
+  genuine native observations and UNKNOWN. Unavailable fences and clone-only
+  passing checks are not functional parity. Use one canonical implementation.
 
-Latest owner-expanded lead assignment, 2026-10-10: owner will be away for at least
-five hours and requests one large Home-only task rather than the H-41-only relay.
-Read HOME_004_R4_FULL_HOME_CONTINUATION.md. Complete sequential A–G checkpoints
-covering root, independent profile owners/selection, launcher/repair, recovery
-edges and complete-Home integration. This supersedes the narrower R4 assignment
-below; preserve R3-R1 scoped acceptance and all existing technical/live boundaries.
-Same branch/checkout, solo manual relay, no new Map scope or main merge/publication.
-Owner absence is not a fixed work deadline or automatic revocation of existing
-bounded Home authorization. Full Home remains PARTIAL pending independent review.
+## Active work and worker loop
 
-Latest lead review, 2026-10-10: worker 48fe84354b47733fca48d9a15e9d9cdc3f997b5e
-receives bounded acceptance for the corrected shared listener and inspected native
-hang-recovery witness. Independent actual-pipe and Desktop checks pass. Whole Home
-remains PARTIAL and PR #6 remains draft; no main merge/publication is approved.
-Next only on owner relay: HOME_004_R4_RUNNING_ROOT_CONTINUATION.md, one medium
-H-41 active-root contract task on this same branch/checkout. Read
-HOME_004_R3_R1_LEAD_REVIEW.md. Preserve historical failed R3 records and all fixes.
+- Home is the only new feature priority. Preserve Map and other pages as affected
+  regressions; no new Map feature or scan campaign.
+- Use the existing checkout and `codex/home-complete-delivery-004`. The research
+  archive remains on `research/offline-controller`; inspect authority with
+  `git show` instead of importing the bulk archive into the product branch.
+- External owner-relayed workers work solo: no subagents, other AI chats,
+  GPT Work or Codex delegation.
+- Fail -> diagnose -> source-backed correction -> retest -> continue. Ordinary
+  failures and coherent checkpoints are not return/permission boundaries.
+  Follow the finite current campaign; do not invent endless minor campaigns.
+- Preserve the three unfinished R16 source/harness edits identified in the
+  current status. Inspect and verify them before integrating. Never discard
+  unrelated work or stage everything without reviewing ownership.
+- Maintain one current queue/continuation. Preserve detailed historical proof
+  in receipts, not repeated appended next-task sections in active documents.
+- Build one final source-identified candidate after the ready correction pass.
+  Do not package and repeat the whole release sweep after every small fix.
+- Return whole-Home READY_FOR_LEAD_REVIEW only when required original authority
+  and working evidence exist. If exact missing inputs prevent it, complete all
+  other ready work and return PARTIAL_NEEDS_INPUT with per-row dependencies.
+  Final independent acceptance remains with the lead.
 
-Latest lead review, 2026-10-10: R3 checkpoint 7b36bfdd8de04a2193a32f49eb8465c64dcfd659
-remains PARTIAL / CHANGES_REQUIRED. Controlled delayed-cleanup checks and retained
-EN/light, JA/dark relaunch images receive bounded credit, not successful recovery.
-LEADHOME004R3-01 reproduces an isolated authenticated client idle timeout ending
-the shared pipe listener while the host still reports transport started; a new
-client cannot connect. Live evidence records pipe-not-found before successor Stop.
-Read HOME_004_R3_LEAD_REVIEW.md and HOME_004_R3_R1_CONTINUATION.md; next solo worker
-starts only on owner relay, same branch/checkout, no Map or main merge/publication.
+## Tests and authorised native work
 
-Latest lead review, 2026-10-10: R2 checkpoint 561134cc739044e15f281ddc0c8b78829b865703
-receives bounded credit for the corrected stale-adoption recovery and saved genuine
-unexpected-process-exit ON/OFF receipts. Independent forced-rebuild before/after
-comparison distinguishes the fix. R2's required EN/light recovery captures are
-not present; the receipt describes Chinese/light and Japanese/dark instead.
-Whole Home remains PARTIAL and PR #6 remains draft. Next owner-relayed medium
-Home-only unit: docs/HOME_004_R3_CONTINUATION.md. Read HOME_004_R2_LEAD_REVIEW.md.
-Preserve prior fixes, use the existing branch/checkout, no new Map work or merge.
+- Automated checks use isolated inert owners/providers. Fixtures cannot prove
+  genuine game success or simultaneous real-client support.
+- Existing bounded Home launch/connect/Close/adoption/recovery verification
+  remains authorised when assigned, after current compatibility, process/session
+  identity, isolated roots, backups and exact restoration gates pass. Owner
+  absence alone is not revocation. Respect explicit owner pause/stop.
+- Use available Windows-MCP/Remote Desktop Commander for assigned desktop work;
+  verify actual capabilities. Actual approval denials must not be bypassed.
+  Continue independent authorised ready work if a step cannot run.
+- No unrelated gameplay, spending, claims, cross-server movement, updater
+  action or protected-original service access. Do not disable owner networking
+  or alter owner settings to manufacture a failure.
+- Capture and terminate only exact authorised sessions; preserve successors,
+  leases and independent profiles. Restore installation scripts only after
+  confirmed exit and no surviving process from that installation.
+- Every live attempt needs a distinguishing plan, bounded fault/resume and
+  exact cleanup. Do not blindly repeat accepted successes or identical failures.
 
-Latest Home R1 lead review: df0baa4fa2b2a6d3d684fa43f47be531edab97a1 receives
-bounded credit for typed repair integration, current matrix and saved native
-startup/adoption/Close receipts. Whole Home remains PARTIAL; PR #6 stays draft.
-Next only after owner relay: docs/HOME_004_R2_CONTINUATION.md, a medium native
-automatic recovery ON/OFF and cancellation unit. Read HOME_004_R1_LEAD_REVIEW.md.
-Do not interpret host reopening as unhealthy-state recovery. Use the same branch
-and checkout; no main merge, new worktree or Map dispatch. Older continuation
-paragraphs are historical where inconsistent.
+## Git and handoff
 
-
-Latest lead review: HOME-004 worker checkpoint 5296ad58430e5aadd4164a19f9f44bdf7391c521
-is PARTIAL / CHANGES_REQUIRED. PR #6 is draft, not accepted or merged. Read
-docs/HOME_004_LEAD_REVIEW.md and docs/HOME_004_R1_CONTINUATION.md. Continue on
-the existing codex/home-complete-delivery-004 branch only after owner relay;
-do not create another branch/worktree or begin Map. Preserve the lead inverse
-LEADHOME004-01 and unrelated untracked evidence. Earlier readiness text is history.
-
-
-Home is the only new feature priority until the entire in-scope Home checklist
-is complete. New City marking/Map work is deferred. Next owner-relayed scope:
-LWB317-HOME-COMPLETE-DELIVERY-004; read its work item and current directions from
-origin/research/offline-controller before creating the feature branch.
-
-Main merges require the project lead's independent verification of both the
-original LWBridge 0.3.17 A -> A observable contract and working packaged native
-behavior for the named feature. Clone-only passing tests, fixture states and a
-worker READY status cannot establish parity. Unknown required behavior or known
-differences keep the feature incomplete. Accepted Launch/Connected/Close alone
-does not mean the whole Home tab is done.
-
-After merging/publishing, the lead checks unique commits, open PRs, dirty and
-ignored local work and active processes, then deletes merged feature branches
-locally/remotely and retires task worktrees after preserving needed artifacts.
-Keep main, research/offline-controller and only the currently necessary feature
-branch. Prefer the existing checkout; explain and record any required worktree.
-Do not lose unfinished work, force-push, or import the research archive into main.
-
-
-Target behavior is LWBridge 0.3.17 post-auth, excluding its login/licensing UI.
-Preserve recovered observable behavior; distinguish original evidence, current-client adaptations and unknown behavior. Do not describe an unavailable feature as completed parity.
-
-This branch contains the application/build dependencies and a small Home feature suite. The research archive and detailed recovery authority remain on `research/offline-controller`. Read `docs/FEATURE_STATUS.md` before changing a feature. This is an incremental candidate, not complete Home/Map acceptance.
-
-Do not launch/control a game, mutate its installation or access protected services merely to build or run checks. Live work requires a specifically assigned scope and identity, isolation, backup and exact restoration checks. Use isolated/inert providers for automated tests. Preserve unrelated work; do not force-push.
+- Run applicable checks, review the owned diff, commit coherent checkpoints,
+  push normally to the active branch and verify the direct remote SHA.
+  Do not force-push, reset or discard others' work.
+- PR #6 stays draft until independent lead acceptance. No worker main merge
+  or release publication. A worker READY marker is a proposal, not acceptance.
+- Main receives only a named feature whose original observable contract and
+  packaged native working behavior have been independently verified. Accepted
+  Launch/Connected/Close alone does not make whole Home complete.
+- After approved merge/publication, inspect unique commits, PRs, dirty/ignored
+  work and processes, preserve required artifacts, then remove merged feature
+  branches/task worktrees. Retain main, research and necessary active work.
+  Do not delete this incomplete Home branch to make Git look clean.
+- Useful findings belong in the repository. Update current status and affected
+  obligation rows; preserve negative evidence and source locators. A fresh worker
+  must be able to resume from the current campaign without reading every report.

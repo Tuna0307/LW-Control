@@ -5,6 +5,13 @@ in HOME_004_LOOP_CAMPAIGN.md. It is a work procedure for the owner-relayed
 worker, not a scheduled automation or a requirement to use Chat On Steroids.
 It supersedes historical checkpoint-only return instructions within this scope.
 
+Lead tidy clarification: use HOME_004_CURRENT_STATUS.md and the compact campaign
+as current pointers. Detailed prior rounds stay in linked history/receipts.
+Complete the named systematic case pass instead of treating each new permutation
+as a new campaign/package. Build one final candidate after ready corrections
+settle. An excluded commercial feature is not an included Home acceptance gate;
+trace why any missing original dependency matters before calling it blocking.
+
 ## Repeat until the assigned acceptance gates pass
 
 1. Read the current queue, actual production path and original authority.

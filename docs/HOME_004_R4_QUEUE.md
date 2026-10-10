@@ -1,11 +1,13 @@
 # HOME-004 R4 — reconciled 47-obligation queue
 
-2026-10-10 active continuation: [HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md).
-The table below is the carried-forward obligation inventory, not proof that
-its open rows are closed. First fix LEADHOME004R4-01 (stale explicit Close during
-pending recovery) and -02 (native sidebar callbacks and target-owner routing).
-Then continue all ready rows under the self-correction loop. Update affected
-rows with actual distinguishing results; preserve earlier negative receipts.
+2026-10-10 consolidated continuation: [HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md)
+and [current status](HOME_004_CURRENT_STATUS.md). Worker R4-R2 records corrections
+for LEADHOME004R4-01/02; do not blindly repeat those original assignments.
+The lead's current native suite passes but full campaign acceptance remains pending.
+First finish the preserved R16 candidate, then the finite systematic pass and
+remaining ready native/original work. The table is the carried-forward 47-row
+inventory, not proof of complete parity; reconcile later receipt overrides.
+Preserve historical negatives and excluded commercial scope.
 
 Reference: LWBridge **0.3.17**, original EXE SHA-256
 `4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783`.
