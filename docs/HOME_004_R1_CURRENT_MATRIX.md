@@ -54,6 +54,27 @@ Current status never inherits the original inventory readiness marker. CONTROLLE
 | H-46 Code vs message through Home error line | UI maps first matching code in error/auth.error/update.error namespaces else common.actionFailed. (Original N() byte 200664 rethrows Error(String(code)) with props; evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/index-BVfnK1wp.js) ; LATER 010 handlers-locale.json keys/codes and EN/JA fallback | src/LWBridge.UI-0.3.17/src/HomePage.jsx:52-65,134; src/LWBridge.UI-0.3.17/src/App.jsx:632-638,977-978; src/LWBridge.UI-0.3.17/src/backendBridge.js | SOURCE_RECOVERED_MATCH: 010 handlers-locale EN/JA fallback common.actionFailed matches HomePage | Actual R1 repair failure localization |
 | H-47 Busy ownership: proxyBusy vs gameLaunchBusy; in-flight dedupe | Manual lifecycle uses proxyBusy; startup reconcile uses gameLaunchBusy; start/stop admitted only when both false. (CAMPAIGN-001 home-lane/findings.md: bytes 373350/373362 separate busy values) | src/LWBridge.UI-0.3.17/src/App.jsx:613-647,909-960; src/LWBridge.UI-0.3.17/src/HomePage.jsx:87-97 | PACKAGED_R2_LIVE + CONTROLLED: real user Stop prevents further relaunch after two ON recovery cycles, late original effect cannot mutate successor | Real overlapping launch/Stop while helper in flight remains unexecuted |
 
+### R14 current-client H-39/H-40/H-45 additive correction (2026-10-10)
+
+Original `Yr` permits repeated exact-profile note Save while a prior
+promise is in flight; `profile_note_set` returns a refreshed registry
+snapshot. The R13 native per-profile queue prevents out-of-order
+SQLite writes, but requested-revision-only React projection incorrectly
+ignored a successful X when a later queued Y failed. Actual mounted
+EN/light production JSX/native/SQLite negative preserved under
+`artifacts/home-004/r14-failed-newer-note-before-fix-en-light.json.error.txt`.
+R14 per-exact-ID successful acknowledgement revision plus note-field-only
+projection now converges SQLite/JSX whether X succeeds then Y fails or
+X fails then Y succeeds. All actual native A/B owners, R6–R13 gates and
+EN/light JA/dark controlled checks pass; no protected service, real
+game or Map action. See
+[R14 receipt](HOME_004_R14_ORDERED_NOTE_FAILURE_ACK_RECEIPT.md).
+For H-39/H-40/H-45 the **current-client** result is corrected, but
+original concurrent error serialization, legitimate original commercial
+A/B capacity and paired original conditional pixels remain missing.
+The preceding 47 historical rows are evidence locators, not final
+whole-Home acceptance. **PARTIAL_NEEDS_INPUT**.
+
 ## Precisely separated blockers
 
 - Protected original inputs: H-05 (ticket/lease/capacity) and H-13 (finalizer callback). The game-side encrypted forwarded setAutomation outcome of H-33 is independently unknown. Excluded commercial account/login UI is not a reason to skip local Home.

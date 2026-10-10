@@ -1,5 +1,19 @@
 # Feature delivery status
 
+**HOME-004 R14 ordered success/error note acknowledgements
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Actual production
+JSX/native/SQLite negative: A note X persisted, later requested A
+note Y failed, but React suppressed X's already-successful result.
+Per-ID queued note writes now separately track **acknowledged
+successful** revisions and project exact A note only, preserving
+newer pending failures, selected B, profile ordering and B lifecycle.
+Mounted EN/light and JA/dark prove both X success→Y failure and
+X failure→Y success, plus R4–R13 retained Home controls. Preserved
+R14 negative and diagnosed bounded B-only repair harness timing
+are in [R14 receipt](HOME_004_R14_ORDERED_NOTE_FAILURE_ACK_RECEIPT.md).
+Original protected/licensed and genuine conditional parity remains
+missing; draft PR #6, no main merge/publication.
+
 **HOME-004 R13 reverse selection-snapshot and ordered note writes
 (2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Two separately
 reproduced actual native/WebView/SQLite failures: (1) delayed

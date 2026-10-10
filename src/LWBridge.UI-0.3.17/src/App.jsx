@@ -243,6 +243,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const nativeProfileSelectionRevisionRef = useRef(0);
   const nativeReorderRevisionRef = useRef(0);
   const nativeNoteRevisionsRef = useRef(new Map());
+  const nativeNoteAcknowledgedRevisionsRef = useRef(new Map());
   const nativeNoteWriteChainsRef = useRef(new Map());
   const isCurrentProfileOwner = useCallback((owner) => (
     owner?.profileId === selectedProfileOwnerRef.current.profileId
@@ -423,32 +424,35 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     nativeNoteWriteChainsRef.current.set(profileId, write);
     try {
       const snapshot = await write;
-      if (nativeProfileRequestRef.current !== request) {
-        // Profile notes belong to a retained exact owner, not the selected
-        // Home view. A newer B selection retires this snapshot's selection
-        // but must not hide a committed A note. Change only the confirmed
-        // note, preserving current order, selected owner, and all other data.
-        if (nativeNoteRevisionsRef.current.get(profileId) === noteRevision) {
-          const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
-          const saved = authoritative.profiles.find((profile) => profile.id === profileId);
-          if (saved) setShellProfiles((current) => ({
+      // The per-ID native write chain acknowledges commits in submit order.
+      // A newer *requested* note may fail: suppressing this successful X
+      // because pending Y has a higher revision leaves SQLite X but JSX old.
+      // Project each ordered SUCCESS for this exact owner, never the entire
+      // snapshot (whose selected owner/order may already be stale).
+      if ((nativeNoteAcknowledgedRevisionsRef.current.get(profileId) || 0) < noteRevision) {
+        const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+        const saved = authoritative.profiles.find((profile) => profile.id === profileId);
+        if (saved) {
+          nativeNoteAcknowledgedRevisionsRef.current.set(profileId, noteRevision);
+          setShellProfiles((current) => ({
             ...current,
             profiles: current.profiles.map((profile) => (
               profile.id === profileId ? { ...profile, note: saved.note } : profile
             )),
           }));
         }
-        return snapshot;
       }
-      return adoptNativeProfileSnapshot(snapshot);
+      return snapshot;
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileRequestRef.current === request &&
+          nativeNoteRevisionsRef.current.get(profileId) === noteRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
       throw error;
     } finally {
       if (nativeNoteWriteChainsRef.current.get(profileId) === write)
         nativeNoteWriteChainsRef.current.delete(profileId);
     }
-  }, [adoptNativeProfileSnapshot]);
+  }, []);
 
   // Sidebar actions address retained native owners directly. They must survive
   // A/B/A view selection without reassigning or retiring either running owner.

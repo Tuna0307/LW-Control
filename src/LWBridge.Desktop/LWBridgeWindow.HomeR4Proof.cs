@@ -769,6 +769,180 @@ internal sealed partial class LWBridgeWindow
             .Note=="r13-second-A-note")
             throw new InvalidDataException(
                 "R13 older concurrent note overwrote newer exact A persistent note.");
+
+        // R14 H-39/H-45: the converse case to two successful rapid Saves.
+        // First A note succeeds while a newer queued A note fails. The first
+        // committed value must not be discarded just because a later revision
+        // was requested: both SQLite and visible React must converge to X.
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const edit=row?.querySelector('.profile-note-edit');
+              if(!edit||edit.disabled)return false;edit.click();return true;})()
+            """, "R14 open real A note dialog before failed second submit");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+            "R14 real A note modal ready");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r14-committed-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R14 first exact A note entered");
+        await WaitForUiAsync(
+            "document.querySelector('dialog[open] .profile-dialog input')?.value==='r14-committed-A-note'",
+            "R14 first A draft reflected in React");
+        Task<HomeMapCampaignDelayedRequest> heldR14First =
+            ArmHomeMapCampaignCommandDelay("profile_note_set", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R14 submit first A note through real JSX");
+        HomeMapCampaignDelayedRequest firstR14 =
+            await heldR14First.WaitAsync(TimeSpan.FromSeconds(8));
+        if(firstR14.ProfileId!="campaign-A")
+            throw new InvalidDataException("R14 queued first note did not retain A owner.");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r14-rejected-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R14 input newer A note before pending first success");
+        await WaitForUiAsync(
+            "document.querySelector('dialog[open] .profile-dialog input')?.value==='r14-rejected-A-note'",
+            "R14 newer A note visible in modal");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R14 submit later A note set to fail in isolated native producer");
+        // The first native execution is held; skip its success and reject
+        // exactly the subsequent same-owner command, without changing SQLite.
+        RejectNextHomeMapCampaignCommand("profile_note_set", successfulCallsBeforeRejection:1);
+        ReleaseHomeMapCampaignCommandDelay();
+        for(int i=0;i<240 && profileRegistryService.Snapshot.Profiles
+            .Single(profile=>profile.Id=="campaign-A").Note!="r14-committed-A-note";i++)
+            await Task.Delay(40);
+        if(profileRegistryService.Snapshot.Profiles
+            .Single(profile=>profile.Id=="campaign-A").Note!="r14-committed-A-note")
+            throw new InvalidDataException("R14 first A note did not commit successfully.");
+        await WaitForUiAsync("document.querySelector('.profile-error')!==null",
+            "R14 newer failed note error surfaced in real sidebar");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+              row.querySelector('.profile-note')?.textContent?.includes('r14-committed-A-note'))
+            """, "R14 durable successful first A note visible after rejected later Save", attempts:50);
+        if(profileRegistryService.Snapshot.Profiles
+            .Single(profile=>profile.Id=="campaign-B").Note=="r14-committed-A-note")
+            throw new InvalidDataException("R14 failed A retry contaminated B native note.");
+        // A failed Save intentionally expands the sidebar error pane even
+        // when the collapse switch is set. Clear that error through a real
+        // successful same-value retry before restoring the compact fixture.
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const edit=row?.querySelector('.profile-note-edit');
+              if(!edit||edit.disabled)return false;edit.click();return true;})()
+            """, "R14 reopen A note dialog for successful fixture error clear");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+            "R14 A note retry dialog opened");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r14-committed-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R14 retry exact durable A note through JSX input");
+        await WaitForUiAsync(
+            "document.querySelector('dialog[open] .profile-dialog input')?.value==='r14-committed-A-note'",
+            "R14 retry A note reflected in JSX field");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R14 successful same-note retry clears isolated rejection error");
+        await WaitForUiAsync("document.querySelector('dialog[open]')===null && document.querySelector('.profile-error')===null",
+            "R14 failure panel cleared after successful native A note retry");
+
+        // R14 inverse failure ordering: failed predecessor X must not poison
+        // the exact-A promise chain or block newer Y from committing; B and
+        // the selected Home owner remain untouched. Submit through real JSX.
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const edit=row?.querySelector('.profile-note-edit');
+              if(!edit||edit.disabled)return false;edit.click();return true;})()
+            """, "R14 open A note editor for failed-predecessor retry");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+            "R14 failed-predecessor note dialog opened");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r14-rejected-first-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R14 enter failing first A note");
+        await WaitForUiAsync(
+            "document.querySelector('dialog[open] .profile-dialog input')?.value==='r14-rejected-first-A-note'",
+            "R14 first failing A draft visible");
+        Task<HomeMapCampaignDelayedRequest> heldR14RejectedFirst =
+            ArmHomeMapCampaignCommandDelay("profile_note_set", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R14 first A native request held before intentional rejection");
+        HomeMapCampaignDelayedRequest firstRejected =
+            await heldR14RejectedFirst.WaitAsync(TimeSpan.FromSeconds(8));
+        if(firstRejected.ProfileId!="campaign-A")
+            throw new InvalidDataException("R14 failing predecessor did not retain exact A.");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r14-success-after-failure-A');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R14 input successful later A note before failed X settles");
+        await WaitForUiAsync(
+            "document.querySelector('dialog[open] .profile-dialog input')?.value==='r14-success-after-failure-A'",
+            "R14 later A retry value committed to JSX input");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R14 submit newer Y after held failing X");
+        RejectNextHomeMapCampaignCommand("profile_note_set");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForUiAsync("document.querySelector('dialog[open]')===null",
+            "R14 newer A note success closes original note dialog");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+              row.querySelector('.profile-note')?.textContent?.includes('r14-success-after-failure-A'))
+            """, "R14 failed older native note did not block newer successful A note");
+        if(profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-A")
+              .Note!="r14-success-after-failure-A" ||
+           profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-B")
+              .Note=="r14-success-after-failure-A")
+            throw new InvalidDataException("R14 rejected first A note blocked later durable Y or contaminated B.");
+        // A rejected asynchronous Save may leave a visible error after newer
+        // successful Save. A real same-value retry clears it before returning
+        // to the compact sidebar used by subsequent exact-owner tests.
+        if(await core.ExecuteScriptAsync("document.querySelector('.profile-error')!==null") == "true")
+        {
+            await ClickAsync("""
+                (()=>{const row=[...document.querySelectorAll('.profile-row')]
+                  .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+                  const edit=row?.querySelector('.profile-note-edit');
+                  if(!edit||edit.disabled)return false;edit.click();return true;})()
+                """, "R14 reopen saved Y note for exact error reset");
+            await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+                "R14 successful Y retry editor opened");
+            await ClickAsync("""
+                (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+                  if(!save||save.disabled)return false;save.click();return true;})()
+                """, "R14 save already-durable Y through native JSX to clear failure panel");
+            await WaitForUiAsync("document.querySelector('dialog[open]')===null && document.querySelector('.profile-error')===null",
+                "R14 newer-success note error panel cleared");
+        }
         await ClickAsync("""
             (()=>{const toggle=document.querySelector('.profile-collapse');
               if(!toggle)return false;toggle.click();return true;})()
@@ -1125,7 +1299,11 @@ internal sealed partial class LWBridgeWindow
             (() => {const button=document.querySelector('.game-controls > button');
               if (!button || button.disabled) return false; button.click(); return true;})()
             """, "selected A Update-and-Launch with B-only helper failure");
-        for (int i = 0; i < 240 && a.StartCalls != aStartsBeforeForeignError + 1; i++)
+        // Global repair walks A then B. A's relaunch can finish BEFORE the
+        // B-only injected stop failure is reached; wait for BOTH outcomes,
+        // without changing the required exact A/B success/error assertions.
+        for (int i = 0; i < 240 &&
+            (a.StartCalls != aStartsBeforeForeignError + 1 || b.FailNextRepairStop); i++)
             await Task.Delay(40);
         if (a.StartCalls != aStartsBeforeForeignError + 1 || !a.ProcessAlive ||
             b.StartCalls != bStartsBeforeForeignError || !b.RepairJournalActive ||
@@ -1500,6 +1678,8 @@ internal sealed partial class LWBridgeWindow
                 selectionBusyReleasedAfterIndependentReorder = true,
                 lateSelectionPreservesNewerProfileOrder = true,
                 rapidNoteWritesPreserveLatestDurableOwnerValue = true,
+                rejectedNewerNotePreservesEarlierDurableOwnerValue = true,
+                failedFirstNoteAllowsNewerDurableRetry = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

@@ -255,12 +255,16 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     appSource.indexOf("const updateNativeProfileNote ="),
     appSource.indexOf("// Sidebar actions address retained native owners"),
   );
+  assert.match(noteAction, /nativeNoteAcknowledgedRevisionsRef\.current\.get\(profileId\) \|\| 0\) < noteRevision/,
+    "H-39 each ordered successful A write must project despite a newer request that could fail");
+  assert.match(noteAction, /nativeNoteAcknowledgedRevisionsRef\.current\.set\(profileId, noteRevision\)/,
+    "H-39 successful A note revisions must advance only after confirmed native persistence");
   assert.match(noteAction, /nativeNoteRevisionsRef\.current\.get\(profileId\) === noteRevision/,
-    "H-39 a late confirmed A note must be scoped to the latest exact A mutation");
+    "H-39 a failed older note must not displace a newer submitted exact-owner error");
   assert.match(noteAction, /profile\.id === profileId \? \{ \.\.\.profile, note: saved\.note \} : profile/,
     "H-39 committed note is projected to only its retained profile");
-  assert.match(noteAction, /if \(nativeProfileRequestRef\.current !== request\)/,
-    "H-39 note projection remains separate from selected Home-view acknowledgement");
+  assert.doesNotMatch(noteAction, /adoptNativeProfileSnapshot\(snapshot\)/,
+    "H-39 a successful note never replaces independent selected owner, order, or other notes");
   assert.doesNotMatch(noteAction, /setShellProfiles\(authoritative\)/,
     "H-39 a late note may not replace B selection or unrelated registry data");
   assert.match(noteAction, /nativeNoteWriteChainsRef\.current\.get\(profileId\)/,

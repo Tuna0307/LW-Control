@@ -1,5 +1,20 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R14 per-owner durable note success/failure order (2026-10-10):
+PARTIAL_NEEDS_INPUT.** Actual production WebView native/SQLite
+negative reproduced first A note X successfully committed while
+newer queued Y failed and its requested-revision guard hid X
+from React. The minimal per-exact-ID successful-ack revision
+projection corrects both failure orderings without replacing
+selected owner, profile order, other notes or native lifecycle.
+Mounted EN/light and JA/dark plus R4–R13 distinctions pass;
+full [R14 receipt](HOME_004_R14_ORDERED_NOTE_FAILURE_ACK_RECEIPT.md)
+and H-39/H-40/H-45 rows in [queue](HOME_004_R4_QUEUE.md).
+Still not original protected ticket/lease/controller, commercial
+two-game capacity, authentic launcher/recovery errors, adverse
+original timing or paired original EN/JA conditional pixels.
+PR #6 remains draft, no lead/main approval or public release.
+
 **R13 real selected-profile/registry reconciliation (2026-10-10):
 PARTIAL_NEEDS_INPUT.** Actual native/WebView negatives establish
 that a held post-execution B selected snapshot could undo

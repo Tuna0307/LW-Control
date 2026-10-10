@@ -156,6 +156,32 @@ No original 0.3.17 protected commercial simultaneous runtime or
 paired original concurrent metadata response supplied;
 whole Home **PARTIAL_NEEDS_INPUT**.
 
+### R14 additive H-39/H-40/H-45 ordered native note success and rejected successor
+
+Original 0.3.17 `Yr` supports a repeated profile note Save while its
+previous promise is pending and independently targets the captured
+profile. The native original `profile_note_set` returns the refreshed
+registry snapshot; its genuine licensed concurrent failure schedule
+is still missing. The R13 per-profile write chain makes current
+SQLite acknowledgements ordered, but its latest **requested** note
+revision could discard already-successful X when later Y failed:
+React A remained old while native SQLite saved X.
+
+R14 actual mounted native/WebView/SQLite EN/light reproduced the
+before-fix mismatch. Successful per-exact-profile native write
+acknowledgements now advance a separate acknowledged revision and
+project **only** their saved exact note, not a stale whole profile
+snapshot. A newer successful Y supersedes X; a failed Y leaves X
+visible, and a failed first X does not poison the queued successful Y.
+Real JSX controlled EN/light and JA/dark plus R4–R13 checks pass; B
+notes/lifecycle, selected owner, order, error and repair constraints
+remain independent. See
+[R14 receipt](HOME_004_R14_ORDERED_NOTE_FAILURE_ACK_RECEIPT.md)
+and affected original rows H-39/H-40/H-45. This closes only the
+demonstrated **current-client** race, not protected commercial
+capacity, genuine original error timing or original conditional pixels.
+Whole Home **PARTIAL_NEEDS_INPUT**.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.
