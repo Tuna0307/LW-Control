@@ -1,6 +1,6 @@
 # HOME-004 — current Home completion campaign
 
-**SOURCE CORRECTION PASS COMPLETED; final integration in progress. Whole Home: PARTIAL_NEEDS_INPUT.**
+**SOURCE CORRECTION PASS AND FINAL CANDIDATE VERIFIED. Whole Home: PARTIAL_NEEDS_INPUT.**
 Updated 2026-10-10. This is the single current continuation.
 Earlier R4–R15 instructions are preserved in
 [loop history](HOME_004_LOOP_HISTORY_2026-10-10.md); do not restart their work.
@@ -69,4 +69,5 @@ original licensed-runtime proof.
 - All 47 obligations have per-row original source locator, disposition and next action in [the correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The main input gaps are genuine responsive offline-only transport loss, original protected lease/finalizer callbacks, supported second client installation, original EN/JA conditional states and typed official error producers.
 - Genuine isolated Home recovery Stop exposed a **late unowned replacement LastWar after Close reported success**. The real original-Stop helper restored its at-launch v24 backing scripts correctly; unattended official launcher had advanced content v23→v24. An exact zero-process restore returned the installation to the preflight v23 hashes; negative preserved under `artifacts/home-004/pending-stop-live`.
 - Current-client correction retires the exact preflight launcher on cancellation, rejects uncleared game/updater, and delays Stop acknowledgment until in-flight recovery Start cleanup completes. Native tests now include held official preflight and held recovery helper Stop waits. **No genuine post-fix pending Stop acceptance claimed.** Repeating an update/real-game action needs a newly safe controlled client session.
-- Next: complete final checks, one source-identified Windows candidate, extracted Home proof/cleanup and direct remote SHA. Return **PARTIAL_NEEDS_INPUT** unless remaining original and genuine witnesses become legitimately available. Draft PR remains draft; no merge/publication.
+- Final source checkpoint `41e7894aac55ccc3984f652ae23303f2de5d0741`, single ZIP SHA-256 `4BB5E4C8B5933FCF7DCA75929C099573C70711EC0C01A0CF92524FB71C827ADA`, extracted EN/light and JA/dark full production Home native proof, isolated capture, normal GUI smoke and exact cleanup are verified; see the correction receipt.
+- Final delivery action: commit the receipt, push normally and check the direct remote branch SHA. Return **PARTIAL_NEEDS_INPUT** until original and genuine witnesses become legitimately available. Draft PR remains draft; no merge/publication.
