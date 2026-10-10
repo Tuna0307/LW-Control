@@ -5,7 +5,7 @@ Current owner direction:
 Exact original equality is no longer a universal release condition.
 Familiar features, real results and reliability remain mandatory.
 
-Home is first. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md),
+Single-game Home is released. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md),
 [current status](HOME_004_CURRENT_STATUS.md) and
 [loop campaign](HOME_004_LOOP_CAMPAIGN.md) are current.
 Single-game Home is lead accepted on 2026-10-11 after genuine route recovery/
@@ -27,7 +27,8 @@ The earlier d09b8328 progress review is historical. Current package source is
 - Worker subsequent pending-recovery Stop, concurrency/status/local config and
   packaged candidate results await affected independent review.
 - Stored City/Resource browsing/export accepted only in stored-data scope;
-  scanner/provider features are separate. No new Map work assigned now.
+  scanner/provider features are separate. Manual City/Resource scan delivery is
+  now assigned in MAP_005_CURRENT_STATUS.md; whole Map remains PARTIAL.
 
 Missing original-only facts can remain research notes while a documented
 supported implementation passes functional acceptance. Missing actual operations,
@@ -41,7 +42,7 @@ identity, differences and supported scope, then merges approved deliveries into
 main. Do not wait for unavailable original detail that no longer prevents the
 function; do not accept unavailable functionality by changing its label.
 
-One worktree and main/research/current Home branches remain at the latest
+One worktree and main/research/current Map branches remain at the latest
 inspection. Retain unfinished work; retire merged branches/worktrees after
 preserving required artifacts. No new branch/package per tiny correction.
 
