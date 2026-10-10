@@ -82,6 +82,35 @@ unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
 ## One current continuation — updated 2026-10-10
 
+- **Latest continuation from clean `1395733f`:** user asked explicitly
+  whether all tests were live. They were **not**; prior genuine LastWar
+  Launch/Connected/Close, adoption/exit/hang and pending Stop are historical.
+  New real Windows named pipe and packaged WebView tests used inert game owners.
+  This pass revalidated the genuine installed v23 scripts/EXE read-only via
+  `tools/run_overview_bridge_current.py check-only`: `ok:true`, original
+  `LWScripts.data` SHA `2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0`,
+  `installedFilesChanged:false`; zero LastWar launches.
+- **Actual F-07 defect reproduced and fixed (D-14):** normal Home sidebar Add
+  sent `{}` to `profile_create`, but `LWBridgeBackend.GlobalCommands` lacked
+  Create/Delete and incorrectly required selected-game scope. First mounted
+  Add failed; retained both `.error.txt` negatives under
+  `artifacts/home-004/local-crud-proof-{source,diagnostic}-en-light.json.error.txt`.
+  Reclassified exact native commands, added backend-path native CRUD regression,
+  and extended production mounted Home-only four-slot proof to click actual
+  Add, cancel Delete, accept Delete, verify native SQLite A/B unaffected and
+  exact clean teardown. Source commit
+  `a6e76b6a8f1625c3b612b040cf761ec27f68ff02`.
+- Native Release and frontend five-group tests PASS. Both corrected source-
+  mounted and **extracted** production WebView EN/light and JA/dark Home proofs
+  PASS with no Map scan or genuine game launch, both inert owners stopped and
+  zero cleanup failures. Latest 83-entry/81-runtime-file candidate:
+  `artifacts/release/home004-functional-a6e76b6a/LW-Control-HOME004-FUNCTIONAL-RC-a6e76b6a8f16.zip`,
+  SHA-256 `1784FEE1797728CC83A831F375BC3FD80A6D3F4D7E4D4D5D00D01E245D9ACC14`,
+  exact extracted EXE SHA-256
+  `0CFF749FC5E57D9EA5150930801AA91C6612A075386459DEB469B421FCE5F8A3`.
+  Screenshot/capture PASS, zero leftover temporary roots. Genuine live
+  F-04/F-06/F-07 requirements still open, **PARTIAL**. No protected service,
+  updater, main merge or publication.
 - **Newest F-04/F-06 corrections from clean `d966f368`:** committed
   source `a64ee00ad91acf28a2a21346d1560e21d757cd14`. Production F-04
   `IsSnapshotReady` already required authenticated pipe routing, whereas

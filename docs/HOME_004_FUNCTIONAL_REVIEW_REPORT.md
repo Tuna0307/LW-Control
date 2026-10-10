@@ -15,17 +15,17 @@ main merge and publication; draft PR #6 remains unmerged.
 | F-04 automatic reconnection | Prior genuine exit/hung and Stop receipts; D-10 fixes ID-less pending recovery sidebar Stop/Stop All. D-12 additionally fixes the production monitor using fresh heartbeat alone when the authenticated pipe is absent. Controlled exact still-responsive/fresh-heartbeat + missing authenticated route: OFF preserves owner, ON triggers at 60s, restores old owner, launches connected successor and Stop cleans up. | Responsive real game whose authenticated transport alone is absent for 60s: observe OFF/ON replacement and Stop without breaking current installation. No protected-runtime or networking fault was induced. |
 | F-05 adoption | Prior genuine same-build adoption; wrong-owner/stale/obsolete identity, restoration and reentry regressions pass. | No new blocker identified. |
 | F-06 repair | Native exact journal restore/relaunch plus own-design no-journal helper path and authenticated success requirement. D-13 closes a no-op reporting bug: missing/false post-repair target plus zero restarted selected owners now yields a visible failure, including other-owner-only restarts. Production JSX callbacks executed against controlled outcomes. | A safely backed-up genuine supported bridge-damaged installation must be repaired via packaged Update-and-Launch and reach a fresh authenticated Connected state with exact restoration. |
-| F-07 profile sidebar | Four local SQLite slots, Add/Delete, **local enable/disable** (D-11), note, reorder, select/focus, collapse, per-owner play/stop, Start/Stop All, status/error/busy and safe deletion pass native and packaged EN/JA inert tests. Disabled profiles are not admitted to Start; the real packaged UI toggle persists through native SQLite and can re-enable B without changing selected A. | Two separately compatible real Last War installations and simultaneous independently authenticated game sessions are not available for final confirmation. |
+| F-07 profile sidebar | Four local SQLite slots, Add/Delete, **local enable/disable** (D-11), note, reorder, select/focus, collapse, per-owner play/stop, Start/Stop All, status/error/busy and safe deletion. **D-14 discovered and corrected a real Add/Delete controller scope failure.** Both final extracted EN/JA production WebView runs clicked Add, verified SQLite `3/4`, cancelled Delete, confirmed Delete, returned to exact A/B `2/4`, and closed with zero cleanup failures. Native suite exercises real backend routing; enabled toggle continues to pass. | Two separately compatible real Last War installations and simultaneous independently authenticated game sessions are not available for final confirmation. These UI operations used inert profiles. |
 | F-08 preferences/status | Native/local save and rollback, Home statuses/translation, profile independence, retirement and late replies pass. | Live feedback for the two F-04/F-06 genuine conditions awaits those tests. |
 | F-09 package | Source-identified ZIP, extracted native/WebView Home EN/light and JA/dark, inert capture, clean shutdown and real isolated named-pipe RPC pass. | Final Home gate acceptance depends on F-04/F-06/F-07. |
 
 ## Current source, package and validation
 
-- Functional source: `a64ee00ad91acf28a2a21346d1560e21d757cd14`.
-- Windows review ZIP: `artifacts/release/home004-functional-a64ee00a/LW-Control-HOME004-FUNCTIONAL-RC-a64ee00ad91a.zip`.
-  SHA-256: `3DB3BFBF65198F1E926ACA719E24A307DF8FB689B4CA5A5F23F8DE6F8B475579`.
+- Functional source: `a6e76b6a8f1625c3b612b040cf761ec27f68ff02`.
+- Windows review ZIP: `artifacts/release/home004-functional-a6e76b6a/LW-Control-HOME004-FUNCTIONAL-RC-a6e76b6a8f16.zip`.
+  SHA-256: `1784FEE1797728CC83A831F375BC3FD80A6D3F4D7E4D4D5D00D01E245D9ACC14`.
   Extracted `SOURCE-COMMIT.txt` and executable ProductVersion match; EXE SHA-256
-  `4338358469F7B1CE237B0F5B209072D3399D27E8616400829FAB3781342DFBBB`.
+  `0CFF749FC5E57D9EA5150930801AA91C6612A075386459DEB469B421FCE5F8A3`.
 - `dotnet run --project tests/LWBridge.Desktop.Checks -c Release`: PASS.
   `npm.cmd run check`: PASS (five frontend groups, nine locale catalogs).
   Release Windows publish/canonical frontend manifest check: PASS.
@@ -33,13 +33,24 @@ main merge and publication; draft PR #6 remains unmerged.
   PASS, real isolated Windows named pipes, 30-second idle retirement, fresh RPC,
   concurrent authenticated A/B routes, correct rejection and shutdown.
 - Extracted application inert WebView receipts:
-  `artifacts/home-004/functional-a64ee00a-en-light.json` and
-  `artifacts/home-004/functional-a64ee00a-ja-dark.json`: both PASS including
+  `artifacts/home-004/functional-a6e76b6a-en-light.json` and
+  `artifacts/home-004/functional-a6e76b6a-ja-dark.json`: both PASS including
   actual sidebar enabled toggle → native persisted value → denied B Start →
-  re-enabled B, with A selection preserved. Zero genuine
+  re-enabled B, plus actual Add → 3/4 → cancelled Delete → confirmed Delete
+  → exact saved A/B 2/4, with A selection preserved. Zero genuine
   game launches/Map scans, zero active requests/subscriptions, both profiles
   stopped, no cleanup failures. Extracted `check_packaged_home.ps1` screenshot
-  `artifacts/home-004/functional-a64ee00a-capture/home.png`: PASS; zero temp roots.
+  `artifacts/home-004/functional-a6e76b6a-capture/home.png`: PASS; zero temp roots.
+- Historical D-14 failure preserved:
+  `artifacts/home-004/local-crud-proof-source-en-light.json.error.txt` and
+  `local-crud-proof-diagnostic-en-light.json.error.txt` (backend command scope
+  blocked Add before registry; UI/SQLite both remained 2/4). Corrected
+  source-mounted `local-crud-proof-confirm-{en-light,ja-dark}.json` PASS.
+- **Current genuine installed client:** `python tools/run_overview_bridge_current.py
+  check-only` PASS, exact read-only v23 critical signatures and original
+  `LWScripts.data` SHA-256
+  `2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0`,
+  `installedFilesChanged:false`. This is **not a live game session**.
 - D-12 native controlled adversity now covers a continuously fresh exact-session
   heartbeat while the independently authenticated route is absent, at the real
   60-second policy threshold; `gameLaunches=0`. D-13 executed production JSX
@@ -50,8 +61,22 @@ main merge and publication; draft PR #6 remains unmerged.
   `artifacts/home-004/functional-e3ab51d3-en-light.json.error.txt` is retained.
 - Prior genuine current-client outcomes, original negative evidence, R4–R16,
   H-33 and former candidate remain intact. New controlled outcomes are not
-  presented as genuine game results. Deliberate differences D-06 through D-13
+  presented as genuine game results. Deliberate differences D-06 through D-14
   are in `HOME_004_BEHAVIOR_DIFFERENCES.md`.
+
+## Live versus controlled acceptance
+
+The **earlier** current-client genuine tests include real LastWar
+Launch/authenticated Connected/Close, automatic startup, same-build adoption,
+unexpected exit/hang, and pending recovery user Stop (including the original
+negative and successful corrected follow-up). Those receipts predate the newest
+transport-monitor, no-op repair and local CRUD corrections; they do not certify
+them live. The **newest** Windows EXE/WebView/SQLite and real named-pipe tests
+use inert profile/game effects, with `genuineGameLaunches=0`. The read-only
+current-installation preflight verifies game-file compatibility, not a running
+game connection. Never report F-04 still-responsive live pipe-only recovery,
+F-06 actually damaged live bridge repair or F-07 two real concurrent game
+installations as tested until genuine safe receipts exist.
 
 ## Precise unresolved dependencies
 

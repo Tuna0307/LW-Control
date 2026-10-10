@@ -16,13 +16,16 @@ the product fails the new functional criteria. It also does not prove completion
 - Revised goal start checkpoint: `d568cad68a77c8ee75b2ba8025f99b2c087f5d1f`;
   local and direct origin matched before this worker pass.
 - **Latest corrected compiled candidate source**:
-  `a64ee00ad91acf28a2a21346d1560e21d757cd14` (D-12 authenticated route recovery and D-13 no-op repair reporting).
+  `a6e76b6a8f1625c3b612b040cf761ec27f68ff02` (D-14 native Add/Delete controller routing correction).
 - Latest candidate on the Windows checkout:
-  `artifacts/release/home004-functional-a64ee00a/LW-Control-HOME004-FUNCTIONAL-RC-a64ee00ad91a.zip`.
-  SHA-256 `3DB3BFBF65198F1E926ACA719E24A307DF8FB689B4CA5A5F23F8DE6F8B475579`,
-  9,552,643 bytes / 83 archive entries / 81 runtime files.
-  Extracted EXE SHA-256 `4338358469F7B1CE237B0F5B209072D3399D27E8616400829FAB3781342DFBBB`;
-  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+a64ee00ad91acf28a2a21346d1560e21d757cd14` match.
+  `artifacts/release/home004-functional-a6e76b6a/LW-Control-HOME004-FUNCTIONAL-RC-a6e76b6a8f16.zip`.
+  SHA-256 `1784FEE1797728CC83A831F375BC3FD80A6D3F4D7E4D4D5D00D01E245D9ACC14`,
+  9,554,423 bytes / 83 archive entries / 81 runtime files.
+  Extracted EXE SHA-256 `0CFF749FC5E57D9EA5150930801AA91C6612A075386459DEB469B421FCE5F8A3`;
+  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+a6e76b6a8f1625c3b612b040cf761ec27f68ff02` match.
+- Previous `a64ee00a` candidate, native/pipe tests and EN/JA verified receipts
+  remain historical evidence of D-12/D-13. D-14 was found because a source-
+  mounted real WebView Add click failed while lower-level SQLite tests passed.
 - The previous `74bcfa49` verified candidate is retained with its complete
   positive receipts and historically failed `e3ab51d3` positional-note receipt.
 - `c0fed3f4` and previous verified functional ZIPs remain intact. The superseded
@@ -95,9 +98,9 @@ real operation. Full Home still **PARTIAL** until applicable genuine gates pass.
 | **F-04** recovery | Home Auto Reconnect ON/OFF, native monitored missing process/hung/still-alive offline 60s, error/retry/maintenance feedback, disable, user Close while recovery pending (including no instance ID). | **WORKER_VERIFIED controlled** exact 59,999/60,000-ms threshold, retry and pending cleanup; prior genuine exit/hang/pending Stop. D-10 enables optional-ID sidebar cancellation. **D-12 fixes a real production monitor inconsistency:** `IsSnapshotReady` required authenticated pipe, but recovery had used fresh heartbeat alone as online; it now requires the authenticated native pipe route too. Controlled fresh heartbeat + absent route proves OFF, ON, exact restoration, successor and Stop. **NEEDS_REAL_VERIFICATION:** authenticated transport-only loss with otherwise responsive genuine current game and recovery/Stop OFF/ON; no network or protected-runtime fault was induced. |
 | **F-05** host restart/adoption | Same-build re-open, exact process/build ownership, durable journal and adoption vs rejected stale identity; independent owner selected view. | **Prior genuine selected-game restart/adoption** plus native stale/obsolete/wrong-owner cases; new code did not alter adoption decision mechanics. |
 | **F-06** repair | Home **Update-and-Launch** when native proxy_status signals game running + repairRequired; original recovered pending journal stop→restore→relaunch path, new **OWN_DESIGN** journal-free exact-owner Start/install attempt with mandatory actual `connected` result; explicit native error, cancel and busy reset. | **WORKER_VERIFIED controlled** original journal repair + executed production JSX callback. **D-13** now also rejects no-op native repair when no selected owner restarts and its repair-required status disappears/turns unavailable (formerly silent success); other-owner-only restart is likewise rejected. **NEEDS_REAL_VERIFICATION:** safely backed-up genuinely damaged bridge repaired through packaged button and authenticated reconnect; no official updater or simulated acceptance. |
-| **F-07** sidebar/profile | Collapse/expand, profile list/status and **user-editable local enabled state** (D-11), locked admission, Select/focus-game option, note modal edit/save/cancel and late acknowledgements, reorder via drag, **Add/Remove local profiles** (native SQLite, 4 metadata slots), primary/selected/active/journal deletion fences and retained data, per-profile Play/Stop, Start All/Stop All and global Update-and-Launch. | **WORKER_VERIFIED controlled + packaged:** native CRUD capacity/persist/reopen, active/corrupt/pending journal guard and ordered original R4–R16 A/B WebView metadata. D-10 corrects ID-less recovery cancellation. D-11 adds native persisted toggle for future manual/automatic Start admission; the packaged EN/light and JA/dark sidebar clicks both confirm disable, denied Start, re-enable, retained selected A and cleanup. Original commercial entitlement is excluded. **NEEDS_REAL_VERIFICATION:** distinct supported client roots and two live independent game/bridge sessions if concurrent use is advertised; local profile creation is not proof of that. |
+| **F-07** sidebar/profile | Collapse/expand, profile list/status and **user-editable local enabled state** (D-11), locked admission, Select/focus-game option, note modal edit/save/cancel and late acknowledgements, reorder via drag, **Add/Remove local profiles** (native SQLite, 4 metadata slots), primary/selected/active/journal deletion fences and retained data, per-profile Play/Stop, Start All/Stop All and global Update-and-Launch. | **WORKER_VERIFIED controlled + packaged:** native CRUD/persistence and ordered R4–R16 A/B WebView metadata. D-10 fixes ID-less recovery cancellation, D-11 enables saved per-profile ON/OFF. **D-14 resolves a newly reproduced actual Add failure:** backend global command scope rejected `profile_create {}` before SQLite. The corrected extracted EN/light and JA/dark production UI click Add (3/4), Cancel Delete (retained), Confirm Delete (2/4), read exact native SQLite A/B restoration and clean cleanup. The confirmation response is supplied by the isolated test page only; production confirms normally. The per-target native deletion gate still rejects active/primary/selected/pending restoration. **NEEDS_REAL_VERIFICATION:** two distinct supported roots and two independent genuine game/bridge sessions. Four local metadata slots are not two real games. |
 | **F-08** preferences/status/errors | AutoLaunch/AutoReconnect immediate draft and durable native commits/rollback, local `autoClosePopup` forced OFF storage, Home process/root/recovery/status/errors/disabled/busy, sidebar note/edit/save/errors, native locale EN/light and JA/dark. | **WORKER_VERIFIED controlled** status, locale (all 9 catalogs), 128-state source gate, save/reorder races; native `set_automation` connected game-side forwarding for *other* automation names remains `AUTOMATION_NOT_IMPLEMENTED` and is **not** a working Home preference. Home only exposes the supported two switches. Live responsive offline and repair UI feedback waits for their genuine gate. |
-| **F-09** package | Canonical React UI compiled into Windows desktop, real WebView/native dispatcher, EN/light and JA/dark, extracted ZIP and normal one-window smoke, exact cleanup, one source-linked final candidate. | **WORKER_VERIFIED packaged**: latest `a64ee00a` ZIP exact source/EXE/hash verified. Extracted native Home EN/light and JA/dark controlled receipts `artifacts/home-004/functional-a64ee00a-{en-light,ja-dark}.json` both PASS (including D-11 toggle/native denial and existing repair controls); zero genuine launches, Map scans, requests/subscriptions, cleanup failures and residual isolated roots, both inert owners stopped. Latest inert extracted screenshot `artifacts/home-004/functional-a64ee00a-capture/home.png` PASS. Real isolated Windows pipe rejection/reconnect/concurrent RPC probe PASS. Earlier normal GUI smoke/current-client read-only v23 compatibility are retained historical evidence, not rerun with the new source. Genuine F-04/F-06/F-07 acceptance remains open. |
+| **F-09** package | Canonical React UI compiled into Windows desktop, real WebView/native dispatcher, EN/light and JA/dark, extracted ZIP and normal one-window smoke, exact cleanup, one source-linked final candidate. | **WORKER_VERIFIED packaged**: latest `a6e76b6a` ZIP exact source/EXE/hash verified. Extracted production Home EN/light and JA/dark receipts `artifacts/home-004/functional-a6e76b6a-{en-light,ja-dark}.json` both PASS including real sidebar Add/Cancel/Delete with isolated SQLite and enabled toggle/native denial, zero genuine game launches, Map scans, active requests/subscriptions or cleanup errors; two inert owners stopped and isolated root removed. Extracted screenshot `artifacts/home-004/functional-a6e76b6a-capture/home.png` PASS without temporary roots. Earlier real named-pipe RPC and genuine-game outcomes remain historical; **latest read-only supported LastWar v23 `check-only` passed** with `installedFilesChanged:false`, not a genuine game launch. F-04/F-06/F-07 remain open. |
 
 ### Ready corrections and unresolved real inputs
 
@@ -196,6 +199,33 @@ scans, leftover requests/subscriptions or cleanup failures, and both inert
 owners stopped. `check_packaged_home.ps1` PASS with zero residual roots. Real
 isolated named-pipe host/reconnect/two-profile RPC probe PASS. The current
 owner's game scripts, settings, process and updater were untouched.
+
+**Latest `a6e76b6a` D-14 verification and live-evidence classification:** a
+new actual production WebView Add test found a **failed native command**, not a
+stale React display: `local-crud-proof-source-en-light.json.error.txt` and
+diagnostic `local-crud-proof-diagnostic-en-light.json.error.txt` preserve the
+negative and show native roster `2/4`, visible `2/4`, no Add. Root cause was
+missing `profile_create`/`profile_delete` in `LWBridgeBackend.GlobalCommands`,
+so generic selected-runtime validation rejected controller Add `{}`. Corrected
+backend and native Release test now actually dispatch both commands through
+`LWBridgeBackend.InvokeAsync` (not registry alone). Corrected source-mounted
+`local-crud-proof-confirm-{en-light,ja-dark}.json` PASS. The test-page-only
+WebView confirm stub verifies Cancel preserves the new owner and Accept removes
+the exact new stopped owner. Final **extracted ZIP** EN/light and JA/dark
+`functional-a6e76b6a-{en-light,ja-dark}.json` both PASS all prior Home
+assertions and new `nativeAddDeleteConfirmedAndPersisted`, zero live game
+launches, Map scans, lingering native requests/subscriptions or failed cleanup.
+`functional-a6e76b6a-capture/home.png` PASS, no leftover capture roots.
+
+The **genuine installed current LastWar v23** was independently checked via
+the existing read-only `python tools/run_overview_bridge_current.py check-only`
+and returned `ok:true`, `mode:check_only`, `installedFilesChanged:false`,
+package SHA-256 `2187de71f426741eb61482f6e85639314526e6bdefc9445319b1ff52b31cfac0`.
+This validates installed source compatibility, NOT a newly launched/authenticated
+game. The earlier genuine manual Launch/Connected/Close, adoption, unexpected
+exit/hang and corrected pending Stop receipts remain historical evidence.
+There was **no new live LastWar session** in this pass; only the real Windows
+desktop/WebView/SQLite application and live installed-file read-only gate ran.
 
 **Latest `74bcfa49` D-11 verification:** native Release checks PASS including
 selected-primary toggle, disabled secondary Start rejection, invalid input and
