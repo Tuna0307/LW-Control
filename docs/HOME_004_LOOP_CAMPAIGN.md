@@ -80,9 +80,37 @@ The lead performs independent functional review and decides main merge/publicati
 Do not say whole Home is done while a required action is disabled, simulated-only,
 unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
-## One current continuation — updated 2026-10-10
+## One current continuation — updated 2026-10-11
 
-- **Latest continuation from clean `1395733f`:** user asked explicitly
+- **Latest checkpoint (D-15):** resumed clean `621c54ec2c0216bba00975ede6c5fb3c09ddc1df`,
+  direct origin matched, no LastWar/desktop process. Production native
+  `profile_create` and `profile_delete` had D-14 correct admission, but a
+  committed registry write followed by selected A→B before its reply was
+  falsely rejected as `PROFILE_GENERATION_RETIRED`. Initial mounted
+  regression exposed a proof-harness defect: concurrent native invocations
+  overwrote a single JS response slot, masking the real reply. Corrected
+  proof matches each request's ID; preserved actual production negative
+  `artifacts/home-004/crud-switch-correlated-negative-en-light.json.error.txt`.
+  Source `d09b8328ce1752cd6c305acae8f52acf827e6c87` classifies Add,
+  Delete and primary registry mutations as selected-owner-independent
+  acknowledgements without weakening deletion/Stop gates. Both source-mounted
+  and extracted Windows EN/light + JA/dark tests PASS committed Add and
+  Delete across selection, with request correlation, durable SQLite roster,
+  both inert owners stopped and zero native cleanup failures, game launches
+  or Map scans. Full Release native/frontend checks PASS; packaged candidate
+  `artifacts/release/home004-functional-d09b8328/LW-Control-HOME004-FUNCTIONAL-RC-d09b8328ce17.zip`
+  SHA-256 `0F871CDCADACBCF0C3685726608F7AA36D1B96744E42EFC8859801C16EA4FA43`,
+  83 entries/81 runtime files. EXE/source ProductVersion matches, extracted
+  EXE SHA `66AEE4C45FCA50156982827801712D341B89ACA3ED5EFEA6D318B48214CEDC39`.
+  Extracted screenshot proof PASS, no leftover capture roots. No new genuine
+  LastWar launch, bridge damage, updater, Map scan or protected service.
+  **PARTIAL** persists only for F-04 genuine responsive transport-only
+  disconnect/recovery, F-06 genuine backed-up damaged-installation repair,
+  and F-07 independently compatible two-game concurrent verification.
+  Next action is legitimate isolated live input for these three, not another
+  inert package sweep. PR #6 remains draft and unmerged.
+
+- **Preceding continuation from clean `1395733f`:** user asked explicitly
   whether all tests were live. They were **not**; prior genuine LastWar
   Launch/Connected/Close, adoption/exit/hang and pending Stop are historical.
   New real Windows named pipe and packaged WebView tests used inert game owners.

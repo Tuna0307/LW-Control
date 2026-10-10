@@ -16,15 +16,15 @@ the product fails the new functional criteria. It also does not prove completion
 - Revised goal start checkpoint: `d568cad68a77c8ee75b2ba8025f99b2c087f5d1f`;
   local and direct origin matched before this worker pass.
 - **Latest corrected compiled candidate source**:
-  `a6e76b6a8f1625c3b612b040cf761ec27f68ff02` (D-14 native Add/Delete controller routing correction).
+  `d09b8328ce1752cd6c305acae8f52acf827e6c87` (D-15 durable Add/Delete acknowledgement across selected-owner changes).
 - Latest candidate on the Windows checkout:
-  `artifacts/release/home004-functional-a6e76b6a/LW-Control-HOME004-FUNCTIONAL-RC-a6e76b6a8f16.zip`.
-  SHA-256 `1784FEE1797728CC83A831F375BC3FD80A6D3F4D7E4D4D5D00D01E245D9ACC14`,
-  9,554,423 bytes / 83 archive entries / 81 runtime files.
-  Extracted EXE SHA-256 `0CFF749FC5E57D9EA5150930801AA91C6612A075386459DEB469B421FCE5F8A3`;
-  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+a6e76b6a8f1625c3b612b040cf761ec27f68ff02` match.
-- Previous `a64ee00a` candidate, native/pipe tests and EN/JA verified receipts
-  remain historical evidence of D-12/D-13. D-14 was found because a source-
+  `artifacts/release/home004-functional-d09b8328/LW-Control-HOME004-FUNCTIONAL-RC-d09b8328ce17.zip`.
+  SHA-256 `0F871CDCADACBCF0C3685726608F7AA36D1B96744E42EFC8859801C16EA4FA43`,
+  9,555,554 bytes / 83 archive entries / 81 runtime files.
+  Extracted EXE SHA-256 `66AEE4C45FCA50156982827801712D341B89ACA3ED5EFEA6D318B48214CEDC39`;
+  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+d09b8328ce1752cd6c305acae8f52acf827e6c87` match.
+- Previous `a6e76b6a` (D-14), `a64ee00a` (D-12/D-13) candidates, native/pipe
+  tests and EN/JA receipts remain historical. D-14 was found because a source-
   mounted real WebView Add click failed while lower-level SQLite tests passed.
 - The previous `74bcfa49` verified candidate is retained with its complete
   positive receipts and historically failed `e3ab51d3` positional-note receipt.
@@ -200,7 +200,28 @@ owners stopped. `check_packaged_home.ps1` PASS with zero residual roots. Real
 isolated named-pipe host/reconnect/two-profile RPC probe PASS. The current
 owner's game scripts, settings, process and updater were untouched.
 
-**Latest `a6e76b6a` D-14 verification and live-evidence classification:** a
+**Latest D-15 source `d09b8328` (2026-10-11):** A controlled mounted test
+held a native Add response after actual SQLite insertion, then switched
+the display profile A→B. After correcting the proof helper to correlate
+each native request ID (rather than reusing one shared response variable),
+the production dispatcher returned `PROFILE_GENERATION_RETIRED` despite
+the successful durable Add. Negative preserved:
+`artifacts/home-004/crud-switch-correlated-negative-en-light.json.error.txt`.
+The earlier `crud-switch-negative-en-light.json.error.txt` was a
+harness-order negative whose apparent follow-up success was not a valid
+concurrent-call proof; retain both with this distinction. Corrected
+`LWBridgeWindow` now preserves committed controller Add/Delete/primary
+acknowledgements across view changes without changing lifecycle generation
+fencing or native owner deletion gates. Actual source-mounted EN/light and
+JA/dark `crud-switch-fixed-*.json` and extracted `functional-d09b8328-*.json`
+PASS normal sidebar Add/Cancel/Delete and newly correlated Add/Delete
+after commit across profile selection. Both stopped inert owners, exact
+durable SQLite roster, zero game/Map starts, requests, subscriptions and
+cleanup failures. Release native/frontend checks PASS. Source-identified
+ZIP, EN/JA extracted app, capture and root cleanup PASS. Genuine F-04,
+F-06, F-07 have not been witnessed in this continuation.
+
+**Previous `a6e76b6a` D-14 verification and live-evidence classification:** a
 new actual production WebView Add test found a **failed native command**, not a
 stale React display: `local-crud-proof-source-en-light.json.error.txt` and
 diagnostic `local-crud-proof-diagnostic-en-light.json.error.txt` preserve the
