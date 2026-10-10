@@ -257,10 +257,16 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     "H-39 repeated native registry reorder commands must preserve JSX submission order");
   assert.match(reorderAction, /previous\.catch\(\(\) => undefined\)\.then\(/,
     "H-39 a failed previous reorder must not poison the next legitimate reorder");
+  assert.match(reorderAction, /nativeReorderAcknowledgedRevisionRef\.current < reorderRevision/,
+    "H-39 ordered successful native reorder must project despite later requested failures");
+  assert.match(reorderAction, /nativeReorderAcknowledgedRevisionRef\.current = reorderRevision/,
+    "H-39 successful native reorder acknowledgements alone advance durable visible order");
   assert.match(reorderAction, /nativeReorderRevisionRef\.current === reorderRevision/,
-    "H-39 late acknowledgements may project only current registry order");
+    "H-39 failed older reorders may not overwrite newer error state");
   assert.match(reorderAction, /visibleById\.get\(profile\.id\)/,
     "H-39 order-only projection may not replace selected owner or exact note metadata");
+  assert.doesNotMatch(reorderAction, /adoptNativeProfileSnapshot\(snapshot\)/,
+    "H-39 registry reorder may not apply stale whole selection, note or other metadata");
 }
 {
   const noteAction = appSource.slice(

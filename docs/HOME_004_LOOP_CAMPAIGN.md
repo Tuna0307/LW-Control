@@ -1,14 +1,14 @@
 # HOME-004 — current Home completion campaign
 
-**ACTIVE / READY FOR OWNER RELAY. Whole Home: PARTIAL.**
+**SOURCE CORRECTION PASS COMPLETED; final integration in progress. Whole Home: PARTIAL_NEEDS_INPUT.**
 Updated 2026-10-10. This is the single current continuation.
 Earlier R4–R15 instructions are preserved in
 [loop history](HOME_004_LOOP_HISTORY_2026-10-10.md); do not restart their work.
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: codex/home-complete-delivery-004; same checkout; PR #6 draft.
-Reviewed inspection base: b91c1e24cdec355376f4216ca0cfa268e3b1235e.
-The lead tidy commit comes after this base; inspect current HEAD before starting.
+Starting verified remote/local checkpoint: `5b0ce60b0a646eaeb942ef8355fa7f61bc0c2b5d`.
+Current implementation and evidence: [final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md).
 Solo worker, no new branch/worktree, delegation, Map scope, merge or publication.
 
 ## Read first
@@ -63,17 +63,10 @@ and return PARTIAL_NEEDS_INPUT with exact per-row inputs. The lead decides
 acceptance and any main merge. Do not call a source/local correction complete
 original licensed-runtime proof.
 
-## Current continuation — replace this section, do not append another round
+## Current continuation — authoritative after R16 and isolated live probe
 
-- Current item: 1, preserved R16 candidate.
-- Committed base: b91c1e24cdec355376f4216ca0cfa268e3b1235e.
-- Dirty files: App.jsx, check-home-integration.mjs,
-  LWBridgeWindow.HomeR4Proof.cs; see exact hashes in current status.
-- Available evidence: R16 immutable mounted negative; EN/light and JA/dark
-  saved corrected controlled receipts. Lead inspected them, not reran WebView.
-- Lead executed on these dirty sources: canonical frontend checks PASS;
-  Desktop.Checks Release PASS, zero genuine game launches.
-- Next: confirm current source/receipt identity and complete stage 1;
-  continue stage 2 without a separate lead handoff.
-- Cleanup: no lead game launch/input/capture; no candidate packaged by lead.
-- Acceptance: whole Home PARTIAL; no merge/publication.
+- R16 production callback reorder inverse passed fresh EN/light and JA/dark WebView/native/SQLite runs. The independent selection A→B→A, deferred successful A note, rejected shared reorder and successful retry also pass; R4–R15 regressions, exact cleanup and negatives are retained.
+- All 47 obligations have per-row original source locator, disposition and next action in [the correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The main input gaps are genuine responsive offline-only transport loss, original protected lease/finalizer callbacks, supported second client installation, original EN/JA conditional states and typed official error producers.
+- Genuine isolated Home recovery Stop exposed a **late unowned replacement LastWar after Close reported success**. The real original-Stop helper restored its at-launch v24 backing scripts correctly; unattended official launcher had advanced content v23→v24. An exact zero-process restore returned the installation to the preflight v23 hashes; negative preserved under `artifacts/home-004/pending-stop-live`.
+- Current-client correction retires the exact preflight launcher on cancellation, rejects uncleared game/updater, and delays Stop acknowledgment until in-flight recovery Start cleanup completes. Native tests now include held official preflight and held recovery helper Stop waits. **No genuine post-fix pending Stop acceptance claimed.** Repeating an update/real-game action needs a newly safe controlled client session.
+- Next: complete final checks, one source-identified Windows candidate, extracted Home proof/cleanup and direct remote SHA. Return **PARTIAL_NEEDS_INPUT** unless remaining original and genuine witnesses become legitimately available. Draft PR remains draft; no merge/publication.

@@ -101,6 +101,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private string? leaseTimerChallenge;
     private long leaseGeneration;
     private Process? activeHelperProcess;
+    // A pending recovery Stop is acknowledged only after its in-flight
+    // official launcher/helper has completed exact-owner cancellation cleanup.
+    private TaskCompletionSource? activeStartCompletion;
     private bool closed;
     private string phase = "stopped";
     private string connectionState = "offline";
@@ -736,9 +739,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string newSession = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
         string selectedRoot;
+        var startCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
+            cancellationToken.ThrowIfCancellationRequested();
             // Consume configured-root choice only after the old owner is absent.
             // A running/uncertain session must continue to use its captured root.
             if (hasStagedConfiguredRoot && phase is not ("starting" or "stopping" or "running") &&
@@ -780,6 +785,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             challenge = newChallenge;
             lastError = null;
             readyAtUnix = null;
+            activeStartCompletion = startCompletion;
         }
 
         LWBridgeControlPipeLaunchBinding? controlPipeLaunchBinding = null;
@@ -1016,11 +1022,20 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
         finally
         {
-            if (!startTransactionSucceeded &&
-                controlPipeLaunchBinding is not null)
+            try
             {
-                bridgeHostState?.CancelLaunchBinding(
-                    controlPipeLaunchBinding.InstanceId);
+                if (!startTransactionSucceeded &&
+                    controlPipeLaunchBinding is not null)
+                    bridgeHostState?.CancelLaunchBinding(controlPipeLaunchBinding.InstanceId);
+            }
+            finally
+            {
+                lock (stateGate)
+                {
+                    if (ReferenceEquals(activeStartCompletion, startCompletion))
+                        activeStartCompletion = null;
+                }
+                startCompletion.TrySetResult();
             }
         }
     }
@@ -1192,11 +1207,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         OwnedSnapshot snapshot;
         bool cancelPendingRecovery = false;
+        Task? pendingStart = null;
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
             if (phase == "stopping")
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
+            // An old exited PID may remain published while recovery is already
+            // launching its successor. The ordinary owned Stop also waits for
+            // that replacement's exact process/launcher cancellation cleanup.
+            pendingStart = activeStartCompletion?.Task;
             if (phase == "starting" ||
                 gamePid is null || instanceId is null || challenge is null || gamePath is null)
             {
@@ -1248,6 +1268,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         if (cancelPendingRecovery)
         {
             InvalidateRecoveryForUserStop();
+            await AwaitCancelledRecoveryStartCleanupAsync(pendingStart).ConfigureAwait(false);
             return CreateInstanceStatus();
         }
         // 0x41bbff: the original Stop turns desired-running off, clears the tracked PID, increments the run id
@@ -1281,6 +1302,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                 lastError = null;
                 readyAtUnix = null;
             }
+            await AwaitCancelledRecoveryStartCleanupAsync(pendingStart).ConfigureAwait(false);
             return CreateInstanceStatus();
         }
         catch (BridgeCommandException)
@@ -1302,6 +1324,34 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             throw new BridgeCommandException("GAME_CLOSE_FAILED", "The LWBridge-owned game did not close cleanly.", new { error = ex.Message });
         }
+    }
+
+    private async Task AwaitCancelledRecoveryStartCleanupAsync(Task? pendingStart)
+    {
+        // A recovery observation can advance from the last pre-Stop status
+        // read into StartAsync before run invalidation takes its stateGate.
+        // Capture that just-admitted Start as well, without waiting on a
+        // previously rejected manual launch.
+        if (pendingStart is null)
+        {
+            lock (stateGate) pendingStart = activeStartCompletion?.Task;
+        }
+        if (pendingStart is not null)
+        {
+            // 0x41bbff invalidates the run first; this additional current-client
+            // barrier ensures a cancelled official-launcher child cannot start
+            // AFTER Stop reports success. It is bounded independently of a
+            // cancelled Start and never assumes ownership of a foreign process.
+            Task finished = await Task.WhenAny(pendingStart,
+                Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None)).ConfigureAwait(false);
+            if (!ReferenceEquals(finished, pendingStart))
+                throw new BridgeCommandException("GAME_CLOSE_TIMEOUT",
+                    "The cancelled recovery launcher has not finished its owned cleanup.");
+        }
+        if (pendingStart is not null && testHooks is null && gameRoot is not null &&
+            (FindSelectedGameProcess(gameRoot) is not null || IsUpdateProcessRunning()))
+            throw new BridgeCommandException("GAME_CLOSE_FAILED",
+                "The cancelled recovery launcher or game is still running; Stop cannot be confirmed.");
     }
 
     private async Task<JsonElement> RunHelperAsync(OverviewHelperInvocation invocation, CancellationToken cancellationToken)

@@ -242,6 +242,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const nativeProfileRequestRef = useRef(0);
   const nativeProfileSelectionRevisionRef = useRef(0);
   const nativeReorderRevisionRef = useRef(0);
+  const nativeReorderAcknowledgedRevisionRef = useRef(0);
   const nativeReorderWriteChainRef = useRef(Promise.resolve());
   const nativeNoteRevisionsRef = useRef(new Map());
   const nativeNoteAcknowledgedRevisionsRef = useRef(new Map());
@@ -394,29 +395,30 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     nativeReorderWriteChainRef.current = write;
     try {
       const snapshot = await write;
-      if (nativeProfileRequestRef.current !== request) {
-        // A selected-view switch must retire the reorder's stale selection
-        // acknowledgement, NOT discard its successfully committed registry
-        // order. Apply only order to currently visible exact profile objects:
-        // do not roll back B's selected owner, note, or concurrent draft data.
-        if (nativeReorderRevisionRef.current === reorderRevision) {
-          const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
-          setShellProfiles((current) => {
-            const visibleById = new Map(current.profiles.map((profile) => [profile.id, profile]));
-            const ordered = authoritative.profiles.map((profile) => visibleById.get(profile.id));
-            if (ordered.length !== current.profiles.length || ordered.some((profile) => !profile))
-              return current;
-            return { ...current, profiles: ordered };
-          });
-        }
-        return snapshot;
+      // R15 serializes writes to the shared native order field. A later
+      // *requested* reorder may fail, so always project each successfully
+      // committed ordered result, even when newer metadata/select requests
+      // exist. Only exact order is adopted: never replace the selected owner,
+      // notes or a different registry roster with a stale full snapshot.
+      if (nativeReorderAcknowledgedRevisionRef.current < reorderRevision) {
+        const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+        nativeReorderAcknowledgedRevisionRef.current = reorderRevision;
+        setShellProfiles((current) => {
+          const visibleById = new Map(current.profiles.map((profile) => [profile.id, profile]));
+          const ordered = authoritative.profiles.map((profile) => visibleById.get(profile.id));
+          if (ordered.length !== current.profiles.length || ordered.some((profile) => !profile))
+            return current;
+          return { ...current, profiles: ordered };
+        });
       }
-      return adoptNativeProfileSnapshot(snapshot);
+      return snapshot;
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileRequestRef.current === request &&
+          nativeReorderRevisionRef.current === reorderRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
       return undefined;
     }
-  }, [adoptNativeProfileSnapshot]);
+  }, []);
 
   const updateNativeProfileNote = useCallback(async (profileId, note) => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;

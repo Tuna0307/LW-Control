@@ -1069,6 +1069,340 @@ internal sealed partial class LWBridgeWindow
                 "R15 late older B,A reorder overwrote newer actual JSX A,B durable registry intent.");
         if(backend.ProfileId!="campaign-A")
             throw new InvalidDataException("R15 reorder operations unexpectedly selected B.");
+
+        // R16 H-39/H-45: a newer requested reorder is not a newer
+        // *successful* reorder. Hold first B,A before native execution,
+        // submit the same B,A again from JSX, then reject only the second.
+        // The first durable B,A must appear in React even though the newer
+        // request fails; only native result success advances visible order.
+        Task<HomeMapCampaignDelayedRequest> heldFirstR16Order =
+            ArmHomeMapCampaignCommandDelay("profile_reorder", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 drag first B,A before queued failed successor");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R16 first B drag started");
+        await ClickAsync("""
+            (()=>{const target=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!target)return false;
+              target.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 submit first held B,A JSX reorder");
+        HomeMapCampaignDelayedRequest firstR16 =
+            await heldFirstR16Order.WaitAsync(TimeSpan.FromSeconds(8));
+        if(firstR16.ProfileId!="campaign-A" || !profileRegistryService.Snapshot.Profiles
+              .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"}))
+            throw new InvalidDataException("R16 first reorder was not held before registry mutation.");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 second B,A JSX drag while first pending");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R16 second B drag started");
+        await ClickAsync("""
+            (()=>{const target=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!target)return false;
+              target.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 submit second B,A JSX reorder to fail");
+        RejectNextHomeMapCampaignCommand("profile_reorder", successfulCallsBeforeRejection:1);
+        ReleaseHomeMapCampaignCommandDelay();
+        for(int i=0;i<240&&!profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-B","campaign-A"});i++)
+            await Task.Delay(40);
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+            .SequenceEqual(new[]{"campaign-B","campaign-A"}))
+            throw new InvalidDataException("R16 successful first B,A never persisted.");
+        await WaitForUiAsync("document.querySelector('.profile-error')!==null",
+            "R16 failed newer native profile_reorder is visible in original sidebar");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B')===true
+            """, "R16 earlier successfully persisted B,A remains visible after later failed reorder", attempts:55);
+        if(backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R16 failed registry reorder changed selected owner A.");
+        // Actual reverse JSX A,B succeeds and clears the intentional error
+        // while preserving all native owner fixtures for following R4–R15.
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 drag A,B restore after later rejection");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R16 A restore drag started");
+        await ClickAsync("""
+            (()=>{const target=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!target)return false;
+              target.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 restore original A,B order with actual JSX");
+        for(int i=0;i<240&&!profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"});i++)
+            await Task.Delay(40);
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true &&
+            document.querySelector('.profile-error')===null
+            """, "R16 actual original A,B restore and native error clear");
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+            .SequenceEqual(new[]{"campaign-A","campaign-B"}))
+            throw new InvalidDataException("R16 final native A,B restoration failed.");
+
+        // R16 counterpart: the first queued reorder fails, but its failure
+        // cannot poison a later successful drag (R15 failure-tolerant chain).
+        // Both are actual JSX B-before-A drops, never hand-written requests.
+        Task<HomeMapCampaignDelayedRequest> heldRejectedR16 =
+            ArmHomeMapCampaignCommandDelay("profile_reorder", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 start first rejected B,A JSX drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R16 first rejected B drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 first rejected B,A native dispatch issued through React");
+        HomeMapCampaignDelayedRequest firstR16Rejected =
+            await heldRejectedR16.WaitAsync(TimeSpan.FromSeconds(8));
+        if(firstR16Rejected.ProfileId!="campaign-A")
+            throw new InvalidDataException("R16 rejected first reorder did not originate from selected A.");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 second B,A drag while first rejected native request held");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R16 second successful B,A drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 submit succeeding B,A after held native failure");
+        RejectNextHomeMapCampaignCommand("profile_reorder");
+        ReleaseHomeMapCampaignCommandDelay();
+        for(int i=0;i<240&&!profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-B","campaign-A"});i++)
+            await Task.Delay(40);
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B')===true
+            """, "R16 failed earlier reorder did not block newer B,A React order");
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+            .SequenceEqual(new[]{"campaign-B","campaign-A"}))
+            throw new InvalidDataException("R16 first failed reorder poisoned later B,A SQLite save.");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 final A,B restoration drag after failed predecessor");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R16 final A restore drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "R16 restore original A,B after failed predecessor");
+        for(int i=0;i<240&&!profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-A","campaign-B"});i++)
+            await Task.Delay(40);
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true
+            """, "R16 final A,B JSX restored after both failure-order tests");
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+            .SequenceEqual(new[]{"campaign-A","campaign-B"}) || backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R16 failed predecessor left native registry/selected owner unrestored.");
+
+        // One combined H-39/H-40/H-45 concurrency pass: pending successful A
+        // note, actual JSX selection A->B->A, and a failed independent shared
+        // reorder. The acknowledged exact A note must survive selection ABA;
+        // the rejected B,A order must not touch SQLite, B's note or owner.
+        string unaffectedBNote = profileRegistryService.Snapshot.Profiles
+            .Single(profile=>profile.Id=="campaign-B").Note;
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const edit=row?.querySelector('.profile-note-edit');
+              if(!edit||edit.disabled)return false;edit.click();return true;})()
+            """, "combined pass open A note editor");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+            "combined pass actual A note editor");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'combined-successful-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "combined pass input exact A note");
+        Task<HomeMapCampaignDelayedRequest> heldCombinedNote =
+            ArmHomeMapCampaignCommandDelay("profile_note_set", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "combined pass A note Save held before native write");
+        HomeMapCampaignDelayedRequest pendingCombinedNote =
+            await heldCombinedNote.WaitAsync(TimeSpan.FromSeconds(8));
+        if(pendingCombinedNote.ProfileId!="campaign-A")
+            throw new InvalidDataException("Combined pass held note belongs to wrong owner.");
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!button||button.disabled)return false;button.click();return true;})()
+            """, "combined pass select B while A note pending");
+        for(int i=0;i<240&&backend.ProfileId!="campaign-B";i++)await Task.Delay(40);
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') && row.querySelector('strong')?.textContent?.includes('Campaign B')) &&
+            !document.querySelector('.profile-list')?.classList.contains('busy')
+            """, "combined pass B selection acknowledged independently");
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!button||button.disabled)return false;button.click();return true;})()
+            """, "combined pass return to A before note completion");
+        for(int i=0;i<240&&backend.ProfileId!="campaign-A";i++)await Task.Delay(40);
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') && row.querySelector('strong')?.textContent?.includes('Campaign A')) &&
+            !document.querySelector('.profile-list')?.classList.contains('busy')
+            """, "combined pass A restored after native selection ABA");
+        RejectNextHomeMapCampaignCommand("profile_reorder");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass start rejected B,A drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') && row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "combined pass rejected reorder drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass submit rejected reorder alongside pending note");
+        await WaitForUiAsync("document.querySelector('.profile-error')!==null",
+            "combined pass rejected reorder error visible");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+              row.querySelector('.profile-note')?.textContent?.includes('combined-successful-A-note'))
+            """, "combined pass committed A note remains visible after selection ABA and failed reorder");
+        if(profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-A").Note
+                !="combined-successful-A-note" ||
+           profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-B").Note
+                !=unaffectedBNote ||
+           !profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+                .SequenceEqual(new[]{"campaign-A","campaign-B"}) ||
+           backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("Combined selection/note/reorder ABA diverged from exact stored owner fields.");
+        // Restore the intentional sidebar error with a successful real JSX
+        // order mutation, retaining the later R4 control fixture A,B.
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass successful B,A retry drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "combined pass B retry drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass actual successful B,A retry");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B')===true &&
+            document.querySelector('.profile-error')===null
+            """, "combined pass successful retry clears error");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const drag=row?.querySelector('.profile-drag-handle');
+              if(!drag||!drag.draggable)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass restore A,B drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "combined pass restore drag captured");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!row)return false;row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));return true;})()
+            """, "combined pass restore A,B order");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true
+            """, "combined pass A,B visible after correction pass");
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+             .SequenceEqual(new[]{"campaign-A","campaign-B"}) || backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("Combined pass A,B durable order or A selected owner was not restored.");
         await ClickAsync("""
             (()=>{const toggle=document.querySelector('.profile-collapse');
               if(!toggle)return false;toggle.click();return true;})()
@@ -1807,6 +2141,9 @@ internal sealed partial class LWBridgeWindow
                 rejectedNewerNotePreservesEarlierDurableOwnerValue = true,
                 failedFirstNoteAllowsNewerDurableRetry = true,
                 overlappingReordersPreserveNewestDurableOrder = true,
+                rejectedNewerReorderPreservesEarlierDurableOrder = true,
+                failedFirstReorderAllowsNewerDurableRetry = true,
+                selectionAbaWithPendingNoteAndFailedReorder = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

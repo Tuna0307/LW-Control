@@ -48,6 +48,8 @@ internal static class HomeR2RecoveryChecks
         internal TaskCompletionSource? OldStopAcknowledgementReached = null;
         internal TaskCompletionSource? HeldRecoveryStart = null;
         internal TaskCompletionSource? RecoveryStartReached = null;
+        internal TaskCompletionSource? HeldOfficialSettle = null;
+        internal TaskCompletionSource? OfficialSettleReached = null;
         internal byte[]? GameReport;
 
         internal Case(string name, bool enabled, bool withActualAdoptionRecord = false)
@@ -74,7 +76,15 @@ internal static class HomeR2RecoveryChecks
                     ? MakeHeartbeat() : path.EndsWith("game-reported.txt", StringComparison.OrdinalIgnoreCase)
                     && GameReport is not null ? GameReport
                     : File.ReadAllBytes(path),
-                RunOfficialSettleAsync = (_, _) => Task.CompletedTask,
+                RunOfficialSettleAsync = async (_, token) =>
+                {
+                    if (HeldOfficialSettle is not null)
+                    {
+                        OfficialSettleReached?.TrySetResult();
+                        await HeldOfficialSettle.Task;
+                        token.ThrowIfCancellationRequested();
+                    }
+                },
                 WriteLease = withActualAdoptionRecord ? null : (_, _, _) => { },
                 DeleteFile = _ => { },
                 DelayAsync = (_, token) => Task.Delay(1, token),
@@ -244,6 +254,7 @@ internal static class HomeR2RecoveryChecks
         await HeldOldEffectVsStopSuccessor();
         await HeldOldStopAckVsProtectedSuccessor();
         await StopWhileRecoveryLaunchIsPending();
+        await StopWhileOfficialPreflightIsPending();
         await ExplicitPendingRecoveryStopTargets();
         await PendingRecoveryFaultAndHostClose();
         await LoginUnavailableThreshold();
@@ -277,12 +288,14 @@ internal static class HomeR2RecoveryChecks
         await c.RecoveryStartReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
         Require(c.StartCalls == 2 && c.Session == original && !c.Alive,
             "recovery helper is pending after old exact owner cleanup");
-        await c.Stop();
+        Task acknowledgedStop = c.Stop();
         Require(!c.Config.Snapshot.GameDesiredRunning &&
                 c.Service.CurrentRecoveryStatus.State == "idle",
             "user Stop cancels pending recovery helper without requiring an active PID");
+        Require(!acknowledgedStop.IsCompleted,
+            "user Stop waits for in-flight official/helper cleanup before acknowledgement");
         c.HeldRecoveryStart.TrySetResult();
-        await pending.WaitAsync(TimeSpan.FromSeconds(5));
+        await Task.WhenAll(pending, acknowledgedStop).WaitAsync(TimeSpan.FromSeconds(5));
         Require(!c.Alive && c.StopCalls == 2 &&
                 !c.Config.Snapshot.GameDesiredRunning &&
                 !File.Exists(adoption) &&
@@ -292,6 +305,36 @@ internal static class HomeR2RecoveryChecks
         await c.Tick();
         Require(c.StartCalls == 2 && !c.Alive,
             "late run cannot relaunch after the user's Stop");
+    }
+
+    private static async Task StopWhileOfficialPreflightIsPending()
+    {
+        using var c = new Case("pending-official-settle-stop", true,
+            withActualAdoptionRecord: true);
+        await c.Start();
+        c.Alive = false;
+        await c.Observe(); c.Advance(2000); await c.Observe();
+        Require(c.Service.CurrentRecoveryStatus.State == "waiting",
+            "process exit starts bounded pending recovery before official settle");
+        c.HeldOfficialSettle = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        c.OfficialSettleReached = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        Task pending = c.Tick();
+        await c.OfficialSettleReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Require(c.StartCalls == 1 && !c.Alive,
+            "official preflight is held before it may launch another owned game");
+        Task acknowledgedStop = c.Stop();
+        Require(!c.Config.Snapshot.GameDesiredRunning &&
+                c.Service.CurrentRecoveryStatus.State == "idle" &&
+                !acknowledgedStop.IsCompleted,
+            "Stop cancels preflight but cannot confirm until the exact launcher has settled");
+        c.HeldOfficialSettle.TrySetResult();
+        await Task.WhenAll(pending, acknowledgedStop).WaitAsync(TimeSpan.FromSeconds(5));
+        Require(!c.Alive && c.StartCalls == 1 &&
+                c.Service.CurrentRecoveryStatus.State == "idle" &&
+                !c.Config.Snapshot.GameDesiredRunning,
+            "cancelled official preflight cannot launch or revive a successor after Stop");
     }
 
     private static async Task ExplicitPendingRecoveryStopTargets()
@@ -336,12 +379,15 @@ internal static class HomeR2RecoveryChecks
                 "nonstring" => JsonSerializer.SerializeToElement(new { instanceId = 99 }),
                 _ => JsonSerializer.SerializeToElement(new { }),
             };
-            await c.Service.InvokeAsync("profile_instance_stop", stopPayload, CancellationToken.None);
+            Task<object?> acknowledgedStop = c.Service.InvokeAsync(
+                "profile_instance_stop", stopPayload, CancellationToken.None);
             Require(!c.Config.Snapshot.GameDesiredRunning &&
                     c.Service.CurrentRecoveryStatus.State == "idle",
                 "valid optional-ID Stop cancels the matching pending recovery: " + variant);
+            Require(!acknowledgedStop.IsCompleted,
+                "pending Stop cannot acknowledge before cleanup: " + variant);
             c.HeldRecoveryStart.TrySetResult();
-            await pending.WaitAsync(TimeSpan.FromSeconds(5));
+            await Task.WhenAll(pending, acknowledgedStop).WaitAsync(TimeSpan.FromSeconds(5));
             Require(!c.Alive && c.StopCalls == 2 &&
                     c.Service.CurrentRecoveryStatus.State == "idle",
                 "late helper cannot publish a cancelled pending owner: " + variant);
@@ -362,11 +408,12 @@ internal static class HomeR2RecoveryChecks
             c.RecoveryStartReached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             Task pending = c.Tick();
             await c.RecoveryStartReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Task<object?>? stopping = null;
             if (closingHost)
                 c.Service.Close();
             else
             {
-                await c.Service.InvokeAsync("profile_instance_stop",
+                stopping = c.Service.InvokeAsync("profile_instance_stop",
                     JsonSerializer.SerializeToElement(new { instanceId = JsonSerializer.SerializeToElement(
                         c.Service.CreateProfileInstanceStatus(), JsonOptions.Default)
                         .GetProperty("instanceId").GetString() }),
@@ -374,7 +421,8 @@ internal static class HomeR2RecoveryChecks
                 c.FailNextLaunch = true;
             }
             c.HeldRecoveryStart.TrySetResult();
-            await pending.WaitAsync(TimeSpan.FromSeconds(5));
+            await Task.WhenAll(pending, stopping ?? Task.CompletedTask)
+                .WaitAsync(TimeSpan.FromSeconds(5));
             Require(!c.Alive && c.StartCalls == 2 &&
                     c.Service.CurrentRecoveryStatus.State == "idle",
                 closingHost ? "closed host cannot adopt its pending recovery helper" :

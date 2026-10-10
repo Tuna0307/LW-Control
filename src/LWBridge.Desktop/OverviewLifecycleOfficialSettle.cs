@@ -66,40 +66,71 @@ internal sealed partial class OverviewLifecycleService
             WorkingDirectory = selectedRoot,
             UseShellExecute = true,
         };
+        cancellationToken.ThrowIfCancellationRequested();
         using Process launcher = Process.Start(start)
             ?? throw new BridgeCommandException("LAUNCH_FAILED", "The official Last War launcher could not be started.");
         string launcherStartedAtUtc = launcher.StartTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
 
         OfficialProcessIdentity? game = null;
-        while (RecoveryClockMilliseconds() < deadline)
+        bool fullySettled = false;
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            game = ReadSingleSelectedGameIdentity(selectedRoot);
-            if (game is not null) break;
-            if (launcher.HasExited && !IsUpdateProcessRunning())
-                throw new BridgeCommandException("LAUNCH_FAILED", "The official launcher exited before starting the selected game.");
-            await RecoveryDelayAsync(OfficialProcessPoll, cancellationToken).ConfigureAwait(false);
+            while (RecoveryClockMilliseconds() < deadline)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                game = ReadSingleSelectedGameIdentity(selectedRoot);
+                if (game is not null) break;
+                if (launcher.HasExited && !IsUpdateProcessRunning())
+                    throw new BridgeCommandException("LAUNCH_FAILED", "The official launcher exited before starting the selected game.");
+                await RecoveryDelayAsync(OfficialProcessPoll, cancellationToken).ConfigureAwait(false);
+            }
+            if (game is null)
+                throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT", "The official launcher did not finish updating and start the selected game before timeout.");
+
+            await CloseOfficialGameNormallyAsync(game, deadline, cancellationToken).ConfigureAwait(false);
+            await FinishOwnedLauncherAsync(
+                launcher,
+                launcherPath,
+                launcherStartedAtUtc,
+                deadline,
+                cancellationToken).ConfigureAwait(false);
+            while (IsUpdateProcessRunning() && RecoveryClockMilliseconds() < deadline)
+                await RecoveryDelayAsync(OfficialProcessPoll, cancellationToken).ConfigureAwait(false);
+            if (IsUpdateProcessRunning())
+                throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT", "The official launcher/updater did not settle before the Overview install phase.");
+            if (ReadSingleSelectedGameIdentity(selectedRoot) is not null)
+                throw new BridgeCommandException("OFFICIAL_SETTLE_GAME_CLOSE_FAILED", "The official preflight game is still running after normal close.");
+
+            string settledPackageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
+                selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+            WriteOfficialSettleMarker(selectedRoot, settledPackageSha256);
+            fullySettled = true;
         }
-        if (game is null)
-            throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT", "The official launcher did not finish updating and start the selected game before timeout.");
-
-        await CloseOfficialGameNormallyAsync(game, deadline, cancellationToken).ConfigureAwait(false);
-        await FinishOwnedLauncherAsync(
-            launcher,
-            launcherPath,
-            launcherStartedAtUtc,
-            deadline,
-            cancellationToken).ConfigureAwait(false);
-        while (IsUpdateProcessRunning() && RecoveryClockMilliseconds() < deadline)
-            await RecoveryDelayAsync(OfficialProcessPoll, cancellationToken).ConfigureAwait(false);
-        if (IsUpdateProcessRunning())
-            throw new BridgeCommandException("OFFICIAL_SETTLE_TIMEOUT", "The official launcher/updater did not settle before the Overview install phase.");
-        if (ReadSingleSelectedGameIdentity(selectedRoot) is not null)
-            throw new BridgeCommandException("OFFICIAL_SETTLE_GAME_CLOSE_FAILED", "The official preflight game is still running after normal close.");
-
-        string settledPackageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
-            selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
-        WriteOfficialSettleMarker(selectedRoot, settledPackageSha256);
+        finally
+        {
+            if (!fullySettled)
+            {
+                // An official launcher started on behalf of this exact client
+                // can outlive an interrupted preflight and spawn a NEW game after
+                // the user's recovery Stop. Disposing Process does not stop it.
+                // Retire the exact launcher even when the original run token was
+                // cancelled. Never kill an unrelated process by executable name.
+                long cleanupDeadline = checked(RecoveryClockMilliseconds() + 25_000);
+                await FinishOwnedLauncherAsync(launcher, launcherPath,
+                    launcherStartedAtUtc, cleanupDeadline, CancellationToken.None)
+                    .ConfigureAwait(false);
+                // The recorded preflight game (if already observed) is also
+                // exact PID+path+creation bounded, and can finish after the
+                // launcher exits. A new unmatched game remains an explicit
+                // failure, never an implicitly owned process to terminate.
+                if (game is not null && ProcessMatches(game.Pid, game.Path, game.StartedAtUtc))
+                    await CloseOfficialGameNormallyAsync(game, cleanupDeadline,
+                        CancellationToken.None).ConfigureAwait(false);
+                if (ReadSingleSelectedGameIdentity(selectedRoot) is not null || IsUpdateProcessRunning())
+                    throw new BridgeCommandException("OFFICIAL_SETTLE_CANCEL_CLEANUP_FAILED",
+                        "A game or official updater remains after preflight cancellation.");
+            }
+        }
     }
 
     private async Task RecoverPendingOnlyBeforeOfficialSettleAsync(
