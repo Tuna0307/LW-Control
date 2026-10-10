@@ -360,6 +360,15 @@ assert.match(appSource, /mutateNativeProfiles\("profile_create"\)/,
 assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
   "F-07 Remove dispatches the explicit owner to the native profile_delete command");
 {
+  const profileRunStart = sidebarSource.indexOf('className={`profile-run');
+  const profileRunControl = sidebarSource.slice(profileRunStart,
+    sidebarSource.indexOf('</button>', profileRunStart) + '</button>'.length);
+  assert.match(profileRunControl, /disabled=\{!!batchBusy \|\| runBusyIds\.has\(profile\.id\)/,
+    "F-07 selected A metadata/view busy must not block B's independent Start/Stop");
+  assert.doesNotMatch(profileRunControl, /disabled=\{busy \|\|/,
+    "F-07 global profile busy cannot replace exact-owner admission gating");
+}
+{
   const homeControls = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
   const validRootControls = homeControls.slice(homeControls.indexOf('<div className="game-controls">'),
     homeControls.indexOf('{state.gameActionError'));
