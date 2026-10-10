@@ -5238,7 +5238,7 @@ internal sealed partial class LWBridgeWindow : Form
             // request revision fencing; selected Home status remains fenced.
             bool independentProfileOwnerReply = explicitHomeOwnerCommand ||
                 command is "profile_instances_update_and_restart" or
-                    "profile_note_set" or "profile_reorder";
+                    "profile_note_set" or "profile_reorder" or "profile_enabled_set";
             try
             {
                 NativeRequestExecution execution = await session.Requests.ExecuteAsync(id, cancellationToken =>

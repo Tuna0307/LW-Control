@@ -47,6 +47,30 @@ internal static class HomeFunctionalProfileCrudChecks
                 Require(created.Length == 3 && created.Distinct(StringComparer.Ordinal).Count() == 3 &&
                         created.All(id => id.StartsWith("local-", StringComparison.Ordinal)) &&
                         roster.MaxProfiles == 4, "creates three distinct durable local secondary profiles");
+                JsonElement disableB = JsonSerializer.SerializeToElement(new { profileId = created[1], enabled = false });
+                _ = await registry.InvokeAsync("profile_enabled_set", disableB, CancellationToken.None);
+                Require(registry.Snapshot.Profiles.Single(p => p.Id == created[1]).Enabled == false,
+                    "native disable persists per-target without touching other profiles");
+                await ExpectCodeAsync(async () => await registry.InvokeAsync("profile_select",
+                    JsonSerializer.SerializeToElement(new { profileId = created[1], focusGame = false }),
+                    CancellationToken.None), "PROFILE_LOCKED");
+                await ExpectCodeAsync(async () => await registry.InvokeAsync("profile_enabled_set",
+                    JsonSerializer.SerializeToElement(new { profileId = "absent", enabled = false }),
+                    CancellationToken.None), "PROFILE_NOT_FOUND");
+                await ExpectCodeAsync(async () => await registry.InvokeAsync("profile_enabled_set",
+                    JsonSerializer.SerializeToElement(new { profileId = created[1], enabled = "false" }),
+                    CancellationToken.None), "INVALID_REQUEST");
+                // The selected primary may opt out of the next auto launch,
+                // while staying selected for settings and existing-game Stop.
+                _ = await registry.InvokeAsync("profile_enabled_set",
+                    JsonSerializer.SerializeToElement(new { profileId = "primary", enabled = false }),
+                    CancellationToken.None);
+                Require(registry.Snapshot.SelectedProfileId == "primary" &&
+                        !registry.Snapshot.Profiles.Single(p => p.Id == "primary").Enabled,
+                    "disabling selected primary does not redirect its view or owner");
+                _ = await registry.InvokeAsync("profile_enabled_set",
+                    JsonSerializer.SerializeToElement(new { profileId = "primary", enabled = true }),
+                    CancellationToken.None);
                 await ExpectCodeAsync(async () => await registry.InvokeAsync("profile_create", empty,
                     CancellationToken.None), "PROFILE_LIMIT_REACHED");
 
@@ -85,8 +109,10 @@ internal static class HomeFunctionalProfileCrudChecks
             {
                 Require(reopened.Read(4).Profiles.Count == 4 &&
                         reopened.Read(4).Profiles.Any(p => p.Id == created[1]) &&
+                        !reopened.Read(4).Profiles.Single(p => p.Id == created[1]).Enabled &&
+                        reopened.Read(4).Profiles.Single(p => p.Id == "primary").Enabled &&
                         reopened.Read(4).Profiles.All(p => p.Id != created[0]),
-                    "profile create/delete and independent metadata survive SQLite reopen");
+                    "profile create/delete, per-owner enabled state and other metadata survive SQLite reopen");
             }
             // The production Delete gate must not turn an unknown/pending
             // restoration journal into deleted profile ownership. Neither

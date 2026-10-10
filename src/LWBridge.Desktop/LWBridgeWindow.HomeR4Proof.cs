@@ -2100,6 +2100,49 @@ internal sealed partial class LWBridgeWindow
         if (b.ProcessAlive)
             throw new InvalidDataException("R8 ABA A Close disturbed stopped B.");
 
+        // F-07 OWN_DESIGN: exercise the actual packaged native sidebar control,
+        // rather than setting a fixture's SQLite enabled flag behind the UI.
+        // The chosen stopped B must be disabled for future Start/auto-reconcile
+        // without changing selected A or any native process. Re-enable through
+        // the same button before final cleanup.
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-enable-toggle').length === 2",
+            "F-07 enabled controls mounted in real production sidebar");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-enable-toggle')[1];
+              if (!button || button.disabled || button.getAttribute('aria-pressed') !== 'true') return false;
+              button.click(); return true;})()
+            """, "F-07 disable B through mounted sidebar");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-enable-toggle')[1]?.getAttribute('aria-pressed') === 'false'",
+            "F-07 native disable acknowledgement projected to B");
+        JsonElement disabledB = await InvokeNativeAsync("profile_list", new { });
+        JsonElement storedB = disabledB.GetProperty("result").GetProperty("profiles")
+            .EnumerateArray().First(p => p.GetProperty("id").GetString() == "campaign-B");
+        if (!disabledB.GetProperty("ok").GetBoolean() ||
+            storedB.GetProperty("enabled").GetBoolean() ||
+            disabledB.GetProperty("result").GetProperty("selectedProfileId").GetString() != "campaign-A")
+            throw new InvalidDataException("F-07 sidebar B disable did not persist independently of selected A.");
+        JsonElement deniedB = await InvokeNativeAsync("profile_instance_start",
+            new { profileId = "campaign-B", closeUnmanaged = true });
+        if (deniedB.GetProperty("ok").GetBoolean() ||
+            deniedB.GetProperty("error").GetProperty("code").GetString() != "PROFILE_LOCKED" ||
+            b.ProcessAlive || a.ProcessAlive)
+            throw new InvalidDataException("F-07 disabled profile accepted a genuine native Start or changed owners.");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-enable-toggle')[1];
+              if (!button || button.disabled || button.getAttribute('aria-pressed') !== 'false') return false;
+              button.click(); return true;})()
+            """, "F-07 enable B through mounted sidebar");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-enable-toggle')[1]?.getAttribute('aria-pressed') === 'true'",
+            "F-07 native re-enable acknowledgement projected to B");
+        JsonElement enabledB = await InvokeNativeAsync("profile_list", new { });
+        if (!enabledB.GetProperty("result").GetProperty("profiles").EnumerateArray()
+                .First(p => p.GetProperty("id").GetString() == "campaign-B")
+                .GetProperty("enabled").GetBoolean() || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("F-07 sidebar re-enable failed durable B or changed selected A.");
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -2167,6 +2210,7 @@ internal sealed partial class LWBridgeWindow
                 rejectedNewerReorderPreservesEarlierDurableOrder = true,
                 failedFirstReorderAllowsNewerDurableRetry = true,
                 selectionAbaWithPendingNoteAndFailedReorder = true,
+                nativeEnabledTogglePersistedAndStartDenied = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

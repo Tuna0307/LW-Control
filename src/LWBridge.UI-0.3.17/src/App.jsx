@@ -404,6 +404,42 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     "profile_delete", { profileId },
   ), [mutateNativeProfiles]);
 
+  // F-07 OWN_DESIGN: enable/disable the local native profile for future
+  // selection, manual Start and auto-launch. Only project the acknowledged
+  // target flag: a pending A toggle must not undo a newer B selection, note
+  // or reorder. Existing running owners remain independently stoppable.
+  const setNativeProfileEnabled = useCallback(async (profileId, enabled) => {
+    if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
+    if (nativeProfileMutationInFlightRef.current) {
+      const error = new Error("A profile mutation is already in progress.");
+      error.code = "GAME_OPERATION_IN_PROGRESS";
+      throw error;
+    }
+    nativeProfileMutationInFlightRef.current = true;
+    setNativeProfileMutationBusy(true);
+    setNativeProfileError("");
+    try {
+      const result = await backendBridge.invoke("profile_enabled_set", { profileId, enabled });
+      const acknowledged = normalizeProfileSnapshot(result, shellProfilesRef.current)
+        .profiles.find((profile) => profile.id === profileId);
+      if (!acknowledged || acknowledged.enabled !== enabled)
+        throw new Error("PROFILE_ENABLED_ACK_MISMATCH");
+      nativeProfileRequestRef.current += 1;
+      setShellProfiles((current) => ({
+        ...current,
+        profiles: current.profiles.map((profile) => profile.id === profileId
+          ? { ...profile, enabled: acknowledged.enabled } : profile),
+      }));
+      return result;
+    } catch (error) {
+      setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    } finally {
+      nativeProfileMutationInFlightRef.current = false;
+      setNativeProfileMutationBusy(false);
+    }
+  }, []);
+
   const reorderNativeProfiles = useCallback(async (profileIds) => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
     const request = nativeProfileRequestRef.current + 1;
@@ -1245,6 +1281,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onSelect: selectNativeProfile,
     onCreate: createNativeProfile,
     onRemove: removeNativeProfile,
+    onSetEnabled: setNativeProfileEnabled,
     onReorder: reorderNativeProfiles,
     onUpdateNote: updateNativeProfileNote,
     readInstance: readNativeInstance,

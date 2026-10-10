@@ -21,6 +21,7 @@ internal sealed class LWBridgeBackend
         "profile_list",
         "profile_select",
         "profile_note_set",
+        "profile_enabled_set",
         "profile_reorder",
         "profile_primary_set",
         "profile_instances_reconcile",

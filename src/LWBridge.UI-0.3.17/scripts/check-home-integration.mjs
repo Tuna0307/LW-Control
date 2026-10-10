@@ -237,6 +237,78 @@ function deliver(fixture, message) {
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
 {
+  const enabledBody = appSource.slice(appSource.indexOf("const setNativeProfileEnabled ="),
+    appSource.indexOf("const reorderNativeProfiles ="));
+  assert.match(enabledBody, /"profile_enabled_set", \{ profileId, enabled \}/,
+    "F-07 visible enabled control persists through an actual native command");
+  assert.match(enabledBody, /profile\.id === profileId[\s\S]*enabled: acknowledged\.enabled/,
+    "an old enable acknowledgement changes its profile flag only, preserving newer selection/order/note");
+  assert.doesNotMatch(enabledBody, /adoptNativeProfileSnapshot\(/,
+    "enable acknowledgement cannot replace an independently updated full roster");
+  assert.match(appSource, /onSetEnabled: setNativeProfileEnabled/,
+    "F-07 normal native sidebar actually receives an enabled mutation provider");
+  assert.match(sidebarSource, /aria-pressed=\{profile\.enabled === true\}/,
+    "F-07 visible toggle communicates the acknowledged enabled state");
+  assert.match(sidebarSource, /onSetEnabled\(profile\.id, !profile\.enabled\)/,
+    "F-07 clicking the profile toggle requests its opposite saved value");
+  assert.match(sidebarSource, /setEnabledBusyId\(profile\.id\)[\s\S]*\.finally\(\(\) => setEnabledBusyId\(""\)\)/,
+    "F-07 profile toggle releases pending UI on successful and failed native mutations");
+  const makeEnabledSetter = new Function(
+    "useCallback", "backendBridge", "nativeProfileMutationInFlightRef",
+    "setNativeProfileMutationBusy", "setNativeProfileError", "normalizeProfileSnapshot",
+    "shellProfilesRef", "nativeProfileRequestRef", "setShellProfiles",
+    `${enabledBody}\nreturn setNativeProfileEnabled;`,
+  );
+  const state = {
+    selectedProfileId: "A",
+    profiles: [
+      { id: "A", enabled: true, note: "old A" },
+      { id: "B", enabled: true, note: "old B" },
+    ],
+  };
+  const ref = { current: state };
+  const saving = [];
+  const errors = [];
+  let resolveEnable;
+  let rejectNext = false;
+  const writes = [];
+  const setter = makeEnabledSetter(
+    (callback) => callback,
+    { available: true, mode: "native", invoke: (command, payload) => {
+      writes.push([command, payload]);
+      if (rejectNext) return Promise.reject(Object.assign(new Error("save failed"), { code: "SAVE_FAILED" }));
+      return new Promise((resolve) => { resolveEnable = resolve; });
+    } },
+    { current: false },
+    (value) => saving.push(value),
+    (value) => errors.push(value),
+    (value) => value,
+    ref,
+    { current: 0 },
+    (change) => { ref.current = change(ref.current); },
+  );
+  const pending = setter("A", false);
+  assert.deepEqual(writes[0], ["profile_enabled_set", { profileId: "A", enabled: false }]);
+  ref.current = { selectedProfileId: "B", profiles: [
+    { id: "B", enabled: true, note: "new B" },
+    { id: "A", enabled: true, note: "new A" },
+  ] };
+  resolveEnable({ selectedProfileId: "A", profiles: [
+    { id: "A", enabled: false, note: "stale A" },
+    { id: "B", enabled: true, note: "stale B" },
+  ] });
+  await pending;
+  assert.deepEqual(ref.current, { selectedProfileId: "B", profiles: [
+    { id: "B", enabled: true, note: "new B" },
+    { id: "A", enabled: false, note: "new A" },
+  ] }, "late A enable response may only project its flag after B selection/reorder/note changes");
+  rejectNext = true;
+  await assert.rejects(() => setter("A", true), (error) => error.code === "SAVE_FAILED");
+  assert.equal(ref.current.profiles[1].enabled, false, "a rejected enable write must retain durable disabled state");
+  assert.deepEqual(saving, [true, false, true, false], "busy must reset for success and failure");
+  assert.equal(errors.at(-1), "SAVE_FAILED", "a native failure stays visible");
+}
+{
   // Exercise the actual sidebar's stop-target/batch selection code. A restored
   // offline game may still have a pending native recovery operation with no
   // instance ID, and an old error may coexist with active recovery.

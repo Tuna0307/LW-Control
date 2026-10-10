@@ -57,6 +57,7 @@ internal sealed class ProfileRegistryCommandService :
             "profile_delete" or
             "profile_select" or
             "profile_note_set" or
+            "profile_enabled_set" or
             "profile_reorder" or
             "profile_primary_set";
 
@@ -122,6 +123,16 @@ internal sealed class ProfileRegistryCommandService :
             store.UpdateNote(
                 profileId,
                 note,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        else if (command == "profile_enabled_set")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            if (!payload.TryGetProperty("enabled", out JsonElement enabled) ||
+                enabled.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                throw new BridgeCommandException("INVALID_REQUEST", "INVALID_REQUEST");
+            store.UpdateEnabled(profileId, enabled.GetBoolean(),
                 DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
         else if (command == "profile_reorder")

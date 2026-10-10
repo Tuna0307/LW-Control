@@ -58,6 +58,8 @@ function ProfileIcon({ name }) {
     {name === "add" ? <path d="M8 3v10M3 8h10" /> : null}
     {name === "drag" ? <path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /> : null}
     {name === "edit" ? <><path d="m3 11-.5 2.5L5 13l7.5-7.5-2-2L3 11Z" /><path d="m9.5 4.5 2 2" /></> : null}
+    {name === "enabled" ? <path d="m3 8 3 3 7-7" /> : null}
+    {name === "disabled" ? <path d="M3 8h10" /> : null}
     {name === "remove" ? <path d="m4 4 8 8M12 4l-8 8" /> : null}
     {name === "play" ? <path d="m5 3 8 5-8 5V3Z" /> : null}
     {name === "stop" ? <rect x="4" y="4" width="8" height="8" rx="1" /> : null}
@@ -111,6 +113,7 @@ export function ProfileSidebar({
   state = null, busy = false, error = "", instances = EMPTY_INSTANCES,
   profileLaunchErrors = EMPTY_ERRORS, focusGameOnProfileSelect = true,
   onSelect = null, onCreate = null, onRemove = null, onReorder = null, onUpdateNote = null,
+  onSetEnabled = null,
   readInstance = null, onStartProfile = null, onStopProfile = null, onRestartAll = null,
   onClearProfileLaunchErrors = null,
 }) {
@@ -121,6 +124,7 @@ export function ProfileSidebar({
   const [runBusyIds, setRunBusyIds] = useState(() => new Set());
   const [batchBusy, setBatchBusy] = useState("");
   const [actionError, setActionError] = useState("");
+  const [enabledBusyId, setEnabledBusyId] = useState("");
   const [restartRequired, setRestartRequired] = useState(false);
   const [noteId, setNoteId] = useState("");
   const [noteValue, setNoteValue] = useState("");
@@ -267,6 +271,18 @@ export function ProfileSidebar({
             <span className={`profile-dot ${connection}`} /><span className="profile-copy"><strong>{display.name}</strong><div className="profile-sub-row"><span className="profile-server">{display.server}</span><span className={`profile-state-label ${connection}`}>{t(CONNECTION_KEYS[connection])}</span>{display.note ? <span className="profile-note" title={display.note}>· {display.note}</span> : null}</div></span>
           </button>
           <div className="profile-row-actions">
+            <button type="button" className="profile-note-edit profile-enable-toggle"
+              aria-pressed={profile.enabled === true}
+              disabled={busy || !!enabledBusyId || !onSetEnabled || !!profile.lockedReason}
+              title={`${display.name} · ${t(profile.enabled ? "common.enabled" : "common.disabled")}`}
+              aria-label={`${display.name} · ${t(profile.enabled ? "common.enabled" : "common.disabled")}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                setEnabledBusyId(profile.id); setActionError("");
+                Promise.resolve().then(() => onSetEnabled(profile.id, !profile.enabled))
+                  .catch((failure) => setActionError(profileError(t, failure)))
+                  .finally(() => setEnabledBusyId(""));
+              }}><ProfileIcon name={profile.enabled ? "enabled" : "disabled"} /></button>
             <button type="button" className="profile-note-edit" disabled={!onUpdateNote} title={t("profile.editNote")} aria-label={t("profile.editNoteLabel", { name: display.name })} onClick={(event) => { event.stopPropagation(); if (onUpdateNote) { setNoteId(profile.id); setNoteValue(profile.note); } }}><ProfileIcon name="edit" /></button>
             <button type="button" className="profile-delete" disabled={busy || !onRemove} title={t("common.delete")} aria-label={`${t("common.delete")} ${display.name}`} onClick={(event) => {
               event.stopPropagation(); setActionError("");

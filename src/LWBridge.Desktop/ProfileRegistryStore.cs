@@ -298,6 +298,28 @@ internal sealed class ProfileRegistryStore : IDisposable
         }
     }
 
+    // F-07 OWN_DESIGN: the local profile flag is user-controlled. Disabling
+    // changes future start/reconcile admission; it does not terminate an
+    // already owned game or redirect the selected profile's runtime.
+    internal void UpdateEnabled(string profileId, bool enabled, long nowUnixMilliseconds)
+    {
+        lock (gate)
+        {
+            ThrowIfDisposed();
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE profiles
+                SET enabled = $enabled, updated_at = $now
+                WHERE id = $id
+                """;
+            command.Parameters.AddWithValue("$id", profileId);
+            command.Parameters.AddWithValue("$enabled", enabled ? 1 : 0);
+            command.Parameters.AddWithValue("$now", nowUnixMilliseconds);
+            if (command.ExecuteNonQuery() != 1)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
+        }
+    }
+
     internal void Reorder(
         IReadOnlyList<string> profileIds,
         long nowUnixMilliseconds)
