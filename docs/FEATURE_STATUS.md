@@ -26,9 +26,11 @@ The earlier d09b8328 progress review is historical. Current package source is
 - Bounded startup/adoption and exit/hang-recovery evidence from earlier reviews.
 - Worker subsequent pending-recovery Stop, concurrency/status/local config and
   packaged candidate results await affected independent review.
-- Stored City/Resource browsing/export accepted only in stored-data scope;
-  scanner/provider features are separate. Manual City/Resource scan delivery is
-  now assigned in MAP_005_CURRENT_STATUS.md; whole Map remains PARTIAL.
+- Stored City/Resource browsing/export remains accepted in its stored-data scope.
+  Manual City/Resource live acquisition is now a distinct **READY_FOR_LEAD_REVIEW**
+  delivery with genuine official current-server Map UI/SQLite, Stop and export
+  evidence: see MAP_005_DELIVERY_RECEIPT_2026-10-11.md. Lead acceptance and
+  publication are pending; whole Map remains PARTIAL.
 
 Missing original-only facts can remain research notes while a documented
 supported implementation passes functional acceptance. Missing actual operations,
