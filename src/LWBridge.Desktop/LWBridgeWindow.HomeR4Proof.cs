@@ -292,6 +292,114 @@ internal sealed partial class LWBridgeWindow
             throw new InvalidDataException("R9 test-owned profile display order was not restored.");
         await SelectAsync("Campaign A", "campaign-A");
 
+        // R10 H-39: drive the *actual React profile-sidebar drag/drop*,
+        // not a hand-built native command. The persistent B,A reorder can
+        // finish after the user selects B. UI revision fencing must not
+        // discard the successful registry order and leave stale visible A,B.
+        await ClickAsync("""
+            (() => { const toggle=document.querySelector('.profile-collapse');
+              if (!toggle) return false; toggle.click(); return true; })()
+            """, "expand profile rows for concurrent UI reorder");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row').length === 2 &&
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]?.textContent?.includes('Campaign A')
+            """, "original UI A,B profile order before R10 drag");
+        Task<HomeMapCampaignDelayedRequest> heldUiReorder =
+            ArmHomeMapCampaignCommandDelay("profile_reorder");
+        await ClickAsync("""
+            (() => {
+              const handles=document.querySelectorAll('.profile-row .profile-drag-handle');
+              if (handles.length !== 2) return false;
+              const transfer=new DataTransfer();
+              return handles[1].dispatchEvent(
+                new DragEvent('dragstart',{bubbles:true,cancelable:true,dataTransfer:transfer}));
+            })()
+            """, "start actual B-to-A native sidebar drag");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row =>
+                row.classList.contains('dragging') &&
+                row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "B drag revision accepted before drop");
+        await ClickAsync("""
+            (() => {
+              const target=[...document.querySelectorAll('.profile-row')]
+                .find(row => row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if (!target) return false;
+              // React intentionally calls preventDefault on an accepted
+              // drop; dispatchEvent(false) therefore means it was handled,
+              // not rejected. The required native command proves delivery.
+              target.dispatchEvent(
+                new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));
+              return true;
+            })()
+            """, "drop B ahead of A through real JSX");
+        HomeMapCampaignDelayedRequest heldUiReorderRequest =
+            await heldUiReorder.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldUiReorderRequest.ProfileId != "campaign-A")
+            throw new InvalidDataException("R10 actual sidebar reorder was not issued while A selected.");
+        await ClickAsync("""
+            (() => {
+              const button=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item => item.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if (!button || button.disabled) return false;
+              button.click(); return true;
+            })()
+            """, "select B while UI reorder has not completed");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-B"; i++)
+            await Task.Delay(40);
+        if (backend.ProfileId != "campaign-B")
+            throw new InvalidDataException("R10 real UI B selection did not progress during reorder.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for (int i = 0; i < 240 && !profileRegistryService.Snapshot.Profiles
+            .Select(profile => profile.Id).SequenceEqual(new[] { "campaign-B", "campaign-A" }); i++)
+            await Task.Delay(40);
+        if (!profileRegistryService.Snapshot.Profiles.Select(profile => profile.Id)
+            .SequenceEqual(new[] { "campaign-B", "campaign-A" }))
+            throw new InvalidDataException("R10 actual UI reorder failed to persist B,A.");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B') === true &&
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign B') &&
+                row.classList.contains('active'))
+            """, "R10 completed registry order visible on still selected B", attempts: 40);
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+                row.querySelector('.profile-note')?.textContent?.includes('r9-note-A-during-B-selection')) &&
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign B') &&
+                !row.querySelector('.profile-note')?.textContent?.includes('r9-note-A-during-B-selection'))
+            """, "R10 reordered UI preserves exact A note without copying to B");
+        JsonElement resetUiOrder = await InvokeNativeAsync("profile_reorder",
+            new { profileIds = new[] { "campaign-A", "campaign-B" } });
+        if (!resetUiOrder.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("R10 test-owned native order rollback failed.");
+        await ClickAsync("""
+            (() => {
+              const button=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item => item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if (!button || button.disabled) return false; button.click(); return true;
+            })()
+            """, "restore selected A after R10 registry order test");
+        for (int i = 0; i < 240 && backend.ProfileId != "campaign-A"; i++)
+            await Task.Delay(40);
+        if (backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("R10 A view restoration failed.");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A') === true &&
+            [...document.querySelectorAll('.profile-row')]
+              .some(row => row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+                row.classList.contains('active'))
+            """, "R10 exact A,B UI ordering and selected A restored");
+        await ClickAsync("""
+            (() => { const toggle=document.querySelector('.profile-collapse');
+              if (!toggle) return false; toggle.click(); return true; })()
+            """, "restore compact profile list for existing Home tests");
+        await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length === 2",
+            "R10 compact sidebar restored");
+
         // Hold an actual A Home status request at the native command boundary;
         // selecting B must not retire A or render A's late response into B.
         long oldAGeneration = Volatile.Read(ref profileRuntimeGeneration);
@@ -1007,6 +1115,7 @@ internal sealed partial class LWBridgeWindow
                 homeCloseRetainsCapturedOwnerAcrossABA = true,
                 noteSaveAcknowledgedAcrossSelection = true,
                 profileReorderAcknowledgedAcrossSelection = true,
+                sidebarReorderVisibleAfterSelection = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

@@ -1,5 +1,19 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R10 actual profile-sidebar reorder across selected Home change
+(2026-10-10): PARTIAL_NEEDS_INPUT.** Production native/WebView
+before-fix inverse: actual JSX drag/drop changed persisted SQLite
+A,B→B,A during A→B selected view, but a frontend generation fence
+discarded the completed order and visibly left A,B. R10 retains
+only the newest completed reorder's ordered profile IDs across a
+separate view selection, without overwriting selected B or profile
+metadata. Mounted EN/light and JA/dark prove visible and persisted B,A,
+exact A,B test restoration and retained R4–R9 regressions. See
+[R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md).
+No original protected capacity, genuine simultaneous clients or
+paired adverse/original conditional pixels implied. Whole Home
+not lead-accepted; draft PR #6 unmerged.
+
 **R9 native persistent profile registry acknowledgment (2026-10-10):
 PARTIAL_NEEDS_INPUT.** Before-fix production WebView/native proof:
 `profile_note_set` committed A's note but replied

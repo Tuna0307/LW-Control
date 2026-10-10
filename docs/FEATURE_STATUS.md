@@ -1,5 +1,18 @@
 # Feature delivery status
 
+**HOME-004 R10 visible profile reorder under concurrent selection
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Real production mounted
+JSX drag/drop B ahead of A, held native reorder, then selected B.
+SQLite committed B,A while the prior frontend discarded the older
+full request snapshot and rendered A,B. A narrowly revision-fenced
+*order-only* acknowledgment now updates sidebar order without retiring
+selected B, replacing exact profile notes or weakening native
+ownership. Actual EN/light and JA/dark show B,A and restore A,B;
+R6–R9 Home A/B, errors, repair and cleanup remain intact. See
+[R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md).
+Original protected/genuine concurrent licensing and fault evidence
+still unavailable, PR #6 draft.
+
 **HOME-004 R9 native profile registry acknowledgement (2026-10-10;
 whole Home PARTIAL_NEEDS_INPUT):** Real production mounted native/WebView
 inverse committed explicit A note in SQLite while selecting B, then

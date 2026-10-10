@@ -240,6 +240,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   const nativeProfileRequestRef = useRef(0);
+  const nativeReorderRevisionRef = useRef(0);
   const isCurrentProfileOwner = useCallback((owner) => (
     owner?.profileId === selectedProfileOwnerRef.current.profileId
     && owner?.generation === selectedProfileOwnerRef.current.generation
@@ -352,10 +353,27 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
     const request = nativeProfileRequestRef.current + 1;
     nativeProfileRequestRef.current = request;
+    const reorderRevision = ++nativeReorderRevisionRef.current;
     setNativeProfileError("");
     try {
       const snapshot = await backendBridge.invoke("profile_reorder", { profileIds });
-      if (nativeProfileRequestRef.current !== request) return snapshot;
+      if (nativeProfileRequestRef.current !== request) {
+        // A selected-view switch must retire the reorder's stale selection
+        // acknowledgement, NOT discard its successfully committed registry
+        // order. Apply only order to currently visible exact profile objects:
+        // do not roll back B's selected owner, note, or concurrent draft data.
+        if (nativeReorderRevisionRef.current === reorderRevision) {
+          const authoritative = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+          setShellProfiles((current) => {
+            const visibleById = new Map(current.profiles.map((profile) => [profile.id, profile]));
+            const ordered = authoritative.profiles.map((profile) => visibleById.get(profile.id));
+            if (ordered.length !== current.profiles.length || ordered.some((profile) => !profile))
+              return current;
+            return { ...current, profiles: ordered };
+          });
+        }
+        return snapshot;
+      }
       return adoptNativeProfileSnapshot(snapshot);
     } catch (error) {
       if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));

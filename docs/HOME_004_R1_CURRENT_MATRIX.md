@@ -246,3 +246,11 @@ H-01–H-47 fully accepted. Whole Home **PARTIAL_NEEDS_INPUT**.
 
 Whole Home **PARTIAL_NEEDS_INPUT**; this is not evidence for
 protected lease/finalizer or original entitlement.
+
+## R10 mounted sidebar reorder visible-state convergence (2026-10-10)
+
+| H-ID / original authority | Bounded production source and negative→positive | Unresolved original acceptance |
+| --- | --- | --- |
+| H-39/H-45: original 0.3.17 `Yr` account drag/drop invokes `r.reorder`; H-39 `profile_reorder` registry semantics | Actual mounted production WebView synthesized the exact native JSX DragStart/Drop B before A, held the resulting `profile_reorder` through an actual B selection. Before-fix SQLite became B,A but UI remained A,B; recorded negative. `App.jsx` now preserves latest order-only acknowledgement across selected-view request generation while retaining exact B selection and current per-profile objects. EN/light and JA/dark both pass B,A visible/persisted and fixture A,B restored, R4–R9 exact-owner/cleanup. [R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md). | Original protected multi-client admission, authoritative paired original reorder timing and genuine multi-profile UI pixels. |
+
+Whole Home **PARTIAL_NEEDS_INPUT**.

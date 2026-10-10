@@ -94,6 +94,20 @@ regressions pass, profile ordering restored. [R9 receipt](HOME_004_R9_INDEPENDEN
 Original protected capacity, genuine paired race and full Home parity
 remain open.
 
+### R10 additive H-39/H-45 visible order after native reorder (2026-10-10)
+
+Original `Yr` profile UI reorders the registry and redraws ordered
+profiles. R9 independent native acknowledgement still allowed
+an actual UI reorder to be lost on React's shared selected-profile
+request revision. R10 before-fix mounted real WebView JSX drag/drop
+persisted B,A across selecting B but rendered stale A,B. A narrow
+`App.jsx` latest-reorder order-only acknowledgment now applies native
+profile order to current React per-owner data without changing B
+selection or other metadata. Actual EN/light and JA/dark pass with
+exact profile/owner restoration and R4–R9 gates. See
+[R10 receipt](HOME_004_R10_VISIBLE_REGISTRY_REORDER_RECEIPT.md).
+Genuine/original commercial multi-profile acceptance remains open.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.
