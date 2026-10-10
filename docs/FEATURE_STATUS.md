@@ -1,5 +1,13 @@
 # Feature delivery status
 
+**Latest R4 lead review, 2026-10-10: CHANGES_REQUIRED.** General native, concurrent
+pipe and frontend checks pass, but a distinguishing actual lifecycle inverse
+reproduces stale-instance Stop cancelling a newer pending recovery. Native
+profile sidebar callbacks and explicit target-owner routing remain incomplete.
+See [R4 lead review](HOME_004_R4_LEAD_REVIEW.md) and
+[focused R4-R1 correction](HOME_004_R4_R1_CONTINUATION.md). Whole Home PARTIAL;
+PR #6 remains draft and no merge/publication is approved.
+
 **Latest lead disposition, 2026-10-10:** R3-R1 at `48fe8435` is accepted for the
 shared-listener correction and inspected current-client native hang-recovery
 witness. Independent real-pipe, native and frontend checks passed. This supersedes

@@ -2,6 +2,15 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest lead review, 2026-10-10: R4 worker c7f53530a57911b226bce57d047c08a79ba4be42
+is CHANGES_REQUIRED. Actual production inverse shows an old-instance Close can
+cancel a newer pending recovery owner (LEADHOME004R4-01). Native sidebar instance
+providers and explicit retained-profile routing remain incomplete (-02). Read
+HOME_004_R4_LEAD_REVIEW.md and HOME_004_R4_R1_CONTINUATION.md. Next on owner relay:
+correct both findings through sequential medium checkpoints on the same branch
+and checkout. Preserve R4 transport/runtime progress and all earlier positives
+and negative records. Whole Home PARTIAL, PR #6 draft, no main merge/publication.
+
 Latest owner-expanded lead assignment, 2026-10-10: owner will be away for at least
 five hours and requests one large Home-only task rather than the H-41-only relay.
 Read HOME_004_R4_FULL_HOME_CONTINUATION.md. Complete sequential A–G checkpoints
