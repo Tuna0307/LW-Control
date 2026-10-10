@@ -61,3 +61,48 @@ mutable Lua package/bridge transport, or a proven equivalent. **Whole Home
 remains PARTIAL**. Supporting only sequentially selected profiles would be a
 separate explicit owner/lead product-scope decision, not a worker-certified
 pass of the originally advertised simultaneous-game requirement.
+
+## Follow-up: search for an alternate official login executable
+
+At the owner's further request, the **same installation was inventoried
+read-only** for a second executable that might offer a separate login. The
+available EXE entries were:
+
+| Installed entry | Finding |
+| --- | --- |
+| `LastWarLauncher.exe` | Official FUNFLY-signed normal launcher. One absolute `app_dir` in `LastWarLauncher.json`. |
+| `Temp/LastWarLauncher.exe` | Same SHA-256 `f05f302959d3f7dad08cf477f44415591675c586c81a1c86814ba8a51c72ae62` as root launcher; not a separate login application. |
+| `Game/LastWar.exe` | Only installed FUNFLY-signed game executable; SHA-256 `905c98c1f89841f90b492556192ba0642f3d209a873cb8c1f7b3c340aca0733d`. |
+| `LastWarSync.exe` and `Temp/LastWarSync.exe` | Byte-identical official sync/update utilities by hash comparison; **not gameplay/login executables**, not invoked. |
+| `Game/UnityCrashHandler64.exe` | Unity crash handler; not a game login path. |
+| `Game/AntiCheatExpert/ACE-Service64.exe`, `ACE-Setup64.exe` | Security service/setup executables; not game/login entrypoints, not invoked or modified. |
+
+The root contains a zero-byte `lastwar.lock` and `Launcher.log` contains
+`already running` matches; these are **clues**, not proof of the particular
+single-instance implementation. Deleting a lock or disabling anti-cheat is
+not a supported multi-instance adaptation and was not attempted. Both normal
+and Temp `LastWarLauncher.json` have the same hash and the one official app
+root. No distinct bundled launcher/game executable advertised a second
+account-login flow. All inspected EXEs with tested signatures reported valid
+FUNFLY publisher signatures; do not infer an additional supported install.
+
+Official FUNFLY Terms effective 2026-08-31 specifically disallow bypassing
+features that enforce usage restrictions and interfering with security
+measures: https://lastwar-h5.lastwargame.com/legal/20260827/terms_en.html .
+This investigation intentionally did not bypass a mutex/lock, patch binaries,
+alter protected services or attempt fake login tokens.
+
+Community observations (not publisher certification) describe one normal
+Windows game alongside a *separate Android game running in an emulator*:
+https://www.reddit.com/r/LastWarMobileGame/comments/1txs709/dual_account_ls/ .
+That could permit the owner to log a sub-account into a separate client,
+subject to the game rules and emulator compatibility, but the current
+`run_overview_bridge.py` adapter depends on the native Windows `LastWar.exe`,
+per-user `LocalLow` Lua package and Windows named pipes. An Android emulator
+**does not satisfy F-07 Home's independent authenticated second Windows bridge
+by itself**. No emulator was installed, launched or claimed as verified here.
+
+Follow-up outcome: **no supported alternate login EXE found within the
+installed current client**. Existing genuine single-game and F-04/F-06
+acceptance are unchanged. F-07 remains OPEN pending vendor-supported distinct
+client/package integration or an explicit lead/owner scope decision.
