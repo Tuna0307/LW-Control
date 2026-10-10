@@ -15,7 +15,8 @@ public sealed record MapScanProgressUpdate(
     int NativePendingRecords,
     int NativeDroppedRecords,
     string? Phase = null,
-    string? Error = null);
+    string? Error = null,
+    double? AcquisitionProgressPercent = null);
 
 /// <summary>
 /// Host-owned persistence boundary. The state machine owns when a run is cancelled
@@ -282,6 +283,8 @@ public sealed class MapScanStateMachine
                 Phase = phase,
                 ResumeAvailable = false,
                 Error = update.Error,
+                AcquisitionProgressPercent = update.AcquisitionProgressPercent is double acquisition &&
+                    double.IsFinite(acquisition) ? Math.Clamp(acquisition, 0, 98) : null,
             };
         }
     }
@@ -323,6 +326,7 @@ public sealed class MapScanStateMachine
                 ProgressPercent = state.TotalBlocks > 0 ? 100.0 : 0.0,
                 ResumeAvailable = false,
                 Error = error,
+                AcquisitionProgressPercent = 100,
             };
             completed = state;
         }
@@ -345,6 +349,7 @@ public sealed class MapScanStateMachine
                 InflightBlocks = 0,
                 ResumeAvailable = false,
                 Error = error,
+                AcquisitionProgressPercent = null,
             };
             failed = state;
         }
@@ -379,6 +384,7 @@ public sealed class MapScanStateMachine
                     InflightBlocks = 0,
                     ResumeAvailable = false,
                     Error = error,
+                    AcquisitionProgressPercent = null,
                 };
                 failed = state;
             }
@@ -435,6 +441,7 @@ public sealed class MapScanStateMachine
                     InflightBlocks = 0,
                     ResumeAvailable = false,
                     Error = null,
+                    AcquisitionProgressPercent = null,
                 };
                 stopped = state;
             }

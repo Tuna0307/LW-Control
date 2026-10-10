@@ -90,7 +90,8 @@ public sealed record MapScanState(
     bool IsInWorld = false,
     int HomeServerId = 0,
     IReadOnlyList<int>? SeasonServerIds = null,
-    IReadOnlyList<int>? TruckMatchServerIds = null);
+    IReadOnlyList<int>? TruckMatchServerIds = null,
+    double? AcquisitionProgressPercent = null);
 
 public sealed record MapPlayerMark(
     int ServerId,

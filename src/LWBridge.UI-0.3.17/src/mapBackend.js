@@ -79,6 +79,7 @@ export const DEFAULT_SCAN_STATE = Object.freeze({
   concurrency: 8,
   scanRate: 0,
   progressPercent: 0,
+  acquisitionProgressPercent: null,
   nativeCaptureReady: false,
   nativePendingRecords: 0,
   nativeDroppedRecords: 0,
@@ -125,6 +126,8 @@ export function normalizeScanState(value) {
     concurrency: integer(source.concurrency, source.scanMode === "fast" ? 20 : 8),
     scanRate: finiteNumber(source.scanRate),
     progressPercent: Math.max(0, Math.min(100, finiteNumber(source.progressPercent))),
+    acquisitionProgressPercent: source.acquisitionProgressPercent == null
+      ? null : Math.max(0, Math.min(98, finiteNumber(source.acquisitionProgressPercent))),
     nativeCaptureReady: source.nativeCaptureReady === true,
     nativePendingRecords: integer(source.nativePendingRecords),
     nativeDroppedRecords: integer(source.nativeDroppedRecords),

@@ -23,6 +23,7 @@ import {
   normalizeSummary,
   updateSelectedTypes,
 } from "../src/mapBackend.js";
+import { mapScanPresentation, scanDuration } from "../src/mapScanPresentation.js";
 
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ key }) => key),
@@ -156,6 +157,19 @@ assert.equal(normalizedScan.readBlocks, 12);
 assert.equal(normalizedScan.completedBlocks, 12);
 assert.equal(normalizedScan.concurrency, 20);
 assert.deepEqual(normalizeScanState({}).selectedTypes, MAP_KIND_KEYS);
+const acquired = normalizeScanState({
+  serverId: 317, isReading: true, progressPercent: 0,
+  acquisitionProgressPercent: 45, startedAt: 1_760_000_000,
+});
+const activePresentation = mapScanPresentation(acquired, null, 317, 1_760_000_030_000);
+assert.equal(activePresentation.progress, 45, "measured acquisition shown while committed blocks remain zero");
+assert.equal(activePresentation.duration, 30_000, "Unix-seconds start must compare against millisecond UI clock");
+assert.equal(scanDuration(activePresentation.duration), "00:00:30");
+assert.equal(mapScanPresentation({
+  ...acquired, isReading: false, progressPercent: 0, acquisitionProgressPercent: 45,
+  updatedAt: 1_760_000_040,
+}, null, 317, 1_760_000_050_000).progress, 0,
+  "cancelled acquisition cannot be displayed as published completion");
 
 const normalizedSummary = normalizeSummary({
   serverId: 9,

@@ -1,5 +1,6 @@
 // Exact 0.3.17 MapDataPanel helpers and qn/Z/Yn/Xn/Zn presentation expressions.
-// Timestamps are displayed locally; elapsed arithmetic preserves source units.
+// Timestamps are displayed locally; elapsed arithmetic normalizes native
+// Unix-seconds run times and the JavaScript millisecond clock.
 export function scanTimestamp(value) {
   const number = Number(value);
   return !Number.isFinite(number) || number <= 0 ? 0 : number < 1_000_000_000_000 ? number * 1000 : number;
@@ -48,8 +49,17 @@ export function mapScanPresentation(scanState, stored, browseServerId, now) {
     serverId: storedCurrent ? stored.serverId : scanState.serverId,
     start,
     end,
-    duration: start > 0 ? Math.max(0, (scanState.isReading ? now : end || start) - start) : -1,
-    progress: Math.max(0, Math.min(100, Number(scanState.progressPercent) || 0)),
+    duration: scanTimestamp(start) > 0
+      ? Math.max(0, (scanState.isReading ? scanTimestamp(now) : scanTimestamp(end) || scanTimestamp(start))
+        - scanTimestamp(start))
+      : -1,
+    // Current-client full-world acquisition can take time before staging any
+    // logical blocks. Display the measured native acquisition percentage while
+    // it is supplied; committed-block progress remains a separate state field.
+    progress: Math.max(0, Math.min(100, Math.max(
+      Number(scanState.progressPercent) || 0,
+      scanState.isReading ? Number(scanState.acquisitionProgressPercent) || 0 : 0,
+    ))),
     error: storedCurrent ? stored.error : scanState.lastError,
     statusKey: scanState.phase === "publishing" ? "common.processing" : scanState.isReading ? "map.reading"
       : storedCurrent && stored.status === "completed" ? "common.completed" : "common.stopped",
