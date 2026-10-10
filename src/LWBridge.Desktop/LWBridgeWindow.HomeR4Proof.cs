@@ -52,12 +52,13 @@ internal sealed partial class LWBridgeWindow
             await core.ExecuteScriptAsync($$"""
                 (() => {
                   const id = {{JsonSerializer.Serialize(requestId)}};
-                  window.__homeR4OwnerResponse = null;
+                  window.__homeR4OwnerResponses ??= {};
+                  window.__homeR4OwnerResponses[id] = null;
                   const handler = event => {
                     const response = event.data;
                     if (response?.kind !== 'response' || response.id !== id) return;
                     window.chrome.webview.removeEventListener('message', handler);
-                    window.__homeR4OwnerResponse = response;
+                    window.__homeR4OwnerResponses[id] = response;
                   };
                   window.chrome.webview.addEventListener('message', handler);
                   window.chrome.webview.postMessage({kind:'invoke',
@@ -68,8 +69,14 @@ internal sealed partial class LWBridgeWindow
                 """);
             for (int i = 0; i < 240; i++)
             {
-                JsonElement result = await ReadUiAsync("window.__homeR4OwnerResponse");
-                if (result.ValueKind == JsonValueKind.Object) return result;
+                JsonElement result = await ReadUiAsync(
+                    "window.__homeR4OwnerResponses?.[" + JsonSerializer.Serialize(requestId) + "] ?? null");
+                if (result.ValueKind == JsonValueKind.Object)
+                {
+                    await core.ExecuteScriptAsync(
+                        "delete window.__homeR4OwnerResponses?.[" + JsonSerializer.Serialize(requestId) + "]");
+                    return result;
+                }
                 await Task.Delay(40);
             }
             throw new TimeoutException("Actual native dispatcher did not respond to " + command);
@@ -2250,6 +2257,72 @@ internal sealed partial class LWBridgeWindow
             a.ProcessAlive || b.ProcessAlive)
             throw new InvalidDataException("F-07 sidebar Delete failed confirmation, durable removal or A/B isolation.");
 
+        // F-07 controller commands can durably mutate the shared SQLite roster
+        // while the selected display owner changes. The native dispatcher must
+        // acknowledge the committed Add; a stale selected-runtime generation
+        // is not a valid reason to turn a successful registry write into an
+        // error. The on-reply hold is strictly a Home-only test seam.
+        Task<HomeMapCampaignDelayedRequest> heldCreateReply =
+            ArmHomeMapCampaignCommandDelay("profile_create", onReply: true);
+        Task<JsonElement> createAcrossSelection = InvokeNativeAsync("profile_create", new { });
+        try
+        {
+            HomeMapCampaignDelayedRequest heldCreate =
+                await heldCreateReply.WaitAsync(TimeSpan.FromSeconds(8));
+            if (heldCreate.ProfileId != "campaign-A" ||
+                profileRegistryService.Snapshot.Profiles.Count != 3)
+                throw new InvalidDataException("F-07 held Add had not committed the roster before selection.");
+            JsonElement selectedB = await InvokeNativeAsync("profile_select",
+                new { profileId = "campaign-B", focusGame = false });
+            if (!selectedB.GetProperty("ok").GetBoolean() || backend.ProfileId != "campaign-B")
+                throw new InvalidDataException("F-07 could not change display owner during committed Add.");
+        }
+        finally { ReleaseHomeMapCampaignCommandDelay(); }
+        JsonElement createdAfterSelection = await createAcrossSelection;
+        if (!createdAfterSelection.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("F-07 committed Add was falsely rejected after display selection: " +
+                createdAfterSelection);
+        ProfileRegistryEntry[] afterHeldAdd = profileRegistryService.Snapshot.Profiles
+            .Where(profile => profile.Id.StartsWith("local-", StringComparison.Ordinal)).ToArray();
+        if (afterHeldAdd.Length != 1 || profileRegistryService.Snapshot.Profiles.Count != 3 ||
+            profileRegistryService.Snapshot.SelectedProfileId != "campaign-B")
+            throw new InvalidDataException("F-07 held Add did not preserve selected B and exact new profile.");
+        JsonElement selectedA = await InvokeNativeAsync("profile_select",
+            new { profileId = "campaign-A", focusGame = false });
+        if (!selectedA.GetProperty("ok").GetBoolean() || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("F-07 held Add restoration did not select A.");
+        Task<HomeMapCampaignDelayedRequest> heldDeleteReply =
+            ArmHomeMapCampaignCommandDelay("profile_delete", onReply: true);
+        Task<JsonElement> deleteAcrossSelection = InvokeNativeAsync("profile_delete",
+            new { profileId = afterHeldAdd[0].Id });
+        try
+        {
+            HomeMapCampaignDelayedRequest heldDelete =
+                await heldDeleteReply.WaitAsync(TimeSpan.FromSeconds(8));
+            if (heldDelete.ProfileId != afterHeldAdd[0].Id ||
+                profileRegistryService.Snapshot.Profiles.Count != 2)
+                throw new InvalidDataException("F-07 held Delete had not committed exact target.");
+            JsonElement selectedDuringDelete = await InvokeNativeAsync("profile_select",
+                new { profileId = "campaign-B", focusGame = false });
+            if (!selectedDuringDelete.GetProperty("ok").GetBoolean() ||
+                backend.ProfileId != "campaign-B")
+                throw new InvalidDataException("F-07 could not select B during committed Delete.");
+        }
+        finally { ReleaseHomeMapCampaignCommandDelay(); }
+        JsonElement deletedAfterSelection = await deleteAcrossSelection;
+        if (!deletedAfterSelection.GetProperty("ok").GetBoolean() ||
+            profileRegistryService.Snapshot.Profiles.Count != 2 ||
+            profileRegistryService.Snapshot.SelectedProfileId != "campaign-B" ||
+            a.ProcessAlive || b.ProcessAlive)
+            throw new InvalidDataException("F-07 committed Delete was rejected or changed the wrong owner: " +
+                deletedAfterSelection);
+        JsonElement restoredAfterDelete = await InvokeNativeAsync("profile_select",
+            new { profileId = "campaign-A", focusGame = false });
+        if (!restoredAfterDelete.GetProperty("ok").GetBoolean() ||
+            backend.ProfileId != "campaign-A" ||
+            profileRegistryService.Snapshot.SelectedProfileId != "campaign-A")
+            throw new InvalidDataException("F-07 held Delete exact selected-owner restoration failed.");
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -2319,6 +2392,7 @@ internal sealed partial class LWBridgeWindow
                 selectionAbaWithPendingNoteAndFailedReorder = true,
                 nativeEnabledTogglePersistedAndStartDenied = true,
                 nativeAddDeleteConfirmedAndPersisted = confirmationReceived,
+                nativeCrudAckAcrossSelection = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

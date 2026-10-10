@@ -5233,14 +5233,14 @@ internal sealed partial class LWBridgeWindow : Form
             LWBridgeBackend requestBackend = backend;
             long requestProfileGeneration = Volatile.Read(ref profileRuntimeGeneration);
             bool explicitHomeOwnerCommand = IsExplicitHomeOwnerCommand(command);
-            // Profile note and display order mutate the persistent registry,
-            // not the currently selected Home runtime. Completion may race a
-            // successful A→B selection: retain the exact mutation result
-            // rather than returning PROFILE_GENERATION_RETIRED after commit.
-            // Frontend metadata/selected-view acknowledgements have their own
-            // request revision fencing; selected Home status remains fenced.
+            // Controller registry writes, including Add/Delete, are independent
+            // of the displayed Home runtime. A successful durable mutation
+            // must not be reported as PROFILE_GENERATION_RETIRED merely because
+            // the view selected B while the reply to A was pending. Selected
+            // runtime/status replies remain generation-fenced.
             bool independentProfileOwnerReply = explicitHomeOwnerCommand ||
                 command is "profile_instances_update_and_restart" or
+                    "profile_create" or "profile_delete" or "profile_primary_set" or
                     "profile_note_set" or "profile_reorder" or "profile_enabled_set";
             try
             {
@@ -5294,7 +5294,8 @@ internal sealed partial class LWBridgeWindow : Form
                 // after-execution/before-ack hold to distinguish a selected
                 // snapshot made stale by a newer persistent registry write.
                 // Unarmed commands pass straight through unchanged.
-                if (explicitHomeOwnerCommand || (homeMapCampaignHomeOnly && command == "profile_select"))
+                if (explicitHomeOwnerCommand || (homeMapCampaignHomeOnly &&
+                    command is "profile_select" or "profile_create" or "profile_delete"))
                 {
                     await WaitForHomeMapCampaignCommandReleaseAsync(
                         command,
