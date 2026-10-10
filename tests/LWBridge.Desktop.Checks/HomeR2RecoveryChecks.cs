@@ -53,7 +53,8 @@ internal static class HomeR2RecoveryChecks
         internal TaskCompletionSource? OfficialSettleReached = null;
         internal byte[]? GameReport;
 
-        internal Case(string name, bool enabled, bool withActualAdoptionRecord = false)
+        internal Case(string name, bool enabled, bool withActualAdoptionRecord = false,
+            Func<string, bool>? foreignOwnedInstallation = null)
         {
             Root = Path.Combine(Path.GetTempPath(), "home004-r2-" + name + "-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(Path.Combine(Root, "Game"));
@@ -193,7 +194,8 @@ internal static class HomeR2RecoveryChecks
                 startRecoveryMonitor: false, requireCurrentClientEvidence: false,
                 runtimeRoot: Path.Combine(Root, "runtime"),
                 applicationDataRoot: Root, backupRoot: Path.Combine(Root, "backup"),
-                bridgeHostState: Host, enableBridgeControlPipeLaunchBinding: withActualAdoptionRecord);
+                bridgeHostState: Host, enableBridgeControlPipeLaunchBinding: withActualAdoptionRecord,
+                foreignOwnedInstallation: foreignOwnedInstallation);
         }
         private static string ConsumeLog(ref string line)
         {
@@ -244,6 +246,8 @@ internal static class HomeR2RecoveryChecks
 
     internal static async Task RunAsync()
     {
+        await SharedLuaPackageRejectsSecondInstallation();
+        await ConcurrentDifferentRootStartsShareLuaAdmission();
         await ProcessExitOffAndOn();
         await RecoveryInstanceStatusProjection();
         await RealAdoptionRecordRecovery();
@@ -268,6 +272,80 @@ internal static class HomeR2RecoveryChecks
             .SequenceEqual(new double[] { 120000, 300000, 600000 }),
             "original maintenance retry table");
         Console.WriteLine("HOME004_R2_NATIVE_MONITOR_OK off/on exit, exact hang/disconnect/login boundaries, failed retry/stable, disable, Stop, held stale cleanup/successor; game launches=0");
+    }
+
+    private static async Task SharedLuaPackageRejectsSecondInstallation()
+    {
+        using var a = new Case("shared-lua-primary", false);
+        string secondRoot = Path.Combine(a.Root, "another-installation");
+        Directory.CreateDirectory(Path.Combine(secondRoot, "Game"));
+        File.WriteAllBytes(Path.Combine(secondRoot, "Game", "LastWar.exe"), []);
+        using var b = new OverviewLifecycleService(
+            "shared-lua-secondary", secondRoot,
+            helperPath: Path.Combine(secondRoot, "absent-helper.py"),
+            startRecoveryMonitor: false,
+            foreignOwnedInstallation: _ => a.Service.HasCapturedSharedLuaPackage());
+        Require(!a.Service.HasCapturedSharedLuaPackage(),
+            "idle primary does not own a shared script package");
+        await a.Start();
+        Require(a.Service.HasCapturedSharedLuaPackage(),
+            "running primary retains its shared script package regardless of the second game root");
+        try
+        {
+            await b.InvokeAsync("profile_instance_start",
+                JsonSerializer.SerializeToElement(new { profileId = "shared-lua-secondary" }),
+                CancellationToken.None);
+            throw new InvalidOperationException("second installation bypassed shared package ownership");
+        }
+        catch (BridgeCommandException ex) when (ex.Code == "BRIDGE_HOST_BUSY")
+        {
+            Require(ex.Message.Contains("shared Last War Lua package", StringComparison.Ordinal),
+                "rejection identifies the actual shared resource");
+        }
+        Require(a.Alive && a.StopCalls == 0,
+            "second-installation rejection does not stop or restore the first owner");
+        await a.Stop();
+        Require(!a.Service.HasCapturedSharedLuaPackage(),
+            "exact A Stop releases shared-package admission after restoration");
+        try
+        {
+            await b.InvokeAsync("profile_instance_start",
+                JsonSerializer.SerializeToElement(new { profileId = "shared-lua-secondary" }),
+                CancellationToken.None);
+            throw new InvalidOperationException("missing helper unexpectedly launched a game");
+        }
+        catch (BridgeCommandException ex) when (ex.Code == "OVERVIEW_HELPER_MISSING")
+        {
+            // The shared-package gate is cleared; the expected missing-helper
+            // rejection happens before any real process or installed-file write.
+        }
+    }
+
+    private static async Task ConcurrentDifferentRootStartsShareLuaAdmission()
+    {
+        Case? second = null;
+        using var first = new Case("race-independent-root-a", false,
+            foreignOwnedInstallation: _ => second?.Service.HasCapturedSharedLuaPackage() == true);
+        using var sibling = new Case("race-independent-root-b", false,
+            foreignOwnedInstallation: _ => first.Service.HasCapturedSharedLuaPackage());
+        second = sibling;
+        async Task<string> StartAttempt(Case c)
+        {
+            try { await c.Start(); return "started"; }
+            catch (BridgeCommandException ex) { return ex.Code; }
+        }
+        string[] results = await Task.WhenAll(
+            Task.Run(() => StartAttempt(first)), Task.Run(() => StartAttempt(sibling)));
+        Require(results.Count(result => result == "started") == 1 &&
+                results.Count(result => result == "BRIDGE_HOST_BUSY") == 1,
+            "simultaneous starts at distinct roots admit exactly one Lua package owner");
+        Require(first.Alive != sibling.Alive,
+            "rejected sibling does not acquire a fake game or journal");
+        if (first.Alive) await first.Stop();
+        if (sibling.Alive) await sibling.Stop();
+        Require(!first.Service.HasCapturedSharedLuaPackage() &&
+                !sibling.Service.HasCapturedSharedLuaPackage(),
+            "shared Lua admission is released after exact Stop");
     }
 
     private static async Task StopWhileRecoveryLaunchIsPending()

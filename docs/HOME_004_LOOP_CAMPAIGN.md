@@ -1,11 +1,12 @@
 # HOME-004 — remaining functional completion loop
 
-Updated by the lead, 2026-10-11. **Whole Home PARTIAL.**
+Worker follow-up, 2026-10-11. **Whole Home PARTIAL: F-04/F-06 genuinely verified, F-07 simultaneous games outstanding.**
 
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Branch: `codex/home-complete-delivery-004`; same checkout; PR #6 draft.
-Resume from current HEAD. Compiled candidate source is `d09b8328`; see
-[one current status](HOME_004_CURRENT_STATUS.md) for exact identity.
+Resume from current HEAD. Previous lead-assessed compiled candidate source was
+`d09b8328`; see [one current status](HOME_004_CURRENT_STATUS.md) and
+[live worker receipt](HOME_004_F04_F06_F07_LIVE_FOLLOWUP_2026-10-11.md).
 
 ## Read first
 
@@ -19,10 +20,10 @@ all R4–R16 rounds or strict original-only research. External worker works solo
 
 | Order | Work | Required result |
 | --- | --- | --- |
-| 1 | F-04 responsive authenticated-route loss | Game remains responsive with fresh heartbeat during transport-only loss. OFF preserves it; ON recovers to fresh stable authenticated Connected; Stop cleans up without late replacement. |
-| 2 | F-06 supported replacement-bridge repair | Actual packaged Update-and-Launch repairs a task-owned compatible input and reconnects. No synthetic success, official updater or damage to owner files. |
-| 3 | F-07 genuine independent profiles | Establish real concurrent-client support; two distinct authenticated sessions remain independent under selection, individual/batch lifecycle and cleanup. SQLite slots/inert owners are not this proof. |
-| 4 | Integrated closeout | Recheck affected Home controls, current native/pipe/frontend checks and extracted final candidate; EN/light and JA/dark feedback; exact identity/restoration/cleanup and concise differences. |
+| 1 | F-04 responsive authenticated-route loss | **VERIFIED**: fresh genuine game heartbeat after authenticated pipe loss, OFF preserves owner, ON succeeds with a different authenticated 15-second-stable session, Home Stop prevents a later successor; exact restore and cleanup. |
+| 2 | F-06 supported replacement-bridge repair | **VERIFIED**: task-only DPAPI adoption-record loss with exact genuine journal, repaired through actual Home Update-and-Launch after correcting the missing-challenge helper argument; new authenticated Connected and original restoration. |
+| 3 | F-07 genuine independent profiles | **OPEN**: establish officially supported separate installed game + independently owned mutable Lua package before two-game simultaneous A/B verification. Existing shared `LocalLow` script triplet and absolute launcher configuration do not provide that capability. No inert provider or duplicate folder substitutes for a second game. |
+| 4 | Integrated closeout | Recheck all affected Home controls, native/pipe/frontend checks, extracted candidate, EN/light and JA/dark receipts, identity and exact zero-residual cleanup. |
 
 Investigate permissible task-owned host/adapter seams and legitimate isolated
 copies before declaring inputs unavailable. Missing original ticket/key/pixel

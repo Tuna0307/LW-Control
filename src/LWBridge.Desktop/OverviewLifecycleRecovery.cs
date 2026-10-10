@@ -796,8 +796,12 @@ internal sealed partial class OverviewLifecycleService
                 };
                 lock (recoveryTraceGate)
                 {
-                    Directory.CreateDirectory(runtimeRoot);
-                    File.AppendAllText(Path.Combine(runtimeRoot, "home004-recovery-events.jsonl"),
+                    // Runtime files are intentionally erased at exact Stop.
+                    // Keep this optional evidence with the isolated profile's
+                    // other task receipts so a successful cleanup cannot erase
+                    // the very observation the bounded test needs to retain.
+                    Directory.CreateDirectory(evidenceRoot);
+                    File.AppendAllText(Path.Combine(evidenceRoot, "home004-recovery-events.jsonl"),
                         JsonSerializer.Serialize(row) + Environment.NewLine);
                 }
             }

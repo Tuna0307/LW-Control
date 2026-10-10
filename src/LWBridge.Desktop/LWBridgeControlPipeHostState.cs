@@ -52,6 +52,29 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         !string.IsNullOrWhiteSpace(instanceId) &&
         registry.Resolve(instanceId) is not null;
 
+    // HOME004 F-04: task-only fault entrypoint. A failed authenticated transport
+    // must be produced by closing the actual pipe, rather than lying about the
+    // route status. The caller must first check an exact owned game/session.
+    // This method is never exposed to a normal frontend command.
+    internal bool DisconnectExactAuthenticatedRouteForIsolatedTest(string instanceId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
+        LWBridgeControlPipeAcceptedSession? session;
+        lock (gate)
+        {
+            if (registry.Resolve(instanceId)?.Route is not
+                LWBridgeControlPipeAcceptedSession accepted)
+                return false;
+            session = accepted;
+            // Reauthentication of the old token must remain impossible while
+            // the real game continues to write fresh heartbeat. A replacement
+            // Start creates its own new registration.
+            registry.Unregister(instanceId);
+        }
+        session.Dispose();
+        return true;
+    }
+
     internal long? GetPendingExpiration(string instanceId) =>
         registry.GetPendingExpiration(instanceId);
 

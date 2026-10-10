@@ -68,20 +68,21 @@ KNOWN LIMITATIONS
 This is a usable UI baseline, NOT a fully recovered native product.
 Packaged Home Launch -> authenticated current-client Connected -> Close,
 automatic startup and exact same-build host adoption have been demonstrated.
-HOME-004 R2 separately verified an unexpected exact owned-game process exit:
-Automatic Reconnection OFF did not relaunch, while ON automatically restored
-authenticated Connected twice with fresh game PIDs. Real Home Stop while ON
-prevented a further relaunch, with exact installed-script restoration.
-Full original 0.3.17 licensed-runtime equivalence, live hung/network-only
-disconnect and long retry/maintenance/updater behavior, multi-owner
-entitlements, Map scanners, mini-game execution, protected original service
-and full runtime pixel parity are NOT certified. Some actions require later
-native work; see HOME-004 R2 proof and current 47-row Home matrix in source.
-HOME-004 R3 observed an exact owned still-running/hung game exit and automatic
-official-launcher successor on Reconnection ON. That replacement did not
-remain in an authenticated Connected state: the game stopped and the session
-was restored. EN/light and JA/dark native recovery-in-progress captures are
-preserved; this is PARTIAL/failing live evidence, not a successful recovery.
+HOME-004 2026-10-11 live follow-up verified responsive game heartbeat after
+actual task-owned authenticated transport loss: Reconnection OFF preserved
+the game; ON restored a fresh authenticated Connected successor stable for
+more than 15 seconds. Home Close with recovery ON prevented a later successor.
+An isolated legitimate replacement-bridge journal/adoption failure was also
+repaired through the actual Home Update-and-Launch control, with new genuine
+authenticated Connected and exact restoration of the original game files.
+The shared per-Windows-user mutable Lua package prevents the current
+replacement from certifying two simultaneously independent official game
+installations. Two local metadata profiles and two isolated RPC routes are
+NOT two independently supported game sessions. HOME is still PARTIAL pending
+this F-07 capability. Full original 0.3.17 licensed-runtime equivalence,
+independent multi-game ownership, long external updater/maintenance paths,
+Map scanners, mini-game execution, protected services and pixel parity are
+not certified. See docs/HOME_004_CURRENT_STATUS.md in source.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):

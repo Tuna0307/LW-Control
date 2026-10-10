@@ -1,6 +1,6 @@
 # Home — current functional status
 
-Lead check: 2026-10-11. **PARTIAL: not fully live verified; not approved for a whole-Home merge.**
+Worker follow-up: 2026-10-11. **PARTIAL: F-04 and F-06 genuine live gates now pass; F-07 genuinely simultaneous independent installations remain unverified. Not approved for a whole-Home merge.**
 
 Current goal is a faithful, reliable functional replacement, with documented minor
 implementation differences. Missing original licensing responses, private constants
@@ -10,12 +10,8 @@ or protected screenshots alone do not block release. Read
 
 ## One current checkpoint
 
-- Branch: `codex/home-complete-delivery-004`; assessed HEAD
-  `7d23e79268938277c8a8e427417994be740b9e53` (documentation after product source below).
-- Compiled product: `d09b8328ce1752cd6c305acae8f52acf827e6c87`.
-- Candidate: `artifacts/release/home004-functional-d09b8328/LW-Control-HOME004-FUNCTIONAL-RC-d09b8328ce17.zip`.
-- ZIP SHA-256: `0F871CDCADACBCF0C3685726608F7AA36D1B96744E42EFC8859801C16EA4FA43`.
-- Extracted EXE SHA-256: `66AEE4C45FCA50156982827801712D341B89ACA3ED5EFEA6D318B48214CEDC39`.
+- Branch: `codex/home-complete-delivery-004`, same checkout. The earlier lead-assessed product source was `d09b8328ce1752cd6c305acae8f52acf827e6c87`.
+- 2026-10-11 worker correction changes and the next source-identified candidate are recorded in the new follow-up receipt `HOME_004_F04_F06_F07_LIVE_FOLLOWUP_2026-10-11.md`. The previous candidate under `artifacts/release/home004-functional-d09b8328/` remains an historical reference.
 - [PR #6](https://github.com/Tuna0307/LW-Control/pull/6): open, draft, unmerged.
 - One worktree; main, research and the necessary active Home branch. No obsolete
   local branch/worktree identified for removal. Preserve unfinished Home work.
@@ -24,26 +20,31 @@ or protected screenshots alone do not block release. Read
 
 | Feature | Evidence available | Remaining distinction |
 | --- | --- | --- |
-| Manual Launch / Connected / Close (F-02) | Earlier genuine packaged game sessions; exact authenticated ownership, Close and restoration. Current controlled regressions pass. | Latest entire candidate has not had a fresh genuine end-to-end campaign. |
+| Manual Launch / Connected / Close (F-02) | Newly repeated in actual Windows Home runs for F-04 and F-06 with authenticated game PIDs, fresh heartbeats, exact Stop and restored v24 originals. | Final extracted candidate checks still required for the new source. |
 | Automatic startup and host restart/adoption (F-03/F-05) | Earlier genuine single-game startup/adoption; current native preference/admission/identity regressions pass. | Two genuine simultaneous games remain F-07. |
-| Automatic Reconnection (F-04) | Earlier genuine exit/hang recovery and pending-recovery user Stop; current route-loss, thresholds and cancellation controlled checks pass. | Responsive-game transport-only loss has not been genuinely verified with current monitor. |
-| Update-and-Launch / repair (F-06) | Actual production callback and native helper boundaries pass with controlled success/failure/no-op outcomes. | Genuine repair of the replacement bridge and authenticated reconnection remain unverified. |
-| Folder, preferences and profile controls (F-01/F-07/F-08) | Native picker/storage, SQLite Add/Delete/enable/note/order, A/B ownership and extracted EN/JA WebView controls tested. D-14/D-15 registry routing/acknowledgement fixes pass. | Two inert owners and four metadata slots do not prove two real games. |
-| Candidate and integration (F-09) | Source marker, EXE/ZIP hashes, extracted UI identity and saved controlled EN/JA cleanup receipts checked independently. | Final functional acceptance follows the three real-operation checks below. |
+| Automatic Reconnection (F-04) | **Genuine verified:** task-owned host dropped the *actual authenticated pipe* while the same game PID kept a fresh heartbeat. OFF left game running and Home Disconnected; ON ran disconnect recovery to a distinct authentically Connected PID/session, native status `succeeded` after stable verification. Separate Stop with ON prevented any replacement for over two minutes; exact restoration and zero residual game/host/journal checked. | No remaining F-04 live gate from this assignment. This is a current-client adaptation, not original private pipe parity. |
+| Update-and-Launch / repair (F-06) | **Genuine verified:** an isolated same-client journal survived a host exit while task-owned DPAPI adoption was archived; actual Home repair initially returned `GAME_CLOSE_FAILED`, corrected missing-challenge stop-helper boundary and then returned `restarted=1`, fresh PID/session, authenticated Home Connected and exact Stop/restoration. | Long-lived external updater and foreign-account recovery are outside this gate. Negative error trace retained. |
+| Folder, preferences and profile controls (F-01/F-07/F-08) | Native picker/storage, SQLite Add/Delete/enable/note/order, independent A/B inert owner routing and prior EN/JA WebView controls checked. New simultaneous Start native regression guards the per-user shared Lua triplet. | **F-07 remains open:** a second independently supportable official installation with its own mutable Lua package and independently authenticated game has not been demonstrated. |
+| Candidate and integration (F-09) | Native and real isolated Windows pipe checks PASS after code corrections; exact v24 game backup/restoration verified in each genuine run. | Extracted final candidate and localization/cleanup proof will be listed in the follow-up receipt. |
 
 Earlier genuine receipts are usable within their recorded source and operation
 boundaries. Current Windows UI / SQLite / named-pipe tests are real software tests,
 but their game effects are inert. A green Connected screenshot in such a fixture
 is not a newly connected Last War session.
 
-## Only remaining completion queue
+## Remaining completion boundary
 
-1. **F-04:** responsive real game with fresh heartbeat but lost authenticated route;
-   verify Reconnection OFF and ON, stable authenticated successor and user Stop.
-2. **F-06:** safely isolated supported replacement-bridge repair through packaged
-   Update-and-Launch; prove fresh authenticated connection and exact restoration.
-3. **F-07:** establish supported distinct installations and genuinely simultaneous
-   game sessions; independent selection, Start/Stop and batch/cleanup behavior.
+**F-07** is the one outstanding functionality requirement. The current helper
+installs/backs up/restores one mutable `LocalLow/FunFly/.../lwScripts` package
+for the Windows user, regardless of `gameRoot`. The official launcher config
+points its `app_dir`, executable and uninstall paths to the *owner's one*
+installation. A copied folder and two metadata rows would not establish two
+supported launchers or independent Lua/restoration ownership. The current
+implementation now rejects simultaneous starts before shared-package mutation;
+independent owner/session functionality is still a genuine capability gap.
+An independently supported second game installation with separate mutable
+scripts/launcher identity (or a verified supported multi-client adaptation) is
+required to test simultaneous A/B games, saved settings, batches and cleanup.
 
 Do not treat a missing test fixture as proof of impossibility. First investigate
 available task-owned host/adapter seams and compatible isolated copies. Preserve
@@ -53,10 +54,10 @@ expected concurrency or count controlled owners as live ones.
 
 ## Independent check and handoff
 
-[Lead progress review](HOME_004_LEAD_PROGRESS_2026-10-11.md) records fresh frontend,
-native, pipe, build and extracted-package validation. The local generated UI dist
-was stale; rebuilding restored its correct identity, matching the retained ZIP.
-No product source was changed, no new ZIP made and no live game experiment run.
+[Lead progress review](HOME_004_LEAD_PROGRESS_2026-10-11.md) remains an earlier
+independent source assessment. The current worker's new genuine v24 F-04/F-06
+evidence and F-07 implementation findings are in
+[the live follow-up](HOME_004_F04_F06_F07_LIVE_FOLLOWUP_2026-10-11.md).
 
 Follow [the compact campaign](HOME_004_LOOP_CAMPAIGN.md) and
 [copy-ready worker prompt](HOME_004_REMAINING_LIVE_PROMPT.md).

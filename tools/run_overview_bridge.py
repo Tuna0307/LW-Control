@@ -1315,7 +1315,11 @@ def main() -> int:
     stop = sub.add_parser("stop")
     stop.add_argument("--profile-id", required=True)
     stop.add_argument("--session-id", required=True)
-    stop.add_argument("--challenge", required=True)
+    # A real repair journal may outlive the protected adoption record. The
+    # challenge is needed for scoped ephemeral session-file cleanup only;
+    # the durable journal, exact PID/path/creation and backup authenticate the
+    # stop/restoration target independently.
+    stop.add_argument("--challenge")
     stop.add_argument("--game-pid", type=int, required=True)
     stop.add_argument("--game-path", required=True)
     stop.add_argument("--game-started-at-utc")

@@ -526,6 +526,7 @@ internal sealed partial class LWBridgeWindow : Form
         ownerEvidence?.Record("session-start", new { processId = Environment.ProcessId, profileId = config.Snapshot.ProfileId, initialView });
         Shown += OnShown;
         FormClosed += OnFormClosed;
+        InitializeHome004IsolatedRouteFault(isolatedRootPath);
     }
 
     private async Task SelectProfileOwnerAsync(
@@ -672,8 +673,26 @@ internal sealed partial class LWBridgeWindow : Form
             lifecycle = GetOrCreateProfileRuntime(profileId).Lifecycle;
         }
         finally { profileSwapGate.Release(); }
-        return await lifecycle.InvokeAsync("profile_instances_update_and_restart", payload, cancellationToken)
-            .ConfigureAwait(false);
+        RecordHome004F06Dispatch(
+            lifecycle.RepairRequired ? "owner-journal-valid" : "owner-journal-unavailable",
+            "profile_instances_update_and_restart");
+        object? repairResponse = await lifecycle.InvokeAsync(
+            "profile_instances_update_and_restart", payload, cancellationToken).ConfigureAwait(false);
+        if (home004F06DispatchPath is not null)
+        {
+            JsonElement parsed = JsonSerializer.SerializeToElement(repairResponse, JsonOptions.Default);
+            string code = parsed.ValueKind == JsonValueKind.Object &&
+                parsed.TryGetProperty("errors", out JsonElement errors) &&
+                errors.ValueKind == JsonValueKind.Array && errors.GetArrayLength() > 0 &&
+                errors[0].TryGetProperty("error", out JsonElement error)
+                ? error.GetString() ?? "error-unavailable" : "none";
+            int successful = parsed.ValueKind == JsonValueKind.Object &&
+                parsed.TryGetProperty("restarted", out JsonElement restarted) &&
+                restarted.ValueKind == JsonValueKind.Array ? restarted.GetArrayLength() : -1;
+            RecordHome004F06Dispatch($"owner-result:restarted={successful}:error={code}",
+                "profile_instances_update_and_restart");
+        }
+        return repairResponse;
         }
         finally { ownerAdmission.Release(); }
     }
@@ -756,7 +775,13 @@ internal sealed partial class LWBridgeWindow : Form
             others = retainedProfileRuntimes.Where(entry =>
                     !string.Equals(entry.Key, ownerId, StringComparison.Ordinal))
                 .Select(entry => entry.Value).ToArray();
-        return others.Any(runtime => runtime.Lifecycle.HasCapturedInstallation(root));
+        // The package installed by run_overview_bridge.py is located under
+        // this Windows user's LocalLow profile for every game root. Until an
+        // independently verified per-installation bridge exists, a different
+        // root is not a different mutable script owner.
+        return others.Any(runtime =>
+            runtime.Lifecycle.HasCapturedInstallation(root) ||
+            runtime.Lifecycle.HasCapturedSharedLuaPackage());
     }
 
     private sealed record RetainedProfileRuntime(
@@ -5223,6 +5248,7 @@ internal sealed partial class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
+            RecordHome004F06Dispatch("received", command);
             if (ownerEvidence is not null && OwnerEvidenceResourceContract.IsBlockedOwnerCommand(command))
             {
                 ownerEvidence.Record("owner-command-blocked", new { requestId = id, command });
@@ -5352,6 +5378,7 @@ internal sealed partial class LWBridgeWindow : Form
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsCitySearch(payload))
                     ownerEvidence.RecordCitySearch(id, payload, execution.Result);
                 SendResult(session, id, execution.Result);
+                RecordHome004F06Dispatch("result", command);
                 if (command == "map_search" && ownerEvidence is not null)
                     BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);
                 if (command == "map_player_mark_set" && map317CommandService is null)
@@ -5361,6 +5388,7 @@ internal sealed partial class LWBridgeWindow : Form
             }
             catch (BridgeCommandException ex)
             {
+                RecordHome004F06Dispatch("error:" + ex.Code, command);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&
@@ -5378,6 +5406,7 @@ internal sealed partial class LWBridgeWindow : Form
             }
             catch (Exception ex)
             {
+                RecordHome004F06Dispatch("exception:" + ex.GetType().Name, command);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&
@@ -5854,6 +5883,8 @@ internal sealed partial class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        home004RouteFaultTimer?.Stop();
+        home004RouteFaultTimer?.Dispose();
         Interlocked.Exchange(ref profileRuntimeClosed, 1);
         sessionClosed = true;
         documentSession.Close();

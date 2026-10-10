@@ -71,6 +71,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     internal const long MinimumStartWindowMilliseconds =
         MinimumAcquisitionMilliseconds + BridgeReadyWindowMilliseconds + StartCleanupMarginMilliseconds;
 
+    // F-07: the verified current-client helper mutates one per-user Lua package
+    // even when different profiles choose different game roots. Serialize the
+    // brief in-process ownership-admission step so two simultaneous Starts
+    // cannot each observe its sibling idle before either publishes "starting".
+    private static readonly object SharedLuaStartAdmissionGate = new();
     private readonly object stateGate = new();
     private readonly object leaseWriteGate = new();
     private readonly string helperPath;
@@ -261,6 +266,24 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             return false;
         // Even after the process exits, the journal still owns the installed
         // Lua triplet until the exact restoration is confirmed.
+        return active || ClassifyRecoveryJournal() is
+            RecoveryJournalState.Pending or RecoveryJournalState.Unknown;
+    }
+
+    // F-07 CURRENT_CLIENT_ADAPTATION: even different Last War installation
+    // roots resolve their mutable Lua triplet to the same per-Windows-user
+    // LocalLow/FunFly/.../lwScripts folder. A second bridge installation could
+    // overwrite (or fail to restore) A's active package. Keep this separate
+    // from same-installation ownership so the unsupported shared-package case
+    // is reported explicitly while genuine multi-game support is investigated.
+    internal bool HasCapturedSharedLuaPackage()
+    {
+        if (Volatile.Read(ref gameRoot) is null) return false;
+        // Avoid a cross-profile stateGate inversion when A and B start together.
+        if (!Monitor.TryEnter(stateGate)) return true;
+        bool active;
+        try { active = instanceId is not null || phase is "starting" or "stopping"; }
+        finally { Monitor.Exit(stateGate); }
         return active || ClassifyRecoveryJournal() is
             RecoveryJournalState.Pending or RecoveryJournalState.Unknown;
     }
@@ -760,6 +783,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string newChallenge = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
         string selectedRoot;
         var startCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        lock (SharedLuaStartAdmissionGate)
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
@@ -785,9 +809,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (phase is "starting" or "stopping" || gamePid is not null)
                 throw new BridgeCommandException("PROFILE_ALREADY_RUNNING", "PROFILE_ALREADY_RUNNING");
             selectedRoot = gameRoot;
-            if (testHooks is null && foreignOwnedInstallation?.Invoke(selectedRoot) == true)
+            if (foreignOwnedInstallation?.Invoke(selectedRoot) == true)
                 throw new BridgeCommandException("BRIDGE_HOST_BUSY",
-                    "Another profile still owns the selected installation and its restoration journal.");
+                    "Another profile owns the shared Last War Lua package or its restoration journal. Independent simultaneous installations are not yet supported by this bridge.");
             IReadOnlyList<int> unmanagedPids = SelectedGamePids(selectedRoot);
             if (unmanagedPids.Count > 0 && !closeUnmanaged)
                 // 0x1d6781-0x1d6828: code == message == "UNMANAGED_GAME_RUNNING", details {pids:[ascending]}.
@@ -1574,7 +1598,16 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             start.ArgumentList.Add("--profile-id"); start.ArgumentList.Add(invocation.ProfileId);
             start.ArgumentList.Add("--session-id"); start.ArgumentList.Add(invocation.SessionId!);
-            start.ArgumentList.Add("--challenge"); start.ArgumentList.Add(invocation.Challenge!);
+            // An authentic pending repair journal can survive host restart
+            // without its DPAPI adoption record. It still binds the exact
+            // profile/session/PID/path/creation and backup, but does not carry
+            // the plaintext challenge. The helper permits a challenge-free
+            // exact Stop; only session-file deletion then needs a challenge.
+            if (!string.IsNullOrWhiteSpace(invocation.Challenge))
+            {
+                start.ArgumentList.Add("--challenge");
+                start.ArgumentList.Add(invocation.Challenge);
+            }
             start.ArgumentList.Add("--game-pid"); start.ArgumentList.Add(invocation.GamePid!.Value.ToString(CultureInfo.InvariantCulture));
             start.ArgumentList.Add("--game-path"); start.ArgumentList.Add(invocation.GamePath!);
             if (!string.IsNullOrWhiteSpace(invocation.GameStartedAtUtc))
