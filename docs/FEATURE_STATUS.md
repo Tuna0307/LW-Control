@@ -1,5 +1,17 @@
 # Feature delivery status
 
+**HOME-004 R12 selected profile completion despite registry mutation
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** actual mounted
+React B selection held at native dispatch while independent
+B-before-A drag/drop committed, then releasing native B selection
+left old UI A and busy stuck. Dedicated selection-only request
+revision now preserves latest native B acknowledgment/busy cleanup
+despite newer metadata actions. Controlled EN/light and JA/dark
+verify B selected, native/visible B,A order, no stuck controls and
+exact A/B fixture restoration; R6–R11 owner/error/metadata
+protection remains. [R12](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md),
+draft PR #6 unmerged, original/genuine parity still missing.
+
 **HOME-004 R11 exact saved-note presentation (2026-10-10;
 whole Home PARTIAL_NEEDS_INPUT):** actual React profile A note dialog
 submitted while its native command was held and B became selected:

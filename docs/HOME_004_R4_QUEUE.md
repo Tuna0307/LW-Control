@@ -65,13 +65,13 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-36 | Native exact old stop/restore, protected successor late-ack and failed retry; accepted genuine unexpected exit + hang. | Real incomplete restoration/official launcher failure/adverse update-process path. |
 | H-37 | Accepted live AutoLaunch and same-build host adoption; native `GameDesiredRunning` gating. | Multi-profile host restart with independent original protected admission. |
 | H-38 | R4 native retained A/B owners and real Windows shared transport preserved; R5 mounted EN/JA additionally proves real registry **disabled** B Start rejection and global restart exclusion, alongside earlier locked selected/unselected admission, with exact fixture restoration. | Original commercial maxProfiles/admission and verified distinct compatible real client installation capability remain unknown; do not invent limit. |
-| H-39 | Original note validation/reorder recovered; R4–R8 retained exact owners/A Close across selection. R9 native held A note persisted but replied retired; native independent registry replies fixed. R10 actual JSX drag/drop persisted B,A but rendered stale A,B after selection; order-only projection fixed. R11 actual JSX note dialog Submit held across B selection persisted new A note but rendered old A note; latest exact-owner **note-only** projection fixes this without changing B selection or B metadata. Controlled mounted EN/light and JA/dark positives and immutable negatives retained. | Original licensed profile admission/capacity, supported genuine multi-client installations and paired original late metadata acknowledgement. |
+| H-39 | R4–R8 retained exact owners; R9 native independent note/reorder reply, R10 visible order-only and R11 exact note-only projections retained. R12 actual JSX selection B **held at native dispatcher** while independent JSX reorder B,A commits reproduced backend B but React selection stale A and permanently held busy; dedicated latest **selection** revision fixes owner selection/ack/busy without retiring metadata and preserves B,A visible/persisted then restores exact A,B/A. Mounted EN/JA pass. | Original licensed capacity, genuine supported multi-client clients and original late selection/reorder response witness. |
 | H-40 | R4 mounted A running → B active → B Close → A unchanged and cleanup; R8 captured A Home Close read across B/ABA while B Start/Stop independent. R9 keeps explicit A profile-note commit and global reorder result independent of selected B's runtime, without permitting stale selected-Home status to update a new view. Native user Stop during held recovery retained. | Genuine multi-profile shutdown/restore on two compatible installations; paired original adverse late reply and original metadata timing. |
 | H-41 | Baseline mismatch: a pending/unknown A repair journal rejected picker persistence. R4 persists B for next Start, prevents Start before A restoration; native cases and mounted A→B→Stop→B Start. | Genuine current-client running-root picker and original exact status/monitor negative, unavailable without risk-free second supported installation. |
 | H-42 | R5 actual native inverse showed stale exited-game `lastError` projected `connectionState=error` during active recovery. Native now projects `recovering` while preserving error. R8 compares actual sidebar connection-state localization table against original `Jr` for all nine keys, retains original 3 s sidebar poll versus 5 s Home status distinction and mounted A/B status/ABA regressions. | Original full 12-field/protected lease-state parity and genuine offline-only visual comparison. |
 | H-43 | Source-backed recovery command/event, native monitor and accepted genuine recovery event receipt. | Paired original maintenance/failure/retry notification ordering. |
 | H-44 | Accepted live current official-settle-before-launch baseline, source 10 min/15 s/3 s. | Original forced settle-timeout negative without changing owner installation. |
-| H-45 | R6–R8 EN/JA recovery/error/per-owner A/B controls, original `Kr` 128-state and nine `Jr` connection keys retained. R9 native note/reorder independent acknowledgement, R10 JSX drag/drop persistent/visible B,A, and R11 actual JSX note dialog submitted under held native A note while B selected, preserving current B and new A-only visible note. Exact native rooted teardown retained. | Genuine/original pending Stop, maintenance/offline-only and conditional pixel comparisons; controlled UI/locale tests are not authentic pixel parity. |
+| H-45 | R6–R8 EN/JA recovery/error/per-owner A/B, original 128 `Kr` gate states/nine `Jr` labels, R9 independent native registry, R10 persistent/visible B,A and R11 exact A note retained. R12 EN/JA actual JSX B selection held while B,A drag/drop completes now releases selected-owner busy, renders exact B and preserves metadata, resets exact A/B order with no leaked roots/requests. | Genuine/original pending Stop, maintenance/offline-only and conditional pixel comparisons; controlled UI/locale tests are not authentic pixel parity. |
 | H-46 | **R6 source-authority correction:** original 0.3.17 Ir byte 328453 explicitly calls reverse on distinct candidates before Lr byte 328684 locale lookup. R5 incorrectly removed reversal; R6 restores it in Home/sidebar and updates source helper tests for later message priority, structured code, dedupe, unknown fallback. R4 typed spawn producer retained. | Original descriptor/mutex/Lua/restart and protected finalizer native error serializations still unknown. |
 | H-47 | R4-R2 pending recovery Stop/late helper cleanup, R6 shared Home/sidebar duplicate-Start admission and R7 per-profile visible busy Set retained. R8 actual native mounted inverse proved Home A Close silently abandoned after A status read across B selection; exact owner A status/Stop preserved across A→B and A→B→A, independent B, no native cross-owner side effects. Original `Pt` captures profile across both awaits; source-executed `Kr` 128-state UI gate matrix passes. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering, genuine offline-only pending Stop and conditional pixels. |
 
@@ -198,6 +198,23 @@ Mounted EN/light and JA/dark corrected proof and historical failure
 retained. See [R11 receipt](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md).
 Original concurrent note/selection witness and the other genuine/
 protected H-IDs remain unavailable. Whole Home **PARTIAL_NEEDS_INPUT**.
+
+### R12 selected profile remains acknowledged across registry reorder (H-39/H-45)
+
+R9–R11 fixed persistent metadata result ordering but shared React
+`nativeProfileRequestRef` still retired an already-started B selection
+if its native reply arrived after a separate completed reorder.
+Mounted original JSX B selection held before dispatcher, B-before-A
+drag/drop committed independently; backend ended B but React remained
+A and `nativeProfileBusy` could stay permanently set. R12 latest
+selection-only revision now governs selection/ack/error/finally busy,
+while metadata requests retain their own revision/field guards.
+Mounted EN/light and JA/dark verify B selected and enabled, B,A
+native+DOM, exact A,B and A selected restoration, and complete
+R4–R11 regression cleanup. See
+[R12 receipt](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md).
+Commercial/original multi-client and adverse evidence remains missing:
+whole Home **PARTIAL_NEEDS_INPUT**.
 
 ## Source and input fences
 

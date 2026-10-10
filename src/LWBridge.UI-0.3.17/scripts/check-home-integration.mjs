@@ -237,6 +237,16 @@ function deliver(fixture, message) {
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
 {
+  const selectionBody = appSource.slice(appSource.indexOf("const selectNativeProfile ="),
+    appSource.indexOf("const reorderNativeProfiles ="));
+  assert.match(selectionBody, /nativeProfileSelectionRevisionRef\.current !== selectionRevision/,
+    "H-39 native selection must not be retired by an independent profile reorder");
+  assert.match(selectionBody, /nativeProfileSelectionRevisionRef\.current === selectionRevision\) setNativeProfileBusy\(false\)/,
+    "H-39 latest native selection must release busy even when registry edits occurred");
+  assert.doesNotMatch(selectionBody, /nativeProfileRequestRef\.current === request\) setNativeProfileBusy/,
+    "H-39 global metadata request revision may not own selected profile busy release");
+}
+{
   const noteAction = appSource.slice(
     appSource.indexOf("const updateNativeProfileNote ="),
     appSource.indexOf("// Sidebar actions address retained native owners"),

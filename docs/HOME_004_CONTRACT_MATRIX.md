@@ -119,6 +119,20 @@ order or other owners. Controlled EN/light and JA/dark mounted proof;
 see [R11](HOME_004_R11_EXACT_NOTE_PROJECTION_RECEIPT.md). Whole
 commercial/real-client Home remains **PARTIAL_NEEDS_INPUT**.
 
+### R12 additive H-39/H-45 independent latest selection (2026-10-10)
+
+An actual mounted B profile select held at native dispatch and concurrent
+React B-before-A drag/drop reproduced backend B/SQLite B,A but stale
+selected A and persistent busy in the rebuild. R12 latest
+selection-specific revision alone authorizes native selection result
+and busy cleanup; registry note/reorder revisions cannot retire it.
+R10/R11 field-only metadata and earlier exact-owner protections
+remain. Both mounted EN/light and JA/dark finish with B/visible B,A,
+no stuck busy, exact A,B/A restored. See
+[R12 receipt](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md).
+Protected, genuine real-client and paired original interleaving gates
+remain unverified; whole Home **PARTIAL_NEEDS_INPUT**.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.

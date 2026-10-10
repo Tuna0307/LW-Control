@@ -1,5 +1,19 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R12 independent native selection revision under concurrent
+profile reorder (2026-10-10): PARTIAL_NEEDS_INPUT.** Actual
+production mounted WebView B selection delayed at native dispatcher,
+React B-before-A drag/drop committed SQLite B,A. Old shared
+metadata request counter suppressed B's selected-owner result
+and left sidebar busy. R12 latest-selection revision corrects
+owner/visible state and busy cleanup without weakening
+per-profile notes/reorder or native ownership. Mounted EN/JA,
+previous regression and exact cleanup described in
+[R12 receipt](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md).
+No original protected commercial capacity, licensed simultaneous
+client, adverse launcher/recovery or paired original conditional
+pixel acceptance implied. PR #6 draft, no lead approval.
+
 **R11 exact profile note after selected B (2026-10-10):
 PARTIAL_NEEDS_INPUT.** Mounted actual JSX note form/held native
 `profile_note_set` reproduced saved A note but stale A row after B

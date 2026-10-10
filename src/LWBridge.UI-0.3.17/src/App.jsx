@@ -240,6 +240,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   const nativeProfileRequestRef = useRef(0);
+  const nativeProfileSelectionRevisionRef = useRef(0);
   const nativeReorderRevisionRef = useRef(0);
   const nativeNoteRevisionsRef = useRef(new Map());
   const isCurrentProfileOwner = useCallback((owner) => (
@@ -336,17 +337,22 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (profileId === selectedProfileIdRef.current) return shellProfilesRef.current;
     const request = nativeProfileRequestRef.current + 1;
     nativeProfileRequestRef.current = request;
+    // Registry note/reorder may legitimately complete while this selected
+    // native owner is pending. They must not retire its acknowledgement or
+    // permanently hold the selection busy flag; only a newer Select can.
+    const selectionRevision = ++nativeProfileSelectionRevisionRef.current;
     setNativeProfileBusy(true);
     setNativeProfileError("");
     try {
       const snapshot = await backendBridge.invoke("profile_select", { profileId, focusGame: focusGame === true });
-      if (nativeProfileRequestRef.current !== request) return snapshot;
+      if (nativeProfileSelectionRevisionRef.current !== selectionRevision) return snapshot;
       return adoptNativeProfileSnapshot(snapshot, profileId);
     } catch (error) {
-      if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
+      if (nativeProfileSelectionRevisionRef.current === selectionRevision)
+        setNativeProfileError(error?.code || error?.message || String(error));
       return undefined;
     } finally {
-      if (nativeProfileRequestRef.current === request) setNativeProfileBusy(false);
+      if (nativeProfileSelectionRevisionRef.current === selectionRevision) setNativeProfileBusy(false);
     }
   }, [adoptNativeProfileSnapshot]);
 

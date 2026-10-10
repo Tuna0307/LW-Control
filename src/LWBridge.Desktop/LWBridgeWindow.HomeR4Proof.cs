@@ -504,6 +504,106 @@ internal sealed partial class LWBridgeWindow
         await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length===2",
             "R11 compact profile UI restored");
 
+        // R12 H-39/H-45: an independent registry reorder is allowed to finish
+        // while the selected B acknowledgement is held. R10 order-only
+        // reconciliation may correctly show B,A yet leave the selected
+        // profile's busy flag stuck if it shares registry request revisions.
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle) return false; toggle.click(); return true;})()
+            """, "R12 expand profile list");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row').length===2 &&
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]?.textContent?.includes('Campaign A') &&
+            !document.querySelector('.profile-list')?.classList.contains('busy')
+            """, "R12 A,B order and idle selection before overlap");
+        await ClickAsync("""
+            (()=>{const handle=document.querySelectorAll('.profile-row .profile-drag-handle')[1];
+              if(!handle) return false;
+              return handle.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));})()
+            """, "R12 actual B drag begins before pending B selection");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R12 actual React B drag admitted");
+        // profile_select is not an explicit-owner reply command. Hold the
+        // native dispatch before mutation, not an unsupported reply hook.
+        Task<HomeMapCampaignDelayedRequest> heldSelectB =
+            ArmHomeMapCampaignCommandDelay("profile_select", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+                .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!button||button.disabled)return false;button.click();return true;})()
+            """, "R12 select B through actual JSX while B drag is in progress");
+        HomeMapCampaignDelayedRequest selectionB =
+            await heldSelectB.WaitAsync(TimeSpan.FromSeconds(8));
+        if (selectionB.ProfileId != "campaign-A" || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("R12 B selection not delayed before its native mutation.");
+        await WaitForUiAsync("document.querySelector('.profile-list')?.classList.contains('busy')===true",
+            "R12 actual B selection pending on native dispatch");
+        await ClickAsync("""
+            (()=>{const target=[...document.querySelectorAll('.profile-row')]
+                .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!target)return false;
+              target.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));
+              return true;})()
+            """, "R12 complete original B-before-A JSX reorder while B selection reply is held");
+        for(int i=0;i<240 &&
+            !profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+              .SequenceEqual(new[]{"campaign-B","campaign-A"});i++) await Task.Delay(40);
+        if (!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+              .SequenceEqual(new[]{"campaign-B","campaign-A"}))
+            throw new InvalidDataException("R12 registry B,A reorder not committed while native selection held.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for(int i=0;i<240 && backend.ProfileId!="campaign-B";i++)await Task.Delay(40);
+        if(backend.ProfileId!="campaign-B")
+            throw new InvalidDataException("R12 released native B selection did not apply.");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B')) &&
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]?.textContent?.includes('Campaign B')
+            """, "R12 exact selected B and persisted B,A order visible");
+        await WaitForUiAsync("""
+            !document.querySelector('.profile-list')?.classList.contains('busy') &&
+            [...document.querySelectorAll('.profile-row .profile-item')]
+              .every(button=>!button.disabled)
+            """, "R12 completed selected B clears busy after independent reorder", attempts:45);
+        JsonElement restoredR12Order = await InvokeNativeAsync("profile_reorder",
+            new { profileIds=new[]{"campaign-A","campaign-B"} });
+        if(!restoredR12Order.GetProperty("ok").GetBoolean())
+            throw new InvalidDataException("R12 exact test profile order restore failed.");
+        if (!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+              .SequenceEqual(new[]{"campaign-A","campaign-B"}))
+            throw new InvalidDataException("R12 native profile order reset failed.");
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+               .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!button||button.disabled)return false;button.click();return true;})()
+            """, "R12 exact A selection restored");
+        for(int i=0;i<240&&backend.ProfileId!="campaign-A";i++)await Task.Delay(40);
+        if(backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R12 failed to restore selected A.");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]?.textContent?.includes('Campaign A') &&
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R12 native A,B rollback reflected after actual A selection");
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle)return false;toggle.click();return true;})()
+            """, "R12 restore compact sidebar");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-compact-item').length===2 &&
+            [...document.querySelectorAll('.profile-compact-item')].some(button=>
+              button.classList.contains('active') &&
+              button.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R12 exact A selected, compact sidebar restored");
+
         // Hold an actual A Home status request at the native command boundary;
         // selecting B must not retire A or render A's late response into B.
         long oldAGeneration = Volatile.Read(ref profileRuntimeGeneration);
@@ -1225,6 +1325,7 @@ internal sealed partial class LWBridgeWindow
                 profileReorderAcknowledgedAcrossSelection = true,
                 sidebarReorderVisibleAfterSelection = true,
                 sidebarNoteVisibleAfterSelection = true,
+                selectionBusyReleasedAfterIndependentReorder = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

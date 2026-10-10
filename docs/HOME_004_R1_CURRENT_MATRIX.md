@@ -255,6 +255,14 @@ protected lease/finalizer or original entitlement.
 
 Whole Home **PARTIAL_NEEDS_INPUT**.
 
+## R12 selected-owner completion independent of registry revision (2026-10-10)
+
+| H-ID / source | Actual WebView/native defect and bound | Remaining |
+| --- | --- | --- |
+| H-39/H-45: original 0.3.17 `Yr` independent select/reorder; clone selection/metadata revision | R12 held real React B select before native dispatch, completed real JSX B-before-A reorder and released native B select. Before-fix SQLite persisted B,A/backend selected B but displayed A/busy never completed because metadata request retired B's full selection result. Add latest selected-owner-only revision for select success/error/finally, leaving R10 order-only, R11 note-only and exact-owner native fences unchanged. Mounted EN/light JA/dark prove B/visible B,A/enabled and exact A,B/A restoration. [R12 receipt](HOME_004_R12_SELECTION_REGISTRY_BUSY_RECEIPT.md) | Paired original concurrent response and protected licensed/genuine multi-client capacity. |
+
+Whole Home **PARTIAL_NEEDS_INPUT**.
+
 ## R11 exact-owner visible note after newer selected view (2026-10-10)
 
 | H-ID / authority | Source/actual production difference and bounded correction | Still missing |
