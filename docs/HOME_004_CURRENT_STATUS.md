@@ -1,26 +1,66 @@
-# HOME-004 — current status and next actions
+# Home — current functional status
 
-Updated 2026-10-10. **Whole Home: PARTIAL_NEEDS_INPUT.** Branch `codex/home-complete-delivery-004`, same checkout, GitHub PR #6 draft. Started from verified local/direct remote `5b0ce60b0a646eaeb942ef8355fa7f61bc0c2b5d`. Latest Windows review ZIP is built from further H-33 source commit `48116ca93a1d4eaf4f7c4ccb962ffbd05e0ad4f4`; SHA `EA2820E8123F64204465601721BB601A9B2E3BD1593E2AA577DF4489B8A53649`, with original-shaped local `autoClosePopup` persistence and visible `v0.3.17`. H-45 source `14ea136e` and all former candidates are retained in the [final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The subsequent delivery documentation commit is metadata, not a different compiled build.
+Updated owner direction, 2026-10-10: faithful, fully functional replacement.
+Read [owner direction](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md),
+[functional catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md) and
+[current campaign](HOME_004_LOOP_CAMPAIGN.md).
 
-The canonical completion queue is [the loop campaign](HOME_004_LOOP_CAMPAIGN.md), the one consolidated [47-row correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md) and the authoritative original locator [matrix](HOME_004_R1_CURRENT_MATRIX.md). The earlier lead inspection is archived separately; do not restart R4 or R13 or discard the historical R16 timeout.
+**Home functional acceptance pending. No automatic approval or main merge.**
+The former PARTIAL_NEEDS_INPUT for strict original A->A does not by itself mean
+the product fails the new functional criteria. It also does not prove completion.
 
-## Implemented and checked on current source
+## Current checkpoint and retained work
 
-- The three preserved dirty R16 edits were SHA-matched against lead inspection; R16 reordered result-success→later-failure and failure→later-success mounted native calls now project the last **successfully persisted** order while preserving selected owner and notes. Old failing timeout preserved.
-- One systematic concurrency pass: actual EN/light and JA/dark production WebView callbacks/native persistence held an A-note across A→B→A selection and failed B,A reorder, then valid retry and restoration. Per-owner metadata, busy/error and A/B native lifecycle remained independent. Results: `artifacts/home-004/concurrency-pass-en-light.json`, `concurrency-pass-ja-dark.json`, alongside fresh R16 receipts. Zero genuine launches/Map scans and exact cleanup in each controlled run.
-- A genuine isolated recovery-Stop negative exposed late LastWar replacement **after** Home Stop said success, with `GameDesiredRunning=false`. Preserved task scripts/process/session/evidence under `artifacts/home-004/pending-stop-live`. The official launcher had updated the base Lua package to v24 before injection; original helper correctly restored that launch-time v24 backup. Exact preflight v23 triplet manually restored only after zero game/host/updater processes and with validated task backup, saved failed bytes and recorded restoration. Final same-root `finish` passed with no journal and no task process.
-- Current-client `OverviewLifecycleOfficialSettle` cancellation explicitly retires the exact-created official launcher and rejects a remaining game/updater. Lifecycle Stop waits on in-flight replacement Start cleanup even when an old game PID remained published. The held pending helper/official-settle regressions pass. **Genuine post-fix Home Close now passed** during active replacement official preflight: exact handle-confirmed old game exit, persisted desired-running false, no late replacement after delayed recheck, no journal/host/game/launcher at finish. The official launcher advanced package v23 to v24; those bytes were separately preserved and exact preflight v23 backups restored only after all processes were absent. Full receipts under `artifacts/home-004/pending-stop-live-followup`.
-- Canonical frontend five checks incl 9×1,383 locale keys, Release desktop/native checks, real Windows authenticated named-pipe host/reconnect/teardown, current-client compatibility, Python launcher error classifier and reviewed diff all passed. The follow-up source-identified Windows candidate was published and packaged once, extracted, and passed EN/light and JA/dark actual mounted Home R4–R16 (including H-42 native error codes), inert Home capture and normal disabled-registry GUI launch/close with no game processes; isolated cleanup and SHA checks passed.
-- H-45 follow-up: the actual Home top bar exposed a stale clone `v0.3.1` because the native `update_status.currentVersion` was hardcoded to `0.3.1`. The original recovered UI target is `0.3.17` and the header binds the native value. Native status now reports `0.3.17` and the actual mounted EN/light and JA/dark proof explicitly waits for the rendered version. This does not implement updater actions.
-- H-33 further original handler contrast: `set_automation(autoClosePopup)` previously replied `enabled:false` without persisting that effective value. Original 0.3.17 at `0x12c98c–0x12d3a7` writes the forced-false profile flag **before** success, even while offline. A new native test failed on the old implementation; the corrected `LocalConfigStore`/backend now persists it and propagates config-write failures. Release native checks and actual EN/light + JA/dark mounted dispatcher→on-disk profile checks pass (`artifacts/home-004/h33-local-persist-*.json`), both inert owners stopped, zero real game launches/Map scans. This does not establish original protected game-side `setAutomation` forwarding.
+- Branch codex/home-complete-delivery-004; one checkout; PR #6 draft.
+- Local and direct remote at lead inspection:
+  18a564c97a6c47d410789bfecbf26d62ae48b7e7; working tree clean.
+- Worker compiled candidate source:
+  48116ca93a1d4eaf4f7c4ccb962ffbd05e0ad4f4.
+- Reported ZIP:
+  artifacts/release/home004-h33-48116ca9/LW-Control-HOME004-H33-RC-48116ca93a1d.zip.
+  Saved SHA-256: EA2820E8123F64204465601721BB601A9B2E3BD1593E2AA577DF4489B8A53649.
+- R16 and systematic metadata/lifecycle corrections are now committed, not dirty.
+  H-42 native request/status and visible version were corrected; H-33 effective
+  local flag is persisted before acknowledgement. Do not restart older rounds.
 
-## Remaining exact blockers and safe next actions
+## Evidence already available, requiring appropriate review
 
-The [47-row receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md) specifies source locator and next action for **every included item**; do not replace it with a generic claim that all behavior needs decryption.
+[Final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md) records actual
+controlled EN/light and JA/dark native/WebView/SQLite concurrency and packaged
+proof, native/pipe/launcher checks and exact cleanup. Controlled A/B proof is
+not genuine simultaneous-game evidence.
 
-- Genuine H-34 **responsive still-alive** game, authenticated transport offline for 60 seconds and later recovery/Stop OFF/ON. The 30-second hung-game witness and deterministic 60-second tests are different evidence.
-- H-40/H-44/H-47 **post-fix genuine current-client pending Stop inverse is covered** by the fresh isolated follow-up, with old negative retained. Still needed: paired original 0.3.17 protected-runtime outcome, genuine OFF/ON responsive offline-only case and, for H-40, independently supported concurrent real installations. Do not induce updater work or claim the archived Lua update is a failed helper restoration.
-- Original 0.3.17 ticket/lease/finalizer callback bodies and typed errors H-05/H-13/H-28; original launcher self-restart/descriptor/mutex and Lua/timeout producer H-06–09; protected worker/forwarder/status/error semantics H-27–29/H-33/H-42/H-46. The full original H-42 **12-field schema and connection classifier are now source-recovered** at `0x1a0da4`/`0x2d7ff3`; only genuine lease states and remaining conditionals lack paired evidence. `profile_instance_status` missing/non-string profile ID now correctly emits original `INVALID_REQUEST`, with EN/JA native-mounted inverses. Continue legitimate artifact recovery for remaining inputs.
-- Distinct supported genuine game installations and protected multi-profile admission/capacity needed for H-22/H-38/H-40 (normal commercial maxProfiles=1 is no proof of a limit); original conditional EN/JA busy/error/offline pixels H-45. Payment, login, licensing/account *features themselves* remain excluded from owner scope.
+It also records a genuine pending-recovery Home Close failure followed by a
+current-client cancellation/cleanup correction and a genuine successful follow-up
+without late replacement. Original and launch-time/preflight script differences
+are recorded separately. These saved worker results need independent review;
+the lead did not rerun a native experiment during this direction update.
 
-No merge, account/licensing action, Map scan, protected-service bypass, unsafe launcher or updater action. The lead alone performs final independent acceptance and any publication.
+Earlier scoped Launch/Connected/Close, automatic startup, same-build adoption
+and unexpected-exit/hang recovery receipts remain within their accepted bounds.
+Source composition changes may require affected revalidation.
+
+## What changes under the new goal
+
+| Previous concern | Current disposition |
+| --- | --- |
+| Exact original licensed ticket/lease/finalizer output | Optional original research unless it actually prevents an included operation. Use verified local ownership rather than fake entitlement. |
+| Original exact private transport/retry constant unavailable | Document a supported current-client/own-design policy and test it. Missing original equality alone is not a release blocker. |
+| Original protected EN/JA conditional pixels unavailable | Retain recovered UI and current actual state/render checks; record visual limits. Not a compulsory protected-runtime pairing gate. |
+| Still-running responsive transport loss/reconnect | Remains genuine functional verification, distinct from hang or process exit. |
+| Repair/Update-and-Launch only proved with inert helper | Needs actual supported repair outcome if this feature is advertised; no official updater action is implied. |
+| Multiple profiles only tested as inert owners | Verify included native controls/capability; original paid limit is excluded, actual unsupported use cannot be silently called complete. |
+| Game-side action actually unavailable | Functional gap; recover/implement a supported method or identify exact technical dependency. A disabled action is not success. |
+
+## Next concrete action
+
+Worker fills one F-01–F-09 functional status table from actual code and saved
+receipts: WORKER_VERIFIED, NEEDS_VERIFICATION or FUNCTIONAL_GAP, plus any original
+research note. Prioritise actual remaining operations; do not repeat a completed
+case just to create evidence. Record intentional differences in
+HOME_004_BEHAVIOR_DIFFERENCES.md. Finish ready functional work through the loop.
+
+The 47-row original matrices and detailed correction receipts remain historical
+authority, not automatic release gates. Main requires independently reviewed
+working functionality with clear differences and supported scope. No code was
+changed or accepted by this documentation update.

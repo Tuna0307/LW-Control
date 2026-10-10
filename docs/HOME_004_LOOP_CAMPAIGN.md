@@ -1,75 +1,67 @@
-# HOME-004 — current Home completion campaign
+# HOME-004 — functional completion loop
 
-**SOURCE CORRECTION PASS AND FINAL CANDIDATE VERIFIED. Whole Home: PARTIAL_NEEDS_INPUT.**
-Updated 2026-10-10. This is the single current continuation.
-Earlier R4–R15 instructions are preserved in
-[loop history](HOME_004_LOOP_HISTORY_2026-10-10.md); do not restart their work.
+**ACTIVE under revised owner direction. Whole Home: functional review pending.**
+Policy: [faithful functional replacement](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
 
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: codex/home-complete-delivery-004; same checkout; PR #6 draft.
-Starting verified remote/local checkpoint: `5b0ce60b0a646eaeb942ef8355fa7f61bc0c2b5d`.
-Current implementation and evidence: [final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md).
-Solo worker, no new branch/worktree, delegation, Map scope, merge or publication.
+Pre-policy checkpoint: 18a564c97a6c47d410789bfecbf26d62ae48b7e7.
+Read the current HEAD on resume; the lead policy commit follows this checkpoint.
+Solo external worker. No new branch/worktree, delegation, Map campaign,
+main merge/publication or live-scope expansion.
 
 ## Read first
 
-AGENTS.md, LOOP_WORKER_PROTOCOL.md, HOME_004_CURRENT_STATUS.md,
-HOME_004_R4_QUEUE.md and HOME_004_R1_CURRENT_MATRIX.md.
-Read source locators/receipts relevant to the current case, not every historical
-report. Original reference and acceptance boundaries are in AGENTS.md.
+AGENTS.md, HOME_004_CURRENT_STATUS.md, HOME_004_ACCEPTANCE_PROPOSAL.md,
+HOME_004_BEHAVIOR_DIFFERENCES.md and LOOP_WORKER_PROTOCOL.md.
+Read HOME_004_FINAL_CORRECTION_RECEIPT.md and source matrices for relevant evidence.
+Their exact-original completion labels are historical under the old goal;
+preserve their facts and negatives. Do not restart completed R4–R16/H-33 work.
 
-## Finite ordered queue
+## Finite queue
 
-| Order | Work | Completion gate |
+| Order | Action | Gate |
 | --- | --- | --- |
-| 1 | Finish the preserved R16 reorder-success/failure changes in the three dirty files. Inspect old negative and saved corrected EN/JA receipts. Confirm these receipts match current source; repair if necessary. | Actual production callback/native/storage distinguishes success->failure and failure->success; selected owner and notes unchanged; all earlier affected cases retained. |
-| 2 | Complete one systematic registry/lifecycle concurrency pass. Use the cases below rather than issuing R17/R18 packages for individual permutations. Fix demonstrated source-backed differences in the self-correction loop. | Each named case has actual-boundary proof; no remaining reproduced failure; affected Home regressions pass. |
-| 3 | Reconcile H-01–H-47 into actionable product gaps, missing verification, available-source recovery, external inputs, or excluded commercial features. Recover still-available original code. | Every unresolved row names its actual next action or exact missing input and source locator. Excluded account/licensing behavior is not silently required of the clone. |
-| 4 | Prioritise ready genuine Home evidence: still-running offline-only recovery and user Stop during pending recovery, then affected launch/adoption/root/repair paths as justified by changes and safe available inputs. | Genuine outcome recorded with exact process/session, native events, stability/Stop and script restoration. Controlled tests are separately labelled. |
-| 5 | Final review and delivery of the complete ready correction pass. | Applicable checks; one source-identified packaged candidate; extracted smoke and relevant native Home proof; compact final 47-row disposition, cleanup and direct remote SHA. |
+| 1 | Map every actual Home/sidebar feature to F-01–F-09. Reclassify old 47 rows as working feature evidence, functional defect/missing verification, optional original research or excluded commercial behavior. | Concrete list of remaining real operations; no generic decryption blocker, missing control or silent scope reduction. |
+| 2 | Audit actual current source and relevant receipts. Make documented own-design choices where an unknown original detail would otherwise stall a required function. Preserve working defaults/UI when no change is needed. | Purpose/result match the feature; chosen policies and user-visible differences specified and independently testable. |
+| 3 | Fix demonstrated functional defects and missing advertised controls, then verify them in the self-correction loop. Prioritise responsive transport-only recovery, remaining genuine repair and required profile capabilities. | Real positive action where applicable; meaningful controlled adversity/concurrency tests; exact Stop/restoration. |
+| 4 | Run one finite actual Home integration pass in EN/light and JA/dark across settings, selected/background owners, status/error/busy states, restart/adoption and late replies. | No incorrect persistence, stuck state, cross-profile effect or fake success; previous negatives/regressions retained. |
+| 5 | Review the complete ready pass, differences and F catalogue; run affected checks sequentially; build/verify one final extracted Windows candidate and relevant native Home flows. | READY_FOR_LEAD_FUNCTIONAL_REVIEW with source/ZIP identity, concise functional results and cleanup, or truthful PARTIAL for an actual missing operation. |
 
-### The systematic concurrency cases
+No original ticket, paired protected-runtime pixel, exact legacy idle constant
+or unavailable original finalizer reply automatically blocks a working feature.
+Use a supported local method if it achieves the feature and passes testing.
+Record OWN_DESIGN; do not pretend the original algorithm was recovered.
+A current-game protocol/capability genuinely needed for an operation remains
+a technical blocker until recovered or independently implemented and verified.
 
-Cover actual selection A/B/A against successful/failed/deferred note and reorder
-writes; two rapid same-owner writes in both success/failure orders; independent
-A/B mutations; Home versus sidebar Start/Close for the same owner; pending Stop
-versus recovery successor; delayed poll after Stop; host teardown with late replies.
-Verify exact persisted values, visible values, selected owner, busy/error state
-and cleanup. Preserve original defaults/error ordering. Do not add speculative
-defences without a reproduced discrepancy and recovered observable authority.
-Use existing executable seams; do not create a new general framework unnecessarily.
+Ordinary failures: reproduce -> diagnose -> correct -> retest -> self-review ->
+checkpoint -> next ready item. No new owner relay per failed test/milestone.
+Do not create endless permutation campaigns or release ZIPs. Preserve useful
+history, update this one continuation and the compact functional/difference ledger.
 
-## Loop and evidence discipline
+## Authorised execution and final boundary
 
-Diagnose -> correct -> retest -> self-review -> checkpoint -> next ready item.
-No routine failed attempt or passed medium milestone requires another relay.
-Preserve immutable negatives. A compilation/static check cannot close an actual
-mounted or native failure. Run shared builds sequentially.
+Existing bounded Home native scope only, with compatibility, exact identity,
+isolated roots, backups/restoration, explicit pause and actual denial boundaries.
+No Map scan, unrelated gameplay, updater or protected-service access. Do not
+disable owner networking or invent a commercial capacity to manufacture proof.
+Two inert owners are not two real game sessions.
 
-Stop creating a ZIP and rewriting multiple status documents after each small
-fix. Use this one current continuation and one compact correction receipt.
-Build the final candidate after the correction pass has settled. Rebuild or
-repeat a check only for a changed dependency, a failed gate or an unresolved risk.
-Existing historical packages/evidence remain untouched.
+Preserve existing source/evidence, do not force-push, and verify direct remote SHA.
+The lead performs independent functional review and decides main merge/publication.
+Do not say whole Home is done while a required action is disabled, simulated-only,
+unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
-Existing bounded Home live authorization applies with current compatibility,
-isolation, identity, backup and exact restoration gates. Respect explicit
-pause and actual approval denial; do not bypass. No Map scan, unrelated gameplay,
-updater or protected-service access. A absent key or response cannot be invented.
+## One current continuation — update in place
 
-Return whole-Home READY_FOR_LEAD_REVIEW only if every in-scope required behavior
-has original authority and working evidence. Otherwise finish every ready item
-and return PARTIAL_NEEDS_INPUT with exact per-row inputs. The lead decides
-acceptance and any main merge. Do not call a source/local correction complete
-original licensed-runtime proof.
-
-## Current continuation — authoritative after R16 and isolated live probe
-
-- R16 production callback reorder inverse passed fresh EN/light and JA/dark WebView/native/SQLite runs. The independent selection A→B→A, deferred successful A note, rejected shared reorder and successful retry also pass; R4–R15 regressions, exact cleanup and negatives are retained.
-- All 47 obligations have per-row original source locator, disposition and next action in [the correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The main input gaps are genuine responsive offline-only transport loss, original protected lease/finalizer callbacks, supported second client installation, original EN/JA conditional states and typed official error producers.
-- Genuine isolated Home recovery Stop exposed a **late unowned replacement LastWar after Close reported success**. The real original-Stop helper restored its at-launch v24 backing scripts correctly; unattended official launcher had advanced content v23→v24. An exact zero-process restore returned the installation to the preflight v23 hashes; negative preserved under `artifacts/home-004/pending-stop-live`.
-- Current-client correction retires the exact preflight launcher on cancellation, rejects uncleared game/updater, and delays Stop acknowledgment until in-flight recovery Start cleanup completes. Native tests include held official preflight and held recovery helper Stop waits. **Fresh genuine post-fix Home pending recovery Close now passed:** isolated exact game PID/session terminated via identity-bound handle, automatic official preflight launcher was active, actual Home Close acknowledged, no late game/launcher after the wait, desired-running false. A separately archived official Lua v24 update was restored from exact baseline v23 backup after no process/journal; see `artifacts/home-004/pending-stop-live-followup`. This does not prove original protected lease behavior or responsive 60 s offline-only loss.
-- Former H-45 source checkpoint `14ea136ee303d783a435246b4d5a705097cb08ff`, ZIP SHA-256 `DC933650C42B7230C11CCEF4873E007A5E32E95806DB29931E0089A75AF98DFD`: extracted EN/light and JA/dark full production Home mounted proof including visible `v0.3.17`, isolated capture, normal GUI smoke and exact cleanup pass. Earlier `41e7894a` and `0e892953` candidates are preserved as history; see the correction receipt.
-- Continued original-source H-33 local setter comparison: 0.3.17 `0x12c98c–0x12d3a7` writes effective `autoClosePopup=false` to per-profile config before acknowledging. Clone did not write. An added Release native test first failed and then passed after persisting forced-false, and production mounted EN/light + JA/dark directly invoked `set_automation` and verified the saved file before the native acknowledgement. Both full R4–R16 mounted passes and inert-owner cleanups succeeded; zero real game launches. Protected game-side forwarding and genuine offline-only recovery remain open.
-- Newest source checkpoint `48116ca93a1d4eaf4f7c4ccb962ffbd05e0ad4f4`; packaged ZIP `artifacts/release/home004-h33-48116ca9/LW-Control-HOME004-H33-RC-48116ca93a1d.zip`, SHA `EA2820E8123F64204465601721BB601A9B2E3BD1593E2AA577DF4489B8A53649`. Published/extracted EXE SHA `E534990F6C1BA3A554A3EBB94F028A926334B435762F5F1A48A5D5441088938E`, source marker and ProductVersion exact, 81 runtime files. Extracted full mounted `h33-packaged-en-light.json` and `h33-packaged-ja-dark.json` passed H-33 direct persisted-state check and all R4–R16, zero requests/subscriptions/cleanup failures, both owners stopped. Inert capture and normal disabled-profile GUI smoke passed, exact temp cleanup, no real game, Map scan, or owner process left. Former ZIPs preserved.
-- Delivery: commit the source-identified receipt, push normally and check the direct remote branch SHA. Whole Home **PARTIAL_NEEDS_INPUT** until exact original and genuine witnesses become legitimately available. PR #6 remains draft; no merge/publication.
+- Starting source: 18a564c97a6c47d410789bfecbf26d62ae48b7e7; clean checkout.
+- Latest compiled worker candidate: 48116ca93a1d4eaf4f7c4ccb962ffbd05e0ad4f4.
+- Existing correction/concurrency/H-33/package receipts retained; worker reports
+  genuine pending-recovery Stop success after a preserved late-launch failure.
+- Lead action in this policy pass: inspected current docs/source surface and Git
+  state, changed acceptance/workflow documents only; no new live approval result.
+- Next: produce the finite F-01–F-09 status from actual code/proof; original-only
+  gaps become research notes, real missing features become prioritised work.
+- No remaining dirty R16 edits at this checkpoint. Do not repeat their old queue.
+- Whole Home not lead accepted; PR #6 draft; no merge/publication.

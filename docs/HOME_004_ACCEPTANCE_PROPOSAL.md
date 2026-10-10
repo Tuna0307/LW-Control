@@ -1,31 +1,48 @@
-# Whole Home acceptance proposal — current
+# Whole Home — functional acceptance proposal
 
-Updated 2026-10-10. **NOT READY for whole-Home acceptance or main merge.**
-This is a proposal; independent lead review remains required.
+Current owner direction: [faithful functional replacement](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
+**Whole Home not yet lead accepted. PR #6 remains draft.**
 
-The current task and exact working-tree checkpoint are in
-[Home current status](HOME_004_CURRENT_STATUS.md) and
-[Home loop campaign](HOME_004_LOOP_CAMPAIGN.md). The complete obligation authority
-remains in HOME_004_CONTRACT_MATRIX.md and HOME_004_R1_CURRENT_MATRIX.md.
+The reference is LWBridge 0.3.17, but exact equality in every obscure original
+state is no longer mandatory. The familiar interface, feature purpose and real
+working results remain required. Document small differences and own-design
+policies in [behavior differences](HOME_004_BEHAVIOR_DIFFERENCES.md).
+The old 47 obligations/source matrices remain useful recovery history; they
+are not 47 compulsory paired-original live experiments.
 
-Whole Home can be proposed complete only after:
-1. Required original 0.3.17 post-auth observable contracts are established.
-2. No demonstrated included-feature difference remains.
-3. Actual current production/package paths implement those contracts.
-4. Required genuine native observations exist; controlled results are identified.
-5. Original/current unknowns, compatibility limits and scope exclusions are explicit.
-6. Final candidate identity, restoration/cleanup and affected checks are verified.
+## Finite Home functional catalogue
 
-Login/licensing UI and the original commercial account system remain excluded.
-A missing protected artifact is a blocker only for a specifically traced included
-runtime behavior; it is not permission to reproduce commercial licensing or
-access a protected service. Resolve per-row applicability instead of requiring
-every commercial response simply because it appears in the original binary.
+Each gate below needs a current source/implementation, supported input/state,
+actual verification, cleanup and explicit remaining limit. Report worker proof
+separately from lead acceptance. Do not silently omit a shipped or expected control.
 
-Earlier bounded Home successes remain valid within their reviewed scope.
-They do not establish whole-Home parity or validate all later composition changes.
-The R16 edits are preserved pending final source/actual-boundary verification.
+| ID | Feature | Required result and practical verification |
+| --- | --- | --- |
+| F-01 | Game folder/configuration | Detect/select a supported root, handle cancel/invalid choice without corrupting config, persist/reload, keep running installation ownership separate from a new configured folder. Verify actual native picker/storage wiring and controlled adverse cases. |
+| F-02 | Manual Launch -> Connected -> Close | Actual packaged Home starts the real supported game, proves fresh authenticated readiness, displays accurate EN/JA state and closes the exact intended session. No false Connected, orphan relaunch, surviving journal or incorrect script restoration. |
+| F-03 | Automatic Launch | Real startup follows the saved user preference and supported enabled profiles. OFF prevents automatic launch; repeated/manual overlapping Start does not create duplicates. Persistence and failure handling tested. |
+| F-04 | Automatic Reconnection/recovery | Saved OFF/ON works. Recover actual unexpected exit, hang and supported transport-only loss; show honest progress/failure. Meaningful controlled checks cover thresholds, retry/backoff, disable, failure and cancellation. Stop during pending recovery leaves no successor. Original exact retry schedule is optional; verified reliable policy is mandatory. |
+| F-05 | Host restart/adoption | Reopening the host retains/adopts the appropriate supported session without duplicate launch; exact process/build identity and per-profile state preserved. Verify genuine normal flow and controlled stale/corrupt record cases. |
+| F-06 | Repair / Update-and-Launch | The advertised repair actually repairs the replacement bridge using a supported compatible input, then genuinely reconnects. Failure/cancel preserve recoverability and exact ownership. Inert success alone is insufficient; no official-game updater experiment is implied. |
+| F-07 | Profile controls | Inventory every Home-associated profile control (selection, notes, ordering, enabled state, create/remove if present, per-profile Start/Close, batch controls). Native persistence/routing work; A/B mutations and late replies remain separate. Real concurrent-game capability must be verified if advertised. Original paid capacity is not a requirement; unsupported expected use stays an explicit gap. |
+| F-08 | Preferences, status and errors | Correct immediate editing/persistence, latest acknowledged values, honest live/recovery status, useful localised errors, no permanently stuck busy state. Test normal native outcomes and controlled concurrent/failing saves in EN/light and JA/dark. Inventory related local automation settings without claiming unimplemented game-side actions work. |
+| F-09 | Final package/integration | Review candidate diff/differences, pass affected native/pipe/frontend/Release/package checks; extract and run source-identified candidate, verify relevant Home native workflows, isolation and cleanup. One final ZIP after corrections settle. |
 
-All earlier acceptance proposals, revision results and evidence links remain in
-[proposal history](HOME_004_ACCEPTANCE_HISTORY_2026-10-10.md).
-No historical negative, source locator or package was deleted by this tidy pass.
+## Evidence standard and release decision
+
+Actual current production positive paths must work. Controlled/inert failure
+tests are acceptable engineering evidence for deliberately unsafe/rare negatives,
+clearly labelled. A fixture is not a working game action. Existing useful genuine
+receipts may be reused only when source changes do not invalidate their boundary.
+Original screenshots/service responses are optional research where unavailable;
+missing real client operation is still a functional gap.
+
+An original detail can be unknown while a documented own-design method passes.
+No unavailable feature or narrower silently substituted workflow passes.
+Supported scope must be explicit; do not change whole-Home scope to make the
+checklist green. Home is complete only when all included functionality passes.
+
+The worker returns READY_FOR_LEAD_FUNCTIONAL_REVIEW or PARTIAL for actual remaining
+operations/verification. The lead independently reviews and approves any main
+merge/publication. This policy change has not accepted the current candidate.
+Historical original-parity receipts and negative records remain untouched.

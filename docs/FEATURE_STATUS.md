@@ -1,47 +1,41 @@
-# Feature delivery status — current
+# Feature delivery — faithful functional replacement
 
-Updated 2026-10-10. **Whole Home remains PARTIAL; PR #6 draft.**
-Current assignment: [Home loop campaign](HOME_004_LOOP_CAMPAIGN.md).
-Current inspection, pending edits and exact remaining work:
-[Home current status](HOME_004_CURRENT_STATUS.md).
+Current owner direction:
+[functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
+Exact original equality is no longer a universal release condition.
+Familiar features, real results and reliability remain mandatory.
 
-## What already has separately recorded acceptance
+Home is first. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md),
+[current status](HOME_004_CURRENT_STATUS.md) and
+[loop campaign](HOME_004_LOOP_CAMPAIGN.md) are current.
+Whole Home functional acceptance remains pending; PR #6 stays draft.
+This direction change does not merge or certify the existing candidate.
 
-- UI release scope: recovered source/local UI and packaged startup; complete
-  authenticated-original runtime pixel parity is not certified.
-- Home Launch -> genuinely authenticated Connected -> exact Close.
-- Bounded current-client automatic startup, same-build adoption and accepted
-  unexpected-exit/hang-recovery witnesses described in the lead reviews.
-- Stored City/Resource browsing and City XLSX export, within their accepted
-  stored-data scope. This is not acceptance of the original scanner algorithm.
+## Retained scoped evidence
 
-These earlier scoped receipts do not automatically validate later changes to
-profile/runtime composition. Repeat affected native verification when justified.
+- Reviewed recovered source/local UI and packaged startup; no new redesign.
+- Genuine Home Launch -> authenticated Connected -> exact Close.
+- Bounded startup/adoption and exit/hang-recovery evidence from earlier reviews.
+- Worker subsequent pending-recovery Stop, concurrency/status/local config and
+  packaged candidate results await affected independent review.
+- Stored City/Resource browsing/export accepted only in stored-data scope;
+  scanner/provider features are separate. No new Map work assigned now.
 
-## Current unaccepted work
-
-R4–R15 worker commits introduce target-owner routing, pending Stop protection,
-sidebar callbacks, independent owner state and corrections to concurrent
-selection/note/reorder updates. The remaining R16 working-tree change addresses
-successful reorder acknowledgement followed by a failed newer request.
-The lead has inspected that diff and saved controlled EN/JA receipts, and run
-current frontend/native suites. Full diff/mounted/final-package acceptance remains
-pending; no new genuine game evidence was produced by the documentation tidy.
-
-Remaining work falls into product defects, missing verification, still-recoverable
-original source and exact absent inputs. Reconcile the 47 Home rows under the
-current campaign; do not treat commercial account features excluded by the owner
-as mandatory clone UI/features. Required included-runtime semantics remain open
-where unknown.
+Missing original-only facts can remain research notes while a documented
+supported implementation passes functional acceptance. Missing actual operations,
+incorrect outputs/persistence, unreliable cleanup and fixture-only positives
+still prevent accepting the affected feature.
 
 ## Main and repository lifecycle
 
-Main merge requires independent original-contract and working-feature acceptance.
-Only main, research/offline-controller and the active Home branch remain locally
-and remotely at this inspection; there is one worktree. No obsolete branch needs
-deleting now. Retain the incomplete Home branch and necessary artifacts until its
-approved merge; clean merged branch/worktree state afterward.
+The lead independently reviews the actual working feature, current source/package
+identity, differences and supported scope, then merges approved deliveries into
+main. Do not wait for unavailable original detail that no longer prevents the
+function; do not accept unavailable functionality by changing its label.
 
-The full former status text and evidence links are preserved in
-[status history](FEATURE_STATUS_HISTORY_2026-10-10.md). Historical claims may be
-superseded by later lead findings; use current acceptance limits above.
+One worktree and main/research/current Home branches remain at the latest
+inspection. Retain unfinished work; retire merged branches/worktrees after
+preserving required artifacts. No new branch/package per tiny correction.
+
+Prior exact-parity statuses and evidence remain in Git history and detailed
+receipts. They are historical under the new owner acceptance direction.

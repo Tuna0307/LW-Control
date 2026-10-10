@@ -1,5 +1,13 @@
 # HOME-004 R4 — reconciled 47-obligation queue
 
+2026-10-10 owner direction change: this table is original-recovery history,
+not the current release gate. Follow OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md
+and F-01–F-09 in HOME_004_ACCEPTANCE_PROPOSAL.md. Translate relevant rows into
+functional defects/verification or documented original research gaps. Known source
+facts and historical negatives remain valid; commercial response equality and
+protected-original pixel pairing are no longer universally required for release.
+Completed R16/H-33 and later corrections must not be restarted from old text.
+
 2026-10-10 consolidated continuation: [HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md)
 and [current status](HOME_004_CURRENT_STATUS.md). Worker R4-R2 records corrections
 for LEADHOME004R4-01/02; do not blindly repeat those original assignments.

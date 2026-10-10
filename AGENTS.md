@@ -1,85 +1,87 @@
 # LW-Control — current contributor instructions
 
-Updated lead assignment, 2026-10-10: **Home stabilisation and functional completion**.
-Read docs/HOME_004_CURRENT_STATUS.md, docs/HOME_004_LOOP_CAMPAIGN.md and
-docs/LOOP_WORKER_PROTOCOL.md before working. They replace older per-round next-task
-instructions. Historical directions and reviews remain preserved in
-docs/AGENTS_HOME_HISTORY_2026-10-10.md and the referenced receipts.
+Latest owner direction, 2026-10-10: **faithful, fully functional replacement**.
+Read docs/OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md,
+docs/HOME_004_CURRENT_STATUS.md, docs/HOME_004_LOOP_CAMPAIGN.md and
+docs/LOOP_WORKER_PROTOCOL.md. This supersedes older mandatory exact A->A
+acceptance rules. It does not approve existing code or remove functional tests.
+Historical evidence and reviews remain unchanged.
 
 ## Product and acceptance
 
-- Reference: post-auth LWBridge **0.3.17**, EXE SHA-256
+- Use post-auth LWBridge **0.3.17** as the UI/feature reference; EXE SHA-256
   `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`.
-- Original A must produce A for equivalent supported inputs/states: preserve
-  labels, defaults, ordering, validation, timing, retry, cancellation, errors,
-  persistence and success meanings. Adapt bindings to the admitted current
-  client; do not replace unknown original behavior with a plausible workflow.
-- Login/licensing UI and the original commercial account system are excluded.
-  Research legitimate dependency artifacts when needed for an included feature.
-  No credential collection, protected-service access or access-control bypass.
-  Do not demand excluded commercial features as product acceptance gates.
-- Distinguish original authority, current-client adaptation, controlled tests,
-  genuine native observations and UNKNOWN. Unavailable fences and clone-only
-  passing checks are not functional parity. Use one canonical implementation.
+  Keep compatibility with the admitted current Last War build.
+- Recover known feature purpose, workflows, defaults and results from original
+  artifacts. Preserve the familiar UI and established behavior where practical.
+- Minor differences, our own supported methods and improved retry/timing/error
+  handling are allowed. Record reason, user effect and actual verification in
+  the behavior differences ledger. Unknown original details may be implemented
+  using tested engineering; label OWN_DESIGN rather than recovered parity.
+- Reliability remains mandatory: real actions, accurate results, correct saved
+  settings, separate profiles and exact cleanup. Disabled providers, placeholders,
+  fake success and fixture-only positives cannot establish working functionality.
+- Do not remove expected features, change their purpose, silently narrow supported
+  use or invent game actions to claim completion. Those are not minor improvements.
+- Login/licensing UI and the original commercial account system remain excluded.
+  Research legitimate supplied dependencies where useful. No credentials,
+  protected-service access or authentication/entitlement bypass.
+- Separate original recovery, current adaptation, own design, controlled tests,
+  genuine native evidence and unknowns. One canonical implementation.
 
-## Active work and worker loop
+## Active work and loop
 
-- Home is the only new feature priority. Preserve Map and other pages as affected
-  regressions; no new Map feature or scan campaign.
-- Use the existing checkout and `codex/home-complete-delivery-004`. The research
-  archive remains on `research/offline-controller`; inspect authority with
-  `git show` instead of importing the bulk archive into the product branch.
+- Home is the only new feature priority; other pages are affected regressions.
+  No new Map feature/scan campaign. Follow the finite functional acceptance
+  catalogue, not every historical exact-original research gap.
+- Use the existing checkout and `codex/home-complete-delivery-004`. Read research
+  with `git show` on the archive branch; do not import its bulk into the product.
 - External owner-relayed workers work solo: no subagents, other AI chats,
-  GPT Work or Codex delegation.
-- Fail -> diagnose -> source-backed correction -> retest -> continue. Ordinary
-  failures and coherent checkpoints are not return/permission boundaries.
-  Follow the finite current campaign; do not invent endless minor campaigns.
-- Preserve the three unfinished R16 source/harness edits identified in the
-  current status. Inspect and verify them before integrating. Never discard
-  unrelated work or stage everything without reviewing ownership.
-- Maintain one current queue/continuation. Preserve detailed historical proof
-  in receipts, not repeated appended next-task sections in active documents.
-- Build one final source-identified candidate after the ready correction pass.
-  Do not package and repeat the whole release sweep after every small fix.
-- Return whole-Home READY_FOR_LEAD_REVIEW only when required original authority
-  and working evidence exist. If exact missing inputs prevent it, complete all
-  other ready work and return PARTIAL_NEEDS_INPUT with per-row dependencies.
-  Final independent acceptance remains with the lead.
+  GPT Work or Codex delegation. Preserve completed corrections and unrelated work.
+- Diagnose -> fix -> retest -> self-review -> coherent checkpoint -> next ready
+  functional item. Ordinary failures do not need another owner/lead relay.
+- Original key/ticket/pixel gaps are not automatic release blockers. Trace whether
+  a required operation really needs the missing input. Implement available
+  supported methods where possible; do not bypass access controls or fake data.
+- Maintain one current continuation and compact differences ledger. No repeated
+  whole release sweep/ZIP per small fix. Build one final candidate when ready.
+- Return READY_FOR_LEAD_FUNCTIONAL_REVIEW when the assigned functional gates pass.
+  If an operation still cannot work, finish other ready work and return PARTIAL
+  with the exact technical dependency, not merely original-equality uncertainty.
+  Independent lead acceptance remains required.
 
 ## Tests and authorised native work
 
-- Automated checks use isolated inert owners/providers. Fixtures cannot prove
-  genuine game success or simultaneous real-client support.
-- Existing bounded Home launch/connect/Close/adoption/recovery verification
-  remains authorised when assigned, after current compatibility, process/session
-  identity, isolated roots, backups and exact restoration gates pass. Owner
-  absence alone is not revocation. Respect explicit owner pause/stop.
-- Use available Windows-MCP/Remote Desktop Commander for assigned desktop work;
-  verify actual capabilities. Actual approval denials must not be bypassed.
-  Continue independent authorised ready work if a step cannot run.
-- No unrelated gameplay, spending, claims, cross-server movement, updater
-  action or protected-original service access. Do not disable owner networking
-  or alter owner settings to manufacture a failure.
-- Capture and terminate only exact authorised sessions; preserve successors,
-  leases and independent profiles. Restore installation scripts only after
-  confirmed exit and no surviving process from that installation.
-- Every live attempt needs a distinguishing plan, bounded fault/resume and
-  exact cleanup. Do not blindly repeat accepted successes or identical failures.
+- Use isolated inert owners/providers for automated and controlled adversity
+  checks; label them. Real positive actions require actual production/native
+  evidence where applicable. Two inert owners are not two genuine game clients.
+- Existing bounded Home launch/connect/Close/adoption/recovery scope remains
+  authorised after compatibility, exact process/session identity, isolation,
+  backups and restoration gates. Owner absence alone is not revocation.
+- Respect explicit owner pause/stop and actual approval denials; no bypass.
+  Use available Windows-MCP/Remote Desktop Commander for assigned observations,
+  verify capabilities and continue independent ready work if a step cannot run.
+- No unrelated gameplay, spending, claims, cross-server movement, updater action
+  or protected-service access. Do not alter owner networking/settings to
+  manufacture a fault. Scope changes are not implied by the revised quality goal.
+- Stop only exact authorised sessions, preserve successors/independent owners
+  and restore scripts only after confirmed exit with no surviving installation
+  process. Each live attempt needs a bounded observation and verified cleanup.
+- Use meaningful controlled tests for unsafe/rare failure branches; original
+  protected-runtime pairing of every negative is no longer a release requirement.
+  Do not blindly repeat accepted successes or identical failures.
 
 ## Git and handoff
 
-- Run applicable checks, review the owned diff, commit coherent checkpoints,
-  push normally to the active branch and verify the direct remote SHA.
-  Do not force-push, reset or discard others' work.
-- PR #6 stays draft until independent lead acceptance. No worker main merge
-  or release publication. A worker READY marker is a proposal, not acceptance.
-- Main receives only a named feature whose original observable contract and
-  packaged native working behavior have been independently verified. Accepted
-  Launch/Connected/Close alone does not make whole Home complete.
-- After approved merge/publication, inspect unique commits, PRs, dirty/ignored
-  work and processes, preserve required artifacts, then remove merged feature
-  branches/task worktrees. Retain main, research and necessary active work.
-  Do not delete this incomplete Home branch to make Git look clean.
-- Useful findings belong in the repository. Update current status and affected
-  obligation rows; preserve negative evidence and source locators. A fresh worker
-  must be able to resume from the current campaign without reading every report.
+- Review owned changes, run applicable checks, commit coherent checkpoints,
+  push normally and verify direct remote SHA. No force-push/reset/discard.
+- PR #6 stays draft until independent lead functional acceptance. No worker main
+  merge or publication. A READY label is a proposal.
+- Main receives independently verified working features, clear supported scope
+  and documented differences. Exact original equality is not a universal gate.
+  Partial acceptance of Launch/Connected/Close is not whole Home completion.
+- After approved merge/publication, preserve needed artifacts and inspect unique
+  commits, PRs, dirty/ignored work and processes, then retire merged feature
+  branches/worktrees. Keep main, research and necessary active work.
+- Write useful findings and current status in the repo, preserve negative records
+  and locators, and make fresh-chat continuation self-contained.
