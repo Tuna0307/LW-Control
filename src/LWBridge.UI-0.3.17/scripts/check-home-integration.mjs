@@ -236,27 +236,34 @@ function deliver(fixture, message) {
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 {
-  // Original 0.3.17 Home H-46 projects the first recognized error code,
-  // preferring an explicit native `error.code` to incidental code-like text.
-  // Execute both actual JSX source helpers without a mocked replacement.
+  // ORIGINAL 0.3.17 Ir at UTF-8 byte 328453 from research archive:
+  // function Ir(e){let t=[]; e?.code:string && t.push(e.code);
+  //   let n=e instanceof Error?e.message:String(e??"");
+  //   return t.push(...n.match(/.../g)||[]),[...new Set(t)].reverse()}
+  // R5's first-token inversion was wrong: restore and protect the original
+  // last-distinct-code-first evaluation, including explicit native code order.
   const homeSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
   const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
   const homeFn = new Function(`${homeSource.slice(homeSource.indexOf("function translatedError("), homeSource.indexOf("export function HomePage("))}; return translatedError;`)();
   const sidebarFn = new Function(`${sidebarSource.slice(sidebarSource.indexOf("function errorCodes("), sidebarSource.indexOf("function ProfileIcon("))}; return profileError;`)();
   const translations = new Map([
-    ["error.GAME_CLOSE_FAILED", "close failed (original first)"],
-    ["error.LAUNCH_TASK_FAILED", "launch failed (later token)"],
+    ["error.GAME_CLOSE_FAILED", "close failed (earlier token)"],
+    ["error.LAUNCH_TASK_FAILED", "launch failed (original later priority)"],
     ["error.INSTANCE_MISMATCH", "explicit native code"],
     ["common.actionFailed", "generic action error"],
   ]);
   const t = (key) => translations.get(key) || key;
   const multi = "GAME_CLOSE_FAILED; retrying after LAUNCH_TASK_FAILED";
-  assert.equal(homeFn(t, multi), "close failed (original first)", "H-46 original first recognized code in Home error line");
-  assert.equal(sidebarFn(t, new Error(multi)), "close failed (original first)", "profile error line must preserve original first-code projection");
+  assert.equal(homeFn(t, multi), "launch failed (original later priority)", "H-46 last-distinct-code-first original Home projection");
+  assert.equal(sidebarFn(t, new Error(multi)), "launch failed (original later priority)", "profile error line must preserve original reverse-token projection");
   const native = new Error(multi);
   native.code = "INSTANCE_MISMATCH";
-  assert.equal(homeFn(t, native), "explicit native code", "structured native code must outrank incidental message tokens");
-  assert.equal(sidebarFn(t, native), "explicit native code", "structured sidebar code must outrank incidental tokens");
+  assert.equal(homeFn(t, native), "launch failed (original later priority)", "later recognized message token precedes native code in original Ir");
+  assert.equal(sidebarFn(t, native), "launch failed (original later priority)", "sidebar uses original shared Ir ordering");
+  assert.equal(homeFn(t, Object.assign(new Error("non-coded failure"), {code:"INSTANCE_MISMATCH"})),
+    "explicit native code", "native code remains recognized when no later message code is translated");
+  assert.equal(homeFn(t, "GAME_CLOSE_FAILED LAUNCH_TASK_FAILED GAME_CLOSE_FAILED"),
+    "launch failed (original later priority)", "deduplication precedes reverse iteration in original Ir");
   assert.equal(homeFn(t, "unknown wording"), "generic action error", "unknown Home errors keep original generic fallback");
   assert.equal(sidebarFn(t, "unknown wording"), "generic action error", "unknown profile errors keep original generic fallback");
 }

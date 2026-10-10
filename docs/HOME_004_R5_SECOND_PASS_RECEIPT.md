@@ -1,5 +1,11 @@
 # HOME-004 R5 — second-pass Home corrections and input fence
 
+**R6 source supersession:** R5's H-46 first-token priority assertion was
+incorrect. Original recovered 0.3.17 Ir at byte 328453 explicitly REVERSES
+deduplicated error candidates; R6 has restored that priority in production
+and corrected regression tests. Historical R5 negative preserved. See
+[R6 correction and original evidence](HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md).
+
 Date: 2026-10-10. Branch: `codex/home-complete-delivery-004`.
 Reviewed baseline: `c8b56e252886785528b527582f071c618302007b`;
 original campaign ancestor: `f12dd566bd1410c2ccb17e054cd85978ace1c8a4`.

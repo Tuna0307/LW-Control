@@ -565,6 +565,53 @@ internal sealed partial class LWBridgeWindow
         await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 2, "A Stop All exact restored owner");
         await WaitForOwnerAsync(b, alive: false, bRepairStopsBefore + 2, "B Stop All exact restored owner");
 
+        // H-18/H-19 distinction from H-23 startup reconcile: original manual
+        // Update-and-Launch surfaces the first GLOBAL repair result error,
+        // even when it belongs to unselected B. Reconcile alone filters to
+        // selected owner. Exercise the native B helper failure after A succeeds
+        // and prove the actual Home action/error display; never fabricate a UI reply.
+        a.ArmRepairJournal();
+        b.ArmRepairJournal();
+        b.FailNextRepairStop = true;
+        int aStartsBeforeForeignError = a.StartCalls;
+        int bStartsBeforeForeignError = b.StartCalls;
+        await WaitForUiAsync(
+            "!document.querySelector('.game-controls button.primary') && document.querySelector('.game-controls > button')?.disabled === false",
+            "selected A repair button before isolated B-only failure");
+        await ClickAsync("""
+            (() => {const button=document.querySelector('.game-controls > button');
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "selected A Update-and-Launch with B-only helper failure");
+        for (int i = 0; i < 240 && a.StartCalls != aStartsBeforeForeignError + 1; i++)
+            await Task.Delay(40);
+        if (a.StartCalls != aStartsBeforeForeignError + 1 || !a.ProcessAlive ||
+            b.StartCalls != bStartsBeforeForeignError || !b.RepairJournalActive ||
+            !b.ProcessAlive || b.FailNextRepairStop)
+            throw new InvalidDataException("Native B-only failure did not preserve successful A repair.");
+        await WaitForUiAsync(
+            "document.querySelector('.game-controls button.primary') !== null",
+            "selected A repaired Home returned to normal controls");
+        await WaitForUiAsync(
+            "document.querySelector('.quick-actions-panel .game-root-error')?.textContent?.trim()?.length > 0",
+            "manual Home global repair correctly surfaces first B-only error");
+        JsonElement retryB = await InvokeNativeAsync("profile_instances_update_and_restart", new { });
+        if (!retryB.GetProperty("ok").GetBoolean() ||
+            !retryB.GetProperty("result").GetProperty("restarted").EnumerateArray()
+                .Any(value => value.GetString() == "campaign-B") ||
+            retryB.GetProperty("result").GetProperty("errors").GetArrayLength() != 0 ||
+            !a.ProcessAlive || !b.ProcessAlive)
+            throw new InvalidDataException("B-only retry lost A or failed to repair B: " + retryB);
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row .profile-run')].length === 2 &&
+            [...document.querySelectorAll('.profile-row .profile-run')].every(button => button.classList.contains('is-running'))
+            """, "A/B owner status before B failure cleanup");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-batch-actions button')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "Stop All after isolated B-only Home repair failure");
+        await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 4, "A exact Stop after B-only failure");
+        await WaitForOwnerAsync(b, alive: false, bRepairStopsBefore + 4, "B exact Stop after repair retry");
+
         // Validate admission for the selected and unselected owners against
         // the real isolated controller registry, then restore fixture state.
         using (var registry = new SqliteConnection(new SqliteConnectionStringBuilder
@@ -628,6 +675,81 @@ internal sealed partial class LWBridgeWindow
             }
         }
 
+        // H-47: two actual mounted controls (Home and the selected-profile
+        // sidebar) address the same exact lifecycle. A delayed Home Start must
+        // not allow sidebar A Start to bypass its in-flight admission. B is an
+        // independent owner and its controls must remain available.
+        int aStartsBeforeCrossControl = a.StartCalls;
+        Task<HomeMapCampaignDelayedRequest> heldHomeStart =
+            ArmHomeMapCampaignCommandDelay("profile_instance_start", targetProfileId: "campaign-A");
+        await ClickLaunchAsync("selected A Home Start held for sidebar overlap");
+        HomeMapCampaignDelayedRequest heldAStart =
+            await heldHomeStart.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldAStart.ProfileId != "campaign-A")
+            throw new InvalidDataException("Overlapping Home action did not own selected A.");
+        int bStartsWhileAHeld = b.StartCalls;
+        int bStopsWhileAHeld = b.StopCalls;
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "independent B sidebar Start while A Home Start is pending");
+        await WaitForOwnerAsync(b, alive: true, bStopsWhileAHeld,
+            "B independent Start did not touch pending A");
+        if (b.StartCalls != bStartsWhileAHeld + 1 || a.StartCalls != aStartsBeforeCrossControl)
+            throw new InvalidDataException("Independent B Start crossed held A Home lifecycle.");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === true",
+            "B row updated independently while A Home was held");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "independent B Stop while A Home Start is pending");
+        await WaitForOwnerAsync(b, alive: false, bStopsWhileAHeld + 1,
+            "B independent Stop did not cancel pending A");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[0];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "sidebar A Start while Home A Start is pending");
+        await Task.Delay(250);
+        if (a.StartCalls != aStartsBeforeCrossControl)
+            throw new InvalidDataException("Sidebar bypassed pending same-owner Home Start and launched A twice.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for (int i = 0; i < 240 && !a.ProcessAlive; i++) await Task.Delay(40);
+        if (a.StartCalls != aStartsBeforeCrossControl + 1 || !a.ProcessAlive ||
+            b.ProcessAlive || backend.ProfileId != "campaign-A")
+            throw new InvalidDataException("Home A Start failed exact-owner overlap admission.");
+        await ClickCloseAsync("A Close after pending cross-control Start");
+        await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 5,
+            "A restored after overlapping UI Start");
+
+        // Reverse source: the sidebar may own A's held Start first, and the
+        // Home button must not issue a second native Start for that same A.
+        int aStartsBeforeReverse = a.StartCalls;
+        Task<HomeMapCampaignDelayedRequest> heldSidebarStart =
+            ArmHomeMapCampaignCommandDelay("profile_instance_start", targetProfileId: "campaign-A");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[0]?.classList.contains('is-running') === false",
+            "A sidebar stopped state before reverse overlap");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[0];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "hold sidebar A Start first");
+        HomeMapCampaignDelayedRequest heldSidebarOwner =
+            await heldSidebarStart.WaitAsync(TimeSpan.FromSeconds(8));
+        if (heldSidebarOwner.ProfileId != "campaign-A")
+            throw new InvalidDataException("Reverse overlap did not hold actual native sidebar A.");
+        await ClickLaunchAsync("Home A Start while sidebar A Start is pending");
+        await Task.Delay(250);
+        if (a.StartCalls != aStartsBeforeReverse || b.ProcessAlive)
+            throw new InvalidDataException("Home bypassed pending same-owner sidebar Start.");
+        ReleaseHomeMapCampaignCommandDelay();
+        for (int i = 0; i < 240 && !a.ProcessAlive; i++) await Task.Delay(40);
+        if (a.StartCalls != aStartsBeforeReverse + 1 || !a.ProcessAlive)
+            throw new InvalidDataException("Sidebar A Start was lost after reverse overlap.");
+        await ClickCloseAsync("A Close after reverse sidebar-first overlap");
+        await WaitForOwnerAsync(a, alive: false, aRepairStopsBefore + 6,
+            "A exact close after reverse cross-control Start");
+
         JsonElement finalUi = await ReadUiAsync("""
             (() => ({
               uiProject: document.querySelector('.app-shell')?.dataset.uiProject || '',
@@ -674,6 +796,10 @@ internal sealed partial class LWBridgeWindow
                 lateRunningPollCannotResurrectStoppedB = true,
                 selectedAndUnselectedLockedAdmission = true,
                 disabledStartAndGlobalRestartAdmission = true,
+                manualHomeGlobalFirstRepairErrorVisible = true,
+                homeAndSidebarSameOwnerStartDedupe = true,
+                independentBStartStopWhileAHeld = true,
+                reverseSidebarFirstHomeStartDedupe = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

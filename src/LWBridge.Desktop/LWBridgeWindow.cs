@@ -5990,6 +5990,7 @@ internal sealed partial class LWBridgeWindow : Form
         }
         internal bool RepairJournalActive { get; private set; }
         internal bool RepairRequired { get; private set; }
+        internal bool FailNextRepairStop { get; set; }
         internal int StartCalls { get; private set; }
         internal int StopCalls { get; private set; }
         internal string? SessionId { get; private set; }
@@ -6023,6 +6024,12 @@ internal sealed partial class LWBridgeWindow : Form
                 return Task.FromResult(StartResult(invocation));
             }
 
+            if (FailNextRepairStop && RepairJournalActive)
+            {
+                FailNextRepairStop = false;
+                throw new BridgeCommandException("GAME_CLOSE_FAILED",
+                    "Controlled inert repair Stop failure for this exact profile.");
+            }
             StopCalls++;
             bool wasAlive = ProcessAlive;
             ProcessAlive = false;

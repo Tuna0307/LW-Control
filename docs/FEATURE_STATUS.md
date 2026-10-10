@@ -1,5 +1,20 @@
 # Feature delivery status
 
+**HOME-004 R6 0.3.17 source correction and native A-owner overlap (2026-10-10;
+whole Home PARTIAL):** Original recovered `Ir` byte 328453 disproves R5's
+first-error-token translation claim. The original reverses distinct error
+code candidates; production Home/sidebar translation and tests are restored.
+Actual mounted H-47 Home A/Sidebar A duplicate native Start was reproduced
+and corrected with shared exact-owner/global guards, preserving independent
+B progress; both EN/light and JA/dark real production mounted proofs pass.
+Native B-only manual repair failure validates the original **first global**
+Home repair error rather than mistaken selected-only behavior (startup
+reconcile alone filters owner errors). See
+[R6 original authority and before/after receipts](HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md)
+and [47-row queue](HOME_004_R4_QUEUE.md). Previously accepted genuine
+single-profile results remain unchanged; no new real Last War process,
+protected original service or Map scan used. PR #6 remains draft.
+
 **HOME-004 R5 substantial second pass, 2026-10-10 (whole Home PARTIAL):**
 Reproduced and corrected first-recognized-code Home/profile error order,
 native sidebar stale polling across Stop, active recovery reported as terminal

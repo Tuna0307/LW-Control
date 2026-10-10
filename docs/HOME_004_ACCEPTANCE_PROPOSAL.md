@@ -1,5 +1,21 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R6 original-source supersession (2026-10-10): PARTIAL_NEEDS_INPUT.**
+Recovered 0.3.17 frontend `Ir` proves the H-46 first-token assertion
+made in R5 was wrong: original reverses deduplicated candidates. R6 restores
+the exact source-backed rule and tests; do not count that R5 change as parity.
+Actual mounted EN/light and JA/dark also reproduce then correct duplicate
+same-owner Home/sidebar A Start dispatch, including the reverse control order
+and independent B Start/Stop. B-only manual global repair error remains
+visible on A Home as original H-18 requires, distinct from H-23 startup
+selected-only reconciliation. Both owners restore exactly in controlled
+proof. [R6 distinguishing receipt](HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md)
+and updated [H-01–H-47 queue](HOME_004_R4_QUEUE.md) supersede the narrow
+H-46 claim in the historical R5 paragraph below. Whole original-client
+acceptance still needs protected ticket/lease/finalizer, original launcher
+and independent genuine current-client evidence; no main merge or release
+publication authorized.
+
 **R5 second-pass follow-up (2026-10-10): PARTIAL_NEEDS_INPUT, draft PR #6.**
 Independent lead review can assess corrected bounded implementation, but
 whole original 0.3.17 Home A→A acceptance is not proposed. After baseline

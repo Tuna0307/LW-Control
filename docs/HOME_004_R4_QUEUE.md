@@ -44,12 +44,12 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-15 | Source-backed stop ordering and process identity; accepted live restore and native negative cases. | Genuine path/handle-error branch under safe ownership gates. |
 | H-16 | Native six optional-ID cases, mismatch and no-owned errors, accepted live Close. | Genuine late Close error exact text where safe; do not terminate other profiles. |
 | H-17 | Accepted live original triplet hash restoration, journal absent and zero process; R4 mounted old-root Stop inert. | Adverse actual restore-failure/error path only on isolated backed-up installation. |
-| H-18 | R1 original Home Update-and-Launch caller, R4 actual mounted button and controlled repair/launch producer pass EN/JA. | Real supported outdated-build package and genuine positive/failed repair response. |
+| H-18 | Original Home manual Update-and-Launch exposes first **global** restart error, unlike H-23 startup selected-only reconcile. R6 mounted real dispatcher injects B-only repair Stop failure after A succeeds, renders B error on A's Home, then retries B and exactly stops A+B in EN/JA. | Real supported outdated-build package and genuine positive/failed repair response. |
 | H-19 | R4-R2 production global ordered multi-owner restart remains. R5 prevents an apparent `restarted` owner from leaking out of a result that contains a later foreign error, and rejects duplicate owner success; native mixed response test passes. Actual mounted EN/JA repair/relaunch of A+B, Stop All and disabled-owner exclusion pass. | Genuine officially outdated client repair, original restoration errors and exact retry result. |
 | H-20 | Outdated-build restartRequired is an original code path; R1 typed repair decoding fixed, controlled only. | Authentic current-client outdated-build witness, no synthetic JSON masquerading as an official update. |
 | H-21 | Source-backed `autoLaunchAll` default true, actual ordered registry service. | No new test unless original default behavior changes. |
 | H-22 | Native R4 production ordered enabled-owner reconcile and independent retained A/B lifecycle; no original protected admission. | Original protected capacity/admission and real isolated multi-game authority, if available. |
-| H-23 | Source-backed UI displays matching profile reconcile errors and ignores unrelated profile errors. | Fault one retained owner while another progresses, paired original negative; R4 startup proof is controlled. |
+| H-23 | Startup reconcile UI filters errors to matching profile; H-18 manual global repair intentionally surfaces first returned error regardless owner. R6 actual mounted B-only native repair failure preserves this distinction and A's independent success; prior startup selected-only projection is retained. | Genuine original mixed-owner startup reconcile negative and protected owner failure. |
 | H-24 | Accepted live same-build restart/adoption with AutoReconnect ON/OFF. | Multi-profile same-build adoption and host exit only when independently safe for real clients. |
 | H-25 | Controlled strict recovery-record identity/creation/build validation; accepted live adoption/restore. | Genuine corrupt-record inversion with exact recoverability and backup gates. |
 | H-26 | Native held old cleanup/late ACK preserves successor lease, route and adoption; accepted R3-R1 repair. | No new single-owner tests; retain current regression. |
@@ -71,9 +71,9 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-42 | R5 actual native inverse showed a stale exited-game `lastError` projected `connectionState=error` while recovery was already waiting. Current `profile_instance_status` now reports `recovering` during active automatic recovery, preserving `lastError`; actual native lifecycle regression passes. Independent A/B status polling and A/B/A mounted preserved. | Original full 12-field/protected lease-state parity, all 5 s/error cases and genuine offline-only visual comparison. |
 | H-43 | Source-backed recovery command/event, native monitor and accepted genuine recovery event receipt. | Paired original maintenance/failure/retry notification ordering. |
 | H-44 | Accepted live current official-settle-before-launch baseline, source 10 min/15 s/3 s. | Original forced settle-timeout negative without changing owner installation. |
-| H-45 | R5 actual EN/light and JA/dark mounted Home/sidebar proof includes delayed native B status past Stop with no stale-running resurrection, selected A unchanged, Start/Stop-All, repair, disabled/locked admission, exact shutdown. Original translated-error helper source regression passes for both Home and sidebar. | All original conditional failures, pending Stop, maintenance and offline-only **genuine/original-side** pixels still require paired evidence. |
-| H-46 | R5 distinguishing frontend inverse found Home and sidebar reversed first-match error candidates, displaying a *later* code rather than original first recognized code. Both now prefer explicit native error.code, scan subsequent message codes left-to-right, and keep generic fallback. Actual source helper integration regression passes. R4 typed current-client spawn error retained. | Original descriptor/mutex/Lua/restart and protected finalizer native error serializations still unknown. |
-| H-47 | R4-R2 actual held native pending recovery: stale explicit Close rejected without mutating new owner; matching/absent/nonstring valid; rejected Start leaves recovery notice; late helper success/fault and host Close cleanup verified. Mounted Home sidebar exact per-profile/batch controls pass. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering and genuine offline-only pending Stop. |
+| H-45 | R6 mounted EN/light and JA/dark retains R5 delayed B status/Stop, disabled/locked admission and repair; adds first B-only manual repair error display plus Home/sidebar same-owner A overlap dedupe both orders, independent B progress, exact shutdown with no roots/requests leaked. | Genuine/original pending Stop, maintenance/offline-only and conditional pixel comparisons. |
+| H-46 | **R6 source-authority correction:** original 0.3.17 Ir byte 328453 explicitly calls reverse on distinct candidates before Lr byte 328684 locale lookup. R5 incorrectly removed reversal; R6 restores it in Home/sidebar and updates source helper tests for later message priority, structured code, dedupe, unknown fallback. R4 typed spawn producer retained. | Original descriptor/mutex/Lua/restart and protected finalizer native error serializations still unknown. |
+| H-47 | R4-R2 pending recovery Stop and late helper/host cleanup remain tested. R6 mounted negative showed held Home A Start bypassed by sidebar A Start. Shared exact-owner/global lifecycle admission now prevents duplicate native actions in both start-order permutations while independent B Start/Stop continues; real EN/JA WebView proofs pass. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering and genuine offline-only pending Stop. |
 
 ### R4-R2 applied correction overlay (source-backed, not new original acceptance)
 
@@ -112,6 +112,19 @@ connection display labels and identical EN error-block membership, but does
 not reveal authenticated launcher/update, original ticket, complete recovery
 state payload or protected lease result. No fabricated original/real-game
 proof was added. **Whole Home remains PARTIAL_NEEDS_INPUT**.
+
+### R6 original-oracle correction and shared Home/sidebar admission
+
+R5's H-46 claim of original first-token translation was incorrect:
+read-only original `LWB317-UI-HOME-ERROR-001/helper-render-results.json`
+recovers Ir at byte 328453 with `[...new Set(codes)].reverse()`, and Lr
+at byte 328684. R6 restores original priority. Original manual global
+repair first-result error (H-18) differs from selected-only startup reconcile
+(H-23); an actual mounted B-only repair failure proved the distinction.
+Another mounted inverse reproduced duplicate A Start across Home/sidebar;
+shared exact-owner/global guard prevents it in both directions with B
+independent. See `HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md`.
+Whole Home still **PARTIAL_NEEDS_INPUT**.
 
 ## Source and input fences
 

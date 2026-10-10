@@ -195,3 +195,24 @@ See [R5 second-pass receipt](HOME_004_R5_SECOND_PASS_RECEIPT.md).
 
 Previously passed R4-R2 stale explicit pending Close and unselected B routing
 remain tested. Whole Home original A→A acceptance remains **PARTIAL_NEEDS_INPUT**.
+
+## R6 original-source correction and bounded exact-owner overlap (2026-10-10)
+
+The R5 H-46 table row directly above is **historically incorrect** about
+the original's error priority. Exact recovered original 0.3.17 `Ir` from
+`LWB317-UI-HOME-ERROR-001/helper-render-results.json`, byte 328453,
+deduplicates and **reverses** all candidate error codes; `Lr` byte
+328684 searches namespaces for each candidate in that order. R6 reverts
+the R5 first-token implementation and tests, restoring the original
+last-distinct-code-first order. See
+[R6 source and mounted receipt](HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md).
+
+| H-ID and original locator | R6 production boundary and distinguishing evidence | Limit |
+| --- | --- | --- |
+| H-46: original `Ir` 328453 / `Lr` 328684, exact frontend hash in R6 receipt | Corrected both Home and native sidebar helpers back to `[...new Set(codes)].reverse()`. Actual source helper tests compare later message code, structured `Error.code`, dedupe and generic fallback. Preserved mistaken R5 first-match negative but **do not claim it as a 0.3.17 difference**. | Original protected/native error producers, updater/launcher failures. |
+| H-18/H-19/H-23: Home manual `Ft` global Update-and-Restart first-error vs reconcile selected `profileId` matching, original frontend bytes 366209 / 202788 | R6 mounted actual WebView/host B-only helper repair Stop failure after A succeeds; **manual global** error is shown while A selected, B retries on exact owner and A/B Stop All restore. Reconcile remains selected-filtered. A negative expecting all foreign errors hidden was a rejected incorrect hypothesis, not a product regression. | Genuine outdated supported client and original protected multi-owner error response. |
+| H-47/H-38: original Home busy `proxyBusy`/`gameLaunchBusy` 373350/373362, per-profile identity H-38 0xD4E5CA | R6 actual mounted inverse: Home A Start held at real native pre-dispatch and sidebar A Start crossed its separate guard. Shared exact-owner Home/sidebar in-flight set plus all-owner reconcile/restart gate now blocks duplicate A in **both start orders**, preserves independent unselected B Start/Stop and exact final native cleanup. Mounted EN/light & JA/dark both pass. | Paired original and genuine pending Stop, launcher fault and offline-only overlapping timer. |
+
+The original-source correction and two-owner admission proof are controlled
+local evidence, not proof of protected commercial capacity or full Home A→A
+original parity. **Whole Home PARTIAL_NEEDS_INPUT.**

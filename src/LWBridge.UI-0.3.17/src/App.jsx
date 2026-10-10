@@ -233,6 +233,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   };
   const lifecycleInFlightProfilesRef = useRef(new Set());
   const sidebarLifecycleInFlightRef = useRef(new Set());
+  // The original Home and the retained native sidebar are separate controls,
+  // but each exact profile owns ONE native lifecycle. A global reconcile/
+  // restart holds every owner until its result returns.
+  const globalNativeLifecycleInFlightRef = useRef(false);
   const startupReconcileStartedRef = useRef(false);
   const startupAutoLaunchGameRef = useRef(autoLaunchGame);
   const nativeProfileRequestRef = useRef(0);
@@ -381,7 +385,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   ), []);
   const runNativeProfileAction = useCallback(async (profileId, command, instanceId) => {
     if (!backendBridge.available || !profileId) return null;
-    if (sidebarLifecycleInFlightRef.current.has(profileId)) {
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.has(profileId)) {
       const error = new Error("A game lifecycle operation is already in progress.");
       error.code = "GAME_OPERATION_IN_PROGRESS";
       throw error;
@@ -404,13 +408,23 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     profileId, "profile_instance_stop", instanceId,
   ), [runNativeProfileAction]);
   const restartAllNativeProfiles = useCallback(async () => {
-    const result = await backendBridge.invoke("profile_instances_update_and_restart", {}, HOME_LIFECYCLE_TIMEOUT_MS);
-    if (result?.errors?.length) {
-      const failure = new Error(result.errors[0]?.message || result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
-      failure.code = result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED";
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.size) {
+      const failure = new Error("A game lifecycle operation is already in progress.");
+      failure.code = "GAME_OPERATION_IN_PROGRESS";
       throw failure;
     }
-    return result;
+    globalNativeLifecycleInFlightRef.current = true;
+    try {
+      const result = await backendBridge.invoke("profile_instances_update_and_restart", {}, HOME_LIFECYCLE_TIMEOUT_MS);
+      if (result?.errors?.length) {
+        const failure = new Error(result.errors[0]?.message || result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+        failure.code = result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED";
+        throw failure;
+      }
+      return result;
+    } finally {
+      globalNativeLifecycleInFlightRef.current = false;
+    }
   }, []);
 
   useEffect(() => {
@@ -653,6 +667,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   useEffect(() => {
     if (!backendBridge.available || !selectedProfileId || startupReconcileStartedRef.current) return;
     startupReconcileStartedRef.current = true;
+    globalNativeLifecycleInFlightRef.current = true;
     let closed = false;
     const owner = { ...selectedProfileOwnerRef.current };
     const profileId = owner.profileId;
@@ -679,6 +694,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     }).finally(() => {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      globalNativeLifecycleInFlightRef.current = false;
       if (!closed && isCurrentProfileOwner(owner)) {
         setGameLaunchBusy(false);
       }
@@ -944,8 +960,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || lifecycleInFlightProfilesRef.current.has(ownerKey) ||
+        sidebarLifecycleInFlightRef.current.has(owner.profileId)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    sidebarLifecycleInFlightRef.current.add(owner.profileId);
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -961,6 +979,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      sidebarLifecycleInFlightRef.current.delete(owner.profileId);
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
@@ -969,8 +988,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || lifecycleInFlightProfilesRef.current.has(ownerKey) ||
+        sidebarLifecycleInFlightRef.current.has(owner.profileId)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    sidebarLifecycleInFlightRef.current.add(owner.profileId);
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -989,6 +1010,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      sidebarLifecycleInFlightRef.current.delete(owner.profileId);
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);
@@ -997,8 +1019,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     if (!backendBridge.available || !selectedProfileId) return;
     const owner = { ...selectedProfileOwnerRef.current };
     const ownerKey = profileOwnerKey(owner);
-    if (lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
+    if (globalNativeLifecycleInFlightRef.current || sidebarLifecycleInFlightRef.current.size ||
+        lifecycleInFlightProfilesRef.current.has(ownerKey)) return;
     lifecycleInFlightProfilesRef.current.add(ownerKey);
+    globalNativeLifecycleInFlightRef.current = true;
     setProxyBusy(true);
     setGameActionError("");
     try {
@@ -1017,6 +1041,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       }
     } finally {
       lifecycleInFlightProfilesRef.current.delete(ownerKey);
+      globalNativeLifecycleInFlightRef.current = false;
       if (isCurrentProfileOwner(owner)) setProxyBusy(false);
     }
   }, [isCurrentProfileOwner, refreshHomeProxyStatus, selectedProfileId]);

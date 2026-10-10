@@ -31,7 +31,9 @@ function errorCodes(value) {
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
   const message = value instanceof Error ? value.message : String(value ?? "");
   codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
-  return [...new Set(codes)];
+  // Original shared Ir selects later message tokens before earlier ones and
+  // prefers those over a structured code pushed before message extraction.
+  return [...new Set(codes)].reverse();
 }
 
 function profileError(t, error) {
