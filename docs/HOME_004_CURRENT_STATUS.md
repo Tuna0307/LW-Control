@@ -16,13 +16,18 @@ the product fails the new functional criteria. It also does not prove completion
 - Revised goal start checkpoint: `d568cad68a77c8ee75b2ba8025f99b2c087f5d1f`;
   local and direct origin matched before this worker pass.
 - **Latest corrected compiled candidate source**:
-  `c0fed3f434ecfefad05e6ab17f8e7a2fbc59df2c` (D-10 active recovery sidebar correction).
+  `74bcfa49779182c40690cceedcc23ae20d4812a1` (D-11 user-editable local profile enabled flag).
 - Latest candidate on the Windows checkout:
-  `artifacts/release/home004-functional-c0fed3f4/LW-Control-HOME004-FUNCTIONAL-RC-c0fed3f434ec.zip`.
-  SHA-256 `D3A73378787D314F784A71AD32D45F8E63E54760DBC244AEB30873A03992C6F8`,
-  9,551,023 bytes / 83 archive entries / 81 runtime files.
-  Extracted EXE SHA-256 `E864AC1E931438ACBFC884BB7E6EDEEFBFB90CDAAE7AB919A554A40FDEFCC2B0`;
-  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+c0fed3f434ecfefad05e6ab17f8e7a2fbc59df2c` match.
+  `artifacts/release/home004-functional-74bcfa49/LW-Control-HOME004-FUNCTIONAL-RC-74bcfa497791.zip`.
+  SHA-256 `3D83D14778860AAA3E568AD236428C6C8B5D4B1A69139AB1224A8DA188DAF945`,
+  9,552,413 bytes / 83 archive entries / 81 runtime files.
+  Extracted EXE SHA-256 `CC74D99AA2637113C9388FE770595EFE7E363B19DC22A9F4C5118F22D1369260`;
+  extracted `SOURCE-COMMIT.txt` and `ProductVersion=1.0.0+74bcfa49779182c40690cceedcc23ae20d4812a1` match.
+- `c0fed3f4` and previous verified functional ZIPs remain intact. The superseded
+  `e3ab51d3` extracted EN proof failed before the new toggle assertion because
+  an old proof clicked the first action instead of Edit Note; failure receipt
+  `artifacts/home-004/functional-e3ab51d3-en-light.json.error.txt` is retained.
+  `74bcfa49` updates the exact Edit Note selectors; both corrected proofs pass.
 - Prior corrected functional candidate `5fc9b0d2` and its original verified ZIP
   remain retained historical evidence; its published source is not this latest build.
 - Superseded former H-33 ZIP and first pre-correction functional ZIP remain historical
@@ -88,9 +93,9 @@ real operation. Full Home still **PARTIAL** until applicable genuine gates pass.
 | **F-04** recovery | Home Auto Reconnect ON/OFF, native monitored missing process/hung/still-alive offline 60s, error/retry/maintenance feedback, disable, user Close while recovery pending (including no instance ID). | **WORKER_VERIFIED controlled** 59,999/60,000-ms still-alive loss, retry and pending cleanup; prior genuine exit/hang/pending Stop. **D-10 correction:** native sidebar projects actual active recovery even without an instance ID; Stop and Stop All can dispatch optional-ID cancellation, verified against native exact-owner restore and production sidebar selection logic. **NEEDS_REAL_VERIFICATION:** authenticated transport-only loss with an otherwise responsive genuine current game, subsequent recovery/Stop OFF/ON; no forced disconnection experiment performed. |
 | **F-05** host restart/adoption | Same-build re-open, exact process/build ownership, durable journal and adoption vs rejected stale identity; independent owner selected view. | **Prior genuine selected-game restart/adoption** plus native stale/obsolete/wrong-owner cases; new code did not alter adoption decision mechanics. |
 | **F-06** repair | Home **Update-and-Launch** when native proxy_status signals game running + repairRequired; original recovered pending journal stop→restore→relaunch path, new **OWN_DESIGN** journal-free exact-owner Start/install attempt with mandatory actual `connected` result; explicit native error, cancel and busy reset. | **WORKER_VERIFIED controlled** original journal repair + production JSX callback four case matrix. **NEEDS_REAL_VERIFICATION:** a safely backed-up genuine bridge-damaged installation reconnects after clicking the *packaged* repair button, without official updater or orphan. It is **not** declared functioning from a simulated success. |
-| **F-07** sidebar/profile | Collapse/expand, profile list/status + read-only enabled/locked admission, Select/focus-game option, note modal edit/save/cancel and late acknowledgements, reorder via drag, **Add/Remove local profiles** (now actual native SQLite, 4 metadata slots), primary/selected/active/journal deletion fences and retained data, per-profile Play/Stop, Start All/Stop All and global Update-and-Launch. | **WORKER_VERIFIED controlled** native CRUD capacity/persist/reopen, active/corrupt/pending journal guard and ordered original R4–R16 A/B WebView metadata. D-10 corrects per-profile Stop/Stop All when a pending owned native retry has no instance ID, and prevents Start All overlapping it. `enabled` is an admission field (no user-facing enable toggle in the existing Home sidebar); no paid original entitlement is represented. **NEEDS_REAL_VERIFICATION:** distinct supported client roots and two live independent game/bridge sessions if concurrent use is advertised; local profile creation is not proof of that. |
+| **F-07** sidebar/profile | Collapse/expand, profile list/status and **user-editable local enabled state** (D-11), locked admission, Select/focus-game option, note modal edit/save/cancel and late acknowledgements, reorder via drag, **Add/Remove local profiles** (native SQLite, 4 metadata slots), primary/selected/active/journal deletion fences and retained data, per-profile Play/Stop, Start All/Stop All and global Update-and-Launch. | **WORKER_VERIFIED controlled + packaged:** native CRUD capacity/persist/reopen, active/corrupt/pending journal guard and ordered original R4–R16 A/B WebView metadata. D-10 corrects ID-less recovery cancellation. D-11 adds native persisted toggle for future manual/automatic Start admission; the packaged EN/light and JA/dark sidebar clicks both confirm disable, denied Start, re-enable, retained selected A and cleanup. Original commercial entitlement is excluded. **NEEDS_REAL_VERIFICATION:** distinct supported client roots and two live independent game/bridge sessions if concurrent use is advertised; local profile creation is not proof of that. |
 | **F-08** preferences/status/errors | AutoLaunch/AutoReconnect immediate draft and durable native commits/rollback, local `autoClosePopup` forced OFF storage, Home process/root/recovery/status/errors/disabled/busy, sidebar note/edit/save/errors, native locale EN/light and JA/dark. | **WORKER_VERIFIED controlled** status, locale (all 9 catalogs), 128-state source gate, save/reorder races; native `set_automation` connected game-side forwarding for *other* automation names remains `AUTOMATION_NOT_IMPLEMENTED` and is **not** a working Home preference. Home only exposes the supported two switches. Live responsive offline and repair UI feedback waits for their genuine gate. |
-| **F-09** package | Canonical React UI compiled into Windows desktop, real WebView/native dispatcher, EN/light and JA/dark, extracted ZIP and normal one-window smoke, exact cleanup, one source-linked final candidate. | **WORKER_VERIFIED packaged**: latest `c0fed3f4` ZIP exact source/EXE/hash verified. Actual extracted native Home EN/light and JA/dark full controlled receipts `artifacts/home-004/functional-c0fed3f4-{en-light,ja-dark}.json` both PASS with no game launches, Map scans, requests/subscriptions or cleanup failures; both owners stopped and native repair control reaches controlled Connected. Latest extracted inert screenshot `artifacts/home-004/functional-c0fed3f4-capture/home.png` PASS with no temporary roots. Previous `5fc9b0d2` normal GUI smoke and read-only v23 compatibility evidence remain relevant, but were not repeated with the new source. This package proof does not replace genuine F-04/F-06/F-07 acceptance. |
+| **F-09** package | Canonical React UI compiled into Windows desktop, real WebView/native dispatcher, EN/light and JA/dark, extracted ZIP and normal one-window smoke, exact cleanup, one source-linked final candidate. | **WORKER_VERIFIED packaged**: latest `74bcfa49` ZIP exact source/EXE/hash verified. Actual extracted native Home EN/light and JA/dark full controlled receipts `artifacts/home-004/functional-74bcfa49-{en-light,ja-dark}.json` both PASS (including D-11 toggle and native denial), zero genuine game launches, Map scans, requests/subscriptions or cleanup failures, both owners stopped. Latest extracted inert screenshot `artifacts/home-004/functional-74bcfa49-capture/home.png` PASS without residual capture roots. Earlier normal GUI smoke/current-client read-only v23 compatibility remain historical and were not rerun with the latest source. This package proof does not replace genuine F-04/F-06/F-07 acceptance. |
 
 ### Ready corrections and unresolved real inputs
 
@@ -104,6 +109,11 @@ test classifications are in [the behavior differences ledger](HOME_004_BEHAVIOR_
 The `c0fed3f4` continuation additionally fixes actual sidebar cancellation
 during an ID-less native recovery (D-10), so a still-running retry cannot be
 misclassified as ready for Start All. Inert native and frontend tests pass.
+The `74bcfa49` continuation closes the separately actionable F-07 local enabled
+control omission (D-11): users can now persist per-profile admission ON/OFF
+through a native sidebar button. It never stops an existing owned game or
+redirects selection, and its acknowledged flag cannot overwrite unrelated
+late profile notes, orders or owner changes.
 
 Actual **still-open** gates are current-client responsive offline-only recovery
 (F-04), genuine journal-free damaged-bridge repair (F-06), and independent
@@ -166,6 +176,21 @@ PASS against real isolated Windows named pipes: authentication rejection,
 malformed frame, 30-second idle retirement, fresh reconnection and RPC,
 simultaneous A/B authenticated sessions, obsolete generation protection and
 listener cleanup; `gameLaunches=0`.
+
+**Latest `74bcfa49` D-11 verification:** native Release checks PASS including
+selected-primary toggle, disabled secondary Start rejection, invalid input and
+SQLite reopen; frontend five-group check PASS including *executed* late
+toggle vs B selection/note/reorder and failed-write preservation. Canonical
+Release publish and source-matched production frontend PASS. Fresh mounted
+source EN and both **extracted** packaged EN/light + JA/dark Home native/WebView
+proofs PASS, all sidebar checks true; new D-11 button genuinely clicked in the
+packaged UI and validated against native `profile_list`, native denied Start,
+re-enable and preserved selected A. Zero game launches, Map scans, outstanding
+requests/subscriptions and cleanup failures, both inert owners stopped. The
+extracted fixture Home PNG and zero temporary-root check PASS. A pre-fix
+`e3ab51d3` extracted EN proof failed at the old positional note selector;
+the error receipt is retained and the selector was corrected before packaging
+`74bcfa49`. No genuine game or user installation was modified or launched.
 
 Decision: **PARTIAL**, not READY_FOR_LEAD_FUNCTIONAL_REVIEW. The reasons are
 specific genuine operations/verification, not absent original protected data.

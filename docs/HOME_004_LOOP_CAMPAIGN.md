@@ -82,6 +82,28 @@ unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
 ## One current continuation — updated 2026-10-10
 
+- **Latest actual F-07 correction:** starting from clean `b6483389`, the
+  local SQLite registry already had a durable `enabled` bit respected by
+  startup and Start, but the normal Home sidebar had no way to edit it.
+  Source `e3ab51d32d597f6e3773d852d0e2ff08cecb3d9c` adds a
+  user-visible per-profile native enable/disable button, exact-target
+  persistence/admission and stale reply guards (D-11). Native CRUD, frontend
+  late-ack and failed-write tests PASS. The first extracted `e3ab51d3` EN
+  package proof failed at the old positional Edit Note click because the new
+  button was inserted first; preserved negative `.error.txt` and fixed all
+  positional note selectors in `74bcfa49779182c40690cceedcc23ae20d4812a1`.
+  Source-mounted EN and final **extracted** EN/light and JA/dark actual
+  native/WebView Home proofs now PASS, including click → persisted OFF → native
+  disabled Start denial → click ON, selected A retained and zero cleanup errors.
+  Rebuilt source-identified review ZIP:
+  `artifacts/release/home004-functional-74bcfa49/LW-Control-HOME004-FUNCTIONAL-RC-74bcfa497791.zip`,
+  SHA-256 `3D83D14778860AAA3E568AD236428C6C8B5D4B1A69139AB1224A8DA188DAF945`,
+  extracted executable SHA-256 `CC74D99AA2637113C9388FE770595EFE7E363B19DC22A9F4C5118F22D1369260`,
+  matched source/ProductVersion, 83 ZIP entries and 81 runtime files.
+  Extracted `check_packaged_home.ps1` PASS, no temporary roots. No genuine
+  game, Map scan or updater was started or modified. Current status remains
+  **PARTIAL** solely for F-04 responsive transport-only live recovery,
+  F-06 genuine damaged-bridge repair and F-07 two independent real games.
 - Reconciled clean starting `e1d46414` with direct remote and all F-01–F-09
   actual controls. Kept R4–R16/H-33 historical positive and negative receipts.
 - Corrected real F-04/F-07 sidebar gap in committed source

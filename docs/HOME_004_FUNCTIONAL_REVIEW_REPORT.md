@@ -15,17 +15,17 @@ main merge and publication; draft PR #6 remains unmerged.
 | F-04 automatic reconnection | Prior genuine exit/hung and Stop receipts; controlled precise transport-only offline threshold and recovery; D-10 fixes ID-less pending recovery sidebar Stop/Stop All. | Responsive real game whose authenticated transport alone is absent for 60s: observe OFF/ON replacement and Stop without breaking current installation. |
 | F-05 adoption | Prior genuine same-build adoption; wrong-owner/stale/obsolete identity, restoration and reentry regressions pass. | No new blocker identified. |
 | F-06 repair | Native exact journal restore/relaunch plus own-design no-journal helper path and authenticated success requirement, tested controlled through the actual Home button. | A safely backed-up genuine supported bridge-damaged installation must be repaired via packaged Update-and-Launch and reach a fresh authenticated Connected state with exact restoration. |
-| F-07 profile sidebar | Four local SQLite slots, Add/Delete, note, reorder, select/focus, collapse, per-owner play/stop, Start/Stop All, status/error/busy and safe deletion pass native and inert packaged EN/JA. | Two separately compatible real Last War installations and simultaneous independently authenticated game sessions are not available for final confirmation. |
+| F-07 profile sidebar | Four local SQLite slots, Add/Delete, **local enable/disable** (D-11), note, reorder, select/focus, collapse, per-owner play/stop, Start/Stop All, status/error/busy and safe deletion pass native and packaged EN/JA inert tests. Disabled profiles are not admitted to Start; the real packaged UI toggle persists through native SQLite and can re-enable B without changing selected A. | Two separately compatible real Last War installations and simultaneous independently authenticated game sessions are not available for final confirmation. |
 | F-08 preferences/status | Native/local save and rollback, Home statuses/translation, profile independence, retirement and late replies pass. | Live feedback for the two F-04/F-06 genuine conditions awaits those tests. |
 | F-09 package | Source-identified ZIP, extracted native/WebView Home EN/light and JA/dark, inert capture, clean shutdown and real isolated named-pipe RPC pass. | Final Home gate acceptance depends on F-04/F-06/F-07. |
 
 ## Current source, package and validation
 
-- Functional source: `c0fed3f434ecfefad05e6ab17f8e7a2fbc59df2c`.
-- Windows review ZIP: `artifacts/release/home004-functional-c0fed3f4/LW-Control-HOME004-FUNCTIONAL-RC-c0fed3f434ec.zip`.
-  SHA-256: `D3A73378787D314F784A71AD32D45F8E63E54760DBC244AEB30873A03992C6F8`.
+- Functional source: `74bcfa49779182c40690cceedcc23ae20d4812a1`.
+- Windows review ZIP: `artifacts/release/home004-functional-74bcfa49/LW-Control-HOME004-FUNCTIONAL-RC-74bcfa497791.zip`.
+  SHA-256: `3D83D14778860AAA3E568AD236428C6C8B5D4B1A69139AB1224A8DA188DAF945`.
   Extracted `SOURCE-COMMIT.txt` and executable ProductVersion match; EXE SHA-256
-  `E864AC1E931438ACBFC884BB7E6EDEEFBFB90CDAAE7AB919A554A40FDEFCC2B0`.
+  `CC74D99AA2637113C9388FE770595EFE7E363B19DC22A9F4C5118F22D1369260`.
 - `dotnet run --project tests/LWBridge.Desktop.Checks -c Release`: PASS.
   `npm.cmd run check`: PASS (five frontend groups, nine locale catalogs).
   Release Windows publish/canonical frontend manifest check: PASS.
@@ -33,15 +33,21 @@ main merge and publication; draft PR #6 remains unmerged.
   PASS, real isolated Windows named pipes, 30-second idle retirement, fresh RPC,
   concurrent authenticated A/B routes, correct rejection and shutdown.
 - Extracted application inert WebView receipts:
-  `artifacts/home-004/functional-c0fed3f4-en-light.json` and
-  `artifacts/home-004/functional-c0fed3f4-ja-dark.json`: both PASS, zero genuine
+  `artifacts/home-004/functional-74bcfa49-en-light.json` and
+  `artifacts/home-004/functional-74bcfa49-ja-dark.json`: both PASS including
+  actual sidebar enabled toggle → native persisted value → denied B Start →
+  re-enabled B, with A selection preserved. Zero genuine
   game launches/Map scans, zero active requests/subscriptions, both profiles
   stopped, no cleanup failures. Extracted `check_packaged_home.ps1` screenshot
-  `artifacts/home-004/functional-c0fed3f4-capture/home.png`: PASS; zero temp roots.
+  `artifacts/home-004/functional-74bcfa49-capture/home.png`: PASS; zero temp roots.
+- Historical negative: first `e3ab51d3` extracted EN mounted proof failed
+  because the original positional Edit Note test clicked the new enable icon;
+  this was a proof-selector regression, fixed in `74bcfa49`. The original
+  `artifacts/home-004/functional-e3ab51d3-en-light.json.error.txt` is retained.
 - Prior genuine current-client outcomes, original negative evidence, R4–R16,
   H-33 and former candidate remain intact. New controlled outcomes are not
   presented as genuine game results. Deliberate differences D-06–D-10 are in
-  `HOME_004_BEHAVIOR_DIFFERENCES.md`.
+  `HOME_004_BEHAVIOR_DIFFERENCES.md` (D-06 through D-11).
 
 ## Precise unresolved dependencies
 
