@@ -20,6 +20,7 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
     private readonly Func<long> clockMilliseconds;
     private readonly object gate = new();
     private readonly CancellationTokenSource stopSource = new();
+    private readonly HashSet<Task> activeSessionTasks = new();
 
     private Task? runTask;
     private bool disposed;
@@ -132,6 +133,7 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                 bool firstServerInstance = ServerInstancesCreated == 0;
                 SafeFileHandle? server = null;
                 LWBridgeControlPipePendingConnect? pendingConnect = null;
+                LWBridgeControlPipeAcceptedSession? session = null;
                 try
                 {
                     server = LWBridgeControlPipeNativeServer.CreateServerInstance(
@@ -161,8 +163,7 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                         continue;
                     }
 
-                    using var session =
-                        new LWBridgeControlPipeAcceptedSession(server);
+                    session = new LWBridgeControlPipeAcceptedSession(server);
                     long now = clockMilliseconds();
 
                     LWBridgeAuthenticatedConnection authenticated;
@@ -212,42 +213,21 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                     session.Bind(authenticated);
                     Volatile.Write(ref lastHandshakeError, null);
                     Interlocked.Increment(ref authenticatedSessions);
-
-                    try
-                    {
-                        await sessionHandler(session, cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException) when (
-                        !cancellationToken.IsCancellationRequested)
-                    {
-                        // A session's own 30-second reader idle/write/backpressure
-                        // cancellation is not cancellation of the shared host.
-                        RecordRpcSessionFailure("OperationCanceledException");
-                    }
-                    catch (InvalidDataException)
-                    {
-                        // InvalidDataException derives from SystemException,
-                        // not IOException; malformed authenticated envelopes
-                        // must be retired without escaping the shared loop.
-                        RecordRpcSessionFailure("InvalidDataException");
-                    }
-                    catch (IOException error)
-                    {
-                        // EOF partway through a frame, invalid frame bounds and
-                        // broken pipe I/O retire only this authenticated route.
-                        RecordRpcSessionFailure(error.GetType().Name);
-                    }
-                    catch (JsonException)
-                    {
-                        RecordRpcSessionFailure("JsonException");
-                    }
-                    finally
-                    {
-                        _ = registry.RemoveConnected(
-                            authenticated.InstanceId,
-                            authenticated.Generation);
-                    }
+                    // The original host is shared by independent profiles.
+                    // A live A RPC reader cannot monopolize the accept loop:
+                    // transfer exact pipe/session ownership to a bounded
+                    // asynchronous session task, then accept B immediately.
+                    Task ownedTask = RunAuthenticatedSessionAsync(
+                        session, server, authenticated, cancellationToken);
+                    session = null;
+                    server = null;
+                    lock (gate) activeSessionTasks.Add(ownedTask);
+                    _ = ownedTask.ContinueWith(
+                        completed =>
+                        {
+                            lock (gate) activeSessionTasks.Remove(completed);
+                        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously,
+                        TaskScheduler.Default);
                 }
                 catch (OperationCanceledException) when (
                     cancellationToken.IsCancellationRequested)
@@ -256,9 +236,63 @@ internal sealed class LWBridgeControlPipeIsolatedAcceptLoop : IAsyncDisposable
                 }
                 finally
                 {
+                    session?.Dispose();
                     pendingConnect?.Dispose();
                     server?.Dispose();
                 }
+            }
+            Task[] active;
+            lock (gate) active = activeSessionTasks.ToArray();
+            await Task.WhenAll(active).ConfigureAwait(false);
+        }
+    }
+
+    private async Task RunAuthenticatedSessionAsync(
+        LWBridgeControlPipeAcceptedSession session,
+        SafeFileHandle server,
+        LWBridgeAuthenticatedConnection authenticated,
+        CancellationToken cancellationToken)
+    {
+        using (server)
+        using (session)
+        {
+            try
+            {
+                await sessionHandler(session, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (
+                !cancellationToken.IsCancellationRequested)
+            {
+                RecordRpcSessionFailure("OperationCanceledException");
+            }
+            catch (OperationCanceledException) when (
+                cancellationToken.IsCancellationRequested)
+            {
+                // A host shutdown cancels all outstanding authenticated readers.
+            }
+            catch (InvalidDataException)
+            {
+                RecordRpcSessionFailure("InvalidDataException");
+            }
+            catch (IOException error)
+            {
+                RecordRpcSessionFailure(error.GetType().Name);
+            }
+            catch (JsonException)
+            {
+                RecordRpcSessionFailure("JsonException");
+            }
+            catch (Exception error)
+            {
+                // An unexpected per-profile session error is recorded and
+                // retired. A different authenticated profile stays connected.
+                RecordRpcSessionFailure(error.GetType().Name);
+            }
+            finally
+            {
+                _ = registry.RemoveConnected(
+                    authenticated.InstanceId, authenticated.Generation);
             }
         }
     }

@@ -210,7 +210,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         string expectedBuildId,
         string expectedClientPath,
         string? currentUserSid = null,
-        Func<long>? clockMilliseconds = null)
+        Func<long>? clockMilliseconds = null,
+        bool permitPerRegistrationClientPath = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedBuildId);
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedClientPath);
@@ -233,7 +234,10 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                      string.Equals(
                          rpcExpectedCanonicalClientPath,
                          canonicalClientPath,
-                         StringComparison.OrdinalIgnoreCase))
+                         StringComparison.OrdinalIgnoreCase) ||
+                     (permitPerRegistrationClientPath &&
+                      string.Equals(rpcExpectedBuildId, expectedBuildId,
+                          StringComparison.Ordinal)))
             {
                 ThrowIfRpcListenerEnded();
                 return;
@@ -359,7 +363,8 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         string profileId,
         string instanceId,
         string buildId,
-        long nowMilliseconds)
+        long nowMilliseconds,
+        string? expectedClientPath = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
@@ -385,7 +390,11 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
                 nowMilliseconds +
                 LWBridgeControlPipeRegistry
                     .StartupRegistrationLifetimeMilliseconds);
-            registry.Register(profileId, instanceId, token, expiresAt);
+            string? exactExpectedClientPath = expectedClientPath is null ? null :
+                LWBridgeControlPipeIsolatedHandshake
+                    .CanonicalizeExpectedClientPath(expectedClientPath);
+            registry.Register(profileId, instanceId, token, expiresAt,
+                exactExpectedClientPath);
 
             IReadOnlyDictionary<string, string> environment =
                 LWBridgeProxyLaunchEnvironmentContract.CreateBindings(
@@ -417,8 +426,12 @@ internal sealed class LWBridgeControlPipeHostState : IDisposable
         lock (gate)
         {
             ThrowIfStopped();
+            string expectedImage =
+                LWBridgeControlPipeIsolatedHandshake.CanonicalizeExpectedClientPath(
+                    record.GameExecutable);
             return registry.Register(record.ProfileId, record.InstanceId, record.PipeToken,
-                checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds));
+                checked(nowMilliseconds + LWBridgeControlPipeRegistry.StartupRegistrationLifetimeMilliseconds),
+                expectedImage);
         }
     }
 

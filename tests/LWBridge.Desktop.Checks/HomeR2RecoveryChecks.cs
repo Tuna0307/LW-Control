@@ -39,6 +39,8 @@ internal static class HomeR2RecoveryChecks
         internal TaskCompletionSource? TerminationReached = null;
         internal TaskCompletionSource? HeldOldStopAcknowledgement = null;
         internal TaskCompletionSource? OldStopAcknowledgementReached = null;
+        internal TaskCompletionSource? HeldRecoveryStart = null;
+        internal TaskCompletionSource? RecoveryStartReached = null;
         internal byte[]? GameReport;
 
         internal Case(string name, bool enabled, bool withActualAdoptionRecord = false)
@@ -111,6 +113,14 @@ internal static class HomeR2RecoveryChecks
                         });
                     }
                     StartCalls++;
+                    if (StartCalls > 1 && HeldRecoveryStart is not null)
+                    {
+                        RecoveryStartReached?.TrySetResult();
+                        // Simulates the helper completing successfully after a
+                        // user Stop/cancellation; the lifecycle must restore
+                        // this exact late result, without publishing a successor.
+                        await HeldRecoveryStart.Task;
+                    }
                     if (FailNextLaunch)
                     {
                         FailNextLaunch = false;
@@ -188,6 +198,7 @@ internal static class HomeR2RecoveryChecks
         {
             HeldTerminate?.TrySetResult();
             HeldOldStopAcknowledgement?.TrySetResult();
+            HeldRecoveryStart?.TrySetResult();
             Service.Dispose();
             Host?.Dispose();
             if (Directory.Exists(Root)) Directory.Delete(Root, true);
@@ -204,6 +215,7 @@ internal static class HomeR2RecoveryChecks
         await StillAliveOfflineRecoveryRunEdges();
         await HeldOldEffectVsStopSuccessor();
         await HeldOldStopAckVsProtectedSuccessor();
+        await StopWhileRecoveryLaunchIsPending();
         await LoginUnavailableThreshold();
         Require(OverviewRecoveryPolicy.NormalRetryDelays.Select(d => d.TotalMilliseconds)
             .SequenceEqual(new double[] { 15000, 30000, 60000, 120000, 300000 }),
@@ -212,6 +224,44 @@ internal static class HomeR2RecoveryChecks
             .SequenceEqual(new double[] { 120000, 300000, 600000 }),
             "original maintenance retry table");
         Console.WriteLine("HOME004_R2_NATIVE_MONITOR_OK off/on exit, exact hang/disconnect/login boundaries, failed retry/stable, disable, Stop, held stale cleanup/successor; game launches=0");
+    }
+
+    private static async Task StopWhileRecoveryLaunchIsPending()
+    {
+        using var c = new Case("pending-recovery-stop", true,
+            withActualAdoptionRecord: true);
+        await c.Start();
+        string original = c.Session;
+        string adoption = Path.Combine(c.Root, "runtime", "adoption.json");
+        c.Alive = false;
+        await c.Observe();
+        c.Advance(2000);
+        await c.Observe();
+        Require(c.Service.CurrentRecoveryStatus.State == "waiting",
+            "process exit schedules pending recovery before relaunch");
+        c.HeldRecoveryStart = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        c.RecoveryStartReached = new TaskCompletionSource(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        Task pending = c.Tick();
+        await c.RecoveryStartReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Require(c.StartCalls == 2 && c.Session == original && !c.Alive,
+            "recovery helper is pending after old exact owner cleanup");
+        await c.Stop();
+        Require(!c.Config.Snapshot.GameDesiredRunning &&
+                c.Service.CurrentRecoveryStatus.State == "idle",
+            "user Stop cancels pending recovery helper without requiring an active PID");
+        c.HeldRecoveryStart.TrySetResult();
+        await pending.WaitAsync(TimeSpan.FromSeconds(5));
+        Require(!c.Alive && c.StopCalls == 2 &&
+                !c.Config.Snapshot.GameDesiredRunning &&
+                !File.Exists(adoption) &&
+                c.Service.CurrentRecoveryStatus.State == "idle",
+            "late helper success is restored, never publishes or adopts a successor after Stop");
+        c.Advance(120_000);
+        await c.Tick();
+        Require(c.StartCalls == 2 && !c.Alive,
+            "late run cannot relaunch after the user's Stop");
     }
 
     private static async Task ProcessExitOffAndOn()

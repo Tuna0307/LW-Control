@@ -5,5 +5,6 @@ await GameRootSelectChecks.RunAsync();
 await HomeR1AdoptionChecks.RunAsync();
 await HomeR2RecoveryChecks.RunAsync();
 await OrderedProfileReconcileChecks.RunAsync();
+HomeR4TransportChecks.Run();
 await MapStoredDeliveryChecks.RunAsync();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

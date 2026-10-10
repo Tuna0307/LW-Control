@@ -40,7 +40,8 @@ internal sealed class LWBridgeControlPipeRegistry
         string profileId,
         string instanceId,
         string token,
-        long expiresAtMilliseconds)
+        long expiresAtMilliseconds,
+        string? expectedCanonicalClientPath = null)
     {
         if (string.IsNullOrEmpty(profileId) ||
             string.IsNullOrEmpty(instanceId) ||
@@ -69,7 +70,8 @@ internal sealed class LWBridgeControlPipeRegistry
                 tokenHash,
                 expiresAtMilliseconds,
                 Claimed: false,
-                Serial: serial));
+                Serial: serial,
+                ExpectedCanonicalClientPath: expectedCanonicalClientPath));
             return serial;
         }
     }
@@ -106,6 +108,25 @@ internal sealed class LWBridgeControlPipeRegistry
     public bool IsPending(string instanceId)
     {
         lock (gate) return pending.ContainsKey(instanceId);
+    }
+
+    // Only an exact token-bearing pending registration can override the
+    // listener's bootstrap image path. Binding the image to this session
+    // prevents a second profile's installation from widening A's identity
+    // check. No token contents or path are returned for mismatching callers.
+    internal string? ExpectedClientPathForAuthenticatedHello(
+        string profileId, string instanceId, string token, long nowMilliseconds)
+    {
+        byte[] candidateHash = HashToken(token ?? string.Empty);
+        lock (gate)
+        {
+            if (!pending.TryGetValue(instanceId, out PendingRegistration? entry) ||
+                !string.Equals(entry.ProfileId, profileId, StringComparison.Ordinal) ||
+                (!entry.Claimed && entry.ExpiresAtMilliseconds <= nowMilliseconds) ||
+                !CryptographicOperations.FixedTimeEquals(entry.TokenHash, candidateHash))
+                return null;
+            return entry.ExpectedCanonicalClientPath;
+        }
     }
 
     public bool TryAdmit(
@@ -220,7 +241,8 @@ internal sealed class LWBridgeControlPipeRegistry
         byte[] TokenHash,
         long ExpiresAtMilliseconds,
         bool Claimed,
-        ulong Serial);
+        ulong Serial,
+        string? ExpectedCanonicalClientPath);
 }
 
 internal sealed record ConnectedRoute(

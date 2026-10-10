@@ -105,7 +105,7 @@ internal sealed partial class OverviewLifecycleService
 
         lock (stateGate)
         {
-            if (closed || profileReplacementPending || phase is "running" or "starting" or "stopping" ||
+            if (closed || phase is "running" or "starting" or "stopping" ||
                 gamePid is not null || instanceId is not null)
                 return new OverviewStartupError(profileId, "GAME_OPERATION_IN_PROGRESS",
                     "The exact-session adoption is no longer owned by this profile.");
@@ -126,7 +126,7 @@ internal sealed partial class OverviewLifecycleService
             registrationSerial = bridgeHostState.RestoreLaunchBinding(record, admissionStarted);
             lock (stateGate)
             {
-                if (closed || profileReplacementPending ||
+                if (closed ||
                     phase is "running" or "starting" or "stopping" ||
                     gamePid is not null || instanceId is not null)
                     throw new BridgeCommandException("GAME_OPERATION_CANCELLED",
@@ -157,7 +157,7 @@ internal sealed partial class OverviewLifecycleService
                     "The same-build game was retained, but its authenticated reconnect was not observed.");
             lock (stateGate)
             {
-                if (closed || profileReplacementPending ||
+                if (closed ||
                     !string.Equals(instanceId, record.InstanceId, StringComparison.Ordinal))
                     throw new BridgeCommandException("GAME_OPERATION_CANCELLED",
                         "The exact-session adoption was retired before publication.");
@@ -200,7 +200,7 @@ internal sealed partial class OverviewLifecycleService
             cancellationToken.ThrowIfCancellationRequested();
             lock (stateGate)
             {
-                if (closed || profileReplacementPending ||
+                if (closed ||
                     !string.Equals(instanceId, record.InstanceId, StringComparison.Ordinal))
                     throw new OperationCanceledException(cancellationToken);
             }
@@ -255,7 +255,7 @@ internal sealed partial class OverviewLifecycleService
             cancellationToken.ThrowIfCancellationRequested();
             lock (stateGate)
             {
-                if (closed || profileReplacementPending ||
+                if (closed ||
                     !string.Equals(instanceId, session, StringComparison.Ordinal))
                     throw new OperationCanceledException(cancellationToken);
             }

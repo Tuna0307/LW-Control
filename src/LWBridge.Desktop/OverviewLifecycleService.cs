@@ -91,6 +91,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private readonly bool bridgeControlPipeLaunchBindingEnabled;
     private readonly bool requireCurrentClientEvidence;
     private readonly bool recoveryMonitorEnabled;
+    private readonly Func<int, bool>? foreignOwnedProcess;
+    private readonly Func<string, bool>? foreignOwnedInstallation;
     // Lease-timer ownership is (session, challenge): a timer started for one
     // owner is only ever stopped/renewed for that exact owner (LEAD009R3-01).
     private readonly object leaseTimerGate = new();
@@ -100,7 +102,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     private long leaseGeneration;
     private Process? activeHelperProcess;
     private bool closed;
-    private bool profileReplacementPending;
     private string phase = "stopped";
     private string connectionState = "offline";
     private string? instanceId;
@@ -129,7 +130,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         string? runtimeRoot = null,
         string? evidenceRoot = null,
         string? backupRoot = null,
-        string? applicationDataRoot = null)
+        string? applicationDataRoot = null,
+        Func<int, bool>? foreignOwnedProcess = null,
+        Func<string, bool>? foreignOwnedInstallation = null)
     {
         if (string.IsNullOrWhiteSpace(profileId)) throw new ArgumentException("profileId is required", nameof(profileId));
         this.profileId = profileId;
@@ -139,6 +142,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         this.requireCurrentClientEvidence = requireCurrentClientEvidence ?? helperPath is null;
         this.config = config;
         this.testHooks = testHooks;
+        this.foreignOwnedProcess = foreignOwnedProcess;
+        this.foreignOwnedInstallation = foreignOwnedInstallation;
         this.bridgeHostState = bridgeHostState;
         bridgeControlPipeLaunchBindingEnabled =
             enableBridgeControlPipeLaunchBinding;
@@ -203,6 +208,40 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         }
     }
 
+    internal bool OwnsExactProcess(int pid)
+    {
+        OwnedSnapshot? snapshot = GetOwnedSnapshot();
+        return snapshot is not null && snapshot.GamePid == pid &&
+            ProcessMatches(pid, snapshot.GamePath, snapshot.GameStartedAtUtc);
+    }
+
+    internal bool HasCapturedInstallation(string candidateRoot)
+    {
+        string? root;
+        bool active;
+        string? observedRoot = Volatile.Read(ref gameRoot);
+        if (observedRoot is null || !PathEquals(observedRoot, candidateRoot))
+            return false;
+        // Start may ask about sibling owners while it holds its OWN stateGate.
+        // Never wait on a sibling's lock here: simultaneous A/B starts would
+        // otherwise form an A->B / B->A lock cycle. Only matching captured
+        // installations get the conservative busy disposition.
+        if (!Monitor.TryEnter(stateGate))
+            return true;
+        try
+        {
+            root = gameRoot;
+            active = instanceId is not null || phase is "starting" or "stopping";
+        }
+        finally { Monitor.Exit(stateGate); }
+        if (root is null || !PathEquals(root, candidateRoot))
+            return false;
+        // Even after the process exits, the journal still owns the installed
+        // Lua triplet until the exact restoration is confirmed.
+        return active || ClassifyRecoveryJournal() is
+            RecoveryJournalState.Pending or RecoveryJournalState.Unknown;
+    }
+
     // PM16-01 IMPLEMENTATION POLICY: a validated installation may replace the bound
     // lifecycle root only while no owned launch/close/recovery work is active and no
     // same-profile recovery journal remains. Re-selecting the same root
@@ -229,9 +268,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             if (closed)
                 throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
-            if (profileReplacementPending)
-                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
-                    "The selected profile is changing; wait for the current profile owner to finish retiring.");
             bool sameBoundRoot =
                 gameRoot is null && normalized is null ||
                 gameRoot is not null && normalized is not null && PathEquals(gameRoot, normalized);
@@ -254,15 +290,26 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             }
             RecoveryJournalState journalState = ClassifyRecoveryJournal();
             if (journalState is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
-                throw new BridgeCommandException("GAME_REPAIR_REQUIRED",
-                    "Finish restoring or resolve the existing LWBridge recovery journal before selecting another installation.");
+            {
+                // The original picker persists independently of the current repair
+                // owner. A pending/unknown journal still owns the former installation;
+                // staging a new selection must not retarget its restoration.
+                persistSelection();
+                stagedConfiguredRoot = normalized;
+                hasStagedConfiguredRoot = true;
+                return;
+            }
 
             bool releaseAbandonedAttempt = false;
             if (instanceId is not null)
             {
                 if (phase != "error" || gameRoot is null || FindSelectedGameProcess(gameRoot) is not null)
-                    throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
-                        "The selected installation cannot change while an owned or uncertain launch attempt remains active.");
+                {
+                    persistSelection();
+                    stagedConfiguredRoot = normalized;
+                    hasStagedConfiguredRoot = true;
+                    return;
+                }
                 releaseAbandonedAttempt = true;
             }
 
@@ -691,14 +738,14 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
-            if (profileReplacementPending)
-                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
-                    "The selected profile is changing; wait for the current profile owner to finish retiring.");
             // Consume configured-root choice only after the old owner is absent.
             // A running/uncertain session must continue to use its captured root.
             if (hasStagedConfiguredRoot && phase is not ("starting" or "stopping" or "running") &&
                 gamePid is null && instanceId is null)
             {
+                if (ClassifyRecoveryJournal() is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
+                    throw new BridgeCommandException("GAME_REPAIR_REQUIRED",
+                        "Restore the previous owned installation before launching from the newly selected folder.");
                 gameRoot = stagedConfiguredRoot;
                 stagedConfiguredRoot = null;
                 hasStagedConfiguredRoot = false;
@@ -712,6 +759,9 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (phase is "starting" or "stopping" || gamePid is not null)
                 throw new BridgeCommandException("PROFILE_ALREADY_RUNNING", "PROFILE_ALREADY_RUNNING");
             selectedRoot = gameRoot;
+            if (testHooks is null && foreignOwnedInstallation?.Invoke(selectedRoot) == true)
+                throw new BridgeCommandException("BRIDGE_HOST_BUSY",
+                    "Another profile still owns the selected installation and its restoration journal.");
             IReadOnlyList<int> unmanagedPids = SelectedGamePids(selectedRoot);
             if (unmanagedPids.Count > 0 && !closeUnmanaged)
                 // 0x1d6781-0x1d6828: code == message == "UNMANAGED_GAME_RUNNING", details {pids:[ascending]}.
@@ -1060,7 +1110,8 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             await bridgeHostState.EnsureRpcTransportAsync(
                 BridgeVersion,
-                expectedClientPath).ConfigureAwait(false);
+                expectedClientPath,
+                permitPerRegistrationClientPath: true).ConfigureAwait(false);
         }
         catch (BridgeCommandException)
         {
@@ -1091,7 +1142,10 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             profileId,
             sessionId,
             BridgeVersion,
-            ControlPipeClockMilliseconds());
+            ControlPipeClockMilliseconds(),
+            gameRoot is null ? null :
+                LWBridgeControlPipeClientPathContract
+                    .BuildExpectedGameExecutablePath(gameRoot));
     }
 
     private void RefreshControlPipeLaunchBinding(
@@ -1128,41 +1182,58 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             controlPipeLaunchBinding);
     }
 
-    private static bool IsOfficialLuaUpdateFailure(InvalidOperationException error) =>
-        error.Message.StartsWith("official_lua_update_failed:", StringComparison.Ordinal);
-
-    private static bool IsLauncherGameSpawnTimeout(InvalidOperationException error) =>
-        string.Equals(
-            error.Message,
-            "the selected launcher did not create a matching LastWar process before timeout",
-            StringComparison.Ordinal);
-
     private async Task<object?> StopAsync(JsonElement payload, CancellationToken cancellationToken)
     {
         OwnedSnapshot snapshot;
+        bool cancelPendingRecovery = false;
         lock (stateGate)
         {
             if (closed) throw new BridgeCommandException("GAME_OPERATION_CANCELLED", "LWBridge is closing.");
-            if (phase is "starting" or "stopping")
+            if (phase == "stopping")
                 throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS", "A game lifecycle operation is already in progress.");
-            if (gamePid is null || instanceId is null || challenge is null || gamePath is null)
-                throw new BridgeCommandException("INSTANCE_NOT_OWNED", "No LWBridge-owned game instance is active.");
-            // Original 0.3.17 profile_instance_stop: 0x199D4B-0x199D6F
-            // distinguishes an explicitly different instance identity from
-            // the absent/unusable owner. Do not terminate or clear the active
-            // owner when a delayed Close targets a prior instance.
-            // Original 0x199AC4-0x199B38 extracts an optional JSON string;
-            // missing/non-string values skip the compare at 0x199D4B.
-            // The captured active owner still supplies all process/session
-            // identity to the helper and restoration path.
-            if (payload.TryGetProperty("instanceId", out JsonElement supplied) &&
-                supplied.ValueKind == JsonValueKind.String &&
-                !string.Equals(supplied.GetString(), instanceId, StringComparison.Ordinal))
-                throw new BridgeCommandException("INSTANCE_MISMATCH", "INSTANCE_MISMATCH");
-            SetDesiredRunning(false);
-            phase = "stopping";
-            connectionState = "recovering";
-            snapshot = SnapshotLocked();
+            if (phase == "starting" ||
+                gamePid is null || instanceId is null || challenge is null || gamePath is null)
+            {
+                // User Stop can retire a pending automatic recovery launch before
+                // it publishes a new exact process. The run's cancellation
+                // token drives late successful helper cleanup; inventing a
+                // process here would risk terminating an unrelated installation.
+                if (activeRecoveryRun is null || config?.Snapshot.GameDesiredRunning != true)
+                {
+                    if (phase == "starting")
+                        throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                            "A game lifecycle operation is already in progress.");
+                    throw new BridgeCommandException("INSTANCE_NOT_OWNED",
+                        "No LWBridge-owned game instance is active.");
+                }
+                SetDesiredRunning(false);
+                cancelPendingRecovery = true;
+                snapshot = default!;
+            }
+            else
+            {
+                // Original 0.3.17 profile_instance_stop: 0x199D4B-0x199D6F
+                // distinguishes an explicitly different instance identity from
+                // the absent/unusable owner. Do not terminate or clear the active
+                // owner when a delayed Close targets a prior instance.
+                // Original 0x199AC4-0x199B38 extracts an optional JSON string;
+                // missing/non-string values skip the compare at 0x199D4B.
+                // The captured active owner still supplies all process/session
+                // identity to the helper and restoration path.
+                if (payload.TryGetProperty("instanceId", out JsonElement supplied) &&
+                    supplied.ValueKind == JsonValueKind.String &&
+                    !string.Equals(supplied.GetString(), instanceId, StringComparison.Ordinal))
+                    throw new BridgeCommandException("INSTANCE_MISMATCH", "INSTANCE_MISMATCH");
+                SetDesiredRunning(false);
+                phase = "stopping";
+                connectionState = "recovering";
+                snapshot = SnapshotLocked();
+            }
+        }
+        if (cancelPendingRecovery)
+        {
+            InvalidateRecoveryForUserStop();
+            return CreateInstanceStatus();
         }
         // 0x41bbff: the original Stop turns desired-running off, clears the tracked PID, increments the run id
         // (invalidating any recovery run) and resets the recovery status to idle (0x41ad16) before terminating.
@@ -1486,6 +1557,11 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                             "SERVER_MAINTENANCE",
                             "Last War servers are currently under maintenance. Scanning is temporarily unavailable.",
                             new { error, loginCode = "E005", loadingCode = "E109" });
+                    if (invocation.Operation == "start" &&
+                        string.Equals(errorType, "LauncherSpawnError", StringComparison.Ordinal))
+                        throw new BridgeCommandException(
+                            "LAUNCH_TASK_FAILED", "LAUNCH_TASK_FAILED",
+                            new { error });
                     throw new InvalidOperationException(error);
                 }
                 return root.Clone();
@@ -1718,7 +1794,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
     {
         lock (stateGate)
         {
-            if (closed || profileReplacementPending ||
+            if (closed ||
                 !string.Equals(instanceId, session, StringComparison.Ordinal) ||
                 !string.Equals(challenge, nonce, StringComparison.Ordinal))
                 return false;
@@ -1973,69 +2049,6 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
         {
             return false;
         }
-    }
-
-    internal void BeginProfileReplacement()
-    {
-        lock (stateGate)
-        {
-            if (closed)
-                throw new BridgeCommandException("APP_SHUTTING_DOWN", "LWBridge is closing.");
-            if (profileReplacementPending)
-                throw new BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
-                    "A profile replacement is already in progress.");
-            bool hasOwnedOrInFlightLifecycle =
-                phase is "starting" or "running" or "stopping" ||
-                gamePid is not null ||
-                activeHelperProcess is not null ||
-                activeRecoveryCancellation is not null;
-            if (hasOwnedOrInFlightLifecycle)
-            {
-                throw new BridgeCommandException(
-                    "GAME_OPERATION_IN_PROGRESS",
-                    "The selected profile cannot change while an owned game lifecycle operation is active.");
-            }
-            if (ClassifyRecoveryJournal() is RecoveryJournalState.Pending or RecoveryJournalState.Unknown)
-            {
-                throw new BridgeCommandException(
-                    "GAME_REPAIR_REQUIRED",
-                    "Finish restoring or resolve the existing LWBridge recovery journal before changing profiles.");
-            }
-
-            if (instanceId is not null)
-            {
-                if (phase != "error" || gameRoot is null || FindSelectedGameProcess(gameRoot) is not null)
-                {
-                    throw new BridgeCommandException(
-                        "GAME_OPERATION_IN_PROGRESS",
-                        "The selected profile cannot change while an owned or uncertain launch attempt remains active.");
-                }
-                ClearAbandonedLaunchIdentityLocked();
-            }
-            profileReplacementPending = true;
-        }
-    }
-
-    internal void CancelProfileReplacement()
-    {
-        lock (stateGate)
-        {
-            if (!closed)
-                profileReplacementPending = false;
-        }
-    }
-
-    internal void CommitProfileReplacement()
-    {
-        lock (stateGate)
-        {
-            if (!profileReplacementPending)
-                throw new InvalidOperationException("Profile replacement was not admitted by this lifecycle owner.");
-            profileReplacementPending = false;
-            closed = true;
-        }
-        StopRecoveryMonitor();
-        StopLeaseTimer(deleteLease: false);
     }
 
     private static bool KeyValueRuntimeFileMatches(

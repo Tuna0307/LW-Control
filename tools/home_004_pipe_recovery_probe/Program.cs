@@ -71,6 +71,41 @@ Console.WriteLine("PROBE_PHASE_RECONNECT_OK");
 
 var successor = host.PrepareLaunchBinding(profile, "successor", build, Now());
 using var second = await ConnectHelloAsync(name, "successor", successor.PipeToken);
+const string otherProfile = "home004-isolated-B";
+var concurrent = host.PrepareLaunchBinding(
+    otherProfile, "other-owner", build, Now(), executable);
+using var other = await ConnectHelloAsync(
+    name, "other-owner", concurrent.PipeToken, otherProfile);
+if (!host.IsRouteConnected("successor") || !host.IsRouteConnected("other-owner") ||
+    host.ConnectedRouteCount != 2)
+    throw new InvalidOperationException(
+        "Two independent authenticated profile sessions did not coexist on one listener");
+// The two actual OS pipe readers are live at the same time. A command sent to
+// B must arrive on B's stream while A's authenticated session remains open.
+using JsonDocument otherArgumentDocument = JsonDocument.Parse("{\"text\":\"other\"}");
+Task<JsonElement?> otherRpc = host.CallLuaAsync(
+    "other-owner", "isolated_echo", otherArgumentDocument.RootElement.Clone(),
+    Now(), Now(), resultTimeout: TimeSpan.FromSeconds(5));
+byte[] otherCommand = await ReadFrameAsync(other, TimeSpan.FromSeconds(3));
+using JsonDocument otherEnvelopeDoc = JsonDocument.Parse(otherCommand);
+string otherRequestId = otherEnvelopeDoc.RootElement.GetProperty("payload")
+    .GetProperty("id").GetString()!;
+await other.WriteAsync(LWBridgeControlPipeProtocol.EncodeFrame(
+    JsonSerializer.SerializeToUtf8Bytes(new
+    {
+        version = 1, type = "result", profileId = otherProfile,
+        instanceId = "other-owner", requestId = otherRequestId,
+        timestamp = Now(), payload = new
+        {
+            id = otherRequestId, ok = true, result = new { echoed = "other" }
+        }
+    })));
+JsonElement? otherResult = await otherRpc.WaitAsync(TimeSpan.FromSeconds(3));
+if (otherResult?.GetProperty("echoed").GetString() != "other" ||
+    !host.IsRouteConnected("successor"))
+    throw new InvalidOperationException(
+        "B's RPC incorrectly consumed, disconnected or rerouted A's session");
+Console.WriteLine("PROBE_PHASE_TWO_PROFILE_CONCURRENT_RPC_OK");
 using JsonDocument argumentDocument = JsonDocument.Parse("{\"text\":\"alive\"}");
 JsonElement arguments = argumentDocument.RootElement.Clone();
 Task<JsonElement?> rpc = host.CallLuaAsync("successor", "isolated_echo", arguments,
@@ -143,14 +178,16 @@ Console.WriteLine(JsonSerializer.Serialize(new
     freshHelloAckAndRpc = true,
     obsoleteGenerationPreservedSuccessor = true,
     explicitHostCloseRetiredPendingRpc = true,
+    simultaneousAuthenticatedProfilesAndRpc = true,
     firstInstanceFlagUseCount,
     failedRpcSessions
 }, new JsonSerializerOptions { WriteIndented = true }));
 
-byte[] Hello(string instanceId, string token, int pid, string idBuild) =>
+byte[] Hello(string instanceId, string token, int pid, string idBuild,
+    string? alternateProfile = null) =>
     JsonSerializer.SerializeToUtf8Bytes(new
     {
-        version = 1, type = "hello", profileId = profile, instanceId,
+        version = 1, type = "hello", profileId = alternateProfile ?? profile, instanceId,
         requestId = "", timestamp = Now(),
         payload = new { token, pid, buildId = idBuild }
     });
@@ -166,14 +203,15 @@ async Task SendRejectedAsync(string pipe, byte[] bytes, int expectedCount, bool 
         throw new InvalidOperationException("Invalid handshake admitted a route");
 }
 
-async Task<NamedPipeClientStream> ConnectHelloAsync(string pipe, string instanceId, string token)
+async Task<NamedPipeClientStream> ConnectHelloAsync(
+    string pipe, string instanceId, string token, string? alternateProfile = null)
 {
     var client = new NamedPipeClientStream(".", pipe, PipeDirection.InOut, PipeOptions.Asynchronous);
     try
     {
         await client.ConnectAsync(5000);
         await client.WriteAsync(LWBridgeControlPipeProtocol.EncodeFrame(
-            Hello(instanceId, token, Environment.ProcessId, build)));
+            Hello(instanceId, token, Environment.ProcessId, build, alternateProfile)));
         byte[] ack = await ReadFrameAsync(client, TimeSpan.FromSeconds(4));
         using JsonDocument json = JsonDocument.Parse(ack);
         if (json.RootElement.GetProperty("type").GetString() != "hello.ack" ||

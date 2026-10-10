@@ -100,7 +100,11 @@ internal static class LWBridgeControlPipeIsolatedHandshake
 
         string actualCanonicalClientPath = GetCanonicalClientImagePath(actualPid);
         byte[] actualPathBytes = Encoding.UTF8.GetBytes(actualCanonicalClientPath);
-        byte[] expectedPathBytes = Encoding.UTF8.GetBytes(expectedCanonicalClientPath);
+        string? sessionExpectedImage =
+            registry.ExpectedClientPathForAuthenticatedHello(
+                hello.ProfileId, hello.InstanceId, hello.Token, nowMilliseconds);
+        byte[] expectedPathBytes = Encoding.UTF8.GetBytes(
+            sessionExpectedImage ?? expectedCanonicalClientPath);
         if (!LWBridgeControlPipeClientPathContract.AsciiCaseInsensitiveUtf8PathEquals(
                 actualPathBytes,
                 expectedPathBytes))

@@ -17,6 +17,7 @@ internal static class Program
         string? mapUiIntegrationProofPath = ReadPathOption(args, "--map-ui-integration-proof");
         string? homeMapCampaignProofPath = ReadPathOption(args, "--home-map-campaign-proof");
         bool homeMapCampaignNarrow = args.Contains("--home-map-campaign-narrow", StringComparer.OrdinalIgnoreCase);
+        bool homeMapCampaignHomeOnly = args.Contains("--home-map-campaign-home-only", StringComparer.OrdinalIgnoreCase);
         string? ownerEvidencePath = ReadPathOption(args, "--owner-evidence");
         string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
         string? uiRootPath = ReadPathOption(args, "--ui-root");
@@ -35,6 +36,8 @@ internal static class Program
         }
         if (homeMapCampaignNarrow && homeMapCampaignProofPath is null)
             throw new ArgumentException("--home-map-campaign-narrow requires --home-map-campaign-proof.");
+        if (homeMapCampaignHomeOnly && homeMapCampaignProofPath is null)
+            throw new ArgumentException("--home-map-campaign-home-only requires --home-map-campaign-proof.");
         if (cityReopenProofPath is not null)
         {
             if (new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, ownerEvidencePath }.Any(path => path is not null))
@@ -85,7 +88,7 @@ internal static class Program
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
             normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
             mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow, useLegacyUi,
-            isolatedRootPath);
+            isolatedRootPath, homeMapCampaignHomeOnly);
         if (hostProbePath is null)
         {
             Application.Run(window);

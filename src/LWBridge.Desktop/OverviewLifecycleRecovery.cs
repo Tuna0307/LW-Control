@@ -210,6 +210,10 @@ internal sealed partial class OverviewLifecycleService
         foreach (int pid in pids)
         {
             ThrowIfStartClosed(cancellationToken);
+            if (foreignOwnedProcess?.Invoke(pid) == true)
+                throw new BridgeCommandException(
+                    "BRIDGE_HOST_BUSY",
+                    "Another profile owns this installation's game process.");
             OwnedProcessTerminationResult result = await OwnedProcessTermination.TerminateAsync(
                 api, pid, expectedPath, null, RecoveryDelayAsync, cancellationToken, awaitExit: false).ConfigureAwait(false);
             switch (result)

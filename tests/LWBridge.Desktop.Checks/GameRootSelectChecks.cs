@@ -281,6 +281,7 @@ internal static class GameRootSelectChecks
         int startCalls = 0;
         int stopCalls = 0;
         string capturedActiveRoot = rootB;
+        bool pendingJournal = false;
 
         var hooks = new OverviewLifecycleTestHooks
         {
@@ -319,7 +320,12 @@ internal static class GameRootSelectChecks
             ReadAllBytes = path =>
             {
                 if (path.EndsWith("recovery.json", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (pendingJournal)
+                        return System.Text.Encoding.UTF8.GetBytes(
+                            "{\"schemaVersion\":1,\"stage\":\"backup_ready\"}");
                     throw new FileNotFoundException(path);
+                }
                 return Heartbeat(profileId, session!, challenge!, gamePid);
             },
             WriteLease = (_, _, _) => { },
@@ -470,6 +476,33 @@ internal static class GameRootSelectChecks
         }
         await ExpectCommandCodeAsync(() => backend.InvokeAsync("profile_instance_stop", profilePayload,
             CancellationToken.None), "INSTANCE_NOT_OWNED", "no active Close owner");
+        // Baseline on R4 predecessor: the picker wrongly throws GAME_REPAIR_REQUIRED
+        // when the old installation has a pending journal. Original root_select
+        // saves the choice; restoration still belongs to the journal's old root.
+        pendingJournal = true;
+        NativeGameRootSelectionResult pendingSelection =
+            backend.SaveNativeGameRootSelection(rootB);
+        Require(pendingSelection.Valid && SamePath(config.Snapshot.GameRoot!, rootB) &&
+                stopCalls == 8 && !processAlive,
+            "picker persists the next root while a pending old-root repair journal remains");
+        await ExpectCommandCodeAsync(() => backend.InvokeAsync(
+            "profile_instance_start", profilePayload, CancellationToken.None),
+            "GAME_REPAIR_REQUIRED",
+            "persisted picker change cannot bypass unfinished restoration of previous installation");
+        Require(startCalls == 8 && !processAlive,
+            "unfinished old-root journal prevented helper launch into the selected replacement root");
+        pendingJournal = false;
+        JsonElement postJournalStart = JsonSerializer.SerializeToElement(
+            await backend.InvokeAsync("profile_instance_start", profilePayload,
+                CancellationToken.None), JsonOptions.Default);
+        Require(processAlive && SamePath(capturedActiveRoot, rootB) &&
+                postJournalStart.GetProperty("phase").GetString() == "running",
+            "next eligible Start consumes root selected during pending repair");
+        _ = await backend.InvokeAsync("profile_instance_stop", JsonSerializer.SerializeToElement(new
+        {
+            profileId,
+            instanceId = postJournalStart.GetProperty("instanceId").GetString()
+        }), CancellationToken.None);
         Console.WriteLine("HOME_LAUNCH_002_NATIVE_NEGATIVE_CHECKS_OK duplicate Start, stale/empty Close, optional identity 6/6, exact Close, active-root ownership; game launches=0");
     }
 

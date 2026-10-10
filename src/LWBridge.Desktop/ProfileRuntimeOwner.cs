@@ -3,8 +3,8 @@ using Map317 = LWBridge.Map317;
 namespace LWBridge.Desktop;
 
 /// <summary>
-/// Owns every profile-scoped native service that must retire together when the
-/// selected local profile changes. Product composition uses the current-client
+/// Owns every profile-scoped native service retained independently of Home
+/// selection until the host closes. Product composition uses the current-client
 /// providers; deterministic checks may inject inert providers at this boundary.
 /// </summary>
 internal sealed class ProfileRuntimeOwner : IDisposable
@@ -96,7 +96,10 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         string? overviewEvidenceRoot = null,
         string? overviewBackupRoot = null,
         LWBridgeControlPipeHostState? sharedBridgeHostState = null,
-        string? applicationDataRoot = null)
+        string? applicationDataRoot = null,
+        OrderedProfileReconcileCommandService? startupReconcile = null,
+        Func<int, bool>? foreignOwnedProcess = null,
+        Func<string, bool>? foreignOwnedInstallation = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(profileId);
         ArgumentNullException.ThrowIfNull(config);
@@ -157,7 +160,9 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 runtimeRoot: overviewRuntimeRoot,
                 evidenceRoot: overviewEvidenceRoot,
                 backupRoot: overviewBackupRoot,
-                applicationDataRoot: applicationDataRoot);
+                applicationDataRoot: applicationDataRoot,
+                foreignOwnedProcess: foreignOwnedProcess,
+                foreignOwnedInstallation: foreignOwnedInstallation);
             map = mapProvider is null
                 ? new Map317CommandService(
                     Path.Combine(fullProfileRoot, "map-data", "map-data.db"),
@@ -183,7 +188,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 },
                 startScheduler: startAutoScheduler);
 
-            var orderedReconcile = new OrderedProfileReconcileCommandService(
+            var orderedReconcile = startupReconcile ?? new OrderedProfileReconcileCommandService(
                 profileRegistryService,
                 (ownerId, payload, token) =>
                     string.Equals(ownerId, profileId, StringComparison.Ordinal)
