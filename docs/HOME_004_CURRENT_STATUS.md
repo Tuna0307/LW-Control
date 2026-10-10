@@ -1,6 +1,6 @@
 # Home — current functional status
 
-Worker follow-up: 2026-10-11. **PARTIAL: F-04 and F-06 genuine live gates now pass; F-07 genuinely simultaneous independent installations remain unverified. Not approved for a whole-Home merge.**
+Worker follow-up: 2026-10-11. **PARTIAL: F-04 and F-06 genuine live gates now pass; current-client double-launch attempts did not sustain a second game. F-07 genuinely simultaneous independent installations remain unverified. Not approved for a whole-Home merge.**
 
 Current goal is a faithful, reliable functional replacement, with documented minor
 implementation differences. Missing original licensing responses, private constants
@@ -25,7 +25,7 @@ or protected screenshots alone do not block release. Read
 | Automatic startup and host restart/adoption (F-03/F-05) | Earlier genuine single-game startup/adoption; current native preference/admission/identity regressions pass. | Two genuine simultaneous games remain F-07. |
 | Automatic Reconnection (F-04) | **Genuine verified:** task-owned host dropped the *actual authenticated pipe* while the same game PID kept a fresh heartbeat. OFF left game running and Home Disconnected; ON ran disconnect recovery to a distinct authentically Connected PID/session, native status `succeeded` after stable verification. Separate Stop with ON prevented any replacement for over two minutes; exact restoration and zero residual game/host/journal checked. | No remaining F-04 live gate from this assignment. This is a current-client adaptation, not original private pipe parity. |
 | Update-and-Launch / repair (F-06) | **Genuine verified:** an isolated same-client journal survived a host exit while task-owned DPAPI adoption was archived; actual Home repair initially returned `GAME_CLOSE_FAILED`, corrected missing-challenge stop-helper boundary and then returned `restarted=1`, fresh PID/session, authenticated Home Connected and exact Stop/restoration. | Long-lived external updater and foreign-account recovery are outside this gate. Negative error trace retained. |
-| Folder, preferences and profile controls (F-01/F-07/F-08) | Native picker/storage, SQLite Add/Delete/enable/note/order, independent A/B inert owner routing and prior EN/JA WebView controls checked. New simultaneous Start native regression guards the per-user shared Lua triplet. | **F-07 remains open:** a second independently supportable official installation with its own mutable Lua package and independently authenticated game has not been demonstrated. |
+| Folder, preferences and profile controls (F-01/F-07/F-08) | Native picker/storage, SQLite Add/Delete/enable/note/order, independent A/B inert owner routing and prior EN/JA WebView controls checked. Simultaneous Start native regression guards the shared Lua triplet. The new [genuine double-launch observation](HOME_004_F07_DOUBLE_LAUNCH_2026-10-11.md) sustained only one real game through duplicate EXE and official-launcher attempts. | **F-07 remains open:** a second independently supportable official installation with its own mutable Lua package and independently authenticated game has not been demonstrated. |
 | Candidate and integration (F-09) | Native, frontend and real Windows named-pipe checks PASS after corrections. Final extracted `234480bc` EN/light and JA/dark mounted Home native/WebView proofs PASS: both inert A/B owners stopped, zero real game/Map launches, zero active requests/subscriptions, no cleanup failures, UI screenshots saved. ZIP/source/EXE/ProductionUi identity and v24 genuine cleanup all independently checked. | Whole Home is still PARTIAL solely on genuine simultaneous independent F-07 game capability. |
 
 Earlier genuine receipts are usable within their recorded source and operation
@@ -43,6 +43,12 @@ installation. A copied folder and two metadata rows would not establish two
 supported launchers or independent Lua/restoration ownership. The current
 implementation now rejects simultaneous starts before shared-package mutation;
 independent owner/session functionality is still a genuine capability gap.
+The owner-authorized [direct double-launch experiment](HOME_004_F07_DOUBLE_LAUNCH_2026-10-11.md)
+observed a second `LastWar.exe` PID briefly, which exited by six seconds; retrying the
+official launcher produced no second sustained game through 22 seconds. This
+supports a current-client limitation, not universal multi-instance impossibility.
+Do not silently change the intended Home profile-concurrency scope.
+
 An independently supported second game installation with separate mutable
 scripts/launcher identity (or a verified supported multi-client adaptation) is
 required to test simultaneous A/B games, saved settings, batches and cleanup.
