@@ -162,6 +162,11 @@ internal sealed partial class LWBridgeWindow
         await WaitForUiAsync(
             "!!document.querySelector('.quick-actions-panel') && document.querySelectorAll('.profile-compact-item').length === 2",
             "packaged native Home and two real profile controls");
+        // Shared original 0.3.17 top bar reads the real update_status response,
+        // not the historic clone 0.3.1 adapter version.
+        await WaitForUiAsync(
+            "document.querySelector('.top-version-row')?.textContent?.includes('0.3.17') === true",
+            "source-matched 0.3.17 top-bar version from native update_status");
 
         string languageJson = JsonSerializer.Serialize(expectedLanguage, JsonOptions.Default);
         await ClickAsync($$"""

@@ -343,7 +343,7 @@ internal sealed class LWBridgeBackend
                 return new
                 {
                     phase = "idle",
-                    currentVersion = "0.3.1",
+                    currentVersion = "0.3.17",
                     latestVersion = (string?)null,
                     releaseNotes = "",
                     publishedAt = (string?)null,
