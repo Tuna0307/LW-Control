@@ -11,6 +11,13 @@ Home is first. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSA
 Whole Home functional acceptance remains pending; PR #6 stays draft.
 This direction change does not merge or certify the existing candidate.
 
+Lead check, 2026-10-11: current product candidate `d09b8328` passes independently
+rerun native, Windows pipe and frontend checks; its extracted package identity
+matches. Whole Home remains **PARTIAL** for genuine transport-only recovery,
+replacement-bridge repair and simultaneous independent game sessions. See
+[the lead review](HOME_004_LEAD_PROGRESS_2026-10-11.md). These are the active
+remaining operations, rather than the old original-only research obligations.
+
 ## Retained scoped evidence
 
 - Reviewed recovered source/local UI and packaged startup; no new redesign.
