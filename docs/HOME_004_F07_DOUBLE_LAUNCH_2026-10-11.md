@@ -106,3 +106,49 @@ Follow-up outcome: **no supported alternate login EXE found within the
 installed current client**. Existing genuine single-game and F-04/F-06
 acceptance are unchanged. F-07 remains OPEN pending vendor-supported distinct
 client/package integration or an explicit lead/owner scope decision.
+
+## Explicit owner clarification: two official Windows PC games only
+
+The owner **rejected the Android emulator alternative** and explicitly
+requires **two simultaneous official native Windows PC Last War games**, with
+separate account login, not account switching or two saved metadata profiles.
+Do not offer an emulator as completion of this requirement or change product
+scope to one active game without a new explicit owner decision.
+
+Read-only host inspection on this same machine:
+
+- OS: **Microsoft Windows 11 Home**, build `26200`, x64; approximately
+  **15.71 GiB physical RAM**, Intel Core i7-13650HX, RTX 4060 Laptop GPU.
+- Windows Sandbox is **not supported** on Windows Home, according to Microsoft:
+  https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/
+- No `WindowsSandbox.exe`, `VBoxManage.exe`, `vmrun.exe` or `qemu-system-x86_64.exe`
+  was on the inspected `PATH`, and no common third-party VM platform was found
+  in the checked Windows uninstall inventory. This is not an exhaustive search
+  for all possible virtual-machine software.
+- Community reports describe the official PC client rejecting both Hyper-V
+  guests and Windows Sandbox with a virtual-machine error. The report is
+  anecdotal, not official policy or a fresh test of this installed build:
+  https://www.reddit.com/r/LastWarMobileGame/comments/1lubjq2/pc_version_trying_to_run_two_clients_blocked_by/
+- Another September 2026 player report describes separate Windows users and
+  Sandboxie not producing two lasting PC game windows:
+  https://www.reddit.com/r/LastWarMobileGame/comments/1wlqw8w/how_to_open_2_separate_windows_for_this_game_on_pc/
+
+No guest Windows license or separate official installation was available for
+legitimate dual-client testing. We did not install a VM, make a second Windows
+user, copy and start an unsupported fake installation, defeat VM detection,
+disable security services or modify the user's game or network settings.
+
+**Observed boundary:** the installed client runs one lasting official PC game;
+the verified current bridge also shares one mutable per-user Lua triplet, and
+there is no verified second independent authenticated PC process to attach.
+A second **physical** Windows PC with its own legitimately installed official
+game is a potential separate environment but was not supplied, connected or
+tested. A second physical PC would also require a separately validated
+cross-machine LW-Control transport; it cannot be counted as current F-07 PASS.
+The official publisher's support channel at https://www.lastwar.com/ lists
+`support@lastwar.com` for clarification of supported native multi-client use.
+
+**F-07 stays OPEN / whole Home PARTIAL.** Do not claim the limitation is
+mathematically universal, claim a second account login happened, or re-run the
+already-negative official single-root duplicate-start experiment without a new
+supported technical hypothesis.

@@ -49,6 +49,15 @@ official launcher produced no second sustained game through 22 seconds. This
 supports a current-client limitation, not universal multi-instance impossibility.
 Do not silently change the intended Home profile-concurrency scope.
 
+The owner's latest clarification **requires two simultaneous official Windows
+PC games** and rejects an Android emulator or sequential profile switching as
+a substitute. Read-only host and official-client feasibility follow-up is
+recorded in the [F-07 process receipt](HOME_004_F07_DOUBLE_LAUNCH_2026-10-11.md):
+this PC runs Windows 11 Home (no supported Windows Sandbox); no installed
+alternate PC login executable or verified separate official Windows client was
+found. VM client support is also unverified, with external reports of rejection.
+The requirement and F-07 BLOCK remain unchanged.
+
 An independently supported second game installation with separate mutable
 scripts/launcher identity (or a verified supported multi-client adaptation) is
 required to test simultaneous A/B games, saved settings, batches and cleanup.

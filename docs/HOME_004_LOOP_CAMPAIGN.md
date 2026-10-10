@@ -25,6 +25,13 @@ all R4–R16 rounds or strict original-only research. External worker works solo
 | 3 | F-07 genuine independent profiles | **OPEN**: the owner's [genuine current-client double-launch attempt](HOME_004_F07_DOUBLE_LAUNCH_2026-10-11.md) yielded one sustained game (second direct EXE PID briefly lived; second official launcher produced no second game). Establish a legitimately supported second installed client plus independently owned mutable Lua package before authenticated simultaneous A/B verification. No inert owner, short-lived PID or unsupported duplicate folder substitutes for a second game. |
 | 4 | Integrated closeout | Recheck all affected Home controls, native/pipe/frontend checks, extracted candidate, EN/light and JA/dark receipts, identity and exact zero-residual cleanup. |
 
+Owner's final confirmed target for F-07 is **two simultaneous official native
+Windows PC games**. Android emulation and one-at-a-time profile switching are
+not acceptable substitutes. The actual Home client on Windows 11 Home has one
+verified real installation, failed duplicate starts and no verified supported
+second client. Preserve the real shared-Lua admission safety guard and remain
+PARTIAL until a legitimate second PC install/transport is independently proved.
+
 Investigate permissible task-owned host/adapter seams and legitimate isolated
 copies before declaring inputs unavailable. Missing original ticket/key/pixel
 information is not a substitute for diagnosing a current functional issue.
