@@ -17,12 +17,19 @@ export function reorderProfileIds(ids, sourceId, targetId) {
   return next;
 }
 
+export function profileHasStopTarget(instance) {
+  const failed = instance?.phase === "error" && instance.pid == null;
+  const owned = typeof instance?.instanceId === "string" && instance.instanceId.length > 0;
+  // F-04/F-07: native recovery can still own a relaunch after restoring the
+  // old instance ID. It is cancellable even without a live game process.
+  return (owned && !failed) || instance?.connectionState === "recovering";
+}
+
 export function profileBatchIds(action, profiles, instances) {
   return profiles.flatMap((profile) => {
     const instance = instances[profile.id];
-    const failed = instance?.phase === "error" && instance.pid == null;
-    const owned = typeof instance?.instanceId === "string" && instance.instanceId.length > 0;
-    return (action === "start" ? profile.enabled && !profile.lockedReason && (!owned || failed) : owned && !failed) ? [profile.id] : [];
+    const canStop = profileHasStopTarget(instance);
+    return (action === "start" ? profile.enabled && !profile.lockedReason && !canStop : canStop) ? [profile.id] : [];
   });
 }
 
@@ -213,7 +220,7 @@ export function ProfileSidebar({
     beginProfileAction(profile.id);
     onClearProfileLaunchErrors?.(); setActionError(""); setRestartRequired(false);
     try {
-      const next = running ? await provider(profile.id, instance.instanceId) : await provider(profile.id);
+      const next = running ? await provider(profile.id, instance?.instanceId) : await provider(profile.id);
       setInstanceState((current) => ({ ...current, [profile.id]: next }));
     } catch (failure) {
       setActionError(profileError(t, failure));
@@ -243,8 +250,7 @@ export function ProfileSidebar({
       <div className="profile-items">{profiles.map((profile) => {
         const display = profileDisplay(profile, t);
         const instance = instanceState[profile.id];
-        const failed = instance?.phase === "error" && instance.pid == null;
-        const running = typeof instance?.instanceId === "string" && instance.instanceId.length > 0 && !failed;
+        const running = profileHasStopTarget(instance);
         const connection = profile.lockedReason ? "locked" : instance?.connectionState ?? "offline";
         return <div className={`profile-row${profile.id === state.selectedProfileId ? " active" : ""}${draggedId === profile.id ? " dragging" : ""}${dragOverId === profile.id ? " drag-over" : ""}`} key={profile.id}
           onDragOver={(event) => { if (onReorder && draggedId && draggedId !== profile.id) { event.preventDefault(); setDragOverId(profile.id); } }}

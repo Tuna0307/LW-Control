@@ -237,6 +237,35 @@ function deliver(fixture, message) {
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
 const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
 {
+  // Exercise the actual sidebar's stop-target/batch selection code. A restored
+  // offline game may still have a pending native recovery operation with no
+  // instance ID, and an old error may coexist with active recovery.
+  const selectionSource = sidebarSource.slice(
+    sidebarSource.indexOf("export function profileDisplay"),
+    sidebarSource.indexOf("function errorCodes"),
+  ).replaceAll("export ", "");
+  const { profileHasStopTarget, profileBatchIds } = new Function(
+    `${selectionSource}\nreturn { profileHasStopTarget, profileBatchIds };`,
+  )();
+  const profiles = [
+    { id: "A", enabled: true }, { id: "B", enabled: true },
+    { id: "C", enabled: true }, { id: "D", enabled: true },
+  ];
+  const instances = {
+    A: { instanceId: null, phase: "recovering", connectionState: "recovering" },
+    B: { instanceId: "old-B", phase: "error", pid: null, connectionState: "recovering" },
+    C: { instanceId: "live-C", phase: "running", pid: 123, connectionState: "connected" },
+    D: { instanceId: null, phase: "error", pid: null, connectionState: "error" },
+  };
+  assert.equal(profileHasStopTarget(instances.A), true, "ID-less genuine native recovery permits Stop");
+  assert.equal(profileHasStopTarget(instances.D), false, "terminal stopped failure is not a running owner");
+  assert.deepEqual(profileBatchIds("stop", profiles, instances), ["A", "B", "C"],
+    "Stop All includes active recovery even after restoration removed its ID");
+  assert.deepEqual(profileBatchIds("start", profiles, instances), ["D"],
+    "Start All must never overlap a pending active recovery");
+  assert.deepEqual(profileBatchIds("stop", profiles, {}), [], "idle entries remain stopped");
+}
+{
   const selectionBody = appSource.slice(appSource.indexOf("const selectNativeProfile ="),
     appSource.indexOf("const reorderNativeProfiles ="));
   assert.match(selectionBody, /nativeProfileSelectionRevisionRef\.current !== selectionRevision/,

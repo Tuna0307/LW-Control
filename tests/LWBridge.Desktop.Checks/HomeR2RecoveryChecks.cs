@@ -642,6 +642,17 @@ internal static class HomeR2RecoveryChecks
             "original hang and offline 30s must start run");
         Require(c.TerminateCalls == 1 && c.StopCalls == 1,
             "hang recovery init immediately terminates and restores captured owner");
+        JsonElement restoredPending = JsonSerializer.SerializeToElement(
+            c.Service.CreateProfileInstanceStatus(), JsonOptions.Default);
+        Require(restoredPending.ValueKind == JsonValueKind.Object &&
+                restoredPending.GetProperty("instanceId").ValueKind == JsonValueKind.Null &&
+                restoredPending.GetProperty("phase").GetString() == "recovering" &&
+                restoredPending.GetProperty("connectionState").GetString() == "recovering",
+            "F-04/F-07 after actual native recovery restoration, sidebar still exposes optional-ID Stop");
+        await c.Stop();
+        Require(JsonSerializer.SerializeToElement(c.Service.CreateProfileInstanceStatus()).ValueKind == JsonValueKind.Null &&
+                c.Service.CurrentRecoveryStatus.State == "idle" && !c.Config.Snapshot.GameDesiredRunning,
+            "F-04/F-07 optional-ID Stop clears recovery and restores idle sidebar response");
 
         using var d = new Case("disconnect", true);
         await d.Start();
