@@ -2,6 +2,20 @@
 
 ## Current owner direction — 2026-10-09
 
+Latest owner workflow direction, 2026-10-10: run the remaining Home assignment
+as one self-correcting loop. Read docs/LOOP_WORKER_PROTOCOL.md and
+docs/HOME_004_LOOP_CAMPAIGN.md. Correct LEADHOME004R4-01/02 first, then continue
+all ready H-01–H-47 obligations on codex/home-complete-delivery-004. Ordinary
+failures require diagnosis, correction and retesting, not a handoff to the lead.
+Coherent checkpoints are progress saves, not permission boundaries. This
+supersedes older instructions to stop after R4-R1 or each medium unit. Return
+for independent lead review when whole Home meets its acceptance gates; if
+genuinely missing inputs prevent that, exhaust other ready work and return an
+exact PARTIAL_NEEDS_INPUT receipt. Never call a blocked feature complete.
+Same checkout, solo manual relay, no new Map scope or main merge/publication.
+Existing original-authority, identity, isolation, restoration and access gates
+remain; explicit owner pause and actual approval denials must be respected.
+
 Latest lead review, 2026-10-10: R4 worker c7f53530a57911b226bce57d047c08a79ba4be42
 is CHANGES_REQUIRED. Actual production inverse shows an old-instance Close can
 cancel a newer pending recovery owner (LEADHOME004R4-01). Native sidebar instance

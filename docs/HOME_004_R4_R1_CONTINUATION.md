@@ -1,5 +1,11 @@
 # HOME-004 R4-R1 — exact pending Stop and functional profile controls
 
+2026-10-10 owner override: the correction details below remain required first
+milestones. Their unit-only stop/return boundary is superseded by
+[HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md). After both corrections
+and their distinguishing checks pass, continue the remaining Home queue without
+waiting for another lead assignment. Preserve the historical lead negatives.
+
 READY FOR OWNER RELAY. One medium correction, three sequential checkpoints.
 Repository: C:\Users\chimw\OneDrive\Desktop\Github\LW-Control
 Branch: codex/home-complete-delivery-004; same checkout, draft PR #6.

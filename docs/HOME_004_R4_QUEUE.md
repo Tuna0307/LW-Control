@@ -1,5 +1,12 @@
 # HOME-004 R4 — reconciled 47-obligation queue
 
+2026-10-10 active continuation: [HOME_004_LOOP_CAMPAIGN.md](HOME_004_LOOP_CAMPAIGN.md).
+The table below is the carried-forward obligation inventory, not proof that
+its open rows are closed. First fix LEADHOME004R4-01 (stale explicit Close during
+pending recovery) and -02 (native sidebar callbacks and target-owner routing).
+Then continue all ready rows under the self-correction loop. Update affected
+rows with actual distinguishing results; preserve earlier negative receipts.
+
 Reference: LWBridge **0.3.17**, original EXE SHA-256
 `4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783`.
 The authoritative original locators, complete conditions, and historical

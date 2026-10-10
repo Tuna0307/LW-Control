@@ -1,5 +1,12 @@
 # Feature delivery status
 
+**Active owner assignment, 2026-10-10: Home self-correction loop.** Start with
+LEADHOME004R4-01/02, then continue every ready remaining Home obligation without
+returning after routine failures or intermediate checkpoints. See
+[loop campaign](HOME_004_LOOP_CAMPAIGN.md) and
+[worker loop protocol](LOOP_WORKER_PROTOCOL.md). This changes the workflow,
+not acceptance: whole Home remains PARTIAL, PR #6 draft, no merge/publication.
+
 **Latest R4 lead review, 2026-10-10: CHANGES_REQUIRED.** General native, concurrent
 pipe and frontend checks pass, but a distinguishing actual lifecycle inverse
 reproduces stale-instance Stop cancelling a newer pending recovery. Native
