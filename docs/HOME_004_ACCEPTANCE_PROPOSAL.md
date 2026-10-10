@@ -1,7 +1,9 @@
 # Whole Home — functional acceptance proposal
 
 Current owner direction: [faithful functional replacement](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
-**Whole Home not yet lead accepted. PR #6 remains draft.**
+**Single-game Home is lead accepted under the owner decision of 2026-10-11.**
+See HOME_004_SINGLE_GAME_LEAD_ACCEPTANCE_2026-10-11.md. Simultaneous-game F-07
+remains unfinished and is excluded only from this first release, not removed.
 
 The reference is LWBridge 0.3.17, but exact equality in every obscure original
 state is no longer mandatory. The familiar interface, feature purpose and real

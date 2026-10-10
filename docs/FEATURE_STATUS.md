@@ -8,15 +8,15 @@ Familiar features, real results and reliability remain mandatory.
 Home is first. Its [functional acceptance catalogue](HOME_004_ACCEPTANCE_PROPOSAL.md),
 [current status](HOME_004_CURRENT_STATUS.md) and
 [loop campaign](HOME_004_LOOP_CAMPAIGN.md) are current.
-Whole Home functional acceptance remains pending; PR #6 stays draft.
-This direction change does not merge or certify the existing candidate.
+Single-game Home is lead accepted on 2026-10-11 after genuine route recovery/
+repair and current regression/package review. The owner authorises this scope
+first; simultaneous two-game support remains unfinished F-07. See
+[the acceptance](HOME_004_SINGLE_GAME_LEAD_ACCEPTANCE_2026-10-11.md).
 
-Lead check, 2026-10-11: current product candidate `d09b8328` passes independently
-rerun native, Windows pipe and frontend checks; its extracted package identity
-matches. Whole Home remains **PARTIAL** for genuine transport-only recovery,
-replacement-bridge repair and simultaneous independent game sessions. See
-[the lead review](HOME_004_LEAD_PROGRESS_2026-10-11.md). These are the active
-remaining operations, rather than the old original-only research obligations.
+Latest lead acceptance: genuine F-04 transport-only recovery and F-06 repair now
+pass. Single-game Home may merge/release; simultaneous-game F-07 remains backlog.
+The earlier d09b8328 progress review is historical. Current package source is
+234480bc; see HOME_004_CURRENT_STATUS.md and the scoped acceptance.
 
 ## Retained scoped evidence
 

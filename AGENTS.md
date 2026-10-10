@@ -1,5 +1,10 @@
 # LW-Control — current contributor instructions
 
+Latest owner release decision, 2026-10-11: approve single-game Home first and
+keep simultaneous two-game support as unfinished F-07. Read
+docs/OWNER_DIRECTION_SINGLE_GAME_HOME_2026-10-11.md and the single-game lead
+acceptance. Older whole-Home concurrency holds do not block this scoped release.
+
 Latest owner direction, 2026-10-10: **faithful, fully functional replacement**.
 Read docs/OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md,
 docs/HOME_004_CURRENT_STATUS.md, docs/HOME_004_LOOP_CAMPAIGN.md and
@@ -75,8 +80,8 @@ Historical evidence and reviews remain unchanged.
 
 - Review owned changes, run applicable checks, commit coherent checkpoints,
   push normally and verify direct remote SHA. No force-push/reset/discard.
-- PR #6 stays draft until independent lead functional acceptance. No worker main
-  merge or publication. A READY label is a proposal.
+- The lead has accepted single-game Home; PR #6 may merge for that explicit scope.
+  Workers do not merge/publish or claim simultaneous-game completion.
 - Main receives independently verified working features, clear supported scope
   and documented differences. Exact original equality is not a universal gate.
   Partial acceptance of Launch/Connected/Close is not whole Home completion.
