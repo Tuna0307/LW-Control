@@ -216,3 +216,12 @@ last-distinct-code-first order. See
 The original-source correction and two-owner admission proof are controlled
 local evidence, not proof of protected commercial capacity or full Home A→A
 original parity. **Whole Home PARTIAL_NEEDS_INPUT.**
+
+## R7 native mounted per-profile UI busy admission (2026-10-10)
+
+| H-ID and original locator | R7 distinguishing current-client native/UI evidence | Remaining original acceptance |
+| --- | --- | --- |
+| H-38/H-45/H-47: original per-profile lifecycle identity H-38 0xD4E5CA, original Home busy `proxyBusy`/`gameLaunchBusy` H-47 373350/373362 | Actual mounted production WebView held A sidebar Start before native dispatch; B sidebar Start/Stop completed independently, causing prior singleton `runBusyId` to clear A's busy button. Before-fix EN/light negative preserved. Per-profile `runBusyIds` state fixed it, with corrected mounted EN/light and JA/dark passing after B completion and preserved R6 A Home/sidebar duplicate-Start rejection. [R7 receipt](HOME_004_R7_SIDEBAR_CONCURRENT_BUSY_RECEIPT.md). | Original protected commercial capacity and two genuine simultaneous supported installations, paired original conditional busy/pending Stop and fault state remain missing. |
+
+R7 is a corrected bounded **current application** UI-native race, not
+original multi-instance admission proof. **Whole Home PARTIAL_NEEDS_INPUT.**

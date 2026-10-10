@@ -71,9 +71,9 @@ R4 mounted and R4 native never imply original licensed-server behavior.
 | H-42 | R5 actual native inverse showed a stale exited-game `lastError` projected `connectionState=error` while recovery was already waiting. Current `profile_instance_status` now reports `recovering` during active automatic recovery, preserving `lastError`; actual native lifecycle regression passes. Independent A/B status polling and A/B/A mounted preserved. | Original full 12-field/protected lease-state parity, all 5 s/error cases and genuine offline-only visual comparison. |
 | H-43 | Source-backed recovery command/event, native monitor and accepted genuine recovery event receipt. | Paired original maintenance/failure/retry notification ordering. |
 | H-44 | Accepted live current official-settle-before-launch baseline, source 10 min/15 s/3 s. | Original forced settle-timeout negative without changing owner installation. |
-| H-45 | R6 mounted EN/light and JA/dark retains R5 delayed B status/Stop, disabled/locked admission and repair; adds first B-only manual repair error display plus Home/sidebar same-owner A overlap dedupe both orders, independent B progress, exact shutdown with no roots/requests leaked. | Genuine/original pending Stop, maintenance/offline-only and conditional pixel comparisons. |
+| H-45 | R6 mounted EN/light and JA/dark retains R5 delayed B status/Stop, disabled/locked admission and repair; adds first B-only manual repair error display plus Home/sidebar same-owner A overlap dedupe both orders. R7 mounted A sidebar Start held while B Start/Stop completes confirms A's visible disabled button remains per-owner busy. Exact shutdown with no roots/requests leaked. | Genuine/original pending Stop, maintenance/offline-only and conditional pixel comparisons. |
 | H-46 | **R6 source-authority correction:** original 0.3.17 Ir byte 328453 explicitly calls reverse on distinct candidates before Lr byte 328684 locale lookup. R5 incorrectly removed reversal; R6 restores it in Home/sidebar and updates source helper tests for later message priority, structured code, dedupe, unknown fallback. R4 typed spawn producer retained. | Original descriptor/mutex/Lua/restart and protected finalizer native error serializations still unknown. |
-| H-47 | R4-R2 pending recovery Stop and late helper/host cleanup remain tested. R6 mounted negative showed held Home A Start bypassed by sidebar A Start. Shared exact-owner/global lifecycle admission now prevents duplicate native actions in both start-order permutations while independent B Start/Stop continues; real EN/JA WebView proofs pass. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering and genuine offline-only pending Stop. |
+| H-47 | R4-R2 pending recovery Stop and late helper/host cleanup remain tested. R6 mounted negative showed held Home A Start bypassed by sidebar A Start. Shared exact-owner/global lifecycle admission now prevents duplicates while B remains independent. R7 production WebView negative reproduced B completion clearing pending sidebar A visible busy state; per-owner run-button Set fixes both EN/light and JA/dark while preserving R6 cross-control, native exact-owner and cleanup proofs. | Paired original `proxyBusy` vs `gameLaunchBusy` late-failure ordering and genuine offline-only pending Stop. |
 
 ### R4-R2 applied correction overlay (source-backed, not new original acceptance)
 
@@ -125,6 +125,18 @@ Another mounted inverse reproduced duplicate A Start across Home/sidebar;
 shared exact-owner/global guard prevents it in both directions with B
 independent. See `HOME_004_R6_ORIGINAL_ERROR_AND_CROSS_CONTROL_RECEIPT.md`.
 Whole Home still **PARTIAL_NEEDS_INPUT**.
+
+### R7 independent sidebar busy indicator
+
+After R6 shared Home/sidebar admission, one sidebar `runBusyId` still
+represented many independently pending native owners. A mounted native
+sidebar A Start was held while B started and stopped; B completion
+incorrectly re-enabled A's Start button. The preserved original negative
+and corrected EN/light, JA/dark production-WebView controls prove
+the source-backed per-owner `runBusyIds` Set fixes this observable race.
+See [R7 receipt](HOME_004_R7_SIDEBAR_CONCURRENT_BUSY_RECEIPT.md).
+This is controlled UI/native correctness, not protected licensed A/B
+genuine game acceptance. **Whole Home PARTIAL_NEEDS_INPUT**.
 
 ## Source and input fences
 

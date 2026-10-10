@@ -738,6 +738,39 @@ internal sealed partial class LWBridgeWindow
             await heldSidebarStart.WaitAsync(TimeSpan.FromSeconds(8));
         if (heldSidebarOwner.ProfileId != "campaign-A")
             throw new InvalidDataException("Reverse overlap did not hold actual native sidebar A.");
+        // R7 H-47 UI state: B is allowed to progress while A's native Start is
+        // still held, but B's completion must not clear A's busy button. The
+        // existing single runBusyId loses A when B completes an independent
+        // Start/Stop; the native per-owner guard alone hides this visual race.
+        int bStartsBeforeConcurrentSidebar = b.StartCalls;
+        int bStopsBeforeConcurrentSidebar = b.StopCalls;
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "B sidebar Start while A sidebar Start is pending");
+        await WaitForOwnerAsync(b, alive: true, bStopsBeforeConcurrentSidebar,
+            "B concurrent sidebar Start leaves A pending");
+        await WaitForUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[1]?.classList.contains('is-running') === true",
+            "B concurrent sidebar status after Start");
+        await ClickAsync("""
+            (() => {const button=document.querySelectorAll('.profile-row .profile-run')[1];
+              if (!button || button.disabled) return false; button.click(); return true;})()
+            """, "B sidebar Stop while A sidebar Start is pending");
+        await WaitForOwnerAsync(b, alive: false, bStopsBeforeConcurrentSidebar + 1,
+            "B concurrent sidebar Stop leaves A pending");
+        await WaitForUiAsync("""
+            (() => {const buttons=document.querySelectorAll('.profile-row .profile-run');
+              return buttons.length === 2 && !buttons[1].disabled &&
+                !buttons[1].classList.contains('is-running');})()
+            """, "B concurrent sidebar Stop result completed");
+        if (b.StartCalls != bStartsBeforeConcurrentSidebar + 1 ||
+            a.StartCalls != aStartsBeforeReverse)
+            throw new InvalidDataException("Concurrent sidebar B changed A's pending native Start.");
+        JsonElement aBusyWhileBCompleted = await ReadUiAsync(
+            "document.querySelectorAll('.profile-row .profile-run')[0]?.disabled === true");
+        if (aBusyWhileBCompleted.ValueKind != JsonValueKind.True)
+            throw new InvalidDataException("Completed B sidebar action cleared still-pending A sidebar busy indicator.");
         await ClickLaunchAsync("Home A Start while sidebar A Start is pending");
         await Task.Delay(250);
         if (a.StartCalls != aStartsBeforeReverse || b.ProcessAlive)
@@ -800,6 +833,7 @@ internal sealed partial class LWBridgeWindow
                 homeAndSidebarSameOwnerStartDedupe = true,
                 independentBStartStopWhileAHeld = true,
                 reverseSidebarFirstHomeStartDedupe = true,
+                concurrentSidebarBusyOwnerRetained = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

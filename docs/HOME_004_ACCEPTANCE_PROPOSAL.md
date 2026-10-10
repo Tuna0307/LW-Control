@@ -1,5 +1,16 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R7 per-owner sidebar busy correction (2026-10-10): PARTIAL_NEEDS_INPUT.**
+Actual mounted production WebView/native inverse: while A's sidebar Start
+was held, B's independent sidebar Start/Stop completed and reset the shared
+single busy ID, prematurely enabling A's sidebar Start button. A per-profile
+busy Set now retains A until its own native action completes. Corrected
+EN/light and JA/dark pass, with R6 Home/sidebar exact-owner admission
+and B independence retained. [R7 receipt](HOME_004_R7_SIDEBAR_CONCURRENT_BUSY_RECEIPT.md).
+This does not establish authentic original commercial multi-owner
+admission, whole original Home parity or independent lead acceptance.
+Draft PR #6 remains unmerged and no public release is authorized.
+
 **R6 original-source supersession (2026-10-10): PARTIAL_NEEDS_INPUT.**
 Recovered 0.3.17 frontend `Ir` proves the H-46 first-token assertion
 made in R5 was wrong: original reverses deduplicated candidates. R6 restores

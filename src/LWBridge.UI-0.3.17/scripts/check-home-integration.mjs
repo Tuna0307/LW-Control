@@ -235,6 +235,7 @@ function deliver(fixture, message) {
 }
 
 const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "utf8");
+const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
 {
   // ORIGINAL 0.3.17 Ir at UTF-8 byte 328453 from research archive:
   // function Ir(e){let t=[]; e?.code:string && t.push(e.code);
@@ -243,7 +244,6 @@ const appSource = fs.readFileSync(new URL("../src/App.jsx", import.meta.url), "u
   // R5's first-token inversion was wrong: restore and protect the original
   // last-distinct-code-first evaluation, including explicit native code order.
   const homeSource = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
-  const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", import.meta.url), "utf8");
   const homeFn = new Function(`${homeSource.slice(homeSource.indexOf("function translatedError("), homeSource.indexOf("export function HomePage("))}; return translatedError;`)();
   const sidebarFn = new Function(`${sidebarSource.slice(sidebarSource.indexOf("function errorCodes("), sidebarSource.indexOf("function ProfileIcon("))}; return profileError;`)();
   const translations = new Map([
@@ -318,6 +318,12 @@ assert.match(appSource, /backendBridge\.invoke\("game_root_status", \{\}\)/, "Ho
 const refreshBody = appSource.slice(appSource.indexOf("const refreshStatus"), appSource.indexOf("const selectRoute"));
 assert.doesNotMatch(refreshBody, /game_recovery_status/, "recurring status refresh must not overwrite recovery ownership");
 assert.match(appSource, /backendBridge\.invokeProfileScoped\("game_recovery_status", \{\}\)/, "recovery status must use the current profile generation");
+assert.match(sidebarSource, /const \[runBusyIds, setRunBusyIds\] = useState\(\(\) => new Set\(\)\)/,
+  "independent sidebar profile lifecycles must retain distinct visible busy owners");
+assert.match(sidebarSource, /runBusyIds\.has\(profile\.id\)/,
+  "each sidebar action button must read its own pending owner, not the most recently changed ID");
+assert.doesNotMatch(sidebarSource, /setRunBusyId\(/,
+  "completion of B may not clear an outstanding A sidebar lifecycle busy marker");
 const recoveryInvokeIndex = appSource.indexOf('backendBridge.invokeProfileScoped("game_recovery_status"');
 const recoveryEffectStart = appSource.lastIndexOf("useEffect(() => {", recoveryInvokeIndex);
 const recoveryEffectEnd = appSource.indexOf("useEffect(() => {", recoveryInvokeIndex + 1);

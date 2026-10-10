@@ -1,5 +1,15 @@
 # Feature delivery status
 
+**HOME-004 R7 independent sidebar busy state (2026-10-10; whole Home
+PARTIAL_NEEDS_INPUT):** Actual mounted production EN/light before-fix
+negative proved that completing B's independent sidebar Start/Stop
+incorrectly enabled A's Start button while A's native Start remained held.
+Replacing one `runBusyId` with exact per-profile `runBusyIds` preserves
+A's visible busy state without blocking B; corrected EN/light and JA/dark
+mounted checks and canonical frontend/native regressions pass. Read the
+[R7 receipt](HOME_004_R7_SIDEBAR_CONCURRENT_BUSY_RECEIPT.md).
+The original protected/genuine-client gates remain open; PR #6 stays draft.
+
 **HOME-004 R6 0.3.17 source correction and native A-owner overlap (2026-10-10;
 whole Home PARTIAL):** Original recovered `Ir` byte 328453 disproves R5's
 first-error-token translation claim. The original reverses distinct error
