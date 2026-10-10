@@ -195,6 +195,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [connectionError, setConnectionError] = useState("");
   const [statusPairReady, setStatusPairReady] = useState(backendBridge.mode === "preview");
   const [nativeProfileBusy, setNativeProfileBusy] = useState(false);
+  const [nativeProfileMutationBusy, setNativeProfileMutationBusy] = useState(false);
+  const nativeProfileMutationInFlightRef = useRef(false);
   const [nativeProfileError, setNativeProfileError] = useState("");
   const [autoScanConfig, setAutoScanConfig] = useState(() => initialAutoScanConfig(selectedProfileId, previewState));
   const [autoScanRunning, setAutoScanRunning] = useState(() => previewState === "map-auto-running");
@@ -375,6 +377,32 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       if (nativeProfileSelectionRevisionRef.current === selectionRevision) setNativeProfileBusy(false);
     }
   }, [adoptNativeProfileSnapshot]);
+
+  // F-07 OWN_DESIGN: real native local-profile CRUD, not preview Add/Delete.
+  // Keep roster mutations serial and let the registry enforce capacity,
+  // primary/selected invariants and stopped-owner deletion safety.
+  const mutateNativeProfiles = useCallback(async (command, payload = {}) => {
+    if (!backendBridge.available || backendBridge.mode !== "native" || nativeProfileMutationInFlightRef.current)
+      return undefined;
+    nativeProfileMutationInFlightRef.current = true;
+    setNativeProfileMutationBusy(true);
+    setNativeProfileError("");
+    try {
+      const snapshot = await backendBridge.invoke(command, payload);
+      nativeProfileRequestRef.current += 1;
+      return adoptNativeProfileSnapshot(snapshot);
+    } catch (error) {
+      setNativeProfileError(error?.code || error?.message || String(error));
+      throw error;
+    } finally {
+      nativeProfileMutationInFlightRef.current = false;
+      setNativeProfileMutationBusy(false);
+    }
+  }, [adoptNativeProfileSnapshot]);
+  const createNativeProfile = useCallback(() => mutateNativeProfiles("profile_create"), [mutateNativeProfiles]);
+  const removeNativeProfile = useCallback((profileId) => mutateNativeProfiles(
+    "profile_delete", { profileId },
+  ), [mutateNativeProfiles]);
 
   const reorderNativeProfiles = useCallback(async (profileIds) => {
     if (!backendBridge.available || backendBridge.mode !== "native") return undefined;
@@ -1092,13 +1120,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       const instance = await backendBridge.invoke(
         "profile_instance_status", { profileId: owner.profileId },
       );
-      if (instance?.instanceId) {
-        await backendBridge.invoke(
-          "profile_instance_stop",
-          { profileId: owner.profileId, instanceId: instance.instanceId },
-          HOME_LIFECYCLE_TIMEOUT_MS,
-        );
-      }
+      // F-04 OWN_DESIGN: recovery may be cancelling an official launcher
+      // before an instanceId exists. The native Stop explicitly supports an
+      // absent optional ID for this case and waits for exact-owner cleanup.
+      // Skipping dispatch previously made a clickable Home Close a silent noop.
+      await backendBridge.invoke(
+        "profile_instance_stop",
+        { profileId: owner.profileId, ...(instance?.instanceId ? { instanceId: instance.instanceId } : {}) },
+        HOME_LIFECYCLE_TIMEOUT_MS,
+      );
       await refreshHomeProxyStatus(owner);
     } catch (error) {
       if (isCurrentProfileOwner(owner)) {
@@ -1127,9 +1157,32 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         {},
         HOME_LIFECYCLE_TIMEOUT_MS,
       );
-      await refreshHomeProxyStatus(owner);
-      if (Array.isArray(result?.errors) && result.errors.length > 0 && isCurrentProfileOwner(owner)) {
-        setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+      if (!Array.isArray(result?.errors) || !Array.isArray(result?.restarted)) {
+        throw new Error("GAME_REPAIR_INVALID_RESULT");
+      }
+      if (result.errors.length > 0) {
+        if (isCurrentProfileOwner(owner))
+          setGameActionError(result.errors[0]?.error || "GAME_CONNECTION_UPDATE_FAILED");
+        return;
+      }
+      const repairStatus = await refreshHomeProxyStatus(owner);
+      // F-06 OWN_DESIGN: a game updated outside our journal can have a
+      // damaged bridge but no saved repair session. The global legacy repair
+      // command correctly cannot restore an absent journal. Rather than
+      // acknowledging a silent noop, explicitly launch this captured owner
+      // through the supported helper's closeUnmanaged repair/install path.
+      // Native start checks the selected installation and foreign ownership.
+      if (repairStatus?.repairRequired === true && !result.restarted.includes(owner.profileId)) {
+        const started = await backendBridge.invoke(
+          "profile_instance_start",
+          { profileId: owner.profileId, closeUnmanaged: true },
+          HOME_LIFECYCLE_TIMEOUT_MS,
+        );
+        if (started?.connectionState !== "connected")
+          throw new Error("GAME_REPAIR_CONNECT_NOT_READY");
+        await refreshHomeProxyStatus(owner);
+      } else if (repairStatus?.repairRequired === true) {
+        throw new Error("GAME_REPAIR_INCOMPLETE");
       }
     } catch (error) {
       if (isCurrentProfileOwner(owner)) {
@@ -1190,6 +1243,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const serverJumpBusyActive = serverJumpBusy > 0;
   const nativeProfileCallbacks = backendBridge.mode === "native" ? {
     onSelect: selectNativeProfile,
+    onCreate: createNativeProfile,
+    onRemove: removeNativeProfile,
     onReorder: reorderNativeProfiles,
     onUpdateNote: updateNativeProfileNote,
     readInstance: readNativeInstance,
@@ -1198,7 +1253,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     onRestartAll: restartAllNativeProfiles,
   } : {};
   const profileCallbacks = profilePreview ? profilePreviewCallbacks : nativeProfileCallbacks;
-  const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy;
+  const effectiveProfileSwitchLoading = switchLoading || nativeProfileBusy || nativeProfileMutationBusy;
 
   const stateText = {
     connected: t("status.connected"),
@@ -1377,7 +1432,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
         {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}
-          busy={nativeProfileBusy}
+          busy={nativeProfileBusy || nativeProfileMutationBusy}
           error={nativeProfileError}
           focusGameOnProfileSelect={focusGameOnProfileSelect}
           {...profileCallbacks}

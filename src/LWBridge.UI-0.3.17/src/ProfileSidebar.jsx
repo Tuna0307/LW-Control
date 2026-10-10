@@ -237,8 +237,8 @@ export function ProfileSidebar({
     })}</div> : <>
       <div className="profile-list-heading"><div className="profile-heading-title"><strong>{t("profile.accounts")}</strong><span className="profile-quota-badge">{profiles.length}/{state.maxProfiles}</span></div></div>
       <div className="profile-batch-actions">
-        <button type="button" disabled={!!batchBusy || startIds.length === 0 || !onStartProfile} onClick={() => runBatch("start")}><ProfileIcon name="play" />{t(batchBusy === "start" ? "profile.startingAll" : "profile.startAll")}</button>
-        <button type="button" disabled={!!batchBusy || stopIds.length === 0 || !onStopProfile} onClick={() => runBatch("stop")}><ProfileIcon name="stop" />{t(batchBusy === "stop" ? "profile.stoppingAll" : "profile.stopAll")}</button>
+        <button type="button" disabled={busy || !!batchBusy || startIds.length === 0 || !onStartProfile} onClick={() => runBatch("start")}><ProfileIcon name="play" />{t(batchBusy === "start" ? "profile.startingAll" : "profile.startAll")}</button>
+        <button type="button" disabled={busy || !!batchBusy || stopIds.length === 0 || !onStopProfile} onClick={() => runBatch("stop")}><ProfileIcon name="stop" />{t(batchBusy === "stop" ? "profile.stoppingAll" : "profile.stopAll")}</button>
       </div>
       <div className="profile-items">{profiles.map((profile) => {
         const display = profileDisplay(profile, t);
@@ -267,10 +267,13 @@ export function ProfileSidebar({
               removeProfile(profile, display.name).catch((failure) => setActionError(profileError(t, failure)));
             }}><ProfileIcon name="remove" /></button>
           </div>
-          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={!!batchBusy || runBusyIds.has(profile.id) || (!running && (!profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
+          <button type="button" className={`profile-run${running ? " is-running" : ""}`} disabled={busy || !!batchBusy || runBusyIds.has(profile.id) || (!running && (!profile.enabled || !!profile.lockedReason)) || !(running ? onStopProfile : onStartProfile)} title={t(running ? "profile.stopAccount" : "profile.startAccount")} aria-label={t(running ? "profile.stopAccount" : "profile.startAccount")} onClick={(event) => { event.stopPropagation(); runProfile(profile, instance, running); }}><ProfileIcon name={running ? "stop" : "play"} /></button>
         </div>;
       })}</div>
-      <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => onCreate?.()}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>
+      <button type="button" className="profile-add" disabled={busy || atCapacity || !onCreate} onClick={() => {
+        setActionError("");
+        Promise.resolve().then(() => onCreate?.()).catch((failure) => setActionError(profileError(t, failure)));
+      }}>{!atCapacity ? <ProfileIcon name="add" /> : null}{t(atCapacity ? "profile.limitReached" : "profile.addAccount")}</button>
       {error ? <small className="profile-error">{profileError(t, error)}</small> : null}
       {launchError || actionError ? <small className="profile-error">{[launchError, actionError].filter(Boolean).join("\n")}</small> : null}
       {restartRequired ? <button type="button" className="profile-add" disabled={!!batchBusy || !onRestartAll} onClick={async () => {

@@ -64,3 +64,41 @@ The 47-row original matrices and detailed correction receipts remain historical
 authority, not automatic release gates. Main requires independently reviewed
 working functionality with clear differences and supported scope. No code was
 changed or accepted by this documentation update.
+
+## Revised functional audit — continued worker pass from d568cad6 (2026-10-10)
+
+This section supersedes the earlier *next concrete action* above. The original
+research matrix remains a historical resource, **not** a current release gate.
+Classification here distinguishes a working implementation, a *controlled*
+regression, a prior genuine current-client witness and an unproven required
+real operation. Full Home still **PARTIAL** until applicable genuine gates pass.
+
+| Gate | Every Home/sidebar control and actual production path | Worker disposition; exact remaining functional gate |
+| --- | --- | --- |
+| **F-01** folder | Valid-root status, missing-root selection, cancel, invalid selection, save and reload; newly accessible **Select game folder** on a valid root for each selected profile; staged change preserves running owner binding. | **WORKER_VERIFIED source/controlled** via native root selection tests, mounted picker and root gate checks. No genuine second compatible installation was supplied for selecting and running B independently. |
+| **F-02** manual lifecycle | Home Launch, Connected/Offline status, Close; sidebar individual Play/Stop and exact instance owner routing, including Start/Close busy fences. | **Prior genuine Launch→authenticated Connected→Close**, pending genuine recovered-launch Stop post-fix; native owner/recovery regressions pass. **New F-04 frontend optional-ID Stop path controlled**, not a new live game witness. |
+| **F-03** auto launch | Home Auto Launch Game switch (saved local config + UI preference/rollback); startup `profile_instances_reconcile` iterates enabled/unlocked registry owners, OFF and one-time startup semantics; sidebar Start All/Stop All. | **Prior genuine single-profile startup/adoption + native ordered/disabled/collision checks**. Newly available 4-slot local roster not proven on two different actual games; OFF preserved. |
+| **F-04** recovery | Home Auto Reconnect ON/OFF, native monitored missing process/hung/still-alive offline 60s, error/retry/maintenance feedback, disable, user Close while recovery pending (including no instance ID). | **WORKER_VERIFIED controlled** 59,999/60,000-ms still-alive loss, retry and pending cleanup; prior genuine exit/hang/pending Stop. **NEEDS_REAL_VERIFICATION:** authenticated transport-only loss with an otherwise responsive genuine current game, subsequent recovery/Stop OFF/ON; no forced disconnection experiment performed. |
+| **F-05** host restart/adoption | Same-build re-open, exact process/build ownership, durable journal and adoption vs rejected stale identity; independent owner selected view. | **Prior genuine selected-game restart/adoption** plus native stale/obsolete/wrong-owner cases; new code did not alter adoption decision mechanics. |
+| **F-06** repair | Home **Update-and-Launch** when native proxy_status signals game running + repairRequired; original recovered pending journal stop→restore→relaunch path, new **OWN_DESIGN** journal-free exact-owner Start/install attempt with mandatory actual `connected` result; explicit native error, cancel and busy reset. | **WORKER_VERIFIED controlled** original journal repair + production JSX callback four case matrix. **NEEDS_REAL_VERIFICATION:** a safely backed-up genuine bridge-damaged installation reconnects after clicking the *packaged* repair button, without official updater or orphan. It is **not** declared functioning from a simulated success. |
+| **F-07** sidebar/profile | Collapse/expand, profile list/status + read-only enabled/locked admission, Select/focus-game option, note modal edit/save/cancel and late acknowledgements, reorder via drag, **Add/Remove local profiles** (now actual native SQLite, 4 metadata slots), primary/selected/active/journal deletion fences and retained data, per-profile Play/Stop, Start All/Stop All and global Update-and-Launch. | **WORKER_VERIFIED controlled** native CRUD capacity/persist/reopen, active/corrupt/pending journal guard and ordered original R4–R16 A/B WebView metadata. `enabled` is an admission field (no user-facing enable toggle in the existing Home sidebar); no paid original entitlement is represented. **NEEDS_REAL_VERIFICATION:** distinct supported client roots and two live independent game/bridge sessions if concurrent use is advertised; local profile creation is not proof of that. |
+| **F-08** preferences/status/errors | AutoLaunch/AutoReconnect immediate draft and durable native commits/rollback, local `autoClosePopup` forced OFF storage, Home process/root/recovery/status/errors/disabled/busy, sidebar note/edit/save/errors, native locale EN/light and JA/dark. | **WORKER_VERIFIED controlled** status, locale (all 9 catalogs), 128-state source gate, save/reorder races; native `set_automation` connected game-side forwarding for *other* automation names remains `AUTOMATION_NOT_IMPLEMENTED` and is **not** a working Home preference. Home only exposes the supported two switches. Live responsive offline and repair UI feedback waits for their genuine gate. |
+| **F-09** package | Canonical React UI compiled into Windows desktop, real WebView/native dispatcher, EN/light and JA/dark, extracted ZIP and normal one-window smoke, exact cleanup, one source-linked final candidate. | Prior packaged checks retained. A source-linked functional candidate is required after this correction settles; package verification below must name its actual tested artifact. |
+
+### Ready corrections and unresolved real inputs
+
+This worker corrected a proven silent Home Close during pending recovery before
+any instance ID; implemented normal native Add/Delete with guarded stopped-owner
+retirement and local four-profile metadata capacity; exposed the valid-root
+picker; and made no-journal repair perform a real exact-owner installed-root
+Start attempt rather than acknowledge a no-op. All are **OWN_DESIGN** where
+the original reference is different or insufficient; details, effects and
+test classifications are in [the behavior differences ledger](HOME_004_BEHAVIOR_DIFFERENCES.md).
+
+Actual **still-open** gates are current-client responsive offline-only recovery
+(F-04), genuine journal-free damaged-bridge repair (F-06), and independent
+two-game support/admission if shipped as concurrent (F-07). Original protected
+tickets, finalizer return bytes, exact retry constants and conditional original
+screenshots are **research-only**, not functional blockers. This worker has not
+changed any installed LastWar bytes or induced genuine updater/gameplay changes
+in this pass. The lead alone can accept scope and release status.

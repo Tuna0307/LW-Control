@@ -11,6 +11,7 @@ internal sealed class ProfileRegistryCommandService :
     private readonly int maxProfiles;
     private readonly Action<string>? focusProfile;
     private readonly Func<string, bool, CancellationToken, Task>? selectProfileOwner;
+    private readonly Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate;
 
     internal ProfileRegistryCommandService(
         string currentProfileId,
@@ -18,12 +19,14 @@ internal sealed class ProfileRegistryCommandService :
         string displayName,
         int maxProfiles = 1,
         Action<string>? focusProfile = null,
-        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null,
+        Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate = null)
     {
         store = new ProfileRegistryStore(databasePath);
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
         this.selectProfileOwner = selectProfileOwner;
+        this.deleteProfileUnderOwnerGate = deleteProfileUnderOwnerGate;
         store.EnsureLocalProfile(
             currentProfileId,
             displayName,
@@ -33,7 +36,8 @@ internal sealed class ProfileRegistryCommandService :
         ProfileRegistryStore store,
         int maxProfiles = 1,
         Action<string>? focusProfile = null,
-        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null)
+        Func<string, bool, CancellationToken, Task>? selectProfileOwner = null,
+        Func<string, Action, CancellationToken, Task>? deleteProfileUnderOwnerGate = null)
     {
         this.store = store ??
             throw new ArgumentNullException(nameof(store));
@@ -42,12 +46,15 @@ internal sealed class ProfileRegistryCommandService :
         this.maxProfiles = maxProfiles;
         this.focusProfile = focusProfile;
         this.selectProfileOwner = selectProfileOwner;
+        this.deleteProfileUnderOwnerGate = deleteProfileUnderOwnerGate;
     }
 
     internal ProfileRegistrySnapshot Snapshot => store.Read(maxProfiles);
 
     public bool CanHandle(string command) =>
         command is "profile_list" or
+            "profile_create" or
+            "profile_delete" or
             "profile_select" or
             "profile_note_set" or
             "profile_reorder" or
@@ -64,7 +71,22 @@ internal sealed class ProfileRegistryCommandService :
                 "COMMAND_NOT_IMPLEMENTED",
                 "Profile registry command is not implemented.");
 
-        if (command == "profile_select")
+        if (command == "profile_create")
+        {
+            store.CreateLocalSecondaryProfile(maxProfiles,
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        }
+        else if (command == "profile_delete")
+        {
+            string profileId = RequiredString(payload, "profileId");
+            ValidateProfileId(profileId);
+            Action delete = () => store.DeleteLocalSecondaryProfile(profileId);
+            if (deleteProfileUnderOwnerGate is not null)
+                await deleteProfileUnderOwnerGate(profileId, delete, cancellationToken)
+                    .ConfigureAwait(false);
+            else delete();
+        }
+        else if (command == "profile_select")
         {
             string profileId = RequiredString(payload, "profileId");
             ValidateProfileId(profileId);

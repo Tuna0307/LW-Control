@@ -106,6 +106,10 @@ internal sealed partial class LWBridgeWindow : Form
     private long normalUiProofSearchSequence;
     private NormalUiResourceProofSearchObservation? normalUiProofSearchObservation;
     private readonly object homeMapCampaignCommandGate = new();
+    // F-07 per-owner admission serializes native Start/Stop against Delete
+    // across the entire invocation, not merely the backend lookup. Sibling
+    // profiles keep independent gates and may still operate concurrently.
+    private readonly Dictionary<string, SemaphoreSlim> profileMutationAdmissionGates = new(StringComparer.Ordinal);
     private string? homeMapCampaignDelayedCommand;
     private string? homeMapCampaignDelayedOwner;
     private bool homeMapCampaignDelayOnReply;
@@ -277,11 +281,15 @@ internal sealed partial class LWBridgeWindow : Form
                 config.Snapshot.ProfileId,
                 controllerDatabasePath,
                 "Local Game",
-                maxProfiles: homeMapCampaignProofPath is not null ? 2 : 1,
+                // OWN_DESIGN F-07: a local four-profile metadata ceiling is
+                // independent of original commercial entitlement. A real
+                // second game's compatibility is NOT established by it.
+                maxProfiles: homeMapCampaignProofPath is not null ? 2 : 4,
                 focusProfile: profileWindowFocus is null
                     ? null
                     : profileWindowFocus.TryFocus,
-                selectProfileOwner: SelectProfileOwnerAsync);
+                selectProfileOwner: SelectProfileOwnerAsync,
+                deleteProfileUnderOwnerGate: DeleteStoppedLocalProfileAsync);
         startupProfileReconcile = profileRegistryService is null ? null :
             new OrderedProfileReconcileCommandService(
                 profileRegistryService, ReconcileProfileOwnerAsync, UpdateAndRestartProfileOwnerAsync);
@@ -575,9 +583,61 @@ internal sealed partial class LWBridgeWindow : Form
         }
     }
 
+    private async Task DeleteStoppedLocalProfileAsync(
+        string profileId, Action deleteRegistryRow, CancellationToken cancellationToken)
+    {
+        // Both owner resolution for Start and profile deletion take this gate.
+        // A removed profile cannot race a newly admitted lifecycle Start.
+        await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (Volatile.Read(ref profileRuntimeClosed) != 0 || sessionClosed)
+                throw new BridgeCommandException("APP_SHUTTING_DOWN", "APP_SHUTTING_DOWN");
+            ProfileRegistryEntry? entry = profileRegistryService?.Snapshot.Profiles.FirstOrDefault(
+                item => string.Equals(item.Id, profileId, StringComparison.Ordinal));
+            if (entry is null)
+                throw new BridgeCommandException("PROFILE_NOT_FOUND", "PROFILE_NOT_FOUND");
+            if (entry.IsPrimary)
+                throw new BridgeCommandException("PROFILE_PRIMARY_FIXED", "The primary local profile cannot be deleted.");
+            if (string.Equals(profileRegistryService!.Snapshot.SelectedProfileId, profileId, StringComparison.Ordinal))
+                throw new BridgeCommandException("PROFILE_SELECTED", "Select another profile before deleting this one.");
+
+            RetainedProfileRuntime runtime = GetOrCreateProfileRuntime(profileId);
+            if (!runtime.Lifecycle.CanRetireStoppedLocalProfile() ||
+                runtime.Lifecycle.RuntimeManaged || runtime.Lifecycle.RepairRequired ||
+                !string.Equals(runtime.Lifecycle.CurrentRecoveryStatus.State, "idle", StringComparison.Ordinal))
+                throw new BridgeCommandException("PROFILE_STILL_ACTIVE",
+                    "Stop this profile and complete its recovery/restoration before deleting it.");
+            deleteRegistryRow(); // The exact validation and mutation share the gate.
+            // Close the now-unreachable stopped owner's monitor/services. Do
+            // not delete its files: verified backups remain owner evidence.
+            RetainedProfileRuntime? removed = null;
+            lock (retainedProfileRuntimes)
+                retainedProfileRuntimes.Remove(profileId, out removed);
+            if (removed is not null)
+                DisposeRetiredProfileRuntime(removed.Auto, removed.Map,
+                    removed.Drafts, removed.Settings, removed.Lifecycle, bridgeHost: null);
+        }
+        finally { profileSwapGate.Release(); }
+    }
+
+    private SemaphoreSlim GetProfileMutationAdmissionGate(string profileId)
+    {
+        lock (profileMutationAdmissionGates)
+        {
+            if (!profileMutationAdmissionGates.TryGetValue(profileId, out SemaphoreSlim? gate))
+                profileMutationAdmissionGates[profileId] = gate = new SemaphoreSlim(1, 1);
+            return gate;
+        }
+    }
+
     private async Task<object?> ReconcileProfileOwnerAsync(
         string profileId, JsonElement payload, CancellationToken cancellationToken)
     {
+        SemaphoreSlim ownerAdmission = GetProfileMutationAdmissionGate(profileId);
+        await ownerAdmission.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
         OverviewLifecycleService lifecycle;
         await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -589,11 +649,17 @@ internal sealed partial class LWBridgeWindow : Form
         finally { profileSwapGate.Release(); }
         return await lifecycle.InvokeAsync("profile_instances_reconcile", payload, cancellationToken)
             .ConfigureAwait(false);
+        }
+        finally { ownerAdmission.Release(); }
     }
 
     private async Task<object?> UpdateAndRestartProfileOwnerAsync(
         string profileId, JsonElement payload, CancellationToken cancellationToken)
     {
+        SemaphoreSlim ownerAdmission = GetProfileMutationAdmissionGate(profileId);
+        await ownerAdmission.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
         OverviewLifecycleService lifecycle;
         await profileSwapGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -605,6 +671,8 @@ internal sealed partial class LWBridgeWindow : Form
         finally { profileSwapGate.Release(); }
         return await lifecycle.InvokeAsync("profile_instances_update_and_restart", payload, cancellationToken)
             .ConfigureAwait(false);
+        }
+        finally { ownerAdmission.Release(); }
     }
 
     // Must be invoked under profileSwapGate after initial composition.
@@ -5189,6 +5257,18 @@ internal sealed partial class LWBridgeWindow : Form
                                 null, null, null, null))
                         : Task.Run(async () =>
                         {
+                            SemaphoreSlim? ownerAdmission = null;
+                            if (command is "profile_instance_start" or "profile_instance_stop" or "profile_delete" &&
+                                payload.ValueKind == JsonValueKind.Object &&
+                                payload.TryGetProperty("profileId", out JsonElement targetProfile) &&
+                                targetProfile.ValueKind == JsonValueKind.String &&
+                                !string.IsNullOrWhiteSpace(targetProfile.GetString()))
+                            {
+                                ownerAdmission = GetProfileMutationAdmissionGate(targetProfile.GetString()!);
+                                await ownerAdmission.WaitAsync(cancellationToken).ConfigureAwait(false);
+                            }
+                            try
+                            {
                             if (hostProbeService is not null)
                                 await hostProbeService.BeforeProductionCommandAsync(command, cancellationToken).ConfigureAwait(false);
                             await WaitForHomeMapCampaignCommandReleaseAsync(
@@ -5204,6 +5284,8 @@ internal sealed partial class LWBridgeWindow : Form
                             LWBridgeBackend targetBackend = await ResolveHomeCommandBackendAsync(
                                 command, payload, requestBackend, cancellationToken).ConfigureAwait(false);
                             return await targetBackend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
+                            }
+                            finally { ownerAdmission?.Release(); }
                         }, cancellationToken));
                 // Home-only proof seam: profile_select also needs an
                 // after-execution/before-ack hold to distinguish a selected

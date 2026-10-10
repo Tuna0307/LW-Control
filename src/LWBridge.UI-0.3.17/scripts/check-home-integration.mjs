@@ -293,10 +293,79 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
 const homeCloseBody = appSource.slice(appSource.indexOf("const stopGame = useCallback"), appSource.indexOf("const updateAndRestartGame"));
 assert.match(homeCloseBody, /"profile_instance_status",\s*\{ profileId: owner\.profileId \}/,
   "original Pt Home Close must retain the clicked A owner across pending status and a B selection");
-assert.match(homeCloseBody, /"profile_instance_stop",\s*\{ profileId: owner\.profileId, instanceId: instance\.instanceId \}/,
-  "native Close must target the captured exact owner and instance rather than the current view");
+assert.match(homeCloseBody, /"profile_instance_stop",\s*\{ profileId: owner\.profileId, \.\.\.\(instance\?\.instanceId \? \{ instanceId: instance\.instanceId \} : \{\}\) \}/,
+  "native Close must retain a matching exact instance when supplied and dispatch optional-ID Stop during pending recovery without one");
+assert.doesNotMatch(homeCloseBody, /if\s*\(instance\?\.instanceId\)\s*\{\s*await backendBridge\.invoke\(/,
+  "F-04: a Home Close must not silently skip a pending recovery whose instanceId has not been published");
 assert.doesNotMatch(homeCloseBody, /invokeProfileScoped/,
   "profile-view retirement may fence display but must not abandon an already admitted exact-owner Close");
+const repairBody = appSource.slice(appSource.indexOf("const updateAndRestartGame = useCallback"),
+  appSource.indexOf("const requestServerJump = useCallback"));
+assert.match(repairBody, /"profile_instances_update_and_restart"/,
+  "F-06 repair must first use the native retained-session restoration contract");
+assert.match(repairBody, /repairStatus\?\.repairRequired === true && !result\.restarted\.includes\(owner\.profileId\)/,
+  "F-06 journal-free repair must not return without attempting the supported installed-root launcher");
+assert.match(repairBody, /"profile_instance_start",\s*\{ profileId: owner\.profileId, closeUnmanaged: true \}/,
+  "F-06 fallback must launch the exact captured owner via the supported install helper");
+assert.match(repairBody, /started\?\.connectionState !== "connected"/,
+  "F-06 failed authenticated readiness may not become successful repair");
+{
+  // Execute the actual App.jsx repair callback under a controlled native
+  // command boundary: a journal-free repair must not be counted as a success
+  // until Start returns authenticated Connected. This is not a genuine game.
+  const owner = { profileId: "profile-A" };
+  const createRepair = new Function("useCallback", "backendBridge", "selectedProfileId",
+    "selectedProfileOwnerRef", "profileOwnerKey", "globalNativeLifecycleInFlightRef",
+    "sidebarLifecycleInFlightRef", "lifecycleInFlightProfilesRef", "setProxyBusy",
+    "setGameActionError", "HOME_LIFECYCLE_TIMEOUT_MS", "refreshHomeProxyStatus", "isCurrentProfileOwner",
+    `${repairBody}\nreturn updateAndRestartGame;`);
+  async function checkRepair(restartResult, repairRequired, startState, expectedCalls, expectedError) {
+    const calls = [];
+    const busy = [];
+    const errors = [];
+    const callback = createRepair((fn) => fn,
+      { available: true, invoke: async (command, payload) => {
+        calls.push({ command, payload });
+        if (command === "profile_instances_update_and_restart") return restartResult;
+        if (command === "profile_instance_start") return { connectionState: startState };
+        throw new Error(`Unexpected ${command}`);
+      } }, "profile-A", { current: owner }, (value) => value.profileId,
+      { current: false }, { current: new Set() }, { current: new Set() },
+      (value) => busy.push(value), (value) => errors.push(value), 120000,
+      async () => { calls.push({ command: "proxy_status" }); return { repairRequired }; },
+      () => true);
+    await callback();
+    assert.deepEqual(calls.map((call) => call.command), expectedCalls,
+      "F-06 actual frontend command sequence");
+    assert.deepEqual(busy, [true, false], "F-06 repair must leave busy state");
+    assert.equal(errors.at(-1), expectedError, "F-06 honest failed/success result");
+    if (calls.some((call) => call.command === "profile_instance_start"))
+      assert.deepEqual(calls.find((call) => call.command === "profile_instance_start").payload,
+        { profileId: "profile-A", closeUnmanaged: true },
+        "F-06 no-journal fallback targets the clicked owner");
+  }
+  await checkRepair({ errors: [], restarted: [] }, true, "connected",
+    ["profile_instances_update_and_restart", "proxy_status", "profile_instance_start", "proxy_status"], "");
+  await checkRepair({ errors: [], restarted: [] }, true, "error",
+    ["profile_instances_update_and_restart", "proxy_status", "profile_instance_start"], "GAME_REPAIR_CONNECT_NOT_READY");
+  await checkRepair({ errors: [], restarted: ["profile-A"] }, false, "",
+    ["profile_instances_update_and_restart", "proxy_status"], "");
+  await checkRepair({ errors: [{ profileId: "profile-A", error: "GAME_CLOSE_FAILED" }], restarted: [] }, true, "",
+    ["profile_instances_update_and_restart"], "GAME_CLOSE_FAILED");
+}
+assert.match(appSource, /onCreate:\s*createNativeProfile,\s*onRemove:\s*removeNativeProfile/,
+  "F-07 production sidebar Add/Delete must have real native callbacks, not preview-only controls");
+assert.match(appSource, /mutateNativeProfiles\("profile_create"\)/,
+  "F-07 Add dispatches the production native profile_create command");
+assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
+  "F-07 Remove dispatches the explicit owner to the native profile_delete command");
+{
+  const homeControls = fs.readFileSync(new URL("../src/HomePage.jsx", import.meta.url), "utf8");
+  const validRootControls = homeControls.slice(homeControls.indexOf('<div className="game-controls">'),
+    homeControls.indexOf('{state.gameActionError'));
+  assert.match(validRootControls, /onClick=\{onGameRootSelect\}/,
+    "F-01/F-07: an existing valid root must not hide the picker required for distinct profile installations");
+}
 {
   // ORIGINAL 0.3.17 Ir at UTF-8 byte 328453 from research archive:
   // function Ir(e){let t=[]; e?.code:string && t.push(e.code);
@@ -370,6 +439,14 @@ assert.doesNotMatch(homeCloseBody, /invokeProfileScoped/,
       originalKr({rootResolved, rootValid, gameRunning, needsRepair, recovering, busy, launching}),
       `H-02/H-18/H-45 original Kr conditional Home gate parity flags=${flags}`,
     );
+    if (rootResolved && rootValid) {
+      const pickingRoot = { ...state, busy: "gameRoot" };
+      const choosing = actual(pickingRoot, activeStates, provider, provider, provider);
+      assert.equal(choosing.canStart, false,
+        "F-01 OWN_DESIGN: do not admit Start while the newly visible valid-root picker is pending");
+      assert.equal(choosing.canStop, false,
+        "F-01 OWN_DESIGN: do not admit Stop while the newly visible valid-root picker is pending");
+    }
   }
 }
 {

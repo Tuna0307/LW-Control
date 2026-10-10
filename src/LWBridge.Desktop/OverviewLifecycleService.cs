@@ -202,6 +202,23 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
 
     public bool RepairRequired => TryGetRepairSnapshot(out _);
 
+    // F-07 OWN_DESIGN: deleting a local registry identity is NOT authority
+    // to abandon exact game ownership or an unreadable recovery journal.
+    // Stop and restoration must finish before its metadata may be retired.
+    internal bool CanRetireStoppedLocalProfile()
+    {
+        lock (stateGate)
+        {
+            if (closed || phase is "starting" or "stopping" or "running" ||
+                gamePid is not null || instanceId is not null ||
+                activeHelperProcess is not null || activeRecoveryCancellation is not null ||
+                activeRecoveryRun is not null || activeStartCompletion is not null && !activeStartCompletion.Task.IsCompleted ||
+                config?.Snapshot.GameDesiredRunning == true)
+                return false;
+            return ClassifyRecoveryJournal() is RecoveryJournalState.Absent or RecoveryJournalState.VerifiedCompleted;
+        }
+    }
+
     public bool RuntimeManaged
     {
         get

@@ -94,8 +94,8 @@ export function HomePage({
     && typeof onStartGame === "function"
     && typeof onStopGame === "function"
     && typeof onUpdateAndRestart === "function";
-  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !proxyBusy && !launching;
-  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !proxyBusy && !launching;
+  const canStart = lifecycleProviderAvailable && rootResolved && rootValid && !gameRunning && !recovering && !rootBusy && !proxyBusy && !launching;
+  const canStop = lifecycleProviderAvailable && rootResolved && rootValid && (gameRunning || recovering) && !rootBusy && !proxyBusy && !launching;
 
   let status = t("setup.checking");
   if (rootResolved) {
@@ -128,6 +128,14 @@ export function HomePage({
           ) : null}
           <button type="button" disabled={!canStop} onClick={repairOnClose ? onUpdateAndRestart : onStopGame}>
             {t(proxyBusy && gameRunning ? "common.processing" : repairOnClose ? "setup.updateAndLaunch" : "setup.closeGameAction")}
+          </button>
+          {/* F-01/F-07 OWN_DESIGN: a secondary profile needs a way to select
+              a distinct supported installation even when its inherited root
+              is already valid. Native selection stages the new root without
+              redirecting the current game's Stop/restoration binding. */}
+          <button type="button" disabled={!state.production || rootBusy || proxyBusy || launching}
+            title={state.gameRootStatus?.root || undefined} onClick={onGameRootSelect}>
+            {t(rootBusy ? "common.processing" : "setup.gameRootSelect")}
           </button>
           {repairOnClose ? <span className="muted">{t("setup.updateCloseGame")}</span> : null}
         </div>
