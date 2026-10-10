@@ -5,6 +5,25 @@ shared-listener correction and inspected current-client native hang-recovery
 witness. Independent real-pipe, native and frontend checks passed. This supersedes
 the pending lead review for that unit only; whole Home remains **PARTIAL** and
 PR #6 remains draft. See [lead review](HOME_004_R3_R1_LEAD_REVIEW.md).
+
+**HOME-004 R4 local delivery (2026-10-10; lead review pending; whole Home PARTIAL):**
+Production Home now retains individual A/B lifecycle owners across selection,
+uses separate secondary runtime/evidence/backup folders, and runs ordered
+reconciliation for both enabled profiles. The actual Windows pipe listener has
+separate authenticated long-lived sessions and a token-bound expected executable
+for each profile. Selecting B while A is active does not stop A; mounted
+EN/light and JA/dark proof verifies independent B Close/reconnection preference,
+late A status fencing, returning to the same A session, staged running-folder
+change/old-root Stop/next-root Start, and controlled Update-and-Launch. Native
+tests also prove pending-recovery user Stop and cleanup of a late helper success,
+and a typed official launcher *spawn* error without fabricating launcher
+self-restart. Read the [47-row R4 action queue](HOME_004_R4_QUEUE.md),
+[R4 acceptance report](HOME_004_R4_FINAL_REPORT.md), and appended
+[current Home matrix](HOME_004_R1_CURRENT_MATRIX.md).
+Original protected entitlement/finalizer/controller inputs, the genuine typed
+0.3.17 launcher self-restart, real simultaneous client capability, actual
+offline-only fault, and complete original conditional UI parity remain open.
+Nothing here constitutes whole Home acceptance, a merge, or publication.
 Owner expanded the next relay to the [remaining full Home campaign](HOME_004_R4_FULL_HOME_CONTINUATION.md):
 active root, independent profile owners/selection, launcher/repair, remaining
 recovery edges and complete-Home integration. The earlier H-41 contract remains

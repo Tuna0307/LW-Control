@@ -131,3 +131,30 @@ credits remain intact. Only the affected current evidence changes:
 
 **R3-R1 unit: READY_FOR_LEAD_REVIEW after exact exit/restoration and source-identified
 release/smoke checks; whole Home remains PARTIAL until lead acceptance.**
+
+## R4 continuation — production profile owners, staged game root, launcher producer, pending Stop
+
+This additive overlay supersedes the older R1/R3 statements that selection
+must reject an active owner or that the production lifecycle remains a
+singleton. It preserves all earlier live positives and historical negatives.
+The [R4 47-row queue](HOME_004_R4_QUEUE.md) classifies every untouched row
+and names its exact next distinguishing input.
+
+| Affected obligation | R4 correction and executed evidence | Still unproved |
+| --- | --- | --- |
+| H-06/H-09/H-46 | Genuine Python `run_overview_bridge.py` spawn stage now raises `LauncherSpawnError` only on OS process-creation failure; production C# maps the typed producer to `LAUNCH_TASK_FAILED`. Three Python producer tests exercise the real function with mocked Popen. Obsolete guessed message predicates removed. | Original 0.3.17 mutex/descriptor stage, distinct update/spawn timeout, official self-restart, exact native error serialization. |
+| H-07/H-08 | Source retry requirement unchanged; launcher errors no longer all classified as restart. | No original 0.3.17 `OFFICIAL_LAUNCHER_RESTARTED` typed current-client witness, so retry remains intentionally unimplemented. |
+| H-18/H-19/H-20 | R4 **actual mounted** EN/light and JA/dark Home Update-and-Launch calls controlled production repair/Stop/next Start and returns Connected; existing typed native producer failure/cancellation/obsolete-PID tests pass. | Authentic outdated-client native witness and adverse original repair result. |
+| H-22/H-38/H-39/H-40 | Production retains independently configured A/B lifecycle owners, runtime/evidence/backup folders, shared ordered startup reconcile and exact-session transport registrations; selected A can stay Connected while B is selected and stopped. EN/light and JA/dark mounted Home control proof selects A→B→A without replacing A, independently saves B Reconnection and checks host disposal. Per-session expected client image is tied to the exact authenticated pending token/instance, with native wrong-token/profile/expiry/route-retirement checks. | Real concurrent supported game installations and original licensed capacity/admission remain unavailable; **inert** multiple owners do not establish genuine two-game original parity. |
+| H-27/H-29 | Native per-profile image expectation is resolved only after an exact token/profile/instance match, then Windows PID, build, route generation and executable path gates apply. The previously serial accept loop now retains independent long-lived authenticated reader tasks. Actual R4 real Windows named-pipe probe passes the two simultaneous A/B connections/B RPC while A remains connected, plus all R3-R1 rejection, reconnect, idle and shutdown gates. | Original 0.3.17 protected transport timer remains undecoded; the 30-second adapter reader timer is a 0.3.1 adaptation. |
+| H-32/H-33/H-37 | Real Home mounted B Reconnection toggle changed only B persisted config while A retained its own active session; native desired-running and recovery tests pass. | Original protected multi-profile Auto Launch capacity/long reconnect behavior. |
+| H-34/H-35/H-36/H-40/H-47 | Native user Stop while a pending recovery launch is held now clears desired-running, invalidates the recovery run and causes late helper success to be restored instead of publishing an adopted successor. Existing hanging/offline thresholds and stopped-successor tests pass. | Actual genuine-game Stop *during* pending recovery, offline-only (alive PID), long maintenance/failed retry original side-by-side. |
+| H-41 | Baseline pending/unknown old-root repair rejected saving new folder. R4 stages and persists next B folder without changing A's captured active/repair owner; next Start remains blocked until old repair journal is clear. Actual native backend test and mounted A-running→choose B→Close old A→next Start B pass. | Genuine original 0.3.17 root-picker running/repair negative and supported second installation, not an inert fixture. |
+| H-42/H-43/H-45 | Actual production mounted Home `get_status` delayed A reply is fenced after selecting B; independent A/B instance statuses and EN/light/JA/dark Connected/repair controls pass. | Complete original conditional-pixel parity and original maintenance notice timing. |
+
+**Status:** R4 local implementation and controlled/native Home evidence are
+ready for independent lead review once the final release/package report is
+verified. **Whole Home remains PARTIAL**; see
+[R4 final report](HOME_004_R4_FINAL_REPORT.md). No protected entitlement,
+updater action, genuine multi-game experiment or unrelated Map scan was
+undertaken as an R4 acceptance test.

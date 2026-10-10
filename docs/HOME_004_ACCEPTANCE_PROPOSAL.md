@@ -4,6 +4,34 @@
 verified real native Home preference/reopen behavior. Whole Home does not yet
 match the original 0.3.17 and is not ready for lead merge as a full feature.
 
+**R4 continuation (2026-10-10): READY FOR INDEPENDENT LEAD REVIEW OF THE
+BOUNDED IMPLEMENTATION ONLY; WHOLE HOME REMAINS PARTIAL.** The original
+47-row inventory still applies, and the [R4 reconciled action queue](HOME_004_R4_QUEUE.md)
+assigns an explicit next action to each item. R4 corrects H-41 pending-journal
+root selection/next Start, H-38/H-39/H-40 actual retained profile ownership,
+H-27/H-29 per-instance strict-image shared transport, H-06/H-09/H-46 typed
+launcher process creation, and H-34–36/H-40/H-47 Stop during pending recovery
+with late-helper cleanup. Actual mounted App Home EN/light and JA/dark uses two
+separate inert production owners: A/B selection and lifecycle/setting isolation,
+real UI Close and Update-and-Launch controls, late status response fence,
+old-root restoration and replacement-root Start. Genuine game launches in the
+R4 controlled verification: **zero**. Accepted earlier single-profile
+Launch/Connected/Close, automatic startup, same-build adoption, unexpected
+exit and live successful hung-game recovery evidence is unchanged.
+
+The rebuilt shared Windows listener now accepts multiple long-lived
+authenticated sessions concurrently, each limited to its own exact
+registration/profile/token and expected game executable; the R4 actual named
+pipe probe is the distinguishing test for this formerly serial admission path.
+Refer to [R4 report](HOME_004_R4_FINAL_REPORT.md) for exact final build,
+package, check and cleanup receipts, together with remaining input boundaries.
+The original signed controller key material, protected entitlement/finalizer
+behavior, current-client self-restart signal, original 0.3.17 transport timer,
+simultaneous genuine-game capability, adverse live recovery/repair and
+conditional original UI parity are still **not** available or unproved.
+Do not merge or publish on the strength of this proposal; final acceptance
+belongs to the lead.
+
 ## Original authority and delivery identity
 
 Original LWBridge **0.3.17** executable SHA-256:
