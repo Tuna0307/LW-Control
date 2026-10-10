@@ -243,6 +243,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const nativeProfileSelectionRevisionRef = useRef(0);
   const nativeReorderRevisionRef = useRef(0);
   const nativeNoteRevisionsRef = useRef(new Map());
+  const nativeNoteWriteChainsRef = useRef(new Map());
   const isCurrentProfileOwner = useCallback((owner) => (
     owner?.profileId === selectedProfileOwnerRef.current.profileId
     && owner?.generation === selectedProfileOwnerRef.current.generation
@@ -315,12 +316,26 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoReconnectStore.getSnapshot,
   );
 
-  const adoptNativeProfileSnapshot = useCallback((snapshot, expectedSelectedProfileId = "") => {
-    const next = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
+  const adoptNativeProfileSnapshot = useCallback((
+    snapshot, expectedSelectedProfileId = "", preserveCurrentProfiles = false,
+  ) => {
+    let next = normalizeProfileSnapshot(snapshot, shellProfilesRef.current);
     if (expectedSelectedProfileId && next.selectedProfileId !== expectedSelectedProfileId) {
       const error = new Error("Native profile selection acknowledgement did not match the requested profile.");
       error.code = "PROFILE_SELECTION_MISMATCH";
       throw error;
+    }
+    if (preserveCurrentProfiles) {
+      // The native B owner was selected, but its snapshot may have been
+      // captured BEFORE an independent durable A/B note or reorder. Adopt
+      // B selection without rolling the later profile metadata back.
+      const current = shellProfilesRef.current;
+      const authoritativeIds = new Set(next.profiles.map((profile) => profile.id));
+      if (current.profiles.length === next.profiles.length &&
+          current.profiles.every((profile) => authoritativeIds.has(profile.id)) &&
+          current.profiles.some((profile) => profile.id === next.selectedProfileId)) {
+        next = { ...next, profiles: current.profiles };
+      }
     }
     if (next.selectedProfileId && next.selectedProfileId !== backendBridge.profileId) {
       backendBridge.setSelectedProfile(next.selectedProfileId);
@@ -346,7 +361,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     try {
       const snapshot = await backendBridge.invoke("profile_select", { profileId, focusGame: focusGame === true });
       if (nativeProfileSelectionRevisionRef.current !== selectionRevision) return snapshot;
-      return adoptNativeProfileSnapshot(snapshot, profileId);
+      return adoptNativeProfileSnapshot(
+        snapshot, profileId, nativeProfileRequestRef.current !== request,
+      );
     } catch (error) {
       if (nativeProfileSelectionRevisionRef.current === selectionRevision)
         setNativeProfileError(error?.code || error?.message || String(error));
@@ -395,8 +412,17 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     const noteRevision = (nativeNoteRevisionsRef.current.get(profileId) || 0) + 1;
     nativeNoteRevisionsRef.current.set(profileId, noteRevision);
     setNativeProfileError("");
+    // Two rapid submits for the SAME retained account must commit in the
+    // user's order. Otherwise late native execution of first note X can
+    // overwrite second note Y in SQLite while JSX displays Y. Do not use a
+    // global queue: A and B metadata writes remain independent.
+    const previous = nativeNoteWriteChainsRef.current.get(profileId) || Promise.resolve();
+    const write = previous.catch(() => undefined).then(
+      () => backendBridge.invoke("profile_note_set", { profileId, note }),
+    );
+    nativeNoteWriteChainsRef.current.set(profileId, write);
     try {
-      const snapshot = await backendBridge.invoke("profile_note_set", { profileId, note });
+      const snapshot = await write;
       if (nativeProfileRequestRef.current !== request) {
         // Profile notes belong to a retained exact owner, not the selected
         // Home view. A newer B selection retires this snapshot's selection
@@ -418,6 +444,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     } catch (error) {
       if (nativeProfileRequestRef.current === request) setNativeProfileError(error?.code || error?.message || String(error));
       throw error;
+    } finally {
+      if (nativeNoteWriteChainsRef.current.get(profileId) === write)
+        nativeNoteWriteChainsRef.current.delete(profileId);
     }
   }, [adoptNativeProfileSnapshot]);
 

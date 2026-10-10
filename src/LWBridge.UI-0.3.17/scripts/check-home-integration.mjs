@@ -245,6 +245,10 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     "H-39 latest native selection must release busy even when registry edits occurred");
   assert.doesNotMatch(selectionBody, /nativeProfileRequestRef\.current === request\) setNativeProfileBusy/,
     "H-39 global metadata request revision may not own selected profile busy release");
+  assert.match(selectionBody, /adoptNativeProfileSnapshot\(\s*snapshot, profileId, nativeProfileRequestRef\.current !== request/,
+    "H-39 a selection snapshot predating newer profile metadata must preserve that metadata");
+  assert.match(appSource, /preserveCurrentProfiles[\s\S]*?authoritativeIds\.has\(profile\.id\)/,
+    "H-39 selecting B must retain complete current owner metadata only with exact roster parity");
 }
 {
   const noteAction = appSource.slice(
@@ -259,6 +263,10 @@ const sidebarSource = fs.readFileSync(new URL("../src/ProfileSidebar.jsx", impor
     "H-39 note projection remains separate from selected Home-view acknowledgement");
   assert.doesNotMatch(noteAction, /setShellProfiles\(authoritative\)/,
     "H-39 a late note may not replace B selection or unrelated registry data");
+  assert.match(noteAction, /nativeNoteWriteChainsRef\.current\.get\(profileId\)/,
+    "H-39 exact-owner note writes must serialize per profile to preserve durable latest intent");
+  assert.match(noteAction, /previous\.catch\(\(\) => undefined\)\.then\(/,
+    "H-39 later same-owner note can retry after earlier failure without overtaking");
 }
 const homeCloseBody = appSource.slice(appSource.indexOf("const stopGame = useCallback"), appSource.indexOf("const updateAndRestartGame"));
 assert.match(homeCloseBody, /"profile_instance_status",\s*\{ profileId: owner\.profileId \}/,
@@ -521,7 +529,9 @@ assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatu
 
 assert.match(appSource, /backendBridge\.invoke\("profile_list", \{\}\)/, "normal App must load the native profile registry");
 assert.match(appSource, /backendBridge\.invoke\("profile_select", \{ profileId, focusGame: focusGame === true \}\)/, "normal sidebar selection must dispatch native profile_select");
-assert.match(appSource, /adoptNativeProfileSnapshot\(snapshot, profileId\)/, "profile ownership must change only after matching native acknowledgement");
+assert.match(appSource,
+  /adoptNativeProfileSnapshot\(\s*snapshot, profileId, nativeProfileRequestRef\.current !== request/,
+  "profile ownership must change only after matching native acknowledgement and preserve newer metadata");
 assert.match(appSource, /backendBridge\.setSelectedProfile\(next\.selectedProfileId\)/, "acknowledged native selection must advance bridge profile generation");
 assert.match(appSource, /nativeProfileRequestRef\.current === request\) adoptNativeProfileSnapshot\(snapshot\)/, "stale profile_list acknowledgement must not overwrite a newer registry mutation");
 assert.match(appSource, /profileDraftGeneration = backendBridge\.mode === "native" \? selectedProfileGeneration : 0/, "native profile drafts must retire by selected profile generation without changing preview draft retention");

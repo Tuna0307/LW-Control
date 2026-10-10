@@ -255,6 +255,15 @@ protected lease/finalizer or original entitlement.
 
 Whole Home **PARTIAL_NEEDS_INPUT**.
 
+## R13 reverse selection snapshot and same-owner note ordering (2026-10-10)
+
+| H-ID / original authority | Actual clone distinction, correction and proof | Required original/genuine input |
+| --- | --- | --- |
+| H-39/H-45: original `Yr` independent JSX select/reorder, native `profile_select` 0x10b70b and `profile_reorder` 0x12709b | Hold B `profile_select` reply **after** native execution captured A,B, then actual JSX B-before-A drag/drop persisted/visible B,A. Before-fix late B full selection ack erased the newer UI order. R13 preserves current exact-member roster metadata when selection was overtaken, while still validating/adopting B owner. EN/JA with R12 inverse sequence and exact A,B restore. [R13 receipt](HOME_004_R13_SELECTED_SNAPSHOT_AND_NOTE_WRITE_RECEIPT.md) | Paired original after-native select/reorder timing and genuine protected multi-profile capability. |
+| H-39/H-40/H-45: original `Yr` note form submits `r.updateNote(profileId,value)` repeatedly while save promise pending, native `profile_note_set` 0x1a4d26 | Actual JSX two rapid A Saves X then Y with X held before native; Y committed first, X overwrote it: SQLite X while UI Y. R13 per-exact-A serialized writes retain Y durable and visible, B unchanged, allow retry after first write error. Mounted EN/light and JA/dark plus source check, zero real games. | Original successful concurrent metadata result, protected lease and legitimate dual supported client witnesses. |
+
+Whole Home **PARTIAL_NEEDS_INPUT**.
+
 ## R12 selected-owner completion independent of registry revision (2026-10-10)
 
 | H-ID / source | Actual WebView/native defect and bound | Remaining |

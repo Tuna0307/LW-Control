@@ -1,5 +1,21 @@
 # HOME-COMPLETE-DELIVERY-004 — acceptance proposal
 
+**R13 real selected-profile/registry reconciliation (2026-10-10):
+PARTIAL_NEEDS_INPUT.** Actual native/WebView negatives establish
+that a held post-execution B selected snapshot could undo
+newer B,A persisted and visible JSX reorder, and two rapid JSX A
+note submissions X→Y could commit in native reverse order leaving
+SQLite X/UI Y. Corrected roster-safe selected-only projection and
+per-exact-owner ordered note native writes (independent B,
+failure-surviving queue). Mounted EN/light and JA/dark preserve
+prior A/B Start/Stop/repair/errors/cleanup. Detailed H-39/H-40/H-45
+authority and receipt [R13](HOME_004_R13_SELECTED_SNAPSHOT_AND_NOTE_WRITE_RECEIPT.md),
+all 47 rows in [queue](HOME_004_R4_QUEUE.md). This is controlled
+current-client consistency, **not** original protected lease/ticket,
+official launcher faults, authorized real simultaneous games,
+genuine adverse recovery or original conditional pixels.
+Draft PR #6 stays unmerged, no release/lead self-acceptance.
+
 **R12 independent native selection revision under concurrent
 profile reorder (2026-10-10): PARTIAL_NEEDS_INPUT.** Actual
 production mounted WebView B selection delayed at native dispatcher,

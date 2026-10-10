@@ -604,6 +604,178 @@ internal sealed partial class LWBridgeWindow
               button.querySelector('strong')?.textContent?.includes('Campaign A'))
             """, "R12 exact A selected, compact sidebar restored");
 
+        // R13 H-39/H-45: the inverse R12 ordering of command completions.
+        // Native B selection commits while a reply is held AFTER dispatch,
+        // so its snapshot still contains A,B. A real JSX reorder then commits
+        // B,A in SQLite and visible React while B's stale selection ack waits.
+        // Releasing that older full selection snapshot must not erase B,A.
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle)return false;toggle.click();return true;})()
+            """, "R13 expand original B-before-A sidebar");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true &&
+            document.querySelectorAll('.profile-row').length===2
+            """, "R13 fixture A,B before post-native selection delay");
+        await ClickAsync("""
+            (()=>{const drag=[...document.querySelectorAll('.profile-row .profile-drag-handle')][1];
+              if(!drag)return false;
+              drag.dispatchEvent(new DragEvent('dragstart',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));
+              return true;})()
+            """, "R13 actual JSX drag B ahead of A");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('dragging') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B'))
+            """, "R13 B drag captured before real selection");
+        Task<HomeMapCampaignDelayedRequest> heldBSelectionAck =
+            ArmHomeMapCampaignCommandDelay("profile_select",
+                targetProfileId:"campaign-B", onReply:true);
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign B'));
+              if(!button||button.disabled)return false;
+              button.click();return true;})()
+            """, "R13 real JSX select B with delayed completed native reply");
+        HomeMapCampaignDelayedRequest heldBReply =
+            await heldBSelectionAck.WaitAsync(TimeSpan.FromSeconds(8));
+        if(heldBReply.ProfileId!="campaign-B" || backend.ProfileId!="campaign-B")
+            throw new InvalidDataException(
+                "R13 native B selection must already have completed before its reply delay.");
+        await WaitForUiAsync("document.querySelector('.profile-list')?.classList.contains('busy')===true",
+            "R13 B owner native but React selection ack not yet delivered");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(row=>row.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!row)return false;
+              row.dispatchEvent(new DragEvent('drop',
+                {bubbles:true,cancelable:true,dataTransfer:new DataTransfer()}));
+              return true;})()
+            """, "R13 drop B ahead of A after B selected natively");
+        for(int i=0;i<240&&!profileRegistryService.Snapshot.Profiles
+            .Select(profile=>profile.Id).SequenceEqual(new[]{"campaign-B","campaign-A"});i++)
+            await Task.Delay(40);
+        if(!profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+            .SequenceEqual(new[]{"campaign-B","campaign-A"}))
+            throw new InvalidDataException("R13 native B,A persisted reorder was not committed.");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B')===true
+            """, "R13 committed JSX B,A rendered before stale B selection ack");
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign B')===true &&
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign B')) &&
+            !document.querySelector('.profile-list')?.classList.contains('busy')
+            """, "R13 stale B selection snapshot cannot erase newer B,A registry order");
+        JsonElement r13RestoredOrder = await InvokeNativeAsync("profile_reorder",
+            new {profileIds=new[]{"campaign-A","campaign-B"}});
+        if(!r13RestoredOrder.GetProperty("ok").GetBoolean() ||
+          !profileRegistryService.Snapshot.Profiles.Select(profile=>profile.Id)
+              .SequenceEqual(new[]{"campaign-A","campaign-B"}))
+            throw new InvalidDataException("R13 exact test A,B registry rollback failed.");
+        await ClickAsync("""
+            (()=>{const button=[...document.querySelectorAll('.profile-row .profile-item')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              if(!button||button.disabled)return false;button.click();return true;})()
+            """, "R13 selected A refreshes reset A,B profile order");
+        for(int i=0;i<240 && backend.ProfileId!="campaign-A";i++) await Task.Delay(40);
+        if(backend.ProfileId!="campaign-A")
+            throw new InvalidDataException("R13 exact A selection restore failed.");
+        await WaitForUiAsync("""
+            document.querySelectorAll('.profile-row .profile-copy strong')[0]
+              ?.textContent?.includes('Campaign A')===true &&
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.classList.contains('active') &&
+              row.querySelector('strong')?.textContent?.includes('Campaign A'))
+            """, "R13 exact A,B order + selected A restored after late snapshot inverse");
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle)return false;toggle.click();return true;})()
+            """, "R13 restore collapsed sidebar before remaining Home checks");
+        await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length===2",
+            "R13 compact sidebar restored");
+
+        // R13 H-39: native first-note dispatch is held before execution.
+        // Submitting a later exact-A note must not overtake it in SQLite;
+        // otherwise the JSX projects the latest Y while the durable registry
+        // is rolled back to older X once the first command finally runs.
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle)return false;toggle.click();return true;})()
+            """, "R13 expand exact A note editor for competing writes");
+        await WaitForUiAsync("document.querySelectorAll('.profile-row').length===2",
+            "R13 both profile rows available for competing notes");
+        await ClickAsync("""
+            (()=>{const row=[...document.querySelectorAll('.profile-row')]
+              .find(item=>item.querySelector('strong')?.textContent?.includes('Campaign A'));
+              const edit=row?.querySelector('.profile-note-edit');
+              if(!edit||edit.disabled)return false;edit.click();return true;})()
+            """, "R13 open actual A note JSX dialog");
+        await WaitForUiAsync("document.querySelector('dialog[open] .profile-dialog input')!==null",
+            "R13 live editable A note dialog opened");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r13-first-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R13 input first A note");
+        await WaitForUiAsync("""
+            document.querySelector('dialog[open] .profile-dialog input')?.value==='r13-first-A-note'
+            """, "R13 first note entered");
+        Task<HomeMapCampaignDelayedRequest> heldFirstANote =
+            ArmHomeMapCampaignCommandDelay("profile_note_set", targetProfileId:"campaign-A");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R13 first A note Save held in real native dispatcher");
+        HomeMapCampaignDelayedRequest heldFirst =
+            await heldFirstANote.WaitAsync(TimeSpan.FromSeconds(8));
+        if(heldFirst.ProfileId!="campaign-A")
+            throw new InvalidDataException("R13 first submitted note did not originate from selected A.");
+        await ClickAsync("""
+            (()=>{const input=document.querySelector('dialog[open] .profile-dialog input');
+              if(!input)return false;
+              Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set
+                .call(input,'r13-second-A-note');
+              input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()
+            """, "R13 change same A note while first Save pending");
+        await WaitForUiAsync("""
+            document.querySelector('dialog[open] .profile-dialog input')?.value==='r13-second-A-note'
+            """, "R13 second note entered");
+        await ClickAsync("""
+            (()=>{const save=document.querySelector('dialog[open] .profile-dialog button[type=submit]');
+              if(!save||save.disabled)return false;save.click();return true;})()
+            """, "R13 submit newer note while old A native dispatch remains held");
+        await Task.Delay(300);
+        ReleaseHomeMapCampaignCommandDelay();
+        await WaitForUiAsync("document.querySelector('dialog[open]')===null",
+            "R13 both successful note callbacks closed actual dialog");
+        await WaitForUiAsync("""
+            [...document.querySelectorAll('.profile-row')].some(row=>
+              row.querySelector('strong')?.textContent?.includes('Campaign A') &&
+              row.querySelector('.profile-note')?.textContent?.includes('r13-second-A-note'))
+            """, "R13 latest A note visibly saved");
+        await Task.Delay(350);
+        if(profileRegistryService.Snapshot.Profiles
+            .Single(profile=>profile.Id=="campaign-A").Note!="r13-second-A-note" ||
+          profileRegistryService.Snapshot.Profiles.Single(profile=>profile.Id=="campaign-B")
+            .Note=="r13-second-A-note")
+            throw new InvalidDataException(
+                "R13 older concurrent note overwrote newer exact A persistent note.");
+        await ClickAsync("""
+            (()=>{const toggle=document.querySelector('.profile-collapse');
+              if(!toggle)return false;toggle.click();return true;})()
+            """, "R13 restore compact profile sidebar after same-A note ordering");
+        await WaitForUiAsync("document.querySelectorAll('.profile-compact-item').length===2",
+            "R13 same-owner note fixture compacted");
+
         // Hold an actual A Home status request at the native command boundary;
         // selecting B must not retire A or render A's late response into B.
         long oldAGeneration = Volatile.Read(ref profileRuntimeGeneration);
@@ -1326,6 +1498,8 @@ internal sealed partial class LWBridgeWindow
                 sidebarReorderVisibleAfterSelection = true,
                 sidebarNoteVisibleAfterSelection = true,
                 selectionBusyReleasedAfterIndependentReorder = true,
+                lateSelectionPreservesNewerProfileOrder = true,
+                rapidNoteWritesPreserveLatestDurableOwnerValue = true,
                 bStartStopExact = true,
                 startAllContinuedAfterAError = true,
                 stopAllStoppedB = true,

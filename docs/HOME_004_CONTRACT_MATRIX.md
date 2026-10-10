@@ -133,6 +133,29 @@ no stuck busy, exact A,B/A restored. See
 Protected, genuine real-client and paired original interleaving gates
 remain unverified; whole Home **PARTIAL_NEEDS_INPUT**.
 
+### R13 additive H-39/H-40/H-45 completed selection snapshots and durable note order
+
+Original 0.3.17 sidebar `Yr` has independent profile selection,
+drag reorder and note Save (the Save button is not disabled by a
+pending note promise). R13 actual mounted native/WebView:
+
+- Native B selection captured A,B before a held **reply**; independently
+  committed JSX B-before-A Drop yielded SQLite/visible B,A, but
+  late whole B selection snapshot reverted UI to A,B. Corrected
+  selected-only adoption preserves the current metadata under
+  exact native/current roster agreement, still checks selected B.
+- Rapid A dialog Saves X then Y, with X held before native dispatch,
+  executed Y before X and left SQLite X/UI Y. Exact per-owner
+  serial queue ensures persisted final Y equals JSX Y without
+  serializing B or disabling original form behavior.
+
+Actual EN/light/JA/dark, independent A/B lifecycle, R6–R12
+original-source/controlled guards pass. See
+[R13 receipt](HOME_004_R13_SELECTED_SNAPSHOT_AND_NOTE_WRITE_RECEIPT.md).
+No original 0.3.17 protected commercial simultaneous runtime or
+paired original concurrent metadata response supplied;
+whole Home **PARTIAL_NEEDS_INPUT**.
+
 - Existing lead-accepted Home subset remains single-profile Launch → authenticated Connected → optional-ID Close with exact restoration (docs/HOME_LAUNCH_LEAD_ACCEPTANCE.md).
 - The HOME-004 UI/transport and Start precedence changes require an actual packaged regression; a frontend test alone cannot accept the native experience.
 - The remaining protected ticket/lease/finalizer input, original-runtime failure outcomes, independent multi-profile admission, and unreplayed recovery/repair/adoption adversity prevent whole Home A-to-A certification.

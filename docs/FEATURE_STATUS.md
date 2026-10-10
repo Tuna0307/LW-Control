@@ -1,5 +1,20 @@
 # Feature delivery status
 
+**HOME-004 R13 reverse selection-snapshot and ordered note writes
+(2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** Two separately
+reproduced actual native/WebView/SQLite failures: (1) delayed
+native B select **reply** adopted a stale whole profile list and
+erased a newer JSX/SQLite B,A reorder; now B selection preserves
+newer exact-member current metadata. (2) two rapid A note Saves
+X then Y executed Y before held X and left SQLite X/UI Y; now
+per-exact-profile writes serialize while B remains independent.
+Controlled EN/light and JA/dark actual mounted proofs, full
+prior R6–R12 exact owners/error/repair/projection, zero leaks.
+See [R13 receipt](HOME_004_R13_SELECTED_SNAPSHOT_AND_NOTE_WRITE_RECEIPT.md).
+Original protected lease/capacity and real paired adversarial
+client/launcher/recovery/conditional pixels still require input;
+draft PR #6 unmerged.
+
 **HOME-004 R12 selected profile completion despite registry mutation
 (2026-10-10; whole Home PARTIAL_NEEDS_INPUT):** actual mounted
 React B selection held at native dispatch while independent

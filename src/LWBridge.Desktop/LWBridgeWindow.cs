@@ -5205,7 +5205,11 @@ internal sealed partial class LWBridgeWindow : Form
                                 command, payload, requestBackend, cancellationToken).ConfigureAwait(false);
                             return await targetBackend.InvokeAsync(command, payload, cancellationToken).ConfigureAwait(false);
                         }, cancellationToken));
-                if (explicitHomeOwnerCommand)
+                // Home-only proof seam: profile_select also needs an
+                // after-execution/before-ack hold to distinguish a selected
+                // snapshot made stale by a newer persistent registry write.
+                // Unarmed commands pass straight through unchanged.
+                if (explicitHomeOwnerCommand || (homeMapCampaignHomeOnly && command == "profile_select"))
                 {
                     await WaitForHomeMapCampaignCommandReleaseAsync(
                         command,
