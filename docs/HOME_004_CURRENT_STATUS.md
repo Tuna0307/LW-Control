@@ -1,6 +1,6 @@
 # HOME-004 — current status and next actions
 
-Updated 2026-10-10. **Whole Home: PARTIAL_NEEDS_INPUT.** Branch `codex/home-complete-delivery-004`, same checkout, GitHub PR #6 draft. Started from verified local/direct remote `5b0ce60b0a646eaeb942ef8355fa7f61bc0c2b5d`. Latest Windows review ZIP comes from follow-up source commit `0e8929538b528f90a4e9cc8fd21052d53e1d5e59`; SHA, older candidate history and extracted checks are in the [final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The delivery documentation commit is metadata, not a different compiled build.
+Updated 2026-10-10. **Whole Home: PARTIAL_NEEDS_INPUT.** Branch `codex/home-complete-delivery-004`, same checkout, GitHub PR #6 draft. Started from verified local/direct remote `5b0ce60b0a646eaeb942ef8355fa7f61bc0c2b5d`. Latest Windows review ZIP is built from H-45 source commit `14ea136ee303d783a435246b4d5a705097cb08ff` with visible `v0.3.17`; SHA, former candidates and extracted proofs are in the [final correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md). The subsequent delivery documentation commit is metadata, not a different compiled build.
 
 The canonical completion queue is [the loop campaign](HOME_004_LOOP_CAMPAIGN.md), the one consolidated [47-row correction receipt](HOME_004_FINAL_CORRECTION_RECEIPT.md) and the authoritative original locator [matrix](HOME_004_R1_CURRENT_MATRIX.md). The earlier lead inspection is archived separately; do not restart R4 or R13 or discard the historical R16 timeout.
 
