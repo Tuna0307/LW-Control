@@ -80,15 +80,38 @@ The lead performs independent functional review and decides main merge/publicati
 Do not say whole Home is done while a required action is disabled, simulated-only,
 unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
-## One current continuation — update in place
+## One current continuation — updated 2026-10-10
 
-- Starting source: 18a564c97a6c47d410789bfecbf26d62ae48b7e7; clean checkout.
-- Latest compiled worker candidate: 48116ca93a1d4eaf4f7c4ccb962ffbd05e0ad4f4.
-- Existing correction/concurrency/H-33/package receipts retained; worker reports
-  genuine pending-recovery Stop success after a preserved late-launch failure.
-- Lead action in this policy pass: inspected current docs/source surface and Git
-  state, changed acceptance/workflow documents only; no new live approval result.
-- Next: produce the finite F-01–F-09 status from actual code/proof; original-only
-  gaps become research notes, real missing features become prioritised work.
-- No remaining dirty R16 edits at this checkpoint. Do not repeat their old queue.
-- Whole Home not lead accepted; PR #6 draft; no merge/publication.
+- Reconciled clean starting `e1d46414` with direct remote and all F-01–F-09
+  actual controls. Kept R4–R16/H-33 historical positive and negative receipts.
+- Corrected real F-04/F-07 sidebar gap in committed source
+  `c0fed3f434ecfefad05e6ab17f8e7a2fbc59df2c`: exact native recovery can
+  remain active after a restored former game leaves no instance ID. Native
+  status now exposes an actual `recovering` condition, sidebar Stop/Stop All
+  can cancel it through the existing optional-ID Stop, and Start All cannot
+  overlap it. Deliberate new behavior documented in D-10.
+- Native Release suite and frontend `npm.cmd run check` PASS. Real isolated
+  Windows named-pipe recovery probe PASS, including two simultaneous
+  authenticated inert RPC clients and exact listener cleanup.
+- One refreshed source-identified Windows ZIP:
+  `artifacts/release/home004-functional-c0fed3f4/LW-Control-HOME004-FUNCTIONAL-RC-c0fed3f434ec.zip`,
+  SHA-256 `D3A73378787D314F784A71AD32D45F8E63E54760DBC244AEB30873A03992C6F8`;
+  extracted EXE SHA-256 `E864AC1E931438ACBFC884BB7E6EDEEFBFB90CDAAE7AB919A554A40FDEFCC2B0`,
+  exact extracted source/compiled version, 83 ZIP entries and 81 runtime files.
+- Extracted actual WebView/native Home EN/light and JA/dark isolated proofs
+  (`artifacts/home-004/functional-c0fed3f4-{en-light,ja-dark}.json`) PASS.
+  Both inert owners stopped, zero game launches/Map scans, orphaned requests,
+  subscriptions, cleanup failures. Extracted Home screenshot PASS, zero
+  residual capture roots. Prior normal GUI smoke and current-game read-only
+  compatibility remain historical rather than claimed newly rerun.
+- **Current result PARTIAL** only for actual genuine inputs: F-04 responsive
+  still-running game with transport-only offline for 60s; F-06 safely backed-up
+  genuinely damaged supported bridge and fresh authenticated repair result;
+  F-07 second independently compatible game installation/two game sessions for
+  advertised simultaneous use. No authorized legitimate means or input to
+  induce/verify these today; original-only unknown details do not block.
+- Next useful action: obtain appropriate isolated supported current-game input
+  for each genuine gate, then verify through the packaged UI with exact session
+  identity, backup/restoration and teardown. Do not repeat inert rounds as a
+  substitute or induce protected runtime/updater/network changes.
+- No remaining dirty R16/H-33 work; PR #6 stays draft. No main merge or publication.
