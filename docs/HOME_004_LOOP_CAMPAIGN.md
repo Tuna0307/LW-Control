@@ -82,6 +82,29 @@ unsupported or unverified. An original-only unknown no longer requires PARTIAL.
 
 ## One current continuation — updated 2026-10-10
 
+- **Newest F-04/F-06 corrections from clean `d966f368`:** committed
+  source `a64ee00ad91acf28a2a21346d1560e21d757cd14`. Production F-04
+  `IsSnapshotReady` already required authenticated pipe routing, whereas
+  recovery only required a fresh heartbeat file. D-12 reconciles them:
+  route missing with fresh heartbeat now produces offline and monitored 60s
+  disconnect, covered by exact-owner controlled OFF/ON/recovery/Stop native
+  tests. D-13 prevents F-06 empty native repair response from being presented
+  as success when the clicked owner was not restarted and a repair target is
+  no longer visible; controlled production JSX tests cover no-op, wrong owner,
+  successful journal/no-journal and failed readiness. No user game altered.
+- One new corrected Release Windows ZIP:
+  `artifacts/release/home004-functional-a64ee00a/LW-Control-HOME004-FUNCTIONAL-RC-a64ee00ad91a.zip`,
+  SHA-256 `3DB3BFBF65198F1E926ACA719E24A307DF8FB689B4CA5A5F23F8DE6F8B475579`,
+  extracted EXE `4338358469F7B1CE237B0F5B209072D3399D27E8616400829FAB3781342DFBBB`,
+  source/version verified, 83 ZIP entries/81 runtime files. Native Release,
+  frontend and isolated Windows pipe checks PASS; actual extracted native +
+  WebView Home EN/light and JA/dark controlled receipts
+  `artifacts/home-004/functional-a64ee00a-{en-light,ja-dark}.json` both PASS.
+  No game launches/Map scans/remaining requests/subscriptions/cleanup failures.
+  Extracted screenshot `functional-a64ee00a-capture/home.png` PASS and no
+  temporary roots. Genuine F-04 responsive real-game transport-only loss,
+  F-06 damaged real bridge repair and F-07 two real independent compatible
+  games remain open; this is **PARTIAL**, not READY.
 - **Latest actual F-07 correction:** starting from clean `b6483389`, the
   local SQLite registry already had a durable `enabled` bit respected by
   startup and Start, but the normal Home sidebar had no way to edit it.
