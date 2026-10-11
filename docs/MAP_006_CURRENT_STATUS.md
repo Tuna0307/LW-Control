@@ -19,7 +19,11 @@ prioritise `work-items/LWB317-MAP-SCAN-METHODS-008.md` on the existing
 codex/map-action-providers-007 branch. Lead reproduced LEADSCAN008-01: Normal/
 Fast request 8/20 but actual engine is serial and both admit the same full-world
 path. Complete real mode differentiation and accuracy-led multi-server method
-comparison before owner personal testing. Accepted v0.6.0 data/lifecycle remains
+comparison before owner personal testing. Latest clarification covers all eight
+kinds individually, mixed selections and all selected together, with representative
+genuine per-kind/combined comparisons and stress tests. Truck was an example;
+Ghost/full Treasure live positives remain deferred, not passed by empty results.
+Accepted v0.6.0 data/lifecycle remains
 preserved; no globally fastest or perfect-recall claim. See the dated MAP-007 lead
 review and immutable negative probes. No new branch or duplicate release per fix.
 The assigned branch now implements source-backed Ghost **preparation** and a

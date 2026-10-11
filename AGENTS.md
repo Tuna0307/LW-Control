@@ -3,9 +3,14 @@
 Latest lead assignment, 2026-10-11: PR #9 / MAP-007 is CHANGES_REQUIRED for
 LEADMAP007-01/02 (retired busy state and late cross-tab messages). Correct those
 first, then complete docs/work-items/LWB317-MAP-SCAN-METHODS-008.md on the
-existing codex/map-action-providers-007 branch/PR. Owner prioritises accurate
-multi-server Truck acquisition, camera/server-independent alternatives and real
-Normal/Fast behavior before personal testing. Preserve accepted main/v0.6.0 and
+existing codex/map-action-providers-007 branch/PR. Owner clarification: Truck is
+only an example. Optimize all eight kinds individually, mixed and all together,
+including multi-server cycles; require accuracy comparisons, credible alternative
+methods, representative genuine benchmarks and combined-pipeline stress tests.
+Ghost/seasonal Treasure positive live gates remain deferred. Require best tested
+accuracy-qualified performance, not an unsupported globally fastest claim.
+Investigate camera/server-independent alternatives and real Normal/Fast behavior
+before personal testing. Preserve accepted main/v0.6.0 and
 historical negatives. Scanner scope permits bounded passive native benchmarks and
 server switching under existing identity/isolation/restoration gates, never live
 claims/plunder/sharing. Do not resume unrelated Ghost/Treasure execution recovery

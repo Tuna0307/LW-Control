@@ -9,7 +9,10 @@ Ghost positive acquisition, full Treasure and owner-only action witnesses are pe
 MAP-007 PR #9 remains unmerged, CHANGES_REQUIRED for two reproduced asynchronous
 preview/preparation UI lifetime defects. Next scoped work is MAP-SCAN-METHODS-008
 on that same branch, solo: first fix the two small review findings, then establish
-real Normal/Fast behavior and faster accurate multi-server acquisition. The current
+real Normal/Fast behavior and faster accurate multi-server acquisition for every
+type, mixed selections and all types together. Require workload-specific accuracy,
+comparative timing and stress proof; Truck alone cannot close this task. Deferred
+Ghost/Treasure live cases remain explicitly pending. The current
 scanner's 8/20 requested limits do not change its serialized actual acquisition;
 this known limitation needs correction and does not establish a Fast speedup.
 

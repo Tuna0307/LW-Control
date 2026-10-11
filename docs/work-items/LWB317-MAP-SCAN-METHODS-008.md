@@ -1,4 +1,4 @@
-# MAP-SCAN-METHODS-008 — faster accurate multi-server scanning
+# MAP-SCAN-METHODS-008 — accurate efficient scanning for every type and combination
 
 ASSIGNED by the lead after owner discussion, 2026-10-11. Repository:
 `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
@@ -10,12 +10,22 @@ v0.6.0 remain preserved. Update final PR title/body around its final combined sc
 
 ## Owner goal and authority
 
-Owner wants a verified usable scanner before personal testing. Main concern:
-Truck scanning ten servers currently pays a server switch plus a full-world sweep
-for every server, and earlier results age while later servers are scanned.
-Find and implement the best supported method for this workload, with real Normal/
+Owner wants a verified usable scanner before personal testing. Latest owner
+clarification, 2026-10-11: Truck and ten servers were examples, not scope limits.
+Cover City/player, Resource, Monster, Truck, Railway, Secret Task/Dispatch, Ghost
+and Treasure, each individually, mixed selections and all selected together,
+including multi-server cycles. Individually fast methods may be inefficient or
+incomplete when combined. Optimize the complete selected workload, not just Truck.
+Earlier results also age while later servers are scanned. Establish real Normal/
 Fast behavior and accurate fresh records. Camera movement is a question to solve,
-not a proven requirement or assumed sole bottleneck.
+not a proven requirement or assumed sole bottleneck. Passing a scan or producing
+a plausible count alone does not close performance or accuracy acceptance.
+
+Require the fastest accuracy-qualified route among credible supported alternatives
+actually investigated and tested for each representative workload. Absolute global
+optimality and perfect recall without an independent oracle cannot be established
+by finite benchmarks. Never claim that no possible method could outperform it.
+Explain tested conditions, rejected alternatives and unresolved proof limits.
 
 Read AGENTS.md, the functional replacement direction, current Map status,
 MAP_006_LEAD_ACCEPTANCE_2026-10-11.md, MAP_SCAN_METHOD_ASSESSMENT_2026-10-11.md,
@@ -60,8 +70,8 @@ Network packet totals must remain unmeasured unless properly attributable.
 
 ## C — investigate the two distinct camera/server questions
 
-1. Can a supported current-client Truck request retrieve a complete target-server
-   population by server ID without switching the active server or camera?
+1. For each scan kind, can a supported current-client request retrieve its complete
+   target-server population by server ID without changing active server or camera?
 2. If server context must change, can complete acquisition avoid camera sweeping,
    use a complete official list, or use larger/fewer fresh region requests?
 
@@ -77,8 +87,18 @@ establish current v24 capability.
 Existing 8.065-second direct-AOI timeout and incomplete official-list trial reject
 those particular attempts, not every possible direct request. Do not repeat the
 same failed trial unchanged; test a materially different, source-supported hypothesis.
-Consider per-kind acquisition; Truck is priority, other released kinds must remain
-correct. Investigate camera restoration/no-visible-movement independently of speed.
+Consider per-kind and combined acquisition with no Truck-only priority. Investigate
+camera restoration/no-visible-movement independently of speed. A supported complete
+list may be useful for one kind while region acquisition remains necessary for
+another. Evaluate a hybrid route rather than assuming one method fits every kind.
+
+Trace which selected kinds share spatial requests, responses, hydration and
+mutable client state. Compare separate sweeps with a single shared fresh sweep
+that projects all selected kinds, plus any source-supported complete-list routes.
+Avoid repeated acquisition of the same region merely because more boxes are ticked.
+Do not reuse an old cache as fresh coverage or merge records from the wrong server.
+Record why each type is assigned its route and how combined scheduling avoids
+starvation, ownership conflicts, redundant requests and lost type populations.
 
 ## D — define accuracy gates BEFORE selecting the winner
 
@@ -86,12 +106,14 @@ A candidate qualifies only if it preserves required population scope, freshness,
 fields and cleanup. For each viable route record:
 
 - Exact game build/profile/session, queried target server and source scope; distinguish
-  native response server from our normalized record.serverId and Truck ownerServer.
+  native response server from normalized record.serverId and object ownerServer.
 - Supported type population and verified area union OR an independently established
   complete list scope, including paging/caps and known exclusions.
 - Fresh response identity/timestamp/callback, not previously cached data relabelled.
-- Stable Truck march/train identities, duplicate/missing/extra IDs and required
-  positions/owner/power/quality/goods/protection/arrival fields against native sources.
+- Type-specific stable identities and duplicate/missing/extra IDs; verify required
+  native fields for each kind (including position, owner, level/quality, goods,
+  protection/expiry or event state where applicable). Presence alone does not
+  establish that a field's value or a decoded type is correct.
 - Independent sampled native region/list/record witnesses where possible; union
   size and total row count alone do not prove all objects were returned correctly.
 - Time-sensitive expiry/movement/spawn differences bracketed by observation time,
@@ -103,6 +125,16 @@ Keep observed-coverage claims separate from perfect world recall. If independent
 ground truth cannot be obtained for some field/coverage, label its proof limit.
 Do not silently replace a full scanner with a faster partial list. Preserve the
 last completed data on failed/cancelled trials. Do not add a fake success/fallback.
+
+Build independent representative native witnesses per available kind, across
+sampled regions and density/LOD differences. Compare individual versus combined
+selection per kind, with time-bracketed witnesses to account for moving/spawning
+objects. Test omission of known witnesses, truncation, wrong-server data, stale
+callbacks, duplicate identities and dropped kinds: each must be detected. A
+10,000-AOI coverage counter does not alone establish correct object acquisition.
+An implausibly small population requires investigation, not completion by count.
+Use explicit correctness tolerances and explain dynamic differences; do not tune
+tolerances after seeing failures. Do not assert exact recall from samples alone.
 
 ## E — implement meaningful Normal/Fast behavior safely
 
@@ -128,12 +160,45 @@ report median/range, not a favorable single run. A bounded sampled rejection is
 enough for candidates that demonstrably fail an accuracy gate; do not run an entire
 world repeatedly with a route already known incomplete.
 
-Measure Truck-only on one valid target and a bounded two/three-server Auto cycle
-using reachable admitted targets (e.g. previously verified 2212/2213 if still valid).
-Do not visit 2000..2010 merely because the owner used it as an example. Include
-server switch/return overhead, oldest result age at cycle completion, camera
-disturbance and per-server success/error. A shortcut independent of active server
-must prove its actual requested-server data, not just accept a serverId argument.
+Create a workload matrix covering:
+
+- All eight individual type selections through production planning/ingestion and
+  controlled adversities; genuine positive timing/accuracy for every currently
+  available kind, not a Truck-only benchmark.
+- City + Resource + Monster, Truck + Railway + Dispatch, a cross-group selection
+  such as City + Truck, and all six currently available kinds together.
+- All eight selected together through actual production controlled boundaries;
+  positive live Ghost and full seasonal Treasure remain owner-deferred. Mark their
+  live performance/accuracy unknown until available, rather than counting empty
+  responses, fixture rows or historical observations as a fresh positive.
+- Representative individual and mixed selections in bounded two/three-server
+  Auto cycles using reachable admitted targets (e.g. previously verified
+  2212/2213 if still valid). Do not visit 2000..2010 merely because the owner used
+  those numbers as an example. Compare modes on more than Truck alone.
+
+Exercise all 255 non-empty eight-kind selections through a compact production
+planner/ingestion checker if that boundary is shared and supports meaningful
+assertions. Do not substitute 255 repetitions of the same implementation-derived
+expectation for adversarial or genuine mixed-workload proof. Full live sweeps of
+all 255 combinations are unnecessary: choose representative combinations from
+actual shared and distinct acquisition paths and explain that selection.
+
+For each measured workload record total and per-kind acquisition/hydration/
+publication time, switch/return overhead, median/range, oldest result age, verified
+scope and sampled identity/field differences, attributable requests, retry/error
+counts, CPU/memory pressure and camera disturbance. An unmeasured metric remains
+unmeasured. A shortcut independent of active server must prove its actual target
+data, not just accept a serverId argument. Compare mixed scans with individual
+scans and explain request reuse, additional detail cost and type-specific limits.
+
+Stress the combined pipeline: repeated bounded cycles, maximum selected kinds,
+dense populations, slow/partial replies, safe queue backpressure, cancellation
+during acquisition/hydration/publication, late replies and server/profile changes.
+Check bounded memory/queue growth, UI responsiveness, accurate progress, per-kind
+completion, cancellation latency and preservation of last published datasets.
+Unsafe or unavailable cases use labelled controlled providers; real throughput
+and freshness claims require the genuine provider. Keep live stress bounded and
+stop on restoration/identity failures, not by weakening those gates.
 
 Select the fastest qualifying method for the tested workload. If the current
 route wins, show why other credible supported routes fail scope/freshness or time;
@@ -167,7 +232,8 @@ Do not substitute more documentation for a remaining demonstrated defect.
 
 Push normal commits and verify direct remote SHA. Keep one existing PR #9 and
 update its title/description for the final combined source. Report corrected IDs,
-method selection/rejected alternatives, real Normal/Fast and multi-server timings,
+per-type/combined method selection and rejected alternatives, real Normal/Fast
+and multi-server timings, workload matrix and stress results,
 accuracy proof limits, changed user behavior, cleanup, candidate ZIP and simple
 owner test steps. Return READY_FOR_LEAD_FUNCTIONAL_REVIEW only for gates that
 actually pass; otherwise PARTIAL with exact remaining capability. Lead independently
