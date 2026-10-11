@@ -99,7 +99,7 @@ try {
   }
   const context = await browser.newContext({viewport:{width:1080,height:800},reducedMotion:"reduce"});
   await context.addInitScript(() => { localStorage.setItem("lwbridge.language","en"); localStorage.setItem("lwbridge.theme","light"); });
-  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-error","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
+  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-error","map-data"],["map-auto-running","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
     const page=await context.newPage();
     watch(page,state);
     await page.goto(base+"?previewState="+encodeURIComponent(state), {waitUntil:"networkidle"});
@@ -117,6 +117,13 @@ try {
       await page.locator(".map-table[aria-busy=false] .map-empty").waitFor({ state: "visible" });
       if (await page.locator(".map-scan-error[role=alert]").count()) throw new Error("Search rejection added an unsupported Map error banner");
     }
+    if (state === "map-auto-running") {
+      const stop = page.locator(".map-auto-scan-options button").last();
+      if (!await stop.isEnabled()) throw new Error("Running Auto must expose an enabled Stop action");
+      await capture(page, "conditional-map-auto-running-before-stop");
+      await stop.click();
+      if (await stop.isEnabled()) throw new Error("Auto Stop did not acknowledge the preview cancellation");
+    }
     if (state === "automation-save-error") await page.locator(".error-text").first().waitFor({ state: "visible" });
     const data=await page.evaluate(() => ({
       textLength: document.querySelector(".main-view")?.innerText.length || 0,
@@ -129,6 +136,25 @@ try {
     await page.close();
   }
   await context.close();
+  const narrowAuto = await browser.newContext({ viewport: { width: 375, height: 1000 }, reducedMotion: "reduce" });
+  await narrowAuto.addInitScript(() => {
+    localStorage.setItem("lwbridge.language", "ja");
+    localStorage.setItem("lwbridge.theme", "dark");
+  });
+  const narrowPage = await narrowAuto.newPage();
+  watch(narrowPage, "map-auto-running-ja-narrow");
+  await narrowPage.goto(base + "?previewState=map-auto-running", { waitUntil: "networkidle" });
+  await wait(narrowPage);
+  await narrowPage.locator(".side-nav button").nth(routes.indexOf("map-data")).click();
+  const narrowStop = narrowPage.locator(".map-auto-scan-options button").last();
+  if (!await narrowStop.isEnabled()) throw new Error("JA/dark narrow Auto Stop must be enabled while running");
+  await capture(narrowPage, "conditional-map-auto-running-ja-dark-narrow-before-stop");
+  await narrowStop.click();
+  if (await narrowStop.isEnabled()) throw new Error("JA/dark narrow Auto Stop did not acknowledge cancel");
+  const narrowOverflow = await narrowPage.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+  if (narrowOverflow) throw new Error("JA/dark narrow Auto Stop layout overflowed");
+  result.conditionalStates.push({ state: "map-auto-running-ja-narrow", route: "map-data", width: 375, stopAcknowledged: true, overflow: false });
+  await narrowAuto.close();
 } finally {
   await browser.close();
   preview.kill();

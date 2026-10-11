@@ -19,8 +19,8 @@ Branch: `codex/map-complete-delivery-006`, above MAP-005 source `023e34d0`.
 | Single-game Home | Released and preserved; affected regressions only. Two-game F-07 remains separate. |
 | Stored City/Resource browsing + City export | Previously accepted on main. |
 | Manual City/Resource scans | MAP-005 worker complete / PR #7 pending lead review. Source/package/receipt preserved; not reaccepted here. |
-| Six remaining manual types | Saved mixed-run receipts have positive Monster/Truck/Dispatch/Treasure populations. Railway/Ghost are zero/unproven; final package/source and remaining controls need review. |
-| Auto Scan | Saved same-server Truck cycle published 434 rows after an earlier empty run. New isolated genuine **two-server Truck Auto** published 401 (2212) and 162 (2213), both 2,500/2,500; actual owner return 2213→2212 proven. Disabled, cleaned, native checks pass. Remaining cancellation/host/profile adversity and all-kind Auto scope still open. |
+| Six remaining manual types | Genuine positive populations now established for Monster, Truck, Railway, Dispatch and Treasure; Ghost still lacks a natural positive witness. Full manual control, scan lifecycle, source/package verification remain open. |
+| Auto Scan | Genuine multi-server Truck, Railway/Dispatch and Railway/Ghost cycles completed with 2,500/2,500 blocks and zero failures on each target. Native returns to original 2212 proved. UI Stop now calls exact-owned scheduler Cancel; controlled cancellation/config-edit and browser preview checks pass. Live Stop, manual overlap, host/profile/restart adversity and final acceptance remain open. |
 | Row controls/navigation/inspection | Inventory each actual control, finish missing implementations and authoritative result evidence. |
 | Treasure status/claims | Existing high-level providers unavailable; implement supported controller/results. Only owner performs live claims. |
 | Scheduled Dispatch/Ghost/Truck | Finish preparation/execution/correlation/jobs/history; only owner performs live plunder/sharing. Passive server navigation is already authorised. |
@@ -94,7 +94,42 @@ explicitly turned off before acquisition and remained off at cleanup. New
 pilots must account for this global startup source rather than infer the
 preflight native preference alone prevents a game launch.
 
-Fresh **direct request** head-to-head proof, positive Railway/Ghost data,
+Another isolated trial at `artifacts/map-006/trial-missing_20261011/` added
+genuine Railway evidence. First Auto `[2212,2213]` selected `railway,dispatch`,
+completed 2,500/2,500 blocks per server with zero failures, published 256/241
+Dispatch rows and two unique Railway rows on 2213. The intended Ghost selection
+had been mistaken for Dispatch in the Chinese UI; native selected-types checks
+detected this and the trial was preserved under its true label in
+`auto-cycle-servers_2212_2213_rail_dispatch.json`.
+
+The corrected `railway,ghost` Auto `[2213,2197]` then completed another
+2,500/2,500 blocks per server with zero failures, publishing two unique Railway
+rows on each server and **zero Ghost** records. Run lifetimes were 109.803 and
+69.613 seconds respectively. The official Train-list refresh separately
+reported `refreshObserved=true` and Railway candidate server 2197. The native
+`auto-cycle-servers_2213_2197_rail_ghost.json` confirms the actual selected
+types, owned runs and proven return from 2197 to original server 2212.
+No claim, plunder or sharing commands were executed; zero Ghost remains an
+unproven natural population, not positive Ghost extractor acceptance.
+
+After disabling Auto and closing the owned game and host,
+`trial-missing_20261011/finish.json` and a fresh reentry confirmed **zero
+processes, original script hashes, no recovery journal, Auto disabled/idle and
+zero plunder jobs**. The maintained native and frontend checks pass, including
+controlled proof that config edits during an admitted Auto cycle affect its
+next cycle without mutating in-flight scan server/kinds.
+
+The Auto tab now exposes **Stop** while a cycle is running, invoking existing
+`local_map_auto_scan_cancel` through the profile coordinator. This own-design
+control cancels the Auto-owned scan; switching off recurring Auto still means
+only that future cycles will not start. Controlled native tests prove exact-run
+Stop, zero published targets, `canceled` outcome and no later target. JS checks
+save→cancel ordering and stale running event rejection; EN/light and JA/dark
+production UI smoke exercises the preview running Stop button with no errors.
+Genuine live cancellation was not attempted. Sequential desktop build,
+production UI packaging and isolated pipe recovery checks passed.
+
+Fresh **direct request** head-to-head proof, positive Ghost data,
 unresolved Treasure claim/Ghost action providers, and full native packaged
 EN/JA all-control acceptance remain open.
 Whole Map, final package, acceptance/merge/publication remain incomplete.

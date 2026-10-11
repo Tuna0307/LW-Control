@@ -255,6 +255,7 @@ export function MapDataPage({
   autoScanError = "",
   onAutoScanConfig = () => {},
   onAutoScanRunNow = () => {},
+  onAutoScanCancel = () => {},
   previewState = "",
   gameTexts = EMPTY_GAME_TEXTS,
   previewJumpingKeys = null,
@@ -1057,6 +1058,7 @@ export function MapDataPage({
           <div className="map-auto-scan-options">
             <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
             <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
+            <button type="button" disabled={!autoRunning} onClick={onAutoScanCancel}>{t("common.stop")}</button>
           </div>
           <small>{t("map.autoScanNavigationNotice")}</small>
           <small>{t("map.nextAutoScan")}: {autoConfig.enabled && autoConfig.nextRunAt > 0 ? formatAutoScanDate(autoConfig.nextRunAt, language) : "-"}</small>

@@ -33,18 +33,18 @@ combat or unrelated actions are approved.
 | Manual Resource / Resource Points | Same scan path → Resource tab/status/name lookup | Actual record identity and resource-name fallback resolved where metadata exists | **P**. MAP-005 actual Resource records; some labels still `Unknown resource`. Check current-game metadata, not fabricated strings. |
 | Manual Monster / world enemies | Type `monster` → full-world AOI/monster protected detail → `map_search` | Positive current natural population, correct kind/template names, persisted records, Stop | **P**. Saved mixed 2,500-block run published 8,799 Monster rows; standalone/controls and catalog labels still need validation. |
 | Manual Truck / railway-truck entries | Type `truck` → LOD0 AOI producer (official `TryGetTrainList(true)` is separately available) → `map_search` | Positive source, train/server identity, mode, current-state/name/goods | **P**. Saved mixed 458 and later Auto 434 Truck rows; no proof that the direct Train-list shortcut covers all Trucks. |
-| Manual Train/Railway | Type `railway` → direct train-list producer → Train tab | Correct kind split, positive records, persistence and goods | **P**. Direct source exists; no MAP-006 genuine witness yet. |
+| Manual Train/Railway | Type `railway` → AOI union plus refreshed official Train-list producer → Train tab | Correct kind split, positive records, persistence and goods | **P**. Genuine Railway/Dispatch `[2212,2213]` Auto published two unique Railway rows on 2213; Railway/Ghost `[2213,2197]` published two on 2197. Dedicated manual Railway tab/goods behavior remains unaccepted. |
 | Manual Secret Task/Dispatch | Type `dispatch` → AOI producer → Dispatch tab | Fresh qualified rows, states, protected time and sort/filter validity | **P**. Saved mixed run published 2,309 Dispatch rows; protected-state/filter semantics need full verification. |
-| Manual Ghost Ops | Type `ghost` → AOI producer → Ghost tab | Fresh positive Ghost rows, correct expiry/owner identity; must not transport as Dispatch attack | **P** scan; **ASK** attack. Provider source exists; no positive MAP-006 witness. Dispatch transport now explicitly rejects Ghost. |
+| Manual Ghost Ops | Type `ghost` → AOI producer → Ghost tab | Fresh positive Ghost rows, correct expiry/owner identity; must not transport as Dispatch attack | **P** scan; **OWNER** live plunder. Genuine Railway/Ghost scan selected Ghost on 2213 and 2197, full 2,500 blocks each but **zero Ghost rows**. No positive extractor or plunder execution witness. Dispatch transport rejects Ghost. |
 | Manual Treasure | Type `treasure` → AOI producer → Treasure tab | Natural positive rows and correct alliance/expiry/state/name/assets | **P** scan; **OWNER** live claim. Saved mixed run published 43 Treasure rows; authoritative claim is still unavailable. |
-| Mixed kinds, Normal/Fast and empty selection | `MapScanStateMachine` start → engine selected kinds, 8/20 admission | Duplicate Start, selected-only publication and retention of other kinds, source block coverage | **P**. Saved all-eight run published six positive kinds with 2,500/2,500 blocks; controlled all-eight storage/reopen passes; Railway/Ghost positive absent. |
+| Mixed kinds, Normal/Fast and empty selection | `MapScanStateMachine` start → engine selected kinds, 8/20 admission | Duplicate Start, selected-only publication and retention of other kinds, source block coverage | **P**. Saved all-eight run published six positive kinds; two selective live Auto cycles add Railway positive proof, Ghost remains zero. Controlled all-eight storage/reopen passes. |
 | Scan busy/progress/Stop/error/failed block | `map_scan_status`/`map_scan_stop` → state/engine/sink/SQLite | Acquisition vs staged vs published; exact-owner cancel and late/teardown races | **P**. MAP-005 controlled and real City/Resource; other-kind genuine and profile switch pending. |
 | Stored browse/tabs/search/filter/sorts/pages | `map_search`, `map_data_options`, `map_summary` → `MapStore` | Each kind's correct visible columns, all conditional filters, stale result/profile race and persisted rows | **P**. City/Resource accepted; `MapDataPage` uses request generation fences; others need fresh source evidence. |
 | City Excel / result file | `map_city_export` → native Save As → XLSX writer | Exact filtered fresh City rows/headers/independent reopen; Resource has no export | **P**. MAP-005 verified; other export is not an advertised control. |
 | Player star/mark and task selection | `map_player_mark_set` → SQLite; row selection state in UI | Correct current row identity, persistence, tab return, no wrong-profile mark | **P** local. MAP-005 real City mark verified; selection/actions for other kinds pending. |
 | Clear data | `map_scan_clear` → store transaction scoped to task server | No active scan, no unrelated server/profile loss, Empty UI/SQLite | **P** task DB only. MAP-005 controlled genuine isolated clear verified. |
-| Auto enable/servers/ordering/types/interval/speed/return | `local_map_auto_scan_config_set/status` → profile JSON + frontend hydration | Stable ordering and dedupe, type protection, concurrent updates, restart | **P** bounded multi-server passive. Genuine packaged two-server Truck cycle [2212,2213] completed, Auto disabled; controlled normalisation/order/return checks pass. Further concurrent edits/restart/profile adverse proof open. |
-| Auto Run Now/countdown/cancel/manual overlap | `local_map_auto_scan_run_now/cancel` → scheduler → owned `map_scan_start` and status | A target counts only for same run/server **completed publication**; disable prevents next cycle | **P** bounded passive. Fresh automatic due cycle [2212,2213] proved two positive 2,500/2,500 publications and disabled; Run Now, manually overlapping scan and adverse cancellation still need genuine review. |
+| Auto enable/servers/ordering/types/interval/speed/return | `local_map_auto_scan_config_set/status` → profile JSON + frontend hydration | Stable ordering and dedupe, type protection, concurrent updates, restart | **P** bounded multi-server passive. Genuine Truck, Railway/Dispatch and Railway/Ghost cycles completed and Auto disabled. Controlled in-flight type/server edit preserves admitted cycle and later uses new configuration. Restart/profile adverse proof remains open. |
+| Auto Run Now/countdown/cancel/manual overlap | `local_map_auto_scan_run_now/cancel` → scheduler → owned `map_scan_start` and status | A target counts only for same run/server **completed publication**; disable prevents next cycle | **P** bounded passive. Genuine multi-server cycles complete. Visible Auto Stop uses native Cancel; controlled exact-run Stop/no next target and UI save→cancel/stale event tests pass. Live cancellation, Run Now/manual overlap adversity remain open. |
 | Auto target server/return navigation | Scheduler → `server_jump` provider → owned client/server check | Real target/return transition, no stale session; explicit native return failures surfaced as durable `MAP_AUTO_SCAN_RETURN_FAILED`, preserving successful target publication | **P** bounded passive multi-server. Genuine 2212→2213 acquisition and proven native 2213→2212 return; controlled injected failed return remains persisted as failure. Adverse live navigation not yet proved. |
 | Coordinate and march-follow row actions | `map_coordinate_jump`, `map_march_follow` → owned client camera | Correct requested client view confirmed, rejection/timeout/session, not send-only | **P** passive navigation only (no march initiation). Current source supports commands; authoritative end-view proof and controlled adversity pending. |
 | Server jump/history | `server_jump`, history get/set/import → action provider/SQLite | Valid range, observed reached server, dedup/history persist, no accidental cross-server action | **P** bounded passive navigation. Controlled provider validation exists; genuine cross-server target/return and history proof pending. |
@@ -60,6 +60,18 @@ combat or unrelated actions are approved.
 
 ## MAP-006 corrections / differences so far
 
+- **OWN_DESIGN / Auto Stop UI:** Auto tab now provides a Stop button when
+  the scheduler reports `running`, invoking `local_map_auto_scan_cancel` via
+  the ordered current-profile coordinator. Disabling future Auto retains its
+  separate native semantics. Controlled exact-owner Cancel verifies one Stop,
+  no published target, `canceled` outcome and no next server. JS tests save→
+  cancel ordering and stale event fencing; production preview release smoke
+  verifies the visible button. Live cancellation remains to be owner-observed.
+- **OWN_DESIGN / Auto configuration admission:** Controlled production-boundary
+  test holds the first target while selected kinds and server list are edited;
+  the admitted cycle completes with its original targets, and a later Run Now
+  uses the saved changes. Live Railway/Dispatch→Railway/Ghost correction was
+  performed between cycles, not during an active acquisition.
 - **OWN_DESIGN / correctness gate:** the Auto Scan scheduler now requires a
   matching run ID, server ID, explicit `completed` phase, and absent error before
   adding a target to `CompletedServerIds`. Previously a cancelled run without
@@ -102,6 +114,12 @@ server-specific scans and native return to owner server, then stopped and
 restored the original Lua triplet (ignored
 `artifacts/map-006/trial-methods_20261011/` receipts). Never equate this
 Truck-only proof with finished Auto behavior for all eight kinds or full Map.
+Separate genuine Railway/Dispatch and Railway/Ghost Auto receipts in ignored
+`artifacts/map-006/trial-missing_20261011/` show two unique Railway records on
+servers 2213 and 2197, zero Ghost, plus Dispatch 256/241 on 2212/2213.
+Every target finished 2,500/2,500 blocks, with proven return to original 2212.
+The `finish` and `reentry` gates establish full process, Lua script and Auto
+restoration. Positive Ghost and complete manual/Auto semantics remain open.
 
 Checkpoint at start `172b3718ffc475b6fa066d1d185131d2913494f0`;
 working changes: MAP-006 Auto terminal ownership gate/tests and Ghost transport
