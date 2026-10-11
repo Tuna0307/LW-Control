@@ -57,7 +57,7 @@ internal sealed class LastWarLocaleService
         }
     }
 
-    private static (string Language, List<string> Keys) ParseRequest(JsonElement payload)
+    internal static (string Language, List<string> Keys) ParseRequest(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object)
             throw new BridgeCommandException("INVALID_PAYLOAD", "lastwar_localize payload must be an object.");

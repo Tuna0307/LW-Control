@@ -37,6 +37,9 @@ const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
 // The native owner and transport close/profile-generation guards still cancel retired work.
 const HOME_LIFECYCLE_TIMEOUT_MS = null;
 const mapApi = createMapApi(backendBridge);
+const nativeMapTextLoader = backendBridge.available
+  ? (request) => backendBridge.invokeProfileScoped("lastwar_map_localize", request)
+  : null;
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
 const nativeAssetReader = backendBridge.available ? (request) => backendBridge.invoke("game_asset_image", request) : null;
@@ -1321,6 +1324,9 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
   const pageProps = {
     mapApi,
+    gameTextLoader: nativeMapTextLoader,
+    gameTextOwner: `${backendBridge.sessionId}:${profileOwnerKey(selectedProfileOwnerRef.current)}`,
+    gameTextRoot: gameRootStatus?.valid ? gameRootStatus.path : "",
     bridgeMode: backendBridge.mode,
     backendAvailable: backendBridge.available,
     online,

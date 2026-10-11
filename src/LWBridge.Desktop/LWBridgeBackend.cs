@@ -47,6 +47,7 @@ internal sealed class LWBridgeBackend
         "append_log",
         "set_window_theme",
         "lastwar_localize",
+        "lastwar_map_localize",
         "map_coordinate_jump",
         "local_config_get",
         "local_config_set",
@@ -63,6 +64,7 @@ internal sealed class LWBridgeBackend
     private readonly ProxyStatusCommandService proxyStatus;
     private readonly GameRecoveryStatusCommandService gameRecoveryStatus;
     private readonly LastWarLocaleService lastWarLocales;
+    private readonly LastWarInstalledTexts lastWarInstalledTexts = new();
     private readonly int? firstLiveResultServerId;
     private readonly Func<object>? mapScanStatusProvider;
     private readonly Func<object?>? runtimeTasksProvider;
@@ -482,6 +484,9 @@ internal sealed class LWBridgeBackend
                 return null;
             case "lastwar_localize":
                 return lastWarLocales.Localize(payload);
+            case "lastwar_map_localize":
+                RequireOptionalProfile(payload);
+                return lastWarInstalledTexts.Localize(payload, installation.GetLaunchAdmissionStatus());
             case "local_config_get":
                 RequireOptionalProfile(payload);
                 return new

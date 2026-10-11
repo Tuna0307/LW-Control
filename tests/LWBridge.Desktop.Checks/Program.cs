@@ -1,5 +1,11 @@
 using LWBridge.Desktop.Checks;
 
+if (args.Length == 3 && args[0] == "--map008-installed-names")
+{
+    Map008InstalledNameChecks.CheckInstalled(args[1], args[2]);
+    return;
+}
+
 if ((args.Length == 3 || args.Length == 4) && args[0] == "--map005-audit")
 {
     await MapManualScanPublishedAudit.RunAsync(args[1], args[2],
@@ -31,4 +37,5 @@ await Map006NavigationShareChecks.RunAsync();
 await Map006TruckCorrelationChecks.RunAsync();
 await Map007ActionProviderChecks.RunAsync();
 await Map007GhostCorrelationChecks.RunAsync();
+Map008InstalledNameChecks.Run();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

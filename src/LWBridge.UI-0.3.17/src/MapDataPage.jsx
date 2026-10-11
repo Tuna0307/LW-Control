@@ -260,6 +260,9 @@ export function MapDataPage({
   onAutoScanCancel = () => {},
   previewState = "",
   gameTexts = EMPTY_GAME_TEXTS,
+  gameTextLoader = null,
+  gameTextOwner = "",
+  gameTextRoot = "",
   previewJumpingKeys = null,
   previewTreasureStatesRefreshing = false,
   previewBusyKey = "",
@@ -282,6 +285,10 @@ export function MapDataPage({
   const [counts, setCounts] = useState(() => ({ ...EMPTY_COUNTS }));
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
+  const [localizedNames, setLocalizedNames] = useState({ context: "", values: EMPTY_GAME_TEXTS, loading: false, error: "" });
+  const [localeRetry, setLocaleRetry] = useState(0);
+  const localeCache = useRef(new Map());
+  const localeRequestGeneration = useRef(0);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
   const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const tab = activeTab ?? localTab;
@@ -323,6 +330,19 @@ export function MapDataPage({
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
   const [exporting, setExporting] = useState(false);
+  const localeContext = `${gameTextOwner}|${gameTextRoot}|${language}`;
+  const localeContextRef = useRef(localeContext);
+  localeContextRef.current = localeContext; // retire old owner before effects run
+  const knownNameKeys = useMemo(() => [...new Set([
+    ...(options?.names?.resource || []).map((item) => item.key),
+    ...(options?.names?.monster || []).map((item) => item.key),
+    ...(options?.treasureTypes || []).map((item) => item.treasureNameKey),
+    ...rows.map((row) => row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    "300039", "372138",
+  ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
+  const nameKeySignature = knownNameKeys.join("\u0000");
+  const resolvedGameTexts = previewFixture ? gameTexts
+    : localizedNames.context === localeContext ? localizedNames.values : EMPTY_GAME_TEXTS;
   const autoConfig = autoScanConfig;
   const autoRunning = autoScanRunning;
   const [autoServerInput, setAutoServerInput] = useState("");
@@ -350,6 +370,56 @@ export function MapDataPage({
   const dataServerId = externallyManaged
     ? browseServerId || scanState.serverId || 0
     : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  useEffect(() => {
+    if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
+    const generation = ++localeRequestGeneration.current;
+    let retired = false;
+    const current = () => !retired && generation === localeRequestGeneration.current && localeContextRef.current === localeContext;
+    const cache = localeCache.current;
+    if (cache.size > 3 && !cache.has(localeContext)) cache.clear();
+    const entry = cache.get(localeContext) || { values: {}, identity: "" };
+    cache.set(localeContext, entry);
+    setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: true, error: "" });
+    (async () => {
+      try {
+        // Even if all requested names are cached, check the installed build and source
+        // hash. A new game update at the same root must invalidate old translations.
+        const header = await gameTextLoader({ language, keys: [] });
+        if (!current()) return;
+        const accepted = (result) => {
+          if (result?.language !== language || !result?.buildId || !result?.localeSha256 ||
+              !result?.englishSha256 || typeof result?.texts !== "object" || !result.texts ||
+              String(result.gameRoot || "").toLowerCase().replace(/[\\/]+$/, "") !==
+                gameTextRoot.toLowerCase().replace(/[\\/]+$/, "")) {
+            throw new Error("Game names came from a different or unverified game build/root/language");
+          }
+          return `${result.buildId}|${result.localeSha256}|${result.englishSha256}`;
+        };
+        const identity = accepted(header);
+        if (entry.identity !== identity) {
+          entry.identity = identity;
+          entry.values = {};
+        }
+        const missing = knownNameKeys.filter((key) => !Object.hasOwn(entry.values, key));
+        for (let offset = 0; offset < missing.length; offset += 200) {
+          const batch = missing.slice(offset, offset + 200);
+          const result = await gameTextLoader({ language, keys: batch });
+          if (!current()) return;
+          if (accepted(result) !== entry.identity || batch.some((key) => typeof result.texts[key] !== "string")) {
+            throw new Error("Game locale changed during name loading or omitted a requested key");
+          }
+          entry.values = { ...entry.values, ...result.texts };
+          setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: true, error: "" });
+        }
+        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: "" });
+      } catch (error) {
+        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: errorText(error) });
+      }
+    })();
+    return () => { retired = true; localeRequestGeneration.current += 1; };
+  // A stable signature avoids reloading when the option array is recreated unchanged.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameTextLoader, gameTextOwner, gameTextRoot, backendAvailable, language, localeContext, nameKeySignature, localeRetry]);
   // Updated during render, so even a reply preceding React's effect cleanup
   // cannot publish into a replacement tab, API owner or browse server.
   const previewContextRef = useRef(null);
@@ -1187,7 +1257,7 @@ export function MapDataPage({
             {isNameFilterKind(tab) ? (
               <select aria-label={t("common.name")} value={tab === "resource" ? resourceNameKey : monsterNameKey} onChange={(event) => selectName(tab, event.target.value)}>
                 <option value="">{t("map.allNames")}</option>
-                {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(gameTexts, item.key, item.key)} ({item.count})</option>)}
+                {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(resolvedGameTexts, item.key, item.key)} ({item.count})</option>)}
               </select>
             ) : null}
             {tab === "city" ? (
@@ -1202,7 +1272,7 @@ export function MapDataPage({
             ) : null}
             {tab === "treasure" ? (
               <>
-                <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={gameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
+                <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={resolvedGameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} />{t("map.showForeignRadarTreasures")}</label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} />{t("map.prioritizeLuckyTreasures")}</label>
               </>
@@ -1248,16 +1318,21 @@ export function MapDataPage({
           </div>
         )}
         {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
+        {!previewFixture && localizedNames.context === localeContext && localizedNames.error ?
+          <div className="map-scan-error" role="alert">Game names unavailable: {localizedNames.error} <button type="button" onClick={() => setLocaleRetry((value) => value + 1)}>Retry names</button></div>
+          : null}
+        {!previewFixture && localizedNames.context === localeContext && localizedNames.loading ?
+          <span className="muted" role="status">Loading game names…</span> : null}
         {tab !== "scheduledPlunder" ? (
           <>
-            <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
             <Pagination page={page} total={total} onPage={setPage} />
           </>
         ) : (
           <ScheduledPlunder
             dispatchJobs={plunderJobs.dispatchJobs}
             truckJobs={plunderJobs.truckJobs}
-            gameTexts={gameTexts}
+            gameTexts={resolvedGameTexts}
             currentTime={currentTime}
             online={previewFixture && previewPlunderOnline !== null ? previewPlunderOnline : online}
             busyKey={busyKey}

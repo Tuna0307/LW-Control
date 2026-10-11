@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "mounted": "MapDataPage + I18nProvider real React component",
+  "controlled": true,
+  "calls": 12,
+  "maxKeys": 4,
+  "cases": [
+    "EN resource/monster tables and filters",
+    "stale profile reply rejected after successor",
+    "JA mounted table and filter after language change"
+  ],
+  "externalGameActions": 0
+}
