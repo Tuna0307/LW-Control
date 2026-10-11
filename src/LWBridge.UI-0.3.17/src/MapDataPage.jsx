@@ -338,7 +338,7 @@ export function MapDataPage({
   const optionsGeneration = useRef(0);
   const searchGeneration = useRef(0);
   const treasureRefreshGeneration = useRef(0);
-  const actionGeneration = useRef(0);
+  const previewOperationRef = useRef(null);
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
 
@@ -350,6 +350,10 @@ export function MapDataPage({
   const dataServerId = externallyManaged
     ? browseServerId || scanState.serverId || 0
     : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  // Updated during render, so even a reply preceding React's effect cleanup
+  // cannot publish into a replacement tab, API owner or browse server.
+  const previewContextRef = useRef(null);
+  previewContextRef.current = { mapApi, serverId: dataServerId, tab };
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
   const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
   const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
@@ -766,6 +770,7 @@ export function MapDataPage({
 
   function changeTab(nextTab) {
     if (nextTab === tab) return;
+    retirePreviewOperation();
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
     setTreasureStatesRefreshing(false);
@@ -873,47 +878,75 @@ export function MapDataPage({
   const jobActionsEnabled = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.jobActions);
   const scheduledCount = plunderJobs.dispatchJobs.length + plunderJobs.truckJobs.length;
 
+  function retirePreviewOperation(expected = null) {
+    const operation = previewOperationRef.current;
+    if (!operation || (expected && operation !== expected)) return;
+    previewOperationRef.current = null;
+    setBusyKey((key) => key === operation.busyKey ? "" : key);
+  }
+
+  function currentPreviewOperation(operation) {
+    const context = previewContextRef.current;
+    return previewOperationRef.current === operation &&
+      context?.mapApi === operation.api &&
+      context.serverId === operation.serverId && context.tab === operation.tab;
+  }
+
+  function beginPreviewOperation(busyKey) {
+    if (previewOperationRef.current) return null;
+    const operation = {
+      api: mapApi, serverId: dataServerId, tab, busyKey,
+    };
+    previewOperationRef.current = operation;
+    setBusyKey(busyKey);
+    setActionMessage("");
+    return operation;
+  }
+
   useEffect(() => {
-    actionGeneration.current += 1;
-    return () => { actionGeneration.current += 1; };
-  }, [mapApi, dataServerId]);
+    // Cleanup only the retired owner's operation. A successor that began on
+    // the replacement view must retain its own busy flag and eventual result.
+    return () => {
+      const operation = previewOperationRef.current;
+      if (operation?.api === mapApi && operation.serverId === dataServerId && operation.tab === tab)
+        retirePreviewOperation(operation);
+    };
+  }, [mapApi, dataServerId, tab]);
 
   async function prepareSelectedGhost() {
     const selected = Object.values(dispatchSelection);
     if (tab !== "ghost" || selected.length === 0 || !delay.valid || !online ||
         typeof mapApi?.prepareGhostPlunder !== "function") return;
-    const generation = actionGeneration.current;
-    setBusyKey("prepare-ghost");
-    setActionMessage("");
+    const operation = beginPreviewOperation("prepare-ghost");
+    if (!operation) return;
     try {
       const prepared = await mapApi.prepareGhostPlunder(selected, delay.seconds);
-      if (generation === actionGeneration.current)
+      if (currentPreviewOperation(operation))
         setActionMessage(t("map.ghostPrepared", { count: Array.isArray(prepared) ? prepared.length : 0 }));
     } catch (error) {
-      if (generation === actionGeneration.current) setActionMessage(errorText(error));
+      if (currentPreviewOperation(operation)) setActionMessage(errorText(error));
     } finally {
-      if (generation === actionGeneration.current) setBusyKey("");
+      retirePreviewOperation(operation);
     }
   }
 
   async function previewTreasureClaims(scope, uuid = "") {
     if (tab !== "treasure" || !dataServerId || !online ||
         typeof mapApi?.previewTreasureClaim !== "function") return;
-    const generation = actionGeneration.current;
-    setBusyKey("preview-treasure");
-    setActionMessage("");
+    const operation = beginPreviewOperation("preview-treasure");
+    if (!operation) return;
     try {
       const preview = await mapApi.previewTreasureClaim(dataServerId, scope, luckyFirst, uuid);
-      if (generation === actionGeneration.current) {
+      if (currentPreviewOperation(operation)) {
         setActionMessage(t("map.treasurePreviewReady", {
           eligible: preview?.eligibleCount ?? 0, count: preview?.candidateCount ?? 0,
         }));
         setSearchRevision((value) => value + 1);
       }
     } catch (error) {
-      if (generation === actionGeneration.current) setActionMessage(errorText(error));
+      if (currentPreviewOperation(operation)) setActionMessage(errorText(error));
     } finally {
-      if (generation === actionGeneration.current) setBusyKey("");
+      retirePreviewOperation(operation);
     }
   }
 
