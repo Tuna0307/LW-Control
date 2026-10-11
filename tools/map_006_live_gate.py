@@ -1,7 +1,7 @@
 """Isolated MAP-006 live passive Map/Auto witness gates (no game launch here).
 
-Usage: python tools/map_006_live_gate.py prepare|enable|reentry|status|audit <label>|audit-cycle <label>|finish
-       python tools/map_006_live_gate.py --trial <safe_label> prepare|enable|reentry|status|audit <label>|audit-cycle <label>|finish
+Usage: python tools/map_006_live_gate.py prepare|enable|reentry|status|audit <label>|audit-cycle <label>|audit-stop <label>|finish
+       python tools/map_006_live_gate.py --trial <safe_label> prepare|enable|reentry|status|audit <label>|audit-cycle <label>|audit-stop <label>|finish
 
 The normal source-identified LWBridge Desktop Home/Map UI owns every genuine
 game action. This helper verifies exact compatibility/restoration and reads
@@ -282,6 +282,58 @@ def audit_cycle(label):
         raise RuntimeError("Auto cycle evidence incomplete; preserve receipt")
 
 
+def audit_stop(label):
+    """Prove an exact cancelled Auto run preserved a separate completed baseline."""
+    if not label.isidentifier() or label.startswith("_") or not label.isascii():
+        raise RuntimeError("Auto Stop audit label must be a simple ASCII identifier")
+    out = ROOT / ("auto-stop-" + label + ".json")
+    if out.exists():
+        raise RuntimeError("Cannot overwrite an existing Auto Stop witness")
+    backup = ROOT / "published-before-auto-stop.db"
+    if not backup.is_file():
+        raise RuntimeError("No separately backed up genuine completed baseline")
+    auto = json.loads(AUTO.read_text(encoding="utf-8"))
+    cycle = auto.get("lastCycle") or {}
+    def inspect(path):
+        with sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True) as db:
+            counts = {f"{kind}:{server}": (count, unique) for kind,server,count,unique in
+                db.execute("SELECT kind,server_id,COUNT(*),COUNT(DISTINCT record_key) FROM map_records GROUP BY kind,server_id")}
+            runs = [dict(zip(("runId", "serverId", "state", "selectedTypes", "totalBlocks", "completedBlocks", "failedBlocks", "createdAt", "updatedAt", "error"), row)) for row in
+                    db.execute("SELECT id,server_id,status,selected_types,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs ORDER BY created_at")]
+            staged = db.execute("SELECT COUNT(*) FROM scan_records").fetchone()[0]
+            return counts, runs, staged
+    before, completed, prior_staged = inspect(backup)
+    after, runs, staged = inspect(MAPDB)
+    for run in runs:
+        run["selectedTypes"] = json.loads(run["selectedTypes"])
+    new_runs = [r for r in runs if r["runId"] not in {r["runId"] for r in completed}]
+    cycle_runs = [r for r in new_runs if cycle.get("startedAt", 0) <= r["createdAt"] <= cycle.get("completedAt", 0)]
+    latest = cycle_runs[-1] if cycle_runs else None
+    success = (bool(before) and all(v[0] == v[1] for v in before.values()) and
+               before == after and staged == prior_staged == 0 and len(cycle_runs) == 1 and
+               latest["state"] == "cancelled" and latest["selectedTypes"] == ["truck"] and
+               latest["serverId"] == cycle.get("originalServerId") and
+               latest["completedBlocks"] < latest["totalBlocks"] == 2500 and
+               latest["error"] is None and cycle.get("outcome") == "canceled" and
+               cycle.get("completedServerIds") == [] and cycle.get("lastError") is None and
+               cycle.get("targetServerIds") == [2212,2213] and
+               not auto_state()["enabled"] and not auto_state()["running"] and
+               not any(owned_job_counts().values()))
+    receipt = {"task": TASK, "evidenceType": "genuine-packaged-current-client-Auto-Stop",
+               "timeUtc": utc_stamp(), "profileId": PROFILE, "label": label,
+               "baselineSha256": hashlib.sha256(backup.read_bytes()).hexdigest(),
+               "beforeStoredCounts": {k:v[0] for k,v in before.items()},
+               "afterStoredCounts": {k:v[0] for k,v in after.items()},
+               "cancelledNewRuns": cycle_runs, "priorInterruptedRuns": len(new_runs)-len(cycle_runs),
+               "lastCycle": cycle, "stagedRows": staged,
+               "auto": auto_state(), "actionJobs": owned_job_counts(),
+               "exactOwnedStopPreservedData": success}
+    out.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    print(json.dumps(receipt, indent=2))
+    if not success:
+        raise RuntimeError("Genuine Auto Stop failed its exact ownership/publication gate")
+
+
 def finish():
     previous = json.loads(PREFLIGHT.read_text(encoding="utf-8"))
     actual_hashes = known.scripts_hashes()
@@ -311,6 +363,8 @@ if __name__ == "__main__":
         audit(sys.argv[2])
     elif len(sys.argv) == 3 and sys.argv[1] == "audit-cycle":
         audit_cycle(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "audit-stop":
+        audit_stop(sys.argv[2])
     elif len(sys.argv) == 2 and sys.argv[1] in actions:
         actions[sys.argv[1]]()
     else:

@@ -45,6 +45,25 @@ internal static class Map006PublishedAudit
     private static string Digest(JsonElement rows) => Convert.ToHexString(SHA256.HashData(
         Encoding.UTF8.GetBytes(string.Join("\n", rows.EnumerateArray().Select(row => row.GetRawText())))));
 
+    private static int VisibleArrivalsAt(string database, string kind, int server, long now)
+    {
+        using var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = database, Pooling = false, Mode = SqliteOpenMode.ReadOnly,
+        }.ToString());
+        connection.Open();
+        using SqliteCommand command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*) FROM map_records WHERE kind=$kind AND server_id=$server
+              AND (json_extract(data_json,'$.arriveTs') IS NULL
+                OR CAST(json_extract(data_json,'$.arriveTs') AS INTEGER)>$now)
+            """;
+        command.Parameters.AddWithValue("$kind", kind);
+        command.Parameters.AddWithValue("$server", server);
+        command.Parameters.AddWithValue("$now", now);
+        return Convert.ToInt32(command.ExecuteScalar());
+    }
+
     internal static async Task RunAsync(string database, string outputDirectory)
     {
         if (!File.Exists(database))
@@ -155,6 +174,8 @@ internal static class Map006PublishedAudit
         }
 
         var pageDigests = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        var actualFilterChecks = new Dictionary<string, object>(StringComparer.Ordinal);
+        var expiringSearchCountRanges = new Dictionary<string, object>(StringComparer.Ordinal);
         using (var native = new Map317CommandService(
             database, Map317.UnavailableMapProvider.Instance,
             Map317.UnavailableMapActionProvider.Instance, startPlunderWorkers: false))
@@ -162,23 +183,84 @@ internal static class Map006PublishedAudit
             JsonElement options = await Invoke(native, "map_data_options", new { serverId });
             foreach (string kind in Kinds)
             {
+                bool expiring = kind is "truck" or "railway";
+                long beforeFirst = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 JsonElement first = await Search(native, kind, serverId);
+                long afterFirst = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                long beforeSecond = afterFirst;
                 JsonElement second = await Search(native, kind, serverId, 2);
+                long afterSecond = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 JsonElement firstRows = first.GetProperty("rows");
                 JsonElement secondRows = second.GetProperty("rows");
-                Require(first.GetProperty("total").GetInt32() == visibleCounts[kind] &&
+                int firstTotal = first.GetProperty("total").GetInt32();
+                int secondTotal = second.GetProperty("total").GetInt32();
+                bool verifiedVisibleCount = !expiring
+                    ? firstTotal == visibleCounts[kind] && secondTotal == firstTotal
+                    : firstTotal >= VisibleArrivalsAt(database, kind, serverId, afterFirst) &&
+                      firstTotal <= VisibleArrivalsAt(database, kind, serverId, beforeFirst) &&
+                      secondTotal >= VisibleArrivalsAt(database, kind, serverId, afterSecond) &&
+                      secondTotal <= VisibleArrivalsAt(database, kind, serverId, beforeSecond) &&
+                      secondTotal <= firstTotal;
+                if (expiring)
+                    expiringSearchCountRanges[kind] = new { firstTotal, secondTotal,
+                        firstStartedAt = beforeFirst, firstFinishedAt = afterFirst,
+                        secondStartedAt = beforeSecond, secondFinishedAt = afterSecond };
+                Require(verifiedVisibleCount &&
                     options.GetProperty("counts").GetProperty(kind).GetInt32() == counts[kind] &&
-                    firstRows.GetArrayLength() == Math.Min(visibleCounts[kind], 50) &&
-                    secondRows.GetArrayLength() == Math.Clamp(visibleCounts[kind] - 50, 0, 50),
+                    firstRows.GetArrayLength() == Math.Min(firstTotal, 50) &&
+                    secondRows.GetArrayLength() == Math.Clamp(secondTotal - 50, 0, 50),
                     kind + ": native stored search/pagination/options differ from fresh SQLite" +
-                    $" (sql={counts[kind]}, sqlVisible={visibleCounts[kind]}, native={first.GetProperty("total").GetInt32()}," +
+                    $" (sql={counts[kind]}, sqlVisible={visibleCounts[kind]}, native={firstTotal}/{secondTotal}," +
                     $" options={options.GetProperty("counts").GetProperty(kind).GetInt32()}," +
                     $" page1={firstRows.GetArrayLength()}, page2={secondRows.GetArrayLength()})");
                 string firstHash = Digest(firstRows);
                 string secondHash = Digest(secondRows);
-                Require(visibleCounts[kind] <= 50 || firstHash != secondHash,
+                Require(secondRows.GetArrayLength() == 0 || firstHash != secondHash,
                     kind + ": page 2 duplicates page 1");
                 pageDigests[kind] = [firstHash, secondHash];
+            }
+
+            // Exercise genuine option-driven filters with the actual native
+            // command parser/query path. Preserve only keys/counts in receipts.
+            foreach (string kind in new[] { "resource", "monster" })
+            {
+                JsonElement names = options.GetProperty("names").GetProperty(kind);
+                if (names.GetArrayLength() == 0) continue;
+                JsonElement candidate = names[0];
+                string key = candidate.GetProperty("key").GetString()!;
+                string parameter = kind == "resource" ? "resourceNameKey" : "monsterNameKey";
+                JsonElement selected = await Invoke(native, "map_search", new
+                {
+                    kind,
+                    query = new Dictionary<string, object>
+                    {
+                        ["serverId"] = serverId, ["page"] = 1, ["pageSize"] = 50,
+                        [parameter] = key,
+                    },
+                });
+                int expected = candidate.GetProperty("count").GetInt32();
+                int actual = selected.GetProperty("total").GetInt32();
+                Require(actual == expected && actual > 0 &&
+                    selected.GetProperty("rows").GetArrayLength() == Math.Min(actual, 50) &&
+                    selected.GetProperty("rows").EnumerateArray().All(row =>
+                        row.TryGetProperty(parameter, out JsonElement value) &&
+                        value.ToString() == key), kind + ": real native option filter mismatched its fresh source rows");
+                actualFilterChecks[kind + "Name"] = new { key, rows = actual };
+            }
+            JsonElement levels = options.GetProperty("dispatchLevels");
+            if (levels.GetArrayLength() > 0)
+            {
+                int level = levels[0].GetInt32();
+                JsonElement selected = await Invoke(native, "map_search", new
+                {
+                    kind = "dispatch", query = new { serverId, minLevel = level, maxLevel = level,
+                        page = 1, pageSize = 50 },
+                });
+                Require(selected.GetProperty("total").GetInt32() > 0 &&
+                    selected.GetProperty("rows").EnumerateArray().All(row =>
+                        row.TryGetProperty("level", out JsonElement value) && value.GetInt32() == level),
+                    "real native Dispatch exact-level filter produced wrong rows");
+                actualFilterChecks["dispatchLevel"] = new { level, rows = selected.GetProperty("total").GetInt32() };
             }
 
             JsonElement disconnectedSummary = await Invoke(native, "map_summary", new { });
@@ -219,7 +301,7 @@ internal static class Map006PublishedAudit
                 queryVisibleCounts = visibleCounts,
                 positiveKinds = Kinds.Where(kind => counts[kind] > 0).ToArray(),
                 zeroPopulationKinds = Kinds.Where(kind => counts[kind] == 0).ToArray(),
-                pageDigests,
+                pageDigests, actualFilterChecks, expiringSearchCountRanges,
                 stagedRecords = 0, actionableJobs = 0,
                 offlineSummaryHasNoAuthenticatedServer = true,
                 nativeCityExcelRows = counts["city"], nativeCityExcelColumns = 12,

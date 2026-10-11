@@ -455,6 +455,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         int originalServerId = 0;
         int[] targets = Array.Empty<int>();
         var completedServers = new List<int>();
+        bool attemptedOtherServer = false;
         string? cycleError = null;
         string outcome = "completed";
 
@@ -486,6 +487,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 }
 
                 int serverId = targets[index];
+                // A cancelled first target at the original server never left
+                // home. Returning through the native scan lease while its
+                // Stop is settling can fail as SCAN_RUNNING, despite no move.
+                if (serverId != originalServerId) attemptedOtherServer = true;
                 string scanRunId = await execution.StartTargetScanAsync(
                     serverId,
                     admittedConfig.SelectedTypes ?? DefaultSelectedTypes,
@@ -569,7 +574,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         finally
         {
             bool liveOwner = Volatile.Read(ref retired) == 0;
-            if (liveOwner && admittedConfig.ReturnToOriginalServer && originalServerId > 0)
+            if (liveOwner && admittedConfig.ReturnToOriginalServer && originalServerId > 0 && attemptedOtherServer)
             {
                 try
                 {

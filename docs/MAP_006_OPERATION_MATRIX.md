@@ -58,6 +58,44 @@ combat or unrelated actions are approved.
 | Scheduled jobs tab/counters/history | `map_plunder_jobs_list` plus list/clear/retry, changed events | Correct attempts, countdowns, state transitions, restart, terminal event correlation | **C** all local tests; **OWNER** account-changing arm. Current store/worker present, full adversarial coverage pending. |
 | EN/light, JA/dark, narrow/error/accessibility | Production UI/IPC, localized messages, responsive harness | All new states and disabled/incomplete actions truthful, narrow overflow-free, no JS errors | **C**. MAP-005 EN/JA and release tests; re-run when changed MAP-006 code/UI settles. |
 
+### Available-scope supplementary proof (later than the row snapshots)
+
+- Genuine six-kind manual scan on official server 2212, run
+  `4fe2ae0635e64db2b1f506bd9cfdb761`: **2,500/2,500** blocks, 0 failed,
+  positive 7,060 City / 8,003 Resource / 8,850 Monster / 459 Truck / 2
+  Railway / 1,710 Dispatch, all unique stored keys. Packaged UI rendered
+  each kind with corresponding native stored counts. Private receipt stays
+  ignored in `trial-available_20261011/scan-six_available_full.json`.
+- Read-only native/SQLite audit passed all-kind stored query/options and
+  page1/page2 identities, current Name-key and Dispatch level filters and
+  12-column City XLSX. Corrected its negative false alarm caused by a Truck
+  naturally expiring between separate query timestamps; source query uses
+  real-time expiry and the auditor now brackets its observation times.
+- Actual City star and marked-only yielded one persisted marked row;
+  connected passive City coordinate navigation verified requested tile
+  **(987,903)**. Truck and Railway display unexpired row subset/quality/goods;
+  Dispatch status/level/quality rendered. Current game text metadata may
+  still yield Unknown resource/monster labels; no fabricated names used.
+  Reuse MAP-005 accepted scoped Clear and City export evidence.
+- Genuine Auto Stop on Truck run `31e407e06cb640179d0a80cdc87175d1`
+  cancelled first target 2212 with no 2213 target or data loss but exposed
+  redundant native return-to-origin error. Fix: only return to origin after
+  **attempting a non-origin target**. After rebuilt host restart, genuine
+  second Stop `aec96863d8284e309527d17a6c164f8b` persisted
+  `outcome=canceled`, `lastError=null`, no second target/staging/jobs and
+  preserved exactly all six prior record counts. Controlled same-origin Stop
+  regression and the distinct genuine cross-server returns pass.
+- Live Connected sampled over multiple five-second polls throughout scan,
+  browse, Auto and host restart, with no observed transient Checking. Genuine
+  Home Close produced truthful stopped/offline. Held intermediate poll and
+  profile A→B, restart and stale response races passed existing production
+  callback/mounted WebView controlled checks. Exact cleanup/installed script
+  restoration/disabled Auto proved in ignored `finish` and `reentry`.
+- **Deferred/pending:** Ghost positive until natural 2026-10-15; owner-deferred
+  seasonal/full Treasure and unavailable claim/Ghost action providers; live
+  Dispatch/Truck plunder and alliance sharing are strictly owner-only.
+  See `docs/MAP_006_OWNER_ONLY_VERIFICATION_CHECKLIST.md`. Whole Map is PARTIAL.
+
 ## MAP-006 corrections / differences so far
 
 - **OWN_DESIGN / Auto Stop UI:** Auto tab now provides a Stop button when

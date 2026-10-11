@@ -65,6 +65,82 @@ Owner-only action evidence needs a concise manual test checklist and observable
 success/cleanup conditions. Do not execute those actions or pretend they passed.
 Deferred Treasure/Ghost are not deleted/excluded forever; they remain backlog.
 
+## Subsequent available-scope closeout evidence (2026-10-11)
+
+The source-built packaged Windows app ran a new isolated **six-kind Fast manual
+scan** on current official client v24, server **2212**. Run
+`4fe2ae0635e64db2b1f506bd9cfdb761` completed **2,500/2,500** full-world
+blocks with **zero failures and staging**, publishing **7,060 City, 8,003
+Resource, 8,850 Monster, 459 Truck, 2 Railway and 1,710 Secret Task/Dispatch**.
+The private `artifacts/map-006/trial-available_20261011/scan-six_available_full.json`
+receipt and independently copied `published-before-auto-stop.db` are ignored
+local evidence; no private rows are shipped. Earlier MAP-005 and two-server
+Railway/Auto receipts remain preserved and were not rerun wholesale.
+
+Read-only `Map006PublishedAudit` reopened the genuine DB, exercised the actual
+native `map_search`/`map_data_options` for each kind, two result pages, real
+Resource/Monster name-key filters, Dispatch level filtering, and a separately
+reopened 12-column City XLSX. Truck/Railway time-dependent arrival counts are
+checked against a bracket around each actual query; the first audit exposed a
+one-row expiry race, preserved as a negative result, then the corrected audit
+passed. The real Map UI showed all six tabs and relevant condition/filter
+controls, with City star and marked-only filtering. Truck/Railway displayed
+their correctly smaller *currently unexpired* row totals. Missing current-game
+text metadata can legitimately render Unknown resource/monster; names were
+not fabricated. The already accepted MAP-005 task-local Clear and City export
+proof is reused to retain the current six-kind positive data.
+
+**Passive row navigation:** from a genuine City row, native navigation
+`map-navigation-result.json` confirmed `state=proven`, current server 2212,
+and exact requested/verified tile **(987,903)**. Earlier genuine Auto
+multi-server target/return evidence demonstrates reaching and returning
+across 2212/2213/2197; inert production-boundary tests cover stale profile,
+session, negative jump/share acknowledgements and history. Actual host
+restart with the same isolated profile retained all six published counts,
+the City mark, disabled Auto and Home Auto Launch OFF; initial offline Map
+did not invent a current authenticated server.
+
+**Genuine Auto Stop:** an initial Truck-only queued `[2212,2213]` Auto was
+cancelled via the visible Stop after about **17% acquisition**, with no
+staging, no 2213 attempt and unchanged completed six-kind data. Its ignored
+`auto-stop-six_kinds_preserved.json` retained a real negative defect: a
+redundant return to original 2212 was attempted during native scan Stop
+teardown, recording `MAP_AUTO_SCAN_RETURN_FAILED: map scan already running`
+despite the actual `canceled` scan. Native scheduler now skips return when
+**no different target server was attempted**. After rebuilding/restarting,
+genuine run `aec96863d8284e309527d17a6c164f8b` again cancelled before
+publication with **zero `lastError`**, no second target, zero jobs/staging,
+and every six-kind published count unchanged, recorded in
+`auto-stop-fixed_return_to_origin.json`. Controlled exact-owner regression
+and cross-server return-failure reporting both pass. These two receipts are
+separate and retain the defect/fix history.
+
+**Status and ownership:** live Connected stayed green across sampled UI
+observations during the several-minute manual scan, browsing, Auto cycles
+and a later real game/host restart, spanning many five-second polls, with no
+sampled Connected→Checking flicker. Genuine Home Close correctly changed
+to stopped/offline. App callback tests cover held intermediate polls, actual
+rejections/offline events, fresh status events and profile A→B retirement;
+native mounted WebView controlled campaign covers delayed-profile replies,
+restart, and same-owner isolation. Screenshot sampling is not claimed to be
+frame-by-frame logging.
+
+All owned game and host processes were closed through Home/exit. Ignored
+`trial-available_20261011/finish.json` plus `reentry` verify original three
+Lua hashes, no game/host, no journal, Auto disabled/idle and zero plunder
+jobs. No worker live claim, plunder, sharing or spending was performed.
+Release ZIP source/extraction identity and final smoke evidence are reported
+separately in the PR/package handoff after the final source commit.
+
+**Available-scope candidate for lead review:** the six manual kinds,
+stored browsing/filter/sort/page, City mark/export, passive row/server
+navigation, and Auto controls/cancellation/restart/ownership. Whole Map
+is **PARTIAL**: positive Ghost awaits 2026-10-15; full seasonal Treasure
+is owner-deferred; Treasure claim/status and Ghost action providers remain
+incomplete; Dispatch/Truck plunder and alliance sharing still need owner-only
+authoritative live confirmation. See
+[`MAP_006_OWNER_ONLY_VERIFICATION_CHECKLIST.md`](MAP_006_OWNER_ONLY_VERIFICATION_CHECKLIST.md).
+
 ## Worker return
 
 READY_FOR_LEAD_FUNCTIONAL_REVIEW **for the explicitly completed available scope**

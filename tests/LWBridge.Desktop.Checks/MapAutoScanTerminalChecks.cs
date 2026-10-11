@@ -352,7 +352,10 @@ internal static class MapAutoScanTerminalChecks
                     UtcNowMilliseconds = () => 1_800_000_000_000,
                     DelayAsync = (_, _) => Task.CompletedTask,
                 }, startScheduler: false);
-            await scheduler.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [317, 318], ["railway"], "fast", false, 0));
+            // The second target would require a cross-server return, but
+            // cancelling the first same-origin scan did not leave server 317.
+            // Return here would hit SCAN_RUNNING during native Stop teardown.
+            await scheduler.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [317, 318], ["railway"], "fast", true, 0));
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await scheduler.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot final = await scheduler.GetSnapshotAsync();

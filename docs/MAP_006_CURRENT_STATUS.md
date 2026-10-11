@@ -1,5 +1,16 @@
 # Map — single current completion queue
 
+**Available-scope closeout continuation:** fresh genuine six-kind full-world
+manual scan, native SQLite/XLSX filtering audit, six-tab packaged browse,
+City mark, passive tile navigation, packaged Auto Stop fix-and-retest, Home
+restart and sampled stable Connected polling are recorded in
+[`MAP_006_AVAILABLE_FEATURE_CLOSEOUT.md`](MAP_006_AVAILABLE_FEATURE_CLOSEOUT.md).
+The previous queue rows below document historical unfinished gates; only
+positive completed **available** gates are proposed for lead functional
+review. ZIP source/extraction evidence accompanies the PR. Whole Map stays
+**PARTIAL** with Ghost/season Treasure and worker-prohibited live plunder,
+sharing and claims explicitly pending.
+
 2026-10-11 latest owner availability: Treasure season-dependent/full live
 acceptance deferred by owner; Ghost positive live testing pending 2026-10-15.
 Finish the remaining available scope under

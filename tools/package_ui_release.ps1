@@ -105,6 +105,50 @@ Repository: https://github.com/Tuna0307/LW-Control
 Released features and known limits: docs/FEATURE_STATUS.md in the source repository
 Review PRs: https://github.com/Tuna0307/LW-Control/pulls
 "@
+if ($ReleaseLabel -eq 'MAP006-AVAILABLE') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'Could not identify the original MAP-005 release-scope text.' }
+    $availableScope = @"
+MAP-006 AVAILABLE MAP SCOPE — REVIEW CANDIDATE
+City, Resource, Monster, Truck, Train/Railway, and Secret Task/Dispatch have
+fresh, positive current-client full-world scan evidence. The latest server-2212
+six-kind Fast run completed 2500/2500 blocks with zero failures and published
+7060 City, 8003 Resource, 8850 Monster, 459 Truck, 2 Railway and 1710 Dispatch.
+Counts are time-sensitive observations, NOT bundled private game data.
+
+Available browsing includes saved City/Resource search/export, six-type tabs,
+stored sort/page/filter/options, City mark/marked-only, and passive row coordinate
+navigation. Genuine source-backed reads and controlled ownership tests supplement
+the visible controls. Truck/Railway may show fewer unexpired rows than stored
+counts. Game text metadata may be absent: a fallback Unknown resource/monster is
+not a fabricated name.
+
+Auto Scan supports bounded passive multi-server ordered scans and an explicit
+Stop of the currently owned run. Native return-to-original-server was witnessed
+on 2212/2213 and 2197 prior trials. A fresh cancelled first-server Truck run
+retained all prior published six-type records, launched no second target, and
+reported canceled without a false native return failure after the fix.
+
+NOT INCLUDED IN THIS AVAILABLE-SCOPE ACCEPTANCE
+Treasure seasonal/full eligibility and live claims are deferred by the owner;
+Ghost positive acquisition is pending natural availability on 2026-10-15.
+Treasure claim/status and Ghost plunder providers remain incomplete.
+Live Dispatch/Truck plunder and alliance sharing are owner-only witnesses,
+NOT completed worker tests. No live claims, plunder or sharing were attempted.
+Earlier saved basic Treasure capture is retained but is not season/action proof.
+The original encrypted scanner algorithm, fastest request method, full original
+parity and independent simultaneous two-game support (Home F-07) are NOT claimed.
+MAP-005/PR #7 remains a separate predecessor review. This ZIP is an unmerged
+source-identified REVIEW CANDIDATE, not a published whole-Map release.
+
+Owner action checklist: docs/MAP_006_OWNER_ONLY_VERIFICATION_CHECKLIST.md
+in the source repository; do not use the packaged application for unverified
+account-changing actions.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $availableScope + "`r`n" + $readme.Substring($scopeEnd)
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")
