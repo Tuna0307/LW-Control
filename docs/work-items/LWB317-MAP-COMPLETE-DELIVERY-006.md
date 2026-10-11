@@ -41,6 +41,14 @@ drop the feature, loosen identity checks or label provider-unavailable as workin
 
 ## Execution authority
 
+Latest owner clarification, 2026-10-11: server switching is allowed; worker
+must not execute live plunder, claims or sharing because the owner will do those.
+Read docs/OWNER_DIRECTION_MAP_SERVER_SWITCHING_2026-10-11.md. This supersedes
+the older same-server-only/server-switching permission limit below. Include
+multi-server scan/Auto target-return checks within the existing technical gates;
+do not initiate marches or other account actions. Historical scope quote below
+is retained for provenance, not current server-switching authority.
+
 Implement and inspect all Map paths; static, headless and isolated controlled tests
 cover the entire catalogue. The owner has requested completion of all Map work.
 Existing bounded Home/current-server scan permission applies. This assignment also
@@ -89,6 +97,12 @@ ledger/feature matrix as current pointers. Keep immutable prior failures/receipt
 unchanged. Do not produce another huge evidence archive for every checkpoint.
 
 ## B — complete all manual acquisition and stored-data paths
+
+Also read docs/MAP_SCAN_METHOD_ASSESSMENT_2026-10-11.md. Distinguish recovered
+original host contracts from own-design acquisition. Assess whether type-specific
+lists/direct region requests can preserve coverage with less view movement and
+lower acquisition cost; benchmark supported alternatives before claiming best
+efficiency. Preserve the working baseline and do not trade completeness for speed.
 
 Assess and finish Monster, Truck, Train/Railway, Secret Task/Dispatch, Ghost Ops
 and Treasure, preserving City/Resource. Verify actual source populations, schemas,
@@ -205,6 +219,7 @@ Only the lead accepts, merges, publishes and retires merged branches/worktrees.
 
 ASSIGNED. Lead has inspected the current queue/provider gaps; no MAP-006 product
 implementation or live experiment performed. Start with A, then continue B-F.
-Owner live scope recorded: scans and same-server Auto only; ask before claims,
-plunder, sharing or jumps. Complete all code/controlled gates and allowed live work;
-record other live witnesses as awaiting specific permission, not passed.
+Owner live scope now includes server switching and multi-server passive scans/
+Auto. Worker must not execute live claims/plunder/sharing; owner will do those.
+Complete all code/controlled gates and allowed live work when resuming after the
+discussion; record owner-only witnesses as pending, not passed.

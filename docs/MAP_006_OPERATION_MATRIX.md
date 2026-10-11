@@ -1,5 +1,12 @@
 # MAP-006 — finite operation and result-gate matrix
 
+Latest owner clarification supersedes initial authority columns below: server
+switching/multi-server passive scan and Auto are allowed. Worker live plunder,
+claims and sharing remain excluded; owner will perform them personally. See
+OWNER_DIRECTION_MAP_SERVER_SWITCHING_2026-10-11.md. Acquisition origin/efficiency
+must follow MAP_SCAN_METHOD_ASSESSMENT_2026-10-11.md; no fastest/original-algorithm
+claim without evidence.
+
 2026-10-11. Current solo worker operation inventory. This is **not** a list of
 released working features. The reference is LWBridge 0.3.17 and the checked-out
 source at `172b3718`, plus MAP-006 corrections. Do not infer real game success

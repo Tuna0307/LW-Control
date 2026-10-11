@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest owner Map clarification, 2026-10-11: bounded server switching for Map is
+now allowed, including multi-server passive scan/Auto target-return assessment.
+Worker must not perform live plunder, claims or sharing; owner will do those
+personally. See docs/OWNER_DIRECTION_MAP_SERVER_SWITCHING_2026-10-11.md.
+This supersedes the same-server-only/server-jump approval limit below, while
+identity/isolation/restoration, explicit pauses and no paid actions remain.
+
 Owner MAP-006 scope answer, 2026-10-11: finish all code; live-test scans and
 same-server Auto only. Ask before live claims, plunder, sharing or jumps.
 Those paths remain assigned for implementation and controlled testing, but their

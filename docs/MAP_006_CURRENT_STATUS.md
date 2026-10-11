@@ -3,6 +3,11 @@
 2026-10-11. Whole Map: **PARTIAL**. MAP-006: **PARTIAL DEVELOPMENT CHECKPOINT**.
 Owner requested tidy/audit before discussion. See
 [lead checkpoint](reviews/2026-10-11-MAP-006-PARTIAL-LEAD-CHECKPOINT.md).
+Latest permission: server switching and multi-server passive scan/Auto assessment
+allowed; no worker live claims/plunder/sharing. See
+[owner clarification](OWNER_DIRECTION_MAP_SERVER_SWITCHING_2026-10-11.md).
+Scanner origin/alternatives/efficiency assessment:
+[current method](MAP_SCAN_METHOD_ASSESSMENT_2026-10-11.md).
 
 Owner requested all remaining Map tasks together under the faithful functional
 replacement policy. Current task:
@@ -29,8 +34,9 @@ controlled-test results, **not** whole Auto/Ghost completion.
 
 MAP-006 holds the finite queue/differences ledger rather than duplicating historical
 research. All expected Map features remain in scope; no hidden exclusions or fake
-success. Owner's explicit live scope is scans and same-server Auto only; ask before
-claims, plunder, sharing or jumps. All code and controlled tests remain assigned.
+success. Owner now permits server switching and multi-server scan/Auto assessment.
+Worker live claims/plunder/sharing remain excluded; owner will test them personally.
+All code and controlled tests remain assigned.
 Preserve MAP-005 PR #7 for independent review and incremental main delivery.
 
 ## Checkout lifecycle
