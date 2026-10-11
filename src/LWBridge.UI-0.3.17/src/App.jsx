@@ -26,6 +26,7 @@ import { initialRouteKey, routes } from "./routes.js";
 import { readAutoLaunchGamePreference, writeAutoLaunchGamePreference } from "./autoLaunchPreference.js";
 import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "./profileConfigDraft.js";
 import { createAutoScanNativeCoordinator } from "./autoScanNativeCoordinator.js";
+import { selectedNativeGameTextRoot } from "./gameTextSource.js";
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
@@ -1326,7 +1327,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     mapApi,
     gameTextLoader: nativeMapTextLoader,
     gameTextOwner: `${backendBridge.sessionId}:${profileOwnerKey(selectedProfileOwnerRef.current)}`,
-    gameTextRoot: gameRootStatus?.valid ? gameRootStatus.path : "",
+    gameTextRoot: selectedNativeGameTextRoot(gameRootStatus),
     bridgeMode: backendBridge.mode,
     backendAvailable: backendBridge.available,
     online,

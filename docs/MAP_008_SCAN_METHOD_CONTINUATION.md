@@ -8,6 +8,116 @@ planner/engine checks use **controlled providers** unless marked otherwise.
 The encrypted original's traversal method, global optimality and perfect recall
 have **not** been established.
 
+## MAP-008 R5 — genuine all-eight repeats, native phase cost and live name correction (2026-10-12)
+
+**Result: PARTIAL; all available eight-type scanner work and real Railway field
+positives now have bounded genuine proof, but no material speed winner or
+universal original parity is established. Independent lead review is still
+required.** R5 begins at committed checkpoint `9222e917a6fef5c75b32e0682d1600e1fbdb0103`;
+genuine measurements below use that *exact* source-labeled extracted client
+on an isolated official current-game v24 session. Original pre-scan host-start
+receipt independently binds session, profile, PID and compiled source assembly
+SHA-256 `b8b9a77b005b12772beb9355705a291b898ecdae152ccf081b76960d08505f0a`.
+Sensitive native point/Train responses, full scanner database, and phase
+sample streams remain ignored under
+`artifacts/map-006/trial-scan008r5_20261012/`; compact privacy-safe proof is
+`docs/proof/MAP-008-R5-GENUINE-2026-10-12.json`.
+
+Four genuine **all-eight-type** current-server scans ran in alternating order
+**Normal / Fast / Normal / Fast**, with no armed action jobs, Auto disabled and
+no game action beyond authorized passive map reading. All four completed
+**10,000/10,000** fresh AOIs, **2,500/2,500** logically published blocks,
+**340** correlated native region requests, one actual camera request at a time,
+zero native retries, no failed blocks or staged leftovers. Source metrics and
+SQLite run identities independently agree; `requestedConcurrency=8/20`
+does **not** describe real camera concurrency or network packet count.
+
+| Genuine all-eight server 2212 (run sequence) | Whole scan | Native acquisition | Target native | Home-view restore | Positive selected native kinds independently witnessed |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Normal #1 | **210.651 s** | 203.291 s | 91.523 s | 90.279 s | City, Resource, Monster, Dispatch; Railway/Truck/Treasure unobserved in sampled replies |
+| Fast #1 | **207.424 s** | 203.167 s | 91.934 s | 90.227 s | City, Resource, Monster, Truck, Dispatch, ordinary Treasure; Railway unobserved |
+| Normal #2 | **207.905 s** | 203.788 s | 92.456 s | 90.460 s | **All seven positive published kinds**, including Railway and ordinary Treasure |
+| Fast #2 | **206.860 s** | 202.499 s | 91.904 s | 89.981 s | **All seven positive published kinds**, including Railway and ordinary Treasure |
+
+The two later strictly complete-positive-witness audits passed with
+**18,114** Normal and **10,785** Fast independent field comparisons
+(sample-count metadata excluded), **zero** mismatches. Both contain a real
+positive **TrainType=2 Railway** record captured from native target-server AOI
+and matched to its same-run SQLite value: coordinates, server, UUID, arrival,
+rob count, protect time, quality and owner fields all agreed (10 value checks
+plus one sampled count per run). This closes the previously outstanding
+**sampled live Railway field-positive** gate for those exact two runs.
+It is not a complete census of every moving Railway. The independent native
+Treasure sample-mapping tools were corrected to recognize the actual
+`treasure_point`/`supplies_point` Lua kinds; ordinary Treasure samples in
+both strictly qualified runs also agreed with persisted data. Full **seasonal**
+Treasure and Ghost positives remain owner-deferred.
+
+Observed Normal **n=2** median **209.278 s**, range **207.905–210.651 s**;
+Fast **n=2** median **207.142 s**, range **206.860–207.424 s**. Within the two
+time-ordered pairs, Fast minus Normal was **−3.227 s** and **−1.045 s**;
+the median observed difference is **−2.136 s**. Only the **second pair** has
+positive native witnesses for every selected kind that actually published
+records. Therefore strict all-positive accuracy qualification is **n=1 per
+mode**, despite two genuine complete timings per mode. These measured
+differences cannot establish a repeatable meaningful Fast advantage.
+Previously observed individual-kind n=1 ~189–199 s and six-kind n=2
+~206–209 s refer to **different selections, account populations and run
+windows**, so comparing their duration with all-eight here does not estimate
+the marginal cost of an individual kind. The earlier two Auto cycles remain
+the available exact multi-server return proof, not new R5 measurements.
+
+The new actual source native phase instrumentation measured **340/340**
+target/home replies in every full run. Home restoration accounts for
+**89.981–90.460 seconds per full-world scan** (about **264.65–266.06 ms per
+probe** when divided by 340) and **49.47–49.66%** of measured combined
+native target+home response time; target responses total **91.523–92.456 s**.
+The remaining ~20 s of acquisition includes actual host/probe processing,
+readiness polling, Lua/host handoff and validation, so merely removing a home
+request cannot be priced as a proved 90-second speedup. The Lua producer's
+shared `_curViewIndex`, callback flags, remote camera and response correlation
+currently require a completed home-view reply before accepting the successor
+target. A consecutive-region/final-Stop-restore candidate remains **not
+accuracy-qualified**: freshness, completeness, owner-correlated successor
+responses, bounded fail/Stop restoration and exact cleanup have no combined
+positive live proof. No such replacement was enabled. **The fastest tested
+accuracy-qualified method remains the serial fresh native LOD0 sweep with
+deferred per-probe restoration and necessary kind-specific enrichment**, not
+a universal winner between current Normal/Fast placement policies.
+
+**Active Monster protection:** independent sampled ordinary Monster values
+passed in all four runs, but one read-only retained current-server checkpoint
+had **8,831 Monster records, 0 positive shield-end timestamps, and no
+`monsterProtectionKnown=true` rows**. No eligible, active-protection-positive
+source/SQLite pair was available; this is an explicitly unverified rare-state
+field gate, **not** a claimed scanner defect or proof of no protected monsters.
+
+**New demonstrated production defect found and fixed after scanner runs:**
+the earlier installed-game locale reader itself was valid, but App supplied
+`gameTextRoot=gameRootStatus.path` while the actual native `game_root_status`
+command returns `NativeGameRootStatus.root`. Consequently the live UI silently
+skipped name loading and displayed **Unknown Resource** after genuine scans.
+The fixed App maps the exact native `root` field; Map now visibly reports
+an unavailable game root instead of silently defaulting all names. A mounted
+actual `MapRoutePage → MapDataPage` test verifies root source, invalid root,
+filters, EN/JA, and obsolete profile responses. An independently re-published
+source-built **native Windows Desktop** reopened the saved **7,989 Resource**
+and **8,830 Monster** rows, displayed localized Resource and Monster names in
+Simplified Chinese, changed them to **Gold Mine / Iron Mine / Farmland** and
+**Ironhead / Glutton / Miser** in English, then changed Monster names to
+**鋼材ゾンビ / 食料ゾンビ / 金貨ゾンビ** in Japanese. These are observed current
+installed-game names, not hardcoded application examples or preview fixtures.
+The genuine scanner run source and the later UI fix source are distinguished:
+no R5 scan was retroactively attributed to the new UI source build.
+
+The owned game was closed using Home, the source-built Desktop exited, and
+both `scan008r5_20261012 finish` and `reentry` passed: no owned game/host
+processes, original installed `LWScripts.data`, `LWScripts.txt`, `version.txt`
+hashes restored, no task journal, Auto off, no action jobs. No plunder, claim,
+share, attack, march or spending actions occurred. Historical native
+same-tick omission negatives remain unchanged. **Independent lead acceptance
+has not been performed**; no merge or released-main changes are authorized.
+
 ## MAP-008 R4 — lead corrections, real installed names, and restoration cost (2026-10-12)
 
 **Disposition: accuracy-proof defects LEADMAP008-01/02 corrected; name wiring

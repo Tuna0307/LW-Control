@@ -1318,6 +1318,9 @@ export function MapDataPage({
           </div>
         )}
         {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
+        {!previewFixture && backendAvailable && gameTextLoader && !gameTextRoot ?
+          <div className="map-scan-error" role="alert">Game names unavailable: current game installation is not resolved.</div>
+          : null}
         {!previewFixture && localizedNames.context === localeContext && localizedNames.error ?
           <div className="map-scan-error" role="alert">Game names unavailable: {localizedNames.error} <button type="button" onClick={() => setLocaleRetry((value) => value + 1)}>Retry names</button></div>
           : null}

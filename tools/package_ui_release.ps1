@@ -223,12 +223,31 @@ are enforced. All selected spatial kinds can share one native sweep, followed
 by their necessary type-specific field hydration. Individual and mixed v24
 Normal/Fast scans have been compared with real source timing, measured staging
 and publication, bounded CPU/memory sampling and independent positive native
-field witnesses. Normal and Fast have no established meaningful repeatable
-whole-cycle speed advantage on the current footprint. Lua AOI commands are
-not a measured count of network packets. Results naturally vary as moving
-objects expire or spawn; an AOI count cannot establish perfect world recall.
-Railway has completed current-client scans, but a sampled positive Railway
-field witness remains unverified and seasonal positives are not fabricated.
+field witnesses. An additional four source-owned ALL-EIGHT scans used alternating
+Normal/Fast/Normal/Fast selection: 210.651/207.424/207.905/206.860 seconds.
+Each covered 10,000 fresh AOIs, published all 2,500 logical blocks and issued
+340 serial native camera probes, with zero failures. On the second pair,
+positive native source and stored results matched for all seven populated kinds,
+including genuine Railway and ordinary Treasure; Ghost was not positive.
+The second paired strict-source audits passed with zero field discrepancies.
+Normal (n=2) median 209.278s; Fast (n=2) median 207.142s; only one pair had
+strict witnesses for every positive kind, so no meaningful repeatable speed
+advantage is established. Actual home-view restoration cost measured
+89.981-90.460 seconds per scan, about 49.5 percent of native reply duration.
+This observed cost is NOT a proven safe saving: alternative consecutive target
+requests remain unqualified; exact serial native restoration stays enabled.
+Lua AOI commands are not a measured count of network packets. Results vary
+as moving objects expire or spawn; AOI coverage is not perfect world recall.
+
+The Map's production Resource and Monster tables/filters now resolve actual
+game-owned text keys from the selected admitted installed-game locale files,
+with English fallback and bounded per-request load. A previous App handoff
+mistook native game_root_status.root for path, silently disabling native names;
+this source corrects that bug and shows an explicit unresolved-root error.
+Current installed-game Resource and Monster names were confirmed in actual
+Windows native Map UI in simplified Chinese, English and Japanese after
+reopening stored scanner records. Current language-specific names, game build,
+session ownership and fallback can still vary with the installed game.
 Consult docs/MAP_008_SCAN_METHOD_CONTINUATION.md and the compact source proof
 for exact current qualification, Auto cycles and open acceptance gates.
 

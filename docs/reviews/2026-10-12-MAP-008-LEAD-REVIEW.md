@@ -148,3 +148,60 @@ qualification work plus LEADMAP008-03 under the existing work item. Preserve pas
 corrections, negative records and main. No new release archive unless product
 source changes or package identity needs correction. Return READY only for gates
 actually passed; otherwise precise PARTIAL scope. Lead acceptance remains pending.
+
+## Subsequent worker R5 evidence (2026-10-12) — for independent lead re-review
+
+**This is the implementer's new evidence, not an independent lead decision.**
+Original review findings and read-only lead negatives above remain intact.
+Source checkpoint `9222e917a6fef5c75b32e0682d1600e1fbdb0103` first ran four
+genuine v24 all-eight scans on one task-owned server-2212 session in the order
+Normal/Fast/Normal/Fast. All four completed 10,000 fresh AOIs, 2,500 durable
+blocks, 340 serial native probes and zero retries/failures/actions. Observed
+whole-scan seconds: **210.651 / 207.424 / 207.905 / 206.860**. Normal n=2
+median 209.278 (range 207.905–210.651), Fast n=2 median 207.142 (range
+206.860–207.424). Both last-run native/SQLite auditors include genuine
+Railway `TrainType=2` positive fields as well as ordinary Treasure and five
+other positive kinds. The second N/F pair passed 18,114/10,785 distinct
+field comparisons with zero discrepancy. First pair lacks a native
+Railway-positive sample, so strict complete-positive qualification remains
+**one paired comparison**. A repeatable material Fast advantage is still
+unproved. Compact private-data-free source receipt:
+`docs/proof/MAP-008-R5-GENUINE-2026-10-12.json`; detailed limitations and
+earlier R3 comparison: `docs/MAP_008_SCAN_METHOD_CONTINUATION.md`.
+
+Genuine native phase sums quantify the previously unmeasured home-view
+overhead: **89.981–90.460 seconds home restoration per full scan**, over
+340 probes each (about **49.5%** of native target+home response time).
+Consecutive-region operation did **not** meet the successor correlation,
+independent freshness/completeness and Stop/error cleanup gates, so the
+proven safe per-probe restoration remains in production. No speculative
+speed or complete world-recall claim was accepted.
+
+Auditor strict owner/deferred inverses retained their **1 real + 15 rejected
+mutations** acceptance behavior. A newly found proof-tool gap was corrected:
+the sampler/auditor did not recognize actual Lua `treasure_point` and
+`supplies_point`; representative real ordinary Treasure responses now match
+saved identities/fields without discrepancies. These are still samples, not
+full seasonal Treasure proof (seasonal and Ghost positives remain deferred).
+The current stored Monster snapshot showed **8,831 ordinary Monster rows but
+zero positive active shield** and no confirmed current protected enrichment;
+active-protection-positive remains pending without manufactured evidence.
+
+**LEADMAP008-03 was reopened on new end-to-end evidence:** the pre-R5 live
+production Resource table displayed Unknown Resource despite installed name
+keys. Actual native `game_root_status` returns `root`, whereas App passed
+`gameRootStatus.path` to the loader, preventing requests. The source mapping
+was repaired and the invalid-root UI state made observable. Updated mounted
+MapRoutePage/MapDataPage integration covers the exact native root contract,
+language switches and held obsolete replies. Independently rebuilt native
+Windows Desktop reopened the genuine saved Resource/Monster tables and
+displayed real installed-game names in Simplified Chinese, EN and Japanese.
+The source-identified extracted clean package must include this R5 fix;
+the original 9222 archive does not. This is a worker closure candidate,
+**pending independent lead acceptance**.
+
+The passive game was closed through Home and both task `finish` and `reentry`
+re-verified native file hashes, no owned processes/journals, Auto off and
+zero action jobs. Live claims, plunder, sharing, marches and spending were
+not performed. PR #9 remains unmerged until an independent lead reviews the
+new source, test and package identities. R5 disposition: **PARTIAL**.

@@ -18,7 +18,8 @@ def get(path):
 
 def witness_kind(row):
     return {"player_base": "city", "resource_point": "resource",
-            "dispatch_task": "dispatch"}.get(row.get("kind"))
+            "dispatch_task": "dispatch", "treasure_point": "treasure",
+            "supplies_point": "treasure"}.get(row.get("kind"))
 
 
 def main():
@@ -127,8 +128,10 @@ def main():
                 "truck": {"x", "y", "uuid", "arriveTs", "robTimes", "trainType", "ownerUid"},
                 "railway": {"x", "y", "uuid", "arriveTs", "robTimes", "trainType"},
                 "dispatch": {"x", "y", "pointId", "serverId", "worldId", "completionTime", "expiredTime", "stealListCount", "stealMaxTimes"},
+                "treasure": {"x", "y", "pointId", "serverId", "worldId", "pointType", "treasureType", "suppliesType"},
             }.get(kind, set())
-            generic_fields = ("x", "y", "worldId", "serverId", "uuid", "cfgId", "quality",
+            generic_fields = ("x", "y", "pointId", "worldId", "serverId", "uuid", "cfgId", "quality",
+                              "pointType", "treasureType", "suppliesType", "rewardedCount", "diggingCount", "remainingBoxes",
                               "completionTime", "expiredTime", "protectTimeMinutes", "stealListCount",
                               "stealMaxTimes", "rewarded", "monsterId", "configId", "monsterType",
                               "monsterLevel", "monsterProtectionEligible", "monsterProtectionKnown",
