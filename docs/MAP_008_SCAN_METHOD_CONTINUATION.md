@@ -8,6 +8,199 @@ planner/engine checks use **controlled providers** unless marked otherwise.
 The encrypted original's traversal method, global optimality and perfect recall
 have **not** been established.
 
+## MAP-008 continued qualification R3 — corrected native acquisition
+
+The prior lead-scoped source checkpoint remains `5e44531bf0283314da90cf3efa5757bbbac08be1`.
+R3 runs use the corrected **all-spatial-kind deferred camera restoration** on
+one isolated, source-built official v24 client. Raw native response and scanner
+SQLite receipts remain private under `artifacts/map-006/trial-scan008stage_20261011/`;
+the source of each timed result is the actual mounted production Map provider.
+All completed runs below had **10,000/10,000 fresh native AOIs**, **2,500/2,500
+published logical blocks**, **340 application-to-Lua AOI probes**, camera peak
+in-flight one, zero retries, no failed blocks, no staging remainder and zero
+armed action jobs. The measured admission settings 8/20 are not network packet
+counts or actual simultaneous camera calls.
+
+| Selected individual kind, server 2212 | Normal whole scan | Fast whole scan | Native-source independent acceptance |
+| --- | ---: | ---: | --- |
+| City | 191.898 s | 191.122 s | City identity, tile/level and fields; 2,211/2,585 comparisons, no discrepancies |
+| Resource | 198.575 s | 195.871 s | Native resource amounts and details; 25,038/25,479 comparisons, no discrepancies |
+| Monster | 192.040 s | 193.410 s | Native monster identity, level and protection-state fields; 3,936/4,272 comparisons, no discrepancies; positive active shield still unavailable |
+| Truck | 189.398 s | 189.235 s | Native truck goods, loot state/arrival expiry and identity; 98 Fast comparisons, zero discrepancies |
+| Dispatch | 188.584 s | 188.675 s | Native expiry/completion, plunder-window derived fields; 420/441 comparisons, no discrepancies |
+| Railway | 189.832 s | 190.637 s | Normal: scoped official refreshed list empty, zero current rows; Fast: one stored Railway row but sampled native source missed its positive identity. **Positive field gate PENDING** |
+
+These are **one Normal and one Fast per kind**, with separate elapsed, stage
+checkpoint/publication and controlled resource-pressure sampling. They are
+useful comparisons but **n=1 each**, insufficient to establish robust per-kind
+repeatability or a material Fast advantage. The observed differences range
+from hundredths of a second to a few seconds and can reflect natural game
+state, native callback timing, source cache and other conditions. All five
+individual kinds with a positive independent native witness passed their
+sampled field checks; this is not a complete independent world census. The
+Railway-only Fast and Normal timing observations remain recorded **without**
+labeling them an accuracy-qualified Railway-positive performance comparison.
+
+Additional corrected mixed selections: **City+Truck Normal 190.498 s / Fast
+187.824 s** and **Truck+Railway+Dispatch Normal 184.107 s / Fast 184.925 s**.
+The City+Truck Normal independent sample did not include a positive Truck row,
+so its strict whole-selection field-witness gate is narrower than its completed
+coverage and timing. Corrected TRD samples contained positive Truck and
+Dispatch witnesses; Railway scope varied naturally and is separately gated.
+Both TRD runs were approximately 184–185 seconds and had zero failed blocks,
+compared with **unqualified** older same-tick runs around 109–111 seconds
+which omitted known selected spatial populations. The faster inaccurate source
+is **rejected**.
+
+In parallel, the task used the actual production planner and engine for all
+255 nonempty combinations, held cancellation/adversity, 12 dense controlled
+two-server eight-kind cycles and seven independent native-witness inverse
+tests (omission, altered field, wrong server, dropped kind, stale response,
+wrong session and immediate camera restoration). The inverses reject corrupted
+results, and original lead negatives remain immutable. A task-private report
+`artifacts/map-006/scan008-combined-benchmarks.json` keeps the accurate full
+timing data, qualifying positive-kind witness status, omitted witness limits,
+measured native enrichment/checkpoint/publication, oldest-result age and
+bounded CPU/working-set observations. Future changes to the method should
+meet these **accuracy gates before speed selection**.
+
+**Verified final two-server source-built Auto/return runs** (same owned
+profile/session/game PID, available endpoints 2212→2213→2212):
+
+| Selected Auto kinds and mode | Server 2212 whole scan | Server 2213 whole scan | Published counts 2212 / 2213 | Total Auto cycle, including switches/return |
+| --- | ---: | ---: | --- | ---: |
+| Truck + Railway + Dispatch, Fast | 188.650 s | 190.164 s | Truck 180 / 215; Railway 2 / 1; Dispatch 769 / 971 | 384.380 s |
+| City-only, Normal | 191.102 s | 186.974 s | City 7063 / 3545 | 383.255 s |
+
+In both Auto cycles each target published all 2500 logical blocks from 10000
+fresh native AOIs with 340 probes, no failed blocks, retries or staging residue,
+and the return receipt independently proves the exact native 2213→2212
+restoration. Auto was explicitly disabled after both cycles, with zero action
+jobs. The combined switch/return/orchestration overhead, calculated from cycle
+wall time minus its two scan lifetimes, is **5.566 s** mixed Fast and **5.179 s**
+City Normal. **Individual switch and return spans were not separately clocked**;
+claiming those values would be inaccurate. Passive exact-run field audits found
+zero mismatches across sampled City, Truck and Dispatch native positives on
+both target servers. Railway has 3 positive stored records across the mixed
+cycle but no same-record native Railway witness; a separate bounded current
+snapshot at the two known server-2212 coordinates found the march absent or
+different after time elapsed, not a valid retrospective positive audit.
+
+`docs/proof/MAP-008-NATIVE-METHOD-BENCHMARKS-2026-10-11.json` is the compact
+source-identified privacy-safe proof: **14 strict field-witness-qualified
+single-server measurements**, **9 omitted from strict speed qualification**
+because a selected-positive field witness or deferred native contract was
+missing, and the two complete native Auto cycles. The unqualified observations
+remain available as correctly labeled timing evidence and historical negatives;
+they are not silently counted as passing accuracy. One successful n=1
+normal/fast observation for most single kinds has a median equal to the single
+sample with a zero-width min/max and cannot establish a repeatability range.
+The older four alternating six-kind v24 measurements (Normal 206.517–206.572 s,
+Fast 205.445–208.874 s; n=2 each, medians 206.545 s and 207.160 s) used the
+correct deferred native camera path but include rare Railway rows for which
+independent native field witnesses were absent in three of four runs. Preserve
+those measured ranges as **observed**, not strict all-positive-kind audited
+speed/accuracy samples. No materially faster Normal or Fast policy is proved.
+
+**Rejected current-client alternatives:** direct reflected AOI request
+without current camera context did not yield a fresh response; fresh official
+Train list alone did not provide a complete target-server Truck population;
+camera same-tick restoration lost positive known spatial records; eight aspect
+4/6 and 16 distributed region probes showed no repeatable wider positive
+footprint. One isolated native response did contain **4×10 AOI indices but
+zero spatial records**; it is a geometry observation, **not** an
+accuracy-qualified four-column full-world acquisition. The fastest *tested
+accuracy-qualified* strategy remains the shared fresh, serial, deferred
+LOD0 AOI sweep with necessary selected-kind enrichment. We do not claim it is
+globally optimal or recovered original behavior.
+
+**R3 final verification:** canonical frontend static + integration `npm run
+check`, Vite production build and its package check pass; actual mounted
+MAP-007 ownership/retirement checks pass 8/8 in EN/light and JA/dark narrow.
+Release `tools/map_008_scan_checks` passes all 255 selections, 15 adverse
+responses and post-publication diagnostic failure without double-publishing.
+Default `tests/LWBridge.Desktop.Checks` Release suite passes across Home, Map,
+Auto, provider identity and its hostile cases. Actual Windows isolated
+`tools/home_004_pipe_recovery_probe` passes without launching a game. Clean
+Desktop `dotnet build -c Release` passes with **zero warnings and errors**.
+The owner used Home Close to stop only the task-owned Last War/client host;
+`python tools/map_006_live_gate.py --trial scan008stage_20261011 finish`
+and `reentry` verify **no remaining owned processes or journals**, Auto off,
+zero armed jobs and exact original installed script hashes:
+
+- `LWScripts.data` SHA256 `d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495`
+- `LWScripts.txt` SHA256 `b84cfa8762d9f8b93fcbe9e64b8715e84d1549248c2e98dc7dc272321476933b`
+- `version.txt` SHA256 `c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db`
+
+**MAP-008 final disposition is PARTIAL, not full original parity.** The
+available live independent native-positive Railway **value** comparison and
+Monster active-protection-positive example remain unverified; Ghost positive
+and full seasonal Treasure remain owner-deferred. We do not claim a globally
+optimal scanner or universally faster Fast setting. The two corrected bounded
+multi-server Auto/return cycles and all production/control regressions are
+complete. The single unmerged source-identified candidate requires independent
+lead review and owner tests; no live claims, plunder, attack, sharing, marches
+or spending occurred.
+Owner-deferred positive Ghost and seasonal Treasure cases remain pending.
+
+## Previous continuation R2: same-tick capture omission and corrected source
+
+**R2 2026-10-11 qualification supersedes the earlier non-Resource speed
+comparisons below.** A current-client v24 passive native inverse compared the
+**same target AOI** (tile 135,175; 30 cells). The old same-tick camera restore
+reported a proven response, matched flags/geometry and **zero spatial records**,
+even though an independent prior SQLite full-world acquisition had observed
+35 City, 26 Resource, 26 Monster and 3 Dispatch identities in the footprint.
+A new response with deferred camera restoration produced **35 City, 26 Resource
+and 89 total selected native records** at the same target, 30/30 native AOIs,
+with exact session ownership and restoration. See new immutable
+`docs/proof/MAP-008-DEFERRED-SPATIAL-NATIVE-2026-10-11.json` and raw task-private
+`artifacts/map-006/trial-scan008qual_20261011/`.
+
+The corrected **production** `CurrentClientMapBlockSource.FastCity.cs` now
+requires the deferred camera/response/restoration contract for **every spatial
+selection**, including City+Truck, Truck+Railway+Dispatch, Monster-only,
+Dispatch-only, Railway-only and Truck-only; `current_live_resource_probe.lua`
+supports it for those kinds. The target stays active until response ingestion,
+then restores the original camera and waits for the restored home-view native
+reply before proceeding. This costs more time where the old source appeared
+fast, but restores selected populations instead of silently dropping them.
+The previous fast **City+Truck 107.9 s**, **Truck-only ~100–110 s** and
+**Truck+Railway+Dispatch 111 s/109 s** are **historical negative method
+measurements**, not accuracy-equivalent successful performance claims. In
+particular Dispatch counts of ~194 were not a verified full target population.
+Retain all historical evidence unchanged.
+
+Eight aspect-4/aspect-6 native region trials all covered 3×10 cells, as did
+16 distributed immediate-restore non-Resource trials; no repeatable footprint
+gain qualified. The 0.796 s immediately-restored Resource-inclusive request
+omitted all expected Resource rows, whereas a deferred request took 1.063 s
+and returned 22 in its independently sampled region. The same-target City
+omission is the stronger inverse. The 340-probe fixed-band count remains the
+source-backed reference for the admitted 3-column×10-row native footprint.
+
+The four genuine six-kind Fast→Normal→Fast→Normal runs in trial
+`scan008qual_20261011` **already used deferred restoration** because Resource
+was selected, so their v24 performance and native accuracy gates remain valid:
+Normal **206.545 s median (206.517–206.572, n=2)**, Fast **207.160 s median
+(205.445–208.874, n=2)**, all **340 fresh probes, zero retries, 10,000 AOIs,
+2,500 published blocks, no staging residual**. The median native acquisition
+was 201.991 s Normal and 201.137 s Fast; neither mode is demonstrably faster
+end-to-end. Per-run independent native source-to-publisher checks found no
+observed field discrepancies, including positive Truck goods/expiry and
+Dispatch completion/plunder fields. No perfect whole-world oracle exists.
+
+The **corrected** v24 trial is task-private
+`artifacts/map-006/trial-scan008fix_20261011/` (source-built Release,
+fresh owned Home/profile, no Auto/actions). Its first City+Truck Normal pass
+completed 2,500 blocks, zero failures/staging, City 7,062 and Truck 228 in
+**190.498 s**, with fresh deferred native response flags/camera restoration.
+Independent sampled City field checks: 648 comparisons, zero observed
+discrepancies. This is a correction witness, not proof of perfect recall.
+Additional same-workload comparisons and positive native field witnesses are
+being collected; the committed release candidate and original owner test
+instructions below remain unchanged until the final qualification gate closes.
+
 ### Compact behavior differences from accepted branch checkpoint
 
 | Surface | Earlier behavior | Current MAP-008 behavior |

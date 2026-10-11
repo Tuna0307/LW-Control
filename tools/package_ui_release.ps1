@@ -208,22 +208,29 @@ if ($ReleaseLabel -eq 'MAP008-SCAN') {
     $scanScope = @"
 MAP-008 SCANNER METHOD AND MAP-007 LIFETIME CORRECTION — LEAD REVIEW CANDIDATE
 Current-client v24 source-built passive Map acquisition supports City, Resource,
-Monster, Truck, Railway, Dispatch, Ghost and Treasure selections. Current
-available kinds have positive scan evidence; Ghost positive and full seasonal
-Treasure acceptance remain owner deferred. Actual v24 selected-all scans on
-server 2212 each covered 10000/10000 native AOIs, published 2500/2500
-logical blocks without failures and completed in 227.318 s Normal and
-222.542 s Fast. Both required 340 application-to-Lua probes; the single
-comparison does not prove a repeatable speedup or fastest global method.
+Monster, Truck, Railway, Dispatch, Ghost and Treasure selections. The scanner
+now keeps the camera on the owned target until the correlated native response
+is captured, including scans without Resource selected. An independently
+confirmed current-client omission showed that earlier same-tick camera
+restoration could report full AOI coverage while silently dropping known City,
+Resource, Monster and Dispatch rows. Previous short non-Resource scan times
+were therefore excluded from accuracy-qualified performance comparisons.
 
 Normal conservatively targets native AOI gaps; Fast may take measured-wide
 coverage steps when fresh response geometry permits. Camera mutations remain
-serial and native fresh response ownership and coverage are enforced. The
-six available kinds can share the same native sweep and required detail/list
-hydration. Bounded two-server (2212/2213) Truck/Railway/Dispatch Auto completed
-with a confirmed native return to 2212. Results vary while targets move,
-expire or spawn; population completeness beyond native AOI footprints is
-not a perfect independent world census.
+serial and native fresh response ownership and 10,000-cell AOI union coverage
+are enforced. All selected spatial kinds can share one native sweep, followed
+by their necessary type-specific field hydration. Individual and mixed v24
+Normal/Fast scans have been compared with real source timing, measured staging
+and publication, bounded CPU/memory sampling and independent positive native
+field witnesses. Normal and Fast have no established meaningful repeatable
+whole-cycle speed advantage on the current footprint. Lua AOI commands are
+not a measured count of network packets. Results naturally vary as moving
+objects expire or spawn; an AOI count cannot establish perfect world recall.
+Railway has completed current-client scans, but a sampled positive Railway
+field witness remains unverified and seasonal positives are not fabricated.
+Consult docs/MAP_008_SCAN_METHOD_CONTINUATION.md and the compact source proof
+for exact current qualification, Auto cycles and open acceptance gates.
 
 Ghost preparation and Treasure claim preview are read-only/non-executing.
 MAP-007 retirement now releases only the deferred operation's own busy state,
