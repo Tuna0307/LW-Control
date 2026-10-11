@@ -1,6 +1,8 @@
 # Map — current delivery status, 2026-10-11
 
-**Whole Map: PARTIAL. Manual City/Resource scans: READY_FOR_LEAD_REVIEW.**
+**Whole Map: PARTIAL. Manual City/Resource scans: ACCEPTED / MERGED / PUBLISHED.**
+See [lead acceptance and release](MAP_005_LEAD_ACCEPTANCE_2026-10-11.md).
+The earlier worker-stage rows below are historical; PR #7 is now merged.
 Home single-game release is closed; two-game Home remains separate F-07 backlog.
 
 | Area | Actual current status |

@@ -27,10 +27,11 @@ The earlier d09b8328 progress review is historical. Current package source is
 - Worker subsequent pending-recovery Stop, concurrency/status/local config and
   packaged candidate results await affected independent review.
 - Stored City/Resource browsing/export remains accepted in its stored-data scope.
-  Manual City/Resource live acquisition is now a distinct **READY_FOR_LEAD_REVIEW**
-  delivery with genuine official current-server Map UI/SQLite, Stop and export
-  evidence: see MAP_005_DELIVERY_RECEIPT_2026-10-11.md. Lead acceptance and
-  publication are pending; whole Map remains PARTIAL.
+  Manual City/Resource live acquisition is **ACCEPTED / MERGED / PUBLISHED**
+  with genuine official current-server Map UI/SQLite, Stop and export evidence.
+  Download and review identity: [MAP-005 lead acceptance](MAP_005_LEAD_ACCEPTANCE_2026-10-11.md).
+  PR #8 remains unmerged pending correction of a reproduced cross-server Auto
+  Stop/return ordering race. Whole Map remains PARTIAL.
 
 Missing original-only facts can remain research notes while a documented
 supported implementation passes functional acceptance. Missing actual operations,
