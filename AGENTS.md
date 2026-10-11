@@ -1,5 +1,10 @@
 # LW-Control — current contributor instructions
 
+Latest lead assignment, 2026-10-11: owner moved priority to Map after single-game
+Home release. Complete docs/work-items/LWB317-MAP-MANUAL-SCAN-DELIVERY-005.md on
+`codex/map-manual-scan-delivery-005`. This supersedes the old Home-only/no-new-Map
+limits only for the assigned current-server Manual City/Resource scan delivery.
+
 Latest owner release decision, 2026-10-11: approve single-game Home first and
 keep simultaneous two-game support as unfinished F-07. Read
 docs/OWNER_DIRECTION_SINGLE_GAME_HOME_2026-10-11.md and the single-game lead
@@ -36,12 +41,12 @@ Historical evidence and reviews remain unchanged.
 
 ## Active work and loop
 
-- Home is the only new feature priority; other pages are affected regressions.
-  No new Map feature/scan campaign. Follow the finite functional acceptance
-  catalogue, not every historical exact-original research gap.
-- Single-game Home is merged and published; use the existing main checkout.
-  Its merged feature branch was retired. Future implementation branches require
-  a concrete lead assignment. Read research with `git show`; do not import bulk.
+- Map Manual City/Resource scanning is the assigned feature priority. Accepted
+  single-game Home is an affected regression, not a new completion campaign.
+  Follow the current finite work item; other Map actions require later assignment.
+- Single-game Home is merged/published and its feature branch retired. Use the
+  one assigned Map branch and existing checkout. Future branches require lead
+  assignment. Read research with `git show`; do not import bulk.
 - External owner-relayed workers work solo: no subagents, other AI chats,
   GPT Work or Codex delegation. Preserve completed corrections and unrelated work.
 - Diagnose -> fix -> retest -> self-review -> coherent checkpoint -> next ready

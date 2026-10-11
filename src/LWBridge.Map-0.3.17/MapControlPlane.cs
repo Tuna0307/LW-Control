@@ -113,7 +113,9 @@ public sealed class MapControlPlane : IDisposable
     {
         MapScanState state = scan.State;
         if (!state.IsReading || string.IsNullOrEmpty(state.ScanRunId)) return state;
-        store.FailScan(state.ScanRunId, error, nowMilliseconds());
+        // An incomplete/failed current-client capture must not overwrite the
+        // last successfully published result. Only a complete run publishes.
+        store.FailScan(state.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
         return scan.Fail(error);
     }
 

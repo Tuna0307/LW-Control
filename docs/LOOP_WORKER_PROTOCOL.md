@@ -1,5 +1,9 @@
 # Worker self-correction loop
 
+2026-10-11: this procedure now applies to MAP-MANUAL-SCAN-DELIVERY-005. Its
+finite queue and return gates supersede the old Home F catalogue below. Existing
+current-server City/Resource pilot is assigned; other Map actions remain excluded.
+
 Latest owner direction: faithful functional replacement, as recorded in
 OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md. This supersedes the older
 exact-original release gates below wherever they conflict. Follow the current

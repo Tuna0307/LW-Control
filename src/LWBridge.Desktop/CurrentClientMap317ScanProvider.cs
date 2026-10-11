@@ -10,7 +10,9 @@ namespace LWBridge.Desktop;
 internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
 {
     private readonly object gate = new();
-    private readonly CurrentClientMapBlockSource source;
+    private readonly IMapScanBlockSource source;
+    private readonly Func<CancellationToken, Task<CurrentClientMapStatusContext>> getStatus;
+    private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
     private Map317.MapProviderStartRequest? pending;
     private CurrentClientMapContext? pendingContext;
     private CancellationTokenSource? activeCancellation;
@@ -19,8 +21,20 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     public event Action<string>? RunTerminated;
 
     internal CurrentClientMap317ScanProvider(CurrentClientMapBlockSource source)
+        : this(source, source.GetMapStatusContextAsync, source.GetCurrentContextAsync)
+    {
+    }
+
+    // Production adapter with the external game boundary replaced for controlled
+    // scan/SQLite lifetime tests. The real engine and Map317 host still run.
+    internal CurrentClientMap317ScanProvider(
+        IMapScanBlockSource source,
+        Func<CancellationToken, Task<CurrentClientMapStatusContext>> getStatus,
+        Func<CancellationToken, Task<CurrentClientMapContext>> getContext)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
+        this.getStatus = getStatus ?? throw new ArgumentNullException(nameof(getStatus));
+        this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
     }
 
     public async ValueTask<Map317.MapProviderContext> GetContextAsync(
@@ -29,7 +43,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         CurrentClientMapStatusContext context;
         try
         {
-            context = await source.GetMapStatusContextAsync(cancellationToken).ConfigureAwait(false);
+            context = await getStatus(cancellationToken).ConfigureAwait(false);
         }
         catch (BridgeCommandException error)
         {
@@ -57,7 +71,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     {
         try
         {
-            CurrentClientMapContext context = await source.GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
+            CurrentClientMapContext context = await getContext(cancellationToken).ConfigureAwait(false);
             int total = MapScanTraversal.Build(context.TileWidth, context.TileHeight).Count;
             return new Map317.MapProviderContext(
                 true, true, context.ServerId, "live", ToWorldId(context.WorldId),
@@ -78,7 +92,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         CurrentClientMapContext liveContext;
         try
         {
-            liveContext = await source.GetCurrentContextAsync(cancellationToken).ConfigureAwait(false);
+            liveContext = await getContext(cancellationToken).ConfigureAwait(false);
         }
         catch (BridgeCommandException error)
         {
@@ -141,7 +155,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                         NativeCaptureReady: true,
                         NativePendingRecords: 0,
                         NativeDroppedRecords: 0,
-                        Phase: progress.Phase));
+                        Phase: progress.Phase,
+                        AcquisitionProgressPercent: progress.AcquisitionProgressPercent));
                 }
                 catch
                 {
@@ -167,8 +182,22 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             ScanMode: request.ScanMode,
             LaunchSessionId: liveContext.LaunchSessionId,
             LiveServerId: request.ServerId);
-        Task task = RunEngineAsync(engine, execution, cancellation);
+        // Even an immediate provider response must not finish before the active
+        // task has been registered. Otherwise terminal cleanup can precede
+        // registration and leave a completed task appearing active.
+        var registered = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        Task task = RunRegisteredAsync(registered.Task, engine, execution, cancellation);
         lock (gate) activeTask = task;
+        registered.SetResult(true);
+    }
+
+    private async Task RunRegisteredAsync(
+        Task registered, MapScanEngine engine, MapScanExecutionRequest request,
+        CancellationTokenSource cancellation)
+    {
+        await registered.ConfigureAwait(false);
+        await RunEngineAsync(engine, request, cancellation).ConfigureAwait(false);
     }
 
     public async ValueTask StopMapScanAsync(CancellationToken cancellationToken = default)

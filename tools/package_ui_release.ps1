@@ -54,15 +54,25 @@ Home, Map, Automation, Squads/Equipment, City Layout, Hotkeys, Mini Games,
 Settings and the shared shell. English/light, Japanese/dark, and narrow
 viewport were checked using the canonical production frontend.
 
-STORED MAP DATA (LWB317-MAP-DATA-DELIVERY-003 reviewed slice)
-City and Resource published-data search, filters, sorting, paging and tab return,
-plus City XLSX Save As were checked via the actual packaged Map controls against
-archived genuine published copies (7,000 City / 8,008 Resource rows on server 2212).
-Both localized City XLSX workbooks reopened with all 7,000 original rows and
-12 source-matched columns. Genuine private datasets are NOT bundled in this ZIP.
-A live server context may be required after app restart to select stored records;
-do not use a new scan to test browsing. Map scanner/original runtime equivalence
-is NOT claimed. See docs/FEATURE_STATUS.md and task review in source Git checkout.
+MANUAL MAP SCAN (MAP-005 review candidate)
+Manual City and Resource scanning now uses the actual packaged Windows Map controls,
+authenticated official current client and current-server acquisition. A genuine
+combined City/Resource Fast run on client content v24, server 2212, completed
+2,500/2,500 blocks with 7,052 City / 8,002 Resource records. These are observations,
+not expected counts or bundled private data. A separate active Resource Stop kept
+those published records unchanged. The latest evidence, independent native/SQLite
+query and City XLSX checks, and limitations are in docs/MAP_005_DELIVERY_RECEIPT_2026-10-11.md.
+Standalone City Normal and Resource Fast runs subsequently completed 2,500/2,500
+blocks each on server 2212, with 7,058 City / 8,008 Resource. The independent
+native/SQLite audit, genuine City persistence after restart and reopened
+12-column Excel results agree. Counts can change on later server scans.
+
+ACCEPTED STORED MAP DATA (LWB317-MAP-DATA-DELIVERY-003)
+City and Resource stored search, filters, sort, paging, tab retention, reopening
+and City XLSX Save As remain supported. Historical archive checks used 7,000 City
+and 8,008 Resource rows; archived data is NOT the MAP-005 scan witness.
+A current live server context may still be needed to select saved records on
+host restart. Genuine private datasets are NOT bundled in this ZIP.
 
 KNOWN LIMITATIONS
 This is a usable UI baseline, NOT a fully recovered native product.
@@ -81,8 +91,10 @@ installations. Two local metadata profiles and two isolated RPC routes are
 NOT two independently supported game sessions. HOME is still PARTIAL pending
 this F-07 capability. Full original 0.3.17 licensed-runtime equivalence,
 independent multi-game ownership, long external updater/maintenance paths,
-Map scanners, mini-game execution, protected services and pixel parity are
-not certified. See docs/HOME_004_CURRENT_STATUS.md in source.
+other Map scan types, Map Auto execution, mini-game execution, protected services
+and pixel parity are not certified. Original protected scanner internals and
+exact traversal timing are not claimed recovered. See docs/MAP_005_CURRENT_STATUS.md
+and docs/HOME_004_CURRENT_STATUS.md in source.
 There is NO original login, licensing or subscription UI.
 
 Build prerequisites (only for DEVELOPERS, not for this zip):
