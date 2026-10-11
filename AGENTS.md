@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest lead assignment, 2026-10-11: owner requested all remaining Map features
+together. Follow docs/work-items/LWB317-MAP-COMPLETE-DELIVERY-006.md and
+docs/MAP_006_CURRENT_STATUS.md on `codex/map-complete-delivery-006`. This replaces
+the City/Resource-only implementation limit for the full assigned Map catalogue.
+MAP-005 / PR #7 remains separately pending lead review; preserve its candidate.
+Live account-changing actions require the specific scope answer recorded by the
+lead; the detailed task distinguishes implementation from live execution authority.
+
 Latest lead assignment, 2026-10-11: owner moved priority to Map after single-game
 Home release. Complete docs/work-items/LWB317-MAP-MANUAL-SCAN-DELIVERY-005.md on
 `codex/map-manual-scan-delivery-005`. This supersedes the old Home-only/no-new-Map
@@ -41,9 +49,9 @@ Historical evidence and reviews remain unchanged.
 
 ## Active work and loop
 
-- Map Manual City/Resource scanning is the assigned feature priority. Accepted
-  single-game Home is an affected regression, not a new completion campaign.
-  Follow the current finite work item; other Map actions require later assignment.
+- Complete the MAP-006 finite Map catalogue. Accepted single-game Home is an
+  affected regression, not a new completion campaign. MAP-005 remains submitted
+  separately; follow the current task's per-action live authority.
 - Single-game Home is merged/published and its feature branch retired. Use the
   one assigned Map branch and existing checkout. Future branches require lead
   assignment. Read research with `git show`; do not import bulk.
