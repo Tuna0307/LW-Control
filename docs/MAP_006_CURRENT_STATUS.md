@@ -13,16 +13,22 @@ Auto/Stop/return are released. Ghost positive acquisition (owner availability
 live owner-only claims/plunder/sharing remain pending. Whole Map is PARTIAL.
 Accepted single-game Home remains released; two-game F-07 is separate.
 
-**Only current continuation:** MAP-ACTION-PROVIDERS-007 on its assigned branch
-from main. See `work-items/LWB317-MAP-ACTION-PROVIDERS-007.md`. No new full-world
-scan or accepted release rebuild is needed merely to restart a fresh worker.
+**Only current continuation:** PR #9 is CHANGES_REQUIRED for LEADMAP007-01/02.
+Fix the retired preview busy state and stale cross-tab acknowledgement, then
+prioritise `work-items/LWB317-MAP-SCAN-METHODS-008.md` on the existing
+codex/map-action-providers-007 branch. Lead reproduced LEADSCAN008-01: Normal/
+Fast request 8/20 but actual engine is serial and both admit the same full-world
+path. Complete real mode differentiation and accuracy-led multi-server method
+comparison before owner personal testing. Accepted v0.6.0 data/lifecycle remains
+preserved; no globally fastest or perfect-recall claim. See the dated MAP-007 lead
+review and immutable negative probes. No new branch or duplicate release per fix.
 The assigned branch now implements source-backed Ghost **preparation** and a
 separate fail-closed Ghost result-correlation boundary, plus read-only
 Treasure state and three-mode claim **preview**. Actual v24 Ghost attack and
 Treasure claimed-reward terminal producers remain unverified; no game action
 is claimed complete. See `MAP_007_ACTION_PROVIDER_HANDOFF.md` for controlled
 production-handler tests and precise owner-only dependencies. This is a
-branch-local worker result pending lead review, not a new accepted release.
+branch-local worker result returned for concrete corrections, not a new accepted release.
 Merged MAP-006 branch may be retired after ancestry checks, preserving artifacts.
 
 ## Historical worker/lead snapshots — superseded by the acceptance above

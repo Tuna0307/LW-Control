@@ -1,5 +1,17 @@
 # LW-Control — current contributor instructions
 
+Latest lead assignment, 2026-10-11: PR #9 / MAP-007 is CHANGES_REQUIRED for
+LEADMAP007-01/02 (retired busy state and late cross-tab messages). Correct those
+first, then complete docs/work-items/LWB317-MAP-SCAN-METHODS-008.md on the
+existing codex/map-action-providers-007 branch/PR. Owner prioritises accurate
+multi-server Truck acquisition, camera/server-independent alternatives and real
+Normal/Fast behavior before personal testing. Preserve accepted main/v0.6.0 and
+historical negatives. Scanner scope permits bounded passive native benchmarks and
+server switching under existing identity/isolation/restoration gates, never live
+claims/plunder/sharing. Do not resume unrelated Ghost/Treasure execution recovery
+instead of the assigned scanner work. No new branch/worktree or worker delegation.
+Read docs/reviews/2026-10-11-MAP-007-LEAD-REVIEW.md for exact inverse findings.
+
 Latest lead acceptance, 2026-10-11: MAP-006 R1 / PR #8 is accepted, merged and
 published as map-available-v0.6.0 for the available six-kind/Auto scope. Read
 docs/MAP_006_LEAD_ACCEPTANCE_2026-10-11.md. MAP-005 remains released. Preserve

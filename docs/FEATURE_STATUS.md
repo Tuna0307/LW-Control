@@ -6,7 +6,12 @@ passive navigation and bounded Auto/Stop/return. See
 [independent acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md).
 MAP-005 / PR #7 remains released as manual-map-v0.5.0. Whole Map is **PARTIAL**:
 Ghost positive acquisition, full Treasure and owner-only action witnesses are pending.
-Next scoped implementation: MAP-ACTION-PROVIDERS-007 from main, solo worker.
+MAP-007 PR #9 remains unmerged, CHANGES_REQUIRED for two reproduced asynchronous
+preview/preparation UI lifetime defects. Next scoped work is MAP-SCAN-METHODS-008
+on that same branch, solo: first fix the two small review findings, then establish
+real Normal/Fast behavior and faster accurate multi-server acquisition. The current
+scanner's 8/20 requested limits do not change its serialized actual acquisition;
+this known limitation needs correction and does not establish a Fast speedup.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).

@@ -1,5 +1,11 @@
 # MAP-ACTION-PROVIDERS-007 — remaining Ghost/Treasure implementation
 
+Latest lead disposition: scoped worker delivery at fbbfa983 is **CHANGES_REQUIRED**
+for LEADMAP007-01/02. See ../reviews/2026-10-11-MAP-007-LEAD-REVIEW.md.
+Correct those, then continue LWB317-MAP-SCAN-METHODS-008.md on this same branch.
+Do not restart all historical provider recovery; owner now prioritises scanner
+methods/accuracy and Normal/Fast. The assignment below is retained as background.
+
 ASSIGNED for the owner's next relay. Repository:
 `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Start from current main containing accepted MAP-006 R1. Create/reuse only
