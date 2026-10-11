@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest owner availability, 2026-10-11: defer season-dependent/full Treasure live
+acceptance and Ghost positive live testing (owner availability 2026-10-15).
+Finish the currently available Map scope using
+docs/MAP_006_AVAILABLE_FEATURE_CLOSEOUT.md. The suspected Treasure Season 4
+requirement is not independently verified. Preserve prior positive Treasure rows;
+do not count deferred features or owner-only actions as passed. Lead can accept
+verified available features separately; whole Map remains PARTIAL.
+
 Latest owner Map clarification, 2026-10-11: bounded server switching for Map is
 now allowed, including multi-server passive scan/Auto target-return assessment.
 Worker must not perform live plunder, claims or sharing; owner will do those

@@ -1,5 +1,13 @@
 # Map — single current completion queue
 
+2026-10-11 latest owner availability: Treasure season-dependent/full live
+acceptance deferred by owner; Ghost positive live testing pending 2026-10-15.
+Finish the remaining available scope under
+[finite closeout](MAP_006_AVAILABLE_FEATURE_CLOSEOUT.md). This supersedes waiting
+for those unavailable witnesses before a scoped useful delivery. Their statuses
+remain pending, never passed. Six other kinds now have positive live populations,
+but remaining controls/Auto Stop/package gates are not closed merely by acquisition.
+
 2026-10-11. Whole Map: **PARTIAL**. MAP-006: **PARTIAL DEVELOPMENT CHECKPOINT**.
 The earlier lead checkpoint is preserved; active solo continuation has resumed. See
 [lead checkpoint](reviews/2026-10-11-MAP-006-PARTIAL-LEAD-CHECKPOINT.md).
