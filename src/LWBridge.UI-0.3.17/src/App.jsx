@@ -776,8 +776,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     statusReadRevisionRef.current = statusReadRevision;
     const owner = { ...selectedProfileOwnerRef.current };
     if (!isCurrentProfileOwner(owner)) return;
-    setStatusPairReady(false);
-    setConnectionError("");
+    // Refreshing the same owner does not invalidate its last acknowledged pair.
+    // Only a new owner or an actual failed read may remove that readiness.
     const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;

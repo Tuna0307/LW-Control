@@ -664,7 +664,12 @@ assert.match(periodicStatusBody, /window\.clearInterval\(timer\)/, "recurring st
 assert.doesNotMatch(periodicStatusBody, /activeRoute/, "status polling must remain active while Home is retained but hidden on another route");
 
 const statusReadBody = appSource.slice(appSource.indexOf("const readStatusSnapshot"), appSource.indexOf("const refreshStatus"));
-assert.match(statusReadBody, /setStatusPairReady\(false\)/, "status read start must invalidate stale paired availability");
+assert.doesNotMatch(statusReadBody.slice(0, statusReadBody.indexOf("const reconnectGeneration")), /setStatusPairReady\(false\)|setConnectionError\(""\)/,
+  "starting a routine poll must preserve an acknowledged pair and any prior native error");
+assert.match(statusReadBody, /if \(statusResult\.status === "rejected" \|\| proxyResult\.status === "rejected"\) \{[\s\S]*setStatusPairReady\(false\)/,
+  "an actual native read failure must invalidate the pair");
+assert.match(appSource, /useLayoutEffect\(\(\) => \{\s*reconnectStatusGeneration\.current \+= 1;\s*setStatusPairReady\(backendBridge\.mode === "preview"\)/,
+  "profile switches still invalidate the previous owner's status pair");
 assert.match(statusReadBody, /!isCurrentProfileOwner\(owner\)/, "status read acknowledgement must reject retired profile generations");
 assert.match(statusReadBody, /statusReadRevisionRef\.current !== statusReadRevision/,
   "paired status acknowledgement must accept only the newest request for the current profile owner");
@@ -683,11 +688,14 @@ assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatu
     const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
     return { promise, resolve, reject };
   };
-  const calls = [0, 1].map(() => ({ status: deferred(), proxy: deferred() }));
+  const calls = Array.from({ length: 7 }, () => ({ status: deferred(), proxy: deferred() }));
   let statusIndex = 0;
   let proxyIndex = 0;
   const state = { runtime: null, proxy: null, ready: false, error: "" };
   const ref = (value = 0) => ({ current: value });
+  const revision = ref();
+  const owner = { current: { profileId: "A", generation: 1 } };
+  const bridgeState = () => connectionState(state.runtime, state.proxy, "native", state.ready, state.error);
   const makeStatusReader = new Function(
     "useCallback",
     "backendBridge",
@@ -710,9 +718,9 @@ assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatu
   const readStatus = makeStatusReader(
     (callback) => callback,
     { available: true, invoke: async () => ({ autoLaunchGame: false }) },
-    ref(),
-    { current: { profileId: "A", generation: 1 } },
-    () => true,
+    revision,
+    owner,
+    (expected) => expected.profileId === owner.current.profileId && expected.generation === owner.current.generation,
     (value) => { state.ready = value; },
     (value) => { state.error = value; },
     ref(),
@@ -728,18 +736,57 @@ assert.match(appSource, /connectionState\([\s\S]*runtimeStatus,[\s\S]*proxyStatu
     { current: new Map() },
     (owner) => `${owner?.generation ?? -1}:${owner?.profileId || ""}`,
   );
-  const older = readStatus();
-  const newer = readStatus();
-  calls[1].status.reject(new Error("newer native failure"));
-  calls[1].proxy.resolve({ gameRunning: false });
-  await newer;
-  assert.equal(connectionState(state.runtime, state.proxy, "native", state.ready, state.error), "unavailable",
-    "newest failed status pair must make connected availability unavailable");
+  assert.equal(bridgeState(), "checking", "initial owner waits for a complete pair");
+  const first = readStatus();
   calls[0].status.resolve({ xluaOnline: true });
   calls[0].proxy.resolve({ gameRunning: true });
+  await first;
+  assert.equal(bridgeState(), "connected");
+
+  const held = readStatus();
+  assert.equal(bridgeState(), "connected", "unchanged acknowledged owner stays online throughout held periodic polling");
+  assert.equal(state.error, "", "a successful state has no error");
+  calls[1].status.reject(new Error("native read failed"));
+  calls[1].proxy.resolve({ gameRunning: true });
+  await held;
+  assert.equal(bridgeState(), "unavailable", "an actual failed native pair must replace Connected");
+  assert.match(state.error, /native read failed/);
+
+  const retry = readStatus();
+  assert.equal(bridgeState(), "unavailable", "pending retry must not temporarily clear the preceding error");
+  calls[2].status.resolve({ xluaOnline: true });
+  calls[2].proxy.resolve({ gameRunning: true });
+  await retry;
+  assert.equal(bridgeState(), "connected", "fresh successful pair clears failure and restores Connected");
+
+  const older = readStatus();
+  const newer = readStatus();
+  calls[4].status.resolve({ xluaOnline: false });
+  calls[4].proxy.resolve({ gameRunning: true });
+  await newer;
+  assert.equal(bridgeState(), "disconnected", "real native offline must be visible");
+  calls[3].status.resolve({ xluaOnline: true });
+  calls[3].proxy.resolve({ gameRunning: true });
   await older;
-  assert.equal(connectionState(state.runtime, state.proxy, "native", state.ready, state.error), "unavailable",
-    "an older connected pair must not revive availability after a newer request failed");
+  assert.equal(bridgeState(), "disconnected", "older connected pair must not revive an offline owner");
+
+  const retiredByEvent = readStatus();
+  revision.current += 1; // bridge://status arrives while a native poll is held
+  state.runtime = { xluaOnline: true };
+  assert.equal(bridgeState(), "connected", "fresh native status event restores connection while existing proxy is valid");
+  calls[5].status.resolve({ xluaOnline: false });
+  calls[5].proxy.resolve({ gameRunning: true });
+  await retiredByEvent;
+  assert.equal(bridgeState(), "connected", "held poll must not overwrite newer status event");
+
+  const retiredByProfile = readStatus();
+  owner.current = { profileId: "B", generation: 2 };
+  state.ready = false; state.runtime = null; state.proxy = null; state.error = "";
+  assert.equal(bridgeState(), "checking", "switching A to B invalidates A pair");
+  calls[6].status.resolve({ xluaOnline: true });
+  calls[6].proxy.resolve({ gameRunning: true });
+  await retiredByProfile;
+  assert.equal(bridgeState(), "checking", "retired A poll must not establish B availability");
 }
 
 assert.match(appSource, /backendBridge\.invoke\("profile_list", \{\}\)/, "normal App must load the native profile registry");
