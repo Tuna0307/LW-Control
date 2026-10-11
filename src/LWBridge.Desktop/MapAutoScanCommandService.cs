@@ -575,10 +575,14 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 {
                     await execution.ReturnServerAsync(originalServerId, CancellationToken.None).ConfigureAwait(false);
                 }
-                catch
+                catch (Exception returnError)
                 {
-                    // The recovered frontend treats return-to-origin as best effort and
-                    // does not replace the cycle's terminal error with a return failure.
+                    // An explicitly requested return is part of the owner's Auto cycle.
+                    // Keep the already-published targets, but do not describe the full
+                    // cycle as completed if native navigation did not restore its origin.
+                    string returnFailure = "MAP_AUTO_SCAN_RETURN_FAILED: " + returnError.Message;
+                    cycleError = cycleError is null ? returnFailure : cycleError + "; " + returnFailure;
+                    if (outcome == "completed") outcome = "failed";
                 }
             }
 

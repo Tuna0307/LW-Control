@@ -1,6 +1,7 @@
 """Isolated MAP-006 live passive Map/Auto witness gates (no game launch here).
 
-Usage: python tools/map_006_live_gate.py prepare|enable|reentry|audit <label>|finish
+Usage: python tools/map_006_live_gate.py prepare|enable|reentry|status|audit <label>|audit-cycle <label>|finish
+       python tools/map_006_live_gate.py --trial <safe_label> prepare|enable|reentry|status|audit <label>|audit-cycle <label>|finish
 
 The normal source-identified LWBridge Desktop Home/Map UI owns every genuine
 game action. This helper verifies exact compatibility/restoration and reads
@@ -26,6 +27,20 @@ MAPDB = ISOLATED / "profiles" / PROFILE / "map-data" / "map-data.db"
 AUTO = ISOLATED / "profiles" / PROFILE / "runtime" / "map-auto-scan.json"
 TASK = "LWB317-MAP-COMPLETE-DELIVERY-006"
 KINDS = {"city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"}
+
+
+def use_separate_trial(label):
+    """Preserve the original MAP-006 pilot and use a brand-new isolated root."""
+    global ROOT, ISOLATED, PREFLIGHT, PROFILE, MAPDB, AUTO
+    if (not label.isidentifier() or label.startswith("_") or len(label) > 40 or
+            not label.isascii()):
+        raise RuntimeError("Trial label must be a short ASCII identifier")
+    ROOT = Path(__file__).resolve().parents[1] / "artifacts" / "map-006" / ("trial-" + label)
+    ISOLATED = ROOT / "isolated"
+    PREFLIGHT = ROOT / "preflight.json"
+    PROFILE = "map-006-" + label
+    MAPDB = ISOLATED / "profiles" / PROFILE / "map-data" / "map-data.db"
+    AUTO = ISOLATED / "profiles" / PROFILE / "runtime" / "map-auto-scan.json"
 
 
 def utc_stamp():
@@ -92,7 +107,7 @@ def prepare():
         "backupHashes": {name: known.prior.prior.sha(backup / name) for name in known.EXPECTED},
         "compatibility": compatibility["ok"],
         "initialProfileEnabled": False, "autoLaunch": False, "autoReconnect": False,
-        "ownedProcesses": [], "permittedActions": ["passive current-server Map", "bounded same-server Auto"],
+        "ownedProcesses": [], "permittedActions": ["passive current-server Map", "bounded passive multi-server Auto and return"],
     }
     PREFLIGHT.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     print(json.dumps(receipt, indent=2))
@@ -149,6 +164,27 @@ def reentry():
                       "ownedProcesses": [], "autoEnabled": False, "actionJobs": 0}))
 
 
+def status():
+    """Read only summary of the task's live Map/Auto state (never a game command)."""
+    result = {"task": TASK, "timeUtc": utc_stamp(), "profileId": PROFILE,
+              "auto": auto_state(), "actionJobs": owned_job_counts()}
+    if MAPDB.exists():
+        with sqlite3.connect(f"file:{MAPDB.as_posix()}?mode=ro", uri=True) as db:
+            try:
+                row = db.execute("""SELECT id,server_id,status,selected_types,total_blocks,
+                    completed_blocks,failed_blocks,created_at,updated_at,error
+                    FROM scan_runs ORDER BY created_at DESC LIMIT 1""").fetchone()
+                result["latestScan"] = dict(zip(
+                    ("runId", "serverId", "state", "selectedTypes", "totalBlocks",
+                     "completedBlocks", "failedBlocks", "createdAt", "updatedAt", "error"), row)) if row else None
+                result["publishedCounts"] = {f"{kind}:{server}": count for kind, server, count in
+                    db.execute("SELECT kind,server_id,COUNT(*) FROM map_records GROUP BY kind,server_id")}
+                result["stagedRows"] = db.execute("SELECT COUNT(*) FROM scan_records").fetchone()[0]
+            except sqlite3.OperationalError as error:
+                result["readStatus"] = str(error)
+    print(json.dumps(result, indent=2))
+
+
 def audit(label):
     if not label.isidentifier() or label.startswith("_"):
         raise RuntimeError("Audit label must be a simple unique identifier")
@@ -190,6 +226,62 @@ def audit(label):
         raise RuntimeError("Recorded unsuccessful scan; preserve receipt and diagnose")
 
 
+def audit_cycle(label):
+    """Freeze an actual native multi-server Auto result with exact target run identities."""
+    if not label.isidentifier() or label.startswith("_") or not label.isascii():
+        raise RuntimeError("Auto cycle audit label must be a simple ASCII identifier")
+    out = ROOT / ("auto-cycle-" + label + ".json")
+    if out.exists():
+        raise RuntimeError("Cannot overwrite existing Auto cycle receipt")
+    document = json.loads(AUTO.read_text(encoding="utf-8"))
+    config, cycle = document.get("config") or {}, document.get("lastCycle") or {}
+    servers = cycle.get("targetServerIds") or []
+    completed = cycle.get("completedServerIds") or []
+    if not servers or not isinstance(servers, list) or not all(type(s) is int for s in servers):
+        raise RuntimeError("Cannot audit Auto without an actual target server list")
+    runs = []
+    with sqlite3.connect(f"file:{MAPDB.as_posix()}?mode=ro", uri=True) as db:
+        for run in db.execute("""SELECT id,server_id,status,selected_types,total_blocks,
+            completed_blocks,failed_blocks,created_at,updated_at,error FROM scan_runs
+            WHERE created_at>=? AND created_at<=? ORDER BY created_at,id""",
+            (cycle.get("startedAt", 0), cycle.get("completedAt", 0))):
+            runs.append(dict(zip(("runId", "serverId", "state", "selectedTypes", "totalBlocks",
+                                  "completedBlocks", "failedBlocks", "createdAt", "updatedAt", "error"), run)))
+        counts = {f"{kind}:{server}": {"count": count, "uniqueKeys": distinct}
+                  for kind, server, count, distinct in db.execute("""SELECT kind,server_id,
+                       COUNT(*),COUNT(DISTINCT record_key) FROM map_records GROUP BY kind,server_id""")}
+        staging = db.execute("SELECT COUNT(*) FROM scan_records").fetchone()[0]
+    for run in runs:
+        run["selectedTypes"] = json.loads(run["selectedTypes"])
+        run["elapsedMilliseconds"] = run["updatedAt"] - run["createdAt"]
+    jump_path = ISOLATED / "overview-bridge" / "server-jump-result.json"
+    jump = json.loads(jump_path.read_text(encoding="utf-8")) if jump_path.is_file() else {}
+    return_evidence = {name: jump.get(name) for name in
+                       ("state", "serverId", "previousServerId", "currentServerId", "changed", "method")}
+    valid_runs = (len(runs) == len(servers) and [r["serverId"] for r in runs] == servers and
+                  all(r["state"] == "completed" and r["totalBlocks"] == 2500 and
+                      r["completedBlocks"] == r["totalBlocks"] and r["failedBlocks"] == 0 and
+                      r["error"] is None and r["selectedTypes"] == config.get("selectedTypes")
+                      for r in runs))
+    complete = (cycle.get("outcome") == "completed" and cycle.get("lastError") is None and
+                servers == completed and valid_runs and staging == 0 and
+                not auto_state()["enabled"] and not auto_state()["running"] and
+                not any(owned_job_counts().values()) and
+                (not config.get("returnToOriginalServer") or
+                 (jump.get("state") == "proven" and jump.get("serverId") == cycle.get("originalServerId")
+                  and jump.get("currentServerId") == cycle.get("originalServerId"))))
+    receipt = {"task": TASK, "evidenceType": "genuine-packaged-official-current-client",
+               "timeUtc": utc_stamp(), "label": label, "trialProfileId": PROFILE,
+               "configuredTypes": config.get("selectedTypes"), "cycle": cycle, "runs": runs,
+               "publishedCounts": counts, "stagedRows": staging,
+               "returnResult": return_evidence, "completeMultiServerPublication": complete,
+               "auto": auto_state(), "actionJobs": owned_job_counts()}
+    out.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    print(json.dumps(receipt, indent=2))
+    if not complete:
+        raise RuntimeError("Auto cycle evidence incomplete; preserve receipt")
+
+
 def finish():
     previous = json.loads(PREFLIGHT.read_text(encoding="utf-8"))
     actual_hashes = known.scripts_hashes()
@@ -211,9 +303,14 @@ def finish():
 
 if __name__ == "__main__":
     actions = {"prepare": prepare, "enable": enable, "reentry": reentry,
-               "finish": finish}
+               "status": status, "finish": finish}
+    if len(sys.argv) >= 4 and sys.argv[1] == "--trial":
+        use_separate_trial(sys.argv[2])
+        sys.argv = [sys.argv[0], *sys.argv[3:]]
     if len(sys.argv) == 3 and sys.argv[1] == "audit":
         audit(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "audit-cycle":
+        audit_cycle(sys.argv[2])
     elif len(sys.argv) == 2 and sys.argv[1] in actions:
         actions[sys.argv[1]]()
     else:

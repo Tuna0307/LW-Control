@@ -110,6 +110,7 @@ internal static class MapAutoScanTerminalChecks
         await CheckAsync("error despite phase", "completed", "partial failure", "owned-006", 317, false);
         await CheckSuccessAfterFailureAsync();
         await CheckOrderedMultiServerAndReturnAsync();
+        await CheckReturnFailureRemainsVisibleAsync();
         await CheckDisableWhileOwnedScanActiveAsync();
         Console.WriteLine("MAP_006_AUTO_TERMINAL_PUBLICATION_OWNERSHIP_OK");
     }
@@ -230,6 +231,82 @@ internal static class MapAutoScanTerminalChecks
         finally
         {
             release.TrySetResult(true);
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static async Task CheckReturnFailureRemainsVisibleAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-map006-return-" + Guid.NewGuid().ToString("N"));
+        string statePath = Path.Combine(root, "auto-state.json");
+        int starts = 0;
+        int returns = 0;
+        try
+        {
+            await using (var scheduler = new MapAutoScanCommandService(
+                statePath,
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) => Task.FromResult(run is null
+                        ? new MapAutoScanRuntimeStatus(317, false, null, null, "idle")
+                        : new MapAutoScanRuntimeStatus(318, false, null, run, "completed")),
+                    StartTargetScanAsync = (server, types, mode, _) =>
+                    {
+                        Require(server == 318 && types.SequenceEqual(["truck"]) && mode == "fast",
+                            "return-failure test did not acquire requested target");
+                        starts++;
+                        return Task.FromResult("return-failure-run");
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        Require(server == 317, "return failure addressed the wrong original server");
+                        returns++;
+                        throw new InvalidOperationException("native jump rejected");
+                    },
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException(
+                        "completed target must not be stopped after return failure"),
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false))
+            {
+                await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
+                    true, 20, [318], ["truck"], "fast", true, 0));
+                await scheduler.WaitForIdleAsync();
+                MapAutoScanSnapshot failed = await scheduler.GetSnapshotAsync();
+                Require(starts == 1 && returns == 1 && !failed.OwnsActiveScan &&
+                    failed.LastCycle?.Outcome == "failed" &&
+                    failed.LastCycle.OriginalServerId == 317 &&
+                    failed.LastCycle.TargetServerIds.SequenceEqual([318]) &&
+                    failed.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                    failed.LastError?.Contains("MAP_AUTO_SCAN_RETURN_FAILED: native jump rejected", StringComparison.Ordinal) == true,
+                    "failed return was hidden as an entirely completed Auto cycle or lost the published target");
+                await scheduler.UpdateConfigAsync(failed.Config with { Enabled = false });
+            }
+            // Read the committed file again while it still exists. A later
+            // process/restart must not reinterpret a published target as success.
+            await using var reopened = new MapAutoScanCommandService(
+                statePath, new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => false,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (_, _) => throw new InvalidOperationException("No game expected"),
+                    StartTargetScanAsync = (_, _, _, _) => throw new InvalidOperationException("No scan expected"),
+                    ReturnServerAsync = (_, _) => throw new InvalidOperationException("No return expected"),
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException("No Stop expected"),
+                }, startScheduler: false);
+            MapAutoScanSnapshot durable = await reopened.GetSnapshotAsync();
+            Require(durable.LastCycle?.Outcome == "failed" &&
+                durable.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                durable.LastError?.Contains("MAP_AUTO_SCAN_RETURN_FAILED", StringComparison.Ordinal) == true,
+                "return failure not durable across scheduler reopening");
+        }
+        finally
+        {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
     }
