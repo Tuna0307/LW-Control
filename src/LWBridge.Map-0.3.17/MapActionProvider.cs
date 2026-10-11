@@ -30,7 +30,9 @@ public sealed record DispatchPlunderArmResult(
     int ServerId,
     string TaskUuid,
     bool Armed,
-    string? ErrorCode = null);
+    string? ErrorCode = null,
+    string? AttemptId = null,
+    string? LaunchSessionId = null);
 
 public sealed record DispatchPlunderResultEvent(
     string Kind,
@@ -41,7 +43,9 @@ public sealed record DispatchPlunderResultEvent(
     long? ServerDayStartAt = null,
     int? SendOffsetMs = null,
     int? LeadMs = null,
-    int? OwnerServer = null);
+    int? OwnerServer = null,
+    string? AttemptId = null,
+    string? LaunchSessionId = null);
 
 public sealed record TruckPlunderArmJob(
     int ServerId,
@@ -51,7 +55,9 @@ public sealed record TruckPlunderArmJob(
     int? RobTimes,
     int? MaxLootCount);
 
-public sealed record TruckPlunderArmResult(bool Armed, string? ErrorCode = null);
+public sealed record TruckPlunderArmResult(
+    bool Armed, string? ErrorCode = null,
+    string? AttemptId = null, string? LaunchSessionId = null);
 
 public sealed record TruckPlunderResultEvent(
     int ServerId,
@@ -64,7 +70,9 @@ public sealed record TruckPlunderResultEvent(
     int? RobTimes = null,
     int? RemainingLootCount = null,
     int? DailyRobCount = null,
-    long? ServerDayStartAt = null);
+    long? ServerDayStartAt = null,
+    string? AttemptId = null,
+    string? LaunchSessionId = null);
 
 public sealed record MapPlunderServerDayProviderResult(long ServerTime, long ServerDayStartAt);
 

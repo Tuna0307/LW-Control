@@ -1,0 +1,281 @@
+using LWBridge.Desktop;
+
+namespace LWBridge.Desktop.Checks;
+
+// Production scheduler, persistence and ownership with only its game boundary
+// controlled. A terminal native scan must have positively published to count.
+internal static class MapAutoScanTerminalChecks
+{
+    private static void Require(bool condition, string message)
+    {
+        if (!condition) throw new InvalidOperationException("MAP_006_AUTO: " + message);
+    }
+
+    private static async Task CheckAsync(
+        string label, string phase, string? terminalError,
+        string resultRunId, int resultServer, bool expectedSuccess)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-map006-auto-" + Guid.NewGuid().ToString("N"));
+        string statePath = Path.Combine(root, "auto-state.json");
+        int starts = 0;
+        int returns = 0;
+        int stops = 0;
+        try
+        {
+            await using (var scheduler = new MapAutoScanCommandService(
+                statePath,
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) => Task.FromResult(run is null
+                        ? new MapAutoScanRuntimeStatus(317, false, null, null, "idle")
+                        : new MapAutoScanRuntimeStatus(resultServer, false, terminalError, resultRunId, phase)),
+                    StartTargetScanAsync = (server, kinds, speed, _) =>
+                    {
+                        Require(server == 317 && kinds.SequenceEqual(["monster"]) && speed == "fast",
+                            label + ": wrong scan target/configuration");
+                        Interlocked.Increment(ref starts);
+                        return Task.FromResult("owned-006");
+                    },
+                    ReturnServerAsync = (_, _) =>
+                    {
+                        Interlocked.Increment(ref returns);
+                        return Task.CompletedTask;
+                    },
+                    StopScanIfOwnedAsync = (_, _) =>
+                    {
+                        Interlocked.Increment(ref stops);
+                        return Task.FromResult(true);
+                    },
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false))
+            {
+                _ = await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
+                    true, 20, [317], ["monster"], "fast", false, 0));
+                await scheduler.WaitForIdleAsync();
+                MapAutoScanSnapshot result = await scheduler.GetSnapshotAsync();
+                // A matching terminal failure already releases its owner token;
+                // a mismatched response leaves that token owned and must invoke
+                // an exact-run Stop rather than touch a successor.
+                int expectedStops = resultRunId != "owned-006" || resultServer != 317 ? 1 : 0;
+                Require(starts == 1 && returns == 0 && stops == expectedStops,
+                    label + ": incorrect controlled action count");
+                Require(result.LastCycle is not null && result.LastCycle.CompletedServerIds.Count ==
+                    (expectedSuccess ? 1 : 0), label + ": terminal result counted without publication");
+                Require(result.LastCycle!.Outcome == (expectedSuccess ? "completed" : "failed"),
+                    label + ": incorrect terminal outcome");
+                Require((result.LastError is null) == expectedSuccess,
+                    label + ": missing or spurious terminal error");
+                Require(!result.OwnsActiveScan,
+                    label + ": retained a stale owned-run token after terminal failure");
+                _ = await scheduler.UpdateConfigAsync(result.Config with { Enabled = false });
+                Require(!await scheduler.CheckDueAsync() && starts == 1,
+                    label + ": disabled scheduler admitted a later cycle");
+            }
+            Require(File.Exists(statePath), label + ": missing persisted cycle");
+            await using var reopened = new MapAutoScanCommandService(
+                statePath,
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => false,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (_, _) => throw new InvalidOperationException("No game expected"),
+                    StartTargetScanAsync = (_, _, _, _) => throw new InvalidOperationException("No scan expected"),
+                    ReturnServerAsync = (_, _) => throw new InvalidOperationException("No jump expected"),
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException("No Stop expected"),
+                }, startScheduler: false);
+            MapAutoScanSnapshot persisted = await reopened.GetSnapshotAsync();
+            Require(!persisted.Config.Enabled &&
+                persisted.LastCycle?.Outcome == (expectedSuccess ? "completed" : "failed"),
+                label + ": reopened outcome or disabled state changed");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    internal static async Task RunAsync()
+    {
+        await CheckAsync("published", "completed", null, "owned-006", 317, true);
+        await CheckAsync("cancelled", "cancelled", null, "owned-006", 317, false);
+        await CheckAsync("failed", "failed", "capture failure", "owned-006", 317, false);
+        await CheckAsync("stale run", "completed", null, "stale-006", 317, false);
+        await CheckAsync("wrong server", "completed", null, "owned-006", 318, false);
+        await CheckAsync("error despite phase", "completed", "partial failure", "owned-006", 317, false);
+        await CheckSuccessAfterFailureAsync();
+        await CheckOrderedMultiServerAndReturnAsync();
+        await CheckDisableWhileOwnedScanActiveAsync();
+        Console.WriteLine("MAP_006_AUTO_TERMINAL_PUBLICATION_OWNERSHIP_OK");
+    }
+
+    private static async Task CheckOrderedMultiServerAndReturnAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-map006-order-" + Guid.NewGuid().ToString("N"));
+        var starts = new List<int>();
+        var returns = new List<int>();
+        int currentServer = 317;
+        try
+        {
+            await using var scheduler = new MapAutoScanCommandService(
+                Path.Combine(root, "auto-state.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) => Task.FromResult(run is null
+                        ? new MapAutoScanRuntimeStatus(317, false, null, null, "idle")
+                        : new MapAutoScanRuntimeStatus(currentServer, false, null, run, "completed")),
+                    StartTargetScanAsync = (server, kinds, speed, _) =>
+                    {
+                        Require(kinds.SequenceEqual(["truck", "ghost"]) && speed == "normal",
+                            "controlled target kind/speed normalization changed");
+                        starts.Add(server);
+                        currentServer = server;
+                        return Task.FromResult("ordered-" + starts.Count);
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        returns.Add(server);
+                        currentServer = server;
+                        return Task.CompletedTask;
+                    },
+                    StopScanIfOwnedAsync = (_, _) => Task.FromResult(true),
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 1, [318, 319, 318, 0, 317],
+                ["truck", "unknown", "ghost", "truck"], "normal", true, 0));
+            await scheduler.WaitForIdleAsync();
+            MapAutoScanSnapshot result = await scheduler.GetSnapshotAsync();
+            Require(starts.SequenceEqual([318, 319, 317]) && returns.SequenceEqual([317]) &&
+                result.LastCycle?.Outcome == "completed" &&
+                result.LastCycle.TargetServerIds.SequenceEqual([318, 319, 317]) &&
+                result.LastCycle.CompletedServerIds.SequenceEqual([318, 319, 317]) &&
+                result.Config.ServerIds!.SequenceEqual([318, 319, 317]) &&
+                result.Config.SelectedTypes!.SequenceEqual(["truck", "ghost"]) &&
+                result.Config.IntervalMinutes == MapAutoScanCommandService.MinimumIntervalMinutes &&
+                currentServer == 317,
+                "controlled cross-server order/return and normalized config differed");
+            await scheduler.UpdateConfigAsync(result.Config with { Enabled = false });
+            Require(!await scheduler.CheckDueAsync() && starts.Count == 3,
+                "disabled cross-server scheduler admitted extra cycle");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static async Task CheckDisableWhileOwnedScanActiveAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-map006-disable-" + Guid.NewGuid().ToString("N"));
+        var entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var starts = new List<int>();
+        try
+        {
+            await using var scheduler = new MapAutoScanCommandService(
+                Path.Combine(root, "auto-state.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = async (run, _) =>
+                    {
+                        if (run is null) return new MapAutoScanRuntimeStatus(317, false, null, null, "idle");
+                        entered.TrySetResult(true);
+                        await release.Task.ConfigureAwait(false);
+                        return new MapAutoScanRuntimeStatus(317, false, null, run, "completed");
+                    },
+                    StartTargetScanAsync = (server, _, _, _) =>
+                    {
+                        starts.Add(server);
+                        return Task.FromResult("disable-" + starts.Count);
+                    },
+                    ReturnServerAsync = (_, _) => Task.CompletedTask,
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException(
+                        "Disabling configuration must not stop an in-flight scan"),
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 20, [317, 318], ["monster"], "fast", false, 0));
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot before = await scheduler.GetSnapshotAsync();
+            Require(before.Running && before.OwnsActiveScan && starts.SequenceEqual([317]),
+                "held controlled Auto run was not owned");
+            await scheduler.UpdateConfigAsync(before.Config with { Enabled = false });
+            release.TrySetResult(true);
+            await scheduler.WaitForIdleAsync();
+            MapAutoScanSnapshot final = await scheduler.GetSnapshotAsync();
+            Require(!final.Config.Enabled && !final.OwnsActiveScan && starts.SequenceEqual([317]) &&
+                final.LastCycle?.Outcome == "disabled" &&
+                final.LastCycle.CompletedServerIds.SequenceEqual([317]) &&
+                final.LastCycle.TargetServerIds.SequenceEqual([317, 318]),
+                "disable did not finish owned scan and suppress next target");
+        }
+        finally
+        {
+            release.TrySetResult(true);
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static async Task CheckSuccessAfterFailureAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-map006-auto-recovery-" + Guid.NewGuid().ToString("N"));
+        string phase = "failed";
+        int starts = 0;
+        try
+        {
+            await using var scheduler = new MapAutoScanCommandService(
+                Path.Combine(root, "auto-state.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) => Task.FromResult(run is null
+                        ? new MapAutoScanRuntimeStatus(317, false, null, null, "idle")
+                        : new MapAutoScanRuntimeStatus(317, false,
+                            phase == "failed" ? "controlled producer failed" : null, run, phase)),
+                    StartTargetScanAsync = (_, _, _, _) => Task.FromResult("cycle-" + ++starts),
+                    ReturnServerAsync = (_, _) => Task.CompletedTask,
+                    StopScanIfOwnedAsync = (_, _) => Task.FromResult(true),
+                },
+                new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await scheduler.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [317], ["monster"], "fast", false, 0));
+            await scheduler.WaitForIdleAsync();
+            Require((await scheduler.GetSnapshotAsync()).LastError is not null && starts == 1,
+                "initial controlled failure was not persisted");
+            phase = "completed";
+            await scheduler.RunNowAsync();
+            await scheduler.WaitForIdleAsync();
+            MapAutoScanSnapshot recovered = await scheduler.GetSnapshotAsync();
+            Require(starts == 2 && recovered.LastCycle?.Outcome == "completed" &&
+                recovered.LastCycle.CompletedServerIds.SequenceEqual([317]) && recovered.LastError is null,
+                "successful subsequent publication did not retire stale Auto error");
+            await scheduler.UpdateConfigAsync(recovered.Config with { Enabled = false });
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+}

@@ -43,7 +43,8 @@ internal sealed record MapAutoScanRuntimeStatus(
     int ServerId,
     bool IsReading,
     string? LastError,
-    string? ScanRunId);
+    string? ScanRunId,
+    string Phase = "unknown");
 
 internal sealed class MapAutoScanExecutionBoundary
 {
@@ -516,17 +517,23 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
 
                     MapAutoScanRuntimeStatus status =
                         await execution.ReadStatusAsync(scanRunId, cancellationToken).ConfigureAwait(false);
+                    if (!string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal) ||
+                        status.ServerId != serverId)
+                        throw new InvalidOperationException(
+                            "MAP_AUTO_SCAN_OWNER_MISMATCH: scan result belongs to another run or server");
                     if (status.IsReading)
                         continue;
 
                     Interlocked.CompareExchange(ref ownedScanRunId, null, scanRunId);
-                    completedServers.Add(serverId);
+                    // Not reading is not a publication acknowledgement. A stopped,
+                    // failed or stale scan must never count as an Auto success.
+                    if (!string.Equals(status.Phase, "completed", StringComparison.Ordinal))
+                        throw new InvalidOperationException(
+                            "MAP_AUTO_SCAN_NOT_PUBLISHED: " +
+                            (status.LastError ?? "scan ended in phase " + status.Phase));
                     if (!string.IsNullOrWhiteSpace(status.LastError))
-                    {
-                        cycleError = status.LastError;
-                        outcome = "completed_with_error";
-                        await RecordErrorAsync(status.LastError).ConfigureAwait(false);
-                    }
+                        throw new InvalidOperationException("MAP_AUTO_SCAN_NOT_PUBLISHED: " + status.LastError);
+                    completedServers.Add(serverId);
                     await UpdateRestartProgressAsync(
                         startedAt,
                         originalServerId,
@@ -547,7 +554,17 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         {
             outcome = "failed";
             cycleError = error.Message;
-            await RecordErrorAsync(error.Message).ConfigureAwait(false);
+            // If a provider returned a stale/mismatched status, the exact
+            // Auto-owned run may still be active. Ask the native boundary to
+            // retire *only that run*, never an unrelated successor. Failure to
+            // stop is retained as a distinct problem, not reported as success.
+            try { await StopOwnedScanAsync().ConfigureAwait(false); }
+            catch (Exception stopError)
+            {
+                cycleError += "; owned scan Stop failed: " + stopError.Message;
+            }
+            Interlocked.Exchange(ref ownedScanRunId, null);
+            await RecordErrorAsync(cycleError).ConfigureAwait(false);
         }
         finally
         {
@@ -652,7 +669,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             CommitLocked(state with
             {
                 Config = config,
-                LastError = cycleError ?? state.LastError,
+                // A genuinely published new cycle resolves an earlier failure;
+                // retain errors on failed/interrupted cycles instead of leaving
+                // a stale failure banner next to a successful fresh result.
+                LastError = outcome == "completed" ? null : cycleError ?? state.LastError,
                 LastCycle = new MapAutoScanCycleRecord(
                     outcome,
                     startedAt,

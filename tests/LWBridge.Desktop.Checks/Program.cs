@@ -6,6 +6,11 @@ if ((args.Length == 3 || args.Length == 4) && args[0] == "--map005-audit")
         args.Length == 4 ? args[3] : null);
     return;
 }
+if (args.Length == 3 && args[0] == "--map006-audit")
+{
+    await Map006PublishedAudit.RunAsync(args[1], args[2]);
+    return;
+}
 
 // Small delivery suite. The research branch retains the wider campaign suites.
 await GameRootSelectChecks.RunAsync();
@@ -17,4 +22,10 @@ await OrderedProfileReconcileChecks.RunAsync();
 HomeR4TransportChecks.Run();
 await MapStoredDeliveryChecks.RunAsync();
 await MapManualScanDeliveryChecks.RunAsync();
+await MapAutoScanTerminalChecks.RunAsync();
+await Map006ActionSafetyChecks.RunAsync();
+await Map006AllKindScanChecks.RunAsync();
+await Map006DispatchCorrelationChecks.RunAsync();
+await Map006NavigationShareChecks.RunAsync();
+await Map006TruckCorrelationChecks.RunAsync();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

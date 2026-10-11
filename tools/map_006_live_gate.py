@@ -1,0 +1,220 @@
+"""Isolated MAP-006 live passive Map/Auto witness gates (no game launch here).
+
+Usage: python tools/map_006_live_gate.py prepare|enable|reentry|audit <label>|finish
+
+The normal source-identified LWBridge Desktop Home/Map UI owns every genuine
+game action. This helper verifies exact compatibility/restoration and reads
+task-only SQLite; it never starts scans, changes servers, claims or plunders.
+No data, profile, backup or private rows are copied into Git or the ZIP.
+"""
+
+import hashlib
+import json
+import shutil
+import sqlite3
+import sys
+import time
+from pathlib import Path
+
+import home_004_f04_v24_gate as known
+
+ROOT = Path(__file__).resolve().parents[1] / "artifacts" / "map-006" / "genuine-pilot"
+ISOLATED = ROOT / "isolated"
+PREFLIGHT = ROOT / "preflight.json"
+PROFILE = "map-006-genuine-pilot"
+MAPDB = ISOLATED / "profiles" / PROFILE / "map-data" / "map-data.db"
+AUTO = ISOLATED / "profiles" / PROFILE / "runtime" / "map-auto-scan.json"
+TASK = "LWB317-MAP-COMPLETE-DELIVERY-006"
+KINDS = {"city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"}
+
+
+def utc_stamp():
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def validate_original():
+    if known.actors():
+        raise RuntimeError("Active game/launcher/host process: " + repr(known.actors()))
+    if known.prior.prior.sha(known.prior.prior.TARGET) != known.prior.prior.REFERENCE:
+        raise RuntimeError("Original 0.3.17 reference hash changed")
+    if known.scripts_hashes() != known.EXPECTED:
+        raise RuntimeError("Original installed Lua triplet not restored")
+    compatible = known.check_only()
+    if not compatible["ok"]:
+        raise RuntimeError("Official current-client compatibility gate failed")
+    return compatible
+
+
+def prepare():
+    if ROOT.exists():
+        raise RuntimeError("MAP-006 isolated pilot already exists; preserve evidence")
+    compatibility = validate_original()
+    ISOLATED.mkdir(parents=True)
+    backup = ROOT / "backup-original"
+    backup.mkdir()
+    for name, expected in known.EXPECTED.items():
+        shutil.copy2(known.prior.prior.SCRIPT / name, backup / name)
+        if known.prior.prior.sha(backup / name) != expected:
+            raise RuntimeError("MAP-006 backup hash did not match reference: " + name)
+
+    (ISOLATED / "config.json").write_text(json.dumps({
+        "schemaVersion": 1,
+        "owner": "LWBridgeRebuild",
+        "profileId": PROFILE,
+        "gameRoot": str(known.prior.prior.APP),
+        "autoLaunchGame": False,
+        "autoReconnect": False,
+        "gameDesiredRunning": False,
+        "serverJumpHistory": [],
+    }, indent=2), encoding="utf-8")
+    with sqlite3.connect(ISOLATED / "controller.db") as db:
+        db.executescript("""
+          CREATE TABLE controller_state(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+          CREATE TABLE profiles (id TEXT PRIMARY KEY,display_name TEXT NOT NULL,
+            role_name TEXT,server_id TEXT,game_uid TEXT UNIQUE,note TEXT NOT NULL DEFAULT '',
+            display_order INTEGER NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,
+            locked_reason TEXT,is_primary INTEGER NOT NULL DEFAULT 0,
+            created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,last_launched_at INTEGER);
+          CREATE UNIQUE INDEX idx_profiles_primary ON profiles(is_primary) WHERE is_primary=1;
+        """)
+        now = int(time.time() * 1000)
+        db.execute("""INSERT INTO profiles
+            (id,display_name,display_order,enabled,locked_reason,is_primary,created_at,updated_at)
+            VALUES (?,?,0,0,'TEST_UI_SETUP',1,?,?)""",
+            (PROFILE, "Map 006 genuine passive pilot", now, now))
+        db.execute("INSERT INTO controller_state VALUES('selected_profile_id',?)", (PROFILE,))
+
+    receipt = {
+        "task": TASK, "timeUtc": utc_stamp(), "isolatedRoot": str(ISOLATED),
+        "profileId": PROFILE, "clientContentVersion": compatibility["currentClient"]["contentVersion"],
+        "gameSha256": compatibility["currentClient"]["gameSha256"],
+        "originalHashes": known.EXPECTED,
+        "backupHashes": {name: known.prior.prior.sha(backup / name) for name in known.EXPECTED},
+        "compatibility": compatibility["ok"],
+        "initialProfileEnabled": False, "autoLaunch": False, "autoReconnect": False,
+        "ownedProcesses": [], "permittedActions": ["passive current-server Map", "bounded same-server Auto"],
+    }
+    PREFLIGHT.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    print(json.dumps(receipt, indent=2))
+
+
+def enable():
+    if known.actors():
+        raise RuntimeError("Close preliminary UI before enabling pilot profile")
+    config = json.loads((ISOLATED / "config.json").read_text(encoding="utf-8"))
+    if config.get("autoLaunchGame") or config.get("autoReconnect") or config.get("gameDesiredRunning"):
+        raise RuntimeError("Passive pilot requires all Home automatic behaviors OFF")
+    with sqlite3.connect(ISOLATED / "controller.db") as db:
+        row = db.execute("SELECT enabled,locked_reason FROM profiles WHERE id=?", (PROFILE,)).fetchone()
+        if row != (0, "TEST_UI_SETUP"):
+            raise RuntimeError("Unexpected task profile state " + repr(row))
+        db.execute("UPDATE profiles SET enabled=1,locked_reason=NULL WHERE id=?", (PROFILE,))
+    print(json.dumps({"task": TASK, "profileId": PROFILE, "enabled": True}))
+
+
+def owned_job_counts():
+    if not MAPDB.exists():
+        return {}
+    with sqlite3.connect(f"file:{MAPDB.as_posix()}?mode=ro", uri=True) as db:
+        return {table: db.execute("SELECT COUNT(*) FROM " + table).fetchone()[0]
+                for table in ("dispatch_plunder_jobs", "truck_plunder_jobs")}
+
+
+def auto_state():
+    if not AUTO.exists():
+        return {"enabled": False, "running": False}
+    document = json.loads(AUTO.read_text(encoding="utf-8"))
+    config = document.get("config") or {}
+    restart = document.get("restart") or {}
+    return {"enabled": config.get("enabled") is True,
+            "running": restart.get("active") is True,
+            "nextRunAt": config.get("nextRunAt", 0)}
+
+
+def reentry():
+    previous = json.loads(PREFLIGHT.read_text(encoding="utf-8"))
+    compatibility = validate_original()
+    if known.scripts_hashes() != previous["originalHashes"] or not compatibility["ok"]:
+        raise RuntimeError("MAP-006 original identity/compatibility changed")
+    if (ISOLATED / "overview-bridge" / "recovery.json").exists():
+        raise RuntimeError("Pending owner restoration journal exists")
+    config = json.loads((ISOLATED / "config.json").read_text(encoding="utf-8"))
+    if config.get("profileId") != PROFILE or config.get("autoLaunchGame") or config.get("autoReconnect"):
+        raise RuntimeError("Task profile ID or Home isolation changed")
+    if auto_state()["enabled"] or auto_state()["running"]:
+        raise RuntimeError("Recurring Auto Scan must be OFF at reentry")
+    if any(owned_job_counts().values()):
+        raise RuntimeError("Actionable/plunder job data present in task database")
+    print(json.dumps({"task": TASK, "compatibility": True, "originalHashes": "verified",
+                      "ownedProcesses": [], "autoEnabled": False, "actionJobs": 0}))
+
+
+def audit(label):
+    if not label.isidentifier() or label.startswith("_"):
+        raise RuntimeError("Audit label must be a simple unique identifier")
+    out = ROOT / ("scan-" + label + ".json")
+    if out.exists():
+        raise RuntimeError("Cannot overwrite an existing genuine scan receipt")
+    if not MAPDB.is_file():
+        raise RuntimeError("No genuine task Map SQLite yet")
+    with sqlite3.connect(f"file:{MAPDB.as_posix()}?mode=ro", uri=True) as db:
+        run = db.execute("""SELECT id,server_id,status,selected_types,total_blocks,
+            completed_blocks,failed_blocks,created_at,updated_at,error
+            FROM scan_runs ORDER BY created_at DESC LIMIT 1""").fetchone()
+        rows = db.execute("""SELECT kind,server_id,COUNT(*),COUNT(DISTINCT record_key)
+            FROM map_records GROUP BY kind,server_id ORDER BY kind,server_id""").fetchall()
+        staged = db.execute("SELECT COUNT(*) FROM scan_records").fetchone()[0]
+    if run is None:
+        raise RuntimeError("No actual scan run to record")
+    kinds = json.loads(run[3])
+    if not isinstance(kinds, list) or not kinds or any(kind not in KINDS for kind in kinds):
+        raise RuntimeError("Unexpected selected scan kinds")
+    positive = [kind for kind, server, count, unique in rows
+                if server == run[1] and kind in kinds and count > 0 and count == unique]
+    success = run[2] == "completed" and run[4] > 0 and run[5] == run[4] and run[6] == 0 and staged == 0
+    receipt = {
+        "task": TASK, "evidenceType": "genuine-packaged-official-current-client",
+        "timeUtc": utc_stamp(), "label": label,
+        "runId": run[0], "serverId": run[1], "state": run[2],
+        "selectedTypes": kinds, "totalBlocks": run[4], "completedBlocks": run[5],
+        "failedBlocks": run[6], "createdAt": run[7], "updatedAt": run[8],
+        "error": run[9], "stagedRows": staged,
+        "publishedCounts": {f"{kind}:{server}": count for kind, server, count, unique in rows},
+        "publishedKeyUniqueness": all(count == unique for kind, server, count, unique in rows),
+        "positiveSelectedKinds": positive, "completePublication": success,
+        "actionJobs": owned_job_counts(),
+    }
+    out.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    print(json.dumps(receipt, indent=2))
+    if not success:
+        raise RuntimeError("Recorded unsuccessful scan; preserve receipt and diagnose")
+
+
+def finish():
+    previous = json.loads(PREFLIGHT.read_text(encoding="utf-8"))
+    actual_hashes = known.scripts_hashes()
+    receipt = {
+        "task": TASK, "timeUtc": utc_stamp(),
+        "processes": known.actors(),
+        "originalHashesRestored": actual_hashes == previous["originalHashes"],
+        "originalHashes": actual_hashes,
+        "journalExists": (ISOLATED / "overview-bridge" / "recovery.json").exists(),
+        "auto": auto_state(), "actionJobs": owned_job_counts(),
+    }
+    (ROOT / "finish.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
+    print(json.dumps(receipt, indent=2))
+    if (receipt["processes"] or not receipt["originalHashesRestored"] or
+            receipt["journalExists"] or receipt["auto"]["enabled"] or
+            receipt["auto"]["running"] or any(receipt["actionJobs"].values())):
+        raise RuntimeError("MAP-006 unfinished cleanup/restoration or active automation")
+
+
+if __name__ == "__main__":
+    actions = {"prepare": prepare, "enable": enable, "reentry": reentry,
+               "finish": finish}
+    if len(sys.argv) == 3 and sys.argv[1] == "audit":
+        audit(sys.argv[2])
+    elif len(sys.argv) == 2 and sys.argv[1] in actions:
+        actions[sys.argv[1]]()
+    else:
+        raise SystemExit(__doc__)

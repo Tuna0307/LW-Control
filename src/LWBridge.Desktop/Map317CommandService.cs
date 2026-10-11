@@ -155,17 +155,19 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 state.ServerId,
                 state.IsReading,
                 state.Error,
-                string.IsNullOrWhiteSpace(state.ScanRunId) ? null : state.ScanRunId);
+                string.IsNullOrWhiteSpace(state.ScanRunId) ? null : state.ScanRunId,
+                state.Phase);
         }
 
         Map317.MapScanRun? ownedRun = store.ReadScanRun(scanRunId);
         if (ownedRun is null)
-            return new MapAutoScanRuntimeStatus(0, false, "Auto scan owner run is unavailable", scanRunId);
+            return new MapAutoScanRuntimeStatus(0, false, "Auto scan owner run is unavailable", scanRunId, "missing");
         return new MapAutoScanRuntimeStatus(
             ownedRun.ServerId,
             string.Equals(ownedRun.Status, "running", StringComparison.Ordinal),
             ownedRun.Error,
-            ownedRun.Id);
+            ownedRun.Id,
+            ownedRun.Status);
     }
 
     internal async Task<string> StartAutoScanTargetAsync(

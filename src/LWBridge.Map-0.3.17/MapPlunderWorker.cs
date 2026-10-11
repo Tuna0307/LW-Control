@@ -23,12 +23,17 @@ public sealed class MapPlunderWorker
         string DurableTaskUuid,
         string ProviderTaskUuid,
         string Kind,
+        int OwnerServer,
+        string AttemptId,
+        string LaunchSessionId,
         long Deadline);
 
     private sealed record TruckPending(
         long ServerId,
         string TrainUuid,
         string JobId,
+        string AttemptId,
+        string LaunchSessionId,
         long Deadline);
 
     private readonly MapStore store;
@@ -250,22 +255,32 @@ public sealed class MapPlunderWorker
 
         foreach ((DispatchPlunderWorkItem job, DispatchPlunderArmJob request) in armedCandidates)
         {
-            DispatchPlunderArmResult? result = results.FirstOrDefault(candidate =>
+            DispatchPlunderArmResult[] matches = results.Where(candidate =>
                 candidate.ServerId == request.ServerId &&
                 string.Equals(candidate.Kind, request.Kind, StringComparison.Ordinal) &&
-                string.Equals(candidate.TaskUuid, request.TaskUuid, StringComparison.Ordinal));
-            if (result?.Armed == true)
+                string.Equals(candidate.TaskUuid, request.TaskUuid, StringComparison.Ordinal)).ToArray();
+            DispatchPlunderArmResult? result = matches.Length == 1 ? matches[0] : null;
+            if (result?.Armed == true &&
+                !string.IsNullOrWhiteSpace(result.AttemptId) &&
+                !string.IsNullOrWhiteSpace(result.LaunchSessionId))
             {
                 dispatchPending[(job.ServerId, job.TaskUuid)] = new DispatchPending(
                     job.ServerId,
                     job.TaskUuid,
                     request.TaskUuid,
                     request.Kind,
+                    request.OwnerServer,
+                    result.AttemptId,
+                    result.LaunchSessionId,
                     Math.Max(nowMilliseconds(), job.PlunderAt) + DispatchResultHorizonMilliseconds);
                 continue;
             }
 
-            string error = result?.ErrorCode ?? "DISPATCH_PLUNDER_SEND_FAILED";
+            string error = matches.Length != 1
+                ? "DISPATCH_PLUNDER_AMBIGUOUS_ARM_RESULT"
+                : result?.Armed == true
+                    ? "DISPATCH_PLUNDER_CORRELATION_UNAVAILABLE"
+                    : result?.ErrorCode ?? "DISPATCH_PLUNDER_SEND_FAILED";
             store.UpdateDispatchPlunderStatus(job.ServerId, job.TaskUuid, "failed", error, false, nowMilliseconds());
         }
         return true;
@@ -296,12 +311,15 @@ public sealed class MapPlunderWorker
                         checked((int)job.ServerId), job.TrainUuid, jobId, job.ExecuteAt, robTimes, maxLootCount),
                     cancellationToken),
                 cancellationToken).ConfigureAwait(false);
-            if (result.Armed)
+            if (result.Armed && !string.IsNullOrWhiteSpace(result.AttemptId) &&
+                !string.IsNullOrWhiteSpace(result.LaunchSessionId))
             {
                 truckPending = new TruckPending(
                     job.ServerId,
                     job.TrainUuid,
                     jobId,
+                    result.AttemptId,
+                    result.LaunchSessionId,
                     Math.Max(nowMilliseconds(), job.ExecuteAt) + TruckResultHorizonMilliseconds);
             }
             else
@@ -310,7 +328,8 @@ public sealed class MapPlunderWorker
                     job.ServerId,
                     job.TrainUuid,
                     "failed",
-                    result.ErrorCode ?? "server response timeout",
+                    result.Armed ? "TRUCK_PLUNDER_CORRELATION_UNAVAILABLE" :
+                        result.ErrorCode ?? "server response timeout",
                     false,
                     nowMilliseconds());
             }
@@ -365,7 +384,10 @@ public sealed class MapPlunderWorker
             DispatchPending? pending = dispatchPending.Values.FirstOrDefault(candidate =>
                 candidate.ServerId == result.ServerId &&
                 string.Equals(candidate.ProviderTaskUuid, result.TaskUuid, StringComparison.Ordinal) &&
-                string.Equals(candidate.Kind, result.Kind, StringComparison.Ordinal));
+                string.Equals(candidate.Kind, result.Kind, StringComparison.Ordinal) &&
+                candidate.OwnerServer == result.OwnerServer &&
+                string.Equals(candidate.AttemptId, result.AttemptId, StringComparison.Ordinal) &&
+                string.Equals(candidate.LaunchSessionId, result.LaunchSessionId, StringComparison.Ordinal));
             if (pending is null) continue;
 
             string? error = result.Success ? null : result.ErrorCode ?? "DISPATCH_PLUNDER_SEND_FAILED";
@@ -419,7 +441,9 @@ public sealed class MapPlunderWorker
             if (truckPending is not { } pending ||
                 pending.ServerId != result.ServerId ||
                 !string.Equals(pending.TrainUuid, result.TrainUuid, StringComparison.Ordinal) ||
-                !string.Equals(pending.JobId, result.JobId, StringComparison.Ordinal))
+                !string.Equals(pending.JobId, result.JobId, StringComparison.Ordinal) ||
+                !string.Equals(pending.AttemptId, result.AttemptId, StringComparison.Ordinal) ||
+                !string.Equals(pending.LaunchSessionId, result.LaunchSessionId, StringComparison.Ordinal))
             {
                 continue;
             }
