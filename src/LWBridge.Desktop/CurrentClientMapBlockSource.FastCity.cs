@@ -384,6 +384,15 @@ internal sealed partial class CurrentClientMapBlockSource
                             targetY,
                             attempt);
                         state.ValidatedProbeResponses++;
+                        if (observation.TargetResponseMilliseconds is double targetMilliseconds &&
+                            observation.HomeRestorationMilliseconds is double homeMilliseconds &&
+                            observation.TotalProbeMilliseconds is double totalMilliseconds)
+                        {
+                            state.NativePhaseSamples++;
+                            state.NativeTargetResponseMilliseconds += targetMilliseconds;
+                            state.NativeHomeRestorationMilliseconds += homeMilliseconds;
+                            state.NativeTotalProbeMilliseconds += totalMilliseconds;
+                        }
                         lastError = null;
                         break;
                     }
@@ -1507,9 +1516,14 @@ internal sealed partial class CurrentClientMapBlockSource
         if (monsterProtectionDetailRequestCount > monsterProtectionDetailTargetCount ||
             monsterProtectionDetailReadyCount > monsterProtectionDetailTargetCount)
             throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
+        double? PhaseMilliseconds(string property) => root.TryGetProperty(property, out JsonElement value) &&
+            value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out double seconds) &&
+            double.IsFinite(seconds) && seconds >= 0 ? seconds * 1000 : null;
         return new FastCityBatchObservation(requestedIndices, prepared, resources, dispatches, ghosts, treasures, monsters, trains,
             resourceCompleteness,
-            monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
+            monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
+            PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
+            PhaseMilliseconds("totalProbeElapsedSeconds"));
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -2228,6 +2242,10 @@ internal sealed partial class CurrentClientMapBlockSource
         internal int MonsterDetailNativeRequests;
         internal int MonsterDetailNativeReady;
         internal double ProbeWaitMilliseconds { get; set; }
+        internal long NativePhaseSamples { get; set; }
+        internal double NativeTargetResponseMilliseconds { get; set; }
+        internal double NativeHomeRestorationMilliseconds { get; set; }
+        internal double NativeTotalProbeMilliseconds { get; set; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
@@ -2276,6 +2294,10 @@ internal sealed partial class CurrentClientMapBlockSource
             attributableRetries = state.ProbeRetries,
             validatedProbeResponses = state.ValidatedProbeResponses,
             summedProbeWaitMilliseconds = state.ProbeWaitMilliseconds,
+            nativePhaseSampleCount = state.NativePhaseSamples,
+            summedNativeTargetResponseMilliseconds = state.NativeTargetResponseMilliseconds,
+            summedNativeHomeRestorationMilliseconds = state.NativeHomeRestorationMilliseconds,
+            summedNativeTotalProbeMilliseconds = state.NativeTotalProbeMilliseconds,
             uniqueCoveredAois = state.Covered.Count,
             requiredAois = 10000,
             uniqueRecordKeys = new
@@ -2354,5 +2376,8 @@ internal sealed partial class CurrentClientMapBlockSource
         int MonsterInvasionBossCount,
         int MonsterProtectionDetailTargetCount,
         int MonsterProtectionDetailRequestCount,
-        int MonsterProtectionDetailReadyCount);
+        int MonsterProtectionDetailReadyCount,
+        double? TargetResponseMilliseconds,
+        double? HomeRestorationMilliseconds,
+        double? TotalProbeMilliseconds);
 }

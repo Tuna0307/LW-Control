@@ -8,6 +8,91 @@ planner/engine checks use **controlled providers** unless marked otherwise.
 The encrypted original's traversal method, global optimality and perfect recall
 have **not** been established.
 
+## MAP-008 R4 — lead corrections, real installed names, and restoration cost (2026-10-12)
+
+**Disposition: accuracy-proof defects LEADMAP008-01/02 corrected; name wiring
+LEADMAP008-03 corrected for the tested current installation; scanner method
+qualification remains PARTIAL.** Starting checkpoint `d8edb2e97940b4d6ab746ad0e7233c6513643bfa`,
+same `codex/map-action-providers-007` branch / PR #9. The latest independent
+lead acceptance is still pending. The R3 native acquisitions below remain
+historical source observations. No prior receipt was relabeled with a later
+source build.
+
+The strict native auditor now **requires an independent pre-scan host-start
+receipt** containing profile/session/game PID and captured Desktop executable
+and assembly SHA-256 identities. It compares every native witness to this
+receipt, rather than learning ownership from the first witness. Missing,
+null or wrong `requestMethod` and `deferRestoreUntilResponse` fields are
+rejected under `--require-deferred`. The original server-2212 Auto City
+receipt (`621db75ef6524f16ad3f6c1c86f10379`) retains **198 matching field
+comparisons**. A disposable replay now rejects uniformly foreign ownership
+and absent required fields. The extended independently backed inverse suite
+passes **one genuine + 15 deliberately corrupted** cases, including a
+single-response foreign owner and missing/null/wrong values. `collect_completed_scan.py`
+now requires the independent `--owner-receipt` too. These tests establish
+auditor admission behavior on that archive, not global scan recall.
+
+Production Map Resource/Monster filters and tables now request only the
+stored name keys from the selected current game's **installed**
+`Game/LastWar_Data/StreamingAssets/locale/<version>/<language>.bin` sources.
+Those installed binary files are gzip-encoded version-2 key/text pairs.
+The bounded backend `lastwar_map_localize` command enforces 200 keys/request,
+supports the nine UI languages and an English fallback, and returns the
+game root, build, selected locale hash and fallback English hash to guard
+acceptance. The Map UI caches by game-root/owner/language/build identity,
+retires obsolete profile/locale responses, refreshes build identity on
+entry, and exposes errors and a retry control instead of silently leaving
+all names unknown. Preview dictionaries remain preview-only.
+
+On a **current real installed game locale build 23555**, ten distinct actual
+saved native Resource/Monster name keys all resolved in both English and
+Japanese; the SQLite Map records reopened successfully. This test calls the
+new source reader and never references the owner's historical standalone
+`LWBridgeRebuild/locales` manifest (**23443**). Controlled clean-bin fixtures
+also prove missing-name fallback, locale hash/build replacement and the
+backend 200-key limit. Actual mounted React Map tables and filters pass
+EN/JA language changes and held old-profile-response rejection with 12
+bounded test transport calls. This is a real installed-file resolution and
+mounted frontend integration; a future current-game content update or
+genuinely absent event key can still leave a specific name unresolved.
+
+The **consecutive target-region hypothesis has not qualified**. The native
+Lua acquisition currently requests the exact target, captures its native
+reply, restores the original camera/manager AOI state, sends the home-view
+request and waits for that reply before admitting another region. Genuine
+full-world R3 trials use **340 serial region probes per target-server scan**,
+so this includes up to 340 home-view round-trips. The observed ~184–201 s
+source acquisition durations include that cost but **do not isolate it**;
+`elapsedSeconds` in old raw Lua results ends at the target reply, before
+the home reply. Passive additional fields (`targetResponseElapsedSeconds`,
+`homeRestorationElapsedSeconds`, `totalProbeElapsedSeconds`) and aggregate
+phase counters are now recorded for new source-built runs without changing
+the actual request/restoration policy. Since the present `_curViewIndex`,
+callback flags and reply correlation are shared mutable state, skipping
+intermediate restoration needs distinct real-client positive/negative
+two-region evidence followed by Stop/error and full-world source checks.
+No such consecutive-region production result exists. The accurate proven
+per-region restoration is therefore retained unchanged, and **no savings
+or Fast advantage is asserted**.
+
+The best tested accuracy-qualified acquisition remains the **single serial,
+fresh native LOD0 AOI sweep with deferred per-probe home restoration** and
+selected-type enrichment. The R3 n=1 Normal/Fast per-kind and mixed results
+and two exact original-server Auto-return cycles below retain their recorded
+values and qualification limits. Railway-positive values, active Monster
+protection, Ghost-positive and full seasonal Treasure positives remain
+outside the demonstrated live field set (the latter two are owner-deferred).
+The current game process was not running during this lead correction pass;
+no new full-world source timing or live alternative-method trial was made.
+
+Affected checks: canonical UI static/integration, mounted Map ownership,
+mounted EN/JA localization and stale replies, Release Desktop default Home/
+MAP-005/006/007/MAP008 tests, actual production planner/engine **255 selected
+type combinations / 15 adverse cases**, clean Release build, independent
+native-audit inverses, installed-game name resolution and read-only saved
+data reopening. New source receipt `docs/proof/MAP-008-MOUNTED-NAMES-2026-10-12.json`
+and final packaged/source hashes accompany the PR; no live action or spend.
+
 ## MAP-008 continued qualification R3 — corrected native acquisition
 
 The prior lead-scoped source checkpoint remains `5e44531bf0283314da90cf3efa5757bbbac08be1`.

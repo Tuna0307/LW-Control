@@ -5064,6 +5064,11 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         postTileX = details.postTileX,
         postTileY = details.postTileY,
         elapsedSeconds = details.elapsedSeconds,
+        -- Observational phase durations. The old elapsedSeconds ends at target
+        -- response capture; it does not include the mandatory home-view reply.
+        targetResponseElapsedSeconds = details.targetResponseElapsedSeconds,
+        homeRestorationElapsedSeconds = details.homeRestorationElapsedSeconds,
+        totalProbeElapsedSeconds = details.totalProbeElapsedSeconds,
         cameraTileStable = details.cameraTileStable,
         addListExists = details.addListExists,
         currentSetExists = details.currentSetExists,
@@ -5732,6 +5737,8 @@ local function pump_bulk_aoi_diagnostic(now)
            not restore_split_pending then
             details.deferredRestorePending = false
             details.positionRestoredAfterResponse = true
+            details.homeRestorationElapsedSeconds = runtime_clock() - details.deferredRestoreStartedAt
+            details.totalProbeElapsedSeconds = runtime_clock() - bulk_aoi_started_at
             details.requestMethod = "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response"
             write_bulk_aoi_result(bulk_aoi_request, "proven", nil, details)
             bulk_aoi_request = nil
@@ -6040,6 +6047,7 @@ local function pump_bulk_aoi_diagnostic(now)
             bulk_aoi_skip_restore_update = false
         end
         if request.deferRestoreUntilResponse == true then
+            details.targetResponseElapsedSeconds = details.elapsedSeconds
             -- The target response has already been serialized above. Restore the camera,
             -- then force a normal home-view request and wait for its own response before
             -- allowing the next remote spatial batch. This keeps the manager's retained
