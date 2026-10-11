@@ -19,6 +19,7 @@ def main():
     parser.add_argument("--native", type=pathlib.Path, required=True)
     parser.add_argument("--run", required=True)
     parser.add_argument("--server", type=int, required=True)
+    parser.add_argument("--owner-receipt", type=pathlib.Path, required=True)
     parser.add_argument("--out", type=pathlib.Path, required=True)
     args = parser.parse_args()
     records = [json.loads(line) for line in args.native.read_text(encoding="utf-8").splitlines() if line]
@@ -34,7 +35,9 @@ def main():
     with tempfile.TemporaryDirectory(prefix="map008-native-audit-") as root:
         root = pathlib.Path(root)
         for variant in ("baseline", "omitted_known_identity", "wrong_field_value", "wrong_server",
-                        "dropped_selected_kind", "stale_native", "wrong_session", "same_tick_restore"):
+                        "dropped_selected_kind", "stale_native", "wrong_session", "uniform_foreign_owner",
+                        "foreign_single_response", "missing_defer", "null_defer", "wrong_defer",
+                        "missing_method", "null_method", "wrong_method", "same_tick_restore"):
             db_path = root / "witness.db"
             if db_path.exists():
                 db_path.unlink()
@@ -63,6 +66,18 @@ def main():
                 docs[0]["capturedAt"] = "2000-01-01T00:00:00Z"
             elif variant == "wrong_session":
                 docs[-1]["launchSessionId"] = "definitely-wrong-game-session"
+            elif variant in ("uniform_foreign_owner", "foreign_single_response"):
+                targets = docs if variant == "uniform_foreign_owner" else docs[:1]
+                if variant == "foreign_single_response":
+                    docs = docs[:1]
+                for doc in targets:
+                    doc.update(profileId="foreign-profile", launchSessionId="foreign-session", gamePid=2147483000)
+            elif variant in ("missing_defer", "null_defer", "wrong_defer"):
+                if variant == "missing_defer": docs[0].pop("deferRestoreUntilResponse", None)
+                else: docs[0]["deferRestoreUntilResponse"] = None if variant == "null_defer" else False
+            elif variant in ("missing_method", "null_method", "wrong_method"):
+                if variant == "missing_method": docs[0].pop("requestMethod", None)
+                else: docs[0]["requestMethod"] = None if variant == "null_method" else "invalid-method"
             elif variant == "same_tick_restore":
                 docs[0]["positionRestoredBeforeResponse"] = True
                 docs[0]["positionRestoredAfterResponse"] = False
@@ -74,6 +89,7 @@ def main():
             output = root / "audit.json"
             command = [sys.executable, str(pathlib.Path(__file__).with_name("audit_native_fields.py")),
                        "--require-deferred", "--db", str(db_path), "--native", str(sample_file),
+                       "--owner-receipt", str(args.owner_receipt),
                        "--run", args.run, "--server", str(args.server), "--out", str(output)]
             completed = subprocess.run(command,capture_output=True,text=True,timeout=35,check=False)
             rejected = completed.returncode != 0

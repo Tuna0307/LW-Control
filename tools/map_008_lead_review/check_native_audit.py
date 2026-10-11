@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--native', required=True, type=pathlib.Path)
     parser.add_argument('--run', required=True)
     parser.add_argument('--server', required=True, type=int)
+    parser.add_argument('--owner-receipt', required=True, type=pathlib.Path)
     parser.add_argument('--out', required=True, type=pathlib.Path)
     args = parser.parse_args()
     originals = [json.loads(line) for line in args.native.read_text(encoding='utf-8').splitlines() if line.strip()]
@@ -42,6 +43,7 @@ def main():
                 sys.executable, 'tools/map_008_scan_checks/audit_native_fields.py',
                 '--db', str(args.db), '--native', str(witness), '--run', args.run,
                 '--server', str(args.server), '--require-deferred', '--out', str(result_path),
+                '--owner-receipt', str(args.owner_receipt),
             ], capture_output=True, text=True)
             if variant == 'unchanged_archive' and result.returncode != 0:
                 raise RuntimeError('Archived baseline no longer matches current publication: ' + result.stderr[-1000:])

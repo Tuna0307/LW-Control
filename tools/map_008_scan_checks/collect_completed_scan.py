@@ -19,6 +19,8 @@ def main():
     p.add_argument("--label", required=True)
     p.add_argument("--server", type=int, required=True)
     p.add_argument("--sampler-stop", type=pathlib.Path)
+    p.add_argument("--owner-receipt", type=pathlib.Path, required=True,
+                   help="Independent pre-scan task host-start.json for this exact game process")
     p.add_argument("--allow-empty-railway", action="store_true", help="Collect an observed zero native Railway list, explicitly without a positive accuracy gate")
     args = p.parse_args()
     if not args.label.isidentifier() or args.label.startswith("_"):
@@ -78,6 +80,7 @@ def main():
     if has_positive_sample:
         audit_args = [sys.executable,"tools/map_008_scan_checks/audit_native_fields.py","--require-deferred",
                       "--db",str(db),"--server",str(args.server),"--run",args.run,"--native",str(sample),
+                      "--owner-receipt",str(args.owner_receipt),
                       "--out",str(root/("audit-"+args.label+".json"))]
         if "resource" in selection:
             audit_args.extend(["--resource-details",str(native_root/"resource-scan-detail-result.json")])

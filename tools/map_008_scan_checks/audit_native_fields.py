@@ -27,6 +27,8 @@ def main():
     p.add_argument("--run", required=True)
     p.add_argument("--server", required=True, type=int)
     p.add_argument("--native", action="append", required=True, type=pathlib.Path)
+    p.add_argument("--owner-receipt", required=True, type=pathlib.Path,
+                   help="Independent native host-start receipt, captured before the scan")
     p.add_argument("--resource-details", type=pathlib.Path)
     p.add_argument("--require-deferred", action="store_true", help="Require fresh post-response camera restoration in every source snapshot")
     p.add_argument("--out", required=True, type=pathlib.Path)
@@ -36,6 +38,16 @@ def main():
     run = c.execute("select * from scan_runs where id=?", (a.run,)).fetchone()
     if not run or run["server_id"] != a.server or run["status"] != "completed":
         raise ValueError("No completed owned scan on target server")
+    receipt = get(a.owner_receipt)
+    expected_owner = (receipt.get("profileId"), receipt.get("sessionId"), receipt.get("gamePid"))
+    if (receipt.get("schemaVersion") != 1 or not expected_owner[0] or not expected_owner[1] or
+            type(expected_owner[2]) is not int or expected_owner[2] < 1 or
+            not receipt.get("hostProcess", {}).get("sha256") or
+            not receipt.get("desktopAssembly", {}).get("sha256")):
+        raise ValueError("Independent native host owner/source receipt incomplete")
+    started = int(dt.datetime.fromisoformat(receipt["recordedAtUtc"].replace("Z", "+00:00")).timestamp()*1000)
+    if started > run["created_at"] or run["created_at"] < started - 24*60*60*1000:
+        raise ValueError("Host owner receipt not contemporaneous with scan")
     selected = set(json.loads(run["selected_types"]))
     stored = {}
     for record in c.execute("select * from map_records where server_id=?", (a.server,)):
@@ -46,7 +58,6 @@ def main():
     examples = []
     seen = set()
     dates = []
-    owned_session = None
     def compare(kind, key, field, native, published):
         counts[kind + ":" + field] += 1
         if native != published:
@@ -69,8 +80,8 @@ def main():
         if a.require_deferred and (
                 document.get("positionRestoredBeforeResponse") is not False or
                 document.get("positionRestoredAfterResponse") is not True or
-                document.get("deferRestoreUntilResponse", True) is not True or
-                document.get("requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response") !=
+                document.get("deferRestoreUntilResponse") is not True or
+                document.get("requestMethod") !=
                 "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response"):
             raise ValueError("Native source did not preserve the fresh deferred spatial response contract")
         if document.get("samplerAssociatedRunId") not in (None, a.run):
@@ -78,10 +89,8 @@ def main():
         owner = (document.get("profileId"), document.get("launchSessionId"), document.get("gamePid"))
         if not owner[0] or not owner[1] or not isinstance(owner[2], int) or owner[2] < 1:
             raise ValueError("Native process, profile or session identity absent")
-        if owned_session is None:
-            owned_session = owner
-        elif owner != owned_session:
-            raise ValueError("Native witness responses mixed game ownership")
+        if owner != expected_owner:
+            raise ValueError("Native witness does not match independent game owner receipt")
         if document.get("scanRunId") is not None and document["scanRunId"] != a.run:
             raise ValueError("Native snapshot belonged to another scan run")
         captured = int(dt.datetime.fromisoformat(document["capturedAt"].replace("Z", "+00:00")).timestamp()*1000)
@@ -187,6 +196,9 @@ def main():
     proof = {"kind": "independent_current_client_native_field_values",
              "runId": a.run, "serverId": a.server, "selected": sorted(selected),
              "sourceNativeFiles": len(a.native), "sourceNativeResponses": len(native_documents),
+             "ownerReceiptVerified": True,
+             "sourceExecutableSha256": receipt["hostProcess"]["sha256"],
+             "sourceAssemblySha256": receipt["desktopAssembly"]["sha256"],
              "capturedRangeMs": [min(dates), max(dates)],
              "sourceNativeScanRunIdPresent": sum(1 for document in native_documents if document.get("scanRunId")),
              "deferredRestorationRequired":a.require_deferred,
