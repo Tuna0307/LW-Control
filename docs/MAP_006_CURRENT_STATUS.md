@@ -1,5 +1,14 @@
 # Map — single current completion queue
 
+**Latest lead decision, 2026-10-11: CHANGES_REQUIRED for PR #8.**
+MAP-005 / PR #7 is accepted, merged and published as manual-map-v0.5.0.
+Lead reproduced a cross-server Auto Stop/return race (LEADMAP006-01); passing
+general suites and the first-origin Stop do not close it. No comparable-method
+benchmark establishes fastest acquisition (LEADMAP006-02). Continue
+[R1 Stop and efficiency task](work-items/LWB317-MAP-006-STOP-EFFICIENCY-R1.md)
+on this branch; see [independent review](reviews/2026-10-11-MAP-005-006-LEAD-FUNCTIONAL-REVIEW.md).
+The older worker queue snapshots below remain historical. Whole Map stays PARTIAL.
+
 **Available-scope closeout continuation:** fresh genuine six-kind full-world
 manual scan, native SQLite/XLSX filtering audit, six-tab packaged browse,
 City mark, passive tile navigation, packaged Auto Stop fix-and-retest, Home
