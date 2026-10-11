@@ -9,7 +9,7 @@ namespace LWBridge.Desktop;
 /// Only source-backed current-client actions are implemented here; unrecovered
 /// protected actions fail explicitly instead of fabricating game behavior.
 /// </summary>
-internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvider
+internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvider, Map317.IGhostPlunderProvider
 {
     private readonly CurrentClientMapBlockSource source;
     private readonly object plunderGate = new();
@@ -116,24 +116,39 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
 
     public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(
         IReadOnlyList<JsonElement> rows,
-        CancellationToken cancellationToken = default) =>
-        ValueTask.FromException<IReadOnlyList<JsonElement>>(
-            ProviderUnavailable(
-                "current-client Ghost plunder preparation remains unavailable because exact " +
-                "prepareGhostPlunderTasks row transformation/rejection semantics are incomplete; " +
-                "downstream Ghost execution terminal-result correlation is separately unresolved"));
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        try { return ValueTask.FromResult(PrepareGhostPlunderRows(rows)); }
+        catch (InvalidDataException error)
+        {
+            return ValueTask.FromException<IReadOnlyList<JsonElement>>(
+                new Map317.BridgeCommandException("INVALID_REQUEST", error.Message));
+        }
+    }
 
 
     internal static IReadOnlyList<JsonElement> PrepareGhostPlunderRows(IReadOnlyList<JsonElement> rows)
     {
+        ArgumentNullException.ThrowIfNull(rows);
+        if (rows.Count is < 1 or > 200)
+            throw new InvalidDataException("Select between 1 and 200 Ghost tasks.");
         var prepared = new JsonElement[rows.Count];
+        var identities = new HashSet<string>(StringComparer.Ordinal);
         for (int index = 0; index < rows.Count; index++)
         {
             JsonElement row = rows[index];
+            if (row.ValueKind != JsonValueKind.Object ||
+                ReadText(row, "taskKind") != "ghost" ||
+                ReadText(row, "kind") != "ghost" ||
+                ReadInteger(row, "pointType") != 29 ||
+                !ReadText(row, "runtimeClass").EndsWith("GhostreconPointInfo", StringComparison.Ordinal))
+                throw new InvalidDataException("Ghost plunder requires a supported GhostreconPointInfo scan row.");
             string uuid = ReadText(row, "uuid");
             if (!IsPositiveDecimal(uuid))
                 throw new InvalidDataException("Ghost plunder row contains invalid task UUID.");
 
+            long serverId = ReadInteger(row, "serverId");
             long ownerServer = ReadInteger(row, "ownerServer");
             long completionTime = ReadInteger(row, "completionTime");
             long protectSeconds = ReadInteger(row, "protectTime");
@@ -144,7 +159,8 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
             long stolenCount = ReadInteger(row, "stolenCount");
             long maxStealCount = ReadInteger(row, "maxStealCount");
 
-            if (ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
+            if (serverId is < 1 or > 99999 || !identities.Add($"{serverId}:{uuid}") ||
+                ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
                 stealListCount < 0 || stealMaxTimes < 0 ||
                 stolenCount != stealListCount || maxStealCount != stealMaxTimes)
             {
@@ -152,7 +168,9 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
             }
 
             long earliestPlunderAt = checked(completionTime + protectSeconds * 1000L);
-            if (plunderAt < earliestPlunderAt || (taskExpireTime > 0 && plunderAt >= taskExpireTime))
+            if (plunderAt < earliestPlunderAt ||
+                (taskExpireTime > 0 && plunderAt >= taskExpireTime) ||
+                (stealMaxTimes > 0 && stealListCount >= stealMaxTimes))
                 throw new InvalidDataException("Ghost plunder row contains invalid protection/expiry timing.");
 
             prepared[index] = row.Clone();
@@ -213,6 +231,27 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
             }
         }
         return results;
+    }
+
+    public ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmGhostPlunderAsync(
+        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (jobs.Count == 0 || jobs.Any(job => job.Kind != "ghost" || job.ServerId is < 1 or > 99999 ||
+            job.OwnerServer is < 1 or > 99999 || !IsPositiveDecimal(job.TaskUuid) || job.ExecuteAt <= 0))
+            return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
+                new Map317.BridgeCommandException("INVALID_REQUEST", "dedicated Ghost arm identity invalid"));
+        return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
+            new Map317.BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE",
+                "v24 Ghost game request and correlated terminal response have not been confirmed"));
+    }
+
+    public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]);
     }
 
     public async ValueTask<Map317.TruckPlunderArmResult> ArmTruckPlunderAsync(

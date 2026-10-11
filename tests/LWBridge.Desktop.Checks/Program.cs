@@ -29,4 +29,6 @@ await Map006AllKindScanChecks.RunAsync();
 await Map006DispatchCorrelationChecks.RunAsync();
 await Map006NavigationShareChecks.RunAsync();
 await Map006TruckCorrelationChecks.RunAsync();
+await Map007ActionProviderChecks.RunAsync();
+await Map007GhostCorrelationChecks.RunAsync();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

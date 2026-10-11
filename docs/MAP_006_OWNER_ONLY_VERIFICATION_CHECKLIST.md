@@ -1,5 +1,7 @@
 # MAP-006 — owner-only manual action verification
 
+**MAP-007 continuation:** Ghost **preparation-only** and Treasure **inspection/claim-preview-only** controls are now available for read-only verification. These report source row validity and potential eligibility without scheduling Ghost execution or issuing Treasure claims. Dedicated Ghost terminal game transport and Treasure actual claim/reward still require owner-authorized future evidence. Follow `docs/MAP_007_ACTION_PROVIDER_HANDOFF.md` for the exact supported boundary. Do not treat a positive preview as a reward or plunder.
+
 2026-10-11. **Pending owner action, not worker acceptance.** The worker has **not** executed a live claim, plunder or alliance share. Keep these witnesses separate from the six-kind passive Map closeout. Only attempt an action when the owner has a valid account/game context and a genuinely eligible target; stop immediately on rejection, unsupported season or missing result.
 
 - [ ] **Before each test:** use the intended single-game profile and current server, ensure no conflicting Auto scan, verify pending jobs and daily limits, and record an action start time, server, profile, target ID and current game session. Never leave unattended attempts enabled.

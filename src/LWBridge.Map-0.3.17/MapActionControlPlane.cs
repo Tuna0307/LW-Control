@@ -126,8 +126,100 @@ public sealed class MapActionControlPlane
     public async ValueTask<JsonElement> TreasureClaimStatusAsync(CancellationToken cancellationToken = default)
     {
         using OperationLease lease = EnterGameOperation();
-        return await ProtectedAsync(
-            provider.GetTreasureClaimStatusAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
+        int serverId = await ProtectedAsync(provider.GetCurrentServerIdAsync(cancellationToken),
+            cancellationToken).ConfigureAwait(false);
+        MapStore.ValidateServerId(serverId);
+        IReadOnlyList<JsonElement> candidates = store.ReadTreasureClaimCandidates(serverId, nowMilliseconds());
+        // Native state inspection is authoritative for the current live owner.
+        // Never synthesize a claim/reward, quota or cooldown from the cached rows.
+        var states = new List<JsonElement>(candidates.Count);
+        string? playerUid = null;
+        string? allianceId = null;
+        foreach (JsonElement[] batch in candidates.Chunk(100))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            TreasureInspectionResult read = await ProtectedAsync(
+                provider.InspectTreasureStatesAsync(batch, true, cancellationToken), cancellationToken)
+                .ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(read.PlayerUid) || read.AllianceId is null ||
+                (playerUid is not null && (playerUid != read.PlayerUid || allianceId != read.AllianceId)))
+                throw new BridgeCommandException("TREASURE_STATE_UNAVAILABLE", "Treasure inspection identity changed");
+            playerUid = read.PlayerUid;
+            allianceId = read.AllianceId;
+            var expected = batch.Select(row => row.GetProperty("uuid").ToString()).ToHashSet(StringComparer.Ordinal);
+            if (read.States.Count != batch.Length || expected.Count != batch.Length)
+                throw new BridgeCommandException("TREASURE_STATE_UNAVAILABLE", "Treasure inspection batch is incomplete");
+            foreach (JsonElement state in read.States)
+            {
+                if (state.ValueKind != JsonValueKind.Object ||
+                    !state.TryGetProperty("uuid", out JsonElement uuid) || !expected.Remove(uuid.ToString()))
+                    throw new BridgeCommandException("TREASURE_STATE_UNAVAILABLE", "Treasure inspection returned a foreign or duplicate target");
+                states.Add(state.Clone());
+            }
+            if (expected.Count != 0)
+                throw new BridgeCommandException("TREASURE_STATE_UNAVAILABLE", "Treasure inspection omitted a target");
+        }
+        cancellationToken.ThrowIfCancellationRequested();
+        if (playerUid is not null)
+            PersistTreasureStates(serverId, new TreasureInspectionResult(playerUid, allianceId!, states));
+        return JsonSerializer.SerializeToElement(new
+        {
+            serverId, playerUid, allianceId, states,
+            inspectedCount = states.Count, candidateCount = candidates.Count,
+            mode = "inspection_only", claimExecutionAvailable = false,
+            dailyRemaining = (int?)null, nextResetAt = (long?)null,
+            cooldownUntil = (long?)null,
+        });
+    }
+
+    /// <summary>OWN_DESIGN: dry-run claim planning, with zero game claim requests.</summary>
+    public async ValueTask<JsonElement> PreviewTreasureClaimAsync(
+        int serverId, string claimScope, bool prioritizeLuckySlots = true,
+        string targetUuid = "", CancellationToken cancellationToken = default)
+    {
+        MapStore.ValidateServerId(serverId);
+        if (claimScope is not ("single" or "boxes" or "season") ||
+            (claimScope == "single" && string.IsNullOrWhiteSpace(targetUuid)))
+            throw new BridgeCommandException("INVALID_TREASURE_CLAIM_SCOPE", "Treasure claim scope is invalid");
+        JsonElement snapshot = await TreasureClaimStatusAsync(cancellationToken).ConfigureAwait(false);
+        if (snapshot.GetProperty("serverId").GetInt32() != serverId)
+            throw new BridgeCommandException("SERVER_MISMATCH", "Treasure claim preview server changed");
+        IReadOnlyList<JsonElement> records = store.ReadTreasureClaimCandidates(serverId, nowMilliseconds());
+        var states = snapshot.GetProperty("states").EnumerateArray()
+            .ToDictionary(row => row.GetProperty("uuid").ToString(), row => row, StringComparer.Ordinal);
+        JsonElement[] selected = records.Where(row => claimScope switch
+        {
+            "single" => string.Equals(row.GetProperty("uuid").ToString(), targetUuid, StringComparison.Ordinal),
+            "boxes" => ReadIntegerLike(row, "suppliesType") is 1 or 3 or 4,
+            _ => ReadIntegerLike(row, "suppliesType") == 0,
+        }).ToArray();
+        if (claimScope == "single" && selected.Length != 1)
+            throw new BridgeCommandException("NOT_FOUND", "Treasure is missing or expired");
+        var ordered = selected.OrderBy(row => prioritizeLuckySlots &&
+            ReadIntegerLike(states[row.GetProperty("uuid").ToString()], "claimPriority") == 0 &&
+            states[row.GetProperty("uuid").ToString()].TryGetProperty("claimPriority", out _) ? 0 : 1)
+            .ThenBy(row => ReadIntegerLike(row, "expireTime") is > 0 ? ReadIntegerLike(row, "expireTime") : long.MaxValue)
+            .ThenBy(row => row.GetProperty("uuid").ToString(), StringComparer.Ordinal)
+            .Select(row =>
+            {
+                string uuid = row.GetProperty("uuid").ToString();
+                JsonElement status = states[uuid];
+                string player = ReadString(status, "playerClaimState");
+                string world = ReadString(status, "worldClaimState");
+                string block = ReadString(status, "claimBlockReason");
+                bool eligible = player == "unclaimed" && world == "claimable" && string.IsNullOrWhiteSpace(block);
+                return new { uuid, eligible, playerClaimState = player, worldClaimState = world,
+                    claimBlockReason = block, luckyPriorityKnown = status.TryGetProperty("claimPriority", out _),
+                    execute = false };
+            }).ToArray();
+        return JsonSerializer.SerializeToElement(new
+        {
+            serverId, claimScope, prioritizeLuckySlots,
+            inspectedCount = snapshot.GetProperty("inspectedCount").GetInt32(),
+            candidateCount = ordered.Length, eligibleCount = ordered.Count(row => row.eligible),
+            pendingCount = ordered.Count(row => !row.eligible),
+            mode = "preview_only", claimExecutionAvailable = false, rows = ordered,
+        });
     }
 
     public async ValueTask<JsonElement> ClaimTreasuresAsync(
@@ -184,42 +276,52 @@ public sealed class MapActionControlPlane
         return new DispatchShareResult(sharedUuids.Count, failed, sharedUuids);
     }
 
-    public async ValueTask<IReadOnlyList<JsonElement>> ScheduleDispatchPlunderAsync(
+    public ValueTask<IReadOnlyList<JsonElement>> ScheduleDispatchPlunderAsync(
         IReadOnlyList<JsonElement> rows,
         CancellationToken cancellationToken = default)
     {
         DispatchScheduleRow[] normalized = ValidateDispatchScheduleRows(rows);
-        JsonElement[] ghostInput = normalized.Where(row => row.TaskKind == "ghost").Select(row => row.Row).ToArray();
-        Dictionary<string, JsonElement>? preparedGhost = null;
-        if (ghostInput.Length > 0)
-        {
-            using OperationLease lease = EnterGameOperation();
-            IReadOnlyList<JsonElement> prepared = await ProtectedAsync(
-                provider.PrepareGhostPlunderTasksAsync(ghostInput, cancellationToken), cancellationToken).ConfigureAwait(false);
-            preparedGhost = prepared
-                .Where(row => row.ValueKind == JsonValueKind.Object && row.TryGetProperty("uuid", out _))
-                .ToDictionary(row => row.GetProperty("uuid").ToString(), row => row, StringComparer.Ordinal);
-            if (preparedGhost.Count != ghostInput.Length)
-                throw new BridgeCommandException("INVALID_REQUEST", "ghost scheduling data unavailable");
-        }
-
+        if (normalized.Any(row => row.TaskKind == "ghost"))
+            throw new BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE",
+                "Ghost tasks can be prepared, but execution requires a verified v24 Ghost request and terminal result");
         var scheduled = new List<JsonElement>(normalized.Length);
         long now = nowMilliseconds();
         foreach (DispatchScheduleRow item in normalized)
         {
-            JsonElement source = item.Row;
-            if (item.TaskKind == "ghost") source = preparedGhost![item.Uuid];
-            DispatchScheduleRow current = NormalizeDispatchScheduleRow(source, item.TaskKind);
-            string taskUuid = current.TaskKind == "ghost" ? "ghost:" + current.Uuid : current.Uuid;
             JsonElement? stored = store.ScheduleDispatchPlunderRow(
-                current.ServerId, taskUuid, current.Row.GetRawText(), current.CompletionTime,
-                current.PlunderAt, current.ExpireAt, now);
+                item.ServerId, item.Uuid, item.Row.GetRawText(), item.CompletionTime,
+                item.PlunderAt, item.ExpireAt, now);
             if (stored is null)
                 throw new BridgeCommandException("MAP_DATA_ERROR", "scheduled plunder job is missing");
             scheduled.Add(stored.Value);
         }
         DispatchPlunderChanged?.Invoke(this, EventArgs.Empty);
-        return scheduled;
+        return ValueTask.FromResult<IReadOnlyList<JsonElement>>(scheduled);
+    }
+
+    /// <summary>OWN_DESIGN: validate and hydrate Ghost plans without queuing an action.</summary>
+    public async ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderAsync(
+        IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default)
+    {
+        DispatchScheduleRow[] selected = ValidateDispatchScheduleRows(rows);
+        if (selected.Any(row => row.TaskKind != "ghost"))
+            throw new BridgeCommandException("INVALID_REQUEST", "Ghost preparation requires only Ghost rows");
+        if (selected.Select(row => (row.ServerId, row.Uuid)).Distinct().Count() != selected.Length)
+            throw new BridgeCommandException("INVALID_REQUEST", "Ghost preparation contains duplicate tasks");
+        using OperationLease lease = EnterGameOperation();
+        IReadOnlyList<JsonElement> prepared = await ProtectedAsync(
+            provider.PrepareGhostPlunderTasksAsync(selected.Select(row => row.Row).ToArray(), cancellationToken),
+            cancellationToken).ConfigureAwait(false);
+        if (prepared.Count != selected.Length)
+            throw new BridgeCommandException("GAME_PROVIDER_ERROR", "Ghost preparation returned an incomplete set");
+        for (int index = 0; index < prepared.Count; index++)
+        {
+            DispatchScheduleRow normalized = NormalizeDispatchScheduleRow(prepared[index], "ghost");
+            if (normalized.ServerId != selected[index].ServerId ||
+                !string.Equals(normalized.Uuid, selected[index].Uuid, StringComparison.Ordinal))
+                throw new BridgeCommandException("GAME_PROVIDER_ERROR", "Ghost preparation changed the selected task identity");
+        }
+        return prepared.Select(row => row.Clone()).ToArray();
     }
 
     public void CancelDispatchPlunder(long serverId, string taskUuid)

@@ -16,6 +16,13 @@ Accepted single-game Home remains released; two-game F-07 is separate.
 **Only current continuation:** MAP-ACTION-PROVIDERS-007 on its assigned branch
 from main. See `work-items/LWB317-MAP-ACTION-PROVIDERS-007.md`. No new full-world
 scan or accepted release rebuild is needed merely to restart a fresh worker.
+The assigned branch now implements source-backed Ghost **preparation** and a
+separate fail-closed Ghost result-correlation boundary, plus read-only
+Treasure state and three-mode claim **preview**. Actual v24 Ghost attack and
+Treasure claimed-reward terminal producers remain unverified; no game action
+is claimed complete. See `MAP_007_ACTION_PROVIDER_HANDOFF.md` for controlled
+production-handler tests and precise owner-only dependencies. This is a
+branch-local worker result pending lead review, not a new accepted release.
 Merged MAP-006 branch may be retired after ancestry checks, preserving artifacts.
 
 ## Historical worker/lead snapshots — superseded by the acceptance above

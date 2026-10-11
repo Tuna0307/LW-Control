@@ -106,7 +106,19 @@ public interface IMapActionProvider
         int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default);
 }
 
-public sealed class MapActionProviderAdapter : IMapActionProvider
+/// <summary>
+/// Dedicated Ghost transport, never Dispatch. Exact attempt/session identity is
+/// mandatory before a terminal response can change a durable job.
+/// </summary>
+public interface IGhostPlunderProvider
+{
+    ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmGhostPlunderAsync(
+        IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default);
+    ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
+        CancellationToken cancellationToken = default);
+}
+
+public sealed class MapActionProviderAdapter : IMapActionProvider, IGhostPlunderProvider
 {
     public required Func<int, int, int, CancellationToken, ValueTask> GotoWorldCoordinate { get; init; }
     public required Func<int, string, CancellationToken, ValueTask> GotoWorldMarch { get; init; }
@@ -119,8 +131,10 @@ public sealed class MapActionProviderAdapter : IMapActionProvider
     public required Func<IReadOnlyList<JsonElement>, CancellationToken, ValueTask<IReadOnlyList<JsonElement>>> PrepareGhostPlunderTasks { get; init; }
     public required Func<CancellationToken, ValueTask<MapPlunderServerDayProviderResult?>> GetMapPlunderServerDayStart { get; init; }
     public required Func<IReadOnlyList<DispatchPlunderArmJob>, CancellationToken, ValueTask<IReadOnlyList<DispatchPlunderArmResult>>> ArmDispatchPlunder { get; init; }
+    public Func<IReadOnlyList<DispatchPlunderArmJob>, CancellationToken, ValueTask<IReadOnlyList<DispatchPlunderArmResult>>>? ArmGhostPlunder { get; init; }
     public required Func<TruckPlunderArmJob, CancellationToken, ValueTask<TruckPlunderArmResult>> ArmTruckPlunder { get; init; }
     public required Func<CancellationToken, ValueTask<IReadOnlyList<DispatchPlunderResultEvent>>> DrainDispatchPlunderResults { get; init; }
+    public Func<CancellationToken, ValueTask<IReadOnlyList<DispatchPlunderResultEvent>>>? DrainGhostPlunderResults { get; init; }
     public required Func<CancellationToken, ValueTask<IReadOnlyList<TruckPlunderResultEvent>>> DrainTruckPlunderResults { get; init; }
     public required Func<int, string, string, CancellationToken, ValueTask> ClearTruckPlunderPending { get; init; }
 
@@ -135,8 +149,14 @@ public sealed class MapActionProviderAdapter : IMapActionProvider
     public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => PrepareGhostPlunderTasks(rows, cancellationToken);
     public ValueTask<MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => GetMapPlunderServerDayStart(cancellationToken);
     public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ArmDispatchPlunder(jobs, cancellationToken);
+    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmGhostPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ArmGhostPlunder is not null
+        ? ArmGhostPlunder(jobs, cancellationToken)
+        : ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(new BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE", "no dedicated Ghost request/result provider"));
     public ValueTask<TruckPlunderArmResult> ArmTruckPlunderAsync(TruckPlunderArmJob job, CancellationToken cancellationToken = default) => ArmTruckPlunder(job, cancellationToken);
     public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainDispatchPlunderResults(cancellationToken);
+    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainGhostPlunderResults is not null
+        ? DrainGhostPlunderResults(cancellationToken)
+        : ValueTask.FromResult<IReadOnlyList<DispatchPlunderResultEvent>>([]);
     public ValueTask<IReadOnlyList<TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainTruckPlunderResults(cancellationToken);
     public ValueTask ClearTruckPlunderPendingAsync(int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default) => ClearTruckPlunderPending(serverId, trainUuid, jobId, cancellationToken);
 }

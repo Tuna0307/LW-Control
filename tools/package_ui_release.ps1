@@ -163,6 +163,44 @@ account-changing actions.
 "@
     $readme = $readme.Substring(0, $scopeStart) + $availableScope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP007-PROVIDERS') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'Could not identify older Map release text.' }
+    $providerScope = @"
+MAP-007 GHOST AND TREASURE PROVIDERS — CONTROLLED REVIEW CANDIDATE
+This release candidate preserves accepted main: single-game Home, released
+City/Resource, six-kind Map scanning/browse/export/marks and proven passive
+cross-server Auto Stop/return. It is not a whole-Map functional release.
+
+GHOST: Source-backed GhostreconPointInfo task preparation is available via
+the Ghost tab's 'Prepare Ghost tasks' (not an armed plunder job). Positively
+validated server/owner, source class, protection/expiry and stolen capacity
+are prepared without any game attack. A dedicated job arm/result boundary
+prevents Ghost reaching Dispatch transport, and correlates exact server,
+owner server, Ghost UUID, attempt and launch session in inert native tests.
+The current v24 Ghost attack/terminal-result game producer has NOT been proven:
+actual Ghost execution remains unavailable; preview success is not plunder.
+
+TREASURE: current-client read-only Treasure state inspection supports a status
+snapshot, controlled 100-row batches and own player/server identity checks.
+Single/Boxes/Season 'Preview' controls display tentative eligible and blocked
+counts, with optional known Lucky ordering; they send NO claim request.
+Daily caps, reset, cooldown, current v24 claim request/terminal reward and
+actual inventory change are not verified. Real Treasure claim buttons are
+not enabled. The owner has deferred full season-dependent Treasure testing.
+
+LIVE OWNER-ONLY PENDING: Ghost positive population expected no earlier than
+2026-10-15, actual Ghost plunder, Treasure claims/rewards, Dispatch and Truck
+plunder, and alliance sharing. No live actions were performed by this worker.
+See docs/MAP_007_ACTION_PROVIDER_HANDOFF.md and owner-only checklist in source.
+The original licensed UI, two independent official games (Home F-07), full
+original protected algorithm equivalence and full Map remain unaccepted.
+This is an unmerged, source-identified review candidate. Do not publish.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $providerScope + "`r`n" + $readme.Substring($scopeEnd)
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

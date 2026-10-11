@@ -18,6 +18,8 @@ export const MAP_COMMANDS = Object.freeze({
   treasureStateRefreshAll: "map_treasure_state_refresh_all",
   treasureClaimStatus: "map_treasure_claim_status",
   treasureClaim: "map_treasure_claim",
+  treasureClaimPreview: "map_treasure_claim_preview",
+  ghostPlunderPrepare: "map_ghost_plunder_prepare",
   dispatchShareAlliance: "map_dispatch_share_alliance",
   plunderJobsList: "map_plunder_jobs_list",
   dispatchPlunderSchedule: "map_dispatch_plunder_schedule",
@@ -349,6 +351,14 @@ export function createMapApi(bridge) {
     claimTreasure: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => invokeScoped(
       MAP_COMMANDS.treasureClaim,
       { serverId, claimScope, prioritizeLuckySlots, targetUuid },
+    ),
+    previewTreasureClaim: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => invokeScoped(
+      MAP_COMMANDS.treasureClaimPreview,
+      { serverId, claimScope, prioritizeLuckySlots, targetUuid },
+    ),
+    prepareGhostPlunder: (rows, maxRandomDelaySeconds = 0) => invokeScoped(
+      MAP_COMMANDS.ghostPlunderPrepare,
+      { rows: buildDispatchPlunderRows((rows || []).map(row => ({ ...row, taskKind: "ghost" })), maxRandomDelaySeconds) },
     ),
     shareDispatchToAlliance: (rows) => invokeScoped(
       MAP_COMMANDS.dispatchShareAlliance,
