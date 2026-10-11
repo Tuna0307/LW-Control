@@ -11,6 +11,7 @@ export function createAutoScanNativeCoordinator({
   saveConfig,
   readStatus,
   runNow,
+  cancelCycle = () => Promise.resolve(null),
   mergeConfig = (_, edit) => edit?.config,
   onConfigSnapshot,
   onRuntimeSnapshot,
@@ -95,12 +96,12 @@ export function createAutoScanNativeCoordinator({
     return task;
   };
 
-  const run = () => {
+  const action = (command) => {
     if (!active) return Promise.resolve(null);
     const actionEditRevision = editRevision;
     const task = chain
       .catch(() => undefined)
-      .then(() => (active ? runNow() : null))
+      .then(() => (active ? command() : null))
       .then((snapshot) => {
         if (!active || snapshot === null) return snapshot;
         onActionError("");
@@ -118,10 +119,14 @@ export function createAutoScanNativeCoordinator({
     return task;
   };
 
+  const run = () => action(runNow);
+  const cancel = () => action(cancelCycle);
+
   return {
     receive,
     save,
     run,
+    cancel,
     retire() { active = false; },
     get pendingConfig() { return editRevision !== committedEditRevision; },
     get nativeRevision() { return nativeRevision; },

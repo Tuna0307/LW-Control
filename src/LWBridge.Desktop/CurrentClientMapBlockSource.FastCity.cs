@@ -364,6 +364,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 Exception? lastError = null;
                 for (int attempt = 1; attempt <= 3; attempt++)
                 {
+                    DateTimeOffset probeStarted = Now();
+                    state.ProbeAttempts++;
+                    if (attempt > 1) state.ProbeRetries++;
                     try
                     {
                         observation = await ProbeFastCityBatchAsync(
@@ -377,6 +380,7 @@ internal sealed partial class CurrentClientMapBlockSource
                             targetX,
                             targetY,
                             attempt);
+                        state.ValidatedProbeResponses++;
                         lastError = null;
                         break;
                     }
@@ -409,6 +413,10 @@ internal sealed partial class CurrentClientMapBlockSource
                                 await DelayAsync(TimeSpan.FromMilliseconds(150), cancellationToken).ConfigureAwait(false);
                             }
                         }
+                    }
+                    finally
+                    {
+                        state.ProbeWaitMilliseconds += Math.Max(0, (Now() - probeStarted).TotalMilliseconds);
                     }
                 }
                 if (lastError is not null || observation is null) throw lastError!;
@@ -473,10 +481,14 @@ internal sealed partial class CurrentClientMapBlockSource
                 previousGap = afterGap == gapColumn ? gapColumn : null;
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
             }
+            // Ten compact checkpoints (and one final) per full-world pass;
+            // per-request I/O would itself distort the elapsed benchmark.
+            WriteFastFullWorldMetrics(state, "acquiring");
         }
 
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
+        WriteFastFullWorldMetrics(state, "covered");
 
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
         // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
@@ -2164,6 +2176,11 @@ internal sealed partial class CurrentClientMapBlockSource
         internal int ServerId { get; }
         internal long WorldId { get; }
         internal string SelectedTypesKey { get; }
+        internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
+        internal long ProbeAttempts { get; set; }
+        internal long ProbeRetries { get; set; }
+        internal long ValidatedProbeResponses { get; set; }
+        internal double ProbeWaitMilliseconds { get; set; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
@@ -2178,6 +2195,39 @@ internal sealed partial class CurrentClientMapBlockSource
         internal bool Matches(OverviewMapScanSession session, MapScanExecutionRequest request) =>
             Session == session && RunId == request.RunId && ServerId == request.ServerId && WorldId == request.WorldId &&
             SelectedTypesKey == string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
+    }
+
+    private void WriteFastFullWorldMetrics(FastFullWorldResumeState state, string phase)
+    {
+        if (hooks is not null) return;
+        // This is an attributable application->Lua AOI probe counter, NOT a
+        // raw game-network request counter. Concurrent game traffic cannot be
+        // separated from reflection-level global Net send/receive counters.
+        var compact = new
+        {
+            schemaVersion = 1,
+            source = "CurrentClientMapBlockSource.ProbeFastCityBatchAsync",
+            identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey },
+            phase,
+            elapsedMilliseconds = (DateTimeOffset.UtcNow - state.MetricsStartedAt).TotalMilliseconds,
+            attributableLuaProbeAttempts = state.ProbeAttempts,
+            attributableRetries = state.ProbeRetries,
+            validatedProbeResponses = state.ValidatedProbeResponses,
+            summedProbeWaitMilliseconds = state.ProbeWaitMilliseconds,
+            uniqueCoveredAois = state.Covered.Count,
+            requiredAois = 10000,
+            uniqueRecordKeys = new
+            {
+                city = state.CityRecords.Count, resource = state.ResourceRecords.Count,
+                monster = state.MonsterRecords.Count, train = state.TrainRecords.Count,
+                dispatch = state.DispatchRecords.Count, ghost = state.GhostRecords.Count,
+                treasure = state.TreasureRecords.Count,
+            },
+            rawNetworkRequestCount = (long?)null,
+        };
+        Directory.CreateDirectory(probeRuntimeRoot);
+        string path = Path.Combine(probeRuntimeRoot, "map-fullworld-probe-metrics.json");
+        File.WriteAllText(path, JsonSerializer.Serialize(compact, new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private sealed class CoarseMonsterTargetUnavailableException(string message) : Exception(message);

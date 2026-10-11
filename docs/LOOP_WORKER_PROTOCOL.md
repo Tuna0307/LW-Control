@@ -1,5 +1,10 @@
 # Worker self-correction loop
 
+2026-10-11 current assignment: MAP-COMPLETE-DELIVERY-006. Its full Map catalogue,
+acceptance gates and per-action authority supersede the narrower MAP-005 and old
+Home-only scope/return gates below. Checkpoint completion is not a final handoff;
+continue all ready assigned work. Preserve MAP-005's pending review candidate.
+
 2026-10-11: this procedure now applies to MAP-MANUAL-SCAN-DELIVERY-005. Its
 finite queue and return gates supersede the old Home F catalogue below. Existing
 current-server City/Resource pilot is assigned; other Map actions remain excluded.

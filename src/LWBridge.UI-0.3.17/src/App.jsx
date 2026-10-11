@@ -676,6 +676,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
       saveConfig: (config) => mapApi.updateAutoScanConfig(config),
       readStatus: () => mapApi.autoScanStatus(),
       runNow: () => mapApi.runAutoScanNow(),
+      cancelCycle: () => mapApi.cancelAutoScan(),
       mergeConfig: applyAutoScanConfigIntent,
       onConfigSnapshot: applyAutoScanConfigSnapshot,
       onRuntimeSnapshot: applyAutoScanRuntimeSnapshot,
@@ -709,6 +710,15 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     }
     autoScanCoordinatorRef.current?.run();
   }, [selectedProfileId, updateAutoScanConfig]);
+
+  const cancelAutoScan = useCallback(() => {
+    if (backendBridge.mode === "preview") {
+      setAutoScanRunning(false);
+      setAutoScanActionError("");
+      return;
+    }
+    autoScanCoordinatorRef.current?.cancel();
+  }, []);
 
   useEffect(() => {
     if (backendBridge.mode !== "preview") return;
@@ -776,8 +786,8 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     statusReadRevisionRef.current = statusReadRevision;
     const owner = { ...selectedProfileOwnerRef.current };
     if (!isCurrentProfileOwner(owner)) return;
-    setStatusPairReady(false);
-    setConnectionError("");
+    // Refreshing the same owner does not invalidate its last acknowledged pair.
+    // Only a new owner or an actual failed read may remove that readiness.
     const reconnectGeneration = reconnectStatusGeneration.current;
     const autoLaunchRevision = autoLaunchSaveRevisionRef.current;
     const autoLaunchNativeCommitEpoch = autoLaunchNativeCommitEpochRef.current;
@@ -1324,6 +1334,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
     autoScanError: autoScanSaveError || autoScanActionError || autoScanRuntimeError,
     onAutoScanConfig: updateAutoScanConfig,
     onAutoScanRunNow: runAutoScanNow,
+    onAutoScanCancel: cancelAutoScan,
     previewState,
     showProfileFocus: showProfiles,
     focusGameOnProfileSelect,

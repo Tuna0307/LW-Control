@@ -227,7 +227,14 @@ internal sealed partial class CurrentClientMapBlockSource
 
         foreach (Map317.DispatchPlunderArmJob job in jobs)
         {
-            if (job.Kind is not ("dispatch" or "ghost") || job.ServerId is < 1 or > 99999 ||
+            // The admitted current-client command below is specifically the
+            // Dispatch transport. A stored Ghost job must never be routed to it,
+            // even after restart or if a future caller bypasses preparation.
+            if (job.Kind == "ghost")
+                throw new BridgeCommandException(
+                    "GHOST_PLUNDER_PROVIDER_UNAVAILABLE",
+                    "Ghost plunder needs its own verified current-client transport");
+            if (job.Kind != "dispatch" || job.ServerId is < 1 or > 99999 ||
                 job.OwnerServer is < 1 or > 99999 || !IsPositiveDecimalText(job.TaskUuid) || job.ExecuteAt <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(jobs), "Dispatch plunder arm job is invalid.");
@@ -292,17 +299,20 @@ internal sealed partial class CurrentClientMapBlockSource
                 {
                     outcomes[index] = new CurrentClientDispatchPlunderArmOutcome(
                         new Map317.DispatchPlunderArmResult(
-                            handle.Job.Kind, handle.Job.ServerId, handle.Job.TaskUuid, true),
+                            handle.Job.Kind, handle.Job.ServerId, handle.Job.TaskUuid, true,
+                            AttemptId: handle.RequestId, LaunchSessionId: session.SessionId),
                         handle,
                         null);
                 }
                 else
                 {
-                    Map317.DispatchPlunderResultEvent terminal = ParseDispatchPlunderResultEvent(root.Value, handle.Job);
+                    Map317.DispatchPlunderResultEvent terminal = ParseDispatchPlunderResultEvent(root.Value, handle.Job)
+                        with { AttemptId = handle.RequestId, LaunchSessionId = session.SessionId };
                     outcomes[index] = armed
                         ? new CurrentClientDispatchPlunderArmOutcome(
                             new Map317.DispatchPlunderArmResult(
-                                handle.Job.Kind, handle.Job.ServerId, handle.Job.TaskUuid, true),
+                                handle.Job.Kind, handle.Job.ServerId, handle.Job.TaskUuid, true,
+                                AttemptId: handle.RequestId, LaunchSessionId: session.SessionId),
                             null,
                             terminal)
                         : new CurrentClientDispatchPlunderArmOutcome(
@@ -339,7 +349,11 @@ internal sealed partial class CurrentClientMapBlockSource
         ValidateDispatchArmEnvelope(root.Value, handle);
         string state = ReadOptionalString(root.Value, "state") ?? string.Empty;
         if (state == "armed") return null;
-        return ParseDispatchPlunderResultEvent(root.Value, handle.Job);
+        return ParseDispatchPlunderResultEvent(root.Value, handle.Job) with
+        {
+            AttemptId = handle.RequestId,
+            LaunchSessionId = handle.Session.SessionId,
+        };
     }
 
     internal async Task<CurrentClientTruckPlunderArmOutcome> ArmTruckPlunderAsync(
@@ -395,11 +409,14 @@ internal sealed partial class CurrentClientMapBlockSource
                 string state = ReadOptionalString(root.Value, "state") ?? string.Empty;
                 bool armed = MatchesBool(root.Value, "armed", true) || state == "armed";
                 if (state == "armed")
-                    return new CurrentClientTruckPlunderArmOutcome(new Map317.TruckPlunderArmResult(true), handle, null);
+                    return new CurrentClientTruckPlunderArmOutcome(new Map317.TruckPlunderArmResult(
+                        true, AttemptId: requestId, LaunchSessionId: session.SessionId), handle, null);
 
-                Map317.TruckPlunderResultEvent terminal = ParseTruckPlunderResultEvent(root.Value, job);
+                Map317.TruckPlunderResultEvent terminal = ParseTruckPlunderResultEvent(root.Value, job) with
+                { AttemptId = requestId, LaunchSessionId = session.SessionId };
                 return armed
-                    ? new CurrentClientTruckPlunderArmOutcome(new Map317.TruckPlunderArmResult(true), null, terminal)
+                    ? new CurrentClientTruckPlunderArmOutcome(new Map317.TruckPlunderArmResult(
+                        true, AttemptId: requestId, LaunchSessionId: session.SessionId), null, terminal)
                     : new CurrentClientTruckPlunderArmOutcome(
                         new Map317.TruckPlunderArmResult(false, terminal.ErrorCode ?? "server response timeout"),
                         null,
@@ -421,7 +438,8 @@ internal sealed partial class CurrentClientMapBlockSource
         ValidateTruckArmEnvelope(root.Value, handle);
         string state = ReadOptionalString(root.Value, "state") ?? string.Empty;
         if (state == "armed") return null;
-        return ParseTruckPlunderResultEvent(root.Value, handle.Job);
+        return ParseTruckPlunderResultEvent(root.Value, handle.Job) with
+        { AttemptId = handle.RequestId, LaunchSessionId = handle.Session.SessionId };
     }
 
     internal async Task ClearTruckPlunderPendingAsync(

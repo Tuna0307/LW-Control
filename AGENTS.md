@@ -1,5 +1,40 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-11: MAP-005 / PR #7 is accepted, merged and published.
+MAP-006 / PR #8 is CHANGES_REQUIRED after an independently reproduced cross-server
+Auto Stop/return race. Continue docs/work-items/LWB317-MAP-006-STOP-EFFICIENCY-R1.md
+on the existing Map branch. Preserve the negative proof and accepted releases;
+complete the correction and bounded method benchmark before worker handoff.
+
+Latest owner availability, 2026-10-11: defer season-dependent/full Treasure live
+acceptance and Ghost positive live testing (owner availability 2026-10-15).
+Finish the currently available Map scope using
+docs/MAP_006_AVAILABLE_FEATURE_CLOSEOUT.md. The suspected Treasure Season 4
+requirement is not independently verified. Preserve prior positive Treasure rows;
+do not count deferred features or owner-only actions as passed. Lead can accept
+verified available features separately; whole Map remains PARTIAL.
+
+Latest owner Map clarification, 2026-10-11: bounded server switching for Map is
+now allowed, including multi-server passive scan/Auto target-return assessment.
+Worker must not perform live plunder, claims or sharing; owner will do those
+personally. See docs/OWNER_DIRECTION_MAP_SERVER_SWITCHING_2026-10-11.md.
+This supersedes the same-server-only/server-jump approval limit below, while
+identity/isolation/restoration, explicit pauses and no paid actions remain.
+
+Owner MAP-006 scope answer, 2026-10-11: finish all code; live-test scans and
+same-server Auto only. Ask before live claims, plunder, sharing or jumps.
+Those paths remain assigned for implementation and controlled testing, but their
+live execution is not authorised by the full-Map request. Paid spending remains
+excluded. See the MAP-006 work item's execution authority.
+
+Latest lead assignment, 2026-10-11: owner requested all remaining Map features
+together. Follow docs/work-items/LWB317-MAP-COMPLETE-DELIVERY-006.md and
+docs/MAP_006_CURRENT_STATUS.md on `codex/map-complete-delivery-006`. This replaces
+the City/Resource-only implementation limit for the full assigned Map catalogue.
+MAP-005 / PR #7 remains separately pending lead review; preserve its candidate.
+Live account-changing actions require the specific scope answer recorded by the
+lead; the detailed task distinguishes implementation from live execution authority.
+
 Latest lead assignment, 2026-10-11: owner moved priority to Map after single-game
 Home release. Complete docs/work-items/LWB317-MAP-MANUAL-SCAN-DELIVERY-005.md on
 `codex/map-manual-scan-delivery-005`. This supersedes the old Home-only/no-new-Map
@@ -41,9 +76,9 @@ Historical evidence and reviews remain unchanged.
 
 ## Active work and loop
 
-- Map Manual City/Resource scanning is the assigned feature priority. Accepted
-  single-game Home is an affected regression, not a new completion campaign.
-  Follow the current finite work item; other Map actions require later assignment.
+- Complete the MAP-006 finite Map catalogue. Accepted single-game Home is an
+  affected regression, not a new completion campaign. MAP-005 remains submitted
+  separately; follow the current task's per-action live authority.
 - Single-game Home is merged/published and its feature branch retired. Use the
   one assigned Map branch and existing checkout. Future branches require lead
   assignment. Read research with `git show`; do not import bulk.

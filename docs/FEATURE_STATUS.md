@@ -1,5 +1,12 @@
 # Feature delivery — faithful functional replacement
 
+Current Map assignment: **MAP-006 full remaining feature catalogue**, on
+`codex/map-complete-delivery-006`; see MAP_006_CURRENT_STATUS.md and its work item.
+MAP-005 / PR #7 is independently accepted, merged and published as manual-map-v0.5.0.
+PR #8 is CHANGES_REQUIRED: fix the cross-server Auto Stop/return ordering and
+complete the bounded speed/accuracy assessment under the R1 work item.
+Whole Map is still PARTIAL.
+
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
 Exact original equality is no longer a universal release condition.

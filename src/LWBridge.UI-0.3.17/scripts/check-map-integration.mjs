@@ -71,6 +71,10 @@ assert.match(appSource, /mapApi\.listenAutoScanChanged\(acknowledge\)[\s\S]*mapA
   "canonical App must hydrate and converge native Auto Scan state through the profile-scoped bridge");
 assert.match(mapPageSource, /onClick=\{onAutoScanRunNow\}/,
   "Run Auto Scan Now must dispatch to the native scheduler rather than editing a browser deadline");
+assert.match(mapPageSource, /disabled=\{!autoRunning\} onClick=\{onAutoScanCancel\}/,
+  "running Auto Scan must expose its exact-owned native Stop action");
+assert.match(appSource, /cancelCycle:\s*\(\)\s*=>\s*mapApi\.cancelAutoScan\(\)/,
+  "Auto Stop must use the native scheduler cancellation endpoint");
 assert.doesNotMatch(mapPageSource, /runAutoCycle|window\.setInterval\(tick, 5000\)|2_700_000/,
   "canonical Map page must not retain a second browser Auto Scan scheduler after native ownership moves host-side");
 assert.match(autoConfigSource, /"truck",\s*\n\s*"railway",\s*\n\s*"dispatch",\s*\n\s*"ghost",\s*\n\s*"treasure"/,
@@ -332,6 +336,39 @@ function deferred() {
   rejectRun = false;
   await coordinator.run();
   assert.equal(actionError, "", "a later successful Run Now must clear its own action error");
+  coordinator.retire();
+}
+
+{
+  const heldWrite = deferred();
+  const heldCancel = deferred();
+  const calls = [];
+  const runtimeStates = [];
+  let actionError = "";
+  const coordinator = createAutoScanNativeCoordinator({
+    saveConfig: () => { calls.push("save"); return heldWrite.promise; },
+    readStatus: async () => null,
+    runNow: async () => null,
+    cancelCycle: () => { calls.push("cancel"); return heldCancel.promise; },
+    onConfigSnapshot: () => {},
+    onRuntimeSnapshot: (snapshot) => runtimeStates.push(snapshot.running),
+    onWriteError: () => {},
+    onActionError: (message) => { actionError = message; },
+  });
+  const save = coordinator.save({ enabled: true });
+  await new Promise(setImmediate);
+  const cancel = coordinator.cancel();
+  assert.deepEqual(calls, ["save"], "Auto Stop must wait behind the preceding native config edit");
+  heldWrite.resolve({ revision: 2, config: { enabled: true }, running: true, lastError: null });
+  await save;
+  await new Promise(setImmediate);
+  assert.deepEqual(calls, ["save", "cancel"], "Auto Stop must address the exact native scheduler after the edit");
+  heldCancel.resolve({ revision: 4, config: { enabled: true }, running: false, lastError: null });
+  await cancel;
+  assert.equal(runtimeStates.at(-1), false, "cancel acknowledgement must clear the live Auto running state");
+  coordinator.receive({ revision: 3, config: { enabled: true }, running: true, lastError: null });
+  assert.equal(runtimeStates.at(-1), false, "stale running event must not revive a cancelled cycle");
+  assert.equal(actionError, "", "successful cancel must clear the action error");
   coordinator.retire();
 }
 

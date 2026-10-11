@@ -180,8 +180,11 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
             for (int index = 0; index < jobs.Count; index++)
             {
                 Map317.DispatchPlunderArmJob job = jobs[index];
-                if (dispatchPending.ContainsKey(DispatchKey(job.Kind, job.ServerId, job.TaskUuid)))
-                    results[index] = new Map317.DispatchPlunderArmResult(job.Kind, job.ServerId, job.TaskUuid, true);
+                if (dispatchPending.TryGetValue(DispatchKey(job.Kind, job.ServerId, job.TaskUuid),
+                        out CurrentClientDispatchPlunderPendingHandle? existing))
+                    results[index] = new Map317.DispatchPlunderArmResult(
+                        job.Kind, job.ServerId, job.TaskUuid, true,
+                        AttemptId: existing.RequestId, LaunchSessionId: existing.Session.SessionId);
                 else
                     toArm.Add((index, job));
             }
@@ -222,7 +225,9 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
                 truckPending.Job.ServerId == job.ServerId &&
                 string.Equals(truckPending.Job.TrainUuid, job.TrainUuid, StringComparison.Ordinal) &&
                 string.Equals(truckPending.Job.JobId, job.JobId, StringComparison.Ordinal))
-                return new Map317.TruckPlunderArmResult(true);
+                return new Map317.TruckPlunderArmResult(true,
+                    AttemptId: truckPending.RequestId,
+                    LaunchSessionId: truckPending.Session.SessionId);
         }
 
         CurrentClientTruckPlunderArmOutcome outcome = await TranslateAsync(

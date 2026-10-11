@@ -43,7 +43,8 @@ internal sealed record MapAutoScanRuntimeStatus(
     int ServerId,
     bool IsReading,
     string? LastError,
-    string? ScanRunId);
+    string? ScanRunId,
+    string Phase = "unknown");
 
 internal sealed class MapAutoScanExecutionBoundary
 {
@@ -454,6 +455,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         int originalServerId = 0;
         int[] targets = Array.Empty<int>();
         var completedServers = new List<int>();
+        bool attemptedOtherServer = false;
         string? cycleError = null;
         string outcome = "completed";
 
@@ -485,6 +487,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 }
 
                 int serverId = targets[index];
+                // A cancelled first target at the original server never left
+                // home. Returning through the native scan lease while its
+                // Stop is settling can fail as SCAN_RUNNING, despite no move.
+                if (serverId != originalServerId) attemptedOtherServer = true;
                 string scanRunId = await execution.StartTargetScanAsync(
                     serverId,
                     admittedConfig.SelectedTypes ?? DefaultSelectedTypes,
@@ -494,11 +500,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     throw new InvalidOperationException("Auto scan start did not return a scan owner token");
                 Volatile.Write(ref ownedScanRunId, scanRunId);
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    await StopOwnedScanAsync().ConfigureAwait(false);
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
+                cancellationToken.ThrowIfCancellationRequested();
 
                 long deadline = checked(utcNowMilliseconds() + ScanTimeoutMilliseconds);
                 for (;;)
@@ -516,17 +518,23 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
 
                     MapAutoScanRuntimeStatus status =
                         await execution.ReadStatusAsync(scanRunId, cancellationToken).ConfigureAwait(false);
+                    if (!string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal) ||
+                        status.ServerId != serverId)
+                        throw new InvalidOperationException(
+                            "MAP_AUTO_SCAN_OWNER_MISMATCH: scan result belongs to another run or server");
                     if (status.IsReading)
                         continue;
 
                     Interlocked.CompareExchange(ref ownedScanRunId, null, scanRunId);
-                    completedServers.Add(serverId);
+                    // Not reading is not a publication acknowledgement. A stopped,
+                    // failed or stale scan must never count as an Auto success.
+                    if (!string.Equals(status.Phase, "completed", StringComparison.Ordinal))
+                        throw new InvalidOperationException(
+                            "MAP_AUTO_SCAN_NOT_PUBLISHED: " +
+                            (status.LastError ?? "scan ended in phase " + status.Phase));
                     if (!string.IsNullOrWhiteSpace(status.LastError))
-                    {
-                        cycleError = status.LastError;
-                        outcome = "completed_with_error";
-                        await RecordErrorAsync(status.LastError).ConfigureAwait(false);
-                    }
+                        throw new InvalidOperationException("MAP_AUTO_SCAN_NOT_PUBLISHED: " + status.LastError);
+                    completedServers.Add(serverId);
                     await UpdateRestartProgressAsync(
                         startedAt,
                         originalServerId,
@@ -547,21 +555,41 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         {
             outcome = "failed";
             cycleError = error.Message;
-            await RecordErrorAsync(error.Message).ConfigureAwait(false);
         }
         finally
         {
+            // The cycle is the sole Stop owner. Cancel/retire only signal its
+            // token, then await this task. Previously they launched a separate
+            // Stop while this finally raced ahead to ReturnServerAsync, where
+            // the exact native scan still held its process lease. Do not return
+            // until the captured run's Stop has *settled*.
+            bool stopSettled = true;
+            try
+            {
+                await StopOwnedScanAsync().ConfigureAwait(false);
+            }
+            catch (Exception stopError)
+            {
+                stopSettled = false;
+                string stopFailure = "MAP_AUTO_SCAN_STOP_FAILED: " + stopError.Message;
+                cycleError = cycleError is null ? stopFailure : cycleError + "; " + stopFailure;
+                if (outcome != "retired") outcome = "failed";
+            }
             bool liveOwner = Volatile.Read(ref retired) == 0;
-            if (liveOwner && admittedConfig.ReturnToOriginalServer && originalServerId > 0)
+            if (liveOwner && stopSettled && admittedConfig.ReturnToOriginalServer && originalServerId > 0 && attemptedOtherServer)
             {
                 try
                 {
                     await execution.ReturnServerAsync(originalServerId, CancellationToken.None).ConfigureAwait(false);
                 }
-                catch
+                catch (Exception returnError)
                 {
-                    // The recovered frontend treats return-to-origin as best effort and
-                    // does not replace the cycle's terminal error with a return failure.
+                    // An explicitly requested return is part of the owner's Auto cycle.
+                    // Keep the already-published targets, but do not describe the full
+                    // cycle as completed if native navigation did not restore its origin.
+                    string returnFailure = "MAP_AUTO_SCAN_RETURN_FAILED: " + returnError.Message;
+                    cycleError = cycleError is null ? returnFailure : cycleError + "; " + returnFailure;
+                    if (outcome != "retired") outcome = "failed";
                 }
             }
 
@@ -652,7 +680,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             CommitLocked(state with
             {
                 Config = config,
-                LastError = cycleError ?? state.LastError,
+                // A genuinely published new cycle resolves an earlier failure;
+                // retain errors on failed/interrupted cycles instead of leaving
+                // a stale failure banner next to a successful fresh result.
+                LastError = outcome == "completed" ? null : cycleError ?? state.LastError,
                 LastCycle = new MapAutoScanCycleRecord(
                     outcome,
                     startedAt,
@@ -685,7 +716,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         lock (cycleGate)
             cycleCancellation = activeCycleCancellation;
         cycleCancellation?.Cancel();
-        await StopOwnedScanAsync().ConfigureAwait(false);
+        // RunCycleAsync owns native Stop and the subsequent return ordering.
+        // Its caller waits for the active task, never starts a racing Stop.
     }
 
     private async Task<bool> StopOwnedScanAsync()
@@ -696,10 +728,30 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             string? scanRunId = Volatile.Read(ref ownedScanRunId);
             if (string.IsNullOrWhiteSpace(scanRunId))
                 return false;
-            bool stopped = await execution.StopScanIfOwnedAsync(scanRunId, CancellationToken.None)
-                .ConfigureAwait(false);
-            Interlocked.CompareExchange(ref ownedScanRunId, null, scanRunId);
-            return stopped;
+            try
+            {
+                bool stopped = await execution.StopScanIfOwnedAsync(scanRunId, CancellationToken.None)
+                    .ConfigureAwait(false);
+                if (!stopped)
+                {
+                    // A no-op Stop is safe only if this same run is already
+                    // terminal. A successor or different server must not be
+                    // redirected by this retired Auto cycle's return navigation.
+                    MapAutoScanRuntimeStatus status = await execution.ReadStatusAsync(
+                        scanRunId, CancellationToken.None).ConfigureAwait(false);
+                    if (status.IsReading ||
+                        !string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal))
+                        throw new InvalidOperationException(
+                            "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH: exact run not terminal");
+                }
+                return true;
+            }
+            finally
+            {
+                // Retire only our marker even if native Stop failed/rejected.
+                // Leave any unrelated native successor completely untouched.
+                Interlocked.CompareExchange(ref ownedScanRunId, null, scanRunId);
+            }
         }
         finally
         {
