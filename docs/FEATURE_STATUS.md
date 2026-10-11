@@ -16,6 +16,10 @@ available evidence before accepting the candidate. Finite per-type/mixed timing
 qualification and positive Railway/active-protection witnesses remain incomplete;
 Ghost/full Treasure positives remain deferred. Same branch/PR, solo. See
 [current lead review](reviews/2026-10-12-MAP-008-LEAD-REVIEW.md).
+Owner-visible LEADMAP008-03 is also reproduced: native Monster/Resource names
+default to Unknown because production game-text loading is not connected.
+Resolve actual game keys/localization and verify native tables/filters in a clean
+candidate; local cached example names are not current-build proof.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).

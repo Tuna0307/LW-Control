@@ -1,5 +1,11 @@
 # LW-Control — current contributor instructions
 
+Owner-reported Map names, 2026-10-12: native Monster/Resource names show Unknown.
+LEADMAP008-03 reproduces missing production game-text wiring despite stored name
+keys and an existing locale backend. Fix within MAP-008 on the same branch/PR,
+using supported current-game config/localization and clean-package native proof.
+No hardcoded names or preview-only positives. Read the current lead review addendum.
+
 Latest lead review, 2026-10-12: MAP-008 delivery at 473d6483 remains unmerged.
 Read docs/reviews/2026-10-12-MAP-008-LEAD-REVIEW.md. MAP-007 mounted retirement
 fixes pass independent replay; preserve them. Correct LEADMAP008-01/02 in native

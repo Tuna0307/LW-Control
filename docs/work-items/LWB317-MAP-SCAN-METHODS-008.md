@@ -7,6 +7,15 @@ revalidate source/run-owned archive qualification without overwriting history,
 then finish finite ready comparison gates below. No repeatable Fast advantage
 or whole-Map acceptance has been established. Same branch/PR and live authority.
 
+Additional owner finding, 2026-10-12: complete LEADMAP008-03 (native Monster/
+Resource names remain Unknown because game-text resolution is not wired). Read
+the names addendum in the lead review and its separate renderer/cache proof.
+Use actual admitted game name keys/localization, bounded native requests and
+generation fencing; verify tables and filters in a clean extracted candidate.
+Do not hardcode names or depend on fixture dictionaries/an old owner cache.
+Also investigate the current per-probe home-view restoration cost as a bounded
+alternative, keeping the safe restore contract until a replacement qualifies.
+
 ASSIGNED by the lead after owner discussion, 2026-10-11. Repository:
 `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Use existing checkout/branch **codex/map-action-providers-007**, PR #9.

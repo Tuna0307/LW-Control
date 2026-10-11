@@ -105,8 +105,46 @@ Use available capture/build receipts; do not repin old evidence retrospectively.
 
 ## Exact continuation
 
+### Owner-reported missing names — LEADMAP008-03
+
+**P2, reproduced product wiring defect.** Owner sees Unknown Monster/Resource.
+The scanner already records `monsterNameKey` and `resourceNameKey`; the Lua source
+reads resource names from GatherResource configuration and monster names from
+templates. The renderer resolves these through `gameTexts`, defaulting to an empty
+dictionary. Current App page props do not supply that dictionary, MapRoutePage only
+injects it for explicit preview fixtures, and no production UI caller of
+`lastwar_localize` was found. The backend locale command/cache reader exists.
+
+Read-only installed locale-cache inspection found manifest-verified EN/JA/zh-CN
+values for archived scanned keys. Actual production column callbacks render
+Unknown without texts and Gold Mine/Farmland/Glutton/Doom Walker with those existing
+EN values. Evidence: `docs/proof/MAP-008-LEAD-NAMES-2026-10-12.json`.
+The cache advertises sourceVersion 23443; its existence/hash is not a current-v24
+native name-equivalence proof. Do not hardcode these example names.
+
+Connect current-game name-key resolution to native Map tables and name filters.
+Verify config/key/language identity, bounded requests (backend MaxKeys=200),
+language and profile/game-root replacement, old-response retirement and retained
+stored-data display. Handle truly absent keys honestly and make localization-load
+failure observable rather than silently presenting every known row as Unknown.
+Prove a clean extracted candidate resolves names using supported installed-game
+or admitted cache acquisition, not an accidental dependency on this owner's old
+cache or preview dictionary. Use real representative native names in EN and a
+non-English locale; rare/event names may retain precisely disclosed limits.
+
+### Additional efficiency hypothesis, not an established capability
+
+Current corrected probes restore the home view and wait for its response after
+each target response. Include that cost in the phase breakdown. Investigate whether
+supported consecutive target-view requests can maintain fresh request-scoped
+manager state with restoration at scan completion/Stop instead of after each
+region. Test as a bounded region candidate first; do not remove the proven safe
+restore behavior until successor ownership, freshness, completeness and exact
+Stop/error restoration pass. This is an alternative to evaluate, not a claim that
+it works, is camera-free or will halve scan time.
+
 Same branch, same PR, solo. Fix LEADMAP008-01/02 and finish ready MAP-008
-qualification work under the existing work item. Preserve passing product
+qualification work plus LEADMAP008-03 under the existing work item. Preserve passing product
 corrections, negative records and main. No new release archive unless product
 source changes or package identity needs correction. Return READY only for gates
 actually passed; otherwise precise PARTIAL scope. Lead acceptance remains pending.

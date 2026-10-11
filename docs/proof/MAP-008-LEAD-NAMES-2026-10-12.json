@@ -1,0 +1,36 @@
+{
+  "reviewedCheckpoint": "e021fc4619a81477431af24cc2f38dc994010a77",
+  "proofType": "actual current Map table renderer with read-only verified local game locale cache",
+  "manifestSourceVersion": "23443",
+  "cacheHashMatchesManifest": true,
+  "cacheSizeMatchesManifest": true,
+  "cases": [
+    {
+      "kind": "resource",
+      "nameKey": "129027",
+      "withoutGameTexts": "Unknown Resource",
+      "withExistingGameTexts": "Gold Mine"
+    },
+    {
+      "kind": "resource",
+      "nameKey": "100317",
+      "withoutGameTexts": "Unknown Resource",
+      "withExistingGameTexts": "Farmland"
+    },
+    {
+      "kind": "monster",
+      "nameKey": "2000003",
+      "withoutGameTexts": "Unknown Monster",
+      "withExistingGameTexts": "Glutton"
+    },
+    {
+      "kind": "monster",
+      "nameKey": "monster_boss_name_001",
+      "withoutGameTexts": "Unknown Monster",
+      "withExistingGameTexts": "Doom Walker"
+    }
+  ],
+  "externalGameActions": 0,
+  "originalInputsModified": false,
+  "limitations": "Local cache availability and actual renderer behavior; not current-build native name equivalence or mounted transport proof."
+}
