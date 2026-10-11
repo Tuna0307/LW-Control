@@ -2451,6 +2451,10 @@ local function read_bulk_aoi_diagnostic(now)
     request.scanRunId = tostring(values.scanRunId or "")
     request.viewLevel = tonumber(values.viewLevel or "-1")
     request.requestMode = tostring(values.requestMode or "native")
+    -- Bounded research-only camera aspect alternative. Existing callers omit
+    -- this and retain the source-verified 4.0 value. Never infer extra native
+    -- coverage merely from the requested aspect: _curViewIndex remains truth.
+    request.coverageAspect = tonumber(values.coverageAspect or "4")
     request.targetTileX = tonumber(values.targetTileX)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
@@ -2484,6 +2488,8 @@ local function read_bulk_aoi_diagnostic(now)
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
        (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
+       (request.coverageAspect ~= 4 and request.coverageAspect ~= 6) or
+       (request.coverageAspect ~= 4 and request.requestMode ~= "coverage") or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
@@ -2507,7 +2513,9 @@ local function read_bulk_aoi_diagnostic(now)
        (include_treasure_raw ~= "true" and include_treasure_raw ~= "false") or
        (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") or
        (defer_restore_until_response_raw ~= "true" and defer_restore_until_response_raw ~= "false") or
-       (request.deferRestoreUntilResponse == true and request.includeResource ~= true) then
+       (request.deferRestoreUntilResponse == true and not (
+          request.includeCity or request.includeResource or request.includeMonster or
+          request.includeTrain or request.includeDispatch or request.includeGhost or request.includeTreasure)) then
         request.error = "bulk_aoi_diagnostic_invalid"
         return request
     end
@@ -5011,6 +5019,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         homeTileX = request.homeTileX,
         homeTileY = request.homeTileY,
         requestMode = request.requestMode,
+        coverageAspect = request.coverageAspect,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
@@ -5512,7 +5521,7 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
                 return true
             end
-            if not reflected_set_value(unity_camera, "aspect", 4.0) then
+            if not reflected_set_value(unity_camera, "aspect", request.coverageAspect) then
                 fail_bulk_aoi(request, "expanded_camera_aspect_set_failed", nil, point_manager)
                 return true
             end
@@ -5731,7 +5740,7 @@ local function pump_bulk_aoi_diagnostic(now)
         end
         if details.deferredRestoreStartedAt ~= nil and
            runtime_clock() - details.deferredRestoreStartedAt >= 3 then
-            fail_bulk_aoi(bulk_aoi_request, "deferred_resource_view_restore_timeout", details, point_manager)
+            fail_bulk_aoi(bulk_aoi_request, "deferred_spatial_view_restore_timeout", details, point_manager)
             return true
         end
         bulk_aoi_request.details = details
@@ -6033,7 +6042,7 @@ local function pump_bulk_aoi_diagnostic(now)
         if request.deferRestoreUntilResponse == true then
             -- The target response has already been serialized above. Restore the camera,
             -- then force a normal home-view request and wait for its own response before
-            -- allowing the next remote Resource batch. This keeps the manager's retained
+            -- allowing the next remote spatial batch. This keeps the manager's retained
             -- AOI state synchronized with the restored camera instead of leaking the first
             -- remote footprint into subsequent requests.
             bulk_aoi_original_manager_response_flag = false

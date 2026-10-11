@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Map317 = LWBridge.Map317;
 
 namespace LWBridge.Desktop;
@@ -163,7 +164,17 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                     cancellation.Cancel();
                     throw;
                 }
-            });
+            },
+            source is CurrentClientMapBlockSource nativeSource ? metrics =>
+            {
+                // This is the mounted Map317 production adapter. Emit one
+                // source-owned diagnostic after actual durable publication,
+                // using exact run identity and no private game records.
+                Directory.CreateDirectory(nativeSource.ProbeRuntimeRoot);
+                File.WriteAllText(
+                    Path.Combine(nativeSource.ProbeRuntimeRoot, "map-engine-stage-metrics.json"),
+                    JsonSerializer.Serialize(metrics, JsonOptions.Default));
+            } : null);
         var execution = new MapScanExecutionRequest(
             request.ScanRunId,
             request.ServerId,

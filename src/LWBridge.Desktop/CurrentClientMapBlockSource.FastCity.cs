@@ -492,6 +492,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
+        state.AcquisitionMilliseconds = (Now() - state.MetricsStartedAt).TotalMilliseconds;
         WriteFastFullWorldMetrics(state, "covered");
 
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
@@ -500,8 +501,10 @@ internal sealed partial class CurrentClientMapBlockSource
         // source once per completed full-world scan, then merge by exact march UUID.
         if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
         {
+            DateTimeOffset railwayStarted = Now();
             IReadOnlyList<FastTrainPrepared> refreshedRailway = (await ProbeTrainListAsync(
                 session, request, cancellationToken).ConfigureAwait(false)).Rows;
+            state.RailwayRefreshMilliseconds = (Now() - railwayStarted).TotalMilliseconds;
             RequireSameSession(session);
             foreach (FastTrainPrepared prepared in refreshedRailway)
             {
@@ -514,6 +517,7 @@ internal sealed partial class CurrentClientMapBlockSource
         // Truck reward/max-loot enrichment is deliberately post-acquisition. The AOI hot path
         // carries only lightweight game-owned TrainData fields/reward arrays; full TrainData JSON
         // is Railway-only because current-v19 Truck plunder history makes that blob very large.
+        DateTimeOffset truckStarted = Now();
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
         {
             foreach ((string key, FastTrainPrepared prepared) in trainRecords.ToArray())
@@ -522,7 +526,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 trainRecords[key] = ApplyFinalTruckMetadataEnrichment(prepared);
             }
         }
+        state.TruckHydrationMilliseconds = (Now() - truckStarted).TotalMilliseconds;
 
+        DateTimeOffset resourceStarted = Now();
         ResourceScanDetailObservation resourceDetails = ResourceScanDetailObservation.Empty;
         int idleResourceCount = request.SelectedTypes.Contains("resource", StringComparer.Ordinal)
             ? resourceRecords.Values.Count(item => IsKnownIdleResource(item.Record))
@@ -562,7 +568,11 @@ internal sealed partial class CurrentClientMapBlockSource
                 resourceDetails.ReadyCount,
                 resourceDetails.Error);
         }
+        state.ResourceHydrationMilliseconds = (Now() - resourceStarted).TotalMilliseconds;
+        state.ResourceDetailNativeRequests = resourceDetails.RequestCount;
+        state.ResourceDetailNativeReady = resourceDetails.ReadyCount;
 
+        DateTimeOffset monsterStarted = Now();
         MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
         int monsterInvasionBossCount = monsterRecords.Values.Count(item => item.ProtectionEligible);
         if (monsterInvasionBossCount > 0)
@@ -586,7 +596,11 @@ internal sealed partial class CurrentClientMapBlockSource
         LastMonsterProtectionDetailMetrics = new MonsterProtectionDetailMetrics(
             monsterInvasionBossCount, protection.TargetCount,
             protection.RequestCount, protection.RetryCount, protection.ReadyCount, protection.Error);
+        state.MonsterHydrationMilliseconds = (Now() - monsterStarted).TotalMilliseconds;
+        state.MonsterDetailNativeRequests = protection.RequestCount;
+        state.MonsterDetailNativeReady = protection.ReadyCount;
 
+        DateTimeOffset projectionStarted = Now();
         var buckets = new Dictionary<int, List<MapStoredRecord>>();
         if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in cityRecords.Values)
@@ -641,6 +655,18 @@ internal sealed partial class CurrentClientMapBlockSource
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
+        state.ProjectionMilliseconds = (Now() - projectionStarted).TotalMilliseconds;
+        state.OldestCapturedAgeMilliseconds = cityRecords.Values.Select(item => item.Record.UpdatedAt)
+            .Concat(resourceRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(monsterRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(trainRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(dispatchRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(ghostRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(treasureRecords.Values.Select(item => item.Record.UpdatedAt))
+            .DefaultIfEmpty(Now().ToUnixTimeMilliseconds())
+            .Min();
+        state.OldestCapturedAgeMilliseconds = Math.Max(0, Now().ToUnixTimeMilliseconds() - state.OldestCapturedAgeMilliseconds);
+        WriteFastFullWorldMetrics(state, "prepared");
         fastFullWorldResumeState = null;
         return captures;
     }
@@ -775,7 +801,10 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeTreasure={request.SelectedTypes.Contains("treasure", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeResourceDetails={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
-            $"deferRestoreUntilResponse={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            // A native footprint can be fresh while same-tick camera restoration
+            // drops known spatial rows. All selected kinds require the native
+            // point/march snapshot before restoring the target view.
+            "deferRestoreUntilResponse=true",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -1355,7 +1384,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeGhost", request.SelectedTypes.Contains("ghost", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeTreasure", request.SelectedTypes.Contains("treasure", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
-            !MatchesBool(root, "deferRestoreUntilResponse", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
+            !MatchesBool(root, "deferRestoreUntilResponse", true))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesString(root, "state", "proven"))
         {
@@ -1381,13 +1410,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 $"viewLevel={Actual("viewLevel")},target=({Actual("targetTileX")},{Actual("targetTileY")}).");
         }
         RequireFreshCaptureTime(root, startedAt);
-        bool deferRestoreUntilResponse = request.SelectedTypes.Contains("resource", StringComparer.Ordinal);
-        bool restorationContractMatches = deferRestoreUntilResponse
-            ? MatchesBool(root, "positionRestoredBeforeResponse", false) &&
-              MatchesBool(root, "positionRestoredAfterResponse", true) &&
-              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response")
-            : MatchesBool(root, "positionRestoredBeforeResponse", true) &&
-              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore");
+        bool restorationContractMatches =
+            MatchesBool(root, "positionRestoredBeforeResponse", false) &&
+            MatchesBool(root, "positionRestoredAfterResponse", true) &&
+            MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
             !restorationContractMatches)
@@ -2190,6 +2216,17 @@ internal sealed partial class CurrentClientMapBlockSource
         internal long ValidatedProbeResponses { get; set; }
         internal int ActiveCameraProbes;
         internal int PeakCameraProbes;
+        internal double AcquisitionMilliseconds;
+        internal double RailwayRefreshMilliseconds;
+        internal double TruckHydrationMilliseconds;
+        internal double ResourceHydrationMilliseconds;
+        internal double MonsterHydrationMilliseconds;
+        internal double ProjectionMilliseconds;
+        internal long OldestCapturedAgeMilliseconds;
+        internal int ResourceDetailNativeRequests;
+        internal int ResourceDetailNativeReady;
+        internal int MonsterDetailNativeRequests;
+        internal int MonsterDetailNativeReady;
         internal double ProbeWaitMilliseconds { get; set; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
@@ -2224,6 +2261,17 @@ internal sealed partial class CurrentClientMapBlockSource
             requestedConcurrency = state.RequestedConcurrency,
             actualPeakConcurrentCameraProbes = state.PeakCameraProbes,
             elapsedMilliseconds = (DateTimeOffset.UtcNow - state.MetricsStartedAt).TotalMilliseconds,
+            acquisitionMilliseconds = state.AcquisitionMilliseconds,
+            railwayRefreshMilliseconds = state.RailwayRefreshMilliseconds,
+            truckHydrationMilliseconds = state.TruckHydrationMilliseconds,
+            resourceHydrationMilliseconds = state.ResourceHydrationMilliseconds,
+            monsterHydrationMilliseconds = state.MonsterHydrationMilliseconds,
+            projectionMilliseconds = state.ProjectionMilliseconds,
+            oldestCapturedAgeMilliseconds = state.OldestCapturedAgeMilliseconds,
+            resourceDetailNativeRequests = state.ResourceDetailNativeRequests,
+            resourceDetailNativeReady = state.ResourceDetailNativeReady,
+            monsterDetailNativeRequests = state.MonsterDetailNativeRequests,
+            monsterDetailNativeReady = state.MonsterDetailNativeReady,
             attributableLuaProbeAttempts = state.ProbeAttempts,
             attributableRetries = state.ProbeRetries,
             validatedProbeResponses = state.ValidatedProbeResponses,

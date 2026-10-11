@@ -18,14 +18,34 @@ foreach (int mask in Enumerable.Range(1, (1 << kinds.Length) - 1))
     var witnesses = Witnesses(selected, server);
     var source = new CaptureSource(witnesses);
     var sink = new WitnessSink(witnesses);
+    MapScanEngineStageMetrics? stageMetrics = null;
     var stopwatch = Stopwatch.StartNew();
-    await new MapScanEngine(source, sink).ExecuteAsync(Request(selected, mode));
+    await new MapScanEngine(source, sink, completedStageMetrics: metrics =>
+        stageMetrics = metrics).ExecuteAsync(Request(selected, mode));
     stopwatch.Stop();
     Check(sink.Published && sink.PublishedCount == selected.Length && source.ActivePeak == 1, "Population missing or camera concurrency incorrect");
+    Check(stageMetrics is not null && stageMetrics.ServerId == server &&
+          stageMetrics.ScanMode == mode && stageMetrics.SourceCaptureMilliseconds >= 0 &&
+          stageMetrics.CheckpointMilliseconds >= 0 && stageMetrics.PublicationMilliseconds >= 0 &&
+          stageMetrics.WholeEngineMilliseconds >= 0,
+        "Completed scan omitted its exact engine staging/publication timing callback");
     selectionCases++;
     totalElapsed += stopwatch.ElapsedMilliseconds;
     if (mask == 255 || mask == 7 || mask == 56 || mask == 9 || mask == 1 || mask == 128)
         runs.Add(new { mask, selected, mode, plan.StrategyId, source.Calls, source.ActivePeak, sink.PublishedCount, elapsedMs = stopwatch.Elapsed.TotalMilliseconds });
+}
+
+// Diagnostic I/O can fail after an already committed durable publication.
+// Such a failure must not convert that completed scan into a failed run or
+// attempt to publish a second time.
+{
+    var witness = Witnesses(["city"], server);
+    var sink = new WitnessSink(witness);
+    await new MapScanEngine(new CaptureSource(witness), sink,
+        completedStageMetrics: _ => throw new IOException("controlled diagnostic storage unavailable"))
+        .ExecuteAsync(Request(["city"], "normal"));
+    Check(sink.Published && sink.PublishedCount == 1,
+        "A post-publication diagnostic failure changed a successful scan outcome");
 }
 
 // A source deliberately misbehaving at an actual production-engine boundary
@@ -37,14 +57,18 @@ foreach (string kind in new[] { "wrong-server", "wrong-world", "unselected-kind"
     var witness = Witnesses(["city", "truck"], server);
     var badSource = new CaptureSource(witness, fault: kind);
     var sink = new WitnessSink(witness);
+    bool emittedCompletedStageMetrics = false;
     try
     {
-        await new MapScanEngine(badSource, sink).ExecuteAsync(Request(["city", "truck"], "fast"));
+        await new MapScanEngine(badSource, sink,
+            completedStageMetrics: _ => emittedCompletedStageMetrics = true)
+            .ExecuteAsync(Request(["city", "truck"], "fast"));
         throw new Exception(kind + " incorrectly published");
     }
     catch (Exception error) when (error is InvalidDataException or BridgeCommandException)
     {
-        Check(!sink.Published, kind + " published corrupted coverage");
+        Check(!sink.Published && !emittedCompletedStageMetrics,
+            kind + " published corrupted coverage or success diagnostics");
         rejections.Add(kind);
     }
 }
