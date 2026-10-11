@@ -1,5 +1,12 @@
 # MAP-SCAN-METHODS-008 — accurate efficient scanning for every type and combination
 
+Current continuation, 2026-10-12: delivery `473d6483` independently reviewed;
+see `docs/reviews/2026-10-12-MAP-008-LEAD-REVIEW.md`. Preserve mounted MAP-007 fixes
+and all-spatial deferred restoration. Fix accuracy-auditor LEADMAP008-01/02,
+revalidate source/run-owned archive qualification without overwriting history,
+then finish finite ready comparison gates below. No repeatable Fast advantage
+or whole-Map acceptance has been established. Same branch/PR and live authority.
+
 ASSIGNED by the lead after owner discussion, 2026-10-11. Repository:
 `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Use existing checkout/branch **codex/map-action-providers-007**, PR #9.

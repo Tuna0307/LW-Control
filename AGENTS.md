@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-12: MAP-008 delivery at 473d6483 remains unmerged.
+Read docs/reviews/2026-10-12-MAP-008-LEAD-REVIEW.md. MAP-007 mounted retirement
+fixes pass independent replay; preserve them. Correct LEADMAP008-01/02 in native
+accuracy auditing (uniform foreign owner acceptance and inferred missing contract
+fields), revalidate available archived evidence, then continue finite outstanding
+method/accuracy qualification on the same branch/PR. Preserve historical negatives;
+do not claim a repeatable Fast advantage or complete whole-Map acceptance.
+
 Latest lead assignment, 2026-10-11: PR #9 / MAP-007 is CHANGES_REQUIRED for
 LEADMAP007-01/02 (retired busy state and late cross-tab messages). Correct those
 first, then complete docs/work-items/LWB317-MAP-SCAN-METHODS-008.md on the

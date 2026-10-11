@@ -6,15 +6,16 @@ passive navigation and bounded Auto/Stop/return. See
 [independent acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md).
 MAP-005 / PR #7 remains released as manual-map-v0.5.0. Whole Map is **PARTIAL**:
 Ghost positive acquisition, full Treasure and owner-only action witnesses are pending.
-MAP-007 PR #9 remains unmerged, CHANGES_REQUIRED for two reproduced asynchronous
-preview/preparation UI lifetime defects. Next scoped work is MAP-SCAN-METHODS-008
-on that same branch, solo: first fix the two small review findings, then establish
-real Normal/Fast behavior and faster accurate multi-server acquisition for every
-type, mixed selections and all types together. Require workload-specific accuracy,
-comparative timing and stress proof; Truck alone cannot close this task. Deferred
-Ghost/Treasure live cases remain explicitly pending. The current
-scanner's 8/20 requested limits do not change its serialized actual acquisition;
-this known limitation needs correction and does not establish a Fast speedup.
+PR #9 remains unmerged. Independent 2026-10-12 review of MAP-008 at `473d6483`
+passes MAP-007 mounted retirement corrections, planner/engine adversity, frontend
+and native checks, and candidate source/hash integrity. All-spatial deferred camera
+restoration corrects observed omission; no material repeatable Fast speedup is proved.
+**CHANGES_REQUIRED**: LEADMAP008-01/02 allow foreign owner tuples and absent required
+native contract fields to pass the accuracy auditor. Correct these and revalidate
+available evidence before accepting the candidate. Finite per-type/mixed timing
+qualification and positive Railway/active-protection witnesses remain incomplete;
+Ghost/full Treasure positives remain deferred. Same branch/PR, solo. See
+[current lead review](reviews/2026-10-12-MAP-008-LEAD-REVIEW.md).
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
