@@ -351,13 +351,14 @@ internal sealed partial class CurrentClientMapBlockSource
 
                 // Wide footprints are centered around the target: width 4 has two columns
                 // left / one right, while the observed width 5 has two left / two right.
-                // Optimistically step two columns only after we have measured width >= 4 in this band.
-                // If the footprint contracts, the unchanged first gap forces the next request back
-                // to the conservative +1 target; exact coverage, not the prediction, remains truth.
-                int targetOffset = preferWideStep ? 2 : 1;
-                if (gapColumn == 0) targetOffset = 0;
-                if (previousGap == gapColumn) targetOffset = gapColumn == 0 ? 0 : 1;
-                int targetCellX = Math.Min(FastCityAoiBlockCount - 1, gapColumn + targetOffset);
+                // Normal deliberately places the camera one AOI ahead of the first gap,
+                // maximizing margin when native footprints contract. Fast uses the
+                // measured >=4-column footprint to advance two AOIs, gathering more
+                // previously uncovered cells per serial request when supported.
+                // Both modes validate fresh footprints and the same exact 10,000 AOIs;
+                // neither issues concurrent mutations of the shared game camera.
+                int targetCellX = MapFullWorldAoiPlacement.TargetColumn(
+                    request.ScanMode, gapColumn, preferWideStep, previousGap, FastCityAoiBlockCount);
                 int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
 
                 FastCityBatchObservation? observation = null;
@@ -369,6 +370,8 @@ internal sealed partial class CurrentClientMapBlockSource
                     if (attempt > 1) state.ProbeRetries++;
                     try
                     {
+                        int activeProbes = Interlocked.Increment(ref state.ActiveCameraProbes);
+                        state.PeakCameraProbes = Math.Max(state.PeakCameraProbes, activeProbes);
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
@@ -416,6 +419,7 @@ internal sealed partial class CurrentClientMapBlockSource
                     }
                     finally
                     {
+                        Interlocked.Decrement(ref state.ActiveCameraProbes);
                         state.ProbeWaitMilliseconds += Math.Max(0, (Now() - probeStarted).TotalMilliseconds);
                     }
                 }
@@ -2169,6 +2173,8 @@ internal sealed partial class CurrentClientMapBlockSource
             ServerId = request.ServerId;
             WorldId = request.WorldId;
             SelectedTypesKey = string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
+            ScanMode = request.ScanMode;
+            RequestedConcurrency = request.RequestedConcurrency;
         }
 
         internal OverviewMapScanSession Session { get; }
@@ -2176,10 +2182,14 @@ internal sealed partial class CurrentClientMapBlockSource
         internal int ServerId { get; }
         internal long WorldId { get; }
         internal string SelectedTypesKey { get; }
+        internal string ScanMode { get; }
+        internal int RequestedConcurrency { get; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
         internal long ValidatedProbeResponses { get; set; }
+        internal int ActiveCameraProbes;
+        internal int PeakCameraProbes;
         internal double ProbeWaitMilliseconds { get; set; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
@@ -2194,6 +2204,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         internal bool Matches(OverviewMapScanSession session, MapScanExecutionRequest request) =>
             Session == session && RunId == request.RunId && ServerId == request.ServerId && WorldId == request.WorldId &&
+            ScanMode == request.ScanMode && RequestedConcurrency == request.RequestedConcurrency &&
             SelectedTypesKey == string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
     }
 
@@ -2207,8 +2218,11 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             schemaVersion = 1,
             source = "CurrentClientMapBlockSource.ProbeFastCityBatchAsync",
-            identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey },
+            identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey, state.ScanMode },
             phase,
+            acquisitionPolicy = state.ScanMode == "fast" ? "measured_wide_aoi_step" : "conservative_aoi_step",
+            requestedConcurrency = state.RequestedConcurrency,
+            actualPeakConcurrentCameraProbes = state.PeakCameraProbes,
             elapsedMilliseconds = (DateTimeOffset.UtcNow - state.MetricsStartedAt).TotalMilliseconds,
             attributableLuaProbeAttempts = state.ProbeAttempts,
             attributableRetries = state.ProbeRetries,

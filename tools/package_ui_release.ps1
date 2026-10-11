@@ -201,6 +201,48 @@ This is an unmerged, source-identified review candidate. Do not publish.
 "@
     $readme = $readme.Substring(0, $scopeStart) + $providerScope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP008-SCAN') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'Could not identify older Map release text.' }
+    $scanScope = @"
+MAP-008 SCANNER METHOD AND MAP-007 LIFETIME CORRECTION — LEAD REVIEW CANDIDATE
+Current-client v24 source-built passive Map acquisition supports City, Resource,
+Monster, Truck, Railway, Dispatch, Ghost and Treasure selections. Current
+available kinds have positive scan evidence; Ghost positive and full seasonal
+Treasure acceptance remain owner deferred. Actual v24 selected-all scans on
+server 2212 each covered 10000/10000 native AOIs, published 2500/2500
+logical blocks without failures and completed in 227.318 s Normal and
+222.542 s Fast. Both required 340 application-to-Lua probes; the single
+comparison does not prove a repeatable speedup or fastest global method.
+
+Normal conservatively targets native AOI gaps; Fast may take measured-wide
+coverage steps when fresh response geometry permits. Camera mutations remain
+serial and native fresh response ownership and coverage are enforced. The
+six available kinds can share the same native sweep and required detail/list
+hydration. Bounded two-server (2212/2213) Truck/Railway/Dispatch Auto completed
+with a confirmed native return to 2212. Results vary while targets move,
+expire or spawn; population completeness beyond native AOI footprints is
+not a perfect independent world census.
+
+Ghost preparation and Treasure claim preview are read-only/non-executing.
+MAP-007 retirement now releases only the deferred operation's own busy state,
+without allowing an obsolete tab/server/API result to surface or to clear a
+new owner's result. Live plunder, attack, sharing, marches and Treasure claims
+have NOT been exercised. Do not interpret previews as executed rewards.
+
+This candidate is for independent lead review and owner testing AFTER that
+review. It is not a whole-map feature parity or original protected scanner
+equivalence certification. For exact source limits, independent witnesses,
+additional performance measurements, and open acceptance gates consult
+docs/MAP_008_SCAN_METHOD_CONTINUATION.md in the source repository.
+Only operate on one authorized official current-client session. Start/Stop
+are exact-owner controls; keep Auto disabled when finished and verify
+the current server and return-to-original after multi-server cycles.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $scanScope + "`r`n" + $readme.Substring($scopeEnd)
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

@@ -215,7 +215,11 @@ internal sealed class MapScanEngine
             throw new InvalidDataException("map block capture did not match the requested block");
         if (capture.ServerId != request.ServerId)
             throw new InvalidDataException("map block capture did not match the active server");
-        if (capture.WorldId != 0 && request.WorldId != 0 && capture.WorldId != request.WorldId)
+        // A zero capture world is an unspecified legacy source. A nonzero
+        // captured world must always equal the requested world, including when
+        // the admitted standard world is id 0; otherwise unrelated world data
+        // could be staged under the correct server.
+        if (capture.WorldId != 0 && capture.WorldId != request.WorldId)
             throw new InvalidDataException("map block capture did not match the active world");
         if (string.IsNullOrWhiteSpace(capture.PayloadJson))
             throw new InvalidDataException("map block capture payload is missing");
