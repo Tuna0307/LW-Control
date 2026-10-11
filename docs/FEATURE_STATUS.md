@@ -2,9 +2,10 @@
 
 Current Map assignment: **MAP-006 full remaining feature catalogue**, on
 `codex/map-complete-delivery-006`; see MAP_006_CURRENT_STATUS.md and its work item.
-MAP-005 / PR #7 remains independently pending lead acceptance. Do not hold that
-working slice hostage to completion of other Map features, or count it accepted
-merely because the larger assignment has begun. Whole Map is still PARTIAL.
+MAP-005 / PR #7 is independently accepted, merged and published as manual-map-v0.5.0.
+PR #8 is CHANGES_REQUIRED: fix the cross-server Auto Stop/return ordering and
+complete the bounded speed/accuracy assessment under the R1 work item.
+Whole Map is still PARTIAL.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).

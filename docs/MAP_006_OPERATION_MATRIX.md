@@ -1,5 +1,10 @@
 # MAP-006 — finite operation and result-gate matrix
 
+Latest independent review: MAP-005 is accepted/released; MAP-006 PR #8 is
+CHANGES_REQUIRED for LEADMAP006-01 cross-server Auto Stop/return ordering.
+Continue the R1 Stop/efficiency work item. Historical row snapshots below are
+superseded by the current status/review; deferred features are still pending.
+
 Latest owner clarification supersedes initial authority columns below: server
 switching/multi-server passive scan and Auto are allowed. Worker live plunder,
 claims and sharing remain excluded; owner will perform them personally. See

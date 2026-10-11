@@ -1,5 +1,11 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-11: MAP-005 / PR #7 is accepted, merged and published.
+MAP-006 / PR #8 is CHANGES_REQUIRED after an independently reproduced cross-server
+Auto Stop/return race. Continue docs/work-items/LWB317-MAP-006-STOP-EFFICIENCY-R1.md
+on the existing Map branch. Preserve the negative proof and accepted releases;
+complete the correction and bounded method benchmark before worker handoff.
+
 Latest owner availability, 2026-10-11: defer season-dependent/full Treasure live
 acceptance and Ghost positive live testing (owner availability 2026-10-15).
 Finish the currently available Map scope using
