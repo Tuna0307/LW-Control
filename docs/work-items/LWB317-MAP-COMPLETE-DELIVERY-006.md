@@ -47,12 +47,17 @@ Existing bounded Home/current-server scan permission applies. This assignment al
 covers passive acquisition of the remaining types and a bounded same-server Auto
 scan with task-only configuration, stopped before leaving the test session.
 
-Live claims, plunder, alliance sharing, cross-server changes and other account/game
-state changes require the owner's specific action-scope answer in the lead relay.
-Until that answer is explicitly supplied, finish their code and controlled tests
-but do not execute them live or count them live-verified. A permission question is
-not a reason to stop other ready work. An affirmative relay adds only the named
-bounded actions. Paid spending, purchases, unrelated combat, updater actions,
+Owner's explicit answer, 2026-10-11:
+"Finish all code; live-test scans and same-server Auto only. Ask before claims,
+plunder, sharing or jumps."
+
+Live claims, plunder, alliance sharing and jumps (including coordinate, march-follow
+and cross-server navigation) are not authorised in this assignment. Finish their
+code and controlled tests, but ask the owner before executing them live and do not
+count them live-verified. No such permission is needed for already-authorised scans
+and same-server Auto within the identity/isolation/restoration gates. A pending
+action permission is not a reason to stop other ready work. A later affirmative
+relay adds only the named bounded actions. Paid spending, purchases, unrelated combat, updater actions,
 protected-original services and authentication/entitlement bypass remain excluded.
 Check any claim/march/job for resource consumption before live execution; stop if
 the approved action would incur unapproved costs or a different game action.
@@ -200,4 +205,6 @@ Only the lead accepts, merges, publishes and retires merged branches/worktrees.
 
 ASSIGNED. Lead has inspected the current queue/provider gaps; no MAP-006 product
 implementation or live experiment performed. Start with A, then continue B-F.
-Specific live account-action authority is pending the owner's lead-chat response.
+Owner live scope recorded: scans and same-server Auto only; ask before claims,
+plunder, sharing or jumps. Complete all code/controlled gates and allowed live work;
+record other live witnesses as awaiting specific permission, not passed.

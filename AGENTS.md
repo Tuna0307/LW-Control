@@ -1,5 +1,11 @@
 # LW-Control — current contributor instructions
 
+Owner MAP-006 scope answer, 2026-10-11: finish all code; live-test scans and
+same-server Auto only. Ask before live claims, plunder, sharing or jumps.
+Those paths remain assigned for implementation and controlled testing, but their
+live execution is not authorised by the full-Map request. Paid spending remains
+excluded. See the MAP-006 work item's execution authority.
+
 Latest lead assignment, 2026-10-11: owner requested all remaining Map features
 together. Follow docs/work-items/LWB317-MAP-COMPLETE-DELIVERY-006.md and
 docs/MAP_006_CURRENT_STATUS.md on `codex/map-complete-delivery-006`. This replaces

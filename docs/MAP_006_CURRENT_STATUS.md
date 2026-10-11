@@ -15,12 +15,13 @@ Branch: `codex/map-complete-delivery-006`, above MAP-005 source `023e34d0`.
 | Six remaining manual types | Assess actual providers and prove fresh supported acquisition/publication/browsing; no blanket current working claim. |
 | Auto Scan | Finish actual scheduler/configuration and bounded native cycle; all control/adversity gates in MAP-006. |
 | Row controls/navigation/inspection | Inventory each actual control, finish missing implementations and authoritative result evidence. |
-| Treasure status/claims | Existing high-level providers unavailable; implement supported controller/results. Live claim authority pending. |
-| Scheduled Dispatch/Ghost/Truck | Finish preparation/execution/correlation/jobs/history; live account-action authority pending. |
+| Treasure status/claims | Existing high-level providers unavailable; implement supported controller/results. Ask owner before live claims. |
+| Scheduled Dispatch/Ghost/Truck | Finish preparation/execution/correlation/jobs/history; ask owner before live plunder/sharing/jumps. |
 
 MAP-006 holds the finite queue/differences ledger rather than duplicating historical
 research. All expected Map features remain in scope; no hidden exclusions or fake
-success. Specific live account-action permission must be recorded before execution.
+success. Owner's explicit live scope is scans and same-server Auto only; ask before
+claims, plunder, sharing or jumps. All code and controlled tests remain assigned.
 Preserve MAP-005 PR #7 for independent review and incremental main delivery.
 
 ## Checkout lifecycle
