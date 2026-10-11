@@ -1,11 +1,12 @@
 # Feature delivery — faithful functional replacement
 
-Current Map assignment: **MAP-006 full remaining feature catalogue**, on
-`codex/map-complete-delivery-006`; see MAP_006_CURRENT_STATUS.md and its work item.
-MAP-005 / PR #7 is independently accepted, merged and published as manual-map-v0.5.0.
-PR #8 is CHANGES_REQUIRED: fix the cross-server Auto Stop/return ordering and
-complete the bounded speed/accuracy assessment under the R1 work item.
-Whole Map is still PARTIAL.
+MAP-006 R1 / PR #8 is **ACCEPTED / MERGED / PUBLISHED** as
+`map-available-v0.6.0`: six available manual kinds, applicable stored controls,
+passive navigation and bounded Auto/Stop/return. See
+[independent acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md).
+MAP-005 / PR #7 remains released as manual-map-v0.5.0. Whole Map is **PARTIAL**:
+Ghost positive acquisition, full Treasure and owner-only action witnesses are pending.
+Next scoped implementation: MAP-ACTION-PROVIDERS-007 from main, solo worker.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
@@ -37,8 +38,8 @@ The earlier d09b8328 progress review is historical. Current package source is
   Manual City/Resource live acquisition is **ACCEPTED / MERGED / PUBLISHED**
   with genuine official current-server Map UI/SQLite, Stop and export evidence.
   Download and review identity: [MAP-005 lead acceptance](MAP_005_LEAD_ACCEPTANCE_2026-10-11.md).
-  PR #8 remains unmerged pending correction of a reproduced cross-server Auto
-  Stop/return ordering race. Whole Map remains PARTIAL.
+  PR #8's cross-server Auto Stop race is corrected and independently accepted;
+  available Map scope is now released. Whole Map remains PARTIAL.
 
 Missing original-only facts can remain research notes while a documented
 supported implementation passes functional acceptance. Missing actual operations,

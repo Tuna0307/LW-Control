@@ -1,5 +1,10 @@
 # MAP-006 R1 — settle cross-server Stop and measure useful scan alternatives
 
+**CLOSED / LEAD ACCEPTED / MERGED / PUBLISHED**, 2026-10-11. Independent
+lead probe, native/frontend/pipe/package checks passed. See
+`../MAP_006_LEAD_ACCEPTANCE_2026-10-11.md`. The instructions below are retained
+as the historical assignment, not a request to repeat the completed work.
+
 Repository: `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`.
 Use existing branch `codex/map-complete-delivery-006` and checkout, solo.
 Read AGENTS.md, the 2026-10-11 MAP-005/006 lead review, current MAP-006 work item,

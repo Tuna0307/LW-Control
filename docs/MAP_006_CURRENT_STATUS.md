@@ -1,5 +1,25 @@
 # Map — single current completion queue
 
+**Current lead decision, 2026-10-11: MAP-006 R1 ACCEPTED / MERGED / PUBLISHED.**
+PR #8 merged at `70b952ab44dde084ea95e3c613b9fe2d702ab426`; reviewed product
+source `66c349a4b8e63119e2cc397ed346eb40d64abbab`. Release:
+https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0 .
+See [lead acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md) for executed
+independent checks, finite benchmark limits and exact package hashes.
+
+Six available kinds, applicable stored controls, passive navigation and bounded
+Auto/Stop/return are released. Ghost positive acquisition (owner availability
+2026-10-15), full seasonal Treasure, incomplete Ghost/Treasure providers and
+live owner-only claims/plunder/sharing remain pending. Whole Map is PARTIAL.
+Accepted single-game Home remains released; two-game F-07 is separate.
+
+**Only current continuation:** MAP-ACTION-PROVIDERS-007 on its assigned branch
+from main. See `work-items/LWB317-MAP-ACTION-PROVIDERS-007.md`. No new full-world
+scan or accepted release rebuild is needed merely to restart a fresh worker.
+Merged MAP-006 branch may be retired after ancestry checks, preserving artifacts.
+
+## Historical worker/lead snapshots — superseded by the acceptance above
+
 **MAP-006 R1 worker correction completed, pending independent lead review.**
 Following the lead's historical `CHANGES_REQUIRED` finding below, the R1 source
 now awaits exact native Stop before returning from an Auto scan on a foreign
@@ -16,7 +36,7 @@ not confused with 2,500 logical blocks. Full details/negative receipts:
 unmerged. Whole Map stays **PARTIAL** with Ghost, seasonal/full Treasure and
 owner-only live actions **pending**; no worker claims/plunder/sharing.
 
-**Latest lead decision, 2026-10-11: CHANGES_REQUIRED for PR #8.**
+**Historical pre-R1 lead decision, 2026-10-11: CHANGES_REQUIRED for PR #8.**
 MAP-005 / PR #7 is accepted, merged and published as manual-map-v0.5.0.
 Lead reproduced a cross-server Auto Stop/return race (LEADMAP006-01); passing
 general suites and the first-origin Stop do not close it. No comparable-method

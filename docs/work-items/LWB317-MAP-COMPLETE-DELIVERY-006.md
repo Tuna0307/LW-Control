@@ -217,9 +217,8 @@ Only the lead accepts, merges, publishes and retires merged branches/worktrees.
 
 ## Current continuation
 
-ASSIGNED. Lead has inspected the current queue/provider gaps; no MAP-006 product
-implementation or live experiment performed. Start with A, then continue B-F.
-Owner live scope now includes server switching and multi-server passive scans/
-Auto. Worker must not execute live claims/plunder/sharing; owner will do those.
-Complete all code/controlled gates and allowed live work when resuming after the
-discussion; record owner-only witnesses as pending, not passed.
+Available scope is **LEAD ACCEPTED / MERGED / PUBLISHED** at MAP-006 R1, PR #8,
+release map-available-v0.6.0. The old A-F assignment above is historical.
+Whole Map remains PARTIAL; deferred Ghost/Treasure/actions are continued through
+LWB317-MAP-ACTION-PROVIDERS-007.md. No live claims/plunder/sharing are authorised.
+Preserve both accepted Map releases, historical failures and ignored artifacts.
