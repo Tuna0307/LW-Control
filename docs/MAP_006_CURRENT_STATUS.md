@@ -1,5 +1,21 @@
 # Map — single current completion queue
 
+**MAP-006 R1 worker correction completed, pending independent lead review.**
+Following the lead's historical `CHANGES_REQUIRED` finding below, the R1 source
+now awaits exact native Stop before returning from an Auto scan on a foreign
+server. Genuine client v24 on 2026-10-11 proved **2212 → 2213 active Stop →
+2212**, no erroneous return failure, zero partial publication and correct
+restoration/cleanup. Controlled held Start/Stop/successor/retirement/failure
+checks pass. A fresh server-2212 Truck-only Fast run measured **97.887 s, 340
+attributable Lua probes, 0 retries, 10,000 verified AOIs, 178 unique Trucks**;
+paired direct and official-list alternatives failed freshness/world-population
+equivalence and were *not* adopted. Network request totals remain unmeasured,
+not confused with 2,500 logical blocks. Full details/negative receipts:
+[`MAP-006 R1 proof`](proof/MAP-006-R1-STOP-EFFICIENCY-2026-10-11.md).
+**MAP-005/PR #7 is merged/published**, not awaiting review. PR #8 remains
+unmerged. Whole Map stays **PARTIAL** with Ghost, seasonal/full Treasure and
+owner-only live actions **pending**; no worker claims/plunder/sharing.
+
 **Latest lead decision, 2026-10-11: CHANGES_REQUIRED for PR #8.**
 MAP-005 / PR #7 is accepted, merged and published as manual-map-v0.5.0.
 Lead reproduced a cross-server Auto Stop/return race (LEADMAP006-01); passing
@@ -46,7 +62,7 @@ Branch: `codex/map-complete-delivery-006`, above MAP-005 source `023e34d0`.
 | --- | --- |
 | Single-game Home | Released and preserved; affected regressions only. Two-game F-07 remains separate. |
 | Stored City/Resource browsing + City export | Previously accepted on main. |
-| Manual City/Resource scans | MAP-005 worker complete / PR #7 pending lead review. Source/package/receipt preserved; not reaccepted here. |
+| Manual City/Resource scans | MAP-005 PR #7 accepted, merged, published as `manual-map-v0.5.0`; preserved, not reopened here. |
 | Six remaining manual types | Genuine positive populations now established for Monster, Truck, Railway, Dispatch and Treasure; Ghost still lacks a natural positive witness. Full manual control, scan lifecycle, source/package verification remain open. |
 | Auto Scan | Genuine multi-server Truck, Railway/Dispatch and Railway/Ghost cycles completed with 2,500/2,500 blocks and zero failures on each target. Native returns to original 2212 proved. UI Stop now calls exact-owned scheduler Cancel; controlled cancellation/config-edit and browser preview checks pass. Live Stop, manual overlap, host/profile/restart adversity and final acceptance remain open. |
 | Row controls/navigation/inspection | Inventory each actual control, finish missing implementations and authoritative result evidence. |

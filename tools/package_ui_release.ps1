@@ -139,8 +139,22 @@ NOT completed worker tests. No live claims, plunder or sharing were attempted.
 Earlier saved basic Treasure capture is retained but is not season/action proof.
 The original encrypted scanner algorithm, fastest request method, full original
 parity and independent simultaneous two-game support (Home F-07) are NOT claimed.
-MAP-005/PR #7 remains a separate predecessor review. This ZIP is an unmerged
+MAP-005/PR #7 is accepted, merged and published as manual-map-v0.5.0. This ZIP is an unmerged
 source-identified REVIEW CANDIDATE, not a published whole-Map release.
+
+MAP-006 R1 CROSS-SERVER AUTO STOP AND SCAN-METHOD MEASUREMENT
+An independently reproduced cross-server Auto Stop race has been corrected:
+the exact native scan Stop/lease is settled before return-to-origin. Genuine
+client 2212 -> 2213 Stop -> 2212 returned successfully, with cancelled cycle,
+zero published partial data and no return error. Held controlled failures,
+retirement and successor ownership tests also pass.
+Measured genuine Truck-only Fast baseline on server 2212: 97.887 seconds,
+340 application-to-Lua region probes, 0 retries, exact 10000 AOIs, 178 unique
+Truck records. These are NOT game network request counts. Reflected direct
+SendAoiRequest timed out without fresh evidence; official fresh Train-list
+refresh gave zero current-server 2212 Trucks. The full baseline remains in
+use; a globally fastest or original encrypted-algorithm claim is NOT made.
+See docs/proof/MAP-006-R1-STOP-EFFICIENCY-2026-10-11.md in source.
 
 Owner action checklist: docs/MAP_006_OWNER_ONLY_VERIFICATION_CHECKLIST.md
 in the source repository; do not use the packaged application for unverified

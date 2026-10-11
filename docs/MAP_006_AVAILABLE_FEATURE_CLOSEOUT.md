@@ -143,6 +143,15 @@ authoritative live confirmation. See
 
 ## Worker return
 
+**R1 subsequent correction:** the earlier origin-only Stop fix was insufficient
+for cross-server Stop/return teardown (independent historical negative is
+preserved). The production scheduler now awaits the exact owned native Stop
+before any requested return; native current-client session 2212→2213→2212
+passes with canceled/zero lastError, and the finite Truck speed+accuracy
+method comparison retained adaptive LOD0 coverage. Read the authoritative
+[`R1 proof`](proof/MAP-006-R1-STOP-EFFICIENCY-2026-10-11.md). PR #7 is now
+merged/published; PR #8 still needs independent lead acceptance.
+
 READY_FOR_LEAD_FUNCTIONAL_REVIEW **for the explicitly completed available scope**
 only when its controls, genuine/controlled gates and final package pass. Whole Map
 remains PARTIAL with Treasure/Ghost/owner-only witnesses disclosed. If another ready

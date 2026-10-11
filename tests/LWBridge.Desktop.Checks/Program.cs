@@ -23,6 +23,7 @@ HomeR4TransportChecks.Run();
 await MapStoredDeliveryChecks.RunAsync();
 await MapManualScanDeliveryChecks.RunAsync();
 await MapAutoScanTerminalChecks.RunAsync();
+await MapAutoScanR1StopOrderingChecks.RunAsync();
 await Map006ActionSafetyChecks.RunAsync();
 await Map006AllKindScanChecks.RunAsync();
 await Map006DispatchCorrelationChecks.RunAsync();

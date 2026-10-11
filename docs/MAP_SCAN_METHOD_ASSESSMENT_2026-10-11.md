@@ -83,6 +83,28 @@ Worker live claim, plunder and sharing remain excluded.
 
 ## Efficiency acceptance
 
+**R1 actual paired client measurement (subsequent):** The previously unmeasured
+method alternatives now have a finite, corrected-source/current-v24 trial; see
+[`MAP-006 R1 proof`](proof/MAP-006-R1-STOP-EFFICIENCY-2026-10-11.md) for
+precise identities, timing, source fields, restoration and preserved negative.
+Single-server Truck Fast full-world baseline on 2212: **97.887 seconds**, **340
+attributable application→Lua region-probe calls, 0 retries, 340 validated
+responses, 10,000/10,000 AOIs, 178/178 unique published Trucks**, zero
+failure/staging; the 11 key Truck fields examined were present on all rows.
+A fresh detailed-coverage region probe took **317 ms** and returned 30 AOIs.
+Direct reflected `SendAoiRequest` on the identical tile timed out at **8.065 s**
+without a fresh response; tile/LOD were restored and a later coverage probe
+again verified 30 AOIs. Two fresh official Train-list calls bracketed by
+coverage took **355 ms / 306 ms** and returned 15 Trucks from *other* server
+IDs, zero on the requested 2212, versus 178 in the native AOI dataset.
+Because direct failed, its reverse-order live probe was not forced; the official
+candidate was compared in the independent paired coverage/list/list/coverage
+ordering. Raw native **network** requests could not be attributed amidst
+concurrent game traffic; 340 is a Lua command count, not a server packet count.
+**No alternative qualified** on full coverage and field/identity fidelity;
+baseline remains deployed, without globally fastest/original equivalence claim.
+The remainder of this section records the earlier pre-R1 acceptance question.
+
 There is no completed like-for-like benchmark establishing the current method as
 best. Before changing the baseline, compare suitable direct/list/region routes on
 the admitted client for actual coverage, row identities/fields, freshness, elapsed
