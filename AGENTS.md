@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest owner/lead clarification, 2026-10-12: a timeout alone cannot establish
+a stuck or unrecoverable function. Follow docs/MAP_013_MONITORED_CONTINUATION.md
+inside the existing MAP-013 assignment. Instrument actual decompiler processes,
+distinguish deadline/cancellation/crash, preserve analysis state, and evaluate
+longer runs from observed activity rather than an arbitrary 300-second cap.
+CPU use alone is not useful progress. Continue the scanner request/reply/cache
+investigation; tool monitoring is not scanner completion. Same live authority.
+
 Latest lead decision, 2026-10-12: MAP-013 correction checkpoint75c70cbe accepted
 for full pseudocode retention and source-bound75s retests. Overall scanner remains
 PARTIAL. Read docs/reviews/2026-10-12-MAP-013-R1-LEAD-REVIEW.md; continue same

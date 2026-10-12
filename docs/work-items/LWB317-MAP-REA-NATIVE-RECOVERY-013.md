@@ -1,5 +1,10 @@
 # MAP-013 — configure native REA and recover scanner mechanisms
 
+Current continuation, 2026-10-12: follow
+`docs/MAP_013_MONITORED_CONTINUATION.md` after the accepted correction review.
+It supersedes treating unchanged short-budget retries as sufficient investigation.
+The prior timeouts stay historical; the scanner objective remains PARTIAL.
+
 Owner assignment 2026-10-12: use the newly installed REA and install Ghidra or
 other relevant analysis prerequisites into the project where helpful. Existing
 repo `C:\Users\chimw\OneDrive\Desktop\Github\LW-Control`, branch
