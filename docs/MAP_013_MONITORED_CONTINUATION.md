@@ -1,5 +1,10 @@
 # MAP-013 — monitored recovery and scanner continuation
 
+Lead independently accepts checkpoint `6e9e6a14`'s bounded monitoring evidence.
+See `reviews/2026-10-12-MAP-013-MONITORED-LEAD-REVIEW.md` for raw-result/external-stop
+distinctions, test results, helper precautions and the required game causal trace.
+Scanner completion remains PARTIAL. Do not repeat the unchanged memory-heavy run.
+
 **Current result (2026-10-12, continuation from `b2eacb821538`): PARTIAL.**
 Monitoring was implemented and validated against the prior successful
 `0x140191253` control (observed actual native child, 613-ms native

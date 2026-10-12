@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-12: 6e9e6a14 monitored analysis accepted as bounded
+evidence; scanner objective remains PARTIAL. Read
+docs/reviews/2026-10-12-MAP-013-MONITORED-LEAD-REVIEW.md. The 1,800s timer did
+not expire: an externally recorded resource-pressure stop ended the owned
+native child. Prioritize actual game request/reply/cache attribution; do not
+repeat the same memory-heavy decompilation. Same assignment, branch and authority.
+
 Latest owner/lead clarification, 2026-10-12: a timeout alone cannot establish
 a stuck or unrecoverable function. Follow docs/MAP_013_MONITORED_CONTINUATION.md
 inside the existing MAP-013 assignment. Instrument actual decompiler processes,
