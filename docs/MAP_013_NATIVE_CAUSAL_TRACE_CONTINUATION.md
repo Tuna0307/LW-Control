@@ -1,5 +1,133 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+## 2026-10-13 LEADMAP013-04 and WorldReady repair (checkpoint PARTIAL)
+
+**This continuation is offline/inert only.** The original eight owned
+game receipts were retained; **no new game launch, packet, populated
+first/second-region reply, AOI cache insertion or benchmark was observed**.
+The production map scanner, Normal/Fast, Home, saved datasets, native
+names, mixed discovery and Auto Stop-before-return are unchanged.
+
+**LEADMAP013-04 corrected:** The actual
+`tools/map_009_offline/run_map013_owned_observer.py` reader no longer
+accepts a reply merely because `requestId` matches. It uses a separate,
+source-schema-specific `ExpectedReply` for three producers:
+`current_overview_bridge.lua.write_world_ready_result` emits
+`schemaVersion=1`, `bridgeVersion`, `profileId`, **`sessionId`**,
+`gamePid`, `challenge`, UTC `capturedAt`, `state`, and,
+for a successful world, actual `serverId`, `worldId` and
+positive tile dimensions. Player tile is **optional** in the real
+producer and validated only when emitted.
+`current_live_resource_probe.lua.write_bulk_aoi_result` emits
+`schemaVersion=1`, `probeVersion`, `profileId`,
+**`launchSessionId`**, PID, challenge, capturedAt and requestMode;
+positive target tile/AOI indices must be present. Its diagnostic
+output **does not echo an authoritative serverId/worldId**. It cannot
+establish native remote response provenance merely because the
+original outgoing request supplied a serverId. The private observer
+now also emits its original owner challenge, probeVersion and
+capturedAt (all confined to ignored raw receipts); its
+`launchSessionId` is distinct from WorldReady's `sessionId`.
+The reader rejects malformed/missing/mismatched fields, stale
+file/capture times, future captures, wrong statuses, error-free
+failed states and foreign owners. `pending` is not a terminal
+success. The original lead inverse remains untouched at
+`proof/MAP-013-LEAD-REPLY-INVERSE-2026-10-13.json`. Independent
+inert tests execute that exact former foreign-owner example and
+additional missing-version, wrong-world/server, wrong-session,
+stale, pending, terminal-failure and positive controls. This
+validates **diagnostic file ownership**, not game packet-to-cache
+association.
+
+**Actual WorldReady Lua source path, tested inertly:** Host uses
+`publish_command` (atomic file replace), verifies the owner
+lease via the existing `write_lease`; the v24 bridge's
+`M.Pump` reads control/lease. A rejected/expired lease exits
+*before* `pump_world_ready`. When admitted,
+`read_world_ready` reads and **deletes the command before**
+validating schema/version/token. If those are invalid it silently
+returns nil **without any result**; a wrong owner is instead
+returned as a request.error and produces a `failed` result.
+Accepted commands are processed by `begin_world_ready`:
+existing `WorldScene` succeeds immediately; otherwise
+`SceneUtils.ChangeToWorld(callback)` is attempted and a
+pending transition begins. `pump_world_ready` confirms
+**actual WorldScene type**, not just a non-null
+`SceneManager.World` (which may still be `CityScene`).
+It writes `proven` on a WorldScene, `failed` on unavailable/
+throwing transitions or after the source's **10s** pending
+deadline. `write_world_ready_result` uses a direct file writer
+that can return false; the original ignored the return.
+This explains concrete *possible* silent/timeout routes,
+but the archived 234333 receipt lacks the stage telemetry
+required to choose one. **Its actual first failed branch is
+still unknown.**
+
+**Deterministic next-run diagnostics implemented but not live-run:**
+An *opt-in, fail-closed exact-source* transformation of the
+existing bridge in
+`tools/map_009_offline/worldready_instrument_013.py`
+records source-specific bounded stages:
+control/lease accepted or rejected, command read/consumed,
+schema/token/owner admitted or rejected, transition invocation,
+pending, completed WorldScene or 10s timeout, and result write
+success/failure. Unique source seams and full Lua parsing are
+required; source drift refuses packaging. Python's read-only
+`snapshot_worldready_stages` records publication and subsequent
+command/control/lease/result existence with exact owner checks
+without copying secrets. The **unmodified wrapper control and
+resource-probe SHA-256s remain byte-identical** without opt-in;
+actual v24 `run_check_only` of the opt-in candidate succeeded
+without launching the game (probe encoded size **57,531**,
+wrapper **34,691** bytes). Neither a Lua syntax pass nor
+this offline admission is a live end-to-end WorldReady or
+AOI-positive witness.
+
+**Exact previously denied operation recovered from existing
+conversation/tool record, not repeated:**
+`mcp__Chat_On_Steroids_Core__write_stdin` with
+`session_id=55411`, `chars=""`, `yield_time_ms=1000`,
+following a diagnostic runner started with
+`python tools/map_009_offline/run_map013_owned_observer.py
+--baseline-region`. Returned verbatim redacted error:
+
+> Script error: This tool call was blocked by OpenAI because we
+> couldn't determine the safety status of the request.
+
+The denial explicitly concerns **that tool poll**. The tool
+reported no more specific prohibited action or policy category.
+Do not infer blanket future permission or that the game scanner
+itself was rejected. Do **not** retry, reroute or bypass the denied
+operation. The original 234333 runner's final.json and exact
+owned cleanup showed it ended before region dispatch and restored
+the original scripts; this document does not treat that result as
+a native protocol negative. A future live native packet/callback/
+cache trial still needs an independently permitted execution path
+and exact task-owned cleanup. The enabled production route remains
+the accepted serial camera-assisted scanner.
+
+Current v24 offline additional source boundaries:
+`NetworkManager.Send` method `0x06001677` forwards
+`IRequest` to its internal network proxy.
+`NetworkManager.OnExtensionResponse(BaseEvent)` method
+`0x06001687` forwards the received event via an obfuscated
+network handler call, while its `(string,SFSObject)` overload
+`0x06001684` is an empty method body in this admitted build.
+`WorldPointManager.SendAoiRequest` `0x0600351d`
+constructs the request and invokes its primary call at
+`IL_00d8`, with a guarded secondary send at `IL_0150`.
+`HandleViewPointsReply` `0x06003551` checks an
+`ISFSObject` envelope and invokes its local block callback
+from `IL_0104` for indexed segments; a later fallback
+passes the complete payload.
+`ParseWorldGetBlock` `0x06003553` includes
+an early world/server comparison at `IL_0047..006a`
+before it parses point/march lists. These are actual static
+control-flow locations; the obfuscated dispatch's **wire command,
+payload values and in-session callback identity remain
+unattributed**, not a fabricated success. No camera-free or
+consecutive shortcut passed a new positive gate.
+
 Lead review, 2026-10-13: new local-event and WorldReady receipts accepted as
 bounded evidence. Fix LEADMAP013-04 reply-owner validation and diagnose command
 orchestration inertly before more trials. Preserve exact reported safety denial;

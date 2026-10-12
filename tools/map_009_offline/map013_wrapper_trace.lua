@@ -114,8 +114,11 @@ local function _trace_finish(status)
         if not ok then tr.errors[#tr.errors+1]="Unsubscribe "..sub.id..":"..tostring(err) end
     end
     tr.listeners={}
-    local obj={schemaVersion=1, requestId=tr.request.requestId, profileId=tr.request.profileId,
+    local obj={schemaVersion=1, probeVersion=tr.request.probeVersion,
+        requestId=tr.request.requestId, profileId=tr.request.profileId,
         launchSessionId=tr.request.launchSessionId, gamePid=tonumber(tr.request.gamePid),
+        challenge=tr.request.challenge,
+        capturedAt=os.date("!%Y-%m-%dT%H:%M:%SZ"),
         state=status, events=tr.events, registrations=tr.registrations,
         samples=tr.samples, errors=tr.errors,
         eventType=tr.eventType, entryGlobal=tr.entryGlobal, entryStatic=tr.entryStatic,

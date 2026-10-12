@@ -1,5 +1,17 @@
 # MAP-013 — finite method assessment and decision
 
+**2026-10-13:** The lead's LEADMAP013-04 diagnostic
+reply ownership inverse was corrected, and an opt-in
+source-bound WorldReady lifecycle observer was added with
+inert tests and v24 read-only package admission. The
+existing scanner remains the accepted **interim**
+accuracy-qualified method. No new fresh populated region,
+verified native SmartFox packet→cache route or speed
+comparison has been obtained. The specific previously
+denied session poll was not retried. See
+`MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md`;
+overall MAP-013 remains **PARTIAL**.
+
 Independent lead review accepts `84e74869` as a historical assessment and interim
 retention decision. It does not close the assigned causal trace or establish
 alternative exhaustion. See `reviews/2026-10-12-MAP-013-METHOD-DECISION-LEAD-REVIEW.md`;

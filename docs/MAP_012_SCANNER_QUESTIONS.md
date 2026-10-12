@@ -1,5 +1,26 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+**2026-10-13 LEADMAP013-04 repair:** The actual MAP-013
+diagnostic reply reader now rejects same-requestId foreign
+owner replies and missing/mismatched versions, session field
+(`sessionId` vs `launchSessionId`), profile/PID/challenge,
+capture/file age, world context and nonterminal state.
+This is a **diagnostic validation** fix, not proof of
+native server/response identity. Private observer output
+now includes its formerly absent challenge/capture
+timestamp. Inert source-bound WorldReady lifecycle stages
+identify a real possible silent fail: the bridge consumes
+the command before checking schema/version/token and may
+return without a response; control/lease, scene transition
+and result write are distinct gates. Last live 234333 has
+insufficient native/bridge stage evidence to determine its
+actual failure. Exact historical blocked tool call/text
+preserved in
+`MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md`.
+No denied operation was retried, no new game/native-region
+positive exists and Q1–Q8 conclusions below remain
+**PARTIAL**; existing scanner retained.
+
 ## Owner MAP-013 finite method selection — 2026-10-12
 
 **Decision for the admitted v24 game: retain the existing serial,
