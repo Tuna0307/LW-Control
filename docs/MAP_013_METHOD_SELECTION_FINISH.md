@@ -108,6 +108,13 @@ relocation or updater. Respect actual denials/pauses, ownership, isolation and
 restoration after confirmed exit. Clean owned processes, journals/subscriptions,
 temporary state; leave Auto off and zero newly armed action jobs.
 
+Owner clarification, 2026-10-12: open and relaunch task-owned clone/game sessions
+as needed for assigned experiments without another confirmation or waiting for
+the owner to be free. Normal windows may open behind owner Chrome. Do not force
+focus or minimize/rearrange windows. Existing owner sessions remain independent;
+do not stop or repurpose them. Actual approval denials and explicit pauses still
+prevail. This clarification changes availability, not the allowed game actions.
+
 Integrate qualified useful changes into one canonical implementation. Run affected
 checks; build one final candidate only if settled product changes warrant it.
 No diagnostic ZIP treadmill. Commit coherent work, push normally, verify direct

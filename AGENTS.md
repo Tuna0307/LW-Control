@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest owner clarification, 2026-10-12: the worker may open and relaunch the
+task-owned clone and game whenever needed for assigned work, without waiting
+for another confirmation or the owner to be free. Background-only/no-mouse
+restrictions, exact session ownership/isolation/restoration and prohibited
+account-changing actions remain. This does not authorize stopping unrelated
+owner sessions, bypassing actual tool denials, or ignoring an explicit pause.
+
 Latest owner direction, 2026-10-12: continue investigating credible scanner
 alternatives, then select the fastest accuracy-qualified supported method.
 Follow docs/MAP_013_METHOD_SELECTION_FINISH.md in the same assignment/branch/PR.
