@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest lead decision, 2026-10-12: MAP-013 correction checkpoint75c70cbe accepted
+for full pseudocode retention and source-bound75s retests. Overall scanner remains
+PARTIAL. Read docs/reviews/2026-10-12-MAP-013-R1-LEAD-REVIEW.md; continue same
+assignment stage C with actual current-game outbound/inbound/cache attribution.
+Preserve original recovery and toolchain; no new campaign or repeated setup.
+Existing background-only/game-action authority remains unchanged.
+
 Latest lead review, 2026-10-12: MAP-013 native toolchain at c22a88b9 independently
 passes real REA/Ghidra execution. Continue the same assigned work, not a new campaign.
 Read docs/reviews/2026-10-12-MAP-013-LEAD-REVIEW.md: fix selective pseudocode

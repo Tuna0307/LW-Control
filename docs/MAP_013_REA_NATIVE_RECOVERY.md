@@ -1,5 +1,13 @@
 # MAP-013 — REA native recovery and scanner boundary (2026-10-12)
 
+**Independent R1 lead decision:** `75c70cbe` corrections ACCEPTED within their
+scope. Full retained function source/hash/bounds and three audit plus24 offline
+tests independently pass. The four75s function timeouts remain recovery negatives;
+no scanner speed/causal qualification follows. See
+`reviews/2026-10-12-MAP-013-R1-LEAD-REVIEW.md`. Continue same assignment stage C,
+prioritizing actual working/failing request->response->cache trace, not repeated
+unchanged decompilation or setup checks. No merge/publication.
+
 **Lead continuation:** the native-toolchain milestone remains independently
 accepted. **LEADMAP013-01 corrected:** the full original `0x140191253`
 pseudocode is retained with verified SHA, lengths, source bounds and explicit
