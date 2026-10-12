@@ -18,6 +18,13 @@ available functionality for acceptance. Active Monster protection live witness,
 Ghost/full seasonal Treasure and terminal owner-only actions remain limited/pending.
 See [current independent review](reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md) and
 [one current queue](MAP_008_SCAN_METHOD_CONTINUATION.md). Older negatives are preserved.
+**Current execution priority:** owner is using the computer. Assigned
+[MAP-OFFLINE-ACQUISITION-009](work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md)
+traces native chat coordinates, region/server requests and per-kind acquisition
+offline, with supported headless improvements. No desktop/live work in this task;
+final captures stay pending. Lead inventory confirms current v24 package entries
+and selected navigation sources decode; a separate original encrypted feature
+controller is not a reason to stop this current-game investigation.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).

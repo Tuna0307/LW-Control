@@ -1,5 +1,13 @@
 # MAP-008 - single current continuation
 
+**Latest execution priority (2026-10-12):** owner uses the computer. Complete
+`docs/work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md` offline on this same
+branch/PR. No desktop control/captures, game starts or live requests. The final
+MAP-008 locale capture gates below remain pending until live/UI authority is
+explicitly resumed; offline feedback localization may proceed. Source-led native
+map/coordinate/server/list recovery and supported headless improvements are now
+the ready task. Do not wait idle for UI access or claim simulations prove speed.
+
 Current product source: `10b73c4a061f4deebbe1226c9454277fc871ca78`.
 One checkout, branch `codex/map-action-providers-007`, PR #9 open/unmerged.
 Current independent decision: **CHANGES_REQUIRED for final locale/release proof**.

@@ -14,6 +14,11 @@ live owner-only claims/plunder/sharing remain pending. Whole Map is PARTIAL.
 Accepted single-game Home remains released; two-game F-07 is separate.
 
 **Only current continuation (2026-10-12):** PR #9 / MAP-008 at `10b73c4a`:
+Owner-present execution is now offline under
+`work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md`: trace native coordinate-link,
+AOI/region/server routing and complete per-kind sources; implement supported
+headless improvements. No desktop input/captures or game/live requests in this
+assignment. The final release observations below remain pending, not cancelled.
 LEADMAP008-01/02 audit fixes independently pass; current installed native names and
 mounted root/locale ownership checks pass. Railway/ordinary Treasure positive
 sampled values are now witnessed. Preserve these changes. Final extracted captures

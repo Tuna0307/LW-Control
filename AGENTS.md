@@ -1,5 +1,16 @@
 # LW-Control — current contributor instructions
 
+Latest owner/lead assignment, 2026-10-12: owner is using the computer and requests
+offline current-game reverse engineering to resolve Map acquisition/optimization.
+Follow docs/work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md on the existing
+codex/map-action-providers-007 branch/PR #9. For this assignment no desktop input/
+capture, game/launcher/Desktop UI start, live RPC/scan/jump, installation mutation
+or account-changing action. No automatic live resume. Headless/inert analysis and
+supported offline code changes are allowed. Trace native chat-coordinate links,
+coordinate/index transforms, AOI response lifecycle, direct/remote requests and
+per-kind list completeness. Preserve the working scanner and main. Older release
+captures/live task authority below do not override this explicit offline scope.
+
 Owner clarification, 2026-10-12: the official game's default language is Chinese.
 Do not change the game language for clone UI verification. App EN/JA checks select
 the clone's language and must record the actual state, not infer it from filenames.
