@@ -138,7 +138,21 @@ large functions were retested with verified boundaries and 75s each but
 still timed out (not an impossibility conclusion). Hash-locked
 managed v24 request/handler bodies and R15/R16 receipts still lack independently
 correlated second-target native reply segments.
-**The Q1–Q8 answers and production disposition below are unchanged: PARTIAL.**
+**2026-10-12 MAP-013 causal observer update:** eight new exact-owned
+live instrumentation attempts are now recorded in
+MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md, with raw SHA256 audit in
+proof/MAP-013-NATIVE-OBSERVER-2026-10-12.json. Actual v24
+GameEntry.Event was reached through the static CS proxy; source EventIds
+1433, 661, 2821011, 2821014 were additively registered and a **661
+numeric-payload event** was observed. This is **not** an AOI wire reply.
+One official WorldReady transition was independently observed on
+server 2212/world 0; one private observer reflection error was fixed.
+A later attempted first-region native trial did **not** reach region
+dispatch because WorldReady was unavailable, and a fail-closed runner
+error was corrected. All owned games exact-exited and scripts restored.
+No first/second-region native packet/segment/cache correlation,
+population witness or performance candidate is new. **The Q1–Q8
+answers and production disposition below remain PARTIAL.**
 Original negative trial history remains retained. Same branch and background-only
 authority; leave Normal/Fast unchanged.
 
@@ -156,7 +170,7 @@ separate decision.
 
 | Question | Plain conclusion and product consequence | Native/source support and limits |
 | --- | --- | --- |
-| **Q1: how request/receive/cache/retire?** | Camera/viewport determines native LOD/AOI subscription. The manager builds add/current lists, sends split-capable view/AOI messages, receives point segments, updates its caches and processes update/removal notices; expired/out-of-view records are later retired. World marches, train/event and detail managers add other type sources. App-owned results are staged and published separately. | Hash-locked v24 WorldPointManager IL: UpdateLWAoi_Normal, SendAoiRequest, SendViewRequest, StartViewRequest, UpdateViewRequest, HandleViewPointsReply, HandleViewUpdateNotify, AddPointInfo, RemovePointInfo, ViewCulling, DeleteOutOfAoi, DeleteTimeOutPoints. Lua GoToUtil.GotoWorldPos and SceneUtils.TileToWorld. Exact native request generation/response-segment identity is **not recovered**. |
+| **Q1: how request/receive/cache/retire?** | Camera/viewport determines native LOD/AOI subscription. The manager builds add/current lists, sends split-capable view/AOI messages, receives point segments, updates its caches and processes update/removal notices; expired/out-of-view records are later retired. World marches, train/event and detail managers add other type sources. App-owned results are staged and published separately. | Hash-locked v24 WorldPointManager sender/parser IL plus GameEntry.get_Event and EventComponent.Subscribe. **New live positive:** four actual additive local event subscriptions and numeric event 661, fresh successful WorldReady server 2212/world 0. **Still missing:** correlated AOI wire ID, response segments and cache insertion; these local event IDs must not be mistaken for native reply IDs. Details in MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md. |
 | **Q2: complete unknown map without moving camera?** | **Not established for City, Resource, Monster, Truck, Railway, Dispatch, Ghost, Treasure or any mixture.** Direct details, scoped lists and coarse LOD can help known targets or enrichment but are not proven full-population enumeration. Not proven impossible in principle. | R4 explicit SendAoiRequest and R5 direct SendViewRequest timed out; specialized zombie-boss coarse LOD is not generic Monster, and direct Train list omitted previously seen Trucks. See per-kind table. |
 | **Q3: adjacent regions with one final home restore?** | **Technically plausible, not accuracy-qualified.** Camera position, native AOI selection and a *fresh populated reply* are independent tests. Keep the conservative validated production target/home-response cycle. | R13 official navigation reached second tile yet nine first-region AOIs remained. **R14:** even after explicit anchor refresh + view update the four native camera-anchor corners remained at first region. **R15:** reversible second-region anchor rectangle yielded 80 correct AOIs and restored home once, but returned **zero** second point/march rows; the private diagnostic's proven status was misleading. **R16:** explicit native SendAoiRequest for those 80 AOIs still returned zero target rows and was rejected. Native response and source field witnesses remain missing. |
 | **Q4: another server without switching?** | **Three distinct questions:** known object = explicit-target request exists but actual authoritative remote response **inconclusive**; arbitrary remote region = **not proven**; remote *entire unknown map* = **not proven**. The active/current server uses the existing view without a server switch. Other full-map scans presently switch context and return. | WorldGetDetail request serializes point + serverId + worldId, but R12 active 2212/target 2213 found known point with reported detail server 0: a missing literal echo alone neither establishes nor refutes remote origin. Point-ID cache can be stale/ambiguous. Need wrong-server/same-coordinate/retired-connection controls and response transport/callback identity. |
