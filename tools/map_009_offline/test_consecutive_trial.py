@@ -107,6 +107,28 @@ class ConsecutiveTrialTests(unittest.TestCase):
         with self.assertRaises(TrialRejected):
             model.accept(reply(REGIONS[1]))
 
+    def test_positive_flags_and_generic_network_activity_do_not_prove_second_aoi(self):
+        # MAP-010 R10 *real* diagnostic: scene tile (545,495) settled,
+        # StartViewRequest returned successfully, unscoped packet counters
+        # increased, and both response flags became true, but native
+        # _curViewIndex had nine AOIs without the requested target index.
+        # The synthetic Reply here is ONLY an adversarial acceptance model:
+        # never promote manager flags or network totals into native identity.
+        model = trial()
+        self.assertEqual(model.accept(reply()), "next-region")
+        self.assertFalse(model.restoration_pending)
+        wrong_footprint = reply(REGIONS[1], native_aoi=frozenset({1, 2, 3}),
+                                native_flags_ready=True, native_split_pending=False,
+                                captured_after_request=True,
+                                point_snapshot_ready=True, march_snapshot_ready=True)
+        with self.assertRaisesRegex(TrialRejected, "coverage gap"):
+            model.accept(wrong_footprint)
+        self.assertEqual(model.covered, {1, 2, 3})
+        self.assertEqual(model.ordinal, 1)
+        self.assertEqual(model.abort(OWNER), "restore-home")
+        model.confirm_home(OWNER, HOME)
+        self.assertFalse(model.finished)
+
     def test_cancellation_error_owner_replacement_and_exact_home(self):
         model = trial()
         self.assertEqual(model.abort(OWNER), "restore-home")

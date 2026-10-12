@@ -41,6 +41,8 @@ stable camera and home-view restoration in 1.073 seconds (R4). This is a
 | Two regions (455,425) then (545,495), return only at end (R6) | First region captured 28 actual Resource rows; next target AOI absent immediately after send | Unqualified |
 | Staged-file R7 | Old Lua revision accidentally staged; same prior native error | Not a distinguishing native trial |
 | Deferred second-AOI verification (R8) | First 28 rows; requested second index 4954 absent from post-reply native current AOI set (nine cells observed) | Reject |
+| **Scene-settled second target (R9)** | In a later game-pump callback, second native camera tile **545,495** settled. The following UpdateViewRequest still failed authoritative target AOI/network corroboration. | Reject; excludes only same-tick camera update as an explanation |
+| **StartViewRequest after scene settle (R10)** | Actual second camera tile **545,495**; native StartViewRequest succeeded; unscoped network packets sent **202 to 203**, received **228 to 233**. Both reply flags observed, but native nine-cell current AOI set **excluded the second target AOI**. | Reject; transport activity and reply flags do not establish target completeness |
 
 No positive second-region native footprint and no exact final-only restore
 receipt exist. All candidates were fail-closed; no partial/empty region was
@@ -50,6 +52,24 @@ starting checkpoint by git blob ID cd190f4294cdd9d4131180851a1164b967025bb4;
 the research-only C# driver is archived as the noncompiled
 tools/map_010_background/Map010SmallNativeTrial.reference.txt.
 The existing serial camera-assisted method stays in production.
+
+**Further R9/R10 diagnosis:** No game process was present at preflight.
+Each attempt used a fresh isolated profile, current v24 client, original
+script hash gate/backup, a task-only Lua probe staged into a temporary
+Desktop runtime, and exact owned Home Stop. The experimental chain2
+Lua and C# driver remain solely in ignored
+artifacts/map-010/chain2-r9 and artifacts/map-010/chain2-r10,
+not compiled/shipped or tracked. Afterward the temporary host CLI was
+manually returned to its exact committed blob, both staged Lua sources
+were restored from the canonical file, and the original installed
+game scripts were intact. R10 exercised a materially distinct native
+lifecycle: StartViewRequest after the real second WorldScene camera
+tile settled, then UpdateViewRequest(true). Successful calls, reply
+flags and unscoped network send/receive increases **cannot** replace
+authoritative second-target AOI payload coverage. Identify
+HandleViewPointsReply payload source, reply-window/segment provenance
+and actual second-target current-view-index transitions before further
+live trials. Do not repeat R9/R10 unchanged.
 
 MAP-009 recovered that known point detail and Railway march-position
 serializers carry explicit server/world/point or UUID fields. That proves
@@ -112,7 +132,19 @@ This does NOT improve live scan speed or invent fresh connection status.
 ## Tests, cleanup and continuation
 
 Managed Desktop Release/Home/Map/Auto/ownership/pipe/scan-publish and
-MapStore checks passed; MAP-009 offline model tests 11/11 passed.
+MapStore checks passed; the MAP-009/R10 offline body/model tests now pass 12/12.
+One post-R10 adversarial model regression rejects a second-target AOI
+gap even if reply flags and unrelated network counters are positive.
+This test does not impersonate a native server callback.
+The unchanged final Windows package remains source-identified to
+9f3f6db99bcc2f38d8af6e827f2eaccbd21135a6 at
+artifacts/map-010/release-final-20261012/
+LW-Control-MAP010-BACKGROUND-RC-9f3f6db99bcc.zip (SHA-256
+27DB54AA59B37D79AF958320BF45199778F78BFF6FA5B8EAED240CC581B5FB0D).
+R9/R10 added **only research receipts, documentation and an inert
+regression**, not new production source; no duplicate or misleading
+post-trial release package was built. Its embedded source commit remains
+the correct identity of the shipping code.
 Frontend static/integration/completeness/drafts, MAP-008 mounted
 native-name and lifetime, and release UI smoke pass. Validate exact
 source/build package and provenance separately in final handoff.
@@ -125,6 +157,9 @@ A later unrelated LastWar.exe PID 39284 started at 12:29:06 local time,
 was NOT in any recorded task-owned trial PID or task recovery journal,
 and was left running untouched. Do not close an unrelated game or
 claim that the owner's system has no active game.
+No game/application process was present at the final R10 cleanup check.
+The unrelated PID above is historical, not a process that this task
+owned or closed.
 
 **Next concrete technical dependency:** recover a source-supported
 second-region native callback/segment identity with a complete fresh
