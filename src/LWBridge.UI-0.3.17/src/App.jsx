@@ -1325,6 +1325,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
   const pageProps = {
     mapApi,
+    mapOwner: profileOwnerKey(selectedProfileOwnerRef.current),
     gameTextLoader: nativeMapTextLoader,
     gameTextOwner: `${backendBridge.sessionId}:${profileOwnerKey(selectedProfileOwnerRef.current)}`,
     gameTextRoot: selectedNativeGameTextRoot(gameRootStatus),

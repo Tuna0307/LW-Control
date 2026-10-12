@@ -1,5 +1,78 @@
 # MAP-010 — current background-acquisition continuation (2026-10-12)
 
+## MAP-011 continuation — PARTIAL, 2026-10-12
+
+**LEADMAP010-01 fixed.** The immutable lead inverse is preserved. Actual
+App-selected profile ID and generation now key the mounted Map route even
+when App retains the same mapApi object. Replacement owners remount with
+empty options, rows, selection, and callbacks, then read only their private
+published positive server IDs. The selected Map kind survives a change of
+profile via route state. No disconnected server=0 is represented as a live
+connection. Explicit mounted A/B stopped 2212-to-2213, A/B/A, same-server
+A/B, held options/search, late saved-server success/rejection, empty and
+failed reads, and offline/online/offline transitions pass. The prior
+native-name mounted lifetime and all nine clone catalogs remain supported.
+No previously published Map dataset was modified.
+
+**LEADMAP010-02 receiver R11 rejected after its full deadline.** Source
+v24 WorldPointManager.HandleViewPointsReply managed token 0x06003551,
+UpdateViewRequest token 0x06003565 and StartViewRequest token 0x06003568.
+The task-private receiver samples native current/add/message AOI indices,
+split state, and reply flags until the full 8-second deadline; unlike R10,
+it does not fail at the first flags-ready but wrong-target snapshot.
+Server 2212 first region (455,425) returned 30 native AOIs, 28 real
+Resource rows, 3 Train rows and 27 Monster rows. The second actual
+WorldScene camera tile settled at (545,495), but the native current and
+add sets each retained nine AOIs that never contained that second target,
+the message set remained zero, and split was false. There were 455
+flags-ready pump observations without target membership and nine compact
+timeline samples spanning ~34ms to ~7289ms. After ~8879ms total the
+request failed as map011_receiver_deadline_no_target_owned_complete_aoi.
+No second segment, final-only home restore or production speed shortcut
+was accepted. Native callback/segment-to-request correlation still
+requires explicit receive-side proof; helper IDs and generic traffic
+cannot substitute for that authority.
+
+**Separate known remote point R12: not qualified.** An actual archived
+positive City point on server 2213 with point type 6 and world 0 supplied
+one known native WorldGetDetail request while the owned session remained
+on server 2212. The source-built message carries point ID/server/world.
+After ~340ms, a detail with the correct point ID appeared with empty
+pre-request cache, unchanged active server 2212 and unchanged camera tile.
+The parsed detail reported server 0, however, not the requested 2213.
+That is insufficient to establish authoritative remote lookup; it also
+does not demonstrate discovery of unknown remote objects or whole-map
+remote acquisition. It was rejected, without other-object enumeration.
+
+**Safety, release scope, and next step.** R11 and R12 each used fresh
+isolated task profiles; the original v24 installed scripts were hash
+verified and preserved, each exact task-owned session was stopped, no
+task game/app or recovery journal remained, Auto Launch/Reconnect were
+disabled and zero account actions occurred. Experimental Lua/C# and
+private target identity remain only in ignored artifacts/map-011.
+All temporary CLI/driver source and built runtime Lua were restored
+to the committed production state. Home, Auto Stop-before-return,
+native names, completed datasets, shared mixed acquisition, and the
+serial camera-assisted correct scanner are unchanged. No new
+individual/mixed/two-server alternating speed benchmark was eligible;
+prior ~207-211 second all-eight accuracy-qualified baseline remains.
+To proceed: source-attribute HandleViewPointsReply target/segment and
+manager view generation, establish two complete actual native target
+footprints plus one exact final restoration, then benchmark. Remote
+lookup separately requires a positive authoritative server/world echo.
+At final release validation, an additional LastWar.exe PID 40460
+appeared at 13:53:11 local; it was neither R11 owned game PID 1120
+nor R12 owned game PID 23308. No current task recovery journal owned
+that process, and it was **left running untouched**. Therefore zero
+remaining *task-owned* processes does not mean zero game processes
+on the owner's computer.
+Ghost seasonal/positive evidence and account-changing actions remain
+owner-deferred. Compact proof in
+docs/proof/MAP-011-RECEIVER-RESULTS-2026-10-12.json. Independent lead
+acceptance remains required. No merge or publication.
+
+---
+
 **Independent lead update:** worker `b8e53016` reviewed. Native name/feedback
 correction verified; no faster/camera-free/remote full-world route accepted.
 LEADMAP010-01 reproduces stale saved-server selection on same-API profile switch;

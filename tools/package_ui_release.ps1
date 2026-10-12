@@ -269,7 +269,7 @@ the current server and return-to-original after multi-server cycles.
 "@
     $readme = $readme.Substring(0, $scopeStart) + $scanScope + "`r`n" + $readme.Substring($scopeEnd)
 }
-if ($ReleaseLabel -eq 'MAP010-BACKGROUND') {
+if ($ReleaseLabel -eq 'MAP010-BACKGROUND' -or $ReleaseLabel -eq 'MAP011-RECEIVER') {
     $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
     $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
     if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-010 release scope boundaries missing.' }
@@ -313,6 +313,35 @@ docs/MAP_010_BACKGROUND_ACQUISITION_CONTINUATION.md. This is an unmerged
 review candidate, not a published release.
 
 "@
+    if ($ReleaseLabel -eq 'MAP011-RECEIVER') {
+        $scope += @"
+
+MAP-011 LEAD CORRECTION AND ACTUAL RECEIVER TESTS — PARTIAL
+LEADMAP010-01 is fixed: a change of selected native profile ID/generation
+clears Map saved-server selection, options, rows and outstanding replies even
+when the App reuses the same mapApi object. The stopped replacement owner
+can browse only positive servers in its own published Map store. Current
+offline server ID 0 is not replaced by an invented live connection.
+Adversarial mounted A/B/A, held old reads, empty/failed store, same-server
+owner changes and offline/online transitions pass.
+
+LEADMAP010-02 R11 waited for the entire eight-second receiver deadline after
+the second WorldScene camera tile settled. Its nine current AOIs never
+included the required second target; old flags-ready and network activity
+were rejected. The distinct read-only R12 known remote-server point-detail
+request returned a point-ID match and unchanged active server/camera, but its
+detail source server was 0, not the requested 2213. This is NOT proof of
+remote server acceptance, still less unknown-object/full-map discovery.
+No new camera-free, consecutive-region or remote-full-world production path
+is enabled; the existing correct serial scanner is preserved.
+
+R11/R12 private trial code/data is excluded. See
+docs/MAP_010_BACKGROUND_ACQUISITION_CONTINUATION.md and
+docs/proof/MAP-011-RECEIVER-RESULTS-2026-10-12.json in the source.
+This remains an unmerged lead-review candidate. No merge/publication.
+
+"@
+    }
     $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
 }
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))

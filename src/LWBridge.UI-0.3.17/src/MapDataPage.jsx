@@ -362,6 +362,14 @@ export function MapDataPage({
   const previewOperationRef = useRef(null);
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
+  // An old page may have a held native reply while its replacement mounts.
+  // Never let that reply update App-level counts (setState alone on an
+  // unmounted page is harmless but an onCounts callback is not).
+  const mountedOwnerRef = useRef(true);
+  useEffect(() => {
+    mountedOwnerRef.current = true;
+    return () => { mountedOwnerRef.current = false; };
+  }, []);
 
   const commitScanState = useCallback((next) => {
     setScanState(next);
@@ -372,15 +380,26 @@ export function MapDataPage({
     ? browseServerId || scanState.serverId || 0
     : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
   useEffect(() => {
-    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") return undefined;
+    // On owner remount this is cleared before the first asynchronous read,
+    // including errors/empty stores/offline transitions.
+    setSavedServers([]);
+    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") {
+      setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
+      return undefined;
+    }
     let retired = false;
     mapApi.savedServers().then((servers) => {
-      if (retired || !Array.isArray(servers)) return;
-      setSavedServers(servers);
-      // A replaced native profile has a different private store. Do not retain
-      // a positive saved-server selection from the retired mapApi/owner.
-      setBrowseServerId(servers[0] ?? 0);
-    }).catch(() => {});
+      if (retired || !mountedOwnerRef.current) return;
+      const available = Array.isArray(servers)
+        ? [...new Set(servers.filter((server) => Number.isSafeInteger(server) && server > 0))]
+        : [];
+      setSavedServers(available);
+      setBrowseServerId((current) => available.includes(current) ? current : (available[0] ?? 0));
+    }).catch(() => {
+      if (retired || !mountedOwnerRef.current) return;
+      setSavedServers([]);
+      setBrowseServerId(0);
+    });
     return () => { retired = true; };
   }, [backendAvailable, mapApi, scanState.serverId]);
   useEffect(() => {
@@ -485,9 +504,11 @@ export function MapDataPage({
     optionsGeneration.current = generation;
     try {
       const loaded = await mapApi.dataOptions(serverId);
-      if (generation !== optionsGeneration.current) return;
+      if (generation !== optionsGeneration.current || !mountedOwnerRef.current) return;
       if (loaded.serverId !== serverId) {
-        setBrowseServerId(loaded.serverId);
+        // Never adopt a server supplied by a stale/unrelated options reply.
+        setOptions(null);
+        setSummaryReady(false);
         return;
       }
       setOptions(loaded);
@@ -505,7 +526,7 @@ export function MapDataPage({
       setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
     } catch (error) {
-      if (generation === optionsGeneration.current) setQueryError(errorText(error));
+      if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(errorText(error));
     }
   }, [backendAvailable, mapApi, onCounts]);
 
@@ -514,7 +535,7 @@ export function MapDataPage({
     const generation = ++summaryGeneration.current;
     try {
       const summary = await mapApi.summary();
-      if (generation !== summaryGeneration.current) return;
+      if (generation !== summaryGeneration.current || !mountedOwnerRef.current) return;
       commitScanState(summary.scanState);
       setScanStateAvailable(true);
       setCounts(summary.counts);
@@ -525,7 +546,7 @@ export function MapDataPage({
         setSpeed(summary.scanState.scanMode);
       }
     } catch (error) {
-      if (generation !== summaryGeneration.current) return;
+      if (generation !== summaryGeneration.current || !mountedOwnerRef.current) return;
       setScanError(errorText(error));
     }
   }, [backendAvailable, commitScanState, mapApi]);
@@ -626,7 +647,7 @@ export function MapDataPage({
       }
     }
     mapApi.search(tab, query).then((result) => {
-      if (generation !== searchGeneration.current) return;
+      if (generation !== searchGeneration.current || !mountedOwnerRef.current) return;
       const totalPages = mapPageCount(result.total);
       if (requestedPage > totalPages) {
         setPage(totalPages);
@@ -658,14 +679,14 @@ export function MapDataPage({
         setTreasureStatesRefreshing(false);
       }
     }).catch((error) => {
-      if (generation === searchGeneration.current) {
+      if (generation === searchGeneration.current && mountedOwnerRef.current) {
         if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);
         setTotal(0);
         // Recovered rr logs search rejection without adding a visible query-error banner.
       }
     }).finally(() => {
-      if (generation === searchGeneration.current) setLoading(false);
+      if (generation === searchGeneration.current && mountedOwnerRef.current) setLoading(false);
     });
   }
 
