@@ -1,5 +1,10 @@
 # MAP-010 — current background-acquisition continuation (2026-10-12)
 
+**Current owner assignment:** complete the Q1-Q8 scanner answer matrix and qualified
+improvements in `work-items/LWB317-MAP-SCANNER-QUESTIONS-012.md`. Preserve accepted
+MAP-011 corrections; leave Normal/Fast behavior unchanged. Ordinary trial/package
+completion is not scanner-goal completion. Same branch/background authority.
+
 **Latest independent lead decision:** MAP-011 source `0c312c75` reviewed;
 LEADMAP010-01 owner correction accepted after original inverse and affected
 regressions pass. R11/R12 negative/limited observations verified, no faster route

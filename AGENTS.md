@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest owner assignment, 2026-10-12: completion means answering the scanner's
+camera/remote/accuracy/individual/mixed efficiency questions, not finishing another
+trial/package. Follow docs/work-items/LWB317-MAP-SCANNER-QUESTIONS-012.md on the
+existing branch/PR, starting accepted MAP-011 review 4daceed0. Preserve its owner
+correction; leave Normal/Fast differentiation unchanged. Existing background-only
+authority and account-action prohibitions apply. No universal fastest/only-way claim.
+
 Latest lead review, 2026-10-12: MAP-010 at b8e53016 has verified native-name/
 feedback corrections, but CHANGES_REQUIRED for LEADMAP010-01 saved-server owner
 lifetime. Scanner improvement remains PARTIAL; LEADMAP010-02 calls for actual
