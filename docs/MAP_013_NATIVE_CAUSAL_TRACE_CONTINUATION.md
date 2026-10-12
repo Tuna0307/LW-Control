@@ -1,5 +1,11 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+Independent lead review accepts e4ac9dc0's reply-owner correction and inert
+WorldReady instrumentation. See
+`reviews/2026-10-13-MAP-013-REPLY-WORLDREADY-LEAD-REVIEW.md`. Next: a fresh
+bounded corrected observation through normal tool review, not a reroute of
+the denied historical session poll. Native acquisition/scanner remains PARTIAL.
+
 ## 2026-10-13 LEADMAP013-04 and WorldReady repair (checkpoint PARTIAL)
 
 **This continuation is offline/inert only.** The original eight owned

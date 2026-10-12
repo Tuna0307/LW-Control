@@ -1,5 +1,14 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-13: e4ac9dc0 corrects LEADMAP013-04 and passes
+independent reply/source tests, actual inert WorldReady Lua checks and read-only
+v24 admission. Read docs/reviews/2026-10-13-MAP-013-REPLY-WORLDREADY-LEAD-REVIEW.md.
+Resume the existing task with a fresh bounded corrected WorldReady observation
+through normal tool review, then native request/reply/cache tracing when ready.
+The historical rejection was one session-55411 poll, not a documented permanent
+owner pause or blanket game prohibition. Never retry/reroute that denied call
+or bypass a new rejection. Preserve existing background-only authority.
+
 Latest lead review, 2026-10-13: d7ab572f has verified new passive local-event
 and one WorldReady observation, but native scanner causal tracing remains
 PARTIAL. Read docs/reviews/2026-10-13-MAP-013-OBSERVER-LEAD-REVIEW.md.
