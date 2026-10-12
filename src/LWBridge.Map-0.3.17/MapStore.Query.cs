@@ -7,6 +7,25 @@ namespace LWBridge.Map317;
 
 public sealed partial class MapStore
 {
+    // Passive saved-data browsing while disconnected. No invented scan status.
+    public IReadOnlyList<int> ReadPublishedServers()
+    {
+        lock (gate)
+        {
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT server_id FROM map_records
+                WHERE server_id > 0
+                GROUP BY server_id
+                ORDER BY MAX(updated_at) DESC, server_id ASC
+                """;
+            var servers = new List<int>();
+            using SqliteDataReader reader = command.ExecuteReader();
+            while (reader.Read()) servers.Add(reader.GetInt32(0));
+            return servers;
+        }
+    }
+
     public MapSearchResult Search(MapQuery query, long? nowUnixMilliseconds = null, bool cityExportRows = false)
     {
         ArgumentNullException.ThrowIfNull(query);

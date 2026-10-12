@@ -14,6 +14,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     {
         "map_scan_start", "map_scan_status", "map_scan_stop", "map_scan_clear",
         "map_summary", "map_data_options", "map_search", "map_city_export",
+        "map_saved_servers",
         "map_coordinate_jump", "map_march_follow", "map_player_mark_set", "server_jump",
         "server_jump_history_get", "server_jump_history_set", "server_jump_history_import",
         "map_treasure_state_refresh", "map_treasure_state_refresh_all",
@@ -280,6 +281,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     }
                 case "map_data_options":
                     return control.ReadOptions(OptionsServerId(payload));
+                case "map_saved_servers":
+                    return new { servers = store.ReadPublishedServers() };
                 case "map_search":
                     {
                         // Original 0.3.17 search never rejects a mistyped page/pageSize/server/kind:

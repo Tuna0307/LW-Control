@@ -6,6 +6,7 @@ export const MAP_COMMANDS = Object.freeze({
   search: "map_search",
   summary: "map_summary",
   dataOptions: "map_data_options",
+  savedServers: "map_saved_servers",
   status: "get_status",
   proxyStatus: "proxy_status",
   serverJump: "server_jump",
@@ -322,6 +323,8 @@ export function createMapApi(bridge) {
     scanStatus: () => invokeScoped(MAP_COMMANDS.scanStatus).then(normalizeScanState),
     summary: () => invokeScoped(MAP_COMMANDS.summary).then(normalizeSummary),
     dataOptions: (serverId) => invokeScoped(MAP_COMMANDS.dataOptions, { serverId }).then(normalizeOptions),
+    savedServers: () => invokeScoped(MAP_COMMANDS.savedServers).then((result) =>
+      Array.isArray(result?.servers) ? result.servers.filter((server) => Number.isInteger(server) && server > 0) : []),
     start: (selectedTypes, scanMode) => invokeScoped(
       MAP_COMMANDS.scanStart,
       buildStartPayload(selectedTypes, scanMode),

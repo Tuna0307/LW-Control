@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { MAP_NAME_FEEDBACK } from "../src/locales/map010-feedback.js";
 
 // Mount the real MapDataPage + native callbacks with controlled locale responses.
 // Game binary translation values are tested separately by the Desktop checker.
@@ -60,15 +61,17 @@ const api = {
 };
 let activeOwner = "profile-A", language = "en", source = "23555";
 let selectedRootStatus = { valid: true, root: rootPath, source: "saved", candidates: [] };
-let delayBatch = false;
+let delayBatch = false, delayHeader = false, failHeader = false;
 const requests = [];
 const loadGameTexts = (payload) => {
   const request = { ...delayed(), payload, owner: activeOwner, source };
   requests.push(request);
-  if (!delayBatch || payload.keys.length === 0) {
+  if (failHeader && payload.keys.length === 0) {
+    request.reject(new Error("TEST_NATIVE_ROOT_UNAVAILABLE"));
+  } else if ((!delayBatch || payload.keys.length === 0) && !(delayHeader && payload.keys.length === 0)) {
     request.resolve({ language: payload.language, gameRoot: rootPath, buildId: source,
       localeSha256: source + payload.language, englishSha256: source + "en",
-      texts: Object.fromEntries(payload.keys.map((key) => [key, names[payload.language][keys.indexOf(key)] || key])) });
+      texts: Object.fromEntries(payload.keys.map((key) => [key, (names[payload.language] || names.en)[keys.indexOf(key)] || key])) });
   }
   return request.promise;
 };
@@ -117,12 +120,41 @@ assert.ok(filter().includes(names.ja[1]) && rowText().includes(names.ja[1]),
 results.push("JA mounted table and filter after language change");
 selectedRootStatus = { valid: false, root: rootPath };
 await render();
-assert.ok(element.textContent.includes("Game names unavailable: current game installation is not resolved"),
+assert.ok(element.textContent.includes(MAP_NAME_FEEDBACK.ja["map.namesMissingRoot"]),
   "Missing native selected game root must show an explicit Map localization failure");
 selectedRootStatus = { valid: true, root: rootPath };
 await render();
 assert.ok(rowText().includes(names.ja[1]), "restored game root must recover current localized Monster rows");
 results.push("native root status through actual Map route, invalid root rejection");
+
+const feedbackKeys = ["map.namesMissingRoot", "map.namesUnavailable", "map.namesRetry", "map.namesLoading", "map.savedServer"];
+const codeOrder = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
+for (const code of codeOrder) {
+  const phrases = MAP_NAME_FEEDBACK[code];
+  assert.deepEqual(Object.keys(phrases).sort(), [...feedbackKeys].sort(), `all feedback messages for ${code}`);
+  assert.ok(Object.values(phrases).every((value) => typeof value === "string" && value.length > 5));
+  assert.equal(phrases["map.namesUnavailable"].match(/\{detail\}/g)?.length, 1);
+  language = code;
+  localStorage.setItem("lwbridge.language", code);
+  selectedRootStatus = { valid: false, root: rootPath };
+  await render();
+  assert.equal(document.documentElement.lang, code);
+  assert.ok(element.textContent.includes(phrases["map.namesMissingRoot"]), `native invalid-root warning must use ${code}`);
+  selectedRootStatus = { valid: true, root: rootPath };
+  delayHeader = true;
+  await render();
+  assert.ok(element.textContent.includes(phrases["map.namesLoading"]), `native loading state must use ${code}`);
+  const pendingHeader = requests.filter((item) => item.payload.keys.length === 0 && item.payload.language === code).at(-1);
+  assert.ok(pendingHeader, "must actually request the current installed game locale header");
+  delayHeader = false;
+  await flush(() => pendingHeader.reject(new Error("TEST_NATIVE_ROOT_UNAVAILABLE")));
+  assert.ok(element.textContent.includes(phrases["map.namesUnavailable"].replace("{detail}", "TEST_NATIVE_ROOT_UNAVAILABLE")), `native failure must use ${code}`);
+  const retry = [...element.querySelectorAll("button")].find((button) => button.textContent === phrases["map.namesRetry"]);
+  assert.ok(retry, `native retry must use ${code}`);
+  await flush(() => retry.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+  assert.ok(!element.textContent.includes("TEST_NATIVE_ROOT_UNAVAILABLE"), `retry must clear stale error for ${code}`);
+}
+results.push("nine mounted catalogs: invalid root / loading / native error / retry");
 
 await flush(() => reactRoot.unmount());
 dom.window.close();

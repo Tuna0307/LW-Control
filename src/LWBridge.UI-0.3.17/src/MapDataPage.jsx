@@ -290,6 +290,7 @@ export function MapDataPage({
   const localeCache = useRef(new Map());
   const localeRequestGeneration = useRef(0);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
+  const [savedServers, setSavedServers] = useState([]);
   const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const tab = activeTab ?? localTab;
   const [keyword, setKeyword] = useState("");
@@ -370,6 +371,18 @@ export function MapDataPage({
   const dataServerId = externallyManaged
     ? browseServerId || scanState.serverId || 0
     : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  useEffect(() => {
+    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") return undefined;
+    let retired = false;
+    mapApi.savedServers().then((servers) => {
+      if (retired || !Array.isArray(servers)) return;
+      setSavedServers(servers);
+      // A replaced native profile has a different private store. Do not retain
+      // a positive saved-server selection from the retired mapApi/owner.
+      setBrowseServerId(servers[0] ?? 0);
+    }).catch(() => {});
+    return () => { retired = true; };
+  }, [backendAvailable, mapApi, scanState.serverId]);
   useEffect(() => {
     if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
     const generation = ++localeRequestGeneration.current;
@@ -506,7 +519,7 @@ export function MapDataPage({
       setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
-      setBrowseServerId(summary.serverId > 0 ? summary.serverId : 0);
+      if (summary.serverId > 0) setBrowseServerId(summary.serverId);
       if (!selectionTouched.current) {
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
@@ -528,7 +541,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
+      if (next.serverId > 0) setBrowseServerId(next.serverId);
       if (wasReading && !next.isReading) refreshSummary();
     });
     refreshSummary();
@@ -544,8 +557,8 @@ export function MapDataPage({
   }, [backendAvailable, commitScanState, externallyManaged, mapApi, refreshSummary]);
 
   useEffect(() => {
-    if (scanState.serverId === dataServerId) return;
-    setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
+    if (scanState.serverId <= 0 || scanState.serverId === dataServerId) return;
+    setBrowseServerId(scanState.serverId);
   }, [dataServerId, scanState.serverId]);
 
   useEffect(() => {
@@ -1253,6 +1266,14 @@ export function MapDataPage({
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
+            {scanState.serverId <= 0 && savedServers.length > 0 ? (
+              <label className="map-filter-field"><span>{t("map.savedServer")}</span>
+                <select data-map-saved-server aria-label={t("map.savedServer")} value={dataServerId}
+                  onChange={(event) => { setBrowseServerId(Number(event.target.value)); setPage(1); }}>
+                  {savedServers.map((server) => <option key={server} value={server}>{server}</option>)}
+                </select>
+              </label>
+            ) : null}
             <input value={keyword} onChange={(event) => changeKeyword(event.target.value)} aria-label={t("map.searchLabel")} placeholder={t("map.searchLabel")} />
             {isNameFilterKind(tab) ? (
               <select aria-label={t("common.name")} value={tab === "resource" ? resourceNameKey : monsterNameKey} onChange={(event) => selectName(tab, event.target.value)}>
@@ -1319,13 +1340,13 @@ export function MapDataPage({
         )}
         {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
         {!previewFixture && backendAvailable && gameTextLoader && !gameTextRoot ?
-          <div className="map-scan-error" role="alert">Game names unavailable: current game installation is not resolved.</div>
+          <div className="map-scan-error" role="alert">{t("map.namesMissingRoot")}</div>
           : null}
         {!previewFixture && localizedNames.context === localeContext && localizedNames.error ?
-          <div className="map-scan-error" role="alert">Game names unavailable: {localizedNames.error} <button type="button" onClick={() => setLocaleRetry((value) => value + 1)}>Retry names</button></div>
+          <div className="map-scan-error" role="alert">{t("map.namesUnavailable", { detail: localizedNames.error })} <button type="button" onClick={() => setLocaleRetry((value) => value + 1)}>{t("map.namesRetry")}</button></div>
           : null}
         {!previewFixture && localizedNames.context === localeContext && localizedNames.loading ?
-          <span className="muted" role="status">Loading game names…</span> : null}
+          <span className="muted" role="status">{t("map.namesLoading")}</span> : null}
         {tab !== "scheduledPlunder" ? (
           <>
             <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />

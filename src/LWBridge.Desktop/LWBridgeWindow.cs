@@ -40,6 +40,7 @@ internal sealed partial class LWBridgeWindow : Form
     private readonly FirstLiveResultImport? firstLiveResult;
     private readonly string? normalUiLiveResourceProofPath;
     private readonly string? normalUiLiveMapProofPath;
+    private readonly string? map010NamesProofPath;
     private readonly string? mapUiIntegrationProofPath;
     private readonly string? homeMapCampaignProofPath;
     private readonly bool homeMapCampaignNarrow;
@@ -162,13 +163,15 @@ internal sealed partial class LWBridgeWindow : Form
         bool homeMapCampaignNarrow = false,
         bool useLegacyUi = false,
         string? isolatedRootPath = null,
-        bool homeMapCampaignHomeOnly = false)
+        bool homeMapCampaignHomeOnly = false,
+        string? map010NamesProofPath = null)
     {
         this.capturePath = capturePath;
         this.liveProbePath = liveProbePath;
         this.hostProbePath = hostProbePath;
         this.normalUiLiveResourceProofPath = normalUiLiveResourceProofPath;
         this.normalUiLiveMapProofPath = normalUiLiveMapProofPath;
+        this.map010NamesProofPath = map010NamesProofPath;
         this.mapUiIntegrationProofPath = mapUiIntegrationProofPath;
         this.homeMapCampaignProofPath = homeMapCampaignProofPath;
         this.homeMapCampaignNarrow = homeMapCampaignNarrow;
@@ -1147,11 +1150,19 @@ internal sealed partial class LWBridgeWindow : Form
                 backend.GetBootstrap(
                     capturePath is not null && firstLiveResult is null,
                     documentSession.Id,
-                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null || firstLiveResult is not null || ownerEvidence is not null || homeMapCampaignProofPath is not null),
+                    suppressAutoLaunch: liveProbePath is not null || hostProbePath is not null || firstLiveResult is not null || ownerEvidence is not null || homeMapCampaignProofPath is not null || map010NamesProofPath is not null),
                 JsonOptions.Default);
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";" +
                 "(()=>{try{const s=new URL(location.href).searchParams.get('nativeSession');if(s)window.__LWBridgeBootstrap.sessionId=s;}catch{}})();");
+            if (map010NamesProofPath is not null)
+            {
+                // Isolated task WebView storage only. This changes clone UI locale,
+                // never the installed Last War game language or owner Chrome.
+                await core.AddScriptToExecuteOnDocumentCreatedAsync(
+                    "localStorage.setItem('lwbridge.language'," + JsonSerializer.Serialize(language) + ");" +
+                    "localStorage.setItem('lwbridge.theme'," + JsonSerializer.Serialize(theme) + ");");
+            }
             if (capturePath is not null)
                 await core.AddScriptToExecuteOnDocumentCreatedAsync("""
                     window.__LWBridgeCaptureErrors = [];
@@ -1269,6 +1280,12 @@ internal sealed partial class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (map010NamesProofPath is not null)
+            {
+                await RunMap010BackgroundNamesProofAsync(core, map010NamesProofPath);
+                Close();
+                return;
+            }
             if (mapUiIntegrationProofPath is not null)
             {
                 if (!string.Equals(initialView, "map-data", StringComparison.Ordinal))
@@ -1346,11 +1363,11 @@ internal sealed partial class LWBridgeWindow : Form
         }
         catch (Exception ex)
         {
-            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null && mapUiIntegrationProofPath is null && homeMapCampaignProofPath is null)
+            if (capturePath is null && liveProbePath is null && hostProbePath is null && normalUiLiveResourceProofPath is null && normalUiLiveMapProofPath is null && mapUiIntegrationProofPath is null && homeMapCampaignProofPath is null && map010NamesProofPath is null)
                 MessageBox.Show(this, ex.Message, "LWBridge", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
             {
-                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath ?? normalUiLiveMapProofPath ?? mapUiIntegrationProofPath ?? homeMapCampaignProofPath!;
+                string artifactPath = capturePath ?? liveProbePath ?? hostProbePath ?? normalUiLiveResourceProofPath ?? normalUiLiveMapProofPath ?? mapUiIntegrationProofPath ?? homeMapCampaignProofPath ?? map010NamesProofPath!;
                 Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
                 await File.WriteAllTextAsync(artifactPath + ".error.txt", ex.ToString());
             }

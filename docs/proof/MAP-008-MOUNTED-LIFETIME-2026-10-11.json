@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "sourceSha256": "8a1b1c7cd84d7731a78a1dcd1c44aec07ea639df40c82cd2146d05823256dcd9",
+  "sourceSha256": "465d6a619c1cba7d64649058df3af32d33810b325f799aef93173b36b33af220",
   "mounted": "MapDataPage.jsx + I18nProvider / React jsdom, inert held providers",
   "genuineGame": false,
   "externalGameActions": 0,

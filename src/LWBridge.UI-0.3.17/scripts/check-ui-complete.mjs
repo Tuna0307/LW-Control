@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { withMapNameFeedback, MAP_NAME_FEEDBACK } from "../src/locales/map010-feedback.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -8,7 +9,7 @@ const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "Automatio
 const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
-const en = (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default;
+const en = withMapNameFeedback("en", (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default);
 const literalKeys = new Set();
 for (const relative of sourceFiles) {
   const source = fs.readFileSync(path.join(root, relative), "utf8");
@@ -26,7 +27,11 @@ if (missing.length) throw new Error(`Missing recovered English locale keys:\n${m
 const localeCounts = {};
 let englishKeys = null;
 for (const code of localeCodes) {
-  const messages = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
+  const recovered = (await import(pathToFileURL(path.join(root, "src", "locales", `${code}.js`)))).default;
+  const messages = withMapNameFeedback(code, recovered);
+  if (!MAP_NAME_FEEDBACK[code] || Object.keys(MAP_NAME_FEEDBACK[code]).length !== Object.keys(MAP_NAME_FEEDBACK.en).length ||
+      Object.keys(MAP_NAME_FEEDBACK.en).some((key) => !(key in MAP_NAME_FEEDBACK[code])))
+    throw new Error(`MAP-010 message coverage incomplete for ${code}`);
   const keys = Object.keys(messages);
   if (keys.length === 0) throw new Error(`Recovered ${code} locale catalog is empty.`);
   if (code === "en") englishKeys = keys.sort();
