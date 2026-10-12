@@ -90,19 +90,23 @@ internal sealed partial class CurrentClientMapBlockSource
         int firstGroupStartColumn = (seedBlock.Column / FastCityGroupColumns) * FastCityGroupColumns;
         IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
             request.TileWidth, request.TileHeight);
+        // Build pending groups once. A resumed band used to re-filter all 2,500
+        // logical blocks for every AOI group, even when only one group remained.
+        // Group membership and the ordered per-block projection stay unchanged.
+        ILookup<int, MapScanTargetBlock> pendingGroups = logicalBlocks
+            .Where(block =>
+                block.Row >= bandStartRow &&
+                block.Row < bandStartRow + FastCityGroupRows &&
+                block.Column >= firstGroupStartColumn &&
+                pendingBlockIndices.Contains(block.BlockIndex))
+            .ToLookup(block => block.Column / FastCityGroupColumns);
         var captures = new List<MapScanBlockCapture>();
 
         for (int groupStartColumn = firstGroupStartColumn; groupStartColumn < 50; groupStartColumn += FastCityGroupColumns)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            MapScanTargetBlock[] groupBlocks = logicalBlocks
-                .Where(block =>
-                    block.Column >= groupStartColumn &&
-                    block.Column < groupStartColumn + FastCityGroupColumns &&
-                    block.Row >= bandStartRow &&
-                    block.Row < bandStartRow + FastCityGroupRows &&
-                    pendingBlockIndices.Contains(block.BlockIndex))
-                .ToArray();
+            MapScanTargetBlock[] groupBlocks = pendingGroups[
+                groupStartColumn / FastCityGroupColumns].ToArray();
             if (groupBlocks.Length == 0) continue;
 
             int targetX = checked(groupStartColumn * MapScanGeometry.RecoveredBlockSpan + 15);
