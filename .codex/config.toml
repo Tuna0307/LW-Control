@@ -1,0 +1,8 @@
+# Project-local REA runtime; other MCP registrations remain in user configuration.
+[mcp_servers.rea]
+command = 'C:\Program Files\nodejs\node.exe'
+args = ['C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tools\rea-mcp\node_modules\rea-agents\scripts\rea.mjs', 'mcp']
+cwd = 'C:\Users\chimw\OneDrive\Desktop\Github\LW-Control'
+startup_timeout_sec = 120
+tool_timeout_sec = 120
+enabled = true

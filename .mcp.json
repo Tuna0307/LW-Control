@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "rea": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control\\tools\\rea-mcp\\node_modules\\rea-agents\\scripts\\rea.mjs",
+        "mcp"
+      ],
+      "cwd": "C:\\Users\\chimw\\OneDrive\\Desktop\\Github\\LW-Control"
+    }
+  }
+}

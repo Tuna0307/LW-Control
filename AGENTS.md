@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Local analysis tooling, 2026-10-12: REA 6.4.0 is installed in tools/rea-mcp,
+with project Codex MCP configuration and matching .agents/skills instructions.
+Read tools/rea-mcp/README.md; owner-relayed workers can use rea.cmd through their
+existing terminal without desktop input or another AI. Built-in .NET/JavaScript
+analysis is available; native decompilation has no configured engine yet. Tool
+installation does not resume held actions or establish any scanner capability.
+
 Latest owner assignment, 2026-10-12: completion means answering the scanner's
 camera/remote/accuracy/individual/mixed efficiency questions, not finishing another
 trial/package. Follow docs/work-items/LWB317-MAP-SCANNER-QUESTIONS-012.md on the
