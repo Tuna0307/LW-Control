@@ -1,5 +1,13 @@
 # MAP-013 — REA native recovery and scanner boundary (2026-10-12)
 
+**Independent lead review:** source `c22a88b9` native-toolchain milestone passes
+independent actual REA/Ghidra re-execution. Overall assignment remains PARTIAL.
+LEADMAP013-01: `0x140191253` retained pseudocode is silently truncated by the
+helper's10000-character limit. LEADMAP013-02: eight-second function budgets and
+default330s full-import timeout are not exhausted recovery options. Correct and
+continue the assigned task; see `reviews/2026-10-12-MAP-013-LEAD-REVIEW.md`.
+Historical raw outputs stay preserved. No new scanner acceptance or merge.
+
 **Status: PARTIAL — native tooling proven; production scanner unchanged.**
 Continuation of `LWB317-MAP-SCANNER-QUESTIONS-012`; this is an evidence supplement,
 not a second conflicting Q1–Q8 matrix. The canonical current matrix is

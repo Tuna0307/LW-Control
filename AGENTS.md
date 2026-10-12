@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-12: MAP-013 native toolchain at c22a88b9 independently
+passes real REA/Ghidra execution. Continue the same assigned work, not a new campaign.
+Read docs/reviews/2026-10-12-MAP-013-LEAD-REVIEW.md: fix selective pseudocode
+truncation (LEADMAP013-01), investigate with justified bounded analysis budgets
+(LEADMAP013-02), then pursue actual scanner request/reply/cache causal recovery.
+Original scanner algorithm and faster alternatives remain unproved. Same authority.
+
 Latest owner assignment, 2026-10-12: install/configure relevant native analysis
 prerequisites (Ghidra/portable full JDK or supported alternatives) and use REA on
 original/current shipped artifacts to continue scanner questions. Follow
