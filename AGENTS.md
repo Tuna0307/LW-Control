@@ -1,5 +1,12 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-12: MAP-010 at b8e53016 has verified native-name/
+feedback corrections, but CHANGES_REQUIRED for LEADMAP010-01 saved-server owner
+lifetime. Scanner improvement remains PARTIAL; LEADMAP010-02 calls for actual
+native response provenance. Follow docs/work-items/LWB317-MAP-ACQUISITION-RECEIVER-011.md
+and docs/reviews/2026-10-12-MAP-010-LEAD-REVIEW.md on the existing branch/PR.
+Same background-only/no-mouse authority and account-action restrictions below.
+
 Latest owner/lead authority, 2026-10-12: background native Map testing is allowed
 while owner uses Chrome. Follow MAP-BACKGROUND-ACQUISITION-010 on the existing
 branch/PR. Owner may place task app/game behind Chrome; no mouse/global keyboard,

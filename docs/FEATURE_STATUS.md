@@ -1,5 +1,12 @@
 # Feature delivery — faithful functional replacement
 
+**Latest lead review:** MAP-010 worker `b8e53016` has verified installed-name and
+localized feedback corrections. Saved-server profile switching is CHANGES_REQUIRED
+(LEADMAP010-01, independently reproduced). No new scanner speedup, camera-free or
+remote full-world route qualified. Follow [the review](reviews/2026-10-12-MAP-010-LEAD-REVIEW.md)
+and [focused next task](work-items/LWB317-MAP-ACQUISITION-RECEIVER-011.md).
+Existing accepted main/v0.6.0 remains unchanged; older PR #9 review text is history.
+
 MAP-006 R1 / PR #8 is **ACCEPTED / MERGED / PUBLISHED** as
 `map-available-v0.6.0`: six available manual kinds, applicable stored controls,
 passive navigation and bounded Auto/Stop/return. See

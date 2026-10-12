@@ -1,5 +1,13 @@
 # MAP-010 — current background-acquisition continuation (2026-10-12)
 
+**Independent lead update:** worker `b8e53016` reviewed. Native name/feedback
+correction verified; no faster/camera-free/remote full-world route accepted.
+LEADMAP010-01 reproduces stale saved-server selection on same-API profile switch;
+LEADMAP010-02 requires native response provenance beyond the first flags-ready
+snapshot. See `reviews/2026-10-12-MAP-010-LEAD-REVIEW.md` and continue focused
+`work-items/LWB317-MAP-ACQUISITION-RECEIVER-011.md`. Background authority unchanged.
+The worker account below remains historical; no lead merge/publication.
+
 **PARTIAL.** Continue on existing branch codex/map-action-providers-007, PR #9,
 from lead checkpoint 8e2c51df54c9147c9c2e1b9135464cdb48266386.
 The lead-accepted limited MAP-009 offline inventory/CPU grouping, MAP-008

@@ -1,5 +1,12 @@
 # MAP-008 - single current continuation
 
+**Latest independent review:** MAP-010 `b8e53016` has verified native name/feedback
+corrections but a reproduced stopped-profile saved-server ownership defect. No
+new faster acquisition route qualified. Follow MAP-010 lead review and focused
+`docs/work-items/LWB317-MAP-ACQUISITION-RECEIVER-011.md` on this branch/PR under
+the same background-only authority. Older current-source/release statements below
+are historical; main/v0.6.0 remains unchanged.
+
 **Current execution priority:** owner has resumed background native testing,
 without mouse/global keyboard/minimize/focus/window rearrangement. Follow
 `docs/work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md` on the same branch/PR.
