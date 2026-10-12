@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-13: d7ab572f has verified new passive local-event
+and one WorldReady observation, but native scanner causal tracing remains
+PARTIAL. Read docs/reviews/2026-10-13-MAP-013-OBSERVER-LEAD-REVIEW.md.
+Fix LEADMAP013-04 diagnostic reply ownership before more trials, diagnose
+WorldReady consumption/result orchestration with inert checks, and preserve
+the exact reported tool rejection text/scope. Do not bypass or repeat a denied
+operation. Continue permissible offline work; same branch and background authority.
+
 Latest lead review, 2026-10-12: 84e74869 accepted for scoped historical method
 assessment and retaining the current scanner. Read
 docs/reviews/2026-10-12-MAP-013-METHOD-DECISION-LEAD-REVIEW.md. This checkpoint

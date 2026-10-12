@@ -1,5 +1,11 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+Lead review, 2026-10-13: new local-event and WorldReady receipts accepted as
+bounded evidence. Fix LEADMAP013-04 reply-owner validation and diagnose command
+orchestration inertly before more trials. Preserve exact reported safety denial;
+no bypass/retry of denied action. Read
+`reviews/2026-10-13-MAP-013-OBSERVER-LEAD-REVIEW.md`. Scanner remains PARTIAL.
+
 **Status PARTIAL.** This is new task-owned live evidence, not a replay of
 R15/R16 and not a complete AOI wire or cache trace. Retain the existing
 accuracy-qualified camera-assisted shared scanner. Normal/Fast, Home, native
