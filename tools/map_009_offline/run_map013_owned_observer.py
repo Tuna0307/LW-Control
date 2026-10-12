@@ -61,6 +61,8 @@ class ExpectedReply:
     server_id: int | None = None
     world_id: int | None = None
     request_mode: str | None = None
+    target_tile_x: int | None = None
+    target_tile_y: int | None = None
 
 
 def _exact_int(value: object, *, minimum: int = 0) -> bool:
@@ -152,9 +154,32 @@ def validate_reply(value: object, expected: ExpectedReply, *, file_mtime_ns: int
         # This output copies the source request's serverId into no response
         # field at all. It cannot independently attest remote provenance.
         if state == "proven":
+            if (expected.target_tile_x is None or expected.target_tile_y is None or
+                    not _exact_int(expected.target_tile_x) or not _exact_int(expected.target_tile_y)):
+                raise ReplyValidationError("region expected target geometry absent")
             for field in ("targetTileX", "targetTileY", "targetAoiIndex"):
                 if not _exact_int(value.get(field)):
                     raise ReplyValidationError(f"region reply {field} absent")
+            if (value["targetTileX"] != expected.target_tile_x or
+                    value["targetTileY"] != expected.target_tile_y):
+                raise ReplyValidationError("region reply target coordinates mismatch request")
+            # Actual probe source choose_bulk_aoi_indices derives the target
+            # AOI from the target tile and native _lwAoiBlockSize/Count:
+            # index = (y // size) * count + (x // size), bounded to the grid.
+            size, count = value.get("blockSize"), value.get("blockCount")
+            if not _exact_int(size, minimum=1) or not _exact_int(count, minimum=1):
+                raise ReplyValidationError("region native block geometry absent")
+            if expected.target_tile_x >= size * count or expected.target_tile_y >= size * count:
+                raise ReplyValidationError("region request outside native AOI geometry")
+            target_index = (expected.target_tile_y // size) * count + expected.target_tile_x // size
+            if value["targetAoiIndex"] != target_index:
+                raise ReplyValidationError("region reply target AOI mismatches request geometry")
+            indices = value.get("requestedIndices")
+            if (not isinstance(indices, list) or not indices or
+                    any(not _exact_int(idx) or idx >= count * count for idx in indices) or
+                    len(indices) != len(set(indices)) or
+                    target_index not in indices):
+                raise ReplyValidationError("region selected AOIs omit or corrupt requested target")
         elif state == "failed" and (not isinstance(value.get("error"), str) or
                                     not value["error"]):
             raise ReplyValidationError("failed region reply lacks error")
@@ -406,7 +431,9 @@ def main() -> int:
                 region = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
                     ExpectedReply("region", region_id, profile, session, pid, challenge,
                                   region_published, server_id=world["serverId"],
-                                  world_id=world["worldId"], request_mode="native"), 28)
+                                  world_id=world["worldId"], request_mode="native",
+                                  target_tile_x=int(region_command["targetTileX"]),
+                                  target_tile_y=int(region_command["targetTileY"])), 28)
                 (attempt / "native-first-region.json").write_text(
                     json.dumps(region, indent=2), encoding="utf-8")
                 print("NATIVE_FIRST_REGION_REPLY", region.get("state"), region.get("error"),

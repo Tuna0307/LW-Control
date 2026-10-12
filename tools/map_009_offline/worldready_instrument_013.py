@@ -175,10 +175,21 @@ local function pump_world_ready(control)
 """,
     )
     replace_once(
-        """        can_defer_shared_read(control, now) then return false end
+        """    if ((control == nil and control_error == "busy") or
+        (control ~= nil and not fresh and lease_error == "busy")) and
+        can_defer_shared_read(control, now) then return false end
 """,
-        """        can_defer_shared_read(control, now) then
-        _map013_world_emit("shared_read_deferred", nil, "busy")
+        """    -- A task-owned live WorldReady request was silently abandoned when
+    -- the shared reader intermittently returned 'unavailable', despite a
+    -- fresh previously verified exact owner/lease. Use the *existing* bounded
+    -- 5-second owner fence only for transient read failure, never for malformed,
+    -- stale or mismatched data. Normal production remains unchanged.
+    if ((control == nil and (control_error == "busy" or control_error == "unavailable")) or
+        (control ~= nil and not fresh and
+            (lease_error == "busy" or lease_error == "unavailable"))) and
+        can_defer_shared_read(control, now) then
+        _map013_world_emit("shared_read_deferred", nil,
+            control == nil and control_error or lease_error)
         return false
     end
 """,
@@ -190,6 +201,9 @@ local function pump_world_ready(control)
         """    if control == nil or not fresh then
         _map013_world_emit("control_or_lease_rejected", nil,
             control == nil and (control_error or "control_absent") or (lease_error or "lease_invalid"))
+        if pending_world_ready ~= nil then
+            _map013_world_emit("pending_abandoned", pending_world_ready, "owner_lease_lost")
+        end
         verified_lease = nil
 """,
     )

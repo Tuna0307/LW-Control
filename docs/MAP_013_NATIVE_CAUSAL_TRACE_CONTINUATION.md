@@ -1,5 +1,53 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+## 2026-10-13 fresh corrected observation (PARTIAL)
+
+A **new** task-owned baseline attempt, ignored raw directory
+`artifacts/map-013-live/native-causal-20261013-010152`, ran the accepted
+WorldReady instrumentation. Real source stages show an exact-owner command
+consumed, `owner_admitted`, `begin_transition`, `transition_invoked`, then
+`pending_transition` at epoch 1791824546. The **first diverging branch** was
+`control_or_lease_rejected` with reason `unavailable` at 1791824552, six
+seconds into the pending transition. The real `M.Pump` checks control/lease
+before `pump_world_ready` and clears `pending_world_ready` in that branch,
+silently discarding the transition before WorldScene confirmation or the
+source's ten-second timeout result. The host's validated WorldReady wait
+timed out, and no first-region request was dispatched. The exact owned
+Stop succeeded and original game scripts were restored. The initial
+stage log cannot distinguish which of the control or lease reads returned
+`unavailable`; it does establish the pending-clear branch.
+
+A scoped opt-in diagnostic correction now treats `unavailable` shared
+control/lease reads like existing `busy` reads **only while the previously
+verified exact-owner lease is within its original five-second bound**.
+Invalid identities, stale leases, mismatched owners and production/default
+bridge source are unchanged. A `pending_abandoned` stage records any actual
+future terminal reset. No additional delay or sleep was added.
+
+A **second fresh corrected** `--baseline-region` run passed admission and
+reached task-owned game readiness (PID 41780), but its next normal
+`mcp__Chat_On_Steroids_Core__write_stdin` poll, session 11797,
+`chars=""`, `yield_time_ms=5000`, was rejected:
+
+> This tool call was blocked by OpenAI because we couldn't determine the safety status of the request.
+
+The denied poll was **not** retried or routed around. Its later WorldReady,
+native packet/cache and exact Stop receipts remain unverified. Independent
+cleanup checking found PID 41780 no longer running and original installed
+v24 scripts/package unchanged (`check-only` `installedFilesChanged=false`).
+These safety checks are not a substitute for denied session output.
+
+Separately, actual `wait_for` region-positive admission now binds emitted
+targetTileX/targetTileY to the issued request and checks `targetAoiIndex`
+against the native `blockSize`/`blockCount` calculation. It also requires
+the target in the emitted `requestedIndices` with in-range, unique integer
+indices. Distinguishing inverse tests reject wrong tiles/AOIs, malformed
+geometry and duplicate/missing targets. All **55** MAP offline tests pass.
+These fields were produced by the diagnostic and **do not** establish
+SmartFox request/response or remote-server provenance. No new populated
+native region, scanner improvement or benchmark is qualified. Full redacted
+proof: `docs/proof/MAP-013-FRESH-WORLDREADY-2026-10-13.json`.
+
 Independent lead review accepts e4ac9dc0's reply-owner correction and inert
 WorldReady instrumentation. See
 `reviews/2026-10-13-MAP-013-REPLY-WORLDREADY-LEAD-REVIEW.md`. Next: a fresh

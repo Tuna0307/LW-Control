@@ -43,7 +43,7 @@ class WorldReadyLifecycleTests(unittest.TestCase):
                              "8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668")
 
     def test_real_source_syntax_order_and_all_observation_boundaries(self):
-        original = self.original.decode("utf-8")
+        original = self.original.decode("utf-8").replace("\r\n", "\n")
         instrumented = instrument_worldready(self.original).decode("utf-8")
         ast.parse(instrumented)
         stages = [
@@ -53,7 +53,7 @@ class WorldReadyLifecycleTests(unittest.TestCase):
             "transition_callback_invoked", "transition_invocation_failed", "pending_transition",
             "scene_world_confirmed", "scene_transition_timeout",
             "result_written", "result_write_failed", "control_or_lease_rejected",
-            "owner_lease_admitted", "shared_read_deferred",
+            "owner_lease_admitted", "shared_read_deferred", "pending_abandoned",
         ]
         for stage in stages:
             with self.subTest(stage=stage):
@@ -86,6 +86,16 @@ class WorldReadyLifecycleTests(unittest.TestCase):
         self.assertIn('if control == nil or not fresh then', original)
         self.assertIn('if request.error ~= nil then', instrumented)
         self.assertIn('local _map013_written = write_json(world_ready_result_path', instrumented)
+        # In the real M.Pump, 'unavailable' reads used to clear a live pending
+        # WorldReady while 'busy' reads retained it. Extend ONLY the exact-owner
+        # and <=5s verified-lease path in the opt-in diagnostic, retaining
+        # the original fail-closed behavior for invalid or stale reads.
+        self.assertIn('control_error == "busy" or control_error == "unavailable"', instrumented)
+        self.assertIn('lease_error == "busy" or lease_error == "unavailable"', instrumented)
+        self.assertIn('can_defer_shared_read(control, now) then', instrumented)
+        self.assertIn('if pending_world_ready ~= nil then\n            _map013_world_emit("pending_abandoned"', instrumented)
+        self.assertIn('verified_lease = nil\n        active = control\n        close_pipe_runtime()', original)
+        self.assertIn('can_defer_shared_read(control, now) then return false end', original)
 
     def test_source_drift_rejects_instead_of_silently_omitting_stage(self):
         replaced = self.original.replace(b'local function read_world_ready(control)',

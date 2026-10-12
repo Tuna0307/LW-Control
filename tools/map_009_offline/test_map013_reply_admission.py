@@ -48,7 +48,8 @@ class ReplyAdmissionTests(unittest.TestCase):
                 "capturedAt": timestamp(), "state": state or "observed",
                 "events": [], "registrations": [], "errors": [],
                 "requestMode": "native", "targetTileX": 455, "targetTileY": 425,
-                "targetAoiIndex": 4245}
+                "targetAoiIndex": 4245, "blockSize": 10, "blockCount": 100,
+                "requestedIndices": [4245, 4246, 4345]}
 
     def publish(self, payload):
         self.path.write_text(json.dumps(payload), encoding="utf-8")
@@ -59,7 +60,9 @@ class ReplyAdmissionTests(unittest.TestCase):
                       challenge="correct_challenge", published_at_ns=self.published,
                       server_id=2212 if kind == "world" else None,
                       world_id=0 if kind == "world" else None,
-                      request_mode="native" if kind == "region" else None)
+                      request_mode="native" if kind == "region" else None,
+                      target_tile_x=455 if kind == "region" else None,
+                      target_tile_y=425 if kind == "region" else None)
         kwargs.update(expected_overrides)
         return wait_for(self.path, ExpectedReply(**kwargs), 0.4)
 
@@ -166,6 +169,42 @@ class ReplyAdmissionTests(unittest.TestCase):
         j["error"] = "native_view_missing"
         self.publish(j)
         self.assertEqual(self.read("region")["error"], "native_view_missing")
+
+    def test_region_coordinates_and_native_aoi_must_equal_requested_geometry(self):
+        positive = self.payload("region", "proven")
+        self.publish(positive)
+        self.assertEqual(self.read("region")["targetAoiIndex"], 4245)
+        for changes in (
+            {"targetTileX": 456}, {"targetTileY": 426},
+            {"targetAoiIndex": 4246}, {"blockSize": None},
+            {"blockCount": 0}, {"blockSize": 20},
+            {"requestedIndices": [4246]},
+            {"requestedIndices": [4245, 4245]},
+            {"requestedIndices": [4245, -1]},
+            {"requestedIndices": [4245, "4246"]},
+            {"requestedIndices": None},
+        ):
+            with self.subTest(changes=changes):
+                self.publish({**positive, **changes})
+                with self.assertRaises(ReplyValidationError):
+                    self.read("region")
+        self.publish(positive)
+        for expected_changes in (
+            {"target_tile_x": None}, {"target_tile_x": 456},
+            {"target_tile_y": 426}, {"target_tile_y": 1000},
+        ):
+            with self.subTest(expected=expected_changes):
+                with self.assertRaises(ReplyValidationError):
+                    self.read("region", **expected_changes)
+        # Actual failed producer omits geometry: failure is retained as a
+        # diagnostic result, not promoted to a populated positive.
+        self.publish({"requestId": "same_request", "schemaVersion": 1,
+                      "probeVersion": "lwbridge-live-resource-probe-2",
+                      "profileId": "correct_owner", "launchSessionId": "correct_session",
+                      "gamePid": 43210, "challenge": "correct_challenge",
+                      "capturedAt": timestamp(), "state": "failed", "requestMode": "native",
+                      "error": "target_aoi_still_current"})
+        self.assertEqual(self.read("region")["state"], "failed")
 
     def test_trace_requires_actual_session_challenge_version_and_arrays(self):
         j = self.payload("trace")
