@@ -1,5 +1,12 @@
 # MAP-008 - single current continuation
 
+**Current execution priority:** owner has resumed background native testing,
+without mouse/global keyboard/minimize/focus/window rearrangement. Follow
+`docs/work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md` on the same branch/PR.
+MAP-009 source recovery is independently reviewed; first qualify small consecutive/
+direct/remote region or known-object trials, then real comparisons and integration.
+The offline-only paragraph below is superseded for this new background task.
+
 **Latest execution priority (2026-10-12):** owner uses the computer. Complete
 `docs/work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md` offline on this same
 branch/PR. No desktop control/captures, game starts or live requests. The final

@@ -1,5 +1,16 @@
 # LW-Control — current contributor instructions
 
+Latest owner/lead authority, 2026-10-12: background native Map testing is allowed
+while owner uses Chrome. Follow MAP-BACKGROUND-ACQUISITION-010 on the existing
+branch/PR. Owner may place task app/game behind Chrome; no mouse/global keyboard,
+minimize, foreground/focus forcing, rearrangement or control of owner windows.
+Normal task-owned app/game startup and passive native/RPC/programmatic own-app
+inspection are allowed; don't wait for another monitor. No live claims/plunder/
+sharing/marches/spending/relocation or owner-state mutation. Preserve Chinese game
+language, exact session ownership, backups/restoration and explicit stops/denials.
+Read docs/work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md and MAP-009 lead
+offline review. This supersedes the prior offline-only limit for this new task.
+
 Latest owner/lead assignment, 2026-10-12: owner is using the computer and requests
 offline current-game reverse engineering to resolve Map acquisition/optimization.
 Follow docs/work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md on the existing

@@ -18,7 +18,13 @@ available functionality for acceptance. Active Monster protection live witness,
 Ghost/full seasonal Treasure and terminal owner-only actions remain limited/pending.
 See [current independent review](reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md) and
 [one current queue](MAP_008_SCAN_METHOD_CONTINUATION.md). Older negatives are preserved.
-**Current execution priority:** owner is using the computer. Assigned
+**Current execution priority:** owner permits background native Map work without
+mouse/global keyboard/minimize/focus/window rearrangement. Follow
+[MAP-BACKGROUND-ACQUISITION-010](work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md).
+MAP-009 offline source/test scope at `56e472c8` is independently accepted, not a
+new native-route/speed/release acceptance. Small qualified region/direct/remote
+trials precede full-world benchmarks. Main and PR release limits are unchanged.
+**Historical offline phase:** owner was using the computer. Assigned
 [MAP-OFFLINE-ACQUISITION-009](work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md)
 traces native chat coordinates, region/server requests and per-kind acquisition
 offline, with supported headless improvements. No desktop/live work in this task;

@@ -1,5 +1,12 @@
 # MAP-009 — current-game native acquisition, offline continuation
 
+**Lead update, 2026-10-12:** delivered offline scope at `56e472c8` is accepted
+for source inventory, selected-body/model tests and the reviewed small CPU grouping
+change. This is not a new native-route/speed/release acceptance. Owner now allows
+background testing without mouse or window-state manipulation. Continue the
+specific native trials under `work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md`.
+The original offline delivery narrative below remains historical.
+
 **Status:** READY_FOR_LEAD_OFFLINE_REVIEW, subject to verification of the final
 commit and independent lead acceptance. This is a source-led, offline investigation
 on `codex/map-action-providers-007`, existing PR #9. Whole Map functionality,
