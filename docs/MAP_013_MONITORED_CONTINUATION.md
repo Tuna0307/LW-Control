@@ -1,5 +1,10 @@
 # MAP-013 — monitored recovery and scanner continuation
 
+Current owner-directed finish: `MAP_013_METHOD_SELECTION_FINISH.md` defines the
+finite accessible-route assessment and supported method decision. Retaining the
+baseline is acceptable when alternatives fail qualification; global optimality
+and unresolved camera/remote impossibility must not be claimed. Same assignment.
+
 Lead independently accepts checkpoint `6e9e6a14`'s bounded monitoring evidence.
 See `reviews/2026-10-12-MAP-013-MONITORED-LEAD-REVIEW.md` for raw-result/external-stop
 distinctions, test results, helper precautions and the required game causal trace.

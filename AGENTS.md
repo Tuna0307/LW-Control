@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest owner direction, 2026-10-12: continue investigating credible scanner
+alternatives, then select the fastest accuracy-qualified supported method.
+Follow docs/MAP_013_METHOD_SELECTION_FINISH.md in the same assignment/branch/PR.
+Account for each accessible source-backed route and stop repeating unchanged
+failures. Acceptance can retain the existing method with documented limitations;
+finite trials cannot prove global optimality or that no other method can exist.
+Same background-only authority and owner-only action restrictions remain.
+
 Latest lead review, 2026-10-12: 6e9e6a14 monitored analysis accepted as bounded
 evidence; scanner objective remains PARTIAL. Read
 docs/reviews/2026-10-12-MAP-013-MONITORED-LEAD-REVIEW.md. The 1,800s timer did
