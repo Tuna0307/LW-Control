@@ -1,5 +1,21 @@
 # MAP-013 — monitored recovery and scanner continuation
 
+**Finite method-decision continuation:** the accepted native
+toolchain/monitored experiments are preserved. Available scope now
+selects the **existing shared serial LOD0 camera-assisted sweep** as
+the only coverage-bearing, positively field-sampled route among
+tested methods; no faster or remote camera-free method meets the
+fresh-populated-region gate. Re-audit of unchanged raw R15/R16
+shows 80 second target AOIs in local add/current lists but nine
+non-target message-view AOIs and seven outside-region retained
+ResourcePointInfo candidates, not a matched response. The exact
+send→reply→cache failure is still **unidentified**, status **PARTIAL**.
+See the *single* updated Q1–Q8 matrix and finite method table in
+`MAP_012_SCANNER_QUESTIONS.md`, plus
+`proof/MAP-013-METHOD-SELECTION-2026-10-12.json` and the inert
+`map013_native_view_audit.py` / inverse tests. No experimental
+scanner code is shipped; Normal/Fast and saved data remain unchanged.
+
 Current owner-directed finish: `MAP_013_METHOD_SELECTION_FINISH.md` defines the
 finite accessible-route assessment and supported method decision. Retaining the
 baseline is acceptable when alternatives fail qualification; global optimality

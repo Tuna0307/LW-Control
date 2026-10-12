@@ -1,5 +1,21 @@
 # MAP-013 — finite method assessment and decision
 
+**Current assessed selection (2026-10-12):** retain the existing
+accuracy-qualified, camera-assisted serial LOD0 scanner with shared
+mixed-type acquisition, conditional kind-specific enrichment and
+passive context-switched multi-server scans. Direct/consecutive
+alternatives fail their observed populated-second-region accuracy
+gate; coarse/search/list/known-target mechanisms remain
+complementary. The exact second native request/response/cache
+association and remote-without-switch provenance are **unresolved**.
+**Overall status PARTIAL**, not proof of global fastest performance
+or perfect recall. This is the finite source-supported method decision,
+not a new release or production scanner change. One detailed route
+table and Q1–Q8 matrix live in `MAP_012_SCANNER_QUESTIONS.md`;
+compact evidence is in `proof/MAP-013-METHOD-SELECTION-2026-10-12.json`.
+Historical R15/R16 genuine receipts were independently re-audited;
+no unchanged native camera/flag experiment or full benchmark was rerun.
+
 Owner direction, 2026-10-12: continue meaningful alternatives and establish the
 best supported accurate scan method; retain the current method if the accessible
 alternatives do not qualify. This continues MAP-012/013, not a new campaign.

@@ -1,5 +1,122 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+## Owner MAP-013 finite method selection — 2026-10-12
+
+**Decision for the admitted v24 game: retain the existing serial,
+camera-assisted shared LOD0 AOI scanner (QUALIFIED among tested
+coverage-bearing methods), with its present type-specific enrichment
+and explicit multi-server view transitions. Do not change Normal/Fast.**
+This is **not** a claim of globally minimum latency, perfect recall,
+another-server passive full-map reading, or complete recovery of the
+original commercial application's scanner. The method decision for
+accessible proven cases is supported; the overall MAP-012/013 objective
+is still **PARTIAL** because source-owned second-region send→reply/
+segments→cache identity and cross-server attribution remain unresolved.
+The accepted baseline is preferred over a faster-looking method that
+returns no independently verified objects.
+
+The historical R15/R16 **original** JSON receipts have now been
+replayed through the fail-closed
+`tools/map_009_offline/map013_native_view_audit.py` (not a new
+game observation). In both, the **first** region at (455,425) had
+28 real native Resource point rows and 26 Monster march rows. In the
+**second** region at (545,495), `_curViewIndex`/`_addViewIndex`
+locally selected 80 LOD0 AOIs including 4954, but the two actual
+receiver snapshots showed `_msgViewIndex` length **9** with target
+**absent**. Native ready flags subsequently became true at roughly
+219 ms (R15) / 194 ms (R16); **all three target point/march
+families remained at zero**. The seven retained native
+`ResPointInfo` candidates were each rejected as **outside the
+second selected AOI**. R16 additionally called the source
+`SendAoiRequest` explicitly, yet its immediate global send
+count did not advance (203→203). Crucially, this is a demonstrated
+**divergence between locally selected AOIs, observed message-view
+indices, and populated target cache**, not proof that the server
+refused or never received the request, nor proof those seven old
+records are all the game held. No matching native outgoing packet,
+response header, segment generation or insertion callback was saved.
+The first **observable** failed boundary is the missing second-region
+source/cache population; the first **causal** failed branch remains
+unidentified. R14 independently proves that logical game-camera
+movement without actual cameraAnchor movement can retain an old
+first-region subscription. The R15/R16 custom-anchor route fixes
+*local geometry* but not verified fresh reception.
+
+### Finite evaluated method families
+
+These are scoped classifications, not universal existence/impossibility
+claims. The full per-kind direct-source boundary is in the table
+below and in `MAP_009_OFFLINE_ACQUISITION_CONTINUATION.md`.
+
+| Route / useful variants | Current classification | Observation and exact boundary |
+| --- | --- | --- |
+| Existing shared serial camera-assisted LOD0 discovery with target→home restoration | **QUALIFIED** for the admitted current-server available-kinds native sweep and context-switched multi-server delivery | Genuine 340 app→Lua probes, 10,000 recorded AOIs, 2,500 logical blocks, independent sampled native fields and completed dataset publication. Retains one active camera request. AOI coverage is not universal object recall. |
+| Consecutive camera-assisted regions, one home restoration | **REJECTED_FOR_OBSERVED_CASE** R8–R16, broader support **UNRESOLVED_WITH_EXACT_EDGE** | R13/R14 logical tile changed while anchor/old nine AOIs persisted; R15/R16 target AOIs advanced to 80 but `_msgViewIndex` remained nine old AOIs, 7 stale/out-of-AOI candidates, no fresh target rows/segments. Need target-scoped outbound→receiver→insert witness and exact full camera/manager restoration. |
+| Camera-independent `SendAoiRequest` / `SendViewRequest` / `StartViewRequest` variants | **REJECTED_FOR_OBSERVED_CASE** R4/R5/R10/R16; untested native subscription variants **UNRESOLVED_WITH_EXACT_EDGE** | Correct local AOIs/return values and generic traffic do not demonstrate source-accepted target reply. Source's 160-AOI split path and manager/current-server state make bare caller args insufficient. Match wire request and incoming native segments before retry. |
+| Coarse LOD2 world/filtered monster, resource and nearest/official searches | **COMPLEMENTARY_ONLY** | Coarse LOD2 specialized Zombie Boss and nearest/filtered Resource/Monster/Dispatch queries lack generic all-family, all-coordinate unknown-object census/paging proof. Useful to locate or enrich selected kinds, not replacement for full LOD0 coverage. |
+| Official Train/Railway lists, march positions and activity/season lists | **COMPLEMENTARY_ONLY**; Ghost-positive and seasonal Treasure **OWNER_DEFERRED** | Train list refresh assists Railway enrichment but previously omitted Truck witnesses; known march positions require UUID, while event/season task lists are scoped and may be absent. No complete unknown-map census. |
+| Known City/User, Point, Truck, Treasure, Resource and Ghost details | **COMPLEMENTARY_ONLY** for known-identity enrichment | Actual v24 request constructors exist and can provide fields for known targets. Caches are not guaranteed world-complete. Do not identify a new object by querying unknown UUIDs or copy a requested server into a response. |
+| Remote known-point detail without active server switch | **UNRESOLVED_WITH_EXACT_EDGE** | R12 active 2212 / target 2213 returned matching pointId but native parsed `serverId=0`; `WorldPointDetailManager` caches solely by pointId. Need raw `scrServer`/callback/connection lineage and same-coordinate wrong-server, stale and retired-connection inverses; absence of literal server echo alone is inconclusive. |
+| Remote *region* and complete *unknown map* without switching | **UNRESOLVED_WITH_EXACT_EDGE** separately | `SendAoiRequest` lacks an explicit target server argument and uses active manager/view state. The existence of explicit serverId in known-object requests cannot prove remote AOI subscription or full-map discovery. Require verified remote response generation and complete region then world coverage. |
+| Existing shared mixed pass + type-specific enrichment | **QUALIFIED** for admitted selected kinds with positive witnesses | Mixed City/Resource/Monster/Truck/Railway/Dispatch extraction reuses one AOI pass and merges per-type dictionaries. Known Railway/Truck lists and details remain kind-specific; sample-positive Railway scope must not be assumed where absent. |
+| New hybrid shortcuts, list-based census or skip-restoration acceleration | **UNRESOLVED_WITH_EXACT_EDGE** (not promoted) | Reusing known UUID/list metadata can be complementary; no independently qualified incremental time/coverage improvement or new native sent-call reduction was measured. Missing rows are not fast results. |
+| Passive two-server scan via actual view switching and exact return | **QUALIFIED** for previously tested bounded examples only, no speed comparison | Archived 2212→2213→2212 Truck+Railway+Dispatch Fast 384.380s / City Normal 383.255s, both n=1 and transition/return overhead separately recorded. This switches world context; it is **not** a camera-free or remote-without-switch route. |
+
+**Per-kind selection:** City/player, Resource, Monster, Truck,
+Railway and Dispatch retain the shared LOD0 discovery and the
+conditional corresponding detail/list/march enrichment. Their
+single-kind historical times are shown below. Mixes use that same
+discovery, never a sweep per selected kind. Ghost positive
+and full seasonal Treasure remain deferred; neither is silently
+recorded as positively census-qualified. Current and other-server
+scans must use authoritative active context and verified server-view
+switch/return; no direct remote without-switch source is enabled.
+
+**Performance:** the genuine historical Normal/Fast all-eight
+medians were 209.278s and 207.142s respectively, **n=2 per
+route**; this is not an accepted comparative advantage. 340 probes,
+one actual inflight camera request, a native LOD0 10,000-AOI
+union and 2,500 publication blocks apply to the admitted full
+1000×1000 current world. Roughly 90s of per-region restoration
+was observed across a historical whole scan, but is *not*
+recoverable speed savings until safe consecutive region reception
+and exact restoration qualify. Type-specific detail and publish
+costs are in historical proof receipts; exact source-owned native
+wire calls and paired per-kind marginal costs remain unavailable.
+No candidate passed a new two/three-fresh-populated-region accuracy
+gate, so there are **no defensible candidate n≥3 alternating
+benchmarks** or speedup percentages. Existing measured result ages,
+enrichment, publication, switch/return and Stop fences are preserved.
+Accuracy is sampled (25,393 compared native values, zero errors
+across seven genuinely populated kinds), not perfect recall.
+
+**Owner-visible behavior:** no production algorithm, Normal/Fast
+settings, saved results, profile owner boundaries, localized
+names, Home or Auto Stop-before-return changed. Full scans
+continue to take minutes and require the currently supported
+camera/view restoration. No diagnostic-only native
+code or Ghidra artifacts ship with the application.
+
+**Next exact discriminating observation:** one task-owned,
+hash-compatible, source-owned **passive** event/payload trace at
+the real `WorldPointManager.Init` registered native message IDs
+1433/661/2821011/2821014, `SendAoiRequest`/transport dispatch,
+`HandleViewPointsReply` entry/accepted segments and
+`AddPointInfo`/march insertion. Time-bracket first populated
+region and second independently populated region with the
+request's server/world/LOD/manager generation, native payload
+AOI IDs, and resulting cache keys. Source-side native delegate
+matching to those event IDs remains unresolved; recording just
+their counts or registering an unscoped listener would not
+make a reply attributable. Compare an identical coordinate
+on another server and a retired-owner packet for remote
+qualification. This must distinguish **not sent**, **sent
+without a reply**, **reply discarded/misbinding**, **cache
+insertion elsewhere**, and **valid empty**. Another identical
+R16 synthetic anchor/flag trial cannot do so. Only then
+reconsider restoration removal/remote region modes and
+their alternating n≥3 performance campaign.
+
 **MAP-013 monitored continuation:** successful native child/PID/CPU/memory
 control and one 1,800s-allowance original-function attempt, safely
 interrupted at 659s due to owner-machine memory pressure; useful
