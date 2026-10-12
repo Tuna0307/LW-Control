@@ -8,8 +8,17 @@ Read those first for scanner-method decisions; this MAP-010 and MAP-011
 ledger remains historical and is not evidence that a newer faster
 route was qualified. Source-supported official second-region camera
 navigation R13 also failed to obtain a fresh native second AOI at
-LOD0: native indices remained the first region. All task-owned
-R13 processes stopped, Auto false, original scripts restored.
+LOD0: native indices remained the first region. Follow-up R14 showed
+the camera-anchor rectangle stayed on the first region even after
+successful explicit refresh/update. R15/R16 generated 80 correctly
+targeted native AOI indices through a reversible anchor rectangle
+and explicit region request, respectively, but **zero populated
+second-region native point/march rows**, despite an archived
+positive-population clue. Do not adopt a ready-flag/80-AOI-only
+result; R15's temporary diagnostic labelled that insufficient
+snapshot proven, while R16 rejected it explicitly. R14–R16
+task-owned processes stopped; no journals/Auto; original scripts
+and production C#/Lua restored.
 Production scanner unchanged and prior negatives preserved.
 
 **Current owner assignment:** complete the Q1-Q8 scanner answer matrix and qualified

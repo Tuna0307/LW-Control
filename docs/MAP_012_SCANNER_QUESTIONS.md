@@ -16,12 +16,12 @@ separate decision.
 | --- | --- | --- |
 | **Q1: how request/receive/cache/retire?** | Camera/viewport determines native LOD/AOI subscription. The manager builds add/current lists, sends split-capable view/AOI messages, receives point segments, updates its caches and processes update/removal notices; expired/out-of-view records are later retired. World marches, train/event and detail managers add other type sources. App-owned results are staged and published separately. | Hash-locked v24 WorldPointManager IL: UpdateLWAoi_Normal, SendAoiRequest, SendViewRequest, StartViewRequest, UpdateViewRequest, HandleViewPointsReply, HandleViewUpdateNotify, AddPointInfo, RemovePointInfo, ViewCulling, DeleteOutOfAoi, DeleteTimeOutPoints. Lua GoToUtil.GotoWorldPos and SceneUtils.TileToWorld. Exact native request generation/response-segment identity is **not recovered**. |
 | **Q2: complete unknown map without moving camera?** | **Not established for City, Resource, Monster, Truck, Railway, Dispatch, Ghost, Treasure or any mixture.** Direct details, scoped lists and coarse LOD can help known targets or enrichment but are not proven full-population enumeration. Not proven impossible in principle. | R4 explicit SendAoiRequest and R5 direct SendViewRequest timed out; specialized zombie-boss coarse LOD is not generic Monster, and direct Train list omitted previously seen Trucks. See per-kind table. |
-| **Q3: adjacent regions with one final home restore?** | **Technically plausible, not qualified.** Simply arriving at second tile—even by supported navigation—is insufficient. Keep each production probe's conservative validated target-response and home-response cycle. | R9–R11 first target succeeded but second AOI absent. In **R13**, an official GotoWorldPos completion callback arrived at (545,495), live server 2212/world 0, manager LOD0, block size 10, count 100. Its nine _curViewIndex IDs stayed [4244,4245,4246,4344,4345,4346,4444,4445,4446], the *first* target region; requested **4954** was absent in eight retained receiver snapshots and 438 flags-ready observations through the eight-second deadline. Native generation, second request envelope/segment and home-only restoration were not proven. |
+| **Q3: adjacent regions with one final home restore?** | **Technically plausible, not accuracy-qualified.** Camera position, native AOI selection and a *fresh populated reply* are independent tests. Keep the conservative validated production target/home-response cycle. | R13 official navigation reached second tile yet nine first-region AOIs remained. **R14:** even after explicit anchor refresh + view update the four native camera-anchor corners remained at first region. **R15:** reversible second-region anchor rectangle yielded 80 correct AOIs and restored home once, but returned **zero** second point/march rows; the private diagnostic's proven status was misleading. **R16:** explicit native SendAoiRequest for those 80 AOIs still returned zero target rows and was rejected. Native response and source field witnesses remain missing. |
 | **Q4: another server without switching?** | **Three distinct questions:** known object = explicit-target request exists but actual authoritative remote response **inconclusive**; arbitrary remote region = **not proven**; remote *entire unknown map* = **not proven**. The active/current server uses the existing view without a server switch. Other full-map scans presently switch context and return. | WorldGetDetail request serializes point + serverId + worldId, but R12 active 2212/target 2213 found known point with reported detail server 0: a missing literal echo alone neither establishes nor refutes remote origin. Point-ID cache can be stale/ambiguous. Need wrong-server/same-coordinate/retired-connection controls and response transport/callback identity. |
 | **Q5: fastest accuracy-preserving route?** | **Existing shared, serial native AOI sweep is the only coverage-qualified complete route among tested alternatives.** Neither Normal nor Fast is demonstrated consistently faster. No candidate qualified for three alternating full benchmarks, so do not claim absolute optimality. | 340 serial app→Lua AOI probes, 10,000 LOD0 AOI cells and 2,500 logical blocks per archived all-eight pass; live peak simultaneous camera requests = **1** (not UI admission 8/20). All-eight Normal median 209.278s, Fast median 207.142s, n=2 each; only one comparison pair had independently positive sampled witnesses across populated kinds. See measurements. |
-| **Q6: verify accurate and complete?** | **10,000-cell native footprint union proves coverage of regions, not census recall.** Cross-check independent native identities, field values, server/world, observation age, detail enrichment, and time-bracket mutable rows. Detect missing, extra, duplicate, stale, wrong-context and incorrect-field records; fail closed rather than silently publish a partial scan. | Current source validates native footprints and selected-type counters, dedupes by record key, applies kind-specific details, and stages all 2,500 blocks before transactional publication. Historic independent genuine audit: **25,393 compared native field values, zero discrepancies for seven populated kinds**, not perfect global recall. MAP-012 adds an inert corruption-sensitive audit and actual R13 AOI-index rejection. |
+| **Q6: verify accurate and complete?** | **10,000-cell native footprint union proves coverage of regions, not census recall or receipt of populated rows.** Cross-check independent native identities, fields, server/world, age and type-specific enrichment; fail closed on missing native provenance. | R15 demonstrates a real experimental failure: **80 correctly selected AOIs, ready flags, zero second native rows** and a misleading private diagnostic completion status. R16 now fails explicitly on absent source rows. Historical witness **25,393 compared values / zero discrepancies** across seven populated kinds remains sampled, not universal. Inert audit covers deliberately corrupted missing/extra/duplicate/stale/wrong server/field cases. |
 | **Q7: types shared efficiently?** | **Yes:** a compatible mixed selection traverses the map once, extracts selected point/march families together, merges per-type dictionaries and then performs type-specific enrichment. There is no full AOI sweep per kind. Marginal type time/request count is **not statistically determined** by current unmatched n=1 runs. | One FastFullWorldResumeState.Covered and common ProbeFastCityBatchAsync; one Railway official list refresh when selected; Truck metadata post-processing; conditional Resource detail refresh and Monster protection hydration; City/Resource/Dispatch/Ghost/Treasure point extraction plus Monster/Train march extraction. Restoration per region is measured expensive, but safe elimination unqualified. |
-| **Q8: what will the owner test?** | **Production scanner remains as before**: Normal and Fast choose their existing placements, use the shared serial camera-assisted sweep and restore between samples; Auto changes to a target server and returns home/server on Stop or completion. Expect multi-minute full map scans, live expiring/moving rows and no promise Fast always wins. | Existing Native source SHA and Home/Map/Auto owner checks must remain unchanged. Ghost positive and full seasonal Treasure are deferred by owner. R4–R13 are experimental negatives/inconclusive; no live plunder/claims/sharing, no new zip/merge/release from this documentation-only assessment. |
+| **Q8: what will the owner test?** | **Production scanner remains as before**: Normal and Fast retain their serial camera-assisted sweep and per-region restoration; Auto retains Stop-before-return. Expect multi-minute full-map scans, no promise Fast always wins. | R4–R16 alternatives not promoted; R15's fast-looking 80-AOI snapshot is explicitly **unqualified** because it had zero source rows. Ghost live positive and full seasonal Treasure deferred. No account-changing actions, merge or release. |
 
 ## How v24 coordinates and manager lifecycle connect (Q1/Q3)
 
@@ -132,6 +132,75 @@ Competing hypotheses and distinguishing evidence:
   them. Receipt flags, request send success and unscoped packet totals
   cannot replace that evidence.
 
+### Continued investigation: R14–R16 (same v24, new owner-approved isolated trials)
+
+**R14, completed official navigation + anchor refresh + view update:**
+Second game WorldScene tile reached (545,495), manager LOD0 size10/count100.
+RefreshCameraAnchor and UpdateViewRequest(true) returned success, but four
+camera-anchor corners stayed at first-region projected x=892.28–929.71,
+z=857.87–871.14. The native current AOIs remained first-region
+[4244–4246, 4344–4346, 4444–4446], excluding required 4954,
+through 465 ready-without-target observations in eight seconds.
+This specifically localizes one cause of earlier observations: **the
+logical scene tile can change without updating the native viewport
+anchor that generates the manager's AOI subscription**. Native request
+and receive provenance is a separate remaining dependency.
+
+**R15, native source-derived rectangle (not shipped):** The task
+saved the original four corners, then set a reversible WorldScene
+6×4-cell anchor rectangle around the second target (cells x51–56,
+y47–50) and called UpdateLWAoi_Normal(true). The actual point manager
+eventually reported 80 second-region native AOIs containing 4954,
+LOD0 size10/count100. First region provided **28 real Resource and
+26 Monster rows**, but the **second region returned 0 point, 0 Train,
+0 Monster rows**. The private driver labeled the result *proven*
+because its experimental sequence gate checked reply flags + AOI
+geometry without requiring independently attested source data. That
+label was **not an accurate scan completion**. Original home tile
+(498,63) was reported returned once; exact final camera anchor,
+manager generation and native field/segment restoration were not
+independently proven.
+
+**R16, explicit second-region SendAoiRequest (not shipped):**
+After that same new native 80-cell add-view set was computed, an
+explicit reflected SendAoiRequest was invoked with the active
+server's LOD0, target tile, original world bounds, source
+_addViewIndex and native block geometry. Invocation succeeded and
+the second index 4954 belonged to 80 current AOIs, but native
+source rows remained **zero across all three point/march families**.
+The second-stage acceptance condition now failed closed as
+**r16_second_source_rows_empty_despite_native_footprint**.
+Unscoped immediate send counters were 203→203; neither they nor
+four later unrelated received packets attribute a reply to target.
+Do not infer that the server returned an authoritative empty
+population, or that no packet could arrive by another protocol.
+
+**Independent archived population clue (not live exact-time truth):**
+The saved genuine server-2212 Map317 records covering the second
+6×4-cell anchor area contain **104 City, 26 Resource, 31 Monster and
+1 Treasure**. A smaller central rectangle contains **17 City, 8
+Resource, 10 Monster and 1 Treasure**. Their timestamps are not a
+newly refreshed R16-native field witness, so dynamic movement or
+relocation cannot be excluded. They establish a strong reason to
+question the all-zero experimental snapshot, not a formal same-instant
+missing-count measurement. The R15/R16 route fails its mandatory
+positive second-region and source-provenance gate regardless.
+
+**Source-backed distinction for the next experiment:** In v24
+UpdateLWAoi_Normal's 160-AOI-bounded send branch, a changed
+cameraAnchor can *locally* populate current/add AOI sets and
+invoke SendAoiRequest. R15/R16 current=80 and add=80 alone do not
+show a target response: the native message AOI set still reported
+**nine old first-region entries**, and no returned source data
+could be correlated. Recover real outbound command IDs/arguments
+and incoming HandleViewPointsReply raw headers/segments and
+their manager subscription generation, before repeating a camera
+or anchor trial. An AOI index response flag is not a native positive.
+The task-owned runs each exact-stopped, Auto stayed off, no recovery
+journals or pending account action jobs remained; installed Chinese
+game scripts and the production Desktop C#/Lua were returned to their
+original hashes. No unrelated processes were stopped.
+
 The real current-game remote detail response handler was decoded
 again for this task: Net/Msgs/WorldGetDetailMessage.HandleMessage
 passes its raw message to WorldPointDetailManager.UpdateDetail,
@@ -161,7 +230,7 @@ an accepted repeatable speedup; at least three alternating per-route
 runs with comparable positive witnesses would be required to
 claim one. Both run 340 serial Lua region probes, **10,000**
 AOIs and 2,500 blocks. Home-view restoration costs ~90 seconds
-per full-world scan by the historical phase receipts, but R8–R13
+per full-world scan by the historical phase receipts, but R8–R16
 show that omitting it is currently unqualified; this is potential,
 not earned, savings. Packet counters were global and unscoped:
 **actual raw network packet count per scan is unknown**.

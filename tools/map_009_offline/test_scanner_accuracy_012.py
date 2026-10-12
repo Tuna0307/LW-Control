@@ -29,6 +29,25 @@ class ScannerAccuracy012Tests(unittest.TestCase):
         # This tests the actual observed native current-view footprint,
         # independently of the receiver's flags-ready and packet counters.
 
+    def test_r15_r16_native_footprint_is_not_a_positive_source_witness(self):
+        # Actual R15/R16 observed 80 second-region LOD0 AOIs and all-zero
+        # City/Resource/Monster rows. Correct geometry alone cannot certify
+        # a source reply, even if native flags are ready and home is restored.
+        second = [y * 100 + x for y in range(42, 52) for x in range(50, 58)]
+        self.assertEqual(len(second), 80)
+        self.assertIn(aoi_index(545, 495), second)
+        self.assertNotIn(aoi_index(455, 425), second)
+        native_witness = (
+            Cell("city", 2212, 0, "known-city", TS, (("level", "30"),)),
+            Cell("resource", 2212, 0, "known-resource", TS, (("remaining", "5"),)),
+        )
+        # The test is a deliberately time-matched INERT comparison. Archived
+        # real positives outside the bracket are only leads, not guaranteed
+        # native truth about the R15/R16 live instant.
+        missing = audit(native_witness, (), server=2212, world=0,
+                        earliest_ms=TS - 1000, latest_ms=TS + 1000)
+        self.assertEqual([x.category for x in missing], ["missing", "missing"])
+
     def test_no_differences_when_independent_fields_match(self):
         self.assertEqual(audit(NATIVE, NATIVE, server=2212, world=0,
                                earliest_ms=TS - 1000, latest_ms=TS + 1000), [])

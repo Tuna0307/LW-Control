@@ -79,7 +79,7 @@
   "historicalNativeNetworkPacketsCorrelated": false,
   "unresolved": {
     "Q1": "native viewport generation and per-response segment/connection association",
-    "Q3": "fresh second-AOI response and exact one-time home/manager restoration",
+    "Q3": "R14 stale cameraAnchor; R15/R16 second AOI index yes but no fresh populated target rows or complete native reply segment/current-view restoration",
     "Q4": "authentic remote known-point server and regional/full-world ownership",
     "Q5": "any new accuracy-qualified faster candidate and n>=3 matched comparisons"
   },
@@ -87,9 +87,9 @@
     "unitSuite": "tools/map_009_offline",
     "adversarialNativeObservation": "R13 first-window footprint not second-target",
     "syntheticFixturesAreNotLiveProof": true,
-    "offlineUnitTestsPassed": 23,
+    "offlineUnitTestsPassed": 24,
     "sourceLockedRemoteDetailCacheTestsPassed": 2,
-    "nativeAccuracyInverseTestsPassed": 9,
+    "nativeAccuracyInverseTestsPassed": 10,
     "managedHomeMapAutoStoragePipeChecks": "PASS",
     "desktopReleaseBuild": "PASS_0_WARNINGS_0_ERRORS",
     "frontendStaticHomeMapOwnerAndCatalogChecks": "PASS",
@@ -111,6 +111,161 @@
     "originalInstalledGameScriptsMatch": true,
     "compiledTaskOnlyTrialDriverRemoved": true,
     "nativeTrialLuaRestored": true,
-    "gameAccountActions": 0
+    "gameAccountActions": 0,
+    "r14R15R16ExactOwnedStop": true,
+    "r14R15R16NoTaskJournals": true,
+    "r14R15R16NoAuto": true,
+    "r14R15R16TemporaryCsharpRemoved": true,
+    "r14R15R16TemporaryLuaRestored": true,
+    "r14R15R16GameAccountActions": 0
+  },
+  "nativeContinuationR14R16": [
+    {
+      "experiment": "R14",
+      "privateEvidence": "ignored artifacts/map-012/official-nav-refresh-r14",
+      "rawEvidenceSha256": "69e13b7dc3750f5ea0bb082a16442232cdf668af82c04fdf3c32b833879c747f",
+      "activeServer": 2212,
+      "worldId": 0,
+      "secondTile": [
+        545,
+        495
+      ],
+      "secondAoiRequired": 4954,
+      "nativeState": "failed",
+      "nativeError": "map011_receiver_deadline_no_target_owned_complete_aoi",
+      "secondAoiCount": 9,
+      "secondContainsTarget": false,
+      "sourceRecordsByRegion": [
+        {
+          "stage": 0,
+          "point": 28,
+          "train": 0,
+          "monster": 26
+        }
+      ],
+      "freshPopulatedSecondRegionQualified": false,
+      "fullNativeManagerRestorationQualified": false,
+      "taskOwnedStop": true,
+      "taskJournalAbsent": true,
+      "autoDisabled": true,
+      "officialCallback": true,
+      "refreshReturned": true,
+      "forcedUpdateReturned": true,
+      "cameraAnchorCornersStayedFirstRegion": true,
+      "flagsReadyNoTargetCount": 465
+    },
+    {
+      "experiment": "R15",
+      "privateEvidence": "ignored artifacts/map-012/anchor-region-r15",
+      "rawEvidenceSha256": "d1a74ffa716933394b38ecee4d10d3f378ef209ee04019c61f80ea15202683a3",
+      "activeServer": 2212,
+      "worldId": 0,
+      "secondTile": [
+        545,
+        495
+      ],
+      "secondAoiRequired": 4954,
+      "nativeState": "proven",
+      "nativeError": null,
+      "secondAoiCount": 80,
+      "secondContainsTarget": true,
+      "sourceRecordsByRegion": [
+        {
+          "stage": 0,
+          "point": 28,
+          "train": 0,
+          "monster": 26
+        },
+        {
+          "stage": 1,
+          "point": 0,
+          "train": 0,
+          "monster": 0
+        }
+      ],
+      "freshPopulatedSecondRegionQualified": false,
+      "fullNativeManagerRestorationQualified": false,
+      "taskOwnedStop": true,
+      "taskJournalAbsent": true,
+      "autoDisabled": true,
+      "secondAnchorCellBounds": [
+        51,
+        47,
+        56,
+        50
+      ],
+      "nativeCameraTileRestored": true,
+      "privateDiagnosticFalsePositiveLabel": true
+    },
+    {
+      "experiment": "R16",
+      "privateEvidence": "ignored artifacts/map-012/explicit-anchor-region-r16",
+      "rawEvidenceSha256": "4ab5f7ed6e5ef3eb0e77c0e13d764b8858e9c3a2ae6ce915f25c9c25eec8c352",
+      "activeServer": 2212,
+      "worldId": 0,
+      "secondTile": [
+        545,
+        495
+      ],
+      "secondAoiRequired": 4954,
+      "nativeState": "failed",
+      "nativeError": "r16_second_source_rows_empty_despite_native_footprint",
+      "secondAoiCount": 80,
+      "secondContainsTarget": true,
+      "sourceRecordsByRegion": [
+        {
+          "stage": 0,
+          "point": 28,
+          "train": 0,
+          "monster": 26
+        },
+        {
+          "stage": 1,
+          "point": 0,
+          "train": 0,
+          "monster": 0
+        }
+      ],
+      "freshPopulatedSecondRegionQualified": false,
+      "fullNativeManagerRestorationQualified": false,
+      "taskOwnedStop": true,
+      "taskJournalAbsent": true,
+      "autoDisabled": true,
+      "secondAnchorCellBounds": [
+        51,
+        47,
+        56,
+        50
+      ],
+      "nativeCameraTileRestored": false,
+      "explicitSendAoiRequestReturned": true,
+      "explicitRequestAoiCount": 80,
+      "unscopedImmediateSendBeforeAfter": [
+        203,
+        203
+      ]
+    }
+  ],
+  "archivedSourceClueSecondRegion": {
+    "cellBounds": [
+      51,
+      47,
+      56,
+      50
+    ],
+    "archivedServer2212Rows": {
+      "city": 104,
+      "resource": 26,
+      "monster": 31,
+      "treasure": 1
+    },
+    "centralArchivedRows": {
+      "city": 17,
+      "resource": 8,
+      "monster": 10,
+      "treasure": 1
+    },
+    "currentTimeNativeWitness": false,
+    "perfectMissingCountDemonstrated": false
   }
 }
