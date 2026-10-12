@@ -269,6 +269,52 @@ the current server and return-to-original after multi-server cycles.
 "@
     $readme = $readme.Substring(0, $scopeStart) + $scanScope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP010-BACKGROUND') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-010 release scope boundaries missing.' }
+    $scope = @"
+MAP-010 BACKGROUND ACQUISITION — UNMERGED LIMITED REVIEW CANDIDATE
+This package preserves the earlier accepted single-game Home and the MAP-008
+accuracy-preserving v24 Map baseline (eight selectable kinds, individual/mixed
+scans, existing passive multi-server Auto Stop-before-return). The baseline
+holds its temporary view until the source-owned target reply and confirms
+restoration before requesting the next region. This is NOT a new faster scan.
+The earlier source-led CPU grouping change is preserved, but its measured
+effect on wall time has not been separately established.
+
+Installed-game Resource and Monster labels are shown from the actual
+current game's locale data. Loading, missing-game-root, failure and retry
+feedback is translated in all nine supported clone languages. The normal
+Map now permits browsing published saved servers when disconnected; it
+does not invent an active game/server connection or freshness.
+The exact isolated production-app EN/light and JA/dark native WebView
+checks passed with genuine stored data. Neither test changed the official
+Last War Chinese-language setting.
+
+MAP-010 optimization trials were bounded and non-account-changing.
+One existing coverage region proved a fresh 30-AOI target with 22 Resource
+rows and exact home restoration. Direct SendAoiRequest and camera-independent
+SendViewRequest did not return qualifying fresh data. A two-region/no-home
+intermediate candidate captured the first target but the second reply did
+not prove the requested AOI. Therefore no acquisition shortcut is enabled.
+Do NOT infer the earlier ~90-second per-scan home cost is safely removable.
+No paired full eight-kind/individual/mixed/two-server speedup benchmark was
+performed for a qualifying MAP-010 candidate, because none passed the small
+response/coverage/restoration admission. Normal/Fast have no new claim of
+repeatable advantage or global optimality.
+
+Ghost positive population, full seasonal Treasure and actual claim/plunder/
+sharing remain deferred or owner-only. No claims, plunder, marches, sharing,
+spending or relocation were performed. Whole Map, remote full-world acquisition
+without switching server/world, and simultaneous multiple official game
+processes are NOT accepted. Source/proof and exact follow-up dependencies:
+docs/MAP_010_BACKGROUND_ACQUISITION_CONTINUATION.md. This is an unmerged
+review candidate, not a published release.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")
