@@ -13,14 +13,15 @@ Auto/Stop/return are released. Ghost positive acquisition (owner availability
 live owner-only claims/plunder/sharing remain pending. Whole Map is PARTIAL.
 Accepted single-game Home remains released; two-game F-07 is separate.
 
-**Only current continuation (2026-10-12):** PR #9 / MAP-008 at `473d6483` is
-CHANGES_REQUIRED for native accuracy-auditor LEADMAP008-01/02. MAP-007 mounted
-retirement fixes now independently pass. Preserve them and the observed spatial
-restoration correction. Fix the proof defects, bind/revalidate archived evidence,
-and finish finite available method qualification; no Fast advantage is established.
-See `reviews/2026-10-12-MAP-008-LEAD-REVIEW.md`. Same branch/PR, no live owner-only
-actions. Railway/active Monster protection and repeatability remain limited;
-Ghost/full seasonal Treasure live positives remain deferred.
+**Only current continuation (2026-10-12):** PR #9 / MAP-008 at `10b73c4a`:
+LEADMAP008-01/02 audit fixes independently pass; current installed native names and
+mounted root/locale ownership checks pass. Railway/ordinary Treasure positive
+sampled values are now witnessed. Preserve these changes. Final extracted captures
+and localized name-feedback UI need LEADMAP008R5-01/02 correction before release.
+Read `reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md` and the compact current
+`MAP_008_SCAN_METHOD_CONTINUATION.md`. No material Fast advantage or full Map/action
+acceptance. Active protection/Ghost/full seasonal and owner-only action limits stay
+explicit. Same branch/PR; no new game experiment is needed for the ready release gates.
 
 **Historical 2026-10-11 assignment, superseded above:** PR #9 was CHANGES_REQUIRED for LEADMAP007-01/02.
 Fix the retired preview busy state and stale cross-tab acknowledgement, then

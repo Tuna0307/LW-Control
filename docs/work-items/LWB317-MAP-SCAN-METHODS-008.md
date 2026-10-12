@@ -1,5 +1,14 @@
 # MAP-SCAN-METHODS-008 — accurate efficient scanning for every type and combination
 
+Latest independent continuation, 2026-10-12: review of `10b73c4a` closes the
+replayed LEADMAP008-01/02 audit defects and verifies installed name reader/mounted
+route fixes. Complete LEADMAP008R5-01/02 final extracted locale/name captures and
+localized name-feedback states, then return one corrected available release
+candidate. See `docs/reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md` and the compact
+current queue. Preserve historical negatives. No restart or unchanged full-world
+benchmark repeats; unproved efficiency and deferred features remain explicitly
+limited rather than silently becoming complete. Earlier continuation below is history.
+
 Current continuation, 2026-10-12: delivery `473d6483` independently reviewed;
 see `docs/reviews/2026-10-12-MAP-008-LEAD-REVIEW.md`. Preserve mounted MAP-007 fixes
 and all-spatial deferred restoration. Fix accuracy-auditor LEADMAP008-01/02,

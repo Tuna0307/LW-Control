@@ -1,5 +1,15 @@
 # LW-Control — current contributor instructions
 
+Current independent lead review, 2026-10-12, source 10b73c4a: audit findings
+LEADMAP008-01/02 independently pass; installed game-name reader and mounted route
+also pass. Railway/ordinary Treasure have sampled positives. Complete only ready
+LEADMAP008R5-01/02 (final extracted captures are mislabelled Chinese preview states;
+new name-loading/error/retry text bypasses localization), then propose corrected
+available release scope. Same branch/PR, no restart or repeated identical scans.
+Read docs/reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md and the compact current
+MAP_008_SCAN_METHOD_CONTINUATION.md. Older assignments below are historical.
+No globally fastest/Fast speedup or whole-Map/action completion is accepted.
+
 Owner-reported Map names, 2026-10-12: native Monster/Resource names show Unknown.
 LEADMAP008-03 reproduces missing production game-text wiring despite stored name
 keys and an existing locale backend. Fix within MAP-008 on the same branch/PR,

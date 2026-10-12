@@ -6,20 +6,18 @@ passive navigation and bounded Auto/Stop/return. See
 [independent acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md).
 MAP-005 / PR #7 remains released as manual-map-v0.5.0. Whole Map is **PARTIAL**:
 Ghost positive acquisition, full Treasure and owner-only action witnesses are pending.
-PR #9 remains unmerged. Independent 2026-10-12 review of MAP-008 at `473d6483`
-passes MAP-007 mounted retirement corrections, planner/engine adversity, frontend
-and native checks, and candidate source/hash integrity. All-spatial deferred camera
-restoration corrects observed omission; no material repeatable Fast speedup is proved.
-**CHANGES_REQUIRED**: LEADMAP008-01/02 allow foreign owner tuples and absent required
-native contract fields to pass the accuracy auditor. Correct these and revalidate
-available evidence before accepting the candidate. Finite per-type/mixed timing
-qualification and positive Railway/active-protection witnesses remain incomplete;
-Ghost/full Treasure positives remain deferred. Same branch/PR, solo. See
-[current lead review](reviews/2026-10-12-MAP-008-LEAD-REVIEW.md).
-Owner-visible LEADMAP008-03 is also reproduced: native Monster/Resource names
-default to Unknown because production game-text loading is not connected.
-Resolve actual game keys/localization and verify native tables/filters in a clean
-candidate; local cached example names are not current-build proof.
+**Current independent review, 2026-10-12, product `10b73c4a`:** PR #9 remains
+unmerged. Accuracy-auditor findings LEADMAP008-01/02 independently pass corrected
+inverse replay. Real installed game-name resolution and mounted native-route
+integration pass; Railway and ordinary Treasure have sampled positive values.
+Scanner correctness improved; no material repeatable Fast advantage is proved.
+**CHANGES_REQUIRED:** LEADMAP008R5-01/02: extracted EN/JA capture labels are not
+actual EN/JA native-name evidence, and new name-feedback text is hardcoded English.
+Finish these finite release gates on the same branch/PR, then propose corrected
+available functionality for acceptance. Active Monster protection live witness,
+Ghost/full seasonal Treasure and terminal owner-only actions remain limited/pending.
+See [current independent review](reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md) and
+[one current queue](MAP_008_SCAN_METHOD_CONTINUATION.md). Older negatives are preserved.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
