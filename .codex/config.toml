@@ -4,5 +4,12 @@ command = 'C:\Program Files\nodejs\node.exe'
 args = ['C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\tools\rea-mcp\node_modules\rea-agents\scripts\rea.mjs', 'mcp']
 cwd = 'C:\Users\chimw\OneDrive\Desktop\Github\LW-Control'
 startup_timeout_sec = 120
-tool_timeout_sec = 120
+# Ghidra cold import and auto-analysis can take up to 330s; bounded headroom.
+tool_timeout_sec = 480
 enabled = true
+
+# MAP-013 portable, checksum-verified analysis tools. Project-only, no global PATH/Java edits.
+[mcp_servers.rea.env]
+GHIDRA_INSTALL_DIR = 'C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\artifacts\rea-toolchain\ghidra_12.1.4_PUBLIC'
+JAVA_HOME = 'C:\Users\chimw\OneDrive\Desktop\Github\LW-Control\artifacts\rea-toolchain\jdk-21.0.12.1+1'
+REA_ANALYSIS_PROVIDER = 'ghidra'

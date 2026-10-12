@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-MAP-REA-NATIVE-RECOVERY-013",
+  "date": "2026-10-12",
+  "startingCheckpoint": "891ee67617c098854b77377b7098ee530b5d4811",
+  "branch": "codex/map-action-providers-007",
+  "pr": 9,
+  "status": "PARTIAL",
+  "installation": {
+    "reaVersion": "6.4.0",
+    "ghidra": {
+      "version": "12.1.4",
+      "origin": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip",
+      "archiveSha256": "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db",
+      "acceptedByInstalledBridge": true
+    },
+    "jdk": {
+      "version": "Temurin 21.0.12.1+1",
+      "origin": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+      "archiveSha256": "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e",
+      "full64BitJdk": true
+    },
+    "toolArtifactsLocation": "ignored artifacts/rea-toolchain",
+    "scopedRegistrations": [".codex/config.toml", ".mcp.json"],
+    "priorConfigBackups": "ignored artifacts/rea-toolchain/config-backups",
+    "globalJava17Unchanged": true,
+    "providerDoctor": "available; x64 Windows process isolation, JDK, headless and native decompiler checks passed"
+  },
+  "reaNativeProof": {
+    "subject": "original-associated extracted xlua-proxy-plain.dll",
+    "sha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+    "format": "x86_64 native PE DLL",
+    "provider": "ghidra",
+    "providerVersion": "12.1.4",
+    "procedures": 2109,
+    "selectedAddress": "0x18004ac00",
+    "observedControlFlow": "if (param_2 == 1) FUN_18004afa0(); FUN_18004aac0(param_1,param_2,param_3)",
+    "evidenceIds": {
+      "overview": "ev_63e272594ab508b6857fe915e65c6abb193776b134c3a8dd9fe8e5035e7f2a93",
+      "assembly": "ev_0c68eed9303300956750048705efa4319fc317accc8eac95d0e44b1f8c8684fc",
+      "pseudocode": "ev_61842688de30dfb98b42416c30029f476f505ae57dd2a688ae0e79ddb2b40222",
+      "callers": "ev_b69f0976243b24ba45259190a5a0cbb75c444f415a26cc0a36d8d0443f5486e2",
+      "callees": "ev_08b2e21421efe871cf555d07f4635699c0738874988d27827b8e66f99bf13e72",
+      "incomingReferences": "ev_5256cdead50eaa0409587bf24bf328aa1719a97156baea7d5da70c470d784928"
+    },
+    "cleanClose": true,
+    "rawLocation": "ignored artifacts/rea-toolchain/xlua-plain-proof-v2",
+    "limitation": "Verifies working REA native decompiler on original-associated DLL; does not prove the Rust EXE Map implementation"
+  },
+  "originalNative": {
+    "subject": "lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "bytes": 15866880,
+    "format": "x86_64 PE",
+    "fullAnalysis": "330000ms REA/Ghidra provider_timeout; owned session closed",
+    "selectiveStatic": {
+      "techniques": ["original PE .pdata unwind bound parsing", "Capstone x86-64 RIP-relative references", "Ghidra -noanalysis -readOnly -deleteProject"],
+      "decodedUnwindBodies": 22976,
+      "stringReferenceHits": 230,
+      "nativeFunctionStarts": ["0x14013a8c1", "0x140143d67", "0x140159925", "0x140427120"],
+      "sampleNativeConditionalSite": "0x14013a8da to 0x14013a90f",
+      "sampleMapRelatedReference": "0x14013a965",
+      "fourPseudocodeResults": "not recovered for the first four larger candidate functions; per-function timeouts without full auto-analysis",
+      "smallerOriginalFunctionsDecompiled": ["0x140191253", "0x1400dc3f4", "0x1400dc886", "0x140344cbb", "0x140297a7f"],
+      "nativeMapStateEvidence": "0x140191253 tests +0x860/+0x850/+0x848/+0x840 branch states, invokes 0x140297a7f, 0x140344cbb and 0x1400dc886 on conditional paths",
+      "actualCallValueFlow": "0x140297a7f tests nested pointer lookup via 0x140284612; sets output tag 6 and pointer if nonzero or calls 0x1407a63da otherwise; 0x140344cbb conditionally dispatches via 0x140308ba1",
+      "smallFunctionResultFiles": ["ignored artifacts/rea-toolchain/original-selective-small/selected-small.txt", "ignored artifacts/rea-toolchain/original-selective-callees/selected-callees.txt"],
+      "closedAndTemporaryProjectDeleted": true
+    },
+    "encryptedPackageObservedStrings": {
+      "packageDecryptFailed": ["0x140abc7e3", "0x140b539e3"],
+      "keyEnvelopeDecryptFailed": ["0x140abe99b", "0x140b55b9b"]
+    },
+    "commercialKeyAndTicketInputs": "unresolved; no original protected runtime execution or service access",
+    "rawLocation": "ignored artifacts/rea-toolchain/original-selective-ghidra/selected-source.txt"
+  },
+  "currentGame": {
+    "assemblySha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "luaPackageSha256": "d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495",
+    "managedMethodTokens": {
+      "UpdateLWAoi_Normal": "0x0600351b",
+      "SendAoiRequest": "0x0600351d",
+      "HandleViewPointsReply": "0x06003551",
+      "UpdateViewRequest": "0x06003565",
+      "StartViewRequest": "0x06003568",
+      "SendViewRequest": "0x0600356a"
+    },
+    "r15R16SecondRegion": "80 selected current/add LOD0 AOIs incl 4954, zero independently confirmed target-region point/march rows",
+    "r16ImmediateUnscopedSendCounter": "203 to 203",
+    "nativeOutboundCommandAndReplyMatch": "unobserved",
+    "nativeCacheInsertionTargetProvenance": "unobserved",
+    "causalBoundary": "local selection does not establish native subscription/transmission/receiving or source-owned cache insertion"
+  },
+  "tests": {
+    "map009Offline": "24 tests passed",
+    "savedOwner": "passed; A=2212 and B=2213 isolated",
+    "desktopNative": "Release Desktop.Checks passed, zero game launches",
+    "frontend": "npm run check passed (static, Home, Map, saved owner, catalog and drafts)",
+    "nativeScriptSyntax": "node --check passed for two MAP-013 helper scripts"
+  },
+  "product": "no production scanner or Normal/Fast behavior change; no replacement candidate speed/accuracy qualified",
+  "cleanup": "owned Ghidra sessions and headless temporary projects closed/deleted; two task-created user Ghidra cache/preferences directories moved to ignored artifacts/rea-toolchain/owned-user-cache-backups and user profile paths restored absent; no MAP-013 game launched, no game scripts changed; globally installed Java unchanged",
+  "unresolved": [
+    "full original Rust Map orchestration/dispatch/retry/cancel decompilation and encrypted loader value flow",
+    "matching target-owned v24 second-region outbound request and actual inbound reply headers/segments",
+    "verified first/second/third fresh populated native cache inserts with exact owner and final restoration",
+    "stale/wrong-server remote identity inverses and accuracy-qualified alternating individual/mixed two-server performance"
+  ]
+}

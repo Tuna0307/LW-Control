@@ -36,16 +36,71 @@ built Map assembly. Repeat a bounded read-only integration check with:
 node tools/rea-mcp/verify.mjs src/LWBridge.Map-0.3.17/bin/Release/net10.0-windows10.0.17763.0/LWBridge.Map_0_3_17.dll
 ```
 
-JavaScript and managed .NET static analysis work without an external engine.
-Native machine-code decompilation needs a compatible Ghidra, Hopper or IDA
-provider. No provider is configured on this machine: Ghidra doctor reports
-`GHIDRA_INSTALL_DIR is not set`; this installation did not download another
-analysis engine or alter Java. REA setup/doctor's *user-level* client/skill checks
-do not validate this manually registered project-scoped configuration.
+## MAP-013 portable Ghidra native provider (2026-10-12)
+
+**Now installed, configured, and independently exercised against original-associated
+native PE bytes.** Official [Ghidra 12.1.4](https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_12.1.4_build)
+(`ghidra_12.1.4_PUBLIC_20260921.zip`, SHA-256
+`ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db`)
+and official [Eclipse Temurin JDK 21](https://github.com/adoptium/temurin21-binaries/releases/tag/jdk-21.0.12.1%2B1)
+(`OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip`, SHA-256
+`f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e`)
+are extracted into **ignored** `artifacts/rea-toolchain`. These copies are not
+checked into Git or packaged in the LWBridge application. Original installation
+files and their SHA-256 digests are retained privately.
+
+Project-only `.codex/config.toml` and `.mcp.json` supply matching `GHIDRA_INSTALL_DIR`,
+`JAVA_HOME` and `REA_ANALYSIS_PROVIDER=ghidra` to the REA stdio process. Config
+pre-edit backups are in `artifacts/rea-toolchain/config-backups`. No global
+`JAVA_HOME`, Java 17, Node, PATH or unrelated MCP registration was changed.
+The project Codex tool timeout is increased to 480 seconds to allow REA's
+bounded 330-second cold native import. A host must load/reconnect its project
+registration; this does **not** claim that Chat On Steroids itself connected a
+new external MCP server.
+
+To verify a read-only native session, from the repository root in PowerShell:
+
+```powershell
+$root = Join-Path (Get-Location) 'artifacts/rea-toolchain'
+$env:GHIDRA_INSTALL_DIR = Join-Path $root 'ghidra_12.1.4_PUBLIC'
+$env:JAVA_HOME = Join-Path $root 'jdk-21.0.12.1+1'
+$env:REA_ANALYSIS_PROVIDER = 'ghidra'
+tools/rea-mcp/rea.cmd doctor --json
+node tools/rea-mcp/native-catalog.mjs
+node tools/rea-mcp/verify-native.mjs 'evidence/lwbridge-0.3.17/functions/LWB317-FUNCTION-ORIGINAL-LUA-RECOVERY-006/c-extracted/xlua-proxy-plain.dll' 'artifacts/rea-toolchain/recheck-native'
+```
+
+The original-associated 64-bit `xlua-proxy-plain.dll` SHA-256
+`266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902`
+produced **real Ghidra 12.1.4 assembly, decompiled entry pseudocode,
+callers/callees and references**; its owned analysis session closed successfully.
+Raw REA Evidence IDs/outputs are in ignored
+`artifacts/rea-toolchain/xlua-plain-proof-v2`, summarized at
+`docs/proof/MAP-013-REA-NATIVE-2026-10-12.json`.
+
+For direct Ghidra `analyzeHeadless.bat` workflows (outside REA's bridge), set
+`APPDATA` and `LOCALAPPDATA` to private **process-scoped** folders under
+`artifacts/rea-toolchain` before starting Java. The MAP-013 direct run created
+fresh Ghidra-only user cache/preferences paths; after confirming the owned
+helper was closed, those directories were preserved in ignored
+`artifacts/rea-toolchain/owned-user-cache-backups` and removed from the
+initially absent user-profile locations. Do not indiscriminately remove
+unrelated pre-existing Ghidra user settings.
+
+The hash-admitted original `lwbridge-0.3.17.exe` (15,866,880-byte Rust native
+PE) instead exceeded REA/Ghidra's full auto-analysis 330-second startup limit.
+Its bounded selective `Map013Selective.java`/Capstone analysis recovered
+native branch instructions and **five smaller original EXE function
+pseudocode bodies** (including a Map-related state machine and three linked
+callees), but **not** complete original Map scanner pseudocode, kind-dispatch
+message schemas, or a decryption key. Use actual v24
+managed IL/Lua decoders for custom RDL/RGMD and Lua bytecode; do not force
+them into a PE parser. Refer to `docs/MAP_013_REA_NATIVE_RECOVERY.md` for limits.
 
 No game was launched, game scripts changed, or scanner behavior altered during
-installation. Installing REA supplies analysis tools, not automatic decryption of
-the original protected controllers or proof of scanner speed/accuracy.
+MAP-013 tool installation or offline analysis. Native decompilation does **not**
+automatically decrypt protected commercial feature packages, authenticate
+source responses or prove scanner speed/accuracy.
 
 Raw installation smoke outputs stay under ignored `artifacts/rea-*`. The small
 receipt is `docs/proof/REA-MCP-INSTALL-2026-10-12.json`. Source/skill attribution

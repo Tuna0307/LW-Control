@@ -1,10 +1,16 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
-**Owner/lead continuation:** use installed REA and authorised project-local native
-analysis prerequisites under `work-items/LWB317-MAP-REA-NATIVE-RECOVERY-013.md`.
-Q1-Q8 remain acceptance questions. First prove actual native analysis, then trace
-the missing request/segment/object-delivery mechanism. Same branch/background
-authority; leave Normal/Fast unchanged. Original checkpoint account below retained.
+**MAP-013 continuation:** see `MAP_013_REA_NATIVE_RECOVERY.md` and its compact
+proof. Project-local Ghidra 12.1.4 / JDK 21 are checksum-verified; REA genuinely
+returned original-associated x64 PE assembly, pseudocode and references.
+Original EXE full auto-analysis and four large Rust functions timed out, but
+selective Ghidra decompiled **five smaller original EXE functions** including
+the `map_scan`-related state branch and linked original call paths. Hash-locked
+managed v24 request/handler bodies and R15/R16 receipts still lack independently
+correlated second-target native reply segments.
+**The Q1–Q8 answers and production disposition below are unchanged: PARTIAL.**
+Original negative trial history remains retained. Same branch and background-only
+authority; leave Normal/Fast unchanged.
 
 **Disposition: PARTIAL.** The strongest tested accurate method remains the
 existing shared, camera-assisted v24 LOD0 AOI acquisition. Native receiver
