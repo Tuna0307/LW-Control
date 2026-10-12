@@ -1,5 +1,11 @@
 # MAP-010 — current background-acquisition continuation (2026-10-12)
 
+**Latest independent lead decision:** MAP-011 source `0c312c75` reviewed;
+LEADMAP010-01 owner correction accepted after original inverse and affected
+regressions pass. R11/R12 negative/limited observations verified, no faster route
+accepted. See `reviews/2026-10-12-MAP-011-LEAD-REVIEW.md`. Owner requests status
+only/no new prompt; no new assignment, merge or publication issued in this review.
+
 ## MAP-011 continuation — PARTIAL, 2026-10-12
 
 **LEADMAP010-01 fixed.** The immutable lead inverse is preserved. Actual
