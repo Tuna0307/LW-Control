@@ -44,8 +44,9 @@ association.
 lease via the existing `write_lease`; the v24 bridge's
 `M.Pump` reads control/lease. A rejected/expired lease exits
 *before* `pump_world_ready`. When admitted,
-`read_world_ready` reads and **deletes the command before**
-validating schema/version/token. If those are invalid it silently
+`read_world_ready` reads and **attempts to delete the command before**
+validating schema/version/token. The original ignores the removal
+status. If those fields are invalid it silently
 returns nil **without any result**; a wrong owner is instead
 returned as a request.error and produces a `failed` result.
 Accepted commands are processed by `begin_world_ready`:
@@ -63,12 +64,32 @@ but the archived 234333 receipt lacks the stage telemetry
 required to choose one. **Its actual first failed branch is
 still unknown.**
 
+**Additional inert diagnostic audit after `a0eacc3e`:** The initial
+instrumenter labelled a protected `os.remove` attempt as
+`command_consumed`, even if removal failed. It also rate-limited
+by stage alone, possibly suppressing a different command within
+the same second. The opt-in copy now distinguishes
+`command_consumed` from `command_remove_failed` using both the
+`pcall` result and `os.remove` return, rate-limits by stage **and**
+sanitized request ID, and records deferred busy control/lease reads.
+The diagnostic writer also protects all stage bookkeeping, bounds
+and sanitizes untrusted detail, and records successful stages only
+after a successful file write and close. The originally empty
+`ChangeToWorld` callback now adds a protected
+`transition_callback_invoked` log and retains its return behavior;
+an exception during invocation is separately logged as
+`transition_invocation_failed`. Inert tests exercise stage filtering
+for concurrent IDs, including a failed removal and another request.
+Instrumented Lua syntax/default-path tests still pass. These added
+stages have **not** been executed live; they cannot retroactively
+identify the archived 234333 failure or qualify scanner output.
+
 **Deterministic next-run diagnostics implemented but not live-run:**
 An *opt-in, fail-closed exact-source* transformation of the
 existing bridge in
 `tools/map_009_offline/worldready_instrument_013.py`
 records source-specific bounded stages:
-control/lease accepted or rejected, command read/consumed,
+control/lease accepted, rejected or deferred, command read/removal outcome,
 schema/token/owner admitted or rejected, transition invocation,
 pending, completed WorldScene or 10s timeout, and result write
 success/failure. Unique source seams and full Lua parsing are
@@ -77,9 +98,11 @@ required; source drift refuses packaging. Python's read-only
 command/control/lease/result existence with exact owner checks
 without copying secrets. The **unmodified wrapper control and
 resource-probe SHA-256s remain byte-identical** without opt-in;
-actual v24 `run_check_only` of the opt-in candidate succeeded
+actual v24 `run_check_only` of the initial opt-in candidate succeeded
 without launching the game (probe encoded size **57,531**,
-wrapper **34,691** bytes). Neither a Lua syntax pass nor
+wrapper **34,691** bytes). The corrected stage instrumenter also passed
+actual v24 `check-only` admission (unchanged installed files; probe
+**57,531**, wrapper **34,959** encoded bytes). Neither a Lua syntax pass nor
 this offline admission is a live end-to-end WorldReady or
 AOI-positive witness.
 

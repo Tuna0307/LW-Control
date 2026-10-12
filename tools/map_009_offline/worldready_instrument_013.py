@@ -32,17 +32,25 @@ def instrument_worldready(body: bytes) -> bytes:
 local _map013_world_log = root .. [[\\map013-worldready-lifecycle.txt]]
 local _map013_world_last, _map013_world_count = {}, 0
 local function _map013_world_emit(stage, request, detail)
-    local now = os.time()
-    if _map013_world_count >= 200 or _map013_world_last[stage] == now then return end
-    _map013_world_last[stage] = now
-    _map013_world_count = _map013_world_count + 1
+    -- Observing any stage must never alter Pump/callback behavior on I/O error.
     pcall(function()
+        local now = os.time()
+        local id = request and request.requestId or "-"
+        -- Prevent malformed incoming IDs and errors from injecting log rows.
+        if type(id) ~= "string" or #id > 128 or
+            string.match(id, "^[%w_-]+$") == nil then id = "invalid_token" end
+        local key = stage .. ":" .. id
+        if _map013_world_count >= 200 or _map013_world_last[key] == now then return end
         local f = io.open(_map013_world_log, "ab")
         if f ~= nil then
-            local id = request and request.requestId or "-"
-            f:write(tostring(now), "|", stage, "|", tostring(id), "|",
-                tostring(detail or "-"), "\\n")
-            f:close()
+            local safe_detail = string.sub(string.gsub(tostring(detail or "-"), "[^%w_+-]", "_"), 1, 96)
+            local written = f:write(tostring(now), "|", stage, "|", tostring(id), "|",
+                safe_detail, "\\n")
+            local closed = f:close()
+            if written and closed then
+                _map013_world_last[key] = now
+                _map013_world_count = _map013_world_count + 1
+            end
         end
     end)
 end
@@ -59,8 +67,10 @@ end
     local values = read_kv(world_ready_path)
     if values == nil then return nil end
     _map013_world_emit("consumption_read", {requestId=values.requestId}, "file_seen")
-    pcall(os.remove, world_ready_path)
-    _map013_world_emit("command_consumed", {requestId=values.requestId}, "remove_attempted")
+    local _map013_removed, _map013_remove_result = pcall(os.remove, world_ready_path)
+    _map013_world_emit(_map013_removed and _map013_remove_result and
+        "command_consumed" or "command_remove_failed", {requestId=values.requestId},
+        _map013_removed and _map013_remove_result and "removed" or "not_removed")
     if values.schema ~= "1" or values.bridgeVersion ~= M.VERSION or not valid_token(values.requestId) then
         _map013_world_emit("schema_or_token_rejected", {requestId=values.requestId}, "no_result_emitted")
         return nil
@@ -126,9 +136,11 @@ local function begin_world_ready(request)
     if not ok_change then
 """,
         """    _map013_world_emit("transition_invoked", request, "ChangeToWorld")
-    local ok_change = pcall(change_to_world, function() end)
+    local ok_change = pcall(change_to_world, function()
+        _map013_world_emit("transition_callback_invoked", request, "callback_returned")
+    end)
     if not ok_change then
-        _map013_world_emit("transition_callback_failed", request, "pcall")
+        _map013_world_emit("transition_invocation_failed", request, "pcall")
 """,
     )
     replace_once(
@@ -160,6 +172,15 @@ local function pump_world_ready(control)
         """    if runtime_clock() - pending_world_ready.startedClock >= WORLD_READY_TIMEOUT_SECONDS then
         _map013_world_emit("scene_transition_timeout", pending_world_ready, "world_map_failed")
         write_world_ready_result(pending_world_ready, "failed", "world_map_failed", pending_world_ready.transitionMethod)
+""",
+    )
+    replace_once(
+        """        can_defer_shared_read(control, now) then return false end
+""",
+        """        can_defer_shared_read(control, now) then
+        _map013_world_emit("shared_read_deferred", nil, "busy")
+        return false
+    end
 """,
     )
     replace_once(

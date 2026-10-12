@@ -47,13 +47,13 @@ class WorldReadyLifecycleTests(unittest.TestCase):
         instrumented = instrument_worldready(self.original).decode("utf-8")
         ast.parse(instrumented)
         stages = [
-            "consumption_read", "command_consumed", "schema_or_token_rejected",
+            "consumption_read", "schema_or_token_rejected",
             "owner_rejected", "owner_admitted", "begin_transition",
             "already_world_scene", "transition_unavailable", "transition_invoked",
-            "transition_callback_failed", "pending_transition",
+            "transition_callback_invoked", "transition_invocation_failed", "pending_transition",
             "scene_world_confirmed", "scene_transition_timeout",
             "result_written", "result_write_failed", "control_or_lease_rejected",
-            "owner_lease_admitted",
+            "owner_lease_admitted", "shared_read_deferred",
         ]
         for stage in stages:
             with self.subTest(stage=stage):
@@ -66,8 +66,21 @@ class WorldReadyLifecycleTests(unittest.TestCase):
         self.assertLess(instrumented.index('"_map013_world_log"') if '"_map013_world_log"' in instrumented
                         else 0, instrumented.index('local function read_world_ready'))
         # The real source consumes the file before owner/version checks.
-        self.assertLess(instrumented.index('_map013_world_emit("command_consumed"'),
+        self.assertLess(instrumented.index('"command_consumed" or "command_remove_failed"'),
                         instrumented.index('_map013_world_emit("schema_or_token_rejected"'))
+        self.assertIn('local _map013_removed, _map013_remove_result = pcall(os.remove, world_ready_path)', instrumented)
+        self.assertIn('_map013_removed and _map013_remove_result and\n        "command_consumed" or "command_remove_failed"', instrumented)
+        # For multiple same-second commands, logging is keyed by request as well as stage.
+        self.assertIn('local key = stage .. ":" .. id', instrumented)
+        self.assertIn('_map013_world_last[key] == now', instrumented)
+        self.assertIn('string.match(id, "^[%w_-]+$") == nil', instrumented)
+        self.assertIn('local written = f:write(', instrumented)
+        self.assertIn('if written and closed then', instrumented)
+        self.assertIn('pcall(function()\n        local now = os.time()', instrumented)
+        # The original empty callback returns as before; the opt-in callback
+        # records its actual invocation separately from a throwing ChangeToWorld.
+        self.assertIn('pcall(change_to_world, function()\n        _map013_world_emit("transition_callback_invoked"', instrumented)
+        self.assertIn('local ok_change = pcall(change_to_world, function() end)', original)
         self.assertIn('WORLD_READY_TIMEOUT_SECONDS = 10', original)
         self.assertIn('if name ~= "WorldScene" then return nil', original)
         self.assertIn('if control == nil or not fresh then', original)
@@ -94,7 +107,7 @@ class WorldReadyLifecycleTests(unittest.TestCase):
                     "LWBRIDGE_MAP013_WORLD_TRACE": "1"}):
                 body = c.base.wrapper_source()
                 ast.parse(body.decode("utf-8"))
-                self.assertIn(b'_map013_world_emit("command_consumed"', body)
+                self.assertIn(b'"command_consumed" or "command_remove_failed"', body)
                 self.assertLess(len(c.base.lr.encode_lenc(body)), 65536)
             with patch.dict(os.environ, {
                     "LWBRIDGE_REBUILD_DATA_ROOT": str(root),
@@ -157,6 +170,29 @@ class WorldReadyLifecycleTests(unittest.TestCase):
             # Raw credentials are never copied into the stage summary.
             self.assertNotIn('"challenge"', json.dumps(state))
             self.assertNotIn('"c"', json.dumps(state))
+
+    def test_stage_snapshot_does_not_misattribute_other_request_to_target(self):
+        """Inert diagnostic file: same-second stages cannot certify another request."""
+        with tempfile.TemporaryDirectory(prefix="map013-world-stages-inert-") as folder:
+            root = Path(folder)
+            stamp = int(time.time())
+            (root / "map013-worldready-lifecycle.txt").write_text(
+                f"{stamp}|command_consumed|first|removed\n"
+                f"{stamp}|command_remove_failed|second|not_removed\n"
+                f"{stamp}|transition_callback_invoked|first|callback_returned\n"
+                f"{stamp}|shared_read_deferred|-|busy\n",
+                encoding="utf-8")
+            args = dict(profile="p", session="s", challenge="secret",
+                        game_pid=123, request_id="second")
+            snapshot = snapshot_worldready_stages(root, **args)
+            self.assertEqual([(r["event"], r["forRequest"])
+                              for r in snapshot["sourceTraceStages"]], [
+                                  ("command_remove_failed", True),
+                                  ("shared_read_deferred", False),
+                              ])
+            # A global lease/busy stage does not prove command consumption.
+            self.assertFalse(snapshot["commandFilePresent"])
+            self.assertFalse(snapshot["resultFilePresent"])
 
 
 if __name__ == "__main__":
