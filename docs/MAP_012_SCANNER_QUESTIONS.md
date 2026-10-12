@@ -5,7 +5,11 @@ proof. Project-local Ghidra 12.1.4 / JDK 21 are checksum-verified; REA genuinely
 returned original-associated x64 PE assembly, pseudocode and references.
 Original EXE full auto-analysis and four large Rust functions timed out, but
 selective Ghidra decompiled **five smaller original EXE functions** including
-the `map_scan`-related state branch and linked original call paths. Hash-locked
+the `map_scan`-related state branch and linked original call paths.
+**MAP-013 lead corrections:** `0x140191253` is now retained in full (16,815
+characters), source-range checked, with explicit excerpt truncation; four
+large functions were retested with verified boundaries and 75s each but
+still timed out (not an impossibility conclusion). Hash-locked
 managed v24 request/handler bodies and R15/R16 receipts still lack independently
 correlated second-target native reply segments.
 **The Q1–Q8 answers and production disposition below are unchanged: PARTIAL.**

@@ -1,12 +1,13 @@
 # MAP-013 — REA native recovery and scanner boundary (2026-10-12)
 
-**Independent lead review:** source `c22a88b9` native-toolchain milestone passes
-independent actual REA/Ghidra re-execution. Overall assignment remains PARTIAL.
-LEADMAP013-01: `0x140191253` retained pseudocode is silently truncated by the
-helper's10000-character limit. LEADMAP013-02: eight-second function budgets and
-default330s full-import timeout are not exhausted recovery options. Correct and
-continue the assigned task; see `reviews/2026-10-12-MAP-013-LEAD-REVIEW.md`.
-Historical raw outputs stay preserved. No new scanner acceptance or merge.
+**Lead continuation:** the native-toolchain milestone remains independently
+accepted. **LEADMAP013-01 corrected:** the full original `0x140191253`
+pseudocode is retained with verified SHA, lengths, source bounds and explicit
+excerpt markers. **LEADMAP013-02 retested:** all four large functions were
+re-examined with verified PE unwind bounds and 75-second Ghidra decompile
+budgets instead of eight seconds; all still timed out, which is not a claim of
+unrecoverability. Historical outputs remain unchanged. Original scanner
+and network-reply attribution remain PARTIAL; no new scanner acceptance/merge.
 
 **Status: PARTIAL — native tooling proven; production scanner unchanged.**
 Continuation of `LWB317-MAP-SCANNER-QUESTIONS-012`; this is an evidence supplement,
@@ -43,7 +44,10 @@ not a second conflicting Q1–Q8 matrix. The canonical current matrix is
    `0x14013a965`. Additional candidate function starts:
    `0x140143d67`, `0x140159925`, `0x140427120` (last uses byte comparisons
    near `map.scan`). **Those four large functions individually timed out**
-   in the decompiler. Two *different, smaller original EXE* functions,
+   at the original eight-second budget. A further trial with exact `.pdata`
+   source-body sizes and a 75-second per-function budget again timed out
+   for all four, without implying they are unrecoverable. Two *different,
+   smaller original EXE* functions,
    however, produced real pseudocode on the second selective pass, and three
    further called functions decompiled on a third pass; see next paragraph.
    All temporary headless projects were discarded and the original left intact.
@@ -73,6 +77,31 @@ not a second conflicting Q1–Q8 matrix. The canonical current matrix is
    hypotheses, **not** proven contracts. Raw code is ignored at
    `artifacts/rea-toolchain/original-selective-small/selected-small.txt` and
    `original-selective-callees/selected-callees.txt`.
+   **LEADMAP013-01 verified recovery:** the old 10,000-character excerpt
+   ended mid-branch, but a fresh source-bounded decompilation saved **all
+   16,815 UTF-8 characters/bytes** at ignored
+   `artifacts/rea-toolchain/lead013-source-bounded/raw/original-140191253.pseudo.c`.
+   SHA-256 `908b8e7194bdf6f1d73b135129f0923c41fc57fbbc513d6e74e7c17cb98a64be`;
+   independent `.pdata` range `[0x140191253,0x140191aca)` contains exactly
+   **2,167 bytes**, matching Ghidra's repaired function body. Source/retained
+   lengths, raw checksum and `PSEUDOCODE_TRUNCATED=false` are independently
+   checked by `tools/rea-mcp/validate-selective.py`; its displayed 1,500-char
+   excerpt has `PSEUDO_EXCERPT_TRUNCATED=true`. The recovered final branch
+   calls conditional helpers `FUN_1405f9b92` / `FUN_1405addeb`, cleanup
+   functions `FUN_14010949d`, `FUN_1401094f9` and `func_0x140106f04`,
+   updates state bytes `param_1+0x848`, `+0x850`, then sets
+   `param_1+0x860 = uVar8` before returning `uVar13`. This is real original
+   call/value flow, but untyped tags cannot yet be assigned Map kind,
+   cancellation or network-message meaning without further source proof.
+   **LEADMAP013-02 verified 75-second negatives:** exact native ranges
+   `14013a8c1–14013b390` (2,767 bytes), `140143d67–140144c41`
+   (3,802), `140159925–14015a27b` (2,390), and
+   `140427120–140428a92` (6,514). All Ghidra function bodies matched
+   these independently determined start/end/length values; all four
+   decompiler outcomes were `process: timeout`. The selective run uses
+   `-noanalysis -readOnly -deleteProject` with task-private scoped Java,
+   APPDATA/LOCALAPPDATA and raw outputs. Preserve original eight-second
+   reports; these new 75-second results do not show global impossibility.
 4. **Protected feature boundary remains precise.** The admitted original PE
    includes literal diagnostics `package decrypt failed` at
    `0x140abc7e3` and `0x140b539e3`, and `key envelope decrypt failed` at
@@ -127,6 +156,23 @@ positive first region, then the second and a third separated region under
 the strict task-owned isolation/Stop/restore fences. Do **not** repeat an
 arbitrary anchor/camera flag change.
 
+**Additional v24 send/receiver/cache source comparison:** Hash-locked
+`WorldPointManager.SendAoiRequest` (token `0x0600351d`) constructs a native
+request from its AOI list, tile/LOD and manager fields at `IL_0056..00d8`
+with a conditional secondary dispatch at `IL_00f2..0155`.
+`HandleViewPointsReply` (`0x06003551`) iterates received payload items at
+`IL_00ec..0120`, then handles message view/point state at
+`IL_0131..01c9`. `AddPointInfo` (`0x0600356e`) looks up or inserts
+manager point-cache entries at `IL_000e..0095`. The R15/R16 private
+snapshots each report loaded point count **59 before and 7 after** the
+second-region action, with no matching source rows and
+`postInvokeMsgViewCount=0`; R16's immediate unscoped send count is
+**203→203**, not source-owned packet attribution. Thus successful
+AOI geometry and local method invocation do not establish matching
+native response/segment/cache insertion. A delayed/suppressed send,
+stale subscription, dropped reply or wrong collection still cannot
+be differentiated without a source-linked, time-bracketed live trace.
+
 ## Q1–Q8 product consequence (refer to canonical detailed matrix)
 
 | Q | MAP-013 added evidence / outstanding qualification |
@@ -147,7 +193,9 @@ Ignored large/private evidence: `artifacts/rea-toolchain/xlua-plain-proof-v2`,
 `original-native-proof-v2`, `original-static-native-xrefs.json`,
 `original-selective-ghidra/selected-source.txt`,
 `original-selective-small/selected-small.txt`,
-`original-selective-callees/selected-callees.txt`, `doctor.json`, tool ZIPs,
+`original-selective-callees/selected-callees.txt`,
+`lead013-source-bounded/report.txt` plus `raw/original-140191253.pseudo.c`,
+`doctor.json`, tool ZIPs,
 analysis scratch and pre-edit configuration backups. Direct headless Ghidra also
 generated per-user `%APPDATA%/ghidra` and `%LOCALAPPDATA%/ghidra` caches from
 initially absent paths at 19:46; after confirming zero Ghidra processes,

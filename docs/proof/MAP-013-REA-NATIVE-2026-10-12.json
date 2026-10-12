@@ -6,6 +6,39 @@
   "branch": "codex/map-action-providers-007",
   "pr": 9,
   "status": "PARTIAL",
+  "leadCorrectionsAtCheckpoint1d20506b": {
+    "LEADMAP013_01": {
+      "status": "corrected_and_independently_verified",
+      "originalFunction": "0x140191253",
+      "sourceUnwindStart": "0x140191253",
+      "sourceUnwindEndExclusive": "0x140191aca",
+      "sourceBytesAndGhidraBodyAddresses": 2167,
+      "originalPseudocodeCharacters": 16815,
+      "retainedPseudocodeCharacters": 16815,
+      "originalAndRetainedUtf8Bytes": 16815,
+      "sha256": "908b8e7194bdf6f1d73b135129f0923c41fc57fbbc513d6e74e7c17cb98a64be",
+      "truncated": false,
+      "reportExcerptCharacters": 1500,
+      "reportExcerptTruncated": true,
+      "rawCompletePath": "ignored artifacts/rea-toolchain/lead013-source-bounded/raw/original-140191253.pseudo.c",
+      "validation": "three inert provenance/truncation/source-bound tests passed; old truncated original saved unchanged",
+      "newlyRecoveredTail": "later conditional calls FUN_1405f9b92 and FUN_1405addeb; cleanup FUN_14010949d/FUN_1401094f9/func_0x140106f04; final +0x848/+0x850/+0x860 tagged-state updates and return; semantic meaning still unproven"
+    },
+    "LEADMAP013_02": {
+      "status": "bounded_retest_not_full_recovery",
+      "priorTimeoutSeconds": 8,
+      "newPerFunctionBudgetSeconds": 75,
+      "verifiedSourceAndGhidraBodyRanges": [
+        {"begin":"0x14013a8c1","endExclusive":"0x14013b390","bytes":2767,"outcome":"process_timeout"},
+        {"begin":"0x140143d67","endExclusive":"0x140144c41","bytes":3802,"outcome":"process_timeout"},
+        {"begin":"0x140159925","endExclusive":"0x14015a27b","bytes":2390,"outcome":"process_timeout"},
+        {"begin":"0x140427120","endExclusive":"0x140428a92","bytes":6514,"outcome":"process_timeout"}
+      ],
+      "approach": "verified PE .pdata + Ghidra source-bounded functions; project-local Ghidra -noanalysis -readOnly -deleteProject; private APPDATA/LOCALAPPDATA; original executable hash verified",
+      "rawReport": "ignored artifacts/rea-toolchain/lead013-source-bounded/report.txt",
+      "limitation": "timeouts remain budget outcomes, not proof of unrecoverability; older 8s negatives retained"
+    }
+  },
   "installation": {
     "reaVersion": "6.4.0",
     "ghidra": {
@@ -89,9 +122,18 @@
     "r16ImmediateUnscopedSendCounter": "203 to 203",
     "nativeOutboundCommandAndReplyMatch": "unobserved",
     "nativeCacheInsertionTargetProvenance": "unobserved",
+    "leadCurrentGameSourceCrossCheck": {
+      "SendAoiRequest": "0x0600351d IL_0056..00d8 and conditional IL_00f2..0155; construction and dispatch not attributable outbound target packet",
+      "HandleViewPointsReply": "0x06003551 IL_00ec..0120 response payload item loop and IL_0131..01c9 manager processing; no saved target-owned segments",
+      "AddPointInfo": "0x0600356e IL_000e..0095 lookup/update/insert into manager caches",
+      "r15R16BeforeAfterLoadedPointCounts": [59, 7],
+      "r15R16PostInvokeMsgViewCount": 0,
+      "failedRegionSourceRows": 0
+    },
     "causalBoundary": "local selection does not establish native subscription/transmission/receiving or source-owned cache insertion"
   },
   "tests": {
+    "leadSelectivePseudocodeInverseTests": "3 passed; complete source hash, missing truncation metadata and wrong unwind bounds",
     "map009Offline": "24 tests passed",
     "savedOwner": "passed; A=2212 and B=2213 isolated",
     "desktopNative": "Release Desktop.Checks passed, zero game launches",

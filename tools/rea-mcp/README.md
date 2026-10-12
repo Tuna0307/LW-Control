@@ -97,6 +97,22 @@ message schemas, or a decryption key. Use actual v24
 managed IL/Lua decoders for custom RDL/RGMD and Lua bytecode; do not force
 them into a PE parser. Refer to `docs/MAP_013_REA_NATIVE_RECOVERY.md` for limits.
 
+**MAP-013 lead-corrected extractor:** `Map013Selective.java` now requires
+`<ignored-report-path> <ignored-raw-directory> <budget-seconds 10..300>
+<hex-source-start:hex-source-end-exclusive> ...` as Ghidra postScript
+arguments. Pass independently verified original PE `.pdata` function
+bounds. It applies those exact bounds to Ghidra's disposable function body
+(the old `-noanalysis` case created a misleading one-address stub), writes
+the complete pseudocode to one ignored `.pseudo.c` file per function,
+and records original/retained character and byte counts, SHA-256, full-body
+and snippet-truncation flags, source ranges and bounded errors. Run the
+read-only `python tools/rea-mcp/validate-selective.py <ignored-report>` to
+independently verify SHA, unwinds, complete text and excerpt markers, then
+`python -m unittest discover -s tools/rea-mcp -p 'test_*.py'` for its
+three fail-closed inverse tests. The prior eight-second trials and old
+10,000-character prefix are preserved untouched; the new 75-second original
+function results are **bounded timeouts**, not proof of unrecoverability.
+
 No game was launched, game scripts changed, or scanner behavior altered during
 MAP-013 tool installation or offline analysis. Native decompilation does **not**
 automatically decrypt protected commercial feature packages, authenticate
