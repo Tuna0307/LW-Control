@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest lead review, 2026-10-12: 84e74869 accepted for scoped historical method
+assessment and retaining the current scanner. Read
+docs/reviews/2026-10-12-MAP-013-METHOD-DECISION-LEAD-REVIEW.md. This checkpoint
+does not complete the assigned request/reply/cache trace or establish exhaustion
+of credible alternatives; no new live trial occurred. Continue that primary
+task with actual source-supported observations, not another historical summary.
+Existing autonomous background app/game-start authority remains in force.
+
 Latest owner clarification, 2026-10-12: the worker may open and relaunch the
 task-owned clone and game whenever needed for assigned work, without waiting
 for another confirmation or the owner to be free. Background-only/no-mouse

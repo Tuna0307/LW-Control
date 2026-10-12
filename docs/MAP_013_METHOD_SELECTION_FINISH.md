@@ -1,5 +1,10 @@
 # MAP-013 — finite method assessment and decision
 
+Independent lead review accepts `84e74869` as a historical assessment and interim
+retention decision. It does not close the assigned causal trace or establish
+alternative exhaustion. See `reviews/2026-10-12-MAP-013-METHOD-DECISION-LEAD-REVIEW.md`;
+continue actual source-supported native observations under existing authority.
+
 **Current assessed selection (2026-10-12):** retain the existing
 accuracy-qualified, camera-assisted serial LOD0 scanner with shared
 mixed-type acquisition, conditional kind-specific enrichment and
