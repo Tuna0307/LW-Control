@@ -1,6 +1,6 @@
 // MAP-013 source-identified, bounded ORIGINAL PE Ghidra analysis.
 // @category LW-Control
-// Only use with the hash-checked original 0.3.17 PE and -noanalysis -readOnly -deleteProject.
+// Only use with the hash-checked original 0.3.17 PE and isolated project.
 import ghidra.app.script.GhidraScript;
 import ghidra.app.decompiler.DecompInterface;
 import ghidra.app.decompiler.DecompileResults;
@@ -22,7 +22,8 @@ public class Map013Selective extends GhidraScript {
         Path rawDir = Path.of(arguments[1]);
         Files.createDirectories(rawDir);
         int budgetSeconds = Integer.parseInt(arguments[2]);
-        if (budgetSeconds < 10 || budgetSeconds > 300) throw new IllegalArgumentException("bounded decompile budget 10..300 seconds required");
+        // These are caller-owned investigation limits, not Ghidra capability claims.
+        if (budgetSeconds < 10 || budgetSeconds > 7200) throw new IllegalArgumentException("bounded decompile budget 10..7200 seconds required");
         String[] defaultEntries = {
             "14013a8c1:14013b390", // map_scan Rust literal/pointer refs at 14013a965 and 14013aca5
             "140143d67:140144c41", // map_scan xref at 140143e0b
@@ -81,8 +82,18 @@ public class Map013Selective extends GhidraScript {
                 }
                 output.println("ASM_EXCERPT_INSTRUCTIONS=" + shown + " ASM_MORE_NOT_RETAINED=" + (ins != null && ins.getAddress().compareTo(sourceEndExclusive) < 0));
                 if (function != null) {
+                    long started = System.nanoTime();
+                    output.println("DECOMPILE_START_EPOCH_MS=" + System.currentTimeMillis());
+                    output.println("DECOMPILE_START_BUDGET_SECONDS=" + budgetSeconds);
+                    output.flush();
                     DecompileResults result = decoder.decompileFunction(function, budgetSeconds, monitor);
+                    output.println("DECOMPILE_ELAPSED_MS=" + ((System.nanoTime() - started) / 1000000L));
+                    output.println("DECOMPILE_END_EPOCH_MS=" + System.currentTimeMillis());
                     output.println("DECOMPILE_COMPLETED=" + result.decompileCompleted());
+                    output.println("DECOMPILE_TIMED_OUT=" + result.isTimedOut());
+                    output.println("DECOMPILE_CANCELLED=" + result.isCancelled());
+                    output.println("DECOMPILE_FAILED_TO_START=" + result.failedToStart());
+                    output.println("DECOMPILE_VALID=" + result.isValid());
                     output.println("DECOMPILE_ERROR=" + result.getErrorMessage());
                     output.println("DECOMPILE_WARNINGS=" + result.getErrorMessage());
                     if (result.getDecompiledFunction() != null) {

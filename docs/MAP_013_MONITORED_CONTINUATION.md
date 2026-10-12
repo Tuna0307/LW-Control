@@ -1,5 +1,25 @@
 # MAP-013 — monitored recovery and scanner continuation
 
+**Current result (2026-10-12, continuation from `b2eacb821538`): PARTIAL.**
+Monitoring was implemented and validated against the prior successful
+`0x140191253` control (observed actual native child, 613-ms native
+decompilation). Reusing the saved original analysis project, the first
+prior timeout `0x14013a8c1` was admitted with an 1,800-second function
+budget, but after ~659 seconds the native `decompile.exe` reached
+8.20 GB peak working set with only 0.458 GiB free physical memory.
+Only its path-/PID-/start-/parent-verified task child was stopped
+for **RESOURCE_PRESSURE_STOP**; headless Java saved the project and
+exited normally. **No 30-minute function, MCP, REA startup or outer
+runner deadline expired.** Native CPU-time growth and pcode errors
+do not establish useful decompilation progress:
+**OBSERVABILITY_INSUFFICIENT**. Historical negatives were preserved.
+Source-backed original Capstone call/jump inventories were added as
+a lower-memory alternative, but full original Map semantics remain
+unproven. See `MAP_013_REA_NATIVE_RECOVERY.md` and its compact proof.
+The scanner's second-region request/reply/cache gap remains open;
+Normal/Fast, Home, stored datasets, native names, profile ownership,
+shared mixed acquisition and Auto Stop-before-return remain untouched.
+
 Owner clarification, 2026-10-12: determine whether analysis is still advancing
 before concluding that another time limit is sufficient. Continue the existing
 assignment, branch `codex/map-action-providers-007`, PR #9. Starting lead checkpoint

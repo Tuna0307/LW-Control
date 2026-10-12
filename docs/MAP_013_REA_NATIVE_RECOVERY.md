@@ -1,5 +1,56 @@
 # MAP-013 — REA native recovery and scanner boundary (2026-10-12)
 
+**Monitored continuation (starting lead checkpoint `b2eacb82`): PARTIAL.**
+The previously successful original function `0x140191253` was rerun
+as an isolated monitoring control. Its actual native `decompile.exe`
+child was observed (PID 30588, start epoch 1791811130.730867), and
+the full 16,815-character pseudocode completed within **613 ms**
+of source-bounded decompilation. Native process monitoring now covers the
+child separately from Java, including PID/start, CPU-time, RSS,
+thread and timer/error status. The accepted REA/Ghidra toolchain and
+historical outputs were unchanged.
+
+The first source-bounded originally timed-out `0x14013a8c1`
+function was run using the **saved original Ghidra project** with a
+**1,800-second function allowance** and 30-second independent
+observations plus subsecond native-child samples. The Ghidra native
+decompiler PID 37712 started at epoch 1791811183.361136.
+After ~659 seconds inside the function (681 seconds outer wall),
+its native CPU time had reached ~627s and peak working set
+**8,202,661,888 bytes**, while system free physical memory was
+**0.458 GiB** on a ~16-GiB computer. Only that *verified task-owned*
+native child was stopped for **RESOURCE_PRESSURE_STOP**;
+the surviving owned headless Java process reported
+`DecompileResults.decompileCompleted=false`,
+`isTimedOut=false`, `isCancelled=false`,
+`failedToStart=false` and `Decompiler process died`, saved the
+analysis project and exited 0. The old 8-second and 75-second
+timeout receipts remain unchanged. **No engine function deadline,
+REA startup, MCP/client or outer-runner deadline expired** in
+this monitored attempt. This is an owner-machine resource-pressure
+interruption, *not* a 30-minute timeout, an engine-impossibility
+proof or evidence of a hang. The Java and native child are no
+longer running. After stopping the exact owned child, free memory
+recovered to ~7.6 GiB.
+
+Ghidra emitted multiple `DecompileCallback` warnings about unresolved
+constructors and a jump into non-existent memory, but those diagnostics
+were not accompanied by a phase counter. The native process consumed
+CPU and memory for minutes without a completed phase marker.
+**Progress classification: OBSERVABILITY_INSUFFICIENT.** CPU usage,
+warning messages and a sampling heartbeat cannot distinguish useful
+advancement from expensive or cyclical computation. A justified
+next original-code step is targeted `firstpass`/flow graph and
+callee analysis with source-verified function starts, low memory
+budgets and saved projects—not another blind 1,800-second rerun.
+The hash-admitted Capstone alternate produced complete linear x64
+instruction inventories for the four bounded original functions
+(2,767/3,802/2,390/6,514 source bytes respectively), with call,
+branch and indirect sites in ignored
+`artifacts/rea-toolchain/map013-monitored/original-callflow.json`.
+This is control-flow evidence, **not complete original scanner
+semantics or recovered original protected Lua code**.
+
 **Independent R1 lead decision:** `75c70cbe` corrections ACCEPTED within their
 scope. Full retained function source/hash/bounds and three audit plus24 offline
 tests independently pass. The four75s function timeouts remain recovery negatives;
@@ -180,6 +231,35 @@ AOI geometry and local method invocation do not establish matching
 native response/segment/cache insertion. A delayed/suppressed send,
 stale subscription, dropped reply or wrong collection still cannot
 be differentiated without a source-linked, time-bracketed live trace.
+
+**Additional registration evidence (hash-locked current v24 IL, no game
+execution):** `WorldPointManager.Init` (`0x06003529`) registers four
+native message delegates at IL offsets `00ba..0121`: integer command IDs
+**1433, 661, 2821011 and 2821014**, with delegate operands
+`0xA7913422`, `0xA7913222`, `0xA79134E2` and `0xA7913882`.
+`UnInit` (`0x0600352a`) unregisters exactly those four identities at
+`IL_0013..007a` and clears manager caches. This is actual registration
+and lifecycle symmetry, verified by two new tests on the original
+installed managed body, **not** a resolved mapping of each command ID
+to a specific receiver or response generation. `SendAoiRequest`
+(`0x0600351d`) has a mandatory local dispatch at `IL_00d8` and a
+conditional secondary dispatch at `IL_0150`; neither demonstrates
+actual transport acceptance. `HandleViewPointsReply` and
+`AddPointInfo` remain different code boundaries. The four registration
+IDs and sender dispatch points provide concrete hook targets for a
+future **task-owned, passive** request/receive/cache comparison, but
+the present evidence does **not** establish which of those IDs carried
+the R15/R16 second-target reply.
+
+Working-versus-failed **observable boundary**: the historical first
+region contained 28 Resource and 26 Monster native witnesses, with
+a populated initial view cache, whereas R15/R16 next-region native
+selection included target AOI 4954 but yielded **zero matching
+source records**, `_msgViewIndex=0` and no attributable native target
+segment/cache insertion. The first *observable* difference is failure
+of second-target source-record acquisition; it cannot be assigned to
+the exact outbound, inbound, validation or cache layer without a
+source-owned matched trace. Normal/Fast and datasets remain unchanged.
 
 ## Q1–Q8 product consequence (refer to canonical detailed matrix)
 

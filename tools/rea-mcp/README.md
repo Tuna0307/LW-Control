@@ -98,7 +98,7 @@ managed IL/Lua decoders for custom RDL/RGMD and Lua bytecode; do not force
 them into a PE parser. Refer to `docs/MAP_013_REA_NATIVE_RECOVERY.md` for limits.
 
 **MAP-013 lead-corrected extractor:** `Map013Selective.java` now requires
-`<ignored-report-path> <ignored-raw-directory> <budget-seconds 10..300>
+`<ignored-report-path> <ignored-raw-directory> <budget-seconds 10..7200>
 <hex-source-start:hex-source-end-exclusive> ...` as Ghidra postScript
 arguments. Pass independently verified original PE `.pdata` function
 bounds. It applies those exact bounds to Ghidra's disposable function body
@@ -112,6 +112,33 @@ independently verify SHA, unwinds, complete text and excerpt markers, then
 three fail-closed inverse tests. The prior eight-second trials and old
 10,000-character prefix are preserved untouched; the new 75-second original
 function results are **bounded timeouts**, not proof of unrecoverability.
+
+**Monitored continuation:** The 300-second cap was a helper policy, not
+a Ghidra capability limit. `monitor_native_013.py` runs one hash-admitted
+original function using an ignored saved Ghidra project and project-local
+Python psutil installed under `artifacts/rea-toolchain/monitor-py`,
+not any global Java or Python modification. Example first run:
+
+```powershell
+python tools/rea-mcp/monitor_native_013.py --function 140191253:140191aca --output artifacts/rea-toolchain/map013-monitored/control --budget-seconds 60 --interval-seconds 10
+```
+
+For subsequent functions, use a **different private output folder**, a
+verified source range and `--reuse-project`. The Ghidra project persists
+in `artifacts/rea-toolchain/map013-monitored/saved-project`; an
+interrupted function is not claimed to resume internally. Raw
+`samples.jsonl` observes the Java/child process tree every 30–60 seconds
+while `native-child-fast-samples.jsonl` samples actual `decompile.exe`
+PID, start identity, CPU, RSS and thread CPU independently at ~200ms.
+`report.txt` is flushed before and after each Ghidra decompile,
+with `DecompileResults` timeout/cancel/startup/valid flags.
+`result.json` is the executable's raw classification; on the
+2026-10-12 long run the resource stop is separately verified at
+`long-13a8c1/resource-pressure-stop.json` and the consolidated
+`result-reviewed.json`. The script now has a fail-closed memory
+pressure safeguard for *verified native descendants only*. Do not
+misclassify resource interruption as timeout; neither CPU activity
+nor a heartbeat proves decompiler phase progress.
 
 No game was launched, game scripts changed, or scanner behavior altered during
 MAP-013 tool installation or offline analysis. Native decompilation does **not**

@@ -6,6 +6,76 @@
   "branch": "codex/map-action-providers-007",
   "pr": 9,
   "status": "PARTIAL",
+  "monitoredContinuationAtCheckpointB2eacb82": {
+    "status": "PARTIAL",
+    "acceptedToolchainRetained": true,
+    "helperBudgetRangeSeconds": [10, 7200],
+    "source": "original lwbridge-0.3.17.exe, source-bound PE x64, exact admitted SHA-256",
+    "monitoring": {
+      "nativeChild": "decompile.exe PID + creation-time identity, CPU time, working set/RSS and actual native thread samples",
+      "javaHost": "headless Java process tree, stdout and Ghidra headless/script logs",
+      "sampling": "approximately 30-second process snapshots, independent approximately 200ms native child samples",
+      "classification": ["COMPLETED", "FUNCTION_TIMEOUT", "FUNCTION_CANCELLED", "DECOMPILER_STARTUP_FAILURE", "HEADLESS_FAILURE", "OUTER_RUNNER_TIMEOUT", "RESOURCE_PRESSURE_STOP", "OBSERVABILITY_INSUFFICIENT"],
+      "nativeProgressKnown": false,
+      "progressExplanation": "native CPU, memory, repeated p-code warnings and heartbeat do not distinguish semantic progress or stall"
+    },
+    "successfulControl": {
+      "originalAddress": "0x140191253",
+      "decompileElapsedMs": 613,
+      "nativeChildPid": 30588,
+      "nativeChildCreatedEpoch": 1791811130.730867,
+      "returnedFullPseudoChars": 16815,
+      "savedProjectReuse": true,
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/control-reuse"
+    },
+    "longAttempt": {
+      "originalAddress": "0x14013a8c1",
+      "sourceBegin": "0x14013a8c1",
+      "sourceEndExclusive": "0x14013b390",
+      "sourceBytes": 2767,
+      "configuredFunctionAllowanceSeconds": 1800,
+      "nativeChildPid": 37712,
+      "nativeChildCreatedEpoch": 1791811183.361136,
+      "actualDecompilerElapsedMs": 659115,
+      "outerWallSeconds": 681.422,
+      "nativeCpuLastSeconds": 627.0,
+      "nativeWorkingSetPeakBytes": 8202661888,
+      "freeSystemMemoryBeforeStopGiB": 0.458,
+      "stoppedOnlyOwnedDecompileChild": true,
+      "termination": "RESOURCE_PRESSURE_STOP",
+      "ghidraIsTimedOut": false,
+      "ghidraIsCancelled": false,
+      "ghidraFailedToStart": false,
+      "ghidraError": "Decompiler process died after externally recorded exact owned resource-pressure stop",
+      "headlessExit": 0,
+      "sourceProjectSaved": true,
+      "timeoutLayer": "no actual timer expired; manual safety termination of native child",
+      "phaseProgress": "OBSERVABILITY_INSUFFICIENT",
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/long-13a8c1"
+    },
+    "independentOriginalAlternate": {
+      "format": "hash-checked .pdata-bounded x86-64 Capstone disassembly",
+      "instructionsDecodedPerFunction": {"0x14013a8c1":534,"0x140143d67":739,"0x140159925":473,"0x140427120":1382},
+      "limitation": "complete linear instruction decode does not prove complete control-flow coverage, feature semantics or decryption",
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/original-callflow.json"
+    },
+    "currentGameNativeSource": {
+      "WorldPointManagerInitToken": "0x06003529",
+      "subscribedCommandIds": [1433,661,2821011,2821014],
+      "matchingUnInitToken": "0x0600352a",
+      "senderToken": "0x0600351d",
+      "senderPrimaryDispatchOffset": "IL_00d8",
+      "senderConditionalSecondaryDispatchOffset": "IL_0150",
+      "receiverToken": "0x06003551",
+      "cacheInsertToken": "0x0600356e",
+      "historicalFirstRegion": "28 Resource and 26 Monster native rows",
+      "historicalSecondRegion": "80 selected LOD0 target AOIs but zero target source records",
+      "exactMatchedNativeRequestResponseSegments": "unobserved",
+      "causalLocation": "first observable divergence is missing second-target populated source records; exact transport/subscription/receiver/cache link unknown"
+    },
+    "scannerProductionChange": "none; fails independent second-region population and response association gate",
+    "gameLaunchedDuringThisContinuation": false
+  },
   "leadCorrectionsAtCheckpoint1d20506b": {
     "LEADMAP013_01": {
       "status": "corrected_and_independently_verified",

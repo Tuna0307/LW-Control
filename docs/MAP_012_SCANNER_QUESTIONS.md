@@ -1,5 +1,14 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+**MAP-013 monitored continuation:** successful native child/PID/CPU/memory
+control and one 1,800s-allowance original-function attempt, safely
+interrupted at 659s due to owner-machine memory pressure; useful
+decompiler-phase progress is **OBSERVABILITY_INSUFFICIENT**. Exact
+request/reply/cache attribution remains unobserved. See
+`MAP_013_REA_NATIVE_RECOVERY.md` for immutable experiment locators.
+No candidate met the fresh second-region native-positive gate;
+Normal/Fast and product behavior remain unchanged.
+
 **MAP-013 continuation:** see `MAP_013_REA_NATIVE_RECOVERY.md` and its compact
 proof. Project-local Ghidra 12.1.4 / JDK 21 are checksum-verified; REA genuinely
 returned original-associated x64 PE assembly, pseudocode and references.
