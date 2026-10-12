@@ -1,5 +1,17 @@
 # MAP-010 — current background-acquisition continuation (2026-10-12)
 
+**Later continuation (MAP-012, 2026-10-12): PARTIAL.** The owner-facing
+Q1–Q8 answer matrix and current native/measurement state are now at
+docs/MAP_012_SCANNER_QUESTIONS.md, with compact bounded proof at
+docs/proof/MAP-012-SCANNER-QUESTIONS-2026-10-12.json.
+Read those first for scanner-method decisions; this MAP-010 and MAP-011
+ledger remains historical and is not evidence that a newer faster
+route was qualified. Source-supported official second-region camera
+navigation R13 also failed to obtain a fresh native second AOI at
+LOD0: native indices remained the first region. All task-owned
+R13 processes stopped, Auto false, original scripts restored.
+Production scanner unchanged and prior negatives preserved.
+
 **Current owner assignment:** complete the Q1-Q8 scanner answer matrix and qualified
 improvements in `work-items/LWB317-MAP-SCANNER-QUESTIONS-012.md`. Preserve accepted
 MAP-011 corrections; leave Normal/Fast behavior unchanged. Ordinary trial/package

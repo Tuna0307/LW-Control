@@ -1,0 +1,299 @@
+# MAP-012 — owner scanner questions and continuation (2026-10-12)
+
+**Disposition: PARTIAL.** The strongest tested accurate method remains the
+existing shared, camera-assisted v24 LOD0 AOI acquisition. Native receiver
+identity for successive regions, authoritative remote-server response
+attribution and a universally fastest coverage-complete alternative remain
+open. No route which failed its small-data correctness gate was enabled.
+Normal/Fast controls, completed data, Home, owner-keyed Map, native names,
+mixed acquisition and Auto Stop-before-return are untouched. This is the
+single current Q1–Q8 answer matrix for PR #9; acceptance is the lead's
+separate decision.
+
+## Q1–Q8 answer matrix
+
+| Question | Plain conclusion and product consequence | Native/source support and limits |
+| --- | --- | --- |
+| **Q1: how request/receive/cache/retire?** | Camera/viewport determines native LOD/AOI subscription. The manager builds add/current lists, sends split-capable view/AOI messages, receives point segments, updates its caches and processes update/removal notices; expired/out-of-view records are later retired. World marches, train/event and detail managers add other type sources. App-owned results are staged and published separately. | Hash-locked v24 WorldPointManager IL: UpdateLWAoi_Normal, SendAoiRequest, SendViewRequest, StartViewRequest, UpdateViewRequest, HandleViewPointsReply, HandleViewUpdateNotify, AddPointInfo, RemovePointInfo, ViewCulling, DeleteOutOfAoi, DeleteTimeOutPoints. Lua GoToUtil.GotoWorldPos and SceneUtils.TileToWorld. Exact native request generation/response-segment identity is **not recovered**. |
+| **Q2: complete unknown map without moving camera?** | **Not established for City, Resource, Monster, Truck, Railway, Dispatch, Ghost, Treasure or any mixture.** Direct details, scoped lists and coarse LOD can help known targets or enrichment but are not proven full-population enumeration. Not proven impossible in principle. | R4 explicit SendAoiRequest and R5 direct SendViewRequest timed out; specialized zombie-boss coarse LOD is not generic Monster, and direct Train list omitted previously seen Trucks. See per-kind table. |
+| **Q3: adjacent regions with one final home restore?** | **Technically plausible, not qualified.** Simply arriving at second tile—even by supported navigation—is insufficient. Keep each production probe's conservative validated target-response and home-response cycle. | R9–R11 first target succeeded but second AOI absent. In **R13**, an official GotoWorldPos completion callback arrived at (545,495), live server 2212/world 0, manager LOD0, block size 10, count 100. Its nine _curViewIndex IDs stayed [4244,4245,4246,4344,4345,4346,4444,4445,4446], the *first* target region; requested **4954** was absent in eight retained receiver snapshots and 438 flags-ready observations through the eight-second deadline. Native generation, second request envelope/segment and home-only restoration were not proven. |
+| **Q4: another server without switching?** | **Three distinct questions:** known object = explicit-target request exists but actual authoritative remote response **inconclusive**; arbitrary remote region = **not proven**; remote *entire unknown map* = **not proven**. The active/current server uses the existing view without a server switch. Other full-map scans presently switch context and return. | WorldGetDetail request serializes point + serverId + worldId, but R12 active 2212/target 2213 found known point with reported detail server 0: a missing literal echo alone neither establishes nor refutes remote origin. Point-ID cache can be stale/ambiguous. Need wrong-server/same-coordinate/retired-connection controls and response transport/callback identity. |
+| **Q5: fastest accuracy-preserving route?** | **Existing shared, serial native AOI sweep is the only coverage-qualified complete route among tested alternatives.** Neither Normal nor Fast is demonstrated consistently faster. No candidate qualified for three alternating full benchmarks, so do not claim absolute optimality. | 340 serial app→Lua AOI probes, 10,000 LOD0 AOI cells and 2,500 logical blocks per archived all-eight pass; live peak simultaneous camera requests = **1** (not UI admission 8/20). All-eight Normal median 209.278s, Fast median 207.142s, n=2 each; only one comparison pair had independently positive sampled witnesses across populated kinds. See measurements. |
+| **Q6: verify accurate and complete?** | **10,000-cell native footprint union proves coverage of regions, not census recall.** Cross-check independent native identities, field values, server/world, observation age, detail enrichment, and time-bracket mutable rows. Detect missing, extra, duplicate, stale, wrong-context and incorrect-field records; fail closed rather than silently publish a partial scan. | Current source validates native footprints and selected-type counters, dedupes by record key, applies kind-specific details, and stages all 2,500 blocks before transactional publication. Historic independent genuine audit: **25,393 compared native field values, zero discrepancies for seven populated kinds**, not perfect global recall. MAP-012 adds an inert corruption-sensitive audit and actual R13 AOI-index rejection. |
+| **Q7: types shared efficiently?** | **Yes:** a compatible mixed selection traverses the map once, extracts selected point/march families together, merges per-type dictionaries and then performs type-specific enrichment. There is no full AOI sweep per kind. Marginal type time/request count is **not statistically determined** by current unmatched n=1 runs. | One FastFullWorldResumeState.Covered and common ProbeFastCityBatchAsync; one Railway official list refresh when selected; Truck metadata post-processing; conditional Resource detail refresh and Monster protection hydration; City/Resource/Dispatch/Ghost/Treasure point extraction plus Monster/Train march extraction. Restoration per region is measured expensive, but safe elimination unqualified. |
+| **Q8: what will the owner test?** | **Production scanner remains as before**: Normal and Fast choose their existing placements, use the shared serial camera-assisted sweep and restore between samples; Auto changes to a target server and returns home/server on Stop or completion. Expect multi-minute full map scans, live expiring/moving rows and no promise Fast always wins. | Existing Native source SHA and Home/Map/Auto owner checks must remain unchanged. Ghost positive and full seasonal Treasure are deferred by owner. R4–R13 are experimental negatives/inconclusive; no live plunder/claims/sharing, no new zip/merge/release from this documentation-only assessment. |
+
+## How v24 coordinates and manager lifecycle connect (Q1/Q3)
+
+* The installed v24 Lua SceneUtils.TileToWorld converts world tile
+  (x,y) to Unity x/z via TileSize and a +0.5 tile-center offset;
+  actual nine-palaces server offset can be added. World tile is not
+  packed point ID, global index or AOI index. SceneUtils world
+  tile index is **1-based** (y * worldTileCount + x + 1); EncodeWorldPos
+  packs x and y as two 32-bit halves. For city scenes, CityTileCount is
+  different and requires a separate bound. Neither coordinate encodes
+  server/world ownership.
+* The managed WorldPointManager.PositionToAoiBlock halves Unity world
+  positions and divides by current _lwAoiBlockSize; AoiBlockToIndex
+  is y * _lwAoiBlockCount + x. At the **observed v24 normal-world
+  LOD0** that is 10-tile AOIs and 100 columns: target (455,425)
+  maps to **4245**, target (545,495) maps to **4954**. An AOI list is
+  meaningful only alongside native LOD, size/count, server/world and
+  the request/view generation. Coarser LOD2 can use one 1000-tile
+  block rather than the LOD0 10,000-cell grid. The app projects four
+  10-tile AOIs into each 20×20-tile logical block, 50×50 blocks.
+* UpdateViewRequest(true) enters native AOI update, while
+  StartViewRequest enables/start-gates manager request behavior;
+  SendViewRequest has tile/LOD/server arguments and SendAoiRequest
+  accepts explicit AOI indexes but **no explicit serverId argument**.
+  Manager viewport/camera anchors and cached _curViewIndex,
+  _addViewIndex, _msgViewIndex and _splitLastAOIRequest control
+  request selection, outstanding segments and current view state.
+  Send success or a receive-ready flag is not a response generation.
+* HandleViewPointsReply parses the native SFS payload, dispatches
+  point data and updates view state; HandleViewUpdateNotify dispatches
+  update, fold-up and removal handling. _pointInfos and view/out-of-view
+  dictionaries retain items; DeleteOutOfAoi, DeleteTimeOutPoints,
+  ViewCulling and RemovePointInfo can later evict/cull them, while
+  WorldMarch/Train/activity/detail managers maintain other type-specific
+  data. A matching cached point ID can be old or from a different
+  requested source.
+* App Lua request IDs, profile ID, session challenge, PID, target and
+  timestamp authenticate the **task-owned local producer and result**;
+  these are not claimed to be game-server echoed identifiers. The
+  sender's R11 manual camera shift, R10 StartViewRequest restart, and
+  R13 GotoWorldPos full callback each failed to deliver a second
+  independently attributable response. R13 proves its nine native
+  current IDs are **LOD0 first-region indexes**, not the requested
+  second LOD footprint. It does **not** prove why the game manager
+  failed to issue/consume the new second-region view request.
+
+## Per-kind camera-free scope and correct source (Q2)
+
+| Type | Full-discovery source currently retained | Available direct/list/cache mechanism; why not a replacement |
+| --- | --- | --- |
+| City/player | Native LOD0 player-base point AOIs | WorldGetDetail for known point, GetUserInfoMulti for known UID; not an unknown-player global roster |
+| Resource | Native LOD0 ResourcePointInfo AOIs plus quantities | FindResource/FindResourcePoint filtered search and known point detail; no unfiltered all-world coverage/paging guarantee |
+| Monster | Native LOD0 WorldMarch plus Doomsday points | FindMonster nearest/filter; coarse LOD2 may serve specialized Zombie Boss but misses generic RunningMonster/Doom Walker families |
+| Truck | Native Train/march AOIs and Truck metadata | TryGetTrainList(true) is a scoped train cache/list; previously failed full Truck presence even when it returned data |
+| Railway | Native march AOIs, merged once with alliance train refresh | TryGetTrainList(true) allianceTrainList and GetMarchPos by known UUID/server/world; no global railway census guarantee |
+| Dispatch | Native LOD0 dispatch points | DispatchFindNearestPoint is nearest point, not a global list |
+| Ghost | Native LOD0 GhostreconPointInfo when event available | Ghostrecon task/self/alliance lists; no positive all-map event population or complete scope proof |
+| Treasure | Native treasure/radar point AOIs for available families | Known UUID treasure/claim detail and self/alliance exchange lists; full seasonal scope unverified |
+| Mixed | One native shared AOI sweep and selected parsers | Combining several partial lists does not make any unknown-object population exhaustive |
+
+The official native lookup and scope signatures above are inventoried in
+docs/MAP_009_OFFLINE_ACQUISITION_CONTINUATION.md and
+docs/proof/MAP-009-OFFLINE-NATIVE-SOURCE-LOCATORS-2026-10-12.json;
+hash-locked inspection entrypoints are under tools/map_009_offline.
+
+## Native response provenance and competing explanations (Q3/Q4)
+
+R11 (native receiver waited for a target-owned completed second AOI, 8
+seconds): first (455,425) had **30 AOIs, 28 Resource rows**; actual
+second camera settled (545,495); manager _curViewIndex/_addViewIndex
+had nine AOIs, _msgViewIndex 0, split flag false, but target 4954
+absent. Retaining 455 flags-ready observations did not solve the issue.
+Prior R8 took the second request on the same tick; R9 waited for
+camera settle; R10 invoked StartViewRequest and observed unrelated
+network packet-count increases; R11 waited for receiver rather than
+prematurely rejecting its first stale view. All failed their *second*
+AOI qualification.
+
+**R13 was a distinct official navigation attempt** rather than another
+manual SetCameraPos or synthetic request generation. Source-backed
+GoToUtil.GotoWorldPos was invoked for second tile with native
+completion callback. At second tile manager reported svLod 0,
+_lwAoiBlockSize=10 and _lwAoiBlockCount=100. The nine retained AOIs
+were specifically row 42–44, columns 44–46—near the *first*
+request, not row 49/column 54. Both native flags were ready but did
+not identify a new target-owned segment; the complete eight-second
+second wait failed closed. The task-owned game was stopped in a
+finally block, no publication occurred; raw game records remain
+ignored and are not committed.
+
+Competing hypotheses and distinguishing evidence:
+
+* **H1: same-tick manual camera movement only.** R9 different game
+  pump, R11 delayed receiver and R13 official completed navigation
+  are counter-evidence; these do not prove all camera lifecycles work.
+* **H2: second camera is at another LOD or AOI encoding.** R13 live
+  LOD0,size10,count100 and recovered IndexToAoiBlock rule refute that
+  explanation for its nine old IDs. A nine-cell set is **not**
+  automatically the requested target's footprint.
+* **H3: StartViewRequest alone re-establishes the generation.**
+  R10 restarted successfully yet lacked the requested AOI; no
+  server-owned reply correlation was established.
+* **H4: the native manager did not submit a new second target
+  viewport, or submitted it but consumed unrelated/old/out-of-order
+  segments, or its subscription/cache remained bound to first view.**
+  All remain live hypotheses; no native request header, response
+  association or subscription generation was captured to distinguish
+  them. Receipt flags, request send success and unscoped packet totals
+  cannot replace that evidence.
+
+The real current-game remote detail response handler was decoded
+again for this task: Net/Msgs/WorldGetDetailMessage.HandleMessage
+passes its raw message to WorldPointDetailManager.UpdateDetail,
+then broadcasts WorldPointDetail. WorldPointDetailManager.UpdateDetail
+parses the raw fields and caches by **pointId alone** in
+worldPointDetailList. Its WorldPointDetailData.ParseData assigns
+serverId specifically from incoming **scrServer**, only when present;
+it does **not** copy the requested targetServerId. Therefore
+R12's native detail.serverId=0 does not license setting it to
+2213, and a matching pointId is not proof of source server.
+The unmodified response handler does not expose an authoritative
+request/connection/server envelope to this probe. Further
+known-point correlation requires capturing the real response fields
+and connection/request callback context, plus a *different*
+independent native witness from server 2213 at the same logical
+coordinate versus active 2212, before changing production.
+
+## Measured accuracy-qualified speed (Q5/Q7)
+
+Previous real v24 all-eight trials (Normal,Fast,Normal,Fast) lasted
+**210.651, 207.424, 207.905, 206.860 seconds**. Normal:
+median **209.278s**, range **207.905–210.651**, n=2.
+Fast: median **207.142s**, range **206.860–207.424**, n=2.
+Only one pair independently sampled positive actual populated kinds
+on both sides. Thus a faster Fast result is an *observation*, not
+an accepted repeatable speedup; at least three alternating per-route
+runs with comparable positive witnesses would be required to
+claim one. Both run 340 serial Lua region probes, **10,000**
+AOIs and 2,500 blocks. Home-view restoration costs ~90 seconds
+per full-world scan by the historical phase receipts, but R8–R13
+show that omitting it is currently unqualified; this is potential,
+not earned, savings. Packet counters were global and unscoped:
+**actual raw network packet count per scan is unknown**.
+
+Archived single-kind Normal/Fast run times, **seconds**:
+
+| Individual kind | Normal | Fast | Scope |
+| --- | ---: | ---: | --- |
+| City/player | 191.898 | 191.122 | Positive sampled native fields; n=1 per mode |
+| Resource | 198.575 | 195.871 | Positive sampled amount/detail; n=1 per mode |
+| Monster | 192.040 | 193.410 | Positive sampled Monster; active protection not witnessed |
+| Truck | 189.398 | 189.235 | Sampled goods/expiry; n=1 per mode |
+| Railway | 189.832 | 190.637 | Individual positive native field witness **not qualified** at that time |
+| Dispatch | 188.584 | 188.675 | Sampled expiry/state; n=1 per mode |
+| Ghost | — | — | Positive live event deferred |
+| Treasure | — | — | Full seasonal positive deferred; ordinary Treasure has separate mixed positive |
+
+Archived representative mixed selections:
+
+| Selection | Normal (s) | Fast (s) | Limitation |
+| --- | ---: | ---: | --- |
+| City+Resource+Monster | — | — | No exact matched independent campaign; cannot infer from six/all-eight |
+| Truck+Railway+Dispatch | 184.107 | 184.924 | n=1 each, positive Truck/Dispatch; Railway absent |
+| City+Truck | — | 187.824 | n=1, sampled positive City/Truck |
+| City+Resource+Monster+Truck+Railway+Dispatch | — | 208.874 | n=1; positive City,Resource,Monster,Truck,Dispatch; Railway not positive |
+| All eight available | 209.278 (median) | 207.142 (median) | n=2 each; one fully matched sampled-positive pair |
+
+Bounded earlier 2212→2213→2212 **two-server cycles with exact
+return**: Truck+Railway+Dispatch Fast total **384.380s** (one
+cycle; combined switch/return/orchestration **5.566s**); City
+Normal total **383.255s** (one cycle; combined
+switch/return/orchestration **5.179s**). Those are not n=3
+head-to-head comparisons nor remote scanning without a switch.
+Previously recorded source acquisition, enrichment, projection,
+publication, positive field counts and oldest result age are in
+docs/proof/MAP-008-NATIVE-METHOD-BENCHMARKS-2026-10-11.json.
+The per-run source-age clock is necessarily older at the end of a
+multi-minute 340-region sweep. Explicit Stop latency for a *new
+method* is not measured because no new method passed small data.
+
+The marginal full-world **discovery** expense of adding a kind to
+an existing mixed sweep is not a second 340-probe pass. After the
+shared AOI pass, marginal work can be: City's main-base parse;
+Resource's record accounting and idle amount detail request(s);
+Monster's march/Doomsday parse and eligible protection requests;
+Truck's lightweight march parse and post-sweep metadata;
+Railway's one Train list refresh and UUID merge; Dispatch/Ghost/
+Treasure point-family parsing and any event-specific detail.
+The exact marginal milliseconds/packet counts *per type* remain
+unmeasured with matched stable populations; do not subtract unrelated
+n=1 scan totals to manufacture them. The existing production
+resumed-band path has already avoided repeated 2,500-block re-filtering.
+
+## Independent accuracy checks and proof boundary (Q6)
+
+The current source requires owner/session/profile/challenge/PID,
+server/world, result age, LOD, block dimensions, fresh target AOIs,
+native response/restoration flags and no pending split before
+merging. It deduplicates rows by stable RecordKey and checks per-kind
+source counts, full 10,000 AOI union, then maps to 2,500 logical
+blocks. MapDataStore stages blocks and selected records with
+transactional completed-run publication; incomplete or Stop/failed
+runs must not replace the last completed user-visible data.
+
+That proves the scanner visited each *recorded* native AOI
+footprint, not that the game returned every object at every instant.
+Test recall against **independent** native known-positive dense,
+boundary, sparse and negative regions, not the scanner's own
+derived total. For each fixed time bracket, join
+(kind,server,world,stable identity) and detect:
+missing/extra keys, same-key duplicates, wrong-server/world,
+stale/future capture time, level/owner/name/amount/expiry/goods/
+protection and other native field discrepancies. Time-bracket
+moving trucks, expiring resources/monsters and seasonal objects;
+unbracketed nonmatches are **inconclusive**, not automatic
+false positives or fabricated negative witnesses.
+
+The historical independent audit observed **25,393 native-value
+comparisons, zero discrepancies across seven actually populated
+kinds**, which is meaningful sampled agreement, not universal
+100% recall. This task adds
+tools/map_009_offline/scanner_accuracy_012.py and
+test_scanner_accuracy_012.py (pure, unshipped) to reject deliberate
+missing, extra, duplicate, stale, wrong-world/server, field and
+coordinate/AOI corruption. They distinguish moving/expiring items
+that need a native time bracket. Offline fixtures establish *audit
+sensitivity*; they cannot be claimed as new live positive coverage.
+
+## Exact open gates and next defensible experiment
+
+1. **Q1/Q3 native lifecycle:** trace actual outbound **second**
+   AOI/view command with native viewport, LOD, world/server and
+   manager subscription generation, plus HandleViewPointsReply
+   inbound reply segment/window/connection and _msg/_add/_cur view
+   transitions. Distinguish new target not sent, target reply
+   dropped/misbound, stale cached first view, or wrong manager
+   subscription. Use official camera navigation from a uniquely
+   owned game and two or three independently populated separated
+   regions. Prove each native point + march snapshot before one
+   final restoration of original tile, zoom, FOV, aspect and manager
+   view subscription, including Stop/timeout/owner retirement.
+2. **Q4 remote known object/region/full world:** inspect the
+   WorldGetDetail native response **scrServer**, raw envelope and
+   callback/transport ownership against distinguishing wrong-server
+   same-coordinate and stale/retired connection controls, comparing
+   fields to independently refreshed server-specific witnesses.
+   Only positive authoritative known-point provenance permits a
+   *known-object* claim; full region requires genuine region AOIs,
+   and entire map requires fresh complete coverage without changing
+   live context. A serverId request argument or helper ID alone is
+   not evidence.
+3. **Q5 best speed:** only after such a candidate passes the small
+   correctness/Stop gate, alternate **at least three** eligible
+   baseline/candidate runs per route for each available kind,
+   City+Resource+Monster, Truck+Railway+Dispatch, City+Truck,
+   all kinds and bounded two-server cycles. Measure median/range,
+   attributable native request work, cache/enrichment, acquisition,
+   publication, switch/return, result age, Stop latency and
+   independently time-bracketed field-level missing/extra/duplicate
+   sets. No full benchmark is justified for already failed R13.
+
+## Current cleanup and delivery
+
+Only a fresh isolated MAP-012 owned profile was enabled for R13;
+its AutoLaunch, AutoReconnect and GameDesiredRunning remained false.
+One read-only trial game was started and exact-owned stopped in
+finally, with no error on Stop, no task recovery journal and zero
+account-changing actions. The temporary Desktop trial command/C#
+source was removed, the two built Lua runtime copies restored to
+the exact canonical source, installed originals verified unchanged,
+and no unrelated Chrome/game process was touched. R13 raw records
+and diagnostic Lua remain ignored under artifacts/map-012 rather
+than shipping/committing. The canonical runtime scanner, normal/
+fast UI and previous MAP-011 extracted release are unchanged.
+The lead review and accepted Home/Map evidence stay intact.
