@@ -1,5 +1,14 @@
 # MAP-SCAN-METHODS-008 — accurate efficient scanning for every type and combination
 
+Owner priority clarification, 2026-10-12: evaluate individual kinds as well as
+combined selections, camera-independent routes and arbitrary target-server reads
+without context switching. Current released/working acquisition and release UI
+corrections do not establish global optimality or exclusive feasibility. Use the
+current queue's measurement table and outstanding method questions; finish finite
+release fixes, then continue credible bounded method trials without restarting work.
+The game default is Chinese; do not change that setting. EN/JA proof changes the
+clone language, with assertions of actual language/theme rather than filename labels.
+
 Latest independent continuation, 2026-10-12: review of `10b73c4a` closes the
 replayed LEADMAP008-01/02 audit defects and verifies installed name reader/mounted
 route fixes. Complete LEADMAP008R5-01/02 final extracted locale/name captures and

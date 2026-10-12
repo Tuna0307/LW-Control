@@ -38,7 +38,46 @@ That is measured cost, not demonstrated removable savings. A consecutive-region
 candidate has no combined positive freshness/ownership/Stop/cleanup qualification
 and remains disabled. Do not repeat unchanged full scans hoping to prove a speedup.
 
-## Only ready continuation
+### Individual workload measurements and remaining method questions
+
+Archived corrected measurements, one run per mode (seconds), from
+`docs/proof/MAP-008-NATIVE-METHOD-BENCHMARKS-2026-10-11.json` and the historical ledger:
+
+| Kind alone | Normal | Fast | Qualification |
+| --- | ---: | ---: | --- |
+| City/player | 191.898 | 191.122 | Sampled positive native values; n=1/mode |
+| Resource | 198.575 | 195.871 | Native details/amounts; n=1/mode |
+| Monster | 192.040 | 193.410 | Sampled values; active protection unobserved; n=1/mode |
+| Truck | 189.398 | 189.235 | Sampled goods/expiry; n=1/mode |
+| Dispatch | 188.584 | 188.675 | Sampled expiry/state; n=1/mode |
+| Railway | 189.832 | 190.637 | Individual-positive field comparison unqualified at capture time |
+
+The later Railway positive is in mixed/all-eight runs, not a retroactive individual
+performance qualification. No qualified individual Ghost/full seasonal Treasure
+comparison is available. Do not infer individual mode winners or marginal type
+costs from these n=1 timings or from differently selected all-eight scans.
+
+Current full-world acquisition changes the active server context to a remote
+target, then requests its native regions. The current server needs no cross-server
+jump. Complete arbitrary-server acquisition without context switching, and a
+complete camera-independent replacement, remain unestablished, not proven impossible.
+Failed direct-AOI and scoped Train-list substitutions rejected only those attempts.
+
+Owner priority is to settle these questions with source-supported comparisons,
+not merely show that scans finish. After the ready release fixes, evaluate a
+bounded consecutive-target candidate with final restoration, and credible complete
+per-kind list/direct-region/remote-server paths where actual client semantics support
+them. Prove fresh requested-server identity, independent values/coverage and
+Stop/error restoration before full-world trials or deployment. Keep current verified
+behavior until a candidate qualifies; no blind flags/identity overrides or fake data.
+Measure qualifying candidates individually and mixed, with alternating repeats
+where a speed advantage is claimed. Unknown capabilities remain explicitly unknown.
+
+The official game is normally Chinese. Preserve its setting. Clone-language
+verification must use the clone selector/installed locale source; default Chinese
+captures are valid Chinese observations but cannot prove EN/JA filename labels.
+
+## Ready release continuation, followed by the assigned method assessment
 
 1. **LEADMAP008R5-01:** final captures named EN/light and JA/dark are Chinese,
    light, empty preview fixtures. Preserve them. Capture/assert actual requested

@@ -1,5 +1,15 @@
 # LW-Control — current contributor instructions
 
+Owner clarification, 2026-10-12: the official game's default language is Chinese.
+Do not change the game language for clone UI verification. App EN/JA checks select
+the clone's language and must record the actual state, not infer it from filenames.
+Owner's primary scanner questions remain per-type/combined speed and accuracy,
+camera-independent acquisition and full remote-server acquisition without a server
+context switch. UI release closeout does not settle these questions. After the
+finite release corrections, continue the assigned source-supported method assessment
+and bounded candidate trials on the same branch, preserving the proven baseline.
+No globally fastest/only-possible-method claim is authorised by current evidence.
+
 Current independent lead review, 2026-10-12, source 10b73c4a: audit findings
 LEADMAP008-01/02 independently pass; installed game-name reader and mounted route
 also pass. Railway/ordinary Treasure have sampled positives. Complete only ready
