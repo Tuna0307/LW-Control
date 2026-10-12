@@ -1,5 +1,11 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+**Owner/lead continuation:** use installed REA and authorised project-local native
+analysis prerequisites under `work-items/LWB317-MAP-REA-NATIVE-RECOVERY-013.md`.
+Q1-Q8 remain acceptance questions. First prove actual native analysis, then trace
+the missing request/segment/object-delivery mechanism. Same branch/background
+authority; leave Normal/Fast unchanged. Original checkpoint account below retained.
+
 **Disposition: PARTIAL.** The strongest tested accurate method remains the
 existing shared, camera-assisted v24 LOD0 AOI acquisition. Native receiver
 identity for successive regions, authoritative remote-server response

@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest owner assignment, 2026-10-12: install/configure relevant native analysis
+prerequisites (Ghidra/portable full JDK or supported alternatives) and use REA on
+original/current shipped artifacts to continue scanner questions. Follow
+docs/work-items/LWB317-MAP-REA-NATIVE-RECOVERY-013.md on existing branch/PR.
+Tool setup is authorised; preserve global runtimes/settings and background-only
+game/account-action gates. Verify actual native decompilation, then investigate
+fresh object delivery/provenance; installation alone is not scanner completion.
+
 Local analysis tooling, 2026-10-12: REA 6.4.0 is installed in tools/rea-mcp,
 with project Codex MCP configuration and matching .agents/skills instructions.
 Read tools/rea-mcp/README.md; owner-relayed workers can use rea.cmd through their
