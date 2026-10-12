@@ -1,5 +1,17 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+**Current lead observation, 2026-10-13:** two populated regions now have actual
+incoming `world.get.block` context: 50 and 48 points on server 2212/world 0/LOD0.
+The narrower camera-assisted second-region experiment also received 18 fresh
+points, exactly matching those same 20 AOIs in the wider 50-AOI control. Its
+centre-occupancy completion test falsely timed out. Q1 now has incoming native
+context evidence, but the actual outgoing envelope/cache-call chain remains
+open. This does not qualify Q2 camera-free discovery, Q3 final-only restoration,
+Q4 remote-without-switch or a Q5 speedup. Q6 gains a bounded identical-footprint
+record comparison. Production and Q7 shared mixed acquisition stay unchanged.
+Read `MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md` for the current continuation;
+old negative records below remain historical, not overwritten.
+
 **2026-10-13 LEADMAP013-04 repair:** The actual MAP-013
 diagnostic reply reader now rejects same-requestId foreign
 owner replies and missing/mismatched versions, session field

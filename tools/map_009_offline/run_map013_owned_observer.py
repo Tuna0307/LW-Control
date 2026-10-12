@@ -33,6 +33,17 @@ TRACE_SOURCE = Path(__file__).with_name("map013_wrapper_trace.lua")
 GAME_ROOT = Path.home() / "AppData/Local/FunFly/Last War-Survival Game"
 
 
+def retire_owned_reply(path: Path, request_id: str, profile: str, session: str,
+                       pid: int, challenge: str) -> None:
+    """Remove only a previously archived reply of this exact diagnostic owner."""
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if (value.get("requestId") != request_id or value.get("profileId") != profile or
+            value.get("launchSessionId") != session or value.get("gamePid") != pid or
+            value.get("challenge") != challenge or value.get("state") not in ("observed", "proven", "failed")):
+        raise RuntimeError("cannot retire a foreign or unexpected diagnostic reply")
+    path.unlink()
+
+
 def publish_command(path: Path, values: dict[str, str]) -> int:
     if path.exists():
         raise RuntimeError(f"owned command already pending: {path.name}")
@@ -271,13 +282,65 @@ def snapshot_worldready_stages(
     }
 
 
+def observe_scene_gate(
+    live_root: Path, attempt: Path, *, profile: str, session: str,
+    challenge: str, game_pid: int, seconds: float = 90,
+) -> dict:
+    """Wait for the source's actual transition gate, not a startup sleep.
+
+    Each observation is an exact-owner passive sample. No world request is
+    submitted here. Preserve each terminal trace before another command so
+    its old fixed-path reply cannot be mistaken for the next observation.
+    """
+    deadline = time.monotonic() + seconds
+    index = 0
+    while time.monotonic() < deadline:
+        index += 1
+        request_id = "map013scene" + secrets.token_hex(8)
+        published = publish_command(live_root / "map013-native-trace.txt", {
+            "schema": "1", "probeVersion": "lwbridge-live-resource-probe-2",
+            "requestId": request_id, "profileId": profile,
+            "launchSessionId": session, "challenge": challenge,
+            "gamePid": str(game_pid), "sceneOnly": "true",
+        })
+        result_path = live_root / "map013-native-trace-result.json"
+        result = wait_for(result_path,
+            ExpectedReply("trace", request_id, profile, session, game_pid,
+                          challenge, published),
+            min(24, max(0.1, deadline - time.monotonic())))
+        preserved = attempt / f"scene-gate-{index:03d}.json"
+        if preserved.exists():
+            raise RuntimeError("scene observation evidence already exists")
+        os.replace(result_path, preserved)
+        if result.get("state") != "observed":
+            raise RuntimeError("scene observer failed before transition admission")
+        samples = result.get("samples")
+        view = samples[-1].get("view", {}) if isinstance(samples, list) and samples else {}
+        city = view.get("sceneUtilsIsInCity") is True
+        world = view.get("sceneUtilsIsInWorld") is True
+        print("NATIVE_SCENE_GATE", index, "city", city, "world", world,
+              "scene", view.get("currentSceneId"), flush=True)
+        if city or world:
+            return {"requestId": request_id, "observation": index,
+                    "city": city, "world": world,
+                    "sceneId": view.get("currentSceneId"),
+                    "evidence": preserved.name}
+    raise TimeoutError("native scene never admitted ChangeToWorld within bounded observation")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--unmodified-control", action="store_true",
                         help="distinguish accepted original probe startup from private trace extension")
     parser.add_argument("--baseline-region", action="store_true",
                         help="one bounded owner-scoped historical-positive Resource/City first-region control")
+    parser.add_argument("--region-mode", choices=("coverage", "native"), default="coverage",
+                        help="production coverage control, or explicit experimental native route")
+    parser.add_argument("--compare-second-region", action="store_true",
+                        help="after the baseline, separately observe coverage and experimental native at 545,495")
     options = parser.parse_args()
+    if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
+        parser.error("second-region comparison requires the instrumented baseline")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -292,6 +355,29 @@ def main() -> int:
     session = "map013" + secrets.token_hex(12)
     challenge = secrets.token_hex(32)
     os.environ["LWBRIDGE_REBUILD_DATA_ROOT"] = str(attempt)
+    # The production app supplies this existing adapter. Even with no pipe
+    # connection, its read-only snapshot delegate classifies Windows locks.
+    # Bare Lua io.open returns nil on sharing contention and wrongly turns
+    # a live diagnostic into overview_session_unavailable.
+    snapshot_adapter = TOOLS / "LWBridge.GamePipeAdapter.dll"
+    if not snapshot_adapter.is_file():
+        snapshot_adapter = (REPO / "src/LWBridge.GamePipeAdapter/bin/Release/"
+                            "netstandard2.0/LWBridge.GamePipeAdapter.dll")
+    if not snapshot_adapter.is_file():
+        raise RuntimeError("packaged runtime snapshot reader is absent")
+    owned_adapter = attempt / "LWBridge.GamePipeAdapter.dll"
+    shutil.copyfile(snapshot_adapter, owned_adapter)
+    os.environ["LWBRIDGE_PIPE_ADAPTER_PATH"] = str(owned_adapter.resolve())
+    sampler = (REPO / "tools/map_009_offline/managed_sampler/bin/Release/"
+               "netstandard2.0/LWBridge.MapTraceSampler.dll")
+    sampler_hash = None
+    if sampler.is_file():
+        owned_sampler = attempt / "LWBridge.MapTraceSampler.dll"
+        shutil.copyfile(sampler, owned_sampler)
+        os.environ["LWBRIDGE_MAP013_SAMPLER_PATH"] = str(owned_sampler.resolve())
+        sampler_hash = hashlib.sha256(sampler.read_bytes()).hexdigest()
+    else:
+        os.environ.pop("LWBRIDGE_MAP013_SAMPLER_PATH", None)
     if options.unmodified_control:
         os.environ.pop("LWBRIDGE_MAP013_PRIVATE_TRACE", None)
         os.environ.pop("LWBRIDGE_MAP013_WRAPPER_TRACE", None)
@@ -306,6 +392,8 @@ def main() -> int:
         "profileId": profile, "sessionId": session,
         "challengeSha256": hashlib.sha256(challenge.encode()).hexdigest(),
         "privateSourceSha256": hashlib.sha256(private_source.read_bytes()).hexdigest(),
+        "snapshotAdapterSha256": hashlib.sha256(snapshot_adapter.read_bytes()).hexdigest(),
+        "managedSamplerSha256": sampler_hash,
         "gameRoot": str(GAME_ROOT), "status": "CREATED",
     }, indent=2), encoding="utf-8")
     owned = None
@@ -349,6 +437,12 @@ def main() -> int:
         live_root = attempt / "live-resource"
         common = {"schema": "1", "profileId": profile, "sessionId": session,
                   "challenge": challenge, "gamePid": str(pid)}
+        if options.baseline_region and not options.unmodified_control:
+            gate = observe_scene_gate(live_root, attempt, profile=profile,
+                                      session=session, challenge=challenge,
+                                      game_pid=pid)
+            (attempt / "scene-gate-admission.json").write_text(
+                json.dumps(gate, indent=2), encoding="utf-8")
         # Start passive event observation *before* WorldReady so failure in
         # world-scene transition cannot prevent diagnosis of the hook itself.
         trace_id = "map013trace" + secrets.token_hex(8)
@@ -414,7 +508,7 @@ def main() -> int:
                 "requestId": region_id, "profileId": profile,
                 "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
                 "serverId": str(world["serverId"]), "scanRunId": region_id,
-                "viewLevel": "-1", "requestMode": "native",
+                "viewLevel": "-1", "requestMode": options.region_mode,
                 "targetTileX": "455", "targetTileY": "425",
                 "requestedCount": "8", "holdMilliseconds": "0",
                 "homeTileX": str(world.get("playerTileX") or -1),
@@ -431,7 +525,7 @@ def main() -> int:
                 region = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
                     ExpectedReply("region", region_id, profile, session, pid, challenge,
                                   region_published, server_id=world["serverId"],
-                                  world_id=world["worldId"], request_mode="native",
+                                  world_id=world["worldId"], request_mode=options.region_mode,
                                   target_tile_x=int(region_command["targetTileX"]),
                                   target_tile_y=int(region_command["targetTileY"])), 28)
                 (attempt / "native-first-region.json").write_text(
@@ -448,7 +542,7 @@ def main() -> int:
         try:
             trace = wait_for(live_root / "map013-native-trace-result.json",
                 ExpectedReply("trace", trace_id, profile, session, pid, challenge,
-                              trace_published), 12)
+                              trace_published), 24)
             (attempt / "trace-status.json").write_text(json.dumps(trace, indent=2), encoding="utf-8")
             print("LIVE_EVENT_CAPTURE", trace.get("state"),
                   "registrations", trace.get("registrations"),
@@ -462,6 +556,49 @@ def main() -> int:
             raise
         if not isinstance(world, dict) or world.get("state") != "proven":
             raise RuntimeError("WorldReady has no verified positive world scene")
+        if options.compare_second_region:
+            if not isinstance(region, dict) or region.get("state") != "proven":
+                raise RuntimeError("cannot compare a second region without a working baseline")
+            # Each observation has its own trace and reply identity. Coverage
+            # restores after its response; native remains an explicit experiment.
+            # This does not enable a consecutive-region production shortcut.
+            previous_trace_id, previous_region_id = trace_id, region_id
+            for mode in ("coverage", "native"):
+                retire_owned_reply(live_root / "map013-native-trace-result.json",
+                                   previous_trace_id, profile, session, pid, challenge)
+                retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",
+                                   previous_region_id, profile, session, pid, challenge)
+                next_trace_id = "map013trace" + secrets.token_hex(8)
+                trace_time = publish_command(live_root / "map013-native-trace.txt", {
+                    "schema": "1", "probeVersion": "lwbridge-live-resource-probe-2",
+                    "requestId": next_trace_id, "profileId": profile,
+                    "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
+                })
+                time.sleep(1)
+                next_id = "map013second" + secrets.token_hex(8)
+                next_command = {**region_command, "requestId": next_id, "scanRunId": next_id,
+                                "requestMode": mode, "targetTileX": "545", "targetTileY": "495"}
+                next_time = publish_command(live_root / "bulk-aoi-diagnostic.txt", next_command)
+                try:
+                    result = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
+                        ExpectedReply("region", next_id, profile, session, pid, challenge,
+                                      next_time, server_id=world["serverId"], world_id=world["worldId"],
+                                      request_mode=mode, target_tile_x=545, target_tile_y=495), 28)
+                    (attempt / ("second-region-" + mode + ".json")).write_text(
+                        json.dumps(result, indent=2), encoding="utf-8")
+                    print("SECOND_REGION", mode, result.get("state"), result.get("error"),
+                          "pointRows", len(result.get("point_records") or []), flush=True)
+                except Exception as error:
+                    (attempt / ("second-region-" + mode + "-error.txt")).write_text(repr(error), encoding="utf-8")
+                    print("SECOND_REGION_UNCONFIRMED", mode, repr(error), flush=True)
+                    raise
+                next_trace = wait_for(live_root / "map013-native-trace-result.json",
+                    ExpectedReply("trace", next_trace_id, profile, session, pid, challenge, trace_time), 24)
+                (attempt / ("second-trace-" + mode + ".json")).write_text(
+                    json.dumps(next_trace, indent=2), encoding="utf-8")
+                if next_trace["state"] != "observed":
+                    raise RuntimeError("second-region observer ended without a complete trace")
+                previous_trace_id, previous_region_id = next_trace_id, next_id
         # Fail closed: even successful listener subscription is not a new
         # positive baseline until actual raw payloads can be correlated.
         return 0

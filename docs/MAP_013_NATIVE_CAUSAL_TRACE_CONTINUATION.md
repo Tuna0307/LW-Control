@@ -1,5 +1,99 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+## Current: lead takeover, genuine same-session replies, 2026-10-13
+
+The lead took over at `0022c4ce`. Background observation used new exact-owned
+sessions, not either denied historical worker poll. No desktop input, claims,
+plunder, sharing, paid action or protected-original service was used.
+Canonical Home/scanner/default Lua source is unchanged. **MAP-013 is PARTIAL**;
+the following supersedes the older statement that no fresh populated native
+first/second-region reply has been observed. Historical negatives remain intact.
+
+The final same-session observation is
+`artifacts/map-013-live/native-causal-20261013-023613` (ignored private raw data).
+The read-only managed sampler observed actual `world.get.block` incoming packets
+with native `serverPointArr` context, not just locally calculated AOIs:
+
+| Route/target | Native server/world/LOD | Incoming points | Probe/cache records |
+| --- | --- | ---: | ---: |
+| coverage, 455/425 | 2212 / 0 / 0 | 50 | 50 |
+| coverage, 545/495 | 2212 / 0 / 0 | 48 | 48 |
+| unexpanded native, 545/495 | 2212 / 0 / 0 | 18 | 18, diagnostic timeout |
+
+The narrower route requested 20 AOIs; coverage requested 50. Selecting those
+same 20 AOIs from the coverage result gives exactly 18 identical records:
+zero missing, extra or differing rows. The fresh 18-point packet first appears
+two seconds into its observation, distinct from retained packets present at
+observation start. **This native mode still shifts the camera internally; it is
+not a camera-independent direct-request experiment.**
+
+The timeout has a demonstrated source cause: the unchanged diagnostic completion
+predicate at `current_live_resource_probe.lua:6034` requires
+`targetPointCount > baselineTargetPointCount` for native mode. Both are zero
+in the central AOI in this trial, despite the genuine populated reply, both
+response flags being true and no pending split. Coverage uses response flags
+and split completion instead. This is a false-negative completion observation,
+not evidence of absent dispatch or absent response. Do not weaken completion
+to arbitrary activity or infer full coverage from the 18-point subset.
+
+The correct live transport is `GameKit.Base.NetRawProxy` /
+`ProtoBufNet.NetConnection`, with SFS-formatted messages. The incoming profiler
+retains parsed packets; outgoing retained packet `info` is null in these
+observations. The actual outbound envelope and AddPointInfo invocation were
+not captured. Packet object hashes are local observations, **not network IDs**.
+Therefore end-to-end request correlation and a faster scanner remain unqualified.
+
+### Diagnostic setup corrected
+
+1. Actual decoded `SceneUtils.ChangeToWorld` silently returns outside City/World.
+   The runner now observes the actual native predicates before requesting entry.
+2. The previous baseline used experimental `native`; the real production baseline
+   is `coverage`, now the explicit default.
+3. The standalone diagnostic lacked the existing production managed snapshot
+   adapter. It now copies that admitted adapter into its isolated root; Windows
+   sharing contention correctly becomes `busy`, with no manufactured readiness.
+4. Its old 12-second trace wait was shorter than the producer's 18-second window.
+   The wait is 24 seconds. No game/product timeout was increased.
+5. Reusing a result path encountered the previous request's terminal reply.
+   Only an archived, exact-owner terminal reply is retired before the next command.
+   Foreign/unexpected replies remain untouched and cause failure.
+6. Lua could not enumerate the profiler's managed dictionaries. A diagnostic-only
+   C# reader now returns bounded map-command keys and numeric region context.
+   It performs no sends, handler changes, dumps or raw-buffer reads.
+
+### Verification and continuation
+
+Compact replayable proof: `proof/MAP-013-LEAD-SAME-SESSION-2026-10-13.json`.
+Attempt/source/check/cleanup receipt:
+`proof/MAP-013-LEAD-TAKEOVER-2026-10-13.json`.
+
+Run after exact Stop/restoration, since original-bytecode tests correctly reject
+an installed diagnostic candidate while a game session is active:
+
+```powershell
+python -m unittest discover -s tools/map_009_offline -p 'test_*.py' -v
+python -m unittest discover -s tools/rea-mcp -p 'test_*.py' -v
+dotnet run --project tools/map_009_offline/managed_sampler_checks/Checks.csproj -c Release
+python tools/map_009_offline/audit_map013_same_session.py artifacts/map-013-live/native-causal-20261013-023613 artifacts/map-009-offline/same-session-replay.json
+```
+
+Observed results: 63 Python Map tests, five native-toolchain tests and the actual
+managed-reader inert cases pass. The sampler builds with zero warnings/errors.
+All 15 lead attempts have exact owned Stop and original script restoration.
+No game/launcher/Desktop process remained at final verification. There was no
+denied operation in these new lead attempts. One premature test sweep during
+injection correctly rejected three original-package source fixtures; the final
+post-restoration sweep passes without weakening any hash gate.
+
+Next work: replace the occupancy-dependent completion rule **only in an explicit
+experimental path** with observed fresh native reply context/segment ownership,
+including empty centre and genuinely empty regions, then test restoration and
+successor/stale/wrong-server rejection. Observe the actual outgoing envelope and
+cache insertion if available; do not substitute local request fields for them.
+Compare equal spatial footprints before attempting consecutive-region/final-only
+restoration or any whole-world benchmark. Keep the supported production scanner
+enabled until a candidate passes accuracy, restoration and measured speed gates.
+
 ## 2026-10-13 fresh corrected observation (PARTIAL)
 
 A **new** task-owned baseline attempt, ignored raw directory

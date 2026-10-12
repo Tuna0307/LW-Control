@@ -218,4 +218,14 @@ local function pump_world_ready(control)
     pump_world_ready(control)
 """,
     )
+    replace_once(
+        '        if result == "busy\\n" then return nil, "busy" end\n',
+        '''        _map013_world_emit("managed_snapshot_read", nil,
+            (path == control_path and "control_" or "lease_") ..
+            tostring(pipe_runtime.adapterReadMode or "unknown") .. "_" ..
+            (result == "busy\\n" and "busy" or
+             string.sub(result, 1, 3) == "ok\\n" and "ok" or "unavailable"))
+        if result == "busy\\n" then return nil, "busy" end
+''',
+    )
     return text.encode("utf-8")

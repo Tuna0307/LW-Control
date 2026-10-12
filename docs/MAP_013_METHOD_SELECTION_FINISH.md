@@ -1,5 +1,17 @@
 # MAP-013 — finite method assessment and decision
 
+**Current lead observation, 2026-10-13:** actual native incoming replies are now
+captured in two populated regions. A narrower camera-assisted diagnostic also
+received a fresh 18-point reply but falsely timed out on its empty-centre occupancy
+predicate. Its 20-AOI footprint exactly matches the 18 records from those same
+AOIs in the wider 50-AOI/48-record control. This supersedes the old blanket
+missing-second-region-response description for these new observations; it does
+not retrospectively alter R15/R16 or qualify a camera-free/faster scanner.
+See `MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md` and
+`proof/MAP-013-LEAD-SAME-SESSION-2026-10-13.json`. Outgoing envelope correlation,
+cache insertion invocation, consecutive-region restoration and speed gates remain
+open. Default production acquisition is unchanged; MAP-013 remains PARTIAL.
+
 **2026-10-13:** The lead's LEADMAP013-04 diagnostic
 reply ownership inverse was corrected, and an opt-in
 source-bound WorldReady lifecycle observer was added with

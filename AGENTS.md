@@ -1,5 +1,14 @@
 # LW-Control — current contributor instructions
 
+Current lead takeover, 2026-10-13: real incoming world.get.block replies now prove
+populated first and second regions. The narrower diagnostic's timeout is a false
+negative on empty-centre occupancy, with exact same-footprint records in the
+paired wider control. Read docs/MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md and
+docs/proof/MAP-013-LEAD-SAME-SESSION-2026-10-13.json. Outgoing envelope/cache-call
+correlation and faster-scanner qualification remain open; production is unchanged.
+Use the corrected source-gated runner and managed sampler, not the older baseline
+setup. Keep existing background-only authority and all action/denial boundaries.
+
 Latest lead review, 2026-10-13: e4ac9dc0 corrects LEADMAP013-04 and passes
 independent reply/source tests, actual inert WorldReady Lua checks and read-only
 v24 admission. Read docs/reviews/2026-10-13-MAP-013-REPLY-WORLDREADY-LEAD-REVIEW.md.

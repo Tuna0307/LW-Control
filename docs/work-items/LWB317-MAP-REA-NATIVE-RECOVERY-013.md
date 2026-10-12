@@ -1,5 +1,17 @@
 # MAP-013 — configure native REA and recover scanner mechanisms
 
+**Lead takeover checkpoint, 2026-10-13 — PARTIAL:** corrected diagnostic startup,
+baseline selection, shared-file reader and observation lifetime. Genuine incoming
+`world.get.block` replies now establish two populated coverage controls. The
+narrower camera-assisted route also receives data: its 18 records exactly match
+the same 20 AOIs in the wider 48-record control, while its centre-occupancy gate
+falsely reports timeout. Actual outbound envelope/cache-call correlation and a
+faster accuracy-qualified method remain open. Default production is unchanged.
+Current continuation: `docs/MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md`;
+replayable proof: `docs/proof/MAP-013-LEAD-SAME-SESSION-2026-10-13.json`.
+This supersedes older no-fresh-second-region descriptions for the new lead
+observation only; historical worker negatives are preserved.
+
 Current continuation, 2026-10-12: follow
 `docs/MAP_013_MONITORED_CONTINUATION.md` after the accepted correction review.
 It supersedes treating unchanged short-budget retries as sufficient investigation.
