@@ -1,7 +1,13 @@
 # LWB317-MAP-OWNER-FIXES-014
 
-Owner assignment, 2026-10-13. Status: ASSIGNED. One solo worker; new branch
+Owner assignment, 2026-10-13. Status: PARTIAL implementation / functional review pending. One solo worker; new branch
 `codex/map-owner-fixes-014` from current main. PR #9 is merged and retired.
+
+Active source changes, the compact 13-obligation matrix, controls tested and
+exact remaining compatibility/native witness dependencies are recorded in
+[`MAP_014_OWNER_HANDOFF.md`](../MAP_014_OWNER_HANDOFF.md). The installed package
+hash currently fails the preserved native admission gate; no live success may be
+inferred from controlled tests or older scanner totals.
 Released product source is `6f93c109436ebb80f4f344ad25380151b4f9aba5`;
 pre-assignment main checkpoint is `78e9ea0fab60644075bbb7d9154ce320cc49ed70`.
 Preserve accepted single-game Home, published data and historical negative trials.
