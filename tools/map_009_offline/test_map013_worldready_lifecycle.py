@@ -26,6 +26,8 @@ from map_009_offline.run_map013_owned_observer import (
 
 
 class WorldReadyLifecycleTests(unittest.TestCase):
+    # Historical MAP-013 bridge SHA: 559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0.
+    # Historical probe SHA: 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     @classmethod
     def setUpClass(cls):
         cls.original = (TOOLS / "current_overview_bridge.lua").read_bytes()
@@ -36,11 +38,11 @@ class WorldReadyLifecycleTests(unittest.TestCase):
                 "LWBRIDGE_MAP013_WRAPPER_TRACE": "",
                 "LWBRIDGE_MAP013_PRIVATE_TRACE": ""}):
             self.assertEqual(hashlib.sha256(c.base.bridge_source()).hexdigest(),
-                             "559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0")
+                             "ea7014202b8279ed6cd6a8df873192eb0a99d4973d230cff17250a43014f137b")
             self.assertEqual(hashlib.sha256(c.base.wrapper_source()).hexdigest(),
-                             "d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708")
+                             "6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101")
             self.assertEqual(hashlib.sha256(c.base.packaged_resource_probe_source()).hexdigest(),
-                             "8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668")
+                             "c074605929a248cc2a1a30bd54d0585b54e758f7c034767af9806ff73c29faf2")
 
     def test_real_source_syntax_order_and_all_observation_boundaries(self):
         original = self.original.decode("utf-8").replace("\r\n", "\n")

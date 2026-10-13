@@ -95,6 +95,11 @@ local bulk_aoi_native_original_fov = nil
 local bulk_aoi_native_unity_camera = nil
 local bulk_aoi_native_original_aspect = nil
 local bulk_aoi_native_original_zoom = nil
+local bulk_aoi_native_original_projection = nil
+local bulk_aoi_native_original_transform = nil
+local bulk_aoi_native_original_rotation = nil
+local bulk_aoi_native_original_unity_position = nil
+local bulk_aoi_native_camera_checkpoint = nil
 local bulk_aoi_native_hold_seconds = nil
 local bulk_aoi_native_position_restored = false
 local bulk_aoi_restore_current_view = false
@@ -2568,6 +2573,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
     local matched, cities, resources, dispatches, ghosts, treasures = 0, 0, 0, 0, 0, 0
+    local type_histogram = {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
@@ -2581,6 +2587,8 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
         if selected_lookup[aoi_index] == true then
             matched = matched + 1
             local point_type = integer_field(info, { "pointType", "PointType" })
+            local key = point_type == nil and "unknown" or tostring(point_type)
+            type_histogram[key] = (type_histogram[key] or 0) + 1
             if point_type == 6 then cities = cities + 1 end
             if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
             if point_type == 17 then dispatches = dispatches + 1 end
@@ -2590,7 +2598,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, treasures = treasures, loadedPointCount = expected }, nil
+    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, treasures = treasures, loadedPointCount = expected, typeHistogram = type_histogram }, nil
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -2606,24 +2614,46 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "main_base_list_count_invalid" end
     local records = {}
+    local accounting = { sourceCount = expected, inRequestedAoi = 0, accepted = 0,
+                         missingPointIndex = 0, invalidPosition = 0, missingServer = 0,
+                         missingOwnerUid = 0, missingOwnerName = 0 }
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
         local id = integer_field(info, { "pointIndex", "PointIndex" })
-        if id == nil or id <= 0 then return true end
+        if id == nil or id <= 0 then
+            accounting.missingPointIndex = accounting.missingPointIndex + 1
+            return true
+        end
         local tile = index_to_tile(world, id)
-        if tile == nil then return true end
+        if tile == nil then
+            accounting.invalidPosition = accounting.invalidPosition + 1
+            return true
+        end
         local cell_x = math.floor(tile.x / block_size)
         local cell_y = math.floor(tile.y / block_size)
-        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then
+            accounting.invalidPosition = accounting.invalidPosition + 1
+            return true
+        end
         local aoi_index = cell_y * block_count + cell_x
         if selected_lookup[aoi_index] ~= true then return true end
+        accounting.inRequestedAoi = accounting.inRequestedAoi + 1
         local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
-        if server_id == nil or server_id <= 0 then return true end
+        if server_id == nil or server_id <= 0 then
+            accounting.missingServer = accounting.missingServer + 1
+            return true
+        end
         local owner_uid = scalar_field(info, { "ownerUid", "OwnerUid" })
         local owner_name = scalar_field(info, { "playerName", "PlayerName" })
-        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" or
-           owner_name == nil or tostring(owner_name) == "" then return true end
+        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" then
+            accounting.missingOwnerUid = accounting.missingOwnerUid + 1
+            return true
+        end
+        if owner_name == nil or tostring(owner_name) == "" then
+            accounting.missingOwnerName = accounting.missingOwnerName + 1
+            return true
+        end
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2650,10 +2680,16 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
             source = "WorldPointManager.GetAllMainBaseList",
         }
+        accounting.accepted = accounting.accepted + 1
         return true
     end)
     if scanned ~= expected then return nil, "main_base_list_enumeration_mismatch" end
-    return records, nil
+    if accounting.missingPointIndex > 0 or accounting.invalidPosition > 0 or
+       accounting.missingServer > 0 or accounting.missingOwnerUid > 0 or
+       accounting.missingOwnerName > 0 or accounting.accepted ~= accounting.inRequestedAoi then
+        return nil, "city_native_candidate_identity_incomplete", accounting
+    end
+    return records, nil, accounting
 end
 
 local function resource_source_metadata(tile, server_id, resource_source)
@@ -2888,6 +2924,8 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
             y = tile.y,
             uuid = tostring(uuid),
             ownerUid = owner_uid ~= nil and tostring(owner_uid) or nil,
+            ownerName = scalar_field(info, { "ownerName", "OwnerName", "playerName", "PlayerName" }),
+            allianceName = scalar_field(info, { "allianceName", "AllianceName", "alAbbr", "AlAbbr" }),
             cfgId = cfg_id,
             level = math.floor(level),
             quality = math.floor(quality),
@@ -3344,7 +3382,10 @@ local function normalize_train_current_goods(march, train, train_data_json, expl
                 end
             end
 
-            if name ~= nil and icon_path ~= nil then
+            -- Item identity/count come from native RewardData. An unresolved
+            -- sprite must not drop an otherwise genuine reward from search,
+            -- filters or quantities. The UI will show an honest placeholder.
+            if name ~= nil then
                 -- Internal rebuild identity only. Last War supplies rewardType/itemId;
                 -- the original LWBridge currentGoods key producer remains unrecovered.
                 local key = "reward:" .. tostring(reward_type) .. ":" .. tostring(item_id)
@@ -4941,6 +4982,62 @@ local function bulk_selected_lookup(indices)
     return lookup
 end
 
+local function camera_geometry_checkpoint(camera_manager, unity_camera)
+    if camera_manager == nil or unity_camera == nil then return nil end
+    local transform = safe_get(unity_camera, "transform")
+    local position = transform and safe_get(transform, "position") or nil
+    local rotation = transform and safe_get(transform, "rotation") or nil
+    local matrix = safe_get(unity_camera, "projectionMatrix")
+    local anchors = safe_get(camera_manager, "cameraAnchor") or reflected_value(camera_manager, "cameraAnchor")
+    local function vector(value, keys)
+        if value == nil then return nil end
+        local result = {}
+        for _, key in ipairs(keys) do
+            result[key] = tonumber(safe_get(value, key))
+            if result[key] == nil then return nil end
+        end
+        return result
+    end
+    local anchors_copy = {}
+    if anchors ~= nil then
+        for index = 0, 3 do
+            anchors_copy[#anchors_copy + 1] = vector(safe_get(anchors, index), { "x", "y", "z" })
+        end
+    end
+    return {
+        fov = tonumber(safe_get(unity_camera, "fieldOfView")),
+        aspect = tonumber(safe_get(unity_camera, "aspect")),
+        zoom = tonumber(safe_get(camera_manager, "Zoom")),
+        orthographic = safe_get(unity_camera, "orthographic") == true,
+        orthographicSize = tonumber(safe_get(unity_camera, "orthographicSize")),
+        nearClipPlane = tonumber(safe_get(unity_camera, "nearClipPlane")),
+        farClipPlane = tonumber(safe_get(unity_camera, "farClipPlane")),
+        position = vector(position, { "x", "y", "z" }),
+        rotation = vector(rotation, { "x", "y", "z", "w" }),
+        projection = vector(matrix, { "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13",
+                                     "m20", "m21", "m22", "m23", "m30", "m31", "m32", "m33" }),
+        anchors = anchors_copy,
+    }
+end
+
+local function camera_checkpoint_matches(baseline, current)
+    if baseline == nil or current == nil then return false end
+    local function same(left, right)
+        if type(left) == "number" and type(right) == "number" then
+            return math.abs(left - right) <= 0.0005 * math.max(1, math.abs(left))
+        end
+        if type(left) == "table" and type(right) == "table" then
+            for key, value in pairs(left) do
+                if not same(value, right[key]) then return false end
+            end
+            for key, _ in pairs(right) do if left[key] == nil then return false end end
+            return true
+        end
+        return left == right
+    end
+    return same(baseline, current)
+end
+
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
     local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
@@ -4986,7 +5083,29 @@ local function restore_bulk_aoi_state(point_manager)
     end
     if bulk_aoi_native_camera ~= nil then
         if not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then ok = false end
+    end
+    -- These must be restored AFTER RefreshCameraAnchor, which can rebuild the
+    -- physical Unity transform/projection even with the same logical tile.
+    if bulk_aoi_native_unity_camera ~= nil and bulk_aoi_native_original_projection ~= nil and
+       not reflected_set_value(bulk_aoi_native_unity_camera, "projectionMatrix", bulk_aoi_native_original_projection) then ok = false end
+    if bulk_aoi_native_original_transform ~= nil then
+        if bulk_aoi_native_original_rotation ~= nil and
+           not reflected_set_value(bulk_aoi_native_original_transform, "rotation", bulk_aoi_native_original_rotation) then ok = false end
+        if bulk_aoi_native_original_unity_position ~= nil and
+           not reflected_set_value(bulk_aoi_native_original_transform, "position", bulk_aoi_native_original_unity_position) then ok = false end
+    end
+    if bulk_aoi_native_camera ~= nil then
         if point_manager ~= nil and not bulk_aoi_skip_restore_update then call(point_manager, "UpdateViewRequest", true) end
+    end
+    if bulk_aoi_request ~= nil and bulk_aoi_native_camera_checkpoint ~= nil then
+        local after = camera_geometry_checkpoint(bulk_aoi_native_camera, bulk_aoi_native_unity_camera)
+        bulk_aoi_request.details = bulk_aoi_request.details or {}
+        bulk_aoi_request.details.cameraProjectionRestored = after ~= nil and
+            camera_checkpoint_matches(bulk_aoi_native_camera_checkpoint.projection, after.projection)
+        bulk_aoi_request.details.cameraGeometryRestored = camera_checkpoint_matches(bulk_aoi_native_camera_checkpoint, after)
+        bulk_aoi_request.details.originalCameraGeometry = bulk_aoi_native_camera_checkpoint
+        bulk_aoi_request.details.restoredCameraGeometry = after
+        if not bulk_aoi_request.details.cameraGeometryRestored then ok = false end
     end
     bulk_aoi_skip_restore_update = false
     bulk_aoi_native_camera = nil
@@ -4996,6 +5115,11 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_native_unity_camera = nil
     bulk_aoi_native_original_aspect = nil
     bulk_aoi_native_original_zoom = nil
+    bulk_aoi_native_original_projection = nil
+    bulk_aoi_native_original_transform = nil
+    bulk_aoi_native_original_rotation = nil
+    bulk_aoi_native_original_unity_position = nil
+    bulk_aoi_native_camera_checkpoint = nil
     bulk_aoi_native_hold_seconds = nil
     bulk_aoi_native_position_restored = false
     bulk_aoi_added_indices = {}
@@ -5034,6 +5158,14 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         baselineMatchedCount = details.baselineMatchedCount,
         matchedCount = details.matchedCount,
         matchedCityCount = details.matchedCityCount,
+        cityCompleteness = details.cityCompleteness,
+        nativePointTypeHistogram = details.nativePointTypeHistogram,
+        nativePointInfoCityCount = details.nativePointInfoCityCount,
+        cameraGeometryRestored = details.cameraGeometryRestored,
+        cameraGeometryConfirmed = details.cameraGeometryConfirmed,
+        cameraProjectionRestored = details.cameraProjectionRestored,
+        originalCameraGeometry = details.originalCameraGeometry,
+        restoredCameraGeometry = details.restoredCameraGeometry,
         matchedResourceCount = details.matchedResourceCount,
         matchedDispatchCount = details.matchedDispatchCount,
         matchedGhostCount = details.matchedGhostCount,
@@ -5179,7 +5311,7 @@ end
 local function fail_bulk_aoi(request, error_text, details, point_manager)
     local restored = restore_bulk_aoi_state(point_manager)
     if not restored then error_text = tostring(error_text) .. "; bulk_aoi_state_restore_failed" end
-    write_bulk_aoi_result(request, "failed", error_text, details)
+    write_bulk_aoi_result(request, "failed", error_text, details or request.details)
     bulk_aoi_request = nil
     bulk_aoi_started_at = nil
 end
@@ -5396,6 +5528,29 @@ local function pump_bulk_aoi_diagnostic(now)
             fail_bulk_aoi(request, "native_camera_state_unavailable", nil, point_manager)
             return true
         end
+        -- Capture the Unity projection and world transform before native
+        -- camera/anchor mutations. Restore these exact values on every exit.
+        local unity_camera = safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")
+        local checkpoint = camera_geometry_checkpoint(camera_manager, unity_camera)
+        local projection = unity_camera and safe_get(unity_camera, "projectionMatrix") or nil
+        local transform = unity_camera and safe_get(unity_camera, "transform") or nil
+        if checkpoint == nil or checkpoint.fov == nil or checkpoint.aspect == nil or
+           checkpoint.zoom == nil or checkpoint.projection == nil or checkpoint.position == nil or
+           checkpoint.rotation == nil or projection == nil or transform == nil then
+            fail_bulk_aoi(request, "native_camera_projection_state_unavailable", nil, point_manager)
+            return true
+        end
+        bulk_aoi_native_unity_camera = unity_camera
+        bulk_aoi_native_original_projection = projection
+        bulk_aoi_native_original_transform = transform
+        bulk_aoi_native_original_rotation = safe_get(transform, "rotation")
+        bulk_aoi_native_original_unity_position = safe_get(transform, "position")
+        bulk_aoi_native_original_fov = checkpoint.fov
+        bulk_aoi_native_original_aspect = checkpoint.aspect
+        bulk_aoi_native_original_zoom = checkpoint.zoom
+        bulk_aoi_native_camera_checkpoint = checkpoint
+        request.details = request.details or {}
+        request.details.originalCameraGeometry = checkpoint
         local shift_x = (request.targetTileX - pre_tile_x) * 2
         local shift_z = (request.targetTileY - pre_tile_y) * 2
         local remote_pos = vector3_type(ox + shift_x, oy, oz + shift_z)
@@ -5519,9 +5674,10 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_aspect_unavailable", nil, point_manager)
                 return true
             end
-            bulk_aoi_native_original_fov = original_fov
-            bulk_aoi_native_unity_camera = unity_camera
-            bulk_aoi_native_original_aspect = original_aspect
+            if unity_camera ~= bulk_aoi_native_unity_camera then
+                fail_bulk_aoi(request, "native_camera_instance_changed_during_acquisition", nil, point_manager)
+                return true
+            end
             if not select(1, call(camera_manager, "SetFOV", 120.0)) then
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
                 return true
@@ -5735,6 +5891,16 @@ local function pump_bulk_aoi_diagnostic(now)
         if details.cameraTileStable == true and
            restore_flags.isRecvViewPoints == true and restore_world_reply == true and
            not restore_split_pending then
+            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+            local unity_camera = camera_manager and (safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")) or nil
+            local after = camera_geometry_checkpoint(camera_manager, unity_camera)
+            details.cameraGeometryConfirmed = details.cameraGeometryRestored == true and
+                camera_checkpoint_matches(details.originalCameraGeometry, after)
+            details.restoredCameraGeometry = after
+            if not details.cameraGeometryConfirmed then
+                fail_bulk_aoi(bulk_aoi_request, "native_home_camera_geometry_changed", details, point_manager)
+                return true
+            end
             details.deferredRestorePending = false
             details.positionRestoredAfterResponse = true
             details.homeRestorationElapsedSeconds = runtime_clock() - details.deferredRestoreStartedAt
@@ -5856,6 +6022,8 @@ local function pump_bulk_aoi_diagnostic(now)
     details.postTileX = tonumber(post_tile and (safe_get(post_tile, "x") or safe_get(post_tile, "X")))
     details.postTileY = tonumber(post_tile and (safe_get(post_tile, "y") or safe_get(post_tile, "Y")))
     details.matchedCount = observed.total
+    details.nativePointTypeHistogram = observed.typeHistogram
+    details.nativePointInfoCityCount = observed.cities
     details.matchedCityCount = observed.cities
     details.matchedResourceCount = observed.resources
     details.matchedDispatchCount = observed.dispatches
@@ -5864,10 +6032,15 @@ local function pump_bulk_aoi_diagnostic(now)
     details.afterLoadedPointCount = observed.loadedPointCount
     local point_records = {}
     if bulk_aoi_request.includeCity == true then
-        local city_records, point_records_error = city_aoi_records(
+        local city_records, point_records_error, city_completeness = city_aoi_records(
             world, point_manager, details.blockSize, details.blockCount, lookup)
+        details.cityCompleteness = city_completeness
         if city_records == nil then
             fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
+            return true
+        end
+        if observed.cities > #city_records then
+            fail_bulk_aoi(bulk_aoi_request, "city_native_point_info_exceeds_retained_bases", details, point_manager)
             return true
         end
         -- City count follows the retained unique-main-base source, not the current

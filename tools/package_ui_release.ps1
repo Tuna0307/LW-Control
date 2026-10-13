@@ -344,6 +344,38 @@ This remains an unmerged lead-review candidate. No merge/publication.
     }
     $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP014-OWNER') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-014 scope markers missing.' }
+    $ownerScope = @"
+MAP-014 OWNER FIXES — PARTIAL FUNCTIONAL REVIEW CANDIDATE
+Map Resource level, confirmed full/partial/unknown amount, and
+black/normal/unknown tile filters run in the canonical Map317 backend.
+Truck filters support an inclusive maximum escort power in millions and
+multiple native reward identities with ALL matching. The same Map clear command
+is available in Auto and Manual; active scan/Auto-cycle admission is protected.
+Cross-server stored-row navigation switches to the row's source server before
+navigating. Truck Follow resolves a fresh native march UUID passively and can
+be stopped. Transient native warzone producer failures retain the last list;
+genuine changes replace it. Secret Task owner metadata is populated from
+native fields or matching same-server City UID, otherwise explicitly UID.
+
+The full camera projection/transform restoration gate and City candidate
+identity accounting require a fresh independently compatible game build for
+live verification. The installed game's current package failed the locked
+native compatibility check on 2026-10-13. A completed AOI progress bar is
+NOT proof of a complete City census. Moving Doom Walkers and the requested
+new map object classes need source-backed identity/positive native witnesses.
+Blank Truck icons have a supported installed-game asset reader and their
+genuine item identities are preserved, but real reward PNG results are not
+certified. Historical negative evidence remains unchanged; no gameplay
+action is authorized. See docs/MAP_014_OWNER_HANDOFF.md for each obligation.
+This package is an unmerged review candidate, not a published Map release.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $ownerScope + "`r`n" + $readme.Substring($scopeEnd)
+}
 if ($ReleaseLabel -eq 'MAP-SCANNER-TEST') {
     $readme = @"
 LW-Control — current verified scanner test build

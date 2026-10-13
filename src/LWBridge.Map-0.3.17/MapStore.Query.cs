@@ -41,7 +41,8 @@ public sealed partial class MapStore
         // Saturating here changes the original returned rows on overflow.
         long offset = unchecked((pageNumber - 1) * pageSize);
         bool city = query.Kind == "city";
-        bool treasure = query.Kind == "treasure";
+            bool treasure = query.Kind == "treasure";
+            bool dispatchOwner = query.Kind is "dispatch" or "ghost";
         bool staging = !string.IsNullOrWhiteSpace(query.ScanRunId);
         string table = staging ? "scan_records" : "map_records";
         string runPredicate = staging ? " AND page.run_id=$run" : string.Empty;
@@ -84,7 +85,24 @@ public sealed partial class MapStore
                     : $"SELECT page.data_json,page.server_id,CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM {table} page{rowJoin} WHERE {where} ORDER BY {orderBy}"
                 : treasure
                     ? $"SELECT page.data_json,page.server_id,state.state_json FROM {table} page{rowJoin} WHERE {where} ORDER BY {orderBy}"
-                    : $"SELECT page.data_json,page.server_id FROM {table} page WHERE {where} ORDER BY {orderBy}";
+                    : dispatchOwner
+                        ? $"""
+                            SELECT page.data_json,page.server_id,
+                              (SELECT CAST(json_extract(city.data_json,'$.ownerName') AS TEXT)
+                               FROM map_records city
+                               WHERE city.server_id=page.server_id AND city.kind='city'
+                                 AND CAST(json_extract(city.data_json,'$.ownerUid') AS TEXT)=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)
+                                 AND COALESCE(CAST(json_extract(city.data_json,'$.ownerName') AS TEXT),'')<>''
+                               ORDER BY city.updated_at DESC,city.record_key LIMIT 1),
+                              (SELECT CAST(json_extract(city.data_json,'$.allianceName') AS TEXT)
+                               FROM map_records city
+                               WHERE city.server_id=page.server_id AND city.kind='city'
+                                 AND CAST(json_extract(city.data_json,'$.ownerUid') AS TEXT)=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)
+                                 AND COALESCE(CAST(json_extract(city.data_json,'$.allianceName') AS TEXT),'')<>''
+                               ORDER BY city.updated_at DESC,city.record_key LIMIT 1)
+                            FROM {table} page WHERE {where} ORDER BY {orderBy}
+                            """
+                        : $"SELECT page.data_json,page.server_id FROM {table} page WHERE {where} ORDER BY {orderBy}";
             page.CommandText = select + " LIMIT $limit OFFSET $offset";
             AddQueryParameters(page, query, now, staging);
             page.Parameters.AddWithValue("$limit", pageSize);
@@ -99,7 +117,9 @@ public sealed partial class MapStore
                         reader.IsDBNull(3) ? null : reader.GetInt64(3), reader.GetInt64(4))
                     : ReadSearchRow(reader.GetString(0), reader.GetInt32(1),
                         city ? reader.GetInt32(2) != 0 : null,
-                        treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
+                        treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                        dispatchOwner && !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                        dispatchOwner && !reader.IsDBNull(3) ? reader.GetString(3) : null));
             }
             snapshot.Commit();
             return new MapSearchResult(rows, total, pageNumber, pageSize);
@@ -280,7 +300,10 @@ public sealed partial class MapStore
             {
                 key = reader.GetString(1),
                 name = reader.GetString(2),
-                iconPath = reader.GetString(3),
+                // A genuine item may have a name while its installed-game
+                // asset path is unavailable. Preserve Unknown, do not fail
+                // map_data_options or invent a diagram for it.
+                iconPath = reader.IsDBNull(3) ? null : reader.GetString(3),
             });
             if (reader.GetString(0) == "truck") truck.Add(option); else railway.Add(option);
         }
@@ -376,8 +399,43 @@ public sealed partial class MapStore
         else if (query.Quality is not null) throw new BridgeCommandException("INVALID_REQUEST", "invalid map quality");
         if (query.Kind == "truck" && query.Quality == "ur")
             predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER),0)=0");
+        if (query.Kind == "resource")
+        {
+            switch (query.ResourceAmountState)
+            {
+                case null: break;
+                case "full":
+                    predicates.Add("json_extract(page.data_json,'$.resourceDetailKnown')=1 AND CAST(json_extract(page.data_json,'$.resourceRemainingAmount') AS INTEGER)=CAST(json_extract(page.data_json,'$.resourceFullAmount') AS INTEGER)");
+                    break;
+                case "partial":
+                    predicates.Add("json_extract(page.data_json,'$.resourceDetailKnown')=1 AND CAST(json_extract(page.data_json,'$.resourceRemainingAmount') AS INTEGER)<CAST(json_extract(page.data_json,'$.resourceFullAmount') AS INTEGER)");
+                    break;
+                case "unknown":
+                    predicates.Add("(json_extract(page.data_json,'$.resourceDetailKnown') IS NOT 1 OR json_extract(page.data_json,'$.resourceRemainingAmount') IS NULL OR json_extract(page.data_json,'$.resourceFullAmount') IS NULL)");
+                    break;
+                default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource amount filter");
+            }
+            switch (query.ResourceTileState)
+            {
+                case null: break;
+                case "black": predicates.Add("json_extract(page.data_json,'$.blackTileKnown')=1 AND json_extract(page.data_json,'$.isBlackTile')=1"); break;
+                case "normal": predicates.Add("json_extract(page.data_json,'$.blackTileKnown')=1 AND json_extract(page.data_json,'$.isBlackTile')=0"); break;
+                case "unknown": predicates.Add("(json_extract(page.data_json,'$.blackTileKnown') IS NOT 1 OR json_extract(page.data_json,'$.isBlackTile') IS NULL)"); break;
+                default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource terrain filter");
+            }
+        }
+        else if (query.ResourceAmountState is not null || query.ResourceTileState is not null)
+            throw new BridgeCommandException("INVALID_REQUEST", "resource filters require Resource data");
         if (query.ItemKey is not null)
             predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT)=$itemKey)");
+        if (query.ItemKeys is { Count: > 0 })
+        {
+            if (query.Kind is not ("truck" or "railway") || query.ItemKeys.Count > 24 ||
+                query.ItemKeys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > 160))
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid reward item selection");
+            foreach (int index in Enumerable.Range(0, query.ItemKeys.Distinct(StringComparer.Ordinal).Count()))
+                predicates.Add($"EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT)=$itemKey{index})");
+        }
         if (query.CompletionStatus == "pending")
             predicates.Add("(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) IS NULL OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER)<=0 OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER)>$nowUnixMs)");
         else if (query.CompletionStatus == "completed")
@@ -496,6 +554,12 @@ public sealed partial class MapStore
                 "n" => 1, "r" => 2, "sr" => 3, "ssr" => 4, _ => 0,
             });
         if (query.ItemKey is not null) command.Parameters.AddWithValue("$itemKey", query.ItemKey);
+        if (query.ItemKeys is { Count: > 0 })
+        {
+            int index = 0;
+            foreach (string key in query.ItemKeys.Distinct(StringComparer.Ordinal))
+                command.Parameters.AddWithValue($"$itemKey{index++}", key);
+        }
         if (query.Kind is "truck" or "railway" || query.CompletionStatus is not null || query.PlunderableOnly ||
             query.Sorts?.Any(sort => query.Kind == "city" && sort.SortBy == "shield") == true)
         {
@@ -524,7 +588,8 @@ public sealed partial class MapStore
         return JsonSerializer.SerializeToElement(row);
     }
 
-    private static JsonElement ReadSearchRow(string json, int serverId, bool? marked, string? stateJson)
+    private static JsonElement ReadSearchRow(string json, int serverId, bool? marked, string? stateJson,
+        string? ownerNameFromCity = null, string? allianceFromCity = null)
     {
         JsonObject row = ParseRow(json);
         if (!string.IsNullOrEmpty(stateJson))
@@ -534,6 +599,15 @@ public sealed partial class MapStore
         }
         row["serverId"] = serverId;
         if (marked.HasValue) row["marked"] = marked.Value;
+        if (string.IsNullOrWhiteSpace(row["ownerName"]?.ToString()) &&
+            !string.IsNullOrWhiteSpace(ownerNameFromCity))
+        {
+            row["ownerName"] = ownerNameFromCity;
+            row["ownerNameSource"] = "same_server_city";
+        }
+        if (string.IsNullOrWhiteSpace(row["allianceName"]?.ToString()) &&
+            !string.IsNullOrWhiteSpace(allianceFromCity))
+            row["allianceName"] = allianceFromCity;
         return JsonSerializer.SerializeToElement(row);
     }
 

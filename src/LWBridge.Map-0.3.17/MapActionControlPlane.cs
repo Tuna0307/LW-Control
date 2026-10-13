@@ -43,8 +43,16 @@ public sealed class MapActionControlPlane
         if (serverId <= 0 || x <= 0 || y <= 0)
             throw new BridgeCommandException("INVALID_COORDINATE", "server ID and coordinates must be positive integers");
         using OperationLease lease = EnterGameOperation();
+        // Stored rows retain their server identity across Auto's return home.
+        // Switch while holding the SAME action lease so a competing navigation
+        // cannot interleave between switching and navigating to the tile.
+        await RequireTargetServerAsync(serverId, cancellationToken).ConfigureAwait(false);
         await ProtectedAsync(
             provider.GotoWorldCoordinateAsync(serverId, x, y, cancellationToken), cancellationToken).ConfigureAwait(false);
+        int reachedServer = await ProtectedAsync(
+            provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
+        if (reachedServer != serverId)
+            throw new BridgeCommandException("SERVER_MISMATCH", "map navigation ended on a different server");
         return new CoordinateJumpResult(serverId, x, y);
     }
 
@@ -54,8 +62,15 @@ public sealed class MapActionControlPlane
         if (serverId <= 0 || string.IsNullOrWhiteSpace(marchUuid))
             throw new BridgeCommandException("INVALID_MARCH", "server ID and march UUID are required");
         using OperationLease lease = EnterGameOperation();
+        // March identity is stable even when its coordinates change. Resolve a
+        // remote row's server before native JumpToMarchByUuid; never reuse the
+        // scan-time coordinates, which are already stale for moving trucks.
+        await RequireTargetServerAsync(serverId, cancellationToken).ConfigureAwait(false);
         await ProtectedAsync(
             provider.GotoWorldMarchAsync(serverId, marchUuid, cancellationToken), cancellationToken).ConfigureAwait(false);
+        if (await ProtectedAsync(provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken)
+            .ConfigureAwait(false) != serverId)
+            throw new BridgeCommandException("SERVER_MISMATCH", "follow changed to a different server");
         return new MarchFollowResult(serverId, marchUuid);
     }
 
@@ -90,7 +105,7 @@ public sealed class MapActionControlPlane
             provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
         if (previous == serverId) return new ServerJumpResult(false, previous, serverId);
 
-        await ProtectedAsync(provider.GotoServerAsync(serverId, cancellationToken), cancellationToken).ConfigureAwait(false);
+        await AwaitServerTransitionAsync(serverId, cancellationToken).ConfigureAwait(false);
         long deadline = checked(nowMilliseconds() + 10_000L);
         while (nowMilliseconds() < deadline)
         {
@@ -100,6 +115,36 @@ public sealed class MapActionControlPlane
             if (current == serverId) return new ServerJumpResult(true, previous, serverId);
         }
         throw new BridgeCommandException("SERVER_JUMP_TIMEOUT", "the game did not switch to the target server");
+    }
+
+    private async ValueTask RequireTargetServerAsync(int serverId, CancellationToken cancellationToken)
+    {
+        int current = await ProtectedAsync(
+            provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
+        if (current == serverId) return;
+        await AwaitServerTransitionAsync(serverId, cancellationToken).ConfigureAwait(false);
+        // Require a fresh source observation; the remote coordinate itself is
+        // also identity-gated in the mounted current-client navigation provider.
+        int reached = await ProtectedAsync(
+            provider.GetCurrentServerIdAsync(cancellationToken), cancellationToken).ConfigureAwait(false);
+        if (reached != serverId)
+            throw new BridgeCommandException("SERVER_JUMP_TIMEOUT", "the target map server was not reached");
+    }
+
+    private async ValueTask AwaitServerTransitionAsync(int serverId, CancellationToken cancellationToken)
+    {
+        // The owned source allows up to 18 seconds for native, exact-session
+        // switching; the generic protected-call 5-second budget was shorter
+        // than this legitimate command. Preserve cancellation and a hard bound.
+        try
+        {
+            await provider.GotoServerAsync(serverId, cancellationToken).AsTask()
+                .WaitAsync(TimeSpan.FromSeconds(20), cancellationToken).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            throw new BridgeCommandException("SERVER_JUMP_TIMEOUT", "the target server switch timed out");
+        }
     }
 
     public async ValueTask<TreasureInspectionResult> RefreshTreasureStatesAsync(

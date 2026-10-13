@@ -42,6 +42,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly Task truckWorkerTask;
     private readonly object scanLeaseGate = new();
     private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
+    private Func<bool>? isAutoScanCycleBusy;
+    private Func<IDisposable>? acquireAutoClearLease;
     private Map317ScanProcessLease? activeScanLease;
     private string? activeScanRunId;
     private int disposed;
@@ -138,6 +140,14 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     internal ResourceCompletenessReport? LastResourceCompletenessReport =>
         currentSource?.LastResourceCompletenessReport;
+
+    // Bound after the Auto service is constructed for the same profile owner.
+    // No cross-profile busy signals are consulted or mutated here.
+    internal void BindAutoScanCycleBusy(Func<bool> isBusy) =>
+        isAutoScanCycleBusy = isBusy ?? throw new ArgumentNullException(nameof(isBusy));
+
+    internal void BindAutoScanClearLease(Func<IDisposable> acquireLease) =>
+        acquireAutoClearLease = acquireLease ?? throw new ArgumentNullException(nameof(acquireLease));
 
     public bool CanHandle(string command) => Commands.Contains(command);
 
@@ -629,7 +639,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             }
         }
         if (statusReader is null)
-            return state;
+            return ApplyStatusOverlay(state);
         try
         {
             CurrentClientMapStatusContext context =
@@ -639,7 +649,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             if (Volatile.Read(ref disposed) != 0 ||
                 requestSerial != Volatile.Read(ref statusReadSerial) ||
                 !SameStatusOwner(state, control.ScanState))
-                return control.ScanState;
+                return ApplyStatusOverlay(control.ScanState);
 
             Map317.MapScanState guarded = await ApplyLiveServerGuardAsync(
                 state, context.IsInWorld, context.ServerId, cancellationToken).ConfigureAwait(false);
@@ -650,7 +660,13 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 requestSerial != Volatile.Read(ref statusReadSerial) ||
                 !string.Equals(guarded.ScanRunId, current.ScanRunId, StringComparison.Ordinal) ||
                 guarded.StartedAt != current.StartedAt || guarded.ServerId != current.ServerId)
-                return current;
+                return ApplyStatusOverlay(current);
+            ObservedStatus? previouslySeen = Volatile.Read(ref lastStatusContext);
+            if (!context.TruckMatchesKnown && previouslySeen is not null &&
+                SameStatusOwner(current, previouslySeen.Captured))
+            {
+                context = context with { TruckMatchServerIds = previouslySeen.Context.TruckMatchServerIds };
+            }
             Volatile.Write(ref lastStatusContext, new ObservedStatus(current, context));
             return current with
             {
@@ -664,7 +680,10 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         catch (BridgeCommandException)
         {
-            return control.ScanState;
+            // A failed/overlapped routine read must not momentarily erase valid
+            // warzone buttons. The cached overlay is scoped to this very run;
+            // a genuinely new successful observation still replaces the list.
+            return ApplyStatusOverlay(control.ScanState);
         }
     }
 
@@ -675,6 +694,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            // Reserve against Auto's cycleGate for the whole asynchronous Clear.
+            // Auto cannot admit a new cycle between the busy check and deletion.
+            using IDisposable? clearLease = acquireAutoClearLease?.Invoke();
+            if (isAutoScanCycleBusy?.Invoke() == true)
+                throw new BridgeCommandException("AUTO_SCAN_RUNNING", "Stop the Auto scan cycle before clearing Map data.");
             Map317.MapScanState current = control.ScanState;
             if (current.IsReading)
                 throw new BridgeCommandException(
@@ -898,14 +922,61 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         double? maxPower = LooseFiniteDouble(queryElement, "maxPower");
         if (minPower.HasValue && maxPower.HasValue && minPower > maxPower)
             (minPower, maxPower) = (maxPower, minPower);
+        // New Map filters are explicitly validated here at the live search
+        // boundary. Reject malformed input; do not turn an invalid maximum or
+        // absent native metadata into an unfiltered/zero-power match.
+        string? amountState = null;
+        string? tileState = null;
+        string[]? itemKeys = null;
+        if (queryElement.TryGetProperty("resourceAmountState", out JsonElement amountValue) &&
+            amountValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            amountState = amountValue.ValueKind == JsonValueKind.String ? amountValue.GetString() : null;
+            if (kind != "resource" || amountState is not ("full" or "partial" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Resource amount state.");
+        }
+        if (queryElement.TryGetProperty("resourceTileState", out JsonElement tileValue) &&
+            tileValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            tileState = tileValue.ValueKind == JsonValueKind.String ? tileValue.GetString() : null;
+            if (kind != "resource" || tileState is not ("black" or "normal" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Resource terrain state.");
+        }
+        if (queryElement.TryGetProperty("itemKeys", out JsonElement keysValue) &&
+            keysValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            if (kind is not ("truck" or "railway") || keysValue.ValueKind != JsonValueKind.Array ||
+                keysValue.GetArrayLength() is < 1 or > 24 ||
+                keysValue.EnumerateArray().Any(value => value.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(value.GetString()) || value.GetString()!.Length > 160))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward item selection.");
+            itemKeys = keysValue.EnumerateArray().Select(value => value.GetString()!)
+                .Distinct(StringComparer.Ordinal).ToArray();
+        }
+        if (queryElement.TryGetProperty("escortPowerMaxMillions", out JsonElement escortValue) &&
+            escortValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            if (kind != "truck" || escortValue.ValueKind != JsonValueKind.Number ||
+                !escortValue.TryGetDecimal(out decimal millions) || millions < 0 || millions > 1_000_000_000m)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Escort power maximum must be a non-negative number in millions.");
+            maxPower = (double)(millions * 1_000_000m);
+        }
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new { kind, query }));
-        return NormalizeQuery(envelope.RootElement) with
+        Map317.MapQuery parsed = NormalizeQuery(envelope.RootElement);
+        return parsed with
         {
             Page = originalPage,
             MinLevel = minLevel,
             MaxLevel = maxLevel,
             MinPower = minPower,
             MaxPower = maxPower,
+            ResourceAmountState = amountState,
+            ResourceTileState = tileState,
+            ItemKeys = itemKeys,
+            // The recovered itemCount sort expression still uses $itemKey.
+            // When an ALL selection has no legacy single-key field, use its
+            // first selected genuine key as the deterministic sort dimension.
+            ItemKey = parsed.ItemKey ?? itemKeys?.FirstOrDefault(),
         };
     }
 

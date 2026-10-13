@@ -1429,8 +1429,11 @@ internal sealed partial class CurrentClientMapBlockSource
             MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
+            !MatchesBool(root, "cameraGeometryRestored", true) ||
+            !MatchesBool(root, "cameraGeometryConfirmed", true) ||
+            !MatchesBool(root, "cameraProjectionRestored", true) ||
             !restorationContractMatches)
-            throw new InvalidDataException("Fast world batch did not prove the native response/restoration contract.");
+            throw new InvalidDataException("Fast world batch did not prove the native response and full camera geometry restoration contract.");
         if (!MatchesInt(root, "serverLod", 0) ||
             !MatchesInt(root, "blockSize", FastCityAoiBlockSize) ||
             !MatchesInt(root, "blockCount", FastCityAoiBlockCount) ||
@@ -1456,6 +1459,18 @@ internal sealed partial class CurrentClientMapBlockSource
             pointRecords.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its point record snapshot.");
         int matchedCityCount = RequireNonNegativeInt(root, "matchedCityCount");
+        if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
+        {
+            if (!root.TryGetProperty("cityCompleteness", out JsonElement cityCompleteness) ||
+                cityCompleteness.ValueKind != JsonValueKind.Object ||
+                !MatchesInt(cityCompleteness, "accepted", matchedCityCount) ||
+                !MatchesInt(cityCompleteness, "inRequestedAoi", matchedCityCount) ||
+                !root.TryGetProperty("nativePointInfoCityCount", out JsonElement currentCityValue) ||
+                currentCityValue.ValueKind != JsonValueKind.Number ||
+                !currentCityValue.TryGetInt32(out int currentCityCount) ||
+                currentCityCount > matchedCityCount || currentCityCount < 0)
+                throw new InvalidDataException("Fast world City producer did not reconcile independent retained-base and current-point counts.");
+        }
         int matchedResourceCount = RequireNonNegativeInt(root, "matchedResourceCount");
         int matchedDispatchCount = RequireNonNegativeInt(root, "matchedDispatchCount");
         int matchedGhostCount = RequireNonNegativeInt(root, "matchedGhostCount");
@@ -1639,8 +1654,10 @@ internal sealed partial class CurrentClientMapBlockSource
             // as the steal expiry contract.
 
             string recordKey = pointId.ToString(CultureInfo.InvariantCulture);
+            string? ownerName = OptionalStringValue(row, "ownerName");
+            string? allianceName = OptionalStringValue(row, "allianceName");
             result.Add(new FastDispatchPrepared(x, y, new MapStoredRecord(
-                "dispatch", serverId, recordKey, pointId, uuid, null, null,
+                "dispatch", serverId, recordKey, pointId, uuid, ownerName, allianceName,
                 level, quality, null, null, null, updatedAt,
                 data.ToJsonString(JsonOptions.Default))));
         }

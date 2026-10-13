@@ -152,6 +152,35 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     }
 
     internal event Action<MapAutoScanSnapshot>? StateChanged;
+    internal bool IsCycleBusy
+    {
+        get
+        {
+            lock (cycleGate) return activeCycleTask is { IsCompleted: false };
+        }
+    }
+    private bool mapClearReserved;
+
+    internal IDisposable AcquireMapClearLease()
+    {
+        lock (cycleGate)
+        {
+            if (mapClearReserved || activeCycleTask is { IsCompleted: false })
+                throw new BridgeCommandException("AUTO_SCAN_RUNNING", "Stop the Auto scan cycle before clearing Map data.");
+            mapClearReserved = true;
+            return new MapClearReservation(this);
+        }
+    }
+
+    private sealed class MapClearReservation(MapAutoScanCommandService owner) : IDisposable
+    {
+        private int disposed;
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) != 0) return;
+            lock (owner.cycleGate) owner.mapClearReserved = false;
+        }
+    }
 
     public bool CanHandle(string command) => Commands.Contains(command);
 
@@ -430,7 +459,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 return false;
             lock (cycleGate)
             {
-                if (Volatile.Read(ref retired) != 0 ||
+                if (mapClearReserved || Volatile.Read(ref retired) != 0 ||
                     activeCycleTask is { IsCompleted: false } ||
                     !execution.IsOnline() ||
                     execution.IsMapScanActive())

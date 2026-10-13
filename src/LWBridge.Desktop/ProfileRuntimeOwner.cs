@@ -187,6 +187,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                     StopScanIfOwnedAsync = map.StopAutoScanIfOwnedAsync,
                 },
                 startScheduler: startAutoScheduler);
+            map.BindAutoScanCycleBusy(() => auto.IsCycleBusy);
+            map.BindAutoScanClearLease(auto.AcquireMapClearLease);
 
             var orderedReconcile = startupReconcile ?? new OrderedProfileReconcileCommandService(
                 profileRegistryService,

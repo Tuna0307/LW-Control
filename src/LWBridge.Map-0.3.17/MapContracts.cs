@@ -59,7 +59,10 @@ public sealed record MapQuery(
     double? MaxLevel = null,
     string? ScanRunId = null,
     double? MinPower = null,
-    double? MaxPower = null);
+    double? MaxPower = null,
+    string? ResourceAmountState = null,
+    string? ResourceTileState = null,
+    IReadOnlyList<string>? ItemKeys = null);
 
 public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, long Page = 1, int PageSize = 50);
 

@@ -315,7 +315,8 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
   }, {
     label: t(`map.owner`),
     width: `minmax(140px, 1fr)`,
-    value: e => String(field(e, `ownerName`) || field(e, `ownerUid`) || `-`)
+    value: e => field(e, `ownerName`) ? String(field(e, `ownerName`))
+      : field(e, `ownerUid`) ? `UID ${String(field(e, `ownerUid`))}` : `-`
   }, {
     label: t(`map.alliance`),
     width: `minmax(110px, 1fr)`,

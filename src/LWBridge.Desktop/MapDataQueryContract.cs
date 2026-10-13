@@ -60,6 +60,10 @@ internal static class MapDataQueryContract
         "viewerAllianceId",
         "minLevel",
         "maxLevel",
+        "resourceAmountState",
+        "resourceTileState",
+        "itemKeys",
+        "escortPowerMaxMillions",
     ];
 
     private static readonly HashSet<string> AllowedKinds =
@@ -329,8 +333,18 @@ internal static class MapDataQueryContract
                        !string.IsNullOrEmpty(value.GetString()),
         "viewerAllianceId" => kind == "treasure" && value.ValueKind == JsonValueKind.String &&
                               !string.IsNullOrEmpty(value.GetString()),
-        "minLevel" => kind == "dispatch" && IsPositiveInteger(value),
-        "maxLevel" => kind == "dispatch" && IsPositiveInteger(value),
+        "minLevel" => kind is "dispatch" or "resource" && IsPositiveInteger(value),
+        "maxLevel" => kind is "dispatch" or "resource" && IsPositiveInteger(value),
+        "resourceAmountState" => kind == "resource" && value.ValueKind == JsonValueKind.String &&
+                                 value.GetString() is "full" or "partial" or "unknown",
+        "resourceTileState" => kind == "resource" && value.ValueKind == JsonValueKind.String &&
+                               value.GetString() is "black" or "normal" or "unknown",
+        "itemKeys" => kind is "truck" or "railway" && value.ValueKind == JsonValueKind.Array &&
+                      value.GetArrayLength() is >= 1 and <= 24 &&
+                      value.EnumerateArray().All(item => item.ValueKind == JsonValueKind.String &&
+                          !string.IsNullOrWhiteSpace(item.GetString()) && item.GetString()!.Length <= 160),
+        "escortPowerMaxMillions" => kind == "truck" && value.ValueKind == JsonValueKind.Number &&
+                                   value.TryGetDecimal(out decimal power) && power >= 0 && power <= 1_000_000_000m,
         _ => false,
     };
 
