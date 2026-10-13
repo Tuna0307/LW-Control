@@ -1,5 +1,18 @@
 # LWB317-MAP-OWNER-FIXES-014
 
+**Current 2026-10-13 continuation:** available owner-function scope is
+**READY_FOR_LEAD_FUNCTIONAL_REVIEW** after genuine packaged 2213 Auto scan →
+2212 home → 2213 retained-row native Jump (987,900) → Auto Clear with 2212
+data preserved, plus positive native filters/images/Dispatch names/Truck
+Follow/Stop and genuine camera restoration on completion and Stop. The
+remaining scope is **PARTIAL**: source-backed dormant seasonal events and
+moving BossVO lack current live witnesses; City completeness is not established
+from counts; scanner consecutive/ZoomMax alternatives fail native acquisition
+accuracy and remain disabled. See
+[`MAP_014_SOLO_REVIEW_CANDIDATE.md`](../MAP_014_SOLO_REVIEW_CANDIDATE.md)
+and the new top section of [`MAP_014_LEAD_TAKEOVER.md`](../MAP_014_LEAD_TAKEOVER.md)
+for exact evidence and cleanup. Older paragraphs below are preserved history.
+
 Owner assignment, 2026-10-13. Status: PARTIAL implementation / functional review pending. One solo worker; new branch
 `codex/map-owner-fixes-014` from current main. PR #9 is merged and retired.
 

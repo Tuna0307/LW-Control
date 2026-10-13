@@ -293,6 +293,7 @@ export function MapDataPage({
   const localeRequestGeneration = useRef(0);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
   const [savedServers, setSavedServers] = useState([]);
+  const [savedServersRevision, setSavedServersRevision] = useState(0);
   const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const tab = activeTab ?? localTab;
   const [keyword, setKeyword] = useState("");
@@ -418,7 +419,7 @@ export function MapDataPage({
       setBrowseServerId(0);
     });
     return () => { retired = true; };
-  }, [backendAvailable, mapApi, scanState.serverId, scanState.isReading]);
+  }, [backendAvailable, mapApi, scanState.serverId, scanState.isReading, savedServersRevision]);
   useEffect(() => {
     if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
     const generation = ++localeRequestGeneration.current;
@@ -506,9 +507,17 @@ export function MapDataPage({
     const matchingCounts = suppliedSummary && dataServerId > 0 && suppliedSummary.serverId === dataServerId
       ? suppliedSummary.counts || { ...EMPTY_COUNTS }
       : null;
-    setCounts(matchingCounts || { ...EMPTY_COUNTS });
-    setSummaryReady(matchingCounts !== null);
-  }, [dataServerId, externallyManaged, suppliedSummary]);
+    if (matchingCounts) {
+      setCounts(matchingCounts);
+      setSummaryReady(true);
+    } else if (options?.serverId !== dataServerId) {
+      // A live home-server summary is not authoritative for a retained
+      // remote dataset. Preserve genuine remote options/counts instead of
+      // blanking them on every parent summary tick after Auto returns.
+      setCounts({ ...EMPTY_COUNTS });
+      setSummaryReady(false);
+    }
+  }, [dataServerId, externallyManaged, options?.serverId, suppliedSummary]);
 
   useEffect(() => {
     if (selectionTouched.current) return;
@@ -557,7 +566,12 @@ export function MapDataPage({
       setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
-      if (summary.serverId > 0) setBrowseServerId(summary.serverId);
+      // A summary describes the live scanner, not the dataset the owner chose.
+      // An active scan may establish its target; idle polls and Auto's home
+      // return must preserve a separately selected saved server.
+      if (summary.scanState?.isReading && summary.scanState.serverId > 0) {
+        setBrowseServerId(summary.scanState.serverId);
+      }
       if (!selectionTouched.current) {
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
@@ -579,7 +593,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      if (next.isReading && next.serverId > 0) setBrowseServerId(next.serverId);
       if (wasReading && !next.isReading) refreshSummary();
     });
     refreshSummary();
@@ -593,11 +607,6 @@ export function MapDataPage({
   // scanState is deliberately event-owned after the first subscription.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backendAvailable, commitScanState, externallyManaged, mapApi, refreshSummary]);
-
-  useEffect(() => {
-    if (scanState.serverId <= 0 || scanState.serverId === dataServerId) return;
-    setBrowseServerId(scanState.serverId);
-  }, [dataServerId, scanState.serverId]);
 
   useEffect(() => {
     if (dataServerIdRef.current === dataServerId) return;
@@ -820,7 +829,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      if (next.isReading && next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
       setScanError(String(error));
     }
@@ -834,7 +843,8 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      // Stop may settle while a saved remote dataset is selected. Keep that
+      // choice; startScan/active-status already select an actual new target.
       if (!externallyManaged) await refreshSummary();
     } catch (error) {
       setScanError(errorText(error));
@@ -845,14 +855,17 @@ export function MapDataPage({
     if (!dataServerId) return;
     setScanError("");
     try {
-      const next = await mapApi.clear(dataServerId);
+      // Auto may show a saved remote dataset while the game has already
+      // returned home. Backend independently validates its published owner.
+      const next = await mapApi.clear(dataServerId, scanTab === "auto");
       summaryGeneration.current++;
       optionsGeneration.current++;
       searchGeneration.current += 1;
       commitScanState(next);
       setScanStateAvailable(true);
       setCounts({ ...EMPTY_COUNTS });
-      if (typeof onCounts === "function") onCounts(next.serverId, { ...EMPTY_COUNTS });
+      // Clearing a saved remote store does not clear the live server's counts.
+      if (typeof onCounts === "function") onCounts(dataServerId, { ...EMPTY_COUNTS });
       setSummaryReady(true);
       setOptions(null);
       setAlliance("all");
@@ -868,6 +881,7 @@ export function MapDataPage({
       setEscortMaxMillions("");
       setTreasureType("");
       setBrowseServerId(next.serverId);
+      setSavedServersRevision((revision) => revision + 1);
       tabViewCache.current.clear();
       setRows([]);
       setTotal(0);

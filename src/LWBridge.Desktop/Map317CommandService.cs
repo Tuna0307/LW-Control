@@ -282,7 +282,10 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     return await StopScanAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_clear":
                     return await ClearScanAsync(
-                        RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
+                        RequiredInt(payload, "serverId"),
+                        payload.TryGetProperty("clearSavedServer", out var savedClear) &&
+                        savedClear.ValueKind == JsonValueKind.True,
+                        cancellationToken).ConfigureAwait(false);
                 case "map_summary":
                     {
                         Map317.MapScanState observedState = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
@@ -691,6 +694,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     private async Task<Map317.MapScanState> ClearScanAsync(
         int requestedServerId,
+        bool clearSavedServer,
         CancellationToken cancellationToken)
     {
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -726,11 +730,25 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     MapScanClearOwnership.ServerUnavailableErrorMessage);
             }
 
+            // Auto's saved dataset may remain selected after its remote scan
+            // returns the player to the home server. This explicitly requested
+            // saved-row deletion needs fresh authenticated live readiness,
+            // the same profile-owned published store, and an idle scan/Auto
+            // lease. Leave the legacy same-live-server clear strict.
+            if (clearSavedServer && requestedServerId != fresh.ServerId)
+            {
+                if (fresh.IsReading || fresh.ServerId <= 0 ||
+                    fresh.ServerIdSource != MapScanClearOwnership.LiveServerSource ||
+                    !store.ReadPublishedServers().Contains(requestedServerId))
+                    throw new BridgeCommandException(
+                        MapScanClearOwnership.ServerUnavailableErrorCode,
+                        MapScanClearOwnership.ServerUnavailableErrorMessage);
+                cancellationToken.ThrowIfCancellationRequested();
+                store.ClearServer(requestedServerId);
+                return ApplyStatusOverlay(control.ScanState);
+            }
             MapScanClearOwnership.Validate(
-                requestedServerId,
-                fresh.IsReading,
-                fresh.ServerId,
-                fresh.ServerIdSource);
+                requestedServerId, fresh.IsReading, fresh.ServerId, fresh.ServerIdSource);
             return await control.ClearScanAsync(requestedServerId, cancellationToken)
                 .ConfigureAwait(false);
         }

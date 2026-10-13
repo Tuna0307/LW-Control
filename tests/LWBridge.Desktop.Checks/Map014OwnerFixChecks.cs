@@ -263,16 +263,23 @@ internal static class Map014OwnerFixChecks
             // marked IsReading. Both UI modes use this one command and guard.
             bool autoBusy = true;
             service.BindAutoScanCycleBusy(() => autoBusy);
-            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 }), "AUTO_SCAN_RUNNING");
+            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2213, clearSavedServer = true }), "AUTO_SCAN_RUNNING");
             Require(await Count("resource", new { serverId = 2213 }) == 4, "Auto preflight must not delete rows");
             autoBusy = false;
-            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2212 }), "SERVER_UNAVAILABLE");
-            Require(await Count("resource", new { serverId = 2213 }) == 4, "mismatched stored server must not delete rows");
-            _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 });
+            // Auto returned the game home. Legacy clear still rejects any
+            // mismatch; explicit Auto saved-server clear is authorized only
+            // for an actually persisted remote server with fresh world owner.
+            authoritativeWorld = authoritativeWorld with { ServerId = 2212 };
+            currentServer = 2212;
+            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 }), "SERVER_UNAVAILABLE");
+            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2215, clearSavedServer = true }), "SERVER_UNAVAILABLE");
+            Require(await Count("resource", new { serverId = 2213 }) == 4, "mismatched or absent stored server must not be deleted");
+            _ = await Invoke(service, "map_scan_clear", new { serverId = 2213, clearSavedServer = true });
             Require(await Count("resource", new { serverId = 2213 }) == 0 &&
                 await Count("truck", new { serverId = 2213 }) == 0 &&
-                await Count("resource", new { serverId = 2212 }) == 1,
-                "Auto/Manual canonical Clear acknowledgment deletes only the live target server");
+                await Count("resource", new { serverId = 2212 }) == 1 &&
+                await Count("truck", new { serverId = 2214 }) == 255,
+                "Explicit Auto saved-server Clear deletes selected remote and preserves home/other servers");
 
             Console.WriteLine("MAP014_CANONICAL_FILTERS_SCATTERED_SUPPLIES_REMOTE_ROW_WARZONE_CLEAR_CONTROLLED_OK");
         }

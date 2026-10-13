@@ -1,5 +1,42 @@
 # MAP-014 lead takeover and owner-requested handoff — 2026-10-13
 
+## Solo continuation outcome — 2026-10-13 (supersedes interrupted gate)
+
+The owner-directed solo continuation **fixed the failing saved-server selection
+regression**, retained all profile-retirement inverses, and then proved the
+cross-server workflow through the **real packaged Windows application and
+authenticated official game**, with actual production bridge commands and
+source-scoped native acknowledgements. One continuous native UI run
+`artifacts/map014-takeover/native-ui-20261013-125036` recorded a new
+server-2213 Resource scan (7,996 rows), returned to 2212, retained and
+browsed the 2213 dataset, jumped a real row to **server 2213 at (987,900)**,
+returned home and cleared 2213 from Auto while keeping all **7,975** stored
+2212 Resource rows. Exit 0; exact scripts original, no recovery journal.
+
+A separate 0-new-scan packaged browse run
+`artifacts/map014-takeover/native-ui-20261013-130149` proved matching
+Resource 1,190, Truck 46 (two ALL reward keys and 25-million cap),
+actual table/filter-menu game item PNGs, Dispatch 50/50 owner names, stable
+warzone choices and exact native Truck Follow with visible UI Stop.
+An independent real Stop during City acquisition at
+`artifacts/map014-lead-live/native-stop-20261013-210642` restored exactly
+the captured Unity camera geometry and settled idle.
+
+Source-correlated repeated-region acquisition with deferred restoration failed
+its second populated-region reply; native ZoomMax also failed the fresh-reply
+gate. Neither alternative is enabled or claimed faster. The shared serial
+LOD0 camera-assisted scanner remains the accuracy-qualified interim method.
+City total is a measured live count, not a quota or complete census. Positive
+seasonal Scattered Supplies/Celebration Party and moving Doom BossVO object
+witnesses remain unavailable; no collection or other account action was made.
+
+See **`docs/MAP_014_SOLO_REVIEW_CANDIDATE.md`** for the current 13-obligation
+matrix, scanner routes, precise results, source files and remaining conditions.
+Status is **READY_FOR_LEAD_FUNCTIONAL_REVIEW for the verified available
+features**, overall **PARTIAL** for unobserved event-dependent and scanner
+optimization scope. This earlier takeover section below remains historical
+negative evidence and should not be interpreted as current test status.
+
 Status: **PARTIAL / interrupted working checkpoint, not release-ready**.
 Owner stopped lead execution and requested that a solo external worker continue.
 Same checkout, `codex/map-owner-fixes-014`, PR #10. Preserve worker baseline

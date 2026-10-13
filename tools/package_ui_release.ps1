@@ -349,60 +349,48 @@ if ($ReleaseLabel -eq 'MAP014-OWNER') {
     $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
     if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-014 scope markers missing.' }
     $ownerScope = @"
-MAP-014 OWNER FIXES — PARTIAL FUNCTIONAL REVIEW CANDIDATE
-Map Resource level, confirmed full/partial/unknown amount, and
-black/normal/unknown tile filters run in the canonical Map317 backend.
-The Resource results table shows verified remaining/full amount and terrain,
-leaving missing native facts explicitly unknown (not zero, idle or full).
-Truck filters support an inclusive maximum escort power in millions and
-multiple native reward identities with ALL matching. The same Map clear command
-is available in Auto and Manual; active scan/Auto-cycle admission is protected.
-Cross-server stored-row navigation switches to the row's source server before
-navigating. Truck Follow resolves a fresh native march UUID passively and can
-be stopped. Transient native warzone producer failures retain the last list;
-genuine changes replace it. Secret Task owner metadata is populated from
-native fields or matching same-server City UID, otherwise explicitly UID.
+MAP-014 OWNER FIXES — SCOPED FUNCTIONAL REVIEW CANDIDATE (OVERALL PARTIAL)
+The production Map317 scanner retains the accuracy-guarded shared serial
+camera-assisted LOD0 sweep and exact per-region camera restoration. Normal/Fast
+controls are unchanged. Independent real game City/mixed scan snapshots
+returned to the original camera geometry, as did a separate Stop during
+active acquisition. City record counts (about 4,030 in the latest sample)
+remain measured observations, NOT a proven complete world census.
 
-The full camera projection/transform restoration gate and City candidate
-identity accounting still require genuine live Map scan verification.
-The initial 2026-10-13 compatibility mismatch came from a prior task-owned
-native Lua installation left in place, NOT an official game update; the
-original v24 package was restored and verified by the existing owner journal.
-The MAP-014 Lua probe exceeded Lua's 200 top-level-local limit (206); its
-corrected 199-local probe reached genuine game-side authenticated Ready and
-displayed the Chinese-language home scene. The initial direct-helper native
-diagnostic failed after the helper returned and its host lease went stale.
-The corrected native lifecycle now retries Map probe registration alongside
-Overview; a subsequent task-owned live game registered via UpdateManager,
-returned identity-matched positive general and read-only World inventory
-diagnostics, and visibly rendered the real world scene. Its loaded 65 points
-(63 Cities) are only a local viewport, NOT a full world scan or census.
-The earlier WorldReady request was blocked by the tool safety check before
-execution, and was not retried or bypassed. A new separately authorized owned
-session inspected genuine WorldScene data: one native _pointInfos City versus
-567 Cities in the 592-row allViewPoints cache and 63 Cities in uuidInfoMap.
-This demonstrates response/current-view and retained-cache counts diverge,
-NOT that the 4,076 City recall problem is solved.
-A single current-tile native AOI was refused target_aoi_still_current; the
-documented remote-region native AOI attempts were refused
-overview_session_unavailable, including after an exact-owner host lease
-re-admission. No completed AOI or camera-restore positive is claimed.
-The source includes an independent, read-only camera_checkpoint diagnostic
-for future before/after comparison; this has controlled source tests, not a
-live positive with the newly installed Lua chunk.
-A completed AOI progress bar is NOT proof of a complete City census.
-Before testing this build again, ensure the previous task-owned game has exited
-and its deferred native recovery journal has restored the original scripts.
-Do not force restore/overwrite a running game. Moving Doom Walkers and Celebration Party
-Watch need source-backed identity/positive native witnesses. The installed
-game reference identifies Scattered Supplies as seasonal WorldSuppliesPoint
-type 1 under the existing Treasure kind; the native-mode game-name loader now
-requests that exact derived key. This is source-backed, NOT live seasonal proof.
-Blank Truck icons have a supported installed-game asset reader and their
-genuine item identities are preserved, but real reward PNG results are not
-certified. Historical negative evidence remains unchanged; no gameplay
-action is authorized. See docs/MAP_014_OWNER_HANDOFF.md for each obligation.
-This package is an unmerged review candidate, not a published Map release.
+Map Resource supports level, confirmed full/partial/unknown amount, and
+black/normal/unknown terrain filters without fabricating unknown native facts.
+Truck supports an inclusive maximum escort power in millions and AND matching
+for multiple distinct actual reward item identities. Current client game-owned
+images have rendered in both Truck rows and the reward filter menu. Secret
+Task owners show source-backed matching names (50 of 50 in the positive
+genuine saved-data test), with explicit UID fallback for unknown names.
+Native Truck passive Follow and visible Stop, stable genuine warzone choices,
+and ownership/retirement inverses passed the packaged WebView.
+
+One entire genuine packaged Windows UI Auto Resource cycle started at 2212,
+scanned 2213 (7,996 saved rows), returned to 2212, browsed a stored 2213
+row, issued an exact-owned real server-2213 Jump to tile (987,900), returned
+home, and cleared only the saved 2213 dataset from the Auto Clear control
+while retaining all 7,975 original 2212 Resource rows. The destructive
+Clear command is denied during scan/Auto activity and verifies the current
+live owner and exact published saved server before deletion.
+
+No new faster scanner is accepted: post-camera-correction consecutive
+target/no-intermediate-restoration and ZoomMax candidates failed independently
+qualified second-region replies. Direct AOI and per-kind source lists do not
+establish full-world record completeness. Accuracy takes priority over speed;
+no universal fastest-method or population completeness claim is made.
+Seasonal Scattered Supplies (source WorldSuppliesPoint, suppliesType=1),
+Celebration Party and moving Doom Walker require an actually spawned
+source-correlated live row before claiming positive end-to-end behavior.
+No plunder, marches, claims, sharing, spending or other account-changing
+operations were performed.
+
+Raw native evidence and actual game assets stay private in the controlled
+workspace, not in this package. The detailed 13-issue and scanner-method
+assessment is docs/MAP_014_SOLO_REVIEW_CANDIDATE.md in source. Prior
+negative trials remain preserved, not reinterpreted as successes.
+This is an unmerged, unpublished candidate for independent lead review.
 
 "@
     $readme = $readme.Substring(0, $scopeStart) + $ownerScope + "`r`n" + $readme.Substring($scopeEnd)

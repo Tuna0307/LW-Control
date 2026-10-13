@@ -18,7 +18,7 @@ export function MapRetainedGoodsFilter({ items, value, values = [], multiple = f
       <div className="map-item-filter-menu">
         <button type="button" className={multiple ? (values.length ? "" : "active") : value ? "" : "active"} onClick={() => choose("")}>{multiple ? clearLabel : allLabel}</button>
         {items.map((item) => (
-          <button type="button" aria-pressed={multiple ? selectedKeys.has(item.key) : item.key === value} className={(multiple ? selectedKeys.has(item.key) : item.key === value) ? "active" : ""} onClick={() => choose(item.key)} key={item.key}>
+          <button type="button" data-map-reward-key={item.key} aria-pressed={multiple ? selectedKeys.has(item.key) : item.key === value} className={(multiple ? selectedKeys.has(item.key) : item.key === value) ? "active" : ""} onClick={() => choose(item.key)} key={item.key}>
             <GameAssetImage assetPath={item.iconPath} alt={item.name} className="map-item-filter-icon" />
             <span>{multiple && selectedKeys.has(item.key) ? "✓ " : ""}{item.name}</span>
           </button>

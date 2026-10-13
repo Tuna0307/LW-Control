@@ -1,5 +1,22 @@
 # LW-Control — current contributor instructions
 
+Latest MAP-014 solo continuation, 2026-10-13: the saved-server mounted
+ownership bug is fixed. A real packaged Windows UI completed an authenticated
+2212→2213 Auto Resource scan (7,996 2213 rows), returned to 2212, browsed a
+retained 2213 row, jumped to 2213 tile (987,900), returned home and cleared
+2213 via the real Auto control while preserving 7,975 home rows. A separate
+genuine browse UI run verified positive Resource/Truck filters, 50 Dispatch
+owner names, actual game PNGs in row/filter menu, and exact native Truck
+Follow→visible Stop. Independent City, mixed and active Stop camera checkpoints
+matched their original camera geometry. Corrected consecutive/final-restore
+and ZoomMax trials failed fresh second-region native acquisition; neither
+shortcut was enabled. Current evidence/remaining limits:
+docs/MAP_014_SOLO_REVIEW_CANDIDATE.md. Available scoped features are
+READY_FOR_LEAD_FUNCTIONAL_REVIEW, overall City-recall/seasonal/moving BossVO
+and scanner-optimization acceptance is PARTIAL. Preserve original negative
+receipts. Only PR #10 on codex/map-owner-fixes-014; do not merge or publish.
+The interruption warning below is historical and superseded by this result.
+
 Latest owner direction, 2026-10-13: lead execution stopped; hand off the
 interrupted MAP-014 work to one solo worker on codex/map-owner-fixes-014 / PR #10.
 Read docs/MAP_014_LEAD_TAKEOVER.md and

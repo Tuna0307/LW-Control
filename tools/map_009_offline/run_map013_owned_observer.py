@@ -344,6 +344,8 @@ def main() -> int:
                         help="additional bounded direct-request experiment without the initial camera shift")
     parser.add_argument("--sequence-experiment", action="store_true",
                         help="after baseline, three serial coverage regions with one final restoration")
+    parser.add_argument("--zoom-experiment", action="store_true",
+                        help="three paired coverage/ZoomMax observations at the same second region, source-correlated and individually restored")
     options = parser.parse_args()
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
@@ -355,6 +357,10 @@ def main() -> int:
         parser.error("sequence requires fresh-reply and a baseline")
     if options.sequence_experiment and (options.camera_free_direct or options.compare_second_region):
         parser.error("sequence is a distinct experiment, not mixed with direct comparisons")
+    if options.zoom_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("zoom experiment requires fresh-reply, baseline-region and compare-second-region")
+    if options.zoom_experiment and (options.sequence_experiment or options.camera_free_direct):
+        parser.error("zoom is a distinct paired camera experiment")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -648,7 +654,10 @@ def main() -> int:
             # restores after its response; native remains an explicit experiment.
             # This does not enable a consecutive-region production shortcut.
             previous_trace_id, previous_region_id = trace_id, region_id
-            for mode in (("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")):
+            methods = ("coverage", "zoom") * 3 if options.zoom_experiment else (
+                ("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native"))
+            zoom_observations = []
+            for comparison_index,mode in enumerate(methods,1):
                 retire_owned_reply(live_root / "map013-native-trace-result.json",
                                    previous_trace_id, profile, session, pid, challenge)
                 retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",
@@ -671,14 +680,33 @@ def main() -> int:
                         ExpectedReply("region", next_id, profile, session, pid, challenge,
                                       next_time, server_id=world["serverId"], world_id=world["worldId"],
                                       request_mode=mode, target_tile_x=545, target_tile_y=495), 28)
-                    (attempt / ("second-region-" + mode + ".json")).write_text(
+                    output = ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode
+                    (attempt / (output + ".json")).write_text(
                         json.dumps(result, indent=2), encoding="utf-8")
                     print("SECOND_REGION", mode, result.get("state"), result.get("error"),
                           "pointRows", len(result.get("point_records") or []), flush=True)
                 except Exception as error:
-                    (attempt / ("second-region-" + mode + "-error.txt")).write_text(repr(error), encoding="utf-8")
+                    output = ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode
+                    (attempt / (output + "-error.txt")).write_text(repr(error), encoding="utf-8")
                     print("SECOND_REGION_UNCONFIRMED", mode, repr(error), flush=True)
                     raise
+                if options.zoom_experiment:
+                    observation={
+                        "pair":(comparison_index+1)//2,"method":mode,
+                        "state":result.get("state"),"error":result.get("error"),
+                        "nativeReply":result.get("map013NativeReplyState"),
+                        "cameraRestored":result.get("cameraGeometryRestored"),
+                        "cameraStable":result.get("cameraTileStable"),
+                        "pointCount":len(result.get("point_records") or []),
+                        "elapsed":result.get("totalProbeElapsedSeconds"),
+                        "rows":result.get("point_records") or [],
+                    }
+                    zoom_observations.append(observation)
+                    (attempt / "zoom-paired-results.json").write_text(json.dumps(
+                        zoom_observations, indent=2),encoding="utf-8")
+                    if(result.get("state")!="proven" or result.get("map013NativeReplyState")!="matched" or
+                       result.get("cameraGeometryRestored") is not True or result.get("cameraTileStable") is not True):
+                        raise RuntimeError("Zoom experiment native reply/restore rejected: "+mode)
                 next_trace = wait_for(live_root / "map013-native-trace-result.json",
                     ExpectedReply("trace", next_trace_id, profile, session, pid, challenge, trace_time), 24)
                 (attempt / ("second-trace-" + mode + ".json")).write_text(

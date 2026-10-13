@@ -24,13 +24,35 @@ internal sealed partial class LWBridgeWindow
         {
             long before=GetNormalUiProofSearchSequence();
             await core.ExecuteScriptAsync($"document.querySelectorAll('.map-tabs button')[{index}].click()");
+            NormalUiResourceProofSearchObservation? last=null;
             for(int i=0;i<200;i++)
             {
                 var seen=ReadNormalUiProofSearchAfter(before);
+                if (seen is not null) last=seen;
                 if(seen is not null && MapDataQueryContract.NormalizeSearch(seen.Payload).Kind==kind &&
                     await core.ExecuteScriptAsync($"!!document.querySelector('.map-table--{kind}[aria-busy=false]')")=="true") return seen;
                 await Task.Delay(100,token);
             }
+            // Diagnostic distinction: tab change should itself search. An
+            // explicit user Search from the same genuine tab shows whether
+            // transport is blocked or the tab's automatic effect was missed.
+            long manualBefore=GetNormalUiProofSearchSequence();
+            string clicked=await core.ExecuteScriptAsync(
+                "(()=>{const b=document.querySelector('.map-searchbar > button');if(!b||b.disabled)return false;b.click();return true;})()");
+            NormalUiResourceProofSearchObservation? manual=null;
+            if(clicked=="true")
+            {
+                for(int i=0;i<350;i++)
+                {
+                    var response=ReadNormalUiProofSearchAfter(manualBefore);
+                    if(response is not null && MapDataQueryContract.NormalizeSearch(response.Payload).Kind==kind)
+                    { manual=response; break; }
+                    await Task.Delay(100,token);
+                }
+            }
+            string state=await core.ExecuteScriptAsync("({activeTab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,tables:[...document.querySelectorAll('.map-table')].map(t=>({kind:t.className,busy:t.getAttribute('aria-busy'),rows:t.querySelectorAll('tbody tr').length})),errors:[...document.querySelectorAll('.map-scan-error')].map(e=>e.textContent)})");
+            receipts.Add(new { gate="native_tab_not_settled",expectedKind=kind,tabIndex=index,dom=JsonSerializer.Deserialize<JsonElement>(state),last,manualSearchClicked=clicked,manualSearch=manual });
+            await Save();
             throw new TimeoutException("MAP014 real UI tab did not settle: "+kind);
         }
         async Task Screenshot(string name)
@@ -70,8 +92,32 @@ internal sealed partial class LWBridgeWindow
             await core.ExecuteScriptAsync("document.querySelector('.server-jump > button').click()");
 
             var resource=await Tab(1,"resource");
+            // Derive a positive combined filter from a retained genuine row:
+            // fixed guesses (5/full/normal) were observed to return no rows.
+            JsonElement? resourceWitness=null;
+            foreach(var row in resource.Result.GetProperty("rows").EnumerateArray())
+            {
+                if(row.TryGetProperty("level",out var level) && level.TryGetInt32(out int sourceLevel) && sourceLevel>0 &&
+                   row.TryGetProperty("resourceDetailKnown",out var known) && known.ValueKind==JsonValueKind.True &&
+                   row.TryGetProperty("resourceRemainingAmount",out var remain) && remain.TryGetInt64(out long remaining) &&
+                   row.TryGetProperty("resourceFullAmount",out var full) && full.TryGetInt64(out long capacity) &&
+                   capacity>0 && remaining>=0 && remaining<=capacity &&
+                   row.TryGetProperty("blackTileKnown",out var tileKnown) && tileKnown.ValueKind==JsonValueKind.True &&
+                   row.TryGetProperty("isBlackTile",out var black) &&
+                   black.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                { resourceWitness=row.Clone(); break; }
+            }
+            if(resourceWitness is null) throw new InvalidDataException("No genuine Resource row with positive native level, detail and tile witnesses.");
+            var witness=resourceWitness.Value;
+            int witnessLevel=witness.GetProperty("level").GetInt32();
+            long witnessRemaining=witness.GetProperty("resourceRemainingAmount").GetInt64();
+            long witnessCapacity=witness.GetProperty("resourceFullAmount").GetInt64();
+            string witnessAmount=witnessRemaining==witnessCapacity?"full":"partial";
+            string witnessTerrain=witness.GetProperty("isBlackTile").GetBoolean()?"black":"normal";
             long resourceBefore=GetNormalUiProofSearchSequence();
-            string inputDispatch = await core.ExecuteScriptAsync("(()=>{const inputs=[...document.querySelectorAll('.map-searchbar input[type=number]')];if(inputs.length!==2)return {inputCount:inputs.length};for(const input of inputs){Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'5');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}for(const [value,selector] of [['full','full'],['normal','normal']]){const select=[...document.querySelectorAll('.map-searchbar select')].find(s=>[...s.options].some(o=>o.value===selector));if(!select)return {missingSelect:selector};Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,value);select.dispatchEvent(new Event('change',{bubbles:true}));}return {dispatched:true};})()");
+            string inputDispatch = await core.ExecuteScriptAsync("(()=>{const inputs=[...document.querySelectorAll('.map-searchbar input[type=number]')];if(inputs.length!==2)return {inputCount:inputs.length};for(const input of inputs){Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'WITNESS_LEVEL');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}for(const selector of ['WITNESS_AMOUNT','WITNESS_TERRAIN']){const select=[...document.querySelectorAll('.map-searchbar select')].find(s=>[...s.options].some(o=>o.value===selector));if(!select)return {missingSelect:selector};Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,selector);select.dispatchEvent(new Event('change',{bubbles:true}));}return {dispatched:true};})()"
+                .Replace("WITNESS_LEVEL",witnessLevel.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                .Replace("WITNESS_AMOUNT",witnessAmount).Replace("WITNESS_TERRAIN",witnessTerrain));
             await Task.Delay(200,token);
             await core.ExecuteScriptAsync("document.querySelector('.map-searchbar > button').click()");
             NormalUiResourceProofSearchObservation? resourceFiltered=null;
@@ -81,8 +127,8 @@ internal sealed partial class LWBridgeWindow
                 if(seen is not null)
                 {
                     var q=seen.Payload.GetProperty("query");
-                    if(q.TryGetProperty("minLevel",out var low)&&low.GetInt32()==5&&q.TryGetProperty("maxLevel",out var high)&&high.GetInt32()==5&&
-                        q.TryGetProperty("resourceAmountState",out var amount)&&amount.GetString()=="full"&&q.TryGetProperty("resourceTileState",out var tile)&&tile.GetString()=="normal") {resourceFiltered=seen;break;}
+                    if(q.TryGetProperty("minLevel",out var low)&&low.GetInt32()==witnessLevel&&q.TryGetProperty("maxLevel",out var high)&&high.GetInt32()==witnessLevel&&
+                        q.TryGetProperty("resourceAmountState",out var amount)&&amount.GetString()==witnessAmount&&q.TryGetProperty("resourceTileState",out var tile)&&tile.GetString()==witnessTerrain) {resourceFiltered=seen;break;}
                 }
                 await Task.Delay(100,token);
             }
@@ -94,11 +140,22 @@ internal sealed partial class LWBridgeWindow
                 throw new InvalidDataException("Actual Resource UI failed to send combined level/amount/terrain filters.");
             }
             foreach(var row in resourceFiltered.Result.GetProperty("rows").EnumerateArray())
-                if(row.GetProperty("level").GetInt32()!=5||!row.GetProperty("blackTileKnown").GetBoolean()||row.GetProperty("isBlackTile").GetBoolean()||
-                    !row.GetProperty("resourceDetailKnown").GetBoolean()||row.GetProperty("resourceRemainingAmount").GetInt64()!=row.GetProperty("resourceFullAmount").GetInt64())
+                if(row.GetProperty("level").GetInt32()!=witnessLevel||!row.GetProperty("blackTileKnown").GetBoolean()||
+                    row.GetProperty("isBlackTile").GetBoolean()!=(witnessTerrain=="black")||
+                    !row.GetProperty("resourceDetailKnown").GetBoolean()||
+                    (row.GetProperty("resourceRemainingAmount").GetInt64()==row.GetProperty("resourceFullAmount").GetInt64())!=(witnessAmount=="full"))
                     throw new InvalidDataException("Actual Resource query admitted a nonmatching or unknown row.");
             if(resourceFiltered.Result.GetProperty("total").GetInt32()==0) throw new InvalidDataException("Resource positive combined filter returned no rows.");
-            receipts.Add(new{gate="native_resource_combined_filters",resourceFiltered.Payload,resourceFiltered.Result}); await Screenshot("map014-resource-filtered");await Save();
+            receipts.Add(new{gate="native_resource_combined_filters",witnessLevel,witnessAmount,witnessTerrain,resourceFiltered.Payload,resourceFiltered.Result}); await Screenshot("map014-resource-filtered");await Save();
+
+            // Resolve owner-name display from the real saved Dispatch population
+            // before loading many Truck reward images in the same WebView.
+            var dispatch=await Tab(5,"dispatch");
+            int knownNames=dispatch.Result.GetProperty("rows").EnumerateArray().Count(r=>r.TryGetProperty("ownerName",out var name)&&name.ValueKind==JsonValueKind.String&&!string.IsNullOrWhiteSpace(name.GetString()));
+            if(dispatch.Result.GetProperty("total").GetInt32()==0 || knownNames==0)
+                throw new InvalidDataException("Saved genuine Secret Tasks lacked a positive owner-name witness.");
+            receipts.Add(new{gate="native_dispatch_owner_names",knownNames,dispatch.Payload,dispatch.Result});
+            await Screenshot("map014-dispatch-owner-names"); await Save();
 
             var truck=await Tab(3,"truck");
             if(!await Wait("[...document.querySelectorAll('img.map-reward-icon')].some(i=>i.complete&&i.naturalWidth>0)",300))
@@ -106,6 +163,14 @@ internal sealed partial class LWBridgeWindow
             string icons=await core.ExecuteScriptAsync("[...document.querySelectorAll('img.map-reward-icon')].filter(i=>i.complete&&i.naturalWidth>0).map(i=>({name:i.alt,width:i.naturalWidth,height:i.naturalHeight,source:i.src.slice(0,22)}))");
             receipts.Add(new{gate="native_truck_icons_rendered",icons=JsonSerializer.Deserialize<JsonElement>(icons),truck.Payload,truck.Result});
             await Screenshot("map014-truck-native-icons"); await Save();
+            await core.ExecuteScriptAsync("document.querySelector('.map-item-filter')?.setAttribute('open','')");
+            if(!await Wait("[...document.querySelectorAll('.map-item-filter-menu img.map-item-filter-icon')].some(i=>i.complete&&i.naturalWidth>0)",300))
+                throw new InvalidDataException("Genuine reward filters did not load their native item images.");
+            receipts.Add(new{gate="native_filter_menu_icons_rendered",
+                images=JsonSerializer.Deserialize<JsonElement>(await core.ExecuteScriptAsync(
+                    "[...document.querySelectorAll('.map-item-filter-menu img.map-item-filter-icon')].filter(i=>i.complete&&i.naturalWidth>0).map(i=>({name:i.alt,width:i.naturalWidth,source:i.src.slice(0,22)}))"))});
+            await core.ExecuteScriptAsync("document.querySelector('.map-item-filter')?.removeAttribute('open')");
+            await Save();
 
             // The UI's own Follow button and its own Stop toggle, never plunder.
             if(!await Wait("!!document.querySelector('.map-table--truck .map-coordinate-button:not(:disabled)')"))
@@ -131,12 +196,34 @@ internal sealed partial class LWBridgeWindow
                 if(follow) break; await Task.Delay(100,token);
             }
             if(!follow) throw new InvalidDataException("UI Follow lacked an exact-owned native march result.");
-            await core.ExecuteScriptAsync("document.querySelector('.map-table--truck .map-coordinate-button:not(:disabled)').click()");
-            receipts.Add(new{gate="truck_ui_follow_stop",serverId=followResult.GetProperty("serverId").GetInt32(),marchUuid=followResult.GetProperty("marchUuid").ToString(),state="proven"}); await Save();
+            if(!await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button:not(:disabled)')].some(b=>b.querySelector('strong')?.textContent.trim()==='Stop')",300))
+                throw new InvalidDataException("Native Follow returned, but the actual UI never exposed its Stop toggle.");
+            if(!await Wait("(()=>{const b=[...document.querySelectorAll('.map-table--truck .map-coordinate-button:not(:disabled)')].find(b=>b.querySelector('strong')?.textContent.trim()==='Stop');if(!b)return false;b.click();return true;})()",1))
+                throw new InvalidDataException("Native UI Stop toggle could not be clicked.");
+            if(!await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].every(b=>b.querySelector('strong')?.textContent.trim()!=='Stop')",100))
+                throw new InvalidDataException("Native UI Stop toggle did not retire Follow.");
+            receipts.Add(new{gate="truck_ui_follow_stop",serverId=followResult.GetProperty("serverId").GetInt32(),marchUuid=followResult.GetProperty("marchUuid").ToString(),state="proven",stopToggleObserved=true}); await Save();
 
             // Two items use ALL semantics; a plain decimal cap means millions.
+            JsonElement? truckWitness=null;
+            string[]? requiredKeys=null;
+            foreach(var row in truck.Result.GetProperty("rows").EnumerateArray())
+            {
+                if(!row.TryGetProperty("power",out var nativePower) || !nativePower.TryGetInt64(out long power) ||
+                   power>25000000 || power<0 || !row.TryGetProperty("currentGoods",out var goods) || goods.ValueKind!=JsonValueKind.Array)
+                    continue;
+                var keys=goods.EnumerateArray()
+                    .Where(item=>item.TryGetProperty("key",out var key)&&key.ValueKind==JsonValueKind.String)
+                    .Select(item=>item.GetProperty("key").GetString()!)
+                    .Where(key=>!string.IsNullOrWhiteSpace(key)).Distinct(StringComparer.Ordinal).Take(2).ToArray();
+                if(keys.Length!=2) continue;
+                truckWitness=row.Clone();requiredKeys=keys;break;
+            }
+            if(truckWitness is null || requiredKeys is null)
+                throw new InvalidDataException("No genuine <=25-million Truck with two distinct reward keys for positive ALL-filter proof.");
             long filterBefore=GetNormalUiProofSearchSequence();
-            if(await core.ExecuteScriptAsync("(()=>{const buttons=[...document.querySelectorAll('.map-item-filter-menu button')];if(buttons.length<3)return false;buttons[1].click();buttons[2].click();const input=document.querySelector('.map-searchbar input[inputmode=decimal]');if(!input)return false;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'25');input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));return true;})()")!="true")
+            string selectedKeyJson=JsonSerializer.Serialize(requiredKeys);
+            if(await core.ExecuteScriptAsync($"(()=>{{const keys={selectedKeyJson};const buttons=[...document.querySelectorAll('.map-item-filter-menu button')];for(const key of keys){{const button=buttons.find(b=>b.dataset.mapRewardKey===key);if(!button)return false;button.click();}}const input=document.querySelector('.map-searchbar input[inputmode=decimal]');if(!input)return false;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'25');input.dispatchEvent(new Event('input',{{bubbles:true}}));input.dispatchEvent(new Event('change',{{bubbles:true}}));return true;}})()")!="true")
                 throw new InvalidDataException("Truck multi-item/power controls missing.");
             await Task.Delay(200,token);
             await core.ExecuteScriptAsync("document.querySelector('.map-searchbar > button').click()");
@@ -145,19 +232,24 @@ internal sealed partial class LWBridgeWindow
             {
                 var seen=ReadNormalUiProofSearchAfter(filterBefore);
                 if(seen is not null && seen.Payload.GetProperty("query").TryGetProperty("escortPowerMaxMillions",out var power)&&power.GetDouble()==25 &&
-                    seen.Payload.GetProperty("query").TryGetProperty("itemKeys",out var keys)&&keys.GetArrayLength()==2) {filtered=seen;break;}
+                    seen.Payload.GetProperty("query").TryGetProperty("itemKeys",out var keys)&&keys.ValueKind==JsonValueKind.Array&&
+                    keys.EnumerateArray().Select(key=>key.GetString()).OrderBy(key=>key).SequenceEqual(requiredKeys.OrderBy(key=>key))) {filtered=seen;break;}
                 await Task.Delay(100,token);
             }
             if(filtered is null) throw new InvalidDataException("Truck UI did not send combined filters to production.");
             foreach(var row in filtered.Result.GetProperty("rows").EnumerateArray())
+            {
                 if(row.TryGetProperty("power",out var power)&&power.ValueKind==JsonValueKind.Number &&power.GetDouble()>25000000)
                     throw new InvalidDataException("Truck power filter admitted over-cap result.");
-            receipts.Add(new{gate="genuine_truck_combined_filters",filtered.Payload,filtered.Result}); await Screenshot("map014-truck-filtered"); await Save();
+                if(!row.TryGetProperty("currentGoods",out var goods) || goods.ValueKind!=JsonValueKind.Array ||
+                   !requiredKeys.All(key=>goods.EnumerateArray().Any(item=>item.TryGetProperty("key",out var itemKey)&&itemKey.GetString()==key)))
+                    throw new InvalidDataException("Truck reward filter returned a row without ALL selected rewards.");
+            }
+            if(filtered.Result.GetProperty("total").GetInt32()==0 ||
+               !filtered.Result.GetProperty("rows").EnumerateArray().Any(row=>row.GetProperty("uuid").ToString()==truckWitness.Value.GetProperty("uuid").ToString()))
+                throw new InvalidDataException("Genuine qualifying Truck row was omitted from positive combined filters.");
+            receipts.Add(new{gate="genuine_truck_combined_filters",witnessKeys=requiredKeys,filtered.Payload,filtered.Result}); await Screenshot("map014-truck-filtered"); await Save();
 
-            var dispatch=await Tab(5,"dispatch");
-            int knownNames=dispatch.Result.GetProperty("rows").EnumerateArray().Count(r=>r.TryGetProperty("ownerName",out var name)&&name.ValueKind==JsonValueKind.String&&!string.IsNullOrWhiteSpace(name.GetString()));
-            receipts.Add(new{gate="native_dispatch_owner_names",knownNames,dispatch.Payload,dispatch.Result});
-            await Screenshot("map014-dispatch-owner-names"); await Save();
         }
         finally { await Save(); }
     }

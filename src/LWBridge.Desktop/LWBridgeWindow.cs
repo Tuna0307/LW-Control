@@ -1470,7 +1470,9 @@ internal sealed partial class LWBridgeWindow : Form
         Directory.CreateDirectory(directory);
         bool ownerFixNativeProof = normalUiLiveMapProofPath is not null && productionPaths?.ExplicitIsolation == true &&
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") == "1";
-        string desiredSelection = ownerFixNativeProof ? "index < 6" : "index === 1";
+        bool ownerFixRemoteProof = ownerFixNativeProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_UI") == "1";
+        string desiredSelection = ownerFixNativeProof && !ownerFixRemoteProof ? "index < 6" : "index === 1";
 
         bool controlsReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
@@ -1508,7 +1510,7 @@ internal sealed partial class LWBridgeWindow : Form
         }
         if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
-        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(8));
+        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(ownerFixRemoteProof ? 14 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
@@ -1572,6 +1574,18 @@ internal sealed partial class LWBridgeWindow : Form
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
+            if (ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_SAVED_HOME") == "1")
+            {
+                await RunMap014NativeRemoteUiProofAsync(core, directory, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    state="proven", proof="real_native_auto_remote_scan_row_jump_and_clear",
+                    newHomeMapScans=0,
+                    newRemoteMapScans=Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE")=="1" ? 0 : 1,
+                    gamePid=ownedMapSession.GamePid,
+                    profileId=ownedMapSession.ProfileId, generatedAt=DateTimeOffset.UtcNow
+                },JsonOptions.Default),operationCts.Token);
+                return;
+            }
             if (ownerFixNativeProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BROWSE_ONLY") == "1")
             {
                 await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
@@ -2023,7 +2037,8 @@ internal sealed partial class LWBridgeWindow : Form
                 };
             }
 
-            if (ownerFixNativeProof) await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
+            if (ownerFixRemoteProof) await RunMap014NativeRemoteUiProofAsync(core, directory, operationCts.Token);
+            else if (ownerFixNativeProof) await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
 
             await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
             {
@@ -2038,7 +2053,7 @@ internal sealed partial class LWBridgeWindow : Form
                 instanceId,
                 connectionState = ReadStatusString(startJson, "connectionState"),
                 gamePid = expected.GamePid,
-                selectedTypes = ownerFixNativeProof ? new[]{"city","resource","monster","truck","railway","dispatch"} : new[] { "resource" },
+                selectedTypes = ownerFixNativeProof && !ownerFixRemoteProof ? new[]{"city","resource","monster","truck","railway","dispatch"} : new[] { "resource" },
                 scan = new
                 {
                     scanRunId = ReadStatusString(completedStatus, "scanRunId"),

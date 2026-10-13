@@ -20,7 +20,10 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     # MAP-014 captures its changed production source exactly; the installed game
     # identity gate in inspect_current.py remains unchanged.
-    CURRENT_PROBE_SHA256 = "716d2cb9a4f7a59c8ca86b6d66124e5414a7d09566e5d69a639061b893e516eb"
+    # Fingerprint of packaged_resource_probe_source() after MAP014's
+    # standard-projection camera restoration fix. This intentionally remains
+    # a pinned digest, not one generated from the source under test.
+    CURRENT_PROBE_SHA256 = "a3b86fae706636ba02180a5533450ea2c7abe1af653a921c84ff464043cea633"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
     CURRENT_WRAPPER_SHA256 = "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):

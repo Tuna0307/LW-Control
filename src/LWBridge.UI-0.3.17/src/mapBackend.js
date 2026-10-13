@@ -332,7 +332,8 @@ export function createMapApi(bridge) {
       buildStartPayload(selectedTypes, scanMode),
     ).then(normalizeScanState),
     stop: () => invokeScoped(MAP_COMMANDS.scanStop).then(normalizeScanState),
-    clear: (serverId) => invokeScoped(MAP_COMMANDS.scanClear, { serverId }).then(normalizeScanState),
+    clear: (serverId, clearSavedServer = false) => invokeScoped(MAP_COMMANDS.scanClear,
+      clearSavedServer ? { serverId, clearSavedServer: true } : { serverId }).then(normalizeScanState),
     search: (kind, query) => invokeScoped(
       MAP_COMMANDS.search,
       buildSearchPayload(kind, query),
