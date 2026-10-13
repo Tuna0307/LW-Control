@@ -1,5 +1,130 @@
 # MAP-014 — City/Truck/acquisition follow-up, 2026-10-13
 
+## New 23:36+ local MAP-014 source-causal continuation — still PARTIAL
+
+Resumed from verified clean `98b53c20598db69891457a5933ea98dfc0a9e539`
+on the same `codex/map-owner-fixes-014` and draft PR #10. Current
+admitted Last War v24, original script hashes, no existing owned
+game/app process or recovery journal were independently checked before
+each isolated live trial. Preserved accepted remote 2213
+scan/Jump/Clear, real PNGs/filters, all accepted cameras, 62/62,
+78/78, (115,120) and the genuine 27-request natural Truck
+arrival/auto-Stop; none was repeated merely to reconfirm UI behavior.
+
+### City: what is quantitatively source-established
+
+`python tools/map_014_lead_native/audit_city_bounded_union.py`
+compares **four** genuine fresh native source regions (including
+the new event-source regional captures), verifies LOD0 / source reply
+freshness / same world-server / AOI boundaries / exact restored camera,
+and cross-checks every City UID, point index and position against the
+original genuine saved server-2212 records. Their independent native
+footprint **union spans 80 distinct AOIs of 10,000 total LOD0
+world AOIs (0.8%)**; **75 unique current source City identities** were
+independently reobserved, **75/75** match saved identities and original
+coordinates/indices, and all current native City completeness
+rejection counters are zero. The upper/right boundary region supplies
+the earlier 62/62; the mixed-only (115,120) probe supplies 13/13.
+The new central event region had **zero** Cities but fresh other
+objects and explicit native count zero. The new edge event region
+independently reobserved the existing 62 without new owner conflicts.
+Adversarial source-receipt inverses reject stale reply, wrong
+server, duplicated owner/index, out-of-footprint point, missing native
+index and non-restored camera. The earlier 78/78 regional source
+positive is **preserved separately** rather than merged into this
+stricter post-guard snapshot accounting.
+
+**0.8% is a directly reobserved AOI fraction, NOT worldwide scanner
+coverage or City recall; 99.2% is not missing Cities.** Earlier
+genuine completed whole-world 2,500-block scans remain verified
+sources of 4,029/4,030/4,032 persisted City records at their
+respective times, but do not provide a simultaneous external world
+census. No independent currently missing point/index was found; the
+obsolete 7,060-range historical layout remains disqualified as a
+current quota. No invented recall percentage or ingestion fix.
+
+### Scanner: new post-lens refresh candidate, genuine causal rejection
+
+New separate opt-in, source-anchored
+`sequence_post_lens_014.py` reissues the game's supported camera
+`RefreshCameraAnchor` and `WorldPointManager.StartViewRequest`
+**after** applying coverage FOV/aspect while the previous camera
+position remains retained. The earlier failed candidate only
+refreshed subscriptions before this lens update. The source is
+private diagnostic-only; its unchanged-production, Lua source
+parse/packaging and anchor-drift inverse tests passed.
+
+New owned v24 trial
+`artifacts/map-013-live/native-causal-20261013-235042`:
+all **three separately restored LOD0 control regions** acquired
+fresh populated rows (27, 23, 15). The first consecutive
+`keep` also acquired **27 source-attributed populated rows**.
+The **second consecutive region still failed**:
+logical target **(545,495)** = LOD0 AOI **4954**, but the game's
+native `_curViewIndex` was **nine AOIs 4244–4446**, all near the
+**previous** (455,425) region. Its `map013NativeReplyState`
+remained `waiting`, with zero qualifying rows. Its retained
+camera restoration attempt failed the exact-geometry gate;
+the complete candidate therefore fails acquisition, source
+subscription and restoration. The exact owned Stop and original
+scripts were restored on exit. Read-only
+`audit_native_subscription_target_014.py` and controlled
+adversarial inverses require the current native subscription to
+**contain the requested target AOI**, source-fresh reply and LOD0
+geometry; they reject both the second-region stale view and
+historical ZoomMax's post-zoom **LOD2 / one 1000-size block**.
+
+**Causal finding bounded by this source:** the client logical
+camera reaches B but the native subscription remains centered on
+A even after an extra post-lens refresh, so the target cannot
+receive an attributed B response. The precise internal cause
+inside native cache view-index/subscription transition is still
+unproved; target echoes and stale A rows cannot substitute for a
+fresh B. No three accuracy-qualified consecutive paired runs
+exist for per-kind/mix/all-kind/multi-server benchmark. Keep
+production's guarded **shared serial LOD0** and Normal/Fast.
+Six preserved eligible regional controls still give median
+target acquisition **0.3115s**, restoration **0.2793s**,
+total **0.5907s**, with 49.46% of summed time in restoration;
+these are **not** whole-scan paired results or a new speedup.
+Do not repeat historical aspect4/6, denied intermediate Zoom or
+earlier denials via another route.
+
+### Native event-source availability — fresh and source-limited
+
+New bounded genuine game session
+`artifacts/map-013-live/native-causal-20261013-234053`,
+2212 LOD0 center (455,425), 30 AOIs, fresh reply and restored
+camera: **27 Resource and 31 ordinary WorldMarch Monster** rows,
+zero source-labelled Doom Walker, Scattered Supplies or Treasure.
+Distinct **new upper/right-edge sample**
+`native-causal-20261013-234544`, 20 source-owned AOIs with
+fresh target reply and restored camera: **62 City, 11 Resource,
+two genuine `TreasurePointInfo` type-21 and 18 WorldMarch** rows.
+The private source-locked observation of
+`DataCenter.LWDoomsdayManager` confirmed the manager object
+**exists**, but both `theaterBosses` and `allianceBosses`
+collection values were **nil** at this observation; **no
+source-labelled BossVO** resulted. Native `_pointInfos`
+enumerated all 78 loaded points in that LOD0 view: **two
+ordinary type-21 Treasure**, **zero type-27 Supplies**.
+These qualify ordinary Treasure source acquisition, *not*
+the owner's Celebration Party Watch: an exact event ID/config,
+native point class and localized matching event-spawned row
+have not been correlated. Type-1 scattered supplies still
+requires a season-S2 type-27 `WorldSuppliesPoint` with an
+`LWIceSupplies` config of type 1. Doom Follow still requires a
+genuine typed, moving BossVO UUID with fresh positions.
+All observations were **regional**, no live whole-server
+absence claims; no account-changing action occurred. Both
+owned games exited with exact Stop, originals restored and
+no recovery journals.
+
+**Status: MAP-014 remains PARTIAL** for independent current-world
+City recall, demonstrably faster accurate scanner and genuine
+seasonal/BossVO/Party positives. All 13 accepted prior owner
+fixes and both manual/natural Truck Stop remain preserved.
+
 ## Later genuine packaged proof — natural Truck expiry PASS
 
 The genuine native expiry result below **supersedes earlier

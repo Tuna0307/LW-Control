@@ -1,5 +1,19 @@
 # LWB317-MAP-OWNER-FIXES-014
 
+Latest solo continuation: MAP-014 overall PARTIAL; draft PR #10
+open and unmerged. The newest native City audit directly
+reobserved 80 of 10000 LOD0 AOIs (0.8% audited area) and
+75 current City UIDs with the same saved server-2212
+identities/indexes/positions. The new post-lens native
+consecutive scanner still failed fresh second-region acquisition
+(target AOI 4954 outside nine subscribed old-A AOIs 4244-4446).
+The real event-source diagnostic recovered two ordinary type-21
+Treasure, zero type-27 Supplies and no moving BossVO or identified
+Celebration Party. Current season/source identity availability,
+full current-world City census and faster accuracy-qualified
+scanner remain open. Original 13 owner fixes and natural Truck
+expiry positive remain preserved. No merge/publication.
+
 **Latest same-branch owner-gate status (2026-10-13, draft PR #10):
 OVERALL PARTIAL.** Available Map filters/assets, camera restoration,
 source-server Jump, Auto Clear and sustained moving Truck

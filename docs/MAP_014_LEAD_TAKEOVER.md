@@ -1,5 +1,26 @@
 # MAP-014 lead takeover and owner-requested handoff — 2026-10-13
 
+### Latest further native City / event / scanner source review
+
+Full source and genuine receipts: latest top section of
+docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md.
+Four bounded fresh native regions directly cover 80/10000
+LOD0 AOIs and reconcile 75/75 distinct current City identities
+with saved same-server identities and positions. This is 0.8%
+audited AOI footprint, not a complete census. A real upper-right
+event-source trial found two ordinary TreasurePointInfo objects,
+18 ordinary WorldMarch Monsters, zero supplies type 27; the
+Doomsday manager was available but its boss collection fields
+were nil, no moving BossVO/Party event identified. The newly
+source-distinct post-lens camera sequence failed with target B
+AOI 4954 not in the native subscription (only nine old-A
+AOIs 4244-4446), unmatched fresh reply and incomplete camera
+restoration. Exact owned Stop and original scripts restored.
+Preserve positive remote 2213, City 62/62 and 78/78, sustained
+Truck manual Stop and 27-request natural arrival auto-Stop,
+camera and UI fixes. Overall MAP-014 PARTIAL; no new scanner
+benchmark candidate, merge or publication.
+
 ### Later real native natural-expiry completion
 
 The natural **Truck expiry** gate now has a real positive:

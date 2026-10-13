@@ -1,7 +1,9 @@
 # MAP-014 — solo takeover evidence and lead-review candidate
 
-Status: **READY_FOR_LEAD_FUNCTIONAL_REVIEW for evidenced, available functions;
-overall PARTIAL for source/event-dependent acceptance and scanner optimization.** See
+Current overall status: **MAP-014 PARTIAL; whole owner/scanner assignment
+NOT READY_FOR_LEAD_FUNCTIONAL_REVIEW.** Previously evidenced
+functional fixes are individually reviewable, but the missing
+City census, seasonal events and faster scanner remain open. See
 [`MAP_014_COVERAGE_TRACKING_CONTINUATION.md`](MAP_014_COVERAGE_TRACKING_CONTINUATION.md)
 for post-lead City identity comparisons, sustained live moving Truck tracking,
 acquisition failure causes and explicit remaining gates. The repository
@@ -10,7 +12,39 @@ records what the real native game and packaged app proved, what only controlled
 tests proved, and what still lacks a live witness. It never changes the old
 negative receipts or declares the City census complete.
 
-## Owner issue matrix (source and genuine limits)
+## Updated current 13-issue disposition (later native samples)
+
+This current compact matrix supersedes any time-relative event
+availability text in the detailed original matrix retained below.
+Accepted positive receipts are not rerun; no whole-world recall or
+faster-method acceptance is inferred.
+
+| Issue | Current evidence and limitation | Gate |
+| --- | --- | --- |
+| 1 Camera restoration | Genuine full City/mixed scans and live active Stop restored exact native camera geometry; new **failed experimental** retained-camera shortcut could not restore, so remains disabled | Production pass; candidate reject |
+| 2 City completeness | Original 4,029/4,030/4,032 saved Cities and 78/78, 62/62, 13/13 current regional positives; four independent source regions cover 80/10000 AOIs with 75/75 actual native Cities also present in genuine saved source, zero rejects; global current census still unknown | Partial |
+| 3 Warzone flicker | Genuine 48 retained samples and controlled transient/empty inverses | Pass |
+| 4 Remote stored row Jump | Genuine 2213 scan, 2212 return, stored 2213 row Jump to (987,900) | Pass |
+| 5 Truck / moving Doom | Five moving Truck positions, four camera tiles and UI Stop; separate genuine 27-request/26-position/19-tile natural expiry and automatic Stop; zero active BossVO source positives | Truck pass, moving Doom pending |
+| 6 Dispatch names | 50/50 genuine Dispatch rows have nonblank owner names | Pass |
+| 7 Resource filters | Genuine combined 1,190 matching plus unknown/nonmatching inverses | Pass |
+| 8 Escort max power | Genuine inclusive 25-million filter with 46 matching Truck rows | Pass |
+| 9 ALL Truck rewards | Genuine two-selected-item AND with 46 matching Truck rows | Pass |
+| 10 Item icons | Source-backed nonzero real PNGs in both table and filter menu | Pass |
+| 11 Auto Clear | Genuine UI cleared stored 2213 while retaining 7,975 home 2212 Resources | Pass |
+| 12 Scattered Supplies | Fresh native LOD0 upper-right event source enumerated 78 loaded pointInfos, zero type-27 Supplies; season-S2 type-1 event object not spawned in observed footprint | Source mapping pass, live event pending |
+| 13 Celebration Party | Fresh native source delivered two ordinary TreasurePointInfo type-21 objects, but no authoritative Party world point class/event ID/name match | Source identification pending |
+
+Scanner performance is a separate open acceptance gate:
+post-lens consecutive B has target AOI 4954 but native subscription
+retains nine old-A AOIs 4244-4446, no fresh response or exact
+failure-time camera restoration. ZoomMax changes to LOD2 coarse view.
+Neither route is deployed or accuracy-qualified for paired benchmarks;
+production serial shared LOD0 and Normal/Fast remain selected. See
+the detailed newest continuation for exact native receipts, source
+audits and controlled rejections.
+
+## Original detailed owner issue matrix (historical evidence preserved)
 
 | # | Owner issue | Implementation and meaningful inverse | Genuine result / limit |
 | --- | --- | --- | --- |

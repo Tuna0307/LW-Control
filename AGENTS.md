@@ -1,5 +1,27 @@
 # LW-Control — current contributor instructions
 
+Latest MAP-014 source-causal continuation: KEEP OVERALL PARTIAL on
+the existing solo branch/draft PR #10. A distinct private post-lens
+subscription-refresh sequence failed in genuine v24 game: all three
+individually restored A/B/C controls passed, and the first
+consecutive keep returned 27 rows, but logical target B (545,495)
+had native target AOI 4954 while the manager remained subscribed
+to nine OLD A AOIs 4244-4446, no source-matched B reply and no
+exact camera restoration. The diagnostic candidate remains disabled.
+New live event source samples at center and upper-right found 31
+and 18 ordinary Monster WorldMarch records respectively, with
+two ordinary type-21 Treasure at the edge, zero type-27 Supplies
+and no source-labelled Doom Walker; the Doomsday manager existed
+but theater/alliance boss collections were nil. Four current
+native samples directly reobserved 80 of 10,000 LOD0 AOIs (0.8%
+audited footprint, NOT City recall), 75 current City identities
+matched earlier same-server indexes/positions, zero rejects.
+Preserve previous complete scans, City 78/78 and 62/62, genuine
+remote 2213 Auto/Jump/Clear, camera/images/filters and the genuine
+natural Truck expiry 27 Follow/26 positions/19 camera tiles,
+auto-Stop. Never merge/publish; preserve game Chinese, background
+only, no account actions. Consult the newest MAP-014 continuation.
+
 Current 2026-10-13 MAP-014 continuation: a genuine packaged natural
 Truck expiry PASS exists at
 `artifacts/map014-takeover/native-ui-20261013-152235`
