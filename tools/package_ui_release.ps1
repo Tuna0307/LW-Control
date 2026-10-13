@@ -364,10 +364,18 @@ genuine changes replace it. Secret Task owner metadata is populated from
 native fields or matching same-server City UID, otherwise explicitly UID.
 
 The full camera projection/transform restoration gate and City candidate
-identity accounting require a fresh independently compatible game build for
-live verification. The installed game's current package failed the locked
-native compatibility check on 2026-10-13. A completed AOI progress bar is
-NOT proof of a complete City census. Moving Doom Walkers and Celebration Party
+identity accounting still require genuine live Map scan verification.
+The initial 2026-10-13 compatibility mismatch came from a prior task-owned
+native Lua installation left in place, NOT an official game update; the
+original v24 package was restored and verified by the existing owner journal.
+The MAP-014 Lua probe exceeded Lua's 200 top-level-local limit (206); its
+corrected 199-local probe reached genuine game-side authenticated Ready and
+displayed the Chinese-language home scene. The follow-up read-only Map
+diagnostic did not return a fresh response; no Map scan/camera positive is
+claimed. A completed AOI progress bar is NOT proof of a complete City census.
+Before testing this build again, ensure the previous task-owned game has exited
+and its deferred native recovery journal has restored the original scripts.
+Do not force restore/overwrite a running game. Moving Doom Walkers and Celebration Party
 Watch need source-backed identity/positive native witnesses. The installed
 game reference identifies Scattered Supplies as seasonal WorldSuppliesPoint
 type 1 under the existing Treasure kind; the native-mode game-name loader now
