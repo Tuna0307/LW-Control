@@ -346,6 +346,8 @@ def main() -> int:
                         help="after baseline, three serial coverage regions with one final restoration")
     parser.add_argument("--zoom-experiment", action="store_true",
                         help="three paired coverage/ZoomMax observations at the same second region, source-correlated and individually restored")
+    parser.add_argument("--wide-aspect-experiment", action="store_true",
+                        help="three alternating coverage aspect-4/6 pairs on one populated region; each restores home and must pass source-reply checks")
     options = parser.parse_args()
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
@@ -361,6 +363,10 @@ def main() -> int:
         parser.error("zoom experiment requires fresh-reply, baseline-region and compare-second-region")
     if options.zoom_experiment and (options.sequence_experiment or options.camera_free_direct):
         parser.error("zoom is a distinct paired camera experiment")
+    if options.wide_aspect_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("aspect experiment requires fresh-reply, baseline-region and compare-second-region")
+    if options.wide_aspect_experiment and (options.zoom_experiment or options.sequence_experiment or options.camera_free_direct):
+        parser.error("aspect is a distinct experiment")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -654,8 +660,12 @@ def main() -> int:
             # restores after its response; native remains an explicit experiment.
             # This does not enable a consecutive-region production shortcut.
             previous_trace_id, previous_region_id = trace_id, region_id
-            methods = ("coverage", "zoom") * 3 if options.zoom_experiment else (
-                ("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native"))
+            if options.wide_aspect_experiment:
+                methods = ("coverage", "coverage") * 3
+            elif options.zoom_experiment:
+                methods = ("coverage", "zoom") * 3
+            else:
+                methods = ("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")
             zoom_observations = []
             for comparison_index,mode in enumerate(methods,1):
                 retire_owned_reply(live_root / "map013-native-trace-result.json",
@@ -672,6 +682,9 @@ def main() -> int:
                 next_id = "map013second" + secrets.token_hex(8)
                 next_command = {**region_command, "requestId": next_id, "scanRunId": next_id,
                                 "requestMode": mode, "targetTileX": "545", "targetTileY": "495"}
+                aspect = 4 if comparison_index % 2 else 6
+                if options.wide_aspect_experiment:
+                    next_command["coverageAspect"] = str(aspect)
                 if mode == "direct":
                     next_command["requestedCount"] = "50"
                 next_time = publish_command(live_root / "bulk-aoi-diagnostic.txt", next_command)
@@ -680,33 +693,58 @@ def main() -> int:
                         ExpectedReply("region", next_id, profile, session, pid, challenge,
                                       next_time, server_id=world["serverId"], world_id=world["worldId"],
                                       request_mode=mode, target_tile_x=545, target_tile_y=495), 28)
-                    output = ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode
+                    output = ("aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                              if options.wide_aspect_experiment else
+                              ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
                     (attempt / (output + ".json")).write_text(
                         json.dumps(result, indent=2), encoding="utf-8")
                     print("SECOND_REGION", mode, result.get("state"), result.get("error"),
                           "pointRows", len(result.get("point_records") or []), flush=True)
                 except Exception as error:
-                    output = ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode
+                    output = ("aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                              if options.wide_aspect_experiment else
+                              ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
                     (attempt / (output + "-error.txt")).write_text(repr(error), encoding="utf-8")
                     print("SECOND_REGION_UNCONFIRMED", mode, repr(error), flush=True)
                     raise
-                if options.zoom_experiment:
+                if options.zoom_experiment or options.wide_aspect_experiment:
                     observation={
                         "pair":(comparison_index+1)//2,"method":mode,
+                        "aspect": aspect if options.wide_aspect_experiment else None,
                         "state":result.get("state"),"error":result.get("error"),
                         "nativeReply":result.get("map013NativeReplyState"),
                         "cameraRestored":result.get("cameraGeometryRestored"),
                         "cameraStable":result.get("cameraTileStable"),
                         "pointCount":len(result.get("point_records") or []),
+                        "aoiCount":len(result.get("requestedIndices") or []),
+                        "requestedIndices":result.get("requestedIndices") or [],
                         "elapsed":result.get("totalProbeElapsedSeconds"),
                         "rows":result.get("point_records") or [],
                     }
                     zoom_observations.append(observation)
-                    (attempt / "zoom-paired-results.json").write_text(json.dumps(
+                    (attempt / ("aspect-paired-results.json" if options.wide_aspect_experiment else "zoom-paired-results.json")).write_text(json.dumps(
                         zoom_observations, indent=2),encoding="utf-8")
                     if(result.get("state")!="proven" or result.get("map013NativeReplyState")!="matched" or
                        result.get("cameraGeometryRestored") is not True or result.get("cameraTileStable") is not True):
-                        raise RuntimeError("Zoom experiment native reply/restore rejected: "+mode)
+                        raise RuntimeError("Alternative native reply/restore rejected: "+mode)
+                    if options.wide_aspect_experiment:
+                        if not result.get("point_records") or not result.get("requestedIndices"):
+                            raise RuntimeError("Aspect candidate gave a fast empty or missing AOI result")
+                        if comparison_index % 2 == 0:
+                            narrow=zoom_observations[-2]
+                            wide=zoom_observations[-1]
+                            def keys_in_common_aoi(source, common):
+                                return {
+                                    (r.get("kind"),str(r.get("id") or r.get("uuid") or r.get("pointId")))
+                                    for r in source.get("rows") or []
+                                    if isinstance(r,dict) and r.get("x") is not None and r.get("y") is not None and
+                                    ((int(r["y"])//10)*100+(int(r["x"])//10)) in common
+                                }
+                            common=set(wide["requestedIndices"]) & set(narrow["requestedIndices"])
+                            current=keys_in_common_aoi(wide,common)
+                            previous=keys_in_common_aoi(narrow,common)
+                            if not current or not previous or current != previous:
+                                raise RuntimeError("Aspect candidates have missing/extra identities on shared AOIs")
                 next_trace = wait_for(live_root / "map013-native-trace-result.json",
                     ExpectedReply("trace", next_trace_id, profile, session, pid, challenge, trace_time), 24)
                 (attempt / ("second-trace-" + mode + ".json")).write_text(

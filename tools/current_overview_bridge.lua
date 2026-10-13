@@ -2564,6 +2564,9 @@ local function write_march_follow_result(request, state, error_text)
         worldX = request.worldX,
         worldY = request.worldY,
         worldZ = request.worldZ,
+        marchSource = request.marchSource,
+        cameraTileX = request.cameraTileX,
+        cameraTileY = request.cameraTileY,
         method = request.method,
         error = error_text,
     })
@@ -2673,6 +2676,7 @@ local function pump_march_follow(control)
             request.worldX = ok_pos and tonumber(world_pos and safe_get(world_pos, "x")) or nil
             request.worldY = ok_pos and tonumber(world_pos and safe_get(world_pos, "y")) or nil
             request.worldZ = ok_pos and tonumber(world_pos and safe_get(world_pos, "z")) or nil
+            request.marchSource = "WorldMarchDataManager.GetMarch/GetMarchCurPos"
             observed = true
         end
     end
@@ -2690,10 +2694,17 @@ local function pump_march_follow(control)
                 return
             end
             observed = true
+            request.marchSource = "World.GetMarch"
         end
     end
 
     if observed then
+        local cs = rawget(_G, "CS")
+        local scene_manager = cs and safe_get(cs, "SceneManager") or nil
+        local world = scene_manager and safe_get(scene_manager, "World") or nil
+        local camera_tile = world and safe_get(world, "CurTilePosClamped") or nil
+        request.cameraTileX = tonumber(camera_tile and (safe_get(camera_tile, "x") or safe_get(camera_tile, "X")))
+        request.cameraTileY = tonumber(camera_tile and (safe_get(camera_tile, "y") or safe_get(camera_tile, "Y")))
         write_march_follow_result(request, "proven", nil)
         pending_march_follow = nil
         return

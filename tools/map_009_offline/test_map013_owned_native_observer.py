@@ -25,7 +25,9 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # a pinned digest, not one generated from the source under test.
     CURRENT_PROBE_SHA256 = "a3b86fae706636ba02180a5533450ea2c7abe1af653a921c84ff464043cea633"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
-    CURRENT_WRAPPER_SHA256 = "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d"
+    # Follow receipts now carry actual WorldMarch position source and current
+    # native camera tile. This is the separately source-pinned updated wrapper.
+    CURRENT_WRAPPER_SHA256 = "5460b83a66eccf9924a8d043453b3414dbb6c2175a4116ee8f8c39ad8db61304"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("LWBRIDGE_MAP013_PRIVATE_TRACE", None)

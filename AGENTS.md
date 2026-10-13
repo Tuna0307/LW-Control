@@ -1,5 +1,21 @@
 # LW-Control — current contributor instructions
 
+Latest MAP-014 lead-reviewed continuation: Read
+docs/reviews/2026-10-13-MAP-014-SOLO-LEAD-REVIEW.md and
+docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md. Overall assignment remains
+PARTIAL. Genuine sustained same-UUID Truck Follow now has five successive
+native positions and four camera tiles followed by UI Stop, with exact script
+restoration. Genuine Oct 13 City scans agree on 4,029 stable identities,
+with three later additional identities and seven same-owner coordinate moves;
+historical Oct 12 owner coordinates are all different and its 7,060-range
+count is not today's quota. Unqualified consecutive/ZoomMax routes remain
+disabled; no speed gain or City census completeness is established. Natural
+expiry and seasonal/Doom live positives depend on current object availability,
+and Celebration Party's exact native discriminator remains unidentified.
+The attempted aspect comparison's output retrieval was denied; do not
+retry/reroute that call or claim its result. Work solo on the existing draft
+PR #10; no merge/publication or gameplay action.
+
 Latest MAP-014 solo continuation, 2026-10-13: the saved-server mounted
 ownership bug is fixed. A real packaged Windows UI completed an authenticated
 2212→2213 Auto Resource scan (7,996 2213 rows), returned to 2212, browsed a

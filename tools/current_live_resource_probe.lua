@@ -3126,8 +3126,10 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 return false
             end
             -- Match UIWorldActRadarTreasurePointCtrl.GetTreasureData: eventId
-            -- resolves the real event template, including Celebration Party.
-            -- Missing event metadata remains unknown rather than a fabricated name.
+            -- resolves this Treasure's actual event template when available.
+            -- No source evidence currently maps the owner's "Celebration Party"
+            -- world object to a point class or event ID; do not infer it here.
+            -- Missing event metadata remains unknown, never a fabricated name.
             local event_id = scalar_field(info, { "eventId", "EventId" })
             local event_manager = rawget(_G, "DataCenter") and safe_get(DataCenter, "DetectEventTemplateManager") or nil
             local ok_template, event_template = call(event_manager, "GetDetectEventTemplate", event_id)

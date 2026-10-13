@@ -152,6 +152,21 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.ok([...timers.values()].some((entry) => entry.delay === 3000), "follow not started");
   await click(document.querySelector(".map-coordinate-button"));
   assert.ok(![...timers.values()].some((entry) => entry.delay === 3000), "Stop Follow retained poll");
+  // Meaningful inverse: after the *source row's* arrival deadline, a live
+  // scheduled observation must retire the same-UUID Follow without issuing
+  // another native request. The clock is controlled only in this inert test.
+  await click(document.querySelector(".map-coordinate-button"));
+  const expiryPoll = [...timers.values()].find((entry) => entry.delay === 3000);
+  assert.ok(expiryPoll, "expiry inverse lacked a started native Follow poll");
+  const beforeExpiredPoll = follows.length;
+  const realNow = Date.now;
+  try {
+    Date.now = () => realNow() + 2 * 3600000;
+    await flush(() => expiryPoll.callback());
+  } finally { Date.now = realNow; }
+  assert.equal(follows.length, beforeExpiredPoll, "expired Follow issued a new native request");
+  assert.ok(![...timers.values()].some((entry) => entry.delay === 3000),
+    "expired same-UUID Follow retained its observation timer");
   let rejectRetiredFollow;
   heldFollow = new Promise((_, reject) => { rejectRetiredFollow = reject; });
   await click(document.querySelector(".map-coordinate-button"));

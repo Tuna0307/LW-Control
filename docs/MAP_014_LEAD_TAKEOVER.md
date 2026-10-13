@@ -1,5 +1,22 @@
 # MAP-014 lead takeover and owner-requested handoff — 2026-10-13
 
+## Post-review City / sustained tracking / scanner continuation
+
+The independent lead review at
+`docs/reviews/2026-10-13-MAP-014-SOLO-LEAD-REVIEW.md`
+correctly retained overall MAP-014 **PARTIAL** status. Subsequent genuine
+native UI Follow proved five successive exact same-UUID moving Truck positions,
+four camera tiles and real UI Stop. A read-only identity/AOI comparison of
+genuine City-only and mixed scans reconciled their 4,029 shared owner identities,
+but does **not** establish a current complete City census. Supported ZoomMax
+changed native LOD/footprint to a coarse single AOI and failed LOD0 freshness;
+consecutive-region second replies remain unqualified. A wider-aspect trial's
+result retrieval was denied, so no candidate speed claim was accepted.
+Seasonal and moving BossVO positives and live natural expiry remain separate
+availability gates. Exact evidence, source audit and limitations:
+`docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`.
+This assignment is **not finished**, and PR #10 remains draft and unmerged.
+
 ## Solo continuation outcome — 2026-10-13 (supersedes interrupted gate)
 
 The owner-directed solo continuation **fixed the failing saved-server selection

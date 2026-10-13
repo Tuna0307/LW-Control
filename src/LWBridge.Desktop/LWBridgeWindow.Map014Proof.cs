@@ -150,12 +150,15 @@ internal sealed partial class LWBridgeWindow
 
             // Resolve owner-name display from the real saved Dispatch population
             // before loading many Truck reward images in the same WebView.
-            var dispatch=await Tab(5,"dispatch");
-            int knownNames=dispatch.Result.GetProperty("rows").EnumerateArray().Count(r=>r.TryGetProperty("ownerName",out var name)&&name.ValueKind==JsonValueKind.String&&!string.IsNullOrWhiteSpace(name.GetString()));
-            if(dispatch.Result.GetProperty("total").GetInt32()==0 || knownNames==0)
-                throw new InvalidDataException("Saved genuine Secret Tasks lacked a positive owner-name witness.");
-            receipts.Add(new{gate="native_dispatch_owner_names",knownNames,dispatch.Payload,dispatch.Result});
-            await Screenshot("map014-dispatch-owner-names"); await Save();
+            if(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_TRACKING_UI")!="1")
+            {
+                var dispatch=await Tab(5,"dispatch");
+                int knownNames=dispatch.Result.GetProperty("rows").EnumerateArray().Count(r=>r.TryGetProperty("ownerName",out var name)&&name.ValueKind==JsonValueKind.String&&!string.IsNullOrWhiteSpace(name.GetString()));
+                if(dispatch.Result.GetProperty("total").GetInt32()==0 || knownNames==0)
+                    throw new InvalidDataException("Saved genuine Secret Tasks lacked a positive owner-name witness.");
+                receipts.Add(new{gate="native_dispatch_owner_names",knownNames,dispatch.Payload,dispatch.Result});
+                await Screenshot("map014-dispatch-owner-names"); await Save();
+            }
 
             var truck=await Tab(3,"truck");
             if(!await Wait("[...document.querySelectorAll('img.map-reward-icon')].some(i=>i.complete&&i.naturalWidth>0)",300))
@@ -198,11 +201,73 @@ internal sealed partial class LWBridgeWindow
             if(!follow) throw new InvalidDataException("UI Follow lacked an exact-owned native march result.");
             if(!await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button:not(:disabled)')].some(b=>b.querySelector('strong')?.textContent.trim()==='Stop')",300))
                 throw new InvalidDataException("Native Follow returned, but the actual UI never exposed its Stop toggle.");
+            bool trackingQualified=true;
+            if(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_TRACKING_UI")=="1")
+            {
+                // Distinguish source-backed repeated Follow from a first
+                // success. Poll only this task's session-bound native result,
+                // never inferred positions or the stored scan coordinates.
+                string followedUuid=followResult.GetProperty("marchUuid").ToString();
+                int followedServer=followResult.GetProperty("serverId").GetInt32();
+                var observed=new List<JsonElement>();
+                var requestIds=new HashSet<string>(StringComparer.Ordinal);
+                var trackedUntil=DateTimeOffset.UtcNow.AddSeconds(24);
+                while(DateTimeOffset.UtcNow<trackedUntil)
+                {
+                    token.ThrowIfCancellationRequested();
+                    var owner=overviewLifecycleService.GetReadyMapScanSession();
+                    if(owner is null) throw new InvalidDataException("Native tracking owner retired.");
+                    foreach(string file in Directory.EnumerateFiles(productionPaths.Root,"march-follow-result.json",SearchOption.AllDirectories))
+                    {
+                        try
+                        {
+                            using var json=JsonDocument.Parse(await File.ReadAllTextAsync(file,token));
+                            var row=json.RootElement;
+                            if(!row.TryGetProperty("requestId",out var request) || request.ValueKind!=JsonValueKind.String ||
+                               !row.TryGetProperty("marchUuid",out var uuid) || uuid.ToString()!=followedUuid ||
+                               !row.TryGetProperty("serverId",out var server) || server.GetInt32()!=followedServer ||
+                               row.GetProperty("gamePid").GetInt32()!=owner.GamePid ||
+                               row.GetProperty("profileId").GetString()!=owner.ProfileId ||
+                               row.GetProperty("sessionId").GetString()!=owner.SessionId ||
+                               row.GetProperty("challenge").GetString()!=owner.Challenge) continue;
+                            if(requestIds.Add(request.GetString()!)) observed.Add(row.Clone());
+                        }
+                        catch(IOException){} catch(JsonException){}
+                    }
+                    if(observed.Count>=5) break;
+                    await Task.Delay(200,token);
+                }
+                var fresh=observed.Where(row=>row.TryGetProperty("state",out var state) && state.GetString()=="proven" &&
+                    row.TryGetProperty("marchSource",out var source) && source.GetString()=="WorldMarchDataManager.GetMarch/GetMarchCurPos" &&
+                    row.TryGetProperty("worldX",out var x) && x.ValueKind==JsonValueKind.Number &&
+                    row.TryGetProperty("worldZ",out var z) && z.ValueKind==JsonValueKind.Number).ToArray();
+                var places=fresh.Select(row=>(row.GetProperty("worldX").GetDouble(),row.GetProperty("worldZ").GetDouble())).Distinct().ToArray();
+                var camera=fresh.Where(row=>row.TryGetProperty("cameraTileX",out var x) && x.ValueKind==JsonValueKind.Number &&
+                    row.TryGetProperty("cameraTileY",out var y) && y.ValueKind==JsonValueKind.Number)
+                    .Select(row=>(row.GetProperty("cameraTileX").GetDouble(),row.GetProperty("cameraTileY").GetDouble())).Distinct().ToArray();
+                receipts.Add(new {gate="native_same_uuid_sustained_follow",
+                    followedServer,allSameUuid=true,observations=observed.Count,positionQualified=fresh.Length,
+                    distinctWorldPositions=places.Length,distinctCameraTiles=camera.Length,
+                    results=observed.Select(row=>new{
+                        state=row.TryGetProperty("state",out var state)?state.GetString():null,
+                        requestId=row.GetProperty("requestId").GetString(),
+                        marchSource=row.TryGetProperty("marchSource",out var source)?source.GetString():null,
+                        worldX=row.TryGetProperty("worldX",out var x)?x.GetRawText():null,
+                        worldZ=row.TryGetProperty("worldZ",out var z)?z.GetRawText():null,
+                        cameraTileX=row.TryGetProperty("cameraTileX",out var tx)?tx.GetRawText():null,
+                        cameraTileY=row.TryGetProperty("cameraTileY",out var ty)?ty.GetRawText():null,
+                        error=row.TryGetProperty("error",out var err)?err.GetString():null
+                    })});
+                await Save();
+                trackingQualified=fresh.Length>=3 && places.Length>=2 && camera.Length>=2;
+            }
             if(!await Wait("(()=>{const b=[...document.querySelectorAll('.map-table--truck .map-coordinate-button:not(:disabled)')].find(b=>b.querySelector('strong')?.textContent.trim()==='Stop');if(!b)return false;b.click();return true;})()",1))
                 throw new InvalidDataException("Native UI Stop toggle could not be clicked.");
             if(!await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].every(b=>b.querySelector('strong')?.textContent.trim()!=='Stop')",100))
                 throw new InvalidDataException("Native UI Stop toggle did not retire Follow.");
             receipts.Add(new{gate="truck_ui_follow_stop",serverId=followResult.GetProperty("serverId").GetInt32(),marchUuid=followResult.GetProperty("marchUuid").ToString(),state="proven",stopToggleObserved=true}); await Save();
+            if(!trackingQualified)
+                throw new InvalidDataException("Moving same-UUID position/camera witness was unavailable; native UI Stop succeeded, see tracking receipt.");
 
             // Two items use ALL semantics; a plain decimal cap means millions.
             JsonElement? truckWitness=null;

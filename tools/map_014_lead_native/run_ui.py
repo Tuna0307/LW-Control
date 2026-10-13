@@ -49,8 +49,8 @@ def admit():
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track")
     mode = sys.argv[1]
     prior_hashes = admit()
     destination = ROOT / "artifacts/map014-takeover" / (
@@ -64,7 +64,7 @@ def main():
         raise FileNotFoundError("Preserved genuine published Map database is unavailable")
     store = destination / "profiles" / profile / "map-data"
     store.mkdir(parents=True)
-    if mode in ("browse", "remote", "remote-reuse"):
+    if mode in ("browse", "remote", "remote-reuse", "track"):
         for item in source.glob("map-data.db*"):
             if item.name in ("map-data.db", "map-data.db-wal", "map-data.db-shm"):
                 shutil.copy2(item, store / item.name)
@@ -81,10 +81,11 @@ def main():
     publish = ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
-                       LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode == "browse" else "0",
+                       LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode in ("browse", "track") else "0",
                        LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse") else "0",
                        LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse") else "0",
-                       LWBRIDGE_MAP014_REMOTE_REUSE="1" if mode == "remote-reuse" else "0")
+                       LWBRIDGE_MAP014_REMOTE_REUSE="1" if mode == "remote-reuse" else "0",
+                       LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0")
     startup = subprocess.STARTUPINFO()
     startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     startup.wShowWindow = 0
