@@ -2643,7 +2643,10 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     local records = {}
     local accounting = { sourceCount = expected, inRequestedAoi = 0, accepted = 0,
                          missingPointIndex = 0, invalidPosition = 0, missingServer = 0,
-                         missingOwnerUid = 0, missingOwnerName = 0 }
+                         missingOwnerUid = 0, missingOwnerName = 0,
+                         duplicateRetainedPointIndices = 0,
+                         nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0 }
+    local retained_ids = {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
@@ -2681,6 +2684,11 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             accounting.missingOwnerName = accounting.missingOwnerName + 1
             return true
         end
+        if retained_ids[id] == true then
+            accounting.duplicateRetainedPointIndices = accounting.duplicateRetainedPointIndices + 1
+            return true
+        end
+        retained_ids[id] = true
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2711,9 +2719,46 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         return true
     end)
     if scanned ~= expected then return nil, "main_base_list_enumeration_mismatch" end
+    -- Independent native producer cross-check, not a population quota:
+    -- _pointInfos contains current view reply identities, while
+    -- GetAllMainBaseList can retain more already-loaded bases. Count-only
+    -- comparison can silently pass if one native reply identity is missing
+    -- and one unrelated retained row takes its place. Verify the exact
+    -- per-point-index subset in the same measured AOI footprint.
+    local current_collection = reflected_value(point_manager, "_pointInfos")
+    local current_count = current_collection and collection_count(current_collection) or nil
+    if current_count == nil or current_count < 0 or current_count > MAX_POINTS then
+        return nil, "city_native_point_infos_unavailable", accounting
+    end
+    local inspected = each(current_collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+            return true
+        end
+        local tile = index_to_tile(world, id)
+        if tile == nil then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+            return true
+        end
+        local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
+           selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
+        accounting.nativeCurrentCityCount = accounting.nativeCurrentCityCount + 1
+        if retained_ids[id] ~= true then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+        end
+        return true
+    end)
+    if inspected ~= current_count then return nil, "city_native_point_infos_enumeration_mismatch", accounting end
     if accounting.missingPointIndex > 0 or accounting.invalidPosition > 0 or
        accounting.missingServer > 0 or accounting.missingOwnerUid > 0 or
-       accounting.missingOwnerName > 0 or accounting.accepted ~= accounting.inRequestedAoi then
+       accounting.missingOwnerName > 0 or accounting.duplicateRetainedPointIndices > 0 or
+       accounting.missingNativeCurrentPointIndices > 0 or
+       accounting.nativeCurrentCityCount > accounting.accepted or
+       accounting.accepted ~= accounting.inRequestedAoi then
         return nil, "city_native_candidate_identity_incomplete", accounting
     end
     return records, nil, accounting

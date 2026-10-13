@@ -1,5 +1,147 @@
 # MAP-014 — City/Truck/acquisition follow-up, 2026-10-13
 
+## Further solo continuation — source identity join and native City subset
+
+Work resumed from exact clean/pushed `ce121720` / existing draft PR #10
+with admitted original current-game v24 scripts, no app/game actor and
+no recovery journal. No merge or new branch/worktree.
+
+**Proven source-integrity weakness fixed (not complete City recall):**
+the prior native City producer only required
+`nativePointInfoCityCount <= retainedBaseCount`. Equal counts can hide a
+native City index being lost and an unrelated retained City occupying
+its count. `city_aoi_records` now checks every currently loaded
+`WorldPointManager._pointInfos` City point index against the independently
+retained `GetAllMainBaseList` set in that *exact* native AOI footprint.
+It fails closed on missing current indices, duplicate retained point
+indices, incomplete owner identity or invalid geometry. The managed
+receiver requires every reported rejection counter to be zero, a
+coherent sourceCount and the exact current City subset count.
+
+**New actual game proof** `artifacts/map-013-live/native-causal-20261013-223148`:
+at 2212 target (995,975), a serial camera-assisted bounded target region
+returned a fresh source-matched native packet, City
+`nativeCurrentCityCount=62`, `accepted=62`, zero missing current
+indices, zero duplicate point indices and zero rejected identity fields.
+Its independent AOI audit found **20 in-grid rectangular AOIs,
+rows 90–99 and columns 98–99**, including both the extreme upper and
+right world edges. No out-of-world indices were admitted.
+The 62 delivered City owner identities and point indices also all match
+the earlier genuine persisted 2212 snapshot at the same coordinates;
+none is a newly demonstrated missing retained identity.
+This is source- and cache-qualified **for the single requested region**,
+not a new full scan, universal census, or camera-free shortcut.
+Original camera geometry restored, the exact owned game stopped and
+original scripts were restored. The broader generic wrapper's
+`nativeRegionQualified=false` still refers to its **overall native wire
+tracing objective**, not this separate request-scoped City membership
+verdict. Inert actual Lua-source inverses reject count-equal swapped
+indices, duplicate retained indices, missing native current entries
+and missing owner IDs; no fixture-only live result is claimed.
+
+Extra read-only aggregate independent checks now show that all 4,029
+City-only-to-mixed October 13 shared identities have *identical*
+point indices as well as positions. The 4,003 shared old-Oct12 versus
+current-Oct13 owners have no identical point indices, no identical
+positions and near-zero x/y coordinate correlation. This is consistent
+with genuinely different map layouts, not evidence of missing-current
+ingestion: the **cause of that old/new layout change is still unknown**.
+The new 62-source City control found no current missing target within
+its limited AOIs. A valid independent currently absent current-world
+City outside that region remains necessary before quantifying total recall.
+
+**Scanner method decision:** prior eight genuine aspect-4/6 trial footprints
+were all 3×10 native AOIs, with no supported width gain. Retained
+historical accuracy-qualified alternating Fast/Normal six-kind sweeps
+show Normal 206.545 s (206.517–206.572, n=2) and Fast 207.160 s
+(205.445–208.874, n=2), 340 fresh native probes and zero retries each;
+those are *old mode comparisons*, not a faster new implementation.
+With native A→B's stale previous bounds/9-AOI subscription, ZoomMax's
+coarse LOD2/one-block change and camera-free direct's no-fresh-reply
+failure, no new alternative is accuracy-qualified for a three-pair
+per-kind/mixed/cross-server speed benchmark. The isolated intermediate
+zoom candidate was added as **opt-in private source only**, but its
+validation/test command was denied before execution. Do not retry or
+reroute that denied operation or turn it into a new performance claim.
+Neither rejected nor blocked method is deployed. Production's shared
+camera-assisted LOD0 serial scanner and existing Normal/Fast controls
+remain unchanged.
+
+**Natural-expiry availability:** separate native packaged proof attempts
+use preserved genuine Truck rows without new scans. The first selected
+an upcoming arrival but did not observe visible Stop before the expiry
+window; its exact native Follow did return proven, so this is **not**
+evidence of missing native Follow. The second selected a Truck with
+166.8 seconds reported headroom and obtained exact same-UUID native
+Follow, but the expiry-specific UI harness had bypassed its normal
+English clone-language selection while checking the word `Stop`.
+Its Chinese-label UI result is an **unqualified harness negative**.
+The harness now explicitly selects the clone's English locale (the real
+game remains Chinese), records its source deadline and preserves a
+fail-closed no-eligible-target state. Natural live expiry remains
+**pending a full qualified native/UI witness**. Preserved attempted
+receipts: `native-ui-20261013-144323` and
+`native-ui-20261013-144648`. Do not count their native Follow as a
+natural-expiry positive.
+
+The corrected-language **third genuine packaged expiry-only session**,
+`artifacts/map014-takeover/native-ui-20261013-144935`, selected a
+saved Truck with a source `arriveTs` ~59.8 seconds ahead. It reached
+an exact same-session `GoToUtil.JumpToMarchByUuid` result,
+`state=proven`, with game-reported world position and camera tile.
+But the next ready-session check did not return the original session
+before the arrival deadline, so the proof **failed closed**:
+`Owned expiry session changed`. There is no verified complete
+ready-session-through-arrival or automatic post-arrival UI Stop witness.
+Its owned app exited 1; all three official original game script hashes
+were restored, no recovery journal remained. This is a bounded
+availability/lifetime failure, not a claim that native Follow is
+unimplemented. The harness now distinguishes a brief readiness gap
+from a replacement identity and records sustained unavailable
+readiness as **unqualified**, never as an inferred arrival. That final
+readiness-classification improvement is compiled/inert-reviewed, not
+claimed to have yielded a new positive expiry.
+
+## Final specific verification and scanner decision
+
+- Native exact-owned City-subset trial: **positive** 62/62 source
+  identity membership, zero rejection counters, fresh measured AOI
+  reply, camera returned, exact owned game Stop.
+- Actual Lua 5.3 producer syntax/packaging and controlled City
+  count-equal substitution, missing/duplicate, owner-identity inverses:
+  **pass**. The source join is a supported integrity fix, not an
+  increase in observed City population.
+- Native C# Release Build and managed Home/Map/Auto/query/ownership
+  checks: **pass** after the City receiver and expiry observer changes.
+- Earlier mounted MAP011/MAP014 UI names/filters/Stop and controlled
+  expiry, remote 2213 scan/return/Jump/Clear and real PNG proofs are
+  retained, not repeated without a new regression trigger.
+- The historically denied full frontend `npm.cmd run check` remains
+  **not executed and not accepted**; an additional intermediate-zoom
+  private test-execution command was also denied and **not retried or
+  rerouted**. The source-guarded opt-in intermediate Zoom is not a
+  production method and has **no accepted evidence of fresh LOD0
+  acquisition**.
+- The working scanner's genuine positive serial evidence includes
+  2,500/2,500 blocks, zero failed blocks in City-only and mixed scans.
+  Historical *already-qualified* Fast/Normal six-kind alternating
+  two-per-mode results (206.545 vs 207.160 s medians, 340 probes,
+  zero retries) do not establish a faster new candidate. There is
+  **no accuracy-qualified alternative** on which to run the requested
+  new three-pair per-kind/mix/all-kind/multi-server performance matrix.
+  No median/spread, enrichment comparison, duplication rate or
+  speedup is invented for failed, empty, denied or stale candidates.
+  The correct engineering decision is to keep the guarded shared
+  serial LOD0 acquisition with existing Normal/Fast controls and
+  exact camera-restoration checks; global optimality is not asserted.
+
+**Latest disposition:** separately verified available remote Auto/Jump,
+filters/assets, camera restore, sustained same-UUID Truck motion/Stop,
+and the new **City native membership-integrity guard** are reviewable.
+Complete current-world City recall, natural live expiry, seasonal
+objects and a demonstrably faster full-accuracy scanner remain
+**PARTIAL**. No whole-MAP-014 lead acceptance, merge or publication.
+
 This continues the **PARTIAL** MAP-014 assignment after the independent lead
 review at checkpoint `18c9a614`. The earlier verified remote Auto/Jump/Clear,
 genuine images, filters, City/Stop camera restoration and historical negative

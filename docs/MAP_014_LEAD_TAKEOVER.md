@@ -1,5 +1,24 @@
 # MAP-014 lead takeover and owner-requested handoff — 2026-10-13
 
+### Further source/expiry/scanner work after `ce121720`
+
+Keep overall MAP-014 **PARTIAL** and the current draft PR #10 **unmerged**.
+The latest continuation at `docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`
+records a corrected native City point-index membership guard and a real
+source-correlated top/right-edge 20-AOI region containing **62/62**
+native/retained City identities with zero rejects and exact camera recovery.
+The same 62 were already in the earlier saved server-2212 dataset; a
+global current census and independently known current missing targets remain
+unproved. Three isolated packaged Truck natural-expiry-only attempts each
+retained exact script restoration but never verified an uninterrupted
+native/session/UI auto-Stop event through the natural arrival deadline.
+Preserve the five-position moving Truck / four-camera-tile / manual Stop
+**positive** separately. An intermediate zoom LOD0 investigation has only
+opt-in unqualified diagnostic code; the validation tool call was denied
+and not retried. Do not enable or benchmark it as a working shortcut.
+Production's accuracy-guarded serial scanner is unchanged, and no
+faster accuracy-qualified candidate exists for new paired benchmarks.
+
 ## Post-review City / sustained tracking / scanner continuation
 
 The independent lead review at

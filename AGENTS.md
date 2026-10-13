@@ -1,5 +1,22 @@
 # LW-Control — current contributor instructions
 
+Current MAP-014 solo checkpoint continuation, after `ce121720`: source-level
+City count-only matching is corrected by an exact current-PointInfo versus
+retained-main-base point-index subset join; the managed receiver now requires
+zero identity/membership rejects. A genuine owned v24 target region on
+2212 (995,975) supplied 62 native current City identities matching all
+62 retained rows and zero rejects, with fresh reply/camera restoration and
+exact owned game Stop. It does not prove whole-world recall. Natural
+expiry-only packaged attempts reached genuine source-arrival Truck candidates
+and exact native Follow, but failed to preserve an uninterrupted ready
+session through arrival/automatic Stop; no expiry positive is accepted.
+Intermediate zoom remains explicitly opt-in/unqualified: its test command
+was denied and must not be retried/rerouted. Historical aspect 4/6
+footprints show no gain; ZoomMax LOD2 and consecutive A→B remain disabled.
+See `docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`. Whole MAP-014 is
+PARTIAL. Continue only on existing branch/draft PR #10, with no merge,
+publication, account-changing action or control of owner windows.
+
 Latest MAP-014 lead-reviewed continuation: Read
 docs/reviews/2026-10-13-MAP-014-SOLO-LEAD-REVIEW.md and
 docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md. Overall assignment remains

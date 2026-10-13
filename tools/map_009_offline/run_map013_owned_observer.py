@@ -348,6 +348,10 @@ def main() -> int:
                         help="three paired coverage/ZoomMax observations at the same second region, source-correlated and individually restored")
     parser.add_argument("--wide-aspect-experiment", action="store_true",
                         help="three alternating coverage aspect-4/6 pairs on one populated region; each restores home and must pass source-reply checks")
+    parser.add_argument("--city-subset-probe", action="store_true",
+                        help="single current-world City-rich region at 995,975: exact current-point versus retained identity subset; never a full scan")
+    parser.add_argument("--intermediate-zoom-experiment", action="store_true",
+                        help="opt-in source-guarded middle zoom (not ZoomMax), three pairs only if fresh LOD0 and shared identities qualify")
     options = parser.parse_args()
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
@@ -367,6 +371,14 @@ def main() -> int:
         parser.error("aspect experiment requires fresh-reply, baseline-region and compare-second-region")
     if options.wide_aspect_experiment and (options.zoom_experiment or options.sequence_experiment or options.camera_free_direct):
         parser.error("aspect is a distinct experiment")
+    if options.city_subset_probe and not (options.baseline_region and options.fresh_reply_experiment):
+        parser.error("City subset requires an instrumented fresh-reply baseline")
+    if options.city_subset_probe and (options.compare_second_region or options.sequence_experiment or options.zoom_experiment or options.wide_aspect_experiment):
+        parser.error("City subset is a single bounded production-source acquisition, not a scanner comparison")
+    if options.intermediate_zoom_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("intermediate zoom requires source-attributed fresh region comparisons")
+    if options.intermediate_zoom_experiment and (options.zoom_experiment or options.wide_aspect_experiment or options.sequence_experiment or options.camera_free_direct or options.city_subset_probe):
+        parser.error("intermediate zoom is a distinct isolated experiment")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -414,6 +426,9 @@ def main() -> int:
         if options.sequence_experiment:
             from sequence_instrument_013 import instrument_sequence
             experimental_body = instrument_sequence(experimental_body)
+        if options.intermediate_zoom_experiment:
+            from intermediate_zoom_instrument_014 import instrument_intermediate_zoom
+            experimental_body = instrument_intermediate_zoom(experimental_body)
         (attempt / "experimental-resource-probe.lua").write_bytes(experimental_body)
         experiment_source_hash = hashlib.sha256(experimental_body).hexdigest()
         overview.resource_probe_source = lambda: experimental_body
@@ -542,14 +557,15 @@ def main() -> int:
                 "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
             })
             time.sleep(1)
-            region_id = "map013first" + secrets.token_hex(8)
+            region_id = "map013citysubset" + secrets.token_hex(8) if options.city_subset_probe else "map013first" + secrets.token_hex(8)
+            region_x, region_y = (995,975) if options.city_subset_probe else (455,425)
             region_command = {
                 "schema": "1", "probeVersion": "lwbridge-live-resource-probe-2",
                 "requestId": region_id, "profileId": profile,
                 "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
                 "serverId": str(world["serverId"]), "scanRunId": region_id,
                 "viewLevel": "-1", "requestMode": options.region_mode,
-                "targetTileX": "455", "targetTileY": "425",
+                "targetTileX": str(region_x), "targetTileY": str(region_y),
                 "requestedCount": "8", "holdMilliseconds": "0",
                 "homeTileX": str(world.get("playerTileX") or -1),
                 "homeTileY": str(world.get("playerTileY") or -1),
@@ -560,7 +576,7 @@ def main() -> int:
                 "includeResourceDetails": "false", "deferRestoreUntilResponse": "true",
             }
             region_published = publish_command(live_root / "bulk-aoi-diagnostic.txt", region_command)
-            print("NATIVE_FIRST_REGION_REQUESTED", world["serverId"], "455,425", flush=True)
+            print("NATIVE_FIRST_REGION_REQUESTED", world["serverId"],f"{region_x},{region_y}", flush=True)
             try:
                 region = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
                     ExpectedReply("region", region_id, profile, session, pid, challenge,
@@ -575,6 +591,28 @@ def main() -> int:
                       "matched", region.get("matchedCount"),
                       "cameraStable", region.get("cameraTileStable"),
                       flush=True)
+                if options.city_subset_probe:
+                    c=region.get("cityCompleteness") or {}
+                    candidates=[r for r in region.get("point_records") or [] if r.get("kind")=="player_base"]
+                    passed=(region.get("state")=="proven" and region.get("map013NativeReplyState")=="matched"
+                            and region.get("cameraGeometryConfirmed") is True
+                            and len(candidates)>0 and c.get("accepted")==len(candidates)
+                            and c.get("nativeCurrentCityCount")==region.get("nativePointInfoCityCount")
+                            and c.get("missingNativeCurrentPointIndices")==0
+                            and c.get("duplicateRetainedPointIndices")==0
+                            and len({r.get("pointId") for r in candidates})==len(candidates)
+                            and all(c.get(k)==0 for k in ("missingPointIndex","invalidPosition","missingServer","missingOwnerUid","missingOwnerName")))
+                    (attempt/"city-subset-verdict.json").write_text(json.dumps({
+                        "state": "verified" if passed else "rejected",
+                        "sourceState":region.get("state"), "replyState":region.get("map013NativeReplyState"),
+                        "nativeCurrentCityCount":region.get("nativePointInfoCityCount"),
+                        "deliveredCityCount":len(candidates), "accounting":c,
+                        "cameraRestored":region.get("cameraGeometryConfirmed"),
+                        "wholeWorldClaim":False,
+                    },indent=2),encoding="utf-8")
+                    print("MAP014_CITY_SUBSET_VERDICT", "verified" if passed else "rejected",flush=True)
+                    if not passed:
+                        raise RuntimeError("native City subset did not qualify exact sources, fresh AOI and restoration")
             except Exception as region_error:
                 print("NATIVE_FIRST_REGION_UNCONFIRMED", repr(region_error), flush=True)
                 (attempt / "native-first-region-error.txt").write_text(
@@ -662,7 +700,7 @@ def main() -> int:
             previous_trace_id, previous_region_id = trace_id, region_id
             if options.wide_aspect_experiment:
                 methods = ("coverage", "coverage") * 3
-            elif options.zoom_experiment:
+            elif options.zoom_experiment or options.intermediate_zoom_experiment:
                 methods = ("coverage", "zoom") * 3
             else:
                 methods = ("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")
@@ -693,7 +731,8 @@ def main() -> int:
                         ExpectedReply("region", next_id, profile, session, pid, challenge,
                                       next_time, server_id=world["serverId"], world_id=world["worldId"],
                                       request_mode=mode, target_tile_x=545, target_tile_y=495), 28)
-                    output = ("aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                    output = ("midzoom-pair-%02d-" % comparison_index + mode if options.intermediate_zoom_experiment else
+                              "aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
                               if options.wide_aspect_experiment else
                               ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
                     (attempt / (output + ".json")).write_text(
@@ -701,13 +740,14 @@ def main() -> int:
                     print("SECOND_REGION", mode, result.get("state"), result.get("error"),
                           "pointRows", len(result.get("point_records") or []), flush=True)
                 except Exception as error:
-                    output = ("aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                    output = ("midzoom-pair-%02d-" % comparison_index + mode if options.intermediate_zoom_experiment else
+                              "aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
                               if options.wide_aspect_experiment else
                               ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
                     (attempt / (output + "-error.txt")).write_text(repr(error), encoding="utf-8")
                     print("SECOND_REGION_UNCONFIRMED", mode, repr(error), flush=True)
                     raise
-                if options.zoom_experiment or options.wide_aspect_experiment:
+                if options.zoom_experiment or options.wide_aspect_experiment or options.intermediate_zoom_experiment:
                     observation={
                         "pair":(comparison_index+1)//2,"method":mode,
                         "aspect": aspect if options.wide_aspect_experiment else None,
@@ -720,9 +760,14 @@ def main() -> int:
                         "requestedIndices":result.get("requestedIndices") or [],
                         "elapsed":result.get("totalProbeElapsedSeconds"),
                         "rows":result.get("point_records") or [],
+                        "serverLod":result.get("zoomFinalServerLod") if mode=="zoom" else result.get("serverLod"),
+                        "blockSize":result.get("zoomFinalBlockSize") if mode=="zoom" else result.get("blockSize"),
+                        "blockCount":result.get("zoomFinalBlockCount") if mode=="zoom" else result.get("blockCount"),
                     }
                     zoom_observations.append(observation)
-                    (attempt / ("aspect-paired-results.json" if options.wide_aspect_experiment else "zoom-paired-results.json")).write_text(json.dumps(
+                    (attempt / ("midzoom-paired-results.json" if options.intermediate_zoom_experiment else
+                                "aspect-paired-results.json" if options.wide_aspect_experiment else
+                                "zoom-paired-results.json")).write_text(json.dumps(
                         zoom_observations, indent=2),encoding="utf-8")
                     if(result.get("state")!="proven" or result.get("map013NativeReplyState")!="matched" or
                        result.get("cameraGeometryRestored") is not True or result.get("cameraTileStable") is not True):
@@ -745,6 +790,20 @@ def main() -> int:
                             previous=keys_in_common_aoi(narrow,common)
                             if not current or not previous or current != previous:
                                 raise RuntimeError("Aspect candidates have missing/extra identities on shared AOIs")
+                    if options.intermediate_zoom_experiment and mode=="zoom":
+                        if observation["serverLod"]!=0 or observation["blockSize"]!=10 or observation["blockCount"]!=100:
+                            raise RuntimeError("Intermediate zoom lost required native LOD0/10x100 geometry")
+                        baseline=zoom_observations[-2]
+                        common=set(observation["requestedIndices"]) & set(baseline["requestedIndices"])
+                        def source_keys(rowset):
+                            return {(r.get("kind"),str(r.get("pointId") or r.get("uuid") or r.get("id")))
+                                    for r in rowset if isinstance(r,dict) and
+                                    isinstance(r.get("x"),(int,float)) and isinstance(r.get("y"),(int,float)) and
+                                    int(r["y"])//10*100+int(r["x"])//10 in common}
+                        if not common or source_keys(observation["rows"])!=source_keys(baseline["rows"]):
+                            raise RuntimeError("Intermediate zoom changed identity set on shared AOIs")
+                        if observation["aoiCount"] <= baseline["aoiCount"]:
+                            raise RuntimeError("Intermediate zoom did not expand fresh native LOD0 coverage")
                 next_trace = wait_for(live_root / "map013-native-trace-result.json",
                     ExpectedReply("trace", next_trace_id, profile, session, pid, challenge, trace_time), 24)
                 (attempt / ("second-trace-" + mode + ".json")).write_text(

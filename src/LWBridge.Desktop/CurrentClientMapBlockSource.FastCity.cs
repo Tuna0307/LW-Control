@@ -1465,9 +1465,20 @@ internal sealed partial class CurrentClientMapBlockSource
                 cityCompleteness.ValueKind != JsonValueKind.Object ||
                 !MatchesInt(cityCompleteness, "accepted", matchedCityCount) ||
                 !MatchesInt(cityCompleteness, "inRequestedAoi", matchedCityCount) ||
+                !MatchesInt(cityCompleteness, "missingPointIndex", 0) ||
+                !MatchesInt(cityCompleteness, "invalidPosition", 0) ||
+                !MatchesInt(cityCompleteness, "missingServer", 0) ||
+                !MatchesInt(cityCompleteness, "missingOwnerUid", 0) ||
+                !MatchesInt(cityCompleteness, "missingOwnerName", 0) ||
+                !MatchesInt(cityCompleteness, "duplicateRetainedPointIndices", 0) ||
+                !MatchesInt(cityCompleteness, "missingNativeCurrentPointIndices", 0) ||
+                !cityCompleteness.TryGetProperty("sourceCount", out JsonElement allRetained) ||
+                allRetained.ValueKind != JsonValueKind.Number ||
+                !allRetained.TryGetInt32(out int retainedCount) || retainedCount < matchedCityCount ||
                 !root.TryGetProperty("nativePointInfoCityCount", out JsonElement currentCityValue) ||
                 currentCityValue.ValueKind != JsonValueKind.Number ||
                 !currentCityValue.TryGetInt32(out int currentCityCount) ||
+                !MatchesInt(cityCompleteness, "nativeCurrentCityCount", currentCityCount) ||
                 currentCityCount > matchedCityCount || currentCityCount < 0)
                 throw new InvalidDataException("Fast world City producer did not reconcile independent retained-base and current-point counts.");
         }

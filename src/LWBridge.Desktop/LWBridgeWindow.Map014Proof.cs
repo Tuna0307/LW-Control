@@ -62,9 +62,145 @@ internal sealed partial class LWBridgeWindow
         }
         try
         {
+            // Native game language remains Chinese. Only the task-owned
+            // cloned WebView is set to English so Follow/Stop observation
+            // uses the same verified accessibility text as the prior proof.
             await core.ExecuteScriptAsync("(()=>{const select=document.querySelector('.language-select select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(select,'en');select.dispatchEvent(new Event('change',{bubbles:true}));})()");
             if(!await Wait("document.querySelector('.language-select select').value==='en' && document.documentElement.lang==='en'"))
                 throw new InvalidDataException("Actual clone English selection did not settle.");
+            if(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_EXPIRY_UI")=="1")
+            {
+                // Bounded passive native expiry, completely separate from
+                // already accepted filters/icons/tracking and without a scan.
+                // A persisted arrival time is not a live march witness.
+                var truckExpiry=await Tab(3,"truck");
+                long now=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var candidates=truckExpiry.Result.GetProperty("rows").EnumerateArray()
+                    .Select((row,index)=>new{row,index})
+                    .Where(item=>item.row.TryGetProperty("arriveTs",out var deadline) &&
+                        deadline.ValueKind==JsonValueKind.Number &&
+                        deadline.TryGetInt64(out long target) &&
+                        // Source timestamps too close to expiry can retire
+                        // Follow *before* its first visible Stop; require a
+                        // meaningful setup/camera observation window.
+                        target>=now+45000 && target<=now+180000 &&
+                        item.row.TryGetProperty("marchUuid",out var uuid) &&
+                        uuid.ValueKind==JsonValueKind.String && !string.IsNullOrWhiteSpace(uuid.GetString()))
+                    .OrderBy(item=>item.row.GetProperty("arriveTs").GetInt64()).FirstOrDefault();
+                if(candidates is null)
+                {
+                    receipts.Add(new{gate="truck_natural_expiry_availability",qualifies=false,
+                        reason="No saved first-page Truck row with a source arrival 45-180 seconds ahead",
+                        scannedRows=truckExpiry.Result.GetProperty("rows").GetArrayLength(),newWorldScan=false});
+                    await Save();return;
+                }
+                var picked=candidates.row;
+                long arriveTs=picked.GetProperty("arriveTs").GetInt64();
+                string expectedUuid=picked.GetProperty("marchUuid").GetString()!;
+                int expectedServer=picked.GetProperty("serverId").GetInt32();
+                receipts.Add(new{gate="truck_expiry_candidate_preflight",
+                    rowIndex=candidates.index,arrivalMillisecondsAhead=arriveTs-now,
+                    expectedServer,expectedUuid,source="preserved genuine Truck row; not proof of a currently moving march"});
+                await Save();
+                try
+                {
+                    string click=await core.ExecuteScriptAsync($"(()=>{{const b=document.querySelectorAll('.map-table--truck tbody tr')[{candidates.index}]?.querySelector('.map-coordinate-button');if(!b||b.disabled)return false;b.click();return true;}})()");
+                    if(click!="true") throw new InvalidDataException("Source-matched Truck expiry row could not start native Follow.");
+                    if(!await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].some(b=>b.querySelector('strong')?.textContent.trim()==='Stop')",250))
+                    {
+                        // Distinguish native position success from a UI target
+                        // whose saved arrival expired before status/update.
+                        string uiState=await core.ExecuteScriptAsync("({error:[...document.querySelectorAll('.map-scan-error')].map(e=>e.textContent),buttons:[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].slice(0,3).map(b=>b.textContent)})");
+                        receipts.Add(new{gate="truck_expiry_follow_not_visible",state="unqualified",
+                            elapsedMilliseconds=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()-now,
+                            deadlineRemainingMilliseconds=arriveTs-DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                            ui=JsonSerializer.Deserialize<JsonElement>(uiState)});
+                        await Save(); return;
+                    }
+                    await Screenshot("map014-expiry-before");
+                    var owner=overviewLifecycleService.GetReadyMapScanSession();
+                    if(owner is null || owner.GamePid<=0) throw new InvalidDataException("Expiry owner was not ready.");
+                    var observed=new HashSet<string>(StringComparer.Ordinal);
+                    int nativeProven=0;
+                    int consecutiveReadyGaps=0;
+                    int totalReadyGaps=0;
+                    while(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()<arriveTs+5500)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        var currentOwner=overviewLifecycleService.GetReadyMapScanSession();
+                        if(currentOwner is null)
+                        {
+                            totalReadyGaps++;
+                            consecutiveReadyGaps++;
+                            if(consecutiveReadyGaps>=12)
+                            {
+                                receipts.Add(new {gate="truck_natural_expiry_availability",qualifies=false,
+                                    reason="Owned game ready-session lease unavailable before source arrival; no arrival attribution",
+                                    confirmedSessionId=owner.SessionId,readinessGaps=totalReadyGaps,
+                                    nativeProvenRequests=nativeProven,
+                                    deadlineRemainingMilliseconds=arriveTs-DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()});
+                                await Save(); return;
+                            }
+                            await Task.Delay(250,token);
+                            continue;
+                        }
+                        if(currentOwner.SessionId!=owner.SessionId || currentOwner.GamePid!=owner.GamePid ||
+                           currentOwner.ProfileId!=owner.ProfileId || currentOwner.Challenge!=owner.Challenge)
+                            throw new InvalidDataException("Owned expiry session identity changed.");
+                        consecutiveReadyGaps=0;
+                        foreach(string file in Directory.EnumerateFiles(productionPaths.Root,"march-follow-result.json",SearchOption.AllDirectories))
+                        {
+                            try
+                            {
+                                using var json=JsonDocument.Parse(await File.ReadAllTextAsync(file,token));
+                                var r=json.RootElement;
+                                if(r.GetProperty("gamePid").GetInt32()!=owner.GamePid ||
+                                   r.GetProperty("profileId").GetString()!=owner.ProfileId ||
+                                   r.GetProperty("sessionId").GetString()!=owner.SessionId ||
+                                   r.GetProperty("challenge").GetString()!=owner.Challenge ||
+                                   r.GetProperty("serverId").GetInt32()!=expectedServer ||
+                                   r.GetProperty("marchUuid").ToString()!=expectedUuid) continue;
+                                if(observed.Add(r.GetProperty("requestId").GetString()!) &&
+                                   r.GetProperty("state").GetString()=="proven") nativeProven++;
+                            }
+                            catch(IOException){} catch(JsonException){}
+                        }
+                        await Task.Delay(250,token);
+                    }
+                    bool stopAuto=await Wait("[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].every(b=>b.querySelector('strong')?.textContent.trim()!=='Stop')",30);
+                    int requestsAtExpiry=observed.Count;
+                    await Task.Delay(3600,token);
+                    // Read the same exact-owned result once more. It must not
+                    // advance after the source arrival + one polling period.
+                    foreach(string file in Directory.EnumerateFiles(productionPaths.Root,"march-follow-result.json",SearchOption.AllDirectories))
+                    {
+                        try
+                        {
+                            using var json=JsonDocument.Parse(await File.ReadAllTextAsync(file,token));
+                            var r=json.RootElement;
+                            if(r.GetProperty("sessionId").GetString()==owner.SessionId &&
+                               r.GetProperty("marchUuid").ToString()==expectedUuid)
+                                observed.Add(r.GetProperty("requestId").GetString()!);
+                        }
+                        catch(IOException){} catch(JsonException){}
+                    }
+                    await Screenshot("map014-expiry-after");
+                    bool qualifies=stopAuto && totalReadyGaps==0 &&
+                        nativeProven>=1 && observed.Count==requestsAtExpiry;
+                    receipts.Add(new{gate="truck_natural_expiry_native",qualifies,
+                        nativeProvenRequests=nativeProven,exactOwner=true,serverId=expectedServer,
+                        marchUuid=expectedUuid,arriveTs,stopRetiredWithoutClick=stopAuto,
+                        lateFollowIssued=observed.Count!=requestsAtExpiry,
+                        readinessGaps=totalReadyGaps,newWorldScan=false});
+                    await Save();
+                    if(!qualifies) throw new InvalidDataException("Natural Truck expiry lacked complete native Follow/auto-Stop/late-poll proof.");
+                    return;
+                }
+                finally
+                {
+                    await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].find(b=>b.querySelector('strong')?.textContent.trim()==='Stop');if(b)b.click();})()");
+                }
+            }
             await core.ExecuteScriptAsync("document.querySelector('.server-jump > button').click()");
             if(!await Wait("!!document.querySelector('.server-jump-popover input')")) throw new InvalidDataException("Server popover did not open.");
             await core.ExecuteScriptAsync("window.__map014Popover=document.querySelector('.server-jump-popover');window.__map014ServerInput=window.__map014Popover.querySelector('input');const input=window.__map014ServerInput;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2213');input.dispatchEvent(new Event('input',{bubbles:true}));");
