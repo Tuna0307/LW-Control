@@ -23,6 +23,13 @@ process-only path and records its hash. Default packaging remains unchanged.
 Missing DLLs do not produce packet success. The Lua observer uses bounded reads
 and records failures; acceptance still requires actual native observation.
 
+The opt-in reply window additionally excludes packets retained before dispatch,
+binds the exact observer key/manager/world, checks native bounds through the
+game's coordinate converter and waits for matching cache population. These are
+necessary guards, not an authoritative network request ID or full object-identity
+oracle. The focused runtime method reader retains full IL bytes when available;
+the admitted game reported no body for the selected seven methods.
+
 Do not run hash-gated original-bytecode tests while a diagnostic candidate is
 installed: they correctly reject its different hash. Finish exact owned Stop,
 verify restoration, then run those tests against the original installed package.

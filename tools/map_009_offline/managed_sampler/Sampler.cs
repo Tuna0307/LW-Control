@@ -7,7 +7,7 @@ using System.Text;
 namespace LWBridge.MapTrace
 {
     // Diagnostic-only; no network sends, handlers, mutations, dumps or raw buffers.
-    public static class Sampler
+    public static partial class Sampler
     {
         public static readonly Func<object, string> Read = Sample;
         static object? Field(object? o, string name)
@@ -61,12 +61,22 @@ namespace LWBridge.MapTrace
                     // Region coordinates/context only; no player/account or payload values.
                     if (name == "server" || name == "serverId" || name == "world" || name == "worldId" ||
                         name == "index" || name == "aoiIndex" || name == "lod" || name == "viewIndex" ||
-                        name == "viewLvl" || name == "x" || name == "y")
+                        name == "viewLvl" || name == "x" || name == "y" || name == "leftBottom" || name == "rightTop")
                         numbers[name] = Get(item, "GetInt", name) ?? Get(item, "GetLong", name);
                     var nested = Get(item, "GetSFSArray", name);
                     if (nested != null) arrays[name] = Size(nested);
                 }
-                rows.Add(new Dictionary<string, object?> { ["keys"] = keys, ["numbers"] = numbers, ["arrayCounts"] = arrays });
+                var points = Get(item, "GetSFSArray", "points");
+                var pointShapes = new List<object>();
+                if (Size(points) is int pn) for (int p = 0; p < Math.Min(pn, 3); p++)
+                {
+                    var point = At(points, p);
+                    var coords = new Dictionary<string, object?>();
+                    foreach (string nkey in new[] { "x", "y", "index", "pointIndex", "pointId", "id", "type" })
+                        coords[nkey] = Get(point, "GetInt", nkey) ?? Get(point, "GetLong", nkey);
+                    pointShapes.Add(new Dictionary<string, object?> { ["keys"] = Keys(point), ["mapNumbers"] = coords });
+                }
+                rows.Add(new Dictionary<string, object?> { ["keys"] = keys, ["numbers"] = numbers, ["arrayCounts"] = arrays, ["pointShapes"] = pointShapes });
             }
             return result;
         }
@@ -76,6 +86,12 @@ namespace LWBridge.MapTrace
             var rows = new List<object>();
             int matchingRows = 0;
             result["packets"] = rows;
+            if (RuntimeSource == null)
+            {
+                try { RuntimeSource = DescribeRuntimeSource(); }
+                catch (Exception e) { RuntimeSource = new Dictionary<string, object?> { ["errorType"] = e.GetType().Name }; }
+                result["runtimeSource"] = RuntimeSource;
+            }
             try
             {
                 var proxy = Field(manager, "m_proxy");

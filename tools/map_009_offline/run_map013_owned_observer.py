@@ -338,9 +338,23 @@ def main() -> int:
                         help="production coverage control, or explicit experimental native route")
     parser.add_argument("--compare-second-region", action="store_true",
                         help="after the baseline, separately observe coverage and experimental native at 545,495")
+    parser.add_argument("--fresh-reply-experiment", action="store_true",
+                        help="private source-bound native-reply completion, never default product source")
+    parser.add_argument("--camera-free-direct", action="store_true",
+                        help="additional bounded direct-request experiment without the initial camera shift")
+    parser.add_argument("--sequence-experiment", action="store_true",
+                        help="after baseline, three serial coverage regions with one final restoration")
     options = parser.parse_args()
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
+    if options.fresh_reply_experiment and (not options.baseline_region or options.unmodified_control):
+        parser.error("fresh-reply experiment requires the instrumented baseline")
+    if options.camera_free_direct and not (options.fresh_reply_experiment and options.compare_second_region):
+        parser.error("camera-free direct requires fresh-reply and second-region comparison")
+    if options.sequence_experiment and not (options.fresh_reply_experiment and options.baseline_region):
+        parser.error("sequence requires fresh-reply and a baseline")
+    if options.sequence_experiment and (options.camera_free_direct or options.compare_second_region):
+        parser.error("sequence is a distinct experiment, not mixed with direct comparisons")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -378,6 +392,19 @@ def main() -> int:
         sampler_hash = hashlib.sha256(sampler.read_bytes()).hexdigest()
     else:
         os.environ.pop("LWBRIDGE_MAP013_SAMPLER_PATH", None)
+    experiment_source_hash = None
+    if options.fresh_reply_experiment:
+        if sampler_hash is None:
+            raise RuntimeError("fresh-reply experiment requires built owned sampler")
+        from native_reply_instrument_013 import instrument_native_reply
+        original_source = overview.resource_probe_source
+        experimental_body = instrument_native_reply(original_source(), camera_free_direct=options.camera_free_direct)
+        if options.sequence_experiment:
+            from sequence_instrument_013 import instrument_sequence
+            experimental_body = instrument_sequence(experimental_body)
+        (attempt / "experimental-resource-probe.lua").write_bytes(experimental_body)
+        experiment_source_hash = hashlib.sha256(experimental_body).hexdigest()
+        overview.resource_probe_source = lambda: experimental_body
     if options.unmodified_control:
         os.environ.pop("LWBRIDGE_MAP013_PRIVATE_TRACE", None)
         os.environ.pop("LWBRIDGE_MAP013_WRAPPER_TRACE", None)
@@ -394,6 +421,7 @@ def main() -> int:
         "privateSourceSha256": hashlib.sha256(private_source.read_bytes()).hexdigest(),
         "snapshotAdapterSha256": hashlib.sha256(snapshot_adapter.read_bytes()).hexdigest(),
         "managedSamplerSha256": sampler_hash,
+        "experimentalResourceSourceSha256": experiment_source_hash,
         "gameRoot": str(GAME_ROOT), "status": "CREATED",
     }, indent=2), encoding="utf-8")
     owned = None
@@ -556,6 +584,63 @@ def main() -> int:
             raise
         if not isinstance(world, dict) or world.get("state") != "proven":
             raise RuntimeError("WorldReady has no verified positive world scene")
+        if options.sequence_experiment:
+            if not isinstance(region, dict) or region.get("state") != "proven":
+                raise RuntimeError("sequence requires a working populated baseline")
+            retire_owned_reply(live_root / "map013-native-trace-result.json",trace_id,profile,session,pid,challenge)
+            group_trace_id="map013grouptrace"+secrets.token_hex(8)
+            group_trace_time=publish_command(live_root / "map013-native-trace.txt", {
+                "schema":"1","probeVersion":"lwbridge-live-resource-probe-2",
+                "requestId":group_trace_id,"profileId":profile,"launchSessionId":session,
+                "challenge":challenge,"gamePid":str(pid)})
+            time.sleep(1)
+            previous_id=region_id
+            for baseline_index,(tx,ty) in enumerate(((545,495),(655,565)),2):
+                retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",previous_id,profile,session,pid,challenge)
+                baseline_id="map013baseline"+secrets.token_hex(8)
+                sent=publish_command(live_root / "bulk-aoi-diagnostic.txt",
+                    {**region_command,"requestId":baseline_id,"scanRunId":baseline_id,
+                     "targetTileX":str(tx),"targetTileY":str(ty),"requestMode":"coverage"})
+                baseline_result=wait_for(live_root / "bulk-aoi-diagnostic-result.json",
+                    ExpectedReply("region",baseline_id,profile,session,pid,challenge,sent,
+                                  server_id=world["serverId"],world_id=world["worldId"],
+                                  request_mode="coverage",target_tile_x=tx,target_tile_y=ty),28)
+                (attempt / f"sequence-baseline-{baseline_index}.json").write_text(json.dumps(baseline_result,indent=2),encoding="utf-8")
+                print("SEQUENCE_BASELINE",baseline_index,baseline_result.get("state"),baseline_result.get("error"),
+                      "rows",len(baseline_result.get("point_records") or []),flush=True)
+                if baseline_result["state"]!="proven" or baseline_result.get("cameraTileStable") is not True:
+                    raise RuntimeError("sequence comparison baseline failed")
+                previous_id=baseline_id
+            for index,(tx,ty,step) in enumerate(((455,425,"keep"),(545,495,"keep"),(655,565,"final")),1):
+                retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",previous_id,profile,session,pid,challenge)
+                seq_id="map013seq"+secrets.token_hex(8)
+                command={**region_command,"requestId":seq_id,"scanRunId":seq_id,
+                         "requestMode":"coverage","targetTileX":str(tx),"targetTileY":str(ty),
+                         "map013Sequence":step}
+                sent=publish_command(live_root / "bulk-aoi-diagnostic.txt",command)
+                try:
+                    result=wait_for(live_root / "bulk-aoi-diagnostic-result.json",
+                        ExpectedReply("region",seq_id,profile,session,pid,challenge,sent,
+                                      server_id=world["serverId"],world_id=world["worldId"],
+                                      request_mode="coverage",target_tile_x=tx,target_tile_y=ty),28)
+                except Exception:
+                    source=live_root / "bulk-aoi-diagnostic-result.json"
+                    if source.is_file():shutil.copyfile(source,attempt / f"sequence-region-{index}-unvalidated.json")
+                    raise
+                (attempt / f"sequence-region-{index}.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
+                print("SEQUENCE_REGION",index,step,result.get("state"),result.get("error"),
+                      "rows",len(result.get("point_records") or []),"retained",result.get("map013PositionRetained"),
+                      "restored",result.get("positionRestoredAfterResponse"),flush=True)
+                if result["state"]!="proven" or result.get("map013NativeReplyState")!="matched":
+                    raise RuntimeError("sequence region lacks verified fresh native reply")
+                if step=="keep" and result.get("map013PositionRetained") is not True:
+                    raise RuntimeError("sequence unexpectedly restored between regions")
+                if step=="final" and (result.get("cameraTileStable") is not True or result.get("positionRestoredAfterResponse") is not True):
+                    raise RuntimeError("sequence final restoration not confirmed")
+                previous_id=seq_id
+            group_trace=wait_for(live_root / "map013-native-trace-result.json",
+                ExpectedReply("trace",group_trace_id,profile,session,pid,challenge,group_trace_time),24)
+            (attempt / "sequence-trace.json").write_text(json.dumps(group_trace,indent=2),encoding="utf-8")
         if options.compare_second_region:
             if not isinstance(region, dict) or region.get("state") != "proven":
                 raise RuntimeError("cannot compare a second region without a working baseline")
@@ -563,7 +648,7 @@ def main() -> int:
             # restores after its response; native remains an explicit experiment.
             # This does not enable a consecutive-region production shortcut.
             previous_trace_id, previous_region_id = trace_id, region_id
-            for mode in ("coverage", "native"):
+            for mode in (("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")):
                 retire_owned_reply(live_root / "map013-native-trace-result.json",
                                    previous_trace_id, profile, session, pid, challenge)
                 retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",
@@ -578,6 +663,8 @@ def main() -> int:
                 next_id = "map013second" + secrets.token_hex(8)
                 next_command = {**region_command, "requestId": next_id, "scanRunId": next_id,
                                 "requestMode": mode, "targetTileX": "545", "targetTileY": "495"}
+                if mode == "direct":
+                    next_command["requestedCount"] = "50"
                 next_time = publish_command(live_root / "bulk-aoi-diagnostic.txt", next_command)
                 try:
                     result = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
@@ -607,6 +694,13 @@ def main() -> int:
         print("LIVE_OBSERVER_ERROR", exception, flush=True)
         return 2
     finally:
+        if options.sequence_experiment and owned is not None and 'group_trace_id' in locals() and not (attempt / "sequence-trace.json").exists():
+            try:
+                partial_trace=wait_for(live_root / "map013-native-trace-result.json",
+                    ExpectedReply("trace",group_trace_id,profile,session,pid,challenge,group_trace_time),24)
+                (attempt / "sequence-trace.json").write_text(json.dumps(partial_trace,indent=2),encoding="utf-8")
+            except Exception as trace_error:
+                (attempt / "sequence-trace-error.txt").write_text(repr(trace_error),encoding="utf-8")
         lease_stop.set()
         if lease_thread is not None:
             lease_thread.join(timeout=3)

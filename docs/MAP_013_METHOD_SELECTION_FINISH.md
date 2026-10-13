@@ -1,5 +1,12 @@
 # MAP-013 — finite method assessment and decision
 
+**Latest 2026-10-13:** fresh restored controls pass the opt-in native reply/bounds/
+cache check. Camera-free direct and consecutive final-return candidates remain
+rejected for the tested inputs. Native bounds can remain in the prior region
+despite changed target x/y; those target echoes alone are insufficient. No
+production change or qualified speedup. Follow the current continuation's actual
+camera-anchor/subscription-boundary investigation, not the same failed calls.
+
 **Current lead observation, 2026-10-13:** actual native incoming replies are now
 captured in two populated regions. A narrower camera-assisted diagnostic also
 received a fresh 18-point reply but falsely timed out on its empty-centre occupancy

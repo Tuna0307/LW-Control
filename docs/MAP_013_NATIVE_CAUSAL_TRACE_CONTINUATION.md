@@ -1,5 +1,82 @@
 # MAP-013 — live native causal observer continuation, 2026-10-12
 
+## Current: reply/cache guard and candidate assessment, 2026-10-13
+
+Continued directly from `a3919285`. **Production is unchanged; MAP-013 PARTIAL.**
+An explicit `--fresh-reply-experiment` instruments only the isolated probe copy.
+The managed observer arms before dispatch, excludes existing packet references,
+binds one request/profile/session/PID and manager, and uses a bounded monotonic
+window. It validates actual native server/world/LOD and target coordinates.
+It additionally converts native leftBottom/rightTop with the game's actual
+`WorldScene.IndexToTilePos`, verifies that those bounds contain the target and
+waits for the point cache population in those bounds to equal the reply count.
+Missing bounds/cache, foreign manager/key, stale packets, truncated inspection
+and malformed points fail closed. Genuinely empty replies can pass; a missing
+points array cannot. Cache population is **not** independent full identity proof.
+
+The fresh-reply/cache check runs **before record collection**, then again before
+completion. This ordering matters: a trial produced a fresh 62-point native reply
+but returned zero collected records. That negative remains saved. Native reply
+arrival alone is not sufficient proof that a point snapshot is ready.
+
+### Genuine final control
+
+`artifacts/map-013-live/native-causal-20261013-110648`:
+
+| Scope | Records | Outcome |
+| --- | ---: | --- |
+| Coverage 455/425 | 62 | fresh reply/cache match and restored |
+| Coverage 545/495, 50 AOIs | 47 | fresh reply/cache match and restored |
+| Unexpanded camera-assisted 545/495, 20 AOIs | 22 | fresh reply/cache match and restored |
+
+The 20-AOI control contains precisely the same 22 extracted rows/fields as those
+AOIs in the wider capture: missing=0, extra=0, differingRows=0. This is a bounded
+Resource/City-selected observation, not an all-kind/native-field census or a new
+full-world speed benchmark. Centre occupancy remains zero in all three controls.
+
+### Candidate results
+
+- **Camera-free direct:** the existing native SendAoiRequest branch was tried with
+  its initial camera shift suppressed, leaving the actual home view in place.
+  No fresh target-region packet was observed; later packets described the home
+  region. It failed the native-reply gate and stays disabled. This rejects the
+  tested route, not every conceivable camera-free method.
+- **Consecutive regions / final-only restoration:** the first region captured
+  valid records without returning home. The second failed. Its native packet
+  reported target x/y=545/495 but bounds leftBottom=420431/rightTop=450481—still
+  the first region's footprint—and returned 13 points. The native current AOI
+  set also omitted the second target. Resetting response flags, rearming the
+  observer, normal native refresh, StartViewRequest and post-projection anchor
+  refresh did not qualify the candidate. Do not accept echoed target coordinates
+  as proof of acquired region geometry. Failed inputs/receipts remain saved.
+- **Runtime source:** a read-only focused reflection capture retained the actual
+  game method metadata tokens. All seven selected methods reported no IL body.
+  This does not establish source unrecoverability and is not decompilation.
+
+The sequence remains opt-in, serial and experimental. It records capture-only
+steps as position-retained, preserves the first home snapshot, rejects foreign
+owners/server/mode and has bounded idle/error restoration. Its failed region
+was never published to a product database or enabled in production.
+
+### Checks and next meaningful work
+
+70 Map Python checks, five REA helper checks, managed reader/window cases, four
+actual generated-helper Lua 5.3 cases and the diagnostic Release build pass.
+Lupa2.8 is isolated under ignored artifacts; global Python/settings were not
+changed. One premature test sweep rejected an injected package as expected;
+the final post-restoration sweep passes without changing original hash gates.
+All ten new live sessions have exact Stop and original-script restoration;
+no game/launcher/Desktop actor remains. No desktop input or prohibited actions.
+Compact complete-attempt receipt: `proof/MAP-013-REPLY-CACHE-CANDIDATES-2026-10-13.json`.
+
+Next: investigate logical TouchCamera position versus the actual camera-anchor
+and native subscription bounds. Observe the real outbound bounds constructor,
+then require target inclusion in both native bounds and current AOIs, cache/row
+identity and exact restoration. Decode the nested native points schema where
+needed for independent identity validation. Do not repeat these same failed call
+sequences or run a speed benchmark on them. Retain the supported home-restored
+shared sweep until a candidate passes these gates.
+
 ## Current: lead takeover, genuine same-session replies, 2026-10-13
 
 The lead took over at `0022c4ce`. Background observation used new exact-owned

@@ -17,6 +17,12 @@ if (parsed.RootElement.GetProperty("sendScanned").GetInt32() != 3 ||
     parsed.RootElement.GetProperty("packets").GetArrayLength() != 1 ||
     output.Contains("PRIVATE_VALUE") || output.Contains("PRIVATE_LOGIN") ||
     output.Contains("PRIVATE_COMMAND")) throw new Exception("sampler admission/redaction failure");
+var runtimeSource = parsed.RootElement.GetProperty("runtimeSource");
+var start = runtimeSource.EnumerateArray().Single(v => v.GetProperty("method").GetString() == "StartViewRequest");
+var raw = Convert.FromBase64String(start.GetProperty("ilBase64").GetString()!);
+if (raw.Length != start.GetProperty("byteLength").GetInt32() ||
+    !start.GetProperty("references").EnumerateArray().Any(v => v.GetProperty("name").GetString() == "WorldPointManager::_started"))
+    throw new Exception("runtime source reference/body retention failed");
 using var missing = JsonDocument.Parse(Sampler.Read(new object()));
 if (missing.RootElement.GetProperty("packets").GetArrayLength() != 0)
     throw new Exception("missing provider produced packets");
@@ -42,6 +48,39 @@ if (!capped.RootElement.GetProperty("packetRowsTruncated").GetBoolean() ||
     capped.RootElement.GetProperty("packets").GetArrayLength() != 120) throw new Exception("missing row truncation");
 Console.WriteLine("MAP013_MANAGED_SAMPLER_INERT_OK enum=3 map=1 segments=1 secrets=0 missing=0 truncation=1");
 
+var owned = new Manager();
+string context = "r1|p1|s1|123|2212|0|545|495|0";
+Packet Reply(int server = 2212, int x = 545, bool empty = false) => new() { info = new Sfs(new() {
+    ["c"] = "world.get.block", ["p"] = new Sfs(new() { ["serverPointArr"] = new SfsArray([
+        new Sfs(new() { ["serverId"] = server, ["worldId"] = 0, ["viewLvl"] = 0,
+            ["x"] = x, ["y"] = 495, ["leftBottom"] = 450500, ["rightTop"] = 550600,
+            ["points"] = new SfsArray(empty ? [] : [new Sfs(new())]) })]) }) }) };
+owned.m_proxy.profiler._receiveData.TryAdd(Reply(), new object());
+var scene=new Scene();
+if (!Sampler.Begin(owned, context) || !Sampler.BindWorld(scene,context) || Sampler.Match(owned, context) != "waiting")
+    throw new Exception("cached reply admitted");
+if (Sampler.Begin(owned, "r2|p2|s2|456|2212|0|545|495|0") || Sampler.Retire("foreign"))
+    throw new Exception("foreign rearm/retirement changed window");
+owned.m_proxy.profiler._receiveData.TryAdd(Reply(server: 2213), new object());
+owned.m_proxy.profiler._receiveData.TryAdd(Reply(x: 455), new object());
+if (Sampler.Match(owned, context) != "waiting" || Sampler.Match(new Manager(), context) != "unarmed")
+    throw new Exception("foreign reply/manager admitted");
+owned.m_proxy.profiler._receiveData.TryAdd(Reply(empty: true), new object());
+if (Sampler.Match(owned, context) != "matched" || !Sampler.Retire(context) ||
+    Sampler.Match(owned, context) != "unarmed") throw new Exception("empty reply or retirement failed");
+if (Sampler.Begin(new object(), context) || Sampler.Begin(owned, "invalid") ||
+    Sampler.Begin(owned, "r1|p1|s1|123|2212|0|545|495|1")) throw new Exception("invalid admission");
+var tooMany = new Manager();
+for (int i = 0; i < 513; i++) tooMany.m_proxy.profiler._receiveData.TryAdd(new Packet(), new object());
+if (Sampler.Begin(tooMany, context)) throw new Exception("incomplete baseline admitted");
+Console.WriteLine("MAP013_NATIVE_REPLY_WINDOW_INERT_OK cached=reject foreign=reject empty=match retirement=exact bounds=reject");
+var pendingCache=new Manager();var pendingScene=new Scene();
+if (!Sampler.Begin(pendingCache,context) || !Sampler.BindWorld(pendingScene,context)) throw new Exception("cache check admission");
+pendingCache.m_proxy.profiler._receiveData.TryAdd(Reply(),new object());
+if (Sampler.Match(pendingCache,context)!="waiting") throw new Exception("unpopulated cache admitted");
+pendingScene.PointManager._pointInfos.Add(495545,new CachedPoint {pointIndex=495545});
+if (Sampler.Match(pendingCache,context)!="matched" || !Sampler.Retire(context)) throw new Exception("populated cache did not match");
+
 public sealed class Manager { public Proxy m_proxy = new(); }
 public sealed class Proxy { public Profiler profiler { get; } = new(); }
 public sealed class Profiler
@@ -63,3 +102,18 @@ public sealed class SfsArray(Sfs[] values)
     public int Size() => values.Length;
     public Sfs GetSFSObject(int index) => values[index];
 }
+// Inert source-reflection control; not a game fixture or native witness.
+public sealed class WorldPointManager
+{
+    private bool _started;
+    public void StartViewRequest() => _started = true;
+    public bool UpdateViewRequest(bool force) => force && _started;
+}
+public sealed class Scene
+{
+    public CacheManager PointManager {get;}=new();
+    public Tile IndexToTilePos(int index)=>new() {x=index%1000,y=index/1000};
+}
+public sealed class Tile {public int x {get;set;} public int y {get;set;}}
+public sealed class CachedPoint {public int pointIndex;}
+public sealed class CacheManager {public Dictionary<int,CachedPoint> _pointInfos=new();}

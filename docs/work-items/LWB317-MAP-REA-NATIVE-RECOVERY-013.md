@@ -1,5 +1,12 @@
 # MAP-013 — configure native REA and recover scanner mechanisms
 
+**Latest continuation, 2026-10-13 — PARTIAL:** implemented and genuinely tested
+an opt-in fresh reply/bounds/cache gate. Restored controls pass; camera-free
+direct and consecutive-region candidates failed qualification. No faster route
+or product rollout. New exact edge: logical target position versus actual native
+camera anchors/acquisition bounds. Current receipt:
+`docs/proof/MAP-013-REPLY-CACHE-CANDIDATES-2026-10-13.json`.
+
 **Lead takeover checkpoint, 2026-10-13 — PARTIAL:** corrected diagnostic startup,
 baseline selection, shared-file reader and observation lifetime. Genuine incoming
 `world.get.block` replies now establish two populated coverage controls. The

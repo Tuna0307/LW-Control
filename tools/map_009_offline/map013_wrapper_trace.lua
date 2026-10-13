@@ -125,6 +125,17 @@ local function _trace_view()
     local result={ worldPresent=world~=nil, pointManagerPresent=manager~=nil,
         tileX=tile and tonumber(_trace_safe(tile,"x") or _trace_safe(tile,"X")),
         tileY=tile and tonumber(_trace_safe(tile,"y") or _trace_safe(tile,"Y")) }
+    local camera=world and _trace_safe(world,"Camera")
+    if camera~=nil then
+        local ok,unity=pcall(function()
+            local field=camera:GetType():GetField("camera",52)
+            return _trace_safe(camera,"__camera") or (field and field:GetValue(camera))
+        end)
+        if ok and unity~=nil then
+            result.cameraFov=tonumber(_trace_safe(unity,"fieldOfView"))
+            result.cameraAspect=tonumber(_trace_safe(unity,"aspect"))
+        end
+    end
     if world~=nil then
         local ok, typ=pcall(function() return world:GetType() end)
         if ok and typ~=nil then result.worldType=tostring(_trace_safe(typ,"Name") or typ) end
@@ -184,9 +195,10 @@ local function _trace_world_packets(tr)
     local entry=cs and _trace_safe(cs,"GameEntry")
     local manager=entry and _trace_safe(entry,"Network")
     local ok,value=pcall(function()return _trace_managed_read(manager)end)
-    if ok and type(value)=="string" and #value<=100000 then
+    if ok and type(value)=="string" and #value<=250000 then
         tr.managedPackets[#tr.managedPackets+1]={elapsed=_trace_time()-tr.started,json=value}
-    elseif not ok then tr.samplerError=string.sub(tostring(value),1,200) end
+    elseif not ok then tr.samplerError=string.sub(tostring(value),1,200)
+    else tr.samplerError="managed_snapshot_size_limit" end
 end
 local function _trace_finish(status)
     local tr=_trace_active

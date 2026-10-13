@@ -1,5 +1,14 @@
 # MAP-012 — owner scanner questions and continuation (2026-10-12)
 
+**Latest continuation, 2026-10-13:** an opt-in fresh-reply/bounds/cache gate passes
+restored native controls, including empty centres; no production rollout. Q1 now
+has a concrete failure distinction: target x/y can change while native acquisition
+bounds and the current AOI footprint remain in the preceding region. Tested
+camera-free direct and consecutive/final-only-restoration variants failed these
+checks. Q2/Q3/Q4 and faster-method qualification remain open; no new all-kind
+benchmark. See the current continuation and
+`proof/MAP-013-REPLY-CACHE-CANDIDATES-2026-10-13.json`.
+
 **Current lead observation, 2026-10-13:** two populated regions now have actual
 incoming `world.get.block` context: 50 and 48 points on server 2212/world 0/LOD0.
 The narrower camera-assisted second-region experiment also received 18 fresh

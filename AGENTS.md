@@ -1,5 +1,15 @@
 # LW-Control — current contributor instructions
 
+Latest lead continuation, 2026-10-13: opt-in fresh native reply/bounds/cache
+completion now passes genuine restored controls. Camera-free direct and retained
+consecutive-view candidates failed native region/footprint checks. A reply's x/y
+can name the new target while leftBottom/rightTop still describe the old region;
+do not accept target echoes as acquired-area proof. Read the current top section
+of docs/MAP_013_NATIVE_CAUSAL_TRACE_CONTINUATION.md and
+docs/proof/MAP-013-REPLY-CACHE-CANDIDATES-2026-10-13.json. Production remains
+unchanged and scanner optimization PARTIAL. Do not repeat the same failed calls.
+The next edge is actual camera anchors/subscription bounds versus logical tile.
+
 Current lead takeover, 2026-10-13: real incoming world.get.block replies now prove
 populated first and second regions. The narrower diagnostic's timeout is a false
 negative on empty-centre occupancy, with exact same-footprint records in the
