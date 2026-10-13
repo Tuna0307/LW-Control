@@ -3,6 +3,10 @@
 Owner test delivery, 2026-10-13: owner authorises merging the current verified
 scanner from PR #9 into main for personal testing. Read
 docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md and its delivery receipt.
+PR #9 is now merged; source 6f93c109 has a published Windows test package.
+Retire the merged feature refs after checking unique commits; preserve ignored
+analysis artifacts. Continue future implementation on a lead-assigned branch,
+not the closed PR or directly on main. Older same-branch instructions are history.
 This accepts the bounded scanner/name/saved-owner corrections, not completion
 of MAP-013 optimization or whole Map. Experimental camera-free/consecutive
 routes remain disabled and diagnostic tooling is excluded from runtime packaging.

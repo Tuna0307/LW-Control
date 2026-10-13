@@ -1,5 +1,8 @@
 # Current scanner: owner test delivery
 
+**MERGED / TEST PACKAGE PUBLISHED.** See the
+[verified delivery receipt](MAP_SCANNER_TEST_RECEIPT_2026-10-13.md).
+
 The owner explicitly requested promotion of the current best verified scanner to
 main for personal testing on 2026-10-13. This accepts the bounded working product
 changes in PR #9, reviewed at `f6267abdb5002ef1e51bf9840a5391d4dc869043`.
