@@ -1,6 +1,18 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const GameAssetReaderContext = createContext(null);
+export function createProfileGameAssetReader(bridge) {
+  if (!bridge.available) return null;
+  const owner = bridge.currentProfileOwner();
+  return (request) => {
+    if (!bridge.isCurrentProfileOwner(owner)) {
+      const error = new Error("Game image profile retired");
+      error.code = "PROFILE_GENERATION_RETIRED";
+      return Promise.reject(error);
+    }
+    return bridge.invokeProfileScoped("game_asset_image", request);
+  };
+}
 export function GameAssetImageProvider({ readImage = null, children }) {
   return <GameAssetReaderContext.Provider value={readImage}>{children}</GameAssetReaderContext.Provider>;
 }

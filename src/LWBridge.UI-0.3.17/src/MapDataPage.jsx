@@ -113,7 +113,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
   const columnWidths = columns.map((column) => Number(column.width.match(/\d+/)[0]) + 8);
   const rowKey = (row) => `${kind}:${row.serverId}:${String(row.uuid || row.marchUuid || row.recordKey || `${row.pointIndex || ""}:${row.ownerUid || ""}:${row.updatedAt || ""}`)}`;
   function coordinateCell(row) {
-    if (kind === "truck" || kind === "railway") {
+    if (kind === "truck" || kind === "railway" || (kind === "monster" && row.marchUuid)) {
       const marchUuid = String(row.marchUuid || "").trim();
       if (!marchUuid) return "-";
       const key = `${row.serverId}:${marchUuid}`;
@@ -396,7 +396,7 @@ export function MapDataPage({
     // On owner remount this is cleared before the first asynchronous read,
     // including errors/empty stores/offline transitions.
     setSavedServers([]);
-    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") {
+    if (!backendAvailable || scanState.isReading || typeof mapApi?.savedServers !== "function") {
       setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
       return undefined;
     }
@@ -406,15 +406,19 @@ export function MapDataPage({
       const available = Array.isArray(servers)
         ? [...new Set(servers.filter((server) => Number.isSafeInteger(server) && server > 0))]
         : [];
+      // Saved rows keep their source server when Auto returns home. A live
+      // view is also selectable even before its first publication.
+      if (scanState.serverId > 0 && !available.includes(scanState.serverId)) available.unshift(scanState.serverId);
       setSavedServers(available);
-      setBrowseServerId((current) => available.includes(current) ? current : (available[0] ?? 0));
+      setBrowseServerId((current) => available.includes(current) ? current :
+        (available.includes(scanState.serverId) ? scanState.serverId : available[0] ?? 0));
     }).catch(() => {
       if (retired || !mountedOwnerRef.current) return;
       setSavedServers([]);
       setBrowseServerId(0);
     });
     return () => { retired = true; };
-  }, [backendAvailable, mapApi, scanState.serverId]);
+  }, [backendAvailable, mapApi, scanState.serverId, scanState.isReading]);
   useEffect(() => {
     if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
     const generation = ++localeRequestGeneration.current;
@@ -909,6 +913,9 @@ export function MapDataPage({
 
   function changeTab(nextTab) {
     if (nextTab === tab) return;
+    followGeneration.current += 1;
+    setFollowing(null);
+    setActionBusy((value) => value.startsWith("jump:") ? "" : value);
     retirePreviewOperation();
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
@@ -951,7 +958,7 @@ export function MapDataPage({
   }
 
   async function coordinateJump(row) {
-    const moving = tab === "truck" || tab === "railway";
+    const moving = tab === "truck" || tab === "railway" || (tab === "monster" && Boolean(row.marchUuid));
     const marchUuid = moving ? String(row.marchUuid || "").trim() : "";
     const followKey = moving ? `${row.serverId}:${marchUuid}` : "";
     if (moving && following?.key === followKey) {
@@ -961,6 +968,10 @@ export function MapDataPage({
     }
     followGeneration.current += 1;
     const generation = followGeneration.current;
+    const issuedApi = mapApi;
+    const issuedTab = tab;
+    const currentNavigation = () => mountedOwnerRef.current && generation === followGeneration.current &&
+      previewContextRef.current?.mapApi === issuedApi && previewContextRef.current?.tab === issuedTab;
     setFollowing(null);
     setActionBusy(moving ? `jump:${followKey}` : `jump:${row.serverId}:${row.x}:${row.y}`);
     setQueryError("");
@@ -968,17 +979,18 @@ export function MapDataPage({
       if (moving) {
         if (!marchUuid || typeof mapApi?.marchFollow !== "function") throw new Error("MARCH_FOLLOW_UNAVAILABLE");
         await mapApi.marchFollow(row);
+        if (!currentNavigation()) return;
         // The native command binds session, server and march UUID. A fresh
         // status read authorizes subsequent passive tracking after Auto return.
         const status = await mapApi.scanStatus();
-        if (!mountedOwnerRef.current || generation !== followGeneration.current) return;
+        if (!currentNavigation()) return;
         if (status.serverId !== row.serverId || status.isReading) throw new Error("MARCH_FOLLOW_SERVER_CHANGED");
         commitScanState(status);
         setFollowing({ key: followKey, kind: tab, serverId: row.serverId, marchUuid, arriveTs: Number(row.arriveTs) || 0, mapApi });
       } else await mapApi.coordinateJump(row);
     }
-    catch (error) { setQueryError(errorText(error)); }
-    finally { setActionBusy(""); }
+    catch (error) { if (currentNavigation()) setQueryError(errorText(error)); }
+    finally { if (currentNavigation()) setActionBusy(""); }
   }
 
   // Passive observation: each poll resolves the same March UUID through the
@@ -1391,7 +1403,7 @@ export function MapDataPage({
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
-            {scanState.serverId <= 0 && savedServers.length > 0 ? (
+            {!scanState.isReading && savedServers.length > 0 ? (
               <label className="map-filter-field"><span>{t("map.savedServer")}</span>
                 <select data-map-saved-server aria-label={t("map.savedServer")} value={dataServerId}
                   onChange={(event) => { setBrowseServerId(Number(event.target.value)); setPage(1); }}>

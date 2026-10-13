@@ -1,5 +1,10 @@
 # MAP-014 owner fixes — partial functional handoff (2026-10-13)
 
+**Current continuation:** lead takeover findings and interrupted working state
+are in `MAP_014_LEAD_TAKEOVER.md`; worker resumes
+`work-items/LWB317-MAP-014-WORKER-TAKEOVER.md`. The record below is preserved
+historical worker evidence, not current final acceptance.
+
 **Disposition: PARTIAL.** Branch `codex/map-owner-fixes-014` based on
 `67e07d6f4b562cbbd23af7513ab862883fc6112c`. The nine supplied screenshots
 were examined as observations. A subsequent owner-authorized task-owned native

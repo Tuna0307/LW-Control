@@ -250,6 +250,7 @@ export function buildSearchPayload(kind, query = {}) {
     "withoutAlliance", "markedOnly", "quality", "specialOnly", "reindeerOnly", "itemKey",
     "completionStatus", "plunderableOnly", "includeForeignRadarTreasures", "luckyFirst",
     "viewerUid", "viewerAllianceId", "minLevel", "maxLevel",
+    "resourceAmountState", "resourceTileState", "escortPowerMaxMillions", "itemKeys",
   ]) {
     if (query[key] !== undefined && query[key] !== null && query[key] !== "") normalized[key] = query[key];
   }

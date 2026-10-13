@@ -166,8 +166,16 @@ await switchOwner('A'); // A:13
 assert.equal(selected(), '2212');
 online=true;scanServer=2212;
 await render();await flush();
-assert.equal(document.querySelector('[data-map-saved-server]'), null,
-  'online authoritative current server removes offline saved selector');
+assert.equal(selected(), '2212',
+  'MAP014 preserves the current owner saved selector while connected');
+savedValues.set('A',[2212,2213]);
+scanServer=2213; await render(); await flush();
+assert.deepEqual(selections(),['2212','2213']);
+const serverSelect=document.querySelector('[data-map-saved-server]');
+await flush(()=>{serverSelect.value='2213';serverSelect.dispatchEvent(new window.Event('change',{bubbles:true}));});
+scanServer=2212; await render(); await flush();
+assert.equal(selected(),'2213','Auto returning home erased the remote dataset selection');
+savedValues.set('A',[2212]);
 online=false;scanServer=0;
 await render();await flush();
 assert.equal(selected(), '2212');

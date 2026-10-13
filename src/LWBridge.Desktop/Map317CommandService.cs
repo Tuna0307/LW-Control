@@ -151,7 +151,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     public bool CanHandle(string command) => Commands.Contains(command);
 
-    internal object CreateStatus() => control.ScanState;
+    internal object CreateStatus() => ApplyStatusOverlay(control.ScanState);
 
     internal bool IsScanActive => control.ScanState.IsReading;
 
@@ -285,9 +285,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
                 case "map_summary":
                     {
-                        _ = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
+                        Map317.MapScanState observedState = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
                         var summary = control.ReadSummary();
-                        return new { serverId = summary.ServerId, counts = summary.Counts, scanState = summary.ScanState };
+                        return new { serverId = summary.ServerId, counts = summary.Counts, scanState = observedState };
                     }
                 case "map_data_options":
                     return control.ReadOptions(OptionsServerId(payload));
@@ -616,6 +616,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         CurrentClientMapStatusContext context = observation.Context;
         return state with
         {
+            ServerId = !state.IsReading && context.ServerId > 0 ? context.ServerId : state.ServerId,
+            ServerIdSource = !state.IsReading && context.ServerId > 0 ? "live" : state.ServerIdSource,
             IsInWorld = context.IsInWorld,
             HomeServerId = context.HomeServerId,
             SeasonServerIds = context.SeasonServerIds,

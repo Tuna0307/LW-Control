@@ -3125,6 +3125,13 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 record_error = "treasure_type_invalid"
                 return false
             end
+            -- Match UIWorldActRadarTreasurePointCtrl.GetTreasureData: eventId
+            -- resolves the real event template, including Celebration Party.
+            -- Missing event metadata remains unknown rather than a fabricated name.
+            local event_id = scalar_field(info, { "eventId", "EventId" })
+            local event_manager = rawget(_G, "DataCenter") and safe_get(DataCenter, "DetectEventTemplateManager") or nil
+            local ok_template, event_template = call(event_manager, "GetDetectEventTemplate", event_id)
+            local treasure_name_key = ok_template and event_template and scalar_field(event_template, { "name" }) or nil
             local reward_users = safe_get(info, "rewardUserList") or safe_get(info, "RewardUserList")
             local digging_users = safe_get(info, "diggingUserList") or safe_get(info, "DiggingUserList")
             local rewarded_count = collection_count(reward_users)
@@ -3150,6 +3157,7 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 ownerUid = tostring(scalar_field(info, { "ownerUid", "OwnerUid" }) or ""),
                 ownerName = scalar_field(info, { "ownerName", "OwnerName" }),
                 eventId = scalar_field(info, { "eventId", "EventId" }),
+                treasureNameKey = treasure_name_key and tostring(treasure_name_key) or nil,
                 treasureType = math.floor(treasure_type), suppliesType = 0,
                 startTime = scalar_field(info, { "startTime", "StartTime" }),
                 completionTime = scalar_field(info, { "completionTime", "CompletionTime" }),
@@ -4666,6 +4674,9 @@ local function doomsday_boss_records(world, block_size, block_count, selected_lo
                             uuid = uuid,
                             kind = "monster",
                             runtimeClass = "LWDoomsdayManager.BossVO",
+                            -- UIDoomsdayBossItem passes this exact boss.uid to
+                            -- MoveToWorldMarchAndOpen; its callback uses GetMarch(uid).
+                            marchUuid = uuid,
                             serverId = current_server_id(),
                             worldId = 0,
                             x = tile.x, y = tile.y, positionIndex = position_index,
@@ -5065,6 +5076,37 @@ function M._map014CameraCheckpointMatches(baseline, current)
     return same(baseline, current)
 end
 
+function M._map014StandardCameraProjection(checkpoint)
+    -- Only classify a supported native standard perspective. Matching the
+    -- stored values alone is not a reason to assign projectionMatrix: Unity
+    -- then stops updating its projection when fieldOfView/aspect changes.
+    local cs = rawget(_G, "CS")
+    local matrix_type = cs and cs.UnityEngine and cs.UnityEngine.Matrix4x4
+    local perspective = matrix_type and safe_get(matrix_type, "Perspective")
+    if checkpoint == nil or checkpoint.orthographic or type(perspective) ~= "function" then return false end
+    local ok, expected = pcall(perspective, checkpoint.fov, checkpoint.aspect,
+        checkpoint.nearClipPlane, checkpoint.farClipPlane)
+    if not ok or expected == nil then return false end
+    local values = {}
+    for key, _ in pairs(checkpoint.projection or {}) do values[key] = tonumber(safe_get(expected, key)) end
+    return M._map014CameraCheckpointMatches(checkpoint.projection, values)
+end
+
+function M._map014RestoreCameraProjection(unity_camera, snapshot)
+    if unity_camera == nil or snapshot == nil or snapshot.checkpoint == nil then return false end
+    local ok = true
+    for _, field in ipairs({ "fieldOfView", "aspect", "orthographic", "orthographicSize", "nearClipPlane", "farClipPlane" }) do
+        if snapshot.checkpoint[field == "fieldOfView" and "fov" or field] ~= nil and
+           not reflected_set_value(unity_camera, field, snapshot.checkpoint[field == "fieldOfView" and "fov" or field]) then ok = false end
+    end
+    if snapshot.standardProjection then
+        if not select(1, call(unity_camera, "ResetProjectionMatrix")) then ok = false end
+    elseif snapshot.projection ~= nil then
+        if not reflected_set_value(unity_camera, "projectionMatrix", snapshot.projection) then ok = false end
+    else ok = false end
+    return ok
+end
+
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
     local restore_snapshot = M._map014CameraRestore
@@ -5114,8 +5156,8 @@ local function restore_bulk_aoi_state(point_manager)
     end
     -- These must be restored AFTER RefreshCameraAnchor, which can rebuild the
     -- physical Unity transform/projection even with the same logical tile.
-    if bulk_aoi_native_unity_camera ~= nil and restore_snapshot ~= nil and restore_snapshot.projection ~= nil and
-       not reflected_set_value(bulk_aoi_native_unity_camera, "projectionMatrix", restore_snapshot.projection) then ok = false end
+    if bulk_aoi_native_unity_camera ~= nil and restore_snapshot ~= nil and
+       not M._map014RestoreCameraProjection(bulk_aoi_native_unity_camera, restore_snapshot) then ok = false end
     if restore_snapshot ~= nil and restore_snapshot.transform ~= nil then
         if restore_snapshot.rotation ~= nil and
            not reflected_set_value(restore_snapshot.transform, "rotation", restore_snapshot.rotation) then ok = false end
@@ -5564,9 +5606,15 @@ local function pump_bulk_aoi_diagnostic(now)
             fail_bulk_aoi(request, "native_camera_projection_state_unavailable", nil, point_manager)
             return true
         end
+        if (request.requestMode == "expanded" or request.requestMode == "coverage") and
+           not M._map014StandardCameraProjection(checkpoint) then
+            fail_bulk_aoi(request, "unsupported_custom_camera_projection", nil, point_manager)
+            return true
+        end
         bulk_aoi_native_unity_camera = unity_camera
         M._map014CameraRestore = {
             projection = projection,
+            standardProjection = M._map014StandardCameraProjection(checkpoint),
             transform = transform,
             rotation = safe_get(transform, "rotation"),
             position = safe_get(transform, "position"),

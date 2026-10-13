@@ -244,6 +244,11 @@ internal static class Map014OwnerFixChecks
             // list on exactly the same run; an authoritative empty read clears it.
             JsonElement status = await Invoke(service, "map_scan_status", new { });
             Require(status.GetProperty("truckMatchServerIds").GetArrayLength() == 2, "initial native warzone list");
+            Require(Json(service.CreateStatus()).GetProperty("truckMatchServerIds").GetArrayLength() == 2,
+                "synchronous normal-window status erased native warzones");
+            JsonElement summaryStatus = await Invoke(service,"map_summary",new{});
+            Require(summaryStatus.GetProperty("scanState").GetProperty("truckMatchServerIds").GetArrayLength() == 2,
+                "summary discarded its freshly observed native warzones");
             currentStatus = null;
             status = await Invoke(service, "map_scan_status", new { });
             Require(status.GetProperty("truckMatchServerIds").GetArrayLength() == 2, "failed poll flickered options");

@@ -1,5 +1,17 @@
 # LW-Control — current contributor instructions
 
+Latest owner direction, 2026-10-13: lead execution stopped; hand off the
+interrupted MAP-014 work to one solo worker on codex/map-owner-fixes-014 / PR #10.
+Read docs/MAP_014_LEAD_TAKEOVER.md and
+docs/work-items/LWB317-MAP-014-WORKER-TAKEOVER.md. Genuine camera/full-scan,
+native image/filter/warzone/Follow evidence and negatives are preserved.
+Connected saved-server selection is unfinished: the new MAP011 inverse fails
+because the live-server effect still overwrites the chosen remote dataset.
+Fix it first; do not call this checkpoint accepted or merge-ready. Finish the
+13 owner issues, then qualify consecutive-region/final-only restoration and
+zoom/FOV acquisition improvements with fresh-data/coverage and native cleanup.
+Existing background-only and no-account-action authority remains unchanged.
+
 Latest owner bug assignment, 2026-10-13: complete
 docs/work-items/LWB317-MAP-OWNER-FIXES-014.md on a single new
 codex/map-owner-fixes-014 branch from current main. Prioritise distorted camera

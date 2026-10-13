@@ -4,6 +4,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEscortMillions } from "../src/mapOwnerFilters.js";
 import { mapResourceAmount, mapResourceTerrain, mapResourceStatus } from "../src/mapTablePresentation.js";
+import { buildSearchPayload } from "../src/mapBackend.js";
+
+for (const [kind, filters] of [["resource",{minLevel:5,maxLevel:5,resourceAmountState:"full",resourceTileState:"black"}],
+    ["truck",{escortPowerMaxMillions:25,itemKeys:["reward:1:100","reward:1:500"]}]]) {
+  const payload=buildSearchPayload(kind,{serverId:2212,...filters});
+  for (const [key,value] of Object.entries(filters)) assert.deepEqual(payload.query[key],value,`Production bridge stripped ${key}`);
+}
 
 assert.deepEqual(parseEscortMillions("25.5"), { valid: true, value: 25.5 });
 assert.deepEqual(parseEscortMillions(""), { valid: true, value: null });
@@ -25,12 +32,26 @@ const React = req("react");
 let createRoot;
 const uiRoot = path.join(rootPath, "src");
 const bundle = await build({ stdin: {
-  contents: 'export {MapDataPage} from "./MapDataPage.jsx"; export {I18nProvider} from "./i18n.jsx";',
+  contents: 'export {MapDataPage} from "./MapDataPage.jsx"; export {I18nProvider} from "./i18n.jsx"; export {createProfileGameAssetReader} from "./GameAssetImage.jsx";',
   resolveDir: uiRoot, loader: "jsx" }, bundle: true, write: false, platform: "browser",
   format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], logLevel: "silent" });
 const loaded = { exports: {} };
 new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, loaded, loaded.exports);
 const { MapDataPage, I18nProvider } = loaded.exports;
+{
+  let selected = "A", calls = [];
+  const bridge = { available:true, currentProfileOwner:()=>({profileId:selected}),
+    isCurrentProfileOwner:(owner)=>owner.profileId===selected,
+    invokeProfileScoped:async(command,request)=>{calls.push({command,request,profileId:selected});return {dataUrl:"data:image/png;base64,actual-controlled-png"};},
+    invoke:()=>{throw new Error("Unscoped native images are rejected by production");} };
+  const reader = loaded.exports.createProfileGameAssetReader(bridge);
+  await reader({assetPath:"game-owned/item"});
+  assert.equal(calls[0].profileId,"A");
+  assert.equal(calls[0].command,"game_asset_image");
+  selected="B";
+  await assert.rejects(reader({assetPath:"retired-A-image"}),{code:"PROFILE_GENERATION_RETIRED"});
+  assert.equal(calls.length,1,"Retired image request reached another profile");
+}
 const flush = async (fn) => React.act(async () => { if (fn) await fn(); for (let i = 0; i < 24; i++) await Promise.resolve(); });
 const outcomes = [];
 for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 375]]) {
@@ -53,6 +74,7 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   window.setTimeout = () => 1;
   window.clearTimeout = () => {};
   const queries = [], clears = [], follows = [];
+  let heldFollow = null;
   const state = { serverId: 2212, serverIdSource: "live", isReading: false, phase: "idle", selectedTypes: ["resource", "truck"], scanMode: "normal" };
   const rewards = [{ key: "reward:1:100", name: "Genuine Item A", iconPath: null }, { key: "reward:1:500", name: "Genuine Item B", iconPath: null }];
   const sourceSupplies = [{ key: "supplies:1", count: 1, suppliesType: 1, treasureType: 0 },
@@ -82,10 +104,12 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
       alliances: [], noAllianceCount: 0, dispatchLevels: [], treasureTypes: sourceSupplies, rewardItems: { truck: rewards, railway: [] } }),
     search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "resource" ? resources : kind === "truck"
       ? [{ uuid: "t-1", serverId: 2212, marchUuid: "1234567", arriveTs: Date.now() + 3600000,
-        quality: 5, power: 25000000, currentGoods: rewards.map((item) => ({ ...item, count: 2 })) }] : [],
-      total: kind === "truck" ? 1 : kind === "resource" ? 2 : 0 }; },
+        quality: 5, power: 25000000, currentGoods: rewards.map((item) => ({ ...item, count: 2 })) }] : kind === "monster"
+      ? [{uuid:"doom-42",marchUuid:"7654321",serverId:2212,x:20,y:30,monsterNameKey:"doom"},
+         {uuid:"stationary-1",serverId:2212,x:21,y:31,monsterNameKey:"ordinary"}] : [],
+      total: kind === "truck" ? 1 : kind === "resource" || kind === "monster" ? 2 : 0 }; },
     listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
-    marchFollow: async (row) => { follows.push(`${row.serverId}:${String(row.marchUuid)}`); },
+    marchFollow: async (row) => { follows.push(`${row.serverId}:${String(row.marchUuid)}`); if (heldFollow) await heldFollow; },
     scanStatus: async () => state,
     clear: async (serverId) => { clears.push(serverId); return state; },
   };
@@ -128,10 +152,24 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.ok([...timers.values()].some((entry) => entry.delay === 3000), "follow not started");
   await click(document.querySelector(".map-coordinate-button"));
   assert.ok(![...timers.values()].some((entry) => entry.delay === 3000), "Stop Follow retained poll");
+  let rejectRetiredFollow;
+  heldFollow = new Promise((_, reject) => { rejectRetiredFollow = reject; });
+  await click(document.querySelector(".map-coordinate-button"));
+  await goto(1);
+  await flush(() => rejectRetiredFollow(new Error("RETIRED_TRUCK_FOLLOW_FAILURE")));
+  assert.ok(!document.body.textContent.includes("RETIRED_TRUCK_FOLLOW_FAILURE"), "retired Truck failure leaked into Resource tab");
+  heldFollow = null;
+  await goto(3);
   await click(document.querySelectorAll(".map-item-filter-menu button")[1]); await search();
   assert.deepEqual(queries.at(-1).query.itemKeys, ["reward:1:500"]);
   await click(document.querySelectorAll(".map-item-filter-menu button")[0]); await search();
   assert.equal(queries.at(-1).query.itemKeys, undefined, "clear did not remove reward constraints");
+  await goto(2);
+  await click(document.querySelector(".map-coordinate-button"));
+  assert.equal(follows.at(-1), "2212:7654321", "moving Doom Walker uses game-owned march UID");
+  await click(document.querySelector(".map-coordinate-button"));
+  assert.ok(![...timers.values()].some((entry) => entry.delay === 3000), "Doom Follow Stop retained poll");
+  assert.match(document.querySelectorAll(".map-coordinate-button")[1].textContent, /21,31/, "stationary Monster lost coordinate navigation");
   await goto(7); // Treasure: seasonal supplies are an existing native subkind, not a fictitious ninth scanner type.
   const scatteredName = language === "ja" ? "散乱した物資" : "Scattered Supplies";
   const typeOptions = [...document.querySelectorAll(".map-item-filter-menu button")].map((button) => button.textContent.trim());

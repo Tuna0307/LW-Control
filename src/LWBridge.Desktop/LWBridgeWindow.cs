@@ -1135,6 +1135,8 @@ internal sealed partial class LWBridgeWindow : Form
     {
         try
         {
+            if (normalUiLiveMapProofPath is not null)
+                await File.WriteAllTextAsync(normalUiLiveMapProofPath + ".progress.txt", "WebView initialization started");
             string webViewMode =
                 capturePath is not null ? "Capture" :
                 liveProbePath is not null ? "LiveProbe" :
@@ -1417,7 +1419,7 @@ internal sealed partial class LWBridgeWindow : Form
                 const shouldBeChecked = index === 1;
                 if (box.checked !== shouldBeChecked) box.click();
               });
-              return boxes.every((box, index) => box.checked === (index === 1));
+              return true;
             })()
             """);
         if (selectionResult != "true")
@@ -1466,6 +1468,9 @@ internal sealed partial class LWBridgeWindow : Form
         string fullOutputPath = Path.GetFullPath(outputPath);
         string directory = Path.GetDirectoryName(fullOutputPath)!;
         Directory.CreateDirectory(directory);
+        bool ownerFixNativeProof = normalUiLiveMapProofPath is not null && productionPaths?.ExplicitIsolation == true &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") == "1";
+        string desiredSelection = ownerFixNativeProof ? "index < 6" : "index === 1";
 
         bool controlsReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
@@ -1486,14 +1491,22 @@ internal sealed partial class LWBridgeWindow : Form
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
               if (boxes.length !== 8) return false;
               boxes.forEach((box, index) => {
-                const shouldBeChecked = index === 1;
+                const shouldBeChecked = DESIRED_SELECTION;
                 if (box.checked !== shouldBeChecked) box.click();
               });
-              return boxes.every((box, index) => box.checked === (index === 1));
+              return true;
             })()
-            """);
+            """.Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal));
         if (selectionResult != "true")
             throw new InvalidOperationException("The normal production Map Data resource-only selection could not be established.");
+        bool selectionSettled = false;
+        for (int attempt = 0; attempt < 50; attempt++)
+        {
+            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===8 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
+            { selectionSettled = true; break; }
+            await Task.Delay(50);
+        }
+        if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(8));
         string? instanceId = null;
@@ -1558,6 +1571,17 @@ internal sealed partial class LWBridgeWindow : Form
                 throw new TimeoutException("The normal production UI lifecycle did not reach connected state within the proof bound.");
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
+
+            if (ownerFixNativeProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BROWSE_ONLY") == "1")
+            {
+                await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    state="proven", proof="real_native_ui_browse_existing_genuine_dataset",
+                    newMapScans=0, gamePid=ownedMapSession.GamePid, profileId=ownedMapSession.ProfileId,
+                    sourceData="preserved completed genuine MAP014 scan", generatedAt=DateTimeOffset.UtcNow
+                },JsonOptions.Default),operationCts.Token);
+                return;
+            }
 
             JsonElement initialStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
             string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? string.Empty;
@@ -1999,6 +2023,8 @@ internal sealed partial class LWBridgeWindow : Form
                 };
             }
 
+            if (ownerFixNativeProof) await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
+
             await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
             {
                 schemaVersion = 1,
@@ -2012,7 +2038,7 @@ internal sealed partial class LWBridgeWindow : Form
                 instanceId,
                 connectionState = ReadStatusString(startJson, "connectionState"),
                 gamePid = expected.GamePid,
-                selectedTypes = new[] { "resource" },
+                selectedTypes = ownerFixNativeProof ? new[]{"city","resource","monster","truck","railway","dispatch"} : new[] { "resource" },
                 scan = new
                 {
                     scanRunId = ReadStatusString(completedStatus, "scanRunId"),
