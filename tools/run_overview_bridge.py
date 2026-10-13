@@ -120,11 +120,15 @@ def resource_probe_source() -> bytes:
 def packaged_resource_probe_source() -> bytes:
     # v21 xLua rejects functions created by runtime load()/loadstring() with
     # E8472 provenance enforcement. Package the probe as a normal LENC module
-    # instead. Removing only blank/full-line comment lines keeps executable Lua
-    # unchanged while bringing the encoded entry below the 64 KiB require limit.
+    # instead. Native MAP-014 startup exposed a Lua-chunk compile failure: the
+    # expanded probe had 206 top-level locals, over Lua 5.3's 200-local limit.
+    # Removing indentation does not fix THAT cause (MAP-014 corrects the probe
+    # scope separately), but gives the growing encoded module more space below
+    # the 64 KiB loader envelope. The AST-equivalence regression ensures this
+    # size optimization changes no Lua statements or string values.
     lines = resource_probe_source().decode("utf-8").splitlines()
     packaged = [
-        line.rstrip()
+        line.strip()
         for line in lines
         if line.strip() and not line.lstrip().startswith("--")
     ]

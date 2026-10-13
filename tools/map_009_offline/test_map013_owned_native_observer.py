@@ -20,7 +20,7 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     # MAP-014 captures its changed production source exactly; the installed game
     # identity gate in inspect_current.py remains unchanged.
-    CURRENT_PROBE_SHA256 = "c074605929a248cc2a1a30bd54d0585b54e758f7c034767af9806ff73c29faf2"
+    CURRENT_PROBE_SHA256 = "48774df6d133fc63a7a2fc740295effc76e844fb61d34170308e917b5d4f4212"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
     CURRENT_WRAPPER_SHA256 = "6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):
@@ -73,6 +73,33 @@ class Map013ObserverSourceTests(unittest.TestCase):
     def test_diagnostic_lua_parses_without_mutating_game(self):
         from luaparser import ast
         ast.parse((HERE / "map013_wrapper_trace.lua").read_text(encoding="utf-8"))
+
+    def test_bootstrap_module_below_last_native_ready_envelope_with_identical_lua_ast(self):
+        from luaparser import ast
+        raw_lines = bridge.base.resource_probe_source().decode("utf-8").splitlines()
+        pre_fix_source = "\n".join(line.rstrip() for line in raw_lines
+                                  if line.strip() and not line.lstrip().startswith("--")) + "\n"
+        packaged_source = bridge.base.packaged_resource_probe_source()
+        # Compact solely to save script bytes. The actual failed native
+        # bootstrap was caused by exceeding the Lua top-level LOCAL limit,
+        # not by a proven 58-KiB resource loader threshold.
+        pre_fix_bytes = len(bridge.base.lr.encode_lenc(pre_fix_source.encode()))
+        compact_bytes = len(bridge.base.lr.encode_lenc(packaged_source))
+        self.assertGreater(pre_fix_bytes, compact_bytes)
+        self.assertLess(compact_bytes, 57531)
+        self.assertEqual(ast.to_lua_source(ast.parse(pre_fix_source)),
+                         ast.to_lua_source(ast.parse(packaged_source.decode("utf-8"))))
+
+    def test_native_probe_never_exceeds_lua53_active_chunk_locals(self):
+        from luaparser import ast
+        tree = ast.parse(bridge.base.resource_probe_source().decode("utf-8"))
+        top_level_locals = sum(len(node.targets) if type(node).__name__ == "LocalAssign" else 1
+                               for node in tree.body.body
+                               if type(node).__name__ in ("LocalAssign", "LocalFunction"))
+        # v24 baseline that reached actual game-side Ready: 199 locals.
+        # First MAP-014 live failures had 206 => the module did not compile.
+        self.assertLessEqual(top_level_locals, 200)
+        self.assertEqual(top_level_locals, 199)
 
 
 if __name__ == "__main__":

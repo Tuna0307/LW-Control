@@ -2,8 +2,10 @@
 
 **Disposition: PARTIAL.** Branch `codex/map-owner-fixes-014` based on
 `67e07d6f4b562cbbd23af7513ab862883fc6112c`. The nine supplied screenshots
-were examined as observations; no game/account action was performed to create a
-positive that is currently unavailable. PR #9 remains merged and retired.
+were examined as observations. A subsequent owner-authorized task-owned native
+launch **positively reached the authenticated Ready state** after correcting a
+Lua bootstrap regression; **no live Map scan positive** is claimed. PR #9
+remains merged and retired.
 
 ## One obligation table
 
@@ -50,27 +52,59 @@ Screen images/coverage remain in ignored
 Resource, Truck, JA/narrow Auto and default Map captures. They are fixture
 visual checks, not real installed-game item PNGs or native scan evidence.
 
-Read-only installed v24 `LWLF` source gate (from `tools/map_009_offline/inspect_current.py`)
-expects `d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495`,
-but this machine currently supplies
-`80a4c7d4b9949baf9aa5be78d155518ca80992734147f6a328b68d986bce5b91`.
-Three hash-locked current-body/scene/detail tests deliberately reject the changed
-installed package. **Do not alter the expected game hash or bypass admission to
-obtain a live positive.** Earlier MAP-013 negative packet/cache receipts remain
-valid historical negatives; no camera-free or consecutive-region route was enabled.
+**Corrected follow-up, 2026-10-13:** A fresh read-only inventory showed that
+installed v24 `LWScripts.data` had SHA
+`80a4c7d4b9949baf9aa5be78d155518ca80992734147f6a328b68d986bce5b91`
+and 18,743 entries **because a previous task-owned Overview script injection
+had been left installed**, not because an official game update had invalidated
+the known-good package. The existing `overview-bridge/recovery.json` contained a
+`active_ready_deferred_restore` owner journal and a backup triplet whose three
+hashes were validated. In-memory removal of exactly the two added modules and
+replacement by preserved `LuaEntry_original` reproduced the expected v24
+18,741-entry package SHA
+`d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495`
+**byte-for-byte**. With no game running, the supported
+`recover_overview_pending_current.py` successfully restored that original
+triplet and cleared the stale journal. The native read-only critical-anchor
+compatibility verifier and `run_overview_bridge_current.py check-only` passed.
+The original hash admission guard was **not** weakened.
 
-Successful controlled checks do not prove a fresh game outcome. No game instance
-was created under this branch because compatibility admission failed. No owner
-process was stopped; there was no task-owned live session or restoration journal
-to clean up. The official game's Chinese language was left unchanged.
+Two fresh genuine test-owned Last War launches then failed during bootstrap with
+`DataCenter.Global.LWBridgeLiveResourceProbe module not found`; exact helper
+cleanup closed only those test-owned instances and restored the original files.
+The source defect was traced to Lua 5.3's maximum **200 active locals per chunk**:
+the previous proven v24 module had 199 top-level locals, while the MAP-014
+camera proof introduced seven more (206). `current_live_resource_probe.lua` now
+stores the camera restore values in the existing `M` table and defines two
+checkpoint functions on that table, restoring **199 top-level locals**.
+The packaged probe also strips whitespace-only indentation; source AST-equivalence
+and maximum-local regression tests distinguish these changes. The initial
+smaller-module-only retry **still failed**; size reduction was not credited as
+the root cause.
 
-**2026-10-13 follow-up:** Rechecked the actual installed header (v24, 18,743
-entries) and native read-only inspection rejected the changed SHA before any
-game launch. Local `.json.gz` localization was inspected read-only and cannot
-override source admission. The new game-text loader proof is a controlled
-identity-valid fixture, **not** a live native game-locale response. Source-traced
-Scattered Supplies is available for seasonal capture under the existing Treasure
-kind; Celebration Party Watch is still blocked on its exact game identity.
+**Genuine positive:** The third bounded official launcher/native helper session
+reached `overview_install_launch_ready_deferred_restore`, produced a verified
+same-session `ready.json`, and displayed the actual Chinese-language game home
+scene with intact graphics. No attack, march, plunder, claim, purchase, or
+game-language change was initiated. A session-identity-scoped, read-only
+`runtime-diagnostic` command failed to produce a new reply within its timeout;
+the live Map/camera/census functionality is therefore **still unverified**.
+The local private receipts are in ignored `artifacts/map014_live_retry3/`.
+
+**Operational restoration pending:** An attempted exact task-owned Overview
+`stop`/restore command was blocked by the tool safety check before execution.
+Do not claim cleanup succeeded or force another process. At the final observation,
+the task-owned Last War game PID **4592** was still running; its validated native
+`overview-bridge/recovery.json` stage is `active_ready_deferred_restore` with
+its exact backup intact. After the game has exited under authorized control,
+use the existing `recover_overview_pending_current.py` under its native operation
+lease; verify the triplet SHA and journal clearance before any subsequent launch.
+Keep this in the lead handoff as an explicit unresolved restoration dependency.
+
+The historical MAP-013 negatives remain valid. No experimental camera-free or
+consecutive-region request path was enabled. Successful controlled checks are not
+live Map scan proof; Scattered Supplies still needs a native active-season
+point positive and Celebration Party Watch needs an exact native producer.
 
 ## Difference from accepted baseline
 

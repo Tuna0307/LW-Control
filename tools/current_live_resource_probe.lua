@@ -95,11 +95,9 @@ local bulk_aoi_native_original_fov = nil
 local bulk_aoi_native_unity_camera = nil
 local bulk_aoi_native_original_aspect = nil
 local bulk_aoi_native_original_zoom = nil
-local bulk_aoi_native_original_projection = nil
-local bulk_aoi_native_original_transform = nil
-local bulk_aoi_native_original_rotation = nil
-local bulk_aoi_native_original_unity_position = nil
-local bulk_aoi_native_camera_checkpoint = nil
+-- The v24 Lua chunk had 199 active top-level locals before MAP-014. Keep
+-- camera restore state on the existing module table, not five new locals:
+-- xLua/Lua 5.3 rejects a chunk above 200 and reports the whole module missing.
 local bulk_aoi_native_hold_seconds = nil
 local bulk_aoi_native_position_restored = false
 local bulk_aoi_restore_current_view = false
@@ -4982,7 +4980,7 @@ local function bulk_selected_lookup(indices)
     return lookup
 end
 
-local function camera_geometry_checkpoint(camera_manager, unity_camera)
+function M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
     if camera_manager == nil or unity_camera == nil then return nil end
     local transform = safe_get(unity_camera, "transform")
     local position = transform and safe_get(transform, "position") or nil
@@ -5020,7 +5018,7 @@ local function camera_geometry_checkpoint(camera_manager, unity_camera)
     }
 end
 
-local function camera_checkpoint_matches(baseline, current)
+function M._map014CameraCheckpointMatches(baseline, current)
     if baseline == nil or current == nil then return false end
     local function same(left, right)
         if type(left) == "number" and type(right) == "number" then
@@ -5040,6 +5038,7 @@ end
 
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
+    local restore_snapshot = M._map014CameraRestore
     local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
     if current_set ~= nil then
         for _, index in ipairs(bulk_aoi_added_indices or {}) do
@@ -5086,24 +5085,24 @@ local function restore_bulk_aoi_state(point_manager)
     end
     -- These must be restored AFTER RefreshCameraAnchor, which can rebuild the
     -- physical Unity transform/projection even with the same logical tile.
-    if bulk_aoi_native_unity_camera ~= nil and bulk_aoi_native_original_projection ~= nil and
-       not reflected_set_value(bulk_aoi_native_unity_camera, "projectionMatrix", bulk_aoi_native_original_projection) then ok = false end
-    if bulk_aoi_native_original_transform ~= nil then
-        if bulk_aoi_native_original_rotation ~= nil and
-           not reflected_set_value(bulk_aoi_native_original_transform, "rotation", bulk_aoi_native_original_rotation) then ok = false end
-        if bulk_aoi_native_original_unity_position ~= nil and
-           not reflected_set_value(bulk_aoi_native_original_transform, "position", bulk_aoi_native_original_unity_position) then ok = false end
+    if bulk_aoi_native_unity_camera ~= nil and restore_snapshot ~= nil and restore_snapshot.projection ~= nil and
+       not reflected_set_value(bulk_aoi_native_unity_camera, "projectionMatrix", restore_snapshot.projection) then ok = false end
+    if restore_snapshot ~= nil and restore_snapshot.transform ~= nil then
+        if restore_snapshot.rotation ~= nil and
+           not reflected_set_value(restore_snapshot.transform, "rotation", restore_snapshot.rotation) then ok = false end
+        if restore_snapshot.position ~= nil and
+           not reflected_set_value(restore_snapshot.transform, "position", restore_snapshot.position) then ok = false end
     end
     if bulk_aoi_native_camera ~= nil then
         if point_manager ~= nil and not bulk_aoi_skip_restore_update then call(point_manager, "UpdateViewRequest", true) end
     end
-    if bulk_aoi_request ~= nil and bulk_aoi_native_camera_checkpoint ~= nil then
-        local after = camera_geometry_checkpoint(bulk_aoi_native_camera, bulk_aoi_native_unity_camera)
+    if bulk_aoi_request ~= nil and restore_snapshot ~= nil and restore_snapshot.checkpoint ~= nil then
+        local after = M._map014CameraGeometryCheckpoint(bulk_aoi_native_camera, bulk_aoi_native_unity_camera)
         bulk_aoi_request.details = bulk_aoi_request.details or {}
         bulk_aoi_request.details.cameraProjectionRestored = after ~= nil and
-            camera_checkpoint_matches(bulk_aoi_native_camera_checkpoint.projection, after.projection)
-        bulk_aoi_request.details.cameraGeometryRestored = camera_checkpoint_matches(bulk_aoi_native_camera_checkpoint, after)
-        bulk_aoi_request.details.originalCameraGeometry = bulk_aoi_native_camera_checkpoint
+            M._map014CameraCheckpointMatches(restore_snapshot.checkpoint.projection, after.projection)
+        bulk_aoi_request.details.cameraGeometryRestored = M._map014CameraCheckpointMatches(restore_snapshot.checkpoint, after)
+        bulk_aoi_request.details.originalCameraGeometry = restore_snapshot.checkpoint
         bulk_aoi_request.details.restoredCameraGeometry = after
         if not bulk_aoi_request.details.cameraGeometryRestored then ok = false end
     end
@@ -5115,11 +5114,7 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_native_unity_camera = nil
     bulk_aoi_native_original_aspect = nil
     bulk_aoi_native_original_zoom = nil
-    bulk_aoi_native_original_projection = nil
-    bulk_aoi_native_original_transform = nil
-    bulk_aoi_native_original_rotation = nil
-    bulk_aoi_native_original_unity_position = nil
-    bulk_aoi_native_camera_checkpoint = nil
+    M._map014CameraRestore = nil
     bulk_aoi_native_hold_seconds = nil
     bulk_aoi_native_position_restored = false
     bulk_aoi_added_indices = {}
@@ -5531,7 +5526,7 @@ local function pump_bulk_aoi_diagnostic(now)
         -- Capture the Unity projection and world transform before native
         -- camera/anchor mutations. Restore these exact values on every exit.
         local unity_camera = safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")
-        local checkpoint = camera_geometry_checkpoint(camera_manager, unity_camera)
+        local checkpoint = M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
         local projection = unity_camera and safe_get(unity_camera, "projectionMatrix") or nil
         local transform = unity_camera and safe_get(unity_camera, "transform") or nil
         if checkpoint == nil or checkpoint.fov == nil or checkpoint.aspect == nil or
@@ -5541,14 +5536,16 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         bulk_aoi_native_unity_camera = unity_camera
-        bulk_aoi_native_original_projection = projection
-        bulk_aoi_native_original_transform = transform
-        bulk_aoi_native_original_rotation = safe_get(transform, "rotation")
-        bulk_aoi_native_original_unity_position = safe_get(transform, "position")
+        M._map014CameraRestore = {
+            projection = projection,
+            transform = transform,
+            rotation = safe_get(transform, "rotation"),
+            position = safe_get(transform, "position"),
+            checkpoint = checkpoint,
+        }
         bulk_aoi_native_original_fov = checkpoint.fov
         bulk_aoi_native_original_aspect = checkpoint.aspect
         bulk_aoi_native_original_zoom = checkpoint.zoom
-        bulk_aoi_native_camera_checkpoint = checkpoint
         request.details = request.details or {}
         request.details.originalCameraGeometry = checkpoint
         local shift_x = (request.targetTileX - pre_tile_x) * 2
@@ -5893,9 +5890,9 @@ local function pump_bulk_aoi_diagnostic(now)
            not restore_split_pending then
             local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
             local unity_camera = camera_manager and (safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")) or nil
-            local after = camera_geometry_checkpoint(camera_manager, unity_camera)
+            local after = M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
             details.cameraGeometryConfirmed = details.cameraGeometryRestored == true and
-                camera_checkpoint_matches(details.originalCameraGeometry, after)
+                M._map014CameraCheckpointMatches(details.originalCameraGeometry, after)
             details.restoredCameraGeometry = after
             if not details.cameraGeometryConfirmed then
                 fail_bulk_aoi(bulk_aoi_request, "native_home_camera_geometry_changed", details, point_manager)
