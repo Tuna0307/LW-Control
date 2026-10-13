@@ -350,6 +350,8 @@ def main() -> int:
                         help="three alternating coverage aspect-4/6 pairs on one populated region; each restores home and must pass source-reply checks")
     parser.add_argument("--city-subset-probe", action="store_true",
                         help="single current-world City-rich region at 995,975: exact current-point versus retained identity subset; never a full scan")
+    parser.add_argument("--city-mixed-only-target", action="store_true",
+                        help="single native region centered on the genuine Oct13 mixed-only City identity absent from earlier City-only scan")
     parser.add_argument("--intermediate-zoom-experiment", action="store_true",
                         help="opt-in source-guarded middle zoom (not ZoomMax), three pairs only if fresh LOD0 and shared identities qualify")
     options = parser.parse_args()
@@ -375,6 +377,8 @@ def main() -> int:
         parser.error("City subset requires an instrumented fresh-reply baseline")
     if options.city_subset_probe and (options.compare_second_region or options.sequence_experiment or options.zoom_experiment or options.wide_aspect_experiment):
         parser.error("City subset is a single bounded production-source acquisition, not a scanner comparison")
+    if options.city_mixed_only_target and not options.city_subset_probe:
+        parser.error("mixed-only City comparison requires the bounded source-qualified City subset gate")
     if options.intermediate_zoom_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
         parser.error("intermediate zoom requires source-attributed fresh region comparisons")
     if options.intermediate_zoom_experiment and (options.zoom_experiment or options.wide_aspect_experiment or options.sequence_experiment or options.camera_free_direct or options.city_subset_probe):
@@ -558,7 +562,22 @@ def main() -> int:
             })
             time.sleep(1)
             region_id = "map013citysubset" + secrets.token_hex(8) if options.city_subset_probe else "map013first" + secrets.token_hex(8)
-            region_x, region_y = (995,975) if options.city_subset_probe else (455,425)
+            known_target = None
+            if options.city_mixed_only_target:
+                sys.path.insert(0,str(REPO/"tools/map_014_lead_native"))
+                from audit_city_source_coverage import rows_for
+                from audit_city_records import SOURCES
+                old_city = rows_for(SOURCES[0])
+                later_mixed = rows_for(SOURCES[1])
+                only_new = set(later_mixed)-set(old_city)
+                if len(only_new)!=1:
+                    raise RuntimeError("Current genuine mixed-only City witness is ambiguous")
+                known_uid = next(iter(only_new))
+                known_target = {"uid":known_uid, "pointIndex":later_mixed[known_uid][2],
+                                "x":later_mixed[known_uid][0],"y":later_mixed[known_uid][1]}
+                region_x,region_y = known_target["x"],known_target["y"]
+            else:
+                region_x, region_y = (995,975) if options.city_subset_probe else (455,425)
             region_command = {
                 "schema": "1", "probeVersion": "lwbridge-live-resource-probe-2",
                 "requestId": region_id, "profileId": profile,
@@ -609,6 +628,17 @@ def main() -> int:
                         "deliveredCityCount":len(candidates), "accounting":c,
                         "cameraRestored":region.get("cameraGeometryConfirmed"),
                         "wholeWorldClaim":False,
+                        "independentMixedOnlyReference":({
+                            "source":"genuine same-server Oct13 mixed scan, absent earlier City-only scan",
+                            "targetInRequestedRegion": any(
+                                r.get("ownerUid")==known_target["uid"] and
+                                r.get("pointId")==known_target["pointIndex"] for r in candidates),
+                            "sourceCoordinatesMatched": any(
+                                r.get("ownerUid")==known_target["uid"] and
+                                r.get("pointId")==known_target["pointIndex"] and
+                                r.get("x")==known_target["x"] and r.get("y")==known_target["y"]
+                                for r in candidates),
+                        } if known_target else None),
                     },indent=2),encoding="utf-8")
                     print("MAP014_CITY_SUBSET_VERDICT", "verified" if passed else "rejected",flush=True)
                     if not passed:

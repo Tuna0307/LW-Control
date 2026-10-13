@@ -92,7 +92,8 @@ internal sealed partial class LWBridgeWindow
                     receipts.Add(new{gate="truck_natural_expiry_availability",qualifies=false,
                         reason="No saved first-page Truck row with a source arrival 45-180 seconds ahead",
                         scannedRows=truckExpiry.Result.GetProperty("rows").GetArrayLength(),newWorldScan=false});
-                    await Save();return;
+                    await Save();
+                    throw new InvalidDataException("No source-backed near-term Truck arrival available for a genuine expiry witness.");
                 }
                 var picked=candidates.row;
                 long arriveTs=picked.GetProperty("arriveTs").GetInt64();
@@ -115,15 +116,20 @@ internal sealed partial class LWBridgeWindow
                             elapsedMilliseconds=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()-now,
                             deadlineRemainingMilliseconds=arriveTs-DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                             ui=JsonSerializer.Deserialize<JsonElement>(uiState)});
-                        await Save(); return;
+                        await Save();
+                        throw new InvalidDataException("A saved Truck deadline and native Follow do not prove a visible ongoing UI tracking session.");
                     }
                     await Screenshot("map014-expiry-before");
                     var owner=overviewLifecycleService.GetReadyMapScanSession();
                     if(owner is null || owner.GamePid<=0) throw new InvalidDataException("Expiry owner was not ready.");
                     var observed=new HashSet<string>(StringComparer.Ordinal);
+                    var worldPositions=new HashSet<(double X,double Z)>();
+                    var cameraTiles=new HashSet<(double X,double Y)>();
                     int nativeProven=0;
                     int consecutiveReadyGaps=0;
                     int totalReadyGaps=0;
+                    int visibleStopNearArrival=0;
+                    long lastUiSample=0;
                     while(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()<arriveTs+5500)
                     {
                         token.ThrowIfCancellationRequested();
@@ -132,14 +138,17 @@ internal sealed partial class LWBridgeWindow
                         {
                             totalReadyGaps++;
                             consecutiveReadyGaps++;
+                            if(!overviewLifecycleService.MatchesOwnedMapScanSession(owner))
+                                throw new InvalidDataException("Natural-expiry observer's exact owned game identity was retired.");
                             if(consecutiveReadyGaps>=12)
                             {
                                 receipts.Add(new {gate="truck_natural_expiry_availability",qualifies=false,
-                                    reason="Owned game ready-session lease unavailable before source arrival; no arrival attribution",
-                                    confirmedSessionId=owner.SessionId,readinessGaps=totalReadyGaps,
+                                    reason="Same owned process remained identified, but fresh ready-session attestation was unavailable before source arrival; no arrival attribution",
+                                    exactOwnedIdentityStillMatched=true,readinessGaps=totalReadyGaps,
                                     nativeProvenRequests=nativeProven,
                                     deadlineRemainingMilliseconds=arriveTs-DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()});
-                                await Save(); return;
+                                await Save();
+                                throw new InvalidDataException("Natural expiry is unavailable without an attested ready session through arrival.");
                             }
                             await Task.Delay(250,token);
                             continue;
@@ -161,9 +170,27 @@ internal sealed partial class LWBridgeWindow
                                    r.GetProperty("serverId").GetInt32()!=expectedServer ||
                                    r.GetProperty("marchUuid").ToString()!=expectedUuid) continue;
                                 if(observed.Add(r.GetProperty("requestId").GetString()!) &&
-                                   r.GetProperty("state").GetString()=="proven") nativeProven++;
+                                   r.GetProperty("state").GetString()=="proven")
+                                {
+                                    nativeProven++;
+                                    if(r.TryGetProperty("worldX",out var wx) && wx.ValueKind==JsonValueKind.Number &&
+                                       r.TryGetProperty("worldZ",out var wz) && wz.ValueKind==JsonValueKind.Number)
+                                        worldPositions.Add((wx.GetDouble(),wz.GetDouble()));
+                                    if(r.TryGetProperty("cameraTileX",out var cx) && cx.ValueKind==JsonValueKind.Number &&
+                                       r.TryGetProperty("cameraTileY",out var cy) && cy.ValueKind==JsonValueKind.Number)
+                                        cameraTiles.Add((cx.GetDouble(),cy.GetDouble()));
+                                }
                             }
                             catch(IOException){} catch(JsonException){}
+                        }
+                        long observedAt=DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                        if(observedAt>=arriveTs-10000 && observedAt<arriveTs-1000 &&
+                           observedAt-lastUiSample>=1000)
+                        {
+                            lastUiSample=observedAt;
+                            if(await core.ExecuteScriptAsync(
+                                "[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].some(b=>b.querySelector('strong')?.textContent.trim()==='Stop')")=="true")
+                                visibleStopNearArrival++;
                         }
                         await Task.Delay(250,token);
                     }
@@ -186,11 +213,16 @@ internal sealed partial class LWBridgeWindow
                     }
                     await Screenshot("map014-expiry-after");
                     bool qualifies=stopAuto && totalReadyGaps==0 &&
-                        nativeProven>=1 && observed.Count==requestsAtExpiry;
+                        nativeProven>=2 && worldPositions.Count>=2 &&
+                        cameraTiles.Count>=1 && visibleStopNearArrival>=1 &&
+                        observed.Count==requestsAtExpiry;
                     receipts.Add(new{gate="truck_natural_expiry_native",qualifies,
                         nativeProvenRequests=nativeProven,exactOwner=true,serverId=expectedServer,
                         marchUuid=expectedUuid,arriveTs,stopRetiredWithoutClick=stopAuto,
                         lateFollowIssued=observed.Count!=requestsAtExpiry,
+                        distinctWorldPositions=worldPositions.Count,
+                        distinctNativeCameraTiles=cameraTiles.Count,
+                        stopVisibleNearArrivalSamples=visibleStopNearArrival,
                         readinessGaps=totalReadyGaps,newWorldScan=false});
                     await Save();
                     if(!qualifies) throw new InvalidDataException("Natural Truck expiry lacked complete native Follow/auto-Stop/late-poll proof.");

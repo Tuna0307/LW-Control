@@ -1,5 +1,121 @@
 # MAP-014 — City/Truck/acquisition follow-up, 2026-10-13
 
+## Later genuine packaged proof — natural Truck expiry PASS
+
+The genuine native expiry result below **supersedes earlier
+expiry-unavailable statements**, retaining the failed attempts as real
+historical evidence. Overall MAP-014 remains **PARTIAL** for complete
+current City recall, seasonal/BossVO identity and a demonstrated
+faster accuracy-qualified scanner.
+
+Source: `artifacts/map014-takeover/native-ui-20261013-152235`.
+The real packaged production WebView reused genuine server-2212
+Truck rows and selected a source-backed March with approximately
+87 seconds until its natural `arriveTs`. It recorded **27
+exact-PID/profile/session/challenge/server and same-UUID native
+Follow results**, with **26 distinct world positions and 19 camera
+tiles**. The real UI displayed Stop **nine times in the final
+pre-arrival ten-second window** and automatically retired Follow
+after the source arrival deadline. No further native Follow request
+appeared across the extra poll interval, and there were **zero
+ready-session gaps**. No full scan was repeated. The proof exited
+successfully, exact owned app/game exited, all original v24 script
+hashes matched and no recovery journal remained. This establishes
+natural live Truck expiry in addition to the earlier five-position
+and UI manual Stop proof. No attack, claim, march, sharing or other
+account action occurred.
+
+
+## Further same-branch continuation — independent missing candidate and native phase costs
+
+This is a **PARTIAL** ongoing assignment on the existing
+`codex/map-owner-fixes-014` / draft PR #10. The checkout was verified
+clean at `41e5b96c3289a14884f592b5ee10f71c4316d366` before the
+work began, official game v24 admission succeeded, no owner game/app
+process was present, and the recovery journal was absent. Retain all
+earlier positive 2213 Auto scan/Jump/Clear, full camera restoration,
+filters/PNG/Dispatch and five-position/four-tile Truck Follow/Stop
+receipts, as well as every prior negative.
+
+**Independently discovered, current-city candidate:**
+the Oct 13 *mixed* genuine server-2212 snapshot contains exactly **one
+City identity at (115,120)** missing from the earlier Oct 13 City-only
+snapshot. This provided a specifically grounded target for a new
+bounded native source test, rather than guessing a historic count.
+Read-only source comparison selected that identity by genuine persisted
+owner UID and point index, but no player identity was printed or
+committed. A new separate official-game owned session at
+`artifacts/map-013-live/native-causal-20261013-230739` reacquired
+the **same UID, point index and (115,120) position**, with
+`map013NativeReplyState=matched`, **13 native-current Cities
+= 13 retained/delivered Cities**, zero missing/duplicate/invalid City
+indices and identity-field rejects, complete camera restoration and
+exact original-script recovery/owned Stop. Its native source contains
+**36 total spatial point records**, not 36 Cities. It is a genuine
+current-positive target that had been absent from a *time-separated*
+earlier scan; the prior absence still cannot be assigned to an
+ingestion defect without a simultaneous independent native reference.
+This and the earlier 62/62 and 78/78 controlled-region proofs
+establish only bounded recall, never a complete current population.
+
+**Quantified source-correlated scanner phases:** new read-only
+`tools/map_014_lead_native/audit_scanner_phase_evidence.py`
+requires every accepted region to have a fresh native reply, populated
+source identities, LOD0/10x100 AOI geometry, matching server 2212/world
+0, all records inside requested native AOIs, no duplicate identities
+and exact camera restoration. Six preserved independently populated
+restored regional controls qualify, with target-response
+**median 0.3115 s (0.2706–0.4853)**, home restoration
+**median 0.2793 s (0.2434–0.5929)**, combined region
+**median 0.5907 s (0.5140–1.0782)**. Restoration was
+**49.46% of the summed measured probe time**. This confirms a
+material time incentive to avoid restoration but is **not**
+an accuracy-equivalent faster-method result. The failed consecutive
+second region has **nine native current AOIs, reply=waiting,
+zero qualified rows, failed restoration**. ZoomMax changed native
+LOD0 into LOD2 with one coarse block of size 1000, returned
+`reply=waiting` and zero qualified rows. Controlled adversarial
+inverses verify rejection of wrong-server/world, duplicate, stale,
+empty, out-of-footprint, non-LOD0 and un-restored candidate
+receipts. These candidates cannot enter a three-alternating-pair
+whole-scanner, per-kind, mixed or cross-server performance benchmark.
+Keep shared serial LOD0, Normal/Fast controls and full restoration.
+No global fastest-method claim.
+
+**Expiry proof harness and real availability:** the opt-in production
+WebView harness previously recorded `proof:true` on an early normal
+return even when no near-arrival candidate or visible Stop existed.
+That was a concrete verification false-positive risk; it now exits
+**failed** after preserving an unqualified receipt. It separates an
+actual replacement owner identity from transient readiness loss
+using the existing exact-owned session matching, requires at least
+two fresh position results, source camera tiles, a visible Stop near
+the real deadline, automatic Stop at arrival and no late Follow
+request. A new genuine packaged expiry-only attempt under
+`artifacts/map014-takeover/native-ui-20261013-151605`
+found **12 genuine saved future Truck rows but no selected first-page
+arrival within 45–180 seconds**; it exited 1 with this explicit
+availability result, original hashes restored and no journal.
+An independent read-only comparison of the *entire* genuine
+persisted 2212 Truck source confirmed **12 future rows** and nearest
+arrival **about 440 seconds** from that audit. Hence the first-page
+gap was a real **time-window availability limitation** at that
+moment, not pagination omission. Do not mark natural expiry live
+proven based on the five-position Follow/Stop positive or this
+availability result.
+
+**Event/moving-boss dependencies unchanged:** current six-kind
+Monster captures do not contain independently typed active
+Doomsday `BossVO` Marches; only an actual moving typed boss UID/UUID
+with fresh positions can prove that path. The genuine earlier
+Treasure capture holds 53 ordinary type-21 records but no
+season-S2 `WorldSuppliesPoint` with `suppliesType=1`.
+An exact native Celebration Party Watch world point class and
+config/event ID remain uncorrelated to any source-spawned row;
+locale/candidate scripts cannot be promoted to proof. No
+collection, sharing, plunder, attack, spending, march or
+relocation was performed.
+
 ## Further solo continuation — source identity join and native City subset
 
 Work resumed from exact clean/pushed `ce121720` / existing draft PR #10

@@ -1,5 +1,24 @@
 # MAP-014 lead takeover and owner-requested handoff — 2026-10-13
 
+### Later real native natural-expiry completion
+
+The natural **Truck expiry** gate now has a real positive:
+`native-ui-20261013-152235` tracked one genuine same-UUID March
+through 27 fresh source-owned Follow replies, 26 world positions,
+19 camera tiles, nine UI Stop observations immediately before
+arrival, then automatic Stop with zero late Follow requests or
+ready-session gaps. Exact original game scripts restored and the
+app exited normally. This supersedes the earlier partial
+expiry observations without deleting those diagnostics. A separate
+native sample at (115,120) also reconfirmed the genuine mixed-only
+City identity absent from an earlier time-separated City-only
+scan (13/13 City source indices, no rejects). A six-control
+native LOD0 baseline measured 0.3115 s median acquisition,
+0.2793 s camera restoration; no new faster scanner candidate
+qualifies for deployment. Overall City census, moving BossVO,
+seasonal event objects and faster scanner qualification remain
+**PARTIAL**. Existing PR #10 stays draft and unmerged.
+
 ### Further source/expiry/scanner work after `ce121720`
 
 Keep overall MAP-014 **PARTIAL** and the current draft PR #10 **unmerged**.

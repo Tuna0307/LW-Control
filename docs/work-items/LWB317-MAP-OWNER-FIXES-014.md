@@ -1,5 +1,27 @@
 # LWB317-MAP-OWNER-FIXES-014
 
+**Latest same-branch owner-gate status (2026-10-13, draft PR #10):
+OVERALL PARTIAL.** Available Map filters/assets, camera restoration,
+source-server Jump, Auto Clear and sustained moving Truck
+Follow/manual Stop remain genuinely verified. **New genuine
+natural-expiry-positive**: packaged UI/native
+`native-ui-20261013-152235`, 27 same-UUID source Follow requests,
+26 changing positions, 19 camera tiles, nine visible Stop checks
+near deadline, then automatic Stop and no late poll; exact original
+scripts restored. **New source-qualified current City identity:**
+Oct13 mixed-only City at (115,120) missing from an earlier
+time-separated City-only capture was genuinely reacquired at the
+same identity/point index/position in a 13/13 native City region.
+This does *not* quantify global recall. Six accurate LOD0 region
+controls show ~49.46% of measured acquisition+restore time spent
+restoring the home camera, but no faster alternative qualifies
+against correct object freshness/fields. Moving Doom Walker and
+seasonal Scattered Supplies/Celebration Party positive witnesses,
+independent complete City census and faster scanner qualification
+remain unproved. See
+[`MAP_014_COVERAGE_TRACKING_CONTINUATION.md`](../MAP_014_COVERAGE_TRACKING_CONTINUATION.md).
+Older takeovers and negatives below are preserved historical evidence.
+
 **Current 2026-10-13 continuation:** available owner-function scope is
 **READY_FOR_LEAD_FUNCTIONAL_REVIEW** after genuine packaged 2213 Auto scan →
 2212 home → 2213 retained-row native Jump (987,900) → Auto Clear with 2212

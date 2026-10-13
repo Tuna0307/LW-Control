@@ -1,5 +1,24 @@
 # LW-Control — current contributor instructions
 
+Current 2026-10-13 MAP-014 continuation: a genuine packaged natural
+Truck expiry PASS exists at
+`artifacts/map014-takeover/native-ui-20261013-152235`
+(27 same-UUID native Follow results, 26 moving positions, 19 camera
+tiles, nine pre-arrival Stop observations, automatic Stop after
+arrival, no late polling or owner gaps). A genuine current source
+probe at City (115,120) recovered the Oct13 mixed-only identity
+within 13/13 City source records, showing current discoverability,
+but time-separated earlier absence is not proven ingestion loss.
+Six source-matched serial LOD0 region controls spend 49.46% of
+measured probe time restoring home; no faster alternative is
+accuracy-qualified. Preserve source evidence and negative
+attempts, prior 2213 scan/Jump/Clear, five-position manual Truck
+Stop, camera/image/filter fixes. MAP-014 overall remains PARTIAL
+for complete current City census, event/BossVO positives and
+scanner optimization; solo existing branch/draft PR #10 only,
+no merge, publication, or game account actions. See
+`docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`.
+
 Current MAP-014 solo checkpoint continuation, after `ce121720`: source-level
 City count-only matching is corrected by an exact current-PointInfo versus
 retained-main-base point-index subset join; the managed receiver now requires
