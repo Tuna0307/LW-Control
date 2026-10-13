@@ -163,6 +163,225 @@ account-changing actions.
 "@
     $readme = $readme.Substring(0, $scopeStart) + $availableScope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP007-PROVIDERS') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'Could not identify older Map release text.' }
+    $providerScope = @"
+MAP-007 GHOST AND TREASURE PROVIDERS — CONTROLLED REVIEW CANDIDATE
+This release candidate preserves accepted main: single-game Home, released
+City/Resource, six-kind Map scanning/browse/export/marks and proven passive
+cross-server Auto Stop/return. It is not a whole-Map functional release.
+
+GHOST: Source-backed GhostreconPointInfo task preparation is available via
+the Ghost tab's 'Prepare Ghost tasks' (not an armed plunder job). Positively
+validated server/owner, source class, protection/expiry and stolen capacity
+are prepared without any game attack. A dedicated job arm/result boundary
+prevents Ghost reaching Dispatch transport, and correlates exact server,
+owner server, Ghost UUID, attempt and launch session in inert native tests.
+The current v24 Ghost attack/terminal-result game producer has NOT been proven:
+actual Ghost execution remains unavailable; preview success is not plunder.
+
+TREASURE: current-client read-only Treasure state inspection supports a status
+snapshot, controlled 100-row batches and own player/server identity checks.
+Single/Boxes/Season 'Preview' controls display tentative eligible and blocked
+counts, with optional known Lucky ordering; they send NO claim request.
+Daily caps, reset, cooldown, current v24 claim request/terminal reward and
+actual inventory change are not verified. Real Treasure claim buttons are
+not enabled. The owner has deferred full season-dependent Treasure testing.
+
+LIVE OWNER-ONLY PENDING: Ghost positive population expected no earlier than
+2026-10-15, actual Ghost plunder, Treasure claims/rewards, Dispatch and Truck
+plunder, and alliance sharing. No live actions were performed by this worker.
+See docs/MAP_007_ACTION_PROVIDER_HANDOFF.md and owner-only checklist in source.
+The original licensed UI, two independent official games (Home F-07), full
+original protected algorithm equivalence and full Map remain unaccepted.
+This is an unmerged, source-identified review candidate. Do not publish.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $providerScope + "`r`n" + $readme.Substring($scopeEnd)
+}
+if ($ReleaseLabel -eq 'MAP008-SCAN') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'Could not identify older Map release text.' }
+    $scanScope = @"
+MAP-008 SCANNER METHOD AND MAP-007 LIFETIME CORRECTION — LEAD REVIEW CANDIDATE
+Current-client v24 source-built passive Map acquisition supports City, Resource,
+Monster, Truck, Railway, Dispatch, Ghost and Treasure selections. The scanner
+now keeps the camera on the owned target until the correlated native response
+is captured, including scans without Resource selected. An independently
+confirmed current-client omission showed that earlier same-tick camera
+restoration could report full AOI coverage while silently dropping known City,
+Resource, Monster and Dispatch rows. Previous short non-Resource scan times
+were therefore excluded from accuracy-qualified performance comparisons.
+
+Normal conservatively targets native AOI gaps; Fast may take measured-wide
+coverage steps when fresh response geometry permits. Camera mutations remain
+serial and native fresh response ownership and 10,000-cell AOI union coverage
+are enforced. All selected spatial kinds can share one native sweep, followed
+by their necessary type-specific field hydration. Individual and mixed v24
+Normal/Fast scans have been compared with real source timing, measured staging
+and publication, bounded CPU/memory sampling and independent positive native
+field witnesses. An additional four source-owned ALL-EIGHT scans used alternating
+Normal/Fast/Normal/Fast selection: 210.651/207.424/207.905/206.860 seconds.
+Each covered 10,000 fresh AOIs, published all 2,500 logical blocks and issued
+340 serial native camera probes, with zero failures. On the second pair,
+positive native source and stored results matched for all seven populated kinds,
+including genuine Railway and ordinary Treasure; Ghost was not positive.
+The second paired strict-source audits passed with zero field discrepancies.
+Normal (n=2) median 209.278s; Fast (n=2) median 207.142s; only one pair had
+strict witnesses for every positive kind, so no meaningful repeatable speed
+advantage is established. Actual home-view restoration cost measured
+89.981-90.460 seconds per scan, about 49.5 percent of native reply duration.
+This observed cost is NOT a proven safe saving: alternative consecutive target
+requests remain unqualified; exact serial native restoration stays enabled.
+Lua AOI commands are not a measured count of network packets. Results vary
+as moving objects expire or spawn; AOI coverage is not perfect world recall.
+
+The Map's production Resource and Monster tables/filters now resolve actual
+game-owned text keys from the selected admitted installed-game locale files,
+with English fallback and bounded per-request load. A previous App handoff
+mistook native game_root_status.root for path, silently disabling native names;
+this source corrects that bug and shows an explicit unresolved-root error.
+Current installed-game Resource and Monster names were confirmed in actual
+Windows native Map UI in simplified Chinese, English and Japanese after
+reopening stored scanner records. Current language-specific names, game build,
+session ownership and fallback can still vary with the installed game.
+Consult docs/MAP_008_SCAN_METHOD_CONTINUATION.md and the compact source proof
+for exact current qualification, Auto cycles and open acceptance gates.
+
+Ghost preparation and Treasure claim preview are read-only/non-executing.
+MAP-007 retirement now releases only the deferred operation's own busy state,
+without allowing an obsolete tab/server/API result to surface or to clear a
+new owner's result. Live plunder, attack, sharing, marches and Treasure claims
+have NOT been exercised. Do not interpret previews as executed rewards.
+
+This candidate is for independent lead review and owner testing AFTER that
+review. It is not a whole-map feature parity or original protected scanner
+equivalence certification. For exact source limits, independent witnesses,
+additional performance measurements, and open acceptance gates consult
+docs/MAP_008_SCAN_METHOD_CONTINUATION.md in the source repository.
+Only operate on one authorized official current-client session. Start/Stop
+are exact-owner controls; keep Auto disabled when finished and verify
+the current server and return-to-original after multi-server cycles.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $scanScope + "`r`n" + $readme.Substring($scopeEnd)
+}
+if ($ReleaseLabel -eq 'MAP010-BACKGROUND' -or $ReleaseLabel -eq 'MAP011-RECEIVER') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-010 release scope boundaries missing.' }
+    $scope = @"
+MAP-010 BACKGROUND ACQUISITION — UNMERGED LIMITED REVIEW CANDIDATE
+This package preserves the earlier accepted single-game Home and the MAP-008
+accuracy-preserving v24 Map baseline (eight selectable kinds, individual/mixed
+scans, existing passive multi-server Auto Stop-before-return). The baseline
+holds its temporary view until the source-owned target reply and confirms
+restoration before requesting the next region. This is NOT a new faster scan.
+The earlier source-led CPU grouping change is preserved, but its measured
+effect on wall time has not been separately established.
+
+Installed-game Resource and Monster labels are shown from the actual
+current game's locale data. Loading, missing-game-root, failure and retry
+feedback is translated in all nine supported clone languages. The normal
+Map now permits browsing published saved servers when disconnected; it
+does not invent an active game/server connection or freshness.
+The exact isolated production-app EN/light and JA/dark native WebView
+checks passed with genuine stored data. Neither test changed the official
+Last War Chinese-language setting.
+
+MAP-010 optimization trials were bounded and non-account-changing.
+One existing coverage region proved a fresh 30-AOI target with 22 Resource
+rows and exact home restoration. Direct SendAoiRequest and camera-independent
+SendViewRequest did not return qualifying fresh data. A two-region/no-home
+intermediate candidate captured the first target but the second reply did
+not prove the requested AOI. Therefore no acquisition shortcut is enabled.
+Do NOT infer the earlier ~90-second per-scan home cost is safely removable.
+No paired full eight-kind/individual/mixed/two-server speedup benchmark was
+performed for a qualifying MAP-010 candidate, because none passed the small
+response/coverage/restoration admission. Normal/Fast have no new claim of
+repeatable advantage or global optimality.
+
+Ghost positive population, full seasonal Treasure and actual claim/plunder/
+sharing remain deferred or owner-only. No claims, plunder, marches, sharing,
+spending or relocation were performed. Whole Map, remote full-world acquisition
+without switching server/world, and simultaneous multiple official game
+processes are NOT accepted. Source/proof and exact follow-up dependencies:
+docs/MAP_010_BACKGROUND_ACQUISITION_CONTINUATION.md. This is an unmerged
+review candidate, not a published release.
+
+"@
+    if ($ReleaseLabel -eq 'MAP011-RECEIVER') {
+        $scope += @"
+
+MAP-011 LEAD CORRECTION AND ACTUAL RECEIVER TESTS — PARTIAL
+LEADMAP010-01 is fixed: a change of selected native profile ID/generation
+clears Map saved-server selection, options, rows and outstanding replies even
+when the App reuses the same mapApi object. The stopped replacement owner
+can browse only positive servers in its own published Map store. Current
+offline server ID 0 is not replaced by an invented live connection.
+Adversarial mounted A/B/A, held old reads, empty/failed store, same-server
+owner changes and offline/online transitions pass.
+
+LEADMAP010-02 R11 waited for the entire eight-second receiver deadline after
+the second WorldScene camera tile settled. Its nine current AOIs never
+included the required second target; old flags-ready and network activity
+were rejected. The distinct read-only R12 known remote-server point-detail
+request returned a point-ID match and unchanged active server/camera, but its
+detail source server was 0, not the requested 2213. This is NOT proof of
+remote server acceptance, still less unknown-object/full-map discovery.
+No new camera-free, consecutive-region or remote-full-world production path
+is enabled; the existing correct serial scanner is preserved.
+
+R11/R12 private trial code/data is excluded. See
+docs/MAP_010_BACKGROUND_ACQUISITION_CONTINUATION.md and
+docs/proof/MAP-011-RECEIVER-RESULTS-2026-10-12.json in the source.
+This remains an unmerged lead-review candidate. No merge/publication.
+
+"@
+    }
+    $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
+}
+if ($ReleaseLabel -eq 'MAP-SCANNER-TEST') {
+    $readme = @"
+LW-Control — current verified scanner test build
+Source commit: $sourceCommit
+
+Extract the WHOLE ZIP into a writable Windows x64 folder. Run Launch LWBridge.cmd.
+Requires .NET 10 Desktop Runtime, Microsoft Edge WebView2 Runtime and Python
+for game integration. Auto Launch Game is ON by default; normal startup can
+launch Last War. Close another copy of LW-Control before starting this build.
+
+SUPPORTED TEST SCOPE
+Single-game Home and the established camera-assisted shared Map scan are retained.
+City, Resource, Monster, Truck, Railway and Dispatch have genuine acquisition
+evidence. Selected types share one discovery sweep with separate enrichment.
+Spatial acquisition waits for the native response before restoring the camera.
+Resource/Monster names use installed-game locale data. Saved server browsing
+and profile changes retire obsolete responses. Auto Stop settles before return.
+
+Normal and Fast remain available. Neither has a proven repeatable material speed
+advantage. Prior full-world measurements were approximately 3–3.5 minutes/server;
+this build does not claim a new speed improvement or perfect population recall.
+Remote full-map discovery uses the supported server-view switch-and-return route.
+
+NOT COMPLETED
+Ghost positive acquisition and full seasonal Treasure qualification remain pending.
+Ghost preparation and Treasure inspection/previews do not execute attacks or claims.
+Native Ghost/Treasure terminal actions remain unavailable. Dispatch/Truck plunder
+and alliance sharing have not received owner live-action acceptance. Do not treat
+this scanner test build as certification of those actions or simultaneous games.
+
+Camera-free and consecutive-region experimental alternatives remain disabled and
+their diagnostic observer/runner is not shipped. No private database, profile,
+game scripts, reverse-engineering tools or evidence is bundled.
+
+Repository: https://github.com/Tuna0307/LW-Control
+Review and limits: docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md
+"@
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

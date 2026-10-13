@@ -99,7 +99,7 @@ function coordinateText(row) {
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, actionBusy, actionDisabled, jumpingKey = "", liveTargetDisabled = true, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, onTreasurePreview = () => {}, treasurePreviewAvailable = false, actionBusy, actionDisabled, jumpingKey = "", liveTargetDisabled = true, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
   const { language, t } = useI18n();
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   useEffect(() => {
@@ -172,7 +172,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   ) : column.coordinate ? (
                     coordinateCell(row)
                   ) : column.action ? (
-                    <button className="map-schedule-button" type="button" disabled>{t("map.claimTreasure")}</button>
+                    <button className="map-schedule-button" type="button" disabled={actionDisabled || actionBusy || !treasurePreviewAvailable} onClick={() => onTreasurePreview("single", String(row.uuid || ""))}>{t("map.previewTreasureClaims")}</button>
                   ) : column.status ? (
                     <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>
                   ) : column.rewards ? (
@@ -226,6 +226,8 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-actions-truck-busy": "truck",
   "map-actions-message": "dispatch",
   "map-actions-message-partial": "dispatch",
+  "map-providers-ghost": "ghost",
+  "map-providers-treasure": "treasure",
 });
 
 function mergeTreasureStates(rows, states) {
@@ -258,6 +260,9 @@ export function MapDataPage({
   onAutoScanCancel = () => {},
   previewState = "",
   gameTexts = EMPTY_GAME_TEXTS,
+  gameTextLoader = null,
+  gameTextOwner = "",
+  gameTextRoot = "",
   previewJumpingKeys = null,
   previewTreasureStatesRefreshing = false,
   previewBusyKey = "",
@@ -280,7 +285,12 @@ export function MapDataPage({
   const [counts, setCounts] = useState(() => ({ ...EMPTY_COUNTS }));
   const [summaryReady, setSummaryReady] = useState(false);
   const [options, setOptions] = useState(null);
+  const [localizedNames, setLocalizedNames] = useState({ context: "", values: EMPTY_GAME_TEXTS, loading: false, error: "" });
+  const [localeRetry, setLocaleRetry] = useState(0);
+  const localeCache = useRef(new Map());
+  const localeRequestGeneration = useRef(0);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
+  const [savedServers, setSavedServers] = useState([]);
   const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const tab = activeTab ?? localTab;
   const [keyword, setKeyword] = useState("");
@@ -321,6 +331,19 @@ export function MapDataPage({
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
   const [exporting, setExporting] = useState(false);
+  const localeContext = `${gameTextOwner}|${gameTextRoot}|${language}`;
+  const localeContextRef = useRef(localeContext);
+  localeContextRef.current = localeContext; // retire old owner before effects run
+  const knownNameKeys = useMemo(() => [...new Set([
+    ...(options?.names?.resource || []).map((item) => item.key),
+    ...(options?.names?.monster || []).map((item) => item.key),
+    ...(options?.treasureTypes || []).map((item) => item.treasureNameKey),
+    ...rows.map((row) => row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    "300039", "372138",
+  ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
+  const nameKeySignature = knownNameKeys.join("\u0000");
+  const resolvedGameTexts = previewFixture ? gameTexts
+    : localizedNames.context === localeContext ? localizedNames.values : EMPTY_GAME_TEXTS;
   const autoConfig = autoScanConfig;
   const autoRunning = autoScanRunning;
   const [autoServerInput, setAutoServerInput] = useState("");
@@ -336,8 +359,17 @@ export function MapDataPage({
   const optionsGeneration = useRef(0);
   const searchGeneration = useRef(0);
   const treasureRefreshGeneration = useRef(0);
+  const previewOperationRef = useRef(null);
   const tabViewCache = useRef(new Map());
   const dataServerIdRef = useRef(currentServerId);
+  // An old page may have a held native reply while its replacement mounts.
+  // Never let that reply update App-level counts (setState alone on an
+  // unmounted page is harmless but an onCounts callback is not).
+  const mountedOwnerRef = useRef(true);
+  useEffect(() => {
+    mountedOwnerRef.current = true;
+    return () => { mountedOwnerRef.current = false; };
+  }, []);
 
   const commitScanState = useCallback((next) => {
     setScanState(next);
@@ -347,6 +379,83 @@ export function MapDataPage({
   const dataServerId = externallyManaged
     ? browseServerId || scanState.serverId || 0
     : summaryReady ? browseServerId : browseServerId || scanState.serverId || currentServerId;
+  useEffect(() => {
+    // On owner remount this is cleared before the first asynchronous read,
+    // including errors/empty stores/offline transitions.
+    setSavedServers([]);
+    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") {
+      setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
+      return undefined;
+    }
+    let retired = false;
+    mapApi.savedServers().then((servers) => {
+      if (retired || !mountedOwnerRef.current) return;
+      const available = Array.isArray(servers)
+        ? [...new Set(servers.filter((server) => Number.isSafeInteger(server) && server > 0))]
+        : [];
+      setSavedServers(available);
+      setBrowseServerId((current) => available.includes(current) ? current : (available[0] ?? 0));
+    }).catch(() => {
+      if (retired || !mountedOwnerRef.current) return;
+      setSavedServers([]);
+      setBrowseServerId(0);
+    });
+    return () => { retired = true; };
+  }, [backendAvailable, mapApi, scanState.serverId]);
+  useEffect(() => {
+    if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
+    const generation = ++localeRequestGeneration.current;
+    let retired = false;
+    const current = () => !retired && generation === localeRequestGeneration.current && localeContextRef.current === localeContext;
+    const cache = localeCache.current;
+    if (cache.size > 3 && !cache.has(localeContext)) cache.clear();
+    const entry = cache.get(localeContext) || { values: {}, identity: "" };
+    cache.set(localeContext, entry);
+    setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: true, error: "" });
+    (async () => {
+      try {
+        // Even if all requested names are cached, check the installed build and source
+        // hash. A new game update at the same root must invalidate old translations.
+        const header = await gameTextLoader({ language, keys: [] });
+        if (!current()) return;
+        const accepted = (result) => {
+          if (result?.language !== language || !result?.buildId || !result?.localeSha256 ||
+              !result?.englishSha256 || typeof result?.texts !== "object" || !result.texts ||
+              String(result.gameRoot || "").toLowerCase().replace(/[\\/]+$/, "") !==
+                gameTextRoot.toLowerCase().replace(/[\\/]+$/, "")) {
+            throw new Error("Game names came from a different or unverified game build/root/language");
+          }
+          return `${result.buildId}|${result.localeSha256}|${result.englishSha256}`;
+        };
+        const identity = accepted(header);
+        if (entry.identity !== identity) {
+          entry.identity = identity;
+          entry.values = {};
+        }
+        const missing = knownNameKeys.filter((key) => !Object.hasOwn(entry.values, key));
+        for (let offset = 0; offset < missing.length; offset += 200) {
+          const batch = missing.slice(offset, offset + 200);
+          const result = await gameTextLoader({ language, keys: batch });
+          if (!current()) return;
+          if (accepted(result) !== entry.identity || batch.some((key) => typeof result.texts[key] !== "string")) {
+            throw new Error("Game locale changed during name loading or omitted a requested key");
+          }
+          entry.values = { ...entry.values, ...result.texts };
+          setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: true, error: "" });
+        }
+        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: "" });
+      } catch (error) {
+        if (current()) setLocalizedNames({ context: localeContext, values: { ...entry.values }, loading: false, error: errorText(error) });
+      }
+    })();
+    return () => { retired = true; localeRequestGeneration.current += 1; };
+  // A stable signature avoids reloading when the option array is recreated unchanged.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameTextLoader, gameTextOwner, gameTextRoot, backendAvailable, language, localeContext, nameKeySignature, localeRetry]);
+  // Updated during render, so even a reply preceding React's effect cleanup
+  // cannot publish into a replacement tab, API owner or browse server.
+  const previewContextRef = useRef(null);
+  previewContextRef.current = { mapApi, serverId: dataServerId, tab };
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
   const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
   const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
@@ -395,9 +504,11 @@ export function MapDataPage({
     optionsGeneration.current = generation;
     try {
       const loaded = await mapApi.dataOptions(serverId);
-      if (generation !== optionsGeneration.current) return;
+      if (generation !== optionsGeneration.current || !mountedOwnerRef.current) return;
       if (loaded.serverId !== serverId) {
-        setBrowseServerId(loaded.serverId);
+        // Never adopt a server supplied by a stale/unrelated options reply.
+        setOptions(null);
+        setSummaryReady(false);
         return;
       }
       setOptions(loaded);
@@ -415,7 +526,7 @@ export function MapDataPage({
       setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
     } catch (error) {
-      if (generation === optionsGeneration.current) setQueryError(errorText(error));
+      if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(errorText(error));
     }
   }, [backendAvailable, mapApi, onCounts]);
 
@@ -424,18 +535,18 @@ export function MapDataPage({
     const generation = ++summaryGeneration.current;
     try {
       const summary = await mapApi.summary();
-      if (generation !== summaryGeneration.current) return;
+      if (generation !== summaryGeneration.current || !mountedOwnerRef.current) return;
       commitScanState(summary.scanState);
       setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
-      setBrowseServerId(summary.serverId > 0 ? summary.serverId : 0);
+      if (summary.serverId > 0) setBrowseServerId(summary.serverId);
       if (!selectionTouched.current) {
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
       }
     } catch (error) {
-      if (generation !== summaryGeneration.current) return;
+      if (generation !== summaryGeneration.current || !mountedOwnerRef.current) return;
       setScanError(errorText(error));
     }
   }, [backendAvailable, commitScanState, mapApi]);
@@ -451,7 +562,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      setBrowseServerId(next.serverId > 0 ? next.serverId : 0);
+      if (next.serverId > 0) setBrowseServerId(next.serverId);
       if (wasReading && !next.isReading) refreshSummary();
     });
     refreshSummary();
@@ -467,8 +578,8 @@ export function MapDataPage({
   }, [backendAvailable, commitScanState, externallyManaged, mapApi, refreshSummary]);
 
   useEffect(() => {
-    if (scanState.serverId === dataServerId) return;
-    setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
+    if (scanState.serverId <= 0 || scanState.serverId === dataServerId) return;
+    setBrowseServerId(scanState.serverId);
   }, [dataServerId, scanState.serverId]);
 
   useEffect(() => {
@@ -536,7 +647,7 @@ export function MapDataPage({
       }
     }
     mapApi.search(tab, query).then((result) => {
-      if (generation !== searchGeneration.current) return;
+      if (generation !== searchGeneration.current || !mountedOwnerRef.current) return;
       const totalPages = mapPageCount(result.total);
       if (requestedPage > totalPages) {
         setPage(totalPages);
@@ -568,14 +679,14 @@ export function MapDataPage({
         setTreasureStatesRefreshing(false);
       }
     }).catch((error) => {
-      if (generation === searchGeneration.current) {
+      if (generation === searchGeneration.current && mountedOwnerRef.current) {
         if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);
         setTotal(0);
         // Recovered rr logs search rejection without adding a visible query-error banner.
       }
     }).finally(() => {
-      if (generation === searchGeneration.current) setLoading(false);
+      if (generation === searchGeneration.current && mountedOwnerRef.current) setLoading(false);
     });
   }
 
@@ -763,6 +874,7 @@ export function MapDataPage({
 
   function changeTab(nextTab) {
     if (nextTab === tab) return;
+    retirePreviewOperation();
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
     setTreasureStatesRefreshing(false);
@@ -869,6 +981,78 @@ export function MapDataPage({
   const shareProvider = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.share);
   const jobActionsEnabled = providerSupports(mapApi, SCHEDULING_PROVIDER_METHODS.jobActions);
   const scheduledCount = plunderJobs.dispatchJobs.length + plunderJobs.truckJobs.length;
+
+  function retirePreviewOperation(expected = null) {
+    const operation = previewOperationRef.current;
+    if (!operation || (expected && operation !== expected)) return;
+    previewOperationRef.current = null;
+    setBusyKey((key) => key === operation.busyKey ? "" : key);
+  }
+
+  function currentPreviewOperation(operation) {
+    const context = previewContextRef.current;
+    return previewOperationRef.current === operation &&
+      context?.mapApi === operation.api &&
+      context.serverId === operation.serverId && context.tab === operation.tab;
+  }
+
+  function beginPreviewOperation(busyKey) {
+    if (previewOperationRef.current) return null;
+    const operation = {
+      api: mapApi, serverId: dataServerId, tab, busyKey,
+    };
+    previewOperationRef.current = operation;
+    setBusyKey(busyKey);
+    setActionMessage("");
+    return operation;
+  }
+
+  useEffect(() => {
+    // Cleanup only the retired owner's operation. A successor that began on
+    // the replacement view must retain its own busy flag and eventual result.
+    return () => {
+      const operation = previewOperationRef.current;
+      if (operation?.api === mapApi && operation.serverId === dataServerId && operation.tab === tab)
+        retirePreviewOperation(operation);
+    };
+  }, [mapApi, dataServerId, tab]);
+
+  async function prepareSelectedGhost() {
+    const selected = Object.values(dispatchSelection);
+    if (tab !== "ghost" || selected.length === 0 || !delay.valid || !online ||
+        typeof mapApi?.prepareGhostPlunder !== "function") return;
+    const operation = beginPreviewOperation("prepare-ghost");
+    if (!operation) return;
+    try {
+      const prepared = await mapApi.prepareGhostPlunder(selected, delay.seconds);
+      if (currentPreviewOperation(operation))
+        setActionMessage(t("map.ghostPrepared", { count: Array.isArray(prepared) ? prepared.length : 0 }));
+    } catch (error) {
+      if (currentPreviewOperation(operation)) setActionMessage(errorText(error));
+    } finally {
+      retirePreviewOperation(operation);
+    }
+  }
+
+  async function previewTreasureClaims(scope, uuid = "") {
+    if (tab !== "treasure" || !dataServerId || !online ||
+        typeof mapApi?.previewTreasureClaim !== "function") return;
+    const operation = beginPreviewOperation("preview-treasure");
+    if (!operation) return;
+    try {
+      const preview = await mapApi.previewTreasureClaim(dataServerId, scope, luckyFirst, uuid);
+      if (currentPreviewOperation(operation)) {
+        setActionMessage(t("map.treasurePreviewReady", {
+          eligible: preview?.eligibleCount ?? 0, count: preview?.candidateCount ?? 0,
+        }));
+        setSearchRevision((value) => value + 1);
+      }
+    } catch (error) {
+      if (currentPreviewOperation(operation)) setActionMessage(errorText(error));
+    } finally {
+      retirePreviewOperation(operation);
+    }
+  }
 
   async function scheduleSelectedDispatch() {
     const selected = Object.values(dispatchSelection);
@@ -1103,11 +1287,19 @@ export function MapDataPage({
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
+            {scanState.serverId <= 0 && savedServers.length > 0 ? (
+              <label className="map-filter-field"><span>{t("map.savedServer")}</span>
+                <select data-map-saved-server aria-label={t("map.savedServer")} value={dataServerId}
+                  onChange={(event) => { setBrowseServerId(Number(event.target.value)); setPage(1); }}>
+                  {savedServers.map((server) => <option key={server} value={server}>{server}</option>)}
+                </select>
+              </label>
+            ) : null}
             <input value={keyword} onChange={(event) => changeKeyword(event.target.value)} aria-label={t("map.searchLabel")} placeholder={t("map.searchLabel")} />
             {isNameFilterKind(tab) ? (
               <select aria-label={t("common.name")} value={tab === "resource" ? resourceNameKey : monsterNameKey} onChange={(event) => selectName(tab, event.target.value)}>
                 <option value="">{t("map.allNames")}</option>
-                {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(gameTexts, item.key, item.key)} ({item.count})</option>)}
+                {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(resolvedGameTexts, item.key, item.key)} ({item.count})</option>)}
               </select>
             ) : null}
             {tab === "city" ? (
@@ -1122,7 +1314,7 @@ export function MapDataPage({
             ) : null}
             {tab === "treasure" ? (
               <>
-                <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={gameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
+                <MapTreasureTypeFilter items={options?.treasureTypes || []} value={treasureType} gameTexts={resolvedGameTexts} onChange={(value) => { setTreasureType(value); setPage(1); }} />
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} />{t("map.showForeignRadarTreasures")}</label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} />{t("map.prioritizeLuckyTreasures")}</label>
               </>
@@ -1153,10 +1345,11 @@ export function MapDataPage({
             <button type="button" disabled={!backendAvailable || !dataServerId} onClick={submitSearch}>{t("common.search")}</button>
             {tab === "city" ? <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || exporting} onClick={exportCities}>{t(exporting ? "map.exportingExcel" : "map.exportExcel")}</button> : null}
             {(tab === "dispatch" || tab === "ghost") ? <label className="map-random-delay-field"><span>{t("map.randomDelaySeconds")}</span><input type="number" min="0" step="1" aria-label={t("map.randomDelaySeconds")} value={randomDelay} onChange={(event) => setRandomDelay(event.target.value)} /></label> : null}
-            {(tab === "dispatch" || tab === "ghost") ? <button className="map-schedule-button" type="button" data-runtime-fenced={!scheduleProvider} disabled={scheduleSelectedDisabled({ count: dispatchCount, busyKey, sharing, delayValid: delay.valid }) || !scheduleProvider} onClick={scheduleSelectedDispatch}>{t("map.scheduleSelected", { count: dispatchCount })}</button> : null}
+            {tab === "dispatch" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!scheduleProvider} disabled={scheduleSelectedDisabled({ count: dispatchCount, busyKey, sharing, delayValid: delay.valid }) || !scheduleProvider} onClick={scheduleSelectedDispatch}>{t("map.scheduleSelected", { count: dispatchCount })}</button> : null}
+            {tab === "ghost" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!online || typeof mapApi?.prepareGhostPlunder !== "function"} disabled={!online || scanState.isReading || Boolean(busyKey) || dispatchCount === 0 || !delay.valid || typeof mapApi?.prepareGhostPlunder !== "function"} onClick={prepareSelectedGhost}>{t("map.prepareGhostTasks")}</button> : null}
             {tab === "dispatch" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!shareProvider} disabled={shareAllianceDisabled({ online, isReading: scanState.isReading, count: dispatchCount, busyKey, sharing }) || !shareProvider} onClick={shareSelectedDispatch}>{t(shareAllianceLabelKey(sharing))}</button> : null}
             {tab === "truck" ? <button className="map-schedule-button" type="button" data-runtime-fenced={!truckProvider} disabled={scheduleTrucksDisabled({ count: truckCount, busyKey }) || !truckProvider} onClick={scheduleSelectedTrucks}>{t("map.scheduleSelectedTrucks", { count: truckCount })}</button> : null}
-            {tab === "treasure" ? <><button className="map-schedule-button" type="button" disabled>{t("map.claimTreasureBoxes")}</button><button className="map-schedule-button" type="button" disabled>{t("map.claimSeasonTreasures")}</button></> : null}
+            {tab === "treasure" ? <><button className="map-schedule-button" type="button" disabled={!online || !dataServerId || Boolean(busyKey) || typeof mapApi?.previewTreasureClaim !== "function"} onClick={() => previewTreasureClaims("boxes")}>{t("map.previewTreasureBoxes")}</button><button className="map-schedule-button" type="button" disabled={!online || !dataServerId || Boolean(busyKey) || typeof mapApi?.previewTreasureClaim !== "function"} onClick={() => previewTreasureClaims("season")}>{t("map.previewSeasonTreasures")}</button></> : null}
             {actionMessage ? <span className="map-claim-result" role="status">{actionMessage}</span> : null}
             <span className="map-result-count">{t("common.itemCount", { count: total })}</span>
           </div>
@@ -1167,16 +1360,24 @@ export function MapDataPage({
           </div>
         )}
         {queryError ? <div className="map-scan-error" role="alert">{queryError}</div> : null}
+        {!previewFixture && backendAvailable && gameTextLoader && !gameTextRoot ?
+          <div className="map-scan-error" role="alert">{t("map.namesMissingRoot")}</div>
+          : null}
+        {!previewFixture && localizedNames.context === localeContext && localizedNames.error ?
+          <div className="map-scan-error" role="alert">{t("map.namesUnavailable", { detail: localizedNames.error })} <button type="button" onClick={() => setLocaleRetry((value) => value + 1)}>{t("map.namesRetry")}</button></div>
+          : null}
+        {!previewFixture && localizedNames.context === localeContext && localizedNames.loading ?
+          <span className="muted" role="status">{t("map.namesLoading")}</span> : null}
         {tab !== "scheduledPlunder" ? (
           <>
-            <MapTable kind={tab} gameTexts={gameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} actionBusy={Boolean(actionBusy)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
             <Pagination page={page} total={total} onPage={setPage} />
           </>
         ) : (
           <ScheduledPlunder
             dispatchJobs={plunderJobs.dispatchJobs}
             truckJobs={plunderJobs.truckJobs}
-            gameTexts={gameTexts}
+            gameTexts={resolvedGameTexts}
             currentTime={currentTime}
             online={previewFixture && previewPlunderOnline !== null ? previewPlunderOnline : online}
             busyKey={busyKey}

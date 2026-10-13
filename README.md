@@ -1,6 +1,11 @@
 # LW-Control application candidate
 
-**Download the reviewed Windows application:** [Stored Map data v0.3.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-data-v0.3.0).
+**Current scanner test build:** [Windows download](https://github.com/Tuna0307/LW-Control/releases/tag/map-scanner-test-2026-10-13).
+Includes the verified shared camera-assisted scanner, native response/restoration
+correction, installed Monster/Resource names and saved-profile browsing fixes.
+Experimental faster routes remain disabled. See [scope and limits](docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md).
+
+**Previous stable release:** [Available Map v0.6.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0).
 Extract the complete ZIP and run **Launch LWBridge.cmd**. Requires the .NET 10
 Desktop Runtime and Microsoft Edge WebView2 Runtime. Game integration additionally
 requires Python and the verified current Last War installation. The UI baseline and single-profile Home Launch â†’ Connected â†’ Close are delivered;

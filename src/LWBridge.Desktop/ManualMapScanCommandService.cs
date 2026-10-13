@@ -1109,7 +1109,17 @@ internal sealed class ManualMapScanCommandService : INativeAsyncCommandService
             var engine = new MapScanEngine(
                 blockSource,
                 new MapDataStoreScanSink(store),
-                UpdateProgress);
+                UpdateProgress,
+                currentClientSource is null ? null : metrics =>
+                {
+                    // One bounded task-local diagnostic per completed run. No
+                    // source rows, secrets, profiles or world payloads are written.
+                    string root = currentClientSource.ProbeRuntimeRoot;
+                    Directory.CreateDirectory(root);
+                    File.WriteAllText(
+                        Path.Combine(root, "map-engine-stage-metrics.json"),
+                        JsonSerializer.Serialize(metrics, JsonOptions.Default));
+                });
             Task task = RunEngineAsync(engine, request, scanCancellation);
             lock (gate)
             {

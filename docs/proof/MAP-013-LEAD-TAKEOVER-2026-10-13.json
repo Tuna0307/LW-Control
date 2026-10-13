@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "status": "PARTIAL",
+  "workerCheckpoint": "0022c4ce64c415b31cbe1a0d93c220dc792ad8e1",
+  "productSourceChanged": false,
+  "freshLeadLiveSessions": 15,
+  "desktopInputActions": 0,
+  "prohibitedGameActions": 0,
+  "deniedWorkerSessionsNotRetrieved": [
+    55411,
+    11797
+  ],
+  "sourceSha256": {
+    "tools/map_009_offline/run_map013_owned_observer.py": "ad9d75a5205e3693f235d41a3ecbf0d96314559e754f2434e361c9d3e0026ebd",
+    "tools/map_009_offline/map013_wrapper_trace.lua": "edf4b1118540b7ac2b398bc13a56cbaf0790b4ff89e7895dad493d38f28b53bc",
+    "tools/map_009_offline/worldready_instrument_013.py": "63a5e4c005d7857f9051106ca9ee1d89721807a9ca6ab616a33c9b2b1adb9ca8",
+    "tools/map_009_offline/managed_sampler/Sampler.cs": "56382dcc5b204e6fdf971adc71c6c078afce62fc9aae066cac59b070683518b9",
+    "tools/current_overview_bridge.lua": "559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0",
+    "tools/current_live_resource_probe.lua": "983a377dcb1c1a4f2931efe1c446aaa37714fe4d2d2e0926bd520eb8dfefa853"
+  },
+  "attempts": [
+    {
+      "attempt": "native-causal-20261013-012003",
+      "finalSha256": "51643323e15955133371ac086327c83d21a42614c89ca14e22bc3959bfc260b0",
+      "state": "PARTIAL",
+      "error": "RuntimeError: cannot issue first-region native request without verified world owner",
+      "regionState": null,
+      "regionPointRecords": null,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-012725",
+      "finalSha256": "f29936de9e15e12d6efb9d625988e869cc1c2cd2e28d73a4596dee3c4b25d3b0",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "failed",
+      "regionPointRecords": 15,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-013054",
+      "finalSha256": "593524e5df231d8164a94eba4f6d5a7c5cdb4d0816800de652640ec305441b91",
+      "state": "PARTIAL",
+      "error": "TimeoutError: map013-native-trace-result.json did not contain a validated terminal owner reply within bound",
+      "regionState": "failed",
+      "regionPointRecords": 0,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-013607",
+      "finalSha256": "5fbf275829b035eae8d6c7b23c2f5c0259f128634fb9e71346cbd98154cac57f",
+      "state": "PARTIAL",
+      "error": "TimeoutError: map013-native-trace-result.json did not contain a validated terminal owner reply within bound",
+      "regionState": "proven",
+      "regionPointRecords": 49,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-014117",
+      "finalSha256": "5c04a73765d17564f54c90e99bbca823d8c298502ee025cf8e8f1933a8fdae24",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 49,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-014526",
+      "finalSha256": "aba761fd6e8db63f2754cde55ebb6bbcb54c47371125be0bae363e036d323010",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 49,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-015009",
+      "finalSha256": "ce96e0b8d663071d45e9aeb65219ce6d9cab1d91382382408b44f64d6d0b64b8",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 49,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-020434",
+      "finalSha256": "5d8b5e68b4b88df03f8bd1d71e1a0a61c1496e73db2cbc1903f4b322cf63979b",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-021133",
+      "finalSha256": "909a747177cf1020ed407c6c04059caca4ea22a5aa7379a261a86e2a9057b84f",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-021549",
+      "finalSha256": "ce6f2a97a7a449bdfa92264e1b429aa9425179325bf96186154ce3cc9c99011c",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-022239",
+      "finalSha256": "a1d29b129af711f9046b99d71a88247ff7f5d4fc12ca07157b18e4739f14212a",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-023030",
+      "finalSha256": "3241e7e21bf5b19e5aefebb8faecfc6b9162ad6f1be7b18666615bb5956758f2",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-023309",
+      "finalSha256": "868b2e257f3177746dbc736f33a66b896dc7bbf69e802d473bf8ae51d54b37a3",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-023418",
+      "finalSha256": "566d6bebd28eb4497951d5681169a4993d9a1e6a166b747e917e57b7b9569ee8",
+      "state": "PARTIAL",
+      "error": "ReplyValidationError: reply requestId mismatch",
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    },
+    {
+      "attempt": "native-causal-20261013-023613",
+      "finalSha256": "06cbd42253913c26f20852cce592444ceb19b8f29cfba999770d2b5832781199",
+      "state": "OBSERVATION_ONLY",
+      "error": null,
+      "regionState": "proven",
+      "regionPointRecords": 50,
+      "exactStopSucceeded": true,
+      "originalScriptsRestored": true
+    }
+  ],
+  "currentGame": {
+    "LWScripts.data": "d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495",
+    "LWScripts.txt": "b84cfa8762d9f8b93fcbe9e64b8715e84d1549248c2e98dc7dc272321476933b",
+    "version.txt": "c2356069e9d1e79ca924378153cfbbfb4d4416b1f99d41a2940bfdb66c5319db",
+    "BaseUtils.rdl": "f1c16e7887a1752decce8a8d37844145228ca7987ece33a6992b7d0f75406adf"
+  },
+  "checks": {
+    "mapPython": {
+      "passed": 63,
+      "log": "artifacts/map-009-offline/lead-013-offline-tests-final.log",
+      "logSha256": "0c918e82aa5a746902f7439b31cb34c0613b2028bebcc5a3dc45adedd8950d6d"
+    },
+    "nativeToolchainPython": {
+      "passed": 5
+    },
+    "samplerInert": "MAP013_MANAGED_SAMPLER_INERT_OK enum=3 map=1 segments=1 secrets=0 missing=0 truncation=1",
+    "samplerReleaseBuild": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "earlyOriginalSourceSweepDuringInjection": "Rejected injected package hash in three setup classes; post-restoration original hash gates pass unchanged.",
+    "sameSessionReplay": "Re-executed audit output is JSON-identical to retained proof; actual matched native point counts 50,48,18."
+  },
+  "qualification": {
+    "freshIncomingNativeRegionContext": true,
+    "sameFootprintRecords": true,
+    "actualOutboundEnvelope": false,
+    "cacheInsertionInvocation": false,
+    "fasterScannerEnabled": false,
+    "newBenchmark": false,
+    "fullWorldRecall": false
+  },
+  "findings": {
+    "sceneGate": "Actual ChangeToWorld silently returns outside City/World; source predicates now observed before transition.",
+    "baselineMode": "production coverage replaces experimental native as diagnostic baseline.",
+    "snapshotAdapter": "Standalone diagnostic now uses existing admitted managed reader; no production fallback changes.",
+    "traceWait": "24-second reader wait covers existing 18-second producer.",
+    "replyRetirement": "Old exact-owner archived terminal result retired before next unique request; foreign/pending retained.",
+    "transport": "Actual NetRawProxy/ProtoBufNet packet profiler, not a standard SmartFox socket.",
+    "nativeTimeout": "Fresh populated native reply was present; zero centre occupancy fails the original diagnostic completion predicate."
+  },
+  "currentObserverAdditionalHardening": "Terminal-only reply retirement, ASCII command admission and row-cap truncation reporting were added after the live receipt and verified inertly; no new live qualification is claimed for those changes. The optional object-dump accessor was removed and diagnostic Lua/default-byte tests passed again.",
+  "finalActorVerification": {
+    "LastWar": 0,
+    "launcher": 0,
+    "Desktop": 0,
+    "scriptTripletHashesChecked": true
+  },
+  "liveSamplerDllSha256": "3e38c100f9e99704f5c873f7b869750239e241e86d7ea3b0b5ec7e49f73069cf",
+  "livePrivateWrapperSha256": "1f9dd5fc7e3f60f81a33033bb2173569f3754553a940bfdfd84a3e364d41d367"
+}

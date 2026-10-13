@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "evidence": "Production planner and engine with CONTROLLED independent records, no live timing or population proof",
+  "selectionCases": 255,
+  "totalKinds": 8,
+  "representativeRuns": [
+    {
+      "mask": 1,
+      "selected": [
+        "city"
+      ],
+      "mode": "fast",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 1,
+      "elapsedMs": 21.8436
+    },
+    {
+      "mask": 7,
+      "selected": [
+        "city",
+        "resource",
+        "monster"
+      ],
+      "mode": "fast",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 3,
+      "elapsedMs": 0.0156
+    },
+    {
+      "mask": 9,
+      "selected": [
+        "city",
+        "truck"
+      ],
+      "mode": "fast",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 2,
+      "elapsedMs": 0.0525
+    },
+    {
+      "mask": 56,
+      "selected": [
+        "truck",
+        "railway",
+        "dispatch"
+      ],
+      "mode": "normal",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 3,
+      "elapsedMs": 0.0165
+    },
+    {
+      "mask": 128,
+      "selected": [
+        "treasure"
+      ],
+      "mode": "normal",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 1,
+      "elapsedMs": 0.0402
+    },
+    {
+      "mask": 255,
+      "selected": [
+        "city",
+        "resource",
+        "monster",
+        "truck",
+        "railway",
+        "dispatch",
+        "ghost",
+        "treasure"
+      ],
+      "mode": "fast",
+      "StrategyId": "current_fast_full_world_v2",
+      "Calls": 4,
+      "ActivePeak": 1,
+      "PublishedCount": 8,
+      "elapsedMs": 0.0447
+    }
+  ],
+  "rejectedAdversities": [
+    "wrong-server",
+    "wrong-world",
+    "unselected-kind",
+    "duplicate-block",
+    "missing-seed",
+    "empty-payload",
+    "partial",
+    "native-error",
+    "omitted-known-record",
+    "dropped-selected-kind",
+    "extra-record",
+    "wrong-field",
+    "duplicate-identity",
+    "wrong-server-record",
+    "stale-record"
+  ],
+  "simulatedAoiModes": [
+    {
+      "footprintWidth": 2,
+      "coverage": 100,
+      "normalProbes": 50,
+      "fastProbes": 50
+    },
+    {
+      "footprintWidth": 3,
+      "coverage": 100,
+      "normalProbes": 50,
+      "fastProbes": 50
+    },
+    {
+      "footprintWidth": 4,
+      "coverage": 100,
+      "normalProbes": 33,
+      "fastProbes": 25
+    },
+    {
+      "footprintWidth": 5,
+      "coverage": 100,
+      "normalProbes": 25,
+      "fastProbes": 20
+    }
+  ],
+  "controlledEnginePeakInflight": 1,
+  "abortedStaleRunCannotPublish": true,
+  "denseStress": {
+    "stressCycles": 12,
+    "denseRecordsPerKind": 375,
+    "totalPublishedRowsAcrossIsolatedCycles": 36000,
+    "maxInflight": 1,
+    "elapsedMs": 760.2456,
+    "memoryBeforeBytes": 455208,
+    "peakRetainedMemoryBytes": 1778496,
+    "memoryBoundBytes": 134217728
+  },
+  "rawNetworkPacketCounts": null,
+  "actualGameActions": 0
+}

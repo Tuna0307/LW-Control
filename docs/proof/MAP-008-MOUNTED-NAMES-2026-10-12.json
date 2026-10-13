@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "mounted": "MapRoutePage + MapDataPage + I18nProvider with native root-status mapping",
+  "controlled": true,
+  "calls": 44,
+  "maxKeys": 4,
+  "cases": [
+    "EN resource/monster tables and filters",
+    "stale profile reply rejected after successor",
+    "JA mounted table and filter after language change",
+    "native root status through actual Map route, invalid root rejection",
+    "nine mounted catalogs: invalid root / loading / native error / retry"
+  ],
+  "externalGameActions": 0
+}

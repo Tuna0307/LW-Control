@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "workItem": "LWB317-MAP-REA-NATIVE-RECOVERY-013",
+  "startingLeadCheckpoint": "7f2a963109d55edfeb187ac05c41ea7453dc831b",
+  "branch": "codex/map-action-providers-007",
+  "existingPr": 9,
+  "status": "PARTIAL",
+  "leadFindingAddressed": "LEADMAP013-04",
+  "leadInverseRetained": "docs/proof/MAP-013-LEAD-REPLY-INVERSE-2026-10-13.json",
+  "replyReader": {
+    "file": "tools/map_009_offline/run_map013_owned_observer.py",
+    "source": "actual emitted schema of current_overview_bridge.lua / current_live_resource_probe.lua / opt-in map013_wrapper_trace.lua",
+    "acceptsMatchingRequestIdAlone": false,
+    "worldSessionField": "sessionId",
+    "probeAndObserverSessionField": "launchSessionId",
+    "requiredAllReplies": [
+      "requestId", "schemaVersion=1", "producer version", "profileId",
+      "producer-specific session", "gamePid", "challenge", "capturedAt",
+      "fresh file mtime", "terminal state or wait"
+    ],
+    "worldSuccessRequiredContext": [
+      "actual positive serverId", "actual nonnegative worldId",
+      "tileWidth", "tileHeight", "player coordinates checked if present"
+    ],
+    "worldFailure": "failed with actual nonempty error",
+    "regionSuccess": "requested native mode and actual targetTileX,targetTileY,targetAoiIndex; output lacks authoritative serverId/worldId",
+    "regionFailure": "failed with actual nonempty error",
+    "observerSuccess": "observed with native events/registrations arrays",
+    "observerFailure": "observer_error with errors array",
+    "nonterminalState": "pending rejected as terminal and continues bounded wait",
+    "staleOrMismatched": "fail closed, do not coerce identities or rely on opaque requestId",
+    "nativePacketToReplyAttributionEstablished": false,
+    "changesAppliedToCanonicalScanner": false
+  },
+  "worldReadySourceFlow": {
+    "realSource": "tools/current_overview_bridge.lua",
+    "sourceBodyUnchangedWithoutOptIn": true,
+    "diagnosticSource": "tools/map_009_offline/worldready_instrument_013.py",
+    "actualBranchOrder": [
+      "host atomic command publication",
+      "M.Pump control and lease read/admission",
+      "read_world_ready command read and protected os.remove attempt (success not guaranteed)",
+      "schema/bridgeVersion/requestId validation",
+      "profileId/sessionId/challenge/gamePid ownership validation",
+      "begin_world_ready existing actual WorldScene, or SceneUtils.ChangeToWorld",
+      "pending_world_ready loop with 10 second source timeout",
+      "write_world_ready_result returns write status, previously ignored",
+      "host validates actual response and owner/freshness"
+    ],
+    "importantSilentRoute": "read_world_ready attempts command deletion before version/token validation, ignores failure; schema/token mismatch silently returns nil with no result",
+    "nonNullSceneManagerWorldIsProof": false,
+    "concretePositiveTypeRequired": "WorldScene; CityScene is insufficient",
+    "requestRejectionWithWrongOwner": "world_ready_identity_mismatch -> explicit failed result",
+    "optInStageLog": "ignored exact task-owned overview-bridge/map013-worldready-lifecycle.txt",
+    "hostSnapshot": "snapshot_worldready_stages; existence and identity booleans only, no secrets",
+    "preexisting234333FirstDivergentBranchProven": false,
+    "instrumentationActuallyRunLiveThisTurn": false,
+    "inertFollowUpAfterA0eacc3e": {
+      "commandRemoval": "instrumented pcall and os.remove results distinguish removed from failed; baseline does not inspect os.remove return",
+      "sameSecondRequests": "per-stage and sanitized per-request ID log suppression; former per-stage-only suppression could hide a second request",
+      "deferredControlLeaseRead": "shared_read_deferred logged when busy shared read is admitted for deferral, before world processing",
+      "transitionInvocationVersusCallback": "transition_invocation_failed and transition_callback_invoked distinct; callback was an empty function in original source",
+      "sourceAndSnapshotTests": "instrumented Lua parse plus positive/unrelated per-request inert log-filter check; no live execution",
+      "preexisting234333FailureBranchIdentified": false
+    }
+  },
+  "readOnlyValidation": {
+    "actualV24CheckOnlyResult": true,
+    "privateRawReceipt": "ignored artifacts/map-013-live/worldready-inert-admission-20261013/read-only-check.json (prior a0eacc3e checkpoint)",
+    "followUpCheckOnlyCommand": "LWBRIDGE_MAP013_WORLD_TRACE=1 and exact isolated MAP013 wrapper/root; python tools/run_overview_bridge_current.py check-only",
+    "followUpCheckOnly": {
+      "ok": true,
+      "installedFilesChanged": false,
+      "currentLuaContentVersion": 24,
+      "currentLuaPackageSha256": "d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495",
+      "candidatePackageSha256": "106c83a4df798ea807fd41ff3d12c1dadb73b96440c6636b788f8dde72bcd92b",
+      "instrumentedBridgeSha256": "460bcd0003bfebe24a912bb144ac326cc1d7a021c70bd33f845fcb93b341a091",
+      "instrumentedWrapperSha256": "d6785f228650c2dbf95acb33b451cfd5350ebff76c2da8f5a041ff4c44f5354e",
+      "resourceProbeLencSize": 57531,
+      "wrapperLencSize": 34959
+    },
+    "resourceProbeEncodedBytes": 57531,
+    "instrumentedWrapperEncodedBytes": 34959,
+    "originalBridgeSha256": "559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0",
+    "originalWrapperSha256": "d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708",
+    "originalProbeSha256": "8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668",
+    "actualGameScriptsOriginal": true
+  },
+  "regressionResults": {
+    "currentGameOfflineSourceAndAccuracyTests": 54,
+    "currentGameOfflineStatus": "passed",
+    "nativeReaHelperTests": 5,
+    "nativeReaHelperStatus": "passed",
+    "desktopHomeMapStorageOwnershipPipeChecks": "passed with zero game launches",
+    "frontendStaticAndProductionBuildChecks": "passed",
+    "instrumentedLuaParsed": true,
+    "diagnosticOptInV24CheckOnly": "passed",
+    "defaultWrapperAndProbeBytesUnmodified": true,
+    "noTaskOwnedGameOrAnalysisProcess": true,
+    "testsAreInertNotNewGamePositive": true
+  },
+  "historicalToolDenial": {
+    "retrievedFrom": "previous turn's retained actual tool response and its invoking call",
+    "operation": "mcp__Chat_On_Steroids_Core__write_stdin",
+    "redactedArguments": {
+      "session_id": 55411,
+      "chars": "",
+      "yield_time_ms": 1000
+    },
+    "precedingDiagnostic": "python tools/map_009_offline/run_map013_owned_observer.py --baseline-region",
+    "exactReturnedText": "Script error: This tool call was blocked by OpenAI because we couldn't determine the safety status of the request.",
+    "statedReason": "couldn't determine the safety status of the request",
+    "specificDeniedBehaviorOrCategorySupplied": false,
+    "sameDeniedOperationRetried": false,
+    "reroutedOrBypassed": false,
+    "scope": "one recorded write_stdin session poll; do not infer a categorical game/tool prohibition or blanket future approval"
+  },
+  "currentGameStaticSource": {
+    "networkManagerSendToken": "0x06001677",
+    "networkManagerExtensionEventToken": "0x06001687",
+    "networkManagerExtensionStringSfsOverloadToken": "0x06001684",
+    "networkManagerStringSfsOverloadBody": "IL_0001: ret",
+    "worldPointManagerSendAoiToken": "0x0600351d",
+    "sendAoiPrimaryDispatchIL": "IL_00d8",
+    "sendAoiConditionalSecondaryIL": "IL_0150",
+    "worldPointManagerHandleViewPointsReplyToken": "0x06003551",
+    "handleViewIndexedSegmentIL": "IL_0104",
+    "worldPointManagerParseWorldGetBlockToken": "0x06003553",
+    "parseWorldEarlyGuardIL": "IL_0047..006a",
+    "actualWireIdAndNativeResponseBinding": "unresolved",
+    "nativeCacheInsertionAndReadoutCorrelation": "unobserved"
+  },
+  "newLiveGameLaunched": false,
+  "qualifyingFreshPopulatedFirstSecondThirdRegionData": false,
+  "candidateScannerPerformanceMeasured": false,
+  "existingProductionScannerRetained": true,
+  "leadReviewAcceptanceRequired": true
+}

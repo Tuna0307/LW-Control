@@ -6,6 +6,7 @@ export const MAP_COMMANDS = Object.freeze({
   search: "map_search",
   summary: "map_summary",
   dataOptions: "map_data_options",
+  savedServers: "map_saved_servers",
   status: "get_status",
   proxyStatus: "proxy_status",
   serverJump: "server_jump",
@@ -18,6 +19,8 @@ export const MAP_COMMANDS = Object.freeze({
   treasureStateRefreshAll: "map_treasure_state_refresh_all",
   treasureClaimStatus: "map_treasure_claim_status",
   treasureClaim: "map_treasure_claim",
+  treasureClaimPreview: "map_treasure_claim_preview",
+  ghostPlunderPrepare: "map_ghost_plunder_prepare",
   dispatchShareAlliance: "map_dispatch_share_alliance",
   plunderJobsList: "map_plunder_jobs_list",
   dispatchPlunderSchedule: "map_dispatch_plunder_schedule",
@@ -320,6 +323,8 @@ export function createMapApi(bridge) {
     scanStatus: () => invokeScoped(MAP_COMMANDS.scanStatus).then(normalizeScanState),
     summary: () => invokeScoped(MAP_COMMANDS.summary).then(normalizeSummary),
     dataOptions: (serverId) => invokeScoped(MAP_COMMANDS.dataOptions, { serverId }).then(normalizeOptions),
+    savedServers: () => invokeScoped(MAP_COMMANDS.savedServers).then((result) =>
+      Array.isArray(result?.servers) ? result.servers.filter((server) => Number.isInteger(server) && server > 0) : []),
     start: (selectedTypes, scanMode) => invokeScoped(
       MAP_COMMANDS.scanStart,
       buildStartPayload(selectedTypes, scanMode),
@@ -349,6 +354,14 @@ export function createMapApi(bridge) {
     claimTreasure: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => invokeScoped(
       MAP_COMMANDS.treasureClaim,
       { serverId, claimScope, prioritizeLuckySlots, targetUuid },
+    ),
+    previewTreasureClaim: (serverId, claimScope, prioritizeLuckySlots, targetUuid = "") => invokeScoped(
+      MAP_COMMANDS.treasureClaimPreview,
+      { serverId, claimScope, prioritizeLuckySlots, targetUuid },
+    ),
+    prepareGhostPlunder: (rows, maxRandomDelaySeconds = 0) => invokeScoped(
+      MAP_COMMANDS.ghostPlunderPrepare,
+      { rows: buildDispatchPlunderRows((rows || []).map(row => ({ ...row, taskKind: "ghost" })), maxRandomDelaySeconds) },
     ),
     shareDispatchToAlliance: (rows) => invokeScoped(
       MAP_COMMANDS.dispatchShareAlliance,

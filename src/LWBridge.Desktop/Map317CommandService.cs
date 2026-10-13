@@ -14,10 +14,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     {
         "map_scan_start", "map_scan_status", "map_scan_stop", "map_scan_clear",
         "map_summary", "map_data_options", "map_search", "map_city_export",
+        "map_saved_servers",
         "map_coordinate_jump", "map_march_follow", "map_player_mark_set", "server_jump",
         "server_jump_history_get", "server_jump_history_set", "server_jump_history_import",
         "map_treasure_state_refresh", "map_treasure_state_refresh_all",
-        "map_treasure_claim", "map_treasure_claim_status",
+        "map_treasure_claim", "map_treasure_claim_status", "map_treasure_claim_preview",
+        "map_ghost_plunder_prepare",
         "map_dispatch_share_alliance", "map_plunder_jobs_list",
         "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_plunder_clear",
         "map_dispatch_plunder_list", "map_dispatch_plunder_retry",
@@ -279,6 +281,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     }
                 case "map_data_options":
                     return control.ReadOptions(OptionsServerId(payload));
+                case "map_saved_servers":
+                    return new { servers = store.ReadPublishedServers() };
                 case "map_search":
                     {
                         // Original 0.3.17 search never rejects a mistyped page/pageSize/server/kind:
@@ -325,6 +329,16 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
                 case "map_treasure_claim_status":
                     return await actions.TreasureClaimStatusAsync(cancellationToken).ConfigureAwait(false);
+                case "map_treasure_claim_preview":
+                    {
+                        TreasureClaimRequest preview = TreasureClaimContract.NormalizeRequest(payload);
+                        return await actions.PreviewTreasureClaimAsync(
+                            preview.ServerId, preview.ClaimScope, preview.PrioritizeLuckySlots,
+                            preview.TargetUuid, cancellationToken).ConfigureAwait(false);
+                    }
+                case "map_ghost_plunder_prepare":
+                    return await actions.PrepareGhostPlunderAsync(
+                        ReadRows(payload, "rows"), cancellationToken).ConfigureAwait(false);
                 case "map_treasure_claim":
                     {
                         // Original handler 0x18EE07: INVALID_SERVER_ID /

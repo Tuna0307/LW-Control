@@ -99,7 +99,7 @@ try {
   }
   const context = await browser.newContext({viewport:{width:1080,height:800},reducedMotion:"reduce"});
   await context.addInitScript(() => { localStorage.setItem("lwbridge.language","en"); localStorage.setItem("lwbridge.theme","light"); });
-  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-error","map-data"],["map-auto-running","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
+  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-error","map-data"],["map-auto-running","map-data"],["map-providers-ghost","map-data"],["map-providers-treasure","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
     const page=await context.newPage();
     watch(page,state);
     await page.goto(base+"?previewState="+encodeURIComponent(state), {waitUntil:"networkidle"});
@@ -123,6 +123,26 @@ try {
       await capture(page, "conditional-map-auto-running-before-stop");
       await stop.click();
       if (await stop.isEnabled()) throw new Error("Auto Stop did not acknowledge the preview cancellation");
+    }
+    if (state === "map-providers-ghost") {
+      const prepare = page.getByRole("button", { name: "Prepare Ghost tasks" });
+      if (!await prepare.count() || await prepare.isEnabled()) throw new Error("Ghost preparation must remain selection-gated");
+      if (await page.getByRole("button", { name: /Schedule selected/i }).count())
+        throw new Error("Unverified Ghost execution must not be advertised as scheduled");
+      const selectable = page.locator(".map-table--ghost input[type=checkbox]:not(:disabled)").first();
+      await selectable.waitFor({ state: "visible" });
+      await selectable.check();
+      if (!await prepare.isEnabled()) throw new Error("Ghost prepare button did not enable for valid selection");
+      await prepare.click();
+      await page.getByRole("status").getByText("No jobs were scheduled").waitFor({ state: "visible" });
+    }
+    if (state === "map-providers-treasure") {
+      const preview = page.getByRole("button", { name: "Preview boxes" });
+      if (!await preview.isEnabled()) throw new Error("read-only Treasure preview should be enabled for controlled owner");
+      await preview.click();
+      await page.getByRole("status").getByText("Read-only:").waitFor({ state:"visible" });
+      if (await page.getByRole("button", { name: /Claim Treasure|Claim boxes|Claim season/i }).count())
+        throw new Error("Unsupported live claims must not appear as functional buttons");
     }
     if (state === "automation-save-error") await page.locator(".error-text").first().waitFor({ state: "visible" });
     const data=await page.evaluate(() => ({

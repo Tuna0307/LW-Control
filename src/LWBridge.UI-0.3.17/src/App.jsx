@@ -26,6 +26,7 @@ import { initialRouteKey, routes } from "./routes.js";
 import { readAutoLaunchGamePreference, writeAutoLaunchGamePreference } from "./autoLaunchPreference.js";
 import { createAutomationFlagAdapter, createProfileConfigDraftRegistry } from "./profileConfigDraft.js";
 import { createAutoScanNativeCoordinator } from "./autoScanNativeCoordinator.js";
+import { selectedNativeGameTextRoot } from "./gameTextSource.js";
 
 const THEME_KEY = "lwbridge.theme";
 const LEGACY_SERVER_HISTORY_KEY = "lastwar.serverJumpHistory";
@@ -37,6 +38,9 @@ const AUTO_CLOSE_POPUP_FLAG_KEY = "flag:autoClosePopup";
 // The native owner and transport close/profile-generation guards still cancel retired work.
 const HOME_LIFECYCLE_TIMEOUT_MS = null;
 const mapApi = createMapApi(backendBridge);
+const nativeMapTextLoader = backendBridge.available
+  ? (request) => backendBridge.invokeProfileScoped("lastwar_map_localize", request)
+  : null;
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
 const nativeAssetReader = backendBridge.available ? (request) => backendBridge.invoke("game_asset_image", request) : null;
@@ -1321,6 +1325,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const pendingTasks = Number(runtimeStatus?.pending ?? 0);
   const pageProps = {
     mapApi,
+    mapOwner: profileOwnerKey(selectedProfileOwnerRef.current),
+    gameTextLoader: nativeMapTextLoader,
+    gameTextOwner: `${backendBridge.sessionId}:${profileOwnerKey(selectedProfileOwnerRef.current)}`,
+    gameTextRoot: selectedNativeGameTextRoot(gameRootStatus),
     bridgeMode: backendBridge.mode,
     backendAvailable: backendBridge.available,
     online,

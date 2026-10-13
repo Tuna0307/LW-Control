@@ -1,0 +1,14 @@
+{
+  "source": "b8e5301655968aff54895115b6713d1ed7b561ab",
+  "finding": "LEADMAP010-01",
+  "proof": "mounted actual MapRoutePage and MapDataPage; controlled native API, no game",
+  "apiIdentity": "same object across profile switch, as actual App",
+  "owners": { "A": [2212], "B": [2213] },
+  "scanServerId": 0,
+  "savedServersCalls": ["A"],
+  "selectedBeforeSwitch": "2212",
+  "selectedAfterSwitch": "2212",
+  "expectedAfterSwitch": "2213",
+  "observedDefect": true,
+  "gameLaunches": 0
+}

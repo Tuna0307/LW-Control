@@ -102,6 +102,14 @@ def bridge_source() -> bytes:
     data = (HERE / "current_overview_bridge.lua").read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
         raise OverviewBridgeError("Overview bridge source must not contain a UTF-8 BOM")
+    if os.environ.get("LWBRIDGE_MAP013_WORLD_TRACE"):
+        if os.environ["LWBRIDGE_MAP013_WORLD_TRACE"] != "1":
+            raise OverviewBridgeError("MAP-013 WorldReady trace flag must be exactly 1")
+        if (not os.environ.get("LWBRIDGE_REBUILD_DATA_ROOT")
+                or not os.environ.get("LWBRIDGE_MAP013_WRAPPER_TRACE")):
+            raise OverviewBridgeError("MAP-013 WorldReady stages require exact private wrapper and root")
+        from map_009_offline.worldready_instrument_013 import instrument_worldready
+        data = instrument_worldready(data)
     return data
 
 
@@ -126,6 +134,22 @@ def packaged_resource_probe_source() -> bytes:
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
     between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    extension = os.environ.get("LWBRIDGE_MAP013_WRAPPER_TRACE")
+    if extension:
+        isolation_root = os.environ.get("LWBRIDGE_REBUILD_DATA_ROOT")
+        if not isolation_root:
+            raise OverviewBridgeError("MAP-013 wrapper trace requires task-specific private root")
+        base = Path(isolation_root).resolve()
+        source = Path(extension).resolve()
+        if source != base / "map013-wrapper-trace.lua" or not source.is_file() or source.stat().st_size > 20000:
+            raise OverviewBridgeError("MAP-013 wrapper trace must be exact private file below source size cap")
+        extra = source.read_bytes()
+        if extra.startswith(b"\xef\xbb\xbf"):
+            raise OverviewBridgeError("MAP-013 wrapper trace must not contain BOM")
+        marker = b"local function pump_runtime()"
+        if between.count(marker) != 1:
+            raise OverviewBridgeError("MAP-013 wrapper runtime dispatch seam not unique")
+        between = between.replace(marker, extra + b"\n" + marker, 1)
     return prefix + bridge_source() + between
 
 

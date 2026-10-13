@@ -1,0 +1,108 @@
+{
+  "task": "LWB317-MAP-ACQUISITION-RECEIVER-011",
+  "status": "PARTIAL",
+  "leadCheckpoint": "c77107d3db1cc920ecbc7a5fd44b84d2f17f43ee",
+  "leadInverse": {
+    "historicalNegativePreserved": "docs/proof/MAP-010-LEAD-SAVED-OWNER-NEGATIVE.json",
+    "fix": "Actual App profile ID plus generation keys mounted Map state even with stable mapApi; responses and callbacks are owner-fenced",
+    "sameApiA2212ToB2213": "PASS",
+    "mountedCases": [
+      "A/B stopped stores",
+      "A/B/A",
+      "same-server owner change with held options/search",
+      "retired saved list success/rejection",
+      "empty and failed stores",
+      "offline/online/offline",
+      "Map tab/native name lifetime"
+    ],
+    "inventedServers": 0
+  },
+  "nativeSource": {
+    "clientContentVersion": 24,
+    "worldPointManagerHandleViewPointsReply": "0x06003551",
+    "worldPointManagerUpdateViewRequest": "0x06003565",
+    "worldPointManagerStartViewRequest": "0x06003568",
+    "nativeCorrelationLimitation": "No authoritative source/segment identity or echoed server was established from flags or unscoped traffic",
+    "privateRawEvidence": "ignored artifacts/map-011"
+  },
+  "r11": {
+    "mode": "bounded delayed native receiver, ignore unrelated flags-ready views",
+    "activeServerId": 2212,
+    "firstRegionTile": [455, 425],
+    "secondSceneTileSettled": [545, 495],
+    "firstAoiCount": 30,
+    "firstResourceRows": 28,
+    "firstTrainRows": 3,
+    "firstMonsterRows": 27,
+    "secondCurrentAoiCount": 9,
+    "secondAddAoiCount": 9,
+    "secondMessageAoiCount": 0,
+    "secondContainsRequestedTarget": false,
+    "secondSplitPending": false,
+    "flagsReadyWithoutTargetObservations": 455,
+    "receiverTimelineSamples": 9,
+    "lastSampleMilliseconds": 7289,
+    "receiverDeadlineSeconds": 8,
+    "totalElapsedMilliseconds": 8879,
+    "nativeError": "map011_receiver_deadline_no_target_owned_complete_aoi",
+    "secondSegmentAccepted": false,
+    "finalOnlyRestoreQualified": false,
+    "taskOwnedStop": true
+  },
+  "r12": {
+    "mode": "source-supported known remote City point WorldGetDetail",
+    "activeServerId": 2212,
+    "requestedServerId": 2213,
+    "requestedWorldId": 0,
+    "archivedPositiveKnownPoint": true,
+    "preRequestCachePresent": false,
+    "nativeRequestsSent": 1,
+    "correctPointIdReceived": true,
+    "detailPresent": true,
+    "reportedDetailServerId": 0,
+    "cameraTileUnchanged": true,
+    "elapsedMilliseconds": 340,
+    "authoritativeRemoteServerQualified": false,
+    "fullMapDiscoveryProven": false,
+    "taskOwnedStop": true
+  },
+  "shipping": {
+    "productionScannerUnchanged": true,
+    "cameraFreeAcquisitionQualified": false,
+    "consecutiveNativeRegionsQualified": false,
+    "remoteFullMapWithoutSwitchQualified": false,
+    "newMatchedIndividualMixedCampaigns": 0,
+    "previousAllEightNormalFastSeconds": [210.651, 207.424, 207.905, 206.86],
+    "autoStopBeforeReturnPreserved": true,
+    "experimentalCodeShipped": false
+  },
+  "actualWindowsAppNativeProof": {
+    "source": "isolated production WebView2 and genuine read-only archived server-2212 Map317 data",
+    "enLight": {
+      "appExitCode": 0,
+      "resourceRows": 50,
+      "monsterRows": 50,
+      "resourceNativeNameOptionsMatched": 4,
+      "monsterNativeNameOptionsMatched": 6
+    },
+    "jaDark": {
+      "appExitCode": 0,
+      "resourceRows": 50,
+      "monsterRows": 50,
+      "resourceNativeNameOptionsMatched": 4,
+      "monsterNativeNameOptionsMatched": 6
+    },
+    "installedGameLocaleBuild": "23555",
+    "gameLaunched": false,
+    "gameLanguageChanged": false
+  },
+  "cleanup": {
+    "taskOwnedProcessesRemaining": 0,
+    "taskRecoveryJournalsRemaining": 0,
+    "originalInstalledScriptsRestored": true,
+    "taskAutoLaunchEnabled": false,
+    "taskAutoReconnectEnabled": false,
+    "gameAccountActions": 0,
+    "privateGameRecordsBundled": false
+  }
+}

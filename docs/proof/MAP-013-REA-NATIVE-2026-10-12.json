@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "workItem": "LWB317-MAP-REA-NATIVE-RECOVERY-013",
+  "date": "2026-10-12",
+  "startingCheckpoint": "891ee67617c098854b77377b7098ee530b5d4811",
+  "branch": "codex/map-action-providers-007",
+  "pr": 9,
+  "status": "PARTIAL",
+  "monitoredContinuationAtCheckpointB2eacb82": {
+    "status": "PARTIAL",
+    "acceptedToolchainRetained": true,
+    "helperBudgetRangeSeconds": [10, 7200],
+    "source": "original lwbridge-0.3.17.exe, source-bound PE x64, exact admitted SHA-256",
+    "monitoring": {
+      "nativeChild": "decompile.exe PID + creation-time identity, CPU time, working set/RSS and actual native thread samples",
+      "javaHost": "headless Java process tree, stdout and Ghidra headless/script logs",
+      "sampling": "approximately 30-second process snapshots, independent approximately 200ms native child samples",
+      "classification": ["COMPLETED", "FUNCTION_TIMEOUT", "FUNCTION_CANCELLED", "DECOMPILER_STARTUP_FAILURE", "HEADLESS_FAILURE", "OUTER_RUNNER_TIMEOUT", "RESOURCE_PRESSURE_STOP", "OBSERVABILITY_INSUFFICIENT"],
+      "nativeProgressKnown": false,
+      "progressExplanation": "native CPU, memory, repeated p-code warnings and heartbeat do not distinguish semantic progress or stall"
+    },
+    "successfulControl": {
+      "originalAddress": "0x140191253",
+      "decompileElapsedMs": 613,
+      "nativeChildPid": 30588,
+      "nativeChildCreatedEpoch": 1791811130.730867,
+      "returnedFullPseudoChars": 16815,
+      "savedProjectReuse": true,
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/control-reuse"
+    },
+    "longAttempt": {
+      "originalAddress": "0x14013a8c1",
+      "sourceBegin": "0x14013a8c1",
+      "sourceEndExclusive": "0x14013b390",
+      "sourceBytes": 2767,
+      "configuredFunctionAllowanceSeconds": 1800,
+      "nativeChildPid": 37712,
+      "nativeChildCreatedEpoch": 1791811183.361136,
+      "actualDecompilerElapsedMs": 659115,
+      "outerWallSeconds": 681.422,
+      "nativeCpuLastSeconds": 627.0,
+      "nativeWorkingSetPeakBytes": 8202661888,
+      "freeSystemMemoryBeforeStopGiB": 0.458,
+      "stoppedOnlyOwnedDecompileChild": true,
+      "termination": "RESOURCE_PRESSURE_STOP",
+      "ghidraIsTimedOut": false,
+      "ghidraIsCancelled": false,
+      "ghidraFailedToStart": false,
+      "ghidraError": "Decompiler process died after externally recorded exact owned resource-pressure stop",
+      "headlessExit": 0,
+      "sourceProjectSaved": true,
+      "timeoutLayer": "no actual timer expired; manual safety termination of native child",
+      "phaseProgress": "OBSERVABILITY_INSUFFICIENT",
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/long-13a8c1"
+    },
+    "independentOriginalAlternate": {
+      "format": "hash-checked .pdata-bounded x86-64 Capstone disassembly",
+      "instructionsDecodedPerFunction": {"0x14013a8c1":534,"0x140143d67":739,"0x140159925":473,"0x140427120":1382},
+      "limitation": "complete linear instruction decode does not prove complete control-flow coverage, feature semantics or decryption",
+      "rawLocation": "ignored artifacts/rea-toolchain/map013-monitored/original-callflow.json"
+    },
+    "currentGameNativeSource": {
+      "WorldPointManagerInitToken": "0x06003529",
+      "subscribedCommandIds": [1433,661,2821011,2821014],
+      "matchingUnInitToken": "0x0600352a",
+      "senderToken": "0x0600351d",
+      "senderPrimaryDispatchOffset": "IL_00d8",
+      "senderConditionalSecondaryDispatchOffset": "IL_0150",
+      "receiverToken": "0x06003551",
+      "cacheInsertToken": "0x0600356e",
+      "historicalFirstRegion": "28 Resource and 26 Monster native rows",
+      "historicalSecondRegion": "80 selected LOD0 target AOIs but zero target source records",
+      "exactMatchedNativeRequestResponseSegments": "unobserved",
+      "causalLocation": "first observable divergence is missing second-target populated source records; exact transport/subscription/receiver/cache link unknown"
+    },
+    "scannerProductionChange": "none; fails independent second-region population and response association gate",
+    "gameLaunchedDuringThisContinuation": false
+  },
+  "leadCorrectionsAtCheckpoint1d20506b": {
+    "LEADMAP013_01": {
+      "status": "corrected_and_independently_verified",
+      "originalFunction": "0x140191253",
+      "sourceUnwindStart": "0x140191253",
+      "sourceUnwindEndExclusive": "0x140191aca",
+      "sourceBytesAndGhidraBodyAddresses": 2167,
+      "originalPseudocodeCharacters": 16815,
+      "retainedPseudocodeCharacters": 16815,
+      "originalAndRetainedUtf8Bytes": 16815,
+      "sha256": "908b8e7194bdf6f1d73b135129f0923c41fc57fbbc513d6e74e7c17cb98a64be",
+      "truncated": false,
+      "reportExcerptCharacters": 1500,
+      "reportExcerptTruncated": true,
+      "rawCompletePath": "ignored artifacts/rea-toolchain/lead013-source-bounded/raw/original-140191253.pseudo.c",
+      "validation": "three inert provenance/truncation/source-bound tests passed; old truncated original saved unchanged",
+      "newlyRecoveredTail": "later conditional calls FUN_1405f9b92 and FUN_1405addeb; cleanup FUN_14010949d/FUN_1401094f9/func_0x140106f04; final +0x848/+0x850/+0x860 tagged-state updates and return; semantic meaning still unproven"
+    },
+    "LEADMAP013_02": {
+      "status": "bounded_retest_not_full_recovery",
+      "priorTimeoutSeconds": 8,
+      "newPerFunctionBudgetSeconds": 75,
+      "verifiedSourceAndGhidraBodyRanges": [
+        {"begin":"0x14013a8c1","endExclusive":"0x14013b390","bytes":2767,"outcome":"process_timeout"},
+        {"begin":"0x140143d67","endExclusive":"0x140144c41","bytes":3802,"outcome":"process_timeout"},
+        {"begin":"0x140159925","endExclusive":"0x14015a27b","bytes":2390,"outcome":"process_timeout"},
+        {"begin":"0x140427120","endExclusive":"0x140428a92","bytes":6514,"outcome":"process_timeout"}
+      ],
+      "approach": "verified PE .pdata + Ghidra source-bounded functions; project-local Ghidra -noanalysis -readOnly -deleteProject; private APPDATA/LOCALAPPDATA; original executable hash verified",
+      "rawReport": "ignored artifacts/rea-toolchain/lead013-source-bounded/report.txt",
+      "limitation": "timeouts remain budget outcomes, not proof of unrecoverability; older 8s negatives retained"
+    }
+  },
+  "installation": {
+    "reaVersion": "6.4.0",
+    "ghidra": {
+      "version": "12.1.4",
+      "origin": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip",
+      "archiveSha256": "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db",
+      "acceptedByInstalledBridge": true
+    },
+    "jdk": {
+      "version": "Temurin 21.0.12.1+1",
+      "origin": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip",
+      "archiveSha256": "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e",
+      "full64BitJdk": true
+    },
+    "toolArtifactsLocation": "ignored artifacts/rea-toolchain",
+    "scopedRegistrations": [".codex/config.toml", ".mcp.json"],
+    "priorConfigBackups": "ignored artifacts/rea-toolchain/config-backups",
+    "globalJava17Unchanged": true,
+    "providerDoctor": "available; x64 Windows process isolation, JDK, headless and native decompiler checks passed"
+  },
+  "reaNativeProof": {
+    "subject": "original-associated extracted xlua-proxy-plain.dll",
+    "sha256": "266129c6c92f3ae89001493d61ccfdf4f5dac1fe66cff4fbb4799e6c01a6c902",
+    "format": "x86_64 native PE DLL",
+    "provider": "ghidra",
+    "providerVersion": "12.1.4",
+    "procedures": 2109,
+    "selectedAddress": "0x18004ac00",
+    "observedControlFlow": "if (param_2 == 1) FUN_18004afa0(); FUN_18004aac0(param_1,param_2,param_3)",
+    "evidenceIds": {
+      "overview": "ev_63e272594ab508b6857fe915e65c6abb193776b134c3a8dd9fe8e5035e7f2a93",
+      "assembly": "ev_0c68eed9303300956750048705efa4319fc317accc8eac95d0e44b1f8c8684fc",
+      "pseudocode": "ev_61842688de30dfb98b42416c30029f476f505ae57dd2a688ae0e79ddb2b40222",
+      "callers": "ev_b69f0976243b24ba45259190a5a0cbb75c444f415a26cc0a36d8d0443f5486e2",
+      "callees": "ev_08b2e21421efe871cf555d07f4635699c0738874988d27827b8e66f99bf13e72",
+      "incomingReferences": "ev_5256cdead50eaa0409587bf24bf328aa1719a97156baea7d5da70c470d784928"
+    },
+    "cleanClose": true,
+    "rawLocation": "ignored artifacts/rea-toolchain/xlua-plain-proof-v2",
+    "limitation": "Verifies working REA native decompiler on original-associated DLL; does not prove the Rust EXE Map implementation"
+  },
+  "originalNative": {
+    "subject": "lwbridge-0.3.17.exe",
+    "sha256": "4e9c3113dedfd7e1a752404c6936aab304e67d7ffdb0952a5003c2ec948d6783",
+    "bytes": 15866880,
+    "format": "x86_64 PE",
+    "fullAnalysis": "330000ms REA/Ghidra provider_timeout; owned session closed",
+    "selectiveStatic": {
+      "techniques": ["original PE .pdata unwind bound parsing", "Capstone x86-64 RIP-relative references", "Ghidra -noanalysis -readOnly -deleteProject"],
+      "decodedUnwindBodies": 22976,
+      "stringReferenceHits": 230,
+      "nativeFunctionStarts": ["0x14013a8c1", "0x140143d67", "0x140159925", "0x140427120"],
+      "sampleNativeConditionalSite": "0x14013a8da to 0x14013a90f",
+      "sampleMapRelatedReference": "0x14013a965",
+      "fourPseudocodeResults": "not recovered for the first four larger candidate functions; per-function timeouts without full auto-analysis",
+      "smallerOriginalFunctionsDecompiled": ["0x140191253", "0x1400dc3f4", "0x1400dc886", "0x140344cbb", "0x140297a7f"],
+      "nativeMapStateEvidence": "0x140191253 tests +0x860/+0x850/+0x848/+0x840 branch states, invokes 0x140297a7f, 0x140344cbb and 0x1400dc886 on conditional paths",
+      "actualCallValueFlow": "0x140297a7f tests nested pointer lookup via 0x140284612; sets output tag 6 and pointer if nonzero or calls 0x1407a63da otherwise; 0x140344cbb conditionally dispatches via 0x140308ba1",
+      "smallFunctionResultFiles": ["ignored artifacts/rea-toolchain/original-selective-small/selected-small.txt", "ignored artifacts/rea-toolchain/original-selective-callees/selected-callees.txt"],
+      "closedAndTemporaryProjectDeleted": true
+    },
+    "encryptedPackageObservedStrings": {
+      "packageDecryptFailed": ["0x140abc7e3", "0x140b539e3"],
+      "keyEnvelopeDecryptFailed": ["0x140abe99b", "0x140b55b9b"]
+    },
+    "commercialKeyAndTicketInputs": "unresolved; no original protected runtime execution or service access",
+    "rawLocation": "ignored artifacts/rea-toolchain/original-selective-ghidra/selected-source.txt"
+  },
+  "currentGame": {
+    "assemblySha256": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+    "luaPackageSha256": "d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495",
+    "managedMethodTokens": {
+      "UpdateLWAoi_Normal": "0x0600351b",
+      "SendAoiRequest": "0x0600351d",
+      "HandleViewPointsReply": "0x06003551",
+      "UpdateViewRequest": "0x06003565",
+      "StartViewRequest": "0x06003568",
+      "SendViewRequest": "0x0600356a"
+    },
+    "r15R16SecondRegion": "80 selected current/add LOD0 AOIs incl 4954, zero independently confirmed target-region point/march rows",
+    "r16ImmediateUnscopedSendCounter": "203 to 203",
+    "nativeOutboundCommandAndReplyMatch": "unobserved",
+    "nativeCacheInsertionTargetProvenance": "unobserved",
+    "leadCurrentGameSourceCrossCheck": {
+      "SendAoiRequest": "0x0600351d IL_0056..00d8 and conditional IL_00f2..0155; construction and dispatch not attributable outbound target packet",
+      "HandleViewPointsReply": "0x06003551 IL_00ec..0120 response payload item loop and IL_0131..01c9 manager processing; no saved target-owned segments",
+      "AddPointInfo": "0x0600356e IL_000e..0095 lookup/update/insert into manager caches",
+      "r15R16BeforeAfterLoadedPointCounts": [59, 7],
+      "r15R16PostInvokeMsgViewCount": 0,
+      "failedRegionSourceRows": 0
+    },
+    "causalBoundary": "local selection does not establish native subscription/transmission/receiving or source-owned cache insertion"
+  },
+  "tests": {
+    "leadSelectivePseudocodeInverseTests": "3 passed; complete source hash, missing truncation metadata and wrong unwind bounds",
+    "map009Offline": "24 tests passed",
+    "savedOwner": "passed; A=2212 and B=2213 isolated",
+    "desktopNative": "Release Desktop.Checks passed, zero game launches",
+    "frontend": "npm run check passed (static, Home, Map, saved owner, catalog and drafts)",
+    "nativeScriptSyntax": "node --check passed for two MAP-013 helper scripts"
+  },
+  "product": "no production scanner or Normal/Fast behavior change; no replacement candidate speed/accuracy qualified",
+  "cleanup": "owned Ghidra sessions and headless temporary projects closed/deleted; two task-created user Ghidra cache/preferences directories moved to ignored artifacts/rea-toolchain/owned-user-cache-backups and user profile paths restored absent; no MAP-013 game launched, no game scripts changed; globally installed Java unchanged",
+  "unresolved": [
+    "full original Rust Map orchestration/dispatch/retry/cancel decompilation and encrypted loader value flow",
+    "matching target-owned v24 second-region outbound request and actual inbound reply headers/segments",
+    "verified first/second/third fresh populated native cache inserts with exact owner and final restoration",
+    "stale/wrong-server remote identity inverses and accuracy-qualified alternating individual/mixed two-server performance"
+  ]
+}

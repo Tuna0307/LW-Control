@@ -1,0 +1,34 @@
+{
+  "reviewedCheckpoint": "473d64836f75c226ad6e4f3db1fd6ec004485351",
+  "proofType": "read-only archived native audit with disposable witness mutations",
+  "sourceNativeResponseCount": 1,
+  "runId": "621db75ef6524f16ad3f6c1c86f10379",
+  "serverId": 2212,
+  "cases": [
+    {
+      "case": "unchanged_archive",
+      "expected": "PASS",
+      "actual": "PASS",
+      "exitCode": 0,
+      "summary": "{\"checks\": 11, \"fieldComparisons\": 198, \"sampledKinds\": {\"city:sampled\": 18}, \"discrepancyCount\": 0}"
+    },
+    {
+      "case": "uniform_wrong_owner",
+      "expected": "REJECT",
+      "actual": "PASS",
+      "exitCode": 0,
+      "summary": "{\"checks\": 11, \"fieldComparisons\": 198, \"sampledKinds\": {\"city:sampled\": 18}, \"discrepancyCount\": 0}"
+    },
+    {
+      "case": "missing_method_and_defer_contract",
+      "expected": "REJECT",
+      "actual": "PASS",
+      "exitCode": 0,
+      "summary": "{\"checks\": 11, \"fieldComparisons\": 198, \"sampledKinds\": {\"city:sampled\": 18}, \"discrepancyCount\": 0}"
+    }
+  ],
+  "unexpectedAcceptances": 2,
+  "externalGameActions": 0,
+  "originalInputsModified": false,
+  "limitations": "Auditor acceptance proof only; not a live scanner or full-world oracle."
+}

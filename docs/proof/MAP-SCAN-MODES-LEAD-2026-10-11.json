@@ -1,0 +1,11 @@
+{
+  "reviewedCommit": "fbbfa98305fc241df78dfddb7b092830920ce834",
+  "finding": "LEADSCAN008-01",
+  "proof": "Actual production MapScanEngine with asynchronous inert source/sink; full-world predicate evaluated separately; not live timing",
+  "externalGameActions": 0,
+  "cases": [
+    {"mode": "normal", "requestedConcurrency": 8, "observedConcurrentCaptures": 1, "captureCalls": 4, "checkpoints": 4, "published": true, "sameFullWorldBatchAdmission": true},
+    {"mode": "fast", "requestedConcurrency": 20, "observedConcurrentCaptures": 1, "captureCalls": 4, "checkpoints": 4, "published": true, "sameFullWorldBatchAdmission": true}
+  ],
+  "sourceFinding": "Engine only validates/reports RequestedConcurrency; normal/fast share actual full-world batch-admission predicate and acquisition path"
+}

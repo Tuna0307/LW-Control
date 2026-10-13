@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "task": "LWB317-MAP-REA-NATIVE-RECOVERY-013",
+  "checkpoint": "aa6dd71ecac00890f6eac9acfb3543a70df94660",
+  "scope": "private task-owned native event/WorldReady instrumentation attempts only; no scanner accuracy qualification",
+  "status": "PARTIAL",
+  "rawArtifactsIgnoredByGit": true,
+  "attempts": [
+    {
+      "attempt": "native-causal-20261012-230831",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-230831",
+      "final.jsonSha256": "9c356bd4f78a248950db9dd55c2c7c82722865516dcc670fadb1f36961bc1520",
+      "status": {
+        "state": "PARTIAL",
+        "error": "OverviewBridgeError: same-session game-side bridge readiness did not arrive before timeout",
+        "exactStopSucceeded": false,
+        "originalScriptsRestored": false,
+        "nativeEventsCaptured": 0,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "admission.jsonSha256": "0898e464ea9236ffe8051d626dd6dc8938437dc9ed909e116f5f83397f47ef43",
+      "packageLencSize": 59543
+    },
+    {
+      "attempt": "original-probe-control-20261012-231337",
+      "privateRawDirectory": "artifacts/map-013-live/original-probe-control-20261012-231337",
+      "final.jsonSha256": "ab4972b4904554d1be9f4e273cb4391872de2d9db05d8594154a631b5a259ab8",
+      "status": {
+        "state": "PARTIAL",
+        "error": "TimeoutError: world-ready-result.json did not contain a matching exact-owner result within bound STOP_ERROR:TypeError('_path_normpath: path should be string, bytes or os.PathLike, not int')",
+        "exactStopSucceeded": false,
+        "originalScriptsRestored": false,
+        "nativeEventsCaptured": 0,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "admission.jsonSha256": "6662c8c8cb8dd65672fefe0b8eadb1d6233d5d3f55beab32239591e52a06fdec",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-232008",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-232008",
+      "final.jsonSha256": "b7f0f61df5ba836fd2bd36afb4685fafd44632698062fc5198ccf9cec42eaf22",
+      "status": {
+        "state": "PARTIAL",
+        "error": "TimeoutError: world-ready-result.json did not contain a matching exact-owner result within bound",
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 0,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "admission.jsonSha256": "f9c47c9e030d1c9cc8ba7c495db48d22a90f59b7b50a517dfa1937c0089c61cd",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-232455",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-232455",
+      "final.jsonSha256": "d87d106b8e1c96fc8db9bdeb5e1172ff1855f38f9d90b3e9fbf477930794c602",
+      "status": {
+        "state": "OBSERVATION_ONLY",
+        "error": null,
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 0,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "trace-status.jsonSha256": "6f26467757120536e259fee7208a591809cd12592441dd69b7496a051c0c9955",
+      "trace": {
+        "state": "observed",
+        "registrations": [],
+        "errors": [
+          "GameEntry.Event unavailable"
+        ],
+        "eventIds": [],
+        "sampleCount": 40,
+        "bridgePumpCalls": null,
+        "bridgePumpFailures": null,
+        "eventNativeType": null
+      },
+      "admission.jsonSha256": "c45989e8352186691e9ff10725d3fbeaa82801db2c727e2a31ec2bcaf60cc512",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-232829",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-232829",
+      "final.jsonSha256": "69ef559701718a3690ce1b2b88b9863febb0bc886a23ac1227ab80b868fb2628",
+      "status": {
+        "state": "OBSERVATION_ONLY",
+        "error": null,
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 1,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "trace-status.jsonSha256": "fecbb3002dc90e18930f0f8e4566ed1533a826fa29a7fd1c8bc49b7dadf3dffd",
+      "trace": {
+        "state": "observed",
+        "registrations": [
+          {
+            "ok": true,
+            "id": 1433
+          },
+          {
+            "ok": true,
+            "id": 661
+          },
+          {
+            "ok": true,
+            "id": 2821011
+          },
+          {
+            "ok": true,
+            "id": 2821014
+          }
+        ],
+        "errors": [],
+        "eventIds": [
+          661
+        ],
+        "sampleCount": 40,
+        "bridgePumpCalls": null,
+        "bridgePumpFailures": null,
+        "eventNativeType": "UnityGameFramework.Runtime.EventComponent"
+      },
+      "admission.jsonSha256": "4e5f90b6d2b269e343f2cc51099c57ec9deb3255f275b2abd37ca6b86106e33a",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-233621",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-233621",
+      "final.jsonSha256": "b8870a3c4970880ce2b289954868236cd8339ab1dd43aa359142cc22467d05aa",
+      "status": {
+        "state": "OBSERVATION_ONLY",
+        "error": null,
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 1,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "trace-status.jsonSha256": "8c2fcec303ecd5c0ca481fcb55548fc8104de998d3985479c77d88469572ea9e",
+      "trace": {
+        "state": "observed",
+        "registrations": [
+          {
+            "ok": true,
+            "id": 1433
+          },
+          {
+            "ok": true,
+            "id": 661
+          },
+          {
+            "ok": true,
+            "id": 2821011
+          },
+          {
+            "ok": true,
+            "id": 2821014
+          }
+        ],
+        "errors": [],
+        "eventIds": [
+          661
+        ],
+        "sampleCount": 19,
+        "bridgePumpCalls": 1939,
+        "bridgePumpFailures": 0,
+        "eventNativeType": "UnityGameFramework.Runtime.EventComponent"
+      },
+      "admission.jsonSha256": "06b59220ab88a5a58e82e7b7ab1700ba59d3e2a4b3268eda1cebcfd51d84aa59",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-233908",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-233908",
+      "final.jsonSha256": "0aa8ebdfd789ad9bdcc902101e86d7d07292333105b3ad9caeb2fb024ab0d2a4",
+      "status": {
+        "state": "OBSERVATION_ONLY",
+        "error": null,
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 1,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "world-status.jsonSha256": "3396637066f70f506be96127d84bed002ea13f4adb446dc4f7a4395fc955d80e",
+      "world": {
+        "state": "proven",
+        "error": null,
+        "method": "SceneUtils.ChangeToWorld(callback)+WorldScene",
+        "serverId": 2212,
+        "worldId": 0,
+        "tileWidth": 1000,
+        "tileHeight": 1000
+      },
+      "trace-status.jsonSha256": "b84f2c847a54b424171b7173a823619e13c560f7b528849df30a1b5acca9b9e8",
+      "trace": {
+        "state": "observer_error",
+        "registrations": [
+          {
+            "ok": true,
+            "id": 1433
+          },
+          {
+            "ok": true,
+            "id": 661
+          },
+          {
+            "ok": true,
+            "id": 2821011
+          },
+          {
+            "ok": true,
+            "id": 2821014
+          }
+        ],
+        "errors": [
+          "DataCenter.Global.LuaEntry:3917: attempt to perform arithmetic on a System.Reflection.BindingFlags value (field 'Instance')"
+        ],
+        "eventIds": [
+          661
+        ],
+        "sampleCount": 3,
+        "bridgePumpCalls": 227,
+        "bridgePumpFailures": 0,
+        "eventNativeType": "UnityGameFramework.Runtime.EventComponent"
+      },
+      "admission.jsonSha256": "1bafe04a2439f00616f3413a92526d4b5a046cbdea096c79457dae0aaa176b43",
+      "packageLencSize": 57531
+    },
+    {
+      "attempt": "native-causal-20261012-234333",
+      "privateRawDirectory": "artifacts/map-013-live/native-causal-20261012-234333",
+      "final.jsonSha256": "adee20c7a110a250d1640c9d41a09b8c336f74f1328965a346297debdde35108",
+      "status": {
+        "state": "PARTIAL",
+        "error": "UnboundLocalError: cannot access local variable 'world' where it is not associated with a value",
+        "exactStopSucceeded": true,
+        "originalScriptsRestored": true,
+        "nativeEventsCaptured": 0,
+        "regionState": null,
+        "regionPointRecords": null
+      },
+      "admission.jsonSha256": "ccb82f290f6b1bfa8f14b961a9346170a53e41f0f34bfb8ef33691a7fc83e50a",
+      "packageLencSize": 57531
+    }
+  ],
+  "nativeRegionPositiveTraceCompleted": false,
+  "nativeOutboundInboundSegmentsCacheChainCompleted": false,
+  "secondRegionNativeFailureExplained": false,
+  "benchmarkClaim": null,
+  "productionScannerChanged": false,
+  "safety": "All task-owned LastWar processes absent; installed game-script hashes verified restored after final attempt. One live session poll received an explicit safety block; no bypass performed."
+}

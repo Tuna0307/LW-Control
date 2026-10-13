@@ -34,6 +34,11 @@ internal static class MapStoredDeliveryChecks
                 "map-data-003-inert", gameRoot: null, startRecoveryMonitor: false);
             using (var service = new Map317CommandService(database, lifecycle))
             {
+                JsonElement noSavedServers = Json(await service.InvokeAsync(
+                    "map_saved_servers", Json(new { }), CancellationToken.None)
+                    ?? throw new InvalidDataException("Null map_saved_servers response"));
+                Require(noSavedServers.GetProperty("servers").GetArrayLength() == 0,
+                    "no disconnected saved server should be inferred from an empty store");
                 using (var connection = new SqliteConnection(new SqliteConnectionStringBuilder
                 { DataSource = database, Pooling = false }.ToString()))
                 {
@@ -55,7 +60,31 @@ internal static class MapStoredDeliveryChecks
                                 ownerUid = "owner-" + key, serverId = 317, updatedAt = 1000 + (level ?? -1) }));
                         command.ExecuteNonQuery();
                     }
+                    // Real SQLite rows, not a synthetic active-server status.
+                    // Positive saved server IDs are not capped by an invented
+                    // world range; only the zero/unscoped sentinel is excluded.
+                    foreach (int server in new[] { 2212, 0, 100000 })
+                    {
+                        using var command = connection.CreateCommand();
+                        command.CommandText = """
+                            INSERT INTO map_records
+                            (kind,server_id,record_key,updated_at,data_json)
+                            VALUES ('resource',$server,$key,$updated,$json)
+                            """;
+                        command.Parameters.AddWithValue("$server", server);
+                        command.Parameters.AddWithValue("$key", "server-" + server);
+                        command.Parameters.AddWithValue("$updated", server == 2212 ? 5000 : 9000);
+                        command.Parameters.AddWithValue("$json", JsonSerializer.Serialize(
+                            new { serverId = server, x = 25, y = 25 }));
+                        command.ExecuteNonQuery();
+                    }
                 }
+                JsonElement actualSavedServers = Json(await service.InvokeAsync(
+                    "map_saved_servers", Json(new { serverId = 9999 }), CancellationToken.None)
+                    ?? throw new InvalidDataException("Null map_saved_servers response"));
+                Require(actualSavedServers.GetProperty("servers").EnumerateArray()
+                        .Select(value => value.GetInt32()).SequenceEqual(new[] { 100000, 2212, 317 }),
+                    "saved-server discovery must not silently cap valid stored servers or infer supplied server context");
                 var baseline = await Search(service, new { serverId = 317, page = 1, pageSize = 2 });
                 Require(baseline.GetProperty("total").GetInt32() == 4 &&
                         baseline.GetProperty("rows").GetArrayLength() == 2, "published rows and first page");
@@ -139,7 +168,14 @@ internal static class MapStoredDeliveryChecks
             {
                 JsonElement again = await Search(reopened, new { serverId = 317 });
                 Require(again.GetProperty("total").GetInt32() == 4, "published records persisted after reopen");
+                JsonElement savedAgain = Json(await reopened.InvokeAsync(
+                    "map_saved_servers", Json(new { }), CancellationToken.None)
+                    ?? throw new InvalidDataException("Null reopened map_saved_servers response"));
+                Require(savedAgain.GetProperty("servers").EnumerateArray()
+                        .Select(value => value.GetInt32()).SequenceEqual(new[] { 100000, 2212, 317 }),
+                    "reopened disconnected server options must be read from real SQLite rows");
             }
+            Console.WriteLine("MAP010_SAVED_SERVER_REOPEN_OK positive/empty/foreign/invalid cases");
             Console.WriteLine("MAP_DATA_003_REOPEN_OK");
         }
         finally

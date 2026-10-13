@@ -118,7 +118,14 @@ public sealed class MapPlunderWorker
         IReadOnlyList<DispatchPlunderWorkItem> jobs =
             store.ReadArmableDispatchPlunderBatch(now, ArmLeadMilliseconds, DispatchBatchLimit);
         if (jobs.Count > 0)
-            changed |= await ArmDispatchBatchAsync(jobs, now, cancellationToken).ConfigureAwait(false);
+        {
+            // Ghost's request/result protocol is distinct from Dispatch.
+            // One unavailable Ghost transport may never fail a valid Dispatch
+            // group or be sent accidentally using the Dispatch command.
+            foreach (IGrouping<bool, DispatchPlunderWorkItem> group in jobs.GroupBy(
+                job => job.TaskUuid.StartsWith("ghost:", StringComparison.Ordinal)))
+                changed |= await ArmDispatchBatchAsync(group.ToArray(), now, cancellationToken).ConfigureAwait(false);
+        }
 
         if (changed) DispatchPlunderChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -223,10 +230,14 @@ public sealed class MapPlunderWorker
         IReadOnlyList<DispatchPlunderArmResult> results;
         try
         {
-            results = await WithProtectedTimeoutAsync(
-                provider.ArmDispatchPlunderAsync(
-                    armedCandidates.Select(item => item.Request).ToArray(), cancellationToken),
-                cancellationToken).ConfigureAwait(false);
+            DispatchPlunderArmJob[] requests = armedCandidates.Select(item => item.Request).ToArray();
+            ValueTask<IReadOnlyList<DispatchPlunderArmResult>> action = requests[0].Kind == "ghost"
+                ? provider is IGhostPlunderProvider ghost
+                    ? ghost.ArmGhostPlunderAsync(requests, cancellationToken)
+                    : ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(
+                        new BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE", "dedicated Ghost transport unavailable"))
+                : provider.ArmDispatchPlunderAsync(requests, cancellationToken);
+            results = await WithProtectedTimeoutAsync(action, cancellationToken).ConfigureAwait(false);
         }
         catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
         {
@@ -371,7 +382,15 @@ public sealed class MapPlunderWorker
         IReadOnlyList<DispatchPlunderResultEvent> events;
         try
         {
-            events = await provider.DrainDispatchPlunderResultsAsync(cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<DispatchPlunderResultEvent> dispatch =
+                await provider.DrainDispatchPlunderResultsAsync(cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<DispatchPlunderResultEvent> ghosts = provider is IGhostPlunderProvider ghost
+                ? await ghost.DrainGhostPlunderResultsAsync(cancellationToken).ConfigureAwait(false)
+                : Array.Empty<DispatchPlunderResultEvent>();
+            // Even an incorrectly tagged callback cannot cross the transport
+            // boundary to complete a different-kind job.
+            events = dispatch.Where(row => row.Kind == "dispatch")
+                .Concat(ghosts.Where(row => row.Kind == "ghost")).ToArray();
         }
         catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
         {

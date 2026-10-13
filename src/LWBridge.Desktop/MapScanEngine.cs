@@ -1,19 +1,33 @@
+using System.Diagnostics;
+
 namespace LWBridge.Desktop;
+
+internal sealed record MapScanEngineStageMetrics(
+    string RunId,
+    int ServerId,
+    string ScanMode,
+    double SourceCaptureMilliseconds,
+    double CheckpointMilliseconds,
+    double PublicationMilliseconds,
+    double WholeEngineMilliseconds);
 
 internal sealed class MapScanEngine
 {
     private readonly IMapScanBlockSource source;
     private readonly IMapScanRunSink sink;
     private readonly Action<MapScanEngineProgress>? progress;
+    private readonly Action<MapScanEngineStageMetrics>? completedStageMetrics;
 
     public MapScanEngine(
         IMapScanBlockSource source,
         IMapScanRunSink sink,
-        Action<MapScanEngineProgress>? progress = null)
+        Action<MapScanEngineProgress>? progress = null,
+        Action<MapScanEngineStageMetrics>? completedStageMetrics = null)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
         this.sink = sink ?? throw new ArgumentNullException(nameof(sink));
         this.progress = progress;
+        this.completedStageMetrics = completedStageMetrics;
     }
 
     public async Task ExecuteAsync(
@@ -26,6 +40,8 @@ internal sealed class MapScanEngine
         int completed = 0;
         int failed = 0;
         bool terminalStateWritten = false;
+        double sourceCaptureMilliseconds = 0;
+        double checkpointMilliseconds = 0;
         sink.Begin(request, blocks.Count, UtcNowMilliseconds());
 
         try
@@ -45,6 +61,7 @@ internal sealed class MapScanEngine
                     cancellationToken.ThrowIfCancellationRequested();
                     Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 1, startedAt);
                     IReadOnlyList<MapScanBlockCapture> captures;
+                    long captureStarted = Stopwatch.GetTimestamp();
                     try
                     {
                         captures = source is IMapScanProgressBatchSource progressiveBatchSource
@@ -74,9 +91,14 @@ internal sealed class MapScanEngine
                         lastError = error;
                         continue;
                     }
+                    finally
+                    {
+                        sourceCaptureMilliseconds += Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
+                    }
 
                     // Provider cancellation can race a completed asynchronous batch.
                     // Retire that response before any persistent checkpoint or publication.
+                    long checkpointStarted = Stopwatch.GetTimestamp();
                     cancellationToken.ThrowIfCancellationRequested();
                     ValidateBatch(request, block, captures, pending, blocksByIndex);
                     MapScanBlockSuccess[] successes = captures
@@ -93,6 +115,7 @@ internal sealed class MapScanEngine
                         pending.Remove(success.Block.BlockIndex);
                         completed++;
                     }
+                    checkpointMilliseconds += Stopwatch.GetElapsedTime(checkpointStarted).TotalMilliseconds;
                     succeeded = true;
                     break;
                 }
@@ -119,7 +142,25 @@ internal sealed class MapScanEngine
             MapScanCompletionSafety.ValidateDirectCompletion(blocks.Count, completed, failed);
             Report(request.RequestedConcurrency, "publishing", blocks.Count, completed, failed, 0, startedAt);
             cancellationToken.ThrowIfCancellationRequested();
+            long publishStarted = Stopwatch.GetTimestamp();
             sink.Publish(request, UtcNowMilliseconds());
+            double publicationMilliseconds = Stopwatch.GetElapsedTime(publishStarted).TotalMilliseconds;
+            if (completedStageMetrics is not null)
+            {
+                // Diagnostic failures cannot turn a completed, durable scan into
+                // an apparent failed scan or make the engine publish twice.
+                try
+                {
+                    completedStageMetrics(new MapScanEngineStageMetrics(
+                        request.RunId, request.ServerId, request.ScanMode,
+                        sourceCaptureMilliseconds, checkpointMilliseconds,
+                        publicationMilliseconds, Environment.TickCount64 - startedAt));
+                }
+                catch (Exception error)
+                {
+                    Console.Error.WriteLine("Map scan stage diagnostic unavailable: " + error.Message);
+                }
+            }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -215,7 +256,11 @@ internal sealed class MapScanEngine
             throw new InvalidDataException("map block capture did not match the requested block");
         if (capture.ServerId != request.ServerId)
             throw new InvalidDataException("map block capture did not match the active server");
-        if (capture.WorldId != 0 && request.WorldId != 0 && capture.WorldId != request.WorldId)
+        // A zero capture world is an unspecified legacy source. A nonzero
+        // captured world must always equal the requested world, including when
+        // the admitted standard world is id 0; otherwise unrelated world data
+        // could be staged under the correct server.
+        if (capture.WorldId != 0 && capture.WorldId != request.WorldId)
             throw new InvalidDataException("map block capture did not match the active world");
         if (string.IsNullOrWhiteSpace(capture.PayloadJson))
             throw new InvalidDataException("map block capture payload is missing");

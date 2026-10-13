@@ -90,19 +90,23 @@ internal sealed partial class CurrentClientMapBlockSource
         int firstGroupStartColumn = (seedBlock.Column / FastCityGroupColumns) * FastCityGroupColumns;
         IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
             request.TileWidth, request.TileHeight);
+        // Build pending groups once. A resumed band used to re-filter all 2,500
+        // logical blocks for every AOI group, even when only one group remained.
+        // Group membership and the ordered per-block projection stay unchanged.
+        ILookup<int, MapScanTargetBlock> pendingGroups = logicalBlocks
+            .Where(block =>
+                block.Row >= bandStartRow &&
+                block.Row < bandStartRow + FastCityGroupRows &&
+                block.Column >= firstGroupStartColumn &&
+                pendingBlockIndices.Contains(block.BlockIndex))
+            .ToLookup(block => block.Column / FastCityGroupColumns);
         var captures = new List<MapScanBlockCapture>();
 
         for (int groupStartColumn = firstGroupStartColumn; groupStartColumn < 50; groupStartColumn += FastCityGroupColumns)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            MapScanTargetBlock[] groupBlocks = logicalBlocks
-                .Where(block =>
-                    block.Column >= groupStartColumn &&
-                    block.Column < groupStartColumn + FastCityGroupColumns &&
-                    block.Row >= bandStartRow &&
-                    block.Row < bandStartRow + FastCityGroupRows &&
-                    pendingBlockIndices.Contains(block.BlockIndex))
-                .ToArray();
+            MapScanTargetBlock[] groupBlocks = pendingGroups[
+                groupStartColumn / FastCityGroupColumns].ToArray();
             if (groupBlocks.Length == 0) continue;
 
             int targetX = checked(groupStartColumn * MapScanGeometry.RecoveredBlockSpan + 15);
@@ -351,13 +355,14 @@ internal sealed partial class CurrentClientMapBlockSource
 
                 // Wide footprints are centered around the target: width 4 has two columns
                 // left / one right, while the observed width 5 has two left / two right.
-                // Optimistically step two columns only after we have measured width >= 4 in this band.
-                // If the footprint contracts, the unchanged first gap forces the next request back
-                // to the conservative +1 target; exact coverage, not the prediction, remains truth.
-                int targetOffset = preferWideStep ? 2 : 1;
-                if (gapColumn == 0) targetOffset = 0;
-                if (previousGap == gapColumn) targetOffset = gapColumn == 0 ? 0 : 1;
-                int targetCellX = Math.Min(FastCityAoiBlockCount - 1, gapColumn + targetOffset);
+                // Normal deliberately places the camera one AOI ahead of the first gap,
+                // maximizing margin when native footprints contract. Fast uses the
+                // measured >=4-column footprint to advance two AOIs, gathering more
+                // previously uncovered cells per serial request when supported.
+                // Both modes validate fresh footprints and the same exact 10,000 AOIs;
+                // neither issues concurrent mutations of the shared game camera.
+                int targetCellX = MapFullWorldAoiPlacement.TargetColumn(
+                    request.ScanMode, gapColumn, preferWideStep, previousGap, FastCityAoiBlockCount);
                 int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
 
                 FastCityBatchObservation? observation = null;
@@ -369,6 +374,8 @@ internal sealed partial class CurrentClientMapBlockSource
                     if (attempt > 1) state.ProbeRetries++;
                     try
                     {
+                        int activeProbes = Interlocked.Increment(ref state.ActiveCameraProbes);
+                        state.PeakCameraProbes = Math.Max(state.PeakCameraProbes, activeProbes);
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
@@ -381,6 +388,15 @@ internal sealed partial class CurrentClientMapBlockSource
                             targetY,
                             attempt);
                         state.ValidatedProbeResponses++;
+                        if (observation.TargetResponseMilliseconds is double targetMilliseconds &&
+                            observation.HomeRestorationMilliseconds is double homeMilliseconds &&
+                            observation.TotalProbeMilliseconds is double totalMilliseconds)
+                        {
+                            state.NativePhaseSamples++;
+                            state.NativeTargetResponseMilliseconds += targetMilliseconds;
+                            state.NativeHomeRestorationMilliseconds += homeMilliseconds;
+                            state.NativeTotalProbeMilliseconds += totalMilliseconds;
+                        }
                         lastError = null;
                         break;
                     }
@@ -416,6 +432,7 @@ internal sealed partial class CurrentClientMapBlockSource
                     }
                     finally
                     {
+                        Interlocked.Decrement(ref state.ActiveCameraProbes);
                         state.ProbeWaitMilliseconds += Math.Max(0, (Now() - probeStarted).TotalMilliseconds);
                     }
                 }
@@ -488,6 +505,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         if (covered.Count != 10000)
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
+        state.AcquisitionMilliseconds = (Now() - state.MetricsStartedAt).TotalMilliseconds;
         WriteFastFullWorldMetrics(state, "covered");
 
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
@@ -496,8 +514,10 @@ internal sealed partial class CurrentClientMapBlockSource
         // source once per completed full-world scan, then merge by exact march UUID.
         if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
         {
+            DateTimeOffset railwayStarted = Now();
             IReadOnlyList<FastTrainPrepared> refreshedRailway = (await ProbeTrainListAsync(
                 session, request, cancellationToken).ConfigureAwait(false)).Rows;
+            state.RailwayRefreshMilliseconds = (Now() - railwayStarted).TotalMilliseconds;
             RequireSameSession(session);
             foreach (FastTrainPrepared prepared in refreshedRailway)
             {
@@ -510,6 +530,7 @@ internal sealed partial class CurrentClientMapBlockSource
         // Truck reward/max-loot enrichment is deliberately post-acquisition. The AOI hot path
         // carries only lightweight game-owned TrainData fields/reward arrays; full TrainData JSON
         // is Railway-only because current-v19 Truck plunder history makes that blob very large.
+        DateTimeOffset truckStarted = Now();
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
         {
             foreach ((string key, FastTrainPrepared prepared) in trainRecords.ToArray())
@@ -518,7 +539,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 trainRecords[key] = ApplyFinalTruckMetadataEnrichment(prepared);
             }
         }
+        state.TruckHydrationMilliseconds = (Now() - truckStarted).TotalMilliseconds;
 
+        DateTimeOffset resourceStarted = Now();
         ResourceScanDetailObservation resourceDetails = ResourceScanDetailObservation.Empty;
         int idleResourceCount = request.SelectedTypes.Contains("resource", StringComparer.Ordinal)
             ? resourceRecords.Values.Count(item => IsKnownIdleResource(item.Record))
@@ -558,7 +581,11 @@ internal sealed partial class CurrentClientMapBlockSource
                 resourceDetails.ReadyCount,
                 resourceDetails.Error);
         }
+        state.ResourceHydrationMilliseconds = (Now() - resourceStarted).TotalMilliseconds;
+        state.ResourceDetailNativeRequests = resourceDetails.RequestCount;
+        state.ResourceDetailNativeReady = resourceDetails.ReadyCount;
 
+        DateTimeOffset monsterStarted = Now();
         MonsterProtectionDetailObservation protection = MonsterProtectionDetailObservation.Empty;
         int monsterInvasionBossCount = monsterRecords.Values.Count(item => item.ProtectionEligible);
         if (monsterInvasionBossCount > 0)
@@ -582,7 +609,11 @@ internal sealed partial class CurrentClientMapBlockSource
         LastMonsterProtectionDetailMetrics = new MonsterProtectionDetailMetrics(
             monsterInvasionBossCount, protection.TargetCount,
             protection.RequestCount, protection.RetryCount, protection.ReadyCount, protection.Error);
+        state.MonsterHydrationMilliseconds = (Now() - monsterStarted).TotalMilliseconds;
+        state.MonsterDetailNativeRequests = protection.RequestCount;
+        state.MonsterDetailNativeReady = protection.ReadyCount;
 
+        DateTimeOffset projectionStarted = Now();
         var buckets = new Dictionary<int, List<MapStoredRecord>>();
         if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
             foreach (FirstLivePreparedResource item in cityRecords.Values)
@@ -637,6 +668,18 @@ internal sealed partial class CurrentClientMapBlockSource
             }, JsonOptions.Default);
             captures.Add(new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex, payload, records));
         }
+        state.ProjectionMilliseconds = (Now() - projectionStarted).TotalMilliseconds;
+        state.OldestCapturedAgeMilliseconds = cityRecords.Values.Select(item => item.Record.UpdatedAt)
+            .Concat(resourceRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(monsterRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(trainRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(dispatchRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(ghostRecords.Values.Select(item => item.Record.UpdatedAt))
+            .Concat(treasureRecords.Values.Select(item => item.Record.UpdatedAt))
+            .DefaultIfEmpty(Now().ToUnixTimeMilliseconds())
+            .Min();
+        state.OldestCapturedAgeMilliseconds = Math.Max(0, Now().ToUnixTimeMilliseconds() - state.OldestCapturedAgeMilliseconds);
+        WriteFastFullWorldMetrics(state, "prepared");
         fastFullWorldResumeState = null;
         return captures;
     }
@@ -771,7 +814,10 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeTreasure={request.SelectedTypes.Contains("treasure", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeResourceDetails={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
-            $"deferRestoreUntilResponse={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
+            // A native footprint can be fresh while same-tick camera restoration
+            // drops known spatial rows. All selected kinds require the native
+            // point/march snapshot before restoring the target view.
+            "deferRestoreUntilResponse=true",
             string.Empty,
         });
         await WriteCommandAsync(commandPath, command, cancellationToken).ConfigureAwait(false);
@@ -1351,7 +1397,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeGhost", request.SelectedTypes.Contains("ghost", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeTreasure", request.SelectedTypes.Contains("treasure", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeResourceDetails", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
-            !MatchesBool(root, "deferRestoreUntilResponse", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)))
+            !MatchesBool(root, "deferRestoreUntilResponse", true))
             throw new InvalidDataException("Fast world batch result did not match the active owned game session.");
         if (!MatchesString(root, "state", "proven"))
         {
@@ -1377,13 +1423,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 $"viewLevel={Actual("viewLevel")},target=({Actual("targetTileX")},{Actual("targetTileY")}).");
         }
         RequireFreshCaptureTime(root, startedAt);
-        bool deferRestoreUntilResponse = request.SelectedTypes.Contains("resource", StringComparer.Ordinal);
-        bool restorationContractMatches = deferRestoreUntilResponse
-            ? MatchesBool(root, "positionRestoredBeforeResponse", false) &&
-              MatchesBool(root, "positionRestoredAfterResponse", true) &&
-              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response")
-            : MatchesBool(root, "positionRestoredBeforeResponse", true) &&
-              MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+same-tick-camera-restore");
+        bool restorationContractMatches =
+            MatchesBool(root, "positionRestoredBeforeResponse", false) &&
+            MatchesBool(root, "positionRestoredAfterResponse", true) &&
+            MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
             !restorationContractMatches)
@@ -1477,9 +1520,14 @@ internal sealed partial class CurrentClientMapBlockSource
         if (monsterProtectionDetailRequestCount > monsterProtectionDetailTargetCount ||
             monsterProtectionDetailReadyCount > monsterProtectionDetailTargetCount)
             throw new InvalidDataException("Fast world Monster Invasion protection detail counters are inconsistent.");
+        double? PhaseMilliseconds(string property) => root.TryGetProperty(property, out JsonElement value) &&
+            value.ValueKind == JsonValueKind.Number && value.TryGetDouble(out double seconds) &&
+            double.IsFinite(seconds) && seconds >= 0 ? seconds * 1000 : null;
         return new FastCityBatchObservation(requestedIndices, prepared, resources, dispatches, ghosts, treasures, monsters, trains,
             resourceCompleteness,
-            monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount);
+            monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
+            PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
+            PhaseMilliseconds("totalProbeElapsedSeconds"));
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -2169,6 +2217,8 @@ internal sealed partial class CurrentClientMapBlockSource
             ServerId = request.ServerId;
             WorldId = request.WorldId;
             SelectedTypesKey = string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
+            ScanMode = request.ScanMode;
+            RequestedConcurrency = request.RequestedConcurrency;
         }
 
         internal OverviewMapScanSession Session { get; }
@@ -2176,11 +2226,30 @@ internal sealed partial class CurrentClientMapBlockSource
         internal int ServerId { get; }
         internal long WorldId { get; }
         internal string SelectedTypesKey { get; }
+        internal string ScanMode { get; }
+        internal int RequestedConcurrency { get; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
         internal long ValidatedProbeResponses { get; set; }
+        internal int ActiveCameraProbes;
+        internal int PeakCameraProbes;
+        internal double AcquisitionMilliseconds;
+        internal double RailwayRefreshMilliseconds;
+        internal double TruckHydrationMilliseconds;
+        internal double ResourceHydrationMilliseconds;
+        internal double MonsterHydrationMilliseconds;
+        internal double ProjectionMilliseconds;
+        internal long OldestCapturedAgeMilliseconds;
+        internal int ResourceDetailNativeRequests;
+        internal int ResourceDetailNativeReady;
+        internal int MonsterDetailNativeRequests;
+        internal int MonsterDetailNativeReady;
         internal double ProbeWaitMilliseconds { get; set; }
+        internal long NativePhaseSamples { get; set; }
+        internal double NativeTargetResponseMilliseconds { get; set; }
+        internal double NativeHomeRestorationMilliseconds { get; set; }
+        internal double NativeTotalProbeMilliseconds { get; set; }
         internal HashSet<int> CompletedRequestOrdinals { get; } = new();
         internal HashSet<int> Covered { get; } = new();
         internal Dictionary<string, FirstLivePreparedResource> CityRecords { get; } = new(StringComparer.Ordinal);
@@ -2194,6 +2263,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         internal bool Matches(OverviewMapScanSession session, MapScanExecutionRequest request) =>
             Session == session && RunId == request.RunId && ServerId == request.ServerId && WorldId == request.WorldId &&
+            ScanMode == request.ScanMode && RequestedConcurrency == request.RequestedConcurrency &&
             SelectedTypesKey == string.Join("\u001f", request.SelectedTypes.OrderBy(value => value, StringComparer.Ordinal));
     }
 
@@ -2207,13 +2277,31 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             schemaVersion = 1,
             source = "CurrentClientMapBlockSource.ProbeFastCityBatchAsync",
-            identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey },
+            identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey, state.ScanMode },
             phase,
+            acquisitionPolicy = state.ScanMode == "fast" ? "measured_wide_aoi_step" : "conservative_aoi_step",
+            requestedConcurrency = state.RequestedConcurrency,
+            actualPeakConcurrentCameraProbes = state.PeakCameraProbes,
             elapsedMilliseconds = (DateTimeOffset.UtcNow - state.MetricsStartedAt).TotalMilliseconds,
+            acquisitionMilliseconds = state.AcquisitionMilliseconds,
+            railwayRefreshMilliseconds = state.RailwayRefreshMilliseconds,
+            truckHydrationMilliseconds = state.TruckHydrationMilliseconds,
+            resourceHydrationMilliseconds = state.ResourceHydrationMilliseconds,
+            monsterHydrationMilliseconds = state.MonsterHydrationMilliseconds,
+            projectionMilliseconds = state.ProjectionMilliseconds,
+            oldestCapturedAgeMilliseconds = state.OldestCapturedAgeMilliseconds,
+            resourceDetailNativeRequests = state.ResourceDetailNativeRequests,
+            resourceDetailNativeReady = state.ResourceDetailNativeReady,
+            monsterDetailNativeRequests = state.MonsterDetailNativeRequests,
+            monsterDetailNativeReady = state.MonsterDetailNativeReady,
             attributableLuaProbeAttempts = state.ProbeAttempts,
             attributableRetries = state.ProbeRetries,
             validatedProbeResponses = state.ValidatedProbeResponses,
             summedProbeWaitMilliseconds = state.ProbeWaitMilliseconds,
+            nativePhaseSampleCount = state.NativePhaseSamples,
+            summedNativeTargetResponseMilliseconds = state.NativeTargetResponseMilliseconds,
+            summedNativeHomeRestorationMilliseconds = state.NativeHomeRestorationMilliseconds,
+            summedNativeTotalProbeMilliseconds = state.NativeTotalProbeMilliseconds,
             uniqueCoveredAois = state.Covered.Count,
             requiredAois = 10000,
             uniqueRecordKeys = new
@@ -2292,5 +2380,8 @@ internal sealed partial class CurrentClientMapBlockSource
         int MonsterInvasionBossCount,
         int MonsterProtectionDetailTargetCount,
         int MonsterProtectionDetailRequestCount,
-        int MonsterProtectionDetailReadyCount);
+        int MonsterProtectionDetailReadyCount,
+        double? TargetResponseMilliseconds,
+        double? HomeRestorationMilliseconds,
+        double? TotalProbeMilliseconds);
 }

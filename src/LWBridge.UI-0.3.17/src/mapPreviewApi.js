@@ -268,7 +268,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
   const tableTime = Date.now();
   const headerFixture = scanHeaderFixture(previewState, tableTime);
   const summary = fixtureSummary(previewState === "map-scan-feedback-error" ? { lastError: "MAP_SCAN_START_FAILED" } : headerFixture?.scanState);
-  const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") ? tableStateFixtureRows(tableTime) : null;
+  const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") || previewState === "map-providers-ghost" ? tableStateFixtureRows(tableTime) : null;
   const plunderFixture = plunderFixtureFor(previewState, tableTime) || { dispatchJobs: [], truckJobs: [], online: null, busyKey: "" };
   const api = {
     profileId: "preview-map-profile",
@@ -293,6 +293,17 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     coordinateJump: () => blocked("coordinate jump"),
     setPlayerMark: () => blocked("player mark"),
     exportCities: () => blocked("city export"),
+    ...(previewState === "map-providers-ghost" ? {
+      prepareGhostPlunder: async (rows) => rows.map(row => ({ ...row, taskKind: "ghost", execute: false })),
+    } : {}),
+    ...(previewState === "map-providers-treasure" ? {
+      previewTreasureClaim: async (serverId, claimScope, luckyFirst, targetUuid) => ({
+        serverId, claimScope, prioritizeLuckySlots: luckyFirst, targetUuid,
+        candidateCount: claimScope === "single" ? 1 : 8,
+        eligibleCount: claimScope === "single" ? 0 : 3,
+        claimExecutionAvailable: false, mode: "preview_only",
+      }),
+    } : {}),
     // Scheduled Plunder: the list is a deterministic offline fixture (empty unless the state names one).
     listPlunderJobs: async () => ({ dispatchJobs: plunderFixture.dispatchJobs, truckJobs: plunderFixture.truckJobs }),
     listenPlunderJobsChanged: () => () => {},
@@ -325,7 +336,7 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     summary,
     mapApi: api,
     backendAvailable: true,
-    online: false,
+    online: previewState === "map-providers-ghost" || previewState === "map-providers-treasure",
     currentServerId: FIXTURE_SERVER_ID,
   };
   cache.set(previewState, provider);

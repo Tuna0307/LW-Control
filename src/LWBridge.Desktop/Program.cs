@@ -22,7 +22,22 @@ internal static class Program
         string? cityReopenProofPath = ReadPathOption(args, "--city-reopen-proof");
         string? uiRootPath = ReadPathOption(args, "--ui-root");
         string? isolatedRootPath = ReadPathOption(args, "--isolated-root");
+        string? map010NamesProofPath = ReadPathOption(args, "--map010-native-names-proof");
         bool useLegacyUi = args.Contains("--legacy-ui", StringComparer.OrdinalIgnoreCase);
+        if (map010NamesProofPath is not null)
+        {
+            if (isolatedRootPath is null || !string.Equals(initialViewOption(args), "map-data", StringComparison.Ordinal) ||
+                (languageOption(args) is not "en" and not "ja") ||
+                (themeOption(args) is not "light" and not "dark") ||
+                new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath,
+                    liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath,
+                    mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath, ownerEvidencePath }
+                    .Any(option => option is not null))
+                throw new ArgumentException("MAP-010 name proof requires an isolated normal app, --view map-data, explicit EN/JA language and light/dark theme.");
+            string relative = Path.GetRelativePath(isolatedRootPath, map010NamesProofPath);
+            if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                throw new ArgumentException("MAP-010 proof output must remain inside its explicitly isolated root.");
+        }
         if (uiRootPath is not null && mapUiIntegrationProofPath is null)
             throw new ArgumentException("--ui-root is restricted to --map-ui-integration-proof.");
         if (mapUiIntegrationProofPath is not null && uiRootPath is null)
@@ -88,7 +103,7 @@ internal static class Program
             capturePath, liveProbePath, hostProbePath, initialView, language, theme, firstLiveResultPath,
             normalUiLiveResourceProofPath, normalUiLiveMapProofPath, ownerEvidencePath, uiRootPath,
             mapUiIntegrationProofPath, homeMapCampaignProofPath, homeMapCampaignNarrow, useLegacyUi,
-            isolatedRootPath, homeMapCampaignHomeOnly);
+            isolatedRootPath, homeMapCampaignHomeOnly, map010NamesProofPath);
         if (hostProbePath is null)
         {
             Application.Run(window);
@@ -122,4 +137,7 @@ internal static class Program
             throw new ArgumentException($"{name} requires a value.");
         return args[index + 1];
     }
+    private static string? initialViewOption(string[] args) => ReadValueOption(args, "--view");
+    private static string? languageOption(string[] args) => ReadValueOption(args, "--language");
+    private static string? themeOption(string[] args) => ReadValueOption(args, "--theme");
 }

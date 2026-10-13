@@ -1,0 +1,265 @@
+using System.Diagnostics;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
+namespace LWBridge.Desktop;
+
+// HISTORICAL REJECTED MAP-010 NATIVE DIAGNOSTIC - NOT COMPILED OR SHIPPED.
+// Research-only bounded native diagnostic: exact owned Home Start, at most
+// three passive region commands, and exact owned Home Stop in finally.
+// The installed-game producer retains its own camera restore contract.
+// Never invoked by the normal production Map scan or Auto scheduler.
+internal sealed partial class LWBridgeWindow
+{
+    private async Task RunMap010SmallNativeTrialAsync(string outputPath)
+    {
+        if (productionPaths?.ExplicitIsolation != true || overviewLifecycleService is null ||
+            activeProfileConfig.Snapshot.AutoLaunchGame ||
+            activeProfileConfig.Snapshot.AutoReconnect ||
+            activeProfileConfig.Snapshot.GameDesiredRunning ||
+            map317CommandService?.IsScanActive != false)
+            throw new InvalidOperationException("MAP-010 native diagnostic requires isolated, idle, non-auto Home ownership.");
+        if (File.Exists(outputPath))
+            throw new IOException("MAP-010 native trial output already exists; preserve earlier results.");
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(4));
+        var observations = new List<object>();
+        string? ownedInstance = null;
+        OverviewMapScanSession? session = null;
+        string? trialError = null;
+        string? stopError = null;
+        bool stopped = false;
+        int? serverId = null;
+        try
+        {
+            using JsonDocument empty = JsonDocument.Parse("{}");
+            object? nativeStart = await overviewLifecycleService.InvokeAsync(
+                "profile_instance_start", empty.RootElement.Clone(), cts.Token);
+            JsonElement nativeStartStatus = JsonSerializer.SerializeToElement(nativeStart, JsonOptions.Default);
+            ownedInstance = ReadStatusString(nativeStartStatus, "instanceId");
+            session = overviewLifecycleService.GetReadyMapScanSession();
+            if (session is null || string.IsNullOrWhiteSpace(ownedInstance))
+            {
+                JsonElement status = JsonSerializer.SerializeToElement(
+                    overviewLifecycleService.CreateProfileInstanceStatus(), JsonOptions.Default);
+                ownedInstance = ReadStatusString(status, "instanceId");
+                session = overviewLifecycleService.GetReadyMapScanSession();
+            }
+            if (session is null || string.IsNullOrWhiteSpace(ownedInstance) ||
+                ownedInstance != session.SessionId)
+                throw new InvalidDataException("Native start did not establish a uniquely owned ready map session.");
+            await overviewLifecycleService.WaitForHealthyMapScanSessionAsync(session, cts.Token);
+            serverId = overviewLifecycleService.GetLiveServerId();
+            if (serverId is null or <= 0)
+                throw new InvalidDataException("Owned game has no authoritative live target server.");
+            // The official game starts in its city/home scene. The established
+            // read-only WorldReady route invokes the client's own passive
+            // GoToWorld transition and verifies the entered world and owner;
+            // AOI replies before that transition are invalid.
+            var worldSource = new CurrentClientMapBlockSource(overviewLifecycleService);
+            CurrentClientMapContext world = await worldSource.GetCurrentContextAsync(cts.Token);
+            if (world.ServerId != serverId || world.WorldId != 0 ||
+                world.TileWidth != 1000 || world.TileHeight != 1000 ||
+                !overviewLifecycleService.MatchesOwnedMapScanSession(session))
+                throw new InvalidDataException(
+                    "World transition did not establish the exact own-server 1000x1000 world.");
+            // Match the production FastCityStartupSettleDelay: WorldReady can
+            // return while the initial home-camera transition is still moving.
+            // A moving baseline caused preTile=(133,122), restored=(290,989)
+            // and a reproducible deferred restore timeout in the previous trial.
+            await Task.Delay(TimeSpan.FromSeconds(3), cts.Token);
+            if (overviewLifecycleService.GetLiveServerId() != serverId ||
+                !overviewLifecycleService.MatchesOwnedMapScanSession(session))
+                throw new InvalidDataException("World/camera settling lost exact owner or server.");
+            string probeRoot = overviewLifecycleService.LiveResourceRuntimeRoot;
+            // The probe pumps from the game, but the Map scanner normally
+            // creates the host directory on demand. A small standalone trial
+            // must prepare the same isolated owned runtime before writing.
+            Directory.CreateDirectory(probeRoot);
+
+            // Compare two distinct archived-populated native regions; the
+            // current source owns their response sequence and only requests
+            // the home view after the second target is acquired.
+            foreach ((string mode, int x, int y) in new[]
+                     { ("sequence", 455, 425) })
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                if (!overviewLifecycleService.MatchesOwnedMapScanSession(session) ||
+                    overviewLifecycleService.GetLiveServerId() != serverId)
+                    throw new InvalidDataException("Current owned native server/session changed before next region.");
+                string requestId = "map010" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+                string commandPath = Path.Combine(probeRoot, "bulk-aoi-diagnostic.txt");
+                string resultPath = Path.Combine(probeRoot, "bulk-aoi-diagnostic-result.json");
+                if (File.Exists(commandPath))
+                    throw new IOException("Another native region request is queued; do not overwrite it.");
+                string content = string.Join('\n', new[]
+                {
+                    "schema=1", "probeVersion=lwbridge-live-resource-probe-2", $"requestId={requestId}",
+                    $"profileId={session.ProfileId}", $"launchSessionId={session.SessionId}",
+                    $"challenge={session.Challenge}", $"gamePid={session.GamePid}",
+                    $"serverId={serverId}", $"scanRunId={requestId}",
+                    $"viewLevel={(mode == "viewOnly" ? 0 : -1)}",
+                    $"requestMode={mode}", $"targetTileX={x}", $"targetTileY={y}",
+                    "requestedCount=8", "holdMilliseconds=0",
+                    "nextTargetTileX=545", "nextTargetTileY=495",
+                    $"homeTileX={world.PlayerTileX ?? -1}", $"homeTileY={world.PlayerTileY ?? -1}",
+                    "includeCity=true", "includeResource=true", "includeMonster=true",
+                    "includeMonsterProtection=false", "includeTrain=true",
+                    "includeDispatch=true", "includeGhost=true", "includeTreasure=true",
+                    "includeResourceDetails=false", "deferRestoreUntilResponse=true", "",
+                });
+                string temporary = commandPath + "." + requestId + ".tmp";
+                await File.WriteAllTextAsync(temporary, content, cts.Token);
+                var watch = Stopwatch.StartNew();
+                File.Move(temporary, commandPath); // final atomic producer handoff
+                JsonElement? response = null;
+                while (watch.Elapsed < TimeSpan.FromSeconds(22))
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    if (!overviewLifecycleService.MatchesOwnedMapScanSession(session))
+                        throw new InvalidDataException("Owner replacement during native pending request.");
+                    try
+                    {
+                        using JsonDocument document = JsonDocument.Parse(
+                            await File.ReadAllBytesAsync(resultPath, cts.Token));
+                        if (ReadStatusString(document.RootElement, "requestId") == requestId)
+                        {
+                            response = document.RootElement.Clone();
+                            break;
+                        }
+                    }
+                    catch (Exception exception) when (exception is IOException or JsonException) { }
+                    await Task.Delay(60, cts.Token);
+                }
+                if (response is null)
+                    throw new TimeoutException($"{mode} native source did not return the exact request ID.");
+                JsonElement result = response.Value;
+                string nativeResponseArchive = Path.Combine(
+                    Path.GetDirectoryName(outputPath)!,
+                    Path.GetFileNameWithoutExtension(outputPath) + "-" + mode + "-" + requestId + ".json");
+                File.Copy(resultPath, nativeResponseArchive, overwrite: false);
+                int[] indices = result.TryGetProperty("requestedIndices", out JsonElement cells) &&
+                    cells.ValueKind == JsonValueKind.Array
+                        ? cells.EnumerateArray().Select(item => item.GetInt32()).Distinct().OrderBy(i => i).ToArray()
+                        : [];
+                string state = ReadStatusString(result, "state") ?? "unknown";
+                string? error = ReadStatusString(result, "error");
+                JsonElement? segments = result.TryGetProperty("sequenceSnapshots", out JsonElement rawSegments) &&
+                    rawSegments.ValueKind == JsonValueKind.Array ? rawSegments : null;
+                var segmentReceipts = new List<object>();
+                if (segments is not null)
+                {
+                    foreach (JsonElement segment in segments.Value.EnumerateArray())
+                    {
+                        JsonElement segmentPointRows = segment.GetProperty("pointRecords");
+                        JsonElement segmentTrainRows = segment.GetProperty("trainMarchRecords");
+                        JsonElement segmentMonsterRows = segment.GetProperty("monsterMarchRecords");
+                        segmentReceipts.Add(new
+                        {
+                            stage = ReadStatusInt32(segment, "stage"),
+                            targetX = ReadStatusInt32(segment, "targetTileX"),
+                            targetY = ReadStatusInt32(segment, "targetTileY"),
+                            observedNativeServerId = ReadStatusInt32(segment, "nativeServerId"),
+                            observedNativeWorldId = ReadStatusInt32(segment, "nativeWorldId"),
+                            responseFlagsTransitioned = segment.GetProperty("responseFlagsTransitioned").GetBoolean(),
+                            footprintAois = segment.GetProperty("requestedIndices").GetArrayLength(),
+                            pointRows = segmentPointRows.GetArrayLength(),
+                            trainRows = segmentTrainRows.GetArrayLength(),
+                            monsterRows = segmentMonsterRows.GetArrayLength(),
+                            sourceRowsSha256 = Convert.ToHexString(SHA256.HashData(
+                                Encoding.UTF8.GetBytes(segmentPointRows.GetRawText() +
+                                    segmentTrainRows.GetRawText() + segmentMonsterRows.GetRawText()))),
+                        });
+                    }
+                }
+                object summary = new
+                {
+                    request = mode, x, y, elapsedMs = watch.Elapsed.TotalMilliseconds,
+                    state, error,
+                    resultServerId = ReadStatusInt32(result, "serverId"),
+                    liveServerId = ReadStatusInt32(result, "liveServerId"),
+                    nativeAoiCount = indices.Length,
+                    aoiDigest = Convert.ToHexString(SHA256.HashData(
+                        Encoding.UTF8.GetBytes(JsonSerializer.Serialize(indices)))),
+                    receivedResponse = result.TryGetProperty("responseFlagsTransitioned", out JsonElement f) &&
+                                       f.ValueKind == JsonValueKind.True,
+                    cameraTileStable = result.TryGetProperty("cameraTileStable", out JsonElement c) &&
+                                       c.ValueKind == JsonValueKind.True,
+                    restoredAfterResponse = result.TryGetProperty("positionRestoredAfterResponse", out JsonElement r) &&
+                                            r.ValueKind == JsonValueKind.True,
+                    splitPending = result.TryGetProperty("splitPending", out JsonElement split) &&
+                                   split.ValueKind == JsonValueKind.True,
+                    pointCount = ReadStatusInt32(result, "matchedCityCount"),
+                    resourceCount = ReadStatusInt32(result, "matchedResourceCount"),
+                    monsterCount = ReadStatusInt32(result, "matchedMonsterCount"),
+                    nativeResponseSha256 = Convert.ToHexString(SHA256.HashData(
+                        await File.ReadAllBytesAsync(nativeResponseArchive, cts.Token))),
+                    segmentReceipts,
+                    sequenceFinished = result.TryGetProperty("sequenceFinished", out JsonElement finished) &&
+                                       finished.ValueKind == JsonValueKind.True,
+                    method = ReadStatusString(result, "requestMethod"),
+                };
+                observations.Add(summary);
+                if (state != "proven" || error is not null ||
+                    !result.TryGetProperty("cameraTileStable", out JsonElement stable) ||
+                    stable.ValueKind != JsonValueKind.True ||
+                    !result.TryGetProperty("responseFlagsTransitioned", out JsonElement flags) ||
+                    flags.ValueKind != JsonValueKind.True ||
+                    (mode == "sequence" && (segments is null || segments.Value.GetArrayLength() != 2 ||
+                        !result.TryGetProperty("sequenceFinished", out JsonElement done) ||
+                        done.ValueKind != JsonValueKind.True ||
+                        segmentReceipts.Count != 2)) ||
+                    indices.Length == 0)
+                    throw new InvalidDataException($"{mode} did not qualify its native response/restore/footprint; stop this trial.");
+            }
+        }
+        catch (Exception error)
+        {
+            trialError = error.GetType().Name + ": " + error.Message;
+        }
+        finally
+        {
+            if (string.IsNullOrWhiteSpace(ownedInstance))
+                ownedInstance = overviewLifecycleService.GetReadyMapScanSession()?.SessionId;
+            if (!string.IsNullOrWhiteSpace(ownedInstance))
+            {
+                try
+                {
+                    using var stopCts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+                    using JsonDocument stopRequest = JsonDocument.Parse(
+                        JsonSerializer.Serialize(new { instanceId = ownedInstance }));
+                    await overviewLifecycleService.InvokeAsync(
+                        "profile_instance_stop", stopRequest.RootElement.Clone(), stopCts.Token);
+                    stopped = true;
+                }
+                catch (Exception error)
+                {
+                    stopError = error.GetType().Name + ": " + error.Message;
+                }
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+            await File.WriteAllTextAsync(outputPath, JsonSerializer.Serialize(new
+            {
+                task = "LWB317-MAP-BACKGROUND-ACQUISITION-010",
+                mode = "small_native_passive_observation",
+                profileId = activeProfileConfig.Snapshot.ProfileId,
+                ownedGamePid = session?.GamePid,
+                ownedSessionId = session?.SessionId,
+                serverId,
+                completed = trialError is null && stopped && stopError is null,
+                trialError, stopError, stoppedExactOwner = stopped,
+                observations, requestsAttempted = observations.Count,
+                cameraFreeAcquisitionProven = false,
+                remoteServerAcquisitionProven = false,
+                completeWholeWorldCoverageProven = false,
+                gameAccountActions = 0,
+            }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+        }
+        if (stopError is not null)
+            throw new InvalidOperationException("Exact owner Stop failed; inspect preserved journal: " + stopError);
+        if (trialError is not null)
+            throw new InvalidDataException("Native small trial incomplete: " + trialError);
+    }
+}

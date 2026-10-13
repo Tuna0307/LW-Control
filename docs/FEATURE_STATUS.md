@@ -1,12 +1,50 @@
 # Feature delivery — faithful functional replacement
 
+**Current delivery, 2026-10-13:** owner requests the current verified scanner on
+main for personal testing. The bounded PR #9 product corrections are accepted
+under [the test-delivery scope](MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md).
+Installed names, saved-profile browsing and delayed spatial restoration are
+supported. No camera-free/consecutive scanner enabled and no new speedup claimed.
+Whole Map and MAP-013 optimization remain PARTIAL. Earlier status below is history.
+
+**Latest lead review:** MAP-010 worker `b8e53016` has verified installed-name and
+localized feedback corrections. Saved-server profile switching is CHANGES_REQUIRED
+(LEADMAP010-01, independently reproduced). No new scanner speedup, camera-free or
+remote full-world route qualified. Follow [the review](reviews/2026-10-12-MAP-010-LEAD-REVIEW.md)
+and [focused next task](work-items/LWB317-MAP-ACQUISITION-RECEIVER-011.md).
+Existing accepted main/v0.6.0 remains unchanged; older PR #9 review text is history.
+
 MAP-006 R1 / PR #8 is **ACCEPTED / MERGED / PUBLISHED** as
 `map-available-v0.6.0`: six available manual kinds, applicable stored controls,
 passive navigation and bounded Auto/Stop/return. See
 [independent acceptance](MAP_006_LEAD_ACCEPTANCE_2026-10-11.md).
 MAP-005 / PR #7 remains released as manual-map-v0.5.0. Whole Map is **PARTIAL**:
 Ghost positive acquisition, full Treasure and owner-only action witnesses are pending.
-Next scoped implementation: MAP-ACTION-PROVIDERS-007 from main, solo worker.
+**Current independent review, 2026-10-12, product `10b73c4a`:** PR #9 remains
+unmerged. Accuracy-auditor findings LEADMAP008-01/02 independently pass corrected
+inverse replay. Real installed game-name resolution and mounted native-route
+integration pass; Railway and ordinary Treasure have sampled positive values.
+Scanner correctness improved; no material repeatable Fast advantage is proved.
+**CHANGES_REQUIRED:** LEADMAP008R5-01/02: extracted EN/JA capture labels are not
+actual EN/JA native-name evidence, and new name-feedback text is hardcoded English.
+Finish these finite release gates on the same branch/PR, then propose corrected
+available functionality for acceptance. Active Monster protection live witness,
+Ghost/full seasonal Treasure and terminal owner-only actions remain limited/pending.
+See [current independent review](reviews/2026-10-12-MAP-008-R5-LEAD-REVIEW.md) and
+[one current queue](MAP_008_SCAN_METHOD_CONTINUATION.md). Older negatives are preserved.
+**Current execution priority:** owner permits background native Map work without
+mouse/global keyboard/minimize/focus/window rearrangement. Follow
+[MAP-BACKGROUND-ACQUISITION-010](work-items/LWB317-MAP-BACKGROUND-ACQUISITION-010.md).
+MAP-009 offline source/test scope at `56e472c8` is independently accepted, not a
+new native-route/speed/release acceptance. Small qualified region/direct/remote
+trials precede full-world benchmarks. Main and PR release limits are unchanged.
+**Historical offline phase:** owner was using the computer. Assigned
+[MAP-OFFLINE-ACQUISITION-009](work-items/LWB317-MAP-OFFLINE-ACQUISITION-009.md)
+traces native chat coordinates, region/server requests and per-kind acquisition
+offline, with supported headless improvements. No desktop/live work in this task;
+final captures stay pending. Lead inventory confirms current v24 package entries
+and selected navigation sources decode; a separate original encrypted feature
+controller is not a reason to stop this current-game investigation.
 
 Current owner direction:
 [functional replacement policy](OWNER_DIRECTION_FUNCTIONAL_REPLACEMENT_2026-10-10.md).
