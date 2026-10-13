@@ -377,8 +377,19 @@ Overview; a subsequent task-owned live game registered via UpdateManager,
 returned identity-matched positive general and read-only World inventory
 diagnostics, and visibly rendered the real world scene. Its loaded 65 points
 (63 Cities) are only a local viewport, NOT a full world scan or census.
-The attempted next WorldReady command was blocked by the tool safety check
-before execution. No native AOI scan/camera restoration positive is claimed.
+The earlier WorldReady request was blocked by the tool safety check before
+execution, and was not retried or bypassed. A new separately authorized owned
+session inspected genuine WorldScene data: one native _pointInfos City versus
+567 Cities in the 592-row allViewPoints cache and 63 Cities in uuidInfoMap.
+This demonstrates response/current-view and retained-cache counts diverge,
+NOT that the 4,076 City recall problem is solved.
+A single current-tile native AOI was refused target_aoi_still_current; the
+documented remote-region native AOI attempts were refused
+overview_session_unavailable, including after an exact-owner host lease
+re-admission. No completed AOI or camera-restore positive is claimed.
+The source includes an independent, read-only camera_checkpoint diagnostic
+for future before/after comparison; this has controlled source tests, not a
+live positive with the newly installed Lua chunk.
 A completed AOI progress bar is NOT proof of a complete City census.
 Before testing this build again, ensure the previous task-owned game has exited
 and its deferred native recovery journal has restored the original scripts.

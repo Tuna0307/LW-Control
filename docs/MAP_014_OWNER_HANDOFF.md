@@ -11,8 +11,8 @@ remains merged and retired.
 
 | # | Baseline/reproduction | Cause/source and correction | Executed proof | Remaining limit / witness |
 | --- | --- | --- | --- | --- |
-| 1 camera | Owner home image shows black/stretched scene after scan/return. Previous `coverage` used `SetFOV(120)` and changed Unity `aspect`, while home-restore success only checked logical tile/network flags. | `tools/current_live_resource_probe.lua` captures actual camera position/transform/rotation/projection/FOV/aspect/zoom/anchors, reapplies captured values after `RefreshCameraAnchor`, checks geometry after the fresh home response, and emits before/after evidence. `CurrentClientMapBlockSource.FastCity.cs` now rejects batches without a complete restoration receipt. | Lua AST and Desktop Release compilation; deliberate gate fails closed on missing geometry evidence. | **No new native/visual positive** for finished scan, Stop, timeout/error, and Auto return. Distorted-view actual cause is a strong source-path candidate, not a live-confirmed repair; camera restoration and subscriptions still need direct native comparison. |
-| 2 City 4,076 | Owner City-only completion shows **4,076 all Cities** and **94 for the selected alliance**. Earlier 7,000–7,060 genuine snapshots are comparisons, not a quota. | `GetAllMainBaseList()` emits source/accepted/within-AOI and identity-rejection counts; point-type histogram and `_pointInfos` City count corroborate the retained list. Previously skipped missing owner/index/position candidates now fail the batch. C# validates the independent counts before staging. | Lua source syntax, compiler and controlled existing staging/publication/rollback tests. | **Native acquisition still unqualified**: individual City-only vs mixed, segment replies/cache insertion, subtypes and independently identified missing cities need compatible-session same-window source witness. 100% AOI progress does not certify recall. |
+| 1 camera | Owner home image shows black/stretched scene after scan/return. Previous `coverage` used `SetFOV(120)` and changed Unity `aspect`, while home-restore success only checked logical tile/network flags. | `tools/current_live_resource_probe.lua` captures actual camera position/transform/rotation/projection/FOV/aspect/zoom/anchors, reapplies captured values after `RefreshCameraAnchor`, checks geometry after the fresh home response, and emits before/after evidence. Added independent, identity-checked, strictly read-only `runtime-diagnostic mode=camera_checkpoint` so before/after snapshots can corroborate the self-reported restoration; `CurrentClientMapBlockSource.FastCity.cs` rejects absent geometry receipts. | Lua syntax, 199-active-local ceiling, 15 native source tests; **genuine negative** native AOI requests at same-view tile `507,72` (`target_aoi_still_current`) and source-supported remote tile `455,425` (`overview_session_unavailable`), each declined without a camera-completion receipt; visual Chinese World scene remained undistorted after the rejected attempts. | **No completed native scan/Stop/timeout/Auto-return visual-positive.** The new independent camera checkpoint is source-ready but cannot be tested in the previously loaded Lua chunk; actual projection/anchors/subscriptions and restoration still require a fully admitted AOI with a continuous authenticated owner host. |
+| 2 City 4,076 | Owner City-only completion shows **4,076 all Cities** and **94 for the selected alliance**. Earlier 7,000–7,060 genuine snapshots are comparisons, not a quota. | `GetAllMainBaseList()` emits source/accepted/within-AOI and identity-rejection counts; point-type histogram and `_pointInfos` City count corroborate the retained list. Previously skipped missing owner/index/position candidates fail the batch. C# compares current-point count only as a lower bound, **not** the full retained City count. | Real read-only live snapshot in same WorldScene: `_pointInfos` 1 row/1 City, `allViewPoints` 592 rows/567 Cities, `uuidInfoMap` 64 rows/63 Cities. Historical different session had `_pointInfos` 65/63 Cities. This proves response/current view and cache collections are *not interchangeable*, but not full-world recall; Lua + staging/rollback controlled checks pass. | **Unqualified**: no completed requested AOI, no City-only/mixed comparable region, independent network segments/cache insertion or missing City identities. Do not treat 567 cached visible records or historical 7k as a quota. |
 | 3 cross-server warzones | Header Truck-plunderable options flicker during polling. | A transient missing native `LWTrainDataManager` match list is now `known=false`; `Map317CommandService` keeps prior same-run options on unknown/failed/stale polls and adopts genuine empty updates. | `Map014OwnerFixChecks` exercises successful, transient failed, unknown and authoritative empty polls with actual command/overlay. | Actual Cross-server popover idle/Auto/profile-retire clicks need extracted production/live owner observation. |
 | 4 remote row | After Auto 2213 → 2212, clicking an old 2213 row previously sent coordinates while still on 2212. | `MapActionControlPlane.CoordinateJumpAsync` switches to the row server while retaining its single operation lease, checks reached server and invokes the existing native server-verified coordinate route. Native switch gets its supported bounded completion window. | Controlled same-x/y-on-2212-vs-2213, failed switch, wrong reached server, overlapping operation checks pass. | Live 2213 stored row → 2212 home → 2213 destination and expiry/session retirement witness pending. |
 | 5 Truck Follow, moving Doom | Truck Follow was disabled or fell through coordinate jumping; scan coordinates become stale. Doom `SuperRunningBoss` is sourced from `LWDoomsdayManager.BossVO` with `uid` and `targetPos`. | Mounted UI calls `map_march_follow` for Truck/Railway, keyed by immutable march UUID; polls the supported `GoToUtil.JumpToMarchByUuid` for fresh WorldMarch position, Stop clears polling, scan/arrival/server/tab/profile teardown cancels. No gameplay march. | Real command/call-contract code compiles; existing controlled action-lease and native follow command tests. | **No live moving Truck positive.** Doom boss UID is not proven to be a WorldMarch UUID; do not route it through Truck follow. Needs supported fresh-position tracking command/positive witness. |
@@ -23,7 +23,7 @@ remains merged and retired.
 | 10 reward icons | Truck diagram squares blank. | Existing native `ItemTemplateManager`/`RewardManager` config mapping and `LoadPath.ItemPath` feed native `game_asset_image`, which validates genuine PNG signatures. An item with known identity/name now survives an absent icon (placeholder, count and tooltip retained); query options accept NULL icon path. | Static frontend, native project and query tests. | **Icon restoration is not verified**. Need compatible installed game's real reward ID→path/sprite→PNG bytes→rendered extracted UI. No invented icons or private assets. |
 | 11 Auto Clear | Clear was Manual-only. | Auto invokes the same `map_scan_clear` command/reset; `MapAutoScanCommandService.AcquireMapClearLease` gates Auto admission for the entire asynchronous clear; busy/error/server/profile ownership protections remain backend-enforced. | Actual Map317 clear handler: active-Auto denial, wrong-server denial, correct-server deletion retaining other server; existing Auto ordering/Stop regression suite. | Mounted extracted Auto click and cycle-start inverse positive pending. |
 | 12 scattered supplies | Owner names “Scattered Supplies”. | The installed game-language reference maps `season_s2_ice_supplies_11` to **Scattered Supplies / 散落的物资 / 散乱した物資** (en/zh-CN/ja). Existing read-only world producer stages actual `pointType=27`, `WorldSuppliesPoint` and `LWIceSupplies` `suppliesType=1` under Treasure; type 3+ are separate. The Treasure filter already matches `supplies:1` before pagination. Fixed native-mode UI name loading to **request this derived game key** from its verified game-root/build locale source, even when records omit optional `treasureNameKey`. No ninth synthetic kind or collection. | Exact game-owned locale key/value observed from local read-only `.json.gz`; existing current Lua/C# source chain; Map317 handler/SQLite options, type-1 vs 3 vs ordinary vs foreign-server negatives, and mounted EN/light + JA/dark derived localized filter selection pass controlled checks. | **Source mapped / candidate implemented, no native positive.** Need an actual v24-compatible live season-S2 `WorldSuppliesPoint` whose `LWIceSupplies` config resolves to `type=1`, coordinates/identity, and nonzero delivered rows. Locale alone does not prove a presently spawned point. |
-| 13 Celebration Party Watch | Owner requests another map object. | No matching current-client point/event class/config identity positively recovered from checked localization/source; no supported scanner discriminator exists. | Source and existing selected-kind enumeration inspection. | **Unavailable** pending localization key/Chinese original, event config ID, runtime producer identity and a genuine active-event native sample. No fabricated map object or collection. |
+| 13 Celebration Party Watch | Owner requests another map object. | No matching current-client point/event class/config identity positively recovered from checked localization/source; no supported scanner discriminator exists. Read-only v24 Lua-entry filename inspection found candidate `ActivityPartyMonsterTemplate`, `MusicFestival2025StartPartyBubble` and `LWFireworkManager` modules, but none proves the requested label, exact on-map event or collection. | Compared 18,741 installed Lua entry paths with the read-only localized names; **candidate paths, not a producer positive**. Controlled selected-kind source inspection. | **Unavailable** pending exact Chinese/English label/key, event config ID, world point class and current event-spawned native row. Do not treat a festival UI bubble or attack-monster event as Celebration Party Watch. |
 
 ## Compatibility evidence and boundaries
 
@@ -172,6 +172,62 @@ started during cleanup. Thus there is **no pending native recovery** for this
 session. The full Map/City/camera acceptance dependencies described above
 remain separate and still PARTIAL.
 PR #10 is still open and unmerged; this is not full Map acceptance.
+
+## Final assignment continuation — native AOI admission and cache ledger
+
+Reconfirmed starting branch/PR #10, zero selected Last War process, no pending
+recovery journal, exact original v24/18,741 installed Lua SHA-256
+d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495,
+and positive native check-only **before launch**. Launched one uniquely
+identified test-owned Last War session, **PID 24232**, which genuinely reached
+same-session Ready. Only the game-owned World button was clicked; real Chinese
+WorldScene visuals remained normal. No plunder, sharing, reward claim, squad
+march, attack, spending, language change, or server relocation occurred.
+
+A matching read-only native resource_inventory reply was **proven**. Its
+_pointInfos list contained **1 City / 1 row**, while the same response
+observed allViewPoints **592 rows / 567 Cities** and uuidInfoMap **64 rows /
+63 Cities**; allViewPoints also had 25 AllianceBuildPointInfo. Current
+response delta, retained world cache and UUID lookup have different lifetimes
+and cardinalities. This supports taking retained City rows from
+GetAllMainBaseList rather than _pointInfos, but does **not** establish the
+cause of the historical 4,076 completed-scan City result.
+
+The first bounded native-mode one-AOI request (server 2212, tile 507,72,
+City-only, one index, zero hold, deferred restoration) returned
+state=failed; error=target_aoi_still_current, without beginning a new remote
+request. Another task-owned request using the previously documented MAP-013
+remote region 455,425 returned state=failed;
+error=overview_session_unavailable. A further attempt first verified fresh
+same-owner Ready=true, session/PID/challenge-matched Overview lease and
+heartbeat but received the **same native ownership rejection**. Replies had
+matching request IDs. None can be counted as an acquisition, camera restore,
+or complete City proof; the game WorldScene remained visually normal.
+The previously safety-denied WorldReady operation was **never retried**.
+
+The new runtime-diagnostic mode=camera_checkpoint takes an independent,
+strictly read-only WorldScene camera projection/FOV/aspect/zoom/position/
+rotation/anchor snapshot under existing native identity admission.
+Its source passes Lua's unchanged **199 top-level local** limit, Lua AST and
+15 native observer/source checks. The active task-owned game was launched
+before this modification and therefore did **not** run that newly installed
+Lua mode: no live checkpoint pair has been claimed. Full completed-scan
+camera, Stop/timeout, Auto remote-home, native reply segmentation and
+City-only/mixed comparable-region positives remain unavailable.
+
+Read-only installed Lua entry filename inspection identified candidate
+ActivityPartyMonsterTemplate, MusicFestival2025StartPartyBubble and
+LWFireworkManager code, but none proves the owner's Celebration Party Watch
+label maps to a current native world point. No synthetic Map kind was added;
+the viewport also had no genuine type-27 Scattered Supplies positive.
+
+**Current test-owned native recovery is pending:** Game PID **24232** remained
+running with its own active_ready_deferred_restore journal and intact backup
+at the last observation. Do not overwrite selected scripts while running.
+After this exact test-owned game exits, run the existing native recovery
+helper and verify original v24 Lua/sidecar hashes plus journal clearance.
+The earlier game PID 48952's restoration **was completed**, separately.
+Overall release status is **PARTIAL**.
 
 ## Difference from accepted baseline
 

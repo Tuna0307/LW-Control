@@ -20,7 +20,7 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     # MAP-014 captures its changed production source exactly; the installed game
     # identity gate in inspect_current.py remains unchanged.
-    CURRENT_PROBE_SHA256 = "6b3cb20ce6c3625f6f9210053e1037f845fdb8d404128bf9075d9ba7f4802a65"
+    CURRENT_PROBE_SHA256 = "716d2cb9a4f7a59c8ca86b6d66124e5414a7d09566e5d69a639061b893e516eb"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
     CURRENT_WRAPPER_SHA256 = "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):
@@ -100,6 +100,23 @@ class Map013ObserverSourceTests(unittest.TestCase):
         # First MAP-014 live failures had 206 => the module did not compile.
         self.assertLessEqual(top_level_locals, 200)
         self.assertEqual(top_level_locals, 199)
+
+    def test_independent_camera_checkpoint_is_readonly_and_owner_gated(self):
+        source = bridge.base.resource_probe_source().decode("utf8")
+        self.assertIn('request.mode ~= "camera_checkpoint"', source)
+        self.assertIn('request.mode == "camera_checkpoint"', source)
+        section = source.split('if request.mode == "camera_checkpoint" then', 1)[1].split(
+            'if request.mode == "resource_inventory" then', 1)[0]
+        self.assertIn("runtime_world()", section)
+        self.assertIn("M._map014CameraGeometryCheckpoint(manager, unity_camera)", section)
+        self.assertIn('"camera_geometry_readonly_unavailable"', section)
+        self.assertIn('source = "WorldScene.Camera_UnityCamera_readonly"', section)
+        self.assertNotIn("SetCameraPos", section)
+        self.assertNotIn("UpdateViewRequest", section)
+        self.assertNotIn("SendAoiRequest", section)
+        self.assertLess(source.index('local identity, identity_error = active_overview_identity(now)',
+                                     source.index('local function read_runtime_diagnostic(now)')),
+                        source.index('if request.mode == "camera_checkpoint" then'))
         self.assertIn(b'registrationMethod = registration_method',
                       bridge.base.resource_probe_source())
 

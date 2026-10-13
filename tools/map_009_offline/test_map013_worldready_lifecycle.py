@@ -44,7 +44,7 @@ class WorldReadyLifecycleTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(c.base.wrapper_source()).hexdigest(),
                              "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d")
             self.assertEqual(hashlib.sha256(c.base.packaged_resource_probe_source()).hexdigest(),
-                             "6b3cb20ce6c3625f6f9210053e1037f845fdb8d404128bf9075d9ba7f4802a65")
+                             "716d2cb9a4f7a59c8ca86b6d66124e5414a7d09566e5d69a639061b893e516eb")
 
     def test_real_source_syntax_order_and_all_observation_boundaries(self):
         original = self.original.decode("utf-8").replace("\r\n", "\n")

@@ -5,9 +5,15 @@ Owner assignment, 2026-10-13. Status: PARTIAL implementation / functional review
 
 Active source changes, the compact 13-obligation matrix, controls tested and
 exact remaining compatibility/native witness dependencies are recorded in
-[`MAP_014_OWNER_HANDOFF.md`](../MAP_014_OWNER_HANDOFF.md). The installed package
-hash currently fails the preserved native admission gate; no live success may be
-inferred from controlled tests or older scanner totals.
+[`MAP_014_OWNER_HANDOFF.md`](../MAP_014_OWNER_HANDOFF.md). The installed
+original game is v24/18,741 entries and passed the preserved SHA/anchor
+compatibility gate **before the new owned native test**. Genuine same-session
+Ready, read-only native general/World inventory and Chinese World GUI positives
+exist, but **not** a completed native full Map scan or exact camera-return
+proof. The current isolated test session must exit and its recorded backup be
+restored before release/normal owner play. Do not confuse controlled scanner
+tests, an admitted runtime diagnostic, or historical totals with that missing
+functional acceptance.
 Released product source is `6f93c109436ebb80f4f344ad25380151b4f9aba5`;
 pre-assignment main checkpoint is `78e9ea0fab60644075bbb7d9154ce320cc49ed70`.
 Preserve accepted single-game Home, published data and historical negative trials.

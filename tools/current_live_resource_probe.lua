@@ -1915,7 +1915,8 @@ local function read_runtime_diagnostic(now)
         request.error = "runtime_diagnostic_invalid"
         return request
     end
-    if request.mode ~= "general" and request.mode ~= "resource_inventory" then
+    if request.mode ~= "general" and request.mode ~= "resource_inventory" and
+       request.mode ~= "camera_checkpoint" then
         request.error = "runtime_diagnostic_mode_invalid"
         return request
     end
@@ -1962,6 +1963,7 @@ local function write_runtime_diagnostic_result(request, state, error_text, detai
         state = state,
         error = error_text,
         resourceInventory = details.resourceInventory,
+        cameraSnapshot = details.cameraSnapshot,
         globalGameEntry = details.globalGameEntry,
         csGameEntry = details.csGameEntry,
         luaEntry = details.luaEntry,
@@ -2028,6 +2030,32 @@ local function pump_runtime_diagnostic(now)
     if request == nil then return false end
     if request.error ~= nil then
         write_runtime_diagnostic_result(request, "failed", request.error, nil)
+        return true
+    end
+    if request.mode == "camera_checkpoint" then
+        -- Independent, strictly read-only scene/camera baseline. This is
+        -- intentionally separate from the bulk-AOI producer's own restore
+        -- receipt: a second observation can catch an optimistic restore flag.
+        local world, _, world_error = runtime_world()
+        if world == nil then
+            write_runtime_diagnostic_result(request, "failed", world_error or "world_unavailable", nil)
+            return true
+        end
+        local manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+        local unity_camera = manager and (safe_get(manager, "__camera") or reflected_value(manager, "camera")) or nil
+        local observed = M._map014CameraGeometryCheckpoint(manager, unity_camera)
+        if observed == nil or observed.fov == nil or observed.aspect == nil or observed.zoom == nil or
+           observed.position == nil or observed.rotation == nil or observed.projection == nil then
+            write_runtime_diagnostic_result(request, "failed", "camera_geometry_readonly_unavailable", nil)
+            return true
+        end
+        write_runtime_diagnostic_result(request, "proven", nil, {
+            cameraSnapshot = {
+                source = "WorldScene.Camera_UnityCamera_readonly",
+                serverId = current_server_id(),
+                geometry = observed,
+            },
+        })
         return true
     end
     if request.mode == "resource_inventory" then
