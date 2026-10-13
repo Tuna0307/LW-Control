@@ -1,5 +1,6 @@
 // Recovered Map table presentation. Exact source locators are recorded under
 // evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/.
+import { mapOwnerFilterLabel } from "./mapOwnerFilters.js";
 
 const LIVE_TARGET_KINDS = new Set(["truck", "railway"]);
 const TREASURE_TYPE_KEYS = {
@@ -60,6 +61,22 @@ export function mapResourceStatus(row, t, texts) {
   if (occupied === null) return "—";
   return lookupMapText(texts, occupied ? "300039" : "372138", t(occupied ? "map.resourceGathering" : "map.resourceIdle"));
 }
+export function mapResourceAmount(row, language) {
+  // Native amount is separate from occupancy. Never render missing/null
+  // detail as "0 / 0" just because Number(null) happens to be zero.
+  if (row.resourceDetailKnown !== true || row.resourceRemainingAmount == null || row.resourceFullAmount == null)
+    return "—";
+  const remaining = Number(row.resourceRemainingAmount);
+  const full = Number(row.resourceFullAmount);
+  return Number.isSafeInteger(remaining) && Number.isSafeInteger(full) &&
+    remaining >= 0 && full >= remaining
+    ? `${mapNumber(remaining, language)} / ${mapNumber(full, language)}` : "—";
+}
+export function mapResourceTerrain(row, language) {
+  if (row.blackTileKnown !== true || typeof row.isBlackTile !== "boolean")
+    return mapOwnerFilterLabel(language, "unknown");
+  return mapOwnerFilterLabel(language, row.isBlackTile ? "black" : "normal");
+}
 export function mapDuration(value) {
   if (!Number.isFinite(value) || value < 0) return "-";
   const seconds = Math.floor(value / 1000);
@@ -101,7 +118,7 @@ function treasureTypeKey(type) {
   const number = Number(type);
   return Number.isFinite(number) && TREASURE_TYPE_KEYS[number] ? TREASURE_TYPE_KEYS[number] : "map.treasureTypeUnknown";
 }
-function suppliesNameKey(type) {
+export function suppliesNameKey(type) {
   const number = Number(type);
   return number === 1 ? "season_s2_ice_supplies_11" : number === 3 ? "season_s3_supplies_1"
     : number === 4 ? "season4_supplies_name_2" : "";
@@ -190,12 +207,17 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     sortBy: `level`,
     value: e => mapNumber(field(e, `level`), language)
   }, {
+    label: mapOwnerFilterLabel(language, "amount"),
+    width: `150px`,
+    value: e => mapResourceAmount(e, language)
+  }, {
+    label: mapOwnerFilterLabel(language, "terrain"),
+    width: `120px`,
+    value: e => mapResourceTerrain(e, language)
+  }, {
     label: t(`common.status`),
     width: `80px`,
-    value: e => {
-      let n = originalResourceOccupied(e);
-      return lookupMapText(gameTexts, n ? `300039` : `372138`, t(n ? `map.resourceGathering` : `map.resourceIdle`));
-    }
+    value: e => mapResourceStatus(e, t, gameTexts)
   }, updated] : kind === `monster` ? [coordinates, {
     label: t(`common.name`),
     width: `minmax(150px, 1fr)`,

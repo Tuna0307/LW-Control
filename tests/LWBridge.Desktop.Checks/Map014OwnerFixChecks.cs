@@ -66,6 +66,21 @@ internal static class Map014OwnerFixChecks
                     new { ownerUid = exactUid, ownerName = (string?)null, completionTime = 7000000000000L });
                 Insert(store, "dispatch", "unknownOwnerTask", 2213, 6, null,
                     new { ownerUid = "990000000000000001", completionTime = 7000000000000L });
+                // Scattered Supplies is not a speculative ninth scanner kind:
+                // native WorldSuppliesPoint pointType=27 and LWIceSupplies
+                // config type=1 are already stored as Treasure suppliesType=1.
+                Insert(store, "treasure", "seasonIceSupply", 2213, null, null,
+                    new { pointType = 27, runtimeClass = "WorldSuppliesPoint", suppliesType = 1,
+                        treasureType = 0, configId = 301 });
+                Insert(store, "treasure", "otherSeasonSupply", 2213, null, null,
+                    new { pointType = 27, runtimeClass = "WorldSuppliesPoint", suppliesType = 3,
+                        treasureType = 0, configId = 302 });
+                Insert(store, "treasure", "ordinaryTreasure", 2213, null, null,
+                    new { pointType = 21, runtimeClass = "TreasurePointInfo", suppliesType = 0,
+                        treasureType = 19 });
+                Insert(store, "treasure", "foreignServerIceSupply", 2212, null, null,
+                    new { pointType = 27, runtimeClass = "WorldSuppliesPoint", suppliesType = 1,
+                        treasureType = 0, configId = 301 });
                 Insert(store, "truck", "bothAtLimit", 2213, null, 25_000_000,
                     new { currentGoods = new[] { new { key = "diamonds:100", count = 1 }, new { key = "speedup:5m", count = 3 } } });
                 Insert(store, "truck", "diamondOnly", 2213, null, 24_999_999,
@@ -150,6 +165,23 @@ internal static class Map014OwnerFixChecks
                 resourceAmountState = "partial", resourceTileState = "unknown" }) == 1, "combined level/amount/terrain");
             Require(await Count("resource", new { serverId = 2213, minLevel = 7, maxLevel = 7,
                 resourceAmountState = "unknown", resourceTileState = "black" }) == 1, "unknown + black independent");
+            Require(await Count("treasure", new { serverId = 2213 }) == 3,
+                "genuine Treasure and season supplies remain separate stored identities");
+            Require(await Count("treasure", new { serverId = 2213, suppliesType = 1 }) == 1,
+                "Scattered Supplies maps only to LWIceSupplies type 1");
+            Require(await Count("treasure", new { serverId = 2213, suppliesType = 3 }) == 1,
+                "different season supply must not be mislabeled Scattered Supplies");
+            Require(await Count("treasure", new { serverId = 2213, treasureType = 19 }) == 1,
+                "ordinary Treasure cannot be conflated with season supply");
+            Require(await Count("treasure", new { serverId = 2213, suppliesType = 1, treasureType = 19 }) == 0,
+                "conflicting source identities must fail closed");
+            JsonElement supplyOptions = await Invoke(service, "map_data_options", new { serverId = 2213 });
+            JsonElement iceOption = supplyOptions.GetProperty("treasureTypes").EnumerateArray()
+                .Single(row => row.GetProperty("key").GetString() == "supplies:1");
+            Require(iceOption.GetProperty("suppliesType").GetInt32() == 1 &&
+                iceOption.GetProperty("treasureType").GetInt32() == 0 &&
+                iceOption.GetProperty("count").GetInt32() == 1,
+                "real Map options expose the already-supported Scattered Supplies discriminator");
             JsonElement ownerRows = await Invoke(service, "map_search", new { kind = "dispatch", query = new { serverId = 2213, pageSize = 10 } });
             JsonElement matchingTask = ownerRows.GetProperty("rows").EnumerateArray().Single(row => row.GetProperty("uuid").GetString() == "matchingTask");
             Require(matchingTask.GetProperty("ownerUid").GetString() == "9912345678901234567" &&
@@ -237,7 +269,7 @@ internal static class Map014OwnerFixChecks
                 await Count("resource", new { serverId = 2212 }) == 1,
                 "Auto/Manual canonical Clear acknowledgment deletes only the live target server");
 
-            Console.WriteLine("MAP014_CANONICAL_FILTERS_REMOTE_ROW_WARZONE_CLEAR_CONTROLLED_OK");
+            Console.WriteLine("MAP014_CANONICAL_FILTERS_SCATTERED_SUPPLIES_REMOTE_ROW_WARZONE_CLEAR_CONTROLLED_OK");
         }
         finally
         {

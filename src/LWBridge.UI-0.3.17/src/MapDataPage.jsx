@@ -20,7 +20,7 @@ import {
   removeAutoServerId,
 } from "./mapAutoConfig.js";
 import { useI18n } from "./i18n.jsx";
-import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState } from "./mapTablePresentation.js";
+import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState, suppliesNameKey } from "./mapTablePresentation.js";
 import {
   DEFAULT_RANDOM_DELAY_TEXT,
   SCHEDULING_PROVIDER_METHODS,
@@ -347,8 +347,11 @@ export function MapDataPage({
   const knownNameKeys = useMemo(() => [...new Set([
     ...(options?.names?.resource || []).map((item) => item.key),
     ...(options?.names?.monster || []).map((item) => item.key),
-    ...(options?.treasureTypes || []).map((item) => item.treasureNameKey),
-    ...rows.map((row) => row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    // WorldSuppliesPoint config type has a game-owned localization key even
+    // when a retained row has no optional treasureNameKey. Request that key
+    // from the verified installed-build locale loader before showing labels.
+    ...(options?.treasureTypes || []).map((item) => suppliesNameKey(item.suppliesType) || item.treasureNameKey),
+    ...rows.map((row) => suppliesNameKey(row.suppliesType) || row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
     "300039", "372138",
   ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
   const nameKeySignature = knownNameKeys.join("\u0000");

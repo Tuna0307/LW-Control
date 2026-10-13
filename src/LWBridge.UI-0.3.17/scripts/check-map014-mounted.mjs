@@ -3,11 +3,19 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEscortMillions } from "../src/mapOwnerFilters.js";
+import { mapResourceAmount, mapResourceTerrain, mapResourceStatus } from "../src/mapTablePresentation.js";
 
 assert.deepEqual(parseEscortMillions("25.5"), { valid: true, value: 25.5 });
 assert.deepEqual(parseEscortMillions(""), { valid: true, value: null });
 for (const invalid of ["-1", "25e1", "Infinity", "NaN", " ", "1000000001"])
   assert.equal(parseEscortMillions(invalid).valid, false, `invalid cap ${invalid}`);
+assert.equal(mapResourceAmount({ resourceDetailKnown: false, resourceRemainingAmount: null, resourceFullAmount: null }, "en"), "—");
+assert.equal(mapResourceAmount({ resourceDetailKnown: true, resourceRemainingAmount: 200, resourceFullAmount: 8000 }, "en"), "200 / 8,000");
+assert.equal(mapResourceAmount({ resourceDetailKnown: true, resourceRemainingAmount: null, resourceFullAmount: null }, "en"), "—");
+assert.equal(mapResourceAmount({ resourceDetailKnown: true, resourceRemainingAmount: 9000, resourceFullAmount: 8000 }, "en"), "—");
+assert.equal(mapResourceTerrain({ blackTileKnown: false, isBlackTile: false }, "en"), "Unknown");
+assert.equal(mapResourceTerrain({ blackTileKnown: true, isBlackTile: true }, "en"), "Black tile");
+assert.equal(mapResourceStatus({ rebuildGatherOccupancyKnown: false }, (key) => key, {}), "—");
 
 const rootPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const req = createRequire(path.join(rootPath, "package.json"));
@@ -47,13 +55,35 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   const queries = [], clears = [], follows = [];
   const state = { serverId: 2212, serverIdSource: "live", isReading: false, phase: "idle", selectedTypes: ["resource", "truck"], scanMode: "normal" };
   const rewards = [{ key: "reward:1:100", name: "Genuine Item A", iconPath: null }, { key: "reward:1:500", name: "Genuine Item B", iconPath: null }];
+  const sourceSupplies = [{ key: "supplies:1", count: 1, suppliesType: 1, treasureType: 0 },
+    { key: "supplies:3", count: 1, suppliesType: 3, treasureType: 0 }];
+  const resources = [
+    { uuid: "resource-confirmed", serverId: 2212, x: 20, y: 30, level: 7,
+      resourceDetailKnown: true, resourceRemainingAmount: 200, resourceFullAmount: 8000,
+      blackTileKnown: true, isBlackTile: true, rebuildGatherOccupancyKnown: true, rebuildGatherOccupied: true },
+    { uuid: "resource-unknown", serverId: 2212, x: 22, y: 32, level: 8,
+      resourceDetailKnown: false, blackTileKnown: false, rebuildGatherOccupancyKnown: false },
+  ];
+  const supportedNames = {
+    season_s2_ice_supplies_11: language === "ja" ? "散乱した物資" : "Scattered Supplies",
+    "300039": language === "ja" ? "採集中" : "Gathering", "372138": language === "ja" ? "待機中" : "Idle",
+  };
+  // Normal/native mode ignores fixture gameTexts props and requires a verified
+  // per-owner, per-root locale loader, even when Map options already contain a
+  // known config type. Model that read contract without claiming real game IO.
+  const gameTextRoot = "C:\\controlled\\map014-game";
+  const gameTextLoader = async ({ language: requestedLanguage, keys }) => ({
+    language: requestedLanguage, buildId: "CONTROLLED-v24", localeSha256: "controlled-locale-sha",
+    englishSha256: "controlled-en-sha", gameRoot: gameTextRoot,
+    texts: Object.fromEntries(keys.map((key) => [key, supportedNames[key] || key])),
+  });
   const api = {
     dataOptions: async (serverId) => ({ serverId, counts: { resource: 2, truck: 1 }, names: { resource: [], monster: [] },
-      alliances: [], noAllianceCount: 0, dispatchLevels: [], treasureTypes: [], rewardItems: { truck: rewards, railway: [] } }),
-    search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "truck"
+      alliances: [], noAllianceCount: 0, dispatchLevels: [], treasureTypes: sourceSupplies, rewardItems: { truck: rewards, railway: [] } }),
+    search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "resource" ? resources : kind === "truck"
       ? [{ uuid: "t-1", serverId: 2212, marchUuid: "1234567", arriveTs: Date.now() + 3600000,
         quality: 5, power: 25000000, currentGoods: rewards.map((item) => ({ ...item, count: 2 })) }] : [],
-      total: kind === "truck" ? 1 : 0 }; },
+      total: kind === "truck" ? 1 : kind === "resource" ? 2 : 0 }; },
     listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
     marchFollow: async (row) => { follows.push(`${row.serverId}:${String(row.marchUuid)}`); },
     scanStatus: async () => state,
@@ -64,7 +94,7 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   const render = () => flush(() => root.render(React.createElement(I18nProvider, { key: language }, React.createElement(MapDataPage,
     { mapApi: api, bridgeMode: "native", backendAvailable: true, online: true, currentServerId: 2212,
       onState() {}, onCounts() {}, scanState: state, summary: { serverId: 2212, counts: { resource: 2, truck: 1 } },
-      autoScanRunning: autoRunning, gameTexts: {} }))));
+      autoScanRunning: autoRunning, gameTextLoader, gameTextOwner: "controlled-owner", gameTextRoot }))));
   const click = (el) => flush(() => { assert.ok(el, "mounted control missing"); assert.equal(el.disabled, false);
     el.dispatchEvent(new MouseEvent("click", { bubbles: true })); });
   const change = (el, value) => flush(() => { assert.ok(el, "mounted field missing");
@@ -76,6 +106,10 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   const field = (name) => [...document.querySelectorAll(".map-searchbar [aria-label]")]
     .find((el) => el.getAttribute("aria-label")?.includes(name));
   await render(); await goto(1);
+  const resourceTable = document.querySelector(".map-table--resource")?.textContent || "";
+  assert.match(resourceTable, /200\s*\/\s*8,000/, "mounted Resource lacks genuine known amount");
+  assert.ok(resourceTable.includes(language === "ja" ? "不明" : "Unknown"), "unconfirmed terrain misrepresented");
+  assert.ok(!resourceTable.includes("0 / 0"), "unknown native amount became fabricated zero");
   const labels = language === "en" ? ["Min level", "Max level", "Resource amount", "Tile terrain"]
     : ["最低レベル", "最高レベル", "資源残量", "タイル地形"];
   await change(field(labels[0]), "7"); await change(field(labels[1]), "9");
@@ -98,6 +132,15 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.deepEqual(queries.at(-1).query.itemKeys, ["reward:1:500"]);
   await click(document.querySelectorAll(".map-item-filter-menu button")[0]); await search();
   assert.equal(queries.at(-1).query.itemKeys, undefined, "clear did not remove reward constraints");
+  await goto(7); // Treasure: seasonal supplies are an existing native subkind, not a fictitious ninth scanner type.
+  const scatteredName = language === "ja" ? "散乱した物資" : "Scattered Supplies";
+  const typeOptions = [...document.querySelectorAll(".map-item-filter-menu button")].map((button) => button.textContent.trim());
+  assert.ok(typeOptions.some((value) => value.includes(scatteredName)),
+    `Scattered Supplies is absent from the native-discriminated Treasure filter: ${JSON.stringify({ typeOptions, tab: document.querySelector(".map-tabs [aria-selected=true]")?.textContent, knownText: document.body.textContent.includes(scatteredName) })}`);
+  await click(document.querySelectorAll(".map-item-filter-menu button")[1]); await search();
+  assert.equal(queries.at(-1).kind, "treasure");
+  assert.equal(queries.at(-1).query.suppliesType, 1, "Scattered Supplies must filter native suppliesType=1");
+  assert.equal(queries.at(-1).query.treasureType, 0, "ordinary Treasure type is distinct");
   await click(document.querySelectorAll(".map-scan-tabs [role=tab]")[1]);
   await click(document.querySelector(".map-auto-scan-options button:last-of-type"));
   assert.deepEqual(clears, [2212], "Auto Clear did not call canonical command");

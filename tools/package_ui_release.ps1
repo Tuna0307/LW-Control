@@ -352,6 +352,8 @@ if ($ReleaseLabel -eq 'MAP014-OWNER') {
 MAP-014 OWNER FIXES — PARTIAL FUNCTIONAL REVIEW CANDIDATE
 Map Resource level, confirmed full/partial/unknown amount, and
 black/normal/unknown tile filters run in the canonical Map317 backend.
+The Resource results table shows verified remaining/full amount and terrain,
+leaving missing native facts explicitly unknown (not zero, idle or full).
 Truck filters support an inclusive maximum escort power in millions and
 multiple native reward identities with ALL matching. The same Map clear command
 is available in Auto and Manual; active scan/Auto-cycle admission is protected.
@@ -365,8 +367,11 @@ The full camera projection/transform restoration gate and City candidate
 identity accounting require a fresh independently compatible game build for
 live verification. The installed game's current package failed the locked
 native compatibility check on 2026-10-13. A completed AOI progress bar is
-NOT proof of a complete City census. Moving Doom Walkers and the requested
-new map object classes need source-backed identity/positive native witnesses.
+NOT proof of a complete City census. Moving Doom Walkers and Celebration Party
+Watch need source-backed identity/positive native witnesses. The installed
+game reference identifies Scattered Supplies as seasonal WorldSuppliesPoint
+type 1 under the existing Treasure kind; the native-mode game-name loader now
+requests that exact derived key. This is source-backed, NOT live seasonal proof.
 Blank Truck icons have a supported installed-game asset reader and their
 genuine item identities are preserved, but real reward PNG results are not
 certified. Historical negative evidence remains unchanged; no gameplay
