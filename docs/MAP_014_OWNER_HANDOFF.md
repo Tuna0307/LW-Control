@@ -157,14 +157,20 @@ request, camera movement/restore experiment, full-world scan, remote server
 change, moving Truck Follow, claim, plunder, march or other gameplay action
 was performed. Full Map/City/camera functional acceptance is **still PARTIAL**.
 
-**Current deferred native recovery dependency:** Follow-up task-owned Last War
-**PID 48952** remains active at last observation with its SHA-verified native
-backup intact and overview-bridge/recovery.json in
-active_ready_deferred_restore. Once the owner closes that test game, first
-verify that the selected game process is absent; invoke
-python tools/recover_overview_pending_current.py and verify the original v24
-18,741-entry hash, three exact restored file hashes and journal clearance.
-Never overwrite installed scripts while the selected game is running.
+**Final test-owned recovery COMPLETED after owner exit:** The owner closed the
+follow-up Last War game, PID **48952**. Process inspection verified **no
+LastWar.exe** process remained; its original recovery journal still identified
+that exact PID, stage `active_ready_deferred_restore`, and the intact owned
+backup. With the game closed, `python tools/recover_overview_pending_current.py`
+returned `ok=true`, `restored=true`, `compatibilityOk=true`; the restored
+`LWScripts.data` SHA-256 is
+`d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495`,
+v24, 18,741 entries. Exact hashes for both metadata/version sidecars also
+matched the backed-up originals, `recovery.json` was absent after recovery,
+and a second game-process check found **none**. No new Last War session was
+started during cleanup. Thus there is **no pending native recovery** for this
+session. The full Map/City/camera acceptance dependencies described above
+remain separate and still PARTIAL.
 PR #10 is still open and unmerged; this is not full Map acceptance.
 
 ## Difference from accepted baseline
