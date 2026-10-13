@@ -29,6 +29,7 @@ class WorldReadyLifecycleTests(unittest.TestCase):
     # Historical MAP-013 bridge SHA: 559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0.
     # Historical probe SHA: 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     # Pre-live-MAP014 candidate probe SHA: c074605929a248cc2a1a30bd54d0585b54e758f7c034767af9806ff73c29faf2.
+    # Previous native Ready wrapper SHA: 6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101.
     @classmethod
     def setUpClass(cls):
         cls.original = (TOOLS / "current_overview_bridge.lua").read_bytes()
@@ -41,9 +42,9 @@ class WorldReadyLifecycleTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(c.base.bridge_source()).hexdigest(),
                              "ea7014202b8279ed6cd6a8df873192eb0a99d4973d230cff17250a43014f137b")
             self.assertEqual(hashlib.sha256(c.base.wrapper_source()).hexdigest(),
-                             "6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101")
+                             "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d")
             self.assertEqual(hashlib.sha256(c.base.packaged_resource_probe_source()).hexdigest(),
-                             "48774df6d133fc63a7a2fc740295effc76e844fb61d34170308e917b5d4f4212")
+                             "6b3cb20ce6c3625f6f9210053e1037f845fdb8d404128bf9075d9ba7f4802a65")
 
     def test_real_source_syntax_order_and_all_observation_boundaries(self):
         original = self.original.decode("utf-8").replace("\r\n", "\n")

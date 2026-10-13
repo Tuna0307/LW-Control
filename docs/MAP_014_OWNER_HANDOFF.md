@@ -91,7 +91,7 @@ game-language change was initiated. A session-identity-scoped, read-only
 the live Map/camera/census functionality is therefore **still unverified**.
 The local private receipts are in ignored `artifacts/map014_live_retry3/`.
 
-**Operational restoration pending:** An attempted exact task-owned Overview
+**Earlier operational restoration (subsequently completed):** An attempted exact task-owned Overview
 `stop`/restore command was blocked by the tool safety check before execution.
 Do not claim cleanup succeeded or force another process. At the final observation,
 the task-owned Last War game PID **4592** was still running; its validated native
@@ -99,12 +99,73 @@ the task-owned Last War game PID **4592** was still running; its validated nativ
 its exact backup intact. After the game has exited under authorized control,
 use the existing `recover_overview_pending_current.py` under its native operation
 lease; verify the triplet SHA and journal clearance before any subsequent launch.
-Keep this in the lead handoff as an explicit unresolved restoration dependency.
+This earlier PID 4592 was closed by the owner. In the following turn the
+supported recovery helper verified and restored the original v24 scripts
+and cleared that journal. See the newer session below for the current
+deferred-restoration dependency.
 
 The historical MAP-013 negatives remain valid. No experimental camera-free or
 consecutive-region request path was enabled. Successful controlled checks are not
 live Map scan proof; Scattered Supplies still needs a native active-season
 point positive and Celebration Party Watch needs an exact native producer.
+
+## Owner-authorized native resumption — real world observations (2026-10-13)
+
+After the owner closed old game PID 4592, the selected installation contained
+**no game process**. The supported recovery helper completed and verified all
+three original file SHA-256 hashes: LWScripts.data
+d520dcd3b6f2b2c02ec3c4e42c2dc34fada513a4af955337401a2868d90ab495,
+v24, 18,741 entries, and **no recovery journal**. The native game
+compatibility guard was never relaxed.
+
+New source finding: the LuaEntry wrapper retried Overview bridge.Register when
+Unity UpdateManager became available, but the independent Map resource probe
+Register ran only once at early module load. In the previous Ready session,
+Overview heartbeats continued after the Map probe heartbeat stopped.
+run_overview_bridge.py now retries probe.Register at that exact idempotent
+lifecycle seam; the Map heartbeat also reports registrationMethod. The fresh
+official game launch passed authenticated same-session Ready, and the actual
+Map heartbeat confirmed **UpdateManager.AddUpdate**.
+
+The standalone launch helper returns immediately after Ready: unlike the real
+desktop host, it does **not** keep the native session lease fresh. Overview
+then reports **host_lease_stale** and refuses even passive Map commands. This
+was the previously unrecognized cause of the earlier read-only diagnostic
+timeout; that failure was NOT evidence of broken Map acquisition. During
+this isolated task-owned test, the existing helper write_lease renewed **only**
+the exact launched session/challenge after independently matching its native
+journal, control, Ready receipt and sole game PID. Renewal was bounded to each
+read-only request and ceased afterward. This is a test-host continuation,
+not a production app reconnect positive.
+
+A fresh native runtime-diagnostic in general mode returned **proven**,
+matching the game PID/session/challenge/profile, with serverPositive=true,
+worldPosPositive=true and a fresh Map heartbeat. Using the explicit desktop
+permission, the test clicked the normal World button in the Chinese-language
+game; the real world-map scene visibly rendered. A further *read-only*
+resource_inventory diagnostic returned **proven** from this real WorldScene:
+the loaded pointInfos collection declared and enumerated **65/65** records,
+consisting of **63 pointType 6 Cities, one pointType 7 Resource and one
+pointType 15**. These are only the currently loaded local viewport, **not**
+a full-world City count and not a comparison with 4,076/7,000 City results.
+Private fresh native receipts are retained under the ignored
+artifacts/map014_live_resume_20261013 folder.
+
+The subsequent proposed same-session WorldReady command was blocked by the
+tool safety check **before execution**. No workaround, bulk native AOI
+request, camera movement/restore experiment, full-world scan, remote server
+change, moving Truck Follow, claim, plunder, march or other gameplay action
+was performed. Full Map/City/camera functional acceptance is **still PARTIAL**.
+
+**Current deferred native recovery dependency:** Follow-up task-owned Last War
+**PID 48952** remains active at last observation with its SHA-verified native
+backup intact and overview-bridge/recovery.json in
+active_ready_deferred_restore. Once the owner closes that test game, first
+verify that the selected game process is absent; invoke
+python tools/recover_overview_pending_current.py and verify the original v24
+18,741-entry hash, three exact restored file hashes and journal clearance.
+Never overwrite installed scripts while the selected game is running.
+PR #10 is still open and unmerged; this is not full Map acceptance.
 
 ## Difference from accepted baseline
 

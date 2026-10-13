@@ -674,6 +674,7 @@ local function write_heartbeat(now)
         probeVersion = M.VERSION,
         updatedAt = now,
         phase = phase,
+        registrationMethod = registration_method,
         requestId = active_request_id,
         launchSessionId = active_launch_session_id,
         profileId = active_profile_id,

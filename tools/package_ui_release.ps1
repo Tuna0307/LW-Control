@@ -370,9 +370,16 @@ native Lua installation left in place, NOT an official game update; the
 original v24 package was restored and verified by the existing owner journal.
 The MAP-014 Lua probe exceeded Lua's 200 top-level-local limit (206); its
 corrected 199-local probe reached genuine game-side authenticated Ready and
-displayed the Chinese-language home scene. The follow-up read-only Map
-diagnostic did not return a fresh response; no Map scan/camera positive is
-claimed. A completed AOI progress bar is NOT proof of a complete City census.
+displayed the Chinese-language home scene. The initial direct-helper native
+diagnostic failed after the helper returned and its host lease went stale.
+The corrected native lifecycle now retries Map probe registration alongside
+Overview; a subsequent task-owned live game registered via UpdateManager,
+returned identity-matched positive general and read-only World inventory
+diagnostics, and visibly rendered the real world scene. Its loaded 65 points
+(63 Cities) are only a local viewport, NOT a full world scan or census.
+The attempted next WorldReady command was blocked by the tool safety check
+before execution. No native AOI scan/camera restoration positive is claimed.
+A completed AOI progress bar is NOT proof of a complete City census.
 Before testing this build again, ensure the previous task-owned game has exited
 and its deferred native recovery journal has restored the original scripts.
 Do not force restore/overwrite a running game. Moving Doom Walkers and Celebration Party

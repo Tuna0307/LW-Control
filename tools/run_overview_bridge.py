@@ -138,6 +138,20 @@ def packaged_resource_probe_source() -> bytes:
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
     between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    # LuaEntry can load before UpdateManager / the game timer exists. Overview
+    # retries Register on later original lifecycle calls, but the Map probe
+    # formerly tried only once at module load and then stopped pumping as soon
+    # as the lifecycle wrapper became idle. Reuse the proven retry seam for
+    # the independent read-only Map producer, with Register idempotent.
+    probe_registration_seam = b'    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n'
+    if between.count(probe_registration_seam) != 1:
+        raise OverviewBridgeError("Overview/probe lifecycle registration seam is not unique")
+    between = between.replace(
+        probe_registration_seam,
+        b'    if type(probe.Register) == "function" then pcall(probe.Register) end\n'
+        + probe_registration_seam,
+        1,
+    )
     extension = os.environ.get("LWBRIDGE_MAP013_WRAPPER_TRACE")
     if extension:
         isolation_root = os.environ.get("LWBRIDGE_REBUILD_DATA_ROOT")

@@ -20,9 +20,9 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
     # MAP-014 captures its changed production source exactly; the installed game
     # identity gate in inspect_current.py remains unchanged.
-    CURRENT_PROBE_SHA256 = "48774df6d133fc63a7a2fc740295effc76e844fb61d34170308e917b5d4f4212"
+    CURRENT_PROBE_SHA256 = "6b3cb20ce6c3625f6f9210053e1037f845fdb8d404128bf9075d9ba7f4802a65"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
-    CURRENT_WRAPPER_SHA256 = "6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101"
+    CURRENT_WRAPPER_SHA256 = "7a4b7c02f3e1968a7aa2b0571ed8a6577fc12fc91f5f30fa413dbaa4f7376a7d"
     def test_no_opt_in_is_bit_identical_to_current_bridge(self):
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("LWBRIDGE_MAP013_PRIVATE_TRACE", None)
@@ -100,6 +100,22 @@ class Map013ObserverSourceTests(unittest.TestCase):
         # First MAP-014 live failures had 206 => the module did not compile.
         self.assertLessEqual(top_level_locals, 200)
         self.assertEqual(top_level_locals, 199)
+        self.assertIn(b'registrationMethod = registration_method',
+                      bridge.base.resource_probe_source())
+
+    def test_late_update_registration_retries_both_native_producers(self):
+        wrapper = bridge.base.wrapper_source()
+        original_register = b'if type(bridge.Register) == "function" then pcall(bridge.Register) end'
+        probe_register = b'if type(probe.Register) == "function" then pcall(probe.Register) end'
+        original_pump = b'if type(bridge.Pump) == "function" then pcall(bridge.Pump) end'
+        probe_pump = b'if type(probe.Pump) == "function" then'
+        self.assertEqual(wrapper.count(probe_register), 1)
+        self.assertTrue(0 <= wrapper.index(original_register) <
+                        wrapper.index(probe_register) <
+                        wrapper.index(original_pump) <
+                        wrapper.index(probe_pump))
+        self.assertIn(b'if registration_method ~= nil then return true end',
+                      bridge.base.resource_probe_source())
 
 
 if __name__ == "__main__":
