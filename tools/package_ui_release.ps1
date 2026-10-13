@@ -344,6 +344,44 @@ This remains an unmerged lead-review candidate. No merge/publication.
     }
     $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP-SCANNER-TEST') {
+    $readme = @"
+LW-Control — current verified scanner test build
+Source commit: $sourceCommit
+
+Extract the WHOLE ZIP into a writable Windows x64 folder. Run Launch LWBridge.cmd.
+Requires .NET 10 Desktop Runtime, Microsoft Edge WebView2 Runtime and Python
+for game integration. Auto Launch Game is ON by default; normal startup can
+launch Last War. Close another copy of LW-Control before starting this build.
+
+SUPPORTED TEST SCOPE
+Single-game Home and the established camera-assisted shared Map scan are retained.
+City, Resource, Monster, Truck, Railway and Dispatch have genuine acquisition
+evidence. Selected types share one discovery sweep with separate enrichment.
+Spatial acquisition waits for the native response before restoring the camera.
+Resource/Monster names use installed-game locale data. Saved server browsing
+and profile changes retire obsolete responses. Auto Stop settles before return.
+
+Normal and Fast remain available. Neither has a proven repeatable material speed
+advantage. Prior full-world measurements were approximately 3–3.5 minutes/server;
+this build does not claim a new speed improvement or perfect population recall.
+Remote full-map discovery uses the supported server-view switch-and-return route.
+
+NOT COMPLETED
+Ghost positive acquisition and full seasonal Treasure qualification remain pending.
+Ghost preparation and Treasure inspection/previews do not execute attacks or claims.
+Native Ghost/Treasure terminal actions remain unavailable. Dispatch/Truck plunder
+and alliance sharing have not received owner live-action acceptance. Do not treat
+this scanner test build as certification of those actions or simultaneous games.
+
+Camera-free and consecutive-region experimental alternatives remain disabled and
+their diagnostic observer/runner is not shipped. No private database, profile,
+game scripts, reverse-engineering tools or evidence is bundled.
+
+Repository: https://github.com/Tuna0307/LW-Control
+Review and limits: docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md
+"@
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

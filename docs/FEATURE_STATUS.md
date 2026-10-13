@@ -1,5 +1,12 @@
 # Feature delivery — faithful functional replacement
 
+**Current delivery, 2026-10-13:** owner requests the current verified scanner on
+main for personal testing. The bounded PR #9 product corrections are accepted
+under [the test-delivery scope](MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md).
+Installed names, saved-profile browsing and delayed spatial restoration are
+supported. No camera-free/consecutive scanner enabled and no new speedup claimed.
+Whole Map and MAP-013 optimization remain PARTIAL. Earlier status below is history.
+
 **Latest lead review:** MAP-010 worker `b8e53016` has verified installed-name and
 localized feedback corrections. Saved-server profile switching is CHANGES_REQUIRED
 (LEADMAP010-01, independently reproduced). No new scanner speedup, camera-free or

@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Owner test delivery, 2026-10-13: owner authorises merging the current verified
+scanner from PR #9 into main for personal testing. Read
+docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md and its delivery receipt.
+This accepts the bounded scanner/name/saved-owner corrections, not completion
+of MAP-013 optimization or whole Map. Experimental camera-free/consecutive
+routes remain disabled and diagnostic tooling is excluded from runtime packaging.
+Preserve accepted Home, historical negatives and existing live-action authority.
+
 Latest lead continuation, 2026-10-13: opt-in fresh native reply/bounds/cache
 completion now passes genuine restored controls. Camera-free direct and retained
 consecutive-view candidates failed native region/footprint checks. A reply's x/y
