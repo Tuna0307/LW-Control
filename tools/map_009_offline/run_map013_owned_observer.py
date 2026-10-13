@@ -358,7 +358,21 @@ def main() -> int:
                         help="bounded official-game read-only Monster/Doomsday/Treasure/Supplies source availability in one LOD0 region, not a full scan")
     parser.add_argument("--post-lens-sequence", action="store_true",
                         help="private LOD0 consecutive A/B/C source test: refresh subscription after each coverage lens change; compared to same-session restored baseline")
+    parser.add_argument("--subscription-stage-trace", action="store_true",
+                        help="private observation of camera anchors/subscriptions before and after updates; preserve first complete camera snapshot")
+    parser.add_argument("--bounded-lens-sequence", action="store_true",
+                        help="distinct private FOV40 candidate: keep ground-facing rays below the observed 45-degree horizon")
+    parser.add_argument("--sequence-lens-fov", type=float, choices=(20.0, 40.0), default=40.0,
+                        help="private bounded lens; FOV20 reduces the FOV40 split-request footprint")
+    parser.add_argument("--full-world-sequence", action="store_true",
+                        help="after three qualified regions, privately observe exact 10000-cell City/Resource coverage and final restoration")
     options = parser.parse_args()
+    if options.subscription_stage_trace and not options.post_lens_sequence:
+        parser.error("subscription stage trace requires the distinct owned post-lens sequence")
+    if options.bounded_lens_sequence and not options.subscription_stage_trace:
+        parser.error("bounded lens candidate requires owned subscription stage observations")
+    if options.full_world_sequence and not (options.bounded_lens_sequence and options.sequence_lens_fov == 20):
+        parser.error("full-world candidate requires the observed non-split FOV20 source path")
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
     if options.fresh_reply_experiment and (not options.baseline_region or options.unmodified_control):
@@ -445,6 +459,11 @@ def main() -> int:
         if options.post_lens_sequence:
             from sequence_post_lens_014 import instrument_post_lens_refresh
             experimental_body = instrument_post_lens_refresh(experimental_body)
+        if options.subscription_stage_trace:
+            from sequence_stage_trace_014 import instrument_subscription_stages
+            experimental_body = instrument_subscription_stages(
+                experimental_body, bounded_lens=options.bounded_lens_sequence,
+                lens_fov=options.sequence_lens_fov)
         if options.intermediate_zoom_experiment:
             from intermediate_zoom_instrument_014 import instrument_intermediate_zoom
             experimental_body = instrument_intermediate_zoom(experimental_body)
@@ -479,6 +498,7 @@ def main() -> int:
     trace = None
     world = None
     region = None
+    accuracy_comparison_failed = False
     lease_stop = threading.Event()
     lease_thread = None
     try:
@@ -801,7 +821,22 @@ def main() -> int:
                     if sorted(result.get("requestedIndices") or [])!=sorted(reference.get("requestedIndices") or []):
                         raise RuntimeError("post-lens AOI coverage differs from same-session restored control")
                     if native_keys(result)!=native_keys(reference):
-                        raise RuntimeError("post-lens missing/extra/changed source identities/coordinates/fields")
+                        if not options.subscription_stage_trace:
+                            raise RuntimeError("post-lens missing/extra/changed source identities/coordinates/fields")
+                        accuracy_comparison_failed = True
+                        # This flag observes where the subscription diverges;
+                        # it never qualifies this candidate. Preserve a failed
+                        # comparison rather than prevent the next stage from
+                        # being observed after time-separated resource churn.
+                        (attempt / f"sequence-comparison-{index}.json").write_text(
+                            json.dumps({"accuracyQualified": False,
+                                        "reason": "source identity/field sets changed",
+                                        "baselineRows": len(native_keys(reference)),
+                                        "candidateRows": len(native_keys(result)),
+                                        "diagnosticContinuationOnly": True}, indent=2),
+                            encoding="utf-8")
+                        print("SEQUENCE_ACCURACY_NOT_QUALIFIED", index,
+                              "continuing stage observation only", flush=True)
                     if index==3 and (result.get("cameraGeometryConfirmed") is not True or
                                      result.get("cameraTileStable") is not True):
                         raise RuntimeError("post-lens final exact original camera did not restore")
@@ -810,6 +845,13 @@ def main() -> int:
                 if step=="final" and (result.get("cameraTileStable") is not True or result.get("positionRestoredAfterResponse") is not True):
                     raise RuntimeError("sequence final restoration not confirmed")
                 previous_id=seq_id
+            if options.full_world_sequence:
+                import sys as _sys
+                from full_sequence_observe_014 import run_full_sequence
+                previous_id = run_full_sequence(_sys.modules[__name__], attempt=attempt,
+                    live_root=live_root, command=region_command, world=world,
+                    profile=profile, session=session, pid=pid, challenge=challenge,
+                    previous_id=previous_id)
             group_trace=wait_for(live_root / "map013-native-trace-result.json",
                 ExpectedReply("trace",group_trace_id,profile,session,pid,challenge,group_trace_time),24)
             (attempt / "sequence-trace.json").write_text(json.dumps(group_trace,indent=2),encoding="utf-8")
@@ -962,7 +1004,8 @@ def main() -> int:
                 print("STOP_REQUIRES_RECOVERY", repr(stop_error), flush=True)
                 exception = (exception or "") + " STOP_ERROR:" + repr(stop_error)
         (attempt / "final.json").write_text(json.dumps({
-            "state": "PARTIAL" if exception or (trace is None and not options.unmodified_control) else "OBSERVATION_ONLY",
+            "state": "PARTIAL" if exception or accuracy_comparison_failed or (trace is None and not options.unmodified_control) else "OBSERVATION_ONLY",
+            "sequenceAccuracyComparisonFailed": accuracy_comparison_failed,
             "error": exception, "ownedGamePid": owned.get("gamePid") if owned else None,
             "exactStopSucceeded": bool(stop_result and stop_result.get("ok")),
             "originalScriptsRestored": bool(stop_result and stop_result.get("installedFilesChanged") is False),

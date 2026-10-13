@@ -10,6 +10,8 @@ internal sealed class CurrentClientMapBlockSourceHooks
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
     public bool DisableCoarseMonsterMap { get; init; }
+    // Diagnostic admission only until paired native accuracy/performance gates.
+    public bool ExperimentalBoundedCameraLens { get; init; }
 }
 
 internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatchSource

@@ -2487,6 +2487,7 @@ local function read_bulk_aoi_diagnostic(now)
     -- this and retain the source-verified 4.0 value. Never infer extra native
     -- coverage merely from the requested aspect: _curViewIndex remains truth.
     request.coverageAspect = tonumber(values.coverageAspect or "4")
+    request.coverageFov = tonumber(values.coverageFov or "120")
     request.targetTileX = tonumber(values.targetTileX)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
@@ -2520,6 +2521,7 @@ local function read_bulk_aoi_diagnostic(now)
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
        (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
+       (request.coverageFov ~= 20 and request.coverageFov ~= 120) or
        (request.coverageAspect ~= 4 and request.coverageAspect ~= 6) or
        (request.coverageAspect ~= 4 and request.requestMode ~= "coverage") or
        request.targetTileX == nil or request.targetTileY == nil or
@@ -5257,6 +5259,7 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         homeTileY = request.homeTileY,
         requestMode = request.requestMode,
         coverageAspect = request.coverageAspect,
+        coverageFov = request.coverageFov,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
@@ -5799,7 +5802,7 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "native_camera_instance_changed_during_acquisition", nil, point_manager)
                 return true
             end
-            if not select(1, call(camera_manager, "SetFOV", 120.0)) then
+            if not select(1, call(camera_manager, "SetFOV", request.coverageFov)) then
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
                 return true
             end

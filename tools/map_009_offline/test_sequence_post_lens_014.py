@@ -18,7 +18,7 @@ class PostLensSource(unittest.TestCase):
         modified=instrument_post_lens_refresh(instrument_sequence(instrument_native_reply(original)))
         ast.parse(modified.decode("utf-8"))
         marker=modified.index(b'map014_post_lens_subscription_failed')
-        self.assertLess(modified.index(b'SetFOV", 120.0'), marker)
+        self.assertLess(modified.index(b'SetFOV", request.coverageFov'), marker)
         self.assertLess(marker, modified.index(b'local manager_reply_before = manager_response_flag(point_manager)'))
         self.assertEqual(original,bridge.resource_probe_source())
         packed=b"\n".join(l.rstrip() for l in modified.splitlines() if l.strip()

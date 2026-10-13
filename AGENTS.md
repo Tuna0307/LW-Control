@@ -1,5 +1,16 @@
 # LW-Control — current contributor instructions
 
+Current solo lead takeover, 2026-10-14: read
+docs/MAP_014_LEAD_LENS_QUALIFICATION.md before older continuations.
+Native stage observation proves stale old-A camera-corner anchors despite
+translated logical B; private FOV20 consecutive A/B/C and complete 10000-AOI
+discovery now pass, with exact final restoration. Actual engine FOV20 City
+publication separately passed 4110 rows. FOV40 split/coverage failure remains
+rejected. FOV20 remains diagnostic opt-in until repeated pipeline accuracy,
+performance, Stop and package gates pass; normal default is unchanged.
+Celebration Party is source-identified as detect_event 27000, not a live
+positive. Same branch/PR #10, solo/background/no-action authority; no merge.
+
 Latest MAP-014 source-causal continuation: KEEP OVERALL PARTIAL on
 the existing solo branch/draft PR #10. A distinct private post-lens
 subscription-refresh sequence failed in genuine v24 game: all three

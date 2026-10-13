@@ -12,7 +12,7 @@ sys.path.insert(0,str(REPO/'tools'))
 import run_overview_bridge_current as current
 api=current.base
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','stop']); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','stop']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); opt=p.parse_args()
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
     os.environ['LWBRIDGE_REBUILD_DATA_ROOT']=str(directory)
@@ -52,7 +52,7 @@ def main():
         dll=Path(__file__).parent/'bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll'
         with (directory/'managed-native.log').open('w',encoding='utf8') as log:
             process=subprocess.Popen(['dotnet',str(dll),str(directory/'owner.json'),opt.scenario],stdout=log,stderr=subprocess.STDOUT)
-            deadline=time.monotonic()+780
+            deadline=time.monotonic()+(1860 if opt.scenario.startswith('benchmark-') else 780)
             while process.poll() is None:
                 if time.monotonic()>deadline:
                     process.terminate(); process.wait(timeout=30); raise TimeoutError('Own managed diagnostic exceeded its bound')

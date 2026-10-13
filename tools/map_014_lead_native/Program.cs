@@ -14,7 +14,8 @@ var root = Path.GetDirectoryName(ownerPath)!;
 var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
-if (scenario is not ("city" or "mixed" or "stop")) throw new ArgumentException("Unknown scenario");
+bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
+if (!benchmarking && scenario is not ("city" or "mixed" or "stop")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -50,7 +51,9 @@ OverviewMapScanSession? ReadSession()
         return lastVerifiedHeartbeat!=0 && Stopwatch.GetElapsedTime(lastVerifiedHeartbeat)<TimeSpan.FromSeconds(5) ? session : null;
     }
 }
-var source = new CurrentClientMapBlockSource(ReadSession,runtime,probe,
+CurrentClientMapBlockSource MakeSource(bool bounded) => new(ReadSession,runtime,probe,
+    hooks: bounded
+        ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true } : null,
     waitForHealthySession: async (expected, token) =>
     {
         var deadline=Stopwatch.StartNew();
@@ -70,10 +73,11 @@ var source = new CurrentClientMapBlockSource(ReadSession,runtime,probe,
         }
         throw new TimeoutException("Genuine native game did not become healthy");
     }, matchesOwnedSession: expected => expected==session && OwnProcessMatches(), assetCacheRoot: Path.Combine(root,"asset-cache"));
+var source = MakeSource(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BOUNDED_LENS") == "1");
 using var commands = new Map317CommandService(Path.Combine(root,"map-014.db"),
     new CurrentClientMap317ScanProvider(source), new CurrentClientMap317ActionProvider(source), false,
     source.GetMapStatusContextAsync);
-using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(12));
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : 12));
 async Task<JsonElement> Invoke(string command, object payload)
 {
     var value = await commands.InvokeAsync(command, JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token);
@@ -117,6 +121,60 @@ async Task<JsonElement> Camera(string label)
 }
 var history=new List<object>();
 JsonElement before=default, after=default, terminal=default;
+if (benchmarking)
+{
+    string workload = scenario["benchmark-".Length..];
+    string[] kinds = workload == "mixed" ? ["city","resource","monster","truck","railway","dispatch"] : [workload];
+    if (kinds.Any(kind => !MapScanContract.AllTypes.Contains(kind))) throw new ArgumentException("Unsupported benchmark kind");
+    var measurements = new List<object>();
+    for (int round=0; round<6; round++)
+    {
+        bool bounded = round%2 == 1;
+        var measuredSource = MakeSource(bounded);
+        var context = await measuredSource.GetCurrentContextAsync(cts.Token);
+        if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)
+            await measuredSource.JumpToCoordinateAsync(context.ServerId,hx,hy,cts.Token);
+        await Task.Delay(750,cts.Token);
+        var cameraBefore = await Camera($"benchmark-{round}-before");
+        using var measuredCommands = new Map317CommandService(Path.Combine(root,$"benchmark-{round}.db"),
+            new CurrentClientMap317ScanProvider(measuredSource), new CurrentClientMap317ActionProvider(measuredSource), false,
+            measuredSource.GetMapStatusContextAsync);
+        async Task<JsonElement> Call(string name,object payload) => JsonSerializer.SerializeToElement(
+            await measuredCommands.InvokeAsync(name,JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token),JsonOptions.Default);
+        var timer=Stopwatch.StartNew();
+        try
+        {
+            await Call("map_scan_start",new{selectedTypes=kinds,scanMode="normal"});
+            while(true)
+            {
+                terminal=await Call("map_scan_status",new{});
+                if (!terminal.GetProperty("isReading").GetBoolean() && terminal.GetProperty("phase").GetString() is "completed" or "failed" or "cancelled") break;
+                await Task.Delay(100,cts.Token);
+            }
+            timer.Stop();
+            if (terminal.GetProperty("phase").GetString()!="completed") throw new InvalidOperationException(terminal.GetRawText());
+            var cameraAfter=await Camera($"benchmark-{round}-after");
+            if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
+                throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
+            var summary=await Call("map_summary",new{});
+            string metricsPath = Path.Combine(probe,"map-fullworld-probe-metrics.json");
+            if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
+            using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
+            if (nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000)
+                throw new InvalidDataException("Native benchmark coverage was incomplete");
+            File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
+            measurements.Add(new{round,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
+            File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
+            Console.WriteLine($"MAP014_BENCHMARK {workload} round={round} lens={(bounded?20:120)} seconds={timer.Elapsed.TotalSeconds:F3}");
+        }
+        finally
+        {
+            using var stopCts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
+            await measuredCommands.InvokeAsync("map_scan_stop",JsonSerializer.SerializeToElement(new{}),stopCts.Token);
+        }
+    }
+    return;
+}
 try
 {
     var world=await source.GetCurrentContextAsync(cts.Token);

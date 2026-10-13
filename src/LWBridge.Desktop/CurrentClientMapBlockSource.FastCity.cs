@@ -327,7 +327,8 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
-        for (int row = 0; row < FastFullWorldRowRequests; row++)
+        bool boundedLens = hooks?.ExperimentalBoundedCameraLens == true;
+        for (int row = 0; row < (boundedLens ? 1 : FastFullWorldRowRequests); row++)
         {
             int groupStartRow = row * FastCityGroupRows;
             int aoiRowStart = row * FastFullWorldAoiRows;
@@ -338,7 +339,8 @@ internal sealed partial class CurrentClientMapBlockSource
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                int gapColumn = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                int firstGap = boundedLens ? Enumerable.Range(0, 10000).FirstOrDefault(index => !covered.Contains(index), -1) : -1;
+                int gapColumn = boundedLens ? (firstGap < 0 ? -1 : firstGap % 100) : FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (gapColumn < 0) break;
                 // Current-v21 live proof can contract the conservative request to 9 rows.
                 // If that leaves only the band's bottom AOI missing, nudge one AOI row down and
@@ -350,7 +352,8 @@ internal sealed partial class CurrentClientMapBlockSource
                               missingRows[0] == aoiRowStart + FastFullWorldAoiRows - 1
                     ? baseTargetY + FastCityAoiBlockSize
                     : baseTargetY;
-                if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
+                if (boundedLens) targetY = Math.Min(995, (firstGap / 100 + 2) * 10 + 5);
+                if (++requestsThisRow > (boundedLens ? 400 : FastFullWorldMaxRequestsPerRow))
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
                 // Wide footprints are centered around the target: width 4 has two columns
@@ -363,6 +366,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 // neither issues concurrent mutations of the shared game camera.
                 int targetCellX = MapFullWorldAoiPlacement.TargetColumn(
                     request.ScanMode, gapColumn, preferWideStep, previousGap, FastCityAoiBlockCount);
+                if (boundedLens) targetCellX = Math.Min(99, gapColumn + 7);
                 int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
 
                 FastCityBatchObservation? observation = null;
@@ -379,7 +383,8 @@ internal sealed partial class CurrentClientMapBlockSource
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
-                        ValidateAdaptiveRowFootprint(
+                        if (boundedLens) ValidateBoundedLensFootprint(observation.RequestedIndices, firstGap, targetX, targetY);
+                        else ValidateAdaptiveRowFootprint(
                             observation.RequestedIndices,
                             aoiRowStart,
                             request,
@@ -404,7 +409,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
                     {
                         lastError = error;
-                        if (hooks is null)
+                        if (hooks is null || hooks.ExperimentalBoundedCameraLens)
                             Console.Error.WriteLine(
                                 $"FAST_FULL_WORLD_RETRY server={request.ServerId} world={request.WorldId} " +
                                 $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
@@ -490,13 +495,14 @@ internal sealed partial class CurrentClientMapBlockSource
                         trainRecords[prepared.Record.RecordKey] = prepared;
                 }
 
-                int afterGap = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                int afterGap = boundedLens ? Enumerable.Range(0, 10000).FirstOrDefault(index => !covered.Contains(index), -1) : FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (covered.Count == before)
                     throw new InvalidDataException("Fast full-world adaptive acquisition returned no new AOI coverage.");
                 int measuredWidth = observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
                 preferWideStep = measuredWidth >= 4 && afterGap != gapColumn;
                 previousGap = afterGap == gapColumn ? gapColumn : null;
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
+                if (boundedLens && state.ValidatedProbeResponses % 10 == 0) WriteFastFullWorldMetrics(state, "acquiring");
             }
             // Ten compact checkpoints (and one final) per full-world pass;
             // per-request I/O would itself distort the elapsed benchmark.
@@ -747,6 +753,21 @@ internal sealed partial class CurrentClientMapBlockSource
                 "Fast full-world adaptive acquisition returned an inconsistent AOI footprint: " + detail + ".");
     }
 
+    internal static void ValidateBoundedLensFootprint(int[] indices, int firstGap, int targetX, int targetY)
+    {
+        var actual = indices.ToHashSet();
+        if (indices.Length is < 20 or > 160 || actual.Count != indices.Length ||
+            actual.Any(index => index is < 0 or >= 10000) || !actual.Contains(firstGap) ||
+            !actual.Contains(targetY / 10 * 100 + targetX / 10))
+            throw new InvalidDataException("Bounded lens did not freshly cover the requested target and uncovered cell.");
+        int[] rows = actual.Select(i => i / 100).Distinct().Order().ToArray();
+        int[] columns = actual.Select(i => i % 100).Distinct().Order().ToArray();
+        if (rows.Zip(rows.Skip(1), (a,b) => b-a).Any(d => d != 1) ||
+            columns.Zip(columns.Skip(1), (a,b) => b-a).Any(d => d != 1) ||
+            actual.Count != rows.Length * columns.Length)
+            throw new InvalidDataException("Bounded lens native AOI rectangle has holes or stale geometry.");
+    }
+
     private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
         request.SelectedTypes.Contains("monster", StringComparer.Ordinal) ||
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
@@ -799,6 +820,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"scanRunId={request.RunId}",
             "viewLevel=-1",
             "requestMode=coverage",
+            $"coverageFov={(hooks?.ExperimentalBoundedCameraLens == true ? 20 : 120)}",
             $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
@@ -1427,6 +1449,8 @@ internal sealed partial class CurrentClientMapBlockSource
             MatchesBool(root, "positionRestoredBeforeResponse", false) &&
             MatchesBool(root, "positionRestoredAfterResponse", true) &&
             MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
+        if (hooks?.ExperimentalBoundedCameraLens == true && !MatchesInt(root, "coverageFov", 20))
+            throw new InvalidDataException("Bounded lens result did not match its admitted lens.");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
             !MatchesBool(root, "cameraGeometryRestored", true) ||
@@ -2297,7 +2321,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private void WriteFastFullWorldMetrics(FastFullWorldResumeState state, string phase)
     {
-        if (hooks is not null) return;
+        if (hooks is not null && !hooks.ExperimentalBoundedCameraLens) return;
         // This is an attributable application->Lua AOI probe counter, NOT a
         // raw game-network request counter. Concurrent game traffic cannot be
         // separated from reflection-level global Net send/receive counters.

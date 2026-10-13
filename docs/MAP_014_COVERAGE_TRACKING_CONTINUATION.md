@@ -1,5 +1,18 @@
 # MAP-014 — City/Truck/acquisition follow-up, 2026-10-13
 
+## New lead takeover, 2026-10-14
+
+Read [MAP_014_LEAD_LENS_QUALIFICATION.md](MAP_014_LEAD_LENS_QUALIFICATION.md)
+first. Actual camera-corner anchors, rather than the logical camera tile,
+explain the preserved second-region subscription failure. A private FOV20
+candidate now passed fresh A/B/C equivalence, all 10,000 LOD0 cells in
+119 consecutive probes (49.203s diagnostic acquisition), and a separate actual
+engine/SQLite City run with 4,110 rows and exact restoration. Baseline/candidate
+repeated production-pipeline comparisons and candidate Stop/package gates are
+next; the normal production default is still unchanged. Celebration Party's
+source config is now identified as detect_event 27000; live spawn remains open.
+Older failed candidates and limits below remain historical evidence.
+
 ## New 23:36+ local MAP-014 source-causal continuation — still PARTIAL
 
 Resumed from verified clean `98b53c20598db69891457a5933ea98dfc0a9e539`
