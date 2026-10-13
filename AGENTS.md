@@ -1,5 +1,13 @@
 # LW-Control — current contributor instructions
 
+Latest owner bug assignment, 2026-10-13: complete
+docs/work-items/LWB317-MAP-OWNER-FIXES-014.md on a single new
+codex/map-owner-fixes-014 branch from current main. Prioritise distorted camera
+restoration, City undercount and source-server navigation before new filters.
+Include all owner-reported moving-target, icons/names, flicker, Auto-clear and
+native event-object questions. PR #9 is closed; no worker changes on main.
+The existing background-only and no account-changing-action authority applies.
+
 Owner test delivery, 2026-10-13: owner authorises merging the current verified
 scanner from PR #9 into main for personal testing. Read
 docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md and its delivery receipt.
