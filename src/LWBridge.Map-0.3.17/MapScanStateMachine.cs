@@ -262,11 +262,33 @@ public sealed class MapScanStateMachine
                 // this exact RunId to the command's cleanup handler. No
                 // native engine was activated yet. Restore ONLY this newly
                 // announced run and retire its pending provider reservation.
+                bool restored = false;
                 lock (stateGate)
                 {
                     if (state.IsReading &&
                         string.Equals(state.ScanRunId, scanRunId, StringComparison.Ordinal))
+                    {
                         state = before;
+                        restored = true;
+                    }
+                }
+                // Multicast StateChanged may already have informed earlier
+                // listeners of the phantom accepted run before a later
+                // listener threw. A silent rollback would leave UI/Auto
+                // observers displaying B while Map317 and SQLite never
+                // accepted B. Compensate to every observer independently:
+                // one broken subscriber must not block others from seeing
+                // the actual restored owner. This does not claim successful
+                // provider cleanup or hide the original Start exception.
+                if (restored)
+                {
+                    var reverted = new MapScanStateChangedEventArgs(before);
+                    foreach (Delegate observer in
+                        StateChanged?.GetInvocationList() ?? Array.Empty<Delegate>())
+                    {
+                        try { ((EventHandler<MapScanStateChangedEventArgs>)observer)(this, reverted); }
+                        catch { /* Preserve the original failed Start, notify remaining observers. */ }
+                    }
                 }
                 try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
                 catch { /* Preserve the original notification failure. */ }
