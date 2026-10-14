@@ -708,3 +708,61 @@ world, session, PID and group ownership, typed WorldMarch source clock and
 original-image/installed script safety requirements remain unchanged.
 **Overall status remains PARTIAL**; no release candidate, packaged run or
 actual game-native/group positive is claimed.
+
+## MAP-014 post-`aa3ffbd9` actual provider/engine admission follow-up
+
+Read-only source review found a **distinct pre-Begin terminalization gap**:
+`MapScanEngine.ExecuteAsync` validates shared source owner, world geometry and
+request and calls `sink.Begin` **before** its protected capture/failure region.
+The mounted `CurrentClientMap317ScanProvider.RunEngineAsync` formerly set
+`enteredEngine=true` before calling Execute and only called
+`FailScanForRun` when `!enteredEngine`. Therefore a foreign/retired
+`IMapScanSharedAcquisitionSource.AcquisitionOwner` read immediately after the
+final passive live-owner preflight could reject before native capture yet
+leave the accepted SQLite `scan_runs` row `running` and Map317 `Reading`.
+No valid native group reply or cleanup ACK can be inferred in this path.
+
+**Fix:** The provider now always attempts the idempotent, exact-owner
+`MapControlPlane.FailScanForRun(request.RunId)` on a noncancel engine error.
+When the engine already terminalized its own run, or an independent manual/
+Auto scan replaced it, this call is a no-op; it never fails a successor.
+The `Map317ScanRunSink.Begin` also requires the actual admitted server and
+selected user kinds, not merely matching RunId and block count. Controlled
+provider→real engine→Map317 SQLite inverse: after valid admission, its source
+changes the **native group RunId** before `MapScanEngine.ValidateSharedOwner`,
+requiring no native capture/cleanup, a failed exact durable run, preserved
+previously published City row and successful independent second scan. The
+pre-existing retired-sink regression now correctly expects the new ledger's
+`InvalidDataException` when CheckpointSuccess is attempted without a valid
+Begin; it also checks foreign Begin rejection. Wrong-server/wrong-selection
+Begin adversaries were added to the early publication integration test.
+
+**Source reviewed, .NET GREEN unavailable:** these newly authored C# tests
+and previously committed `aa3ffbd9` tests have **not** been compiled or run,
+as the explicit .NET execution denial remains binding. The separate earlier
+local Git inspection, aggregate npm, direct frontend and recovery-journal
+`WinError 5` denials were not retried, transformed or bypassed. Historical
+57/57 transport, 40/40 native/Resource, 66/66 March, 12/12 consecutive
+and eight observer Python receipts belong to **earlier source checkpoints**,
+not verification of this change. No redundant old audit was run.
+
+**Auto admission contribution:** An independent manual scan can start and
+finish between the initial due-cycle status and Auto's **first** target jump,
+as well as between targets. Auto now rechecks the current server/RunId/active
+status against its initial admitted idle identity before the first jump and
+existing exact ownership ahead of every further jump; two controlled first-
+target manual-successor inverses were added but are **unexecuted**. There is
+still a native status-to-jump TOCTOU and no monotonic game navigation lease.
+
+**Transport evidence remains unchanged:** the checked-in Lua bulk AOI route
+is single-probe and the authenticated pipe Lua dispatcher is getStatus-only;
+`IMap014ReceivedNativeSharedGroupIngress` remains an unimplemented opt-in
+contract. No native-owned consecutive A/B/C producer, complete 10,000 AOI
+and 2,500 typed block replies, native cancellation or independently matched
+single home reply exists. Consecutive selector OFF; City-only FOV20 stays
+qualified, Resource/mobile/mixed guarded, six-round 19/4/3 and 25 Resource
+discrepancies causally unknown, typed v24 WorldMarch future/arrival/expiry
+not promoted. Historical City/Other/Treasure/Truck and packaged positives
+are preserved; Celebration Party, moving Doom Walker and independent Train
+lifetime witnesses are pending. No game, installed-script, Auto config, RC,
+merge or deployment actions were performed. **Overall PARTIAL**.

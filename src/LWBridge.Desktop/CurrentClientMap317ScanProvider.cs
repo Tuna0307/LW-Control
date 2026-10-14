@@ -327,7 +327,6 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         CurrentClientMapContext admittedContext,
         bool requiresFreshSourceOwner)
     {
-        bool enteredEngine = false;
         try
         {
             if (requiresFreshSourceOwner)
@@ -342,7 +341,6 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                     admittedContext, request, control, cancellation.Token).ConfigureAwait(false);
             }
             cancellation.Token.ThrowIfCancellationRequested();
-            enteredEngine = true;
             await engine.ExecuteAsync(request, cancellation.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -350,21 +348,22 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         catch (Exception error)
         {
-            // MapScanEngine writes the exact-plane terminal failure through the
-            // sink before surfacing the provider exception. If the *pre-engine*
-            // admission failed there is no native group or engine sink yet;
-            // retire only its still-active exact accepted run in Map317.
-            if (!enteredEngine)
+            // Engine request validation, shared-owner pinning, geometry checks
+            // and sink.Begin currently happen BEFORE ExecuteAsync's protected
+            // capture/failure region. Any of them can throw without writing a
+            // terminal state, even though we have already entered the method.
+            // A later engine failure normally retired itself. FailScanForRun is
+            // intentionally idempotent on terminal/foreign runs and therefore
+            // also safely closes these early exceptions without mutating a
+            // manual or Auto successor's SQLite rows or progress.
+            try
             {
-                try
-                {
-                    control.FailScanForRun(request.RunId, error.Message);
-                }
-                catch
-                {
-                    // Preserve the initial ownership error; never affect a
-                    // newer/successor run after an intervening Stop.
-                }
+                control.FailScanForRun(request.RunId, error.Message);
+            }
+            catch
+            {
+                // Preserve the original engine/source exception, not a second
+                // persistence failure or unrelated successor status.
             }
         }
         finally
@@ -461,7 +460,9 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
         Map317.MapScanState current = control.ScanState;
         if (!current.IsReading ||
             !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
-            current.TotalBlocks != totalBlocks)
+            current.TotalBlocks != totalBlocks ||
+            current.ServerId != request.ServerId ||
+            !current.SelectedTypes.SequenceEqual(request.SelectedTypes, StringComparer.Ordinal))
             throw new InvalidDataException("Map317 scan engine run does not match the accepted durable run.");
         lock (checkpointGate)
         {

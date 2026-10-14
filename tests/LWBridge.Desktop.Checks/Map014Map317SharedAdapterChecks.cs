@@ -246,6 +246,80 @@ internal static class Map014Map317SharedAdapterChecks
             "retired owned session was allowed to begin native shared capture or publish after Map317 Start");
     }
 
+    private static async Task CheckPreBeginNativeOwnerDriftRetiresExactRunAsync()
+    {
+        // The provider preflight can pass the live game owner, yet the source
+        // may retire its advertised native group before the engine pins it.
+        // ValidateSharedOwner then throws BEFORE MapScanEngine.sink.Begin and
+        // its capture try/catch. The provider still owns an accepted SQLite
+        // 'running' run: it must terminalize that exact run, preserve the
+        // previous publication, and admit an independent valid successor.
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int server = 2213;
+        const string session = "pre-begin-owned-session";
+        store.UpsertRecord(new Map317.MapRecord("city", server,
+            "preserved-before-owner-drift", 10011, null, "original", null,
+            1, null, null, null, null, 1700000000000L,
+            "{\"ownerUid\":\"preserved-before-owner-drift\"}"));
+        NativeSource? activeNative = null;
+        NativeSource? badNative = null;
+        int contextReads = 0;
+        var provider = new CurrentClientMap317ScanProvider(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, server, server, [], [], 0, 1000, 1000, 500, 500)),
+            _ =>
+            {
+                // First read is native-source admission; the second is the
+                // passive exact owner check before running the real engine.
+                // Only the advertised source group RunId changes, not the
+                // client/server context, making this distinct from the
+                // already-qualified retired-session-at-activation inverse.
+                if (Interlocked.Increment(ref contextReads) == 2)
+                    activeNative!.AcquisitionOwner = activeNative.AcquisitionOwner with
+                    { RunId = "obsolete-native-group-run" };
+                return Task.FromResult(new CurrentClientMapContext(
+                    server, 0, 1000, 1000, 500, 500, session));
+            },
+            createSourceForAcceptedRun: (run, _) =>
+            {
+                activeNative = new NativeSource
+                {
+                    CityRecordKey = "source-after-owner-drift",
+                    AcquisitionOwner = new MapScanSharedAcquisitionOwner(
+                        run.RunId, server, 0, session, ["city"],
+                        "pre-begin-profile", 12345, "group-" + run.RunId)
+                };
+                badNative ??= activeNative;
+                return activeNative;
+            });
+        using var control = new Map317.MapControlPlane(store, provider);
+        var terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        provider.RunTerminated += id => terminated.TrySetResult(id);
+
+        Map317.MapScanState bad = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, bad.ScanRunId);
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(10)) == bad.ScanRunId &&
+                control.ScanState.Phase == "failed" &&
+                store.ReadScanRun(bad.ScanRunId)?.Status == "failed" &&
+                badNative?.Calls == 0 && badNative?.Cleanups == 0 &&
+                store.SummaryCounts(server)["city"] == 1 &&
+                store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                    .GetRawText().Contains("preserved-before-owner-drift", StringComparison.Ordinal),
+            "pre-Begin retired native group stranded accepted run or damaged saved City");
+
+        terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Map317.MapScanState next = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, next.ScanRunId);
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == next.ScanRunId &&
+                control.ScanState.Phase == "completed" &&
+                activeNative?.Calls == 1 && activeNative?.Cleanups == 1 &&
+                store.SummaryCounts(server)["city"] == 1,
+            "valid successor could not publish after pre-Begin native owner rejection");
+    }
+
     private static async Task CheckRetiredOwnerAfterNativeHomeAsync(bool serverChanged)
     {
         // Execute TWO real Map317 runs: an already published owner must remain
@@ -417,6 +491,12 @@ internal static class Map014Map317SharedAdapterChecks
         Require(control.ScanState.IsReading && control.ScanState.ScanRunId == successor.ScanRunId,
             "retired engine failure overwrote current Map317 run");
 
+        bool rejectedBegin = false;
+        try { sink.Begin(retiredRequest, successor.TotalBlocks, 1000); }
+        catch (InvalidDataException) { rejectedBegin = true; }
+        Require(rejectedBegin,
+            "retired source acquired a new logical-block ledger for successor run");
+
         var block = MapScanTraversal.Build(1000, 1000)[0];
         var oldCity = new MapStoredRecord("city", server, "obsolete-city", 10011,
             null, "obsolete", null, 1, null, null, null, null, 1800000000000L,
@@ -427,7 +507,7 @@ internal static class Map014Map317SharedAdapterChecks
             sink.CheckpointSuccess(retiredRequest, block,
                 new MapScanBlockCapture(server, 0, 0, "{}", [oldCity]), 1, 1000);
         }
-        catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
+        catch (InvalidDataException)
         {
             rejectedStage = true;
         }
@@ -506,6 +586,13 @@ internal static class Map014Map317SharedAdapterChecks
                 ScanMode: "fast", LaunchSessionId: "incomplete-publish-session",
                 LiveServerId: server);
             var sink = new Map317ScanRunSink(control);
+            bool rejectedServer = false, rejectedSelection = false;
+            try { sink.Begin(request with { ServerId = 2214 }, run.TotalBlocks, 1800000000000L); }
+            catch (InvalidDataException) { rejectedServer = true; }
+            try { sink.Begin(request with { SelectedTypes = ["resource"] }, run.TotalBlocks, 1800000000000L); }
+            catch (InvalidDataException) { rejectedSelection = true; }
+            Require(rejectedServer && rejectedSelection && control.ScanState.IsReading,
+                "foreign server or kind list created a native checkpoint ledger");
             sink.Begin(request, run.TotalBlocks, 1800000000000L);
             var block = MapScanTraversal.Build(1000, 1000)[0];
             sink.CheckpointSuccess(request, block,
@@ -683,6 +770,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckLegacyCleanupProviderAsync(restored: true);
         await CheckLegacyCleanupProviderAsync(restored: false);
         await CheckRetiredSessionAtActivationAsync();
+        await CheckPreBeginNativeOwnerDriftRetiresExactRunAsync();
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: true);
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();

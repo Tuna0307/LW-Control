@@ -498,6 +498,12 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 await execution.ReadStatusAsync(null, cancellationToken).ConfigureAwait(false);
             originalServerId = admissionState.ServerId;
             admissionScanRunId = admissionState.ScanRunId;
+            // Admission can race a manual Start after TryAdmitDueCycleAsync's
+            // initial active flag check. Never treat an observed running manual
+            // run as permission to navigate once it finishes.
+            if (admissionState.IsReading || execution.IsMapScanActive())
+                throw new InvalidOperationException(
+                    "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH: independent scan acquired admission");
 
             // Original cycle (index-BVfnK1wp.js Di()): an explicit server list is
             // used as supplied even when the current server is unknown (id 0); only
@@ -519,19 +525,18 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     break;
                 }
 
-                if (index > 0)
-                {
-                    // A completed first Auto run is still available through
-                    // Map317's archived exact-run status after a separate
-                    // manual scan starts and even FINISHES on that server.
-                    // Do not navigate to the next Auto target using the old
-                    // publication as authority over that manual successor.
-                    await EnsureNoIndependentScanAsync(
-                        "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH", lastAttemptedServerId,
-                        originalServerId, admissionScanRunId, lastOwnedScanRunId,
-                        cancellationToken).ConfigureAwait(false);
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
+                // A manual successor may start and finish while the initial
+                // admission / restart progress is being persisted, just as it
+                // may after an earlier Auto target published. Validate CURRENT
+                // ownership before EVERY target jump, not only later targets.
+                // At index zero require the exact admitted idle server/run:
+                // no Auto target has yet acquired the native scan lease.
+                await EnsureNoIndependentScanAsync(
+                    "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH", lastAttemptedServerId,
+                    originalServerId, admissionScanRunId, lastOwnedScanRunId,
+                    cancellationToken, requireAdmissionIdentity: index == 0)
+                    .ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
 
                 int serverId = targets[index];
                 // A cancelled first target at the original server never left
@@ -851,7 +856,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     private async Task EnsureNoIndependentScanAsync(
         string failureCode, int lastAttemptedServerId, int originalServerId,
         string? admissionScanRunId, string? lastOwnedScanRunId,
-        CancellationToken statusCancellation = default)
+        CancellationToken statusCancellation = default,
+        bool requireAdmissionIdentity = false)
     {
         // The status boundary's null owner reads the CURRENT scan, rather
         // than falling back to an archived exact-run status. Also consult
@@ -861,6 +867,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             null, statusCancellation).ConfigureAwait(false);
         if (current.IsReading || execution.IsMapScanActive())
             throw new InvalidOperationException(failureCode + ": independent scan is active");
+        if (requireAdmissionIdentity &&
+            (current.ServerId != originalServerId ||
+             !string.Equals(current.ScanRunId, admissionScanRunId, StringComparison.Ordinal)))
+            throw new InvalidOperationException(failureCode + ": admission server or scan owner changed");
         // Server equality alone is not proof of an idle owner. Map317 keeps
         // the CURRENT ScanRunId even after a different manual scan completes
         // on the same server. Admit only this Auto cycle's last accepted run
