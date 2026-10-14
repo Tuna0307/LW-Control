@@ -835,3 +835,42 @@ eight native-observer Python passes are **previous** source receipts, not
 validation of this new C# code. Previous City, Other/Treasure, filters,
 localization, Auto/Jump/Clear, Truck Follow/Stop and genuine native negatives
 are preserved. No denied operation was retried; **overall PARTIAL**.
+
+## MAP-014 pending-activation native lease correction after `a9d1ad8a`
+
+The direct remote and existing draft PR #10 head at entry were independently
+verified as `a9d1ad8aa17fdfb4a353953874adb19f0f9b85cf`; this is not an
+assertion about a prohibited local Git status/diff. The actual `AGENTS.md`,
+Oct14 owner handoff, source admission, Map317 exact-run SQLite source and
+latest continuation were re-read. Only read-only runtime checks were used:
+zero named LastWar/LWBridge processes, no active task recovery journal,
+original installed `LWScripts.data`/`LWScripts.txt`/`version.txt` hashes
+unchanged, user Auto enabled with `nextRunAt` armed and `restart.active=false`,
+old `339e241c` release intact. Recovery `WinError 5` was never retried.
+
+| New source-supported defect | Integrated change and honest gate |
+| --- | --- |
+| **Native scan accepted but still activating:** `ActivateAcceptedRun` removed pending and published `activeCancellation` under provider `gate`, then constructed the native accepted-run source and `MapScanEngine` *before* writing `activeTask`. Unlike the ordinary command Start/Stop transition gate, the status-driven server-change `FailAndStopAsync` and provider Dispose can concurrently call `StopMapScanAsync`; that method previously captured `task=null`, signaled cancel and returned without awaiting factory completion or native task. The accepted run's process lease could be released before its exact native capture/cleanup task had even been registered. | `CurrentClientMap317ScanProvider` now registers a `RunContinuationsAsynchronously` activation-completion barrier with its accepted cancellation owner. Stop/Dispose await its terminal registration or exact failed-factory retirement before the run's task, and a new provider Start refuses an outstanding activation. Successful activation publishes `activeTask` before releasing the barrier; unactivated failure fires exact RunTerminated then releases it. Stop tolerates a CTS disposed by a concurrent terminalization but still awaits ownership settlement. This is a managed lifetime fence, not a native group or camera ACK. **No new C# test execution/compile** under the explicit denial. |
+| **Late `Begin` or fresh owner preflight during Stop:** `Map317ScanRunSink.Begin` and `VerifyCurrentNativeOwnerAsync` previously admitted an identical RunId/server/types while the in-memory status still carried `IsReading=true` despite already terminal `Phase=stopping` during provider cleanup. | Both the final passive current-client owner check and `Begin` now accept only the actually admitted `scanning` phase, in addition to exact RunId/server/selected kinds/total blocks as applicable. They reject a Stop-retiring native engine before any logical-block ledger or native capture can be admitted. Existing exact-run `CheckpointSuccess`/`Publish` already lock terminal writes at the durable Map317 boundary. New C# GREEN **unavailable**; do not claim native cancellation was observed. |
+
+**Native evidence/gates unchanged:** checked-in Lua `bulk-aoi-diagnostic` is
+a one-request diagnostic file producer, the authenticated named-pipe Lua
+dispatcher has only `getStatus({})`, and no independently authenticated
+typed group packet producer or one-time native home reply ingress exists.
+Received-only group schema is deliberately unbound in production, so no
+actual authenticated A→B→C acquisition or 10,000 AOI / 2,500 kind-complete
+group proof can be claimed. Leave consecutive production selector OFF.
+Historical 119-probe diagnostic 10,000 AOIs in 49.203s, six paired City-only
+FOV20 4,114 stable identities/227.912→86.179s, completed Resource six-round
+19/4/3 baseline-only and 25 first-pair candidate-only unknown lifecycle,
+typed WorldMarch/Truck/Train pending witnesses, Other/Treasure and prior
+Auto/Jump/Clear/Truck Follow/Stop positives remain unchanged. Celebration
+Party, moving Doom Walker, independent Train expiry still await genuine
+witnesses. Earlier Python transport/native/March/consecutive passes remain
+historical, **not validation of this C# change**.
+
+**Validation/denials:** source/lock ordering personally reviewed, no .NET
+compiler/Release/integration executable, no equivalent reroute of the
+previous blocked C# regression edit, local Git status/diff/check,
+aggregate npm/frontend or recovery rename. No native/game/app launch,
+installed-script or user Auto mutation, no RC/merge/publish. **PARTIAL.**

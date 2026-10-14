@@ -20,6 +20,11 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     private CurrentClientMapContext? pendingContext;
     private CancellationTokenSource? activeCancellation;
     private Task? activeTask;
+    // Activation publishes the cancellation owner before it can finish
+    // constructing the source/engine task. Stop and Dispose must await this
+    // barrier, not mistake an active cancellation with activeTask == null for
+    // an already-terminal native acquisition.
+    private TaskCompletionSource<bool>? activeActivation;
 
     public event Action<string>? RunTerminated;
 
@@ -121,7 +126,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         lock (gate)
         {
-            if (pending is not null || activeTask is { IsCompleted: false })
+            if (pending is not null || activeActivation is not null ||
+                activeTask is { IsCompleted: false })
                 throw new Map317.BridgeCommandException("SCAN_RUNNING", "map scan is already running");
             pending = request;
             pendingContext = liveContext;
@@ -148,6 +154,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             pendingContext = null;
             cancellation = new CancellationTokenSource();
             activeCancellation = cancellation;
+            activeActivation = new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         var sink = new Map317ScanRunSink(control);
@@ -252,7 +260,12 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             TaskCreationOptions.RunContinuationsAsynchronously);
         Task task = RunRegisteredAsync(registered.Task, engine, execution, cancellation,
             control, liveContext, acquisition is IMapScanAcquisitionCleanup);
-        lock (gate) activeTask = task;
+        lock (gate)
+        {
+            activeTask = task;
+            activeActivation?.TrySetResult(true);
+            activeActivation = null;
+        }
         registered.SetResult(true);
     }
 
@@ -270,15 +283,33 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     {
         cancellationToken.ThrowIfCancellationRequested();
         Task? task;
+        Task? activating;
         CancellationTokenSource? cancellation;
         lock (gate)
         {
             pending = null;
             pendingContext = null;
             task = activeTask;
+            activating = activeActivation?.Task;
             cancellation = activeCancellation;
         }
-        cancellation?.Cancel();
+        try { cancellation?.Cancel(); }
+        catch (ObjectDisposedException)
+        {
+            // The source may have terminalized and disposed this exact CTS
+            // between snapshotting it and requesting Stop. That is NOT proof
+            // an activation is finished: still await the captured registration
+            // barrier/task before allowing the caller to release its lease.
+        }
+        if (activating is not null)
+        {
+            // A status-driven server-change Stop is not serialized with the
+            // command service's Start/Activate phase. Wait until the native
+            // task is actually registered, or its failed source factory has
+            // retired the accepted Map317 run, before releasing Stop's lease.
+            await activating.ConfigureAwait(false);
+            lock (gate) task = activeTask;
+        }
         if (task is not null)
         {
             // Once cancellation has been issued this method owns terminalization of
@@ -292,14 +323,24 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     public void Dispose()
     {
         Task? task;
+        Task? activating;
         CancellationTokenSource? cancellation;
         lock (gate)
         {
             task = activeTask;
+            activating = activeActivation?.Task;
             cancellation = activeCancellation;
             pending = null;
             pendingContext = null;
             cancellation?.Cancel();
+        }
+
+        if (activating is not null)
+        {
+            // Shutdown, too, must not dispose the native lease while a
+            // pending accepted-run factory is still constructing its task.
+            activating.GetAwaiter().GetResult();
+            lock (gate) task = activeTask;
         }
 
         if (task is not null)
@@ -422,7 +463,18 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         {
             control.FailScanForRun(request.ScanRunId, error.Message);
         }
-        finally { RunTerminated?.Invoke(request.ScanRunId); }
+        finally
+        {
+            try { RunTerminated?.Invoke(request.ScanRunId); }
+            finally
+            {
+                lock (gate)
+                {
+                    activeActivation?.TrySetResult(true);
+                    activeActivation = null;
+                }
+            }
+        }
     }
 
     private async Task VerifyCurrentNativeOwnerAsync(
@@ -436,6 +488,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         token.ThrowIfCancellationRequested();
         Map317.MapScanState current = control.ScanState;
         if (!current.IsReading ||
+            !string.Equals(current.Phase, "scanning", StringComparison.Ordinal) ||
             !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
             fresh.ServerId != admittedContext.ServerId ||
             ToWorldId(fresh.WorldId) != ToWorldId(admittedContext.WorldId) ||
@@ -479,6 +532,7 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
     {
         Map317.MapScanState current = control.ScanState;
         if (!current.IsReading ||
+            !string.Equals(current.Phase, "scanning", StringComparison.Ordinal) ||
             !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
             current.TotalBlocks != totalBlocks ||
             current.ServerId != request.ServerId ||
