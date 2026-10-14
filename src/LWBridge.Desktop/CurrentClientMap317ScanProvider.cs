@@ -531,7 +531,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         token.ThrowIfCancellationRequested();
         Map317.MapScanState current = control.ScanState;
         if (!current.IsReading ||
-            !string.Equals(current.Phase, "scanning", StringComparison.Ordinal) ||
+            current.Phase is not ("scanning" or "publishing") ||
             !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
             fresh.ServerId != admittedContext.ServerId ||
             ToWorldId(fresh.WorldId) != ToWorldId(admittedContext.WorldId) ||

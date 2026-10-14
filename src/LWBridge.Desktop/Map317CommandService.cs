@@ -42,6 +42,11 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly Task truckWorkerTask;
     private readonly object scanLeaseGate = new();
     private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
+    // A target jump can succeed before its scan obtains a run ID. Idle context
+    // refresh then legitimately clears the previous server's terminal RunId.
+    // Remember only this acknowledged guarded Auto navigation, under the same
+    // transition gate; an empty current RunId alone never authorizes return.
+    private MapAutoScanTargetOwner? acknowledgedAutoTarget;
     private Func<bool>? isAutoScanCycleBusy;
     private Func<IDisposable>? acquireAutoClearLease;
     private Map317ScanProcessLease? activeScanLease;
@@ -242,7 +247,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                                 "live game server changed before Auto target navigation");
                     }
                 }
+                acknowledgedAutoTarget = null;
                 _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
+                acknowledgedAutoTarget = expected;
                 JsonElement payload = JsonSerializer.SerializeToElement(new
                 {
                     selectedTypes,
@@ -251,6 +258,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 }, JsonOptions.Default);
                 Map317.MapScanState started =
                     await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
+                acknowledgedAutoTarget = null;
                 return started.ScanRunId;
             }
             catch
@@ -298,10 +306,20 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             // must refer to the same *absent* owner, not falsely strand home.
             string? observedRunId = string.IsNullOrWhiteSpace(current.ScanRunId)
                 ? null : current.ScanRunId;
+            bool acknowledgedPreStartReturn = expected is not null && observedRunId is null &&
+                acknowledgedAutoTarget is { } navigation &&
+                navigation.TargetServerId == expected.LastAttemptedServerId &&
+                current.ServerId == navigation.TargetServerId &&
+                string.Equals(navigation.AdmissionScanRunId, expected.AdmissionScanRunId,
+                    StringComparison.Ordinal) &&
+                string.Equals(navigation.LastOwnedScanRunId, expected.LastOwnedScanRunId,
+                    StringComparison.Ordinal);
             if (expected is not null &&
                 (serverId <= 0 || expected.LastAttemptedServerId <= 0 ||
                  (current.ServerId != expected.LastAttemptedServerId &&
                   current.ServerId != expected.OriginalServerId) ||
+                 (observedRunId is null && current.ServerId != expected.OriginalServerId &&
+                  !acknowledgedPreStartReturn) ||
                  // A manual scan can start and finish AFTER Auto's asynchronous
                  // status check yet BEFORE this final server jump. It has no
                  // active process lease at that point, but its distinct RunId
@@ -310,7 +328,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                  (!string.Equals(observedRunId, expected.LastOwnedScanRunId,
                       StringComparison.Ordinal) &&
                   !string.Equals(observedRunId, expected.AdmissionScanRunId,
-                      StringComparison.Ordinal))))
+                      StringComparison.Ordinal) && !acknowledgedPreStartReturn)))
                 throw new BridgeCommandException(
                     "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH",
                     "Auto return cannot replace a newer manual scan or changed server owner");
@@ -324,6 +342,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                         "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH",
                         "live game server changed before Auto return navigation");
             }
+            // This is a one-shot permission. Even a failed return may have
+            // changed native context; never reuse its previous acknowledgement.
+            acknowledgedAutoTarget = null;
             _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -606,6 +627,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            acknowledgedAutoTarget = null;
             AcquireScanLease();
             return await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
         }
@@ -653,6 +675,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
                     .ConfigureAwait(false);
             acceptedScanRunId = state.ScanRunId;
+            acknowledgedAutoTarget = null;
             if (scanRunProvider is null)
                 throw new InvalidOperationException(
                     "An accepting Map provider must implement the run-scoped terminal lifetime contract.");
@@ -700,7 +723,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         // action (including server-change scan-failure behavior) available,
         // but serialize navigation with Auto target/return and manual scan
         // transitions. Direct in-game camera changes remain a native gap.
-        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             return await actions.ServerJumpAsync(serverId, cancellationToken)
@@ -715,7 +738,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         // Coordinate Jump can switch servers before navigating to a tile.
         // Serialize its entire game operation with Auto's guarded navigation
         // handoff, without changing the original coordinate validation.
-        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
         try { return await actions.CoordinateJumpAsync(serverId, x, y, cancellationToken).ConfigureAwait(false); }
         finally { scanTransitionGate.Release(); }
     }
@@ -726,9 +749,22 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         // Truck/Train Follow may also switch the current native server.
         // Keep its existing UUID/arrival semantics, but not an interleaving
         // that invalidates Auto's already checked return/target ownership.
-        await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
         try { return await actions.MarchFollowAsync(serverId, marchUuid, cancellationToken).ConfigureAwait(false); }
         finally { scanTransitionGate.Release(); }
+    }
+
+    private async Task EnterManualNavigationAsync(CancellationToken cancellationToken)
+    {
+        // Manual commands are explicit one-shot actions. Queuing them behind a
+        // held navigation changes the recovered busy rejection into a later,
+        // unexpected camera move. Retain Auto/scan serialization without queueing.
+        if (!await scanTransitionGate.WaitAsync(0, cancellationToken).ConfigureAwait(false))
+            throw new Map317.BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                "another game operation is already in progress");
+        // Explicit manual navigation supersedes an earlier unaccepted Auto
+        // jump even when it returns to the same server and creates no scan ID.
+        acknowledgedAutoTarget = null;
     }
 
     private sealed record ObservedStatus(Map317.MapScanState Captured, CurrentClientMapStatusContext Context);

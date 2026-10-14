@@ -1,5 +1,14 @@
 # LW-Control — current contributor instructions
 
+Latest lead takeover, 2026-10-14: owner authorized finishing/testing; external
+worker confirmed stopped. Read docs/MAP_014_LEAD_FINISH_STATUS.md first. Fresh
+current-checkpoint Release rebuild and full inert suite pass under normal tool
+review; earlier denied calls are historical, not blanket owner pauses. Preserve
+their exact scope; never bypass a new denial. Publication-phase, manual busy,
+inclusive edge Jump, Other inspection and pre-acceptance Auto-return defects
+corrected with distinguishing checks. Native final-package verification next.
+Same branch/PR #10/background/action limits; one live controller, no main merge.
+
 Latest owner delegation update, 2026-10-14: the MAP-014 worker may use as many
 subagents as needed within the environment's available concurrency. This
 supersedes all older solo/no-subagent/no-delegation instructions for the current

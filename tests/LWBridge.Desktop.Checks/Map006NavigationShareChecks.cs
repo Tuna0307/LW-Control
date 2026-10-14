@@ -44,12 +44,13 @@ internal static class Map006NavigationShareChecks
             var heldEntered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             var heldRelease = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             bool holdCoordinate = false;
+            int expectedX = 2, expectedY = 3;
             var actions = new Map317.MapActionProviderAdapter
             {
                 GotoWorldCoordinate = async (target, x, y, cancellation) =>
                 {
                     worldMoves++;
-                    Require(target == 317 && x == 2 && y == 3,
+                    Require(target == 317 && x == expectedX && y == expectedY,
                         "coordinate provider received altered target");
                     if (holdCoordinate)
                     {
@@ -106,7 +107,11 @@ internal static class Map006NavigationShareChecks
             await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
                 new { serverId = 0, x = 2, y = 3 }), "INVALID_COORDINATE", "zero server");
             await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
-                new { serverId = 317, x = 2, y = 0 }), "INVALID_COORDINATE", "invalid tile");
+                new { serverId = 317, x = 2, y = -1 }), "INVALID_COORDINATE", "negative tile");
+            await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
+                new { serverId = 317, x = 1000, y = 3 }), "INVALID_COORDINATE", "beyond right edge");
+            await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
+                new { serverId = 317, x = 2, y = 1000 }), "INVALID_COORDINATE", "beyond top edge");
             Require(worldMoves == 0, "invalid navigation reached current-client boundary");
             rejectCoordinate = true;
             await MustReject(async () => _ = await Invoke(service, "map_coordinate_jump",
@@ -126,6 +131,15 @@ internal static class Map006NavigationShareChecks
             heldRelease.TrySetResult(true);
             await held;
             holdCoordinate = false;
+
+            foreach ((int x, int y) in new[] { (0, 0), (0, 999), (999, 0), (999, 999) })
+            {
+                expectedX = x; expectedY = y;
+                JsonElement edge = await Invoke(service, "map_coordinate_jump", new { serverId = 317, x, y });
+                Require(edge.GetProperty("x").GetInt32() == x && edge.GetProperty("y").GetInt32() == y,
+                    "inclusive edge coordinate was changed or refused");
+            }
+            expectedX = 2; expectedY = 3;
 
             await MustReject(async () => _ = await Invoke(service, "map_march_follow",
                 new { serverId = 317, marchUuid = "123456" }), "MARCH_FOLLOW_FAILED", "not-followed march");

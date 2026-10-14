@@ -1,4 +1,6 @@
 using LWBridge.Desktop;
+using System.Text.Json;
+using Map317 = LWBridge.Map317;
 
 namespace LWBridge.Desktop.Checks;
 
@@ -32,6 +34,8 @@ internal static class Map014AutoSharedOwnershipChecks
         await CheckPersistedEnabledDeadlineSurvivesStaleConfigAsync();
         await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: true);
         await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: false);
+        await CheckRealMap317CanceledRemoteStartAfterCompletedScanReturnsAsync(manualNavigation: false);
+        await CheckRealMap317CanceledRemoteStartAfterCompletedScanReturnsAsync(manualNavigation: true);
         await CheckSecondRemoteCanceledStartRejectsPreviousTargetAsync(secondJumpCompleted: true);
         await CheckSecondRemoteCanceledStartRejectsPreviousTargetAsync(secondJumpCompleted: false);
         await CheckIdleIndependentCompletedRunCannotAuthorizeReturnAsync(manualServer: 318);
@@ -756,6 +760,176 @@ internal static class Map014AutoSharedOwnershipChecks
         finally
         {
             if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    // Exercise the guarded production Map317 navigation, not only the legacy
+    // Auto return delegate. RefreshContext legitimately clears a terminal run
+    // identity when an owned jump changes the server before Start is accepted.
+    // That empty identity must not strand this canceled cycle on its target.
+    private static async Task CheckRealMap317CanceledRemoteStartAfterCompletedScanReturnsAsync(bool manualNavigation)
+    {
+        string root = Path.Combine(Path.GetTempPath(),
+            "map014-auto-real-prestart-return-" + Guid.NewGuid().ToString("N"));
+        var startContextHeld = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var manualTerminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        int liveServer = 317, remoteStarts = 0, returns = 0, holdRemoteStart = 0, manualNavigations = 0;
+        string? returnFailureCode = null;
+        var source = new EmptyWorldSource();
+        var provider = new CurrentClientMap317ScanProvider(source,
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, Volatile.Read(ref liveServer), 317, [], [], 0, 1000, 1000, 500, 500)),
+            async token =>
+            {
+                if (Volatile.Read(ref holdRemoteStart) != 0 && Volatile.Read(ref liveServer) == 318)
+                {
+                    startContextHeld.TrySetResult();
+                    await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                }
+                return new CurrentClientMapContext(Volatile.Read(ref liveServer),
+                    0, 1000, 1000, 500, 500, "real-map317-prestart-session");
+            });
+        var actionProvider = new Map317.MapActionProviderAdapter
+        {
+            GetCurrentServerId = _ => ValueTask.FromResult(Volatile.Read(ref liveServer)),
+            GotoServer = (server, _) =>
+            {
+                if (server == 318) Interlocked.Increment(ref remoteStarts);
+                else if (server == 317) Interlocked.Increment(ref returns);
+                else throw new InvalidOperationException("unexpected inert Auto server");
+                Volatile.Write(ref liveServer, server);
+                return ValueTask.CompletedTask;
+            },
+            GotoWorldCoordinate = (_, _, _, _) => throw new InvalidOperationException("no game camera calls"),
+            GotoWorldMarch = (_, _, _) => throw new InvalidOperationException("no game Follow calls"),
+            InspectTreasureStates = (_, _, _) => throw new InvalidOperationException("no Treasure calls"),
+            GetTreasureClaimStatus = _ => throw new InvalidOperationException("no claim status calls"),
+            ClaimTreasures = (_, _) => throw new InvalidOperationException("no claims"),
+            ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("no sharing"),
+            PrepareGhostPlunderTasks = (_, _) => throw new InvalidOperationException("no Ghost actions"),
+            GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
+            ArmDispatchPlunder = (_, _) => throw new InvalidOperationException("no plunder"),
+            ArmTruckPlunder = (_, _) => throw new InvalidOperationException("no plunder"),
+            DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
+            DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
+            ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
+        };
+        Exception? testFailure = null;
+        try
+        {
+            using var map = new Map317CommandService(Path.Combine(root, "map.db"),
+                provider, actionProvider, startPlunderWorkers: false,
+                statusReader: _ => Task.FromResult(new CurrentClientMapStatusContext(
+                    true, Volatile.Read(ref liveServer), 317, [], [], 0, 1000, 1000, 500, 500)));
+            provider.RunTerminated += run => manualTerminated.TrySetResult(run);
+            Map317.MapScanState manual = (Map317.MapScanState)(await map.InvokeAsync("map_scan_start",
+                JsonSerializer.SerializeToElement(new { selectedTypes = new[] { "city" }, scanMode = "fast" }),
+                CancellationToken.None))!;
+            Require(await manualTerminated.Task.WaitAsync(TimeSpan.FromSeconds(10)) == manual.ScanRunId,
+                "initial actual Map317 scan did not terminalize");
+            // The terminal event runs just before the provider clears its
+            // task admission. Join that completed owner before starting Auto.
+            await provider.StopMapScanAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
+            MapAutoScanRuntimeStatus admitted = await map.ReadAutoScanStatusAsync(null, CancellationToken.None);
+            Require(admitted.Phase == "completed" && admitted.ScanRunId == manual.ScanRunId &&
+                    source.Calls == 1 && !map.IsScanActive,
+                "regression setup lacked the nonempty completed admission owner");
+
+            Volatile.Write(ref holdRemoteStart, 1);
+            await using var auto = new MapAutoScanCommandService(Path.Combine(root, "auto.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => map.IsScanActive,
+                    ReadStatusAsync = async (run, token) =>
+                    {
+                        if (manualNavigation && Volatile.Read(ref liveServer) == 318 &&
+                            startContextHeld.Task.IsCompleted &&
+                            Interlocked.CompareExchange(ref manualNavigations, 1, 0) == 0)
+                        {
+                            // Same-server manual navigation creates no new scan
+                            // ID. It must nevertheless revoke the old Auto jump.
+                            await map.InvokeAsync("server_jump",
+                                JsonSerializer.SerializeToElement(new { serverId = 318 }),
+                                CancellationToken.None);
+                        }
+                        return await map.ReadAutoScanStatusAsync(run, token);
+                    },
+                    StartTargetScanAsync = map.StartAutoScanTargetAsync,
+                    StartTargetScanIfStillOwnedAsync = map.StartAutoScanTargetIfStillOwnedAsync,
+                    ReturnServerAsync = map.ReturnAutoScanToServerAsync,
+                    ReturnServerIfStillOwnedAsync = async (owner, token) =>
+                    {
+                        try { await map.ReturnAutoScanToServerIfStillOwnedAsync(owner, token); }
+                        catch (BridgeCommandException error)
+                        {
+                            Volatile.Write(ref returnFailureCode, error.Code);
+                            throw;
+                        }
+                    },
+                    StopScanIfOwnedAsync = map.StopAutoScanIfOwnedAsync,
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await startContextHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Require(Volatile.Read(ref liveServer) == 318 && remoteStarts == 1 && source.Calls == 1,
+                "cancellation did not land after owned navigation and before accepted capture");
+            await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(10));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(returns == (manualNavigation ? 0 : 1) &&
+                    Volatile.Read(ref liveServer) == (manualNavigation ? 318 : 317) && source.Calls == 1 &&
+                    manualNavigations == (manualNavigation ? 1 : 0) &&
+                    result.LastCycle?.Outcome == (manualNavigation ? "failed" : "canceled") &&
+                    (manualNavigation
+                        ? Volatile.Read(ref returnFailureCode) == "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH" &&
+                          result.LastCycle.LastError?.Contains("MAP_AUTO_SCAN_RETURN_FAILED", StringComparison.Ordinal) == true
+                        : returnFailureCode is null && result.LastCycle.LastError is null) &&
+                    result.LastCycle.CompletedServerIds.Count == 0 && !result.Running && !map.IsScanActive,
+                "actual guarded Map317 return stranded canceled pre-start Auto after prior completed scan: " +
+                result.LastCycle?.LastError);
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        catch (Exception error)
+        {
+            testFailure = error;
+            throw;
+        }
+        finally
+        {
+            // Service/store and Auto have disposed before this outer finally.
+            // SQLite pooling can still retain the isolated file handle; clear
+            // it as in the existing storage checks before deleting the root.
+            try
+            {
+                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                if (Directory.Exists(root)) Directory.Delete(root, true);
+            }
+            catch (Exception cleanupError) when (testFailure is not null)
+            {
+                Console.Error.WriteLine("MAP014 Auto test cleanup after failure: " + cleanupError.Message);
+                // Preserve the distinguishing assertion rather than masking
+                // it with a subsequent deletion/connection-pool exception.
+            }
+        }
+    }
+
+    private sealed class EmptyWorldSource : IMapScanBatchSource
+    {
+        internal int Calls;
+        public Task<MapScanBlockCapture> CaptureAsync(MapScanExecutionRequest request,
+            MapScanTargetBlock block, CancellationToken token) =>
+            throw new InvalidOperationException("regression requires the real full-batch engine route");
+        public Task<IReadOnlyList<MapScanBlockCapture>> CaptureBatchAsync(MapScanExecutionRequest request,
+            MapScanTargetBlock block, IReadOnlySet<int> pendingBlocks, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            Calls++;
+            return Task.FromResult<IReadOnlyList<MapScanBlockCapture>>(pendingBlocks.Order()
+                .Select(index => new MapScanBlockCapture(request.ServerId, request.WorldId, index, "{}", []))
+                .ToArray());
         }
     }
 

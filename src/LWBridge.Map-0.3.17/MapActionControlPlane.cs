@@ -40,8 +40,9 @@ public sealed class MapActionControlPlane
     public async ValueTask<CoordinateJumpResult> CoordinateJumpAsync(
         int serverId, int x, int y, CancellationToken cancellationToken = default)
     {
-        if (serverId <= 0 || x <= 0 || y <= 0)
-            throw new BridgeCommandException("INVALID_COORDINATE", "server ID and coordinates must be positive integers");
+        if (serverId <= 0 || x is < 0 or > 999 || y is < 0 or > 999)
+            throw new BridgeCommandException("INVALID_COORDINATE",
+                "server ID must be positive and map coordinates must be between 0 and 999");
         using OperationLease lease = EnterGameOperation();
         // Stored rows retain their server identity across Auto's return home.
         // Switch while holding the SAME action lease so a competing navigation

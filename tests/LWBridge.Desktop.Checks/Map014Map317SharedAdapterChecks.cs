@@ -14,6 +14,18 @@ internal static class Map014Map317SharedAdapterChecks
         if (!condition) throw new InvalidOperationException("MAP014_MAP317_SHARED: " + message);
     }
 
+    private static async Task<string> JoinProviderTerminalAsync(
+        CurrentClientMap317ScanProvider provider, Task<string> notification, TimeSpan timeout)
+    {
+        string runId = await notification.WaitAsync(timeout);
+        // RunTerminated is issued inside the task's finally block, before its
+        // admission fields are cleared. Observing the event is deliberately
+        // not permission to start a successor or dispose its SQLite owner.
+        // Join the actual provider task instead of racing that final cleanup.
+        await provider.StopMapScanAsync().AsTask().WaitAsync(timeout);
+        return runId;
+    }
+
     private sealed class NativeSource : IMapScanSharedAcquisitionSource
     {
         public MapScanSharedAcquisitionOwner AcquisitionOwner { get; set; } = null!;
@@ -162,7 +174,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState accepted = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["other"], "normal"));
         provider.ActivateAcceptedRun(control, accepted.ScanRunId);
-        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(10)) == accepted.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminal.Task, TimeSpan.FromSeconds(10)) == accepted.ScanRunId &&
                 control.ScanState.Phase == (restored ? "completed" : "failed") &&
                 source.Captures == 1 && source.Cleanups == 1 &&
                 source.NativeSelected!.SequenceEqual(["treasure"]) &&
@@ -196,7 +208,7 @@ internal static class Map014Map317SharedAdapterChecks
         source.AcquisitionOwner = new MapScanSharedAcquisitionOwner(accepted.ScanRunId,
             server, 0, session, expectedNative, "controlled-profile", 12345, "group-native-1");
         provider.ActivateAcceptedRun(control, accepted.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == accepted.ScanRunId,
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(25)) == accepted.ScanRunId,
             "real Map317 adapter failed to terminalize accepted native shared run");
         string phase = control.ScanState.Phase;
         Require(phase == (invalidCapture || invalidCleanup || invalidSourceAoi ? "failed" : "completed"),
@@ -245,7 +257,7 @@ internal static class Map014Map317SharedAdapterChecks
             ["treasure"], "retired-profile", 12345, "owned-group");
         sessionReplaced = true;
         provider.ActivateAcceptedRun(control, accepted.ScanRunId);
-        Require(await done.Task.WaitAsync(TimeSpan.FromSeconds(10)) == accepted.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, done.Task, TimeSpan.FromSeconds(10)) == accepted.ScanRunId &&
                 control.ScanState.Phase == "failed" &&
                 source.Calls == 0 && source.Cleanups == 0 &&
                 store.SummaryCounts(server)["other"] == 0,
@@ -306,7 +318,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState bad = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city"], "fast"));
         provider.ActivateAcceptedRun(control, bad.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(10)) == bad.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(10)) == bad.ScanRunId &&
                 control.ScanState.Phase == "failed" &&
                 store.ReadScanRun(bad.ScanRunId)?.Status == "failed" &&
                 badNative?.Calls == 0 && badNative?.Cleanups == 0 &&
@@ -319,7 +331,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState next = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city"], "fast"));
         provider.ActivateAcceptedRun(control, next.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == next.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(25)) == next.ScanRunId &&
                 control.ScanState.Phase == "completed" &&
                 activeNative?.Calls == 1 && activeNative?.Cleanups == 1 &&
                 store.SummaryCounts(server)["city"] == 1,
@@ -376,7 +388,7 @@ internal static class Map014Map317SharedAdapterChecks
         provider.ActivateAcceptedRun(control, first.ScanRunId);
         await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
         await provider.StopMapScanAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(10)) == first.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(10)) == first.ScanRunId &&
                 control.ScanState.Phase == "failed" && !control.ScanState.IsReading &&
                 store.ReadScanRun(first.ScanRunId)?.Status == "failed" &&
                 blockedSource?.Calls == 1 && blockedSource?.Cleanups == 1 &&
@@ -389,7 +401,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState second = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city"], "fast"));
         provider.ActivateAcceptedRun(control, second.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == second.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(25)) == second.ScanRunId &&
                 control.ScanState.Phase == "completed" &&
                 successorSource?.Calls == 1 && successorSource?.Cleanups == 1 &&
                 store.SummaryCounts(server)["city"] == 1 &&
@@ -441,7 +453,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState acceptedFirst = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city"], "fast"));
         provider.ActivateAcceptedRun(control, acceptedFirst.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == acceptedFirst.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(25)) == acceptedFirst.ScanRunId &&
                 control.ScanState.Phase == "completed" &&
                 firstSource?.Calls == 1 && firstSource.Cleanups == 1 &&
                 store.SummaryCounts(originalServer)["city"] == 1,
@@ -452,7 +464,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState acceptedSecond = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city"], "fast"));
         provider.ActivateAcceptedRun(control, acceptedSecond.ScanRunId);
-        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == acceptedSecond.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminated.Task, TimeSpan.FromSeconds(25)) == acceptedSecond.ScanRunId &&
                 control.ScanState.Phase == "failed" &&
                 secondSource?.Calls == 1 && secondSource.Cleanups == 1 &&
                 store.SummaryCounts(originalServer)["city"] == 1 &&
@@ -500,7 +512,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState rejected = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city", "other"], "fast"));
         provider.ActivateAcceptedRun(control, rejected.ScanRunId);
-        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(5)) == rejected.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminal.Task, TimeSpan.FromSeconds(5)) == rejected.ScanRunId &&
                 control.ScanState.Phase == "failed" && calls == 1 &&
                 admittedSource is null &&
                 store.SummaryCounts(server)["city"] == 0 &&
@@ -517,7 +529,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState badNativeOwner = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city", "other"], "fast"));
         provider.ActivateAcceptedRun(control, badNativeOwner.ScanRunId);
-        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(5)) == badNativeOwner.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminal.Task, TimeSpan.FromSeconds(5)) == badNativeOwner.ScanRunId &&
                 control.ScanState.Phase == "failed" && calls == 2 &&
                 admittedSource?.Calls == 0 && admittedSource.Cleanups == 0 &&
                 store.SummaryCounts(server)["city"] == 0 &&
@@ -529,7 +541,7 @@ internal static class Map014Map317SharedAdapterChecks
         Map317.MapScanState accepted = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city", "other"], "fast"));
         provider.ActivateAcceptedRun(control, accepted.ScanRunId);
-        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(20)) == accepted.ScanRunId &&
+        Require(await JoinProviderTerminalAsync(provider, terminal.Task, TimeSpan.FromSeconds(20)) == accepted.ScanRunId &&
                 control.ScanState.Phase == "completed" && calls == 3 &&
                 admittedSource?.Calls == 1 && admittedSource.Cleanups == 1 &&
                 store.SummaryCounts(server)["city"] == 1 &&

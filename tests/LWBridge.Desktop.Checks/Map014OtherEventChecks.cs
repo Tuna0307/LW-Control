@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LWBridge.Desktop;
 using Microsoft.Data.Sqlite;
 using Map317 = LWBridge.Map317;
@@ -138,7 +139,113 @@ internal static class Map014OtherEventChecks
         CheckLegacyMigrationAndDuplicate();
         await CheckLateCancelledScanPreservesPublicationAsync();
         await CheckAutoOtherStatusPersistenceAsync();
+        await CheckOtherInspectionAndPreviewAsync();
         Console.WriteLine("MAP014_OTHER_EVENT_CHECKS_OK");
+    }
+
+    private static async Task CheckOtherInspectionAndPreviewAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "lwbridge-other-inspection-" + Guid.NewGuid().ToString("N"));
+        string database = Path.Combine(root, "map-data.db");
+        Directory.CreateDirectory(root);
+        MapStoredRecord Inspectable(string key, int pointType, int suppliesType, int eventId = 0,
+            Action<JsonObject>? mutate = null, bool legacy = false)
+        {
+            MapStoredRecord row = Record(key, pointType, pointType == 21 ? 20 : 0, suppliesType, eventId);
+            JsonObject data = JsonNode.Parse(row.DataJson)!.AsObject();
+            data["complete"] = true;
+            data["expireTime"] = 0;
+            if (!legacy)
+            {
+                data["kind"] = "other";
+                data["otherSubtype"] = pointType == 27 ? $"supplies:{suppliesType}" : "event:27000";
+            }
+            mutate?.Invoke(data);
+            return row with { Kind = legacy ? "treasure" : "other", DataJson = data.ToJsonString() };
+        }
+        try
+        {
+            using (var seed = new Map317.MapStore(database))
+            {
+                // Reopen exercises the actual legacy-to-Other migration too.
+                seed.UpsertRecord(ToMapRecord(Inspectable("ice", 27, 1, legacy: true)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("ordinary", 21, 0, 27015, legacy: true)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("supply3", 27, 3)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("supply4", 27, 4)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("party", 21, 0, 27000)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("unsupported", 27, 9)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("expired", 27, 1, mutate: data => data["expireTime"] = 2000)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("incompleteParty", 21, 0, 27000, data => data["complete"] = false)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongClass", 27, 1, mutate: data => data["runtimeClass"] = "TreasurePointInfo")));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongClassSuffix", 27, 1, mutate: data => data["runtimeClass"] = "WorldSuppliesPointFake")));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongSubtype", 27, 1, mutate: data => data["otherSubtype"] = "supplies:3")));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongPoint", 27, 1, mutate: data => data["pointType"] = 6)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongEvent", 21, 0, 27015)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("wrongTreasureType", 27, 1, mutate: data => data["treasureType"] = 20)));
+                seed.UpsertRecord(ToMapRecord(Inspectable("fractionalType", 27, 1, mutate: data => data["suppliesType"] = "1.5")));
+            }
+            using var store = new Map317.MapStore(database);
+            string[] expected = ["ice", "ordinary", "party", "supply3", "supply4"];
+            string[] candidates = store.ReadTreasureClaimCandidates(2213, 3000)
+                .Select(row => row.GetProperty("uuid").GetString()!).Order(StringComparer.Ordinal).ToArray();
+            Require(candidates.SequenceEqual(expected),
+                "source-qualified Other remains inspectable; malformed/expired/unsupported rows cannot become candidates" +
+                $"; expected=[{string.Join(',', expected)}] actual=[{string.Join(',', candidates)}]");
+            Require(store.ReadSeasonSupplyTreasureRows(2213)
+                    .Select(row => row.GetProperty("uuid").GetString()!).Order(StringComparer.Ordinal)
+                    .SequenceEqual(new[] { "expired", "ice", "supply3", "supply4" }),
+                "Refresh All preserves its existing supplies scope without arbitrary Other or Party admission");
+
+            int claimCalls = 0;
+            var provider = new Map317.MapActionProviderAdapter
+            {
+                GetCurrentServerId = _ => ValueTask.FromResult(2213),
+                InspectTreasureStates = (rows, _, _) => ValueTask.FromResult(new Map317.TreasureInspectionResult(
+                    "viewer-other", "alliance-other", rows.Select(row => JsonSerializer.SerializeToElement(new
+                    { uuid = row.GetProperty("uuid").GetString(), worldClaimState = "claimable",
+                      playerClaimState = "unclaimed", claimBlockReason = "" })).ToArray())),
+                GotoWorldCoordinate = (_, _, _, _) => throw new InvalidOperationException("No navigation"),
+                GotoWorldMarch = (_, _, _) => throw new InvalidOperationException("No Follow"),
+                GotoServer = (_, _) => throw new InvalidOperationException("No server switch"),
+                GetTreasureClaimStatus = _ => throw new InvalidOperationException("Use read-only inspection"),
+                ClaimTreasures = (_, _) => { claimCalls++; throw new InvalidOperationException("No claims"); },
+                ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("No sharing"),
+                PrepareGhostPlunderTasks = (_, _) => throw new InvalidOperationException("No Ghost"),
+                GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
+                ArmDispatchPlunder = (_, _) => throw new InvalidOperationException("No plunder"),
+                ArmTruckPlunder = (_, _) => throw new InvalidOperationException("No plunder"),
+                DrainDispatchPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]),
+                DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
+                ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
+            };
+            var control = new Map317.MapActionControlPlane(store, provider, () => 3000);
+            JsonElement status = await control.TreasureClaimStatusAsync();
+            Require(status.GetProperty("inspectedCount").GetInt32() == 5 &&
+                !status.GetProperty("claimExecutionAvailable").GetBoolean(), "Other inspection never enables claims");
+            JsonElement boxes = await control.PreviewTreasureClaimAsync(2213, "boxes");
+            JsonElement season = await control.PreviewTreasureClaimAsync(2213, "season");
+            Require(boxes.GetProperty("candidateCount").GetInt32() == 3 &&
+                season.GetProperty("candidateCount").GetInt32() == 2 &&
+                boxes.GetProperty("rows").EnumerateArray().All(row => !row.GetProperty("execute").GetBoolean()) &&
+                claimCalls == 0, "boxes and Party previews preserve workflow without a native action");
+            using var persisted = new SqliteConnection(new SqliteConnectionStringBuilder
+                { DataSource = database, Mode = SqliteOpenMode.ReadOnly }.ToString());
+            persisted.Open();
+            using var count = persisted.CreateCommand();
+            count.CommandText = "SELECT COUNT(*) FROM treasure_claim_states WHERE server_id=2213 AND player_uid='viewer-other'";
+            Require(Convert.ToInt32(count.ExecuteScalar()) == 5 &&
+                store.SummaryCounts(2213)["treasure"] == 1 && store.SummaryCounts(2213)["other"] == 14,
+                "repeated status/preview upserts five UUID states without duplicating migrated map records");
+            Map317.TreasureInspectionResult refreshed = await control.RefreshAllTreasureStatesAsync(2213);
+            Require(refreshed.States.Select(row => row.GetProperty("uuid").GetString()!)
+                    .Order(StringComparer.Ordinal).SequenceEqual(new[] { "expired", "ice", "supply3", "supply4" }) &&
+                claimCalls == 0, "Refresh All reaches classified Supplies through the existing passive inspector");
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
     }
 
     private static async Task CheckAutoOtherStatusPersistenceAsync()
