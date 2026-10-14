@@ -25,10 +25,18 @@ internal sealed partial class LWBridgeWindow
         bool reuseGenuineRemote = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE") == "1";
         if (homeServer != 2212)
             throw new InvalidDataException("Remote proof requires authenticated game start on 2212; observed "+homeServer);
+        OverviewMapScanSession proofSession=overviewLifecycleService.GetReadyMapScanSession()
+            ?? throw new InvalidDataException("Remote proof requires an exact ready game session.");
+        void RequireProofOwner()
+        {
+            if(!overviewLifecycleService.MatchesOwnedMapScanSession(proofSession))
+                throw new InvalidDataException("Remote proof's original game session was retired or replaced.");
+        }
         var results = new List<object>();
         string receipt = Path.Combine(directory, "map014-remote-ui.json");
         async Task Save() => await File.WriteAllTextAsync(receipt,
-            JsonSerializer.Serialize(new {genuineGame=true, controlledProvider=false,homeServer,remoteServer,results},
+            JsonSerializer.Serialize(new {genuineGame=true, controlledProvider=false,homeServer,remoteServer,
+                proofSession.ProfileId,proofSession.SessionId,proofSession.GamePid,proofSession.GameStartedAtUtc,results},
                 new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}),token);
         async Task RequireUi(Func<Task<bool>> condition, string stage, int attempts=250)
         {
@@ -46,6 +54,7 @@ internal sealed partial class LWBridgeWindow
             int? observed = null;
             await RequireUi(() =>
             {
+                RequireProofOwner();
                 // GetLiveServerId reads an independently refreshed heartbeat.
                 // A native return acknowledgement can precede that refresh;
                 // incomplete writes yield null, not evidence of a wrong server.
@@ -56,6 +65,7 @@ internal sealed partial class LWBridgeWindow
         }
         async Task<JsonElement> RealRows(int server)
         {
+            RequireProofOwner();
             object? value=await map317CommandService.InvokeAsync("map_search",
                 JsonSerializer.SerializeToElement(new{kind="resource",query=new{serverId=server,page=1,pageSize=50}},
                     JsonOptions.Default),token);
@@ -75,6 +85,7 @@ internal sealed partial class LWBridgeWindow
             {
                 try
                 {
+                    RequireProofOwner();
                     object? returned=await map317CommandService.InvokeAsync("server_jump",
                         JsonSerializer.SerializeToElement(new{serverId=homeServer},JsonOptions.Default),CancellationToken.None);
                     JsonElement acknowledgement=JsonSerializer.SerializeToElement(returned,JsonOptions.Default);
@@ -245,6 +256,17 @@ internal sealed partial class LWBridgeWindow
             int targetX=selected.Value.GetProperty("x").GetInt32();
             int targetY=selected.Value.GetProperty("y").GetInt32();
             await ObserveLiveServer(homeServer,"home heartbeat before remote stored-row Jump");
+            var priorNavigationIds=new HashSet<string>(StringComparer.Ordinal);
+            foreach(string file in Directory.EnumerateFiles(productionPaths.Root,"map-navigation-result.json",SearchOption.AllDirectories))
+            {
+                try
+                {
+                    using var prior=JsonDocument.Parse(await File.ReadAllTextAsync(file,token));
+                    if(prior.RootElement.TryGetProperty("requestId",out var id) && id.ValueKind==JsonValueKind.String &&
+                        id.GetString() is {Length:>0} previousId) priorNavigationIds.Add(previousId);
+                }
+                catch(IOException){} catch(JsonException){}
+            }
             string coordinate=JsonSerializer.Serialize($"{targetX},{targetY}");
             if(!await Dom($"(()=>{{const target={coordinate};const buttons=[...document.querySelectorAll('.map-table--resource .map-coordinate-button:not(:disabled)')];const button=buttons.find(b=>b.textContent.includes(target));if(!button)return false;button.click();return true;}})()"))
                 throw new InvalidDataException("Real server-2213 row Jump control unavailable.");
@@ -259,8 +281,11 @@ internal sealed partial class LWBridgeWindow
                     {
                         using var document=JsonDocument.Parse(await File.ReadAllTextAsync(file,token));
                         JsonElement row=document.RootElement;
-                        OverviewMapScanSession? session=overviewLifecycleService.GetReadyMapScanSession();
-                        if(session is not null && row.TryGetProperty("state",out var state) && state.GetString()=="proven" &&
+                        RequireProofOwner();
+                        OverviewMapScanSession session=proofSession;
+                        if(row.TryGetProperty("requestId",out var id) && id.ValueKind==JsonValueKind.String &&
+                           id.GetString() is {Length:>0} requestId && !priorNavigationIds.Contains(requestId) &&
+                           row.TryGetProperty("state",out var state) && state.GetString()=="proven" &&
                            row.GetProperty("gamePid").GetInt32()==session.GamePid &&
                            row.GetProperty("profileId").GetString()==session.ProfileId &&
                            row.GetProperty("sessionId").GetString()==session.SessionId &&
@@ -279,6 +304,7 @@ internal sealed partial class LWBridgeWindow
             if(!navigated)
                 throw new InvalidDataException("Real UI remote Jump did not prove both 2213 and actual target x/y.");
             results.Add(new{stage="remote_ui_stored_row_native_jump",remoteServer,targetX,targetY,
+                nativeRequestId=navigation.GetProperty("requestId").GetString(),
                 nativeState=navigation.GetProperty("state").GetString(),
                 liveCurServerId=navigation.GetProperty("liveCurServerId").GetInt32()});
             await Save();
@@ -315,15 +341,24 @@ internal sealed partial class LWBridgeWindow
         }
         finally
         {
+            Exception? disableError=null;
             try
             {
-                await mapAutoScanService.InvokeAsync("local_map_auto_scan_config_set",
-                    JsonSerializer.SerializeToElement(new{enabled=false},JsonOptions.Default),CancellationToken.None);
+                MapAutoScanSnapshot current=await mapAutoScanService.GetSnapshotAsync(CancellationToken.None);
+                await mapAutoScanService.UpdateConfigAsync(current.Config with {Enabled=false},CancellationToken.None);
+            }
+            catch(Exception error)
+            {
+                disableError=error;
+                results.Add(new{stage="auto_disable_failed",error=error.Message});
+            }
+            try
+            {
                 if(mapAutoScanService.IsCycleBusy)
                     await mapAutoScanService.CancelAsync(CancellationToken.None);
                 await ReturnHome();
                 MapAutoScanSnapshot stopped=await mapAutoScanService.GetSnapshotAsync(CancellationToken.None);
-                if(stopped.Config.Enabled || stopped.Running)
+                if(disableError is not null || stopped.Config.Enabled || stopped.Running)
                     throw new InvalidDataException("Diagnostic Auto cleanup remained enabled or active.");
                 results.Add(new{stage="cleanup",homeServer,restored=true,autoEnabled=stopped.Config.Enabled,
                     autoRunning=stopped.Running});
