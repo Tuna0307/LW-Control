@@ -46,13 +46,40 @@ internal sealed record MapAutoScanRuntimeStatus(
     string? ScanRunId,
     string Phase = "unknown");
 
+/// <summary>
+/// Captured Auto cycle ownership required by the final return-to-home handoff.
+/// The desktop Map317 implementation can recheck this under its native scan
+/// transition lease instead of trusting an earlier asynchronous status read.
+/// </summary>
+internal sealed record MapAutoScanReturnOwner(
+    int OriginalServerId,
+    int LastAttemptedServerId,
+    string? AdmissionScanRunId,
+    string? LastOwnedScanRunId);
+
+internal sealed record MapAutoScanTargetOwner(
+    int TargetServerId,
+    int ExpectedCurrentServerId,
+    string? AdmissionScanRunId,
+    string? LastOwnedScanRunId,
+    IReadOnlyList<string> SelectedTypes,
+    string ScanMode);
+
 internal sealed class MapAutoScanExecutionBoundary
 {
     internal required Func<bool> IsOnline { get; init; }
     internal required Func<bool> IsMapScanActive { get; init; }
     internal required Func<string?, CancellationToken, Task<MapAutoScanRuntimeStatus>> ReadStatusAsync { get; init; }
     internal required Func<int, IReadOnlyList<string>, string, CancellationToken, Task<string>> StartTargetScanAsync { get; init; }
+    // An optional exact-run pre-jump admission under Map317's transition
+    // gate closes the interval after Auto's asynchronous current-status read.
+    internal Func<MapAutoScanTargetOwner, CancellationToken, Task<string>>?
+        StartTargetScanIfStillOwnedAsync { get; init; }
     internal required Func<int, CancellationToken, Task> ReturnServerAsync { get; init; }
+    // Optional additional atomic owner check at the real Map317 navigation
+    // boundary. Existing isolated/legacy execution hooks stay compatible.
+    internal Func<MapAutoScanReturnOwner, CancellationToken, Task>?
+        ReturnServerIfStillOwnedAsync { get; init; }
     internal required Func<string, CancellationToken, Task<bool>> StopScanIfOwnedAsync { get; init; }
 }
 
@@ -548,11 +575,17 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 // during that start leaves no run token, but the jump may have
                 // happened; subsequent return still needs target provenance.
                 lastAttemptedServerId = serverId;
-                string scanRunId = await execution.StartTargetScanAsync(
-                    serverId,
-                    admittedConfig.SelectedTypes ?? DefaultSelectedTypes,
-                    admittedConfig.ScanMode,
-                    cancellationToken).ConfigureAwait(false);
+                IReadOnlyList<string> selectedTypes =
+                    admittedConfig.SelectedTypes ?? DefaultSelectedTypes;
+                string scanRunId = execution.StartTargetScanIfStillOwnedAsync is { } ownedStart
+                    ? await ownedStart(new MapAutoScanTargetOwner(
+                        serverId, index == 0 ? originalServerId : targets[index - 1],
+                        admissionScanRunId, lastOwnedScanRunId,
+                        selectedTypes, admittedConfig.ScanMode),
+                        cancellationToken).ConfigureAwait(false)
+                    : await execution.StartTargetScanAsync(
+                        serverId, selectedTypes, admittedConfig.ScanMode,
+                        cancellationToken).ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(scanRunId))
                     throw new InvalidOperationException("Auto scan start did not return a scan owner token");
                 lastOwnedScanRunId = scanRunId;
@@ -654,8 +687,14 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     lifetimeCancellation.Token.ThrowIfCancellationRequested();
                     if (Volatile.Read(ref retired) != 0)
                         throw new OperationCanceledException(lifetimeCancellation.Token);
-                    await execution.ReturnServerAsync(originalServerId, lifetimeCancellation.Token)
-                        .ConfigureAwait(false);
+                    if (execution.ReturnServerIfStillOwnedAsync is { } ownedReturn)
+                        await ownedReturn(new MapAutoScanReturnOwner(
+                            originalServerId, lastAttemptedServerId,
+                            admissionScanRunId, lastOwnedScanRunId),
+                            lifetimeCancellation.Token).ConfigureAwait(false);
+                    else
+                        await execution.ReturnServerAsync(originalServerId, lifetimeCancellation.Token)
+                            .ConfigureAwait(false);
                 }
                 catch (OperationCanceledException) when (Volatile.Read(ref retired) != 0)
                 {

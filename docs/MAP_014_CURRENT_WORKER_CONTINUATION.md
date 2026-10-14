@@ -874,3 +874,42 @@ compiler/Release/integration executable, no equivalent reroute of the
 previous blocked C# regression edit, local Git status/diff/check,
 aggregate npm/frontend or recovery rename. No native/game/app launch,
 installed-script or user Auto mutation, no RC/merge/publish. **PARTIAL.**
+
+## MAP-014 live-leased Auto navigation and provider successor correction
+
+Entered from a direct remote and existing draft PR #10 match at
+`30f6013d37eee7d621d470676eaa491306075c7c`. Read `AGENTS.md`, the
+October 14 takeover, latest continuation, real provider/Map317 state machine,
+SQLite transaction, MapScanEngine source validation and Auto execution/desktop
+composition. **No blocked local Git status/diff/check, .NET execution,
+specific denied C# regression edit, aggregate npm/frontend, recovery rename
+or equivalent reroute was attempted.** No live LastWar/LWBridge launch.
+
+| New production source correction | Proof level / remaining restriction |
+| --- | --- |
+| **Provider task disappears before process-lease terminal event:** `RunEngineAsync.finally` previously set `activeTask=null` and disposed the token *before* invoking exact `RunTerminated`. A competing Stop/Dispose/source admission could mistake a completed task for an already-released command lease while the terminal callback was still in flight. Now `RunTerminated(exactRunId)` runs first, outside the provider gate, and the matching CTS/task is cleared in `finally` even if the subscriber fails. An active task remains joinable for its entire terminal notification. | Source-level ordering review only; no native owned camera ACK or post-change C# GREEN. Preserves exact-run `Map317CommandService.ReleaseScanLease(scanRunId)` subscriber and existing final-home engine policy. |
+| **Activation-barrier waiter joins an unrelated successor:** independent read-only worker-8 identified a real conditional race: A's Stop/Dispose captured A's `activeActivation` and CTS, awaited the barrier after an unsuccessful factory; B could be admitted and register its task before A's waiter reread unqualified `activeTask`. Old A Stop would then wait indefinitely for B without canceling B. The after-barrier task read now checks `ReferenceEquals(activeCancellation, capturedCancellation)` before joining. Provider Dispose also marks `disposed=true` under the same `gate`; pending Start or Activate rejects future admission while shutdown owns the provider. | Read-only independent interleaving analysis plus prime-owned source fix, **not** a reproduced C# interleaving/runtime regression. Ordinary Stop is serialized by the state-machine operation gate; the sharper exposure is concurrent dispose/failed-activation/new admission. No tests executed. |
+| **Auto target status-to-jump manual successor:** Auto already checked the current RunId before every target, but its execution boundary accepted only target server/types, so a manual scan could start *and complete* during the async status-to-StartTarget handoff. Its process lease would be free and the old Auto command could jump over the now-terminal manual owner. Added optional `MapAutoScanTargetOwner` with expected current server and allowed admitted/last-owned RunIds. The actual desktop `Map317CommandService` now checks this under `scanTransitionGate` **after acquiring** its process lease and **before** game navigation, rejecting any different terminal/active run. Both production `LWBridgeWindow` and `ProfileRuntimeOwner` compositions wire the owner-checked callback; isolated legacy hooks keep their existing signature. | Source-backed managed TOCTOU fence. Does **not** authenticate an independent in-game camera navigation generation or replace existing native click/transport safety. New C# integration/Auto RED→GREEN unavailable; no game invoked. |
+| **Auto final return status-to-jump manual successor:** after Auto's pre-return current status passed, the old `ReturnServerAsync(server)` boundary rechecked only that no scan was running. A manual scan could finish in the gap and leave no lease, allowing Auto to override its server. New optional `MapAutoScanReturnOwner` passes last target/current-run/admitted-run identity to a backend operation holding `scanTransitionGate` and a process lease. The backend rejects a completed foreign successor and unexpected server before jumping. Blank idle `ScanRunId` is normalized to null to retain the valid canceled-first-jump return where no run was accepted. Existing return delegate retained for old isolated callers. | Same managed pre-navigation fence; unlike a native atomic navigation-generation lease, a direct game-side untracked server change can still occur after the last passive check. Do not claim a fully closed game-owned TOCTOU. No .NET compilation/tests. |
+| **Manual navigation did not share Auto's transition gate:** independent read-only worker review found that `server_jump` invoked `actions.ServerJumpAsync` directly without `scanTransitionGate` or process lease. `map_coordinate_jump` and `map_march_follow` can likewise change the server. These commands could complete between an Auto status observation and its guarded navigation even while Map317's cached `ScanRunId/server` remained old. All three manual navigation commands now use the same `scanTransitionGate` for their existing `MapActionControlPlane` operations, preserving the recovered Jump/Follow action lease, parameter validation and existing scan-server-change detection. Both Auto's owned target and final return also check a fresh live server observation from the provided `statusReader` under that transition gate immediately before action; an unexpected server fails closed. | Managed command serialization + fresh source-read guard, **not an atomic native camera generation**. Direct game-side navigation beyond the app and future native own transport can still race the last passive source read; no live replay/packaged C# test or new source witness. Do not promote selector or declare full Auto navigation atomic. |
+
+**Native received-group contract remains absent:** checked-in `bulk-aoi-diagnostic`
+does one file-command probe; authenticated Lua pipe's game dispatcher handles
+`getStatus` only. `IMap014ReceivedNativeSharedGroupIngress` has no product
+implementation delivering 10,000 independently correlated AOI packets, 2,500
+typed logical blocks, owner-matched group cancellation and a single separate
+home ACK. No A→B→C selector promotion or release candidate. Historic 119
+diagnostic native probes/10,000 AOIs/49.203s and City-only FOV20 paired
+4,114 owners, median 227.912s baseline versus 86.179s candidate are not
+this checkpoint's new test results. Resource six-round 19/4/3 baseline-only
+and 25 candidate-only identities remain unexplained, Resource/mobile/mixed
+FOV20 stays guarded; typed March/Train, Celebration Party and moving Doom
+Walker await real witnesses. Preserved City relocation, type27 Other versus
+Treasure, filters/images/Secret Task/localization, Home/Map/Auto/Jump/Clear,
+saved-server and Truck Follow/Stop positives.
+
+**Validation matrix:** source and cross-composition manually reviewed; previous
+native/Resource/March/transport/consecutive Python passes remain historical,
+not new C# GREEN. Post-change .NET Release, real provider/SQLite/Auto C# cases,
+packaged Windows, genuine native producer/transport/home ACK and recovery are
+**blocked/unverified**. No old denial was retried or bypassed. **PARTIAL.**

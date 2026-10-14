@@ -25,6 +25,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     // barrier, not mistake an active cancellation with activeTask == null for
     // an already-terminal native acquisition.
     private TaskCompletionSource<bool>? activeActivation;
+    private bool disposed;
 
     public event Action<string>? RunTerminated;
 
@@ -126,6 +127,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         lock (gate)
         {
+            if (disposed)
+                throw new ObjectDisposedException(nameof(CurrentClientMap317ScanProvider));
             if (pending is not null || activeActivation is not null ||
                 activeTask is { IsCompleted: false })
                 throw new Map317.BridgeCommandException("SCAN_RUNNING", "map scan is already running");
@@ -145,6 +148,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         CancellationTokenSource cancellation;
         lock (gate)
         {
+            if (disposed)
+                throw new ObjectDisposedException(nameof(CurrentClientMap317ScanProvider));
             request = pending ?? throw new InvalidOperationException("No accepted Map317 scan is pending activation.");
             liveContext = pendingContext ?? throw new InvalidOperationException("No accepted current-client scan context is pending activation.");
             Map317.MapScanState admitted = control.ScanState;
@@ -311,7 +316,12 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             // task is actually registered, or its failed source factory has
             // retired the accepted Map317 run, before releasing Stop's lease.
             await activating.ConfigureAwait(false);
-            lock (gate) task = activeTask;
+            // A failed factory can release A's barrier and a new accepted run
+            // B can register before this waiter retakes gate. Never join B's
+            // task after having canceled only A. An already terminated A has
+            // no task left to await; its callback completed before the barrier.
+            lock (gate)
+                task = ReferenceEquals(activeCancellation, cancellation) ? activeTask : null;
         }
         if (task is not null)
         {
@@ -330,6 +340,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         CancellationTokenSource? cancellation;
         lock (gate)
         {
+            if (disposed) return;
+            disposed = true;
             task = activeTask;
             activating = activeActivation?.Task;
             cancellation = activeCancellation;
@@ -343,7 +355,11 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             // Shutdown, too, must not dispose the native lease while a
             // pending accepted-run factory is still constructing its task.
             activating.GetAwaiter().GetResult();
-            lock (gate) task = activeTask;
+            // Disposal of A must not accidentally join an unrelated B that
+            // appeared after A's failed factory completion. New admission is
+            // also fenced by disposed=true under the same provider gate.
+            lock (gate)
+                task = ReferenceEquals(activeCancellation, cancellation) ? activeTask : null;
         }
 
         if (task is not null)
@@ -432,16 +448,29 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         finally
         {
-            lock (gate)
+            // A provider task must not disappear from activeTask until its
+            // exact native-run terminal callback has settled. Previously a
+            // status-triggered Stop/Dispose or a successor admission could
+            // observe activeTask=null while RunTerminated still had to release
+            // the run-scoped process lease. Keep the task joinable throughout
+            // terminal notification, without holding gate while invoking the
+            // external subscriber (which owns a separate scanLeaseGate).
+            try
             {
-                if (ReferenceEquals(activeCancellation, cancellation))
+                RunTerminated?.Invoke(request.RunId);
+            }
+            finally
+            {
+                lock (gate)
                 {
-                    activeCancellation.Dispose();
-                    activeCancellation = null;
-                    activeTask = null;
+                    if (ReferenceEquals(activeCancellation, cancellation))
+                    {
+                        activeCancellation.Dispose();
+                        activeCancellation = null;
+                        activeTask = null;
+                    }
                 }
             }
-            RunTerminated?.Invoke(request.RunId);
         }
     }
 

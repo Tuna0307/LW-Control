@@ -403,7 +403,11 @@ internal sealed partial class LWBridgeWindow : Form
                             IsMapScanActive = () => map317CommandService.IsScanActive,
                             ReadStatusAsync = map317CommandService.ReadAutoScanStatusAsync,
                             StartTargetScanAsync = map317CommandService.StartAutoScanTargetAsync,
+                            StartTargetScanIfStillOwnedAsync =
+                                map317CommandService.StartAutoScanTargetIfStillOwnedAsync,
                             ReturnServerAsync = map317CommandService.ReturnAutoScanToServerAsync,
+                            ReturnServerIfStillOwnedAsync =
+                                map317CommandService.ReturnAutoScanToServerIfStillOwnedAsync,
                             StopScanIfOwnedAsync = map317CommandService.StopAutoScanIfOwnedAsync,
                         });
                 if (mapAutoScanService is not null)
