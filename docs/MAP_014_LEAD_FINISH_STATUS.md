@@ -55,7 +55,9 @@ This is current observation, not a fixed population census or original parity.
 The official launcher settled content v26 before bridge installation. Its data
 hash is `49f6249d1530b5f16aad3750388d017ac3032f4b8ef584eec6cff9ea01d19b6d`;
 metadata is `52d5b30c486e9ff222e125eb05a13cc01a6407b0bdb40f15cbf12af0389ffae0`.
-The legacy version marker remains 24. Existing critical-anchor admission passed
+The first launch retained the legacy version marker 24. A later read-only
+preflight observed marker26 with the same admitted data/metadata; both exact
+original triplets are retained. Existing critical-anchor admission passed
 without changing its production policy; game EXE, managed assembly and xLua
 anchors remain unchanged. The read-only package delta is retained locally.
 
@@ -65,8 +67,16 @@ hashes and reported a false restoration failure. It remains preserved. Separate
 bytes/manifest, admitted v26 start, captured process-handle exit, matching host
 and helper Stop, restored installed bytes, cleared journals and no surviving
 installation process. No rollback to v24 occurred. The diagnostic runner now
-checks these same-session originals; its three inert audit tests reject foreign
+checks these same-session originals; its inert audit tests reject foreign
 identity, missing backup, changed bytes, unsupported packages and pending cleanup.
+
+The subsequent remote packaged trial `native-ui-20261014-085234` failed before
+remote scanning: its opt-in proof still required eight Auto choices while
+Other makes nine. This is a diagnostic selector defect, now corrected; no
+remote scan success is claimed for that attempt. Exact helper/host Stop
+receipts and contemporaneous installed-file checks remain preserved. Cleanup
+auditing now separates failed feature results from successful restoration.
+An hours-later marker change is not used to rewrite that historical receipt.
 
 ## Selected production methods and remaining gates
 

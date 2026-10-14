@@ -26,7 +26,10 @@ class RestorationAuditTests(unittest.TestCase):
         self.bytes26["version.txt"] = self.bytes24["version.txt"]
         self.h24 = {name: hashlib.sha256(data).hexdigest() for name, data in self.bytes24.items()}
         self.h26 = {name: hashlib.sha256(data).hexdigest() for name, data in self.bytes26.items()}
-        self.patches = [patch.object(run_ui, "EXPECTED", self.h24), patch.object(run_ui, "EXPECTED_26", self.h26)]
+        self.bytes26_current = dict(self.bytes26, **{"version.txt": b"26"})
+        self.h26_current = {name: hashlib.sha256(data).hexdigest() for name, data in self.bytes26_current.items()}
+        self.patches = [patch.object(run_ui, "EXPECTED", self.h24), patch.object(run_ui, "EXPECTED_26", self.h26),
+                        patch.object(run_ui, "EXPECTED_26_CURRENT", self.h26_current)]
         for item in self.patches:
             item.start()
         for name, data in self.bytes26.items():
@@ -81,9 +84,55 @@ class RestorationAuditTests(unittest.TestCase):
         result = self.audit()
         self.assertTrue(result["officialSettledOriginalChangedBeforeInstall"])
         self.assertEqual(result["contentVersion"], 26)
+        self.assertTrue(result["diagnosticResultSucceeded"])
         self.assertEqual(result["installedHashes"], self.h26)
         self.assertEqual((self.root / "owned-exit.json").read_bytes(), old_receipt)
         self.assertFalse(self.audit(prior=self.h26)["officialSettledOriginalChangedBeforeInstall"])
+
+    def test_failed_native_proof_can_cleanup_without_becoming_success(self):
+        receipt_path = self.root / "owned-exit.json"
+        receipt = json.loads(receipt_path.read_bytes())
+        receipt.update(exitCode=2, proof=False, error="controlled native scan failed before acquisition")
+        self.write(receipt_path, receipt)
+        before = receipt_path.read_bytes()
+        cleaned = self.audit()
+        self.assertEqual(cleaned["state"], "proven")
+        self.assertFalse(cleaned["diagnosticResultSucceeded"])
+        self.assertTrue(all(cleaned["originalScriptsRestored"].values()))
+        self.assertEqual(receipt_path.read_bytes(), before)
+        for invalid in (None, False, "2"):
+            receipt["exitCode"] = invalid
+            self.write(receipt_path, receipt)
+            with self.assertRaises(RuntimeError):
+                self.audit()
+        receipt.pop("exitCode")
+        self.write(receipt_path, receipt)
+        with self.assertRaises(RuntimeError):
+            self.audit()
+
+    def test_both_explicit_v26_original_markers_and_unknown_marker(self):
+        self.assertEqual(run_ui.admitted_original_version(self.h26), 26)
+        self.assertEqual(run_ui.admitted_original_version(self.h26_current), 26)
+        with self.assertRaises(RuntimeError):
+            run_ui.admitted_original_version(dict(self.h26, **{"version.txt": "f" * 64}))
+        # An idle official marker refresh cannot certify older captured bytes.
+        (self.installed / "version.txt").write_bytes(b"26")
+        with self.assertRaises(RuntimeError):
+            self.audit()
+        (self.backup / "version.txt").write_bytes(b"26")
+        for path in (self.session / "helper-stop.json", self.session / "host-stop.json", self.backup / "manifest.json"):
+            value = json.loads(path.read_bytes())
+            restoration = value.get("helper", value).get("restore")
+            if restoration is not None:
+                for key in ("originalFiles", "restoredFiles"):
+                    restoration[key]["version"].update(sha256=self.h26_current["version.txt"], size=2)
+            else:
+                value["originalFiles"]["version"].update(sha256=self.h26_current["version.txt"], size=2)
+            self.write(path, value)
+        result = self.audit(prior=self.h26_current)
+        self.assertEqual(result["capturedOriginalHashes"], self.h26_current)
+        self.assertFalse(result["officialSettledOriginalChangedBeforeInstall"])
+        self.assertTrue(self.audit(prior=self.h26)["officialSettledOriginalChangedBeforeInstall"])
 
     def test_inverse_receipt_and_byte_failures(self):
         mutations = {

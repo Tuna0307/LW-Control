@@ -1,9 +1,10 @@
 # MAP-014 — solo takeover evidence and lead-review candidate
 
 Current overall status: **MAP-014 PARTIAL; whole owner/scanner assignment
-NOT READY_FOR_LEAD_FUNCTIONAL_REVIEW.** Previously evidenced
-functional fixes are individually reviewable, but the missing
-City census, seasonal events and faster scanner remain open. See
+NOT COMPLETE.** Read `MAP_014_LEAD_FINISH_STATUS.md` first for the current
+takeover, integrated corrections and final native package checks. Available
+functional fixes are individually reviewable; independent whole-world census,
+rare-event/action providers and additional scanner qualification remain open. See
 [`MAP_014_COVERAGE_TRACKING_CONTINUATION.md`](MAP_014_COVERAGE_TRACKING_CONTINUATION.md)
 for post-lead City identity comparisons, sustained live moving Truck tracking,
 acquisition failure causes and explicit remaining gates. The repository
@@ -32,17 +33,18 @@ faster-method acceptance is inferred.
 | 9 ALL Truck rewards | Genuine two-selected-item AND with 46 matching Truck rows | Pass |
 | 10 Item icons | Source-backed nonzero real PNGs in both table and filter menu | Pass |
 | 11 Auto Clear | Genuine UI cleared stored 2213 while retaining 7,975 home 2212 Resources | Pass |
-| 12 Scattered Supplies | Fresh native LOD0 upper-right event source enumerated 78 loaded pointInfos, zero type-27 Supplies; season-S2 type-1 event object not spawned in observed footprint | Source mapping pass, live event pending |
-| 13 Celebration Party | Fresh native source delivered two ordinary TreasurePointInfo type-21 objects, but no authoritative Party world point class/event ID/name match | Source identification pending |
+| 12 Scattered Supplies | Three genuine packaged Other rows at `native-ui-20261014-013823`; source-qualified subtype/config mapping and ordinary Treasure separation. Earlier empty samples remain historical. | Available positive pass |
+| 13 Celebration Party | Source identifies detect_event 27000/type23 and native TreasurePointInfo classification under Other. No genuine spawned Party positive yet. | Source mapping pass; live positive pending |
 
-Scanner performance is a separate open acceptance gate:
-post-lens consecutive B has target AOI 4954 but native subscription
-retains nine old-A AOIs 4244-4446, no fresh response or exact
-failure-time camera restoration. ZoomMax changes to LOD2 coarse view.
-Neither route is deployed or accuracy-qualified for paired benchmarks;
-production serial shared LOD0 and Normal/Fast remain selected. See
-the detailed newest continuation for exact native receipts, source
-audits and controlled rejections.
+Scanner performance uses a selection-specific policy. City-only FOV20 has
+three paired stable-identity comparisons and a new genuine packaged 4,056-row
+positive; its current implementation is selected for City-only. Resource,
+mobile and mixed selections retain guarded serial shared LOD0: Resource
+temporal differences remain unexplained and FOV20 mixed lost unexpired Trucks.
+Later private consecutive A/B/C discovery succeeds, but a production native
+producer and complete pipeline qualification remain absent. Earlier failed
+subscription receipts and ZoomMax coarse-view rejection are preserved below
+and in the continuations. No global optimality or independent census is claimed.
 
 ## Original detailed owner issue matrix (historical evidence preserved)
 

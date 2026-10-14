@@ -103,7 +103,7 @@ internal sealed partial class LWBridgeWindow
             if(!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[1];if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto Resource checkbox missing.");
             await RequireUi(()=>Dom("document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[1]?.checked===true"),"Auto Resource selection");
-            for(int index=0;index<8;index++)
+            for(int index=0;index<9;index++)
             {
                 if(index==1) continue;
                 string predicate=$"(()=>{{const box=document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[{index}];if(!box)return false;if(box.checked)box.click();return true;}})()";
@@ -111,7 +111,7 @@ internal sealed partial class LWBridgeWindow
                 string settled=$"document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[{index}]?.checked===false";
                 await RequireUi(()=>Dom(settled),"Auto deselect "+index);
             }
-            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')];return boxes.length===8&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types");
+            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')];return boxes.length===9&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types including unselected Other");
             if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-options label input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto return-to-original checkbox missing.");
             if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-master input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
