@@ -541,6 +541,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        string? acceptedScanRunId = null;
         try
         {
             store.ReconcileInterruptedScans(
@@ -557,6 +558,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             Map317.MapScanState state =
                 await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
                     .ConfigureAwait(false);
+            acceptedScanRunId = state.ScanRunId;
             if (scanRunProvider is null)
                 throw new InvalidOperationException(
                     "An accepting Map provider must implement the run-scoped terminal lifetime contract.");
@@ -566,8 +568,18 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         catch (Exception error)
         {
-            if (control.ScanState.IsReading)
-                control.FailScan(error.Message);
+            // A failed pre-acceptance start has NO owned run to fail. An
+            // accepted start whose ActivateAcceptedRun subsequently throws
+            // may already have retired, or a manual/Auto successor may have
+            // taken over. The former generic FailScan mutated whichever
+            // scan was CURRENT, potentially failing a different owner and
+            // replacing its SQLite status. Retire only the RunId returned by
+            // this precise Start invocation; preserve the original error.
+            if (!string.IsNullOrWhiteSpace(acceptedScanRunId))
+            {
+                try { control.FailScanForRun(acceptedScanRunId, error.Message); }
+                catch { /* Never fail an independent successor while handling a stale Start. */ }
+            }
             ReleaseScanLease();
             throw;
         }

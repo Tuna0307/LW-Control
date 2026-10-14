@@ -799,3 +799,39 @@ previous qualified route. The existing 64 transport, 40 native/Resource,
 current C# GREEN. No denied .NET, local Git inspection, npm/frontend or
 recovery equivalent execution took place. No RC/merge/installed-script
 change/game actions. **Overall PARTIAL.**
+
+## MAP-014 continued managed lifecycle integrity (after `3e0eacc4`)
+
+**Permitted baseline:** at this continuation's entry, the direct origin
+branch and existing draft PR #10 head independently matched
+`3e0eacc425b0348b3e5fa341f8e1815ded26fb4f`. `AGENTS.md`, the latest
+Oct14 handoff, lead-lens source contracts and actual Map317/engine/provider/
+SQLite/Auto implementation were read. Previous C#/.NET test execution, local
+Git status/diff/check, npm/frontend and recovery atomic rename remain **hard
+denials**. The separately blocked C# regression edit from the prior cycle
+was NOT retried through any tool, file or equivalent test workaround.
+
+| Production-path change | Evidence and remaining gate |
+| --- | --- |
+| **Server change during native stop:** `MapScanStateMachine.FailAndStopAsync` already committed durable `FailScan` under exact `stateGate`, but then left the in-memory run `IsReading=true` and fully writable while asynchronously awaiting provider Stop/native cleanup. A late old-run stage/progress/Publish could still pass the accepted-run check and attempt SQLite operations on the already failed row. After durable failure, the state is now marked `Phase=stopping` under that **same** owner lock. `IsOwnedRunningScan` refuses callbacks from a stopping owner, but `IsReading` stays true until provider Stop returns, preserving the native lease and preventing premature manual/Auto navigation. The final transition remains idle+error. | Source-backed lifecycle correction; existing current-run/late-callback tests were not executed or modified. No fresh C# GREEN; this managed state does **not** authenticate game-owned cancellation, home restoration or a navigation generation. |
+| **Ordinary Stop after durable cancellation:** the real synchronous SQLite `IMapScanImmediateCancelSink` committed `cancelled` status under `stateGate`, but the in-memory state remained writable until asynchronous provider Stop returned. In that window old callbacks passed the RunId admission, then encountered terminal SQLite rows; a completion callback could claim the old owner while shutdown was still in flight. Ordinary Stop now sets the **same `Phase=stopping` fence inside the exact SQLite-cancel lock**, keeping `IsReading=true` until provider Stop settles. Late native stage/progress/Publish and `FailScanForRun` become no-ops/rejections for the canceled owner; they cannot overwrite a manual/Auto successor. | Source review only. The managed stopping fence does not prove native camera restoration; no denied C# execution or blocked regression edit was attempted. |
+| **Split pre-publication SQLite progress write:** exact-run `MapControlPlane.CompleteScanForRun` previously wrote `CompletedBlocks=TotalBlocks` in a separate `UPDATE` *before* the transactional SQLite `CompleteScan` replacement. `ReportProgressForRun` has already durably recorded cumulative engine progress under the same exact owner; `MapStore.CompleteScan` independently validates durable `CompletedBlocks==TotalBlocks` and zero failed blocks **before** beginning its single selected-kind replacement transaction. The redundant final `UPDATE` is removed: an absent/stale durable checkpoint cannot be manufactured immediately before publish, and a failing publish leaves previous selected-kind rows and the original durable checkpoint intact. | Personally read the real engine's final `Report(..."publishing")`, run-owned durable progress, SQLite `CompleteScan` completeness guard and transaction. C# integration/Release **unexecuted** under prior denial. Existing City-only and accepted run paths unchanged. |
+| **Failed Start/Activate wrong-run failure:** desktop `Map317CommandService.StartScanWithRegisteredLeaseAsync` formerly caught *any* failure and invoked legacy `control.FailScan(error)` whenever the shared control plane appeared Reading. That could fail an independently accepted current manual/Auto run if an earlier Start/Activate request retired during its async handoff. The handler now records the exact RunId returned by this call's `control.StartScanAsync` and uses idempotent `FailScanForRun(acceptedRunId)` only for that ID; a failure before acceptance has no authority to fail anyone. The original exception and registered lease-release behavior are preserved. | Source-backed fail-closed command/SQLite correction. The separate earlier blocked C# regression edit was not repeated; no test compilation or execution is claimed. Legacy `MapControlPlane.CompleteScan()` remains used by the isolated mounted Home/Map campaign proof, not this native production sink. |
+
+**Native producer boundary unchanged:** actual `bulk-aoi-diagnostic` is a
+one-probe file request/reply; authenticated Lua named-pipe dispatch only
+understands `getStatus({})` and does not produce owner-authenticated grouped
+A→B→C typed receipts. The optional received-only ingress still has no
+production native producer, per-AOI source packet proofs, native-owned cancel
+or independently matched one-time final-home ACK. **Consecutive selector
+OFF**; no native/packaged test or RC. Qualified City-only FOV20 (historical
+paired 4,114 stable owners, median 227.912 s → 86.179 s) remains unchanged.
+Real private 119 probes / 10,000 AOIs / 49.203 s remain diagnostic only.
+Resource six-round 19/4/3 missing and 25 candidate-only identities remain
+causally unqualified; mobile typed WorldMarch arrival/expiry, Celebration
+Party, moving Doom Walker and Train lifetime still lack independent witnesses.
+Historical 64 transport, 40 Resource/native, 66 March, 12 consecutive and
+eight native-observer Python passes are **previous** source receipts, not
+validation of this new C# code. Previous City, Other/Treasure, filters,
+localization, Auto/Jump/Clear, Truck Follow/Stop and genuine native negatives
+are preserved. No denied operation was retried; **overall PARTIAL**.

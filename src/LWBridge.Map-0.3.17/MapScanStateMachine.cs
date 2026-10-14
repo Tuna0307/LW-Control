@@ -479,6 +479,12 @@ public sealed class MapScanStateMachine
 
     private static bool IsOwnedRunningScan(MapScanState current, string expectedRunId) =>
         current.IsReading && !string.IsNullOrWhiteSpace(expectedRunId) &&
+        // A server-change observer may have atomically failed this exact
+        // SQLite run while its native provider Stop is still unwinding. Keep
+        // IsReading=true until that cleanup settles so other navigation cannot
+        // take the lease, but NEVER admit another stage/progress/publication
+        // into an already terminal durable run.
+        !string.Equals(current.Phase, "stopping", StringComparison.Ordinal) &&
         string.Equals(current.ScanRunId, expectedRunId, StringComparison.Ordinal);
 
     private static void RequireOwnedRunningScan(MapScanState current, string expectedRunId)
@@ -507,6 +513,13 @@ public sealed class MapScanStateMachine
                     before.ServerId != expectedServerId)
                     return before;
                 store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+                state = state with
+                {
+                    Phase = "stopping",
+                    Error = error,
+                    InflightBlocks = 0,
+                    AcquisitionProgressPercent = null,
+                };
             }
             try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
             catch { /* best effort, like the original stopMapScan after the local boundary */ }
@@ -564,7 +577,22 @@ public sealed class MapScanStateMachine
                     {
                         before = state;
                         if (before.IsReading && !string.IsNullOrEmpty(before.ScanRunId))
+                        {
                             immediate.CancelScanImmediately(before.ScanRunId, cancellationToken);
+                            // SQLite cancellation and managed source retirement
+                            // must share the exact native publication gate. A
+                            // late callback cannot remain admissible while the
+                            // provider's asynchronous final Stop/cleanup awaits
+                            // its own terminal native outcome. IsReading stays
+                            // true until provider stop settles, preserving the
+                            // lease and preventing a new manual/Auto jump.
+                            state = state with
+                            {
+                                Phase = "stopping",
+                                InflightBlocks = 0,
+                                AcquisitionProgressPercent = null,
+                            };
+                        }
                     }
                     if (!before.IsReading)
                     {

@@ -137,9 +137,15 @@ public sealed class MapControlPlane : IDisposable
                 state.FailedBlocks != 0 || state.InflightBlocks != 0)
                 throw new BridgeCommandException("INCOMPLETE_SCAN",
                     "native scan cannot publish before every owned logical block completed");
-            long now = nowMilliseconds();
-            store.UpdateScanProgress(expectedRunId, state.TotalBlocks, 0, null, now);
-            store.CompleteScan(expectedRunId, now);
+            // Owned engine progress was already persisted atomically with the
+            // matching in-memory snapshot by ReportProgressForRun. The SQLite
+            // CompleteScan transaction independently requires durable
+            // completed==total and zero failures before replacing any selected
+            // kind rows. Do not forcibly advance durable progress in a
+            // separate pre-publication UPDATE: it could conceal a missing
+            // checkpoint after a failed progress write and leave a misleading
+            // 100%-but-running row if the publication transaction then fails.
+            store.CompleteScan(expectedRunId, nowMilliseconds());
         });
 
     public MapScanState FailScanForRun(string expectedRunId, string error) =>
