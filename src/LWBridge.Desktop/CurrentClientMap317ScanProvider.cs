@@ -147,8 +147,11 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         {
             request = pending ?? throw new InvalidOperationException("No accepted Map317 scan is pending activation.");
             liveContext = pendingContext ?? throw new InvalidOperationException("No accepted current-client scan context is pending activation.");
+            Map317.MapScanState admitted = control.ScanState;
             if (!string.Equals(scanRunId, request.ScanRunId, StringComparison.Ordinal) ||
-                !string.Equals(control.ScanState.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
+                !admitted.IsReading ||
+                !string.Equals(admitted.Phase, "scanning", StringComparison.Ordinal) ||
+                !string.Equals(admitted.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
                 throw new InvalidOperationException("Map317 scan activation does not match the durable scan run.");
             pending = null;
             pendingContext = null;
