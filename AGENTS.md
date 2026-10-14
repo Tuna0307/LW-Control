@@ -1,5 +1,17 @@
 # LW-Control — current contributor instructions
 
+Latest owner interruption/worker handback, 2026-10-14: lead execution stopped
+at owner request to conserve tokens; worker should resume the existing branch
+and draft PR #10. Read docs/MAP_014_WORKER_RESUME_HANDOFF_2026-10-14.md first.
+Product e01d01b5 was clean/pushed/published locally; no final ZIP. Genuine mixed
+scan/publication and independent DB audit passed, but Dispatch real UI browsing
+failed. Diagnose it first using the retained genuine DB and new opt-in query
+error observer, rather than repeating a full scan. Finish the remaining native
+Stop/Other/filter/tracking/package gates through fix/retest loops. Available
+subagents allowed, one primary integrator/one live controller; preserve existing
+background/action boundaries, negatives and exact v26 originals. No merge or
+publication; whole Map remains PARTIAL until actual remaining gates pass.
+
 Latest lead takeover, 2026-10-14: owner authorized finishing/testing; external
 worker confirmed stopped. Read docs/MAP_014_LEAD_FINISH_STATUS.md first. Fresh
 current-checkpoint Release rebuild and full inert suite pass under normal tool

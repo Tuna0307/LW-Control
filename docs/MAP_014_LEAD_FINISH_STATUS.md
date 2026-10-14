@@ -1,5 +1,36 @@
 # MAP-014 lead finish — 2026-10-14
 
+## Latest owner interruption and worker handback
+
+Owner stopped execution to conserve tokens and requested a worker handoff.
+Read `docs/MAP_014_WORKER_RESUME_HANDOFF_2026-10-14.md` first for the exact
+remaining assignment. Product HEAD at interruption was
+`e01d01b5d493dd19a7b44033963436e26ebadd90`, clean and direct-remote verified;
+its canonical Windows publish finished. No final review ZIP, merge or release.
+Fresh process query found no game/launcher/Desktop actors. No further live work
+was performed after the interruption.
+
+The fresh packaged remote Resource Auto/browse/Jump/Clear proof PASSED on b3d
+at `artifacts/map014-takeover/native-ui-20261014-122631` with exact restoration.
+The later e695 packaged mixed scan PASSED acquisition, hydration and publication
+at `artifacts/map014-takeover/native-ui-20261014-125647`: City 4,132; Resource
+8,010; Monster 14,028; Truck 193; Dispatch 842; Railway 0; completed 2,500,
+failed zero. Independent production MapStore reopen/query/export audit passed.
+However its real UI extras proof FAILED loading Dispatch; do not call the whole
+run successful. e01d adds opt-in query-error observation and genuine saved-DB
+browse replay, built but not yet live-tested. That failure is the worker's first
+priority, without repeating the full scan.
+
+An earlier diagnostic mixed run failed after Resource hydration lost its source
+state and retries consumed existing acquisition. e695 retains first correlated
+reply/error and terminalizes this full-world validation failure; meaningful
+engine/SQLite failure, retry and cancellation tests pass. Its original initial
+cause remains unknown. Existing Resource accounting and ownership guards remain.
+
+**Current status: worker resume assigned; available functional scope not yet
+finally accepted; whole Map PARTIAL.** Older sections below describe preserved
+intermediate checkpoints, not a replacement for this latest status.
+
 Owner authorized lead takeover and current testing; external worker confirmed
 stopped. Two independent agents reviewed separate source areas and contributed
 non-overlapping corrections/tests. Lead owns integration, all execution and
@@ -85,15 +116,14 @@ baseline. Faster Resource/mobile/mixed methods and one-final-restore consecutive
 mode remain unqualified and disabled. Experimental received-group interfaces
 are not a production native producer. No global optimality/census claim.
 
-Next: source-pin this correction checkpoint, publish canonical Windows app,
-perform bounded genuine City/Other and Resource/mixed/Stop/remote regressions,
-audit camera/SQLite/ownership/installed-file cleanup, then build one final RC.
-Only that current source/package may be accepted; prior receipts cannot certify
-the newest binary.
+The latest worker-resume handoff above replaces this intermediate next-step
+list. Remaining current UI/Stop/Other and final package gates are specified there.
+Only a matching current source/package may be accepted; prior receipts cannot
+certify changed production paths in the newest binary.
 
 Party event27000 and a moving Doom Walker positive, independent Train final
 lifetime, deferred Ghost/seasonal positives and owner-only claims/plunder/share
 remain truthful separate gates. No such action is authorized by this takeover.
 
-**Status: available correction checkpoint passes controlled gates; live final
-package verification IN PROGRESS. Not whole-Map completion or release approval.**
+**Intermediate result: controlled correction checkpoint passed; later native
+results and current handback status are recorded at the top of this file.**
