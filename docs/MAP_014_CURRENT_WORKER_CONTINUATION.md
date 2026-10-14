@@ -402,3 +402,51 @@ expiry witness are genuinely unavailable.
 the denied recovery-journal guarantee is legitimately available and actual
 selected native/packaged functional gates pass. The old `339e241c` ZIP is
 not a release for the newly changed source.
+
+## MAP-014 native transport and retained-group admission continuation
+
+**Takeover verified:** clean local `d31f564fca42b52097614a5b26395b162f89f2f2` matched
+direct origin and draft PR #10; `AGENTS.md`, October 14 owner handoff, current
+continuation and original native evidence reconciled. No LastWar/desktop
+process or active global recovery journal. The original script hashes still
+matched (`LWScripts.data` `d520dcd3...`, `LWScripts.txt` `b84cfa87...`,
+`version.txt` `c2356069...`). Persisted product Auto **Enabled=true** with
+positive `NextRunAt` but `restart.active=false`; this user setting was left
+unaltered, and no app was launched. The prior approved recovery journal atomic
+rename **WinError 5 is a hard denial**; no retry, permissions/route alteration,
+or game/installed-script activity was attempted.
+
+| Done / evidence level | Still pending / fail-closed decision |
+| --- | --- |
+| **Producer/transport source contract:** `CurrentClientMapBlockSource.ProbeFastCityBatchAsync` writes `bulk-aoi-diagnostic.txt` (schema=1, single random requestId, pinned profile/session/challenge/PID/server/run) and reads one correlated `bulk-aoi-diagnostic-result.json`. The checked-in Lua `read_bulk_aoi_diagnostic` consumes/removes that request and allows modes native/expanded/direct/coverage/anchor/edge/zoom only; one global `bulk_aoi_request` handles one target, observes its native point footprint, restores home and writes **one** result. The result contains the owned session/challenge/PID/request ID and observed AOI/point fields, but **does not emit `scanRunId`, `serverId`, `worldId`, a native group generation, three independently typed region replies, 10,000 per-AOI packet provenance or separate final-home group ACK**. | This exact producer **cannot** fulfill `IMap014ReceivedNativeSharedGroupIngress`, which has no installed/authenticated producer implementation. The old genuine 49.203 s private native 10,000-AOI diagnostic is not a production group receipt; a fake received-envelope test can never substitute genuine native generation. Production A→B→C selection remains **off**. |
+| **Received-only group source strengthened:** `Map014NativeSharedReceiptSource` now also rejects one native request ID claiming more than the pinned WorldPointManager **160-AOI request limit**, or one reply ID recycled with contradictory source time. Two distinguishing controlled inverses accompany the existing 2,500 logical blocks/10,000 native 10×10 AOIs, exact City owner, three A/B/C stages and one correlated final home proof. No simulated native reply or camera request was added. | Actual packet authenticity is NOT established by a self-declared reply ID or count; ingress remains passive/test-injected only. City-only FOV20 retains its previously qualified **guarded native producer**; do not route it through the unqualified consecutive source. |
+| **SQLite staging after positive source receipt:** new direct real `MapScanEngine` + `MapDataStoreScanSink` controls cancel an opt-in received-only City group after 100 positive blocks and separately corrupt the final received-home request ID after all 2,500 blocks. Both retire staging (`discarded`/`failed`) and preserve previously published local and remote server rows; never publish `native-city-0`. **Controlled synthetic evidence, not actual game Stop.** | Native owned A→B→C cancellation, stale late replies, exactly one camera restoration, independent packet and source provider still require safe actual native verification. |
+| **Resource live producer row provenance:** per-target `requestIssued`, `cacheBefore`, `sendFailed` and `received` flags must be individually typed, have one supported source origin, agree with detail presence, and exactly reconcile `requestCount`, `cacheBeforeCount`, `sendFailureCount`, `readyCount`. RED demonstrated aggregate-count acceptance of contradicted target source; temporary test bypass removed; final 10 controlled provenance inverses plus earlier **14 AOI + 9 hydration** tests pass. The immutable final run's real 7,494 detail targets were native cached+received. | Five earlier per-target detail snapshots unavailable; one source-reported cache hit does not establish cache age or lifecycle. Six native complete-world resource trials still show **19/4/3 baseline-only** and **25 first candidate-only**, including 16 unoccupied baseline-only; no same-instant authoritative spawn/destruction proof. Resource FOV20 **disabled**. |
+| **WorldMarch causal census:** pinned v24 `WorldMarchDataManager` cache gate may return early before typed handler; offline typed compare-ready checker now requires full source classification/manager UUID partition, source-observed explicit exclusions, matching manager dictionary count/iteration exhaustion and consistent cross-stage owner/clock. New adversarial controls reject a live UUID omitted from both typed cohorts; **66** March Python tests pass. | Genuine October 14 native 60 untyped UUID point-ready receipt remains incomplete. Historical mixed candidate loses 92/92/83 Truck UUIDs (90/88/82 with future arrivals), future Railway 2/1/1; no fresh handler/queue/clock or Train final lifetime source, so guarded Truck/Train/mixed methods remain. |
+| **Auto archived-run navigation owner:** controlled RED demonstrated an old completed Auto run could return over an unrelated manual switch to a third server despite no successor scan running. The current server must remain either the Auto-owned last target or initial server before any return; retirement while its status read is held cancels further return. Added multiple real scheduler controls for idle manual-switch and sequential remote owners, while leaving saved user Auto setting untouched. | These are scheduler/managed API controls; no new native or packaged two-server Auto action was performed due denied recovery setup. Previously genuine remote Jump/Clear and Follow/Stop remain preserved. |
+
+**Integrated offline classification:** .NET Release full Home/Map/Auto/SQLite,
+Map317, source retention/cancellation and route-selection regressions passed
+(zero compiler warnings/errors); 40 native benchmark-auditor, 66 March, 12
+consecutive, eight Lua fingerprint/observer tests passed; permitted direct
+frontend Other, saved-owner and mounted EN/light plus JA/dark checks passed.
+The previously denied aggregate `npm.cmd run check` was **not retried or
+rerouted**. All accepted City/Other/Treasure/Truck Follow/remote behavior
+remains unchanged. Celebration Party, moving Doom Walker and independent
+Train-lifetime genuine positives remain explicitly unavailable. No new ZIP
+or source-identified packaged Windows RC is justified until the native group
+transport and protected live/packaged gates genuinely pass. Overall **PARTIAL**.
+
+**Independent native transport evidence:** `docs/MAP_014_NATIVE_GROUP_TRANSPORT_BOUNDARY.md`
+and read-only `tools/map_014_shared_transport_audit/` inspect actual Lua
+reader whitelist, current one-in-flight request state, writer's **158**
+source fields, managed requestId polling/fresh-time gate, and two immutable
+October 14 private A/B/C archives. Native script mode whitelist contains
+seven single-probe modes and **no authenticated group**; Lua one-result writer
+omits even `scanRunId`, `serverId`, `worldId` and all per-AOI reply, type-specific
+group and final home-reply fields. Executable adversarial audit **32** tests
+passes, with both real private native groups rejected under the future
+received-only source contract. This is source/schema proof of the present
+transport limitation, **not a new native success or speculative network hook**.
+Auto's added owner controls also reject idle current server **0/unknown**, not
+only a manually changed server, before returning an archived Auto scan.

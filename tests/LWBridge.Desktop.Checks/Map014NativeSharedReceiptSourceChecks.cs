@@ -335,6 +335,63 @@ internal static class Map014NativeSharedReceiptSourceChecks
         }
     }
 
+    private static async Task TestRetiredReceivedCitySQLiteAsync(bool cancelledAfterStaging)
+    {
+        string directory = Path.Combine(Path.GetTempPath(),
+            "map014-inbound-retired-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        string path = Path.Combine(directory, "data.db");
+        try
+        {
+            using var store = new MapDataStore(path);
+            var previousHome = new MapStoredRecord("city", 2213, "previous-home", 1,
+                null, "previous source", null, 1, null, null, null, null,
+                Start - 5000, "{\"ownerUid\":\"previous-home-owner\"}");
+            store.UpsertRecord(previousHome);
+            store.UpsertRecord(previousHome with {
+                ServerId = 2214, RecordKey = "unrelated-remote"
+            });
+            var ingress = new Received(Envelope());
+            using var stop = new CancellationTokenSource();
+            if (!cancelledAfterStaging)
+                ingress.HomeReply = ingress.HomeReply! with {
+                    NativeReplyRequestId = "wrong-original-home-reply"
+                };
+            Task acquisition = new MapScanEngine(
+                Source(ingress), new MapDataStoreScanSink(store),
+                progress: progress => {
+                    if (cancelledAfterStaging && progress.CompletedBlocks >= 100)
+                        stop.Cancel();
+                }).ExecuteAsync(Request, stop.Token);
+            if (cancelledAfterStaging)
+                await Reject<OperationCanceledException>(() => acquisition,
+                    "positive staged native group was published after exact Stop");
+            else
+                await Reject<InvalidDataException>(() => acquisition,
+                    "wrong independently received final native home ACK published grouped City");
+
+            string terminal = cancelledAfterStaging ? "discarded" : "failed";
+            Require(SqlCount(path, "scan_runs", "id='received-run' AND status='" + terminal + "'") == 1 &&
+                    SqlCount(path, "map_records", "server_id=2213 AND kind='city'") == 1 &&
+                    SqlCount(path, "map_records", "server_id=2214 AND kind='city'") == 1 &&
+                    SqlCount(path, "scan_records") == 0 &&
+                    SqlCount(path, "scan_blocks") == 0 &&
+                    store.GetRecord("city", 2213, "previous-home") is not null &&
+                    store.GetRecord("city", 2214, "unrelated-remote") is not null &&
+                    store.GetRecord("city", 2213, "native-city-0") is null &&
+                    ingress.Reads == 1 && ingress.HomeReads == 1 &&
+                    ingress.CleanupReason == (cancelledAfterStaging
+                        ? MapScanAcquisitionExitReason.Stopped
+                        : MapScanAcquisitionExitReason.Completed),
+                "retired/wrong-home native group lost historical SQLite rows or left positive staging");
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            try { Directory.Delete(directory, true); } catch { }
+        }
+    }
+
     private static async Task TestSourceAdmissionAndInversesAsync()
     {
         Received absent = new(null);
@@ -386,6 +443,21 @@ internal static class Map014NativeSharedReceiptSourceChecks
                 envelope.NativeAoiProofs[0],
                 ..envelope.NativeAoiProofs.Skip(2)
             ]
+        });
+        await RejectGroup("one reply reused to cover all 10000 AOIs", envelope => envelope with
+        {
+            NativeAoiProofs = envelope.NativeAoiProofs.Select(proof => proof with {
+                NativeReplyRequestId = "forged-one-world-reply"
+            }).ToArray(),
+            KindBlocks = envelope.KindBlocks.Select(block => block with {
+                NativeReplyRequestId = "forged-one-world-reply"
+            }).ToArray()
+        });
+        await RejectGroup("one reply id with inconsistent native observation clocks", envelope => envelope with
+        {
+            NativeAoiProofs = [envelope.NativeAoiProofs[0] with {
+                NativeReplyAtUnixMs = envelope.NativeAoiProofs[0].NativeReplyAtUnixMs + 1
+            }, ..envelope.NativeAoiProofs.Skip(1)]
         });
         await RejectGroup("false final home receipt", envelope => envelope with
         {
@@ -594,6 +666,8 @@ internal static class Map014NativeSharedReceiptSourceChecks
     internal static async Task RunAsync()
     {
         await TestReceivedCitySQLiteAsync();
+        await TestRetiredReceivedCitySQLiteAsync(cancelledAfterStaging: true);
+        await TestRetiredReceivedCitySQLiteAsync(cancelledAfterStaging: false);
         await TestSourceAdmissionAndInversesAsync();
         await TestLateCancellationAndCleanupAsync();
         await TestActualMap317ReceivedIngressAsync("valid");

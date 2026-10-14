@@ -18,6 +18,12 @@ internal static class Map014AutoSharedOwnershipChecks
         await CheckArchivedRunCannotAuthorizeReturnAsync(managedFlagReflectsSuccessor: false);
         await CheckArchivedRunWithoutSuccessorAllowsReturnAsync();
         await CheckPublishedRunCannotReturnOverSuccessorAsync();
+        await CheckIdleServerSwitchCannotReturnAsync(319);
+        await CheckIdleServerSwitchCannotReturnAsync(0);
+        await CheckIdleServerSwitchAfterCanceledOwnedRunAsync();
+        await CheckRetirementDuringHeldReturnOwnershipReadAsync();
+        await CheckTwoRemoteTargetsCancelOnlyLatestOwnedRunAsync();
+        await CheckPersistedEnabledDeadlineSurvivesStaleConfigAsync();
         Console.WriteLine("MAP014_AUTO_SHARED_OWNER_OK");
     }
 
@@ -164,12 +170,339 @@ internal static class Map014AutoSharedOwnershipChecks
         }
     }
 
+    // The production ReadAutoScanStatusAsync(null) exposes the live server even
+    // after the scan is idle. A user navigation can leave no active scan but
+    // still make a previously scheduled Auto return belong to the old server.
+    private static async Task CheckIdleServerSwitchCannotReturnAsync(int observedLiveServer)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-idle-switch-" + Guid.NewGuid().ToString("N"));
+        int currentServer = 317, starts = 0, stops = 0, returns = 0;
+        try
+        {
+            await using var auto = CreateAuto(root, () => false,
+                (run, _) =>
+                {
+                    if (run is null) return Task.FromResult(new MapAutoScanRuntimeStatus(
+                        Volatile.Read(ref currentServer), false, null, null, "idle"));
+                    Require(run == "auto-owned", "idle-server switch read wrong run");
+                    Volatile.Write(ref currentServer, observedLiveServer); // new server or lost live server after publication
+                    return Task.FromResult(new MapAutoScanRuntimeStatus(318, false, null, run, "completed"));
+                },
+                (_, _) =>
+                {
+                    Interlocked.Increment(ref stops);
+                    return Task.FromResult(true);
+                },
+                (_, _) =>
+                {
+                    Interlocked.Increment(ref returns);
+                    return Task.CompletedTask;
+                },
+                startTarget: server =>
+                {
+                    Interlocked.Increment(ref starts);
+                    Volatile.Write(ref currentServer, server);
+                });
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["resource"], "fast", true, 0));
+            await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(starts == 1 && stops == 0 && returns == 0 &&
+                Volatile.Read(ref currentServer) == observedLiveServer &&
+                result.LastCycle?.Outcome == "failed" &&
+                result.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                result.LastError?.Contains("MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH", StringComparison.Ordinal) == true,
+                "changed or unavailable live server was overwritten by old Auto return");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    private static async Task CheckIdleServerSwitchAfterCanceledOwnedRunAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-idle-cancel-" + Guid.NewGuid().ToString("N"));
+        var enteredPoll = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int currentServer = 317, stops = 0, returns = 0;
+        try
+        {
+            await using var auto = CreateAuto(root, () => false,
+                async (run, token) =>
+                {
+                    if (run is null) return new MapAutoScanRuntimeStatus(
+                        Volatile.Read(ref currentServer), false, null, null, "idle");
+                    Require(run == "auto-owned", "canceled exact run lookup changed owner");
+                    if (!token.CanBeCanceled)
+                        return new MapAutoScanRuntimeStatus(318, false, null, run, "completed");
+                    enteredPoll.TrySetResult();
+                    await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                    throw new InvalidOperationException("held poll must cancel");
+                },
+                (run, _) =>
+                {
+                    Require(run == "auto-owned", "Stop targeted manual successor");
+                    Interlocked.Increment(ref stops);
+                    return Task.FromResult(false); // native stop observed old run terminal
+                },
+                (_, _) =>
+                {
+                    Interlocked.Increment(ref returns);
+                    return Task.CompletedTask;
+                },
+                startTarget: server => Volatile.Write(ref currentServer, server));
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["treasure"], "fast", true, 0));
+            await enteredPoll.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Volatile.Write(ref currentServer, 319);
+            await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(stops == 1 && returns == 0 && Volatile.Read(ref currentServer) == 319 &&
+                result.LastCycle?.Outcome == "failed" &&
+                result.LastCycle.CompletedServerIds.Count == 0 &&
+                result.LastError?.Contains("MAP_AUTO_SCAN_STOP_OWNER_MISMATCH", StringComparison.Ordinal) == true,
+                "canceled archived run redirected idle manually selected server");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    private static async Task CheckRetirementDuringHeldReturnOwnershipReadAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-retire-return-" + Guid.NewGuid().ToString("N"));
+        var returnReadEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseReturnRead = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int globalReads = 0, returns = 0, stops = 0;
+        try
+        {
+            await using var auto = CreateAuto(root, () => false,
+                async (run, _) =>
+                {
+                    if (run is null)
+                    {
+                        if (Interlocked.Increment(ref globalReads) == 1)
+                            return new MapAutoScanRuntimeStatus(317, false, null, null, "idle");
+                        returnReadEntered.TrySetResult();
+                        await releaseReturnRead.Task.ConfigureAwait(false);
+                        return new MapAutoScanRuntimeStatus(318, false, null, null, "idle");
+                    }
+                    return new MapAutoScanRuntimeStatus(318, false, null, run, "completed");
+                },
+                (_, _) =>
+                {
+                    Interlocked.Increment(ref stops);
+                    return Task.FromResult(true);
+                },
+                (_, _) =>
+                {
+                    Interlocked.Increment(ref returns);
+                    return Task.CompletedTask;
+                });
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await returnReadEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Task retiring = auto.RetireAsync();
+            try
+            {
+                Require(!retiring.IsCompleted, "retire should await held final read");
+                releaseReturnRead.TrySetResult();
+                await retiring.WaitAsync(TimeSpan.FromSeconds(5));
+                MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+                Require(stops == 0 && returns == 0 &&
+                    result.LastCycle?.Outcome == "retired" &&
+                    result.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                    result.Config.Enabled && result.Config.NextRunAt == 1_800_000_000_000,
+                    "retired old profile executed a return or modified enabled schedule");
+            }
+            finally { releaseReturnRead.TrySetResult(); }
+        }
+        finally
+        {
+            releaseReturnRead.TrySetResult();
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    private static async Task CheckTwoRemoteTargetsCancelOnlyLatestOwnedRunAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-two-remote-" + Guid.NewGuid().ToString("N"));
+        var secondPolling = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var stopEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseStop = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var starts = new List<int>();
+        var stops = new List<string>();
+        int currentServer = 317, returns = 0, stopSettled = 0;
+        try
+        {
+            await using var auto = new MapAutoScanCommandService(Path.Combine(root, "auto.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = async (run, token) =>
+                    {
+                        if (run is null)
+                            return new MapAutoScanRuntimeStatus(Volatile.Read(ref currentServer), false, null, null, "idle");
+                        if (run == "remote-318")
+                            return new MapAutoScanRuntimeStatus(318, false, null, run, "completed");
+                        Require(run == "remote-319", "second target polled archived first target");
+                        secondPolling.TrySetResult();
+                        await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                        throw new InvalidOperationException("second target must cancel");
+                    },
+                    StartTargetScanAsync = (server, types, mode, _) =>
+                    {
+                        Require((server == 318 || server == 319) && types.SequenceEqual(["city", "resource"]) &&
+                            mode == "fast", "unexpected remote target settings");
+                        starts.Add(server);
+                        Volatile.Write(ref currentServer, server);
+                        return Task.FromResult("remote-" + server);
+                    },
+                    StopScanIfOwnedAsync = async (run, _) =>
+                    {
+                        stops.Add(run);
+                        stopEntered.TrySetResult();
+                        await releaseStop.Task;
+                        Volatile.Write(ref stopSettled, 1);
+                        return true;
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        Require(server == 317 && Volatile.Read(ref stopSettled) == 1,
+                            "old cycle return ran while exact second-run Stop still held");
+                        Interlocked.Increment(ref returns);
+                        Volatile.Write(ref currentServer, server);
+                        return Task.CompletedTask;
+                    },
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 25, [318, 319], ["city", "resource"], "fast", true, 0));
+            await secondPolling.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Task cancel = auto.CancelAsync();
+            await stopEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            try
+            {
+                Require(!cancel.IsCompleted && returns == 0,
+                    "return escaped held exact second-target Stop");
+            }
+            finally { releaseStop.TrySetResult(); }
+            await cancel.WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(starts.SequenceEqual([318, 319]) && stops.SequenceEqual(["remote-319"]) &&
+                returns == 1 && Volatile.Read(ref currentServer) == 317 &&
+                result.LastCycle?.Outcome == "canceled" &&
+                result.LastCycle.TargetServerIds.SequenceEqual([318, 319]) &&
+                result.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                result.Config.NextRunAt == 1_800_001_500_000 &&
+                !result.Running && !result.OwnsActiveScan,
+                "second remote cancel lost completed first target or targeted stale Stop/return/deadline");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        finally
+        {
+            releaseStop.TrySetResult();
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    private static async Task CheckPersistedEnabledDeadlineSurvivesStaleConfigAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-deadline-" + Guid.NewGuid().ToString("N"));
+        string statePath = Path.Combine(root, "auto.json");
+        long now = 1_800_000_000_000;
+        int server = 317, starts = 0, returns = 0;
+        try
+        {
+            await using (var auto = new MapAutoScanCommandService(statePath,
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) => Task.FromResult(run is null
+                        ? new MapAutoScanRuntimeStatus(server, false, null, null, "idle")
+                        : new MapAutoScanRuntimeStatus(318, false, null, run, "completed")),
+                    StartTargetScanAsync = (target, _, _, _) =>
+                    {
+                        Require(target == 318, "deadline cycle target changed");
+                        starts++;
+                        server = target;
+                        return Task.FromResult("deadline-run");
+                    },
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException("published run must not Stop"),
+                    ReturnServerAsync = (target, _) =>
+                    {
+                        Require(target == 317, "deadline cycle returned to wrong origin");
+                        returns++;
+                        server = target;
+                        return Task.CompletedTask;
+                    },
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => Volatile.Read(ref now),
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false))
+            {
+                MapAutoScanSnapshot before = await auto.GetSnapshotAsync();
+                Require(!before.Config.Enabled && before.Config.NextRunAt == 0,
+                    "new temporary Auto owner unexpectedly enabled by default");
+                await auto.UpdateConfigAsync(new MapAutoScanConfig(
+                    true, 27, [318], ["city"], "fast", true, 0));
+                await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+                MapAutoScanSnapshot after = await auto.GetSnapshotAsync();
+                long deadline = now + 27 * 60_000L;
+                Require(starts == 1 && returns == 1 && after.LastCycle?.Outcome == "completed" &&
+                    after.Config.Enabled && after.Config.NextRunAt == deadline,
+                    "successful remote Auto did not persist its enabled deadline");
+                // Simulate stale browser payload: it carries nextRunAt=0 from
+                // before the completed cycle and edits the selected types only.
+                MapAutoScanSnapshot staleUpdate = await auto.UpdateConfigAsync(after.Config with
+                {
+                    NextRunAt = 0,
+                    SelectedTypes = ["resource"],
+                });
+                Require(staleUpdate.Config.NextRunAt == deadline && starts == 1 &&
+                    staleUpdate.Config.SelectedTypes?.SequenceEqual(["resource"]) == true,
+                    "stale config reset owner deadline or launched duplicate Auto cycle");
+                Volatile.Write(ref now, deadline - 1);
+                Require(!await auto.CheckDueAsync() && starts == 1,
+                    "Auto admitted a second cycle before persisted deadline");
+            }
+            await using var reopened = new MapAutoScanCommandService(statePath,
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => false,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (_, _) => throw new InvalidOperationException("reopen must not contact game"),
+                    StartTargetScanAsync = (_, _, _, _) => throw new InvalidOperationException("reopen must not scan"),
+                    ReturnServerAsync = (_, _) => throw new InvalidOperationException("reopen must not navigate"),
+                    StopScanIfOwnedAsync = (_, _) => throw new InvalidOperationException("reopen must not Stop"),
+                }, startScheduler: false);
+            MapAutoScanSnapshot persisted = await reopened.GetSnapshotAsync();
+            Require(persisted.Config.Enabled && persisted.Config.NextRunAt == 1_800_001_620_000 &&
+                persisted.Config.SelectedTypes?.SequenceEqual(["resource"]) == true &&
+                persisted.LastCycle?.Outcome == "completed" &&
+                persisted.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                starts == 1 && returns == 1,
+                "reopened enabled Auto config lost fresh deadline or published target");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
     private static MapAutoScanCommandService CreateAuto(
         string root,
         Func<bool> isMapScanActive,
         Func<string?, CancellationToken, Task<MapAutoScanRuntimeStatus>> readStatus,
         Func<string, CancellationToken, Task<bool>> stop,
-        Func<int, CancellationToken, Task> returnServer) =>
+        Func<int, CancellationToken, Task> returnServer,
+        Action<int>? startTarget = null) =>
         new(Path.Combine(root, "auto.json"),
             new MapAutoScanExecutionBoundary
             {
@@ -179,6 +512,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 StartTargetScanAsync = (server, _, _, _) =>
                 {
                     Require(server == 318, "Auto targeted unexpected server");
+                    startTarget?.Invoke(server);
                     return Task.FromResult("auto-owned");
                 },
                 StopScanIfOwnedAsync = stop,

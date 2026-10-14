@@ -1,5 +1,60 @@
 # MAP-014 Truck / Train march freshness — source-causal offline qualification
 
+## 2026-10-14 d31f564f native-manager population partition inverse
+
+**New proved RED→GREEN structural false positive, using synthetic inputs.**
+The earlier 62-test `audit_compare_ready_march.py` enforced post-processing
+typed-set equality against an independent typed oracle and required every
+typed UUID to exist in the `GetAllMarchesByCS` manager UUID set. The inverse
+was missing: a **currently cached Truck/Railway March** could be omitted
+from *both* typed post-processing and independent cohorts, so those two
+incomplete sets would agree and `sameSessionCompareContractPass=true`.
+The adversarial fixture adds `march-omitted-truck` to the manager's genuine
+*shape* of after-stage UUIDs/count without including it in either typed set;
+the previous implementation returned `true` with no reasons. This is an
+**offline falsification of the validator, not a native capture of that UUID**.
+
+**Source contract map (read-only, pinned v24):**
+
+| Boundary | Exact source evidence | Consequence for future qualification |
+| --- | --- | --- |
+| March manager source | `WorldMarchDataManager.GetAllMarchesByCS` `0x060032c9` returns `Dictionary<int64,WorldMarch>`; `allMarches` `0x0400253a` has the same type | Its UUIDs form the universe of cached March entries; matching just a smaller typed subset is insufficient for Truck/Train absence |
+| Train discriminator | `tools/current_live_resource_probe.lua:3602-3616` obtains the actual manager dictionary and iterates it, reading `WorldMarch.train`; `:3644-3655` obtains type from `train`/`TrainData` | Each manager UUID excluded from a selected Truck/Railway cohort must have a same-stage source-observed `train == nil` or a known `TrainType` outside selected kinds; an unresolved type is **unknown**, not an allowed exclusion |
+| Bounded iteration | Producer at `:3608-3612` stops its `MoveNext` loop at `MAX_POINTS` **without necessarily seeing `MoveNext=false`**; passive manager telemetry also caps at 2,048 (`:3560-3571`) | A typed `capped=false`, an uncapped-looking count or a self-reported zero backlog does **not** independently establish exhausted enumeration. Require an observed terminal `MoveNext=false` and count/UUID reconciliation |
+| Request and reply | `WorldGetRectMarchInfosMessage.CSSetData` `0x060019a6` returns `IRequest`; `CSHandleResponse` `0x060019a7` can return at `IL_000e` | IRequest creation does not prove transport send or successful reply; no message ID or send was guessed |
+| Rect/queue/cache | `HandleWorldGetRectMarchInfos` `0x0600327b` manipulates collections; `HandleMessage` `0x06003277` can return before dispatch; `_messages` `0x04002561` and merged dictionary `0x04002562` are distinct from `allMarches` | Require separately witnessed request/reply/dispatch and read-only queue provenance; point-manager readiness and a matching enum count do not prove fresh native March data |
+
+The source-only typed contract now partitions **both point-ready and
+after-processing** manager UUID populations into typed selected records and
+`excludedManagerMarches`. Each excluded UUID requires same-session/server/
+world `WorldMarch.train` observation within its source cohort window,
+identification as either explicitly null Train or a *different known* Train
+type, and no overlap with selected UUIDs. An independent matching typed
+oracle does not excuse an unaccounted manager UUID. Stage dictionary count
+must match the source cohort's `managerDictionaryCount`, and an explicit
+`managerEnumerationExhausted=true` assertion is required. This is a
+**proposed evidence envelope**, and its Boolean/label fields still require
+independent native authentication: it does not itself issue native requests,
+read live collections, validate a server send, or prove global accuracy.
+
+Synthetic adversarial coverage includes the formerly admitted omitted
+Truck, clipped/unexhausted enumeration, mismatched dictionary count,
+incorrect/missing/non-Train exclusion fields, foreign session/source-class,
+and attempted exclusion of a *selected* Truck as a nonselected Train type.
+It also has a deliberately complete synthetic case with a source-labelled
+unrelated non-Train excluded; that structural pass never asserts an actual
+native observation. **All 66** offline March research tests pass after
+the fix. The real `native-march-source-20261014-102638` still positively
+shows **60 unclassified manager UUIDs at point readiness** but lacks all
+same-session before/after, proven request/dispatch, typed partition, queue
+getter and trusted server clock; it must remain `mobileFreshnessQualified`
+**false** and `sameSessionCompareContractPass` **false**. The six archived
+mixed scans remain sequential and unqualified: Truck UUID missing
+**92/92/83** (future final-arrival **90/88/82**), Railway missing with
+future final-arrival **2/1/1**. Neither live lifecycle attribution nor
+FOV20 accuracy is established. Native evidence was read only; WinError5
+remains a hard stop; no production/game/scripts/commit/PR actions.
+
 ## 2026-10-14 resumed v24 queue-dispatch IL correction (HEAD 4e35d14e)
 
 The earlier March receipt contract had an **unsupported causal premise**:

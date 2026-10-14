@@ -258,6 +258,13 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
             throw new InvalidDataException("Native group must explicitly prove all 10,000 native AOIs.");
         var allNativeAois = new HashSet<int>();
         var aoiByIndex = new Map014ReceivedNativeAoiProof[10000];
+        // One observed reply cannot be used as a blanket certificate for an
+        // entire world. The pinned v24 WorldPointManager native request limit
+        // is 160 AOIs. This is a *maximum cohort size*, not evidence that the
+        // network or provider actually returned all those cells. The future
+        // ingress still owes independent packet/owner attestation.
+        const int MaximumNativePointAoisPerReply = 160;
+        var replyCohorts = new Dictionary<string, (long ObservedAt, int Count)>(StringComparer.Ordinal);
         foreach (Map014ReceivedNativeAoiProof evidence in aoiProofs)
         {
             if (evidence is null || evidence.NativeAoiIndex is < 0 or >= 10000 ||
@@ -270,6 +277,16 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
                 evidence.NativeReplyAtUnixMs < firstStarted ||
                 evidence.NativeReplyAtUnixMs >= finalHomeAt)
                 throw new InvalidDataException("Native AOI receipt is stale, duplicate, wrong source or wrong owner.");
+            if (replyCohorts.TryGetValue(evidence.NativeReplyRequestId, out var cohort))
+            {
+                if (cohort.ObservedAt != evidence.NativeReplyAtUnixMs ||
+                    cohort.Count >= MaximumNativePointAoisPerReply)
+                    throw new InvalidDataException(
+                        "Native group reused a reply identity with inconsistent time or more AOIs than its native request limit.");
+                replyCohorts[evidence.NativeReplyRequestId] = (cohort.ObservedAt, cohort.Count + 1);
+            }
+            else
+                replyCohorts.Add(evidence.NativeReplyRequestId, (evidence.NativeReplyAtUnixMs, 1));
             aoiByIndex[evidence.NativeAoiIndex] = evidence;
         }
         if (allNativeAois.Count != 10000)

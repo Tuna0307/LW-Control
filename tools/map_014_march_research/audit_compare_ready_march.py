@@ -124,6 +124,65 @@ def _overlap(a, b):
     return a is not None and b is not None and max(a[0], b[0]) <= min(a[1], b[1])
 
 
+def _manager_partition(cohort, interval, stage, selected_ids, selected,
+                       session, server, world, label, errors):
+    """Account for EVERY same-stage GetAllMarchesByCS UUID after filtering.
+
+    A typed Truck/Railway subset matching an equally incomplete oracle is not
+    proof that another manager March is unrelated. WorldMarch.train is the
+    source-backed discriminator; unknown/capped members cannot disappear by
+    inference. This is a structural receipt requirement, not source auth.
+    """
+    source = stage if isinstance(stage, dict) else {}
+    rows = cohort if isinstance(cohort, dict) else {}
+    uuids = source.get("marchUuids")
+    if not isinstance(uuids, list) or any(not isinstance(u, str) or not u for u in uuids):
+        errors.append(f"{label}: unverified native manager UUID population")
+        return
+    manager = set(uuids)
+    count = source.get("marchDictionaryCount")
+    if (not _int(rows.get("managerDictionaryCount")) or
+            not _int(count) or rows["managerDictionaryCount"] != count or
+            count != len(uuids)):
+        errors.append(f"{label}: manager dictionary count mismatch")
+    # The current Lua producer enumerates `while scanned < MAX_POINTS` and
+    # can stop at that bound without an additional MoveNext(false). A count
+    # or typed cohort's `capped=False` cannot prove the iterator was drained.
+    if rows.get("managerEnumerationExhausted") is not True:
+        errors.append(f"{label}: complete native manager enumeration unproven")
+    excluded = rows.get("excludedManagerMarches")
+    if not isinstance(excluded, list):
+        errors.append(f"{label}: manager March identity not fully classified")
+        return
+    excluded_ids = set()
+    for entry in excluded:
+        if not isinstance(entry, dict):
+            errors.append(f"{label}: invalid native manager classification")
+            continue
+        uuid = entry.get("uuid")
+        null_train = entry.get("trainIsNull")
+        train_type = entry.get("trainType")
+        valid_exclusion = (
+            null_train is True and train_type is None or
+            null_train is False and _int(train_type) and
+            train_type in ALLOWED_TYPES and ALLOWED_TYPES[train_type] not in selected
+        )
+        if (not isinstance(uuid, str) or not uuid or uuid in excluded_ids or
+                uuid not in manager or uuid in selected_ids or
+                entry.get("sourceObserved") is not True or
+                entry.get("sourceClass") != "WorldMarch.train" or
+                entry.get("sessionId") != session or
+                entry.get("serverId") != server or entry.get("worldId") != world or
+                not valid_exclusion or
+                not _runtime(entry.get("observedAtRuntimeSeconds")) or
+                interval is None or not interval[0] <= entry["observedAtRuntimeSeconds"] <= interval[1]):
+            errors.append(f"{label}: invalid native manager classification")
+        if isinstance(uuid, str):
+            excluded_ids.add(uuid)
+    if selected_ids | excluded_ids != manager:
+        errors.append(f"{label}: manager March identity not fully classified")
+
+
 def audit_compare_ready(receipt):
     """Distinguish native *contract* success from actual proven source parity.
 
@@ -207,6 +266,12 @@ def audit_compare_ready(receipt):
         errors.append("native March UUID cohorts and server clock are not temporally overlapping")
     stage = receipt.get("marchSourceAfterProcess") or {}
     point_stage = receipt.get("marchSourceAtPointReady") or {}
+    _manager_partition(compare.get("pointReadyCohort"), point_interval, point_stage,
+                       set(point), selected, session, server, world,
+                       "pointReadyCohort", errors)
+    _manager_partition(compare.get("afterProcessCohort"), after_interval, stage,
+                       set(after), selected, session, server, world,
+                       "afterProcessCohort", errors)
     point_source_uuids = point_stage.get("marchUuids")
     if not isinstance(point_source_uuids, list) or set(point) - set(point_source_uuids):
         errors.append("point-ready typed March absent from manager source snapshot")

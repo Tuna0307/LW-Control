@@ -1536,9 +1536,54 @@ internal sealed partial class CurrentClientMapBlockSource
         }
         if (details.Count != targetCount)
             throw new InvalidDataException("Resource detail enrichment target/detail counts differ.");
+        RequireResourceDetailRowProvenance(detailsValue, targetCount, requestCount,
+            cacheBeforeCount, sendFailureCount, readyCount);
         string? error = ReadOptionalString(root, "error");
         return new ResourceScanDetailObservation(
             targetCount, requestCount, cacheBeforeCount, sendFailureCount, readyCount, details, error);
+    }
+
+    // Native resource_scan_detail_runtime.rows attaches per-target origin
+    // flags; aggregate header counts alone are insufficient to prove them.
+    internal static void RequireResourceDetailRowProvenance(
+        JsonElement rows, int targetCount, int requestCount, int cacheBeforeCount,
+        int sendFailureCount, int readyCount)
+    {
+        if (rows.ValueKind != JsonValueKind.Array || targetCount < 0 ||
+            requestCount < 0 || cacheBeforeCount < 0 || sendFailureCount < 0 ||
+            readyCount < 0 || rows.GetArrayLength() != targetCount)
+            throw new InvalidDataException("Resource detail native target rows are inconsistent.");
+
+        int issued = 0, cached = 0, failed = 0, receivedCount = 0;
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object ||
+                !row.TryGetProperty("requestIssued", out JsonElement issuedValue) ||
+                issuedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("cacheBefore", out JsonElement cachedValue) ||
+                cachedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("sendFailed", out JsonElement failedValue) ||
+                failedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("received", out JsonElement receivedValue) ||
+                receivedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                throw new InvalidDataException("Resource detail target omitted native request/cache/receive provenance.");
+            bool wasIssued = issuedValue.GetBoolean();
+            bool wasCached = cachedValue.GetBoolean();
+            bool sendFailed = failedValue.GetBoolean();
+            bool received = receivedValue.GetBoolean();
+            if ((wasIssued ? 1 : 0) + (wasCached ? 1 : 0) + (sendFailed ? 1 : 0) != 1 ||
+                sendFailed && received ||
+                !received && row.TryGetProperty("detail", out JsonElement rawDetail) &&
+                    rawDetail.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+                throw new InvalidDataException("Resource detail target has contradictory native origin or result.");
+            if (wasIssued) issued++;
+            if (wasCached) cached++;
+            if (sendFailed) failed++;
+            if (received) receivedCount++;
+        }
+        if (issued != requestCount || cached != cacheBeforeCount ||
+            failed != sendFailureCount || receivedCount != readyCount)
+            throw new InvalidDataException("Resource detail target provenance does not reconcile with native counters.");
     }
 
     private static FirstLivePreparedResource ApplyResourceScanDetail(

@@ -84,9 +84,73 @@ internal static class Map014ResourceNativeSourceChecks
         RejectHydration("stale source capacity", Details(goodDetail with { SourceCapacity = 72000 }));
         RejectHydration("detail amount/config mismatch", Details(goodDetail with { FullAmount = 100001 }));
 
-        if (nativeInverses != 14 || hydrationInverses != 9)
+        // The real round-5 Lua receipt has 7,494 cached, received targets,
+        // each with requestIssued=false/cacheBefore=true/sendFailed=false.
+        // Independent per-row flags must reconcile their same-source totals;
+        // spoofed aggregate header counters cannot establish received detail.
+        JsonObject BaseDetailEnvelope() => JsonNode.Parse("""
+            {"targetCount":1,"requestCount":0,"cacheBeforeCount":1,
+             "sendFailureCount":0,"readyCount":1,"details":[
+               {"recordKey":"999001","received":true,"requestIssued":false,
+                "cacheBefore":true,"sendFailed":false,"resourceConfigId":20106,
+                "resourceNameKey":"100317","resourceMaxAmount":216000,
+                "detail":{"remainRes":100000,"initRes":216000}}
+             ]}
+            """)!.AsObject();
+        void CheckProvenance(JsonObject envelope)
+        {
+            using JsonDocument parsed = JsonDocument.Parse(envelope.ToJsonString());
+            JsonElement root = parsed.RootElement;
+            CurrentClientMapBlockSource.RequireResourceDetailRowProvenance(
+                root.GetProperty("details"), root.GetProperty("targetCount").GetInt32(),
+                root.GetProperty("requestCount").GetInt32(),
+                root.GetProperty("cacheBeforeCount").GetInt32(),
+                root.GetProperty("sendFailureCount").GetInt32(),
+                root.GetProperty("readyCount").GetInt32());
+        }
+        CheckProvenance(BaseDetailEnvelope());
+        JsonObject requested = BaseDetailEnvelope();
+        requested["requestCount"] = 1;
+        requested["cacheBeforeCount"] = 0;
+        requested["details"]![0]!["requestIssued"] = true;
+        requested["details"]![0]!["cacheBefore"] = false;
+        CheckProvenance(requested);
+
+        int provenanceInverses = 0;
+        void RejectProvenance(string label, Action<JsonObject> mutate)
+        {
+            JsonObject broken = BaseDetailEnvelope();
+            mutate(broken);
+            try { CheckProvenance(broken); }
+            catch (InvalidDataException) { provenanceInverses++; return; }
+            throw new Exception("Resource provenance wrongly accepted " + label);
+        }
+        RejectProvenance("header says request issued when row says cached", doc =>
+        {
+            doc["requestCount"] = 1; doc["cacheBeforeCount"] = 0;
+        });
+        RejectProvenance("row claims no receipt origin", doc => doc["details"]![0]!["cacheBefore"] = false);
+        RejectProvenance("double-marked request and cache", doc => doc["details"]![0]!["requestIssued"] = true);
+        RejectProvenance("send failure contradicts successful cache", doc => doc["details"]![0]!["sendFailed"] = true);
+        RejectProvenance("ready count overstates received rows", doc => doc["details"]![0]!["received"] = false);
+        RejectProvenance("missing native origin flag", doc => doc["details"]![0]!.AsObject().Remove("cacheBefore"));
+        RejectProvenance("non-boolean origin flag", doc => doc["details"]![0]!["cacheBefore"] = 1);
+        RejectProvenance("send failed but cached detail later appeared", doc =>
+        {
+            doc["sendFailureCount"] = 1; doc["cacheBeforeCount"] = 0;
+            doc["details"]![0]!["cacheBefore"] = false;
+            doc["details"]![0]!["sendFailed"] = true;
+        });
+        RejectProvenance("header claims phantom target", doc => doc["targetCount"] = 2);
+        RejectProvenance("unreceived row still contains asserted amount", doc =>
+        {
+            doc["readyCount"] = 0;
+            doc["details"]![0]!["received"] = false;
+        });
+
+        if (nativeInverses != 14 || hydrationInverses != 9 || provenanceInverses != 10)
             throw new Exception("Incomplete Resource native source inverse coverage.");
-        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} native=false");
+        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} native=false");
     }
 
     private static CurrentClientMapBlockSource.ResourceScanDetailObservation Details(

@@ -1,5 +1,22 @@
 # MAP-014 native march acquisition — offline research
 
+## d31f564f manager-population completeness inverse — current
+
+The 62-test gate falsely passed when one extra `GetAllMarchesByCS` cache
+UUID could represent a currently loaded Truck but was omitted from **both**
+otherwise equal post-process and independent typed cohorts. RED confirmed
+`sameSessionCompareContractPass=true` on the synthetic missing-UUID fixture.
+The corrected `audit_compare_ready_march.py` now requires each point-ready
+and post-process stage's *entire manager UUID set* to be accounted for by
+selected typed rows **or** a same-source, same-session `WorldMarch.train`
+exclusion (explicit null Train or a known unselected TrainType). A bounded
+enumeration needs actual `MoveNext=false` evidence, represented by
+`managerEnumerationExhausted`, and exact manager-count reconciliation.
+The offline inverse suite has **66 passing tests**. Source provenance,
+transport sending, live queue completion and native FOV20 correctness
+remain unverified; the saved 60 UUID March result stays NEGATIVE and
+the six mixed rounds' real Truck/Railway losses remain unchanged.
+
 ## 4e35d14e resumed v24 queue semantics — current correction
 
 Read-only, hash-pinned installed IL shows `TryExcuteMarchMessage`

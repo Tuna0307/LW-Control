@@ -485,6 +485,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         int[] targets = Array.Empty<int>();
         var completedServers = new List<int>();
         bool attemptedOtherServer = false;
+        int lastOwnedServerId = 0;
         string? cycleError = null;
         string outcome = "completed";
 
@@ -527,6 +528,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     cancellationToken).ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(scanRunId))
                     throw new InvalidOperationException("Auto scan start did not return a scan owner token");
+                lastOwnedServerId = serverId;
                 Volatile.Write(ref ownedScanRunId, scanRunId);
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -595,7 +597,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             bool stopSettled = true;
             try
             {
-                await StopOwnedScanAsync().ConfigureAwait(false);
+                await StopOwnedScanAsync(lastOwnedServerId, originalServerId).ConfigureAwait(false);
             }
             catch (Exception stopError)
             {
@@ -604,8 +606,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 cycleError = cycleError is null ? stopFailure : cycleError + "; " + stopFailure;
                 if (outcome != "retired") outcome = "failed";
             }
-            bool liveOwner = Volatile.Read(ref retired) == 0;
-            if (liveOwner && stopSettled && admittedConfig.ReturnToOriginalServer && originalServerId > 0 && attemptedOtherServer)
+            if (Volatile.Read(ref retired) == 0 && stopSettled &&
+                admittedConfig.ReturnToOriginalServer && originalServerId > 0 && attemptedOtherServer)
             {
                 try
                 {
@@ -613,9 +615,21 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     // marker just before a manual scan became current. Its
                     // saved terminal status does not authorize Auto to move
                     // that successor's camera/server during return.
-                    await EnsureNoIndependentScanAsync("MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH")
+                    await EnsureNoIndependentScanAsync(
+                        "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH", lastOwnedServerId, originalServerId)
                         .ConfigureAwait(false);
-                    await execution.ReturnServerAsync(originalServerId, CancellationToken.None).ConfigureAwait(false);
+                    // Profile replacement can retire Auto while the async
+                    // current-status read is pending. A retired profile must
+                    // not initiate or continue its old native navigation.
+                    lifetimeCancellation.Token.ThrowIfCancellationRequested();
+                    if (Volatile.Read(ref retired) != 0)
+                        throw new OperationCanceledException(lifetimeCancellation.Token);
+                    await execution.ReturnServerAsync(originalServerId, lifetimeCancellation.Token)
+                        .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (Volatile.Read(ref retired) != 0)
+                {
+                    outcome = "retired";
                 }
                 catch (Exception returnError)
                 {
@@ -627,6 +641,9 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     if (outcome != "retired") outcome = "failed";
                 }
             }
+
+            bool liveOwner = Volatile.Read(ref retired) == 0;
+            if (!liveOwner) outcome = "retired";
 
             await FinishCyclePersistenceAsync(
                 outcome,
@@ -755,7 +772,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         // Its caller waits for the active task, never starts a racing Stop.
     }
 
-    private async Task<bool> StopOwnedScanAsync()
+    private async Task<bool> StopOwnedScanAsync(int lastOwnedServerId, int originalServerId)
     {
         await stopGate.WaitAsync().ConfigureAwait(false);
         try
@@ -783,7 +800,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     // completed SQLite run while a different native run now
                     // owns the current process. A terminal old row alone
                     // cannot authorize the subsequent ReturnServerAsync.
-                    await EnsureNoIndependentScanAsync("MAP_AUTO_SCAN_STOP_OWNER_MISMATCH")
+                    await EnsureNoIndependentScanAsync(
+                        "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH", lastOwnedServerId, originalServerId)
                         .ConfigureAwait(false);
                 }
                 return true;
@@ -801,7 +819,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         }
     }
 
-    private async Task EnsureNoIndependentScanAsync(string failureCode)
+    private async Task EnsureNoIndependentScanAsync(
+        string failureCode, int lastOwnedServerId, int originalServerId)
     {
         // The status boundary's null owner reads the CURRENT scan, rather
         // than falling back to an archived exact-run status. Also consult
@@ -811,6 +830,13 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             null, CancellationToken.None).ConfigureAwait(false);
         if (current.IsReading || execution.IsMapScanActive())
             throw new InvalidOperationException(failureCode + ": independent scan is active");
+        // A stopped/archived owned scan can coexist with a *different idle*
+        // live server after a manual jump or profile change. That navigation
+        // has superseded Auto's intended return. The origin is also safe:
+        // native may have returned home while a prior Stop was settling.
+        if (lastOwnedServerId > 0 &&
+            current.ServerId != lastOwnedServerId && current.ServerId != originalServerId)
+            throw new InvalidOperationException(failureCode + ": live server moved outside Auto's cycle");
     }
 
     private async Task RecordErrorAsync(string error)

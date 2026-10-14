@@ -341,6 +341,45 @@ native=false` and `HOME_FEATURE_DELIVERY_CHECKS_OK` using the existing
 provide no new live Resource capture. Resource FOV20 remains disabled by
 default and source freshness qualification remains **partial**.
 
+### Additional native Resource hydration receipt provenance admission
+
+An independent continuation at clean `d31f564f` found that the managed
+Resource detail parser reconciled the *declared* `requestCount`,
+`cacheBeforeCount`, `sendFailureCount`, `targetCount` and `readyCount` but did
+not compare them to the corresponding **per-target** Lua fields
+`requestIssued`, `cacheBefore`, `sendFailed` and `received`. This admitted a
+synthetic reply in which a known idle Resource was listed as a cache hit while
+the same reply claimed it had issued a network request. Lua's
+`resource_scan_detail_runtime.queue` records exactly one of those three
+target origins; `resource_scan_detail_runtime.rows` emits those same flags
+along with the actual manager detail and reception boolean. The managed
+reader now requires each flag to be a native boolean, exactly one origin per
+target, sum-by-origin agreement with the reply header, exact ready/received
+agreement, no asserted detail for an unreceived target, and no claimed
+success from a failed send. A contradictory target aborts publication before
+known-idle hydration, including mixed selections.
+
+The **preserved native final round-5**
+`live-resource/resource-scan-detail-result.json` has 7,494 targets, 7,494
+ready, 0 network requests, 7,494 pre-existing cache entries and 0 send
+failures. Every target carries
+`requestIssued=false,cacheBefore=true,sendFailed=false,received=true`,
+matching the new rule. The other five rounds have original native
+SQLite/scan metrics but **do not retain these per-target detail-result
+files**, so their detail provenance cannot be re-proven from the preserved
+evidence. In isolated synthetic Resource checks, two positive reply shapes
+(native cache hit and issued request) and 10 inverses cover forged counts,
+absent/double origins, malformed flags, failed sends and contradictory
+received/amount state. Controlled RED with the gate temporarily bypassed
+failed on the false request-vs-cache header; the restored full suite reported
+`MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses=14 hydrationInverses=9 provenanceInverses=10 native=false`.
+
+This correction verifies self-consistency of producer-described detail
+origins, **not** the server response age for a cached detail, Resource
+spawn/destruction times, or authoritative same-AOI native presence-versus-
+absence. The 19/4/3 missing and 25 first-pair new Resource identities retain
+their earlier classifications; FOV20 remains diagnostic only.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

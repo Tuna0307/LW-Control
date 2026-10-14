@@ -33,13 +33,18 @@ def complete_synthetic():
             "arriveTs": now // 1000 + 3600,
         }
 
-    def cohort(start, end, rows):
+    def cohort(start, end, rows, manager_count=None):
         return {
             "sourceObserved": True, "serverId": 2212, "worldId": 0,
             "sessionId": "only-test-session",
             "observedStartRuntimeSeconds": start,
             "observedEndRuntimeSeconds": end,
             "count": len(rows), "capped": False,
+            # A complete typed filter must account for *every* member of
+            # GetAllMarchesByCS, including non-Train/other Train kinds.
+            "managerDictionaryCount": len(rows) if manager_count is None else manager_count,
+            "managerEnumerationExhausted": True,
+            "excludedManagerMarches": [],
             # Different native acquisition stages are independent evidence.
             # Do not alias fixture rows; mutation must model one stage only.
             "records": copy.deepcopy(rows),
@@ -88,6 +93,66 @@ class TypedMobileComparisonTests(unittest.TestCase):
         self.assertFalse(result["sourceAuthenticityIndependentlyVerified"])
         self.assertFalse(result["globalMobileAccuracyQualified"])
         self.assertEqual(result["typedCounts"], {"point": 1, "after": 2, "oracle": 2})
+
+    def test_current_manager_truck_omitted_from_both_matching_typed_cohorts(self):
+        value = complete_synthetic()
+        # The old checker only required typed rows ⊆ native dictionary.
+        # The omitted active March remains in the current native manager,
+        # but both self-reported typed cohorts agree that it is absent.
+        after_manager = value["marchSourceAfterProcess"]
+        after_manager["marchUuids"].append("march-omitted-truck")
+        after_manager["marchDictionaryCount"] += 1
+        self.assert_rejected(value, "manager March identity not fully classified")
+
+    def test_unknown_or_unexhausted_native_march_enumeration_is_not_coverage(self):
+        for stage in ("pointReadyCohort", "afterProcessCohort"):
+            value = complete_synthetic()
+            value["compareReadyEvidence"][stage]["managerEnumerationExhausted"] = False
+            self.assert_rejected(value, "complete native manager enumeration unproven")
+            value = complete_synthetic()
+            value["compareReadyEvidence"][stage]["managerDictionaryCount"] = 999
+            self.assert_rejected(value, "manager dictionary count mismatch")
+
+    def test_source_observed_non_train_can_be_excluded_but_unknown_cannot(self):
+        value = complete_synthetic()
+        stage = value["marchSourceAfterProcess"]
+        stage["marchUuids"].append("march-unrelated")
+        stage["marchDictionaryCount"] += 1
+        cohort = value["compareReadyEvidence"]["afterProcessCohort"]
+        cohort["managerDictionaryCount"] += 1
+        unrelated = {
+            "uuid": "march-unrelated", "sessionId": "only-test-session",
+            "serverId": 2212, "worldId": 0, "sourceObserved": True,
+            "sourceClass": "WorldMarch.train", "trainIsNull": True,
+            "trainType": None, "observedAtRuntimeSeconds": 100.5,
+        }
+        cohort["excludedManagerMarches"].append(unrelated)
+        self.assertTrue(audit_compare_ready(value)["sameSessionCompareContractPass"])
+        for field, incorrect in (("trainIsNull", None), ("trainType", 1),
+                                 ("sessionId", "prior-session"),
+                                 ("sourceClass", "WorldPointManager")):
+            altered = copy.deepcopy(value)
+            altered["compareReadyEvidence"]["afterProcessCohort"][
+                "excludedManagerMarches"][0][field] = incorrect
+            self.assert_rejected(altered, "invalid native manager classification")
+
+    def test_selected_truck_cannot_be_excluded_as_other_train_type(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["selectedTypes"] = ["truck"]
+        train = value["compareReadyEvidence"]["afterProcessCohort"]["records"].pop()
+        value["compareReadyEvidence"]["afterProcessCohort"]["count"] = 1
+        value["compareReadyEvidence"]["independentNativeCohort"]["records"].pop()
+        value["compareReadyEvidence"]["independentNativeCohort"]["count"] = 1
+        excluded = {
+            "uuid": "march-B", "sessionId": "only-test-session",
+            "serverId": 2212, "worldId": 0, "sourceObserved": True,
+            "sourceClass": "WorldMarch.train", "trainIsNull": False,
+            "trainType": 2, "observedAtRuntimeSeconds": 100.5,
+        }
+        value["compareReadyEvidence"]["afterProcessCohort"]["excludedManagerMarches"] = [excluded]
+        self.assertTrue(audit_compare_ready(value)["sameSessionCompareContractPass"])
+        value["compareReadyEvidence"]["afterProcessCohort"]["excludedManagerMarches"][0]["trainType"] = 1
+        self.assert_rejected(value, "invalid native manager classification")
 
     def test_absent_independent_server_clock_and_untyped_clock(self):
         for bad in (None, "1791916154000", True):
