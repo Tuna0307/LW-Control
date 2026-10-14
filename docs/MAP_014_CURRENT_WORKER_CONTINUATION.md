@@ -358,3 +358,47 @@ No new release candidate, executable provenance or packaged native positive
 can be asserted for this source head. Previous unpublished ZIP remains
 source-identified to `339e241c` (SHA-256
 `a1086d2fa861c035e69a76d30d0299699f213fde5b96d1145a329851718a59e7`).
+
+## Later received-native group / engine source completeness checkpoint
+
+**Reconciled starting tree:** clean `4e35d14e0d65f6fdc8ed2e39c00f5e4597c3d175`
+equal to direct `origin/codex/map-owner-fixes-014` and draft PR #10. Re-read
+`AGENTS.md`, October 14 handoff, continuation, native Resource and March
+receipts, original script checks, game/app processes, recovery journal and
+Auto persistence. No LastWar/LWBridge process or global recovery journal;
+official `LWScripts.data`/`LWScripts.txt`/`version.txt` exact prior hashes.
+One persisted product Auto profile remains **enabled** with a positive
+next-run deadline and `restart.active=false` but app closed: this user setting
+was neither modified nor used to launch an app. The prior `WinError 5` atomic
+recovery-journal rename denial remains binding with **no retry, relocation,
+permission change or unsafe game start**.
+
+| Accomplished source/engine boundary | Controlled evidence and deliberate disabled state |
+| --- | --- |
+| Actual Map317 accepted-run source injection | `CurrentClientMap317ScanProvider` now optionally constructs an opt-in per-run source **only after** durable Map317 Start has supplied an immutable run ID, session and selected kinds. A source-factory exception or null retires only that accepted run before capture; it never silently falls back to legacy/guarded acquisition. Production constructor/default selector is untouched. Controlled Map317/SQLite verifies factory failure then fresh successor acceptance and successful native-shaped guarded-adapter publication. |
+| Received-only consecutive A→B→C envelope ingress | `Map014NativeSharedReceiptSource` accepts **already-received** A/B/C native-typed future-protocol receipts behind an injected interface with **no production ingress implementation**. It never sends camera/network commands or reuses historical unqualified replies. It requires exact pinned Overview profile/PID/session/challenge/run/world/server/group, source stages and distinct home reply, exactly 10,000 identity-bound 10×10 AOI proofs, 2,500 ordered block enrichments, one native final-home acknowledgement and no source foreign/duplicated City owner. It builds no missing native replies or empty-kind attestations. **Only City selection** is admitted: Resource/mobile/Other and mixed stay blocked pending independent native type freshness. |
+| Real shared MapScanEngine source completeness | Each opt-in shared logical 20×20 block must now provide four **received/source-declared** current native AOI proofs, one correlated reply ID and valid native-observation time. Exactly 10,000 unique physical AOIs must reconcile across 2,500 logical blocks. Wrong block/AOI/duplicate/stale footprint/empty source reply IDs, null timestamp, duplicate selected kinds and unspecified WorldId=0 on a nonzero-world run fail **before** durable publication and retire SQLite staging without changing prior saved data. Legacy per-probe routes are not modified. |
+| Actual Map317/SQLite integration, positive and inverse | Controlled City-only complete inbound A/B/C envelope drives the **real** `CurrentClientMap317ScanProvider` accepted-run factory, `MapScanEngine`, SQLite publish and one owned home receipt. Wrong-profile/missing-AOI envelopes fail without a saved map row; positive 2,500 City logical block fixture and 10,000 synthetic AOI evidence publish atomically. Independent direct-engine City+Resource/City+Truck and real Map317 Treasure/Other category routing still pass as **controlled** tests, not new live suitability. Held positive staging/Stop and late-result cancellation, cleanup mismatch and cross-server/previous data remain covered by existing engine/Auto suites. |
+| Native Resource gate tightening | Existing guarded `CurrentClientMapBlockSource.FastCity` now validates each Resource batch against the **actual** returned AOI histogram and source-normalized physical identity/server/world, rejecting missing/skipped candidate and wrong/duplicate AOI. Its known-unoccupied Resource hydration must fully match native target identities, received status, config/name/capacity and ready counter before publication; failed/timeout/partial data no longer appear as a full valid scan. **14 native-source and nine hydration** controlled inverses pass. Occupied amount is not guessed. The six genuine rounds still have missing **19/4/3** and first-candidate-only **25** (16 unoccupied among first 19 missing); timings and other-object AOI anchors do not establish spawn/destruction. Resource FOV20 remains off. |
+| March v24 source correction | Hash-pinned IL shows `TryExcuteMarchMessage` 0x06003276 is a **bool merge/cache gate**, not proof of eventual handler/queue dispatch; `HandleMessage` 0x06003277 may return before the message switch. Audit now requires exact correlated handler-exit and rect-processing stages, server/world/session/typed cohort, bounded native ticks and native-manager identity. **62** causal Python tests pass, but real `native-march-source-20261014-102638` still has only 60 untyped point-ready manager UUIDs and missing before/after source stages. Mixed FOV20 still misses **92/92/83** Trucks (90/88/82 future arrival) and future Railway **2/1/1**; no independent Train lifetime witness. |
+
+**Evidence separation:** New received-native A/B/C fixtures and source
+proofs are expressly controlled data from a fake injected ingress, not real
+authenticated transport. The private real 49.203-second diagnostic did
+produce a 10,000-AOI union but predates run/group/typed home-response
+contract; it cannot establish the published consecutive pipeline. The
+actual single-probe file-command/result channel has **no independently
+verified A/B/C group transport**. Native execution/abort/restore, type-specific
+Resource and March freshness, Auto remote switching with this new source,
+and full packaged Windows app gates remain unproved. Production consecutive
+selector remains **disabled**; City-only FOV20 stays qualified, guarded
+Resource/mobile/mixed methods stay selected. Historical real Scattered
+Supplies, Treasure separation, City movement ownership, remote Auto/Jump/Clear,
+Truck Follow natural expiry, filters, images, labels and Home UI results
+remain preserved. Celebration Party, moving Doom Walker and separate Train
+expiry witness are genuinely unavailable.
+
+**Delivery status: PARTIAL.** No new packaged Windows ZIP or READY claim until
+the denied recovery-journal guarantee is legitimately available and actual
+selected native/packaged functional gates pass. The old `339e241c` ZIP is
+not a release for the newly changed source.

@@ -24,18 +24,22 @@ SOURCE_METHODS = {
     "request": "WorldGetRectMarchInfosMessage.CSSetData",
     "response": "WorldGetRectMarchInfosMessage.CSHandleResponse",
     "handler": "WorldMarchDataManager.HandleWorldGetRectMarchInfos",
-    "process": "WorldMarchDataManager.TryExcuteMarchMessage",
+    # HandleMessage can return before dispatch, so only its method EXIT,
+    # paired with the source-observed rect handler, attests to execution.
+    # TryExcuteMarchMessage is a bool cache/merge gate, not this completion.
+    "process": "WorldMarchDataManager.HandleMessage",
 }
 SOURCE_CLASSES_AND_TOKENS = {
     "request": ("WorldGetRectMarchInfosMessage", "0x060019a6"),
     "response": ("WorldGetRectMarchInfosMessage", "0x060019a7"),
     "handler": ("WorldMarchDataManager", "0x0600327b"),
-    "process": ("WorldMarchDataManager", "0x06003276"),
+    "process": ("WorldMarchDataManager", "0x06003277"),
 }
 # The stage DateTime fields and correlated source event stamps must share the
 # same *observed* clock domain. Five minutes is deliberately broad and not a
 # substitute for direct request/response identity or event ordering.
 NATIVE_CLOCK_CAPTURE_TOLERANCE_MS = 5 * 60 * 1000
+MAX_EVENT_ELAPSED_DISAGREEMENT_SECONDS = 1.0
 
 
 def _number(value):
@@ -111,6 +115,16 @@ def _queue_proven(stage, name, failures):
         and proof.get("exactInstalledTypeVerified") is True
     ):
         failures.append(f"{name}: StepProcessQueue.Count getter provenance unverified")
+    merged_proof = stage.get("mergedQueueCountProvenance")
+    if not isinstance(merged_proof, dict) or not (
+        merged_proof.get("fieldToken") == "0x04002562"
+        and merged_proof.get("runtimeType") == "System.Collections.Generic.Dictionary"
+        and merged_proof.get("memberName") == "Count"
+        and merged_proof.get("getterParameterCount") == 0
+        and merged_proof.get("readOnlyGetterVerified") is True
+        and merged_proof.get("exactInstalledTypeVerified") is True
+    ):
+        failures.append(f"{name}: merged dictionary Count getter provenance unverified")
     if count != 0 or merged != 0:
         failures.append(f"{name}: March queue or merged backlog not drained")
 
@@ -122,6 +136,10 @@ def _stage(receipt, key, capture_ms, failures):
         return None
     if not _number(stage.get("observedAtRuntimeSeconds")):
         failures.append(f"{key}: native observation runtime timestamp missing")
+    if (stage.get("launchSessionId") != receipt.get("launchSessionId") or
+            stage.get("serverId") != receipt.get("serverId") or
+            stage.get("worldId") != receipt.get("worldId")):
+        failures.append(f"{key}: native manager source session/server/world mismatch")
     if _rect(stage.get("viewRect")) is None or _rect(stage.get("cameraViewRect")) is None:
         failures.append(f"{key}: native March view/camera rectangle unavailable")
     _source_timestamps(stage, key, capture_ms, failures)
@@ -139,6 +157,8 @@ def audit_receipt(receipt):
         capture_ms = 0
     server = receipt.get("serverId")
     world = receipt.get("worldId")
+    if not isinstance(receipt.get("launchSessionId"), str) or not receipt["launchSessionId"]:
+        failures.append("native launch session identity absent")
     if type(server) is not int or server <= 0 or type(world) is not int:
         failures.append("native server/world attribution absent")
     if (receipt.get("isRecvViewPoints") is not True
@@ -188,6 +208,10 @@ def audit_receipt(receipt):
                     event.get("method") != SOURCE_METHODS[phase] or
                     event.get("sourceClass") != expected_class or
                     event.get("methodToken") != expected_token or
+                    event.get("launchSessionId") != receipt.get("launchSessionId") or
+                    event.get("observationPoint") != (
+                        "method-exit" if phase in ("request", "handler", "process")
+                        else "method-entry") or
                     event.get("serverId") != server or event.get("worldId") != world):
                 failures.append(f"March {phase} method/source/server/world attribution unverified")
         moments = [event.get("observedAtRuntimeSeconds") for event in source]
@@ -212,6 +236,13 @@ def audit_receipt(receipt):
                     abs((stamp - TICKS_AT_UNIX_EPOCH) / 10000 - capture_ms)
                     > NATIVE_CLOCK_CAPTURE_TOLERANCE_MS):
                 failures.append("March rect event native timestamp outside capture window")
+        if all(_ticks(s) for s in stamps) and all(_number(m) for m in moments):
+            for (a_tick, b_tick), (a_time, b_time) in zip(
+                    zip(stamps, stamps[1:]), zip(moments, moments[1:])):
+                native_elapsed = (b_tick - a_tick) / 10000000
+                runtime_elapsed = b_time - a_time
+                if abs(native_elapsed - runtime_elapsed) > MAX_EVENT_ELAPSED_DISAGREEMENT_SECONDS:
+                    failures.append("native event/runtime duration contradicts source ordering")
 
     oracle = receipt.get("independentActiveMarches")
     if not isinstance(oracle, dict) or oracle.get("sourceObserved") is not True:
@@ -223,9 +254,10 @@ def audit_receipt(receipt):
                 type(oracle_ms) is not int or abs(oracle_ms - capture_ms) > 1000 or
                 abs(server_now - oracle_ms) > 1000):
             failures.append("independent March oracle stale or server-clock mismatch")
-        if oracle.get("serverId") != server or oracle.get("worldId") != world or (
+        if (oracle.get("launchSessionId") != receipt.get("launchSessionId") or
+                oracle.get("serverId") != server or oracle.get("worldId") != world or (
                 _rect(oracle.get("rect")) not in
-                (_rect(after.get("viewRect")), _rect(after.get("cameraViewRect")))):
+                (_rect(after.get("viewRect")), _rect(after.get("cameraViewRect"))))):
             failures.append("independent March oracle belongs to another server/world/rectangle")
         identities = oracle.get("activeMarches")
         if not isinstance(identities, list) or not identities:

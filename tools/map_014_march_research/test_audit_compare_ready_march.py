@@ -36,6 +36,7 @@ def complete_synthetic():
     def cohort(start, end, rows):
         return {
             "sourceObserved": True, "serverId": 2212, "worldId": 0,
+            "sessionId": "only-test-session",
             "observedStartRuntimeSeconds": start,
             "observedEndRuntimeSeconds": end,
             "count": len(rows), "capped": False,
@@ -54,6 +55,7 @@ def complete_synthetic():
         "targetCameraViewRect": camera_rect,
         "serverClock": {
             "sourceObserved": True, "sourceDomain": "native-server-clock",
+            "sessionId": "only-test-session",
             "sourceRef": "synthetic-observer-clock",
             "serverId": 2212, "worldId": 0,
             "unixMilliseconds": now,
@@ -103,6 +105,26 @@ class TypedMobileComparisonTests(unittest.TestCase):
         value = complete_synthetic()
         value["compareReadyEvidence"]["sessionId"] = "old-session"
         self.assert_rejected(value, "different or missing session")
+
+    def test_independent_cohort_or_clock_from_other_session_fails(self):
+        for label in ("pointReadyCohort", "afterProcessCohort", "independentNativeCohort"):
+            value = complete_synthetic()
+            value["compareReadyEvidence"][label]["sessionId"] = "earlier-session"
+            self.assert_rejected(value, "native session")
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["serverClock"]["sessionId"] = "earlier-session"
+        self.assert_rejected(value, "server clock/source unavailable")
+
+    def test_arrival_future_at_clock_but_expired_at_oracle_capture_tail(self):
+        value = complete_synthetic()
+        # A source clock nearly two seconds ahead of the independent row
+        # observation window is accepted by the current one-second skew check.
+        # Arrival +2s is no longer safe after elapsed window + margin.
+        value["compareReadyEvidence"]["serverClock"]["observedAtRuntimeSeconds"] = 99.5
+        for cohort in ("pointReadyCohort", "afterProcessCohort", "independentNativeCohort"):
+            for record in value["compareReadyEvidence"][cohort]["records"]:
+                record["arriveTs"] = value["nativeServerTimeUnixMs"] // 1000 + 2
+        self.assert_rejected(value, "final arrival expired or untyped server clock")
 
     def test_old_view_rect_even_with_matching_event_is_rejected(self):
         value = complete_synthetic()
@@ -267,6 +289,7 @@ class TypedMobileComparisonTests(unittest.TestCase):
             "serverId": 2212, "worldId": 0,
             "from": [34, 41], "to": [35, 41],
             "fromPointIndex": 41035, "toPointIndex": 41036,
+            "sessionId": "only-test-session",
             "observedAtRuntimeSeconds": 100.36,
         }]
         result = audit_compare_ready(value)
@@ -275,6 +298,29 @@ class TypedMobileComparisonTests(unittest.TestCase):
         self.assert_rejected(value, "movement transition stale/uncorrelated")
         value["compareReadyEvidence"]["nativeMovementTransitions"][0]["sourceObserved"] = True
         value["compareReadyEvidence"]["nativeMovementTransitions"][0]["sourceMethodToken"] = "0x06003209"
+        self.assert_rejected(value, "movement transition stale/uncorrelated")
+
+    def test_pre_point_and_post_after_movement_cannot_explain_stage_shift(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["x"] = 34
+        value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["pointIndex"] = 41035
+        valid = {
+            "uuid": "march-A", "sessionId": "only-test-session",
+            "sourceObserved": True, "sourceMethod": "WorldMarch.GetMarchCurPosIndex",
+            "sourceMethodToken": "0x06003208", "serverId": 2212, "worldId": 0,
+            "from": [34, 41], "to": [35, 41],
+            "fromPointIndex": 41035, "toPointIndex": 41036,
+            "observedAtRuntimeSeconds": 100.36,
+        }
+        value["compareReadyEvidence"]["nativeMovementTransitions"] = [valid]
+        self.assertTrue(audit_compare_ready(value)["sameSessionCompareContractPass"])
+        for moment in (100.23, 100.54):
+            value["compareReadyEvidence"]["nativeMovementTransitions"][0][
+                "observedAtRuntimeSeconds"] = moment
+            self.assert_rejected(value, "movement transition stale/uncorrelated")
+        value["compareReadyEvidence"]["nativeMovementTransitions"][0][
+            "observedAtRuntimeSeconds"] = 100.36
+        value["compareReadyEvidence"]["nativeMovementTransitions"][0]["sessionId"] = "prior-run"
         self.assert_rejected(value, "movement transition stale/uncorrelated")
 
     def test_cross_server_or_unqualified_type_field_fails(self):

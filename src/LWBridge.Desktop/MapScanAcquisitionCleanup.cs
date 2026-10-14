@@ -56,7 +56,22 @@ internal sealed record MapScanSharedAcquisitionOwner(
 /// </summary>
 internal sealed record MapScanSharedAcquisitionBatch(
     MapScanSharedAcquisitionOwner Owner,
-    IReadOnlyList<MapScanBlockCapture> Captures);
+    IReadOnlyList<MapScanBlockCapture> Captures,
+    IReadOnlyList<MapScanSharedBlockSourceProof> BlockSourceProofs);
+
+/// <summary>
+/// A native source must report the four source-observed 10x10 point AOIs
+/// making up each emitted 20x20 logical block. These are received observation
+/// claims, not expected AOIs reconstructed from the request; the eventual
+/// transport must bind its actual native reply/owner before creating a proof.
+/// The engine checks 10,000 exact, nonduplicate AOIs, reply identity and
+/// monotonically observed source times separately from SQLite block coverage.
+/// </summary>
+internal sealed record MapScanSharedBlockSourceProof(
+    int LogicalBlockIndex,
+    IReadOnlyList<int> NativePointAoiIndices,
+    string NativeReplyId,
+    long NativeObservedAtUnixMilliseconds);
 
 /// <summary>
 /// Explicit opt-in, not selected by existing production source adapters.

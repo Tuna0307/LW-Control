@@ -53,7 +53,8 @@ internal sealed class MapOtherEventSharedScanSource : IMapScanSharedAcquisitionS
             MapScanBlockCapture[] projected = batch.Captures
                 .Select(capture => MapOtherEventScanSource.Partition(capture, publicRequest))
                 .ToArray();
-            yield return new MapScanSharedAcquisitionBatch(publicOwner, projected);
+            yield return new MapScanSharedAcquisitionBatch(publicOwner, projected,
+                batch.BlockSourceProofs);
         }
     }
 

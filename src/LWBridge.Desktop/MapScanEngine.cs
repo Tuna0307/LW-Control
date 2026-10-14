@@ -120,6 +120,7 @@ internal sealed class MapScanEngine
             var blocksByIndex = blocks.ToDictionary(block => block.BlockIndex);
             var discoveredKeys = new HashSet<(string Kind, int Server, string Key)>();
             var discoveredCityOwners = new HashSet<(int Server, string OwnerUid)>();
+            var observedNativePointAois = new HashSet<int>();
             int nextIndex = 0;
             // Exactly ONE source invocation for this run. The source may
             // discover world AOIs once and enrich multiple selected kinds
@@ -145,6 +146,15 @@ internal sealed class MapScanEngine
                                 "Shared acquisition returned an out-of-order, stale or duplicate logical block.");
                     }
                     ValidateBatch(request, blocks[nextIndex], captures, pending, blocksByIndex);
+                    // Legacy probes may report WorldId=0 as "unspecified";
+                    // source-owned shared acquisition may not. The selected
+                    // world must be explicitly present on EVERY native block,
+                    // especially when scanning a nonzero remote world.
+                    if (captures.Any(capture => capture.WorldId != request.WorldId))
+                        throw new InvalidDataException(
+                            "Shared native acquisition omitted or changed the exact world identity.");
+                    ValidateSharedSourceCoverage(captures, batch.BlockSourceProofs,
+                        blocksByIndex, observedNativePointAois);
                     // The shared native discovery/enrichment stream must not
                     // quietly replace an older City owner or Resource row by
                     // re-emitting a stable identity from another AOI/block.
@@ -187,9 +197,11 @@ internal sealed class MapScanEngine
                 sourceCaptureMilliseconds += Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
             }
             cancellationToken.ThrowIfCancellationRequested();
-            if (nextIndex != blocks.Count || pending.Count != 0)
+            if (nextIndex != blocks.Count || pending.Count != 0 ||
+                observedNativePointAois.Count != 10_000)
                 throw new InvalidDataException(
-                    $"Shared acquisition finished with only {nextIndex} of {blocks.Count} logical blocks.");
+                    $"Shared acquisition finished with {nextIndex} of {blocks.Count} logical blocks and " +
+                    $"{observedNativePointAois.Count} of 10,000 source-observed native point AOIs.");
         }
 
         try
@@ -416,7 +428,8 @@ internal sealed class MapScanEngine
         if (request.RequestedConcurrency <= 0 || request.MaxAttemptsPerBlock <= 0)
             throw new ArgumentOutOfRangeException(nameof(request));
         if (request.SelectedTypes.Count == 0 || request.SelectedTypes.Any(type =>
-                !MapScanContract.AllTypes.Contains(type, StringComparer.Ordinal)))
+                !MapScanContract.AllTypes.Contains(type, StringComparer.Ordinal)) ||
+            request.SelectedTypes.Distinct(StringComparer.Ordinal).Count() != request.SelectedTypes.Count)
             throw new BridgeCommandException("INVALID_SCAN_TYPES", "no valid map scan types selected");
     }
 
@@ -463,6 +476,47 @@ internal sealed class MapScanEngine
         string.Equals(expected.GroupGeneration, actual.GroupGeneration, StringComparison.Ordinal) &&
         actual.SelectedTypes is not null &&
         expected.SelectedTypes.SequenceEqual(actual.SelectedTypes, StringComparer.Ordinal);
+
+    private static void ValidateSharedSourceCoverage(
+        IReadOnlyList<MapScanBlockCapture> captures,
+        IReadOnlyList<MapScanSharedBlockSourceProof>? proofs,
+        IReadOnlyDictionary<int, MapScanTargetBlock> blocks,
+        HashSet<int> observedAois)
+    {
+        // A stream that synthesizes 2,500 empty logical blocks cannot claim
+        // discovery completeness merely because every block was checkpointed.
+        // Source-reported replies must account for all four 10x10 AOIs inside
+        // each physical 20x20 block, 10,000 unique in total. The future
+        // native provider is responsible for independent packet correlation.
+        if (proofs is null || proofs.Count != captures.Count)
+            throw new InvalidDataException("Shared native reply AOI proof count is missing or incomplete.");
+        const int NativeAoisAcross = 100;
+        for (int i = 0; i < captures.Count; i++)
+        {
+            MapScanSharedBlockSourceProof proof = proofs[i];
+            MapScanBlockCapture capture = captures[i];
+            if (proof is null || proof.LogicalBlockIndex != capture.BlockIndex ||
+                string.IsNullOrWhiteSpace(proof.NativeReplyId) ||
+                proof.NativeObservedAtUnixMilliseconds <= 0 ||
+                proof.NativePointAoiIndices is null ||
+                proof.NativePointAoiIndices.Count != 4)
+                throw new InvalidDataException("Shared native AOI proof is missing source reply or exact block membership.");
+            MapScanTargetBlock block = blocks[capture.BlockIndex];
+            int firstRow = block.MinY / 10;
+            int firstCol = block.MinX / 10;
+            var expected = new HashSet<int>
+            {
+                firstRow * NativeAoisAcross + firstCol,
+                firstRow * NativeAoisAcross + firstCol + 1,
+                (firstRow + 1) * NativeAoisAcross + firstCol,
+                (firstRow + 1) * NativeAoisAcross + firstCol + 1,
+            };
+            if (!expected.SetEquals(proof.NativePointAoiIndices) ||
+                !proof.NativePointAoiIndices.All(observedAois.Add))
+                throw new InvalidDataException(
+                    "Shared native AOI proof reused a stale source footprint or omitted this logical block's current AOIs.");
+        }
+    }
 
     private static void ValidateSharedRecord(
         MapScanTargetBlock block,

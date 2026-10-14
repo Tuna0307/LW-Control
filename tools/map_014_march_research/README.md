@@ -1,5 +1,26 @@
 # MAP-014 native march acquisition — offline research
 
+## 4e35d14e resumed v24 queue semantics — current correction
+
+Read-only, hash-pinned installed IL shows `TryExcuteMarchMessage`
+(`0x06003276`) returns a Boolean with cache/merge-dictionary branches.
+`HandleMessage` (`0x06003277`) may return before its message-type handler
+switch. The earlier presumed post-handler `TryExcute` completion event is
+**superseded**: the offline checker now requires correlated `CSSetData`
+method exit → `CSHandleResponse` entry → `HandleWorldGetRectMarchInfos`
+method exit → `HandleMessage` method exit with source class/token,
+session/server/world, stable March `viewRect`, separate independently
+verified `_messagesMergeDict.Count` and `StepProcessQueue.Count`, and
+runtime/native tick consistency. Typed comparisons additionally protect
+against foreign-session cohorts, late observed `TrainData.arriveTs`, and
+movement evidence outside the strict interval between native reads.
+
+`CSSetData` returns `IRequest`, which does not prove transmission; native
+transport and source handler/queue synchronization still need independent
+observation. All changes are **offline diagnostic-only**. The archived
+60-UUID point-ready native March source and six time-separated mixed rounds
+remain nonqualifying. See the qualification document's new first section.
+
 ## Worker-7 pinned native handler/rect/clock audit, 2026-10-14
 
 Read-only SHA-256-gated installed metadata and archived `CSHandleResponse`

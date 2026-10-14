@@ -48,7 +48,7 @@ def _interval(value):
     return ((start, end) if _runtime(start) and _runtime(end) and start <= end else None)
 
 
-def _identity_map(cohort, label, server, world, errors):
+def _identity_map(cohort, label, server, world, session, errors):
     if not isinstance(cohort, dict) or cohort.get("sourceObserved") is not True:
         errors.append(f"{label}: missing source-observed typed cohort")
         return {}, None
@@ -59,6 +59,8 @@ def _identity_map(cohort, label, server, world, errors):
         errors.append(f"{label}: capture duration exceeds observer bound")
     if cohort.get("serverId") != server or cohort.get("worldId") != world:
         errors.append(f"{label}: server/world does not match native session")
+    if cohort.get("sessionId") != session:
+        errors.append(f"{label}: typed cohort from a different native session")
     rows = cohort.get("records")
     if not isinstance(rows, list):
         errors.append(f"{label}: typed March records absent")
@@ -143,6 +145,7 @@ def audit_compare_ready(receipt):
             or not isinstance(compare.get("sessionId"), str) or not compare["sessionId"]):
         errors.append("native compare cohort belongs to different or missing session")
     server, world = receipt.get("serverId"), receipt.get("worldId")
+    session = receipt.get("launchSessionId")
     clock = compare.get("serverClock")
     now_ms, clock_time = None, None
     if not isinstance(clock, dict) or not (
@@ -152,6 +155,7 @@ def audit_compare_ready(receipt):
         _int(clock.get("unixMilliseconds")) and
         _runtime(clock.get("observedAtRuntimeSeconds")) and
         clock.get("serverId") == server and clock.get("worldId") == world
+        and clock.get("sessionId") == session
     ):
         errors.append("typed independent native server clock/source unavailable")
     else:
@@ -175,13 +179,13 @@ def audit_compare_ready(receipt):
         errors.append("typed Truck/Railway selection missing or ambiguous")
         selected = []
     point, point_interval = _identity_map(
-        compare.get("pointReadyCohort"), "pointReadyCohort", server, world, errors
+        compare.get("pointReadyCohort"), "pointReadyCohort", server, world, session, errors
     )
     after, after_interval = _identity_map(
-        compare.get("afterProcessCohort"), "afterProcessCohort", server, world, errors
+        compare.get("afterProcessCohort"), "afterProcessCohort", server, world, session, errors
     )
     oracle, oracle_interval = _identity_map(
-        compare.get("independentNativeCohort"), "independentNativeCohort", server, world, errors
+        compare.get("independentNativeCohort"), "independentNativeCohort", server, world, session, errors
     )
     point_at = (receipt.get("marchSourceAtPointReady") or {}).get("observedAtRuntimeSeconds")
     after_at = (receipt.get("marchSourceAfterProcess") or {}).get("observedAtRuntimeSeconds")
@@ -242,7 +246,12 @@ def audit_compare_ready(receipt):
             errors.append("current manager cache identity/type/position/lifetime collision")
         if ALLOWED_TYPES[cur["trainType"]] not in selected:
             errors.append("native Train type outside selected kind")
-        if now_ms is None or cur["arrivalMs"] <= now_ms + ARRIVAL_AFTER_CLOCK_MS:
+        # The server time was witnessed at clock_time; an independently read
+        # typed row can be later. Propagate this source-observation delay and
+        # the 1s uncertainty bound before admitting its final lifetime.
+        elapsed_ms = (max(0, math.ceil((oracle_interval[1] - clock_time) * 1000))
+                      if oracle_interval is not None and clock_time is not None else 0)
+        if now_ms is None or cur["arrivalMs"] <= now_ms + ARRIVAL_AFTER_CLOCK_MS + elapsed_ms:
             errors.append("native Truck/Train final arrival expired or untyped server clock")
         earlier = point.get(uuid)
         if earlier is not None:
@@ -264,6 +273,7 @@ def audit_compare_ready(receipt):
                     if (move.get("sourceObserved") is not True or
                             move.get("sourceMethod") != "WorldMarch.GetMarchCurPosIndex" or
                             move.get("sourceMethodToken") != "0x06003208" or
+                            move.get("sessionId") != session or
                             move.get("serverId") != server or move.get("worldId") != world or
                             move.get("from") != [earlier["x"], earlier["y"]] or
                             move.get("to") != [cur["x"], cur["y"]] or
@@ -271,7 +281,8 @@ def audit_compare_ready(receipt):
                             move.get("toPointIndex") != cur["pointIndex"] or
                             not _runtime(move.get("observedAtRuntimeSeconds")) or
                             point_interval is None or after_interval is None or
-                            not point_interval[0] <= move["observedAtRuntimeSeconds"] <= after_interval[1]):
+                            not point_interval[1] < move["observedAtRuntimeSeconds"]
+                            < after_interval[0]):
                         errors.append("native movement transition stale/uncorrelated")
     return _result(base, errors, {"point": len(point), "after": len(after), "oracle": len(oracle)})
 

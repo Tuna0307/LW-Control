@@ -33,16 +33,26 @@ def fake_complete():
         "readOnlyGetterVerified": True,
         "exactInstalledTypeVerified": True,
     }
+    merged_proof = {
+        "fieldToken": "0x04002562",
+        "runtimeType": "System.Collections.Generic.Dictionary",
+        "memberName": "Count",
+        "getterParameterCount": 0,
+        "readOnlyGetterVerified": True,
+        "exactInstalledTypeVerified": True,
+    }
 
     def stage(moment, get_offset, handle_offset, uuids):
         return {
             "available": True, "observedAtRuntimeSeconds": moment,
+            "launchSessionId": "only-test-session", "serverId": 2212, "worldId": 0,
             "viewRect": rect, "cameraViewRect": camera,
             "lastGetBlockMessageTicks": epoch_ticks + get_offset,
             "lastHandleBlockMessageTicks": epoch_ticks + handle_offset,
             "pendingQueuePresent": True, "pendingQueueCount": 0,
             "mergedQueuePresent": True, "mergedQueueCount": 0,
             "pendingQueueCountProvenance": queue_proof,
+            "mergedQueueCountProvenance": merged_proof,
             "marchDictionaryCount": len(uuids),
             "marchUuids": uuids, "marchUuidSampleCapped": False,
         }
@@ -52,22 +62,25 @@ def fake_complete():
             "phase": phase, "sourceObserved": True,
             "sourceCorrelationId": "native-marchevent-10",
             "serverId": 2212, "worldId": 0, "rect": rect,
+            "launchSessionId": "only-test-session",
             "sourceClass": ("WorldMarchDataManager" if phase in ("process", "handler")
                             else "WorldGetRectMarchInfosMessage"),
             "methodToken": {"request": "0x060019a6", "response": "0x060019a7",
                             "handler": "0x0600327b",
-                            "process": "0x06003276"}[phase],
+                            "process": "0x06003277"}[phase],
             "method": {
                 "request": "WorldGetRectMarchInfosMessage.CSSetData",
                 "response": "WorldGetRectMarchInfosMessage.CSHandleResponse",
                 "handler": "WorldMarchDataManager.HandleWorldGetRectMarchInfos",
-                "process": "WorldMarchDataManager.TryExcuteMarchMessage",
+                "process": "WorldMarchDataManager.HandleMessage",
             }[phase],
+            "observationPoint": "method-exit" if phase in ("request", "handler", "process") else "method-entry",
             "observedAtRuntimeSeconds": moment, "nativeTicks": epoch_ticks + tick_offset,
         }
 
     return {
         "capturedAt": when.isoformat(),
+        "launchSessionId": "only-test-session",
         "serverId": 2212, "worldId": 0,
         "nativeServerTimeUnixMs": captured_ms,
         "isRecvViewPoints": True, "hasReceiveViewPointsReply": True,
@@ -83,6 +96,7 @@ def fake_complete():
         ],
         "independentActiveMarches": {
             "sourceObserved": True, "observedAtUnixMs": captured_ms,
+            "launchSessionId": "only-test-session",
             "serverId": 2212, "worldId": 0, "rect": rect,
             "activeMarches": [
                 {"uuid": "march-A", "serverId": 2212, "worldId": 0,
@@ -160,6 +174,51 @@ class PassiveReceiptAuditChecks(unittest.TestCase):
         value["marchRectEvents"][2]["nativeTicks"] = (
             value["marchRectEvents"][3]["nativeTicks"] + 10000)
         self.assert_failed(value, "native timestamps invalid")
+
+    def test_try_execute_entry_cannot_claim_queue_handler_completion(self):
+        # TryExcuteMarchMessage returns bool and contains merge-dictionary
+        # early exits; no method-entry witness certifies HandleMessage exit.
+        value = fake_complete()
+        event = value["marchRectEvents"][3]
+        event["method"] = "WorldMarchDataManager.TryExcuteMarchMessage"
+        event["methodToken"] = "0x06003276"
+        self.assert_failed(value, "March process method/source/server/world")
+        value = fake_complete()
+        value["marchRectEvents"][3]["observationPoint"] = "method-entry"
+        self.assert_failed(value, "March process method/source/server/world")
+
+    def test_foreign_manager_stage_and_oracle_run_are_not_same_session(self):
+        for stage in ("marchSourceBefore", "marchSourceAtPointReady", "marchSourceAfterProcess"):
+            for field, bad in (("launchSessionId", "stale-launch"), ("serverId", 2213),
+                               ("worldId", 1)):
+                with self.subTest(stage=stage, field=field):
+                    value = fake_complete()
+                    value[stage][field] = bad
+                    self.assert_failed(value, "native manager source session/server/world mismatch")
+        value = fake_complete()
+        value["marchRectEvents"][2]["launchSessionId"] = "stale-launch"
+        self.assert_failed(value, "March handler method/source/server/world")
+        value = fake_complete()
+        value["independentActiveMarches"]["launchSessionId"] = "stale-launch"
+        self.assert_failed(value, "independent March oracle belongs")
+
+    def test_merged_dictionary_zero_without_native_field_getter_is_false_completion(self):
+        value = fake_complete()
+        del value["marchSourceAfterProcess"]["mergedQueueCountProvenance"]
+        self.assert_failed(value, "merged dictionary Count getter provenance")
+        value = fake_complete()
+        value["marchSourceAtPointReady"]["mergedQueueCountProvenance"]["fieldToken"] = "0x04002561"
+        self.assert_failed(value, "merged dictionary Count getter provenance")
+
+    def test_wall_tick_and_runtime_lifecycle_cannot_disagree_by_minutes(self):
+        value = fake_complete()
+        # Each clock series is monotonic and every native tick remains within
+        # five minutes of the capture, but native elapsed time differs from
+        # the same pair of runtime observations by two minutes.
+        for event in value["marchRectEvents"][1:]:
+            event["nativeTicks"] += 120 * 10000000
+        value["marchSourceAfterProcess"]["lastHandleBlockMessageTicks"] += 120 * 10000000
+        self.assert_failed(value, "native event/runtime duration contradicts")
 
     def test_unverified_request_response_process_correlation_fails(self):
         value = fake_complete()

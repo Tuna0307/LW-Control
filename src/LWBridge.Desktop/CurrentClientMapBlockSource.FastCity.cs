@@ -561,6 +561,12 @@ internal sealed partial class CurrentClientMapBlockSource
             {
                 resourceDetails = ResourceScanDetailObservation.Failed(ex.Message);
             }
+            // A failed/partial native detail pass previously published every
+            // known idle Resource with unknown capacity, despite reporting a
+            // completed full-world scan. Require the exact current idle keys
+            // before modifying any staged record; a source error must abort
+            // this publication attempt, including mixed selections.
+            RequireCompleteResourceHydration(resourceRecords, resourceDetails);
             foreach ((string key, FirstLivePreparedResource prepared) in resourceRecords.ToArray())
             {
                 if (!IsKnownIdleResource(prepared.Record)) continue;
@@ -1426,6 +1432,49 @@ internal sealed partial class CurrentClientMapBlockSource
         }
     }
 
+    internal static void RequireCompleteResourceHydration(
+        IReadOnlyDictionary<string, FirstLivePreparedResource> resources,
+        ResourceScanDetailObservation observation)
+    {
+        string[] idleKeys = resources.Where(pair => IsKnownIdleResource(pair.Value.Record))
+            .Select(pair => pair.Key).ToArray();
+        if (idleKeys.Length == 0) return;
+        if (!string.IsNullOrWhiteSpace(observation.Error) ||
+            observation.TargetCount < idleKeys.Length ||
+            observation.TargetCount != observation.Details.Count ||
+            observation.ReadyCount != observation.Details.Values.Count(detail => detail.Received))
+            throw new InvalidDataException("Resource source hydration did not complete its current native targets.");
+
+        foreach (string key in idleKeys)
+        {
+            if (!observation.Details.TryGetValue(key, out ResourceScanDetail? detail) ||
+                !detail.Received || detail.FullAmount <= 0 || detail.RemainingAmount < 0 ||
+                detail.RemainingAmount > detail.FullAmount)
+                throw new InvalidDataException("Resource source hydration missed a currently idle Resource identity.");
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(resources[key].Record.DataJson);
+                JsonElement source = document.RootElement;
+                if (!source.TryGetProperty("resourceConfigId", out JsonElement config) ||
+                    !config.TryGetInt32(out int expectedConfig) || expectedConfig <= 0 ||
+                    !source.TryGetProperty("resourceMaxAmount", out JsonElement capacity) ||
+                    !capacity.TryGetInt64(out long expectedCapacity) || expectedCapacity <= 0 ||
+                    !source.TryGetProperty("resourceNameKey", out JsonElement name) ||
+                    name.ValueKind is not (JsonValueKind.String or JsonValueKind.Number) ||
+                    detail.ResourceConfigId != expectedConfig ||
+                    detail.SourceCapacity != expectedCapacity ||
+                    detail.FullAmount != expectedCapacity ||
+                    detail.SourceNameKey != (name.ValueKind == JsonValueKind.String
+                        ? name.GetString() : name.GetRawText()))
+                    throw new InvalidDataException("Resource source hydration identity/configuration changed during acquisition.");
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Resource source hydration metadata is malformed.", ex);
+            }
+        }
+    }
+
     private ResourceScanDetailObservation ValidateResourceScanDetailResult(
         JsonElement root,
         string requestId,
@@ -1461,6 +1510,16 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             string recordKey = RequiredString(item, "recordKey");
             bool received = item.TryGetProperty("received", out JsonElement receivedValue) && receivedValue.ValueKind == JsonValueKind.True;
+            int? configId = item.TryGetProperty("resourceConfigId", out JsonElement configValue) &&
+                configValue.ValueKind == JsonValueKind.Number &&
+                configValue.TryGetInt32(out int observedConfig) ? observedConfig : null;
+            long? capacity = item.TryGetProperty("resourceMaxAmount", out JsonElement capacityValue) &&
+                capacityValue.ValueKind == JsonValueKind.Number &&
+                capacityValue.TryGetInt64(out long observedCapacity) ? observedCapacity : null;
+            string? nameKey = item.TryGetProperty("resourceNameKey", out JsonElement nameValue) &&
+                nameValue.ValueKind is JsonValueKind.String or JsonValueKind.Number
+                    ? nameValue.ValueKind == JsonValueKind.String ? nameValue.GetString() : nameValue.GetRawText()
+                    : null;
             long remaining = 0;
             long fullAmount = 0;
             if (received)
@@ -1471,7 +1530,8 @@ internal sealed partial class CurrentClientMapBlockSource
                     remaining > fullAmount)
                     throw new InvalidDataException("Resource detail enrichment returned an invalid amount pair.");
             }
-            if (!details.TryAdd(recordKey, new ResourceScanDetail(received, remaining, fullAmount)))
+            if (!details.TryAdd(recordKey, new ResourceScanDetail(
+                received, remaining, fullAmount, configId, capacity, nameKey)))
                 throw new InvalidDataException("Resource detail enrichment returned a duplicate record key.");
         }
         if (details.Count != targetCount)
@@ -1669,6 +1729,9 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FirstLivePreparedResource> resources = request.SelectedTypes.Contains("resource", StringComparer.Ordinal) && HasPointKind(pointRecords, "resource_point")
             ? FirstLiveResultImporter.PrepareResourceSnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
+        if (resourceCompleteness is not null)
+            RequireResourceNativeSourceCohort(
+                resources, resourceCompleteness, requestedSet, request.ServerId, request.WorldId);
         IReadOnlyList<FastDispatchPrepared> dispatches = request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)
             ? PrepareDispatchRecords(pointRecords, request, requestedSet, startedAt)
             : Array.Empty<FastDispatchPrepared>();
@@ -1721,6 +1784,96 @@ internal sealed partial class CurrentClientMapBlockSource
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
             PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
             PhaseMilliseconds("totalProbeElapsedSeconds"));
+    }
+
+    // The native Resource producer enumerates _pointInfos once, then records
+    // acceptedAoiCounts from the very same accepted resource_point entries.
+    // Global totals and a reported footprint cannot prove which individual
+    // AOI supplied each entry. Check the actual normalized source rows against
+    // that exact per-response histogram before treating any AOI as acquired.
+    internal static void RequireResourceNativeSourceCohort(
+        IReadOnlyList<FirstLivePreparedResource> resources,
+        ResourceCompletenessBatchDiagnostics source,
+        IReadOnlySet<int> requestedAois,
+        int serverId,
+        long worldId)
+    {
+        static bool MatchesLong(JsonElement row, string field, long expected) =>
+            row.TryGetProperty(field, out JsonElement value) &&
+            value.ValueKind == JsonValueKind.Number &&
+            value.TryGetInt64(out long actual) && actual == expected;
+        if (!source.Reconciles ||
+            source.RejectionReasonCounts.Any(reason =>
+                reason.Value > 0 && reason.Key != "outside_selected_aoi") ||
+            resources.Count != source.AcceptedResourceCount)
+            throw new InvalidDataException("Native Resource source contained an unreconciled or skipped candidate.");
+
+        var byAoi = new Dictionary<string, int>(StringComparer.Ordinal);
+        var identities = new HashSet<int>();
+        foreach (FirstLivePreparedResource resource in resources)
+        {
+            FirstLiveResultImport origin = resource.Import;
+            MapStoredRecord row = resource.Record;
+            int aoi = checked((origin.Y / 10) * FastCityAoiBlockCount + origin.X / 10);
+            if (origin.ServerId != serverId || row.ServerId != serverId ||
+                row.Kind != "resource" || row.PointIndex != origin.PointIndex ||
+                row.RecordKey != origin.RecordKey ||
+                origin.RecordKey != origin.PointIndex.ToString(CultureInfo.InvariantCulture) ||
+                origin.PointIndex != (long)origin.Y * 1000 + origin.X + 1 ||
+                origin.X is < 0 or >= 1000 || origin.Y is < 0 or >= 1000 ||
+                origin.CapturedAtUnixMilliseconds <= 0 ||
+                row.UpdatedAt != origin.CapturedAtUnixMilliseconds ||
+                !requestedAois.Contains(aoi) || !identities.Add(origin.PointIndex))
+                throw new InvalidDataException("Native Resource point had a foreign, duplicate or stale AOI identity.");
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(row.DataJson);
+                JsonElement data = document.RootElement;
+                bool sourceOccupiedKnown = data.TryGetProperty("gatherOccupancyKnown", out JsonElement known) &&
+                    known.ValueKind == JsonValueKind.True;
+                bool rebuiltKnown = data.TryGetProperty("rebuildGatherOccupancyKnown", out JsonElement rebuildKnown) &&
+                    rebuildKnown.ValueKind == JsonValueKind.True;
+                if (data.ValueKind != JsonValueKind.Object ||
+                    !MatchesInt(data, "pointId", origin.PointIndex) ||
+                    !MatchesInt(data, "pointIndex", origin.PointIndex) ||
+                    !MatchesInt(data, "serverId", serverId) ||
+                    !MatchesInt(data, "srcServerId", serverId) ||
+                    !MatchesLong(data, "worldId", worldId) ||
+                    !MatchesInt(data, "x", origin.X) || !MatchesInt(data, "y", origin.Y) ||
+                    !MatchesString(data, "kind", "resource") ||
+                    !MatchesString(data, "sourceKind", "resource_point") ||
+                    !MatchesString(data, "source",
+                        "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange") ||
+                    !MatchesString(data, "recordKey", origin.RecordKey) ||
+                    !data.TryGetProperty("runtimeClass", out JsonElement runtimeClass) ||
+                    runtimeClass.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(runtimeClass.GetString()) ||
+                    !data.TryGetProperty("resourceSourceType", out JsonElement sourceClass) ||
+                    sourceClass.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(sourceClass.GetString()) ||
+                    !data.TryGetProperty("pointType", out JsonElement type) ||
+                    type.ValueKind != JsonValueKind.Number ||
+                    !type.TryGetInt32(out int nativePointType) ||
+                    nativePointType is not (1 or 7 or 26) ||
+                    !MatchesLong(data, "updatedAt", row.UpdatedAt) ||
+                    sourceOccupiedKnown != rebuiltKnown ||
+                    (sourceOccupiedKnown &&
+                     (!data.TryGetProperty("gatherOccupied", out JsonElement occupied) ||
+                      occupied.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                      !MatchesBool(data, "rebuildGatherOccupied", occupied.GetBoolean()))))
+                    throw new InvalidDataException("Native Resource point lacked source identity or current occupancy provenance.");
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Native Resource source row has invalid JSON.", ex);
+            }
+            string key = aoi.ToString(CultureInfo.InvariantCulture);
+            byAoi[key] = byAoi.TryGetValue(key, out int previous) ? checked(previous + 1) : 1;
+        }
+        if (source.AcceptedAoiCounts.Count != byAoi.Count ||
+            source.AcceptedAoiCounts.Any(entry =>
+                !byAoi.TryGetValue(entry.Key, out int actual) || actual != entry.Value))
+            throw new InvalidDataException("Native Resource per-AOI source counts differ from accepted point records.");
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -2532,8 +2685,9 @@ internal sealed partial class CurrentClientMapBlockSource
     private sealed record FastTreasurePrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
     private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
-    private sealed record ResourceScanDetail(bool Received, long RemainingAmount, long FullAmount);
-    private sealed record ResourceScanDetailObservation(
+    internal sealed record ResourceScanDetail(bool Received, long RemainingAmount, long FullAmount,
+        int? ResourceConfigId, long? SourceCapacity, string? SourceNameKey);
+    internal sealed record ResourceScanDetailObservation(
         int TargetCount,
         int RequestCount,
         int CacheBeforeCount,

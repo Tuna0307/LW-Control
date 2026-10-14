@@ -285,6 +285,62 @@ all 17 inverses with the corrected gate. This evidence does not promote
 Resource FOV20 or reclassify any of the 19/4/3 disappearing point IDs as
 proven stale, spawned or destroyed.
 
+### Production Resource acquisition/source and hydration admission correction
+
+The 14 October source review found two further **production** false-acceptance
+paths in `CurrentClientMapBlockSource.FastCity.cs`, present on the guarded
+FOV120 route as well as experimental FOV20. First, a native Resource batch
+could claim an accepted Resource total and complete requested-AOI geometry
+while its `acceptedAoiCounts` histogram disagreed with the actual imported
+Resource rows. The managed receiver checked only the total and overall
+footprint, then staged the rows. It now requires the exact per-response
+accepted-AOI histogram to agree with the imported coordinate-derived AOIs,
+verifies the individual current server/world/source identities and capture
+timestamp, prevents duplicate source point IDs within a reply, and rejects
+native producer candidate exclusions other than normal
+`outside_selected_aoi` observations. Because `_pointInfos` can contain points
+outside the requested footprint, that specific exclusion remains legitimate.
+
+Second, an enrichment timeout, invalid source response, partial native result
+or absent currently idle key was previously downgraded to an error string and
+all Resource rows were still published as a completed scan, with missing
+Resource detail silently presented as unknown. On the actual native contract,
+`resource_scan_detail_runtime.queue` enqueues known idle points and its
+result provides `recordKey`, `received`, `resourceConfigId`,
+`resourceNameKey`, `resourceMaxAmount` and actual remaining/full amounts.
+The receiver now fails the publication attempt when **any current known idle
+Resource** has no received detail, the detail report is partial/failed, its
+ready counter disagrees with received rows, or source config/name/capacity
+differs from the retained point. Already occupied points retain unknown
+amounts, because no live idle amount is justified for them. Older queued
+identities outside the current final retained set are not used to claim
+current presence. The historical six-run SQLite receipts each have exactly
+7,489/7,490/7,495/7,493/7,493/7,494 hydrated **unoccupied** points and
+zero occupied amount assertions, structurally consistent with the new gate.
+
+The real Lua `coverage` protocol clears native
+`WorldPointManager.isRecvViewPoints` and
+`world.hasReceiveViewPointsReply`, then records their true transition and
+the `_curViewIndex`/`requestedIndices` snapshot before source records are
+serialized. `RequireFreshCaptureTime` admits only a correlated current probe
+captured between the request start minus two seconds and the observed host
+time plus five seconds; native `capturedAt` has second precision. **The six
+archives do not contain an independent unique request/reply ID or original
+server-created point lifespan timestamps per AOI**. Therefore complete
+10,000-AOI union and even per-response matching source histograms do not
+prove contemporaneous absence of any of the 19/4/3 disappearing Resources
+or creation timing of the 25 added points (including occupied `20128`).
+
+`Map014ResourceNativeSourceChecks.Run()` exercises 14 synthetic native
+source/AOI inverses and nine synthetic partial/stale hydration inverses,
+alongside positive 0/999 map seams and the legitimate occupied/no-detail
+case. The full desktop checks suite passed with
+`MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses=14 hydrationInverses=9
+native=false` and `HOME_FEATURE_DELIVERY_CHECKS_OK` using the existing
+`SkipCanonicalProductionUiBuild=true` test flag. These controlled checks
+provide no new live Resource capture. Resource FOV20 remains disabled by
+default and source freshness qualification remains **partial**.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

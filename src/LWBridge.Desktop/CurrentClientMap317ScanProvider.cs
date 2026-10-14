@@ -14,6 +14,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     private readonly IMapScanBlockSource source;
     private readonly Func<CancellationToken, Task<CurrentClientMapStatusContext>> getStatus;
     private readonly Func<CancellationToken, Task<CurrentClientMapContext>> getContext;
+    private readonly Func<MapScanExecutionRequest, CurrentClientMapContext, IMapScanBlockSource>?
+        createSourceForAcceptedRun;
     private Map317.MapProviderStartRequest? pending;
     private CurrentClientMapContext? pendingContext;
     private CancellationTokenSource? activeCancellation;
@@ -31,11 +33,20 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     internal CurrentClientMap317ScanProvider(
         IMapScanBlockSource source,
         Func<CancellationToken, Task<CurrentClientMapStatusContext>> getStatus,
-        Func<CancellationToken, Task<CurrentClientMapContext>> getContext)
+        Func<CancellationToken, Task<CurrentClientMapContext>> getContext,
+        Func<MapScanExecutionRequest, CurrentClientMapContext, IMapScanBlockSource>?
+            createSourceForAcceptedRun = null)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
         this.getStatus = getStatus ?? throw new ArgumentNullException(nameof(getStatus));
         this.getContext = getContext ?? throw new ArgumentNullException(nameof(getContext));
+        // Optional per-accepted-run factory. The engine source is normally
+        // long lived; a source with an immutable native run/group owner must
+        // instead be CREATED only after Map317 has issued the exact run ID.
+        // This callback constructs a managed adapter ONLY and must never
+        // initiate camera, network or game side effects. No production caller
+        // currently supplies it: native A/B/C selector remains disabled.
+        this.createSourceForAcceptedRun = createSourceForAcceptedRun;
     }
 
     public async ValueTask<Map317.MapProviderContext> GetContextAsync(
@@ -162,14 +173,46 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         // capability. Never place it around an opt-in native shared source:
         // doing so silently removes IMapScanSharedAcquisitionSource and its
         // required single final-home cleanup from the actual Auto/Map317 path.
-        IMapScanBlockSource acquisition = source is IMapScanSharedAcquisitionSource shared
+        IMapScanBlockSource acceptedSource;
+        try
+        {
+            acceptedSource = createSourceForAcceptedRun is null ? source :
+                createSourceForAcceptedRun(execution, liveContext) ??
+                throw new InvalidDataException("Accepted native scan source factory returned no source.");
+        }
+        catch (Exception error)
+        {
+            // A factory failure happens AFTER durable Start but BEFORE any
+            // native ingress/capture or MapScanEngine.Begin. Retire only this
+            // still-active exact run and release its accepted-run lease, not
+            // a new scan that may have replaced it in the meantime.
+            lock (gate)
+            {
+                if (ReferenceEquals(activeCancellation, cancellation))
+                {
+                    activeCancellation = null;
+                    activeTask = null;
+                }
+            }
+            cancellation.Dispose();
+            try
+            {
+                Map317.MapScanState current = control.ScanState;
+                if (current.IsReading &&
+                    string.Equals(current.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
+                    control.FailScan(error.Message);
+            }
+            finally { RunTerminated?.Invoke(request.ScanRunId); }
+            return;
+        }
+        IMapScanBlockSource acquisition = acceptedSource is IMapScanSharedAcquisitionSource shared
             ? (execution.SelectedTypes.Contains("treasure", StringComparer.Ordinal) ||
                 execution.SelectedTypes.Contains("other", StringComparer.Ordinal)
                     ? new MapOtherEventSharedScanSource(shared, execution)
-                    : source)
-            : source is IMapScanAcquisitionCleanup nativeCleanup
-                ? new MapOtherEventCleanupScanSource(source, nativeCleanup)
-                : new MapOtherEventScanSource(source);
+                    : acceptedSource)
+            : acceptedSource is IMapScanAcquisitionCleanup nativeCleanup
+                ? new MapOtherEventCleanupScanSource(acceptedSource, nativeCleanup)
+                : new MapOtherEventScanSource(acceptedSource);
         var engine = new MapScanEngine(
             acquisition,
             sink,
@@ -195,7 +238,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                     throw;
                 }
             },
-            source is CurrentClientMapBlockSource nativeSource ? metrics =>
+            acceptedSource is CurrentClientMapBlockSource nativeSource ? metrics =>
             {
                 // This is the mounted Map317 production adapter. Emit one
                 // source-owned diagnostic after actual durable publication,

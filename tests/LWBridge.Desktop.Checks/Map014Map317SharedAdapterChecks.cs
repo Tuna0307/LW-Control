@@ -21,6 +21,7 @@ internal static class Map014Map317SharedAdapterChecks
         public int Cleanups;
         public bool WrongCaptureOwner;
         public bool WrongCleanupOwner;
+        public bool WrongSourceAoi;
         public IReadOnlyList<string>? CapturedNativeTypes;
         public int StagedSampleCount;
 
@@ -64,9 +65,20 @@ internal static class Map014Map317SharedAdapterChecks
             MapScanBlockCapture[] all = blocks.Select((block, index) =>
                 new MapScanBlockCapture(request.ServerId, request.WorldId, block.BlockIndex,
                     "{}", index == 0 ? firstRecords : [])).ToArray();
+            MapScanSharedBlockSourceProof[] proofs = blocks.Select(block =>
+                new MapScanSharedBlockSourceProof(block.BlockIndex,
+                    [
+                        (block.MinY / 10) * 100 + block.MinX / 10,
+                        (block.MinY / 10) * 100 + block.MinX / 10 + 1,
+                        (block.MinY / 10 + 1) * 100 + block.MinX / 10,
+                        (block.MinY / 10 + 1) * 100 + block.MinX / 10 + 1,
+                    ], "controlled-native-packet", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()))
+                .ToArray();
+            if (WrongSourceAoi)
+                proofs[0] = proofs[0] with { NativePointAoiIndices = [11, 12, 111, 112] };
             yield return new MapScanSharedAcquisitionBatch(WrongCaptureOwner
                 ? AcquisitionOwner with { GroupGeneration = "obsolete-group" }
-                : AcquisitionOwner, all);
+                : AcquisitionOwner, all, proofs);
         }
 
         public Task<MapScanAcquisitionCleanupReceipt> CleanupAsync(MapScanExecutionRequest request,
@@ -148,13 +160,15 @@ internal static class Map014Map317SharedAdapterChecks
     }
 
     private static async Task CheckAsync(string[] selected, string[] expectedNative,
-        bool invalidCapture = false, bool invalidCleanup = false)
+        bool invalidCapture = false, bool invalidCleanup = false,
+        bool invalidSourceAoi = false)
     {
         using Map317.MapStore store = Map317.MapStore.CreateInMemory();
         var source = new NativeSource
         {
             WrongCaptureOwner = invalidCapture,
             WrongCleanupOwner = invalidCleanup,
+            WrongSourceAoi = invalidSourceAoi,
         };
         const int server = 2213;
         const string session = "map014-controlled-session";
@@ -174,7 +188,7 @@ internal static class Map014Map317SharedAdapterChecks
         Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == accepted.ScanRunId,
             "real Map317 adapter failed to terminalize accepted native shared run");
         string phase = control.ScanState.Phase;
-        Require(phase == (invalidCapture || invalidCleanup ? "failed" : "completed"),
+        Require(phase == (invalidCapture || invalidCleanup || invalidSourceAoi ? "failed" : "completed"),
             "invalid native shared receipt was published or valid run stopped: " + phase);
         Require(source.Calls == 1 && source.Cleanups == 1 &&
             source.CapturedNativeTypes is not null &&
@@ -183,7 +197,7 @@ internal static class Map014Map317SharedAdapterChecks
         int treasureCount = store.SummaryCounts(server)["treasure"];
         int otherCount = store.SummaryCounts(server)["other"];
         int cityCount = store.SummaryCounts(server)["city"];
-        if (invalidCapture || invalidCleanup)
+        if (invalidCapture || invalidCleanup || invalidSourceAoi)
             Require(treasureCount == 0 && otherCount == 0 && cityCount == 0,
                 "invalid native owner leaked partial Map317 published records");
         else
@@ -227,6 +241,64 @@ internal static class Map014Map317SharedAdapterChecks
             "retired owned session was allowed to begin native shared capture or publish after Map317 Start");
     }
 
+    private static async Task CheckAcceptedRunSourceFactoryAsync()
+    {
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int server = 2213;
+        const string session = "factory-owned-session";
+        int calls = 0;
+        bool rejectFactory = true;
+        NativeSource? admittedSource = null;
+        var provider = new CurrentClientMap317ScanProvider(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(true, server, server,
+                [], [], 0, 1000, 1000, 500, 500)),
+            _ => Task.FromResult(new CurrentClientMapContext(server, 0,
+                1000, 1000, 500, 500, session)),
+            (accepted, context) =>
+            {
+                calls++;
+                Require(accepted.ServerId == server && accepted.WorldId == 0 &&
+                        context.LaunchSessionId == session &&
+                        accepted.LaunchSessionId == session &&
+                        accepted.SelectedTypes.SequenceEqual(["city", "other"]),
+                    "accepted-run factory lacked the exact durable source/session selection");
+                if (rejectFactory)
+                    throw new InvalidDataException("No genuinely authenticated native group ingress");
+                admittedSource = new NativeSource
+                {
+                    AcquisitionOwner = new MapScanSharedAcquisitionOwner(accepted.RunId,
+                        server, 0, session, ["city", "treasure"],
+                        "factory-profile", 12345, "factory-group-" + accepted.RunId)
+                };
+                return admittedSource;
+            });
+        using var control = new Map317.MapControlPlane(store, provider);
+        var terminal = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        provider.RunTerminated += id => terminal.TrySetResult(id);
+        Map317.MapScanState rejected = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city", "other"], "fast"));
+        provider.ActivateAcceptedRun(control, rejected.ScanRunId);
+        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(5)) == rejected.ScanRunId &&
+                control.ScanState.Phase == "failed" && calls == 1 &&
+                admittedSource is null &&
+                store.SummaryCounts(server)["city"] == 0 &&
+                store.SummaryCounts(server)["other"] == 0,
+            "missing accepted native ingress silently downgraded to guarded legacy scan");
+
+        rejectFactory = false;
+        terminal = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Map317.MapScanState accepted = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city", "other"], "fast"));
+        provider.ActivateAcceptedRun(control, accepted.ScanRunId);
+        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(20)) == accepted.ScanRunId &&
+                control.ScanState.Phase == "completed" && calls == 2 &&
+                admittedSource?.Calls == 1 && admittedSource.Cleanups == 1 &&
+                store.SummaryCounts(server)["city"] == 1 &&
+                store.SummaryCounts(server)["other"] == 1,
+            "per-accepted-run factory failed to pin new owner/source and publish through Map317");
+    }
+
     internal static async Task RunAsync()
     {
         await CheckAsync(["other"], ["treasure"]);
@@ -235,9 +307,11 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckAsync(["city", "other"], ["city", "treasure"]);
         await CheckAsync(["treasure", "other"], ["treasure"], invalidCapture: true);
         await CheckAsync(["treasure", "other"], ["treasure"], invalidCleanup: true);
+        await CheckAsync(["city", "other"], ["city", "treasure"], invalidSourceAoi: true);
         await CheckLegacyCleanupProviderAsync(restored: true);
         await CheckLegacyCleanupProviderAsync(restored: false);
         await CheckRetiredSessionAtActivationAsync();
+        await CheckAcceptedRunSourceFactoryAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");
     }
 }

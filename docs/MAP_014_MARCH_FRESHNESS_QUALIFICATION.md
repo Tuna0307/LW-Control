@@ -1,5 +1,82 @@
 # MAP-014 Truck / Train march freshness — source-causal offline qualification
 
+## 2026-10-14 resumed v24 queue-dispatch IL correction (HEAD 4e35d14e)
+
+The earlier March receipt contract had an **unsupported causal premise**:
+`WorldMarchDataManager.TryExcuteMarchMessage` was treated as an event that
+completed *after* the rect handler. Direct read-only inspection of the
+hash-pinned installed `Assembly-CSharp.rdl` (SHA-256
+`bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e`)
+shows `TryExcuteMarchMessage(WorldMarchMessageType,ISFSObject):bool`
+(`0x06003276`) reads and mutates a dictionary through conditional branches;
+it returns true at `IL_001c` and `IL_00d4`, and false at `IL_00c4`.
+`WorldMarchDataManager.HandleMessage(ValueTuple<WorldMarchMessageType,
+ISFSObject>):void` (`0x06003277`) calls an obfuscated Boolean method at
+`IL_0019`, returns immediately if false (`IL_0020`), and only then reaches
+its message-type dispatch switch (`IL_0029`). The opaque call token does
+not identify that Boolean target with certainty. Nevertheless, neither
+`TryExcuteMarchMessage` entry nor `HandleMessage` entry can establish
+that the rect handler executed or that the March cache is current.
+
+The corrected *offline, necessary-only* witness is the same-correlated,
+source-observed `WorldGetRectMarchInfosMessage.CSSetData` **method exit**
+(`0x060019a6`), `CSHandleResponse` **entry** (`0x060019a7`), actual
+`WorldMarchDataManager.HandleWorldGetRectMarchInfos` **method exit**
+(`0x0600327b`) and the corresponding **`HandleMessage` method exit**
+(`0x06003277`) after that rect handler. Both method exits are needed:
+`HandleMessage` can otherwise return before dispatch. A pinned declaring
+class/token, matching observed correlation ID, native session/server/world,
+stable source March `viewRect` and camera rectangle, bounded monotonic
+runtime and `DateTime.Ticks`, and separately proven queue state remain
+necessary. This is a conservative proposed observation contract, not proof
+of a particular obfuscated switch arm or native queue completion.
+
+`CSSetData(object[])` returns an `Sfs2X.Requests.IRequest`: construction
+does **not** demonstrate an actual transport send. The IL's later
+`WorldGetMarchInfos` `IL_0055` target `0xA79C9342` remains obfuscated,
+so no outbound send token or server correlation ID is invented. A real
+future owner must independently observe outgoing transmission, matching
+successful response, March handler/dispatch, queue drainage, rectangle
+continuity, server clock, and full typed current population before any
+mobile acceptance. Self-reported tokens and synthetic positive fixtures
+cannot authenticate those witnesses.
+
+Additional RED→GREEN *synthetic* false admissions were found: the three
+March stages could silently be borrowed from a different launch/server/
+world while root receipt events agreed; typed cohorts and independent
+oracle could likewise come from an earlier session; a reported merged
+queue zero had no independently verified getter from the actual
+`_messagesMergeDict` field (`0x04002562`, a generic dictionary); two
+monotonically ordered native event ticks could disagree with the same
+runtime event interval by two minutes; and `TrainData.arriveTs` could
+pass a one-second clock margin although the independent typed capture
+ended substantially later. A claimed `WorldMarch.GetMarchCurPosIndex`
+movement captured *during* the initial point-ready cohort, *after* the
+processed cohort began, or in another session could incorrectly justify
+a changed position. The updated validator now binds manager stages,
+events, oracle, typed cohorts and clock to session/server/world; requires
+verified `_messagesMergeDict.Count` provenance alongside the existing
+`StepProcessQueue.Count` proof; checks native/runtime elapsed agreement
+within one second; extends final-arrival minimum by observed elapsed
+time from server-clock sample to oracle capture end plus one second of
+uncertainty; and requires a source-observed movement **strictly between**
+the completed point-ready and started post-process cohort windows.
+These strict diagnostic conditions may reject legitimate captures until
+native observation timing and getter contracts are actually demonstrated.
+
+The genuine `native-march-source-20261014-102638` baseline-FOV120 receipt
+remains **negative**: 60 uncapped, unclassified point-ready manager UUIDs,
+zero typed Train rows, and no same-session before/after March state,
+March transport/response/handler/queue witness, numeric native ticks,
+verified queue getters, independent server clock or typed oracle. The
+separate six real `native-benchmark-mixed-20261014-021149` receipts remain
+sequential: Truck baseline→FOV20 loses **92/92/83** UUIDs, of which
+**90/88/82** have `arriveTs` after approximate candidate completion;
+Railway loses **2/1/1** with future arrival. No cause/expiry attribution
+or same-time recall is established. FOV20 mobile/mixed remains rejected;
+the WinError5 stop boundary remains in effect. No game/request, script,
+production, commit or PR changed.
+
 ## 2026-10-14 worker-7 source-event / cohort causal inverses
 
 **New reproducible synthetic false admissions, then GREEN.** In the earlier
@@ -25,8 +102,8 @@ It contains *separate* `WorldGetRectMarchInfosMessage.CSSetData(object[])`
 `0x0600327b`, and `TryExcuteMarchMessage(WorldMarchMessageType,ISFSObject)`
 `0x06003276`. Archived installed IL for `CSHandleResponse` has an early return
 at `IL_000e`, before its downstream dispatch path. Thus method **entry**
-alone cannot certify receipt by the separate March manager. A new source
-contract requires **four** independently source-observed, same-correlated
+alone cannot certify receipt by the separate March manager. The original
+contract required **four** independently source-observed, same-correlated
 events in request → response → manager handler → queue-processing order,
 each bearing its pinned declaring class and method token, matching
 server/world and the active `WorldMarchDataManager.viewRect`, with strictly
@@ -36,10 +113,10 @@ The request rectangle is the proposed observer's **effective March request
 footprint**, which must actually be recovered and tied to the installed
 source; merely relabelling a point-request rectangle is insufficient.
 Source class/token strings by themselves do not authenticate an observer.
-The source method `TryExcuteMarchMessage` has a `bool` return but the
-obfuscated IL has not established that a particular return value proves
-successful ingestion; the four-event contract remains only a necessary
-structural screen, never independent proof of processed population.
+The newer pinned-IL correction above supersedes this fixture's final
+`TryExcuteMarchMessage` event with correlated `HandleMessage` and rect
+handler **method exits**. Neither construct alone independently proves
+transport transmission or a complete active March population.
 
 The earlier `audit_compare_ready_march.py` also accepted an
 **arbitrarily long typed cohort collection interval** so long as it
@@ -328,8 +405,8 @@ For a **future, independently produced** opt-in trace to satisfy even the *singl
 
 * `marchSourceBefore`, `marchSourceAtPointReady`, and `marchSourceAfterProcess` each must have distinct increasing `observedAtRuntimeSeconds`, typed `viewRect` and `cameraViewRect`, uncapped deduplicated `marchUuids` exactly matching `marchDictionaryCount`, and positive `lastGetBlockMessageTicks` / `lastHandleBlockMessageTicks` (native .NET DateTime ticks, not ambiguous formatted strings).
 * Native timestamp ticks must be plausible and align within **five minutes of the recorded UTC receipt** (deliberately conservative admission policy for the observed source clock, **not** a wait; if a future client uses a different DateTime timezone, independently establish a trustworthy clock mapping first). Source receive/process tick snapshots cannot move backwards; an exact post-point-ready March handler must advance the handle timestamp.
-* Queue provenance must identify actual installed `_messages` field `0x04002561`, confirmed `StepProcessQueue` runtime type, zero-argument read-only `Count` getter and independent exact-type verification. Numeric zero without this proof fails; both queue and merge backlog must be zero.
-* `marchRectEvents` must contain exactly one source-observed `WorldGetRectMarchInfosMessage.CSSetData` **request** (`0x060019a6`), one `WorldGetRectMarchInfosMessage.CSHandleResponse` **reply** (`0x060019a7`), one separately observed `WorldMarchDataManager.HandleWorldGetRectMarchInfos` **handler** (`0x0600327b`) and one `WorldMarchDataManager.TryExcuteMarchMessage` **process** (`0x06003276`) for a common independently witnessed correlation identifier, correctly pinned declaring classes, same server/world, identical applicable active **March manager `viewRect`** (not camera-only rect), ordered runtime/native timestamps bounded by native capture time, and processing after point readiness while both target March rectangles remain fixed. The actual request's effective rectangle must be source established. A `CSHandleResponse` entry can return before manager dispatch; an app-local point `requestId` is **not** a native network match.
+* Queue provenance must identify installed `_messages` `0x04002561` `StepProcessQueue` type, zero-argument read-only `Count` getter and independently verified exact type; `_messagesMergeDict` `0x04002562` must separately prove a genuine dictionary `Count` getter. Numeric zeros without these proofs fail; both queue and merged backlog must be zero.
+* `marchRectEvents` requires a source-observed `WorldGetRectMarchInfosMessage.CSSetData` **method exit** (`0x060019a6`), `WorldGetRectMarchInfosMessage.CSHandleResponse` **entry** (`0x060019a7`), `WorldMarchDataManager.HandleWorldGetRectMarchInfos` **method exit** (`0x0600327b`), and `WorldMarchDataManager.HandleMessage` **method exit** (`0x06003277`) in correlated runtime/native order with matching declaring class/token, launch/session/server/world and the active March manager `viewRect`. The manager's camera/`viewRect` must remain stable through completion; native tick and monotonic runtime elapsed intervals must agree within one second. `TryExcuteMarchMessage` (`0x06003276`) can return on cache/merge branches and is *not* the after-handler processing-completion witness. The effective request rectangle must be genuinely source observed: `CSSetData` returns `IRequest` and an app-local point `requestId` is **not** evidence that a network request was sent.
 * A distinct same-time independent `independentActiveMarches` oracle must tie each inspected UUID to actual server/world, final `TrainData.arriveTs` still in the future relative to witnessed native server time, and observation within a one-second configured skew. Its set must be contained in the after-process all-March dictionary. Missing UUID, stale observation, expired final arrival, duplicate or server/world mismatch fails. **Movement-leg `endTime` never substitutes for final arrival**.
 
 This strict receipt schema is a conservative **offline qualification proposal**, not proof that the existing native producer exposes or reliably correlates all such events. A synthetic complete trace passing the test still returns `globallyQualified=false`. The new isolated inverse suite covers the actual missing before source, camera-only substitution, absent/mismatched request/reply/process, stale rectangle/server/clock, ambiguous `Count=0`, queue pending, stale/expired/duplicate UUID, missing native .NET ticks, and time-separated archived replay.

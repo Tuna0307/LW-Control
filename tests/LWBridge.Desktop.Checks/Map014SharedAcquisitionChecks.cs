@@ -80,7 +80,23 @@ internal static class Map014SharedAcquisitionChecks
                         request.ServerId, request.WorldId, block.BlockIndex, "{}",
                         request.SelectedTypes.Select(kind => Record(request, block, kind)).ToArray()))
                     .ToArray();
-                MapScanSharedAcquisitionBatch result = new(AcquisitionOwner, captures);
+                // Controlled source proof only. The production ingress must
+                // independently supply these native-reply AOIs, never derive
+                // them from the requested blocks as this fixture does.
+                MapScanSharedBlockSourceProof[] proofs = orderedBlocks
+                    .Skip(offset).Take(ChunkSize)
+                    .Select(block => new MapScanSharedBlockSourceProof(
+                        block.BlockIndex,
+                        [
+                            (block.MinY / 10) * 100 + block.MinX / 10,
+                            (block.MinY / 10) * 100 + block.MinX / 10 + 1,
+                            (block.MinY / 10 + 1) * 100 + block.MinX / 10,
+                            (block.MinY / 10 + 1) * 100 + block.MinX / 10 + 1,
+                        ],
+                        "controlled-native-reply-" + batch,
+                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()))
+                    .ToArray();
+                MapScanSharedAcquisitionBatch result = new(AcquisitionOwner, captures, proofs);
                 if (BeforeYieldAsync is not null)
                     await BeforeYieldAsync(batch, cancellationToken);
                 // Deliberately record all source attempts, including results
@@ -168,13 +184,15 @@ internal static class Map014SharedAcquisitionChecks
         }
     }
 
-    private static async Task CheckSuccessfulSharedWorldAsync(string[] kinds)
+    private static async Task CheckSuccessfulSharedWorldAsync(string[] kinds, long worldId = 0)
     {
         string db = TempDb();
         try
         {
             using var store = new MapDataStore(db);
-            MapScanExecutionRequest request = Request("all-" + kinds[1], 2213, kinds);
+            MapScanExecutionRequest request = Request(
+                "all-" + kinds[1] + "-world-" + worldId, 2213, kinds)
+                with { WorldId = worldId };
             Seed(store, request.ServerId);
             // Separate server is a published baseline that must never be deleted.
             Seed(store, 2214);
@@ -275,6 +293,25 @@ internal static class Map014SharedAcquisitionChecks
         }
     }
 
+    private static async Task CheckDuplicateSelectedTypesRejectBeforeNativeAsync()
+    {
+        string db = TempDb();
+        try
+        {
+            using var store = new MapDataStore(db);
+            MapScanExecutionRequest request = Request("duplicate-selected-types", 2213,
+                "city", "city");
+            var source = new SharedSource(Owner(request));
+            await Reject<BridgeCommandException>(
+                () => new MapScanEngine(source, new MapDataStoreScanSink(store)).ExecuteAsync(request),
+                "duplicate kind selection admitted before native source authentication");
+            Require(source.Calls == 0 && source.Cleanups.Count == 0 &&
+                Count(db, "scan_runs") == 0,
+                "invalid repeated selection started or persisted an unsafe native group");
+        }
+        finally { CleanDb(db); }
+    }
+
     private static async Task CheckCancellationAsync(bool duringCleanup)
     {
         string db = TempDb();
@@ -373,11 +410,45 @@ internal static class Map014SharedAcquisitionChecks
         finally { CleanDb(db); }
     }
 
+    private static async Task CheckForeignWorldZeroEscapeAsync()
+    {
+        string db = TempDb();
+        try
+        {
+            using var store = new MapDataStore(db);
+            MapScanExecutionRequest request = Request("world-one", 2214, "city", "resource")
+                with { WorldId = 1 };
+            Seed(store, 2214);
+            var source = new SharedSource(Owner(request))
+            {
+                AlterBatch = (batch, value) => batch == 1
+                    ? value with
+                    {
+                        Captures = [value.Captures[0] with { WorldId = 0 },
+                            ..value.Captures.Skip(1)]
+                    }
+                    : value
+            };
+            await Reject<InvalidDataException>(() =>
+                new MapScanEngine(source, new MapDataStoreScanSink(store)).ExecuteAsync(request),
+                "world-zero unspecified legacy source was admitted into WorldId=1 shared run");
+            Require(source.Calls == 1 && source.Cleanups.Count == 1 &&
+                source.Cleanups[0].Reason == MapScanAcquisitionExitReason.Failed &&
+                Count(db, "scan_runs", "status='failed'") == 1 &&
+                Count(db, "scan_records") == 0 &&
+                Count(db, "map_records", "server_id=2214 AND kind='city'") == 1,
+                "wrong-world shared reply leaked into SQLite or lost existing server data");
+        }
+        finally { CleanDb(db); }
+    }
+
     internal static async Task RunAsync()
     {
         await CheckSuccessfulSharedWorldAsync(["city", "resource"]);
         await CheckSuccessfulSharedWorldAsync(["city", "truck"]);
+        await CheckSuccessfulSharedWorldAsync(["city", "resource"], worldId: 1);
         await CheckEarlyAdmissionRejectAsync();
+        await CheckDuplicateSelectedTypesRejectBeforeNativeAsync();
         await CheckRejectedStreamAsync("duplicate", (source, _) =>
             source.AlterBatch = (batch, value) => batch == 1
                 ? value with { Captures = [value.Captures[0] with { BlockIndex = 0 }, ..value.Captures.Skip(1)] }
@@ -389,6 +460,32 @@ internal static class Map014SharedAcquisitionChecks
         await CheckRejectedStreamAsync("stale-generation", (source, _) =>
             source.AlterBatch = (batch, value) => batch == 1
                 ? value with { Owner = value.Owner with { GroupGeneration = "last-run" } } : value);
+        await CheckRejectedStreamAsync("no-native-aoi-proof", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [] } : value);
+        await CheckRejectedStreamAsync("missing-native-aoi", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [value.BlockSourceProofs[0] with {
+                    NativePointAoiIndices = value.BlockSourceProofs[0].NativePointAoiIndices.Take(3).ToArray() },
+                    ..value.BlockSourceProofs.Skip(1)] } : value);
+        await CheckRejectedStreamAsync("stale-aoi-footprint", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [value.BlockSourceProofs[0] with {
+                    NativePointAoiIndices = [0,1,100,101] },
+                    ..value.BlockSourceProofs.Skip(1)] } : value);
+        await CheckRejectedStreamAsync("repeated-native-aoi", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [value.BlockSourceProofs[0] with {
+                    NativePointAoiIndices = [500,500,600,601] },
+                    ..value.BlockSourceProofs.Skip(1)] } : value);
+        await CheckRejectedStreamAsync("missing-native-reply-id", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [value.BlockSourceProofs[0] with {
+                    NativeReplyId = " " }, ..value.BlockSourceProofs.Skip(1)] } : value);
+        await CheckRejectedStreamAsync("missing-native-time", (source, _) =>
+            source.AlterBatch = (batch, value) => batch == 1
+                ? value with { BlockSourceProofs = [value.BlockSourceProofs[0] with {
+                    NativeObservedAtUnixMilliseconds = 0 }, ..value.BlockSourceProofs.Skip(1)] } : value);
         await CheckRejectedStreamAsync("remote-server", (source, _) =>
             source.AlterBatch = (batch, value) => batch == 1
                 ? value with { Owner = value.Owner with { ServerId = 2213 } } : value, useRemoteServer: true);
@@ -490,6 +587,7 @@ internal static class Map014SharedAcquisitionChecks
         await CheckCancellationAsync(duringCleanup: false);
         await CheckCancellationAsync(duringCleanup: true);
         await CheckCleanupFailureAsync();
+        await CheckForeignWorldZeroEscapeAsync();
         Console.WriteLine("MAP014_SHARED_ACQUISITION_ENGINE_SQLITE_OK blocks=2500 tiles=0..999 kinds=city/resource,city/truck oneSource=true native=false");
     }
 }
