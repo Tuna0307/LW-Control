@@ -1,5 +1,11 @@
 # MAP-014 lead finish — 2026-10-14
 
+**Superseded status:** This file preserves the former interruption/handoff
+state and earlier source evidence. The finished available-scope review,
+current packaged Dispatch table proof, fresh real Stop/camera/retention and
+remaining whole-Map gaps are recorded in
+[`MAP_014_FINAL_OWNER_REVIEW_2026-10-14.md`](MAP_014_FINAL_OWNER_REVIEW_2026-10-14.md).
+
 ## Latest owner interruption and worker handback
 
 Owner stopped execution to conserve tokens and requested a worker handoff.
