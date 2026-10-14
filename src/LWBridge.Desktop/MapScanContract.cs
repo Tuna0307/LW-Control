@@ -16,7 +16,7 @@ internal static class MapScanContract
     public static readonly string[] RecoveredDefaultTypes =
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
 
-    public static readonly string[] AllTypes = RecoveredDefaultTypes;
+    public static readonly string[] AllTypes = [..RecoveredDefaultTypes, "other"];
 
     private static readonly HashSet<string> AllowedTypes = new(AllTypes, StringComparer.Ordinal);
 

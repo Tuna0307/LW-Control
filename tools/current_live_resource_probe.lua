@@ -2647,8 +2647,10 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
                          missingPointIndex = 0, invalidPosition = 0, missingServer = 0,
                          missingOwnerUid = 0, missingOwnerName = 0,
                          duplicateRetainedPointIndices = 0,
-                         nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0 }
-    local retained_ids = {}
+                         nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0,
+                         supersededNativeCityCount = 0, nativeOwnerConflicts = 0,
+                         nativeCanonicalLookupFailures = 0 }
+    local retained_ids, retained_owners = {}, {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
@@ -2691,6 +2693,7 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             return true
         end
         retained_ids[id] = true
+        retained_owners[id] = tostring(owner_uid)
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2748,7 +2751,35 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
         local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
         if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
            selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
+        local native_owner = scalar_field(info,{"ownerUid","OwnerUid"})
+        local owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
+            and tostring(native_owner) or retained_owners[id]
+        local ok_canonical, canonical = false, nil
+        if owner ~= nil then ok_canonical, canonical = call(point_manager,"GetBaseMainInfoByOwnerUid",owner) end
+        local canonical_id = canonical and integer_field(canonical,{"pointIndex","PointIndex"}) or nil
+        local canonical_owner = canonical and scalar_field(canonical,{"ownerUid","OwnerUid"}) or nil
+        if ok_canonical and canonical_id ~= nil and canonical_id > 0 and
+           canonical_owner ~= nil and tostring(canonical_owner) == owner and
+           integer_field(canonical,{"pointType","PointType"}) == 6 and
+           integer_field(canonical,{"serverId","ServerId"}) == current_server_id() then
+            if canonical_id ~= id then
+                -- _pointInfos may still carry the prior location for the same
+                -- player. The game's own owner->main-base resolver identifies
+                -- the current primary point; never resurrect that old location.
+                accounting.supersededNativeCityCount = accounting.supersededNativeCityCount + 1
+                accounting.supersededNativePoints = accounting.supersededNativePoints or {}
+                accounting.supersededNativePoints[#accounting.supersededNativePoints+1] =
+                    {pointIndex=id,canonicalPointIndex=canonical_id,x=tile.x,y=tile.y,
+                     canonicalServerId=current_server_id()}
+                return true
+            end
+        else
+            accounting.nativeCanonicalLookupFailures = accounting.nativeCanonicalLookupFailures + 1
+        end
         accounting.nativeCurrentCityCount = accounting.nativeCurrentCityCount + 1
+        if owner ~= nil and retained_ids[id] == true and retained_owners[id] ~= owner then
+            accounting.nativeOwnerConflicts = accounting.nativeOwnerConflicts + 1
+        end
         if retained_ids[id] ~= true then
             accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
         end
@@ -2758,7 +2789,8 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     if accounting.missingPointIndex > 0 or accounting.invalidPosition > 0 or
        accounting.missingServer > 0 or accounting.missingOwnerUid > 0 or
        accounting.missingOwnerName > 0 or accounting.duplicateRetainedPointIndices > 0 or
-       accounting.missingNativeCurrentPointIndices > 0 or
+       accounting.missingNativeCurrentPointIndices > 0 or accounting.nativeOwnerConflicts > 0 or
+       accounting.nativeCanonicalLookupFailures > 0 or
        accounting.nativeCurrentCityCount > accounting.accepted or
        accounting.accepted ~= accounting.inRequestedAoi then
         return nil, "city_native_candidate_identity_incomplete", accounting
@@ -6163,7 +6195,12 @@ local function pump_bulk_aoi_diagnostic(now)
             fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
             return true
         end
-        if observed.cities > #city_records then
+        if observed.cities ~= (city_completeness.nativeCurrentCityCount or 0) +
+           (city_completeness.supersededNativeCityCount or 0) then
+            fail_bulk_aoi(bulk_aoi_request, "city_native_source_accounting_mismatch", details, point_manager)
+            return true
+        end
+        if (city_completeness.nativeCurrentCityCount or 0) > #city_records then
             fail_bulk_aoi(bulk_aoi_request, "city_native_point_info_exceeds_retained_bases", details, point_manager)
             return true
         end

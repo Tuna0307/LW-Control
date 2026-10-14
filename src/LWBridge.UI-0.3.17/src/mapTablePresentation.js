@@ -45,6 +45,12 @@ function mapCoordinates(row) {
   const x = Number(row.x), y = Number(row.y);
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
+export function validMapJumpCoordinates(row) {
+  if (row?.x == null || row?.y == null || row.x === "" || row.y === "") return false;
+  const x = Number(row.x), y = Number(row.y);
+  return Number.isInteger(x) && Number.isInteger(y) &&
+    x >= 0 && x <= 999 && y >= 0 && y <= 999;
+}
 function originalResourceOccupied(row) {
   return ["gatherMarchUuid", "gatherUid"].some(key => {
     const value = String(row[key] || "").trim();
@@ -132,6 +138,26 @@ export function treasureName(t, texts, type, suppliesType, nameKey) {
   const key = String(suppliesNameKey(suppliesType) || nameKey || "").trim();
   const name = t(key === "challenge_zombie_box_title" ? "map.treasureTypeTrialGift" : suppliesTypeKey(suppliesType));
   return key ? lookupMapText(texts, key, name) : t(treasureTypeKey(type));
+}
+const OTHER_TYPE_LABELS = Object.freeze({
+  "supplies:1": "map.otherSubtypeSupplies1",
+  "event:27000": "map.otherSubtypeParty",
+});
+export function otherTypeName(t, subtype) {
+  if (OTHER_TYPE_LABELS[subtype]) return t(OTHER_TYPE_LABELS[subtype]);
+  if (/^supplies:[1-9]\d*$/.test(String(subtype))) {
+    return t("map.otherSubtypeUnidentifiedSupplies", { type: subtype.slice("supplies:".length) });
+  }
+  return t("map.otherNameUnavailable");
+}
+export function otherName(t, texts, row) {
+  return lookupMapText(texts, row.otherNameKey, otherTypeName(t, row.otherSubtype));
+}
+export function otherWorkEnd(row, language) {
+  return row.otherSubtype?.startsWith("supplies:") ? mapDate(row.workEndTime, language) : "-";
+}
+export function otherExpiry(row, language) {
+  return row.otherSubtype === "event:27000" ? mapDate(row.expireTime, language) : "-";
 }
 function treasureWorldKey(state) {
   return ({ charging: "map.treasureStateCharging", claimable: "map.treasureStateClaimable",
@@ -302,6 +328,22 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     width: `150px`,
     sortBy: `protectTime`,
     value: e => mapDate(field(e, `protectTime`), language)
+  }, updated] : kind === `other` ? [coordinates, {
+    label: t(`map.otherEventType`),
+    width: `150px`,
+    value: e => otherTypeName(t, field(e, `otherSubtype`))
+  }, {
+    label: t(`common.name`),
+    width: `minmax(180px, 1fr)`,
+    value: e => otherName(t, gameTexts, e)
+  }, {
+    label: t(`map.otherWorkEnd`),
+    width: `150px`,
+    value: e => otherWorkEnd(e, language)
+  }, {
+    label: t(`map.expireTime`),
+    width: `150px`,
+    value: e => otherExpiry(e, language)
   }, updated] : kind === `treasure` ? [coordinates, {
     label: t(`map.treasureType`),
     width: `160px`,

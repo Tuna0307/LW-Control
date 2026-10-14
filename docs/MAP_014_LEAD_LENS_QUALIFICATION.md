@@ -49,6 +49,12 @@ same count; they are not an external simultaneous server population census.
 
 ## Deployment boundary and next gate
 
+Later source correction and rejected cache-supplement experiment are recorded
+in [MAP_014_CANONICAL_CITY_CORRECTION.md](MAP_014_CANONICAL_CITY_CORRECTION.md).
+Read that before treating the first baseline benchmark failure as scanner
+recall loss. The game's canonical owner resolver identifies superseded cache
+locations; unresolved identities still fail. Repeated comparisons are ongoing.
+
 Normal production remains the original guarded serial path. FOV20 is admitted
 only by `ExperimentalBoundedCameraLens` in the diagnostic host; default hooks
 remain absent/false. The alternative loop validates the requested uncovered

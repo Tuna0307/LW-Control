@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_SCAN_STATE,
   EMPTY_COUNTS,
+  MAP_DEFAULT_SCAN_TYPES,
   MAP_KIND_KEYS,
   MAP_PAGE_SIZE,
   MAP_SCAN_TYPES,
@@ -20,7 +21,7 @@ import {
   removeAutoServerId,
 } from "./mapAutoConfig.js";
 import { useI18n } from "./i18n.jsx";
-import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState, suppliesNameKey } from "./mapTablePresentation.js";
+import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState, otherTypeName, suppliesNameKey, validMapJumpCoordinates } from "./mapTablePresentation.js";
 import {
   DEFAULT_RANDOM_DELAY_TEXT,
   SCHEDULING_PROVIDER_METHODS,
@@ -61,6 +62,7 @@ const SCAN_TYPE_LABEL_KEYS = Object.freeze({
   dispatch: "map.secretTask",
   ghost: "map.ghostScout",
   treasure: "map.treasure",
+  other: "map.other",
 });
 const TAB_LABEL_KEYS = Object.freeze({
   city: "map.city",
@@ -71,6 +73,7 @@ const TAB_LABEL_KEYS = Object.freeze({
   dispatch: "map.secretTask",
   ghost: "map.ghostScout",
   treasure: "map.treasure",
+  other: "map.other",
   scheduledPlunder: "map.scheduledPlunder",
 });
 
@@ -121,7 +124,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
     }
     const x = Number(row.x);
     const y = Number(row.y);
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 1 || y < 1) return "-";
+    if (!validMapJumpCoordinates(row)) return "-";
     return <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><span>{coordinateText(row)}</span><strong>{t(jumpingKey === `${row.serverId}:${x}:${y}` ? "map.jumping" : "map.jump")}</strong></button>;
   }
   function markTitle(row) {
@@ -280,7 +283,7 @@ export function MapDataPage({
     const saved = window.localStorage.getItem("lwbridge.mapScanMode");
     return saved === "normal" || saved === "fast" ? saved : "normal";
   });
-  const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_KIND_KEYS]);
+  const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_DEFAULT_SCAN_TYPES]);
   const [scanState, setScanState] = useState(() => suppliedScanState ? { ...suppliedScanState } : { ...DEFAULT_SCAN_STATE });
   const externallyManaged = suppliedScanState !== null && typeof onState === "function";
   const [scanStateAvailable, setScanStateAvailable] = useState(suppliedScanState !== null);
@@ -302,6 +305,7 @@ export function MapDataPage({
   const [alliance, setAlliance] = useState("all");
   const [markedOnly, setMarkedOnly] = useState(false);
   const [treasureType, setTreasureType] = useState("");
+  const [otherSubtype, setOtherSubtype] = useState("");
   const [completionStatusByKind, setCompletionStatusByKind] = useState({});
   const [qualityByKind, setQualityByKind] = useState({});
   const [itemKeyByKind, setItemKeyByKind] = useState({});
@@ -352,7 +356,9 @@ export function MapDataPage({
     // when a retained row has no optional treasureNameKey. Request that key
     // from the verified installed-build locale loader before showing labels.
     ...(options?.treasureTypes || []).map((item) => suppliesNameKey(item.suppliesType) || item.treasureNameKey),
-    ...rows.map((row) => suppliesNameKey(row.suppliesType) || row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    ...rows.map((row) => row.kind === "other" ? row.otherNameKey :
+      suppliesNameKey(row.suppliesType) || row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    "activity_wajueji_27000_name",
     "300039", "372138",
   ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
   const nameKeySignature = knownNameKeys.join("\u0000");
@@ -551,6 +557,7 @@ export function MapDataPage({
       });
       setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
+      setOtherSubtype((current) => !current || (loaded.otherTypes || []).some((item) => item.key === current) ? current : "");
     } catch (error) {
       if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(errorText(error));
     }
@@ -666,6 +673,7 @@ export function MapDataPage({
       query.includeForeignRadarTreasures = includeForeignRadarTreasures;
       query.luckyFirst = luckyFirst;
     }
+    if (tab === "other" && otherSubtype) query.otherSubtype = otherSubtype;
     if (tab === "dispatch" || tab === "ghost" || tab === "truck" || tab === "railway") {
       if (completionStatus && (tab === "dispatch" || tab === "ghost")) query.completionStatus = completionStatus;
       if (quality && quality !== "special" && quality !== "reindeer") query.quality = quality;
@@ -746,7 +754,7 @@ export function MapDataPage({
   }, [
     activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey, truckItemKeys,
     luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, online, page, plunderableOnly, quality, resourceNameKey,
-    resourceMinLevel, resourceMaxLevel, resourceAmountState, resourceTileState, escortMaxMillions, language, searchRevision, tab, treasureType,
+    resourceMinLevel, resourceMaxLevel, resourceAmountState, resourceTileState, escortMaxMillions, language, searchRevision, tab, treasureType, otherSubtype,
   ]);
 
   // Original Vn/X effects: one coalesced trailing refresh, rearmed only by a
@@ -1458,6 +1466,14 @@ export function MapDataPage({
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} />{t("map.showForeignRadarTreasures")}</label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} />{t("map.prioritizeLuckyTreasures")}</label>
               </>
+            ) : null}
+            {tab === "other" ? (
+              <select aria-label={t("map.otherEventType")} value={otherSubtype} onChange={(event) => { setOtherSubtype(event.target.value); setPage(1); }}>
+                <option value="">{t("map.allOtherTypes")}</option>
+                {(options?.otherTypes || []).map((item) => (
+                  <option key={item.key} value={item.key}>{otherTypeName(t, item.key)} ({item.count})</option>
+                ))}
+              </select>
             ) : null}
             {["truck", "railway", "dispatch", "ghost"].includes(tab) ? (
               <>

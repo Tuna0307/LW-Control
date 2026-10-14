@@ -352,6 +352,8 @@ def main() -> int:
                         help="single current-world City-rich region at 995,975: exact current-point versus retained identity subset; never a full scan")
     parser.add_argument("--city-mixed-only-target", action="store_true",
                         help="single native region centered on the genuine Oct13 mixed-only City identity absent from earlier City-only scan")
+    parser.add_argument("--city-rejection-probe", action="store_true",
+                        help="observe the freshly failed baseline City region (45,175); record exact native identity rejection counters")
     parser.add_argument("--intermediate-zoom-experiment", action="store_true",
                         help="opt-in source-guarded middle zoom (not ZoomMax), three pairs only if fresh LOD0 and shared identities qualify")
     parser.add_argument("--event-source-probe", action="store_true",
@@ -367,6 +369,8 @@ def main() -> int:
     parser.add_argument("--full-world-sequence", action="store_true",
                         help="after three qualified regions, privately observe exact 10000-cell City/Resource coverage and final restoration")
     options = parser.parse_args()
+    if options.city_rejection_probe and (not(options.baseline_region and options.fresh_reply_experiment) or options.sequence_experiment or options.compare_second_region or options.event_source_probe):
+        parser.error("City rejection probe is one distinct source-attributed failure region")
     if options.subscription_stage_trace and not options.post_lens_sequence:
         parser.error("subscription stage trace requires the distinct owned post-lens sequence")
     if options.bounded_lens_sequence and not options.subscription_stage_trace:
@@ -619,6 +623,8 @@ def main() -> int:
                 # checks loaded source/manager availability at the other
                 # genuine populated upper/right border, without a full scan.
                 region_x, region_y = (995, 975)
+            elif options.city_rejection_probe:
+                region_x, region_y = (45,175)
             else:
                 region_x, region_y = (995,975) if options.city_subset_probe else (455,425)
             region_command = {

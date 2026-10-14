@@ -141,7 +141,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
 
         var sink = new Map317ScanRunSink(control);
         var engine = new MapScanEngine(
-            source,
+            new MapOtherEventScanSource(source),
             sink,
             progress =>
             {

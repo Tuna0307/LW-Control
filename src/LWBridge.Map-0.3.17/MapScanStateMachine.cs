@@ -91,7 +91,7 @@ public sealed class MapScanStateMachine
             ScanRunId: string.Empty,
             IsReading: false,
             Phase: "idle",
-            SelectedTypes: MapKinds.All.ToArray(),
+            SelectedTypes: MapKinds.DefaultSelection.ToArray(),
             TotalBlocks: 0,
             CompletedBlocks: 0,
             ReadBlocks: 0,
@@ -620,7 +620,7 @@ public sealed class MapScanStateMachine
     private static string[] NormalizeTypes(IReadOnlyList<string>? requested)
     {
         if (requested is null)
-            return MapKinds.All.ToArray();
+            return MapKinds.DefaultSelection.ToArray();
 
         var selected = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);

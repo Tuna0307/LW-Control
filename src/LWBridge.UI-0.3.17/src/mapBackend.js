@@ -45,6 +45,7 @@ export const MAP_SCAN_TYPES = Object.freeze([
   { key: "dispatch", label: "Secret Task" },
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
+  { key: "other", label: "Other" },
 ]);
 
 export const MAP_TABS = Object.freeze([
@@ -56,10 +57,13 @@ export const MAP_TABS = Object.freeze([
   { key: "dispatch", label: "Secret Task" },
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
+  { key: "other", label: "Other" },
   { key: "scheduledPlunder", label: "Scheduled Plunder" },
 ]);
 
 export const MAP_KIND_KEYS = Object.freeze(MAP_SCAN_TYPES.map(({ key }) => key));
+// Other is opt-in. Preserve the eight recovered types for an implicit scan.
+export const MAP_DEFAULT_SCAN_TYPES = Object.freeze(MAP_KIND_KEYS.filter((key) => key !== "other"));
 export const MAP_PAGE_SIZE = 50;
 
 export function mapPageCount(total) {
@@ -72,7 +76,7 @@ export const DEFAULT_SCAN_STATE = Object.freeze({
   scanRunId: "",
   isReading: false,
   phase: "idle",
-  selectedTypes: MAP_KIND_KEYS,
+  selectedTypes: MAP_DEFAULT_SCAN_TYPES,
   totalBlocks: 0,
   completedBlocks: 0,
   readBlocks: 0,
@@ -119,7 +123,7 @@ export function normalizeScanState(value) {
     scanRunId: typeof source.scanRunId === "string" ? source.scanRunId : "",
     isReading: source.isReading === true,
     phase: typeof source.phase === "string" ? source.phase : "idle",
-    selectedTypes: selected.length ? selected : MAP_KIND_KEYS,
+    selectedTypes: selected.length ? selected : [...MAP_DEFAULT_SCAN_TYPES],
     totalBlocks: integer(source.totalBlocks),
     completedBlocks: integer(source.completedBlocks ?? source.readBlocks),
     readBlocks: integer(source.readBlocks ?? source.completedBlocks),
@@ -174,6 +178,7 @@ export function normalizeOptions(value) {
     noAllianceCount: Math.max(0, integer(source.noAllianceCount)),
     rewardItems: source.rewardItems && typeof source.rewardItems === "object" ? source.rewardItems : {},
     treasureTypes: Array.isArray(source.treasureTypes) ? source.treasureTypes : [],
+    otherTypes: Array.isArray(source.otherTypes) ? source.otherTypes : [],
     scanProgress: source.scanProgress || null,
   };
 }
@@ -205,7 +210,7 @@ export function unwrapProfileEvent(value, profileId) {
 
 export function normalizeSelectedTypes(types) {
   const selected = [...new Set((types || []).filter((kind) => MAP_KIND_KEYS.includes(kind)))];
-  return selected.length ? selected : [...MAP_KIND_KEYS];
+  return selected.length ? selected : [...MAP_DEFAULT_SCAN_TYPES];
 }
 
 export function updateSelectedTypes(types, kind, checked) {
@@ -246,7 +251,7 @@ export function buildSearchPayload(kind, query = {}) {
     sorts,
   };
   for (const key of [
-    "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "alliance",
+    "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "otherSubtype", "alliance",
     "withoutAlliance", "markedOnly", "quality", "specialOnly", "reindeerOnly", "itemKey",
     "completionStatus", "plunderableOnly", "includeForeignRadarTreasures", "luckyFirst",
     "viewerUid", "viewerAllianceId", "minLevel", "maxLevel",

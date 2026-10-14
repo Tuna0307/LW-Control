@@ -327,7 +327,7 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
-        bool boundedLens = hooks?.ExperimentalBoundedCameraLens == true;
+        bool boundedLens = ShouldUseBoundedFullWorldCameraLens(request, hooks);
         for (int row = 0; row < (boundedLens ? 1 : FastFullWorldRowRequests); row++)
         {
             int groupStartRow = row * FastCityGroupRows;
@@ -409,7 +409,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
                     {
                         lastError = error;
-                        if (hooks is null || hooks.ExperimentalBoundedCameraLens)
+                        if (boundedLens || hooks is null)
                             Console.Error.WriteLine(
                                 $"FAST_FULL_WORLD_RETRY server={request.ServerId} world={request.WorldId} " +
                                 $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
@@ -449,9 +449,7 @@ internal sealed partial class CurrentClientMapBlockSource
                     covered.Add(index);
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
                 {
-                    if (!cityRecords.TryGetValue(prepared.Record.RecordKey, out FirstLivePreparedResource? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        cityRecords[prepared.Record.RecordKey] = prepared;
+                    MergeLatestCityByOwner(cityRecords, prepared);
                 }
                 foreach (FirstLivePreparedResource prepared in observation.Resources)
                 {
@@ -768,6 +766,34 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Bounded lens native AOI rectangle has holes or stale geometry.");
     }
 
+    internal static void MergeLatestCityByOwner(Dictionary<string, FirstLivePreparedResource> rows,
+        FirstLivePreparedResource candidate)
+    {
+        using var data = JsonDocument.Parse(candidate.Record.DataJson);
+        if (candidate.Record.Kind != "city" || candidate.Record.ServerId <= 0 ||
+            candidate.Record.UpdatedAt <= 0 ||
+            !data.RootElement.TryGetProperty("ownerUid", out var owner) ||
+            owner.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(owner.GetString()) || owner.GetString() == "0")
+            throw new InvalidDataException("City aggregation requires an actual native owner identity.");
+        // The scan state itself is tied to an exact profile/session/run. Within
+        // that state a player has one current observed location per server.
+        string key = candidate.Record.ServerId.ToString(CultureInfo.InvariantCulture) + ":" + owner.GetString();
+        if (!rows.TryGetValue(key, out var prior))
+        {
+            rows.Add(key, candidate);
+            return;
+        }
+        if (candidate.Record.UpdatedAt > prior.Record.UpdatedAt)
+        {
+            rows[key] = candidate;
+            return;
+        }
+        if (candidate.Record.UpdatedAt == prior.Record.UpdatedAt &&
+            candidate.Record.PointIndex != prior.Record.PointIndex)
+            throw new InvalidDataException("City owner has conflicting locations at the same observation time.");
+    }
+
     private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
         request.SelectedTypes.Contains("monster", StringComparer.Ordinal) ||
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
@@ -794,6 +820,19 @@ internal sealed partial class CurrentClientMapBlockSource
         request.SelectedTypes.Count is >= 1 and <= 8 &&
         request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch" or "ghost" or "treasure") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
+
+    // Same-session Oct 14 baseline/FOV20 six-round native City comparison:
+    // 4,114 current owners in every round, zero omitted/new owner identities,
+    // one source-timestamped relocation, 10,000 AOIs and exact restoration.
+    // City-only median 227.912s -> 86.179s. Mixed FOV20 missed unexpired
+    // Trucks, and Resource snapshots retained unexplained temporal changes:
+    // neither is admitted to this production policy.
+    internal static bool ShouldUseBoundedFullWorldCameraLens(
+        MapScanExecutionRequest request, CurrentClientMapBlockSourceHooks? hooks) =>
+        hooks?.ForceLegacyFullWorldLens != true &&
+        (hooks?.ExperimentalBoundedCameraLens == true ||
+         request.SelectedTypes.Count == 1 && request.SelectedTypes[0] == "city");
+
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
@@ -820,7 +859,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"scanRunId={request.RunId}",
             "viewLevel=-1",
             "requestMode=coverage",
-            $"coverageFov={(hooks?.ExperimentalBoundedCameraLens == true ? 20 : 120)}",
+            $"coverageFov={(ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 ? 20 : 120)}",
             $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
@@ -851,7 +890,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
             {
                 byte[] bytes = ReadAllBytes(resultPath);
-                return ValidateFastCityBatchResult(
+                try { return ValidateFastCityBatchResult(
                     root.Value,
                     bytes,
                     resultPath,
@@ -862,7 +901,22 @@ internal sealed partial class CurrentClientMapBlockSource
                     groupStartColumn,
                     groupStartRow,
                     targetX,
-                    targetY);
+                    targetY); }
+                catch (InvalidDataException)
+                {
+                    if (nativeBatchNegativesRecorded++ < 8 &&
+                        (hooks is null || ShouldUseBoundedFullWorldCameraLens(request, hooks)))
+                    {
+                        try
+                        {
+                            string negativePath = Path.Combine(probeRuntimeRoot,"batch-negatives");
+                            Directory.CreateDirectory(negativePath);
+                            File.WriteAllBytes(Path.Combine(negativePath,requestId+".json"),bytes);
+                        }
+                        catch (IOException) { } catch (UnauthorizedAccessException) { }
+                    }
+                    throw;
+                }
             }
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
@@ -1449,7 +1503,7 @@ internal sealed partial class CurrentClientMapBlockSource
             MatchesBool(root, "positionRestoredBeforeResponse", false) &&
             MatchesBool(root, "positionRestoredAfterResponse", true) &&
             MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
-        if (hooks?.ExperimentalBoundedCameraLens == true && !MatchesInt(root, "coverageFov", 20))
+        if (ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 && !MatchesInt(root, "coverageFov", 20))
             throw new InvalidDataException("Bounded lens result did not match its admitted lens.");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
@@ -1502,9 +1556,38 @@ internal sealed partial class CurrentClientMapBlockSource
                 !root.TryGetProperty("nativePointInfoCityCount", out JsonElement currentCityValue) ||
                 currentCityValue.ValueKind != JsonValueKind.Number ||
                 !currentCityValue.TryGetInt32(out int currentCityCount) ||
-                !MatchesInt(cityCompleteness, "nativeCurrentCityCount", currentCityCount) ||
-                currentCityCount > matchedCityCount || currentCityCount < 0)
+                !cityCompleteness.TryGetProperty("nativeCurrentCityCount",out var canonicalCityValue) ||
+                canonicalCityValue.ValueKind != JsonValueKind.Number ||
+                !canonicalCityValue.TryGetInt32(out int canonicalCityCount) || canonicalCityCount < 0 ||
+                canonicalCityCount > matchedCityCount || currentCityCount < 0)
                 throw new InvalidDataException("Fast world City producer did not reconcile independent retained-base and current-point counts.");
+            if (cityCompleteness.TryGetProperty("nativeOwnerConflicts", out _) &&
+                !MatchesInt(cityCompleteness,"nativeOwnerConflicts",0))
+                throw new InvalidDataException("Fresh native City owner conflicts with its retained point identity.");
+            int superseded = cityCompleteness.TryGetProperty("supersededNativeCityCount",out var supersededValue)
+                ? supersededValue.ValueKind == JsonValueKind.Number && supersededValue.TryGetInt32(out int n) && n >= 0
+                    ? n : throw new InvalidDataException("Invalid superseded native City count") : 0;
+            if ((long)canonicalCityCount + superseded != currentCityCount ||
+                cityCompleteness.TryGetProperty("nativeCanonicalLookupFailures",out _) &&
+                !MatchesInt(cityCompleteness,"nativeCanonicalLookupFailures",0))
+                throw new InvalidDataException("Native City identities lack complete canonical-owner accounting.");
+            if (superseded > 0)
+            {
+                if (!cityCompleteness.TryGetProperty("supersededNativePoints",out var oldPoints) ||
+                    oldPoints.ValueKind != JsonValueKind.Array || oldPoints.GetArrayLength()!=superseded)
+                    throw new InvalidDataException("Superseded native Cities lack exact identity references.");
+                var oldIds = new HashSet<int>();
+                foreach(var oldPoint in oldPoints.EnumerateArray())
+                {
+                    int oldId=RequirePositiveInt(oldPoint,"pointIndex");
+                    int currentId=RequirePositiveInt(oldPoint,"canonicalPointIndex");
+                    int x=RequireNonNegativeInt(oldPoint,"x"),y=RequireNonNegativeInt(oldPoint,"y");
+                    if(!oldIds.Add(oldId) || oldId==currentId || currentId>1000000 || x>=1000 || y>=1000 ||
+                        oldId!=y*1000+x+1 || !requestedSet.Contains(y/10*100+x/10) ||
+                        !MatchesInt(oldPoint,"canonicalServerId",request.ServerId))
+                        throw new InvalidDataException("Superseded native City identity/context was invalid.");
+                }
+            }
         }
         int matchedResourceCount = RequireNonNegativeInt(root, "matchedResourceCount");
         int matchedDispatchCount = RequireNonNegativeInt(root, "matchedDispatchCount");
@@ -2321,7 +2404,10 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private void WriteFastFullWorldMetrics(FastFullWorldResumeState state, string phase)
     {
-        if (hooks is not null && !hooks.ExperimentalBoundedCameraLens) return;
+        // A diagnostic ForceLegacy baseline still needs its own exact-run
+        // coverage metrics; otherwise sequential benchmark rounds could
+        // inadvertently reuse an earlier candidate's private metric file.
+        if (hooks is not null && !hooks.ExperimentalBoundedCameraLens && !hooks.ForceLegacyFullWorldLens) return;
         // This is an attributable application->Lua AOI probe counter, NOT a
         // raw game-network request counter. Concurrent game traffic cannot be
         // separated from reflection-level global Net send/receive counters.

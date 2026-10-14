@@ -91,7 +91,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
 
     internal static readonly string[] AllowedSelectedTypes =
     [
-        "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure",
+        "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other",
     ];
 
     internal static readonly string[] DefaultSelectedTypes =

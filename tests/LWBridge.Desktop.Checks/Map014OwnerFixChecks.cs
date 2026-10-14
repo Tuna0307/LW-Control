@@ -66,9 +66,9 @@ internal static class Map014OwnerFixChecks
                     new { ownerUid = exactUid, ownerName = (string?)null, completionTime = 7000000000000L });
                 Insert(store, "dispatch", "unknownOwnerTask", 2213, 6, null,
                     new { ownerUid = "990000000000000001", completionTime = 7000000000000L });
-                // Scattered Supplies is not a speculative ninth scanner kind:
-                // native WorldSuppliesPoint pointType=27 and LWIceSupplies
-                // config type=1 are already stored as Treasure suppliesType=1.
+                // Legacy records from the previous revision were published as
+                // Treasure. On reopen the real store must migrate only source-
+                // confirmed Other events, retaining unrelated Treasure rows.
                 Insert(store, "treasure", "seasonIceSupply", 2213, null, null,
                     new { pointType = 27, runtimeClass = "WorldSuppliesPoint", suppliesType = 1,
                         treasureType = 0, configId = 301 });
@@ -78,6 +78,12 @@ internal static class Map014OwnerFixChecks
                 Insert(store, "treasure", "ordinaryTreasure", 2213, null, null,
                     new { pointType = 21, runtimeClass = "TreasurePointInfo", suppliesType = 0,
                         treasureType = 19 });
+                Insert(store, "treasure", "celebrationParty", 2213, null, null,
+                    new { pointType = 21, runtimeClass = "TreasurePointInfo", suppliesType = 0,
+                        treasureType = 20, eventId = 27000 });
+                Insert(store, "treasure", "differentEvent", 2213, null, null,
+                    new { pointType = 21, runtimeClass = "TreasurePointInfo", suppliesType = 0,
+                        treasureType = 20, eventId = 27015 });
                 Insert(store, "treasure", "foreignServerIceSupply", 2212, null, null,
                     new { pointType = 27, runtimeClass = "WorldSuppliesPoint", suppliesType = 1,
                         treasureType = 0, configId = 301 });
@@ -145,9 +151,12 @@ internal static class Map014OwnerFixChecks
                 DrainTruckPlunderResults = _ => ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>([]),
                 ClearTruckPlunderPending = (_, _, _, _) => ValueTask.CompletedTask,
             };
+            bool statusProbeTimesOut = false;
             using var service = new Map317CommandService(db, source,
                 actions, startPlunderWorkers: false,
-                statusReader: _ => currentStatus is null
+                statusReader: _ => statusProbeTimesOut
+                    ? Task.FromException<CurrentClientMapStatusContext>(new TimeoutException("controlled fresh world-state poll unavailable"))
+                    : currentStatus is null
                     ? Task.FromException<CurrentClientMapStatusContext>(new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "controlled transient"))
                     : Task.FromResult(currentStatus));
 
@@ -165,23 +174,35 @@ internal static class Map014OwnerFixChecks
                 resourceAmountState = "partial", resourceTileState = "unknown" }) == 1, "combined level/amount/terrain");
             Require(await Count("resource", new { serverId = 2213, minLevel = 7, maxLevel = 7,
                 resourceAmountState = "unknown", resourceTileState = "black" }) == 1, "unknown + black independent");
-            Require(await Count("treasure", new { serverId = 2213 }) == 3,
-                "genuine Treasure and season supplies remain separate stored identities");
-            Require(await Count("treasure", new { serverId = 2213, suppliesType = 1 }) == 1,
+            Require(await Count("treasure", new { serverId = 2213 }) == 2,
+                "Other supplies and Celebration Party are excluded from Treasure");
+            Require(await Count("other", new { serverId = 2213 }) == 3,
+                "legacy supplies and exact event 27000 migrate to independent Other");
+            Require(await Count("other", new { serverId = 2213, otherSubtype = "supplies:1" }) == 1,
                 "Scattered Supplies maps only to LWIceSupplies type 1");
-            Require(await Count("treasure", new { serverId = 2213, suppliesType = 3 }) == 1,
-                "different season supply must not be mislabeled Scattered Supplies");
+            Require(await Count("other", new { serverId = 2213, otherSubtype = "supplies:3" }) == 1,
+                "different season supply has its own Other subtype");
+            Require(await Count("other", new { serverId = 2213, otherSubtype = "event:27000" }) == 1,
+                "event 27000 is uniquely Celebration Party; 27015 must remain Treasure");
+            Require(await Count("other", new { serverId = 2212 }) == 1,
+                "Other migration does not alter server identity");
+            await Reject(async () => { await Count("other", new { serverId = 2213, otherSubtype = "event:27015" }); },
+                "INVALID_MAP_QUERY");
             Require(await Count("treasure", new { serverId = 2213, treasureType = 19 }) == 1,
                 "ordinary Treasure cannot be conflated with season supply");
             Require(await Count("treasure", new { serverId = 2213, suppliesType = 1, treasureType = 19 }) == 0,
                 "conflicting source identities must fail closed");
             JsonElement supplyOptions = await Invoke(service, "map_data_options", new { serverId = 2213 });
-            JsonElement iceOption = supplyOptions.GetProperty("treasureTypes").EnumerateArray()
+            Require(!supplyOptions.GetProperty("treasureTypes").EnumerateArray()
+                    .Any(row => row.GetProperty("key").GetString()?.StartsWith("supplies:", StringComparison.Ordinal) == true),
+                "Treasure dropdown excludes migrated Other supplies");
+            JsonElement iceOption = supplyOptions.GetProperty("otherTypes").EnumerateArray()
                 .Single(row => row.GetProperty("key").GetString() == "supplies:1");
-            Require(iceOption.GetProperty("suppliesType").GetInt32() == 1 &&
-                iceOption.GetProperty("treasureType").GetInt32() == 0 &&
-                iceOption.GetProperty("count").GetInt32() == 1,
-                "real Map options expose the already-supported Scattered Supplies discriminator");
+            Require(iceOption.GetProperty("count").GetInt32() == 1 &&
+                supplyOptions.GetProperty("otherTypes").EnumerateArray()
+                    .Single(row => row.GetProperty("key").GetString() == "event:27000")
+                    .GetProperty("count").GetInt32() == 1,
+                "Other subtype counts include source-confirmed supplies and Party");
             JsonElement ownerRows = await Invoke(service, "map_search", new { kind = "dispatch", query = new { serverId = 2213, pageSize = 10 } });
             JsonElement matchingTask = ownerRows.GetProperty("rows").EnumerateArray().Single(row => row.GetProperty("uuid").GetString() == "matchingTask");
             Require(matchingTask.GetProperty("ownerUid").GetString() == "9912345678901234567" &&
@@ -249,6 +270,12 @@ internal static class Map014OwnerFixChecks
             JsonElement summaryStatus = await Invoke(service,"map_summary",new{});
             Require(summaryStatus.GetProperty("scanState").GetProperty("truckMatchServerIds").GetArrayLength() == 2,
                 "summary discarded its freshly observed native warzones");
+            statusProbeTimesOut = true;
+            status = await Invoke(service, "map_scan_status", new { });
+            Require(status.GetProperty("truckMatchServerIds").GetArrayLength() == 2 &&
+                Json(service.CreateStatus()).GetProperty("truckMatchServerIds").GetArrayLength() == 2,
+                "timed-out world-state poll must retain exact-owned last accepted live metadata");
+            statusProbeTimesOut = false;
             currentStatus = null;
             status = await Invoke(service, "map_scan_status", new { });
             Require(status.GetProperty("truckMatchServerIds").GetArrayLength() == 2, "failed poll flickered options");

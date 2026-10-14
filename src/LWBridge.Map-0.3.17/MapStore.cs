@@ -143,6 +143,7 @@ public sealed partial class MapStore : IDisposable
         try
         {
             ConfigureAndCreateSchema();
+            MigratePreviouslyPublishedOtherEvents();
         }
         catch (BridgeCommandException)
         {
@@ -162,6 +163,7 @@ public sealed partial class MapStore : IDisposable
         this.connection = connection;
         connection.Open();
         ConfigureAndCreateSchema();
+        MigratePreviouslyPublishedOtherEvents();
     }
 
     public string DatabasePath { get; }

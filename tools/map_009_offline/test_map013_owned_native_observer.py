@@ -23,7 +23,9 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # Fingerprint of packaged_resource_probe_source() after MAP014's
     # standard-projection camera restoration fix. This intentionally remains
     # a pinned digest, not one generated from the source under test.
-    CURRENT_PROBE_SHA256 = "a3b86fae706636ba02180a5533450ea2c7abe1af653a921c84ff464043cea633"
+    # Previous projection-only source: a3b86fae706636ba02180a5533450ea2c7abe1af653a921c84ff464043cea633.
+    # Reviewed MAP014 lens admission and native canonical-owner accounting.
+    CURRENT_PROBE_SHA256 = "5af48655ef47f7ad0deb34b40c160266a8621ac9ba139cbdc36450612a388357"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
     # Follow receipts now carry actual WorldMarch position source and current
     # native camera tile. This is the separately source-pinned updated wrapper.

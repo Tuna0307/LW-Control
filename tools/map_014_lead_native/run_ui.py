@@ -49,8 +49,8 @@ def admit():
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other")
     mode = sys.argv[1]
     prior_hashes = admit()
     destination = ROOT / "artifacts/map014-takeover" / (
@@ -81,6 +81,7 @@ def main():
     publish = ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
+                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other") else "",
                        LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode in ("browse", "track", "expiry") else "0",
                        LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse") else "0",
                        LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse") else "0",

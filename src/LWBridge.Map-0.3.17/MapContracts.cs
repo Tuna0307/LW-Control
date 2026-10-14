@@ -5,12 +5,31 @@ namespace LWBridge.Map317;
 
 public static class MapKinds
 {
-    public static readonly string[] All =
+    // New selectable kinds must not change a caller's implicit eight-kind scan.
+    public static readonly string[] DefaultSelection =
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
+
+    public static readonly string[] All =
+        [..DefaultSelection, "other"];
 
     private static readonly HashSet<string> Allowed = new(All, StringComparer.Ordinal);
 
     public static bool IsValid(string value) => Allowed.Contains(value);
+
+    // A supplies number is only a source-derived config type. The map kind
+    // says nothing about its localized title or claimability.
+    public static bool IsValidOtherSubtype(string? value)
+    {
+        if (value == "event:27000") return true;
+        const string prefix = "supplies:";
+        if (value is null || !value.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        string suffix = value[prefix.Length..];
+        return int.TryParse(suffix, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out int parsed) &&
+            parsed > 0 &&
+            string.Equals(parsed.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                suffix, StringComparison.Ordinal);
+    }
 }
 
 public sealed record MapRecord(
@@ -62,7 +81,8 @@ public sealed record MapQuery(
     double? MaxPower = null,
     string? ResourceAmountState = null,
     string? ResourceTileState = null,
-    IReadOnlyList<string>? ItemKeys = null);
+    IReadOnlyList<string>? ItemKeys = null,
+    string? OtherSubtype = null);
 
 public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, long Page = 1, int PageSize = 50);
 
@@ -125,7 +145,8 @@ public sealed record MapOptionSet(
     int NoAllianceCount,
     IReadOnlyDictionary<string, IReadOnlyList<JsonElement>> RewardItems,
     IReadOnlyList<JsonElement> TreasureTypes,
-    MapScanRun? ScanProgress);
+    MapScanRun? ScanProgress,
+    IReadOnlyList<JsonElement>? OtherTypes = null);
 
 public sealed record MapAllianceOption(string Name, int Count);
 

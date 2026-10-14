@@ -10,8 +10,12 @@ internal sealed class CurrentClientMapBlockSourceHooks
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
     public bool DisableCoarseMonsterMap { get; init; }
-    // Diagnostic admission only until paired native accuracy/performance gates.
+    // Explicit native diagnostic opt-in; production selects the qualified
+    // FOV20 path for City-only, independently of this override.
     public bool ExperimentalBoundedCameraLens { get; init; }
+    // Preserve a real FOV120 baseline for future alternating native audits.
+    // The normal packaged app does not set this diagnostic override.
+    public bool ForceLegacyFullWorldLens { get; init; }
 }
 
 internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatchSource
@@ -29,6 +33,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
     private readonly string overviewRuntimeRoot;
     private readonly string probeRuntimeRoot;
     private readonly string? assetCacheRoot;
+    private int nativeBatchNegativesRecorded;
 
     public CurrentClientMapBlockSource(
         OverviewLifecycleService lifecycle,

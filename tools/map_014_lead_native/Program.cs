@@ -6,7 +6,7 @@ using Map317 = LWBridge.Map317;
 // Explicit diagnostic host: actual production native source, command plane,
 // engine and SQLite, no fake rows/providers. Own session is independently
 // supplied by the admitted helper; this is not a packaged WebView/pipe proof.
-if (args.Length != 2) throw new ArgumentException("owner.json scenario (city|mixed|stop)");
+if (args.Length != 2) throw new ArgumentException("owner.json scenario (city|mixed|other|treasure-other|stop)");
 var ownerPath = Path.GetFullPath(args[0]);
 using var document = JsonDocument.Parse(File.ReadAllText(ownerPath));
 var owner = document.RootElement;
@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "stop")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -51,9 +51,10 @@ OverviewMapScanSession? ReadSession()
         return lastVerifiedHeartbeat!=0 && Stopwatch.GetElapsedTime(lastVerifiedHeartbeat)<TimeSpan.FromSeconds(5) ? session : null;
     }
 }
-CurrentClientMapBlockSource MakeSource(bool bounded) => new(ReadSession,runtime,probe,
+CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false) => new(ReadSession,runtime,probe,
     hooks: bounded
-        ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true } : null,
+        ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true }
+        : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true } : null,
     waitForHealthySession: async (expected, token) =>
     {
         var deadline=Stopwatch.StartNew();
@@ -130,7 +131,7 @@ if (benchmarking)
     for (int round=0; round<6; round++)
     {
         bool bounded = round%2 == 1;
-        var measuredSource = MakeSource(bounded);
+        var measuredSource = MakeSource(bounded, forceLegacy: !bounded);
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
         if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)
             await measuredSource.JumpToCoordinateAsync(context.ServerId,hx,hy,cts.Token);
@@ -141,6 +142,10 @@ if (benchmarking)
             measuredSource.GetMapStatusContextAsync);
         async Task<JsonElement> Call(string name,object payload) => JsonSerializer.SerializeToElement(
             await measuredCommands.InvokeAsync(name,JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token),JsonOptions.Default);
+        // Each round must generate new native acquisition evidence; a metric
+        // file left over from an earlier scan is never a qualifying receipt.
+        string metricsPath = Path.Combine(probe,"map-fullworld-probe-metrics.json");
+        if(File.Exists(metricsPath)) File.Delete(metricsPath);
         var timer=Stopwatch.StartNew();
         try
         {
@@ -157,11 +162,15 @@ if (benchmarking)
             if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
                 throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
             var summary=await Call("map_summary",new{});
-            string metricsPath = Path.Combine(probe,"map-fullworld-probe-metrics.json");
             if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
             using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
-            if (nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000)
-                throw new InvalidDataException("Native benchmark coverage was incomplete");
+            JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
+            if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
+                nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
+                provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
+                provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
+                provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
+                throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
             File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
             measurements.Add(new{round,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
             File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
@@ -183,7 +192,13 @@ try
         await source.JumpToCoordinateAsync(world.ServerId,homeX,homeY,cts.Token);
     await Task.Delay(1500,cts.Token);
     before=await Camera(scenario+"-before");
-    var selected=scenario=="mixed" ? new[]{"city","resource","monster","truck","railway","dispatch"} : new[]{"city"};
+    string[] selected = scenario switch
+    {
+        "mixed" => ["city", "resource", "monster", "truck", "railway", "dispatch"],
+        "other" => ["other"],
+        "treasure-other" => ["treasure", "other"],
+        _ => ["city"],
+    };
     var started=await Invoke("map_scan_start",new{selectedTypes=selected,scanMode="normal"});
     history.Add(new{command="map_scan_start",result=started});
     var timer=Stopwatch.StartNew(); var didStop=false;
@@ -201,12 +216,12 @@ try
     after=await Camera(scenario+"-after");
     history.Add(new{command="map_summary",result=await Invoke("map_summary",new{})});
     foreach(var kind in selected)
-        history.Add(new{command="map_search",kind,result=await Invoke("map_search",new{kind,query=new{serverId=2212,page=1,pageSize=200}})});
-    if(scenario=="mixed" && terminal.GetProperty("phase").GetString()=="completed")
+        history.Add(new{command="map_search",kind,result=await Invoke("map_search",new{kind,query=new{serverId=world.ServerId,page=1,pageSize=200}})});
+    if((scenario is "mixed" or "other" or "treasure-other") && terminal.GetProperty("phase").GetString()=="completed")
     {
-        var options=await Invoke("map_data_options",new{serverId=2212});
+        var options=await Invoke("map_data_options",new{serverId=world.ServerId});
         history.Add(new{command="map_data_options",result=options});
-        if(options.TryGetProperty("rewardItems",out var rewards)&&rewards.TryGetProperty("truck",out var items))
+        if(scenario=="mixed" && options.TryGetProperty("rewardItems",out var rewards)&&rewards.TryGetProperty("truck",out var items))
         {
             int index=0;
             foreach(var item in items.EnumerateArray().Where(item=>item.TryGetProperty("iconPath",out var path)&&path.ValueKind==JsonValueKind.String&& !string.IsNullOrWhiteSpace(path.GetString())).Take(3))

@@ -17,9 +17,9 @@ FN = "local function city_aoi_records" + TEXT.split("local function city_aoi_rec
 MODEL = r'''
 local function safe_get(info,k) return info and info[k] end
 local function reflected_value(manager,k) return manager and manager[k] end
-local function call(manager,method)
+local function call(manager,method,...)
     if manager and type(manager[method])=="function" then
-        return true, manager[method]()
+        return true, manager[method](...)
     end
     return false, nil
 end
@@ -62,6 +62,9 @@ local selected={[110]=true}
 local function run(retained,current)
   return city_aoi_records({},{
      GetAllMainBaseList=function()return retained end,_pointInfos=current
+     ,GetBaseMainInfoByOwnerUid=function(uid)
+        for _,r in ipairs(retained) do if r.ownerUid==uid then return r end end
+      end
   },10,100,selected)
 end
 local both={row(101),row(102)}
@@ -84,6 +87,16 @@ records,err,diag=run({row(101)},{row(101,"")})
 assert(err==nil and #records==1) -- native current alone lacks full owner fields
 records,err,diag=run({row(101,"0")},{row(101)})
 assert(records==nil and diag.missingOwnerUid==1)
+-- The current cache can retain the prior point for the same player. Only
+-- the game's canonical owner resolver may classify it as superseded.
+records,err,diag=run({row(101),row(103,"moved-player")},{row(101),row(102,"moved-player")})
+assert(err==nil and #records==2 and diag.supersededNativeCityCount==1)
+assert(diag.nativeCurrentCityCount==1 and diag.missingNativeCurrentPointIndices==0)
+-- Unknown/malformed raw points are never discarded to manufacture success.
+records,err,diag=run({row(101)},{row(101),row(102,"unknown-player")})
+assert(records==nil and diag.missingNativeCurrentPointIndices==1 and diag.nativeCanonicalLookupFailures==1)
+records,err,diag=run({row(101,"old-owner")},{row(101,"new-owner")})
+assert(records==nil and diag.nativeOwnerConflicts==1)
 return true
 '''
 

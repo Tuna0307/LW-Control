@@ -647,8 +647,19 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             return ApplyStatusOverlay(state);
         try
         {
-            CurrentClientMapStatusContext context =
-                await statusReader(cancellationToken).ConfigureAwait(false);
+            CurrentClientMapStatusContext context;
+            try
+            {
+                context = await statusReader(cancellationToken).ConfigureAwait(false);
+            }
+            catch (TimeoutException)
+            {
+                // A transient world-state response timeout during a long
+                // acquisition is not itself evidence that the scanner failed
+                // or moved server. Keep the exact run's last accepted status;
+                // a later fresh observation still runs the server-change guard.
+                return ApplyStatusOverlay(control.ScanState);
+            }
             // No stale reply (or failed previous poll) may apply a server overlay
             // to the successor's run, profile session or newer status observation.
             if (Volatile.Read(ref disposed) != 0 ||
@@ -881,7 +892,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             kindValue.ValueKind != JsonValueKind.String)
             return null;
         string kind = kindValue.GetString() ?? string.Empty;
-        if (!MapScanContract.RecoveredDefaultTypes.Contains(kind, StringComparer.Ordinal))
+        if (!MapScanContract.AllTypes.Contains(kind, StringComparer.Ordinal))
             return null; // original swallows INVALID_MAP_KIND into an empty page
         System.Text.Json.Nodes.JsonObject query =
             payload.TryGetProperty("query", out JsonElement queryValue) && queryValue.ValueKind == JsonValueKind.Object
@@ -947,7 +958,15 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         // absent native metadata into an unfiltered/zero-power match.
         string? amountState = null;
         string? tileState = null;
+        string? otherSubtype = null;
         string[]? itemKeys = null;
+        if (queryElement.TryGetProperty("otherSubtype", out JsonElement otherValue) &&
+            otherValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            otherSubtype = otherValue.ValueKind == JsonValueKind.String ? otherValue.GetString() : null;
+            if (kind != "other" || !Map317.MapKinds.IsValidOtherSubtype(otherSubtype))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Unknown Other event subtype.");
+        }
         if (queryElement.TryGetProperty("resourceAmountState", out JsonElement amountValue) &&
             amountValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
         {
@@ -992,6 +1011,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             MaxPower = maxPower,
             ResourceAmountState = amountState,
             ResourceTileState = tileState,
+            OtherSubtype = otherSubtype,
             ItemKeys = itemKeys,
             // The recovered itemCount sort expression still uses $itemKey.
             // When an ALL selection has no legacy single-key field, use its

@@ -1,5 +1,26 @@
 # LW-Control — current contributor instructions
 
+Latest owner delegation update, 2026-10-14: the MAP-014 worker may use as many
+subagents as needed within the environment's available concurrency. This
+supersedes all older solo/no-subagent/no-delegation instructions for the current
+assignment. The primary worker owns integration and final verification, assigns
+non-overlapping edits and reviews each contribution. Only one designated agent
+may control live game/app sessions, shared installed scripts and restoration at
+a time. Preserve the existing branch/PR, background-only restrictions, action
+boundaries and tool denials; delegation does not expand those permissions.
+
+Latest owner handoff, 2026-10-14: external worker may resume MAP-014 on existing
+codex/map-owner-fixes-014 / draft PR #10. Read
+docs/MAP_014_WORKER_FINISH_HANDOFF_2026-10-14.md first. Preserve intentional
+uncommitted lead City/source/test changes; no reset/discard. Finish approved
+owner fixes, Other event grouping, moving/expiring identity accuracy and
+per-selection scanner qualification through a self-directed fix/retest loop.
+Cities may relocate; X/Y 0–999; no fixed population quota. FOV20 mixed mobile
+candidate loses unexpired Trucks and remains disabled; Resource paired trials
+completed but identity/field qualification remains. Same background authority,
+no mouse/account actions/new branch/merge/publication. Subagents are allowed
+under the newest owner delegation update above.
+
 Current solo lead takeover, 2026-10-14: read
 docs/MAP_014_LEAD_LENS_QUALIFICATION.md before older continuations.
 Native stage observation proves stale old-A camera-corner anchors despite

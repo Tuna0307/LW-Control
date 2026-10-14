@@ -64,10 +64,11 @@ internal static class MapDataQueryContract
         "resourceTileState",
         "itemKeys",
         "escortPowerMaxMillions",
+        "otherSubtype",
     ];
 
     private static readonly HashSet<string> AllowedKinds =
-        new(MapScanContract.RecoveredDefaultTypes, StringComparer.Ordinal);
+        new(MapScanContract.AllTypes, StringComparer.Ordinal);
 
     public static MapDataQueryOptions NormalizeSearch(JsonElement payload)
     {
@@ -310,6 +311,8 @@ internal static class MapDataQueryContract
         "monsterNameKey" => kind == "monster" && value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString()),
         "treasureType" => kind == "treasure" && IsNonNegativeInteger(value),
         "suppliesType" => kind == "treasure" && IsNonNegativeInteger(value),
+        "otherSubtype" => kind == "other" && value.ValueKind == JsonValueKind.String &&
+                          LWBridge.Map317.MapKinds.IsValidOtherSubtype(value.GetString()),
         // LWB-R6-013: recovered frontend emits only these five string forms.
         "quality" => kind is "truck" or "railway" or "dispatch" or "ghost" &&
                      value.ValueKind == JsonValueKind.String &&

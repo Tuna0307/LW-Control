@@ -233,6 +233,29 @@ internal sealed partial class LWBridgeWindow
                     await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('.map-table--truck .map-coordinate-button')].find(b=>b.querySelector('strong')?.textContent.trim()==='Stop');if(b)b.click();})()");
                 }
             }
+            // The new ninth Map kind must be observable in the actual packaged
+            // WebView even when seasonal native Other objects are not spawned.
+            // A zero result is a real availability observation, not a positive.
+            var other = await Tab(8,"other");
+            if(!await Wait("!!document.querySelector('.map-table--other') && !!document.querySelector('.map-searchbar select[aria-label]')",100))
+                throw new InvalidDataException("The real Other results/filter controls did not mount.");
+            var otherTotal=other.Result.GetProperty("total").GetInt32();
+            var otherRows=other.Result.GetProperty("rows").EnumerateArray().ToArray();
+            foreach(var row in otherRows)
+            {
+                string? subtype=row.TryGetProperty("otherSubtype",out var typ)?typ.GetString():null;
+                if(string.IsNullOrWhiteSpace(subtype)||
+                   !(subtype.StartsWith("supplies:",StringComparison.Ordinal)||subtype=="event:27000"))
+                    throw new InvalidDataException("Actual packaged Other search returned a row without native subtype provenance.");
+            }
+            string otherUi=await core.ExecuteScriptAsync(
+                "({tab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,headers:[...document.querySelectorAll('.map-table--other th')].map(h=>h.textContent),filters:[...document.querySelectorAll('.map-searchbar select')].map(s=>({label:s.getAttribute('aria-label'),options:[...s.options].map(o=>o.value)}))})");
+            receipts.Add(new{gate="native_other_packaged_tab_and_subtypes",mounted=true,
+                genuineSourceRows=otherTotal,genuinePositiveAvailable=otherTotal>0,
+                sourceIdentities=otherRows.Length,actualTab=JsonSerializer.Deserialize<JsonElement>(otherUi),
+                other.Payload,other.Result});
+            await Screenshot("map014-other-native-results");await Save();
+
             await core.ExecuteScriptAsync("document.querySelector('.server-jump > button').click()");
             if(!await Wait("!!document.querySelector('.server-jump-popover input')")) throw new InvalidDataException("Server popover did not open.");
             await core.ExecuteScriptAsync("window.__map014Popover=document.querySelector('.server-jump-popover');window.__map014ServerInput=window.__map014Popover.querySelector('input');const input=window.__map014ServerInput;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2213');input.dispatchEvent(new Event('input',{bubbles:true}));");

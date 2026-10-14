@@ -1401,7 +1401,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 9 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1414,7 +1414,7 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 8) return false;
+              if (boxes.length !== 9) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = index === 1;
                 if (box.checked !== shouldBeChecked) box.click();
@@ -1472,13 +1472,24 @@ internal sealed partial class LWBridgeWindow : Form
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") == "1";
         bool ownerFixRemoteProof = ownerFixNativeProof &&
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_UI") == "1";
-        string desiredSelection = ownerFixNativeProof && !ownerFixRemoteProof ? "index < 6" : "index === 1";
+        string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
+            ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
+        if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
+        if (qualifiedKind is not (null or "city" or "other"))
+            throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
+        string desiredSelection = qualifiedKind switch
+        {
+            "city" => "index === 0",
+            "other" => "index === 8",
+            _ when ownerFixNativeProof && !ownerFixRemoteProof => "index < 6",
+            _ => "index === 1",
+        };
 
         bool controlsReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 9 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1491,7 +1502,7 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 8) return false;
+              if (boxes.length !== 9) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = DESIRED_SELECTION;
                 if (box.checked !== shouldBeChecked) box.click();
@@ -1504,7 +1515,7 @@ internal sealed partial class LWBridgeWindow : Form
         bool selectionSettled = false;
         for (int attempt = 0; attempt < 50; attempt++)
         {
-            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===8 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
+            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===9 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
             { selectionSettled = true; break; }
             await Task.Delay(50);
         }
@@ -1648,6 +1659,77 @@ internal sealed partial class LWBridgeWindow : Form
             }
             if (!completed)
                 throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
+
+            if (qualifiedKind is "city" or "other")
+            {
+                if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selected) ||
+                    selected.ValueKind != JsonValueKind.Array ||
+                    selected.GetArrayLength() != 1 || selected[0].GetString() != qualifiedKind)
+                    throw new InvalidDataException("Packaged source scan selected unexpected map kinds.");
+                int selectedTab = qualifiedKind == "city" ? 0 : 8;
+                long beforeSearch = GetNormalUiProofSearchSequence();
+                string tabClicked = await core.ExecuteScriptAsync($"(()=>{{const tab=document.querySelectorAll('.map-tabs button')[{selectedTab}];if(!tab)return false;tab.click();return true;}})()");
+                if (tabClicked != "true")
+                    throw new InvalidDataException("Packaged Map selection does not expose its actual results tab.");
+                NormalUiResourceProofSearchObservation? selectedResponse = null;
+                for (int attempt = 0; attempt < 250; attempt++)
+                {
+                    operationCts.Token.ThrowIfCancellationRequested();
+                    var seen = ReadNormalUiProofSearchAfter(beforeSearch);
+                    if (seen is not null && MapDataQueryContract.NormalizeSearch(seen.Payload).Kind == qualifiedKind &&
+                        await core.ExecuteScriptAsync($"!!document.querySelector('.map-table--{qualifiedKind}[aria-busy=false]')") == "true")
+                    {
+                        selectedResponse = seen;
+                        break;
+                    }
+                    await Task.Delay(100, operationCts.Token);
+                }
+                if (selectedResponse is null)
+                {
+                    long retryFrom = GetNormalUiProofSearchSequence();
+                    await core.ExecuteScriptAsync("document.querySelector('.map-searchbar > button')?.click()");
+                    for (int attempt = 0; attempt < 200; attempt++)
+                    {
+                        var seen = ReadNormalUiProofSearchAfter(retryFrom);
+                        if (seen is not null && MapDataQueryContract.NormalizeSearch(seen.Payload).Kind == qualifiedKind)
+                        { selectedResponse = seen; break; }
+                        await Task.Delay(100, operationCts.Token);
+                    }
+                }
+                if (selectedResponse is null)
+                    throw new InvalidDataException("Packaged selection had no genuine current-server map_search response: " + qualifiedKind);
+                int actualServer = ReadStatusInt32(completedStatus, "serverId") ?? 0;
+                var selectedQuery = MapDataQueryContract.NormalizeSearch(selectedResponse.Payload);
+                if (selectedQuery.ServerId != actualServer || selectedQuery.Kind != qualifiedKind)
+                    throw new InvalidDataException("Packaged selection results are not tied to the completed owned server.");
+                JsonElement selectedRows = selectedResponse.Result.GetProperty("rows");
+                int selectedTotal = selectedResponse.Result.GetProperty("total").GetInt32();
+                if (qualifiedKind == "city" && selectedTotal == 0)
+                    throw new InvalidDataException("Completed genuine City scan published zero native players.");
+                foreach (JsonElement row in selectedRows.EnumerateArray())
+                {
+                    if (qualifiedKind == "city" && (!row.TryGetProperty("ownerUid", out var ownerId) ||
+                        ownerId.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(ownerId.GetString())))
+                        throw new InvalidDataException("Published packaged City has no native owner identity.");
+                    if (qualifiedKind == "other" && (!row.TryGetProperty("otherSubtype", out var kind) ||
+                        kind.ValueKind != JsonValueKind.String ||
+                        !(kind.GetString()!.StartsWith("supplies:", StringComparison.Ordinal) || kind.GetString() == "event:27000")))
+                        throw new InvalidDataException("Published packaged Other event lacks native source subtype.");
+                }
+                string mountedDom = await core.ExecuteScriptAsync($"({{activeTab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,tablePresent:!!document.querySelector('.map-table--{qualifiedKind}'),displayedRows:document.querySelectorAll('.map-table--{qualifiedKind} tbody tr').length}})");
+                string snapshot = Path.Combine(directory, "map014-" + qualifiedKind + "-packaged.png");
+                await using (var image = File.Create(snapshot))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, image);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1, state = "proven", proof = "actual_packaged_ui_fullworld_selected_scan_and_results",
+                    genuineGame = true, controlledProvider = false, selection = qualifiedKind,
+                    serverId = actualServer, completedStatus, selectedResponse, total = selectedTotal,
+                    sourceIdentifiedPositiveAvailable = selectedTotal > 0,
+                    mountedDom = JsonSerializer.Deserialize<JsonElement>(mountedDom), screenshot = snapshot,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), operationCts.Token);
+                return;
+            }
 
             bool resourceTabReady = false;
             for (int attempt = 0; attempt < 150; attempt++)

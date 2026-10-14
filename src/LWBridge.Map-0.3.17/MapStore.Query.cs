@@ -171,6 +171,7 @@ public sealed partial class MapStore
                 ReadRewardItemsLocked(snapshot, table, serverId, scanRunId,
                     nowUnixMilliseconds ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             List<JsonElement> treasureTypes = ReadTreasureTypesLocked(snapshot, table, serverId, scanRunId);
+            List<JsonElement> otherTypes = ReadOtherTypesLocked(snapshot, table, serverId, scanRunId);
             MapScanRun? progress = staging
                 ? ReadScanRunLocked(scanRunId!, snapshot)
                 : ReadLatestScanRunLocked(serverId, snapshot);
@@ -181,7 +182,7 @@ public sealed partial class MapStore
                     ["resource"] = resources,
                     ["monster"] = monsters,
                 },
-                dispatchLevels, noAlliance, rewardItems, treasureTypes, progress);
+                dispatchLevels, noAlliance, rewardItems, treasureTypes, progress, otherTypes);
         }
     }
 
@@ -357,6 +358,32 @@ public sealed partial class MapStore
         return result;
     }
 
+    private List<JsonElement> ReadOtherTypesLocked(SqliteTransaction tx, string table, int serverId, string? runId)
+    {
+        bool staging = !string.IsNullOrWhiteSpace(runId);
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = tx;
+        command.CommandText = $"""
+            SELECT json_extract(data_json,'$.otherSubtype'),COUNT(*)
+            FROM {table}
+            WHERE server_id=$server {(staging ? "AND run_id=$run" : string.Empty)}
+              AND kind='other'
+              AND json_extract(data_json,'$.otherSubtype') IS NOT NULL
+            GROUP BY json_extract(data_json,'$.otherSubtype')
+            ORDER BY json_extract(data_json,'$.otherSubtype')
+            """;
+        command.Parameters.AddWithValue("$server", serverId);
+        if (staging) command.Parameters.AddWithValue("$run", runId!);
+        using SqliteDataReader reader = command.ExecuteReader();
+        var result = new List<JsonElement>();
+        while (reader.Read())
+        {
+            string subtype = reader.GetString(0);
+            result.Add(JsonSerializer.SerializeToElement(new { key = subtype, count = reader.GetInt32(1) }));
+        }
+        return result;
+    }
+
     private MapScanRun? ReadLatestScanRunLocked(int serverId, SqliteTransaction? transaction = null)
     {
         using SqliteCommand command = connection.CreateCommand();
@@ -382,6 +409,12 @@ public sealed partial class MapStore
         if (query.WithoutAlliance) predicates.Add("(page.alliance_name IS NULL OR page.alliance_name='')");
         if (query.ResourceNameKey is not null) predicates.Add("CAST(json_extract(page.data_json,'$.resourceNameKey') AS TEXT)=$resourceNameKey");
         if (query.MonsterNameKey is not null) predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT)=$monsterNameKey");
+        if (query.OtherSubtype is not null)
+        {
+            if (query.Kind != "other" || !MapKinds.IsValidOtherSubtype(query.OtherSubtype))
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid Other event subtype");
+            predicates.Add("CAST(json_extract(page.data_json,'$.otherSubtype') AS TEXT)=$otherSubtype");
+        }
         if (query.SuppliesType > 0) predicates.Add("CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER)=$suppliesType");
         if (query.TreasureType > 0)
         {
@@ -531,6 +564,7 @@ public sealed partial class MapStore
         ("dispatch", "completionTime") or ("ghost", "completionTime") => "NULLIF(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0)",
         ("dispatch", "updatedAt") or ("ghost", "updatedAt") => "page.updated_at",
         ("treasure", "updatedAt") => "page.updated_at",
+        ("other", "updatedAt") => "page.updated_at",
         _ => throw new BridgeCommandException("INVALID_REQUEST", $"unsupported {query.Kind} sort column '{key}'"),
     };
 
@@ -543,6 +577,7 @@ public sealed partial class MapStore
         if (query.Alliance is not null) command.Parameters.AddWithValue("$alliance", query.Alliance);
         if (query.ResourceNameKey is not null) command.Parameters.AddWithValue("$resourceNameKey", query.ResourceNameKey);
         if (query.MonsterNameKey is not null) command.Parameters.AddWithValue("$monsterNameKey", query.MonsterNameKey);
+        if (query.OtherSubtype is not null) command.Parameters.AddWithValue("$otherSubtype", query.OtherSubtype);
         if (query.SuppliesType > 0) command.Parameters.AddWithValue("$suppliesType", query.SuppliesType.Value);
         if (query.TreasureType > 0) command.Parameters.AddWithValue("$treasureType", query.TreasureType.Value);
         if (query.ViewerUid is { Length: > 0 }) command.Parameters.AddWithValue("$viewerUid", query.ViewerUid);
