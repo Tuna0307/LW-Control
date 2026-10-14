@@ -31,6 +31,18 @@ public interface IMapScanLocalSink
 }
 
 /// <summary>
+/// Opt-in for a profile-local SQLite sink that can commit a run cancellation
+/// synchronously. Map317 Stop can then arbitrate cancel-vs-publish against the
+/// exact same stateGate used by owned native publication, without holding a
+/// C# monitor across a potentially asynchronous native/provider operation.
+/// Other/legacy sinks keep the original async cancellation behavior.
+/// </summary>
+public interface IMapScanImmediateCancelSink : IMapScanLocalSink
+{
+    void CancelScanImmediately(string scanRunId, CancellationToken cancellationToken);
+}
+
+/// <summary>
 /// Current 0.3.17 host-visible Map scan control/state contract. Deliberately does
 /// not implement traversal geometry, retries, provider transport, or record capture.
 /// </summary>
@@ -468,14 +480,19 @@ public sealed class MapScanStateMachine
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            MapScanState before = State;
-            // Check the captured owner *under* the same operation gate as Start/Stop.
-            // An old status request must never fail, stop or publish into its successor.
-            if (!before.IsReading || string.IsNullOrEmpty(expectedScanRunId) ||
-                !string.Equals(before.ScanRunId, expectedScanRunId, StringComparison.Ordinal) ||
-                before.ServerId != expectedServerId)
-                return before;
-            store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+            MapScanState before;
+            // An in-flight Map317 publication does not take operationGate.
+            // Check the expected run and commit its SQLite failure under
+            // stateGate, which the exact-run publisher also holds. A status
+            // observer may never fail a different or already published run.
+            lock (stateGate)
+            {
+                before = state;
+                if (!IsOwnedRunningScan(before, expectedScanRunId) ||
+                    before.ServerId != expectedServerId)
+                    return before;
+                store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+            }
             try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
             catch { /* best effort, like the original stopMapScan after the local boundary */ }
             MapScanState failed;
@@ -501,17 +518,50 @@ public sealed class MapScanStateMachine
         }
     }
 
-    public async ValueTask<MapScanState> StopAsync(CancellationToken cancellationToken = default)
+    public ValueTask<MapScanState> StopAsync(CancellationToken cancellationToken = default) =>
+        StopCoreAsync(null, cancellationToken);
+
+    internal ValueTask<MapScanState> StopOwnedAsync(
+        string expectedScanRunId, CancellationToken cancellationToken = default) =>
+        StopCoreAsync(expectedScanRunId, cancellationToken);
+
+    private async ValueTask<MapScanState> StopCoreAsync(
+        string? expectedScanRunId, CancellationToken cancellationToken)
     {
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             MapScanState before = State;
+            if (expectedScanRunId is not null &&
+                (!IsOwnedRunningScan(before, expectedScanRunId)))
+                return before;
             if (before.IsReading && !string.IsNullOrEmpty(before.ScanRunId))
             {
                 // Local cancellation is authoritative. If it fails, preserve the active
                 // state and fail closed rather than claiming the scan was stopped.
-                await localSink.CancelScanAsync(before.ScanRunId, cancellationToken).ConfigureAwait(false);
+                // The actual Map317 SQLite sink can commit synchronously under
+                // stateGate. This closes a cancel-vs-owned-publish race where
+                // Stop read "running", publication committed, then a late
+                // cancellation no-op caused Stop to label a published run idle.
+                if (localSink is IMapScanImmediateCancelSink immediate)
+                {
+                    lock (stateGate)
+                    {
+                        before = state;
+                        if (before.IsReading && !string.IsNullOrEmpty(before.ScanRunId))
+                            immediate.CancelScanImmediately(before.ScanRunId, cancellationToken);
+                    }
+                    if (!before.IsReading)
+                    {
+                        // A complete/fail owner won the exact-run state+SQLite
+                        // gate before Stop could commit cancellation. Preserve
+                        // that truthful terminal result, not an idle/Stopped
+                        // label for a scan that already published.
+                        return before;
+                    }
+                }
+                else
+                    await localSink.CancelScanAsync(before.ScanRunId, cancellationToken).ConfigureAwait(false);
             }
 
             // 0.3.17 reaches stopMapScan only when the provider is usable. Provider stop

@@ -118,6 +118,66 @@ causes a **requalification error** instead of a stale declaration that
 no alternate transport exists. This source inventory does not claim to
 prove a negative about inaccessible native code or future implementations.
 
+### Distinct authenticated pipe Result correlation versus native reply proof
+
+A later source-only trace followed the **actual Result** path end to end
+instead of treating an authenticated pipe as evidence of native group
+ingress:
+
+1. `tools/current_overview_bridge.lua:3389-3421,3470-3539`
+   `write_pipe_result` serializes a `type=result` frame, with the
+   received command's `request_id` in **both** outer
+   `requestId` and `payload.id`; the payload `result` is the
+   present `getStatus({})` object. A heartbeat is not a result.
+2. `LWBridgeControlPipeProtocol.cs:134-163,189-205`
+   `ParseCallResult` parses **separate** outer
+   `profileId`, `instanceId`, `requestId` and `timestamp`,
+   plus `payload.id`, `ok`, `result`. Parsing their presence
+   is not a correlation check.
+3. `LWBridgeControlPipeRpcSessionTransport.cs:274-325`
+   dispatches only `result` and `heartbeat` inbound frame types.
+   It passes **`session.Connection.ProfileId` and
+   `session.Connection.InstanceId`** from the authenticated
+   pipe session to the host call registry, alongside the parsed result.
+4. `LWBridgeControlPipeCallRegistry.cs:121-174`
+   looks up the pending call using **`result.Id` = `payload.id`**,
+   verifies pending profile/instance against that authenticated session,
+   removes the pending ID once and completes or fails its Lua call.
+   Unknown, timed-out, duplicate, or wrong-route IDs do not complete a
+   pending call. The source explicitly documents that the separate
+   **outer envelope `requestId` equality is not asserted** under the
+   recovered R7-097 contract. Its code also does not compare the outer
+   Result `profileId`, `instanceId` or `timestamp` to that pending
+   call. The actual checked-in Lua writer normally emits matching
+   envelope fields, but that is producer behavior rather than an
+   independent host-side native packet attestation.
+
+**Consequence:** The existing pipe proves a specific pending *Lua
+`getStatus` RPC* completed on an authenticated profile/instance route.
+It does **not** prove that a native `WorldPointManager` reply matched
+its requested AOIs, that 2,500 kind-specific blocks were received, that
+an A/B/C camera-retention generation was preserved, or that the final
+home restoration received its own network reply. Do not extrapolate
+an externally exploitable spoof from the intentional outer-identity
+omission: this review did not establish an attacker able to send frames
+on the authenticated session. It establishes the **precise trust
+boundary** which a future independently authenticated native group
+source must exceed.
+
+The additional `audit_pipe_result_correlation_source` extracts the
+actual host parser, session transport, call registry and Lua Result
+writer contracts and fails closed on a change to the payload-ID lookup,
+owner guard, single-use pending removal, trusted session identity or
+writer correlation. The `correlate_pipe_status_result_only` helper
+models **only** that documented pending-call subset for controlled
+negative cases; it cannot authenticate real pipe/network frames.
+Adversarial cases include wrong authenticated profile/instance, unknown
+payload ID, duplicate completion, payload/outer ID mismatch, foreign
+outer profile/instance, and altered registry/router/Lua writer source.
+The mismatched-outer fixture intentionally still correlates the *pending
+RPC*, but is always marked **not native group evidence**. This is not a
+live exploit or a new app/game/native test.
+
 ### Read-only native archive comparison
 
 | Archive | What the original recording establishes | Why it cannot pass this group boundary |

@@ -1930,6 +1930,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         var byAoi = new Dictionary<string, int>(StringComparer.Ordinal);
         var acceptedByNativeType = new Dictionary<string, int>(StringComparer.Ordinal);
+        var acceptedByRuntimeClass = new Dictionary<string, int>(StringComparer.Ordinal);
         var identities = new HashSet<int>();
         foreach (FirstLivePreparedResource resource in resources)
         {
@@ -1993,6 +1994,19 @@ internal sealed partial class CurrentClientMapBlockSource
                     acceptedForType > enumeratedForType)
                     throw new InvalidDataException("Native Resource accepted type lacks raw source enumeration evidence.");
                 acceptedByNativeType[nativeTypeKey] = acceptedForType;
+
+                // The same native _pointInfos enumeration increments
+                // runtimeClassCounts BEFORE filtering each candidate and
+                // writes reflected_type_name(info) to each accepted row.
+                // A nonblank row class is not enough: a contradictory raw
+                // class histogram can otherwise certify a foreign source.
+                string nativeClass = runtimeClass.GetString()!;
+                int acceptedForClass = acceptedByRuntimeClass.TryGetValue(nativeClass, out int earlierClass)
+                    ? checked(earlierClass + 1) : 1;
+                if (!source.RuntimeClassCounts.TryGetValue(nativeClass, out int enumeratedForClass) ||
+                    acceptedForClass > enumeratedForClass)
+                    throw new InvalidDataException("Native Resource accepted class lacks raw source enumeration evidence.");
+                acceptedByRuntimeClass[nativeClass] = acceptedForClass;
             }
             catch (JsonException ex)
             {

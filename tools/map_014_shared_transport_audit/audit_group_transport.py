@@ -25,6 +25,9 @@ OVERVIEW = ROOT / "tools/current_overview_bridge.lua"
 BACKEND = ROOT / "src/LWBridge.Desktop/LWBridgeBackend.cs"
 GAME_PIPE = ROOT / "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs"
 PROVIDER = ROOT / "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs"
+PIPE_PROTOCOL = ROOT / "src/LWBridge.Desktop/LWBridgeControlPipeProtocol.cs"
+PIPE_CALL_REGISTRY = ROOT / "src/LWBridge.Desktop/LWBridgeControlPipeCallRegistry.cs"
+PIPE_SESSION_TRANSPORT = ROOT / "src/LWBridge.Desktop/LWBridgeControlPipeRpcSessionTransport.cs"
 DESKTOP_SOURCE_DIR = ROOT / "src/LWBridge.Desktop"
 ARCHIVES = (
     ROOT / "artifacts/map-013-live/native-causal-20261014-004239",
@@ -53,6 +56,115 @@ def section(source: str, beginning: str, end: str) -> str:
     if start < 0 or stop < 0:
         raise BoundaryError(f"source contract changed near {beginning!r}")
     return source[start:stop]
+
+
+def audit_pipe_result_correlation_source(
+    *, protocol: str | None = None, registry: str | None = None,
+    transport: str | None = None, overview: str | None = None,
+) -> dict:
+    """Inspect the actual authenticated RPC Result path, NOT native replies.
+
+    The original R7-097 host deliberately leaves the outer Result envelope's
+    requestId unchecked; the registry matches *payload.id* within the session's
+    authenticated profile/instance route. Both this limited positive and its
+    explicit missing native packet binding matter. This function source-gates
+    that conclusion without starting any .NET, Lua, pipe, app or game process.
+    """
+    protocol = PIPE_PROTOCOL.read_text(encoding="utf-8-sig") if protocol is None else protocol
+    registry = PIPE_CALL_REGISTRY.read_text(encoding="utf-8-sig") if registry is None else registry
+    transport = (PIPE_SESSION_TRANSPORT.read_text(encoding="utf-8-sig")
+                 if transport is None else transport)
+    overview = OVERVIEW.read_text(encoding="utf-8-sig") if overview is None else overview
+
+    parsed = section(protocol, "public static LWBridgeCallResult ParseCallResult(",
+                     "// IMPLEMENTATION POLICY: compare only values")
+    require('string id = RequireString(body, "id")' in parsed and
+            'bool ok = RequireBoolean(body, "ok")' in parsed and
+            'envelope.ProfileId,' in parsed and 'envelope.InstanceId,' in parsed and
+            'envelope.RequestId,' in parsed and 'envelope.Timestamp,' in parsed and
+            re.search(r'\breturn new\(\s*envelope.Version,\s*envelope.Type,', parsed) is not None,
+            "pipe Result parser body id/outer envelope contract changed")
+    require('string.Equals(envelope.Type, ResultType, StringComparison.Ordinal)' in parsed,
+            "pipe Result message type check changed")
+
+    inbound = section(transport, "private async Task InboundLoopAsync(",
+                      "private async Task<InboundFrame?> TryReadFrameAsync(")
+    require(re.search(
+        r'LWBridgeControlPipeProtocol\.ParseCallResult\(\s*frame\.Payload\s*\).*?'
+        r'LWBridgeAuthenticatedConnection\s+connection\s*=\s*session\.Connection;\s*'
+        r'if\s*\(calls\.TryCompleteResult\(\s*connection\.ProfileId,\s*'
+        r'connection\.InstanceId,\s*result\)\)', inbound, re.S) is not None and
+        'Interlocked.Increment(ref unknownResults)' in inbound,
+        "pipe Result authenticated session routing changed")
+
+    completion = section(registry, "internal bool TryCompleteResult(",
+                         "internal bool TryFailPending(")
+    require(re.search(
+        r'if\s*\(!pending\.TryGetValue\(result\.Id,\s*out entry\)\)\s*'
+        r'return false;', completion) is not None and
+        re.search(r'pending\.Remove\(result\.Id\);\s*entry\.Timeout\.Cancel\(\);',
+                  completion) is not None,
+        "pipe result pending lookup/removal contract changed")
+    require(re.search(
+        r'if\s*\(!string\.Equals\(\s*entry\.ProfileId,\s*'
+        r'authenticatedProfileId,\s*StringComparison\.Ordinal\)\s*\|\|\s*'
+        r'!string\.Equals\(\s*entry\.InstanceId,\s*authenticatedInstanceId,\s*'
+        r'StringComparison\.Ordinal\)\)\s*\{\s*return false;\s*\}', completion) is not None,
+        "pipe result route owner guard changed")
+    require(not re.search(r'\bresult\.(?:RequestId|ProfileId|InstanceId|Timestamp)\b',
+                          completion),
+            "pipe Result outer envelope validation changed: requalify correlation claim")
+
+    writer = section(overview, "local function write_pipe_result(control, request_id, result)",
+                     "-- CURRENT-CLIENT EQUIVALENT IMPLEMENTATION:")
+    require(re.search(
+        r'type\s*=\s*"result",\s*profileId\s*=\s*control\.profileId,\s*'
+        r'instanceId\s*=\s*control\.sessionId,\s*requestId\s*=\s*request_id,'
+        r'\s*timestamp\s*=.*?payload\s*=\s*\{\s*id\s*=\s*request_id,\s*'
+        r'ok\s*=\s*true,\s*result\s*=\s*result,', writer, re.S) is not None,
+        "Lua pipe Result writer's authenticated route/payload ID contract changed")
+    return {
+        "pendingLookup": "result.payload.id",
+        "ownerBinding": "authenticated.pipe.profileId+instanceId",
+        "luaProducerEmitsMatchingOuterAndPayloadIds": True,
+        "outerEnvelopeRequestIdCorrelated": False,
+        "outerEnvelopeProfileAndInstanceCorrelated": False,
+        "nativeGroupReceiptAvailable": False,
+        "expiredUnknownOrDuplicatePayloadIdCorrelated": False,
+    }
+
+
+def correlate_pipe_status_result_only(
+    pending: dict[str, tuple[str, str]],
+    authenticated_route: tuple[str, str],
+    result: dict,
+) -> dict:
+    """Controlled C# correlation *subset*: no frame/packet authentication.
+
+    Deliberately reflect the original host policy of ignoring outer Result
+    identity when matching a pending call. The modeled authenticated route is
+    supplied by the caller, never inferred from JSON or a self-asserted field.
+    Consume the pending ID only when the exact route owns it, as registry does.
+    A positive value remains ONLY a pending Lua getStatus result.
+    """
+    body = result.get("payload")
+    require(result.get("version") == 1 and result.get("type") == "result" and
+            isinstance(body, dict) and isinstance(body.get("id"), str) and
+            bool(body["id"]) and type(body.get("ok")) is bool and
+            all(isinstance(result.get(name), str) for name in (
+                "profileId", "instanceId", "requestId")) and
+            type(result.get("timestamp")) in (int, float),
+            "unsupported synthetic current pipe Result envelope")
+    matched = pending.get(body["id"]) == authenticated_route
+    if matched:
+        pending.pop(body["id"])
+    outer_matches = (result["profileId"], result["instanceId"]) == authenticated_route and (
+        result["requestId"] == body["id"])
+    return {
+        "pendingCallCorrelated": matched,
+        "outerEnvelopeMatches": outer_matches,
+        "nativeGroupReceiptProven": False,
+    }
 
 
 @dataclass(frozen=True)
@@ -470,6 +582,7 @@ def main() -> None:
     args = parser.parse_args()
     contract = ProducerContract.read_source()
     other = audit_other_source_transports()
+    pipe_result = audit_pipe_result_correlation_source()
     outcomes = [archive_rejection(path, contract)
                 for path in (args.archive or ARCHIVES) if path.exists()]
     print(json.dumps({
@@ -479,6 +592,7 @@ def main() -> None:
         "sourceResultKeys": len(contract.output_keys),
         "unemittableGroupKeys": sorted(GROUP_ONLY_KEYS.difference(contract.output_keys)),
         "alternateRoutes": other,
+        "actualPipeResultCorrelation": pipe_result,
         "authenticatedGroupTransport": False, "archived": outcomes,
         "qualification": "CURRENT PRODUCER SINGLE-PROBE ONLY; NATIVE GROUP NOT PROVEN",
     }, indent=2))

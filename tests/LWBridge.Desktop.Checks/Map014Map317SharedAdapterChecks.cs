@@ -477,6 +477,123 @@ internal static class Map014Map317SharedAdapterChecks
             "failed current successor leaked staged City into published SQLite rows");
     }
 
+    private static async Task CheckRealMap317CancelAndPublishExclusionAsync()
+    {
+        // Exercise concurrent *real* Map317 Stop/SQLite publication, not a
+        // validator surrogate. Either the cancellation transaction wins and
+        // must preserve preexisting rows, or the exact owner-atomic publish
+        // wins and its new City must be present. A published SQLite run can
+        // never silently lose its rows to late cancellation, and a cancelled
+        // run must never publish staged rows.
+        for (int iteration = 0; iteration < 16; iteration++)
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            const int server = 2213;
+            const string retainedKey = "previous-owner";
+            store.UpsertRecord(new Map317.MapRecord("city", server, retainedKey,
+                10011, null, "previous", null, 1, null, null, null, null,
+                1700000000000L, "{\"ownerUid\":\"previous-owner\"}"));
+            var provider = new CurrentClientMap317ScanProvider(
+                new NonSharedOwnedSource(),
+                _ => Task.FromResult(new CurrentClientMapStatusContext(
+                    true, server, server, [], [], 0, 1000, 1000, 500, 500)),
+                _ => Task.FromResult(new CurrentClientMapContext(
+                    server, 0, 1000, 1000, 500, 500, "owned-race-session")));
+            using var control = new Map317.MapControlPlane(store, provider);
+            Map317.MapScanState accepted = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            control.StageRecordForRun(accepted.ScanRunId,
+                new Map317.MapRecord("city", server, "current-owner", 10022,
+                    null, "new", null, 1, null, null, null, null,
+                    1800000000000L, "{\"ownerUid\":\"current-owner\"}"));
+            control.ReportProgressForRun(accepted.ScanRunId,
+                new Map317.MapScanProgressUpdate(accepted.TotalBlocks,
+                    accepted.TotalBlocks, 0, 0, 1.0, true, 0, 0));
+
+            using var start = new ManualResetEventSlim(false);
+            Task stop = Task.Run(async () =>
+            {
+                start.Wait();
+                await control.StopScanAsync();
+            });
+            Task publish = Task.Run(() =>
+            {
+                start.Wait();
+                try { control.CompleteScanForRun(accepted.ScanRunId); }
+                catch (Map317.BridgeCommandException error) when (
+                    error.Code is "INVALID_SCAN" or "INCOMPLETE_SCAN")
+                {
+                    // Stop won before native publication. It must not publish.
+                }
+            });
+            start.Set();
+            await Task.WhenAll(stop, publish).WaitAsync(TimeSpan.FromSeconds(10));
+            Map317.MapScanRun result = store.ReadScanRun(accepted.ScanRunId)
+                ?? throw new InvalidOperationException("MAP014_MAP317_SHARED: race run disappeared");
+            int count = store.SummaryCounts(server)["city"];
+            if (result.Status == "completed")
+                Require(count == 1 &&
+                    store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                        .GetRawText().Contains("current-owner", StringComparison.Ordinal),
+                    "Stop erased a completed native publication or kept old City");
+            else if (result.Status == "cancelled")
+                Require(count == 1 &&
+                    store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                        .GetRawText().Contains(retainedKey, StringComparison.Ordinal),
+                    "canceled native run published staged City or replaced previous SQLite row");
+            else
+                throw new InvalidOperationException(
+                    "MAP014_MAP317_SHARED: concurrent Stop/Publish left run " + result.Status);
+        }
+    }
+
+    private static async Task CheckMap317AcceptedStartCannotOutliveStopAsync()
+    {
+        // Scan.StartAsync announces the accepted owner before the separate
+        // MapControlPlane SQLite InsertScanRun. A concurrent Stop triggered
+        // from that exact acceptance must not finish before a late INSERT
+        // leaves a false active 'running' row. This uses real Map317 Start,
+        // Stop and SQLite, not a synthetic transport receipt.
+        for (int iteration = 0; iteration < 16; iteration++)
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            var provider = new CurrentClientMap317ScanProvider(
+                new NonSharedOwnedSource(),
+                _ => Task.FromResult(new CurrentClientMapStatusContext(
+                    true, 2213, 2213, [], [], 0, 1000, 1000, 500, 500)),
+                _ => Task.FromResult(new CurrentClientMapContext(
+                    2213, 0, 1000, 1000, 500, 500, "start-stop-session")));
+            using var control = new Map317.MapControlPlane(store, provider);
+            Task? stop = null;
+            string? acceptedRunId = null;
+            control.ScanStateChanged += (_, args) =>
+            {
+                if (args.State.IsReading && acceptedRunId is null)
+                {
+                    acceptedRunId = args.State.ScanRunId;
+                    stop = Task.Run(async () => await control.StopScanAsync());
+                }
+            };
+            try
+            {
+                await control.StartScanAsync(new Map317.MapScanStartRequest(["city"], "fast"));
+            }
+            catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
+            {
+                // Stop beat exact-run persistence. Start correctly refused
+                // to return a durable active run and retired only its owner.
+            }
+            Require(!string.IsNullOrWhiteSpace(acceptedRunId) && stop is not null,
+                "no accepted run or owned Stop was observed");
+            await stop!.WaitAsync(TimeSpan.FromSeconds(10));
+            Map317.MapScanRun? durable = store.ReadScanRun(acceptedRunId!);
+            Require(!control.ScanState.IsReading &&
+                    (durable is null || durable.Status == "cancelled") &&
+                    store.SummaryCounts(2213)["city"] == 0,
+                "Stop raced durable Start and left orphan running SQLite scan or published City");
+        }
+    }
+
     internal static async Task RunAsync()
     {
         await CheckAsync(["other"], ["treasure"]);
@@ -493,6 +610,8 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
         await CheckRetiredMap317SinkCannotMutateSuccessorAsync();
+        await CheckRealMap317CancelAndPublishExclusionAsync();
+        await CheckMap317AcceptedStartCannotOutliveStopAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");
     }
 }

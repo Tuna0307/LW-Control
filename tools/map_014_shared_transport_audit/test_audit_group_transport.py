@@ -12,6 +12,7 @@ from audit_group_transport import (  # noqa: E402
     archive_rejection, audit_current_producer_group_request,
     audit_current_producer_group_result, audit_future_shape_only,
     audit_one_probe_correlation, audit_other_source_transports,
+    audit_pipe_result_correlation_source, correlate_pipe_status_result_only,
 )
 
 
@@ -423,6 +424,119 @@ class AlternateProducerTraceTests(unittest.TestCase):
                     "internal sealed class RealSource : IMap014ReceivedNativeSharedGroupIngress { }"}
         with self.assertRaisesRegex(BoundaryError, "production native group ingress or wiring"):
             audit_other_source_transports(desktop_sources=other_cs)
+
+
+class ActualPipeResultCorrelationTests(unittest.TestCase):
+    """The REAL C# Result correlation boundary; modeled receipt is NOT a game packet."""
+
+    def test_source_result_is_route_plus_payload_id_not_outer_envelope(self):
+        contract = audit_pipe_result_correlation_source()
+        self.assertEqual(contract["pendingLookup"], "result.payload.id")
+        self.assertEqual(contract["ownerBinding"], "authenticated.pipe.profileId+instanceId")
+        self.assertFalse(contract["outerEnvelopeRequestIdCorrelated"])
+        self.assertFalse(contract["outerEnvelopeProfileAndInstanceCorrelated"])
+        self.assertFalse(contract["nativeGroupReceiptAvailable"])
+
+    def test_pinned_get_status_reply_correlates_but_is_not_native_proof(self):
+        pending = {"cmd_7": ("profile-a", "instance-a")}
+        result = {"version": 1, "type": "result", "requestId": "cmd_7",
+                  "profileId": "profile-a", "instanceId": "instance-a",
+                  "timestamp": 1700000000000,
+                  "payload": {"id": "cmd_7", "ok": True, "result": {"gameReady": True}}}
+        self.assertTrue(correlate_pipe_status_result_only(
+            pending, ("profile-a", "instance-a"), result)["pendingCallCorrelated"])
+        self.assertEqual(pending, {})
+
+    def test_outer_envelope_mismatch_is_not_checked_by_existing_host_registry(self):
+        pending = {"cmd_7": ("profile-a", "instance-a")}
+        result = {"version": 1, "type": "result", "requestId": "different",
+                  "profileId": "other-profile", "instanceId": "other-instance",
+                  "timestamp": 100,
+                  "payload": {"id": "cmd_7", "ok": True, "result": {}}}
+        admitted = correlate_pipe_status_result_only(
+            pending, ("profile-a", "instance-a"), result)
+        self.assertTrue(admitted["pendingCallCorrelated"])
+        self.assertFalse(admitted["outerEnvelopeMatches"])
+        self.assertFalse(admitted["nativeGroupReceiptProven"])
+
+    def test_foreign_session_unknown_id_and_replay_do_not_correlate(self):
+        good = {"version": 1, "type": "result", "requestId": "cmd_7",
+                "profileId": "profile-a", "instanceId": "instance-a",
+                "timestamp": 1700000000000,
+                "payload": {"id": "cmd_7", "ok": True, "result": {}}}
+        for authenticated_route in (("profile-z", "instance-a"),
+                                    ("profile-a", "instance-z")):
+            pending = {"cmd_7": ("profile-a", "instance-a")}
+            self.assertFalse(correlate_pipe_status_result_only(
+                pending, authenticated_route, good)["pendingCallCorrelated"])
+            self.assertEqual(len(pending), 1)
+        pending = {"cmd_7": ("profile-a", "instance-a")}
+        unknown = deepcopy(good)
+        unknown["payload"]["id"] = "cmd_unknown"
+        self.assertFalse(correlate_pipe_status_result_only(
+            pending, ("profile-a", "instance-a"), unknown)["pendingCallCorrelated"])
+        self.assertTrue(correlate_pipe_status_result_only(
+            pending, ("profile-a", "instance-a"), good)["pendingCallCorrelated"])
+        self.assertFalse(correlate_pipe_status_result_only(
+            pending, ("profile-a", "instance-a"), good)["pendingCallCorrelated"])
+
+    def test_route_owner_reject_source_drift_requires_requalification(self):
+        from audit_group_transport import PIPE_CALL_REGISTRY
+        source = PIPE_CALL_REGISTRY.read_text(encoding="utf-8-sig")
+        original = 'StringComparison.Ordinal) ||\n                !string.Equals('
+        self.assertIn(original, source)
+        drifted = source.replace(original,
+                                 'StringComparison.Ordinal) &&\n                !string.Equals(', 1)
+        with self.assertRaisesRegex(BoundaryError, "pipe result route owner guard"):
+            audit_pipe_result_correlation_source(registry=drifted)
+
+    def test_payload_id_lookup_drift_requires_requalification(self):
+        from audit_group_transport import PIPE_CALL_REGISTRY
+        source = PIPE_CALL_REGISTRY.read_text(encoding="utf-8-sig")
+        original = "pending.TryGetValue(result.Id, out entry)"
+        self.assertIn(original, source)
+        drifted = source.replace(original,
+                                 "pending.TryGetValue(result.RequestId, out entry)", 1)
+        with self.assertRaisesRegex(BoundaryError, "pipe result pending lookup"):
+            audit_pipe_result_correlation_source(registry=drifted)
+
+    def test_lua_result_payload_id_drift_requires_requalification(self):
+        source = OVERVIEW.read_text(encoding="utf-8-sig")
+        marker = "local function write_pipe_result(control, request_id, result)"
+        self.assertIn(marker, source)
+        changed = source.replace("id = request_id,\n            ok = true",
+                                 "id = 'fabricated',\n            ok = true", 1)
+        with self.assertRaisesRegex(BoundaryError, "Lua pipe Result writer"):
+            audit_pipe_result_correlation_source(overview=changed)
+
+    def test_host_parser_payload_id_origin_drift_requires_requalification(self):
+        from audit_group_transport import PIPE_PROTOCOL
+        source = PIPE_PROTOCOL.read_text(encoding="utf-8-sig")
+        original = 'string id = RequireString(body, "id");'
+        self.assertIn(original, source)
+        changed = source.replace(original,
+                                 'string id = RequireString(body, "requestId");', 1)
+        with self.assertRaisesRegex(BoundaryError, "pipe Result parser body id"):
+            audit_pipe_result_correlation_source(protocol=changed)
+
+    def test_host_session_route_substitution_requires_requalification(self):
+        from audit_group_transport import PIPE_SESSION_TRANSPORT
+        source = PIPE_SESSION_TRANSPORT.read_text(encoding="utf-8-sig")
+        original = 'connection.ProfileId,\n                            connection.InstanceId,'
+        self.assertIn(original, source)
+        changed = source.replace(original,
+                                 'result.ProfileId,\n                            connection.InstanceId,', 1)
+        with self.assertRaisesRegex(BoundaryError, "pipe Result authenticated session routing"):
+            audit_pipe_result_correlation_source(transport=changed)
+
+    def test_pending_result_cannot_be_completed_twice_after_removal_change(self):
+        from audit_group_transport import PIPE_CALL_REGISTRY
+        source = PIPE_CALL_REGISTRY.read_text(encoding="utf-8-sig")
+        original = 'pending.Remove(result.Id);\n            entry.Timeout.Cancel();'
+        self.assertIn(original, source)
+        changed = source.replace(original, 'entry.Timeout.Cancel();', 1)
+        with self.assertRaisesRegex(BoundaryError, "pipe result pending lookup/removal"):
+            audit_pipe_result_correlation_source(registry=changed)
 
 
 if __name__ == "__main__":

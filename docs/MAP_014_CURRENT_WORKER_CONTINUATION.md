@@ -644,3 +644,40 @@ installed original SHA-256 hashes were unchanged, and persisted Auto stayed
 enabled, next deadline armed, restart inactive. Historical
 `339e241c` archive and Resource evidence were left intact. **Overall
 status stays PARTIAL.**
+
+## MAP-014 atomic Start/Stop/Publish and source-correlation continuation
+
+This continuation started from the available source after verified remote and
+draft PR head `14ec62f4e4cb3f3146fe68e9a26879b1b2fa24b8`. Earlier
+`.NET` execution, local Git status/diff inspection, aggregate npm, direct
+frontend and recovery-journal rename operations were explicitly **denied**;
+none was retried, disguised or rerouted. Source review and Python cannot
+stand in for C# compile/RED→GREEN or native/packaged proof.
+
+| Source-backed production correction | Actual evidence and unverified gate |
+| --- | --- |
+| **Stop versus SQLite publication:** Map317 `StopAsync` previously read `IsReading` and asynchronously committed SQLite cancellation without the `stateGate` used by `CompleteOwnedScan`. Native publication could win between those operations, commit SQLite rows, then a later no-op cancellation could falsely label the already published run stopped. The real profile `MapStoreScanLocalSink` now opts into `IMapScanImmediateCancelSink`: source-owned Stop and publication arbitrate exact-run SQLite operations under the same state lock, while native Stop/cleanup remains awaited *outside* it. A successful completion/failure winning that gate is not reclassified as stopped. Existing async sink behavior remains available. | Controlled real Map317/SQLite concurrent Stop→Publish inverse added: either completed with current City or canceled with previously published City; never cross-published rows. New .NET GREEN **not executed**. |
+| **Accepted Start versus SQLite insertion:** `MapControlPlane.StartScanAsync` formerly announced active state before inserting its `scan_runs` row. Stop could cancel a missing row and then a delayed Start could reintroduce a false durable `running` row. Durable insertion now uses the same exact-run state gate and is rejected after ownership retirement. Its failure recovery calls `StopOwnedAsync(runId)` so an obsolete start cannot cancel a successor. | Added a real Map317 Start acceptance-event-triggered Stop race: no lingering running row or staged City after Stop. **Unexecuted** C# regression. |
+| **Server-change fail versus publishing:** `FailAndStopAsync` held `operationGate` but checked owner and committed `MapStore.FailScan` outside the exact-run publish lock. It now validates RunId/server and persists failure inside `stateGate`, then awaits provider Stop without that lock, preventing a completed publisher from being marked failed by an old status observer. | Source review only, new .NET GREEN unavailable; this is a managed boundary, not a game navigation-generation lease. |
+| **Resource same-pass source class:** Lua increments raw `runtimeClassCounts` for each `_pointInfos` record and emits that same `reflected_type_name(info)` with accepted Resource rows. Previously accepted `ResPointInfo` could pass under a raw `BuildPointInfo`-only class census with balanced totals. Managed native admission now bounds every accepted exact runtime class by its raw same-pass class count, with one heterogeneous positive and four class substitution/undercount/case inverses. | Genuine final 40-AOI reply carries native and accepted 36 `ResPointInfo`; no native same-time identity or lifecycle proof, no .NET test execution, Resource FOV20 still OFF. Six-round 19/4/3 missing and 25 first-pair extras remain unknown. |
+| **Auto no-op Stop with missing SQLite run:** an exact-run read can echo its requested ID, server 0, `Phase=missing` and `IsReading=false` when no actual run exists. Auto formerly treated that as stopped and could attempt an old remote return. It now admits only known exact terminal phases and rejects missing/unknown/scanning rows; controlled missing-versus-completed inverses added. | C# tests unexecuted; no live navigation, no persisted user Auto change. Same-server independent navigation still needs native owner generation. |
+| **Real authenticated pipe result limits:** Lua `write_pipe_result` echoes matching outer requestId and payload.id for `getStatus`; C# parses both, but the registry matches pending `payload.id` under authenticated pipe ProfileId+InstanceId and intentionally does **not** independently correlate outer requestId/profile/instance/timestamp. Added 10 distinct source/registry/route parser and synthetic mismatched-outer adversarial tests. | **57/57 Python transport tests PASS** this cycle (10 new), CLI archived source audit PASS. No supported native A→B→C group producer, native per-AOI/kind packet correlation, 10,000/2,500 receipts, owned cancellation or separately matched final home ACK. Selector OFF. |
+
+**Historical evidence unchanged:** City-only FOV20 retains 4,114 stable
+owners across six paired runs, baseline median 227.912 s against 86.179 s;
+genuine private diagnostic A→B→C covered 10,000 AOIs with 119 probes in
+49.203 s but is not an authenticated production group. Resource occupied and
+unoccupied 19/4/3 missing and 25 extras lack contemporaneous native
+appearance/disappearance witnesses. Typed v24 WorldMarch Request/CSSetData/
+HandleMessage, queue/rect/cache clocks, Truck/Train expiry and mixed mobile
+freshness require genuine stronger source receipt evidence. Preserve City
+relocation, Scattered Supplies type27 / Other/Treasure partitioning, UI,
+localization, images, filters and established Truck Follow/Stop positives.
+Celebration Party, moving Doom Walker and Train lifetime remain pending.
+
+**Overall PARTIAL:** native received-group ingress, native final-home packet,
+post-change .NET Release/packaged tests, safe recovery and real mixed/mobile
+qualification remain unverified. Existing old `339e241c` ZIP unchanged. The
+hard recovery `WinError 5` was not retried/bypassed, no LastWar/LWBridge
+was launched, Chinese game/installed scripts unchanged, and user Auto remains
+enabled with next deadline armed and restart inactive.

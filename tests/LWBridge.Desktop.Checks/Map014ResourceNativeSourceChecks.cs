@@ -24,6 +24,14 @@ internal static class Map014ResourceNativeSourceChecks
         CurrentClientMapBlockSource.RequireResourceNativeSourceCohort(
             [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)],
             mixedResourceTypes, footprint, 2212, 0);
+        // The reflected native runtime class comes from the same enumerated
+        // `info` object in both the source histogram and accepted row. Allow
+        // heterogeneous classes only when the histogram actually names each;
+        // resourceSourceType comes from a different optional lookup.
+        CurrentClientMapBlockSource.RequireResourceNativeSourceCohort(
+            [Edit(edge, "runtimeClass", "GatherPointInfo"), opposite],
+            batch with { RuntimeClassCounts = new Dictionary<string, int>
+                { ["GatherPointInfo"] = 1, ["ResPointInfo"] = 1 } }, footprint, 2212, 0);
 
         // The native Lua producer takes an independent AOI-filtered
         // point_aoi_counts snapshot before resource_aoi_records. Its later
@@ -101,6 +109,17 @@ internal static class Map014ResourceNativeSourceChecks
             rows: [Edit(edge, "pointType", 1), opposite]);
         RejectNative("accepted type 26 missing from raw native point-type histogram",
             rows: [Edit(edge, "pointType", 26), opposite]);
+        RejectNative("native source class histogram reports only non-Resource classes",
+            counters: batch with { RuntimeClassCounts = new Dictionary<string, int>
+                { ["BuildPointInfo"] = 2 } });
+        RejectNative("native runtime-class histogram undercounts accepted Resource class",
+            counters: batch with { RuntimeClassCounts = new Dictionary<string, int>
+                { ["ResPointInfo"] = 1, ["BuildPointInfo"] = 1 } });
+        RejectNative("accepted native runtime class is absent from raw same-pass census",
+            rows: [Edit(edge, "runtimeClass", "GatherPointInfo"), opposite]);
+        RejectNative("raw native runtime-class identity differs only by case",
+            counters: batch with { RuntimeClassCounts = new Dictionary<string, int>
+                { ["respointinfo"] = 2 } });
 
         FirstLivePreparedResource idle = ResourceAt(0, 999);
         var current = new Dictionary<string, FirstLivePreparedResource> { [idle.Record.RecordKey] = idle };
@@ -196,7 +215,7 @@ internal static class Map014ResourceNativeSourceChecks
             doc["details"]![0]!["received"] = false;
         });
 
-        if (nativeInverses != 18 || hydrationInverses != 9 || provenanceInverses != 10 || snapshotInverses != 9)
+        if (nativeInverses != 22 || hydrationInverses != 9 || provenanceInverses != 10 || snapshotInverses != 9)
             throw new Exception("Incomplete Resource native source inverse coverage.");
         Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} native=false");
     }

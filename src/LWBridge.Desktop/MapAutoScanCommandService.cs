@@ -805,9 +805,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     MapAutoScanRuntimeStatus status = await execution.ReadStatusAsync(
                         scanRunId, CancellationToken.None).ConfigureAwait(false);
                     if (status.IsReading ||
-                        !string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal))
+                        !string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal) ||
+                        status.Phase is not ("completed" or "failed" or "canceled" or "cancelled" or "idle"))
                         throw new InvalidOperationException(
-                            "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH: exact run not terminal");
+                            "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH: exact run has no verified terminal state");
 
                     // ReadStatusAsync(exactRun) is allowed to return an old
                     // completed SQLite run while a different native run now

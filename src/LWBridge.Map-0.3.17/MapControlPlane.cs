@@ -46,24 +46,34 @@ public sealed class MapControlPlane : IDisposable
         long now = nowMilliseconds();
         try
         {
-            store.InsertScanRun(new MapScanRun(
-                state.ScanRunId,
-                state.ServerId,
-                state.SelectedTypes,
-                "running",
-                state.TotalBlocks,
-                0,
-                0,
-                now,
-                now,
-                null));
+            // StartAsync sets its in-memory owner before this durable insert.
+            // Stop can otherwise cancel a not-yet-inserted run and a late
+            // insert recreates a SQLite 'running' row after Stop settled.
+            // Serialize owner admission + row insertion with exact-run native
+            // cancellation/publication at the state-machine boundary.
+            scan.WithOwnedRunningScan(state.ScanRunId, _ =>
+                store.InsertScanRun(new MapScanRun(
+                    state.ScanRunId,
+                    state.ServerId,
+                    state.SelectedTypes,
+                    "running",
+                    state.TotalBlocks,
+                    0,
+                    0,
+                    now,
+                    now,
+                    null)));
             return state;
         }
         catch
         {
             try
             {
-                await scan.StopAsync(cancellationToken).ConfigureAwait(false);
+                // A newer manual/Auto run may have replaced this accepted
+                // owner while its SQLite insert was pending. Do not let a
+                // stale Start cleanup cancel that unrelated successor.
+                await scan.StopOwnedAsync(state.ScanRunId, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
             catch
             {
@@ -230,7 +240,7 @@ public sealed class MapControlPlane : IDisposable
             : null;
 }
 
-internal sealed class MapStoreScanLocalSink : IMapScanLocalSink
+internal sealed class MapStoreScanLocalSink : IMapScanImmediateCancelSink
 {
     private readonly MapStore store;
     private readonly Func<long> nowMilliseconds;
@@ -243,9 +253,14 @@ internal sealed class MapStoreScanLocalSink : IMapScanLocalSink
 
     public ValueTask CancelScanAsync(string scanRunId, CancellationToken cancellationToken = default)
     {
+        CancelScanImmediately(scanRunId, cancellationToken);
+        return ValueTask.CompletedTask;
+    }
+
+    public void CancelScanImmediately(string scanRunId, CancellationToken cancellationToken)
+    {
         cancellationToken.ThrowIfCancellationRequested();
         store.CancelScan(scanRunId, null, nowMilliseconds());
-        return ValueTask.CompletedTask;
     }
 
     public ValueTask ClearServerAsync(int serverId, CancellationToken cancellationToken = default)

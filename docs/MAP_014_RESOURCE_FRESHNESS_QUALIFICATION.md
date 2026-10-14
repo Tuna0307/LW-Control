@@ -477,6 +477,44 @@ continuation; no alternative .NET/Git/npm/recovery action was attempted.
 Static contract review plus the preserved native round-5 reply support this
 correction, but no new RED→GREEN or packaged/live qualification is claimed.
 
+### Same-enumeration Resource runtime-class source membership (source-only continuation)
+
+Beyond the **nine separate first-versus-second AOI type-histogram inverses**
+above, a further second-enumeration acceptance mismatch was identified. The
+actual Lua `resource_aoi_records` producer increments
+`runtimeClassCounts[reflected_type_name(info)]` for **every** enumerated native
+`_pointInfos` entry at `tools/current_live_resource_probe.lua:2874-2878`, and
+then uses precisely the same `reflected_type_name(info)` as the
+`runtimeClass` field of each accepted `resource_point` row at `:2947-2950`.
+The managed source gate previously checked only that this row's runtime class
+was nonblank and that the total native histogram size reconciled. Therefore
+it could publish two accepted `ResPointInfo` Resource rows with a claimed
+same-pass histogram of **two `BuildPointInfo` entries and zero `ResPointInfo`**,
+despite valid overall candidate/type/AOI counts. Such contradictory class
+provenance is impossible from the native producer's own single enumeration.
+
+`RequireResourceNativeSourceCohort` now additionally checks that the number
+of accepted rows for **each exact runtime-class string** does not exceed the
+number of raw native entries of that class. A heterogeneous synthetic positive
+permits different reflected class strings when their histogram counts reconcile;
+the optional `GetResourcePointInfoByIndex` lookup's `resourceSourceType` is
+**not** conflated with `runtimeClass` because it can come from a different
+object. Four additional **unexecuted** synthetic inverse cases cover a
+histogram containing only foreign classes, an undercounted accepted class,
+an unrepresented row runtime class, and a case-only source identity mismatch.
+The isolated native-source inverse expectation changes from **18 to 22**;
+the preceding first-snapshot inverse count stays **nine**.
+
+The saved final round-5 native reply shows 36 `ResPointInfo` entries in
+`runtimeClassCounts` and 36 accepted Resource rows with
+`runtimeClass=ResPointInfo`, consistent with the check. The six-round
+19/4/3 missing and 25 candidate-only identities remain **unclassified**:
+matching class counts cannot establish shared identity, exact native
+lifetimes or contemporaneous absence. No .NET runner, blocked Git inspection,
+npm, recovery, game/native action or commit was invoked; source review and
+static test additions are **not** a RED→GREEN result. Resource FOV20 remains
+**OFF**.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

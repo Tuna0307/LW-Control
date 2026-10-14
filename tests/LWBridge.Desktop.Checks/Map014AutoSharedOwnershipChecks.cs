@@ -19,6 +19,7 @@ internal static class Map014AutoSharedOwnershipChecks
         await CheckArchivedRunCannotAuthorizeReturnAsync(
             managedFlagReflectsSuccessor: false, successorFinished: true);
         await CheckArchivedRunWithoutSuccessorAllowsReturnAsync();
+        await CheckArchivedRunWithoutSuccessorAllowsReturnAsync(exactRunMissing: true);
         await CheckPublishedRunCannotReturnOverSuccessorAsync();
         await CheckIdleServerSwitchCannotReturnAsync(319);
         await CheckIdleServerSwitchCannotReturnAsync(0);
@@ -90,7 +91,7 @@ internal static class Map014AutoSharedOwnershipChecks
         }
     }
 
-    private static async Task CheckArchivedRunWithoutSuccessorAllowsReturnAsync()
+    private static async Task CheckArchivedRunWithoutSuccessorAllowsReturnAsync(bool exactRunMissing = false)
     {
         string root = Path.Combine(Path.GetTempPath(), "map014-auto-no-successor-" + Guid.NewGuid().ToString("N"));
         var enteredPoll = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -102,7 +103,13 @@ internal static class Map014AutoSharedOwnershipChecks
                 {
                     if (run is null) return new MapAutoScanRuntimeStatus(317, false, null, null, "idle");
                     if (!token.CanBeCanceled)
-                        return new MapAutoScanRuntimeStatus(318, false, null, run, "completed");
+                        // Map317.ReadAutoScanStatusAsync(exactRunId) returns the
+                        // requested ID with IsReading=false even when SQLite
+                        // has NO such run (Phase="missing", ServerId=0).
+                        return new MapAutoScanRuntimeStatus(
+                            exactRunMissing ? 0 : 318, false,
+                            exactRunMissing ? "Auto scan owner run is unavailable" : null,
+                            run, exactRunMissing ? "missing" : "completed");
                     enteredPoll.TrySetResult();
                     await Task.Delay(Timeout.InfiniteTimeSpan, token);
                     throw new InvalidOperationException("held status must cancel");
@@ -123,9 +130,13 @@ internal static class Map014AutoSharedOwnershipChecks
             await enteredPoll.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
-            Require(stops == 1 && returns == 1 && result.LastCycle?.Outcome == "canceled" &&
-                result.LastCycle.LastError is null && !result.OwnsActiveScan,
-                "terminal owned run without successor incorrectly blocked requested return");
+            Require(stops == 1 && returns == (exactRunMissing ? 0 : 1) &&
+                result.LastCycle?.Outcome == (exactRunMissing ? "failed" : "canceled") &&
+                (exactRunMissing
+                    ? result.LastError?.Contains("MAP_AUTO_SCAN_STOP_OWNER_MISMATCH", StringComparison.Ordinal) == true
+                    : result.LastCycle.LastError is null) &&
+                !result.OwnsActiveScan,
+                "no-op Stop returned home without terminal ownership proof, or blocked a known terminal run");
             await auto.UpdateConfigAsync(result.Config with { Enabled = false });
         }
         finally
