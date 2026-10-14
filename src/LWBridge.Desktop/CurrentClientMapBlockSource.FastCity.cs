@@ -584,6 +584,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 resourceDetails.SendFailureCount,
                 resourceDetails.ReadyCount,
                 resourceDetails.Error);
+            LastResourceCompletenessReport.RequireReconciledBeforePublication(
+                state.ValidatedProbeResponses, resourceRecords.Count);
         }
         state.ResourceHydrationMilliseconds = (Now() - resourceStarted).TotalMilliseconds;
         state.ResourceDetailNativeRequests = resourceDetails.RequestCount;

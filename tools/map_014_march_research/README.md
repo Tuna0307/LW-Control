@@ -1,5 +1,34 @@
 # MAP-014 native march acquisition — offline research
 
+## 342b3737 source-grounded typed compare-ready gate
+
+`audit_compare_ready_march.py` adds **offline-only** `audit_compare_ready(receipt)`
+for a *future* single-session independently source-observed Truck/Train
+comparison. It cannot create real receipts, verify an observer's provenance,
+or convert older snapshots into simultaneous evidence. It requires the
+existing full March request/response/process/queue/timestamp receipt first,
+then independently typed and overlapping position/identity cohorts, an
+observed native server clock and final `TrainData.arriveTs` after that
+clock. It rejects old `viewRect`, untyped TrainType, stale native runtime
+intervals, reused March UUID for a different owner/Train/arrival, current
+manager cache collisions and unexplained moving UUIDs. An admissible
+movement must be source-observed from hash-gated
+`WorldMarch.GetMarchCurPosIndex():int32` token `0x06003208`.
+
+`sameSessionCompareContractPass=true` is possible only for the **synthetic**
+offline positive in `test_audit_compare_ready_march.py`; independent
+source authenticity and global accuracy flags remain false **unconditionally**.
+The real 60-unclassified-UUID `102638` receipt remains nonqualifying, and
+`103048` is a WinError5 journal-write denial with no new native comparison
+receipt. Do not perform any recovery/game/script activity from this research
+lane. Details and pinned IL evidence:
+`docs/MAP_014_MARCH_FRESHNESS_QUALIFICATION.md`.
+
+```text
+python -m unittest discover -s tools/map_014_march_research -p 'test_*.py' -v
+python tools/map_014_march_research/trace_installed_metadata.py
+```
+
 ## New archived real-native October 14 passive receipt gate (checkout 62f45143)
 
 Use `audit_passive_march_receipt.py` against

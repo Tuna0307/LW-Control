@@ -117,6 +117,70 @@ internal static class Map014BoundedLensChecks
         }
         if (combinations != 1023 || Uses(choice with { SelectedTypes = ["city", "city"] }))
             throw new Exception("Scanner method selection allowed duplicate or incomplete case enumeration");
+        // Unlike native AOI coverage, run-wide Resource source accounting is
+        // a separate publication safety invariant. A source can visit all
+        // 10k AOIs yet return irreconcilable Resource candidate identities.
+        var resourceReport = new ResourceCompletenessAccumulator().Build(
+            "controlled-resource-run", 2212, 0, 1000, 1000,
+            Array.Empty<FirstLivePreparedResource>());
+        resourceReport.RequireReconciledBeforePublication(0, 0);
+        // Nonempty source-backed accounting shape at both inclusive map
+        // corners; source no-object counts alone would not test the merge.
+        static FirstLivePreparedResource ResourceAt(int x, int y)
+        {
+            int id = checked(y * 1000 + x + 1);
+            string data = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                x, y, pointType = 1, resourceTypeId = "5", resourceNameKey = "resource-5",
+                blackTileKnown = true, isBlackTile = false,
+                rebuildGatherOccupancyKnown = true, rebuildGatherOccupied = false,
+                resourceDetailKnown = true, resourceRemainingAmount = 50,
+                resourceFullAmount = 50, srcServerId = 2212, worldId = 0,
+            });
+            var stored = new MapStoredRecord("resource", 2212, id.ToString(), id,
+                null, "source", null, 5, null, null, null, null, 100, data);
+            var imported = new FirstLiveResultImport(2212, id.ToString(), id,
+                x, y, 5, 100, "hash", "controlled", null, null, data);
+            return new FirstLivePreparedResource(imported, stored);
+        }
+        var boundaryResources = new[] { ResourceAt(0, 0), ResourceAt(999, 999) };
+        var resourceAccounting = new ResourceCompletenessAccumulator();
+        resourceAccounting.AddBatch(new ResourceCompletenessBatchDiagnostics(
+            2, 2, 2, 2, 0, 0,
+            new Dictionary<string, int> { ["ResPointInfo"] = 2 },
+            new Dictionary<string, int> { ["1"] = 2 },
+            new Dictionary<string, int>(),
+            new Dictionary<string, int> { ["0"] = 1, ["9999"] = 1 }, 2, 0));
+        foreach (FirstLivePreparedResource resource in boundaryResources)
+            resourceAccounting.RecordAcceptedMerge(resource, null);
+        var boundaryReport = resourceAccounting.Build("resource-boundaries", 2212, 0,
+            1000, 1000, boundaryResources);
+        boundaryReport.RequireReconciledBeforePublication(1, 2);
+        if (boundaryReport.AcceptedRows.Select(row => row.NativeAoiIndex)
+                .Order().SequenceEqual([0, 9999]) == false ||
+            boundaryReport.AcceptedRows.Select(row => row.LogicalBlockIndex)
+                .Order().SequenceEqual([0, 2499]) == false)
+            throw new Exception("Resource source accounting lost inclusive 0/999 seams");
+        int resourcePublicationInverses = 0;
+        void RejectResource(ResourceCompletenessReport incorrect, int responseCount = 0, int records = 0)
+        {
+            try { incorrect.RequireReconciledBeforePublication(responseCount, records); }
+            catch (InvalidDataException) { resourcePublicationInverses++; return; }
+            throw new Exception("Resource source mismatch silently reached Map publication");
+        }
+        RejectResource(resourceReport, responseCount: 1);
+        RejectResource(resourceReport, records: 1);
+        RejectResource(resourceReport with { RawObservationCountersReconcile = false });
+        RejectResource(resourceReport with { FinalDeduplicationReconciles = false });
+        RejectResource(resourceReport with { AcceptedDistributionsReconcile = false });
+        RejectResource(resourceReport with { FinalAcceptedUniqueRecords = 1 });
+        var alteredResource = new ResourceDuplicateObservation("7", 7, 2212, 7, 0, 3,
+            123456789, 123456789, "ResPointInfo", 7, "5", 19, 2212, 0, false, false, "{}");
+        RejectResource(resourceReport with { DuplicateComparisons =
+            [new ResourceDuplicateComparison("7", "conflicting_same_record_key", false,
+                alteredResource, alteredResource)] });
+        if (resourcePublicationInverses != 7)
+            throw new Exception("Incomplete Resource accounting inverse coverage");
         Console.WriteLine($"MAP014_BOUNDED_LENS_CONTROLLED_OK coverage={covered.Count} probes={probes} inverses=5 cityIdentityInverses=3 scannerSelectionInverses=8 scannerCombinations={combinations} marchTelemetryInverses=7 native=false");
     }
 

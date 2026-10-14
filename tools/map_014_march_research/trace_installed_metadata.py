@@ -49,14 +49,19 @@ EXPECTED_MESSAGE_METHODS = {
     "CSHandleResponse": "0x060019a7",
 }
 
+EXPECTED_WORLD_MARCH_METHODS = {
+    "GetMarchCurPosIndex": "0x06003208",
+}
+
 
 def extract(image):
     fields = {}
     methods = {}
     protocol = {}
+    world_march = {}
     for type_index, definition in enumerate(image.tables.TypeDef.rows, 1):
         name = image.type_name("TypeDef", type_index)
-        if name not in {"WorldMarchDataManager", "WorldGetRectMarchInfosMessage"}:
+        if name not in {"WorldMarchDataManager", "WorldGetRectMarchInfosMessage", "WorldMarch"}:
             continue
         if name == "WorldMarchDataManager":
             for ref in definition.FieldList:
@@ -70,25 +75,33 @@ def extract(image):
         for ref in definition.MethodList:
             method = ref.row
             method_name = str(method.Name)
-            expected = EXPECTED_METHODS if name == "WorldMarchDataManager" else EXPECTED_MESSAGE_METHODS
+            expected = (EXPECTED_METHODS if name == "WorldMarchDataManager" else
+                        EXPECTED_MESSAGE_METHODS if name == "WorldGetRectMarchInfosMessage" else
+                        EXPECTED_WORLD_MARCH_METHODS)
             if method_name not in expected:
                 continue
             signature, arguments = image.decode_method_signature(bytes(method.Signature.value))
-            (methods if name == "WorldMarchDataManager" else protocol)[method_name] = {
+            target = (methods if name == "WorldMarchDataManager" else
+                      protocol if name == "WorldGetRectMarchInfosMessage" else world_march)
+            target[method_name] = {
                 "token": f"0x{0x06000000 | ref.row_index:08x}",
                 "returns": signature,
                 "parameters": arguments,
             }
     for observed, expected in (
         (fields, EXPECTED_FIELDS), (methods, EXPECTED_METHODS),
-        (protocol, EXPECTED_MESSAGE_METHODS),
+        (protocol, EXPECTED_MESSAGE_METHODS), (world_march, EXPECTED_WORLD_MARCH_METHODS),
     ):
         if set(observed) != set(expected):
             raise ValueError(f"current build metadata has absent/extra march symbols: {set(expected) ^ set(observed)}")
         for name, token in expected.items():
             if observed[name]["token"] != token:
                 raise ValueError(f"token changed for {name}: {observed[name]['token']} versus {token}")
-    return {"fields": fields, "methods": methods, "protocolMethods": protocol}
+    move = world_march["GetMarchCurPosIndex"]
+    if move["returns"] != "int32" or move["parameters"]:
+        raise ValueError("WorldMarch.GetMarchCurPosIndex signature changed")
+    return {"fields": fields, "methods": methods, "protocolMethods": protocol,
+            "worldMarchMethods": world_march}
 
 
 def inspect(assembly: Path = DEFAULT):

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
+using System.Text.Json;
 
 namespace LWBridge.Desktop;
 
@@ -49,7 +50,28 @@ internal sealed class MapScanEngine
         if (acquisitionCleanup is not null && string.IsNullOrWhiteSpace(request.LaunchSessionId))
             throw new InvalidDataException(
                 "Consecutive native cleanup requires an exact launch session identity.");
+        IMapScanSharedAcquisitionSource? sharedSource = source as IMapScanSharedAcquisitionSource;
+        MapScanSharedAcquisitionOwner? pinnedSharedOwner = null;
+        if (sharedSource is not null)
+        {
+            // Freeze the run selection before any asynchronous acquisition.
+            // Caller/source mutation cannot retarget staged data mid-run.
+            request = request with { SelectedTypes = request.SelectedTypes.ToArray() };
+            MapScanSharedAcquisitionOwner claimed = sharedSource.AcquisitionOwner;
+            if (claimed is null)
+                throw new InvalidDataException("Shared native acquisition owner is missing.");
+            pinnedSharedOwner = claimed with { SelectedTypes = claimed.SelectedTypes?.ToArray() ?? [] };
+            ValidateSharedOwner(request, pinnedSharedOwner);
+            if (request.TileWidth != 1000 || request.TileHeight != 1000)
+                throw new InvalidDataException(
+                    "Shared acquisition requires the complete 0-999 full-world tile geometry.");
+        }
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(request.TileWidth, request.TileHeight);
+        if (sharedSource is not null &&
+            (blocks.Count != 2500 || blocks[0].MinX != 0 || blocks[0].MinY != 0 ||
+             blocks[^1].MaxX != 999 || blocks[^1].MaxY != 999 ||
+             blocks.Where((block, index) => block.BlockIndex != index).Any()))
+            throw new InvalidDataException("Shared acquisition cannot establish all 2,500 full-world logical blocks.");
         long startedAt = Environment.TickCount64;
         int completed = 0;
         int failed = 0;
@@ -76,6 +98,12 @@ internal sealed class MapScanEngine
                     !receipt.OriginalCameraRestored || !receipt.FreshHomeViewReplyMatched)
                     throw new InvalidDataException(
                         "Native cleanup did not verify the exact scan owner, original camera and fresh home reply.");
+                if (sharedSource is not null &&
+                    (pinnedSharedOwner is null ||
+                     !MatchesSharedOwner(pinnedSharedOwner, receipt.SharedOwner) ||
+                     !MatchesSharedOwner(pinnedSharedOwner, sharedSource.AcquisitionOwner)))
+                    throw new InvalidDataException(
+                        "Final native cleanup did not acknowledge the original shared profile/process/group owner.");
             }
             catch (Exception error)
             {
@@ -84,9 +112,93 @@ internal sealed class MapScanEngine
             }
         }
 
+        async Task CaptureSharedRunAsync()
+        {
+            if (sharedSource is null || pinnedSharedOwner is null)
+                throw new InvalidOperationException("Shared acquisition was not admitted.");
+            var pending = new HashSet<int>(blocks.Select(block => block.BlockIndex));
+            var blocksByIndex = blocks.ToDictionary(block => block.BlockIndex);
+            var discoveredKeys = new HashSet<(string Kind, int Server, string Key)>();
+            var discoveredCityOwners = new HashSet<(int Server, string OwnerUid)>();
+            int nextIndex = 0;
+            // Exactly ONE source invocation for this run. The source may
+            // discover world AOIs once and enrich multiple selected kinds
+            // before yielding ordered, final logical-block batches.
+            long captureStarted = Stopwatch.GetTimestamp();
+            try
+            {
+                await foreach (MapScanSharedAcquisitionBatch batch in
+                    sharedSource.CaptureSharedAsync(request, blocks, cancellationToken)
+                        .WithCancellation(cancellationToken).ConfigureAwait(false))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (batch is null || !MatchesSharedOwner(pinnedSharedOwner, batch.Owner) ||
+                        !MatchesSharedOwner(pinnedSharedOwner, sharedSource.AcquisitionOwner))
+                        throw new InvalidDataException("Shared acquisition batch changed native run/profile/session owner.");
+                    IReadOnlyList<MapScanBlockCapture> captures = batch.Captures;
+                    if (captures is null || captures.Count == 0 || captures.Count > 2500 - nextIndex)
+                        throw new InvalidDataException("Shared acquisition returned missing or excess logical blocks.");
+                    for (int i = 0; i < captures.Count; i++)
+                    {
+                        if (captures[i] is null || captures[i].BlockIndex != nextIndex + i)
+                            throw new InvalidDataException(
+                                "Shared acquisition returned an out-of-order, stale or duplicate logical block.");
+                    }
+                    ValidateBatch(request, blocks[nextIndex], captures, pending, blocksByIndex);
+                    // The shared native discovery/enrichment stream must not
+                    // quietly replace an older City owner or Resource row by
+                    // re-emitting a stable identity from another AOI/block.
+                    // Native source arbitration must resolve these before
+                    // emitting the final logical block records.
+                    foreach (MapScanBlockCapture capture in captures)
+                    {
+                        MapScanTargetBlock owningBlock = blocksByIndex[capture.BlockIndex];
+                        foreach (MapStoredRecord record in capture.Records)
+                            ValidateSharedRecord(owningBlock, record, discoveredKeys, discoveredCityOwners);
+                    }
+                    // All kinds for the batch must validate together before
+                    // checkpointing; a late cancellation must not publish.
+                    cancellationToken.ThrowIfCancellationRequested();
+                    long checkpointStarted = Stopwatch.GetTimestamp();
+                    MapScanBlockSuccess[] successes = captures
+                        .Select(capture => new MapScanBlockSuccess(blocksByIndex[capture.BlockIndex], capture))
+                        .ToArray();
+                    long now = UtcNowMilliseconds();
+                    if (sink is IMapScanBatchRunSink batchSink && successes.Length > 1)
+                        batchSink.CheckpointSuccessBatch(request, successes, 1, now);
+                    else
+                        foreach (MapScanBlockSuccess success in successes)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            sink.CheckpointSuccess(request, success.Block, success.Capture, 1, now);
+                        }
+                    foreach (MapScanBlockSuccess success in successes)
+                    {
+                        pending.Remove(success.Block.BlockIndex);
+                        completed++;
+                    }
+                    nextIndex += captures.Count;
+                    checkpointMilliseconds += Stopwatch.GetElapsedTime(checkpointStarted).TotalMilliseconds;
+                    Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 0, startedAt);
+                }
+            }
+            finally
+            {
+                sourceCaptureMilliseconds += Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
+            }
+            cancellationToken.ThrowIfCancellationRequested();
+            if (nextIndex != blocks.Count || pending.Count != 0)
+                throw new InvalidDataException(
+                    $"Shared acquisition finished with only {nextIndex} of {blocks.Count} logical blocks.");
+        }
+
         try
         {
             Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 0, startedAt);
+            if (sharedSource is not null)
+                await CaptureSharedRunAsync().ConfigureAwait(false);
+            else
+            {
             var pending = new HashSet<int>(blocks.Select(block => block.BlockIndex));
             var blocksByIndex = blocks.ToDictionary(block => block.BlockIndex);
             while (pending.Count > 0)
@@ -169,6 +281,7 @@ internal sealed class MapScanEngine
                 }
 
                 Report(request.RequestedConcurrency, "scanning", blocks.Count, completed, failed, 0, startedAt);
+            }
             }
 
             if (failed > 0)
@@ -322,6 +435,77 @@ internal sealed class MapScanEngine
         string.Equals(expected.LaunchSessionId, actual.LaunchSessionId, StringComparison.Ordinal) &&
         expected.LiveServerId == actual.LiveServerId &&
         expected.SelectedTypes.SequenceEqual(actual.SelectedTypes, StringComparer.Ordinal);
+
+    private static void ValidateSharedOwner(
+        MapScanExecutionRequest request, MapScanSharedAcquisitionOwner owner)
+    {
+        if (string.IsNullOrWhiteSpace(owner.ProfileId) ||
+            string.IsNullOrWhiteSpace(owner.GroupGeneration) ||
+            owner.GameProcessId <= 0 ||
+            string.IsNullOrWhiteSpace(owner.LaunchSessionId) ||
+            !string.Equals(owner.RunId, request.RunId, StringComparison.Ordinal) ||
+            owner.ServerId != request.ServerId || owner.WorldId != request.WorldId ||
+            !string.Equals(owner.LaunchSessionId, request.LaunchSessionId, StringComparison.Ordinal) ||
+            owner.SelectedTypes is null ||
+            !owner.SelectedTypes.SequenceEqual(request.SelectedTypes, StringComparer.Ordinal))
+            throw new InvalidDataException("Shared acquisition owner does not match the admitted run and selection.");
+    }
+
+    private static bool MatchesSharedOwner(
+        MapScanSharedAcquisitionOwner expected, MapScanSharedAcquisitionOwner? actual) =>
+        actual is not null &&
+        string.Equals(expected.RunId, actual.RunId, StringComparison.Ordinal) &&
+        expected.ServerId == actual.ServerId &&
+        expected.WorldId == actual.WorldId &&
+        string.Equals(expected.LaunchSessionId, actual.LaunchSessionId, StringComparison.Ordinal) &&
+        string.Equals(expected.ProfileId, actual.ProfileId, StringComparison.Ordinal) &&
+        expected.GameProcessId == actual.GameProcessId &&
+        string.Equals(expected.GroupGeneration, actual.GroupGeneration, StringComparison.Ordinal) &&
+        actual.SelectedTypes is not null &&
+        expected.SelectedTypes.SequenceEqual(actual.SelectedTypes, StringComparer.Ordinal);
+
+    private static void ValidateSharedRecord(
+        MapScanTargetBlock block,
+        MapStoredRecord record,
+        HashSet<(string Kind, int Server, string Key)> keys,
+        HashSet<(int Server, string OwnerUid)> cityOwners)
+    {
+        if (string.IsNullOrWhiteSpace(record.RecordKey) ||
+            !keys.Add((record.Kind, record.ServerId, record.RecordKey)))
+            throw new InvalidDataException(
+                "Shared native acquisition emitted an empty or duplicate stable record identity.");
+        if (record.Kind is not ("city" or "resource")) return;
+        if (record.PointIndex is not int point)
+            throw new InvalidDataException("Shared City/Resource native point index is missing.");
+        if (point is < 1 or > 1_000_000)
+            throw new InvalidDataException("Shared City/Resource point index is out of world bounds.");
+        int tile = point - 1;
+        int x = tile % 1000, y = tile / 1000;
+        if (x < block.MinX || x > block.MaxX || y < block.MinY || y > block.MaxY)
+            throw new InvalidDataException(
+                "Shared City/Resource point index is outside its owning logical block.");
+        if (record.Kind != "city") return;
+        if (string.IsNullOrWhiteSpace(record.DataJson))
+            throw new InvalidDataException("Shared City native owner JSON is missing.");
+        try
+        {
+            using JsonDocument json = JsonDocument.Parse(record.DataJson);
+            if (json.RootElement.ValueKind != JsonValueKind.Object ||
+                !json.RootElement.TryGetProperty("ownerUid", out JsonElement uid) ||
+                uid.ValueKind != JsonValueKind.String)
+                throw new InvalidDataException("Shared City native ownerUid is missing or invalid.");
+            string? ownerUid = uid.GetString();
+            if (string.IsNullOrWhiteSpace(ownerUid))
+                throw new InvalidDataException("Shared City native ownerUid must be nonempty.");
+            if (!cityOwners.Add((record.ServerId, ownerUid)))
+                throw new InvalidDataException(
+                    "Shared City owner appeared more than once; latest native location has not been resolved.");
+        }
+        catch (JsonException error)
+        {
+            throw new InvalidDataException("Shared City owner JSON is not valid.", error);
+        }
+    }
 
     private static void ValidateBatch(
         MapScanExecutionRequest request,

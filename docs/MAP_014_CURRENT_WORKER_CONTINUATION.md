@@ -153,3 +153,35 @@ or any newer commit. **Overall status remains PARTIAL** until a separately
 authorized safe native recovery path genuinely passes, and source-qualified
 individual/mixed/multi-server actual engine + packaged gates pass. Preserve
 seasonal Party/Doom and independent Train lifetime as unavailable positives.
+
+## Further production-focused offline integration — October 14
+
+**Reconciled starting checkpoint:** `342b373755bfdf9655222c4f2ee097edf5b1883d`
+on the existing `codex/map-owner-fixes-014`/draft PR #10 matched the direct
+remote; checkout was clean and no task-owned live game/app/recovery journal
+remained. Exact official `LWScripts.data`/`LWScripts.txt`/`version.txt` hashes
+matched previous preserved values. The explicit `WinError 5` atomic journal
+rename denial at `native-march-source-20261014-103048` remains binding; this
+continuation did **not** reroute, repeat, bypass, change ACLs or launch a game.
+
+| New source/engine change | Controlled/genuine distinction | Production policy |
+| --- | --- | --- |
+| Run-wide Resource publication gate | `ResourceCompletenessReport.RequireReconciledBeforePublication` now rejects inconsistent native candidate/observation totals, per-AOI merged source counts, staged record counts, source response counts and conflicting duplicate same-point identities **before any 2,500-block publication**. Zero-row and positive native-shaped Resource fixtures cover both (0,0) and (999,999), native AOIs 0/9999, logical blocks 0/2499; seven distinct inverse cases. Real six-round Resource observations are not reclassified as lifecycle positives. | All Resource scans retain the **guarded existing baseline**; run-wide source accounting is stronger, but FOV20 still lacks independent same-time 19/4/3/25 life-cycle attribution. |
+| Optional actual-engine shared acquisition | New `IMapScanSharedAcquisitionSource` requires pinned run/server/world/session, type selection and source-declared profile/PID/group generation, full 1000×1000/2,500 ordered block union, exactly one source capture stream, per-kind server and spatial point-index membership, stable record/City owner uniqueness; final single owned home cleanup before SQLite Publish, and Stop/failure abandonment with independent bounded cleanup token. A controlled source drives the **real `MapScanEngine` + `MapDataStoreScanSink`**, testing individual and City+Resource/City+Truck mixed records, all 0..999 seams, remote 2213/2214 row isolation, stale/duplicate/late/wrong-kind/wrong-profile/PID/group, cancellation during staged capture and cleanup, final home mismatch, existing published records and `scan_records`/`scan_blocks` atomic retirement. | This is a **new opt-in interface, not implemented by the production camera source**. Actual Lua native group/target subscription/one final camera restore ACK remains unqualified; **consecutive disabled**. Managed source-declared PID/profile is not independent native ownership proof. |
+| Typed March compare-ready source contract | New `audit_compare_ready_march.py`, metadata tracer and adversarial tests require a native source-matched March rect request/reply/process/queue barrier, typed `trainType` 1/2, immutable March/train UUID and owner/server/world, actual server clock and unexpired final `arriveTs`, independently contemporaneous typed manager/oracle overlap, a recorded `WorldMarch.GetMarchCurPosIndex` movement transition, and reject old manager rectangles/cache collisions/stale stages. Verified installed `WorldMarch.GetMarchCurPosIndex` token `0x06003208` and separate manager rect processing metadata. The archival 60 general-manager UUIDs contain no qualified typed Train source cohort or request/queue proof, so an offline negative is genuine; synthetic contract positives **never** claim independently verified source authenticity or global recall. | Continue guarded standalone Truck/Railway and any mixed mobile method. Historical FOV20 92/92/83 missing Trucks (90/88/82 still future-arrival) remain unexplained by actual source processing/lifetime witnesses. |
+
+All original City-only FOV20 (`4,114` true owner identities in six real pairs,
+`227.912`→`86.179s`), Other Scattered Supplies, Treasure category separation,
+remote Auto/Jump/Clear and moving/expiring Truck Follow positives are
+preserved. Scanner selector still admits **FOV20 only for City alone**;
+existing Resource and mobile/mixed routes have not changed. Current controlled
+suite exercises 1,023 nonempty kind combinations and previous mounted
+EN/light desktop + JA/dark narrow UI, Other and saved-owner regressions.
+
+**Open qualification:** native same-AOI Resource life-cycle source oracle;
+WorldMarch typed source request/reply/processed queue/clock witness; real
+consecutive A→B→C Lua protocol with one final camera restore on success and
+all Stop/failure paths; actual packaged standalone/mixed/remote tests in an
+approved safely admitted game session. No new release ZIP or complete
+lead-ready assertion is warranted. Seasonal Celebration Party, moving Doom
+Walker/BossVO and independent Train lifetime remain unspawned/unwitnessed.

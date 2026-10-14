@@ -1,5 +1,103 @@
 # MAP-014 Truck / Train march freshness — source-causal offline qualification
 
+## 2026-10-14 checkout 342b3737: stricter source-grounded comparison proposal
+
+At clean Git checkpoint `342b3737` the preserved installed `Assembly-CSharp.rdl` still hashes to
+`bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e`.
+Hash-gated `tools/map_014_march_research/trace_installed_metadata.py` confirms the **actual
+native contract**: `WorldMarchDataManager.allMarches` is a
+`Dictionary<long,WorldMarch>` (`0x0400253a`); `viewRect`/`cameraViewRect`
+are **different** `UnityEngine.Rect` fields (`0x0400254f`/`0x04002551`);
+`_messages` (`0x04002561`) is a
+`StepProcessQueue<(WorldMarchMessageType,ISFSObject)>` rather than a list;
+`_messagesMergeDict` (`0x04002562`) is an independent dictionary; and
+`_lastGetBlockMsgTime`/`_lastHandleBlockMsgTime` (`0x04002566/67`) are
+`System.DateTime`, not Unix timestamps.
+
+**IL semantic limits:** archived hash-pinned `UpdateViewRect` `0x0600326e`
+computes a camera-based rectangle and includes `IL_016b: ldc.r4 5.0` and
+`IL_0170: mul` before a difference comparison and conditional `true`
+return. Its two named rectangle fields are not interchangeable, and the exact
+dimension transformed by the protected calls cannot safely be inferred from
+their opaque operands. `OnUpdate` `0x0600326c` calls several protected
+members, but its `IL_001d: call token(0xA7965722)` is **not proof** of a
+completed request. `HandleWorldGetRectMarchInfos` `0x0600327b`
+clears/iterates native collections and writes multiple boolean flags
+(`IL_0098-IL_00af`), but a response handler invocation alone is **not**
+a correlated queue-drained and spatially complete March barrier.
+`WorldGetRectMarchInfosMessage.CSSetData` `0x060019a6` serializes two
+rectangle-related fields, whereas `CSHandleResponse` `0x060019a7`
+short-circuits on a response condition before dispatching an obfuscated
+handler. These metadata observations **do not** identify a reliable
+`StepProcessQueue.Count` getter, a typed server-time provider, or an
+exact request correlation ID. No arbitrary waits, assumed token mapping or
+manual request is warranted.
+
+The latest preserved `native-march-source-20261014-103048/final.json`
+reports **`PermissionError [WinError 5] Access is denied`** on a recovery
+journal temporary-file rename and contains **no** new
+`live-resource/bulk-aoi-diagnostic-result.json` March observation.
+This is a **hard denial**; no game/recovery/installed-script operations were
+attempted by this worker. The earlier `102638` file remains the only
+current source-positive March manager receipt under review and still has
+60 **untyped** cached UUIDs at point readiness, with no before/processed
+pair, no numeric clock, and no validated March reply sequence.
+
+### Additional offline compare-ready contract
+
+New **pure read-only** `tools/map_014_march_research/audit_compare_ready_march.py`
+provides `audit_compare_ready(receipt)`. It first requires all existing
+`audit_receipt` March request/response/process/typed queue/tick prerequisites,
+then requires a **single-session** `compareReadyEvidence` bundle. It
+requires an observed target `viewRect` distinct from the before-camera
+rect; the same camera/manager target footprint after processing; pinned
+installed-assembly SHA; selected native TrainType **int 1 Truck / int 2
+Railway**; source-labelled `WorldMarch.train` and an exact
+`marchUuid=uuid` and `trainUuid` join; typed server/world/ownerServer,
+0–999 coordinates and an uncapped unique per-cohort March identity set;
+independent **native server-clock** provenance with integer epoch
+milliseconds; and final `TrainData.arriveTs` strictly later than that
+server time. The movement-leg `WorldMarch.endTime` is never substituted
+for final arrival.
+
+For each UUID the candidate after-processing cohort and independently
+observed native cohort must **overlap in monotonic runtime time ranges**
+and exactly match `uuid`, `trainUuid`, TrainType, owner server,
+position and final arrival. Source-unknown typed values, duplicated UUIDs,
+one train UUID assigned to competing marches, mismatched cached
+position/type/arrival, stale/coincident old rectangles, stale server clock,
+and missing selected IDs **fail closed**. An eligible March may change
+position between the two native stages only if one exact source-observed
+`GetMarchCurPosIndex` movement transition covers the previous and
+current positions within that stage interval. Owner/type/final-arrival
+repurposing is never silently treated as movement.
+
+**Evidence limitation:** `sameSessionCompareContractPass=true` is possible
+for a **fully synthetic fixture** solely to test inverse logic. The
+checker always reports
+`sourceAuthenticityIndependentlyVerified=false` and
+`globalMobileAccuracyQualified=false`, since source-method authenticity,
+native clock provenance and global same-time March completeness cannot be
+established by Python assertions or the existing archived receipts.
+Only the game owner's independently captured, hash-gated native witnesses
+could qualify those premises. On the **real 102638 receipt**,
+`sameSessionCompareContractPass=false`: it lacks the base chain and
+any same-session typed/clock/position cohort. An archive from eight hours
+earlier cannot be supplied as a substitute.
+
+The new `test_audit_compare_ready_march.py` adds explicit falsifying
+tests for old view rectangles, stale source intervals, ambiguous
+TrainType strings/unknowns, untyped clocks, crossed session/server,
+past-`arriveTs`, duplicate native cache UUIDs, UUID
+reclassification/collision, missing current manager membership, and
+unbacked/valid movement transitions. The exact installed
+`WorldMarch.GetMarchCurPosIndex():int32` method token is **`0x06003208`**
+(verified by read-only hash-gated `inspect_managed.py` and now the owned
+`trace_installed_metadata.py`); only a source-observed transition attributed
+to that method/token is eligible to explain a same-UUID coordinate change.
+No production, core Lua, native host,
+installed script, game session, continuation, commit or PR was touched.
+
 **Scope / handoff:** worker-1, 14 October 2026, `codex/map-owner-fixes-014` at clean `339e241c`. This is an **offline, read-only diagnosis**, not a new game witness and not a production fix. All edits are isolated to this document and `tools/map_014_march_research/`. No app/game session, installed script mutation, network request, packaging or commit was performed.
 
 ## October 14 10:26 SGT owned passive-native receipt review (checkout 62f45143)

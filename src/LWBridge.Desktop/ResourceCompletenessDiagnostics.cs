@@ -190,6 +190,22 @@ internal sealed record ResourceCompletenessReport(
     internal string ToStableJson(bool indented = true) => JsonSerializer.Serialize(
         this,
         new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = indented });
+
+    // Source accounting is independent of completed AOI geometry. Finishing
+    // all point AOIs cannot turn a duplicate physical Resource identity, an
+    // incomplete candidate classification, or a partial merge into a safe
+    // published map. This gate does not claim same-time population recall.
+    internal void RequireReconciledBeforePublication(long acquiredResponseCount, int stagedResourceCount)
+    {
+        if (ResponseCount != acquiredResponseCount ||
+            !RawObservationCountersReconcile || !FinalDeduplicationReconciles ||
+            !AcceptedDistributionsReconcile ||
+            FinalAcceptedUniqueRecords != stagedResourceCount ||
+            FinalAcceptedUniqueRecords != AcceptedRows.Count ||
+            DuplicateComparisons.Any(duplicate => !duplicate.SameSemanticIdentity))
+            throw new InvalidDataException(
+                "Resource native source accounting, stable identity or staging did not reconcile.");
+    }
 }
 
 internal sealed class ResourceCompletenessAccumulator
