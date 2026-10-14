@@ -450,3 +450,44 @@ received-only source contract. This is source/schema proof of the present
 transport limitation, **not a new native success or speculative network hook**.
 Auto's added owner controls also reject idle current server **0/unknown**, not
 only a manually changed server, before returning an archived Auto scan.
+
+## Additional source-bound offline continuation after `b2847873` — 2026-10-14
+
+**Reconciled preflight:** `b2847873730920b704ec1310af9b0c2490577654`
+was clean and matched direct origin and existing draft PR #10 before these
+changes. No LastWar, launcher or LWBridge Desktop process was running; no
+active product recovery journal was present. Installed original
+`LWScripts.data`, `LWScripts.txt` and `version.txt` retained the three exact
+SHA-256 values recorded above. Product-local persisted Auto remained
+`config.enabled=true`, `config.nextRunAt` present,
+`restart.active=false`; nothing in those settings was modified. The earlier
+recovery-journal atomic rename `WinError 5` remains a **hard denied live gate**,
+not repaired or tested again. No native/packaged/game start occurred.
+
+| New source-supported correction (offline) | Evidence boundary / pending qualification |
+| --- | --- |
+| **Received-only A/B/C native reply cohort:** a reply ID independently present in a stage's `nativeReplyEvidence` previously could be borrowed by up to 160 far-away per-AOI claims while still passing received-only City 10,000-AOI admission. `Map014NativeSharedReceiptSource` now binds those three reply IDs to each region's exact `requestedIndices` membership and `nativeReplyAtUnixMs`, before any staged block. Added far-away reply-replay and forged-clock inverses plus a legitimate same-footprint reply controlled positive. | A worker's already-started .NET controlled runner observed RED (`Invalid native group staged a positive block: region A native reply reused to certify distant non-member AOIs`) before the production guard was added. The post-fix .NET regression was later **blocked by the execution safety gate** and was **not retried or rerouted**. No GREEN or native positive is claimed. All non-region full-world reply identities still require a genuine authenticated inbound transport not currently available. |
+| **Resource per-type native source reconciliation:** actual Lua `_pointInfos` enumerates a raw `pointType` histogram and classifies Resource candidates only from native types **1/7/26**. The managed source previously could accept contradictory raw type-6-only totals. Admission now requires sum of raw type-1/7/26 equals `ResourceCandidateCount` and limits accepted rows by each exact observed native type. Four adversarial controls plus a valid mixed 1/26 control were added. | Resource native inverses change from **14 to 18** in the source test runner, but **new .NET GREEN was not executed** because its invocation was subsequently denied. Native round-5 had type-7=36 and accepted Resource=36, but this does not establish cache age, explain six-round 19/4/3 and 25 identity differences or qualify Resource FOV20. |
+| **Auto pre-start remote navigation ownership:** `StartAutoScanTargetAsync` may jump to a target before issuing/returning the durable run ID. If canceled in between, an old Auto run formerly had no last-owned scan/server and could return over a manual server change. Auto now tracks the target **before** awaiting Start, and checks current idle server against the **most recently attempted target or original**, never a stale earlier accepted Auto target, before any return. Added canceled-before-run-ID third-server switch, normal return, two-target/manual switch to prior target and failed-pre-jump ambiguity inverses. | An independently started controlled run observed RED (`canceled pre-start remote jump lost return ownership or normal home restoration`); post-fix .NET GREEN cannot be claimed under the test execution denial. On failure before jumping to the latest target, idle previous-target navigation is deliberately treated as ambiguous and left without a potentially unsafe Auto return. Persisted Auto schedule remains untouched. |
+| **Authentic native transport source:** the existing Lua single-probe file channel cannot emit group reply provenance. Separate native named-pipe processing exists, but its current Lua inbound handler admits ownership handshake/`getStatus`, not authenticated Map317 A/B/C requests, packet-fed per-AOI receipts, per-kind enrichment or one final-home group ACK. Read-only Python audit rejects missing AOI source label, one-reply-all-world claims, contradicted reply cohort clocks and alternate-transport source drift. | **40/40** read-only/synthetic transport Python controls passed; both original native A/B/C archives still correctly reject group qualification (49.203 s/119 diagnostic probes/10,000 AOI coverage remain historical genuine diagnostic evidence). No new Lua/native protocol was guessed or enabled. |
+
+**Fresh independent allowed regressions:** 40/40 native/Resource Python tests,
+66/66 March source tests, 12/12 consecutive-source tests, eight owned native
+observer tests, 40/40 transport source tests and its archived producer audit all
+pass. Standalone permitted frontend Other, MAP011 saved-owner and mounted
+EN/light desktop + JA/dark mobile checks pass. `git diff --check` passed at
+review, with Windows CRLF advisories only. **A new .NET Release test-run tool
+invocation was explicitly blocked, and must not be retried through a different
+command, worker, tool or path.** The prior `b2847873` .NET full Release pass is
+historical baseline evidence, **not validation of these new changes**. The
+previously denied aggregate `npm.cmd run check` remains unexecuted.
+
+**Status remains PARTIAL.** Native grouped A→B→C selector remains off;
+Resource/mobile/mixed FOV20 stay conservative, City-only qualified FOV20
+retained, and no new source-matched RC ZIP exists. Open gates are legitimate
+recovery guarantees, received-authenticated multi-stage native producer/ingress,
+single final home response, real selected/mixed/remote Stop and publish,
+post-fix .NET Release plus packaged Windows tests, and genuinely available
+Celebration Party, Doom Walker and Train-lifetime witnesses. No release,
+merge, live actions, script replacement, user Auto setting change or
+account-changing action is authorized by these offline improvements.

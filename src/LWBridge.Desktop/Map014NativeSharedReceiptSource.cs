@@ -258,6 +258,23 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
             throw new InvalidDataException("Native group must explicitly prove all 10,000 native AOIs.");
         var allNativeAois = new HashSet<int>();
         var aoiByIndex = new Map014ReceivedNativeAoiProof[10000];
+        // The three separately matched native A/B/C reply identities already
+        // carry exact source-observed footprints and clocks. A later claimed
+        // per-AOI proof must not borrow one of those reply IDs to certify
+        // AOIs outside its own received footprint, or relabel its reply time.
+        // Unrelated full-world replies still require independent ingress
+        // authentication; these checks do not manufacture such evidence.
+        var observedRegionReplies = new Dictionary<string, (long ReplyAt, HashSet<int> Aois)>(
+            StringComparer.Ordinal);
+        foreach (JsonElement region in envelope.NativeConsecutiveRegions)
+        {
+            string id = region.GetProperty("nativeReplyRequestId").GetString()!;
+            long at = region.GetProperty("nativeReplyAtUnixMs").GetInt64();
+            var indices = region.GetProperty("requestedIndices").EnumerateArray()
+                .Select(value => value.GetInt32()).ToHashSet();
+            if (!observedRegionReplies.TryAdd(id, (at, indices)))
+                throw new InvalidDataException("Native A/B/C reply identities were reused.");
+        }
         // One observed reply cannot be used as a blanket certificate for an
         // entire world. The pinned v24 WorldPointManager native request limit
         // is 160 AOIs. This is a *maximum cohort size*, not evidence that the
@@ -277,6 +294,11 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
                 evidence.NativeReplyAtUnixMs < firstStarted ||
                 evidence.NativeReplyAtUnixMs >= finalHomeAt)
                 throw new InvalidDataException("Native AOI receipt is stale, duplicate, wrong source or wrong owner.");
+            if (observedRegionReplies.TryGetValue(evidence.NativeReplyRequestId, out var regionReply) &&
+                (evidence.NativeReplyAtUnixMs != regionReply.ReplyAt ||
+                 !regionReply.Aois.Contains(evidence.NativeAoiIndex)))
+                throw new InvalidDataException(
+                    "Native AOI proof borrowed an A/B/C reply outside its actual native footprint or source time.");
             if (replyCohorts.TryGetValue(evidence.NativeReplyRequestId, out var cohort))
             {
                 if (cohort.ObservedAt != evidence.NativeReplyAtUnixMs ||

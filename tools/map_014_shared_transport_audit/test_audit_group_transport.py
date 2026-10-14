@@ -8,9 +8,10 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_group_transport import (  # noqa: E402
-    ARCHIVES, LUA, BoundaryError, ProducerContract, archive_rejection,
-    audit_current_producer_group_request, audit_current_producer_group_result,
-    audit_future_shape_only, audit_one_probe_correlation,
+    ARCHIVES, LUA, OVERVIEW, PROVIDER, BoundaryError, ProducerContract,
+    archive_rejection, audit_current_producer_group_request,
+    audit_current_producer_group_result, audit_future_shape_only,
+    audit_one_probe_correlation, audit_other_source_transports,
 )
 
 
@@ -63,7 +64,8 @@ def future_shape():
         for native_idx in native_ids:
             aois.append({**owner, "nativeAoiIndex": native_idx,
                          "nativeReplyRequestId": response_id,
-                         "nativeReplyAtUnixMs": reply_time})
+                         "nativeReplyAtUnixMs": reply_time,
+                         "nativeSource": "WorldPointManager._curViewIndex"})
         blocks.append({"blockIndex": block, "kind": "city",
                        "source": "WorldPointManager._pointInfos",
                        "nativeReplyRequestId": response_id,
@@ -251,6 +253,30 @@ class FutureControlledShapeTests(unittest.TestCase):
         self.check_corruption(lambda c: c["aoiProofs"][0].update({"profileId": "foreign"}),
                               "mixed native AOI owner")
 
+    def test_missing_aoi_native_source_must_fail(self):
+        self.check_corruption(lambda c: c["aoiProofs"][0].pop("nativeSource"),
+                              "native AOI source")
+
+    def test_one_reply_cannot_certify_all_10000_aoi(self):
+        def change(c):
+            for proof in c["aoiProofs"]:
+                proof["nativeReplyRequestId"] = "claimed-all-world"
+            for block in c["kindBlocks"]:
+                block["nativeReplyRequestId"] = "claimed-all-world"
+        self.check_corruption(change, "native AOI reply cohort")
+
+    def test_same_reply_id_cannot_reappear_with_inconsistent_native_time(self):
+        def change(c):
+            for proof in c["aoiProofs"][:4]:
+                proof["nativeReplyRequestId"] = "shared-multi-time"
+            c["kindBlocks"][0]["nativeReplyRequestId"] = "shared-multi-time"
+            for proof in c["aoiProofs"][4:8]:
+                proof["nativeReplyRequestId"] = "shared-multi-time"
+                proof["nativeReplyAtUnixMs"] += 1
+            c["kindBlocks"][1]["nativeReplyRequestId"] = "shared-multi-time"
+            c["kindBlocks"][1]["nativeReplyAtUnixMs"] += 1
+        self.check_corruption(change, "native AOI reply cohort")
+
     def test_four_native_aois_same_logical_block_must_correlate(self):
         self.check_corruption(lambda c: c["aoiProofs"][1].update({"nativeReplyRequestId": "other"}),
                               "four AOIs")
@@ -287,6 +313,56 @@ class FutureControlledShapeTests(unittest.TestCase):
         self.check_corruption(lambda c: c["homeAck"].update({
             "originalCameraRestored": True, "homeNativeReplyRequestId": ""}),
             "native final home reply absent")
+
+
+class AlternateProducerTraceTests(unittest.TestCase):
+    def test_current_authenticated_pipe_is_get_status_only(self):
+        observed = audit_other_source_transports()
+        self.assertTrue(observed["namedPipeTransportExists"])
+        self.assertEqual(observed["namedPipeLuaFunctions"], ["getStatus"])
+        self.assertEqual(observed["namedPipeAcceptedEnvelopeTypes"],
+                         ["command", "hello.ack"])
+        self.assertFalse(observed["pipeNativeGroupProducer"])
+        self.assertFalse(observed["producerNativeGroupPump"])
+        self.assertFalse(observed["Map317ProductionGroupFactoryConfigured"])
+        self.assertFalse(observed["futureGroupIngressImplementationPresent"])
+
+    def test_new_native_group_pipe_call_cannot_be_silently_reported_as_absent(self):
+        original = OVERVIEW.read_text(encoding="utf-8-sig")
+        observed = 'function_name ~= "getStatus"'
+        self.assertIn(observed, original)
+        changed = original.replace(observed,
+                                   '(function_name ~= "getStatus" and function_name ~= "nativeGroup")',
+                                   1)
+        with self.assertRaisesRegex(BoundaryError, "named-pipe Lua receiver changed"):
+            audit_other_source_transports(overview=changed)
+
+    def test_new_pipe_packet_consumer_needs_requalification(self):
+        original = OVERVIEW.read_text(encoding="utf-8-sig")
+        observed = 'elseif message_type == "command" then'
+        self.assertIn(observed, original)
+        changed = original.replace(
+            observed, 'elseif message_type == "native.group.result" then\n'
+                      '            return\n'
+                      '        ' + observed, 1)
+        with self.assertRaisesRegex(BoundaryError, "named-pipe Lua receiver changed"):
+            audit_other_source_transports(overview=changed)
+
+    def test_new_lua_native_group_pump_cannot_hide_behind_bulk_aoi_whitelist(self):
+        source = LUA.read_text(encoding="utf-8-sig")
+        observed = "function M._sharedRuntimeOwnership.PumpVerified(now)"
+        self.assertIn(observed, source)
+        changed = source.replace(observed, observed + "\n    pump_native_group(now)", 1)
+        with self.assertRaisesRegex(BoundaryError, "Lua probe dispatch changed"):
+            audit_other_source_transports(probe=changed)
+
+    def test_production_factory_enablement_requires_new_evidence(self):
+        source = PROVIDER.read_text(encoding="utf-8-sig")
+        observed = "createSourceForAcceptedRun = null"
+        self.assertIn(observed, source)
+        changed = source.replace(observed, "createSourceForAcceptedRun = ProductionNativeGroupSource", 1)
+        with self.assertRaisesRegex(BoundaryError, "production Map317"):
+            audit_other_source_transports(provider=changed)
 
 
 if __name__ == "__main__":

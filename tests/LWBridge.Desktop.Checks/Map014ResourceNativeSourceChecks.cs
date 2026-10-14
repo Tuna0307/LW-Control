@@ -15,6 +15,15 @@ internal static class Map014ResourceNativeSourceChecks
         var footprint = new HashSet<int> { 9900, 99 };
         CurrentClientMapBlockSource.RequireResourceNativeSourceCohort(
             [edge, opposite], batch, footprint, 2212, 0);
+        // The native producer categorizes types 1, 7 and 26 as Resource.
+        // Keep support for all three, not just the type-7 archived example.
+        var mixedResourceTypes = batch with
+        {
+            RawPointTypeCounts = new Dictionary<string, int> { ["1"] = 1, ["26"] = 1 },
+        };
+        CurrentClientMapBlockSource.RequireResourceNativeSourceCohort(
+            [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)],
+            mixedResourceTypes, footprint, 2212, 0);
 
         int nativeInverses = 0;
         void RejectNative(string label, IReadOnlyList<FirstLivePreparedResource>? rows = null,
@@ -53,6 +62,14 @@ internal static class Map014ResourceNativeSourceChecks
         {
             Import = edge.Import with { X = 1000 },
         }, opposite]);
+        RejectNative("raw manager reports no Resource types despite accepted native Resource rows",
+            counters: batch with { RawPointTypeCounts = new Dictionary<string, int> { ["6"] = 2 } });
+        RejectNative("raw manager reports only one Resource candidate for two accepted rows",
+            counters: batch with { RawPointTypeCounts = new Dictionary<string, int> { ["7"] = 1, ["6"] = 1 } });
+        RejectNative("accepted type 1 missing from raw native point-type histogram",
+            rows: [Edit(edge, "pointType", 1), opposite]);
+        RejectNative("accepted type 26 missing from raw native point-type histogram",
+            rows: [Edit(edge, "pointType", 26), opposite]);
 
         FirstLivePreparedResource idle = ResourceAt(0, 999);
         var current = new Dictionary<string, FirstLivePreparedResource> { [idle.Record.RecordKey] = idle };
@@ -148,7 +165,7 @@ internal static class Map014ResourceNativeSourceChecks
             doc["details"]![0]!["received"] = false;
         });
 
-        if (nativeInverses != 14 || hydrationInverses != 9 || provenanceInverses != 10)
+        if (nativeInverses != 18 || hydrationInverses != 9 || provenanceInverses != 10)
             throw new Exception("Incomplete Resource native source inverse coverage.");
         Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} native=false");
     }

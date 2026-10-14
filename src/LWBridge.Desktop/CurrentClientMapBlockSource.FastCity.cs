@@ -1847,13 +1847,23 @@ internal sealed partial class CurrentClientMapBlockSource
             row.TryGetProperty(field, out JsonElement value) &&
             value.ValueKind == JsonValueKind.Number &&
             value.TryGetInt64(out long actual) && actual == expected;
+        // resource_aoi_records increments rawPointTypeCounts for every native
+        // _pointInfos entry, then classifies Resource candidates solely by the
+        // same native pointType (1, 7, 26). Aggregate count equality alone
+        // previously accepted a purported Resource snapshot whose native type
+        // histogram contained only non-Resource points.
+        long sourceTypedResources = source.RawPointTypeCounts
+            .Where(entry => entry.Key is "1" or "7" or "26")
+            .Sum(entry => (long)entry.Value);
         if (!source.Reconciles ||
+            sourceTypedResources != source.ResourceCandidateCount ||
             source.RejectionReasonCounts.Any(reason =>
                 reason.Value > 0 && reason.Key != "outside_selected_aoi") ||
             resources.Count != source.AcceptedResourceCount)
             throw new InvalidDataException("Native Resource source contained an unreconciled or skipped candidate.");
 
         var byAoi = new Dictionary<string, int>(StringComparer.Ordinal);
+        var acceptedByNativeType = new Dictionary<string, int>(StringComparer.Ordinal);
         var identities = new HashSet<int>();
         foreach (FirstLivePreparedResource resource in resources)
         {
@@ -1907,6 +1917,16 @@ internal sealed partial class CurrentClientMapBlockSource
                       occupied.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
                       !MatchesBool(data, "rebuildGatherOccupied", occupied.GetBoolean()))))
                     throw new InvalidDataException("Native Resource point lacked source identity or current occupancy provenance.");
+                string nativeTypeKey = nativePointType.ToString(CultureInfo.InvariantCulture);
+                int acceptedForType = acceptedByNativeType.TryGetValue(nativeTypeKey, out int earlier)
+                    ? checked(earlier + 1) : 1;
+                // The accepted AOI records are a subset of the same raw native
+                // enumeration. The source cannot accept more of a type than
+                // it reports observing, even when overall counts reconcile.
+                if (!source.RawPointTypeCounts.TryGetValue(nativeTypeKey, out int enumeratedForType) ||
+                    acceptedForType > enumeratedForType)
+                    throw new InvalidDataException("Native Resource accepted type lacks raw source enumeration evidence.");
+                acceptedByNativeType[nativeTypeKey] = acceptedForType;
             }
             catch (JsonException ex)
             {

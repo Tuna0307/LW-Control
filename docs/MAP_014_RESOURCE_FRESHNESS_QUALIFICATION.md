@@ -380,6 +380,53 @@ spawn/destruction times, or authoritative same-AOI native presence-versus-
 absence. The 19/4/3 missing and 25 first-pair new Resource identities retain
 their earlier classifications; FOV20 remains diagnostic only.
 
+### Native Resource point-type histogram admission (b2847873 follow-up)
+
+A further receiver-side false acceptance was found in the **actual native
+producer's source-accounting contract**. In
+`resource_aoi_records`, each enumerated `_pointInfos` entry increments the
+`rawPointTypeCounts` histogram first; that *same* `pointType` places an entry
+in `resourceCandidateCount` if and only if its integer type is **1, 7 or 26**.
+The prior managed gate verified the sum of histogram counts and the candidate
+sum independently, but did not require the Resource candidate count to equal
+the raw histogram's combined 1/7/26 counts. It could therefore accept two
+ostensibly valid Resource records when the raw native histogram reported
+**only two type-6 City entries**. This would be impossible from the producer's
+single `_pointInfos` enumeration, even though all aggregate counters balanced.
+
+`RequireResourceNativeSourceCohort` now fails closed unless the sum of the raw
+type-1/7/26 histogram matches `ResourceCandidateCount`. It also ensures the
+number of **accepted** records of each of these three types does not exceed
+the count of that type in the native raw histogram (accepted points are a
+subset of the original enumeration, not a separate inventory). The positive
+synthetic contract includes legitimate types 1 and 26; **the fix does not
+assume only type 7 is valid**. Four new inverse inputs cover the all-City
+histogram, an undercounted Resource histogram, and accepted type-1/type-26
+rows absent from the claimed raw histogram.
+
+The actual preserved final round-5 native AOI reply records **79 observed,
+79 enumerated**, with 36 Resource candidate/accepted entries and a raw
+type-7 count of 36. Its Resource lookup reports 36 hits and zero fallback.
+The other five scans retain their SQLite Resource rows and 10,000-AOI
+coverage, **not a complete original native histogram for every probe**.
+The independent six-round read-only audit remains unchanged: 19/4/3
+baseline-only identities, 25 first-pair candidate-only identities (including
+occupied 20128), no demonstrated same-time lifecycle or missing-point
+causality and **Resource FOV20 unqualified**. A separate optional lookup
+fallback is reported by Lua but is *not* equivalent to proof of source
+staleness, and this follow-up does not reject fallback merely on suspicion.
+
+**Validation limitation:** The new four inverses are added to
+`Map014ResourceNativeSourceChecks.Run()` (18 total source inverses), but their
+RED/GREEN execution is **not newly established**. The attempted pre-fix
+combined run stopped earlier at an unrelated Auto ownership check, and a
+post-fix run stopped earlier at an unrelated shared-native group-admission
+check. The prime subsequently reported an OpenAI denial of another offline
+.NET test invocation; no further build/test variant, bypass or reroute was
+attempted. Code and tests need a normally authorized isolated execution
+before claiming a verified RED→GREEN for this particular correction. No live
+game/native test, Lua change or FOV20 promotion occurred.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

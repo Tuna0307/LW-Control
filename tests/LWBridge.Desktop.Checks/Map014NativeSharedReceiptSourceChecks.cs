@@ -459,6 +459,39 @@ internal static class Map014NativeSharedReceiptSourceChecks
                 NativeReplyAtUnixMs = envelope.NativeAoiProofs[0].NativeReplyAtUnixMs + 1
             }, ..envelope.NativeAoiProofs.Skip(1)]
         });
+        await RejectGroup("region A native reply reused to certify distant non-member AOIs", envelope =>
+        {
+            JsonElement a = envelope.NativeConsecutiveRegions[0];
+            string nativeId = a.GetProperty("requestId").GetString()!;
+            long nativeTime = a.GetProperty("nativeReplyAtUnixMs").GetInt64();
+            int[] wrongAois = [9898, 9899, 9998, 9999];
+            return envelope with
+            {
+                NativeAoiProofs = envelope.NativeAoiProofs.Select(proof =>
+                    wrongAois.Contains(proof.NativeAoiIndex)
+                        ? proof with { NativeReplyRequestId = nativeId, NativeReplyAtUnixMs = nativeTime }
+                        : proof).ToArray(),
+                KindBlocks = envelope.KindBlocks.Select(block => block.BlockIndex == 2499
+                    ? block with { NativeReplyRequestId = nativeId, NativeReplyAtUnixMs = nativeTime }
+                    : block).ToArray()
+            };
+        });
+        await RejectGroup("region A native reply reused with a fabricated observation time", envelope =>
+        {
+            JsonElement a = envelope.NativeConsecutiveRegions[0];
+            string nativeId = a.GetProperty("requestId").GetString()!;
+            int[] wrongAois = [9898, 9899, 9998, 9999];
+            return envelope with
+            {
+                NativeAoiProofs = envelope.NativeAoiProofs.Select(proof =>
+                    wrongAois.Contains(proof.NativeAoiIndex)
+                        ? proof with { NativeReplyRequestId = nativeId }
+                        : proof).ToArray(),
+                KindBlocks = envelope.KindBlocks.Select(block => block.BlockIndex == 2499
+                    ? block with { NativeReplyRequestId = nativeId }
+                    : block).ToArray()
+            };
+        });
         await RejectGroup("false final home receipt", envelope => envelope with
         {
             NativeHomeReceipt = envelope.NativeHomeReceipt with
@@ -585,6 +618,61 @@ internal static class Map014NativeSharedReceiptSourceChecks
             "cancelled native receipt source double-acked home");
     }
 
+    private static async Task TestMatchingRegionReplyMembershipAsync()
+    {
+        // Controlled positive for the narrow reply-ID binding rule: a region A
+        // ID may legitimately certify AOIs present in A's actual source
+        // footprint, but never a distant tile or a different reply clock.
+        Map014ReceivedNativeSharedGroup original = Envelope();
+        JsonElement regionA = original.NativeConsecutiveRegions[0];
+        string regionReplyId = regionA.GetProperty("nativeReplyRequestId").GetString()!;
+        long regionReplyTime = regionA.GetProperty("nativeReplyAtUnixMs").GetInt64();
+        var nativeFootprint = regionA.GetProperty("requestedIndices").EnumerateArray()
+            .Select(index => index.GetInt32()).ToHashSet();
+        MapScanTargetBlock legitimate = MapScanTraversal.Build(1000, 1000).First(block =>
+        {
+            int topLeft = block.MinY / 10 * 100 + block.MinX / 10;
+            return nativeFootprint.Contains(topLeft) &&
+                   nativeFootprint.Contains(topLeft + 1) &&
+                   nativeFootprint.Contains(topLeft + 100) &&
+                   nativeFootprint.Contains(topLeft + 101);
+        });
+        int[] ownedAois = [
+            legitimate.MinY / 10 * 100 + legitimate.MinX / 10,
+            legitimate.MinY / 10 * 100 + legitimate.MinX / 10 + 1,
+            (legitimate.MinY / 10 + 1) * 100 + legitimate.MinX / 10,
+            (legitimate.MinY / 10 + 1) * 100 + legitimate.MinX / 10 + 1
+        ];
+        Map014ReceivedNativeSharedGroup valid = original with
+        {
+            NativeAoiProofs = original.NativeAoiProofs.Select(proof =>
+                ownedAois.Contains(proof.NativeAoiIndex)
+                    ? proof with {
+                        NativeReplyRequestId = regionReplyId,
+                        NativeReplyAtUnixMs = regionReplyTime
+                    }
+                    : proof).ToArray(),
+            KindBlocks = original.KindBlocks.Select(block =>
+                block.BlockIndex == legitimate.BlockIndex
+                    ? block with {
+                        NativeReplyRequestId = regionReplyId,
+                        NativeReplyAtUnixMs = regionReplyTime
+                    }
+                    : block).ToArray()
+        };
+        var ingress = new Received(valid);
+        Map014NativeSharedReceiptSource source = Source(ingress);
+        int acceptedBlocks = 0;
+        await foreach (MapScanSharedAcquisitionBatch batch in source.CaptureSharedAsync(
+            Request, MapScanTraversal.Build(1000, 1000), CancellationToken.None))
+            acceptedBlocks += batch.Captures.Count;
+        MapScanAcquisitionCleanupReceipt home = await source.CleanupAsync(
+            Request, MapScanAcquisitionExitReason.Completed, CancellationToken.None);
+        Require(acceptedBlocks == 2500 && home.FreshHomeViewReplyMatched &&
+                ingress.Reads == 1 && ingress.HomeReads == 1,
+            "matching region source reply/AOI cohort failed received-only controlled admission");
+    }
+
     private sealed class FactoryFallback : IMapScanBlockSource
     {
         public Task<MapScanBlockCapture> CaptureAsync(
@@ -669,6 +757,7 @@ internal static class Map014NativeSharedReceiptSourceChecks
         await TestRetiredReceivedCitySQLiteAsync(cancelledAfterStaging: true);
         await TestRetiredReceivedCitySQLiteAsync(cancelledAfterStaging: false);
         await TestSourceAdmissionAndInversesAsync();
+        await TestMatchingRegionReplyMembershipAsync();
         await TestLateCancellationAndCleanupAsync();
         await TestActualMap317ReceivedIngressAsync("valid");
         await TestActualMap317ReceivedIngressAsync("missing-aoi");

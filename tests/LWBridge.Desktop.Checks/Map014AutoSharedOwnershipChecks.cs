@@ -24,6 +24,10 @@ internal static class Map014AutoSharedOwnershipChecks
         await CheckRetirementDuringHeldReturnOwnershipReadAsync();
         await CheckTwoRemoteTargetsCancelOnlyLatestOwnedRunAsync();
         await CheckPersistedEnabledDeadlineSurvivesStaleConfigAsync();
+        await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: true);
+        await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: false);
+        await CheckSecondRemoteCanceledStartRejectsPreviousTargetAsync(secondJumpCompleted: true);
+        await CheckSecondRemoteCanceledStartRejectsPreviousTargetAsync(secondJumpCompleted: false);
         Console.WriteLine("MAP014_AUTO_SHARED_OWNER_OK");
     }
 
@@ -489,6 +493,171 @@ internal static class Map014AutoSharedOwnershipChecks
                 persisted.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
                 starts == 1 && returns == 1,
                 "reopened enabled Auto config lost fresh deadline or published target");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    // Map317's Auto target start jumps to its server before it starts the
+    // durable native scan and returns its run ID. Cancel can arrive between
+    // those boundaries. A manual server switch after that jump must not be
+    // undone by this old Auto cycle merely because no run ID was obtained.
+    private static async Task CheckCanceledRemoteStartWithoutRunTokenAsync(bool independentSwitch)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "map014-auto-start-cancel-" + Guid.NewGuid().ToString("N"));
+        var jumped = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int currentServer = 317, starts = 0, stops = 0, returns = 0;
+        try
+        {
+            await using var auto = new MapAutoScanCommandService(Path.Combine(root, "auto.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) =>
+                    {
+                        Require(run is null, "Auto received a run ID from canceled pre-start");
+                        return Task.FromResult(new MapAutoScanRuntimeStatus(
+                            Volatile.Read(ref currentServer), false, null, null, "idle"));
+                    },
+                    StartTargetScanAsync = async (server, kinds, mode, token) =>
+                    {
+                        Require(server == 318 && kinds.SequenceEqual(["city"]) && mode == "fast",
+                            "unexpected remote Start target");
+                        Interlocked.Increment(ref starts);
+                        Volatile.Write(ref currentServer, server); // Map317 ServerJumpAsync completed
+                        jumped.TrySetResult();
+                        await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                        throw new InvalidOperationException("native scan must not start after cancellation");
+                    },
+                    StopScanIfOwnedAsync = (_, _) =>
+                    {
+                        Interlocked.Increment(ref stops);
+                        throw new InvalidOperationException("pre-start cancellation has no owned scan to Stop");
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        Require(server == 317, "return must address the original server");
+                        Interlocked.Increment(ref returns);
+                        Volatile.Write(ref currentServer, server);
+                        return Task.CompletedTask;
+                    },
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 20, [318], ["city"], "fast", true, 0));
+            await jumped.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            if (independentSwitch)
+                Volatile.Write(ref currentServer, 319); // another owner changes live server while no run exists
+            await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(starts == 1 && stops == 0 &&
+                returns == (independentSwitch ? 0 : 1) &&
+                Volatile.Read(ref currentServer) == (independentSwitch ? 319 : 317) &&
+                result.LastCycle?.Outcome == (independentSwitch ? "failed" : "canceled") &&
+                (independentSwitch
+                    ? result.LastError?.Contains("MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH", StringComparison.Ordinal) == true
+                    : result.LastCycle.LastError is null) &&
+                result.LastCycle.CompletedServerIds.Count == 0 &&
+                !result.Running && !result.OwnsActiveScan,
+                "canceled pre-start remote jump lost return ownership or normal home restoration");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    // Auto completed and published 318, then attempted 319. If the second
+    // start is canceled before returning a run ID, idle 318 is NOT safe return
+    // provenance: the user may have manually jumped from 319 back to 318.
+    // If 319's jump failed before navigation, the same 318 observation is
+    // indistinguishable; fail closed rather than overwrite independent intent.
+    private static async Task CheckSecondRemoteCanceledStartRejectsPreviousTargetAsync(
+        bool secondJumpCompleted)
+    {
+        string root = Path.Combine(Path.GetTempPath(),
+            "map014-auto-previous-target-" + Guid.NewGuid().ToString("N"));
+        var secondStartEntered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int liveServer = 317, firstStarts = 0, secondStarts = 0, stops = 0, returns = 0;
+        try
+        {
+            await using var auto = new MapAutoScanCommandService(Path.Combine(root, "auto.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) =>
+                    {
+                        if (run is null)
+                            return Task.FromResult(new MapAutoScanRuntimeStatus(
+                                Volatile.Read(ref liveServer), false, null, null, "idle"));
+                        Require(run == "first-318", "canceled second start fabricated a scan-run ID");
+                        return Task.FromResult(new MapAutoScanRuntimeStatus(
+                            318, false, null, run, "completed"));
+                    },
+                    StartTargetScanAsync = async (server, types, mode, token) =>
+                    {
+                        Require(types.SequenceEqual(["city", "resource"]) && mode == "fast",
+                            "unexpected multi-target Auto scan settings");
+                        if (server == 318)
+                        {
+                            Interlocked.Increment(ref firstStarts);
+                            Volatile.Write(ref liveServer, 318);
+                            return "first-318";
+                        }
+                        Require(server == 319, "unexpected second target");
+                        Interlocked.Increment(ref secondStarts);
+                        if (secondJumpCompleted)
+                            Volatile.Write(ref liveServer, 319);
+                        secondStartEntered.TrySetResult();
+                        await Task.Delay(Timeout.InfiniteTimeSpan, token);
+                        throw new InvalidOperationException("second target must cancel before run ID");
+                    },
+                    StopScanIfOwnedAsync = (_, _) =>
+                    {
+                        Interlocked.Increment(ref stops);
+                        throw new InvalidOperationException("completed first run must not be stopped by second start");
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        Require(server == 317, "old Auto attempted non-original return");
+                        Interlocked.Increment(ref returns);
+                        Volatile.Write(ref liveServer, server);
+                        return Task.CompletedTask;
+                    },
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 20, [318, 319], ["city", "resource"], "fast", true, 0));
+            await secondStartEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            // When the 319 jump succeeded, this is an INDEPENDENT manual jump
+            // back to already-published 318. If 319 never jumped, no extra
+            // navigation occurs and the observation is indistinguishable.
+            if (secondJumpCompleted)
+                Volatile.Write(ref liveServer, 318);
+            await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(firstStarts == 1 && secondStarts == 1 && stops == 0 && returns == 0 &&
+                Volatile.Read(ref liveServer) == 318 &&
+                result.LastCycle?.Outcome == "failed" &&
+                result.LastCycle.TargetServerIds.SequenceEqual([318, 319]) &&
+                result.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                result.LastError?.Contains("MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH", StringComparison.Ordinal) == true &&
+                !result.OwnsActiveScan && !result.Running,
+                "older accepted target 318 falsely authorized canceled 319 return");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
         }
         finally
         {

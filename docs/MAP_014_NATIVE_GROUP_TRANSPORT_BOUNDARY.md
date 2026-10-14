@@ -2,7 +2,9 @@
 
 **Result: source boundary proven; native A/B/C group acquisition remains unproved.** The
 checked-in v24 experimental producer and the current managed FastCity client
-implement a supported **one-command/one-result probe**. Neither currently
+implement a supported **one-command/one-result probe**. The additional
+authenticated Overview named pipe is real, but its actual current game-side
+handler only supports `getStatus({})`. None of these paths currently
 emits an authenticated, run-bound A/B/C group of 10,000 individual native AOI
 response proofs, 2,500 type-enriched logical blocks and a separately
 correlated **single final home reply**. The archived genuine A/B/C observation
@@ -71,6 +73,51 @@ The original installed game scripts and archived receipts were untouched.
    three separately correlated A/B/C responses and a distinct matched home
    response, with physical AOI continuity. Its result is diagnostic only.
 
+## Other existing producers, authenticated pipe and cancellation
+
+The previous audit considered the `bulk-aoi-diagnostic` file pair. The
+expanded executable source inventory now also inspects the actual separate
+bridge transport and other native-source dispatch lanes:
+
+| Existing route | Actual source and consumer | Native A/B/C group outcome |
+| --- | --- | --- |
+| **Authenticated named pipe** | `src/LWBridge.Desktop/LWBridgeControlPipeRpcSessionTransport.cs:83-143,274-315` serializes authenticated `call` commands and correlates `result` frames to pending IDs. `src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs:136-218,318-352` relays frames over `pipe-inbound/outbound-NNNNNNNN.json` mailboxes. In `tools/current_overview_bridge.lua:3470-3545`, the **actual Lua receiver** accepts `hello.ack` or `command`, then only `kind=call`, `fn=getStatus`, `args={}`. It returns connection, account/ready, server and world-position status fields. | **Transport exists; map group method, native AOI/result stream, group cancel and native home reply are absent from the current Lua RPC dispatcher.** A working pipe cannot by itself certify native group data. |
+| **Other desktop pipe calls** | `LWBridgeBackend.cs:507-661` sends `getTradeStationCatalog`, `getMonsterCatalogOptions`, `getSquads` from specific backend actions; its generic `call_lua` exposure `~663-725` permits only `getStatus`. | The present Lua `process_pipe_inbound` rejects those three internal function names as `pipe_command_unsupported`. They do **not** constitute alternate native group ingress. Their catalog functionality should not be inferred to work from the generic transport alone. |
+| **Game resource-source lanes** | `tools/current_live_resource_probe.lua:7047-7085` pumps image, Treasure-state, Monster protection, Resource detail/scan detail, Train-list, single bulk AOI, runtime/AOI diagnostics and single `read_command` under current Overview identity. These commands use their own request/result files and per-operation typed scopes. | No group pump, native group packet correlator, 2,500-block publisher, or native final-home acknowledgment across A/B/C. Point AOI state and March manager state remain separate proofs. |
+| **Other Overview command files** | `tools/current_overview_bridge.lua:3688-3771` processes world state/readiness, navigation, server jump, March Follow, sharing/plunder and Truck commands, then the status-only pipe consumer. | These are existing UI/game operations with separately scoped results. They are **not** a received native full-world group producer. |
+| **Product Map317 source selection** | `CurrentClientMap317ScanProvider.cs:26-49,174-215` normally uses the ordinary `CurrentClientMapBlockSource`; its optional `createSourceForAcceptedRun` factory defaults to `null`. The received-group `Map014NativeSharedReceiptSource` has **no production** implementation of `IMap014ReceivedNativeSharedGroupIngress`. | Controlled injected tests can exercise source/engine/SQLite, but there is **no selected native group source** in normal product composition. |
+
+Cancellation is implemented for **managed** Map317 runs, not yet for
+native group control: `CurrentClientMap317ScanProvider.StopMapScanAsync`
+(~272-292) cancels the active scan token and joins its task;
+`MapScanEngine.cs:85-113,335-355` attempts bounded native cleanup when a
+source implements that interface and prevents canceled staging from
+publishing. The received-only native group source's `CleanupAsync`
+(`Map014NativeSharedReceiptSource.cs:195-225`) cannot acknowledge Stop
+before it has a prevalidated final-home packet: it throws when
+`verifiedNativeHome` is absent. No existing game-owned group cancellation
+command is provided.
+
+The **actual single bulk AOI** producer has its own fail/restore behavior:
+`fail_bulk_aoi` (~5524-5529) tries a per-probe state restore and emits
+one failed result. A lost Overview identity (`Pump` ~7210-7255)
+terminalizes an in-flight bulk probe through that path. Its deferred
+restore completion (~6114-6148) checks current native manager/world flags
+and original camera geometry before writing one per-probe success. Neither
+case serializes a distinct correlated native *home request/reply* identity
+or proves a reusable A/B/C group abort/recovery protocol. Similarly, the
+named-pipe backend's cancellation token can abandon a pending RPC await
+(`LWBridgeControlPipeHostState.cs:292-336`); there is no game-facing
+`cancelNativeGroup` command in the actual Lua dispatcher.
+
+The audit pins the current pipe receiver's exact allowed envelope types,
+function-name condition, status-result fields, probe's pump registry,
+managed backend allowlist and product factory default. A future native
+group handler, extra Lua pump, altered result payload or source selector
+causes a **requalification error** instead of a stale declaration that
+no alternate transport exists. This source inventory does not claim to
+prove a negative about inaccessible native code or future implementations.
+
 ### Read-only native archive comparison
 
 | Archive | What the original recording establishes | Why it cannot pass this group boundary |
@@ -122,8 +169,21 @@ forged echoed stage, stale per-probe file even with correct request ID,
 swapped profile/session/challenge/PID, changed request IDs, missing/duplicate
 or stale native stages, duplicate/9999 AOIs, cross-block reply collision,
 2499/duplicated typed blocks and missing/reused/wrong-owner final home.
+The newer adversarial tests exposed **three actual false accepts in this
+audit's controlled future-receipt validator**: a missing
+`WorldPointManager._curViewIndex` source label, one forged reply ID
+certifying all 10,000 AOIs, and one reply ID with inconsistent native
+observation times. All three initially failed the new tests (**RED**).
+The validator now requires the exact native source and enforces the
+`Map014NativeSharedReceiptSource.ValidateReceivedEnvelope` limit of
+**at most 160 native AOIs per native reply identity with one stable time**,
+and the tests pass (**GREEN**). A source guard also rejects changes to
+that upstream 160-AOI limit before claiming continued parity. This
+tightening changes only this offline auditor, not game/product behavior.
 Separate source-drift tests stop an obsolete conclusion if Lua gains a new
-mode or new output field.
+mode or output field, the named pipe admits a new native command/envelope,
+the live source adds a group pump or Map317 begins selecting a group
+factory.
 
 The exact missing production step remains a source-supported **received**
 native group transport that independently binds request and reply identity,

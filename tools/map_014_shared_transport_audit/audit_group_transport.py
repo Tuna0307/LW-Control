@@ -21,6 +21,10 @@ LUA = ROOT / "tools/current_live_resource_probe.lua"
 MANAGED = ROOT / "src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs"
 BASE = ROOT / "src/LWBridge.Desktop/CurrentClientMapBlockSource.cs"
 RECEIVER = ROOT / "src/LWBridge.Desktop/Map014NativeSharedReceiptSource.cs"
+OVERVIEW = ROOT / "tools/current_overview_bridge.lua"
+BACKEND = ROOT / "src/LWBridge.Desktop/LWBridgeBackend.cs"
+GAME_PIPE = ROOT / "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs"
+PROVIDER = ROOT / "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs"
 ARCHIVES = (
     ROOT / "artifacts/map-013-live/native-causal-20261014-004239",
     ROOT / "artifacts/map-013-live/native-causal-20261014-004916",
@@ -33,6 +37,9 @@ GROUP_ONLY_KEYS = frozenset({
     "homeNativeReplyEvidence", "nativeAoiProofs", "kindBlocks",
 })
 OWNER_FIELDS = ("profileId", "launchSessionId", "challenge", "gamePid")
+# src/LWBridge.Desktop/Map014NativeSharedReceiptSource.cs
+# ValidateReceivedEnvelope: the pinned v24 native point request maximum is 160.
+SOURCE_NATIVE_REPLY_LIMIT = 160
 
 
 class BoundaryError(ValueError):
@@ -95,12 +102,16 @@ class ProducerContract:
             'WriteCommandAsync(' in base,
             'RequireFreshCaptureTime(' in base,
             'NO production implementation of this interface' in receiver,
+            re.search(r'const int MaximumNativePointAoisPerReply\s*=\s*(\d+)', receiver) is not None,
         )
         if (not all(required) or not version or not lua_version or
                 not commands or not results or lua_version.group(1) != version.group(1)):
             raise BoundaryError("source-backed single-file protocol anchors changed")
         if modes != {"native", "expanded", "direct", "coverage", "anchor", "edge", "zoom"}:
             raise BoundaryError(f"Lua request-mode whitelist changed: {sorted(modes)}")
+        limit = re.search(r'const int MaximumNativePointAoisPerReply\s*=\s*(\d+)', receiver)
+        if limit is None or int(limit.group(1)) != SOURCE_NATIVE_REPLY_LIMIT:
+            raise BoundaryError("native AOI reply cohort contract changed")
         if not {"schemaVersion", "probeVersion", "requestId", "profileId",
                 "launchSessionId", "challenge", "gamePid", "state", "requestedIndices",
                 "nativeCurrentSetCount", "point_records", "capturedAt",
@@ -112,6 +123,101 @@ class ProducerContract:
             raise BoundaryError("desktop changed its one-command/one-result transport")
         return cls(frozenset(modes), frozenset(keys), version.group(1),
                    commands.group(1), results.group(1))
+
+
+def audit_other_source_transports(
+    *, overview: str | None = None, backend: str | None = None,
+    adapter: str | None = None, probe: str | None = None,
+    provider: str | None = None, receiver: str | None = None,
+) -> dict:
+    """Source contract of the *other* two actual Lua producers/transport routes.
+
+    A generic authenticated RPC pipe is real and useful for Home operations;
+    its Lua consumer currently supports only getStatus({}). Unknown changes to
+    that consumer, ownership pump or Map317 source wiring are REVIEW REQUIRED,
+    never silently counted as proof that only per-probe transport exists.
+    """
+    overview = OVERVIEW.read_text(encoding="utf-8-sig") if overview is None else overview
+    backend = BACKEND.read_text(encoding="utf-8-sig") if backend is None else backend
+    adapter = GAME_PIPE.read_text(encoding="utf-8-sig") if adapter is None else adapter
+    probe = LUA.read_text(encoding="utf-8-sig") if probe is None else probe
+    provider = PROVIDER.read_text(encoding="utf-8-sig") if provider is None else provider
+    receiver = RECEIVER.read_text(encoding="utf-8-sig") if receiver is None else receiver
+    pipe = section(overview, "local function process_pipe_inbound(control)",
+                   "local RECOVERY_WINDOWS")
+    # The Lua receiver is the enforcement boundary, irrespective of generic
+    # desktop RPC framing and internal callers for catalog options.
+    handled_types = set(re.findall(
+        r'(?:if|elseif)\s+message_type\s*==\s*"([^"]+)"', pipe))
+    allowed_lua = set(re.findall(r'function_name\s*~=\s*"([^"]+)"', pipe))
+    require(handled_types == {"hello.ack", "command"} and
+            allowed_lua == {"getStatus"} and
+            'kind ~= "call"' in pipe and
+            'not empty_args' in pipe and
+            'pipe_command_unsupported' in pipe and
+            'write_pipe_result(' in pipe,
+            "named-pipe Lua receiver changed: requalify other transport before no-group claim")
+    result_text = section(pipe, "local result = {", "\n            }")
+    status_keys = set(re.findall(r'^\s*([A-Za-z_]\w*)\s*=', result_text, re.M))
+    require(status_keys == {"bridgeVersion", "profileId", "instanceId",
+                            "gameStateObserved", "gameReady", "loggedIn",
+                            "connected", "connecting", "gameUid", "serverId",
+                            "worldPos"},
+            "named-pipe Lua result payload changed: requalify actual native source")
+    exposed_lua = section(backend,
+                          "private async Task<JsonElement?> CallLuaAsync(",
+                          "// Original set_automation handler")
+    require('"getStatus"' in exposed_lua and
+            'Only call_lua(getStatus,{})' in exposed_lua and
+            '"getTradeStationCatalog"' in backend and
+            '"getMonsterCatalogOptions"' in backend and
+            '"getSquads"' in backend,
+            "managed pipe RPC routing changed: requalify supported Lua calls")
+    require('PipeClientAdapter' in adapter and
+            '"pipe-inbound-" + sequence.ToString("D8")' in adapter and
+            '"pipe-outbound-" + sequence.ToString("D8")' in adapter and
+            'pipe_mailbox_path("inbound", sequence)' in pipe,
+            "pipe adapter/mailbox mechanism changed")
+    dispatch = section(probe,
+                       "function M._sharedRuntimeOwnership.PumpVerified(now)",
+                       "function M.Pump()")
+    discovered_pumps = set(re.findall(
+        r'\b(pump_[a-z_]+|asset_image_runtime\.pump|'
+        r'M\._treasureStateRuntime\.pump|resource_scan_detail_runtime\.pump|'
+        r'train_list_runtime\.pump)\s*\(', dispatch))
+    expected_pumps = {
+        "asset_image_runtime.pump", "M._treasureStateRuntime.pump",
+        "pump_monster_protection_queue", "pump_monster_protection_detail",
+        "pump_resource_detail_diagnostic", "resource_scan_detail_runtime.pump",
+        "train_list_runtime.pump", "pump_bulk_aoi_diagnostic",
+        "pump_runtime_diagnostic", "pump_aoi_diagnostic",
+    }
+    require(discovered_pumps == expected_pumps and
+            'read_command()' in dispatch and
+            'if active_request_id == nil then' in dispatch,
+            "Lua probe dispatch changed: requalify any new source/consumer lane")
+    require("createSourceForAcceptedRun = null" in provider and
+            "No production caller" in provider and
+            "NO production implementation of this interface" in receiver and
+            "interface IMap014ReceivedNativeSharedGroupIngress" in receiver,
+            "production Map317 group ingress or selector declaration changed")
+    require("Map014NativeSharedReceiptSource(" in receiver and
+            "AcknowledgeAlreadyReceivedHomeAsync(" in receiver and
+            "ReceiveAlreadyCompletedAsync(" in receiver,
+            "future received-only native group contract changed")
+    return {
+        "namedPipeTransportExists": True,
+        "namedPipeLuaFunctions": sorted(allowed_lua),
+        "namedPipeAcceptedEnvelopeTypes": sorted(handled_types),
+        "internalBackendPipeFunctionsWithoutCurrentLuaHandler": [
+            "getMonsterCatalogOptions", "getSquads", "getTradeStationCatalog",
+        ],
+        "pipeNativeGroupProducer": False,
+        "producerOtherPumps": sorted(discovered_pumps - {"pump_bulk_aoi_diagnostic"}),
+        "producerNativeGroupPump": False,
+        "Map317ProductionGroupFactoryConfigured": False,
+        "futureGroupIngressImplementationPresent": False,
+    }
 
 
 def require(condition: bool, reason: str) -> None:
@@ -212,6 +318,7 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
     require(isinstance(aois, list) and len(aois) == 10000, "10000 per-AOI native proofs absent")
     found: set[int] = set()
     per_block: dict[int, tuple[str, int]] = {}
+    reply_cohorts: dict[str, tuple[int, int]] = {}
     for proof in aois:
         require(isinstance(proof, dict) and
                 all(proof.get(k) == owner[k] for k in owner),
@@ -219,6 +326,8 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
         idx = proof.get("nativeAoiIndex")
         require(type(idx) is int and 0 <= idx < 10000 and idx not in found,
                 "duplicate, missing or invalid native AOI")
+        require(proof.get("nativeSource") == "WorldPointManager._curViewIndex",
+                "missing or foreign native AOI source")
         found.add(idx)
         col, row = idx % 100, idx // 100
         block = row // 2 * 50 + col // 2
@@ -226,6 +335,13 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
         require(bool(reply[0]) and type(reply[1]) is int and
                 stages[0]["requestStartedAtUnixMs"] <= reply[1] < ack.get("homeNativeReplyAtUnixMs", 0),
                 "stale/missing native AOI response")
+        if reply[0] in reply_cohorts:
+            cohort_time, cohort_count = reply_cohorts[reply[0]]
+            require(cohort_time == reply[1] and cohort_count < SOURCE_NATIVE_REPLY_LIMIT,
+                    "native AOI reply cohort time or 160-AOI bound violated")
+            reply_cohorts[reply[0]] = (cohort_time, cohort_count + 1)
+        else:
+            reply_cohorts[reply[0]] = (reply[1], 1)
         require(block not in per_block or per_block[block] == reply,
                 "four AOIs in a logical block lack one correlated native response")
         per_block[block] = reply
@@ -294,6 +410,7 @@ def main() -> None:
     parser.add_argument("--archive", action="append", type=Path, help="read-only sequence archive")
     args = parser.parse_args()
     contract = ProducerContract.read_source()
+    other = audit_other_source_transports()
     outcomes = [archive_rejection(path, contract)
                 for path in (args.archive or ARCHIVES) if path.exists()]
     print(json.dumps({
@@ -302,6 +419,7 @@ def main() -> None:
         "singleProbeModes": sorted(contract.modes),
         "sourceResultKeys": len(contract.output_keys),
         "unemittableGroupKeys": sorted(GROUP_ONLY_KEYS.difference(contract.output_keys)),
+        "alternateRoutes": other,
         "authenticatedGroupTransport": False, "archived": outcomes,
         "qualification": "CURRENT PRODUCER SINGLE-PROBE ONLY; NATIVE GROUP NOT PROVEN",
     }, indent=2))
