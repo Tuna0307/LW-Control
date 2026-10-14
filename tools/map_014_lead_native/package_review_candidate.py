@@ -36,6 +36,7 @@ TOOLS_FILES = frozenset({
     'OverviewBridge/run_live_resource_probe.py',
     'OverviewBridge/run_overview_bridge.py',
     'OverviewBridge/run_overview_bridge_current.py',
+    'runtimes/win-x64/native/e_sqlite3.dll',
     'runtimes/win-x64/native/WebView2Loader.dll',
 })
 UI_FILES = frozenset({
@@ -44,6 +45,28 @@ UI_FILES = frozenset({
     'WebUi/index.html', 'WebUi/presentation.css', 'WebUi/preview-host.js',
 })
 UI_ASSET = re.compile(r'^(?:ProductionUi|WebUi)/assets/[A-Za-z0-9_.-]+-[A-Za-z0-9_-]{8,}\.(?:js|css|png)$')
+
+# dotnet publish copies native SQLite/WebView libraries for every platform,
+# while this review candidate is Windows x64 only. Explicitly enumerate the
+# known off-platform files: an arbitrary new file below runtimes/ must fail
+# the private-file admission rather than disappearing into a broad directory
+# exclusion. Both required Windows x64 native libraries remain allowlisted.
+NON_TARGET_RUNTIME_FILES = frozenset({
+    'runtimes/browser-wasm/nativeassets/net9.0/e_sqlite3.a',
+    *(f'runtimes/{runtime}/native/libe_sqlite3.so' for runtime in (
+        'linux-arm', 'linux-arm64', 'linux-armel', 'linux-mips64',
+        'linux-musl-arm', 'linux-musl-arm64', 'linux-musl-riscv64',
+        'linux-musl-s390x', 'linux-musl-x64', 'linux-ppc64le',
+        'linux-riscv64', 'linux-s390x', 'linux-x64', 'linux-x86',
+    )),
+    *(f'runtimes/{runtime}/native/libe_sqlite3.dylib' for runtime in (
+        'maccatalyst-arm64', 'maccatalyst-x64', 'osx-arm64', 'osx-x64',
+    )),
+    'runtimes/win-arm64/native/e_sqlite3.dll',
+    'runtimes/win-arm64/native/WebView2Loader.dll',
+    'runtimes/win-x86/native/e_sqlite3.dll',
+    'runtimes/win-x86/native/WebView2Loader.dll',
+})
 
 
 def sha(path: Path) -> str:
@@ -54,6 +77,10 @@ def permitted(relative: Path) -> bool:
     name = relative.as_posix()
     return (name in TOP_FILES or name in TOOLS_FILES or name in UI_FILES
             or UI_ASSET.fullmatch(name) is not None)
+
+
+def excluded_non_target_runtime(relative: Path) -> bool:
+    return relative.as_posix() in NON_TARGET_RUNTIME_FILES
 
 
 def create() -> dict:
@@ -77,6 +104,7 @@ def create() -> dict:
                     str(SOURCE / 'ProductionUi')], cwd=ROOT, capture_output=True, text=True, check=True)
     included = []
     exclusions = []
+    runtime_exclusions = []
     for source in sorted(SOURCE.rglob('*')):
         if not source.is_file():
             continue
@@ -84,6 +112,9 @@ def create() -> dict:
         parts = {part.casefold() for part in relative.parts}
         if relative.suffix.lower() in {'.pdb', '.pyc'} or '__pycache__' in parts:
             exclusions.append(str(relative))
+            continue
+        if excluded_non_target_runtime(relative):
+            runtime_exclusions.append(str(relative))
             continue
         if not permitted(relative):
             raise ValueError(f'Unexpected/unapproved release file: {relative}')
@@ -129,6 +160,7 @@ def create() -> dict:
         'executableSha256': recorded['LWBridge.Desktop.exe'],
         'files': len(included),
         'excludedDebugArtifacts': exclusions,
+        'excludedNonTargetRuntimeAssets': runtime_exclusions,
         'manifest': recorded,
         'crcAndByteIdentityPass': True,
         'privateFileExclusionPass': True,

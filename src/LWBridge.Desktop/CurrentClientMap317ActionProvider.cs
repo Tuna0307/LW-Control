@@ -145,7 +145,10 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
                 !ReadText(row, "runtimeClass").EndsWith("GhostreconPointInfo", StringComparison.Ordinal))
                 throw new InvalidDataException("Ghost plunder requires a supported GhostreconPointInfo scan row.");
             string uuid = ReadText(row, "uuid");
-            if (!IsPositiveDecimal(uuid))
+            // GhostReconSteal serializes this identity as a signed PutLong.
+            // Accepting an arbitrarily large decimal string here would display
+            // a prepared task that the native request cannot represent.
+            if (!IsPositiveInt64(uuid))
                 throw new InvalidDataException("Ghost plunder row contains invalid task UUID.");
 
             long serverId = ReadInteger(row, "serverId");
@@ -161,6 +164,7 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
 
             if (serverId is < 1 or > 99999 || !identities.Add($"{serverId}:{uuid}") ||
                 ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
+                protectSeconds > (long.MaxValue - completionTime) / 1000L ||
                 stealListCount < 0 || stealMaxTimes < 0 ||
                 stolenCount != stealListCount || maxStealCount != stealMaxTimes)
             {
@@ -238,13 +242,15 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (jobs.Count == 0 || jobs.Any(job => job.Kind != "ghost" || job.ServerId is < 1 or > 99999 ||
-            job.OwnerServer is < 1 or > 99999 || !IsPositiveDecimal(job.TaskUuid) || job.ExecuteAt <= 0))
+        if (jobs is null || jobs.Count is < 1 or > 200 ||
+            jobs.Any(job => job is null || job.Kind != "ghost" || job.ServerId is < 1 or > 99999 ||
+                job.OwnerServer is < 1 or > 99999 || !IsPositiveInt64(job.TaskUuid) || job.ExecuteAt <= 0) ||
+            jobs.Select(job => (job.ServerId, job.TaskUuid)).Distinct().Count() != jobs.Count)
             return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
                 new Map317.BridgeCommandException("INVALID_REQUEST", "dedicated Ghost arm identity invalid"));
         return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
             new Map317.BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE",
-                "v24 Ghost game request and correlated terminal response have not been confirmed"));
+                "current-client Ghost game request and correlated terminal response have not been confirmed"));
     }
 
     public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
@@ -453,8 +459,8 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
 
     private static long ReadInteger(JsonElement row, string name) => ReadNullableInteger(row, name) ?? 0;
 
-    private static bool IsPositiveDecimal(string value) =>
-        value.Length > 0 && value.Any(ch => ch is >= '1' and <= '9') && value.All(ch => ch is >= '0' and <= '9');
+    private static bool IsPositiveInt64(string? value) =>
+        long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out long parsed) && parsed > 0;
 
     private static long? ReadNullableInteger(JsonElement row, string name)
     {

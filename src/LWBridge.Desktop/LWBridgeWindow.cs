@@ -2402,6 +2402,26 @@ internal sealed partial class LWBridgeWindow : Form
         lock (normalUiProofGate) return normalUiProofSearchSequence;
     }
 
+    // Opt-in isolated host trace: distinguishes a request never sent by the
+    // WebView from a received but delayed/cancelled/retired native request.
+    private void TraceNormalUiMapProofSearch(string id, string command, string stage, JsonElement? payload = null)
+    {
+        if (normalUiLiveMapProofPath is null || productionPaths?.ExplicitIsolation != true ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") != "1" ||
+            command != "map_search") return;
+        try
+        {
+            string line = JsonSerializer.Serialize(new { requestId = id, stage,
+                payload, at = DateTimeOffset.UtcNow }, JsonOptions.Default);
+            lock (normalUiProofGate)
+                File.AppendAllText(normalUiLiveMapProofPath + ".command-trace.jsonl", line + Environment.NewLine);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            Console.Error.WriteLine("Isolated Map search trace unavailable: " + error.Message);
+        }
+    }
+
     private void RecordNormalUiMapProofCommandError(string id, string command, JsonElement payload,
         string code, string message)
     {
@@ -5422,6 +5442,7 @@ internal sealed partial class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
+            TraceNormalUiMapProofSearch(id, command, "received", payload);
             RecordHome004F06Dispatch("received", command);
             if (ownerEvidence is not null && OwnerEvidenceResourceContract.IsBlockedOwnerCommand(command))
             {
@@ -5507,6 +5528,7 @@ internal sealed partial class LWBridgeWindow : Form
                         requestProfileGeneration, CancellationToken.None, onReply: true);
                 }
                 if (!IsCurrentDocument(session)) return;
+                TraceNormalUiMapProofSearch(id, command, "executed:" + execution.Status, payload);
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
                 {
                     RecordNormalUiMapProofCommandError(id, command, payload, "DUPLICATE_REQUEST_ID",
@@ -5522,13 +5544,18 @@ internal sealed partial class LWBridgeWindow : Form
                     SendError(session, id, "COMMAND_CANCELLED", "The command was cancelled.");
                     return;
                 }
-                if (sessionClosed) return;
+                if (sessionClosed)
+                {
+                    TraceNormalUiMapProofSearch(id, command, "closed_before_reply", payload);
+                    return;
+                }
                 if (command != "profile_select" && !independentProfileOwnerReply &&
                     (requestProfileGeneration != Volatile.Read(ref profileRuntimeGeneration) ||
                      !ReferenceEquals(requestBackend, backend)))
                 {
                     // The old owner may still be running and complete successfully,
                     // but its reply cannot update the newly selected Home view.
+                    TraceNormalUiMapProofSearch(id, command, "profile_generation_retired", payload);
                     SendError(session, id, "PROFILE_GENERATION_RETIRED",
                         "The selected profile changed before the command completed.");
                     return;
@@ -5551,6 +5578,7 @@ internal sealed partial class LWBridgeWindow : Form
                 }
                 if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null))
                     RecordNormalUiProofSearch(id, payload, execution.Result);
+                TraceNormalUiMapProofSearch(id, command, "sending_result", payload);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
                     ownerEvidence.RecordSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsCitySearch(payload))

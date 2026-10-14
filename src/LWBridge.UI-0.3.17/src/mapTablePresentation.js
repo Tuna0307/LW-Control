@@ -21,6 +21,9 @@ export function lookupMapText(texts, key, defaultName) {
   return name && name !== nameKey ? name : defaultName;
 }
 export function mapNumber(value, language) {
+  // Unknown native measurements are absent, not zero. Number(null) and
+  // Number("") would otherwise fabricate a zero for missing Truck power/HP.
+  if (value == null || (typeof value === "string" && !value.trim())) return "-";
   const number = Number(value);
   return Number.isFinite(number) ? number.toLocaleString(language) : "-";
 }
@@ -173,6 +176,7 @@ function treasurePlayerKey(state, reason) {
 }
 export function mapRewardName(item, texts) { return lookupMapText(texts, item.nameKey, item.name || item.key); }
 export function mapRewardCount(value) {
+  if (value == null || (typeof value === "string" && !value.trim())) return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   const absolute = Math.abs(number), sign = number < 0 ? "-" : "";

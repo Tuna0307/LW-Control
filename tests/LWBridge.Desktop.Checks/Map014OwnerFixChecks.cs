@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Diagnostics;
+using Microsoft.Data.Sqlite;
 using LWBridge.Desktop;
 using Map317 = LWBridge.Map317;
 
@@ -102,6 +104,44 @@ internal static class Map014OwnerFixChecks
                         i % 2 == 0 ? 25_000_000 : 25_000_001,
                         new { currentGoods = new[] { new { key = "diamonds:100", count = 1 },
                                                       new { key = "speedup:5m", count = 5 } } });
+            }
+
+            // A genuine 842-Dispatch/4,132-City population exposed a native
+            // search timeout: SQLite ran both owner lookups before paginating.
+            // Seed the same cardinalities transactionally to catch that plan
+            // regression without shipping or opening the owner's real database.
+            using (var connection = new SqliteConnection($"Data Source={db}"))
+            {
+                connection.Open();
+                using var transaction = connection.BeginTransaction();
+                using var insert = connection.CreateCommand();
+                insert.Transaction = transaction;
+                insert.CommandText = """
+                    INSERT INTO map_records(kind,server_id,record_key,uuid,updated_at,data_json)
+                    VALUES ($kind,2215,$key,$uuid,$updated,$json)
+                    """;
+                var kind = insert.Parameters.Add("$kind", SqliteType.Text);
+                var key = insert.Parameters.Add("$key", SqliteType.Text);
+                var uuid = insert.Parameters.Add("$uuid", SqliteType.Text);
+                var updated = insert.Parameters.Add("$updated", SqliteType.Integer);
+                var json = insert.Parameters.Add("$json", SqliteType.Text);
+                for (int i = 0; i < 4_132 + 842; i++)
+                {
+                    bool isCity = i < 4_132;
+                    int sequence = isCity ? i : i - 4_132;
+                    string identity = "99000000" + sequence.ToString("D6");
+                    string id = (isCity ? "load-city-" : "load-task-") + sequence.ToString("D4");
+                    kind.Value = isCity ? "city" : "dispatch";
+                    key.Value = id;
+                    uuid.Value = id;
+                    updated.Value = (isCity ? 1_000L : 10_000L) + sequence;
+                    json.Value = isCity
+                        ? JsonSerializer.Serialize(new { uuid = id, ownerUid = identity,
+                            ownerName = "Native owner " + sequence, allianceName = "Alliance " + (sequence % 5) })
+                        : JsonSerializer.Serialize(new { uuid = id, ownerUid = identity, completionTime = 7000000000000L });
+                    insert.ExecuteNonQuery();
+                }
+                transaction.Commit();
             }
 
             int currentServer = 2212;
@@ -214,6 +254,30 @@ internal static class Map014OwnerFixChecks
             Require(unknownTask.GetProperty("ownerUid").GetString() == "990000000000000001" &&
                 !unknownTask.TryGetProperty("ownerName", out _), "unknown owner must not be invented");
 
+            var dispatchTimer = Stopwatch.StartNew();
+            JsonElement dispatchPage1 = await Invoke(service, "map_search", new { kind = "dispatch", query = new { serverId = 2215, page = 1 } });
+            JsonElement dispatchPage2 = await Invoke(service, "map_search", new { kind = "dispatch", query = new { serverId = 2215, page = 2 } });
+            dispatchTimer.Stop();
+            Require(dispatchTimer.Elapsed < TimeSpan.FromSeconds(25),
+                "genuine-scale two-page Dispatch owner resolution exceeded native WebView search deadline");
+            Require(dispatchPage1.GetProperty("total").GetInt32() == 842 && dispatchPage2.GetProperty("total").GetInt32() == 842,
+                "Dispatch total changed when name resolution was moved after pagination");
+            for (int pageIndex = 0; pageIndex < 2; pageIndex++)
+            {
+                JsonElement result = pageIndex == 0 ? dispatchPage1 : dispatchPage2;
+                JsonElement.ArrayEnumerator records = result.GetProperty("rows").EnumerateArray();
+                int n = 0;
+                foreach (JsonElement record in records)
+                {
+                    int identity = 841 - pageIndex * 50 - n++;
+                    Require(record.GetProperty("uuid").GetString() == "load-task-" + identity.ToString("D4") &&
+                        record.GetProperty("ownerName").GetString() == "Native owner " + identity &&
+                        record.GetProperty("ownerNameSource").GetString() == "same_server_city",
+                        "Dispatch page order or exact owner identity changed after early SQL pagination");
+                }
+                Require(n == 50, "Dispatch page returned fewer than 50 real rows");
+            }
+
             Require(await Count("truck", new { serverId = 2213,
                 itemKeys = new[] { "diamonds:100", "speedup:5m" } }) == 3,
                 "ALL selected reward identities filter before counts");
@@ -299,7 +363,7 @@ internal static class Map014OwnerFixChecks
             authoritativeWorld = authoritativeWorld with { ServerId = 2212 };
             currentServer = 2212;
             await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 }), "SERVER_UNAVAILABLE");
-            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2215, clearSavedServer = true }), "SERVER_UNAVAILABLE");
+            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2216, clearSavedServer = true }), "SERVER_UNAVAILABLE");
             Require(await Count("resource", new { serverId = 2213 }) == 4, "mismatched or absent stored server must not be deleted");
             _ = await Invoke(service, "map_scan_clear", new { serverId = 2213, clearSavedServer = true });
             Require(await Count("resource", new { serverId = 2213 }) == 0 &&

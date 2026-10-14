@@ -13,15 +13,15 @@ export function isNameFilterKind(kind) {
   return kind === "resource" || kind === "monster";
 }
 
-// Original Dispatch/Ghost callback `or` and Truck callback `sr` store `${serverId}:${uuid || ""}` -> row.
+// Task selection is keyed by the same canonical UUID used for checkbox
+// membership. A native row with padded UUID must be toggleable and visibly
+// selected; storing the raw UUID left its checkbox permanently unchecked.
 export function selectionStorageKey(row) {
-  return `${row.serverId}:${row.uuid || ""}`;
+  return `${row.serverId}:${String(row.uuid || "").trim()}`;
 }
 
-// Original table checkbox `me` looks membership up with a TRIMMED uuid (checked: keys.has(`${serverId}:${uuid.trim()}`)),
-// so a uuid with surrounding whitespace is stored under one key and looked up under another.
 export function selectionMembershipKey(row) {
-  return `${row.serverId}:${String(row.uuid || "").trim()}`;
+  return selectionStorageKey(row);
 }
 
 export function toggleSelection(selection, row) {
@@ -31,7 +31,9 @@ export function toggleSelection(selection, row) {
     delete next[key];
     return next;
   }
-  return { ...selection, [key]: row };
+  // The selected payload also goes to native schedule/share actions. Keep its
+  // UUID aligned with the checkbox key without converting long IDs to Number.
+  return { ...selection, [key]: { ...row, uuid: String(row.uuid || "").trim() } };
 }
 
 export function selectionCount(selection) {
@@ -49,8 +51,8 @@ export function dispatchSelectionPayload(kind, row) {
 
 // Original share success: keep only entries whose `String(row.uuid || "")` is not in `sharedUuids`.
 export function removeSharedSelection(selection, sharedUuids) {
-  const shared = new Set(sharedUuids);
-  return Object.fromEntries(Object.entries(selection).filter(([, row]) => !shared.has(String(row.uuid || ""))));
+  const shared = new Set((sharedUuids || []).map((uuid) => String(uuid).trim()));
+  return Object.fromEntries(Object.entries(selection).filter(([, row]) => !shared.has(String(row.uuid || "").trim())));
 }
 
 // Original: `Gn = Number(delayText); Kn = Number.isSafeInteger(Gn) && Gn >= 0`.

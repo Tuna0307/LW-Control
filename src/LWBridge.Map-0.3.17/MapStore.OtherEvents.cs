@@ -9,17 +9,31 @@ public sealed partial class MapStore
     // Existing new-format rows take precedence; the migration is idempotent.
     private void MigratePreviouslyPublishedOtherEvents()
     {
-        const string eligible = """
+        // SQLite CAST accepts malformed suffixes ("1.5" -> 1, "27000junk" ->
+        // 27000) and COALESCE previously treated missing source fields as zero.
+        // The native classifier only accepts actual integers or parseable
+        // integer strings. For old persisted rows, accept canonical decimal
+        // strings as well, while refusing any ambiguous historical identity.
+        string eligible = $"""
             kind='treasure' AND (
-              (CAST(json_extract(data_json,'$.pointType') AS INTEGER)=27
-               AND CAST(json_extract(data_json,'$.runtimeClass') AS TEXT) LIKE '%WorldSuppliesPoint'
-               AND COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0)=0
+              ({ExactSourceInteger("pointType")}
+               AND CAST(json_extract(data_json,'$.pointType') AS INTEGER)=27
+               AND json_type(data_json,'$.runtimeClass')='text'
+               AND substr(json_extract(data_json,'$.runtimeClass'),-length('WorldSuppliesPoint'))='WorldSuppliesPoint'
+               AND {ExactSourceInteger("treasureType")}
+               AND CAST(json_extract(data_json,'$.treasureType') AS INTEGER)=0
+               AND {ExactSourceInteger("suppliesType")}
                AND CAST(json_extract(data_json,'$.suppliesType') AS INTEGER)>0)
               OR
-              (CAST(json_extract(data_json,'$.pointType') AS INTEGER)=21
-               AND CAST(json_extract(data_json,'$.runtimeClass') AS TEXT) LIKE '%TreasurePointInfo'
-               AND COALESCE(CAST(json_extract(data_json,'$.suppliesType') AS INTEGER),0)=0
+              ({ExactSourceInteger("pointType")}
+               AND CAST(json_extract(data_json,'$.pointType') AS INTEGER)=21
+               AND json_type(data_json,'$.runtimeClass')='text'
+               AND substr(json_extract(data_json,'$.runtimeClass'),-length('TreasurePointInfo'))='TreasurePointInfo'
+               AND {ExactSourceInteger("suppliesType")}
+               AND CAST(json_extract(data_json,'$.suppliesType') AS INTEGER)=0
+               AND {ExactSourceInteger("treasureType")}
                AND CAST(json_extract(data_json,'$.treasureType') AS INTEGER)>0
+               AND {ExactSourceInteger("eventId")}
                AND CAST(json_extract(data_json,'$.eventId') AS INTEGER)=27000)
             )
             """;
@@ -75,5 +89,18 @@ public sealed partial class MapStore
             scrub.ExecuteNonQuery();
         }
         transaction.Commit();
+    }
+
+    private static string ExactSourceInteger(string name)
+    {
+        // Only source-controlled property names enter this SQL helper. SQLite
+        // distinguishes integer JSON numbers from fractional/exponent numbers.
+        // A text value must exactly round-trip through the integer conversion;
+        // CAST alone would silently truncate or parse a valid-looking prefix.
+        string path = $"'$.{name}'";
+        string value = $"json_extract(data_json,{path})";
+        string type = $"json_type(data_json,{path})";
+        return $"(({type}='integer' OR ({type}='text' AND {value}=CAST(CAST({value} AS INTEGER) AS TEXT))) " +
+            $"AND CAST({value} AS INTEGER) BETWEEN -2147483648 AND 2147483647)";
     }
 }

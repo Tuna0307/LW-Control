@@ -3,7 +3,7 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEscortMillions } from "../src/mapOwnerFilters.js";
-import { mapResourceAmount, mapResourceTerrain, mapResourceStatus } from "../src/mapTablePresentation.js";
+import { mapResourceAmount, mapResourceTerrain, mapResourceStatus, mapNumber, mapRewardCount } from "../src/mapTablePresentation.js";
 import { buildSearchPayload } from "../src/mapBackend.js";
 
 for (const [kind, filters] of [["resource",{minLevel:5,maxLevel:5,resourceAmountState:"full",resourceTileState:"black"}],
@@ -23,6 +23,12 @@ assert.equal(mapResourceAmount({ resourceDetailKnown: true, resourceRemainingAmo
 assert.equal(mapResourceTerrain({ blackTileKnown: false, isBlackTile: false }, "en"), "Unknown");
 assert.equal(mapResourceTerrain({ blackTileKnown: true, isBlackTile: true }, "en"), "Black tile");
 assert.equal(mapResourceStatus({ rebuildGatherOccupancyKnown: false }, (key) => key, {}), "—");
+for (const missing of [null, undefined, "", " "]) {
+  assert.equal(mapNumber(missing, "en"), "-", "unknown native Truck power cannot display as zero");
+  assert.equal(mapRewardCount(missing), "-", "unknown native reward count cannot display as zero");
+}
+assert.equal(mapNumber(0, "en"), "0", "verified zero remains a legitimate value");
+assert.equal(mapRewardCount(0), "0", "verified zero reward count remains numeric");
 
 const rootPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const req = createRequire(path.join(rootPath, "package.json"));
@@ -103,7 +109,7 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
     dataOptions: async (serverId) => ({ serverId, counts: { resource: 2, truck: 1 }, names: { resource: [], monster: [] },
       alliances: [], noAllianceCount: 0, dispatchLevels: [], treasureTypes: sourceSupplies, rewardItems: { truck: rewards, railway: [] } }),
     search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "resource" ? resources : kind === "truck"
-      ? [{ uuid: "t-1", serverId: 2212, marchUuid: "1234567", arriveTs: Date.now() + 3600000,
+      ? [{ uuid: " t-1 ", serverId: 2212, marchUuid: "1234567", arriveTs: Date.now() + 3600000,
         quality: 5, power: 25000000, currentGoods: rewards.map((item) => ({ ...item, count: 2 })) }] : kind === "monster"
       ? [{uuid:"doom-42",marchUuid:"7654321",serverId:2212,x:20,y:30,monsterNameKey:"doom"},
          {uuid:"stationary-1",serverId:2212,x:21,y:31,monsterNameKey:"ordinary"}] : [],
@@ -141,6 +147,12 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   for (const [key, value] of Object.entries({ minLevel: 7, maxLevel: 9, resourceAmountState: "partial", resourceTileState: "black" }))
     assert.equal(queries.at(-1).query[key], value, `mounted Resource ${key}`);
   await goto(3);
+  const taskCheckbox = document.querySelector(".map-table--truck input[type=checkbox]");
+  assert.ok(taskCheckbox && !taskCheckbox.disabled && !taskCheckbox.checked);
+  await flush(() => taskCheckbox.click());
+  assert.equal(taskCheckbox.checked, true, "padded native Truck UUID must show as selected");
+  await flush(() => taskCheckbox.click());
+  assert.equal(taskCheckbox.checked, false, "padded native Truck UUID must deselect visibly");
   await click(document.querySelectorAll(".map-item-filter-menu button")[1]);
   await click(document.querySelectorAll(".map-item-filter-menu button")[2]);
   assert.match(document.querySelector(".map-item-filter summary").textContent, /\(2\)/);

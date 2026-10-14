@@ -87,6 +87,10 @@ public sealed partial class MapStore
                     ? $"SELECT page.data_json,page.server_id,state.state_json FROM {table} page{rowJoin} WHERE {where} ORDER BY {orderBy}"
                     : dispatchOwner
                         ? $"""
+                            WITH chosen_page AS MATERIALIZED (
+                                SELECT page.* FROM {table} page
+                                WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset
+                            )
                             SELECT page.data_json,page.server_id,
                               (SELECT CAST(json_extract(city.data_json,'$.ownerName') AS TEXT)
                                FROM map_records city
@@ -100,10 +104,15 @@ public sealed partial class MapStore
                                  AND CAST(json_extract(city.data_json,'$.ownerUid') AS TEXT)=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)
                                  AND COALESCE(CAST(json_extract(city.data_json,'$.allianceName') AS TEXT),'')<>''
                                ORDER BY city.updated_at DESC,city.record_key LIMIT 1)
-                            FROM {table} page WHERE {where} ORDER BY {orderBy}
+                            FROM chosen_page page ORDER BY {orderBy}
                             """
                         : $"SELECT page.data_json,page.server_id FROM {table} page WHERE {where} ORDER BY {orderBy}";
-            page.CommandText = select + " LIMIT $limit OFFSET $offset";
+            // The two Dispatch/Ghost owner-name lookups must run only for the
+            // selected <=200 rows. Performing them before LIMIT exhausted the
+            // WebView's 30-second native request deadline on genuine 842-task
+            // datasets, even though the same DB reopened and counted normally.
+            // MATERIALIZED prevents SQLite from flattening the page boundary.
+            page.CommandText = dispatchOwner ? select : select + " LIMIT $limit OFFSET $offset";
             AddQueryParameters(page, query, now, staging);
             page.Parameters.AddWithValue("$limit", pageSize);
             page.Parameters.AddWithValue("$offset", offset);

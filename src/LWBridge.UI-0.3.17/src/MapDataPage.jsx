@@ -637,6 +637,13 @@ export function MapDataPage({
 
   // Original `rr`: the query uses the keyword of the render that invoked it; typing alone never searches.
   function runSearch(requestedPage = page) {
+    const traceSearch = (stage, detail = "") => {
+      if (Array.isArray(window.__map014SearchEvents)) {
+        window.__map014SearchEvents.push({ stage, detail, tab, dataServerId, page: requestedPage, at: Date.now() });
+        if (window.__map014SearchEvents.length > 100) window.__map014SearchEvents.shift();
+      }
+    };
+    traceSearch("entered", `${backendAvailable}:${tab}`);
     if (!backendAvailable || !dataServerId || tab === "scheduledPlunder") return;
     const generation = searchGeneration.current + 1;
     searchGeneration.current = generation;
@@ -696,7 +703,9 @@ export function MapDataPage({
         query.maxLevel = Number(minLevel);
       }
     }
+    traceSearch("issued", JSON.stringify(query));
     mapApi.search(tab, query).then((result) => {
+      traceSearch("resolved", `total:${result?.total},stale:${generation !== searchGeneration.current}`);
       if (generation !== searchGeneration.current || !mountedOwnerRef.current) return;
       const totalPages = mapPageCount(result.total);
       if (requestedPage > totalPages) {
@@ -729,6 +738,7 @@ export function MapDataPage({
         setTreasureStatesRefreshing(false);
       }
     }).catch((error) => {
+      traceSearch("rejected", errorText(error));
       if (generation === searchGeneration.current && mountedOwnerRef.current) {
         if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);

@@ -22,6 +22,10 @@ internal sealed partial class LWBridgeWindow
         }
         async Task<NormalUiResourceProofSearchObservation> Tab(int index,string kind)
         {
+            // Only this isolated proof opts in. The production React search
+            // callback records whether it issued, resolved, or rejected each
+            // request; the native host separately logs receipt/completion.
+            await core.ExecuteScriptAsync("window.__map014SearchEvents = []");
             long before=GetNormalUiProofSearchSequence();
             await core.ExecuteScriptAsync($"document.querySelectorAll('.map-tabs button')[{index}].click()");
             NormalUiResourceProofSearchObservation? last=null;
@@ -50,7 +54,7 @@ internal sealed partial class LWBridgeWindow
                     await Task.Delay(100,token);
                 }
             }
-            string state=await core.ExecuteScriptAsync("({activeTab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,tables:[...document.querySelectorAll('.map-table')].map(t=>({kind:t.className,busy:t.getAttribute('aria-busy'),rows:t.querySelectorAll('tbody tr').length})),errors:[...document.querySelectorAll('.map-scan-error')].map(e=>e.textContent)})");
+            string state=await core.ExecuteScriptAsync("({activeTab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,tables:[...document.querySelectorAll('.map-table')].map(t=>({kind:t.className,busy:t.getAttribute('aria-busy'),rows:t.querySelectorAll('tbody tr').length})),errors:[...document.querySelectorAll('.map-scan-error')].map(e=>e.textContent),searchEvents:window.__map014SearchEvents})");
             receipts.Add(new { gate="native_tab_not_settled",expectedKind=kind,tabIndex=index,dom=JsonSerializer.Deserialize<JsonElement>(state),last,manualSearchClicked=clicked,manualSearch=manual });
             await Save();
             throw new TimeoutException("MAP014 real UI tab did not settle: "+kind);

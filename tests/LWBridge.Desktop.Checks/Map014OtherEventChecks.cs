@@ -365,6 +365,20 @@ internal static class Map014OtherEventChecks
         {
             using (var original = new Map317.MapStore(database))
             {
+                void SeedLegacyOnOtherServer(string key, int pointType, int treasureType,
+                    int suppliesType, int eventId, Action<JsonObject> mutate)
+                {
+                    MapStoredRecord row = Record(key, pointType, treasureType, suppliesType, eventId);
+                    JsonObject data = JsonNode.Parse(row.DataJson)!.AsObject();
+                    data["serverId"] = 2214;
+                    mutate(data);
+                    original.UpsertRecord(ToMapRecord(row with
+                    {
+                        ServerId = 2214,
+                        DataJson = data.ToJsonString(),
+                    }));
+                }
+
                 MapStoredRecord legacy = Record("legacy9", 27, 0, 9);
                 original.UpsertRecord(ToMapRecord(legacy));
                 MapStoredRecord duplicate = Record("existing3", 27, 0, 3);
@@ -382,6 +396,35 @@ internal static class Map014OtherEventChecks
                 }));
                 original.UpsertRecord(ToMapRecord(Record("party-other", 21, 20, 0, 27000)));
                 original.UpsertRecord(ToMapRecord(Record("unresolved-party", 21, 0, 0, 27000)));
+                // Native JSON integers and canonical integer strings are
+                // eligible. SQLite's permissive CAST must not turn malformed
+                // historical data into supported Other identities on reopen.
+                SeedLegacyOnOtherServer("valid-text-supply", 27, 0, 1, 0,
+                    data => data["suppliesType"] = "1");
+                SeedLegacyOnOtherServer("valid-text-party", 21, 20, 0, 27000,
+                    data => data["eventId"] = "27000");
+                SeedLegacyOnOtherServer("fractional-supply", 27, 0, 1, 0,
+                    data => data["suppliesType"] = "1.5");
+                SeedLegacyOnOtherServer("suffix-supply", 27, 0, 1, 0,
+                    data => data["suppliesType"] = "1junk");
+                SeedLegacyOnOtherServer("bad-point", 27, 0, 1, 0,
+                    data => data["pointType"] = "27junk");
+                SeedLegacyOnOtherServer("missing-type", 27, 0, 1, 0,
+                    data => data.Remove("treasureType"));
+                SeedLegacyOnOtherServer("wrong-case", 27, 0, 1, 0,
+                    data => data["runtimeClass"] = "Client.worldsuppliespoint");
+                SeedLegacyOnOtherServer("suffix-party", 21, 20, 0, 27000,
+                    data => data["eventId"] = "27000junk");
+                SeedLegacyOnOtherServer("missing-party-type", 21, 20, 0, 27000,
+                    data => data.Remove("suppliesType"));
+                SeedLegacyOnOtherServer("fractional-party", 21, 20, 0, 27000,
+                    data => data["treasureType"] = 20.5);
+                SeedLegacyOnOtherServer("overflow-supply", 27, 0, 1, 0,
+                    data => data["suppliesType"] = 2_147_483_648L);
+                SeedLegacyOnOtherServer("text-overflow-supply", 27, 0, 1, 0,
+                    data => data["suppliesType"] = "2147483648");
+                SeedLegacyOnOtherServer("overflow-treasure", 21, 20, 0, 27000,
+                    data => data["treasureType"] = 2_147_483_648L);
             }
             for (int reopen = 0; reopen < 2; reopen++)
             {
@@ -389,6 +432,13 @@ internal static class Map014OtherEventChecks
                 Require(migrated.SummaryCounts(2213)["treasure"] == 1 &&
                     migrated.SummaryCounts(2213)["other"] == 3,
                     "migration deduplicates supported sources and leaves nonpositive unverified event class unclassified");
+                Require(migrated.SummaryCounts(2214)["treasure"] == 11 &&
+                    migrated.SummaryCounts(2214)["other"] == 2 &&
+                    migrated.Search(new Map317.MapQuery("other", 2214)).Rows
+                        .Select(row => row.GetProperty("uuid").GetString())
+                        .Order(StringComparer.Ordinal).SequenceEqual(
+                            new[] { "valid-text-party", "valid-text-supply" }),
+                    "reopen migrates canonical integer-string sources but rejects malformed type, event, class and absent identities");
                 var distinct = migrated.Search(new Map317.MapQuery("other", 2213));
                 Require(distinct.Rows.Select(row => row.GetProperty("uuid").GetString())
                     .Distinct(StringComparer.Ordinal).Count() == 3,
