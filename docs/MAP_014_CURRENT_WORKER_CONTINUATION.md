@@ -545,3 +545,31 @@ ACK, safe recovery, post-change .NET/packaged Windows gates and unavailable
 Celebration Party, moving Doom Walker and independent Train lifetime remain
 pending. No new RC or release is warranted; preserve the older `339e241c`
 unpublished package unchanged.
+
+### Post-checkpoint Map317 sink ownership correction (offline draft)
+
+The substantive source/integration changes above were committed and pushed to
+the existing `codex/map-owner-fixes-014` branch as
+`49c1a66d70d684cd74bb17fec7fbaed884a219d6`. A **direct remote branch
+SHA** and existing **draft PR #10 headRefOid** matched this value after the
+push, without repeating the separately denied local `git status`/`git diff`
+inspection. This is delivery evidence, **not** a new .NET/packaged pass.
+
+Additional review found a second, independent production fail-open:
+`Map317ScanRunSink.CheckpointSuccess`, `Publish` and `Fail` previously called
+the current Map317 control-plane mutation without checking the originating
+`MapScanExecutionRequest.RunId`. After an old scan was retired and an
+independent successor entered `Reading`, a late old engine exception could
+**fail that successor**, or an old publish/stage could act on the successor's
+SQLite run. The sink now demands exact still-reading RunId before staging or
+publishing and **skips old-run failure** rather than failing another owner.
+Its `Begin` uses a single current-state snapshot; progress emission checks
+the same accepted run before touching control-plane counters. A new controlled
+test starts a real Map317 successor and adversarially calls the old sink's
+Fail, CheckpointSuccess and Publish, requiring the successor to remain
+untouched with no stale City publication. The inherited control-plane API
+does not expose an atomic conditional Stage/Publish/Fail transaction, so
+the micro-race between passive ownership check and its mutation remains a
+separate native/Map317 owner-lease requirement. These new C# tests are
+**not executed** because the earlier .NET test invocation was denied. No
+native/group/packaged success is claimed, and product group selection is off.

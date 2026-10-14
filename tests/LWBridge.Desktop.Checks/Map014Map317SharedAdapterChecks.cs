@@ -385,6 +385,70 @@ internal static class Map014Map317SharedAdapterChecks
             "per-accepted-run factory failed to pin new owner/source and publish through Map317");
     }
 
+    private static async Task CheckRetiredMap317SinkCannotMutateSuccessorAsync()
+    {
+        // Exercises the real Map317 control plane and in-memory SQLite with
+        // an obsolete engine sink. Before the run-ID fence, a late Fail could
+        // fail the independent successor, Publish could finish it, or Stage
+        // could contaminate its active scan records.
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int server = 2213;
+        var provider = new CurrentClientMap317ScanProvider(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, server, server, [], [], 0, 1000, 1000, 500, 500)),
+            _ => Task.FromResult(new CurrentClientMapContext(
+                server, 0, 1000, 1000, 500, 500, "controlled-sink-session")));
+        using var control = new Map317.MapControlPlane(store, provider);
+        Map317.MapScanState obsolete = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        await provider.StopMapScanAsync(); // Clears only the pending source lease.
+        control.FailScan("retired old run");
+        Map317.MapScanState successor = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        Require(successor.ScanRunId != obsolete.ScanRunId && successor.IsReading,
+            "controlled Map317 successor did not acquire an independent run");
+        var retiredRequest = new MapScanExecutionRequest(
+            obsolete.ScanRunId, server, 0, 1000, 1000, ["city"], 4,
+            PlayerTileX: 500, PlayerTileY: 500, ScanMode: "fast",
+            LaunchSessionId: "controlled-sink-session", LiveServerId: server);
+        var sink = new Map317ScanRunSink(control);
+        sink.Fail(retiredRequest, "obsolete native packet", 1000);
+        Require(control.ScanState.IsReading && control.ScanState.ScanRunId == successor.ScanRunId,
+            "retired engine failure overwrote current Map317 run");
+
+        var block = MapScanTraversal.Build(1000, 1000)[0];
+        var oldCity = new MapStoredRecord("city", server, "obsolete-city", 10011,
+            null, "obsolete", null, 1, null, null, null, null, 1800000000000L,
+            "{\"ownerUid\":\"obsolete-city\"}");
+        bool rejectedStage = false;
+        try
+        {
+            sink.CheckpointSuccess(retiredRequest, block,
+                new MapScanBlockCapture(server, 0, 0, "{}", [oldCity]), 1, 1000);
+        }
+        catch (InvalidDataException)
+        {
+            rejectedStage = true;
+        }
+        Require(rejectedStage, "stale source staged into independent successor");
+        bool rejectedPublish = false;
+        try
+        {
+            sink.Publish(retiredRequest, 1000);
+        }
+        catch (InvalidDataException)
+        {
+            rejectedPublish = true;
+        }
+        Require(rejectedPublish, "stale source published independent successor");
+        Require(control.ScanState.IsReading && control.ScanState.ScanRunId == successor.ScanRunId &&
+                store.SummaryCounts(server)["city"] == 0,
+            "retired native sink changed successor scan or persisted stale City");
+        await provider.StopMapScanAsync();
+        control.FailScan("controlled successor cleanup");
+    }
+
     internal static async Task RunAsync()
     {
         await CheckAsync(["other"], ["treasure"]);
@@ -400,6 +464,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: true);
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
+        await CheckRetiredMap317SinkCannotMutateSuccessorAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");
     }
 }
