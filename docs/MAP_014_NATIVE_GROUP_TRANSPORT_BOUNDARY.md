@@ -178,6 +178,55 @@ The mismatched-outer fixture intentionally still correlates the *pending
 RPC*, but is always marked **not native group evidence**. This is not a
 live exploit or a new app/game/native test.
 
+### Post-ecd2bb02 source-only Lua JSON argument boundary
+
+The subsequent source sweep found **no new production A/B/C native-group
+producer, game-owned native reply ingress, or alternative pipe Result handler**.
+In the checked-in desktop/game-pipe sources, the received-only
+`IMap014ReceivedNativeSharedGroupIngress` is still only an interface;
+the native A/B/C/10,000 AOI/2,500 typed block/final-home correlation
+requirements are neither emitted nor authenticated by another installed
+source. This is a checked-in-source finding, not a claim about inaccessible
+native code or installed binaries.
+
+It did expose a separate **source-backed argument validation limitation**
+not covered by the earlier 57-test pipe Result audit:
+
+- `LWBridgeBackend.cs:663-692` admits public `call_lua` only for
+  `getStatus` and explicitly checks that `args` is an object with
+  **no properties**.
+- `tools/current_overview_bridge.lua:3376-3386,3470-3514` uses
+  `string.match` over the **entire raw JSON text** to find named string
+  fields, and defines `empty_args` using only
+  `string.find(text, '"args":{}', 1, true) ~= nil`. This does **not**
+  verify that the *command payload's* actual `args` object is empty.
+  For instance, a controlled otherwise owner-matching `getStatus` JSON
+  command whose payload contains `"args":{"unexpected":1}` and
+  `"metadata":{"args":{}}` passes the Lua literal predicate despite
+  having nonempty actual arguments. It **still does not enable any
+  native-group function**: the Lua name guard remains `getStatus`, the
+  result remains connection/status data, and no group packet exists.
+
+The new read-only `audit_lua_pipe_argument_boundary` independently pins
+both the public backend empty-object check and the game Lua text-predicate
+source; changes to either require requalification. The companion
+`classify_controlled_pipe_arguments` compares the Lua substring result
+against strict JSON object decoding on **controlled fixtures only**,
+rejecting duplicate JSON keys; it does not send or authenticate packets
+or alter producer behavior. New targeted inverses cover nested-decoy
+false acceptance, nonempty without decoy, actual empty args, duplicate
+keys and both source-guard drift directions. The CLI reports
+`luaPipeArgumentBoundary` explicitly so it cannot silently upgrade a
+text match to full argument authentication.
+
+This is a real weakness in the Lua *parser predicate*, **not** a demonstrated
+path for a third party to inject frames into an authenticated pipe: the
+currently exposed managed backend already enforces the narrower
+empty-argument contract and the normal producer does not emit that decoy.
+Neither the observed predicate weakness nor an authenticated `getStatus`
+call provides an independent game/server-native group result or final-home
+acknowledgment. No Lua/game/host code was modified or executed.
+
 ### Read-only native archive comparison
 
 | Archive | What the original recording establishes | Why it cannot pass this group boundary |

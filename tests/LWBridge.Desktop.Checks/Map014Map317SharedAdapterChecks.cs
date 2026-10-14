@@ -477,6 +477,83 @@ internal static class Map014Map317SharedAdapterChecks
             "failed current successor leaked staged City into published SQLite rows");
     }
 
+    private static async Task CheckMap317EarlyOwnedPublishCannotReplaceSavedRowsAsync()
+    {
+        // Direct actual provider -> Map317 -> SQLite inverse. A still-owned
+        // native source can stage positive City data and invoke its sink's
+        // Publish before all 2,500 logical blocks are complete. RunId is valid
+        // but ownership is NOT completion; never replace previous published
+        // rows just because CompleteScanForRun can fill in total progress.
+        foreach (int reportedBlocks in new[] { 0, 1, 2500 })
+        {
+            using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+            const int server = 2213;
+            store.UpsertRecord(new Map317.MapRecord("city", server,
+                "saved-previous-owner", 10011, null, "saved", null, 1,
+                null, null, null, null, 1700000000000L,
+                "{\"ownerUid\":\"saved-previous-owner\"}"));
+            var provider = new CurrentClientMap317ScanProvider(
+                new NonSharedOwnedSource(),
+                _ => Task.FromResult(new CurrentClientMapStatusContext(
+                    true, server, server, [], [], 0, 1000, 1000, 500, 500)),
+                _ => Task.FromResult(new CurrentClientMapContext(
+                    server, 0, 1000, 1000, 500, 500, "incomplete-publish-session")));
+            using var control = new Map317.MapControlPlane(store, provider);
+            Map317.MapScanState run = await control.StartScanAsync(
+                new Map317.MapScanStartRequest(["city"], "fast"));
+            var request = new MapScanExecutionRequest(run.ScanRunId, server, 0,
+                1000, 1000, ["city"], 4, PlayerTileX: 500, PlayerTileY: 500,
+                ScanMode: "fast", LaunchSessionId: "incomplete-publish-session",
+                LiveServerId: server);
+            var sink = new Map317ScanRunSink(control);
+            sink.Begin(request, run.TotalBlocks, 1800000000000L);
+            var block = MapScanTraversal.Build(1000, 1000)[0];
+            sink.CheckpointSuccess(request, block,
+                new MapScanBlockCapture(server, 0, 0, "{}", [
+                    new MapStoredRecord("city", server, "incomplete-new-owner",
+                        10012, null, "incomplete", null, 1, null, null,
+                        null, null, 1800000000000L,
+                        "{\"ownerUid\":\"incomplete-new-owner\"}")
+                ]), 1, 1800000000000L);
+            bool duplicateRejected = false;
+            try
+            {
+                sink.CheckpointSuccess(request, block,
+                    new MapScanBlockCapture(server, 0, 0, "{}", []),
+                    1, 1800000000000L);
+            }
+            catch (InvalidDataException)
+            {
+                duplicateRejected = true;
+            }
+            Require(duplicateRejected,
+                "duplicate same-run native block checkpoint was counted twice");
+            if (reportedBlocks > 0)
+                control.ReportProgressForRun(run.ScanRunId,
+                    new Map317.MapScanProgressUpdate(reportedBlocks,
+                        reportedBlocks, 0, 0, 1.0, true, 0, 0));
+            bool rejected = false;
+            try { sink.Publish(request, 1800000000001L); }
+            catch (Map317.BridgeCommandException e) when (e.Code == "INCOMPLETE_SCAN")
+            {
+                rejected = true;
+            }
+            Require(rejected && control.ScanState.IsReading &&
+                    control.ScanState.ScanRunId == run.ScanRunId &&
+                    store.ReadScanRun(run.ScanRunId)?.Status == "running" &&
+                    store.ReadScanRun(run.ScanRunId)?.CompletedBlocks ==
+                        reportedBlocks &&
+                    store.SummaryCounts(server)["city"] == 1 &&
+                    store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                        .GetRawText().Contains("saved-previous-owner", StringComparison.Ordinal),
+                "premature owned native Publish replaced last good City rows");
+            control.FailScanForRun(run.ScanRunId, "controlled incomplete native run");
+            Require(store.SummaryCounts(server)["city"] == 1 &&
+                    control.ScanState.Phase == "failed",
+                "failed incomplete native source did not preserve saved City rows");
+        }
+    }
+
     private static async Task CheckRealMap317CancelAndPublishExclusionAsync()
     {
         // Exercise concurrent *real* Map317 Stop/SQLite publication, not a
@@ -610,6 +687,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
         await CheckRetiredMap317SinkCannotMutateSuccessorAsync();
+        await CheckMap317EarlyOwnedPublishCannotReplaceSavedRowsAsync();
         await CheckRealMap317CancelAndPublishExclusionAsync();
         await CheckMap317AcceptedStartCannotOutliveStopAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");

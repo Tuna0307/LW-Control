@@ -1785,7 +1785,8 @@ internal sealed partial class CurrentClientMapBlockSource
             // published per-type Resource rows, not just their later totals.
             if (!root.TryGetProperty("nativePointTypeHistogram", out JsonElement firstNativeTypes))
                 throw new InvalidDataException("Native Resource batch omitted its first AOI point-type snapshot.");
-            RequireResourceFirstAoiTypeSnapshot(firstNativeTypes, resources);
+            RequireResourceFirstAoiTypeSnapshot(
+                firstNativeTypes, resources, RequireNonNegativeInt(root, "matchedCount"));
         }
         IReadOnlyList<FastDispatchPrepared> dispatches = request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)
             ? PrepareDispatchRecords(pointRecords, request, requestedSet, startedAt)
@@ -1847,9 +1848,13 @@ internal sealed partial class CurrentClientMapBlockSource
     // This bounded cross-enumeration check rejects such source races, though
     // matching counts do NOT prove equal identities or authoritative absence.
     internal static void RequireResourceFirstAoiTypeSnapshot(
-        JsonElement firstNativeHistogram, IReadOnlyList<FirstLivePreparedResource> acceptedResources)
+        JsonElement firstNativeHistogram, IReadOnlyList<FirstLivePreparedResource> acceptedResources,
+        int firstNativeMatchedCount)
     {
+        if (firstNativeMatchedCount < 0)
+            throw new InvalidDataException("First native AOI matched-point count is invalid.");
         var observed = new Dictionary<string, long>(StringComparer.Ordinal);
+        long histogramTotal = 0;
         if (firstNativeHistogram.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty type in firstNativeHistogram.EnumerateObject())
@@ -1858,6 +1863,14 @@ internal sealed partial class CurrentClientMapBlockSource
                     !type.Value.TryGetInt64(out long count) || count < 0 ||
                     !observed.TryAdd(type.Name, count))
                     throw new InvalidDataException("First native AOI type histogram is malformed or ambiguous.");
+                // point_aoi_counts increments matched and exactly one type key
+                // in the SAME loop, including unknown/non-Resource types.
+                // A valid Resource-only subset cannot certify a contradictory
+                // total native AOI population. Bound before adding to avoid
+                // overflow on malformed/untrusted histogram values.
+                if (count > firstNativeMatchedCount - histogramTotal)
+                    throw new InvalidDataException("First native AOI histogram exceeds its matched point count.");
+                histogramTotal += count;
             }
         }
         else if (firstNativeHistogram.ValueKind != JsonValueKind.Array ||
@@ -1865,6 +1878,8 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             throw new InvalidDataException("First native AOI type histogram is unavailable.");
         }
+        if (histogramTotal != firstNativeMatchedCount)
+            throw new InvalidDataException("First native AOI histogram does not reconcile with its matched point count.");
 
         var acceptedByType = new Dictionary<string, long>(StringComparer.Ordinal);
         foreach (FirstLivePreparedResource item in acceptedResources)

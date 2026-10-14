@@ -37,25 +37,31 @@ internal static class Map014ResourceNativeSourceChecks
         // point_aoi_counts snapshot before resource_aoi_records. Its later
         // Resource count replaces the first count in the reply, so a source
         // mutation between enumerations used to be admitted as "proven".
-        void CheckFirstAoiTypes(string json, IReadOnlyList<FirstLivePreparedResource> rows)
+        void CheckFirstAoiTypes(string json, IReadOnlyList<FirstLivePreparedResource> rows,
+            int firstNativeMatchedCount)
         {
             using JsonDocument parsed = JsonDocument.Parse(json);
-            CurrentClientMapBlockSource.RequireResourceFirstAoiTypeSnapshot(parsed.RootElement, rows);
+            CurrentClientMapBlockSource.RequireResourceFirstAoiTypeSnapshot(
+                parsed.RootElement, rows, firstNativeMatchedCount);
         }
-        CheckFirstAoiTypes("{\"7\":2,\"6\":12}", [edge, opposite]);
+        CheckFirstAoiTypes("{\"7\":2,\"6\":12}", [edge, opposite], 14);
         CheckFirstAoiTypes("{\"1\":1,\"26\":1,\"6\":12}",
-            [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)]);
-        CheckFirstAoiTypes("[]", []);
+            [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)], 14);
+        CheckFirstAoiTypes("[]", [], 0);
+        CheckFirstAoiTypes("{\"7\":2,\"unknown\":1}", [edge, opposite], 3);
 
         int snapshotInverses = 0;
-        void RejectFirstSnapshot(string label, string histogram, IReadOnlyList<FirstLivePreparedResource>? rows = null)
+        void RejectFirstSnapshot(string label, string histogram,
+            IReadOnlyList<FirstLivePreparedResource>? rows = null, int firstNativeMatchedCount = 14)
         {
-            try { CheckFirstAoiTypes(histogram, rows ?? [edge, opposite]); }
+            try { CheckFirstAoiTypes(histogram, rows ?? [edge, opposite], firstNativeMatchedCount); }
             catch (InvalidDataException) { snapshotInverses++; return; }
             throw new Exception("Native Resource first-AOI snapshot wrongly accepted " + label);
         }
-        RejectFirstSnapshot("first type-7 census short by one", "{\"7\":1,\"6\":12}");
-        RejectFirstSnapshot("first type-7 census had extra Resource", "{\"7\":3,\"6\":12}");
+        RejectFirstSnapshot("first type-7 census short by one", "{\"7\":1,\"6\":12}",
+            firstNativeMatchedCount: 13);
+        RejectFirstSnapshot("first type-7 census had extra Resource", "{\"7\":3,\"6\":12}",
+            firstNativeMatchedCount: 15);
         RejectFirstSnapshot("first AOI was a non-Resource cohort", "{\"6\":14}");
         RejectFirstSnapshot("first census same total but different Resource type", "{\"1\":1,\"7\":1,\"6\":12}");
         RejectFirstSnapshot("missing first AOI native histogram", "null");
@@ -63,6 +69,23 @@ internal static class Map014ResourceNativeSourceChecks
         RejectFirstSnapshot("ambiguous duplicate native point-type key", "{\"7\":2,\"7\":2}");
         RejectFirstSnapshot("invalid non-empty native array", "[1,2]");
         RejectFirstSnapshot("negative raw count", "{\"7\":2,\"6\":-1}");
+
+        // NEW invariant independent of the nine first/second Resource-type
+        // inverses: point_aoi_counts increments matchedCount and precisely one
+        // raw type histogram bucket for each AOI-filtered native point.
+        int censusTotalInverses = 0;
+        void RejectFirstCensusTotal(string label, string histogram, int firstNativeMatchedCount,
+            IReadOnlyList<FirstLivePreparedResource>? rows = null)
+        {
+            try { CheckFirstAoiTypes(histogram, rows ?? [edge, opposite], firstNativeMatchedCount); }
+            catch (InvalidDataException) { censusTotalInverses++; return; }
+            throw new Exception("Native Resource first AOI total wrongly accepted " + label);
+        }
+        RejectFirstCensusTotal("understated first census header", "{\"7\":2,\"6\":12}", 13);
+        RejectFirstCensusTotal("overstated first census header", "{\"7\":2,\"6\":12}", 15);
+        RejectFirstCensusTotal("invented first-census non-Resource type with valid Resource subset",
+            "{\"7\":2,\"6\":12,\"29\":1}", 14);
+        RejectFirstCensusTotal("empty histogram with phantom first native AOI count", "[]", 1, []);
 
         int nativeInverses = 0;
         void RejectNative(string label, IReadOnlyList<FirstLivePreparedResource>? rows = null,
@@ -215,9 +238,10 @@ internal static class Map014ResourceNativeSourceChecks
             doc["details"]![0]!["received"] = false;
         });
 
-        if (nativeInverses != 22 || hydrationInverses != 9 || provenanceInverses != 10 || snapshotInverses != 9)
+        if (nativeInverses != 22 || hydrationInverses != 9 || provenanceInverses != 10 ||
+            snapshotInverses != 9 || censusTotalInverses != 4)
             throw new Exception("Incomplete Resource native source inverse coverage.");
-        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} native=false");
+        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} firstCensusTotalInverses={censusTotalInverses} native=false");
     }
 
     private static CurrentClientMapBlockSource.ResourceScanDetailObservation Details(

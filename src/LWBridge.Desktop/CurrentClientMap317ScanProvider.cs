@@ -449,6 +449,10 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
 internal sealed class Map317ScanRunSink : IMapScanRunSink
 {
     private readonly Map317.MapControlPlane control;
+    private readonly object checkpointGate = new();
+    private readonly HashSet<int> checkpointedBlocks = new();
+    private string? begunRunId;
+    private int expectedBlocks;
 
     internal Map317ScanRunSink(Map317.MapControlPlane control) => this.control = control;
 
@@ -459,6 +463,13 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
             !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
             current.TotalBlocks != totalBlocks)
             throw new InvalidDataException("Map317 scan engine run does not match the accepted durable run.");
+        lock (checkpointGate)
+        {
+            if (begunRunId is not null || totalBlocks <= 0)
+                throw new InvalidDataException("Map317 scan sink received a duplicate/invalid native Begin.");
+            begunRunId = request.RunId;
+            expectedBlocks = totalBlocks;
+        }
     }
 
     public void CheckpointSuccess(
@@ -468,8 +479,25 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
         int attempts,
         long updatedAt)
     {
-        foreach (MapStoredRecord record in capture.Records)
-            control.StageRecordForRun(request.RunId, ToMap317Record(record));
+        lock (checkpointGate)
+        {
+            // MapScanEngine's progress is an observation, not independently
+            // durable native block-completion evidence. Without this ledger,
+            // a same-run premature Publish could claim TotalBlocks in SQLite
+            // and replace last-good rows despite having staged one block.
+            if (!string.Equals(begunRunId, request.RunId, StringComparison.Ordinal) ||
+                block.BlockIndex is < 0 || block.BlockIndex >= expectedBlocks ||
+                capture.BlockIndex != block.BlockIndex ||
+                checkpointedBlocks.Contains(block.BlockIndex))
+                throw new InvalidDataException("Map317 rejected a missing, foreign or duplicate native checkpoint.");
+            // A checkpoint is certified ONLY after all of its records have
+            // been staged durably under the exact Map317 owner. Holding this
+            // separate ledger gate prevents early Publish from observing the
+            // final logical block while its SQLite writes are in flight.
+            foreach (MapStoredRecord record in capture.Records)
+                control.StageRecordForRun(request.RunId, ToMap317Record(record));
+            checkpointedBlocks.Add(block.BlockIndex);
+        }
     }
 
     public void CheckpointFailure(
@@ -483,6 +511,20 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
 
     public void Publish(MapScanExecutionRequest request, long updatedAt)
     {
+        // Check active owner first so a retired sink continues to fail with
+        // INVALID_SCAN, not a misleading incomplete-run error.
+        Map317.MapScanState current = control.ScanState;
+        if (!current.IsReading ||
+            !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal))
+            throw new Map317.BridgeCommandException("INVALID_SCAN",
+                "obsolete map scan cannot publish over an independent run");
+        lock (checkpointGate)
+        {
+            if (!string.Equals(begunRunId, request.RunId, StringComparison.Ordinal) ||
+                checkpointedBlocks.Count != expectedBlocks || expectedBlocks <= 0)
+                throw new Map317.BridgeCommandException("INCOMPLETE_SCAN",
+                    "native scan lacks a successful checkpoint for every owned logical block");
+        }
         control.CompleteScanForRun(request.RunId);
     }
 

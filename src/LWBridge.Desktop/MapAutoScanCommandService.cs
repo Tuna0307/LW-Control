@@ -519,6 +519,20 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     break;
                 }
 
+                if (index > 0)
+                {
+                    // A completed first Auto run is still available through
+                    // Map317's archived exact-run status after a separate
+                    // manual scan starts and even FINISHES on that server.
+                    // Do not navigate to the next Auto target using the old
+                    // publication as authority over that manual successor.
+                    await EnsureNoIndependentScanAsync(
+                        "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH", lastAttemptedServerId,
+                        originalServerId, admissionScanRunId, lastOwnedScanRunId,
+                        cancellationToken).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+
                 int serverId = targets[index];
                 // A cancelled first target at the original server never left
                 // home. Returning through the native scan lease while its
@@ -836,14 +850,15 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
 
     private async Task EnsureNoIndependentScanAsync(
         string failureCode, int lastAttemptedServerId, int originalServerId,
-        string? admissionScanRunId, string? lastOwnedScanRunId)
+        string? admissionScanRunId, string? lastOwnedScanRunId,
+        CancellationToken statusCancellation = default)
     {
         // The status boundary's null owner reads the CURRENT scan, rather
         // than falling back to an archived exact-run status. Also consult
         // the immediate active flag because an unrelated scan can enter
         // after that async read; native return retains its own lease check.
         MapAutoScanRuntimeStatus current = await execution.ReadStatusAsync(
-            null, CancellationToken.None).ConfigureAwait(false);
+            null, statusCancellation).ConfigureAwait(false);
         if (current.IsReading || execution.IsMapScanActive())
             throw new InvalidOperationException(failureCode + ": independent scan is active");
         // Server equality alone is not proof of an idle owner. Map317 keeps

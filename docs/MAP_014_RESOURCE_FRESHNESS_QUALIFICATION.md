@@ -515,6 +515,51 @@ npm, recovery, game/native action or commit was invoked; source review and
 static test additions are **not** a RED→GREEN result. Resource FOV20 remains
 **OFF**.
 
+### First native AOI census total and histogram admission (post-ecd2bb02)
+
+The actual Lua producer `point_aoi_counts` increments both `matched` and
+**exactly one** `type_histogram` entry in the **same selected-AOI iteration**
+(`tools/current_live_resource_probe.lua:2621-2630`). The result separately
+retains `matchedCount=observed.total` and
+`nativePointTypeHistogram=observed.typeHistogram` at `:6260-6262`. The prior
+managed Resource admission already compared first-pass type-**1/7/26** counts
+to the later imported Resource rows, but it never reconciled the **entire**
+first-pass histogram (including Cities, other points and `unknown`) against
+the first-pass `matchedCount` header. Consequently an otherwise correctly
+typed Resource receipt could claim `matchedCount=79` while its first native
+histogram summed to 80; the Resource subset and second-pass source
+completeness still agreed, so the reply would pass as `proven` despite being
+impossible from that single native census. This is a receipt-cohort
+**false acceptance**, not observed proof that a real native race occurred.
+
+`RequireResourceFirstAoiTypeSnapshot` now additionally receives the required
+nonnegative first-pass `matchedCount` from the active Resource reply, sums
+**every** native first-pass point-type bucket with explicit bounds against
+the claimed total, and rejects undercounted/overcounted or overflowing
+histograms **before publication**. The earlier **nine** first-versus-second
+Resource-type inverses remain separate and still test type agreement: their
+synthetic first census headers are set to match their deliberately altered
+histograms. **Four NEW unexecuted synthetic inverses** test overstated and
+understated census headers, an invented *non-Resource* type bucket with an
+otherwise correct Resource subset, and a phantom matched point with an empty
+histogram. Positive shapes retain type-7, mixed type-1/type-26, truly empty
+AOIs and an `unknown` non-Resource bucket.
+
+The preserved native final round-5 40-AOI reply is consistent: first-pass
+`matchedCount=79`, first type histogram
+`{15:1,17:2,21:1,25:1,6:38,7:36}` (sum 79), and the later
+`resourceCompleteness` accepts 36 type-7 points. The six saved scans still
+contain 7,989/7,995/8,002/7,998/7,993/7,990 Resource records with 10,000
+AOIs covered per round; they do **not** provide a synchronized native
+per-identity source census proving spawn, removal or absence. The **19/4/3**
+missing and **25** candidate-only identities (including occupied `20128`)
+retain **unknown causality**. Resource FOV20 remains **OFF**.
+
+**Validation boundary:** This continuation performs source/static review and
+adds tests **without running** the previously denied .NET runner, Git
+inspection, npm, frontend, recovery, game or native actions. Neither new
+RED→GREEN nor a live/production Resource accuracy qualification is claimed.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

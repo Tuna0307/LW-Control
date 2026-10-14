@@ -58,6 +58,85 @@ def section(source: str, beginning: str, end: str) -> str:
     return source[start:stop]
 
 
+def audit_lua_pipe_argument_boundary(
+    *, overview: str | None = None, backend: str | None = None,
+) -> dict:
+    """Source-lock a *different* trust boundary: Lua's raw-text JSON scan.
+
+    The backend's own getStatus API demands an empty JSON object, but the
+    game-side Lua receiver does not parse the args object: it searches the
+    entire inbound text for one literal. A synthetic JSON input may contain
+    nonempty payload.args AND a nested decoy args={}, satisfying that literal.
+    This is a parser-semantic limit, not a proven external/authenticated attack
+    or any kind of native group ingress.
+    """
+    overview = OVERVIEW.read_text(encoding="utf-8-sig") if overview is None else overview
+    backend = BACKEND.read_text(encoding="utf-8-sig") if backend is None else backend
+    parser = section(overview, "local function pipe_json_string(text, name)",
+                     "local function write_pipe_result(")
+    require("return string.match(" in parser and
+            """'"' .. tostring(name) .. '":"([^"]*)"'""" in parser and
+            'return tonumber(value)' in parser,
+            "Lua pipe field text parser changed: requalify JSON grammar")
+    inbound = section(overview, "local function process_pipe_inbound(control)",
+                      "local RECOVERY_WINDOWS")
+    require(re.search(
+        r'local\s+empty_args\s*=\s*string\.find\(\s*text,\s*'
+        r'\'"args":\{\}\',\s*1,\s*true\)\s*~=\s*nil', inbound) is not None and
+        'kind ~= "call" or function_name ~= "getStatus" or' in inbound and
+        'not empty_args then' in inbound,
+        "Lua pipe argument parsing boundary changed: requalify getStatus policy")
+    backend_call = section(backend, "private async Task<JsonElement?> CallLuaAsync(",
+                           "// Original set_automation handler")
+    require('"getStatus"' in backend_call and
+            re.search(r'args\.ValueKind\s*!=\s*JsonValueKind\.Object', backend_call) and
+            re.search(r'using\s+JsonElement\.ObjectEnumerator\s+properties\s*='
+                      r'\s*args\.EnumerateObject\(\);\s*'
+                      r'if\s*\(properties\.MoveNext\(\)\)', backend_call) is not None,
+            "backend getStatus empty-object guard changed")
+    return {
+        "luaArgumentCheck": "unscoped.literal.substring",
+        "luaParsedArgsObject": False,
+        "backendPublicGetStatusRequiresEmptyObject": True,
+        "independentNativeGroupCommandOrReply": False,
+    }
+
+
+def classify_controlled_pipe_arguments(raw_json: str) -> dict:
+    """Compare literal Lua args test with JSON payload object, never run Lua.
+
+    No proof that a malformed frame can originate on the authenticated pipe:
+    controlled bytes only, no connection/session/packet authentication.
+    """
+    def unique_keys(items: list[tuple[str, object]]) -> dict:
+        out: dict = {}
+        for name, value in items:
+            require(name not in out, "duplicate JSON property in controlled pipe fixture")
+            out[name] = value
+        return out
+
+    require(isinstance(raw_json, str), "invalid controlled pipe JSON fixture")
+    try:
+        frame = json.loads(raw_json, object_pairs_hook=unique_keys)
+    except BoundaryError:
+        raise
+    except (TypeError, ValueError) as exc:
+        raise BoundaryError("invalid controlled pipe JSON fixture") from exc
+    require(isinstance(frame, dict) and frame.get("type") == "command" and
+            isinstance(frame.get("payload"), dict) and
+            frame["payload"].get("fn") == "getStatus",
+            "controlled pipe fixture is not getStatus command")
+    args = frame["payload"].get("args")
+    strictly_empty = isinstance(args, dict) and len(args) == 0
+    loose_match = '"args":{}' in raw_json
+    return {
+        "luaLiteralEmptyArgsMatched": loose_match,
+        "actualPayloadArgsEmpty": strictly_empty,
+        "luaLiteralFalseAcceptance": loose_match and not strictly_empty,
+        "safeToAttestNativeGroup": False,
+    }
+
+
 def audit_pipe_result_correlation_source(
     *, protocol: str | None = None, registry: str | None = None,
     transport: str | None = None, overview: str | None = None,
@@ -583,6 +662,7 @@ def main() -> None:
     contract = ProducerContract.read_source()
     other = audit_other_source_transports()
     pipe_result = audit_pipe_result_correlation_source()
+    pipe_arguments = audit_lua_pipe_argument_boundary()
     outcomes = [archive_rejection(path, contract)
                 for path in (args.archive or ARCHIVES) if path.exists()]
     print(json.dumps({
@@ -593,6 +673,7 @@ def main() -> None:
         "unemittableGroupKeys": sorted(GROUP_ONLY_KEYS.difference(contract.output_keys)),
         "alternateRoutes": other,
         "actualPipeResultCorrelation": pipe_result,
+        "luaPipeArgumentBoundary": pipe_arguments,
         "authenticatedGroupTransport": False, "archived": outcomes,
         "qualification": "CURRENT PRODUCER SINGLE-PROBE ONLY; NATIVE GROUP NOT PROVEN",
     }, indent=2))

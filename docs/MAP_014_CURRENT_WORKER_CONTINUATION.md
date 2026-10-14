@@ -681,3 +681,30 @@ qualification remain unverified. Existing old `339e241c` ZIP unchanged. The
 hard recovery `WinError 5` was not retried/bypassed, no LastWar/LWBridge
 was launched, Chinese game/installed scripts unchanged, and user Auto remains
 enabled with next deadline armed and restart inactive.
+
+## MAP-014 post-`ecd2bb02` production admission continuation
+
+The latest independently known direct remote and draft PR head entering this
+continuation was `ecd2bb02181c4a86ea95eb9adf13b7d18092ebbe`; this
+description is **not** a claim that a denied local Git working-tree inspection
+ran. The already-denied .NET Release, local Git status/diff, aggregate npm,
+frontend and recovery rename were **not retried or routed through other tools**.
+
+| Source-backed implementation | Evidence / still missing |
+| --- | --- |
+| **Map317 publishing with fabricated 100% progress:** the run-scoped `CompleteScanForRun` previously set SQLite progress to `TotalBlocks` irrespective of its real in-memory `CompletedBlocks` or failed/inflight counts, allowing an early same-owner Publish to delete last-good selected-kind rows. It now rejects incomplete/failed/inflight progress *inside* exact-run `stateGate`, before altering durable progress. | Real Map317 provider/sink/SQLite inverse covers no progress, one completed block, and an asserted full progress over only one staged block. Previous published City must remain unchanged; failed staging must be discarded. **New C# code/tests not compiled or executed** under prior .NET denial. |
+| **Per-logical-block checkpoint identity:** progress alone is not independent durable receipt of 2,500 successful logical checkpoints. Each real `Map317ScanRunSink` instance now maintains a single-run, duplicate-proof block-index ledger. A block only enters the ledger after its exact owner's SQLite records finish staging; Publish requires all expected distinct checkpoints before touching `CompleteScanForRun`. Missing/duplicate/foreign/out-of-range/late blocks fail closed; source engine's separate AOI/native and geometry checks remain intact. | Existing full real provider→engine→SQLite controlled positive is retained. Added duplicate-block, prematurely published and forged-100%-progress inverses through the real sink. **The ledger is a managed checkpoint safeguard, not proof of a native A→B→C group or 10,000 authenticated AOI replies. New .NET GREEN unverified.** |
+| **Auto between-target manual successor:** after archived terminal Auto target 318, a distinct manual 318 scan could finish before Auto attempted target 319, with no check until final return. Before every *subsequent* target jump, Auto now checks current global scan/run/server against its exact admitted/current Auto ownership with cancellation-aware observation. It refuses a foreign completed manual successor rather than changing server for the next Auto target. | Added controlled 318→319 manual-completion inverse requiring no second target, Stop or Return. Native same-server manual navigation without a new run ID and post-read navigation race still require game-owned generation. C# test unexecuted; user's saved enabled+armed Auto untouched. |
+| **Resource first-pass total source proof:** native Lua `point_aoi_counts` increments `matchedCount` and histogram buckets in the same `_pointInfos` AOI-filtered enumeration. Existing admission checked Resource types 1/7/26 and second-pass native classes but not first all-kind histogram sum. New source check requires the entire bounded histogram (including non-Resource/unknown) to equal first `matchedCount`, rejecting impossible observations before staging. | Four first-census-count inverses and unknown-type valid positive added. Actual final native round has matchedCount=79, type counts 15:1,17:2,21:1,25:1,6:38,7:36 (sum 79), Resource type7 36 in both passes; C# controls unexecuted. Six round 19/4/3 missing and first 25 extras remain causally unknown; Resource FOV20 OFF. |
+
+The authenticated pipe continues to expose only `getStatus`, not group
+producer/dispatcher, native-owned 10,000 per-AOI received packets, 2,500
+kind-complete receipts, source-owned cancellation and independently matched
+single final-home ACK. Previously verified City-only FOV20, native private
+119-probe/49.203-second full-footprint diagnostic, historical Truck natural
+expiry and Other/Treasure/UI/Auto positives remain **historical evidence**;
+none promotes Resource/mobile/mixed or consecutive native scanning. Server,
+world, session, PID and group ownership, typed WorldMarch source clock and
+original-image/installed script safety requirements remain unchanged.
+**Overall status remains PARTIAL**; no release candidate, packaged run or
+actual game-native/group positive is claimed.

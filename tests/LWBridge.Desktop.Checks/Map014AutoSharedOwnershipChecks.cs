@@ -26,6 +26,7 @@ internal static class Map014AutoSharedOwnershipChecks
         await CheckIdleServerSwitchAfterCanceledOwnedRunAsync();
         await CheckRetirementDuringHeldReturnOwnershipReadAsync();
         await CheckTwoRemoteTargetsCancelOnlyLatestOwnedRunAsync();
+        await CheckCompletedManualSuccessorCannotBeOverwrittenByNextTargetAsync();
         await CheckPersistedEnabledDeadlineSurvivesStaleConfigAsync();
         await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: true);
         await CheckCanceledRemoteStartWithoutRunTokenAsync(independentSwitch: false);
@@ -427,6 +428,87 @@ internal static class Map014AutoSharedOwnershipChecks
         finally
         {
             releaseStop.TrySetResult();
+            if (Directory.Exists(root)) Directory.Delete(root, true);
+        }
+    }
+
+    // The exact first-run status can be retrieved from Map317's archived run
+    // even after a NEW manual run has become current and completed on 318.
+    // Auto must recheck current ownership BEFORE jumping to its next target,
+    // not merely before the final return to 317.
+    private static async Task CheckCompletedManualSuccessorCannotBeOverwrittenByNextTargetAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(),
+            "map014-auto-next-target-successor-" + Guid.NewGuid().ToString("N"));
+        int liveServer = 317, firstStarts = 0, secondStarts = 0, returns = 0, stops = 0;
+        string? currentRun = null;
+        try
+        {
+            await using var auto = new MapAutoScanCommandService(Path.Combine(root, "auto.json"),
+                new MapAutoScanExecutionBoundary
+                {
+                    IsOnline = () => true,
+                    IsMapScanActive = () => false,
+                    ReadStatusAsync = (run, _) =>
+                    {
+                        if (run is null)
+                            return Task.FromResult(new MapAutoScanRuntimeStatus(
+                                Volatile.Read(ref liveServer), false, null,
+                                Volatile.Read(ref currentRun), "completed"));
+                        Require(run == "auto-first-318", "old Auto tried to read a foreign scan run");
+                        // Auto's first run publishes, but the current native
+                        // owner changes before Auto starts its next target.
+                        Volatile.Write(ref currentRun, "manual-successor-318");
+                        return Task.FromResult(new MapAutoScanRuntimeStatus(
+                            318, false, null, run, "completed"));
+                    },
+                    StartTargetScanAsync = (server, _, _, _) =>
+                    {
+                        if (server == 318)
+                        {
+                            Interlocked.Increment(ref firstStarts);
+                            Volatile.Write(ref liveServer, 318);
+                            Volatile.Write(ref currentRun, "auto-first-318");
+                            return Task.FromResult("auto-first-318");
+                        }
+                        Require(server == 319, "unexpected target after first Auto run");
+                        Interlocked.Increment(ref secondStarts);
+                        Volatile.Write(ref liveServer, 319);
+                        return Task.FromResult("auto-second-319");
+                    },
+                    StopScanIfOwnedAsync = (_, _) =>
+                    {
+                        Interlocked.Increment(ref stops);
+                        return Task.FromResult(false);
+                    },
+                    ReturnServerAsync = (server, _) =>
+                    {
+                        Require(server == 317, "Auto returned to non-original server");
+                        Interlocked.Increment(ref returns);
+                        Volatile.Write(ref liveServer, server);
+                        return Task.CompletedTask;
+                    },
+                }, new MapAutoScanSchedulerHooks
+                {
+                    UtcNowMilliseconds = () => 1_800_000_000_000,
+                    DelayAsync = (_, _) => Task.CompletedTask,
+                }, startScheduler: false);
+            await auto.UpdateConfigAsync(new MapAutoScanConfig(
+                true, 20, [318, 319], ["city"], "fast", true, 0));
+            await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
+            MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
+            Require(firstStarts == 1 && secondStarts == 0 && stops == 0 && returns == 0 &&
+                Volatile.Read(ref liveServer) == 318 &&
+                Volatile.Read(ref currentRun) == "manual-successor-318" &&
+                result.LastCycle?.Outcome == "failed" &&
+                result.LastCycle.CompletedServerIds.SequenceEqual([318]) &&
+                result.LastError?.Contains("MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH", StringComparison.Ordinal) == true &&
+                !result.Running && !result.OwnsActiveScan,
+                "terminal manual successor was overwritten by next Auto target or return");
+            await auto.UpdateConfigAsync(result.Config with { Enabled = false });
+        }
+        finally
+        {
             if (Directory.Exists(root)) Directory.Delete(root, true);
         }
     }

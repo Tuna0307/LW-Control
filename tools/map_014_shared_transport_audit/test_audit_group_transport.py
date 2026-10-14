@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+import json
 import sys
 from pathlib import Path
 import unittest
@@ -13,6 +14,7 @@ from audit_group_transport import (  # noqa: E402
     audit_current_producer_group_result, audit_future_shape_only,
     audit_one_probe_correlation, audit_other_source_transports,
     audit_pipe_result_correlation_source, correlate_pipe_status_result_only,
+    audit_lua_pipe_argument_boundary, classify_controlled_pipe_arguments,
 )
 
 
@@ -537,6 +539,73 @@ class ActualPipeResultCorrelationTests(unittest.TestCase):
         changed = source.replace(original, 'entry.Timeout.Cancel();', 1)
         with self.assertRaisesRegex(BoundaryError, "pipe result pending lookup/removal"):
             audit_pipe_result_correlation_source(registry=changed)
+
+
+class LuaPipeArgumentParsingBoundaryTests(unittest.TestCase):
+    """New source-backed inbound parser limitation, not an authenticated packet."""
+
+    @staticmethod
+    def command(args, *, extras=None):
+        payload = {"id": "cmd_9", "kind": "call", "fn": "getStatus", "args": args}
+        if extras is not None:
+            payload["metadata"] = extras
+        return json.dumps(
+            {"version": 1, "type": "command", "profileId": "owned",
+             "instanceId": "session", "requestId": "cmd_9", "timestamp": 1700000000,
+             "payload": payload},
+            separators=(",", ":"),
+        )
+
+    def test_actual_lua_uses_unscoped_literal_args_substring_not_json_object_parse(self):
+        finding = audit_lua_pipe_argument_boundary()
+        self.assertEqual(finding["luaArgumentCheck"], "unscoped.literal.substring")
+        self.assertTrue(finding["backendPublicGetStatusRequiresEmptyObject"])
+        self.assertFalse(finding["luaParsedArgsObject"])
+        self.assertFalse(finding["independentNativeGroupCommandOrReply"])
+
+    def test_unexpected_nonempty_args_with_nested_decoy_pass_lua_literal_test(self):
+        raw = self.command({"unapproved": 1}, extras={"args": {}})
+        finding = classify_controlled_pipe_arguments(raw)
+        self.assertTrue(finding["luaLiteralEmptyArgsMatched"])
+        self.assertFalse(finding["actualPayloadArgsEmpty"])
+        self.assertTrue(finding["luaLiteralFalseAcceptance"])
+        self.assertFalse(finding["safeToAttestNativeGroup"])
+
+    def test_actual_empty_args_pass_both_checks_without_becoming_native_evidence(self):
+        finding = classify_controlled_pipe_arguments(self.command({}))
+        self.assertTrue(finding["luaLiteralEmptyArgsMatched"])
+        self.assertTrue(finding["actualPayloadArgsEmpty"])
+        self.assertFalse(finding["luaLiteralFalseAcceptance"])
+        self.assertFalse(finding["safeToAttestNativeGroup"])
+
+    def test_nonempty_args_without_decoy_do_not_match_lua_literal(self):
+        finding = classify_controlled_pipe_arguments(self.command({"unexpected": 7}))
+        self.assertFalse(finding["luaLiteralEmptyArgsMatched"])
+        self.assertFalse(finding["actualPayloadArgsEmpty"])
+        self.assertFalse(finding["safeToAttestNativeGroup"])
+
+    def test_duplicate_property_fixture_is_not_upgraded_to_strict_json_proof(self):
+        raw = self.command({})
+        changed = raw.replace('"args":{}', '"args":{},"args":{"unexpected":1}', 1)
+        with self.assertRaisesRegex(BoundaryError, "duplicate JSON property"):
+            classify_controlled_pipe_arguments(changed)
+
+    def test_lua_arg_check_source_drift_requires_requalification(self):
+        original = OVERVIEW.read_text(encoding="utf-8-sig")
+        source = 'string.find(text, \'"args":{}\', 1, true) ~= nil'
+        self.assertIn(source, original)
+        changed = original.replace(source, 'string.find(text, \'"args":{}\', 1, true) == nil', 1)
+        with self.assertRaisesRegex(BoundaryError, "Lua pipe argument parsing boundary changed"):
+            audit_lua_pipe_argument_boundary(overview=changed)
+
+    def test_backend_empty_object_guard_drift_requires_requalification(self):
+        from audit_group_transport import BACKEND
+        original = BACKEND.read_text(encoding="utf-8-sig")
+        text = 'if (properties.MoveNext())'
+        self.assertIn(text, original)
+        changed = original.replace(text, 'if (false)', 1)
+        with self.assertRaisesRegex(BoundaryError, "backend getStatus empty-object guard changed"):
+            audit_lua_pipe_argument_boundary(backend=changed)
 
 
 if __name__ == "__main__":

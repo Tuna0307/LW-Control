@@ -126,6 +126,17 @@ public sealed class MapControlPlane : IDisposable
     public MapScanState CompleteScanForRun(string expectedRunId) =>
         scan.CompleteOwnedScan(expectedRunId, state =>
         {
+            // The caller's RunId alone does not prove that the actual source
+            // completed all 2,500 logical blocks. Previously this method
+            // wrote TotalBlocks to SQLite unconditionally, letting an early
+            // same-owner Publish replace the last good records with a partial
+            // staging set. Enforce the engine-reported completion *inside*
+            // the exact owner lock before modifying durable progress.
+            if (state.TotalBlocks <= 0 ||
+                state.CompletedBlocks != state.TotalBlocks ||
+                state.FailedBlocks != 0 || state.InflightBlocks != 0)
+                throw new BridgeCommandException("INCOMPLETE_SCAN",
+                    "native scan cannot publish before every owned logical block completed");
             long now = nowMilliseconds();
             store.UpdateScanProgress(expectedRunId, state.TotalBlocks, 0, null, now);
             store.CompleteScan(expectedRunId, now);
