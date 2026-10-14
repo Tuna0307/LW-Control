@@ -204,12 +204,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             {
                 try
                 {
-                    Map317.MapScanState owner = control.ScanState;
-                    if (!owner.IsReading ||
-                        !string.Equals(owner.ScanRunId, execution.RunId, StringComparison.Ordinal))
-                        throw new InvalidDataException(
-                            "Map317 native progress arrived after the accepted run was retired or replaced.");
-                    control.ReportProgress(new Map317.MapScanProgressUpdate(
+                    control.ReportProgressForRun(execution.RunId, new Map317.MapScanProgressUpdate(
                         progress.CompletedBlocks,
                         progress.CompletedBlocks,
                         progress.FailedBlocks,
@@ -363,10 +358,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             {
                 try
                 {
-                    Map317.MapScanState active = control.ScanState;
-                    if (active.IsReading &&
-                        string.Equals(active.ScanRunId, request.RunId, StringComparison.Ordinal))
-                        control.FailScan(error.Message);
+                    control.FailScanForRun(request.RunId, error.Message);
                 }
                 catch
                 {
@@ -409,10 +401,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         cancellation.Dispose();
         try
         {
-            Map317.MapScanState current = control.ScanState;
-            if (current.IsReading &&
-                string.Equals(current.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
-                control.FailScan(error.Message);
+            control.FailScanForRun(request.ScanRunId, error.Message);
         }
         finally { RunTerminated?.Invoke(request.ScanRunId); }
     }
@@ -479,9 +468,8 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
         int attempts,
         long updatedAt)
     {
-        RequireCurrentRun(request);
         foreach (MapStoredRecord record in capture.Records)
-            control.StageRecord(ToMap317Record(record));
+            control.StageRecordForRun(request.RunId, ToMap317Record(record));
     }
 
     public void CheckpointFailure(
@@ -495,8 +483,7 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
 
     public void Publish(MapScanExecutionRequest request, long updatedAt)
     {
-        RequireCurrentRun(request);
-        control.CompleteScan();
+        control.CompleteScanForRun(request.RunId);
     }
 
     public void Fail(MapScanExecutionRequest request, string error, long updatedAt)
@@ -504,28 +491,13 @@ internal sealed class Map317ScanRunSink : IMapScanRunSink
         // An old engine may fail after Map317 has already retired that run
         // and accepted a successor. Never convert its failure into a failure
         // of the current independent run.
-        if (IsCurrentRun(request))
-            control.FailScan(error);
+        control.FailScanForRun(request.RunId, error);
     }
 
     public void Stop(MapScanExecutionRequest request, long updatedAt)
     {
         // Stop ownership originates in MapControlPlane -> IMapProvider.StopMapScanAsync.
         // Re-entering that path from the engine cancellation sink would recurse.
-    }
-
-    private bool IsCurrentRun(MapScanExecutionRequest request)
-    {
-        Map317.MapScanState current = control.ScanState;
-        return current.IsReading &&
-            string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal);
-    }
-
-    private void RequireCurrentRun(MapScanExecutionRequest request)
-    {
-        if (!IsCurrentRun(request))
-            throw new InvalidDataException(
-                "Map317 rejected a retired native scan's stale SQLite stage or publication.");
     }
 
     private static Map317.MapRecord ToMap317Record(MapStoredRecord record) => new(

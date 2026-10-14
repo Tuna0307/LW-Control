@@ -573,3 +573,74 @@ the micro-race between passive ownership check and its mutation remains a
 separate native/Map317 owner-lease requirement. These new C# tests are
 **not executed** because the earlier .NET test invocation was denied. No
 native/group/packaged success is claimed, and product group selection is off.
+
+## MAP-014 owner-atomic Map317 publication continuation after `7b343c07`
+
+This cycle resumed the actual October 14 source and previous-session receipts,
+including `999370b2` provenance/Resource/Auto/transport fixes and the two
+later `49c1a66d` and `7b343c07` provider/engine safety checkpoints. No
+denied local working-tree inspection, .NET Release regression, aggregate npm
+check or blocked direct frontend operation was retried or rerouted. The last
+genuine independent test receipts remain: transport 47, native/Resource
+40, March 66, consecutive 12, native observer eight Python tests, all PASS
+at the **earlier** source. No such pass proves this new C# change.
+
+**Concrete remaining production race identified and changed:** the
+`7b343c07` Map317 sink checked current `ScanRunId` and then performed
+`MapControlPlane.StageRecord` / `CompleteScan` / `FailScan` against whatever
+run happened to be CURRENT on subsequent access. A different manual/Auto
+run could retire or replace the checked owner in between, redirecting a late
+batch, old-engine failure or publication onto the successor. This was a
+check-to-use race in the actual Map317 + SQLite boundary, not just a synthetic
+received-group envelope concern.
+
+`MapScanStateMachine` now provides exact-owner synchronized write scopes
+for staging, progress, SQLite completion and failure, holding its real
+`stateGate` across the source run-ID admission, durable SQLite mutation and
+in-memory transition where applicable. `MapControlPlane` exposes explicit
+`StageRecordForRun`, `ReportProgressForRun`, `CompleteScanForRun` and
+`FailScanForRun`: they preserve record kind/server checks, per-run SQLite
+staging, selected-kind atomic replacement, canceled-run rejection and no
+late terminal mutation of an independent successor. The mounted
+`CurrentClientMap317ScanProvider` and its real scan sink now use these
+owner-scoped operations for every shared/nonshared capture, progress,
+publication and pre-engine failure; no native acquisition mode is enabled.
+
+The existing real `Map317MapScanSharedAdapterChecks` rejected stale
+stage/publish/fail paths through the actual provider/Map317/SQLite but only
+tested a **sequential** successor after an external ownership check.
+It now additionally requires stale progress to fail, confirms the successor's
+own City row and progress can stage durably, then fails that current run and
+requires zero published stale rows. Source-backed **RED expectation** is
+the previous check/use gap in `Map317ScanRunSink`, which did not have an
+atomic run-bound control-plane operation; **GREEN is unverified** under the
+explicitly denied .NET execution. Neither a native positive nor a packaged
+run is claimed from this managed code.
+
+**Remaining honest boundaries:** an owned SQLite lock is not a game-native
+lease. Current Lua `bulk-aoi-diagnostic` remains one probe/one file result;
+its authenticated pipe Lua receiver supports only `getStatus({})`, no full
+received A→B→C network packet producer, per-AOI/run/profile/PID/group
+evidence for 10,000 AOIs, 2,500 kind-complete blocks, trusted March clock,
+native cancel/late-response retirement or independently correlated single
+final-home ACK. The factory remains unconfigured for production received
+groups; **consecutive selector OFF**. A live server/session/camera change
+between final passive `getContext` and SQLite remains unobservable without
+a native monotonic navigation ownership generation; owner-atomic in-memory
+publication does not certify it. Resource FOV20 still loses unresolved
+19/4/3 baseline-only identities with 25 first-pair extras (mostly
+unoccupied); no lifecycle explanation is adopted. Typed Truck/Train
+March arrival/expiry, mixed mobile full-freshness, Celebration Party,
+moving Doom Walker and independent Train lifetime are pending. Previous
+qualified City-only FOV20, City relocation and Other/Treasure partitioning,
+UI/Auto/Truck Follow/Stop positives remain unchanged. New source RC is
+forbidden without actual native and packaged qualified gates.
+
+Safety remains hard-gated by prior recovery-journal atomic rename
+`WinError 5`: no retry, ACL change, bypass, installed-game script mutation,
+game/LWBridge start or foreground/account action. At this cycle's read-only
+preflight there was no LastWar/LWBridge process or active journal; the three
+installed original SHA-256 hashes were unchanged, and persisted Auto stayed
+enabled, next deadline armed, restart inactive. Historical
+`339e241c` archive and Resource evidence were left intact. **Overall
+status stays PARTIAL.**

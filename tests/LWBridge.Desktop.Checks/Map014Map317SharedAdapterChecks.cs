@@ -427,7 +427,7 @@ internal static class Map014Map317SharedAdapterChecks
             sink.CheckpointSuccess(retiredRequest, block,
                 new MapScanBlockCapture(server, 0, 0, "{}", [oldCity]), 1, 1000);
         }
-        catch (InvalidDataException)
+        catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
         {
             rejectedStage = true;
         }
@@ -437,16 +437,44 @@ internal static class Map014Map317SharedAdapterChecks
         {
             sink.Publish(retiredRequest, 1000);
         }
-        catch (InvalidDataException)
+        catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
         {
             rejectedPublish = true;
         }
         Require(rejectedPublish, "stale source published independent successor");
+        bool rejectedProgress = false;
+        try
+        {
+            control.ReportProgressForRun(retiredRequest.RunId,
+                new Map317.MapScanProgressUpdate(2500, 2500, 0, 0, 200,
+                    true, 0, 0, Phase: "publishing"));
+        }
+        catch (Map317.BridgeCommandException error) when (error.Code == "INVALID_SCAN")
+        {
+            rejectedProgress = true;
+        }
+        Require(rejectedProgress, "stale native progress updated independent successor");
         Require(control.ScanState.IsReading && control.ScanState.ScanRunId == successor.ScanRunId &&
+                control.ScanState.CompletedBlocks == 0 &&
                 store.SummaryCounts(server)["city"] == 0,
             "retired native sink changed successor scan or persisted stale City");
+        // The exact current run is still allowed to stage and advance its
+        // *own* SQLite checkpoint, without publishing historical map rows.
+        control.StageRecordForRun(successor.ScanRunId,
+            new Map317.MapRecord("city", server, "owned-successor-city", 10011,
+                null, "owned", null, 1, null, null, null, null,
+                1800000000000L, "{\"ownerUid\":\"owned-successor-city\"}"));
+        control.ReportProgressForRun(successor.ScanRunId,
+            new Map317.MapScanProgressUpdate(1, 1, 0, 0, 1.0, true, 0, 0));
+        Require(control.ScanState.CompletedBlocks == 1 &&
+                store.ReadScanRun(successor.ScanRunId)?.CompletedBlocks == 1 &&
+                store.SummaryCounts(server)["city"] == 0,
+            "exact successor could not checkpoint to its own SQLite run");
         await provider.StopMapScanAsync();
-        control.FailScan("controlled successor cleanup");
+        control.FailScanForRun(successor.ScanRunId, "controlled successor cleanup");
+        Require(store.SummaryCounts(server)["city"] == 0 &&
+                control.ScanState.Phase == "failed",
+            "failed current successor leaked staged City into published SQLite rows");
     }
 
     internal static async Task RunAsync()

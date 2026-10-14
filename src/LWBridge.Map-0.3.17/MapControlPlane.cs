@@ -89,6 +89,45 @@ public sealed class MapControlPlane : IDisposable
         return scan.ApplyProgress(next);
     }
 
+    /// <summary>
+    /// Run-owned form for the actual desktop MapScanEngine provider. The
+    /// accepted run remains pinned while both SQLite and in-memory progress
+    /// mutate; a stale native callback cannot update a successor's counters.
+    /// Legacy callers of ReportProgress retain their existing interface.
+    /// </summary>
+    public MapScanState ReportProgressForRun(string expectedRunId, MapScanProgressUpdate update) =>
+        scan.ReportOwnedProgress(expectedRunId, update, next =>
+            store.UpdateScanProgress(expectedRunId, next.CompletedBlocks,
+                next.FailedBlocks, next.Error, nowMilliseconds()));
+
+    public void StageRecordForRun(string expectedRunId, MapRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        scan.WithOwnedRunningScan(expectedRunId, state =>
+        {
+            if (record.ServerId != state.ServerId ||
+                !state.SelectedTypes.Contains(record.Kind, StringComparer.Ordinal))
+                throw new BridgeCommandException("INVALID_MAP_RECORD",
+                    "map record does not belong to the exact active scan");
+            store.StageRecord(expectedRunId, record);
+        });
+    }
+
+    public MapScanState CompleteScanForRun(string expectedRunId) =>
+        scan.CompleteOwnedScan(expectedRunId, state =>
+        {
+            long now = nowMilliseconds();
+            store.UpdateScanProgress(expectedRunId, state.TotalBlocks, 0, null, now);
+            store.CompleteScan(expectedRunId, now);
+        });
+
+    public MapScanState FailScanForRun(string expectedRunId, string error) =>
+        scan.FailOwnedScan(expectedRunId, error, _ =>
+        {
+            // Never preserve a failed/incomplete native source's staged rows.
+            store.FailScan(expectedRunId, error, nowMilliseconds(), preserveRecords: false);
+        });
+
     public void StageRecord(MapRecord record)
     {
         MapScanState state = scan.State;

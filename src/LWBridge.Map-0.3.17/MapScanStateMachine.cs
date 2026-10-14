@@ -357,6 +357,110 @@ public sealed class MapScanStateMachine
         return failed;
     }
 
+    /// <summary>
+    /// Execute a native/provider SQLite mutation while the exact active run
+    /// cannot be replaced by a concurrent Start/Stop/state transition. Checking
+    /// State outside this lock and then writing the *current* scan leaves a
+    /// genuine check-to-use gap when a retired native packet arrives late.
+    /// This is a managed ownership boundary, not native reply authentication.
+    /// </summary>
+    internal void WithOwnedRunningScan(string expectedRunId, Action<MapScanState> mutate)
+    {
+        ArgumentNullException.ThrowIfNull(mutate);
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            mutate(state);
+        }
+    }
+
+    internal MapScanState ReportOwnedProgress(
+        string expectedRunId, MapScanProgressUpdate update, Action<MapScanState> persist)
+    {
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState next;
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            next = PreviewProgress(update);
+            // Persist the same immutable snapshot we publish to readers.
+            // A failed SQLite update must not advance in-memory counters.
+            persist(next);
+            state = next;
+        }
+        RaiseStateChanged(next);
+        return next;
+    }
+
+    internal MapScanState CompleteOwnedScan(string expectedRunId, Action<MapScanState> persist)
+    {
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState completed;
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            // SQLite replacement is atomic at the store level; hold the
+            // state ownership boundary through that commit so Stop/Start
+            // cannot replace the run between validation and publication.
+            persist(state);
+            state = state with
+            {
+                IsReading = false,
+                Phase = "completed",
+                CompletedBlocks = state.TotalBlocks,
+                ReadBlocks = state.TotalBlocks,
+                FailedBlocks = 0,
+                UnreadBlocks = 0,
+                InflightBlocks = 0,
+                ProgressPercent = state.TotalBlocks > 0 ? 100.0 : 0.0,
+                ResumeAvailable = false,
+                Error = null,
+                AcquisitionProgressPercent = 100,
+            };
+            completed = state;
+        }
+        RaiseStateChanged(completed);
+        return completed;
+    }
+
+    internal MapScanState FailOwnedScan(string expectedRunId, string error,
+        Action<MapScanState> persist)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(error);
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState failed;
+        lock (stateGate)
+        {
+            // Fail from a retired engine must not fail a newer independent
+            // manual or Auto run, including one on the same server.
+            if (!IsOwnedRunningScan(state, expectedRunId)) return state;
+            persist(state);
+            state = state with
+            {
+                IsReading = false,
+                Phase = "failed",
+                InflightBlocks = 0,
+                ResumeAvailable = false,
+                Error = error,
+                AcquisitionProgressPercent = null,
+            };
+            failed = state;
+        }
+        RaiseStateChanged(failed);
+        return failed;
+    }
+
+    private static bool IsOwnedRunningScan(MapScanState current, string expectedRunId) =>
+        current.IsReading && !string.IsNullOrWhiteSpace(expectedRunId) &&
+        string.Equals(current.ScanRunId, expectedRunId, StringComparison.Ordinal);
+
+    private static void RequireOwnedRunningScan(MapScanState current, string expectedRunId)
+    {
+        if (!IsOwnedRunningScan(current, expectedRunId))
+            throw new BridgeCommandException("INVALID_SCAN",
+                "retired or foreign map scan cannot mutate the active scan owner");
+    }
+
     public async ValueTask<MapScanState> FailAndStopAsync(
         string error, string expectedScanRunId, int expectedServerId,
         MapStore store, Func<long> nowMilliseconds, CancellationToken cancellationToken = default)
