@@ -2402,6 +2402,25 @@ internal sealed partial class LWBridgeWindow : Form
         lock (normalUiProofGate) return normalUiProofSearchSequence;
     }
 
+    private void RecordNormalUiMapProofCommandError(string id, string command, JsonElement payload,
+        string code, string message)
+    {
+        if (normalUiLiveMapProofPath is null || productionPaths?.ExplicitIsolation != true ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") != "1" ||
+            command != "map_search") return;
+        try
+        {
+            string receipt=JsonSerializer.Serialize(new {requestId=id,command,payload,code,message,
+                at=DateTimeOffset.UtcNow},JsonOptions.Default);
+            lock(normalUiProofGate)
+                File.AppendAllText(normalUiLiveMapProofPath+".command-errors.jsonl",receipt+Environment.NewLine);
+        }
+        catch(Exception error) when(error is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            Console.Error.WriteLine("Isolated Map query error observation unavailable: "+error.Message);
+        }
+    }
+
     private NormalUiResourceProofSearchObservation? ReadNormalUiProofSearchAfter(long sequence)
     {
         lock (normalUiProofGate)
@@ -5490,12 +5509,16 @@ internal sealed partial class LWBridgeWindow : Form
                 if (!IsCurrentDocument(session)) return;
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
                 {
+                    RecordNormalUiMapProofCommandError(id, command, payload, "DUPLICATE_REQUEST_ID",
+                        "Request was rejected by the native request ledger.");
                     if (!sessionClosed)
                         SendError(session, id, "DUPLICATE_REQUEST_ID", "A request with this id is already active or the native session is closing.");
                     return;
                 }
                 if (execution.Status == NativeRequestExecutionStatus.Cancelled)
                 {
+                    RecordNormalUiMapProofCommandError(id, command, payload, "COMMAND_CANCELLED",
+                        "Request was cancelled by the native request ledger.");
                     SendError(session, id, "COMMAND_CANCELLED", "The command was cancelled.");
                     return;
                 }
@@ -5544,6 +5567,7 @@ internal sealed partial class LWBridgeWindow : Form
             catch (BridgeCommandException ex)
             {
                 RecordHome004F06Dispatch("error:" + ex.Code, command);
+                RecordNormalUiMapProofCommandError(id, command, payload, ex.Code, ex.Message);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&
@@ -5562,6 +5586,7 @@ internal sealed partial class LWBridgeWindow : Form
             catch (Exception ex)
             {
                 RecordHome004F06Dispatch("exception:" + ex.GetType().Name, command);
+                RecordNormalUiMapProofCommandError(id, command, payload, "NATIVE_COMMAND_FAILED", ex.Message);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&

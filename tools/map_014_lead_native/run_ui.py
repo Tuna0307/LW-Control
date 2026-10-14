@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import sys
 import time
@@ -224,9 +225,20 @@ def admit():
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other", "mixed"):
+    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other", "mixed"):
         raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other|mixed")
     mode = sys.argv[1]
+    saved_db = None
+    if len(sys.argv) == 4:
+        if mode != "browse" or sys.argv[2] != "--saved-db":
+            raise RuntimeError("Explicit saved native data is supported only for browse proof")
+        saved_db = Path(sys.argv[3]).resolve()
+        if not saved_db.is_relative_to((ROOT / "artifacts").resolve()) or not saved_db.is_file():
+            raise RuntimeError("Saved proof DB must be an existing task artifact")
+        with sqlite3.connect(saved_db.as_uri() + "?mode=ro", uri=True) as readonly:
+            last = readonly.execute("SELECT status,total_blocks,completed_blocks,failed_blocks FROM scan_runs ORDER BY created_at DESC LIMIT 1").fetchone()
+            if last != ("completed", 2500, 2500, 0):
+                raise RuntimeError("Saved native DB is not a complete successful full-world run")
     prior_hashes = admit()
     destination = ROOT / "artifacts/map014-takeover" / (
         "native-ui-" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S"))
@@ -236,14 +248,16 @@ def main():
     source = (ROOT / "artifacts/map014-takeover/native-ui-20261013-123802/profiles/map014-native-ui/map-data"
               if mode == "remote-reuse" else
               ROOT / "artifacts/map014-lead-ui/native-20261013-104453/profiles/map014-native-ui/map-data")
+    if saved_db is not None:
+        source = saved_db.parent
     if not (source / "map-data.db").is_file():
         raise FileNotFoundError("Preserved genuine published Map database is unavailable")
     store = destination / "profiles" / profile / "map-data"
     store.mkdir(parents=True)
     if mode in ("browse", "remote", "remote-reuse", "track", "expiry"):
-        for item in source.glob("map-data.db*"):
-            if item.name in ("map-data.db", "map-data.db-wal", "map-data.db-shm"):
-                shutil.copy2(item, store / item.name)
+        with sqlite3.connect((source / "map-data.db").resolve().as_uri() + "?mode=ro", uri=True) as readonly, \
+             sqlite3.connect(store / "map-data.db") as snapshot:
+            readonly.backup(snapshot)
     (destination / "source.json").write_text(json.dumps({
         "genuine": True, "fixture": False, "mode": mode,
         "source": str(source),
