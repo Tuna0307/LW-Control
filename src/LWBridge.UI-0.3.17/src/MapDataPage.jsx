@@ -103,7 +103,7 @@ function coordinateText(row) {
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, onTreasurePreview = () => {}, treasurePreviewAvailable = false, actionBusy, actionDisabled, jumpingKey = "", liveTargetDisabled = true, followingKey = "", selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, onTreasurePreview = () => {}, treasurePreviewAvailable = false, actionBusy, actionDisabled, markDisabled = actionDisabled, jumpingKey = "", liveTargetDisabled = true, followingKey = "", selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
   const { language, t } = useI18n();
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   useEffect(() => {
@@ -120,7 +120,11 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
       const marchUuid = String(row.marchUuid || "").trim();
       if (!marchUuid) return "-";
       const key = `${row.serverId}:${marchUuid}`;
-      return <button className="map-coordinate-button" type="button" disabled={actionBusy || (followingKey !== key && (actionDisabled || liveTargetDisabled))} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><strong>{followingKey === key ? t("common.stop") : t(jumpingKey === key ? "map.following" : "map.follow")}</strong></button>;
+      const knownArrival = Number(row.arriveTs);
+      const arrived = Number.isFinite(knownArrival) && knownArrival > 0 && knownArrival <= currentTime;
+      // A stored row can expire while visible. Keep an ongoing Follow's Stop
+      // available, but never offer a new Follow after native final arrival.
+      return <button className="map-coordinate-button" type="button" disabled={actionBusy || (followingKey !== key && (actionDisabled || liveTargetDisabled || arrived))} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><strong>{followingKey === key ? t("common.stop") : t(jumpingKey === key ? "map.following" : "map.follow")}</strong></button>;
     }
     const x = Number(row.x);
     const y = Number(row.y);
@@ -171,7 +175,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   {column.select ? (
                     <input type="checkbox" aria-label={t("map.selectNamedTask", { name: String(row.ownerName || row.allianceName || row.uuid), server: row.serverId })} checked={selectedKeys?.has(selectionMembershipKey(row)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(row)} />
                   ) : column.mark ? (
-                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
+                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={markDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
                       <svg className={`ui-icon${row.marked ? " is-filled" : ""}`} viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z" /></svg>
                     </button>
                   ) : column.coordinate ? (
@@ -839,6 +843,9 @@ export function MapDataPage({
   }
 
   async function startScan() {
+    // Empty manual selection is an intentional user choice, never an implicit
+    // request to scan all eight default kinds.
+    if (!selectedTypes.length) return;
     setOptions((current) => current ? { ...current, scanProgress: null } : current);
     setScanError("");
     try {
@@ -998,6 +1005,9 @@ export function MapDataPage({
       setFollowing(null);
       return;
     }
+    // Independently fence a stale click from a still-mounted scan result.
+    const nativeArrival = Number(row.arriveTs);
+    if (moving && Number.isFinite(nativeArrival) && nativeArrival > 0 && Date.now() >= nativeArrival) return;
     followGeneration.current += 1;
     const generation = followGeneration.current;
     const issuedApi = mapApi;
@@ -1328,7 +1338,7 @@ export function MapDataPage({
                 <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>{t("map.normalSpeed")}</span></label>
                 <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>{t("map.fastSpeed")}</span></label>
               </fieldset>
-              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>{t("map.startReading")}</button>
+              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning || selectedTypes.length === 0} onClick={startScan}>{t("map.startReading")}</button>
               <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t("common.stop")}</button>
               <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
             </>
@@ -1537,7 +1547,7 @@ export function MapDataPage({
           <span className="muted" role="status">{t("map.namesLoading")}</span> : null}
         {tab !== "scheduledPlunder" ? (
           <>
-            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} liveTargetDisabled={typeof mapApi?.marchFollow !== "function"} followingKey={following?.key || ""} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} markDisabled={!backendAvailable || !dataServerId || scanState.isReading || typeof mapApi?.setPlayerMark !== "function"} liveTargetDisabled={typeof mapApi?.marchFollow !== "function"} followingKey={following?.key || ""} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
             <Pagination page={page} total={total} onPage={setPage} />
           </>
         ) : (

@@ -30,8 +30,8 @@ Source: `src/LWBridge.Map-0.3.17/MapStore.Query.cs`; distinguishing regression:
 
 ## Genuine packaged-app and native evidence
 
-- `artifacts/map014-takeover/native-ui-20261014-152426/`: the actual canonical
-  Windows publish running the production WebView against a **copy** of the
+- `artifacts/map014-takeover/native-ui-20261014-152426/`: the then-current
+  `1192f4a5` Windows publish running the production WebView against a **copy** of the
   original 27,205-row genuine dataset. `native-ui-map.json` reports
   `real_native_ui_browse_existing_genuine_dataset`, `newMapScans:0`; the
   `map014-ui-extras.json` receipts all pass: Other tab/subtype presentation,
@@ -42,6 +42,14 @@ Source: `src/LWBridge.Map-0.3.17/MapStore.Query.cs`; distinguishing regression:
   The game and app exited, exact original v26 scripts restored, and no recovery
   journal survived. A prior reproducible failed replay remains at
   `native-ui-20261014-150852/`.
+- `artifacts/map014-takeover/native-ui-20261014-155003/`: the **extracted**
+  `65a4c882` review ZIP executable repeated the genuine saved-DB WebView
+  browse with all eight recorded UI gates passing, exact owned app/game exit
+  and v26 script restoration. `newMapScans:0`: this is **not** evidence that
+  the extracted executable performed a fresh scan or active scanner Stop.
+  No positive Other row naturally appeared in this replay; only the Other
+  tab and subtype controls were observed. Historical Supplies evidence is
+  retained separately.
 - `artifacts/map014-lead-live/native-stop-20261014-232737/`: first **fresh
   current-source, genuine production-provider** active scan Stop at 17.4%
   camera-acquisition progress, zero completed logical blocks. Separate native
@@ -82,6 +90,29 @@ Ghost preparation rejects invalid signed-Int64 UUIDs, duplicate batches and
 protection overflow before any command; valid terminal transport still fails
 closed. The cross-locale UI completeness check now applies the actual Other
 locale additions, preserving the original generated locale sources.
+
+## Final catalogue follow-up — safe UI controls
+
+A subsequent full original Map catalogue audit found and fixed four additional
+issues without changing acquisition strategy or the game action transport:
+
+- Unchecking **every** manual scan type now disables Start, and the native
+  payload preserves an explicitly empty array rather than silently launching
+  the default eight-kind full-world scan. An *omitted* legacy selection still
+  preserves its documented default.
+- Offline browsing of published City rows permits local SQLite Star/Unstar;
+  native coordinate Jump remains disabled while offline or scanning.
+- Dispatch/Ghost task owners without a verified City name display a visibly
+  labelled full-precision `UID …` identity. Resolved names remain unchanged.
+- A displayed Truck/Railway/moving Monster with a **known elapsed native
+  `arriveTs`** cannot initiate a new Follow; an already active Follow retains
+  its explicit Stop. Unknown arrival is left for native validation.
+
+The targeted Map payload and mounted WebView tests cover empty-vs-omitted
+types, reselecting exactly one kind, offline mark persistence alongside
+disabled Jump, unresolved large owner IDs and stale arrival/Stop. These
+are controlled tests; historical genuine game navigation, scan, Owner and
+Stop observations remain scoped to unchanged backend/native paths.
 
 Controlled regression sweep passed: full Desktop/Checks Release (Home,
 MapStore, scanner, cancellation, owner actions, Auto, Other), frontend

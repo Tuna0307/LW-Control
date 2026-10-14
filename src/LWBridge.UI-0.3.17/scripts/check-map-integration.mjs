@@ -26,6 +26,7 @@ import {
 } from "../src/mapBackend.js";
 import { mapScanPresentation, scanDuration } from "../src/mapScanPresentation.js";
 import { selectionMembershipKey, selectionStorageKey, toggleSelection, selectionKeySet, removeSharedSelection } from "../src/mapInteractions.js";
+import { mapOwnerLabel } from "../src/mapTablePresentation.js";
 
 // Dispatch and Truck UUIDs are native identity strings. A padded string must
 // select and deselect the same checkbox key, even after a fresh row arrives.
@@ -115,6 +116,14 @@ assert.deepEqual(buildStartPayload(["resource", "resource", "bogus"], "fast"), {
   selectedTypes: ["resource"],
   scanMode: "fast",
 });
+assert.deepEqual(buildStartPayload([], "normal").selectedTypes, [],
+  "Explicitly unchecked manual scan must not silently expand into eight native kinds");
+assert.deepEqual(buildStartPayload(undefined, "normal").selectedTypes, MAP_DEFAULT_SCAN_TYPES,
+  "Unspecified legacy scan selection still uses the recovered default");
+assert.equal(mapOwnerLabel({ ownerName: "Verified Owner", ownerUid: "99234567890123456789" }), "Verified Owner");
+assert.equal(mapOwnerLabel({ ownerUid: "99234567890123456789" }), "UID 99234567890123456789",
+  "Unresolved full-precision native owner UID must be labeled as identity, not displayed as a player name");
+assert.equal(mapOwnerLabel({}), "-");
 assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), [], "Manual editing must allow removing the last scan type");
 assert.deepEqual(updateSelectedTypes(["city"], "resource", true), ["city", "resource"]);
 assert.deepEqual(buildDispatchShareRows([{

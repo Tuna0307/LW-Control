@@ -14,6 +14,14 @@ const TREASURE_TYPE_KEYS = {
 
 function field(row, key) { return row[key]; }
 function isLiveTarget(kind) { return LIVE_TARGET_KINDS.has(kind); }
+export function mapOwnerLabel(row) {
+  const name = field(row, "ownerName");
+  if (name != null && String(name).trim()) return String(name);
+  const uid = field(row, "ownerUid");
+  // A task's numeric UID is an identity, not a verified player display name.
+  // Retain its full native string precision and label the fallback explicitly.
+  return uid != null && String(uid).trim() ? `UID ${String(uid)}` : "-";
+}
 export function lookupMapText(texts, key, defaultName) {
   const nameKey = String(key || "").trim();
   if (!nameKey) return defaultName;
@@ -383,8 +391,7 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
   }, {
     label: t(`map.owner`),
     width: `minmax(140px, 1fr)`,
-    value: e => field(e, `ownerName`) ? String(field(e, `ownerName`))
-      : field(e, `ownerUid`) ? `UID ${String(field(e, `ownerUid`))}` : `-`
+    value: e => mapOwnerLabel(e)
   }, {
     label: t(`map.alliance`),
     width: `minmax(110px, 1fr)`,
@@ -401,7 +408,7 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
   }] : []), coordinates, {
     label: t(`map.owner`),
     width: `minmax(150px, 1fr)`,
-    value: e => String(field(e, `ownerName`) || field(e, `ownerUid`) || `-`)
+    value: e => mapOwnerLabel(e)
   }, {
     label: t(`map.level`),
     width: `70px`,

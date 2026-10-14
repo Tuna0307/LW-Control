@@ -79,8 +79,9 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   window.clearInterval = (id) => timers.delete(id);
   window.setTimeout = () => 1;
   window.clearTimeout = () => {};
-  const queries = [], clears = [], follows = [];
+  const queries = [], clears = [], follows = [], starts = [], marks = [];
   let heldFollow = null;
+  let onlineFlag = true, cityMarked = false;
   const state = { serverId: 2212, serverIdSource: "live", isReading: false, phase: "idle", selectedTypes: ["resource", "truck"], scanMode: "normal" };
   const rewards = [{ key: "reward:1:100", name: "Genuine Item A", iconPath: null }, { key: "reward:1:500", name: "Genuine Item B", iconPath: null }];
   const sourceSupplies = [{ key: "supplies:1", count: 1, suppliesType: 1, treasureType: 0 },
@@ -106,23 +107,29 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
     texts: Object.fromEntries(keys.map((key) => [key, supportedNames[key] || key])),
   });
   const api = {
-    dataOptions: async (serverId) => ({ serverId, counts: { resource: 2, truck: 1 }, names: { resource: [], monster: [] },
+    dataOptions: async (serverId) => ({ serverId, counts: { city: 1, resource: 2, truck: 1, dispatch: 1, ghost: 1 }, names: { resource: [], monster: [] },
       alliances: [], noAllianceCount: 0, dispatchLevels: [], treasureTypes: sourceSupplies, rewardItems: { truck: rewards, railway: [] } }),
-    search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "resource" ? resources : kind === "truck"
+    search: async (kind, query) => { queries.push({ kind, query: structuredClone(query) }); return { rows: kind === "dispatch" || kind === "ghost"
+      ? [{ uuid: kind + "-1", ownerUid: "99876543210987654321", serverId: 2212, x: 90, y: 91, level: 2, completionTime: Date.now() + 3600000 }]
+      : kind === "city"
+      ? [{ uuid: "city-1", ownerUid: "99876543210987654321", ownerName: "", marked: cityMarked, serverId: 2212, x: 99, y: 101, level: 27 }]
+      : kind === "resource" ? resources : kind === "truck"
       ? [{ uuid: " t-1 ", serverId: 2212, marchUuid: "1234567", arriveTs: Date.now() + 3600000,
         quality: 5, power: 25000000, currentGoods: rewards.map((item) => ({ ...item, count: 2 })) }] : kind === "monster"
       ? [{uuid:"doom-42",marchUuid:"7654321",serverId:2212,x:20,y:30,monsterNameKey:"doom"},
          {uuid:"stationary-1",serverId:2212,x:21,y:31,monsterNameKey:"ordinary"}] : [],
-      total: kind === "truck" ? 1 : kind === "resource" || kind === "monster" ? 2 : 0 }; },
+      total: ["city", "truck", "dispatch", "ghost"].includes(kind) ? 1 : kind === "resource" || kind === "monster" ? 2 : 0 }; },
     listPlunderJobs: async () => ({ dispatchJobs: [], truckJobs: [] }),
     marchFollow: async (row) => { follows.push(`${row.serverId}:${String(row.marchUuid)}`); if (heldFollow) await heldFollow; },
+    start: async (types, speed) => { starts.push({ types: [...types], speed }); return state; },
+    setPlayerMark: async (row, marked) => { marks.push({ uid: row.ownerUid, marked }); cityMarked = marked; },
     scanStatus: async () => state,
     clear: async (serverId) => { clears.push(serverId); return state; },
   };
   let autoRunning = false;
   const root = createRoot(document.getElementById("root"));
   const render = () => flush(() => root.render(React.createElement(I18nProvider, { key: language }, React.createElement(MapDataPage,
-    { mapApi: api, bridgeMode: "native", backendAvailable: true, online: true, currentServerId: 2212,
+    { mapApi: api, bridgeMode: "native", backendAvailable: true, online: onlineFlag, currentServerId: 2212,
       onState() {}, onCounts() {}, scanState: state, summary: { serverId: 2212, counts: { resource: 2, truck: 1 } },
       autoScanRunning: autoRunning, gameTextLoader, gameTextOwner: "controlled-owner", gameTextRoot }))));
   const click = (el) => flush(() => { assert.ok(el, "mounted control missing"); assert.equal(el.disabled, false);
@@ -179,6 +186,15 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.equal(follows.length, beforeExpiredPoll, "expired Follow issued a new native request");
   assert.ok(![...timers.values()].some((entry) => entry.delay === 3000),
     "expired same-UUID Follow retained its observation timer");
+  const nativeExpiryClock = [...timers.values()].find((entry) => entry.delay === 1000);
+  assert.ok(nativeExpiryClock, "Map table lacked current-time refresh for source expiry");
+  try {
+    Date.now = () => realNow() + 2 * 3600000;
+    await flush(() => nativeExpiryClock.callback());
+    assert.equal(document.querySelector(".map-table--truck .map-coordinate-button").disabled, true,
+      "known-arrived stored Truck still offered an unsafe new Follow");
+  } finally { Date.now = realNow; }
+  await flush(() => nativeExpiryClock.callback());
   let rejectRetiredFollow;
   heldFollow = new Promise((_, reject) => { rejectRetiredFollow = reject; });
   await click(document.querySelector(".map-coordinate-button"));
@@ -206,6 +222,37 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.equal(queries.at(-1).kind, "treasure");
   assert.equal(queries.at(-1).query.suppliesType, 1, "Scattered Supplies must filter native suppliesType=1");
   assert.equal(queries.at(-1).query.treasureType, 0, "ordinary Treasure type is distinct");
+  await goto(0);
+  const allManualChoices = [...document.querySelectorAll(".map-types input[type=checkbox]")];
+  for (const item of allManualChoices.filter((item) => item.checked)) await flush(() => item.click());
+  assert.ok(allManualChoices.every((item) => !item.checked), "manual map type controls did not become empty");
+  const manualStart = document.querySelector(".map-actions button.primary");
+  assert.ok(manualStart && manualStart.disabled, "empty manual selection still enables a default full-world scan");
+  assert.equal(starts.length, 0, "unselected manual scan ran before consent");
+  await flush(() => allManualChoices[0].click());
+  assert.equal(document.querySelector(".map-actions button.primary").disabled, false,
+    "choosing a single type did not re-enable manual Start");
+  await click(document.querySelector(".map-actions button.primary"));
+  assert.deepEqual(starts, [{ types: ["city"], speed: "normal" }],
+    "manual Start expanded a single selected type into unintended kinds");
+  onlineFlag = false; await render();
+  const markButton = document.querySelector(".map-table--city .map-mark-button");
+  assert.ok(markButton && !markButton.disabled,
+    "saved City local mark must be available while the owned backend is disconnected from the game");
+  assert.equal(document.querySelector(".map-table--city .map-coordinate-button").disabled, true,
+    "offline native City Jump must remain unavailable");
+  await click(markButton);
+  assert.deepEqual(marks, [{ uid: "99876543210987654321", marked: true }],
+    "offline star did not store the exact player identity");
+  assert.ok(document.querySelector(".map-table--city .map-mark-button")?.classList.contains("active"),
+    "offline City mark did not refresh the saved result after persistence");
+  await goto(5);
+  assert.match(document.querySelector(".map-table--dispatch").textContent, /UID 99876543210987654321/,
+    "Dispatch must visibly distinguish unresolved task owner identity from a real player name");
+  await goto(6);
+  assert.match(document.querySelector(".map-table--ghost").textContent, /UID 99876543210987654321/,
+    "Ghost must visibly distinguish unresolved task owner identity from a real player name");
+  onlineFlag = true; await render();
   await click(document.querySelectorAll(".map-scan-tabs [role=tab]")[1]);
   await click(document.querySelector(".map-auto-scan-options button:last-of-type"));
   assert.deepEqual(clears, [2212], "Auto Clear did not call canonical command");

@@ -233,7 +233,11 @@ export function cycleSort(sorts, sortBy) {
 
 export function buildStartPayload(selectedTypes, scanMode) {
   return {
-    selectedTypes: normalizeSelectedTypes(selectedTypes),
+    // An omitted legacy selection means the recovered default eight kinds.
+    // An explicitly unchecked manual selection means no kinds: pass [] to the
+    // native admission fence instead of silently launching a full-world scan.
+    selectedTypes: Array.isArray(selectedTypes) && selectedTypes.length === 0
+      ? [] : normalizeSelectedTypes(selectedTypes),
     scanMode: scanMode === "fast" ? "fast" : "normal",
   };
 }
