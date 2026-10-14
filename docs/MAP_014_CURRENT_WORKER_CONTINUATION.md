@@ -913,3 +913,45 @@ native/Resource/March/transport/consecutive Python passes remain historical,
 not new C# GREEN. Post-change .NET Release, real provider/SQLite/Auto C# cases,
 packaged Windows, genuine native producer/transport/home ACK and recovery are
 **blocked/unverified**. No old denial was retried or bypassed. **PARTIAL.**
+
+## MAP-014 accepted-start provider retirement and disposal review after `56ad2caf`
+
+**Starting identity/safety:** separately permitted direct `git ls-remote`
+and existing draft PR #10 metadata both matched
+`56ad2caf0da95b544366c852edc38129a5435949` at entry; **local HEAD or
+clean-tree status was not established**, and previous local Git inspection
+denials were not retried. Re-read `AGENTS.md`, Oct14 handoff/latest
+continuation, real provider/engine/Map317 state/SQLite and Auto code. Passive
+zero LastWar/Launcher/LWBridge.Desktop processes, absent recovery journal,
+unchanged SHA-256 of installed `LWScripts.data`, `LWScripts.txt`,
+`version.txt`; saved Auto remains `enabled=true`, `nextRunAt` armed and
+`restart.active=false`, old `339e241c` release remains. No script/Auto/
+game/app/recovery mutation. An absent recovery journal **never** authorizes
+retrying prior `WinError 5`.
+
+| Newly traced source path | Correction / independent qualification |
+| --- | --- |
+| **Accepted provider but invalid block count leaves pending owner:** `MapScanStateMachine.StartAsync` calls `provider.StartMapScanAsync` before it owns a RunId or inserts a SQLite scan run. On `Accepted=true` with `TotalBlocks<=0` or a total mismatching provider's expected world geometry, the former `MAP_SCAN_REJECTED` throw left `CurrentClientMap317ScanProvider.pending` occupied; a subsequent manual/Auto Start could be rejected as `SCAN_RUNNING` despite no active SQLite run. | Before raising the authoritative block-count rejection, Start now attempts best-effort `provider.StopMapScanAsync(CancellationToken.None)` under its Start operation gate, which clears the pending provider reservation in the actual mounted adapter. No Map317/SQLite row or native acknowledgement is manufactured; an exception in provider cleanup cannot convert the validation error to a pass. **Source change not .NET-compiled/tested.** |
+| **Pre-SQLite Start notification throws after in-memory owner mutation:** `SetState(started)` writes the new `scanning` owner and invokes `StateChanged` before `MapControlPlane.StartScanAsync` inserts SQLite staging. An external UI subscriber exception would escape before the command ever receives that RunId, leaving a reading state and reserved pending provider with no durable row to retire. | The new Start-local catch restores `before` under exact `stateGate` only if the state still belongs to the generated RunId, retires the pending provider and rethrows the actual notification failure. Normal notification behavior and the later exact-row SQLite Start insertion path are unchanged. This failure cannot publish partial staging or change previous map rows; **no executable C# witness** available. |
+| **Dispose signals token callbacks while holding provider gate:** `CancellationTokenSource.Cancel()` synchronously invokes token registrations; previously provider Dispose held its `gate` while doing so, despite native/engine retirement callbacks potentially needing that same gate. | Dispose now closes admission/snapshots the exact task and cancellation owner under `gate`, signals cancellation outside it, tolerates a CTS already disposed by terminalization, and still joins the captured activation/task without joining another successor. Matches existing asynchronous Stop lock ordering; **no C# Green**. |
+| **Rejected hypothesis: partial block StageRecord retry leaks stale rows into publication.** Read actual `MapScanEngine` source: block *capture* exceptions are retried, but exceptions from `sink.CheckpointSuccess` occur outside that retry catch and are terminal. Engine calls exact `sink.Fail` and the Map317 SQLite failed-run transaction deletes staging before any publish. | No speculative SQLite staging/transaction change was made. Preserves full distinct-block completion and old published rows; does **not** claim the never-run C# suite passed. |
+
+**Native/accuracy hold:** no new source-supported authenticated producer of
+native A→B→C group packets exists beyond the audited one-shot `bulk-aoi`
+diagnostic and `getStatus` pipe. Production received-group ingress, per-AOI
+reply identity, complete typed results, native cancel and independent final
+home ACK remain missing. Consecutive production selector OFF; City-only
+FOV20 historical 4,114 owners and 227.912→86.179s paired medians preserved.
+Diagnostic 119 probes / 10,000 AOIs / 49.203s is not product group capture.
+Resource 19/4/3 baseline-only versus 25 candidate-only and v24
+WorldMarch/mobile/Train expiry remain causally unqualified, Celebration Party
+and moving Doom Walker unobserved. Previous Home/Map/Auto/Jump/Clear,
+relocating City, type27 Other/Treasure, filters/images/localization and Truck
+Follow/Stop positives/negative controls remain unchanged.
+
+**Testing:** source-only review. Historical Python transport/Resource/March/
+consecutive/observer receipts pertain to earlier checkpoints. Do not infer
+C# compile/Release/integration, genuine native packet or packaged Windows
+Green. Previously denied .NET execution, blocked C# regression edit, local
+Git inspection, aggregate npm/frontend and recovery rename were not
+retried/disguised/rerouted. **Overall PARTIAL.**

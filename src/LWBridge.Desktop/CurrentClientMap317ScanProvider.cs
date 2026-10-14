@@ -347,7 +347,18 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             cancellation = activeCancellation;
             pending = null;
             pendingContext = null;
-            cancellation?.Cancel();
+        }
+
+        // CancellationTokenSource.Cancel synchronously invokes registered
+        // callbacks. Never execute source/engine cancellation callbacks while
+        // owning the provider admission gate: a terminal callback can need
+        // that same gate to retire the exact native task/CTS. Stop already
+        // signals outside gate; Dispose must preserve the same lock order.
+        try { cancellation?.Cancel(); }
+        catch (ObjectDisposedException)
+        {
+            // The exact task may have retired between capture and signal;
+            // still join the captured activation barrier/task below.
         }
 
         if (activating is not null)

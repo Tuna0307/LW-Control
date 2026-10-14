@@ -213,6 +213,15 @@ public sealed class MapScanStateMachine
             if (result.TotalBlocks <= 0 ||
                 (context.ExpectedTotalBlocks is int expected && expected != result.TotalBlocks))
             {
+                // The provider may already have reserved the exact run's
+                // source/transport admission. This response is NOT an accepted
+                // Map317 scan, so no state/SQLite run will be created and the
+                // normal Map317 Stop path will not execute. Retire that pending
+                // provider owner before another manual/Auto Start can try to
+                // acquire it. No native result, camera reply or block success
+                // is inferred from this best-effort rejected-start cleanup.
+                try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
+                catch { /* Keep the authoritative block-count rejection. */ }
                 throw new BridgeCommandException(RejectedCode, BlockCountMismatchMessage);
             }
 
@@ -240,7 +249,29 @@ public sealed class MapScanStateMachine
                 Error: null,
                 StartedAt: nowUnixSeconds());
 
-            return SetState(started);
+            try
+            {
+                return SetState(started);
+            }
+            catch
+            {
+                // StateChanged subscribers are UI/observer notifications, not
+                // an accepted SQLite run. A subscriber exception after
+                // SetState wrote the new owner would otherwise escape before
+                // MapControlPlane could insert its scan_runs row or return
+                // this exact RunId to the command's cleanup handler. No
+                // native engine was activated yet. Restore ONLY this newly
+                // announced run and retire its pending provider reservation.
+                lock (stateGate)
+                {
+                    if (state.IsReading &&
+                        string.Equals(state.ScanRunId, scanRunId, StringComparison.Ordinal))
+                        state = before;
+                }
+                try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
+                catch { /* Preserve the original notification failure. */ }
+                throw;
+            }
         }
         finally
         {
