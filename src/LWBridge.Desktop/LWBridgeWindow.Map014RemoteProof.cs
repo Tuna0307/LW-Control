@@ -41,6 +41,19 @@ internal sealed partial class LWBridgeWindow
             throw new TimeoutException("MAP014 real remote UI stage did not settle: " + stage);
         }
         async Task<bool> Dom(string script) => await core.ExecuteScriptAsync(script)=="true";
+        async Task<int> ObserveLiveServer(int expected, string stage)
+        {
+            int? observed = null;
+            await RequireUi(() =>
+            {
+                // GetLiveServerId reads an independently refreshed heartbeat.
+                // A native return acknowledgement can precede that refresh;
+                // incomplete writes yield null, not evidence of a wrong server.
+                observed = overviewLifecycleService.GetLiveServerId();
+                return Task.FromResult(observed == expected);
+            }, stage, 450);
+            return observed!.Value;
+        }
         async Task<JsonElement> RealRows(int server)
         {
             object? value=await map317CommandService.InvokeAsync("map_search",
@@ -153,13 +166,15 @@ internal sealed partial class LWBridgeWindow
             if(!observedRunning || !observedRemote || cycle.Running || cycle.LastCycle?.Outcome!="completed" ||
                cycle.LastCycle.CompletedServerIds is null || !cycle.LastCycle.CompletedServerIds.Contains(remoteServer))
                 throw new InvalidDataException("Real Auto remote cycle failed: "+JsonSerializer.Serialize(cycle.LastCycle,JsonOptions.Default));
-            if(overviewLifecycleService.GetLiveServerId()!=homeServer)
-                throw new InvalidDataException("Auto did not return to original server 2212.");
+            results.Add(new{stage="auto_cycle_settled_before_heartbeat",cycle.LastCycle,
+                observedLiveServerId=overviewLifecycleService.GetLiveServerId()});
+            await Save();
+            int observedHomeServer = await ObserveLiveServer(homeServer,"Auto returned home heartbeat");
             JsonElement remoteRows=await RealRows(remoteServer);
             int remoteCount=remoteRows.GetProperty("total").GetInt32();
             if(remoteCount<1) throw new InvalidDataException("Actual Auto scan did not publish a positive server-2213 Resource dataset.");
             results.Add(new{stage="remote_published_returned_home",observedRunning,observedRemote,
-                liveServerId=overviewLifecycleService.GetLiveServerId(),remoteCount,cycle.LastCycle});
+                liveServerId=observedHomeServer,remoteCount,cycle.LastCycle});
             await Save();
             }
             else
@@ -229,8 +244,7 @@ internal sealed partial class LWBridgeWindow
             if(selected is null) throw new InvalidDataException("No positive remote stored row supports coordinate Jump.");
             int targetX=selected.Value.GetProperty("x").GetInt32();
             int targetY=selected.Value.GetProperty("y").GetInt32();
-            if(overviewLifecycleService.GetLiveServerId()!=homeServer)
-                throw new InvalidDataException("Remote row Jump did not begin from home server.");
+            await ObserveLiveServer(homeServer,"home heartbeat before remote stored-row Jump");
             string coordinate=JsonSerializer.Serialize($"{targetX},{targetY}");
             if(!await Dom($"(()=>{{const target={coordinate};const buttons=[...document.querySelectorAll('.map-table--resource .map-coordinate-button:not(:disabled)')];const button=buttons.find(b=>b.textContent.includes(target));if(!button)return false;button.click();return true;}})()"))
                 throw new InvalidDataException("Real server-2213 row Jump control unavailable.");
@@ -277,8 +291,7 @@ internal sealed partial class LWBridgeWindow
             await ReturnHome();
             await RequireUi(()=>Dom("document.querySelector('select[data-map-saved-server]')?.value==='2213'"),
                 "remote selection after second home return");
-            if(overviewLifecycleService.GetLiveServerId()!=homeServer)
-                throw new InvalidDataException("Could not return home before Auto saved-server Clear.");
+            await ObserveLiveServer(homeServer,"home heartbeat before Auto saved-server Clear");
             await Task.Delay(2000,token);
             if(!await Dom("(()=>{const b=[...document.querySelectorAll('.map-auto-scan-options > button')].at(-1);if(!b||b.disabled)return false;b.click();return true;})()"))
                 throw new InvalidDataException("Real Auto Clear Map Data control is unavailable.");
@@ -304,10 +317,16 @@ internal sealed partial class LWBridgeWindow
         {
             try
             {
+                await mapAutoScanService.UpdateConfigAsync(
+                    JsonSerializer.SerializeToElement(new{enabled=false},JsonOptions.Default),CancellationToken.None);
                 if(mapAutoScanService.IsCycleBusy)
                     await mapAutoScanService.CancelAsync(CancellationToken.None);
                 await ReturnHome();
-                results.Add(new{stage="cleanup",homeServer,restored=true});
+                MapAutoScanSnapshot stopped=await mapAutoScanService.GetSnapshotAsync(CancellationToken.None);
+                if(stopped.Config.Enabled || stopped.Running)
+                    throw new InvalidDataException("Diagnostic Auto cleanup remained enabled or active.");
+                results.Add(new{stage="cleanup",homeServer,restored=true,autoEnabled=stopped.Config.Enabled,
+                    autoRunning=stopped.Running});
             }
             catch(Exception error)
             {
