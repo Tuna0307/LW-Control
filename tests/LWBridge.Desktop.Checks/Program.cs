@@ -39,6 +39,7 @@ await Map007ActionProviderChecks.RunAsync();
 await Map007GhostCorrelationChecks.RunAsync();
 await Map014OwnerFixChecks.RunAsync();
 await Map014OtherEventChecks.RunAsync();
+await Map014ConsecutiveEngineCleanupChecks.RunAsync();
 Map014BoundedLensChecks.Run();
 Map008InstalledNameChecks.Run();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 
 namespace LWBridge.Desktop;
 
@@ -17,17 +18,23 @@ internal sealed class MapScanEngine
     private readonly IMapScanRunSink sink;
     private readonly Action<MapScanEngineProgress>? progress;
     private readonly Action<MapScanEngineStageMetrics>? completedStageMetrics;
+    private readonly TimeSpan acquisitionCleanupTimeout;
 
     public MapScanEngine(
         IMapScanBlockSource source,
         IMapScanRunSink sink,
         Action<MapScanEngineProgress>? progress = null,
-        Action<MapScanEngineStageMetrics>? completedStageMetrics = null)
+        Action<MapScanEngineStageMetrics>? completedStageMetrics = null,
+        TimeSpan? acquisitionCleanupTimeout = null)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
         this.sink = sink ?? throw new ArgumentNullException(nameof(sink));
         this.progress = progress;
         this.completedStageMetrics = completedStageMetrics;
+        this.acquisitionCleanupTimeout = acquisitionCleanupTimeout ?? TimeSpan.FromSeconds(8);
+        if (this.acquisitionCleanupTimeout <= TimeSpan.Zero ||
+            this.acquisitionCleanupTimeout > TimeSpan.FromSeconds(30))
+            throw new ArgumentOutOfRangeException(nameof(acquisitionCleanupTimeout));
     }
 
     public async Task ExecuteAsync(
@@ -35,6 +42,13 @@ internal sealed class MapScanEngine
         CancellationToken cancellationToken = default)
     {
         ValidateRequest(request);
+        // This contract is *opt-in by source type*. It never changes the
+        // existing per-probe behavior for ordinary sources. A consecutive
+        // source cannot restore a run without a stable session owner.
+        IMapScanAcquisitionCleanup? acquisitionCleanup = source as IMapScanAcquisitionCleanup;
+        if (acquisitionCleanup is not null && string.IsNullOrWhiteSpace(request.LaunchSessionId))
+            throw new InvalidDataException(
+                "Consecutive native cleanup requires an exact launch session identity.");
         IReadOnlyList<MapScanTargetBlock> blocks = MapScanTraversal.Build(request.TileWidth, request.TileHeight);
         long startedAt = Environment.TickCount64;
         int completed = 0;
@@ -42,7 +56,33 @@ internal sealed class MapScanEngine
         bool terminalStateWritten = false;
         double sourceCaptureMilliseconds = 0;
         double checkpointMilliseconds = 0;
+        bool cleanupAttempted = false;
+        Exception? cleanupOutcomeError = null;
         sink.Begin(request, blocks.Count, UtcNowMilliseconds());
+
+        async Task CleanupOwnedAcquisitionAsync(MapScanAcquisitionExitReason reason)
+        {
+            if (acquisitionCleanup is null || cleanupAttempted) return;
+            cleanupAttempted = true;
+            // Never pass the cancelled scan token: Stop and any cancellation
+            // after staging still owe a bounded native home-view cleanup.
+            using var deadline = new CancellationTokenSource(acquisitionCleanupTimeout);
+            try
+            {
+                MapScanAcquisitionCleanupReceipt receipt =
+                    await acquisitionCleanup.CleanupAsync(request, reason, deadline.Token)
+                        .WaitAsync(acquisitionCleanupTimeout).ConfigureAwait(false);
+                if (receipt is null || !MatchesCleanupRequest(request, receipt.Request) ||
+                    !receipt.OriginalCameraRestored || !receipt.FreshHomeViewReplyMatched)
+                    throw new InvalidDataException(
+                        "Native cleanup did not verify the exact scan owner, original camera and fresh home reply.");
+            }
+            catch (Exception error)
+            {
+                cleanupOutcomeError = error;
+                throw;
+            }
+        }
 
         try
         {
@@ -134,6 +174,7 @@ internal sealed class MapScanEngine
             if (failed > 0)
             {
                 const string terminalError = "direct map scan contains failed batches";
+                await CleanupOwnedAcquisitionAsync(MapScanAcquisitionExitReason.Failed).ConfigureAwait(false);
                 sink.Fail(request, terminalError, UtcNowMilliseconds());
                 terminalStateWritten = true;
                 throw new BridgeCommandException("INCOMPLETE_SCAN", terminalError);
@@ -141,6 +182,10 @@ internal sealed class MapScanEngine
 
             MapScanCompletionSafety.ValidateDirectCompletion(blocks.Count, completed, failed);
             Report(request.RequestedConcurrency, "publishing", blocks.Count, completed, failed, 0, startedAt);
+            cancellationToken.ThrowIfCancellationRequested();
+            // A positive staged run must restore the native home *and* match a
+            // fresh reply before the SQLite publication transaction can start.
+            await CleanupOwnedAcquisitionAsync(MapScanAcquisitionExitReason.Completed).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             long publishStarted = Stopwatch.GetTimestamp();
             sink.Publish(request, UtcNowMilliseconds());
@@ -162,24 +207,61 @@ internal sealed class MapScanEngine
                 }
             }
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException cancellationError) when (cancellationToken.IsCancellationRequested)
         {
+            Exception? cleanupError = null;
+            try
+            {
+                await CleanupOwnedAcquisitionAsync(MapScanAcquisitionExitReason.Stopped).ConfigureAwait(false);
+            }
+            catch (Exception error)
+            {
+                cleanupError = error;
+            }
+            cleanupError ??= cleanupOutcomeError;
+            // Even if the native owner is gone and restoration is unverified,
+            // retire this exact scan's persistent staging; never publish it.
             sink.Stop(request, UtcNowMilliseconds());
+            if (cleanupError is not null)
+            {
+                // Preserve Stop/cancellation classification while surfacing the
+                // restoration failure in the observed exception and diagnostics.
+                cancellationError.Data["MAP014_NATIVE_CLEANUP_UNVERIFIED"] = cleanupError;
+                Console.Error.WriteLine("MAP014 cancelled scan native cleanup unverified: " + cleanupError.Message);
+            }
             throw;
         }
         catch (Exception error)
         {
+            Exception propagated = error;
+            try
+            {
+                await CleanupOwnedAcquisitionAsync(cancellationToken.IsCancellationRequested
+                    ? MapScanAcquisitionExitReason.Stopped
+                    : MapScanAcquisitionExitReason.Failed).ConfigureAwait(false);
+            }
+            catch (Exception cleanupError)
+            {
+                propagated = new AggregateException(
+                    "Map acquisition and native cleanup both failed; publication is prohibited.",
+                    error, cleanupError);
+            }
             if (!terminalStateWritten)
             {
                 try
                 {
-                    sink.Fail(request, error.Message, UtcNowMilliseconds());
+                    if (acquisitionCleanup is not null && cancellationToken.IsCancellationRequested)
+                        sink.Stop(request, UtcNowMilliseconds());
+                    else
+                        sink.Fail(request, propagated.Message, UtcNowMilliseconds());
                 }
                 catch
                 {
                     // Preserve the original fatal error if persistence ownership is already lost.
                 }
             }
+            if (!ReferenceEquals(propagated, error))
+                ExceptionDispatchInfo.Capture(propagated).Throw();
             throw;
         }
     }
@@ -224,6 +306,22 @@ internal sealed class MapScanEngine
                 !MapScanContract.AllTypes.Contains(type, StringComparer.Ordinal)))
             throw new BridgeCommandException("INVALID_SCAN_TYPES", "no valid map scan types selected");
     }
+
+    private static bool MatchesCleanupRequest(MapScanExecutionRequest expected, MapScanExecutionRequest? actual) =>
+        actual is not null &&
+        string.Equals(expected.RunId, actual.RunId, StringComparison.Ordinal) &&
+        expected.ServerId == actual.ServerId &&
+        expected.WorldId == actual.WorldId &&
+        expected.TileWidth == actual.TileWidth &&
+        expected.TileHeight == actual.TileHeight &&
+        expected.RequestedConcurrency == actual.RequestedConcurrency &&
+        expected.MaxAttemptsPerBlock == actual.MaxAttemptsPerBlock &&
+        expected.PlayerTileX == actual.PlayerTileX &&
+        expected.PlayerTileY == actual.PlayerTileY &&
+        string.Equals(expected.ScanMode, actual.ScanMode, StringComparison.Ordinal) &&
+        string.Equals(expected.LaunchSessionId, actual.LaunchSessionId, StringComparison.Ordinal) &&
+        expected.LiveServerId == actual.LiveServerId &&
+        expected.SelectedTypes.SequenceEqual(actual.SelectedTypes, StringComparer.Ordinal);
 
     private static void ValidateBatch(
         MapScanExecutionRequest request,

@@ -2,6 +2,52 @@
 
 **Scope / handoff:** worker-1, 14 October 2026, `codex/map-owner-fixes-014` at clean `339e241c`. This is an **offline, read-only diagnosis**, not a new game witness and not a production fix. All edits are isolated to this document and `tools/map_014_march_research/`. No app/game session, installed script mutation, network request, packaging or commit was performed.
 
+## October 14 10:26 SGT owned passive-native receipt review (checkout 62f45143)
+
+**Actual native evidence, not synthetic:** `artifacts/map014-lead-live/native-march-source-20261014-102638/live-resource/bulk-aoi-diagnostic-result.json`, `march-source-before-camera.json`, `final.json`; reviewed alongside producer `tools/current_live_resource_probe.lua:3537-3593,5755-5787,6097-6113`, host `src/LWBridge.Desktop/CurrentClientMapBlockSource.FastCity.cs:906-917`, and static producer checks `tools/map_014_lead_native/test_march_source_telemetry.py`. All were **read**, not edited.
+
+The game-produced diagnostic successfully reached point readiness (`isRecvViewPoints`, `hasReceiveViewPointsReply`, `responseFlagsTransitioned` all true) and **actually observed 60 unique uncapped** `WorldMarchDataManager.GetAllMarchesByCS` UUIDs at point readiness (`marchDictionaryCount=60`, `marchUuidSampleCapped=false`, exactly 60 listed). `viewRect` was x = [-5, 2092.5632], y = [-5, 157]; `cameraViewRect` was x = [0, 2087.5632], y = [0, 152]. These are broad native March-manager rectangles for **this actual baseline-FOV120 probe** (`coverageFov=120`), **not** confirmed FOV20 request/response coverage. There were **zero** extracted `train_march_records` despite the 60 manager UUIDs. This is an **unclassified all-March dictionary**; it does not imply 60 valid Trucks/Trains or any absence of a specific Train. Native point AOI membership is a different domain.
+
+**Critical negative, not papered over:** `marchSourceBefore` is **absent** in the actual `bulk-aoi-diagnostic-result.json`. The misleadingly similar standalone `march-source-before-camera.json` is a `mode=camera_checkpoint` camera-geometry receipt, with no march dictionary/queue/timestamp snapshot. Its `requestId` differs from the bulk request, and its captured timestamp is ~114 seconds earlier; it cannot substitute for the missing pre-shift March state. The recovered producer currently captures `request.details.marchSourceBefore` before shifting (Lua ~5775-5777), and producer serializes/re-attaches it in its current version. The separately owned `test_march_source_telemetry.py` has **four** passive-observer/inverse tests passing, including a regression for an earlier details-reconstruction loss, but **tests on a repaired source do not retroactively change this archived failed native receipt**.
+
+The point-ready stage reports `pendingQueuePresent=true`, `pendingQueueCount=0`, `mergedQueueCount=0`, `observedAtRuntimeSeconds=140.54324565013`. This is **not** an audited drained March queue: the installed metadata type is `GameKit.Base.StepProcessQueue<T>`, and the producer merely reads `safe_get(queue,"Count") or reflected_value(queue,"Count")` (Lua ~3582-3585). There is no source/type signature proof that this property represents all pending work or is the correct read-only getter, even though a numeric zero was returned. A production eligibility gate must reject unverified `StepProcessQueue.Count` provenance. The retained manager's `_lastGetBlockMsgTime` and `_lastHandleBlockMsgTime` appear as strings such as `10/14/2026 2:29:13 AM: -417184563`, whereas numeric `lastGetBlockMessageTicks` / `lastHandleBlockMessageTicks` are absent. Treat the displayed suffix as **opaque**; never parse it as valid C# DateTime ticks or infer receive-before-handle interval from it. No correlated native `WorldGetRectMarchInfosMessage` request, reply, or `TryExcuteMarchMessage` completion is captured, and there is no independent same-time UUID/lifecycle oracle.
+
+**Independent archived UUID overlap (read-only):** `tools/map_014_march_research/audit_passive_march_receipt.py` compares the 60 real manager UUID strings only against `record_key` and `data_json.uuid` of archived `truck` / `railway` rows in the six `native-benchmark-mixed-20261014-021149/benchmark-{0..5}.db` databases, enforcing stored server consistency and emitting **aggregate counts only**:
+
+| Historical mixed round | Archived Truck rows | Archived Railway rows | Overlap with 60 later all-March UUIDs |
+| --- | ---: | ---: | ---: |
+| 0 (baseline) | 103 | 2 | 0 for each kind |
+| 1 (FOV20) | 39 | 0 | 0 for each kind |
+| 2 (baseline) | 95 | 1 | 0 for each kind |
+| 3 (FOV20) | 39 | 1 | 0 for each kind |
+| 4 (baseline) | 89 | 2 | 0 for each kind |
+| 5 (FOV20) | 36 | 1 | 0 for each kind |
+
+**Important:** the old scan completions were approximately **29,024–29,636 seconds (8.06–8.23 hours) earlier** than the later source capture. The later manager sample is not Truck/Train-classified and has no `TrainData.arriveTs` or position attached. Therefore **zero UUID overlap is not proof of loss, expiration, manager completeness, or FOV20 failure at that later moment**. It is an identity comparison across changing, time-separated populations, not a same-time native negative or matching population oracle.
+
+### Read-only receipt gate and concrete fail-closed result
+
+Run:
+
+```text
+python tools/map_014_march_research/audit_passive_march_receipt.py artifacts/map014-lead-live/native-march-source-20261014-102638/live-resource/bulk-aoi-diagnostic-result.json --archived-mixed artifacts/map014-lead-live/native-benchmark-mixed-20261014-021149
+python -m unittest discover -s tools/map_014_march_research -p 'test_*.py' -v
+```
+
+The checker returns `receiptHasActualPointReadyMarchManagerSnapshot=true`, `observedMarchDictionaryCount=60`, **`mobileFreshnessQualified=false`**, **`globallyQualified=false`**. It specifically rejects missing **same-run pre-camera March source** and after-processing source, no exact-server/world March attribution, absent correlated request/reply/process events and source rectangle match, queue count without independently proven read-only `StepProcessQueue.Count` getter semantics, missing numeric `DateTime.Ticks`, and absent contemporaneous independently supported active-March identities. A standalone camera checkpoint is never accepted as a march snapshot.
+
+For a **future, independently produced** opt-in trace to satisfy even the *single-region* gate, the checker documents the following test-only receipt contract (it does not create an observer or issue requests):
+
+* `marchSourceBefore`, `marchSourceAtPointReady`, and `marchSourceAfterProcess` each must have distinct increasing `observedAtRuntimeSeconds`, typed `viewRect` and `cameraViewRect`, uncapped deduplicated `marchUuids` exactly matching `marchDictionaryCount`, and positive `lastGetBlockMessageTicks` / `lastHandleBlockMessageTicks` (native .NET DateTime ticks, not ambiguous formatted strings).
+* Native timestamp ticks must be plausible and align within **five minutes of the recorded UTC receipt** (deliberately conservative admission policy for the observed source clock, **not** a wait; if a future client uses a different DateTime timezone, independently establish a trustworthy clock mapping first). Source receive/process tick snapshots cannot move backwards; an exact post-point-ready March handler must advance the handle timestamp.
+* Queue provenance must identify actual installed `_messages` field `0x04002561`, confirmed `StepProcessQueue` runtime type, zero-argument read-only `Count` getter and independent exact-type verification. Numeric zero without this proof fails; both queue and merge backlog must be zero.
+* `marchRectEvents` must contain exactly one source-observed `WorldGetRectMarchInfosMessage.CSSetData` **request**, one `WorldGetRectMarchInfosMessage.CSHandleResponse` **reply**, and one `WorldMarchDataManager.TryExcuteMarchMessage` **process** for a common independently witnessed correlation identifier, same server/world, identical and applicable active March rectangle, monotonic runtime/native timestamps, and processing after point readiness while target camera is retained. An app-local point `requestId` is **not** a native network match.
+* A distinct same-time independent `independentActiveMarches` oracle must tie each inspected UUID to actual server/world, final `TrainData.arriveTs` still in the future relative to witnessed native server time, and observation within a one-second configured skew. Its set must be contained in the after-process all-March dictionary. Missing UUID, stale observation, expired final arrival, duplicate or server/world mismatch fails. **Movement-leg `endTime` never substitutes for final arrival**.
+
+This strict receipt schema is a conservative **offline qualification proposal**, not proof that the existing native producer exposes or reliably correlates all such events. A synthetic complete trace passing the test still returns `globallyQualified=false`. The new isolated inverse suite covers the actual missing before source, camera-only substitution, absent/mismatched request/reply/process, stale rectangle/server/clock, ambiguous `Count=0`, queue pending, stale/expired/duplicate UUID, missing native .NET ticks, and time-separated archived replay.
+
+**Result:** the actual October 14 passive result positively establishes one WorldMarch manager population snapshot and camera restoration, but **does not advance Truck/Train FOV20 qualification**. The prime's separate owner-only native instrumentation would need the missing native request/response/processing/geometry and lifecycle sequence to distinguish absent subscription, late queue consumption, and point-AOI-filter mismatch. Keep baseline for Truck/Railway/mixed mobile; do not add sleeps or guessed requests.
+
 ## Decision
 
 **REJECT FOV20 for Truck/Train and mixed mobile scans.** Preserve the guarded serial LOD0 method; keep the existing City-only optimization independent. The observed point acquisition barrier and 10,000/10,000 point AOIs **do not** certify WorldMarchDataManager's separate moving-march rectangle, net response, queue consumption or native availability. More passive evidence is needed before any fix that changes mobile scan admission. Neither an arbitrary sleep nor a manual `WorldGetRectMarchInfos` request is a supported substitute.

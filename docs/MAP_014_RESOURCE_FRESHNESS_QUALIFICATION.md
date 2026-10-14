@@ -25,8 +25,15 @@ genuine evidence**, not a newly run game experiment.
   completed blocks, zero failures/drops, count consistency, independently
   matched resource hydration and field correctness.
 - `python -B -m unittest test_audit_resource_freshness -v` inside
-  `tools/map_014_lead_native` runs eleven **synthetic negative/positive unit
+  `tools/map_014_lead_native` runs nineteen **synthetic negative/positive unit
   fixtures**; those are not genuine scanner witnesses.
+- The expanded auditor ties each native `data_json.updatedAt` / SQLite
+  `updated_at` to the **independent original camera-before/after
+  `capturedAt` UTC window**, native profile/session/process identity and
+  server 2212. It refuses out-of-window/stale records, an altered source
+  server, cross-run ownership changes and incompatible source-descriptor
+  reuse. A point ID is coordinate-derived and **does not distinguish
+  successive incarnations of a Resource at the same tile**.
 
 ### Six native engine/SQLite observations (server 2212, world 0)
 
@@ -127,6 +134,106 @@ candidate-only IDs had **some other Resource in that AOI** in the opposite
 snapshot; pair 2 had 4/4 and pair 3 had 2/3. An AOI containing other
 Resource rows independently supports local sampling, but it is **not
 proof that an individual absent point was available to be sampled**.
+
+## New per-AOI temporal cohort bracketing and independent wall clocks
+
+The new `audit_resource_freshness.py` output records, **for each changing
+point ID and each of the six rounds**, whether that ID was observed, the
+number of archived Resource rows in exactly the same 10×10 AOI,
+their **minimum/maximum native point-capture milliseconds** (or `null` if
+none), the independent full-scan camera-before/after wall-clock bound, and
+the spatial point IDs whose source descriptors remain equal in the
+baseline→FOV20→following-baseline sequence. This is a **cohort of
+native-observed Resource rows**, not an event-history log. The importer
+derives `updatedAt` from the native result's `capturedAt` timestamp at
+`src/LWBridge.Desktop/FirstLiveResultImporter.cs:87-95,134-152,238-281`;
+it does **not** contain the original Resource's server spawn/destruction
+time or an authenticated lifetime UUID.
+
+| Baseline→FOV20 pair | Absent baseline Resource IDs with a *different* same-AOI Resource captured by FOV20 | Same-AOI source-field matching anchors in baseline→FOV20→next baseline | Candidate-only Resource IDs with earlier baseline same-AOI source cohort | Matching anchors through next baseline |
+|---|---:|---:|---:|---:|
+| 0→1 | **11/19** (10 of 16 unoccupied, 1 of 3 occupied) | **11/19** | **11/25** (10 of 24 unoccupied; 1 occupied `20128`) | **11/25** |
+| 2→3 | **4/4** (all previously occupied) | **4/4** | 0 | 0 |
+| 4→5 | **2/3** (previously occupied) | No following FOV120 in this archive | 0 | 0 |
+
+In those source-cohort cases, archived Resource rows in the same AOI carry
+a single common capture-second value within each individual round. The
+matching anchor ID is a **different Resource position** with unchanged
+source fields across the cited snapshots; it is *not* the disappearing or
+new Resource itself. Even a source row co-captured in the same AOI cannot
+prove that an absent Resource existed at that instant. For the **other
+8/19 missing** and **14/25 new** in pair 1, there is **no archived
+Resource-bearing same-AOI capture in the opposite scan**. The scanner's
+10,000 AOI geometry is still valid, but the only defensible temporal
+boundary in these cases is the full scan's camera window.
+
+**Exact source-timestamped examples (UTC, 13 October 2026):**
+
+- Unoccupied, fully detailed `448502` was present in FOV120 round 0
+  at **18:43:33**. Stable same-AOI Resource `443502` appeared in the
+  FOV20 round-1 cohort at **18:45:31**, and later baseline round 2
+  at **18:47:19**; `448502` is absent throughout rounds 1–5.
+  This attests later captures of the area but **not the moment of
+  `448502`'s removal**.
+- Unoccupied, fully detailed `374999` was recorded at **18:43:26**
+  in baseline round 0. Its own 10×10 AOI has **zero archived Resource
+  rows** in each later round. There is no same-AOI point-source timestamp
+  for it after baseline, even though point-AOI coverage completed.
+- The **candidate-only occupied** `20128` has a different same-AOI
+  source anchor `25127` captured at **18:42:30** in round 0, while
+  `20128` itself first appears source-marked occupied at **18:45:01**
+  in FOV20 round 1; the same point ID is observed occupied again in
+  FOV120 round 2 **18:46:17**, FOV20 round 3 **18:48:47** and FOV120
+  round 4 **18:50:03**. At **18:52:32**, round-5 FOV20 again captures
+  `25127` in this same AOI, **without `20128`**. The observations
+  bound its *recorded presence* across multiple full-world scans, but
+  neither its actual first spawn nor subsequent destruction is proven.
+  A matching coordinate `pointId` is not a guaranteed lifetime identifier.
+- For later pair 2, the occupied `95464` is observed at **18:46:22**
+  in baseline round 2 and absent from candidate round 3's source cohort
+  containing different, stable same-AOI anchor `90462` at
+  **18:48:53** (then again in baseline round 4). Again,
+  **occupation-associated disappearance is not a proven death event**.
+
+The scanner host's own before/after camera receipts supply additional
+**independent wall-clock bounds**, which were missing from the earlier
+point-identity-only audit:
+
+| Round | Lens | Independent game-camera capture window (UTC, 13 Oct 2026) |
+|---|---|---|
+| 0 | FOV120 | 18:42:25–18:44:56 |
+| 1 | FOV20 | 18:44:57–18:46:11 |
+| 2 | FOV120 | 18:46:12–18:48:42 |
+| 3 | FOV20 | 18:48:43–18:49:56 |
+| 4 | FOV120 | 18:49:57–18:52:27 |
+| 5 | FOV20 | 18:52:28–18:53:42 |
+
+Every one of 47,967 SQLite point capture timestamps fits its **own**
+round's independent camera wall-clock interval, and those six windows do
+not overlap. That defeats a stale-row-from-previous-run explanation for
+the **observed** records; it cannot prove a negative for an **absent**
+Resource where no native point row is saved. The only additional raw
+per-request `live-resource/bulk-aoi-diagnostic-result.json` preserved at
+the root is **the final FOV20 round-5 request**, `requestMode=coverage`,
+`coverageFov=20`, `capturedAt=2026-10-13T18:53:39Z`, with 40 native
+requested AOIs and 36 `point_records`. **None of the 50 distinct changed
+Resource point IDs from the three pairs is in its requested AOI
+rectangle**. It cannot be repurposed into simultaneous source evidence
+for an earlier missing/extra ID. The per-round compact metrics do not
+retain individual AOI request IDs or native positive/negative object
+snapshots sufficient for that causal attribution.
+
+**No proven positive source-presence-versus-candidate-absence inverse is
+present in these archives.** A positive same-AOI *other Resource*, exact
+point count, second-resolution point observation, later source descriptor
+agreement, or later reappearance are not equivalent to authoritative
+simultaneous presence of a missing identity. The new auditor therefore
+sets `nativePointLifecycleCausality: "unknown"` and
+`simultaneousAuthoritativePresenceAndAbsenceProof: false` for every
+changed ID and retains potential spatial-point reincarnation separately.
+Controlled tests reject stale capture dates, wrong source/camera server,
+changed native session, and incorrectly counting a re-used point ID with
+different resource configuration as the same living object.
 
 ## Production path and recommended exact native inverse
 

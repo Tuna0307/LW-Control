@@ -1,5 +1,34 @@
 # MAP-014 native march acquisition — offline research
 
+## New archived real-native October 14 passive receipt gate (checkout 62f45143)
+
+Use `audit_passive_march_receipt.py` against
+`artifacts/map014-lead-live/native-march-source-20261014-102638/live-resource/bulk-aoi-diagnostic-result.json`
+to validate the real point-ready March manager snapshot without upgrading a
+missing source-causal request chain into a pass. The actual receipt includes
+60 uncapped unique native `WorldMarchDataManager` UUIDs, but **omits**
+`marchSourceBefore`; the separate `march-source-before-camera.json` is only
+a differently keyed camera checkpoint. It also lacks exact March rect network
+request/response/processed events, source-backed StepProcessQueue.Count getter
+provenance, native DateTime.Ticks and independent same-time active March oracle.
+Both its saved queue counts being zero is not a completion proof. The checker
+returns `mobileFreshnessQualified=false`, keeping baseline Truck/Train policy.
+
+Optional `--archived-mixed artifacts/map014-lead-live/native-benchmark-mixed-20261014-021149`
+reports privacy-safe *counts* of exact UUID intersections against all six
+earlier mixed SQLite receipts. Observed overlap is **zero** across Truck and
+Railway in each archived round, but time gap is **8.06–8.23 hours** and new
+manager IDs are unclassified: no expiry, missing-population or recall inference.
+See `docs/MAP_014_MARCH_FRESHNESS_QUALIFICATION.md` for input schema and
+exact native source references. The existing
+`tools/map_014_lead_native/test_march_source_telemetry.py` source guard passes,
+but repaired producer source does not retrospectively repair an old receipt.
+
+```text
+python tools/map_014_march_research/audit_passive_march_receipt.py artifacts/map014-lead-live/native-march-source-20261014-102638/live-resource/bulk-aoi-diagnostic-result.json --archived-mixed artifacts/map014-lead-live/native-benchmark-mixed-20261014-021149
+python -m unittest discover -s tools/map_014_march_research -p 'test_*.py' -v
+```
+
 ## October 14 hash-pinned freshness qualification
 
 See [the current source-causal qualification](../../docs/MAP_014_MARCH_FRESHNESS_QUALIFICATION.md).

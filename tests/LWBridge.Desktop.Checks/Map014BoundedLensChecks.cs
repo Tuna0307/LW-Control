@@ -66,7 +66,58 @@ internal static class Map014BoundedLensChecks
         CurrentClientMapBlockSource.MergeLatestCityByOwner(independentProfileCities,City(2212,"owner",174054,10));
         if(independentProfileCities.Count!=1 || cities["2212:owner"].Record.PointIndex!=199052)
             throw new Exception("One profile's City aggregation mutated another scan");
-        Console.WriteLine($"MAP014_BOUNDED_LENS_CONTROLLED_OK coverage={covered.Count} probes={probes} inverses=5 cityIdentityInverses=3 scannerSelectionInverses=8 native=false");
+        // Passive manager observations cannot be accepted on the strength of
+        // point-ready flags. They must include source identities at two
+        // ordered observation boundaries, with no null/capped/duplicate UUIDs.
+        string MarchJson(string? before = null,string? after = null) =>
+            "{\"marchSourceBefore\":" + (before ?? MarchSnapshot(10,2)) +
+            ",\"marchSourceAtPointReady\":" + (after ?? MarchSnapshot(12,2)) + "}";
+        static string MarchSnapshot(double seconds,int count,bool capped=false,string? uuids=null) =>
+            System.Text.Json.JsonSerializer.Serialize(new
+            {
+                available=true, observedAtRuntimeSeconds=seconds,
+                marchDictionaryCount=count,marchUuidSampleCapped=capped,
+                marchUuids=uuids is null ? new[] { "uuid-A", "uuid-B" } : uuids.Split('|'),
+            });
+        void AcceptTelemetry(string json)
+        {
+            using var document=System.Text.Json.JsonDocument.Parse(json);
+            CurrentClientMapBlockSource.ValidateNativeMarchTelemetry(document.RootElement);
+        }
+        void RejectTelemetry(string json)
+        {
+            try { AcceptTelemetry(json); }
+            catch(InvalidDataException) { return; }
+            throw new Exception("Native March telemetry accepted stale, invalid, or partial source membership");
+        }
+        AcceptTelemetry(MarchJson());
+        RejectTelemetry(MarchJson("null"));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,2,true)));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,2,false,"uuid-A|uuid-A")));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,3)));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,2),MarchSnapshot(9,2)));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,2),MarchSnapshot(1000,2)));
+        RejectTelemetry(MarchJson(MarchSnapshot(10,2),"{}"));
+        // Exhaustively exercise every non-empty combination rather than only
+        // the eight historical examples. The passive March diagnostic opt-in
+        // must never silently select the faster point lens for mobile/mixed.
+        string[] possible = ["city", "resource", "monster", "zombie_boss", "truck",
+            "railway", "dispatch", "ghost", "treasure", "other"];
+        int combinations = 0;
+        for (int mask = 1; mask < 1 << possible.Length; mask++)
+        {
+            string[] selected = possible.Where((_, index) => (mask & (1 << index)) != 0).ToArray();
+            var candidate = choice with { SelectedTypes = selected };
+            bool qualified = selected.Length == 1 && selected[0] == "city";
+            if (Uses(candidate) != qualified ||
+                Uses(candidate, new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true }) != qualified ||
+                Uses(candidate, new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true }))
+                throw new Exception("Scanner method was promoted for an unqualified kind or mixed selection");
+            combinations++;
+        }
+        if (combinations != 1023 || Uses(choice with { SelectedTypes = ["city", "city"] }))
+            throw new Exception("Scanner method selection allowed duplicate or incomplete case enumeration");
+        Console.WriteLine($"MAP014_BOUNDED_LENS_CONTROLLED_OK coverage={covered.Count} probes={probes} inverses=5 cityIdentityInverses=3 scannerSelectionInverses=8 scannerCombinations={combinations} marchTelemetryInverses=7 native=false");
     }
 
     private static FirstLivePreparedResource City(int server,string owner,int point,long updated)

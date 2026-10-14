@@ -905,9 +905,12 @@ internal sealed partial class CurrentClientMapBlockSource
                     targetY);
                     if (hooks?.ObserveMarchFreshness == true)
                     {
-                        if (!root.Value.TryGetProperty("marchSourceBefore", out var before) ||
-                            !root.Value.TryGetProperty("marchSourceAtPointReady", out var atPoint))
-                            throw new InvalidDataException("March telemetry opt-in lacked native before/point-ready snapshots.");
+                        // Diagnostic admission only: validating two native manager
+                        // snapshots is NOT a March request/reply/queue readiness proof.
+                        // Null, truncated or duplicate UUID receipts must fail closed.
+                        ValidateNativeMarchTelemetry(root.Value);
+                        JsonElement before = root.Value.GetProperty("marchSourceBefore");
+                        JsonElement atPoint = root.Value.GetProperty("marchSourceAtPointReady");
                         string directory = Path.Combine(probeRuntimeRoot, "march-freshness-owned");
                         Directory.CreateDirectory(directory);
                         File.WriteAllText(Path.Combine(directory, requestId + ".json"),
@@ -934,6 +937,48 @@ internal sealed partial class CurrentClientMapBlockSource
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
+    }
+
+    internal static void ValidateNativeMarchTelemetry(JsonElement response)
+    {
+        static InvalidDataException Bad(string reason) =>
+            new("Passive native March telemetry invalid: " + reason);
+        static (double Time, int Count) Check(JsonElement response, string field)
+        {
+            if (!response.TryGetProperty(field, out JsonElement snapshot) ||
+                snapshot.ValueKind != JsonValueKind.Object ||
+                !snapshot.TryGetProperty("available", out JsonElement available) ||
+                available.ValueKind != JsonValueKind.True ||
+                !snapshot.TryGetProperty("observedAtRuntimeSeconds", out JsonElement time) ||
+                time.ValueKind != JsonValueKind.Number ||
+                !time.TryGetDouble(out double seconds) ||
+                !double.IsFinite(seconds) || seconds <= 0 ||
+                !snapshot.TryGetProperty("marchDictionaryCount", out JsonElement count) ||
+                count.ValueKind != JsonValueKind.Number ||
+                !count.TryGetInt32(out int reportedCount) || reportedCount < 0 ||
+                !snapshot.TryGetProperty("marchUuidSampleCapped", out JsonElement capped) ||
+                capped.ValueKind != JsonValueKind.False ||
+                !snapshot.TryGetProperty("marchUuids", out JsonElement uuids) ||
+                uuids.ValueKind != JsonValueKind.Array)
+                throw Bad(field + " missing, stale, truncated or unavailable");
+            var unique = new HashSet<string>(StringComparer.Ordinal);
+            int observed = 0;
+            foreach (JsonElement uuid in uuids.EnumerateArray())
+            {
+                if (uuid.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(uuid.GetString()) ||
+                    !unique.Add(uuid.GetString()!))
+                    throw Bad(field + " has a blank or duplicate March UUID");
+                observed++;
+            }
+            if (observed != reportedCount)
+                throw Bad(field + " March UUID count does not match native dictionary");
+            return (seconds, observed);
+        }
+        (double start, _) = Check(response, "marchSourceBefore");
+        (double ready, _) = Check(response, "marchSourceAtPointReady");
+        if (ready < start || ready - start > FastCityProbeTimeout.TotalSeconds)
+            throw Bad("native point-ready snapshot is out of the correlated probe time window");
     }
 
     internal async Task<IReadOnlyList<MapStoredRecord>> CaptureRailwayListSnapshotForTestAsync(

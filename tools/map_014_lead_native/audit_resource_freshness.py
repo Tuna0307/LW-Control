@@ -8,6 +8,7 @@ use this audit to enable a production scanner mode automatically.
 
 import argparse
 from collections import Counter
+from datetime import datetime
 import json
 from pathlib import Path
 import sqlite3
@@ -20,6 +21,23 @@ IMMUTABLE_FIELDS = (
     "runtimeClass", "sourceKind", "source", "level", "x", "y",
     "worldId", "serverId", "srcServerId",
 )
+CAMERA_IDENTITY_FIELDS = ("gamePid", "profileId", "launchSessionId", "challenge")
+
+
+def _capture_milliseconds(value, label):
+    require(isinstance(value, str) and value.endswith("Z"),
+            f"{label}: missing independent UTC camera capture")
+    try:
+        capture = datetime.fromisoformat(value[:-1] + "+00:00")
+    except ValueError as exc:
+        raise ValueError(f"{label}: malformed independent UTC camera capture") from exc
+    return round(capture.timestamp() * 1000)
+
+
+def _stable_identity(a, b):
+    """A spatial point ID alone does not distinguish a destroyed/reused site."""
+    return all(a["data"].get(field) == b["data"].get(field)
+               for field in IMMUTABLE_FIELDS)
 
 
 def require(condition, message):
@@ -48,6 +66,18 @@ def _run(root, index, receipt):
     require(receipt["cameraBefore"]["cameraSnapshot"] ==
             receipt["cameraAfter"]["cameraSnapshot"],
             f"round {index}: camera not restored")
+    before_camera, after_camera = receipt["cameraBefore"], receipt["cameraAfter"]
+    before_ms = _capture_milliseconds(before_camera.get("capturedAt"), f"round {index} before")
+    after_ms = _capture_milliseconds(after_camera.get("capturedAt"), f"round {index} after")
+    require(before_ms < after_ms and
+            all(before_camera.get(field) is not None and
+                before_camera.get(field) == after_camera.get(field)
+                for field in CAMERA_IDENTITY_FIELDS) and
+            before_camera["cameraSnapshot"].get("serverId") == status["serverId"] and
+            after_camera["cameraSnapshot"].get("serverId") == status["serverId"] and
+            type(status.get("startedAt")) is int and
+            before_ms - 1000 <= status["startedAt"] * 1000 <= after_ms + 1000,
+            f"round {index}: wrong owner/server or inconsistent camera wall-clock interval")
 
     metrics = json.loads((root / f"benchmark-{index}-probe-metrics.json").read_text(encoding="utf8"))
     identity = metrics.get("identity", {})
@@ -101,6 +131,8 @@ def _run(root, index, receipt):
                     data.get("recordKey") == key and
                     data.get("updatedAt") == seen_at,
                     f"round {index}: Resource identity/source/timestamp contradiction at {key}")
+            require(before_ms <= seen_at < after_ms + 1000,
+                    f"round {index}: stale or foreign Resource capture outside independent camera window at {key}")
             x, y = data.get("x"), data.get("y")
             require(type(x) is int and type(y) is int and
                     0 <= x <= 999 and 0 <= y <= 999 and
@@ -160,16 +192,76 @@ def _run(root, index, receipt):
         "resourceHydrationMilliseconds": metrics["resourceHydrationMilliseconds"],
         "captureMinMs": min(row["captureMs"] for row in rows.values()) if rows else None,
         "captureMaxMs": max(row["captureMs"] for row in rows.values()) if rows else None,
+        "independentCameraWallClockWindowMs": [before_ms, after_ms],
+        "cameraOwnerIdentity": {
+            field: before_camera[field] for field in
+            ("gamePid", "profileId", "launchSessionId")
+        },
         "metricsAcquisitionPolicy": metrics.get("acquisitionPolicy"),
     }
 
 
-def _difference(key, earlier, later, all_rows, src_idx, dest_idx):
+def _aoi_cohorts(rows):
+    by_aoi = {}
+    for point_id, record in rows.items():
+        by_aoi.setdefault(record["aoi"], {})[point_id] = record
+    return by_aoi
+
+
+def _difference(key, all_rows, all_cohorts, runs, src_idx, dest_idx):
+    earlier, later = all_rows[src_idx], all_rows[dest_idx]
     record = earlier[key]
     data = record["data"]
-    # A populated neighboring tile in the other snapshot proves the same AOI
-    # held some Resource data; it does NOT prove that this exact point existed.
-    neighbors = sum(row["aoi"] == record["aoi"] for row in later.values())
+    aoi = record["aoi"]
+    opposite_members = all_cohorts[dest_idx].get(aoi, {})
+    neighbors = len(opposite_members)
+    # A point-index is a coordinate, not a native resource lifetime/creation ID.
+    # Same AOI/source cohorts at different wall times prove samples were taken
+    # there, not that an absent member was still alive at a later capture.
+    src_members = all_cohorts[src_idx].get(aoi, {})
+    stable_src_opposite = sorted(
+        (member for member in src_members.keys() & opposite_members.keys()
+         if member != key and _stable_identity(src_members[member], opposite_members[member])),
+        key=int,
+    )
+    baseline_idx, candidate_idx = min(src_idx, dest_idx), max(src_idx, dest_idx)
+    next_baseline = candidate_idx + 1
+    if next_baseline >= len(all_rows):
+        next_baseline = None
+    following = all_cohorts[next_baseline].get(aoi, {}) if next_baseline is not None else {}
+    stable_three_round = [
+        member for member in stable_src_opposite
+        if member in following and
+        _stable_identity(src_members[member], following[member]) and
+        # Independent capture clocks, rather than position-only intersections.
+        all_rows[baseline_idx][member]["captureMs"] <
+        all_rows[candidate_idx][member]["captureMs"] <
+        following[member]["captureMs"]
+    ]
+    cohort_timeline = []
+    for round_idx, cohorts in enumerate(all_cohorts):
+        members = cohorts.get(aoi, {})
+        captures = [member["captureMs"] for member in members.values()]
+        cohort_timeline.append({
+            "round": round_idx,
+            "lens": runs[round_idx]["lens"],
+            "pointObserved": key in all_rows[round_idx],
+            "pointCaptureMs": all_rows[round_idx][key]["captureMs"]
+            if key in all_rows[round_idx] else None,
+            "sameAoiSourceCohortCount": len(members),
+            "sameAoiSourceCohortCaptureBoundsMs": [min(captures), max(captures)]
+            if captures else None,
+            "allCohortRowsSameCaptureSecond": len(set(captures)) == 1
+            if captures else None,
+            "independentCameraWallClockWindowMs":
+                runs[round_idx]["independentCameraWallClockWindowMs"],
+        })
+    appearances = [(round_idx, entries[key]) for round_idx, entries in enumerate(all_rows)
+                   if key in entries]
+    mismatched_incarnations = [
+        round_idx for round_idx, entry in appearances
+        if not _stable_identity(record, entry)
+    ]
     return {
         "pointId": key,
         "xy": [data["x"], data["y"]],
@@ -183,6 +275,18 @@ def _difference(key, earlier, later, all_rows, src_idx, dest_idx):
         "resourceTypeId": data["resourceTypeId"],
         "level": data["level"],
         "sameAoiOtherResourceRows": neighbors,
+        "oppositeScanSameAoiSourceCaptureBoundsMs":
+            cohort_timeline[dest_idx]["sameAoiSourceCohortCaptureBoundsMs"],
+        "sourceCohortWallClockTimeline": cohort_timeline,
+        "sameAoiStableAnchorPointIdsAcrossPair": stable_src_opposite,
+        "sameAoiStableAnchorPointIdsAcrossBaselineCandidateNextBaseline":
+            stable_three_round,
+        "pointIndexReusedWithChangedSourceFieldsInRounds": mismatched_incarnations,
+        "sameObservedSourceIncarnationInOtherRounds":
+            [round_idx for round_idx, entry in appearances
+             if round_idx not in (src_idx, dest_idx) and _stable_identity(record, entry)],
+        "nativePointLifecycleCausality": "unknown",
+        "simultaneousAuthoritativePresenceAndAbsenceProof": False,
         "observedInOtherRounds": [
             i for i, entries in enumerate(all_rows) if i not in (src_idx, dest_idx) and key in entries
         ],
@@ -202,9 +306,16 @@ def audit(root):
         snapshots.append(records)
         runs.append(summary)
     require(len({r["serverId"] for r in runs}) == 1, "server changed across runs")
+    require(len({tuple(run["cameraOwnerIdentity"].items()) for run in runs}) == 1,
+            "camera owner/session identity changed across rounds")
     require(all(left["captureMaxMs"] < right["captureMinMs"]
                 for left, right in zip(runs, runs[1:])),
             "Resource snapshots not ordered as strictly later source captures")
+    require(all(left["independentCameraWallClockWindowMs"][1] <=
+                right["independentCameraWallClockWindowMs"][0]
+                for left, right in zip(runs, runs[1:])),
+            "independent camera wall-clock windows overlap or run out of order")
+    cohorts = [_aoi_cohorts(snapshot) for snapshot in snapshots]
     pairs = []
     for base_idx in (0, 2, 4):
         earlier, later = snapshots[base_idx], snapshots[base_idx + 1]
@@ -216,9 +327,9 @@ def audit(root):
         require(not any(changed.values()), f"pair {base_idx // 2 + 1}: immutable Resource fields changed")
         require(all(earlier[key]["captureMs"] < later[key]["captureMs"] for key in common),
                 f"pair {base_idx // 2 + 1}: candidate has stale capture timestamps")
-        missing = [_difference(key, earlier, later, snapshots, base_idx, base_idx + 1)
+        missing = [_difference(key, snapshots, cohorts, runs, base_idx, base_idx + 1)
                    for key in sorted(earlier.keys() - later.keys(), key=int)]
-        extra = [_difference(key, later, earlier, snapshots, base_idx + 1, base_idx)
+        extra = [_difference(key, snapshots, cohorts, runs, base_idx + 1, base_idx)
                  for key in sorted(later.keys() - earlier.keys(), key=int)]
         flips = [
             {"pointId": key, "beforeOccupied": earlier[key]["data"]["gatherOccupied"],
@@ -234,6 +345,17 @@ def audit(root):
                                                       for item in missing)),
             "extraByCandidateOccupation": dict(Counter(str(item["gatherOccupiedAtObservation"])
                                                        for item in extra)),
+            "missingWithContemporaneousSameAoiSourceCohort":
+                sum(item["sameAoiOtherResourceRows"] > 0 for item in missing),
+            "candidateExtraWithEarlierSameAoiSourceCohort":
+                sum(item["sameAoiOtherResourceRows"] > 0 for item in extra),
+            "missingWithStableSameAoiBaselineCandidateNextBaselineAnchors":
+                sum(bool(item["sameAoiStableAnchorPointIdsAcrossBaselineCandidateNextBaseline"])
+                    for item in missing),
+            "candidateExtraWithStableSameAoiBaselineCandidateNextBaselineAnchors":
+                sum(bool(item["sameAoiStableAnchorPointIdsAcrossBaselineCandidateNextBaseline"])
+                    for item in extra),
+            "genuineSpawnDestructionOrScannerMissAttribution": "unknown",
             "immutableFieldChanges": changed, "sharedOccupationChanges": flips,
             "missingIdentities": missing, "candidateExtraIdentities": extra,
         })
@@ -246,6 +368,12 @@ def audit(root):
         "candidateMedianSeconds": round(candidate, 3),
         "reductionPercent": round((1 - candidate / baseline) * 100, 2),
         "resourceFov20AccuracyQualified": False,
+        "sameAoiCohortQualification": (
+            "Identical AOI co-sampled Source Resource rows and stable spatial anchors "
+            "supply bounded sequential native wall-clock observations, not a "
+            "simultaneous authoritative positive state for any absent point. "
+            "Map point ID is spatial and can be recycled by a new spawn."
+        ),
         "causality": (
             "All timestamps are local point-capture times, not native spawn, "
             "occupancy-transition or destruction times. Paired differences and "

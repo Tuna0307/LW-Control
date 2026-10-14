@@ -7,13 +7,16 @@ not qualify Resource FOV20, native March freshness or consecutive full-engine
 acquisition. Celebration Party/Doom and independent Train lifetime remain
 unavailable source witnesses. This compact ledger preserves historical
 negative receipts. Branch
-`codex/map-owner-fixes-014`, draft PR #10, inherited checkpoint `f068c6c0`.
+`codex/map-owner-fixes-014`, existing draft PR #10. The latest reconciled
+checkpoint at this continuation's start was `62f4514300ffbed9e01582a214d1fe83c55aca4e`
+(already pushed, working tree clean). New source work must be reported as a
+separate checkpoint only after it is committed and remotely verified.
 
 ## Current measured scanner routes
 
 | Selection | Genuine baseline median | Genuine opt-in FOV20 median | Decision and evidence |
 | --- | ---: | ---: | --- |
-| City only, 2212 | **227.912 s** | **86.179 s** | **Production FOV20 selected, pending actual packaged proof.** Fresh Oct14 six-round exact-owned engine benchmark in `native-benchmark-city-20261014-085244`: every round 4,114 unique current owners, zero missing/extra identities in all three pairs, zero duplicate owner locations, 10,000 AOIs and identical camera checkpoints; one player moved (760,164) to (335,171) at a later source observation. Median 62.19% reduction. No fixed global server census claim. Earlier historical pairs 146.498 vs 68.588 had one duplicate pre-fix location in each candidate; retained as historical negative. |
+| City only, 2212 | **227.912 s** | **86.179 s** | **Production FOV20 selected and actually packaged City-only verified at predecessor 339e241c.** Fresh Oct14 six-round exact-owned engine benchmark in `native-benchmark-city-20261014-085244`: every round 4,114 unique current owners, zero missing/extra identities in all three pairs, zero duplicate owner locations, 10,000 AOIs and identical camera checkpoints; one player moved (760,164) to (335,171) at a later source observation. Median 62.19% reduction. No fixed global server census claim. Earlier historical pairs 146.498 vs 68.588 had one duplicate pre-fix location in each candidate; retained as historical negative. |
 | Resource | 149.747 s | 73.370 s | Baseline selected pending native population-difference attribution and final package/Stop gates. Historical pairs have 7,970/7,998/7,990 shared identities with unchanged locations, resource types, levels and capacities; there are 19/4/3 missing and 25/0/0 extra candidate identities, and 7/2/1 changing occupancy states. |
 | City+Resource+Monster+Truck+Railway+Dispatch | 168.075 s | 90.754 s | **Reject faster mobile route.** All six scans covered 10,000 point AOIs; candidate Truck populations 39/39/36 vs baseline 103/95/89. Baseline→candidate missing UUIDs were 92/92/83, of which 90/88/82 had explicit final `arriveTs` later than candidate completion. |
 | Truck, Railway, other individual kinds | Existing guarded serial LOD0 | No qualified equivalent | Keep existing method; the point manager's AOI reply is not a march-manager rectangle/queue/reply completion barrier. |
@@ -120,3 +123,33 @@ bounded milestone, not completion of the reopened scanner assignment. No new
 final Windows review ZIP or selected Resource/mixed shortcut is justified until
 native source freshness and run-scoped cleanup/packaged gates pass. Keep draft
 PR #10 open; retain every genuine positive and failed receipt.
+
+## Subsequent offline-only integration after 62f45143
+
+**Live-session boundary remains closed.** The prior `native-march-source-20261014-103048`
+recovery-journal atomic rename failed with actual `WinError 5` before any
+game launch. Independent read-only ACL inspection found the inherited
+`Everyone Deny DeleteSubdirectoriesAndFiles` permission in both its artifact
+directory and the preceding successful run directory. That fact alone does
+not prove why this particular operation failed. The temporary journal and
+failure evidence were preserved; no permission edits, path changes, workaround,
+replacement launch or denied-operation retry occurred. Previously restored
+official v24 installed scripts, game process ownership and global journal
+were independently rechecked at takeover.
+
+| New offline gate | Verified scope | What it **does not** prove |
+| --- | --- | --- |
+| Resource six-round source cohort audit | The read-only 47,967-row SQLite audit now separately brackets same-10×10-AOI **other** Resource identity observations across the exact original→FOV20→original rounds. Across pair 0→1, 11/19 baseline-only and 11/25 candidate-only positions have other-point anchor identities observed in all three rounds; pair 2→3 has 4/4 such anchors, pair 4→5 has 2/3 but lacks a later baseline. Every Resource's own source capture `updatedAt` lies within that round's independent camera window. Audit and 19 inverses pass. | AOI sampled ≠ missing object's simultaneous current identity; no game-sourced spawn/death or unique lifetime generation. The 16 first-pair unoccupied/hydrated losses remain causally unexplained. FOV20 Resource stays OFF. |
+| Real passive March receipt acceptance | Added read-only `audit_passive_march_receipt.py` and 27 adversarial tests. The genuine 60-UUID point-ready archive from `...102638` is correctly REJECTED for missing before-camera native March snapshot, after-processing observation, request/reply/rect correlation, typed time/queue proof, native server/world binding and active Truck/Train oracle. Its 60 general-manager UUIDs have **zero** overlap with time-separated six-round mixed Truck/Railway stored UUIDs, but these were recorded 8.06–8.23 hours earlier. | No inference of Train lifetime, Truck expiry, March cache miss cause or current global completeness. A zero displayed StepProcessQueue Count is not a verified safe queue-drain proof. Guarded mobile/mixed routes stay selected. |
+| Fail-closed passive source gate | `CurrentClientMapBlockSource.ValidateNativeMarchTelemetry` requires both non-null observed source snapshots, true native availability, finite nondecreasing runtime capture seconds inside a correlated probe window, exact uncapped nonblank unique March UUIDs matching reported native count; seven controlled inverses reject absent/duplicated/capped/older/future source and null records. | This is a *diagnostic only* admission and cannot substitute for actual native March request/response/processing proof. `ObserveMarchFreshness` defaults false in the real packaged host. |
+| Exhaustive production selection | One controlled check enumerates all **1,023 nonempty combinations** of City, Resource, Monster, Zombie Boss, Truck, Railway, Dispatch, Ghost, Treasure and Other. Ordinary and passive-March-hook configurations select bounded FOV20 only for single City; `ForceLegacy` always refuses it. | No new mixed/Resource speed claim; private bounded-lens experimental override remains explicitly diagnostic only. |
+| Actual MapScanEngine optional run cleanup | New optional `IMapScanAcquisitionCleanup` contract invokes a single bounded **uncancelled** cleanup with exact managed run/server/world/session/type echo. Valid original-camera and fresh-home replies must precede publication; Stop/failure waits for cleanup and rejects retired staged results. Controlled actual-engine tests include cancellation after positive staging, late response, wrong run/server/session/types, false-home, held cancellation, cleanup error/timeout, and SQLite staged-vs-published rollback for completed, invalid-cleanup and stopped runs. Existing sources lack the interface, so existing scanner behavior remains unchanged. | No native retained-camera cleanup implementation, no FOV20 consecutive discovery engine witness, no packaged UI proof; these contracts are simulated controlled evidence only. No raw March/Resource scanner route promoted. |
+
+All original City-only/Other/remote, Treasure, Truck Follow/Stop positives remain
+intact. New `MapScanEngine` storage tests use disposable controlled SQLite,
+not game account data. No gameplay input was performed. The previous
+unpublished ZIP remains tied to **339e241c** and must not be attributed to this
+or any newer commit. **Overall status remains PARTIAL** until a separately
+authorized safe native recovery path genuinely passes, and source-qualified
+individual/mixed/multi-server actual engine + packaged gates pass. Preserve
+seasonal Party/Doom and independent Train lifetime as unavailable positives.
