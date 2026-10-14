@@ -5,14 +5,27 @@ historical session retrieval. Own helper session, lease and exact restoration.
 Raw game rows/challenge remain in ignored artifacts.
 """
 from pathlib import Path
-import argparse, hashlib, json, os, secrets, shutil, subprocess, sys, threading, time
+import argparse, hashlib, json, os, secrets, shutil, sqlite3, subprocess, sys, threading, time
 
 REPO=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(REPO/'tools'))
 import run_overview_bridge_current as current
 api=current.base
+def persisted_snapshot(path):
+    """Hash published row identities without exposing private records in a receipt."""
+    digest=hashlib.sha256()
+    with sqlite3.connect(f'file:{path.as_posix()}?mode=ro',uri=True) as db:
+        count=0
+        for row in db.execute('SELECT kind,server_id,record_key,updated_at,data_json FROM map_records ORDER BY kind,server_id,record_key'):
+            digest.update(json.dumps(row,ensure_ascii=False,separators=(',',':')).encode('utf8')+b'\n')
+            count+=1
+        jobs={table: db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0] for table in (
+            'dispatch_plunder_jobs','truck_plunder_jobs','dispatch_assist_jobs')}
+    return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
+
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
     os.environ['LWBRIDGE_REBUILD_DATA_ROOT']=str(directory)
@@ -27,11 +40,26 @@ def main():
     profile='map014lead'+secrets.token_hex(5); session='map014lead'+secrets.token_hex(12); challenge=secrets.token_hex(32)
     game_root=Path.home()/'AppData/Local/FunFly/Last War-Survival Game'
     stop_event=threading.Event(); renewal=None; started=None; stop=None; failure=None; code=2
+    prior=None; prior_path=None; prior_sha=None; retained=None
     try:
         check=api.run_check_only(game_root)
         (directory/'admission.json').write_text(json.dumps(check,indent=2))
         if not check.get('ok'): raise RuntimeError('Current game admission failed')
         print('MAP014_NATIVE_ADMISSION_OK',flush=True)
+        if opt.saved_db:
+            candidate=Path(opt.saved_db)
+            prior_path=(candidate if candidate.is_absolute() else REPO/candidate).resolve(strict=True)
+            if not prior_path.is_relative_to((REPO/'artifacts').resolve()) or prior_path.suffix.lower()!='.db':
+                raise ValueError('Stop retention source must be an existing task-owned artifacts .db')
+            prior_sha=hashlib.sha256(prior_path.read_bytes()).hexdigest()
+            prior=persisted_snapshot(prior_path)
+            if prior['rows']==0 or any(prior['jobs'].values()):
+                raise ValueError('Native Stop retention requires positive published rows and no pre-armed jobs')
+            shutil.copyfile(prior_path,directory/'map-014.db')
+            if persisted_snapshot(directory/'map-014.db')!=prior:
+                raise ValueError('Genuine prior publication could not be safely copied into isolated owner')
+            (directory/'prior-publication.json').write_text(json.dumps(dict(source=str(prior_path),sourceSha256=prior_sha,
+                snapshot=prior),indent=2))
         started=api.run_start(profile,session,challenge,165,game_root)
         if not started.get('ok') or not started.get('gameRunning'): raise RuntimeError('Exact native startup failed')
         (directory/'owner.json').write_text(json.dumps(dict(profileId=profile,sessionId=session,challenge=challenge,
@@ -59,6 +87,21 @@ def main():
                 time.sleep(1)
             code=process.returncode
         print('MAP014_MANAGED_PIPELINE_EXIT',code,flush=True)
+        if code==0 and prior:
+            after=persisted_snapshot(directory/'map-014.db')
+            with sqlite3.connect(directory/'map-014.db') as db:
+                report=json.loads((directory/'stop-native-report.json').read_text())
+                run_id=report['terminal']['scanRunId']
+                run=db.execute('SELECT status FROM scan_runs WHERE id=?',(run_id,)).fetchone()
+                staged=db.execute('SELECT COUNT(*) FROM scan_records WHERE run_id=?',(run_id,)).fetchone()[0]
+                live=db.execute("SELECT COUNT(*) FROM scan_runs WHERE status IN ('running','paused')").fetchone()[0]
+            retained=dict(before=prior,after=after,runId=run_id,runStatus=run[0] if run else None,
+                stagedRows=staged,liveScanRuns=live,originalSourceStillUnchanged=
+                hashlib.sha256(prior_path.read_bytes()).hexdigest()==prior_sha,
+                actualNativeSource=True,packagedUi=False)
+            retained['pass']=prior==after and run==('cancelled',) and staged==0 and live==0 and retained['originalSourceStillUnchanged']
+            (directory/'stop-published-retention.json').write_text(json.dumps(retained,indent=2))
+            if not retained['pass']: raise RuntimeError('Native Stop did not retain prior publication, durable cancellation or clean staging')
     except Exception as e:
         failure=f'{type(e).__name__}: {e}'; print('MAP014_NATIVE_FAILURE',failure,flush=True)
     finally:
@@ -80,6 +123,8 @@ def main():
             ['git','rev-parse','HEAD'],cwd=REPO,text=True).strip(),diagnosticHost=True,packagedUi=False,
             exactStopSucceeded=bool(stop and stop.get('ok')),originalScriptsRestored=bool(stop and stop.get('installedFilesChanged') is False),
             externalAccountActions=0,adapterSha256=hashlib.sha256(own_adapter.read_bytes()).hexdigest())
+        if retained is not None:
+            receipt['retainedPublicationProof']=retained['pass']
         receipt['workingSourceHashes']={str(file.relative_to(REPO)):hashlib.sha256(file.read_bytes()).hexdigest()
             for file in (REPO/'tools/current_live_resource_probe.lua',REPO/'tools/current_overview_bridge.lua',
                          Path(__file__),Path(__file__).with_name('Program.cs'))}
