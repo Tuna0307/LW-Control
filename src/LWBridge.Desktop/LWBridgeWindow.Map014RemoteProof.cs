@@ -317,7 +317,7 @@ internal sealed partial class LWBridgeWindow
         {
             try
             {
-                await mapAutoScanService.UpdateConfigAsync(
+                await mapAutoScanService.InvokeAsync("local_map_auto_scan_config_set",
                     JsonSerializer.SerializeToElement(new{enabled=false},JsonOptions.Default),CancellationToken.None);
                 if(mapAutoScanService.IsCycleBusy)
                     await mapAutoScanService.CancelAsync(CancellationToken.None);
