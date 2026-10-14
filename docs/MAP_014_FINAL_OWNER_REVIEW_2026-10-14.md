@@ -92,18 +92,27 @@ not a live claim or a naturally spawning event.
 
 ## Scanner decision by selection
 
-City alone uses native-qualified FOV20: six source-identity-qualified paired
+On the supported standard world 0 with a 1000×1000 tile grid, City alone uses
+native-qualified FOV20: six source-identity-qualified paired
 trials found the same 4,114 actual owner IDs; median 227.912 seconds baseline
 versus 86.179 seconds FOV20 (62.19% reduction in those trials). Never enforce
 a fixed City population quota. Resource, Monster, Truck, Railway, Dispatch,
 Ghost, Treasure, Other and **all mixed selections** use guarded **serial LOD0**
 acquisition with one shared full-world discovery, 2,500 logical blocks / 10,000
-AOIs; Other shares Treasure point discovery. Requested concurrency labels 8/20
+AOIs; Other shares Treasure point discovery. Nonstandard world geometry is
+admitted only through the narrower guarded City/Resource legacy capability;
+unsupported kind/geometry combinations fail closed. Requested concurrency labels 8/20
 are scheduling metadata, not multiple simultaneous cameras. Existing Resource
-FOV20 trials have unexplained live identity mismatches, and mixed FOV20 missed
-unexpired moving Trucks; neither is promoted. Private consecutive-region
-shortcuts lack authenticated native request/result and complete production
-field/identity coverage. This is a qualified currently working route, **not**
+FOV20 trials have unexplained live identity mismatches; mixed FOV20 omitted
+92/92/83 baseline Truck UUIDs, of which 90/88/82 had recorded final arrivals
+after approximately timed candidate completion. These arrival timestamps
+do not independently establish same-time source presence or complete March
+freshness, so neither faster route is promoted. Individual experimental
+one-shot camera request/replies are correlated; the consecutive-region
+shortcut still lacks a run-bound native A/B/C group with per-AOI reply
+ownership, all 2,500 typed blocks, source-backed March queue/identity coverage
+and an independent authenticated home-return acknowledgement. This is a
+qualified currently working route, **not**
 a globally fastest or universal-recall claim. See
 `MAP_014_SCANNER_METHOD_INDEPENDENT_AUDIT_2026-10-14.md` for exact evidence
 and the known stale `current_fast_train_list_v1` strategy label.
