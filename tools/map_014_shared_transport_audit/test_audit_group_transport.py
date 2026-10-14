@@ -118,6 +118,28 @@ class ProducerContractTests(unittest.TestCase):
         with self.assertRaisesRegex(BoundaryError, "new group fields"):
             ProducerContract.read_source(lua=changed)
 
+    def test_bulk_aoi_owner_predicate_weakened_to_and_requires_requalification(self):
+        source = LUA.read_text(encoding="utf-8-sig")
+        exact = ("request.profileId ~= identity.profileId or "
+                 "request.launchSessionId ~= identity.sessionId or")
+        marker = "local function read_bulk_aoi_diagnostic(now)"
+        start = source.index(marker)
+        end = source.index("local function collection_contains_int", start)
+        self.assertIn(exact, source[start:end])
+        changed = (source[:start] +
+                   source[start:end].replace(exact, exact.replace(" or ", " and ", 1), 1) +
+                   source[end:])
+        with self.assertRaisesRegex(BoundaryError, "owner guard changed"):
+            ProducerContract.read_source(lua=changed)
+
+    def test_bulk_aoi_owner_mismatch_result_must_remain_fail_closed(self):
+        source = LUA.read_text(encoding="utf-8-sig")
+        exact = 'request.error = "bulk_aoi_diagnostic_identity_mismatch"'
+        self.assertIn(exact, source)
+        changed = source.replace(exact, 'request.error = nil', 1)
+        with self.assertRaisesRegex(BoundaryError, "owner guard changed"):
+            ProducerContract.read_source(lua=changed)
+
     def test_current_producer_supports_correlated_one_shot(self):
         cmd, result = one_probe()
         audit_one_probe_correlation(cmd, result, NOW-timedelta(seconds=1),
@@ -277,6 +299,14 @@ class FutureControlledShapeTests(unittest.TestCase):
             c["kindBlocks"][1]["nativeReplyAtUnixMs"] += 1
         self.check_corruption(change, "native AOI reply cohort")
 
+    def test_final_home_reply_cannot_double_as_native_aoi_reply(self):
+        def change(c):
+            home_id = c["homeAck"]["homeNativeReplyRequestId"]
+            for proof in c["aoiProofs"][:4]:
+                proof["nativeReplyRequestId"] = home_id
+            c["kindBlocks"][0]["nativeReplyRequestId"] = home_id
+        self.check_corruption(change, "home reply reused as native AOI evidence")
+
     def test_four_native_aois_same_logical_block_must_correlate(self):
         self.check_corruption(lambda c: c["aoiProofs"][1].update({"nativeReplyRequestId": "other"}),
                               "four AOIs")
@@ -334,7 +364,7 @@ class AlternateProducerTraceTests(unittest.TestCase):
         changed = original.replace(observed,
                                    '(function_name ~= "getStatus" and function_name ~= "nativeGroup")',
                                    1)
-        with self.assertRaisesRegex(BoundaryError, "named-pipe Lua receiver changed"):
+        with self.assertRaisesRegex(BoundaryError, "named-pipe (Lua receiver|command rejection guard) changed"):
             audit_other_source_transports(overview=changed)
 
     def test_new_pipe_packet_consumer_needs_requalification(self):
@@ -346,6 +376,24 @@ class AlternateProducerTraceTests(unittest.TestCase):
                       '            return\n'
                       '        ' + observed, 1)
         with self.assertRaisesRegex(BoundaryError, "named-pipe Lua receiver changed"):
+            audit_other_source_transports(overview=changed)
+
+    def test_pipe_command_guard_operator_weakening_must_fail(self):
+        original = OVERVIEW.read_text(encoding="utf-8-sig")
+        exact = 'kind ~= "call" or function_name ~= "getStatus" or'
+        self.assertIn(exact, original)
+        changed = original.replace(exact,
+                                   'kind ~= "call" and function_name ~= "getStatus" or', 1)
+        with self.assertRaisesRegex(BoundaryError, "named-pipe command rejection guard"):
+            audit_other_source_transports(overview=changed)
+
+    def test_pipe_owner_guard_operator_weakening_must_fail(self):
+        original = OVERVIEW.read_text(encoding="utf-8-sig")
+        exact = 'version ~= 1 or profile_id ~= control.profileId or'
+        self.assertIn(exact, original)
+        changed = original.replace(exact,
+                                   'version ~= 1 and profile_id ~= control.profileId or', 1)
+        with self.assertRaisesRegex(BoundaryError, "named-pipe owner rejection guard"):
             audit_other_source_transports(overview=changed)
 
     def test_new_lua_native_group_pump_cannot_hide_behind_bulk_aoi_whitelist(self):
@@ -363,6 +411,18 @@ class AlternateProducerTraceTests(unittest.TestCase):
         changed = source.replace(observed, "createSourceForAcceptedRun = ProductionNativeGroupSource", 1)
         with self.assertRaisesRegex(BoundaryError, "production Map317"):
             audit_other_source_transports(provider=changed)
+
+    def test_new_production_group_source_instantiation_is_not_missed(self):
+        other_cs = {"NewNativeGroupRoute.cs":
+                    "return new Map014NativeSharedReceiptSource(ingress, session, run, generation);"}
+        with self.assertRaisesRegex(BoundaryError, "production native group ingress or wiring"):
+            audit_other_source_transports(desktop_sources=other_cs)
+
+    def test_new_production_ingress_implementation_is_not_missed(self):
+        other_cs = {"ReceivedNativeGroupIngress.cs":
+                    "internal sealed class RealSource : IMap014ReceivedNativeSharedGroupIngress { }"}
+        with self.assertRaisesRegex(BoundaryError, "production native group ingress or wiring"):
+            audit_other_source_transports(desktop_sources=other_cs)
 
 
 if __name__ == "__main__":

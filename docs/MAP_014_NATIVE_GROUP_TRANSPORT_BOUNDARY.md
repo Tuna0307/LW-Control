@@ -185,6 +185,49 @@ mode or output field, the named pipe admits a new native command/envelope,
 the live source adds a group pump or Map317 begins selecting a group
 factory.
 
+### Later source-only ownership and composition recheck
+
+This continuation re-read the checked-in Lua `process_pipe_inbound`
+(`tools/current_overview_bridge.lua:3470-3545`), actual adapter mailboxes,
+bulk-AOI reader (`tools/current_live_resource_probe.lua:2469-2577`), pump
+dispatch, managed transport and the received-only source. **No additional
+supported received native-group ingress was found in those checked-in paths.**
+The existence of a framed, authenticated named pipe is not native group
+packet reception, and the original per-probe `fail_bulk_aoi` restore path
+is not a group cancellation/home-ACK protocol.
+
+The prior audit's **ownership drift checks were too weak**: they merely
+required field/condition strings to exist. Controlled edits changing the
+bulk-AOI identity guard's disjunction to conjunction or neutralizing its
+`bulk_aoi_diagnostic_identity_mismatch` result, and changing the pipe's
+owner or `getStatus` command reject to conjunction, incorrectly passed the
+old source checks (**RED: four false accepts**). The audit now requires
+source-backed exact short-circuit rejection predicates, with the explicit
+error branch, for all four pinned identity dimensions
+(profile, session, challenge, game PID) on the bulk probe and for protocol
+version/profile/session/request ID plus exact command ID, call kind,
+function and empty arguments on the pipe (**GREEN**). A corresponding
+future-envelope inverse also caught an omitted home/point correlation
+rule: the synthetic checker accepted a final-home reply ID reused to
+attest four regular AOIs (**RED**). It now rejects that reuse, matching
+`Map014NativeSharedReceiptSource.ValidateReceivedEnvelope`'s existing
+separate-home restriction (**GREEN**). These were **offline audit
+weaknesses**, not demonstrated defects in the unmodified producer.
+
+To prevent a production source arriving outside the existing provider's
+`createSourceForAcceptedRun = null` seam, the audit also surveys all
+production `src/LWBridge.Desktop/**/*.cs` files (excluding generated
+`bin`/`obj`) for a
+`Map014NativeSharedReceiptSource` call/reference or a new
+`IMap014ReceivedNativeSharedGroupIngress` implementation. The declaration
+file is excluded from this **other-production-call-site** check. Synthetic
+new composition/implementation inverses require requalification instead
+of reporting absent integration on the strength of a comment alone; the
+current census is empty. This source scan is deliberately conservative,
+not a compiler, hidden-native-code detector, or proof of what a future
+binary runs. Tests and source CLI run only under Python; no .NET runner,
+Git/recovery action, Lua change or game interaction was used.
+
 The exact missing production step remains a source-supported **received**
 native group transport that independently binds request and reply identity,
 world/server/owned session, physical AOIs, per-kind freshness and native

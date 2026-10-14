@@ -25,6 +25,7 @@ OVERVIEW = ROOT / "tools/current_overview_bridge.lua"
 BACKEND = ROOT / "src/LWBridge.Desktop/LWBridgeBackend.cs"
 GAME_PIPE = ROOT / "src/LWBridge.GamePipeAdapter/PipeClientAdapter.cs"
 PROVIDER = ROOT / "src/LWBridge.Desktop/CurrentClientMap317ScanProvider.cs"
+DESKTOP_SOURCE_DIR = ROOT / "src/LWBridge.Desktop"
 ARCHIVES = (
     ROOT / "artifacts/map-013-live/native-causal-20261014-004239",
     ROOT / "artifacts/map-013-live/native-causal-20261014-004916",
@@ -107,6 +108,18 @@ class ProducerContract:
         if (not all(required) or not version or not lua_version or
                 not commands or not results or lua_version.group(1) != version.group(1)):
             raise BoundaryError("source-backed single-file protocol anchors changed")
+        # Mere presence of four identity strings is not an ownership guard.
+        # Changing ONE disjunction to a conjunction would admit foreign
+        # individual probes, while leaving all previous token checks green.
+        owner_guard = (
+            r'\bif\s+request\.profileId\s*~=\s*identity\.profileId\s+or\s+'
+            r'request\.launchSessionId\s*~=\s*identity\.sessionId\s+or\s+'
+            r'request\.challenge\s*~=\s*identity\.challenge\s+or\s+'
+            r'request\.gamePid\s*~=\s*identity\.gamePid\s+then\s+'
+            r'request\.error\s*=\s*"bulk_aoi_diagnostic_identity_mismatch"\s+end'
+        )
+        if re.search(owner_guard, reader) is None:
+            raise BoundaryError("bulk AOI owner guard changed: requalify producer identity")
         if modes != {"native", "expanded", "direct", "coverage", "anchor", "edge", "zoom"}:
             raise BoundaryError(f"Lua request-mode whitelist changed: {sorted(modes)}")
         limit = re.search(r'const int MaximumNativePointAoisPerReply\s*=\s*(\d+)', receiver)
@@ -129,6 +142,7 @@ def audit_other_source_transports(
     *, overview: str | None = None, backend: str | None = None,
     adapter: str | None = None, probe: str | None = None,
     provider: str | None = None, receiver: str | None = None,
+    desktop_sources: dict[str, str] | None = None,
 ) -> dict:
     """Source contract of the *other* two actual Lua producers/transport routes.
 
@@ -145,6 +159,30 @@ def audit_other_source_transports(
     receiver = RECEIVER.read_text(encoding="utf-8-sig") if receiver is None else receiver
     pipe = section(overview, "local function process_pipe_inbound(control)",
                    "local RECOVERY_WINDOWS")
+    # Check actual short-circuit rejects, not just the names of their fields.
+    # An altered 'or' can preserve every old string anchor and still admit a
+    # mixed owner or a command other than the sole getStatus({}) route.
+    owner_reject = (
+        r'\bif\s+version\s*~=\s*1\s+or\s+'
+        r'profile_id\s*~=\s*control\.profileId\s+or\s+'
+        r'instance_id\s*~=\s*control\.sessionId\s+or\s+'
+        r'request_id\s*==\s*nil\s+then\s+'
+        r'pipe_runtime\.state\s*=\s*"error"\s+'
+        r'pipe_runtime\.error\s*=\s*"pipe_inbound_identity_invalid"\s+return'
+    )
+    require(re.search(owner_reject, pipe) is not None,
+            "named-pipe owner rejection guard changed")
+    command_reject = (
+        r'\bif\s+request_id\s*==\s*""\s+or\s+'
+        r'payload_id\s*~=\s*request_id\s+or\s+'
+        r'kind\s*~=\s*"call"\s+or\s+'
+        r'function_name\s*~=\s*"getStatus"\s+or\s+'
+        r'not\s+empty_args\s+then\s+'
+        r'pipe_runtime\.state\s*=\s*"error"\s+'
+        r'pipe_runtime\.error\s*=\s*"pipe_command_unsupported"\s+return'
+    )
+    require(re.search(command_reject, pipe) is not None,
+            "named-pipe command rejection guard changed")
     # The Lua receiver is the enforcement boundary, irrespective of generic
     # desktop RPC framing and internal callers for catalog options.
     handled_types = set(re.findall(
@@ -205,6 +243,25 @@ def audit_other_source_transports(
             "AcknowledgeAlreadyReceivedHomeAsync(" in receiver and
             "ReceiveAlreadyCompletedAsync(" in receiver,
             "future received-only native group contract changed")
+    # The provider's default null factory is insufficient by itself: a new
+    # composition root or ingress implementation could be added elsewhere.
+    # Inspect *all* production desktop .cs files, including nested folders,
+    # but not generated bin/obj outputs or separate test fixtures. Conservative
+    # references (even comments) force requalification, never a fake positive.
+    if desktop_sources is None:
+        desktop_sources = {
+            str(path.relative_to(DESKTOP_SOURCE_DIR)): path.read_text(encoding="utf-8-sig")
+            for path in DESKTOP_SOURCE_DIR.rglob("*.cs")
+            if path.is_file() and not {"bin", "obj"}.intersection(
+                path.relative_to(DESKTOP_SOURCE_DIR).parts)
+        }
+    actual_group_references = sorted(name for name, source in desktop_sources.items()
+                                     if name != RECEIVER.name and
+                                     ("Map014NativeSharedReceiptSource" in source or
+                                      "IMap014ReceivedNativeSharedGroupIngress" in source))
+    require(not actual_group_references,
+            "production native group ingress or wiring changed: " +
+            ", ".join(actual_group_references[:8]))
     return {
         "namedPipeTransportExists": True,
         "namedPipeLuaFunctions": sorted(allowed_lua),
@@ -217,6 +274,7 @@ def audit_other_source_transports(
         "producerNativeGroupPump": False,
         "Map317ProductionGroupFactoryConfigured": False,
         "futureGroupIngressImplementationPresent": False,
+        "otherProductionGroupReferences": actual_group_references,
     }
 
 
@@ -297,6 +355,7 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
     require(isinstance(stages, list) and len(stages) == 3, "need exactly 3 native A/B/C stages")
     ack = claim.get("homeAck")
     require(isinstance(ack, dict), "native final home ACK missing")
+    home_id = ack.get("homeRestoreRequestId")
     seen_ids: set[str] = set()
     last_reply = 0
     for ordinal, stage in enumerate(stages):
@@ -332,6 +391,7 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
         col, row = idx % 100, idx // 100
         block = row // 2 * 50 + col // 2
         reply = (proof.get("nativeReplyRequestId"), proof.get("nativeReplyAtUnixMs"))
+        require(reply[0] != home_id, "home reply reused as native AOI evidence")
         require(bool(reply[0]) and type(reply[1]) is int and
                 stages[0]["requestStartedAtUnixMs"] <= reply[1] < ack.get("homeNativeReplyAtUnixMs", 0),
                 "stale/missing native AOI response")
@@ -360,7 +420,6 @@ def audit_future_shape_only(claim: dict, *, selected_kind: str = "city") -> None
                 "logical block type/source/reply missing, duplicated or mismatched")
         seen_blocks.add(idx)
     require(all(ack.get(k) == owner[k] for k in owner), "final home owner changed")
-    home_id = ack.get("homeRestoreRequestId")
     require(bool(home_id) and home_id not in seen_ids and
             ack.get("homeNativeReplyRequestId") == home_id and
             ack.get("nativeHomeReplyState") == "matched" and

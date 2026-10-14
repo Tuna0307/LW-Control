@@ -486,6 +486,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         var completedServers = new List<int>();
         bool attemptedOtherServer = false;
         int lastAttemptedServerId = 0;
+        string? admissionScanRunId = null;
+        string? lastOwnedScanRunId = null;
         string? cycleError = null;
         string outcome = "completed";
 
@@ -495,6 +497,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             MapAutoScanRuntimeStatus admissionState =
                 await execution.ReadStatusAsync(null, cancellationToken).ConfigureAwait(false);
             originalServerId = admissionState.ServerId;
+            admissionScanRunId = admissionState.ScanRunId;
 
             // Original cycle (index-BVfnK1wp.js Di()): an explicit server list is
             // used as supplied even when the current server is unknown (id 0); only
@@ -533,6 +536,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     cancellationToken).ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(scanRunId))
                     throw new InvalidOperationException("Auto scan start did not return a scan owner token");
+                lastOwnedScanRunId = scanRunId;
                 Volatile.Write(ref ownedScanRunId, scanRunId);
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -601,7 +605,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             bool stopSettled = true;
             try
             {
-                await StopOwnedScanAsync(lastAttemptedServerId, originalServerId)
+                await StopOwnedScanAsync(lastAttemptedServerId, originalServerId,
+                    admissionScanRunId, lastOwnedScanRunId)
                     .ConfigureAwait(false);
             }
             catch (Exception stopError)
@@ -622,7 +627,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     // that successor's camera/server during return.
                     await EnsureNoIndependentScanAsync(
                         "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH", lastAttemptedServerId,
-                        originalServerId)
+                        originalServerId, admissionScanRunId, lastOwnedScanRunId)
                         .ConfigureAwait(false);
                     // Profile replacement can retire Auto while the async
                     // current-status read is pending. A retired profile must
@@ -779,7 +784,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     }
 
     private async Task<bool> StopOwnedScanAsync(
-        int lastAttemptedServerId, int originalServerId)
+        int lastAttemptedServerId, int originalServerId,
+        string? admissionScanRunId, string? lastOwnedScanRunId)
     {
         await stopGate.WaitAsync().ConfigureAwait(false);
         try
@@ -809,7 +815,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                     // cannot authorize the subsequent ReturnServerAsync.
                     await EnsureNoIndependentScanAsync(
                         "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH", lastAttemptedServerId,
-                        originalServerId)
+                        originalServerId, admissionScanRunId, lastOwnedScanRunId)
                         .ConfigureAwait(false);
                 }
                 return true;
@@ -828,7 +834,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     }
 
     private async Task EnsureNoIndependentScanAsync(
-        string failureCode, int lastAttemptedServerId, int originalServerId)
+        string failureCode, int lastAttemptedServerId, int originalServerId,
+        string? admissionScanRunId, string? lastOwnedScanRunId)
     {
         // The status boundary's null owner reads the CURRENT scan, rather
         // than falling back to an archived exact-run status. Also consult
@@ -838,6 +845,15 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             null, CancellationToken.None).ConfigureAwait(false);
         if (current.IsReading || execution.IsMapScanActive())
             throw new InvalidOperationException(failureCode + ": independent scan is active");
+        // Server equality alone is not proof of an idle owner. Map317 keeps
+        // the CURRENT ScanRunId even after a different manual scan completes
+        // on the same server. Admit only this Auto cycle's last accepted run
+        // or the pre-cycle idle run, which can remain after a canceled jump
+        // that never issued its own run ID.
+        if (!string.IsNullOrWhiteSpace(current.ScanRunId) &&
+            !string.Equals(current.ScanRunId, lastOwnedScanRunId, StringComparison.Ordinal) &&
+            !string.Equals(current.ScanRunId, admissionScanRunId, StringComparison.Ordinal))
+            throw new InvalidOperationException(failureCode + ": independent terminal scan owner");
         // Prefer the LATEST attempted target, not an earlier accepted run:
         // Auto may have completed 318, attempted 319 and been canceled before
         // obtaining 319's run ID, then a manual owner navigated back to 318.

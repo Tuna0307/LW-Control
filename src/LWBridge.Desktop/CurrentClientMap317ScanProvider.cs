@@ -182,30 +182,14 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         catch (Exception error)
         {
-            // A factory failure happens AFTER durable Start but BEFORE any
-            // native ingress/capture or MapScanEngine.Begin. Retire only this
-            // still-active exact run and release its accepted-run lease, not
-            // a new scan that may have replaced it in the meantime.
-            lock (gate)
-            {
-                if (ReferenceEquals(activeCancellation, cancellation))
-                {
-                    activeCancellation = null;
-                    activeTask = null;
-                }
-            }
-            cancellation.Dispose();
-            try
-            {
-                Map317.MapScanState current = control.ScanState;
-                if (current.IsReading &&
-                    string.Equals(current.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
-                    control.FailScan(error.Message);
-            }
-            finally { RunTerminated?.Invoke(request.ScanRunId); }
+            RetireUnactivatedAcceptedRun(control, request, cancellation, error);
             return;
         }
-        IMapScanBlockSource acquisition = acceptedSource is IMapScanSharedAcquisitionSource shared
+        IMapScanBlockSource acquisition;
+        MapScanEngine engine;
+        try
+        {
+        acquisition = acceptedSource is IMapScanSharedAcquisitionSource shared
             ? (execution.SelectedTypes.Contains("treasure", StringComparer.Ordinal) ||
                 execution.SelectedTypes.Contains("other", StringComparer.Ordinal)
                     ? new MapOtherEventSharedScanSource(shared, execution)
@@ -213,7 +197,7 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             : acceptedSource is IMapScanAcquisitionCleanup nativeCleanup
                 ? new MapOtherEventCleanupScanSource(acceptedSource, nativeCleanup)
                 : new MapOtherEventScanSource(acceptedSource);
-        var engine = new MapScanEngine(
+        engine = new MapScanEngine(
             acquisition,
             sink,
             progress =>
@@ -247,7 +231,20 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                 File.WriteAllText(
                     Path.Combine(nativeSource.ProbeRuntimeRoot, "map-engine-stage-metrics.json"),
                     JsonSerializer.Serialize(metrics, JsonOptions.Default));
-            } : null);
+            } : null,
+            beforePublicationOwnerCheck: acquisition is IMapScanAcquisitionCleanup
+                ? token => VerifyCurrentNativeOwnerAsync(liveContext, execution, control, token)
+                : null);
+        }
+        catch (Exception error)
+        {
+            // The native source factory can return a malformed shared owner
+            // even though factory invocation itself succeeded. Adapter owner
+            // projection and engine setup are still pre-capture; retire their
+            // exact accepted Map317 run instead of leaving it stuck Reading.
+            RetireUnactivatedAcceptedRun(control, request, cancellation, error);
+            return;
+        }
         // Even an immediate provider response must not finish before the active
         // task has been registered. Otherwise terminal cleanup can precede
         // registration and leave a completed task appearing active.
@@ -341,23 +338,8 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                 // admission. An opt-in retained camera must be refused
                 // *before any first native shared/acquisition command* when
                 // the passive current-client context no longer matches.
-                CurrentClientMapContext fresh = await getContext(cancellation.Token)
-                    .ConfigureAwait(false);
-                if (fresh.ServerId != admittedContext.ServerId ||
-                    ToWorldId(fresh.WorldId) != ToWorldId(admittedContext.WorldId) ||
-                    fresh.TileWidth != admittedContext.TileWidth ||
-                    fresh.TileHeight != admittedContext.TileHeight ||
-                    fresh.PlayerTileX != admittedContext.PlayerTileX ||
-                    fresh.PlayerTileY != admittedContext.PlayerTileY ||
-                    string.IsNullOrWhiteSpace(fresh.LaunchSessionId) ||
-                    !string.Equals(fresh.LaunchSessionId,
-                        admittedContext.LaunchSessionId, StringComparison.Ordinal) ||
-                    fresh.ServerId != request.ServerId ||
-                    ToWorldId(fresh.WorldId) != request.WorldId ||
-                    !string.Equals(fresh.LaunchSessionId,
-                        request.LaunchSessionId, StringComparison.Ordinal))
-                    throw new BridgeCommandException("MAP_SCAN_OWNER_CHANGED",
-                        "current game server, world, home tile or owned session changed before native acquisition");
+                await VerifyCurrentNativeOwnerAsync(
+                    admittedContext, request, control, cancellation.Token).ConfigureAwait(false);
             }
             cancellation.Token.ThrowIfCancellationRequested();
             enteredEngine = true;
@@ -401,6 +383,62 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
             }
             RunTerminated?.Invoke(request.RunId);
         }
+    }
+
+    private void RetireUnactivatedAcceptedRun(
+        Map317.MapControlPlane control,
+        Map317.MapProviderStartRequest request,
+        CancellationTokenSource cancellation,
+        Exception error)
+    {
+        // No native ingress or capture was started. A later scan must not
+        // inherit this failed factory/adapter lease or its completion event.
+        lock (gate)
+        {
+            if (ReferenceEquals(activeCancellation, cancellation))
+            {
+                activeCancellation = null;
+                activeTask = null;
+            }
+        }
+        cancellation.Dispose();
+        try
+        {
+            Map317.MapScanState current = control.ScanState;
+            if (current.IsReading &&
+                string.Equals(current.ScanRunId, request.ScanRunId, StringComparison.Ordinal))
+                control.FailScan(error.Message);
+        }
+        finally { RunTerminated?.Invoke(request.ScanRunId); }
+    }
+
+    private async Task VerifyCurrentNativeOwnerAsync(
+        CurrentClientMapContext admittedContext,
+        MapScanExecutionRequest request,
+        Map317.MapControlPlane control,
+        CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        CurrentClientMapContext fresh = await getContext(token).ConfigureAwait(false);
+        token.ThrowIfCancellationRequested();
+        Map317.MapScanState current = control.ScanState;
+        if (!current.IsReading ||
+            !string.Equals(current.ScanRunId, request.RunId, StringComparison.Ordinal) ||
+            fresh.ServerId != admittedContext.ServerId ||
+            ToWorldId(fresh.WorldId) != ToWorldId(admittedContext.WorldId) ||
+            fresh.TileWidth != admittedContext.TileWidth ||
+            fresh.TileHeight != admittedContext.TileHeight ||
+            fresh.PlayerTileX != admittedContext.PlayerTileX ||
+            fresh.PlayerTileY != admittedContext.PlayerTileY ||
+            string.IsNullOrWhiteSpace(fresh.LaunchSessionId) ||
+            !string.Equals(fresh.LaunchSessionId,
+                admittedContext.LaunchSessionId, StringComparison.Ordinal) ||
+            fresh.ServerId != request.ServerId ||
+            ToWorldId(fresh.WorldId) != request.WorldId ||
+            !string.Equals(fresh.LaunchSessionId,
+                request.LaunchSessionId, StringComparison.Ordinal))
+            throw new BridgeCommandException("MAP_SCAN_OWNER_CHANGED",
+                "current game server, world, home tile, accepted scan run or owned session changed during native acquisition");
     }
 
     private static int ToWorldId(long value)

@@ -241,10 +241,11 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
         JsonElement final = envelope.NativeConsecutiveRegions[2];
         long firstStarted = envelope.NativeConsecutiveRegions[0]
             .GetProperty("requestStartedAtUnixMs").GetInt64();
+        long finalHomeStarted = final.GetProperty("homeRestoreStartedAtUnixMs").GetInt64();
         long finalHomeAt = final.GetProperty("homeNativeReplyAtUnixMs").GetInt64();
         string finalHomeReplyId = final.GetProperty("homeRestoreRequestId").GetString()!;
-        if (finalHomeAt <= firstStarted)
-            throw new InvalidDataException("Native shared group has no positive owned home reply interval.");
+        if (finalHomeStarted <= firstStarted || finalHomeAt <= finalHomeStarted)
+            throw new InvalidDataException("Native shared group has no ordered owned final-home request/reply interval.");
 
         if (envelope.NativeHomeReceipt is not { } home ||
             home.Request is null || !SameRequest(home.Request, pinnedRequest) ||
@@ -292,7 +293,7 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
                 string.Equals(evidence.NativeReplyRequestId, finalHomeReplyId, StringComparison.Ordinal) ||
                 !string.Equals(evidence.NativeSource, "WorldPointManager._curViewIndex", StringComparison.Ordinal) ||
                 evidence.NativeReplyAtUnixMs < firstStarted ||
-                evidence.NativeReplyAtUnixMs >= finalHomeAt)
+                evidence.NativeReplyAtUnixMs >= finalHomeStarted)
                 throw new InvalidDataException("Native AOI receipt is stale, duplicate, wrong source or wrong owner.");
             if (observedRegionReplies.TryGetValue(evidence.NativeReplyRequestId, out var regionReply) &&
                 (evidence.NativeReplyAtUnixMs != regionReply.ReplyAt ||
@@ -331,7 +332,7 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
                 !pinnedRequest.SelectedTypes.Contains(typed.Kind, StringComparer.Ordinal) ||
                 !ExpectedKindSource(typed.Kind, typed.Source) ||
                 typed.NativeReplyAtUnixMs < firstStarted ||
-                typed.NativeReplyAtUnixMs >= finalHomeAt ||
+                typed.NativeReplyAtUnixMs >= finalHomeStarted ||
                 typed.Records is null)
                 throw new InvalidDataException("Type-specific native enrichment is missing, stale, foreign or duplicate.");
             MapScanTargetBlock block = blocks[typed.BlockIndex];
@@ -350,6 +351,12 @@ internal sealed class Map014NativeSharedReceiptSource : IMapScanSharedAcquisitio
                     string.IsNullOrWhiteSpace(record.RecordKey) ||
                     !nativeRecordKeys.Add((record.Kind, record.ServerId, record.RecordKey)) ||
                     record.PointIndex is not int point ||
+                    // A City position is an observed source result, not a
+                    // future update or a stale cache entry preceding this
+                    // owned group. It cannot postdate its correlated AOI
+                    // native reply, or originate after final-home started.
+                    record.UpdatedAt < firstStarted ||
+                    record.UpdatedAt > typed.NativeReplyAtUnixMs ||
                     point is < 1 or > 1000000 ||
                     (point - 1) % 1000 < block.MinX ||
                     (point - 1) % 1000 > block.MaxX ||

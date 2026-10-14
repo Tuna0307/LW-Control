@@ -25,6 +25,37 @@ internal static class Map014ResourceNativeSourceChecks
             [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)],
             mixedResourceTypes, footprint, 2212, 0);
 
+        // The native Lua producer takes an independent AOI-filtered
+        // point_aoi_counts snapshot before resource_aoi_records. Its later
+        // Resource count replaces the first count in the reply, so a source
+        // mutation between enumerations used to be admitted as "proven".
+        void CheckFirstAoiTypes(string json, IReadOnlyList<FirstLivePreparedResource> rows)
+        {
+            using JsonDocument parsed = JsonDocument.Parse(json);
+            CurrentClientMapBlockSource.RequireResourceFirstAoiTypeSnapshot(parsed.RootElement, rows);
+        }
+        CheckFirstAoiTypes("{\"7\":2,\"6\":12}", [edge, opposite]);
+        CheckFirstAoiTypes("{\"1\":1,\"26\":1,\"6\":12}",
+            [Edit(edge, "pointType", 1), Edit(opposite, "pointType", 26)]);
+        CheckFirstAoiTypes("[]", []);
+
+        int snapshotInverses = 0;
+        void RejectFirstSnapshot(string label, string histogram, IReadOnlyList<FirstLivePreparedResource>? rows = null)
+        {
+            try { CheckFirstAoiTypes(histogram, rows ?? [edge, opposite]); }
+            catch (InvalidDataException) { snapshotInverses++; return; }
+            throw new Exception("Native Resource first-AOI snapshot wrongly accepted " + label);
+        }
+        RejectFirstSnapshot("first type-7 census short by one", "{\"7\":1,\"6\":12}");
+        RejectFirstSnapshot("first type-7 census had extra Resource", "{\"7\":3,\"6\":12}");
+        RejectFirstSnapshot("first AOI was a non-Resource cohort", "{\"6\":14}");
+        RejectFirstSnapshot("first census same total but different Resource type", "{\"1\":1,\"7\":1,\"6\":12}");
+        RejectFirstSnapshot("missing first AOI native histogram", "null");
+        RejectFirstSnapshot("non-integer first native count", "{\"7\":\"2\"}");
+        RejectFirstSnapshot("ambiguous duplicate native point-type key", "{\"7\":2,\"7\":2}");
+        RejectFirstSnapshot("invalid non-empty native array", "[1,2]");
+        RejectFirstSnapshot("negative raw count", "{\"7\":2,\"6\":-1}");
+
         int nativeInverses = 0;
         void RejectNative(string label, IReadOnlyList<FirstLivePreparedResource>? rows = null,
             ResourceCompletenessBatchDiagnostics? counters = null,
@@ -165,9 +196,9 @@ internal static class Map014ResourceNativeSourceChecks
             doc["details"]![0]!["received"] = false;
         });
 
-        if (nativeInverses != 18 || hydrationInverses != 9 || provenanceInverses != 10)
+        if (nativeInverses != 18 || hydrationInverses != 9 || provenanceInverses != 10 || snapshotInverses != 9)
             throw new Exception("Incomplete Resource native source inverse coverage.");
-        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} native=false");
+        Console.WriteLine($"MAP014_RESOURCE_NATIVE_SOURCE_CHECKS_OK nativeInverses={nativeInverses} hydrationInverses={hydrationInverses} provenanceInverses={provenanceInverses} firstSnapshotInverses={snapshotInverses} native=false");
     }
 
     private static CurrentClientMapBlockSource.ResourceScanDetailObservation Details(

@@ -427,6 +427,56 @@ attempted. Code and tests need a normally authorized isolated execution
 before claiming a verified RED→GREEN for this particular correction. No live
 game/native test, Lua change or FOV20 promotion occurred.
 
+### First native AOI census versus Resource source enumeration (999370b2 continuation)
+
+The current Lua `coverage` producer takes **two independent, sequential**
+`WorldPointManager._pointInfos` enumerations for a Resource selection.
+`point_aoi_counts` first filters the native `requestedIndices` AOI footprint,
+records all matched point types in `nativePointTypeHistogram`, and counts
+types **1/7/26** as Resources (`tools/current_live_resource_probe.lua:2604-2635`).
+`resource_aoi_records` then re-enumerates the manager against the same AOI
+lookup, accepts Resource identities, records their per-AOI counts, and returns
+`point_records` (`:2846-2965`). The producer **overwrites**
+`details.matchedResourceCount` with the second enumeration's record count at
+`:6294-6303`. Previously, the managed receiver validated the second
+enumeration against its own histogram and records but never compared these
+accepted Resource rows with the *first* native AOI type histogram. A changed
+source cohort between the two passes (or a contradictory received result)
+could be reported as `state=proven` with internally consistent second-pass
+counts, silently treating an inconsistent AOI acquisition as authoritative.
+
+`CurrentClientMapBlockSource.FastCity.cs` now requires
+`nativePointTypeHistogram` on each Resource batch and checks the **exact
+per-type first-pass counts for 1, 7 and 26** against the second-pass imported
+accepted Resource rows. It accepts the genuine empty Lua `[]` histogram only
+for zero Resource rows, validates all histogram counts as nonnegative
+integers, and rejects repeated/malformed source keys. Inconsistent batches
+fail before staging, including when Resource is part of a mixed selection.
+Nine new isolated **synthetic inverse controls** cover reduced/increased
+first-pass Resource counts, a non-Resource cohort, count-preserving Resource
+type substitution, null/noninteger/negative counts, duplicate keys and a
+nonempty array. Positive controls preserve native type 7, mixed 1/26, and an
+empty Resource AOI.
+
+The archived native final round-5 per-AOI reply is independently consistent:
+its `nativePointTypeHistogram` contains **36 type-7 Resource entries**, and
+the later `resourceCompleteness` reports **36 accepted type-7 Resources**;
+the reply has 40 requested AOIs. The six saved scan-metrics receipts show
+**10,000 unique AOIs** per round and Resource row counts
+7,989/7,995/8,002/7,998/7,993/7,990. The archived 19/4/3 baseline-only
+and 25 first-pair candidate-only identities are unchanged. There is no
+original first/second-pass per-identity native ledger for all 119 probes of
+each round, so **matching type counts cannot prove the same Resource IDs or
+point absence**, nor rule out changes that preserve type counts. This is a
+bounded **inconsistent-receipt admission fix**, not a demonstrated live
+data race or Resource accuracy proof. Resource FOV20 remains **OFF**.
+
+**Verification boundary:** The existing .NET test operation was previously
+denied, and the new synthetic C# inverses have **not been executed** in this
+continuation; no alternative .NET/Git/npm/recovery action was attempted.
+Static contract review plus the preserved native round-5 reply support this
+correction, but no new RED→GREEN or packaged/live qualification is claimed.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

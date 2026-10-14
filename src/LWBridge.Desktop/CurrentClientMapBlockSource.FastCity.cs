@@ -1775,8 +1775,18 @@ internal sealed partial class CurrentClientMapBlockSource
             ? FirstLiveResultImporter.PrepareResourceSnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
         if (resourceCompleteness is not null)
+        {
             RequireResourceNativeSourceCohort(
                 resources, resourceCompleteness, requestedSet, request.ServerId, request.WorldId);
+            // The Lua producer first counts the native AOI snapshot, then
+            // independently enumerates _pointInfos for Resource records. Its
+            // matchedResourceCount is later overwritten by the second pass;
+            // require that the earlier source evidence still agrees with the
+            // published per-type Resource rows, not just their later totals.
+            if (!root.TryGetProperty("nativePointTypeHistogram", out JsonElement firstNativeTypes))
+                throw new InvalidDataException("Native Resource batch omitted its first AOI point-type snapshot.");
+            RequireResourceFirstAoiTypeSnapshot(firstNativeTypes, resources);
+        }
         IReadOnlyList<FastDispatchPrepared> dispatches = request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)
             ? PrepareDispatchRecords(pointRecords, request, requestedSet, startedAt)
             : Array.Empty<FastDispatchPrepared>();
@@ -1829,6 +1839,62 @@ internal sealed partial class CurrentClientMapBlockSource
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
             PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
             PhaseMilliseconds("totalProbeElapsedSeconds"));
+    }
+
+    // The first AOI count is taken before the Resource-specific producer
+    // re-enumerates _pointInfos. Counts from the second pass can reconcile
+    // perfectly even if the first native snapshot was a different cohort.
+    // This bounded cross-enumeration check rejects such source races, though
+    // matching counts do NOT prove equal identities or authoritative absence.
+    internal static void RequireResourceFirstAoiTypeSnapshot(
+        JsonElement firstNativeHistogram, IReadOnlyList<FirstLivePreparedResource> acceptedResources)
+    {
+        var observed = new Dictionary<string, long>(StringComparer.Ordinal);
+        if (firstNativeHistogram.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty type in firstNativeHistogram.EnumerateObject())
+            {
+                if (type.Value.ValueKind != JsonValueKind.Number ||
+                    !type.Value.TryGetInt64(out long count) || count < 0 ||
+                    !observed.TryAdd(type.Name, count))
+                    throw new InvalidDataException("First native AOI type histogram is malformed or ambiguous.");
+            }
+        }
+        else if (firstNativeHistogram.ValueKind != JsonValueKind.Array ||
+                 firstNativeHistogram.GetArrayLength() != 0)
+        {
+            throw new InvalidDataException("First native AOI type histogram is unavailable.");
+        }
+
+        var acceptedByType = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (FirstLivePreparedResource item in acceptedResources)
+        {
+            try
+            {
+                using JsonDocument parsed = JsonDocument.Parse(item.Record.DataJson);
+                if (parsed.RootElement.ValueKind != JsonValueKind.Object ||
+                    !parsed.RootElement.TryGetProperty("pointType", out JsonElement type) ||
+                    type.ValueKind != JsonValueKind.Number || !type.TryGetInt32(out int value) ||
+                    value is not (1 or 7 or 26))
+                    throw new InvalidDataException("Native Resource point has an invalid native source type.");
+                string typeKey = value.ToString(CultureInfo.InvariantCulture);
+                acceptedByType[typeKey] = acceptedByType.TryGetValue(typeKey, out long prior)
+                    ? checked(prior + 1) : 1;
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Native Resource type source JSON was invalid.", ex);
+            }
+        }
+
+        foreach (string typeKey in new[] { "1", "7", "26" })
+        {
+            observed.TryGetValue(typeKey, out long firstCount);
+            acceptedByType.TryGetValue(typeKey, out long acceptedCount);
+            if (firstCount != acceptedCount)
+                throw new InvalidDataException(
+                    "Independent native AOI Resource types changed between first and accepted source snapshots.");
+        }
     }
 
     // The native Resource producer enumerates _pointInfos once, then records

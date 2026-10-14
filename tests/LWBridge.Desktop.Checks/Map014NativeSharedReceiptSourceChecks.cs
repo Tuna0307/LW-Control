@@ -492,6 +492,45 @@ internal static class Map014NativeSharedReceiptSourceChecks
                     : block).ToArray()
             };
         });
+        await RejectGroup("late world AOI reply after native final-home request began", envelope => envelope with
+        {
+            NativeAoiProofs = envelope.NativeAoiProofs.Select(proof =>
+                proof.NativeReplyRequestId == "received-world-block-2499"
+                    ? proof with { NativeReplyAtUnixMs = Start + 8800 }
+                    : proof).ToArray(),
+            KindBlocks = envelope.KindBlocks.Select(block => block.BlockIndex == 2499
+                ? block with { NativeReplyAtUnixMs = Start + 8800 }
+                : block).ToArray()
+        });
+        await RejectGroup("late City kind result after native final-home began", envelope => envelope with
+        {
+            KindBlocks = [
+                envelope.KindBlocks[0] with { NativeReplyAtUnixMs = Start + 8800 },
+                ..envelope.KindBlocks.Skip(1)
+            ],
+            NativeAoiProofs = envelope.NativeAoiProofs.Select(proof =>
+                proof.NativeReplyRequestId == "received-world-block-0"
+                    ? proof with { NativeReplyAtUnixMs = Start + 8800 }
+                    : proof).ToArray()
+        });
+        await RejectGroup("future-dated City observation after its native source reply", envelope => envelope with
+        {
+            KindBlocks = [
+                envelope.KindBlocks[0] with {
+                    Records = [envelope.KindBlocks[0].Records[0] with { UpdatedAt = Start + 9100 }]
+                },
+                ..envelope.KindBlocks.Skip(1)
+            ]
+        });
+        await RejectGroup("stale City observation preceding current owned source run", envelope => envelope with
+        {
+            KindBlocks = [
+                envelope.KindBlocks[0] with {
+                    Records = [envelope.KindBlocks[0].Records[0] with { UpdatedAt = Start - 1 }]
+                },
+                ..envelope.KindBlocks.Skip(1)
+            ]
+        });
         await RejectGroup("false final home receipt", envelope => envelope with
         {
             NativeHomeReceipt = envelope.NativeHomeReceipt with
@@ -712,6 +751,29 @@ internal static class Map014NativeSharedReceiptSourceChecks
                             ..envelope.NativeAoiProofs.Skip(1)
                         ]
                     };
+                if (scenario == "late-after-home-start")
+                    envelope = envelope with
+                    {
+                        NativeAoiProofs = envelope.NativeAoiProofs.Select(proof =>
+                            proof.NativeReplyRequestId == "received-world-block-2499"
+                                ? proof with { NativeReplyAtUnixMs = Start + 8800 }
+                                : proof).ToArray(),
+                        KindBlocks = envelope.KindBlocks.Select(block => block.BlockIndex == 2499
+                            ? block with { NativeReplyAtUnixMs = Start + 8800 }
+                            : block).ToArray()
+                    };
+                if (scenario == "future-city-observation")
+                    envelope = envelope with
+                    {
+                        KindBlocks = [
+                            envelope.KindBlocks[0] with {
+                                Records = [envelope.KindBlocks[0].Records[0] with {
+                                    UpdatedAt = Start + 9100
+                                }]
+                            },
+                            ..envelope.KindBlocks.Skip(1)
+                        ]
+                    };
                 ingress = new Received(envelope, acceptedRequest);
                 if (scenario == "wrong-home-reply")
                     ingress.HomeReply = ingress.HomeReply! with {
@@ -763,6 +825,8 @@ internal static class Map014NativeSharedReceiptSourceChecks
         await TestActualMap317ReceivedIngressAsync("missing-aoi");
         await TestActualMap317ReceivedIngressAsync("wrong-profile");
         await TestActualMap317ReceivedIngressAsync("wrong-home-reply");
+        await TestActualMap317ReceivedIngressAsync("late-after-home-start");
+        await TestActualMap317ReceivedIngressAsync("future-city-observation");
         Console.WriteLine(
             "MAP014_NATIVE_SHARED_RECEIVED_ONLY_OK synthetic=true native=false selector=false ingressOnly=true aoi=10000 blocks=2500 kind=city mixed=blocked map317Sqlite=true");
     }

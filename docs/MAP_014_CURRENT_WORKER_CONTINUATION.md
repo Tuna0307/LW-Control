@@ -491,3 +491,57 @@ post-fix .NET Release plus packaged Windows tests, and genuinely available
 Celebration Party, Doom Walker and Train-lifetime witnesses. No release,
 merge, live actions, script replacement, user Auto setting change or
 account-changing action is authorized by these offline improvements.
+
+## MAP-014 resumed source/integration continuation after `999370b2`
+
+**Actual checkout source inspection, not assumed SHA validation:** the retained
+region reply-ID/AOI-time guard, Resource type-1/7/26 raw histogram check and
+latest attempted Auto remote target guard are present in the existing checkout.
+`AGENTS.md`, the October 14 takeover and prior continuation were reviewed.
+The previous **Git working-tree inspection was explicitly denied**, so this
+continuation did **not** rerun `git status`/`git diff` or obtain a fresh HEAD,
+direct-remote or PR SHA. A historical push/PR match at `999370b2` is not a
+current-branch identity claim; no branch reset, new branch or worktree was
+made. Inspect the draft working changes with an independently permitted Git
+path later; never reroute a denied inspection.
+
+Read-only Windows preflight still shows **zero** `LastWar.exe`,
+`LastWarLauncher.exe` and `LWBridge.Desktop.exe` processes, no active
+product recovery journal, and the original restored `LWScripts.data` /
+`LWScripts.txt` / `version.txt` SHA-256 values recorded above. Relevant old
+native journal-denial archive and old `339e241c` package folder still exist;
+the original backup and old release were not modified. Product Auto remains
+`config.enabled=true`, `nextRunAt` present, `restart.active=false`, unchanged.
+No game/app native session, installed Lua/script action, input, recovery-journal
+rename retry, alternate recovery path, ACL change or live account action was
+performed. The recovery-journal `WinError 5` is still a **hard denied gate**.
+
+| New source/integration work (pending .NET execution) | Exact evidence status / remaining dependency |
+| --- | --- |
+| **Authenticated group ingress boundary:** audited the real `bulk-aoi-diagnostic` Lua producer, one-result managed polling, alternate authenticated Overview named pipe, game-side `getStatus` dispatcher, Map317 factory default and the received-only City adapter. The present source still has no native group request/result dispatcher, full-run PID/profile/run/group received AOI packet evidence, typed all-block completion, source-owned cancellation, independent final-home packet or production `IMap014ReceivedNativeSharedGroupIngress` implementation. The native selector stays OFF. | Updated read-only transport audit rejects source-contract drift, including changed owner/pipe guards, reused final-home reply as native AOI reply, and silently added production ingress. **47/47 Python transport tests PASS**; actual archived 119 probes/10,000 AOIs/49.203 s remain genuine **diagnostic** evidence only, not native group acceptance. |
+| **Received-only City source timeline:** group preflight now refuses AOI or selected-kind native reply timestamps **at or after the separately source-stamped final-home request start**, and refuses City `UpdatedAt` predating owned group start or postdating its exact kind reply. The earlier guard only required replies before **home reply completion**, admitting an asserted world reply while native restoration was already underway, and did not bound City source time. Added absent/late/stale/future controls. | Four added negative fixtures and two additional actual `CurrentClientMap317ScanProvider` → `MapScanEngine` → Map317 SQLite scenarios for post-home-start AOI and future City observation. These are **not native witnesses**. Their .NET execution remains **prohibited/unverified**; no new controlled GREEN is asserted. |
+| **Real Map317 post-home publish fence:** existing retained-camera Map317 preflight checked server/world/home/session **before** capture only. A new optional engine `beforePublicationOwnerCheck` verifies passive current client server/world/grid/home/launch-session and exact still-reading Map317 RunId **after the one final native cleanup ACK and before SQLite Publish**. On drift the staged run fails closed without replaying cleanup or replacing prior published rows. Existing non-opt-in production sources are unchanged. | Added two real-provider/engine/Map317 SQLite controlled cases: first publish a valid City row, then after a second source acknowledges home, change live server or launch session and require failed second scan, one cleanup and previously published City preserved. This is a managed passive gate, **not native packet authentication**. New .NET regression not run due tool denial. |
+| **Accepted Map317 shared source setup failure:** an accepted-run factory may return a malformed shared Treasure/Other native selection. Previously `MapOtherEventSharedScanSource` constructor could throw **outside** the factory catch, leaving the durable run `Reading` and future runs blocked even before native capture. Factory, selection adapter and engine construction now retire only their exact accepted run on setup failure. | Added malformed native Other→Treasure factory-owner inverse followed by a fresh valid accepted-run publication using the actual Map317 provider and SQLite. No fallback/synthetic native group success is introduced. This .NET GREEN also remains **unverified**. |
+| **Resource two independent native enumerations:** actual Lua first enumerates source `_pointInfos` AOI-filtered type histogram and then enumerates Resource identities separately. Managed admission now compares **first-pass type-1/7/26 counts** to second-pass accepted normalized per-type Resource rows, rejecting contradictory missing/negative/duplicate/raw JSON before staging; nine source inverses and three valid controls added. | Preserved genuine archived last source reply has first-pass type-7=36 and later accepted type-7=36. The six full-world Resource rounds still miss 19/4/3 baseline identities with first candidate extras 25 (16 unoccupied/fully hydrated first missing, candidate 24 unoccupied+one occupied 20128). Counts do not prove same identities or spawning/destruction; **Resource FOV20 stays OFF** and new C# test is unexecuted. |
+| **Auto archived idle run provenance:** latest-attempted target checks remain. Auto now also verifies the **current terminal run ID**, not merely `IsReading=false` and server equality; a completed independent manual successor on the original or last target must not authorize old Auto return. Controlled source scheduler inverses cover completed manual successor and canceled archived Stop. | Managed source/static evidence only. Exact native return still needs a navigation-generation/lease binding to disambiguate independent same-server navigation and the gap after the status check; no live Auto run or persisted user setting mutation. New .NET checks unexecuted. |
+
+**Independent checks from this continuation:** 47 transport Python,
+40 native/Resource archive Python, 66 March typed-source Python, 12 consecutive
+Python, eight native observer Python and current producer/archived group audit
+passed. The already-denied .NET Release runner was **not retried or rerouted**;
+no post-fix .NET build/test PASS is claimed. A separate attempt to execute
+the three independently named frontend direct checks was **blocked by the
+tool safety gate**; it was **not retried**, and prior frontend passes describe
+the earlier checkpoint only. The previously denied aggregate `npm.cmd run
+check` also remains unexecuted. Avoid claiming `git diff --check` or new
+local/remote SHA verification after the denied Git inspection; patches were
+reviewed through source reads.
+
+**Overall remains PARTIAL:** maintain City-only qualified FOV20; guarded
+Resource/mobile/mixed/Treasure and Other routes remain as previously accepted.
+Genuine native A→B→C production transport, mixed type-enrichment/typed March
+freshness, source-owned Stop/late reply and independently matched one-home
+ACK, safe recovery, post-change .NET/packaged Windows gates and unavailable
+Celebration Party, moving Doom Walker and independent Train lifetime remain
+pending. No new RC or release is warranted; preserve the older `339e241c`
+unpublished package unchanged.

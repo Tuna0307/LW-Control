@@ -20,19 +20,22 @@ internal sealed class MapScanEngine
     private readonly Action<MapScanEngineProgress>? progress;
     private readonly Action<MapScanEngineStageMetrics>? completedStageMetrics;
     private readonly TimeSpan acquisitionCleanupTimeout;
+    private readonly Func<CancellationToken, Task>? beforePublicationOwnerCheck;
 
     public MapScanEngine(
         IMapScanBlockSource source,
         IMapScanRunSink sink,
         Action<MapScanEngineProgress>? progress = null,
         Action<MapScanEngineStageMetrics>? completedStageMetrics = null,
-        TimeSpan? acquisitionCleanupTimeout = null)
+        TimeSpan? acquisitionCleanupTimeout = null,
+        Func<CancellationToken, Task>? beforePublicationOwnerCheck = null)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
         this.sink = sink ?? throw new ArgumentNullException(nameof(sink));
         this.progress = progress;
         this.completedStageMetrics = completedStageMetrics;
         this.acquisitionCleanupTimeout = acquisitionCleanupTimeout ?? TimeSpan.FromSeconds(8);
+        this.beforePublicationOwnerCheck = beforePublicationOwnerCheck;
         if (this.acquisitionCleanupTimeout <= TimeSpan.Zero ||
             this.acquisitionCleanupTimeout > TimeSpan.FromSeconds(30))
             throw new ArgumentOutOfRangeException(nameof(acquisitionCleanupTimeout));
@@ -311,6 +314,15 @@ internal sealed class MapScanEngine
             // A positive staged run must restore the native home *and* match a
             // fresh reply before the SQLite publication transaction can start.
             await CleanupOwnedAcquisitionAsync(MapScanAcquisitionExitReason.Completed).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            // The native home acknowledgement alone does not prove that
+            // the current desktop owner has remained on this exact
+            // server/world/launch session during a long shared acquisition.
+            // A final passive owner check must finish before *any* durable
+            // map publication. On drift, the already-restored run fails and
+            // staged records remain unpublished; cleanup is never repeated.
+            if (beforePublicationOwnerCheck is not null)
+                await beforePublicationOwnerCheck(cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             long publishStarted = Stopwatch.GetTimestamp();
             sink.Publish(request, UtcNowMilliseconds());

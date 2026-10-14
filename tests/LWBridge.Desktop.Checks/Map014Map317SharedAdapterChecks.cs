@@ -24,6 +24,8 @@ internal static class Map014Map317SharedAdapterChecks
         public bool WrongSourceAoi;
         public IReadOnlyList<string>? CapturedNativeTypes;
         public int StagedSampleCount;
+        public string CityRecordKey = "native-owner-1";
+        public Action? AfterNativeHomeAcknowledged;
 
         public Task<MapScanBlockCapture> CaptureAsync(MapScanExecutionRequest _,
             MapScanTargetBlock __, CancellationToken ___) =>
@@ -53,9 +55,9 @@ internal static class Map014Map317SharedAdapterChecks
                     runtimeClass = "Client.WorldSuppliesPoint", treasureType = 0,
                     suppliesType = 1, eventId = 0, x = 10, y = 10 })
             };
-            MapStoredRecord city = new("city", request.ServerId, "native-owner-1", 10011,
+            MapStoredRecord city = new("city", request.ServerId, CityRecordKey, 10011,
                 null, "current", null, 1, null, null, null, null, 1800000000000L,
-                "{\"ownerUid\":\"native-owner-1\",\"x\":10,\"y\":10}");
+                JsonSerializer.Serialize(new { ownerUid = CityRecordKey, x = 10, y = 10 }));
             MapStoredRecord[] firstRecords =
                 (request.SelectedTypes.Contains("treasure", StringComparer.Ordinal)
                     ? new[] { treasure, supplies } : [])
@@ -88,6 +90,9 @@ internal static class Map014Map317SharedAdapterChecks
             Require(token.CanBeCanceled && !token.IsCancellationRequested &&
                 request.SelectedTypes.SequenceEqual(AcquisitionOwner.SelectedTypes),
                 "native single final restore was not independently bounded or type-bound");
+            // Controlled passive context changes after the native source
+            // acknowledges home, before the engine can publish SQLite.
+            AfterNativeHomeAcknowledged?.Invoke();
             return Task.FromResult(new MapScanAcquisitionCleanupReceipt(request, true, true,
                 WrongCleanupOwner
                     ? AcquisitionOwner with { GroupGeneration = "obsolete-group" }
@@ -241,6 +246,68 @@ internal static class Map014Map317SharedAdapterChecks
             "retired owned session was allowed to begin native shared capture or publish after Map317 Start");
     }
 
+    private static async Task CheckRetiredOwnerAfterNativeHomeAsync(bool serverChanged)
+    {
+        // Execute TWO real Map317 runs: an already published owner must remain
+        // untouched if a later opt-in run loses live server/session ownership
+        // after its single valid native home receipt but before publication.
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int originalServer = 2213;
+        const string originalSession = "post-home-owned-session";
+        int liveServer = originalServer;
+        string liveSession = originalSession;
+        bool second = false;
+        NativeSource? firstSource = null;
+        NativeSource? secondSource = null;
+        var provider = new CurrentClientMap317ScanProvider(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, liveServer, liveServer, [], [], 0, 1000, 1000, 500, 500)),
+            _ => Task.FromResult(new CurrentClientMapContext(
+                liveServer, 0, 1000, 1000, 500, 500, liveSession)),
+            createSourceForAcceptedRun: (accepted, _) =>
+            {
+                var native = new NativeSource
+                {
+                    CityRecordKey = second ? "new-unpublished-owner" : "previous-published-owner",
+                    AcquisitionOwner = new MapScanSharedAcquisitionOwner(
+                        accepted.RunId, originalServer, 0, originalSession,
+                        ["city"], "post-home-profile", 12345, "post-home-" + accepted.RunId),
+                    AfterNativeHomeAcknowledged = second ? () =>
+                    {
+                        if (serverChanged) liveServer = 2214;
+                        else liveSession = "manual-new-session";
+                    } : null
+                };
+                if (second) secondSource = native;
+                else firstSource = native;
+                return native;
+            });
+        using var control = new Map317.MapControlPlane(store, provider);
+        var terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        provider.RunTerminated += id => terminated.TrySetResult(id);
+        Map317.MapScanState acceptedFirst = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, acceptedFirst.ScanRunId);
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == acceptedFirst.ScanRunId &&
+                control.ScanState.Phase == "completed" &&
+                firstSource?.Calls == 1 && firstSource.Cleanups == 1 &&
+                store.SummaryCounts(originalServer)["city"] == 1,
+            "first current-owner scan was not published through real Map317/SQLite");
+
+        second = true;
+        terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Map317.MapScanState acceptedSecond = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, acceptedSecond.ScanRunId);
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == acceptedSecond.ScanRunId &&
+                control.ScanState.Phase == "failed" &&
+                secondSource?.Calls == 1 && secondSource.Cleanups == 1 &&
+                store.SummaryCounts(originalServer)["city"] == 1 &&
+                store.Search(new Map317.MapQuery("city", originalServer)).Total == 1,
+            "retired post-home server/session published new City or lost previous SQLite rows");
+    }
+
     private static async Task CheckAcceptedRunSourceFactoryAsync()
     {
         using Map317.MapStore store = Map317.MapStore.CreateInMemory();
@@ -248,6 +315,7 @@ internal static class Map014Map317SharedAdapterChecks
         const string session = "factory-owned-session";
         int calls = 0;
         bool rejectFactory = true;
+        bool rejectSharedOwnerProjection = false;
         NativeSource? admittedSource = null;
         var provider = new CurrentClientMap317ScanProvider(
             new NonSharedOwnedSource(),
@@ -268,7 +336,8 @@ internal static class Map014Map317SharedAdapterChecks
                 admittedSource = new NativeSource
                 {
                     AcquisitionOwner = new MapScanSharedAcquisitionOwner(accepted.RunId,
-                        server, 0, session, ["city", "treasure"],
+                        server, 0, session, rejectSharedOwnerProjection
+                            ? new[] { "city", "other" } : new[] { "city", "treasure" },
                         "factory-profile", 12345, "factory-group-" + accepted.RunId)
                 };
                 return admittedSource;
@@ -286,13 +355,30 @@ internal static class Map014Map317SharedAdapterChecks
                 store.SummaryCounts(server)["other"] == 0,
             "missing accepted native ingress silently downgraded to guarded legacy scan");
 
+        // A factory may return normally yet supply the wrong native owner
+        // selection for Other->Treasure. The wrapper constructor then throws
+        // before native Capture or engine Begin. It must retire only this
+        // durable run, not strand Map317 in Reading and block the successor.
         rejectFactory = false;
+        rejectSharedOwnerProjection = true;
+        terminal = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Map317.MapScanState badNativeOwner = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city", "other"], "fast"));
+        provider.ActivateAcceptedRun(control, badNativeOwner.ScanRunId);
+        Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(5)) == badNativeOwner.ScanRunId &&
+                control.ScanState.Phase == "failed" && calls == 2 &&
+                admittedSource?.Calls == 0 && admittedSource.Cleanups == 0 &&
+                store.SummaryCounts(server)["city"] == 0 &&
+                store.SummaryCounts(server)["other"] == 0,
+            "invalid native shared Other mapping stranded the accepted Map317 run or captured before admission");
+
+        rejectSharedOwnerProjection = false;
         terminal = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         Map317.MapScanState accepted = await control.StartScanAsync(
             new Map317.MapScanStartRequest(["city", "other"], "fast"));
         provider.ActivateAcceptedRun(control, accepted.ScanRunId);
         Require(await terminal.Task.WaitAsync(TimeSpan.FromSeconds(20)) == accepted.ScanRunId &&
-                control.ScanState.Phase == "completed" && calls == 2 &&
+                control.ScanState.Phase == "completed" && calls == 3 &&
                 admittedSource?.Calls == 1 && admittedSource.Cleanups == 1 &&
                 store.SummaryCounts(server)["city"] == 1 &&
                 store.SummaryCounts(server)["other"] == 1,
@@ -311,6 +397,8 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckLegacyCleanupProviderAsync(restored: true);
         await CheckLegacyCleanupProviderAsync(restored: false);
         await CheckRetiredSessionAtActivationAsync();
+        await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: true);
+        await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");
     }
