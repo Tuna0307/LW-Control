@@ -23,8 +23,19 @@ MAX_TICKS = 662380416000000000  # 2100-01-01
 SOURCE_METHODS = {
     "request": "WorldGetRectMarchInfosMessage.CSSetData",
     "response": "WorldGetRectMarchInfosMessage.CSHandleResponse",
+    "handler": "WorldMarchDataManager.HandleWorldGetRectMarchInfos",
     "process": "WorldMarchDataManager.TryExcuteMarchMessage",
 }
+SOURCE_CLASSES_AND_TOKENS = {
+    "request": ("WorldGetRectMarchInfosMessage", "0x060019a6"),
+    "response": ("WorldGetRectMarchInfosMessage", "0x060019a7"),
+    "handler": ("WorldMarchDataManager", "0x0600327b"),
+    "process": ("WorldMarchDataManager", "0x06003276"),
+}
+# The stage DateTime fields and correlated source event stamps must share the
+# same *observed* clock domain. Five minutes is deliberately broad and not a
+# substitute for direct request/response identity or event ordering.
+NATIVE_CLOCK_CAPTURE_TOLERANCE_MS = 5 * 60 * 1000
 
 
 def _number(value):
@@ -63,7 +74,7 @@ def _source_timestamps(stage, name, capture_ms, failures):
     # A future local-time offset requires an independently documented source
     # mapping rather than silently admitting a many-hour mismatch.
     for key, ticks in (("get", get), ("handle", handled)):
-        if abs((ticks - TICKS_AT_UNIX_EPOCH) / 10000 - capture_ms) > 5 * 60 * 1000:
+        if abs((ticks - TICKS_AT_UNIX_EPOCH) / 10000 - capture_ms) > NATIVE_CLOCK_CAPTURE_TOLERANCE_MS:
             failures.append(f"{name}: native {key} timestamp incompatible with capture clock")
     return get, handled
 
@@ -149,6 +160,9 @@ def audit_receipt(receipt):
         handled = [s.get("lastHandleBlockMessageTicks") for s in stages]
         if all(_ticks(v) for v in handled) and handled[2] <= handled[1]:
             failures.append("no native March process timestamp advanced after point readiness")
+        if (_rect(point.get("viewRect")) != _rect(after.get("viewRect")) or
+                _rect(point.get("cameraViewRect")) != _rect(after.get("cameraViewRect"))):
+            failures.append("March manager rectangle changed before processing completed")
 
     events = receipt.get("marchRectEvents")
     if not isinstance(events, list):
@@ -156,36 +170,48 @@ def audit_receipt(receipt):
     by_phase = {name: [event for event in events if isinstance(event, dict)
                        and event.get("phase") == name] for name in SOURCE_METHODS}
     if any(len(found) != 1 for found in by_phase.values()):
-        failures.append("missing or duplicate March rect request/response/process source events")
+        failures.append("missing or duplicate March rect request/response/handler/process source events")
     else:
-        source = [by_phase[phase][0] for phase in ("request", "response", "process")]
+        phases = ("request", "response", "handler", "process")
+        source = [by_phase[phase][0] for phase in phases]
         keys = [event.get("sourceCorrelationId") for event in source]
         if not all(isinstance(k, str) and k for k in keys) or len(set(keys)) != 1:
-            failures.append("March request/response/process are not correlated by source ID")
+            failures.append("March request/response/handler/process are not correlated by source ID")
         rects = [_rect(event.get("rect")) for event in source]
-        allowed = (_rect(point.get("viewRect")), _rect(point.get("cameraViewRect"))) if point else ()
-        if any(rect is None or rect not in allowed for rect in rects) or len(set(rects)) != 1:
-            failures.append("March request/response/process rectangle is missing or mismatched")
-        for phase, event in zip(("request", "response", "process"), source):
+        active_rect = _rect(point.get("viewRect")) if point else None
+        if (active_rect is None or any(rect != active_rect for rect in rects)
+                or len(set(rects)) != 1):
+            failures.append("March request/response/handler/process rectangle does not match active manager view rectangle")
+        for phase, event in zip(phases, source):
+            expected_class, expected_token = SOURCE_CLASSES_AND_TOKENS[phase]
             if (event.get("sourceObserved") is not True or
                     event.get("method") != SOURCE_METHODS[phase] or
+                    event.get("sourceClass") != expected_class or
+                    event.get("methodToken") != expected_token or
                     event.get("serverId") != server or event.get("worldId") != world):
                 failures.append(f"March {phase} method/source/server/world attribution unverified")
         moments = [event.get("observedAtRuntimeSeconds") for event in source]
-        if not all(_number(t) for t in moments) or not moments[0] <= moments[1] <= moments[2]:
-            failures.append("March request/response/process runtime order invalid")
+        if not all(_number(t) for t in moments) or not all(
+                a <= b for a, b in zip(moments, moments[1:])):
+            failures.append("March request/response/handler/process runtime order invalid")
         elif all(stages) and not (
-            before["observedAtRuntimeSeconds"] <= moments[0] <= moments[1] <= moments[2]
-            <= after["observedAtRuntimeSeconds"] and moments[2] >= point["observedAtRuntimeSeconds"]
+            before["observedAtRuntimeSeconds"] <= moments[0] <= moments[-1]
+            <= after["observedAtRuntimeSeconds"] and moments[-1] >= point["observedAtRuntimeSeconds"]
         ):
             failures.append("March processing not bound to the retained target-camera stage")
         stamps = [event.get("nativeTicks") for event in source]
-        if not all(_ticks(t) for t in stamps) or not stamps[0] <= stamps[1] <= stamps[2]:
-            failures.append("March request/response/process native timestamps invalid")
+        if not all(_ticks(t) for t in stamps) or not all(
+                a <= b for a, b in zip(stamps, stamps[1:])):
+            failures.append("March request/response/handler/process native timestamps invalid")
         elif all(stages) and all(_ticks(st.get("lastHandleBlockMessageTicks")) for st in stages):
-            if not (point["lastHandleBlockMessageTicks"] < stamps[2]
+            if not (point["lastHandleBlockMessageTicks"] < stamps[-1]
                     <= after["lastHandleBlockMessageTicks"]):
                 failures.append("native handle timestamp does not corroborate observed processing")
+        for stamp in stamps:
+            if (_ticks(stamp) and
+                    abs((stamp - TICKS_AT_UNIX_EPOCH) / 10000 - capture_ms)
+                    > NATIVE_CLOCK_CAPTURE_TOLERANCE_MS):
+                failures.append("March rect event native timestamp outside capture window")
 
     oracle = receipt.get("independentActiveMarches")
     if not isinstance(oracle, dict) or oracle.get("sourceObserved") is not True:

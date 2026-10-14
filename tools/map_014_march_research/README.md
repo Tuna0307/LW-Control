@@ -1,5 +1,22 @@
 # MAP-014 native march acquisition — offline research
 
+## Worker-7 pinned native handler/rect/clock audit, 2026-10-14
+
+Read-only SHA-256-gated installed metadata and archived `CSHandleResponse`
+IL identify the separate `WorldMarchDataManager.HandleWorldGetRectMarchInfos`
+method (`0x0600327b`); `CSHandleResponse` (`0x060019a7`) can return before
+dispatch. The offline `audit_receipt` now requires a source-labelled,
+same-correlated **request → reply → manager handler → process** quartet
+with correct class/token, runtime and native tick order, timestamps near
+the capture clock, true March-manager `viewRect` and stable retained manager
+rectangles. The typed compare-ready cohorts are bounded to at most one
+second per sample interval to prevent slow stale populations appearing
+simultaneous. Synthetic RED acceptance cases before changes are GREEN now;
+**55 Python unit tests pass**. The later native 60-UUID snapshot is still
+missing these necessary stages; six earlier mixed rounds remain too far
+apart for a same-time source conclusion. See the qualification document for
+exact paths, source limitations and archived losses.
+
 ## ce9fedf2 stale terminal / cross-stage collision fix
 
 The synthetic checker initially **falsely passed** a future-arrival Truck

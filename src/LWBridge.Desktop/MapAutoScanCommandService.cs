@@ -609,6 +609,12 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             {
                 try
                 {
+                    // The last Auto run may have published and released its
+                    // marker just before a manual scan became current. Its
+                    // saved terminal status does not authorize Auto to move
+                    // that successor's camera/server during return.
+                    await EnsureNoIndependentScanAsync("MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH")
+                        .ConfigureAwait(false);
                     await execution.ReturnServerAsync(originalServerId, CancellationToken.None).ConfigureAwait(false);
                 }
                 catch (Exception returnError)
@@ -772,6 +778,13 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                         !string.Equals(status.ScanRunId, scanRunId, StringComparison.Ordinal))
                         throw new InvalidOperationException(
                             "MAP_AUTO_SCAN_STOP_OWNER_MISMATCH: exact run not terminal");
+
+                    // ReadStatusAsync(exactRun) is allowed to return an old
+                    // completed SQLite run while a different native run now
+                    // owns the current process. A terminal old row alone
+                    // cannot authorize the subsequent ReturnServerAsync.
+                    await EnsureNoIndependentScanAsync("MAP_AUTO_SCAN_STOP_OWNER_MISMATCH")
+                        .ConfigureAwait(false);
                 }
                 return true;
             }
@@ -786,6 +799,18 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         {
             stopGate.Release();
         }
+    }
+
+    private async Task EnsureNoIndependentScanAsync(string failureCode)
+    {
+        // The status boundary's null owner reads the CURRENT scan, rather
+        // than falling back to an archived exact-run status. Also consult
+        // the immediate active flag because an unrelated scan can enter
+        // after that async read; native return retains its own lease check.
+        MapAutoScanRuntimeStatus current = await execution.ReadStatusAsync(
+            null, CancellationToken.None).ConfigureAwait(false);
+        if (current.IsReading || execution.IsMapScanActive())
+            throw new InvalidOperationException(failureCode + ": independent scan is active");
     }
 
     private async Task RecordErrorAsync(string error)

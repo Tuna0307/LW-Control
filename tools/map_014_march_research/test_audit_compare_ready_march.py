@@ -127,6 +127,28 @@ class TypedMobileComparisonTests(unittest.TestCase):
         value["compareReadyEvidence"]["pointReadyCohort"]["observedEndRuntimeSeconds"] = 99
         self.assert_rejected(value, "monotonic observation interval")
 
+    def test_wide_cohort_windows_cannot_claim_contemporaneous_complete_population(self):
+        value = complete_synthetic()
+        # The manager was read at 100.5 but a multi-minute collecting window
+        # cannot attest that all listed UUIDs existed together at that time.
+        value["compareReadyEvidence"]["afterProcessCohort"][
+            "observedEndRuntimeSeconds"] = 400.0
+        self.assert_rejected(value, "capture duration exceeds observer bound")
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["independentNativeCohort"][
+            "observedStartRuntimeSeconds"] = 0.0
+        self.assert_rejected(value, "capture duration exceeds observer bound")
+
+    def test_source_clock_cannot_predate_long_late_cohort_while_arrival_is_near(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["independentNativeCohort"][
+            "observedEndRuntimeSeconds"] = 103.0
+        value["compareReadyEvidence"]["serverClock"]["observedAtRuntimeSeconds"] = 100.51
+        for cohort in ("pointReadyCohort", "afterProcessCohort", "independentNativeCohort"):
+            value["compareReadyEvidence"][cohort]["records"][0]["arriveTs"] = (
+                value["nativeServerTimeUnixMs"] // 1000 + 2)
+        self.assert_rejected(value, "capture duration exceeds observer bound")
+
     def test_type_ambiguity_unknown_or_string_type_is_rejected(self):
         for bad in (0, 3, "1", None, True):
             value = complete_synthetic()

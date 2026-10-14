@@ -15,6 +15,9 @@ from audit_passive_march_receipt import audit_receipt, _rect
 ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 ALLOWED_TYPES = {1: "truck", 2: "railway"}
 MAX_OBSERVER_SKEW_SECONDS = 1.0
+# Cohorts with collection windows longer than the stated observer skew cannot
+# certify a simultaneous complete population even when the intervals overlap.
+MAX_COHORT_CAPTURE_SECONDS = MAX_OBSERVER_SKEW_SECONDS
 # A native clock sampled inside a (<=1s) snapshot interval cannot attest to
 # freshness at its end if the last arrival is only milliseconds away.
 ARRIVAL_AFTER_CLOCK_MS = 1000
@@ -52,6 +55,8 @@ def _identity_map(cohort, label, server, world, errors):
     interval = _interval(cohort)
     if interval is None:
         errors.append(f"{label}: missing typed monotonic observation interval")
+    elif interval[1] - interval[0] > MAX_COHORT_CAPTURE_SECONDS:
+        errors.append(f"{label}: capture duration exceeds observer bound")
     if cohort.get("serverId") != server or cohort.get("worldId") != world:
         errors.append(f"{label}: server/world does not match native session")
     rows = cohort.get("records")

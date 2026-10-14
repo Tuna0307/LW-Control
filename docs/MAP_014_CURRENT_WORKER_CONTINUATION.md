@@ -288,3 +288,73 @@ No original installed game scripts or native receipts were changed, no task
 game/bridge was launched, and no new executable, ZIP, native life-cycle
 positive or release designation is claimed. The old unpublished
 `339e241c` Windows ZIP is NOT a package for the new source head.
+
+## Later production/Auto/source safety checkpoint (after `7970f9f2`)
+
+**Takeover:** verified local clean `7970f9f20561212eddd41f18a4af7a388d611e22`
+equal to direct origin and draft PR #10; checked `AGENTS.md`, October 14
+handoff, archived native Resource/March/consecutive observations, current
+continuation and worker handoffs. No new native run exists beyond the
+`native-march-source-20261014-103048` **pre-game** atomic journal rename
+`WinError 5` denial. Original `LWScripts.data`, `LWScripts.txt` and
+`version.txt` SHA256 references matched; no game/bridge process or active
+global recovery journal. The denied operation was **not retried**, relocated,
+permission-edited or bypassed. No background session, global input or updater.
+
+| New production-relevant gate | Demonstrated distinction | Remaining boundary |
+| --- | --- | --- |
+| Map317 accepted run ownership, pre-native admission | **Actual RED→GREEN bug:** Map317 accepted Start while on server/session A, then, before shared source activation, server/session became B. Previous adapter allowed controlled native shared `CaptureSharedAsync` and durable rows. `CurrentClientMap317ScanProvider.RunEngineAsync` now fetches a **fresh passive current context** for an explicit opt-in cleanup/shared source, and refuses changed server, world, grid, home tile or launch session **before** any native acquisition. Fails only still-reading exact accepted run; cannot fail successor. Controlled actual Map317/engine/SQLite test requires **zero capture and zero native cleanup** on stale admission. | Current-client context is managed source evidence, not independently verified native PID/group or retained camera. Future native source must still rebind immediately before each native side effect. Existing guarded per-probe sources retain their behavior. |
+| Auto successor scan return owner | **Actual RED→GREEN scheduler control defect:** an Auto exact old-run status could resolve to its archived terminal SQLite state while an unrelated native Manual/Auto scan was active. Before accepting a false exact-run Stop and before return-to-original-server after publication, Auto now reads the **current** run (`ReadStatusAsync(null)`) and active scan ownership flag. Four deterministic scheduler controls cover already-active successor, delayed active flag, completed historical run with no successor, and successor after prior publication. No unintended `ReturnServerAsync`, Stop, or displacement of unrelated run. | Controlled Auto execution boundary, not native second-server jump witness. Existing genuine packaged 2212→2213→2212 remains the original real positive, not rerun. |
+| Resource final publication provenance | `ResourceCompletenessReport.RequireReconciledBeforePublication` now checks admitted row server/world, 1-based pointIndex=`y*width+x+1`, exact AOI/logical block membership 0..999, source/raw JSON geometry and resource amount/occupancy, duplicate semantic identities, and response/class/type/distribution reconciliation—not just counts. **17 controlled inverses** reject foreign/stale/invalid source data, unknown candidate rejection reasons and collisions while accepting valid native-shaped Resource and the supported outside-AOI noncandidate case. | This protects **guarded** Resource publication; does not make FOV20 exact. Original six-round receipts: 47,967 native rows, pairwise missing **19/4/3** and candidate-only first pair **25**, first losses **16 unoccupied/3 occupied**, extras **24 unoccupied/1 occupied**; independent source AOI cohort/timing not a spawn/destruction witness. |
+| March manager causal readiness | New offline inverses reject `cameraViewRect` substitution for actual `WorldMarchDataManager.viewRect`, mismatched manager response/handler class-token, noncausal queue/handler and request time, stale native DateTime ticks and oversized typed cohorts, while preserving Truck/Train UUID generation and actual `WorldMarch.GetMarchCurPosIndex` integer native position-to-tile conversion. The genuine 60 untyped manager UUID point-ready receipt still fails missing pre/after/typed request/response/queue stage; six mixed rounds retain missing Truck **92/92/83** (unexpired **90/88/82**) and missing future Railway **2/1/1**. | No source-authenticated same-session typed mobile census, independent server clock, queue getter or expired Train final arrival. No Truck/Train/mixed FOV20 promotion. |
+| Consecutive native source admission, still diagnostic | Future native A→B→C schema now checks physical AOI and source-labelled native request/reply identity, monotonic per-stage observation windows, retained A/B camera, exact original home plus separate correlated home-view ACK at C, and missing/stale reply and owner inverses. Only controlled fixtures pass. | Genuine private 49.203s/10,000 AOI diagnostic lacks final production run/profile/group/handler/home-reply proof. **No actual group provider or product selector enabled.** |
+
+**Production route choice remains unchanged:** City-only FOV20 with exact
+4,114-owner alternating-pair parity and genuine packaged City positive;
+guarded Resource-only, Truck/Train and mixed, and no retained-camera
+consecutive shortcut. Preserve Scattered Supplies, Other subtype/Treasure
+split, previous real Truck Follow/Stop/expiry, remote Auto/Jump/Clear, image,
+name, filter, Home and UI positives.
+
+**Pending hard gates:** safe approved owned recovery-journal creation without
+the denied rename, actual native consecutive request/reply/abort/one-home
+restoration, independent same-time Resource identity/lifecycle, typed March
+response/queue/server-time/lifetime, full individual/mixed/remote Auto/SQLite
+and packaged Windows proof, and one new source-identified RC only after those
+are genuine. No Celebration Party, moving Doom Walker or independent Train
+lifetime witness manufactured; overall **PARTIAL**.
+
+### Final offline acceptance receipts and local Auto state
+
+* .NET Windows Release controlled build **0 warnings / 0 errors**; complete
+  `HOME_FEATURE_DELIVERY_CHECKS_OK` including actual Map317 accepted-run
+  server/session-swap inverse, `MAP014_AUTO_SHARED_OWNER_OK`, controlled real
+  shared `MapScanEngine`/SQLite 2,500 blocks, Treasure/Other partition,
+  `MAP014_RESOURCE_SOURCE_COMPLETENESS_CHECKS_OK inverses=17`, and
+  `MAP014_SHARED_SOURCE_ADMISSION_DIAGNOSTIC_OK` (45+ controlled inverse
+  cases, seam 0→999, and **both saved native A/B/C archives rejected** by
+  the future production protocol).
+* Offline direct Python: lead-native/benchmark auditor **40/40** tests,
+  March native causal checker **55/55**, consecutive receipt **12/12**,
+  Lua native observer source/fingerprint **8/8**, all pass. Prior runtime
+  native sampling/exact install binaries remain **untouched**.
+* Specific permitted frontend checks `check-map014-other.mjs`,
+  `check-map011-saved-owner.mjs`, `check-map014-mounted.mjs` pass; mounted
+  EN light desktop and JA dark narrow each 23 queries. Earlier missing
+  `jsdom` dependency in ignored local node_modules was restored using the
+  established ordinary project `npm.cmd install --ignore-scripts --no-audit
+  --no-fund --prefer-offline` method; `npm.cmd run check` previously denied
+  remains **unretried**, not rerouted through its constituent commands.
+* Read-only final product-local Auto profile check found **one persisted
+  `map-auto-scan.json` with `Enabled=true` and `NextRunAt>0`**, but
+  `restart.active=false`, no running game/bridge process, and no active
+  recovery journal. This persisted user preference was deliberately **not
+  modified/disarmed**; it is NOT an active worker job with the app closed,
+  but it must be accounted for before any later permitted application start
+  to avoid unintentionally arming a live Auto cycle. No account/game actions
+  were used to investigate it.
+
+No new release candidate, executable provenance or packaged native positive
+can be asserted for this source head. Previous unpublished ZIP remains
+source-identified to `339e241c` (SHA-256
+`a1086d2fa861c035e69a76d30d0299699f213fde5b96d1145a329851718a59e7`).

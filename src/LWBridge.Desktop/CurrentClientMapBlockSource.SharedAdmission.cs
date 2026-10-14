@@ -64,6 +64,8 @@ internal sealed partial class CurrentClientMapBlockSource
         const int MaxNativeResponseMilliseconds = 20_000;
         string? group = null;
         long lastResponseAt = 0;
+        int lastNativeReceiveCount = -1;
+        int[]? lastFootprint = null;
         int expectedBeforeX = request.PlayerTileX.Value;
         int expectedBeforeY = request.PlayerTileY.Value;
         var uniqueRequests = new HashSet<string>(StringComparer.Ordinal);
@@ -100,10 +102,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 respondedAt <= requestedAt ||
                 respondedAt - requestedAt > MaxNativeResponseMilliseconds)
                 throw new InvalidDataException("Shared native diagnostic response is stale, overlapping or outside its request window.");
-            lastResponseAt = respondedAt;
 
             int x = SharedInt(receipt, "targetTileX"), y = SharedInt(receipt, "targetTileY");
             if (x is < 0 or >= 1000 || y is < 0 or >= 1000 ||
+                (x == expectedBeforeX && y == expectedBeforeY) ||
                 SharedInt(receipt, "targetAoiIndex") != y / 10 * 100 + x / 10 ||
                 SharedInt(receipt, "postServerLod") != 0 ||
                 SharedInt(receipt, "postBlockSize") != 10 ||
@@ -111,29 +113,67 @@ internal sealed partial class CurrentClientMapBlockSource
                 throw new InvalidDataException("Shared native diagnostic target, LOD or AOI geometry invalid.");
 
             JsonElement before = SharedStage(receipt, "before-shift");
-            if (SharedInt(before, "tileX") != expectedBeforeX ||
-                SharedInt(before, "tileY") != expectedBeforeY)
-                throw new InvalidDataException("Shared native diagnostic camera continuity lost between retained regions.");
+            JsonElement shifted = SharedStage(receipt, "after-shift");
             JsonElement lens = SharedStage(receipt, "post-lens");
+            JsonElement updated = SharedStage(receipt, "post-update");
+            JsonElement firstPoll = SharedStage(receipt, "first-poll");
+            long beforeAt = SharedLong(before, "observedAtUnixMs");
+            long shiftedAt = SharedLong(shifted, "observedAtUnixMs");
+            long lensAt = SharedLong(lens, "observedAtUnixMs");
+            long updateAt = SharedLong(updated, "observedAtUnixMs");
+            long pollAt = SharedLong(firstPoll, "observedAtUnixMs");
+            // A request-id echoed beside booleans alone cannot prove an
+            // order-correct native response. The future producer must
+            // timestamp each actual stage in the same clock domain.
+            if (beforeAt <= lastResponseAt || beforeAt >= requestedAt ||
+                shiftedAt <= beforeAt || lensAt <= shiftedAt ||
+                lensAt >= requestedAt || updateAt <= requestedAt ||
+                pollAt <= updateAt || pollAt >= respondedAt)
+                throw new InvalidDataException(
+                    "Shared native diagnostic lacks a monotonic native stage/request/reply chronology.");
+            if (SharedInt(before, "tileX") != expectedBeforeX ||
+                SharedInt(before, "tileY") != expectedBeforeY ||
+                SharedInt(shifted, "tileX") != x || SharedInt(shifted, "tileY") != y ||
+                SharedInt(lens, "tileX") != x || SharedInt(lens, "tileY") != y ||
+                SharedInt(firstPoll, "tileX") != x || SharedInt(firstPoll, "tileY") != y ||
+                !SharedStageFlag(before, true) ||
+                !SharedStageFlag(shifted, true) ||
+                !SharedStageFlag(lens, true) ||
+                !SharedStageFlag(updated, false) ||
+                !SharedStageFlag(firstPoll, false))
+                throw new InvalidDataException("Shared native diagnostic camera continuity lost between retained regions.");
             if (!lens.TryGetProperty("geometry", out JsonElement geometry) ||
                 !geometry.TryGetProperty("fov", out JsonElement fov) ||
                 fov.ValueKind != JsonValueKind.Number ||
                 !fov.TryGetDouble(out double applied) ||
                 !double.IsFinite(applied) || Math.Abs(applied - 20.0) > 0.0001)
                 throw new InvalidDataException("Shared native diagnostic did not apply FOV20 at the native source.");
-            JsonElement updated = SharedStage(receipt, "post-update");
-            if (SharedInt(updated, "tileX") != x || SharedInt(updated, "tileY") != y ||
-                !updated.TryGetProperty("flags", out JsonElement flags) ||
-                !SharedBool(flags, "isRecvViewPoints", false))
+            if (SharedInt(updated, "tileX") != x || SharedInt(updated, "tileY") != y)
                 throw new InvalidDataException("Shared native diagnostic did not arm a fresh target-view reply.");
 
             int[] footprint = SharedAoiIndices(receipt, "requestedIndices");
             int[] current = SharedAoiIndices(updated, "currentIndices");
+            int[] beforeCurrent = SharedAoiIndices(before, "currentIndices");
+            int[] shiftedCurrent = SharedAoiIndices(shifted, "currentIndices");
+            int[] lensCurrent = SharedAoiIndices(lens, "currentIndices");
+            int[] pollCurrent = SharedAoiIndices(firstPoll, "currentIndices");
             if (SharedInt(receipt, "nativeCurrentSetCount") != footprint.Length ||
                 !footprint.ToHashSet().SetEquals(current) ||
+                !footprint.ToHashSet().SetEquals(pollCurrent) ||
+                !beforeCurrent.ToHashSet().SetEquals(shiftedCurrent) ||
+                !beforeCurrent.ToHashSet().SetEquals(lensCurrent) ||
+                !SharedIsAoiRectangle(beforeCurrent) ||
+                (lastFootprint is not null &&
+                 !beforeCurrent.ToHashSet().SetEquals(lastFootprint)) ||
+                beforeCurrent.ToHashSet().SetEquals(footprint) ||
                 !SharedIsAoiRectangle(footprint) ||
                 !footprint.Contains(y / 10 * 100 + x / 10))
                 throw new InvalidDataException("Shared native diagnostic retained a stale, holed or target-missing _curViewIndex footprint.");
+            lastNativeReceiveCount = SharedNativeReplyEvidence(
+                receipt, "nativeReplyEvidence", requestId, group!, session, request,
+                x, y, respondedAt, footprint, lastNativeReceiveCount);
+            lastResponseAt = respondedAt;
+            lastFootprint = footprint;
             aoiUnion.UnionWith(footprint);
 
             if (ordinal < 2)
@@ -157,13 +197,32 @@ internal sealed partial class CurrentClientMapBlockSource
                     !JsonElement.DeepEquals(original, restored))
                     throw new InvalidDataException("Shared native diagnostic failed the one original-home camera/projection restoration.");
                 string restoreId = SharedString(receipt, "homeRestoreRequestId");
+                long homeRequestAt = SharedLong(receipt, "homeRestoreStartedAtUnixMs");
                 long homeReplyAt = SharedLong(receipt, "homeNativeReplyAtUnixMs");
+                long restoredAt = SharedLong(receipt, "restoredCameraObservedAtUnixMs");
+                if (homeRequestAt <= respondedAt ||
+                    homeReplyAt <= homeRequestAt ||
+                    homeReplyAt - homeRequestAt > MaxNativeResponseMilliseconds ||
+                    restoredAt < homeReplyAt ||
+                    restoredAt - homeReplyAt > MaxNativeResponseMilliseconds)
+                    throw new InvalidDataException(
+                        "Shared native diagnostic has stale home request/reply or an unverified post-reply camera.");
                 if (uniqueRequests.Contains(restoreId) ||
                     !SharedEquals(receipt, "homeNativeReplyRequestId", restoreId) ||
                     !SharedEquals(receipt, "homeNativeReplyState", "matched") ||
-                    homeReplyAt <= respondedAt ||
-                    homeReplyAt - respondedAt > MaxNativeResponseMilliseconds)
+                    homeReplyAt <= respondedAt)
                     throw new InvalidDataException("Shared native diagnostic lacks a separate correlated fresh home-view reply.");
+                if (!receipt.TryGetProperty("homeNativeReplyEvidence", out JsonElement homeEvidence))
+                    throw new InvalidDataException("Shared native diagnostic lacks a separate native home reply event.");
+                int[] homeIndices = SharedAoiIndices(homeEvidence, "currentIndicesAtReply");
+                int homeAoi = request.PlayerTileY.Value / 10 * 100 + request.PlayerTileX.Value / 10;
+                if (!SharedIsAoiRectangle(homeIndices) || !homeIndices.Contains(homeAoi) ||
+                    (lastFootprint is not null && homeIndices.ToHashSet().SetEquals(lastFootprint)))
+                    throw new InvalidDataException("Shared native diagnostic home AOI still reflects stale C footprint.");
+                _ = SharedNativeReplyEvidence(
+                    receipt, "homeNativeReplyEvidence", restoreId, group!, session, request,
+                    request.PlayerTileX.Value, request.PlayerTileY.Value,
+                    homeReplyAt, homeIndices, lastNativeReceiveCount);
             }
             expectedBeforeX = x;
             expectedBeforeY = y;
@@ -185,6 +244,54 @@ internal sealed partial class CurrentClientMapBlockSource
         obj.ValueKind == JsonValueKind.Object &&
         obj.TryGetProperty(name, out JsonElement value) &&
         (expected ? value.ValueKind == JsonValueKind.True : value.ValueKind == JsonValueKind.False);
+
+    private static bool SharedStageFlag(JsonElement stage, bool expected) =>
+        stage.TryGetProperty("flags", out JsonElement flags) &&
+        SharedBool(flags, "isRecvViewPoints", expected);
+
+    private static int SharedNativeReplyEvidence(
+        JsonElement receipt,
+        string field,
+        string requestId,
+        string generation,
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        int targetX,
+        int targetY,
+        long replyAt,
+        int[] expectedIndices,
+        int previousReceiveCount)
+    {
+        if (!receipt.TryGetProperty(field, out JsonElement native) ||
+            native.ValueKind != JsonValueKind.Object ||
+            !SharedEquals(native, "source", "WorldPointManager.ReceiveViewPoints") ||
+            !SharedEquals(native, "requestId", requestId) ||
+            !SharedEquals(native, "scanRunId", request.RunId) ||
+            !SharedEquals(native, "groupGeneration", generation) ||
+            !SharedEquals(native, "profileId", session.ProfileId) ||
+            !SharedEquals(native, "launchSessionId", session.SessionId) ||
+            SharedInt(native, "gamePid") != session.GamePid ||
+            SharedInt(native, "serverId") != request.ServerId ||
+            SharedLong(native, "worldId") != request.WorldId ||
+            SharedInt(native, "targetTileX") != targetX ||
+            SharedInt(native, "targetTileY") != targetY ||
+            SharedInt(native, "targetAoiIndex") !=
+                targetY / 10 * 100 + targetX / 10 ||
+            SharedLong(native, "observedAtUnixMs") != replyAt)
+            throw new InvalidDataException(
+                "Shared native diagnostic has scalar response flags but no exact owned native reply event.");
+        int countBefore = SharedInt(native, "nativeReceiveCountBefore");
+        int countAfter = SharedInt(native, "nativeReceiveCountAfter");
+        if (countBefore < 0 || countAfter <= countBefore ||
+            (previousReceiveCount >= 0 && countBefore < previousReceiveCount) ||
+            !SharedAoiIndices(native, "currentIndicesAtReply")
+                .ToHashSet().SetEquals(expectedIndices))
+            throw new InvalidDataException(
+                "Shared native diagnostic has no fresh native receive counter/footprint advancement.");
+        // Typed sampler fields remain independently unverified without a native
+        // packet provider. Do not promote this diagnostic to product admission.
+        return countAfter;
+    }
 
     private static string SharedString(JsonElement obj, string name) =>
         obj.ValueKind == JsonValueKind.Object &&

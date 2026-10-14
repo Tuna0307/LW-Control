@@ -235,6 +235,56 @@ Controlled tests reject stale capture dates, wrong source/camera server,
 changed native session, and incorrectly counting a re-used point ID with
 different resource configuration as the same living object.
 
+### Managed Resource source-accounting publication gate (controlled, 14 Oct)
+
+The C# `ResourceCompletenessReport.RequireReconciledBeforePublication` previously
+checked aggregate equality, deduplicated count and a boolean for each recorded
+duplicate, but did **not** verify a staged Resource's own server/world, exact
+point-derived identity, coordinate/AOI, native source fields or observation
+timestamp. A forged row with the correct count and `srcServerId=2213` could
+pass a report for server 2212. It also admitted invalid Resource candidates
+whose diagnostic rejection was counted but whose native point was omitted.
+
+The **diagnostic accounting publication gate** now checks the raw manager's
+runtime-class and point-type enumeration histograms, excludes any positive
+Resource candidate rejection other than `outside_selected_aoi`, verifies that
+each retained row agrees with its report owner/server/world and 0–999 spatial
+point identity, its native 10×10 AOI and logical block, and any imported raw
+source kind, point ID, timestamp, occupancy and native detail amounts. Duplicate
+occurrences must have corresponding same-identity comparisons with consistent
+captured and stored times. This does not add an FOV20 selector or establish
+individual-point source freshness beyond the scanner's own request window.
+
+The *actual read-only round-5 final native per-request reply* at
+`live-resource/bulk-aoi-diagnostic-result.json` demonstrates the expected
+histogram semantics: 79 observed/79 enumerated `_pointInfos` entries, raw
+runtime-class histogram 1+1+38+2+36+1 = 79, point-type histogram
+1+2+1+1+38+36 = 79, 36 type-7 `ResPointInfo` Resource candidates,
+36 accepted, **zero candidate rejects**, and 36 source lookup hits. Its
+`rejectionReasonCounts` is the correct empty `[]` form; the parser permits it.
+The native per-request rows carry `pointId`, `srcServerId=2212`, `worldId=0`,
+`source`, `resourceSourceType` and `gatherOccupied`, which are normalized by
+`FirstLiveResultImporter` with `kind=resource`, `sourceKind=resource_point`,
+`pointIndex`, `recordKey`, `updatedAt` and rebuilt occupancy flags. The audited
+47,967 rows across six databases have internally consistent source capture
+timestamps and identity metadata, and only real unoccupied points assert
+hydrated amounts. The **full C# per-batch histograms and managed report output
+for every request were not separately archived**; these checks are therefore
+source-schema compatible with the inspected native reply and managed importer,
+not a retrospective C# execution proof for all six runs.
+
+`tests/LWBridge.Desktop.Checks/Map014ResourceSourceCompletenessChecks.cs`
+provides one positive and 17 **synthetic** publication inverses, including
+foreign server/world, shifted point/record key, 1000-edge overflow, wrong AOI,
+two stale timestamps, fabricated source, contradictory occupancy, impossible
+remaining amount, dropped native candidate and omitted duplicate comparison.
+The same tests preserve an accepted `outside_selected_aoi` source observation:
+the manager may legitimately retain points in neighboring regions. An
+initial controlled RED showed foreign `srcServerId` was admitted; GREEN passed
+all 17 inverses with the corrected gate. This evidence does not promote
+Resource FOV20 or reclassify any of the 19/4/3 disappearing point IDs as
+proven stale, spawned or destroyed.
+
 ## Production path and recommended exact native inverse
 
 - FOV20 remains **diagnostic opt-in for Resource**:

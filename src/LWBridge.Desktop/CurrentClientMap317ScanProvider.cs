@@ -210,17 +210,20 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         // registration and leave a completed task appearing active.
         var registered = new TaskCompletionSource<bool>(
             TaskCreationOptions.RunContinuationsAsynchronously);
-        Task task = RunRegisteredAsync(registered.Task, engine, execution, cancellation);
+        Task task = RunRegisteredAsync(registered.Task, engine, execution, cancellation,
+            control, liveContext, acquisition is IMapScanAcquisitionCleanup);
         lock (gate) activeTask = task;
         registered.SetResult(true);
     }
 
     private async Task RunRegisteredAsync(
         Task registered, MapScanEngine engine, MapScanExecutionRequest request,
-        CancellationTokenSource cancellation)
+        CancellationTokenSource cancellation, Map317.MapControlPlane control,
+        CurrentClientMapContext admittedContext, bool requiresFreshSourceOwner)
     {
         await registered.ConfigureAwait(false);
-        await RunEngineAsync(engine, request, cancellation).ConfigureAwait(false);
+        await RunEngineAsync(engine, request, cancellation, control,
+            admittedContext, requiresFreshSourceOwner).ConfigureAwait(false);
     }
 
     public async ValueTask StopMapScanAsync(CancellationToken cancellationToken = default)
@@ -279,19 +282,68 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
     private async Task RunEngineAsync(
         MapScanEngine engine,
         MapScanExecutionRequest request,
-        CancellationTokenSource cancellation)
+        CancellationTokenSource cancellation,
+        Map317.MapControlPlane control,
+        CurrentClientMapContext admittedContext,
+        bool requiresFreshSourceOwner)
     {
+        bool enteredEngine = false;
         try
         {
+            if (requiresFreshSourceOwner)
+            {
+                // Between Map317 Start and accepted-run activation, Auto may
+                // switch target servers or the Overview owner may retire.
+                // Existing legacy per-probe sources enforce their own source
+                // admission. An opt-in retained camera must be refused
+                // *before any first native shared/acquisition command* when
+                // the passive current-client context no longer matches.
+                CurrentClientMapContext fresh = await getContext(cancellation.Token)
+                    .ConfigureAwait(false);
+                if (fresh.ServerId != admittedContext.ServerId ||
+                    ToWorldId(fresh.WorldId) != ToWorldId(admittedContext.WorldId) ||
+                    fresh.TileWidth != admittedContext.TileWidth ||
+                    fresh.TileHeight != admittedContext.TileHeight ||
+                    fresh.PlayerTileX != admittedContext.PlayerTileX ||
+                    fresh.PlayerTileY != admittedContext.PlayerTileY ||
+                    string.IsNullOrWhiteSpace(fresh.LaunchSessionId) ||
+                    !string.Equals(fresh.LaunchSessionId,
+                        admittedContext.LaunchSessionId, StringComparison.Ordinal) ||
+                    fresh.ServerId != request.ServerId ||
+                    ToWorldId(fresh.WorldId) != request.WorldId ||
+                    !string.Equals(fresh.LaunchSessionId,
+                        request.LaunchSessionId, StringComparison.Ordinal))
+                    throw new BridgeCommandException("MAP_SCAN_OWNER_CHANGED",
+                        "current game server, world, home tile or owned session changed before native acquisition");
+            }
+            cancellation.Token.ThrowIfCancellationRequested();
+            enteredEngine = true;
             await engine.ExecuteAsync(request, cancellation.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
         }
-        catch
+        catch (Exception error)
         {
             // MapScanEngine writes the exact-plane terminal failure through the
-            // sink before surfacing the provider exception.
+            // sink before surfacing the provider exception. If the *pre-engine*
+            // admission failed there is no native group or engine sink yet;
+            // retire only its still-active exact accepted run in Map317.
+            if (!enteredEngine)
+            {
+                try
+                {
+                    Map317.MapScanState active = control.ScanState;
+                    if (active.IsReading &&
+                        string.Equals(active.ScanRunId, request.RunId, StringComparison.Ordinal))
+                        control.FailScan(error.Message);
+                }
+                catch
+                {
+                    // Preserve the initial ownership error; never affect a
+                    // newer/successor run after an intervening Stop.
+                }
+            }
         }
         finally
         {

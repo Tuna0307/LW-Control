@@ -198,6 +198,35 @@ internal static class Map014Map317SharedAdapterChecks
         }
     }
 
+    private static async Task CheckRetiredSessionAtActivationAsync()
+    {
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int server = 2213;
+        const string session = "original-owned-session";
+        bool sessionReplaced = false;
+        var source = new NativeSource();
+        var provider = new CurrentClientMap317ScanProvider(source,
+            _ => Task.FromResult(new CurrentClientMapStatusContext(true, server, server,
+                [], [], 0, 1000, 1000, 500, 500)),
+            _ => Task.FromResult(new CurrentClientMapContext(
+                sessionReplaced ? 2214 : server, 0, 1000, 1000, 500, 500,
+                sessionReplaced ? "replacement-session" : session)));
+        using var control = new Map317.MapControlPlane(store, provider);
+        var done = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        provider.RunTerminated += id => done.TrySetResult(id);
+        Map317.MapScanState accepted = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["treasure", "other"], "fast"));
+        source.AcquisitionOwner = new(accepted.ScanRunId, server, 0, session,
+            ["treasure"], "retired-profile", 12345, "owned-group");
+        sessionReplaced = true;
+        provider.ActivateAcceptedRun(control, accepted.ScanRunId);
+        Require(await done.Task.WaitAsync(TimeSpan.FromSeconds(10)) == accepted.ScanRunId &&
+                control.ScanState.Phase == "failed" &&
+                source.Calls == 0 && source.Cleanups == 0 &&
+                store.SummaryCounts(server)["other"] == 0,
+            "retired owned session was allowed to begin native shared capture or publish after Map317 Start");
+    }
+
     internal static async Task RunAsync()
     {
         await CheckAsync(["other"], ["treasure"]);
@@ -208,6 +237,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckAsync(["treasure", "other"], ["treasure"], invalidCleanup: true);
         await CheckLegacyCleanupProviderAsync(restored: true);
         await CheckLegacyCleanupProviderAsync(restored: false);
+        await CheckRetiredSessionAtActivationAsync();
         Console.WriteLine("MAP014_MAP317_SHARED_OTHER_SQLITE_OK native=false blocks=2500 oneHomeRestore=true types=city/treasure/other");
     }
 }

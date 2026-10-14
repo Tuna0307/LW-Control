@@ -52,9 +52,15 @@ def fake_complete():
             "phase": phase, "sourceObserved": True,
             "sourceCorrelationId": "native-marchevent-10",
             "serverId": 2212, "worldId": 0, "rect": rect,
+            "sourceClass": ("WorldMarchDataManager" if phase in ("process", "handler")
+                            else "WorldGetRectMarchInfosMessage"),
+            "methodToken": {"request": "0x060019a6", "response": "0x060019a7",
+                            "handler": "0x0600327b",
+                            "process": "0x06003276"}[phase],
             "method": {
                 "request": "WorldGetRectMarchInfosMessage.CSSetData",
                 "response": "WorldGetRectMarchInfosMessage.CSHandleResponse",
+                "handler": "WorldMarchDataManager.HandleWorldGetRectMarchInfos",
                 "process": "WorldMarchDataManager.TryExcuteMarchMessage",
             }[phase],
             "observedAtRuntimeSeconds": moment, "nativeTicks": epoch_ticks + tick_offset,
@@ -72,6 +78,7 @@ def fake_complete():
         "marchRectEvents": [
             event("request", 100.1, -3500000),
             event("response", 100.3, -2500000),
+            event("handler", 100.35, -2200000),
             event("process", 100.4, -2000000),
         ],
         "independentActiveMarches": {
@@ -101,7 +108,7 @@ class PassiveReceiptAuditChecks(unittest.TestCase):
         self.assertTrue(result["receiptHasActualPointReadyMarchManagerSnapshot"])
         self.assertEqual(result["observedMarchDictionaryCount"], 60)
         self.assert_failed(SAMPLE, "marchSourceBefore")
-        self.assert_failed(SAMPLE, "March rect request/response/process")
+        self.assert_failed(SAMPLE, "March rect request/response/handler/process")
         self.assert_failed(SAMPLE, "StepProcessQueue.Count getter provenance")
         self.assert_failed(SAMPLE, "numeric native DateTime ticks unavailable")
         self.assertEqual(len(SAMPLE.get("train_march_records", [])), 0)
@@ -130,12 +137,29 @@ class PassiveReceiptAuditChecks(unittest.TestCase):
         self.assert_failed(value, "marchSourceAfterProcess")
 
     def test_missing_request_or_response_or_processing_fails(self):
-        for phase in ("request", "response", "process"):
+        for phase in ("request", "response", "handler", "process"):
             with self.subTest(phase=phase):
                 value = fake_complete()
                 value["marchRectEvents"] = [event for event in value["marchRectEvents"]
                                              if event["phase"] != phase]
-                self.assert_failed(value, "March rect request/response/process")
+                self.assert_failed(value, "March rect request/response/handler/process")
+
+    def test_reply_entry_does_not_certify_separate_manager_handler(self):
+        # Installed CSHandleResponse at 0x060019a7 has an error short-circuit;
+        # its entry is no proof that the separate manager handler ran.
+        value = fake_complete()
+        value["marchRectEvents"] = [e for e in value["marchRectEvents"]
+                                    if e["phase"] != "handler"]
+        self.assert_failed(value, "request/response/handler/process")
+
+    def test_manager_handler_must_follow_reply_and_precede_process(self):
+        value = fake_complete()
+        value["marchRectEvents"][2]["observedAtRuntimeSeconds"] = 100.29
+        self.assert_failed(value, "runtime order invalid")
+        value = fake_complete()
+        value["marchRectEvents"][2]["nativeTicks"] = (
+            value["marchRectEvents"][3]["nativeTicks"] + 10000)
+        self.assert_failed(value, "native timestamps invalid")
 
     def test_unverified_request_response_process_correlation_fails(self):
         value = fake_complete()
@@ -151,6 +175,43 @@ class PassiveReceiptAuditChecks(unittest.TestCase):
         value = fake_complete()
         value["marchRectEvents"][0]["method"] = "WorldPointManager.UpdateViewRequest"
         self.assert_failed(value, "request method/source/server/world")
+
+    def test_native_march_rect_must_match_manager_view_not_narrow_camera(self):
+        value = fake_complete()
+        # Both are valid native rectangles, but only viewRect represents the
+        # March manager subscription; cameraViewRect is deliberately smaller.
+        camera = value["marchSourceAtPointReady"]["cameraViewRect"]
+        for event in value["marchRectEvents"]:
+            event["rect"] = camera
+        self.assert_failed(value, "active manager view rectangle")
+
+    def test_march_source_rect_must_remain_bound_through_consumption(self):
+        value = fake_complete()
+        value["marchSourceAfterProcess"]["viewRect"] = {
+            "xMin": 300, "yMin": 300, "xMax": 405, "yMax": 405,
+        }
+        # Legacy oracle accepts the camera rectangle as a substitute, so
+        # remove that incidental failure and isolate the manager seam.
+        value["independentActiveMarches"]["rect"] = copy.deepcopy(
+            value["marchSourceAfterProcess"]["cameraViewRect"])
+        self.assert_failed(value, "March manager rectangle changed before processing")
+
+    def test_forged_phase_method_class_and_token_cannot_pass(self):
+        for phase in ("request", "response", "handler", "process"):
+            for key, invalid in (("sourceClass", "WorldPointManager"),
+                                 ("methodToken", "0x06000001")):
+                with self.subTest(phase=phase, key=key):
+                    value = fake_complete()
+                    next(e for e in value["marchRectEvents"] if e["phase"] == phase)[key] = invalid
+                    self.assert_failed(value, f"March {phase} method/source/server/world")
+
+    def test_old_native_event_ticks_cannot_pretend_to_be_current_runtime(self):
+        value = fake_complete()
+        # Wall-clock event timestamps a whole day before their recorded
+        # runtime observations otherwise satisfy the existing ordering check.
+        for event in value["marchRectEvents"][:2]:
+            event["nativeTicks"] -= 24 * 60 * 60 * 10000000
+        self.assert_failed(value, "March rect event native timestamp outside capture window")
 
     def test_stale_region_server_world_is_rejected(self):
         for field in ("serverId", "worldId"):
@@ -183,7 +244,7 @@ class PassiveReceiptAuditChecks(unittest.TestCase):
         value["marchSourceAfterProcess"]["lastGetBlockMessageTicks"] -= 10 * 60 * 10000000
         self.assert_failed(value, "native get timestamp incompatible")
         value = fake_complete()
-        value["marchRectEvents"][2]["nativeTicks"] += 2000000
+        value["marchRectEvents"][3]["nativeTicks"] += 2000000
         self.assert_failed(value, "native handle timestamp does not corroborate")
         value = fake_complete()
         value["marchRectEvents"][1]["observedAtRuntimeSeconds"] = 100.05
