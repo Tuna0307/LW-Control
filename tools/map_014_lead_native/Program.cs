@@ -6,7 +6,7 @@ using Map317 = LWBridge.Map317;
 // Explicit diagnostic host: actual production native source, command plane,
 // engine and SQLite, no fake rows/providers. Own session is independently
 // supplied by the admitted helper; this is not a packaged WebView/pipe proof.
-if (args.Length != 2) throw new ArgumentException("owner.json scenario (city|mixed|other|treasure-other|stop)");
+if (args.Length != 2) throw new ArgumentException("owner.json scenario (city|mixed|other|treasure-other|stop|march-source)");
 var ownerPath = Path.GetFullPath(args[0]);
 using var document = JsonDocument.Parse(File.ReadAllText(ownerPath));
 var owner = document.RootElement;
@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -51,9 +51,9 @@ OverviewMapScanSession? ReadSession()
         return lastVerifiedHeartbeat!=0 && Stopwatch.GetElapsedTime(lastVerifiedHeartbeat)<TimeSpan.FromSeconds(5) ? session : null;
     }
 }
-CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false) => new(ReadSession,runtime,probe,
-    hooks: bounded
-        ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true }
+CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false) => new(ReadSession,runtime,probe,
+    hooks: marchProbe ? new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true }
+        : bounded ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true }
         : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true } : null,
     waitForHealthySession: async (expected, token) =>
     {
@@ -74,7 +74,8 @@ CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false) => 
         }
         throw new TimeoutException("Genuine native game did not become healthy");
     }, matchesOwnedSession: expected => expected==session && OwnProcessMatches(), assetCacheRoot: Path.Combine(root,"asset-cache"));
-var source = MakeSource(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BOUNDED_LENS") == "1");
+var source = MakeSource(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BOUNDED_LENS") == "1",
+    marchProbe: scenario == "march-source");
 using var commands = new Map317CommandService(Path.Combine(root,"map-014.db"),
     new CurrentClientMap317ScanProvider(source), new CurrentClientMap317ActionProvider(source), false,
     source.GetMapStatusContextAsync);
@@ -195,6 +196,7 @@ try
     string[] selected = scenario switch
     {
         "mixed" => ["city", "resource", "monster", "truck", "railway", "dispatch"],
+        "march-source" => ["truck", "railway"],
         "other" => ["other"],
         "treasure-other" => ["treasure", "other"],
         _ => ["city"],

@@ -871,6 +871,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
             $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
+            $"observeMarchFreshness={(hooks?.ObserveMarchFreshness == true).ToString().ToLowerInvariant()}",
             $"includeDispatch={request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeTreasure={request.SelectedTypes.Contains("treasure", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
@@ -890,7 +891,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
             {
                 byte[] bytes = ReadAllBytes(resultPath);
-                try { return ValidateFastCityBatchResult(
+                try { var validated = ValidateFastCityBatchResult(
                     root.Value,
                     bytes,
                     resultPath,
@@ -901,7 +902,19 @@ internal sealed partial class CurrentClientMapBlockSource
                     groupStartColumn,
                     groupStartRow,
                     targetX,
-                    targetY); }
+                    targetY);
+                    if (hooks?.ObserveMarchFreshness == true)
+                    {
+                        if (!root.Value.TryGetProperty("marchSourceBefore", out var before) ||
+                            !root.Value.TryGetProperty("marchSourceAtPointReady", out var atPoint))
+                            throw new InvalidDataException("March telemetry opt-in lacked native before/point-ready snapshots.");
+                        string directory = Path.Combine(probeRuntimeRoot, "march-freshness-owned");
+                        Directory.CreateDirectory(directory);
+                        File.WriteAllText(Path.Combine(directory, requestId + ".json"),
+                            JsonSerializer.Serialize(new { scanRunId = request.RunId, requestId, serverId = request.ServerId,
+                                targetX, targetY, before, atPoint }));
+                    }
+                    return validated; }
                 catch (InvalidDataException)
                 {
                     if (nativeBatchNegativesRecorded++ < 8 &&

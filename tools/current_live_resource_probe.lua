@@ -2514,6 +2514,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeResourceDetails = include_resource_details_raw == "true"
     local defer_restore_until_response_raw = tostring(values.deferRestoreUntilResponse or "false")
     request.deferRestoreUntilResponse = defer_restore_until_response_raw == "true"
+    local observe_march_freshness_raw = tostring(values.observeMarchFreshness or "false")
+    request.observeMarchFreshness = observe_march_freshness_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -2547,6 +2549,9 @@ local function read_bulk_aoi_diagnostic(now)
        (include_treasure_raw ~= "true" and include_treasure_raw ~= "false") or
        (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") or
        (defer_restore_until_response_raw ~= "true" and defer_restore_until_response_raw ~= "false") or
+       (observe_march_freshness_raw ~= "true" and observe_march_freshness_raw ~= "false") or
+       (request.observeMarchFreshness == true and (request.includeTrain ~= true or
+           request.requestMode ~= "coverage" or request.deferRestoreUntilResponse ~= true)) or
        (request.deferRestoreUntilResponse == true and not (
           request.includeCity or request.includeResource or request.includeMonster or
           request.includeTrain or request.includeDispatch or request.includeGhost or request.includeTreasure)) then
@@ -3527,6 +3532,64 @@ local function normalize_train_current_goods(march, train, train_data_json, expl
     local result = {}
     for _, key in ipairs(order) do result[#result + 1] = by_key[key] end
     return result, max_loot_count
+end
+
+-- Private read-only observation of the exact installed v24 march-manager
+-- fields. A missing StepProcessQueue.Count is explicitly unknown, not empty.
+function M._map014MarchSourceSnapshot(world)
+    local manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
+    if manager == nil then return { available = false, reason = "MarchDataManager_unavailable" } end
+    local function field(name)
+        local value = reflected_value(manager, name)
+        if value == nil then value = safe_get(manager, name) end
+        return value
+    end
+    local function rect(value)
+        if value == nil then return nil end
+        return {
+            xMin = tonumber(safe_get(value, "xMin") or safe_get(value, "XMin")),
+            yMin = tonumber(safe_get(value, "yMin") or safe_get(value, "YMin")),
+            xMax = tonumber(safe_get(value, "xMax") or safe_get(value, "XMax")),
+            yMax = tonumber(safe_get(value, "yMax") or safe_get(value, "YMax")),
+        }
+    end
+    local queue, merged = field("_messages"), field("_messagesMergeDict")
+    local ok_all, all = call(manager, "GetAllMarchesByCS")
+    if not ok_all or all == nil then all = field("allMarches") end
+    local march_uuids, capped = {}, false
+    if all ~= nil then
+        local ok_enum, iterator = call(all, "GetEnumerator")
+        if ok_enum and iterator ~= nil then
+            for _ = 1, 2048 do
+                local ok_move, moved = call(iterator, "MoveNext")
+                if not ok_move then break end
+                if moved ~= true then break end
+                local pair = safe_get(iterator, "Current")
+                local march = pair and (safe_get(pair, "Value") or pair) or nil
+                local uuid = march and scalar_field(march, { "uuid", "Uuid", "_uuid" }) or nil
+                if uuid ~= nil then march_uuids[#march_uuids + 1] = tostring(uuid) end
+                if #march_uuids >= 2048 then capped = true; break end
+            end
+        end
+    end
+    table.sort(march_uuids)
+    local get_time, handle_time = field("_lastGetBlockMsgTime"), field("_lastHandleBlockMsgTime")
+    return {
+        available = true, observedAtRuntimeSeconds = runtime_clock(),
+        viewBounds = rect(field("viewBounds")), viewRect = rect(field("viewRect")),
+        cameraViewRect = rect(field("cameraViewRect")),
+        lastCameraViewRange = field("lastCameraViewRange") and tostring(field("lastCameraViewRange")) or nil,
+        pendingQueuePresent = queue ~= nil,
+        pendingQueueCount = queue and tonumber(safe_get(queue, "Count") or reflected_value(queue, "Count")) or nil,
+        mergedQueuePresent = merged ~= nil,
+        mergedQueueCount = merged and collection_count(merged) or nil,
+        lastGetBlockMessageTime = get_time and tostring(get_time) or nil,
+        lastHandleBlockMessageTime = handle_time and tostring(handle_time) or nil,
+        lastGetBlockMessageTicks = get_time and tonumber(safe_get(get_time, "Ticks")) or nil,
+        lastHandleBlockMessageTicks = handle_time and tonumber(safe_get(handle_time, "Ticks")) or nil,
+        marchDictionaryCount = all and collection_count(all) or nil,
+        marchUuids = march_uuids, marchUuidSampleCapped = capped,
+    }
 end
 
 local function train_march_aoi_records(world, block_size, block_count, selected_lookup)
@@ -5395,6 +5458,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         positionRestoredBeforeResponse = details.positionRestoredBeforeResponse,
         positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
         point_records = details.pointRecords,
+        marchSourceBefore = details.marchSourceBefore,
+        marchSourceAtPointReady = details.marchSourceAtPointReady,
         monster_march_records = details.monsterMarchRecords,
         train_march_records = details.trainMarchRecords,
         doomsdayBossCount = details.doomsdayBossCount or 0,
@@ -5707,6 +5772,9 @@ local function pump_bulk_aoi_diagnostic(now)
         bulk_aoi_native_original_zoom = checkpoint.zoom
         request.details = request.details or {}
         request.details.originalCameraGeometry = checkpoint
+        if request.observeMarchFreshness == true then
+            request.details.marchSourceBefore = M._map014MarchSourceSnapshot(world)
+        end
         local shift_x = (request.targetTileX - pre_tile_x) * 2
         local shift_z = (request.targetTileY - pre_tile_y) * 2
         local remote_pos = vector3_type(ox + shift_x, oy, oz + shift_z)
@@ -5979,6 +6047,7 @@ local function pump_bulk_aoi_diagnostic(now)
             requested_indices = native_indices
         end
         request.details = {
+            marchSourceBefore = request.details and request.details.marchSourceBefore,
             requestedIndices = requested_indices,
             bigMap = 0, serverLod = server_lod, blockSize = block_size, blockCount = block_count,
             anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
@@ -6031,6 +6100,17 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     local details = bulk_aoi_request.details or {}
+    -- Observe the first point-ready frame *before* resource/Train/Monster
+    -- extraction. March queue processing can finish later than point flags;
+    -- sampling after enrichment would conceal that ordering difference.
+    if bulk_aoi_request.observeMarchFreshness == true and
+       details.marchSourceAtPointReady == nil and details.deferredRestorePending ~= true then
+        local point_flags = bulk_manager_flags(point_manager)
+        if point_flags.isRecvViewPoints == true and world_response_flag(world) == true and
+           reflected_value(point_manager, "_splitLastAOIRequest") ~= true then
+            details.marchSourceAtPointReady = M._map014MarchSourceSnapshot(world)
+        end
+    end
     if bulk_aoi_request.deferRestoreUntilResponse == true and details.deferredRestorePending == true then
         local restored_tile = safe_get(world, "CurTilePosClamped")
         details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))

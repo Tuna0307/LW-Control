@@ -1,5 +1,26 @@
 # MAP-014 native march acquisition — offline research
 
+## October 14 hash-pinned freshness qualification
+
+See [the current source-causal qualification](../../docs/MAP_014_MARCH_FRESHNESS_QUALIFICATION.md).
+The installed `Assembly-CSharp.rdl` SHA-256 is
+`bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e`,
+matched by `trace_installed_metadata.py` with **no** game launch. Its pinned
+fields include `viewRect` (`0x0400254f`), `cameraViewRect`
+(`0x04002551`), `_messages` (`0x04002561`), `_messagesMergeDict`
+(`0x04002562`), `_lastGetBlockMsgTime` (`0x04002566`) and
+`_lastHandleBlockMsgTime` (`0x04002567`). These are inspected member
+names/types, **not** proof that a specific camera movement sent or completed a
+march request: opaque IL call operands remain unresolved.
+
+`march_freshness_gate.py` supplies a strictly offline, source-attributed
+**proposed** receipt evaluator for the prime's future owned passive native
+experiment. It deliberately distinguishes March reply and message processing
+from point AOI response; single-region success is never global mobile accuracy.
+The added `test_march_freshness_gate.py` rejects old-region response, nonempty
+queue, snapshot-before-process, cross-server attribution, and missing UUIDs
+even when all point AOIs appear covered. No raw player IDs are written to Git.
+
 ## Source and causal boundary
 
 The shipped `Assembly-CSharp.rdl` hash-gated metadata archive

@@ -12,7 +12,7 @@ sys.path.insert(0,str(REPO/'tools'))
 import run_overview_bridge_current as current
 api=current.base
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); opt=p.parse_args()
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
     os.environ['LWBRIDGE_REBUILD_DATA_ROOT']=str(directory)

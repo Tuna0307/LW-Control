@@ -24,8 +24,22 @@ class Map013ObserverSourceTests(unittest.TestCase):
     # standard-projection camera restoration fix. This intentionally remains
     # a pinned digest, not one generated from the source under test.
     # Previous projection-only source: a3b86fae706636ba02180a5533450ea2c7abe1af653a921c84ff464043cea633.
-    # Reviewed MAP014 lens admission and native canonical-owner accounting.
-    CURRENT_PROBE_SHA256 = "5af48655ef47f7ad0deb34b40c160266a8621ac9ba139cbdc36450612a388357"
+    # Reviewed MAP014 lens admission and native canonical-owner accounting:
+    # 5af48655ef47f7ad0deb34b40c160266a8621ac9ba139cbdc36450612a388357.
+    # New source adds a strictly opt-in read-only March manager snapshot at
+    # point acquisition; the installed game script identity gate is unchanged.
+    # Initial passive march counts-only prototype:
+    # 2e15f58ec51225e98cbb17a16dbdaca395924a008221d6a87d3b7448ad2f814b.
+    # This revision additionally captures exact native March UUID identities
+    # to distinguish source-manager membership from point-AOI row filtering.
+    # First live telemetry negative exposed a Lua details-table replacement
+    # dropping the pre-camera March state. Preserve its historical digest:
+    # f392736541feb92d6155132626af8a925dfb5090220c9ca603e1acee47767650.
+    # Added optional native DateTime.Ticks alongside diagnostic manager strings:
+    # previous approved snapshot 7e3e7499eb3e6e70af8635af14414ba7dd91383d09992a38227315c4cf54d109.
+    # The first point-manager ready frame is now sampled *before* native
+    # Train/Resource enrichment; previous hash was 4f268b9fb4adfee84a3f66b3cc75a52f9f09dd66ec4ed321711c77a6f0995e11.
+    CURRENT_PROBE_SHA256 = "df8325d3594c0268389db527983ab2250440bae99e675378fca1192ab86fe645"
     # Historical original wrapper SHA: d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708.
     # Follow receipts now carry actual WorldMarch position source and current
     # native camera tile. This is the separately source-pinned updated wrapper.

@@ -16,6 +16,9 @@ internal sealed class CurrentClientMapBlockSourceHooks
     // Preserve a real FOV120 baseline for future alternating native audits.
     // The normal packaged app does not set this diagnostic override.
     public bool ForceLegacyFullWorldLens { get; init; }
+    // Private, read-only native march-manager telemetry. Never active in the
+    // Windows production source; captured only in the owned diagnostic host.
+    public bool ObserveMarchFreshness { get; init; }
 }
 
 internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatchSource

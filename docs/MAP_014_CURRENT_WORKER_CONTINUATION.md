@@ -1,9 +1,12 @@
 # MAP-014 current worker continuation — 2026-10-14
 
-Status: **READY_FOR_LEAD_FUNCTIONAL_REVIEW** for available approved Map
-functions; overall **PARTIAL** for unavailable Celebration Party/Doom positives,
-separate Train lifetime and unqualified mobile/Resource optimizations. This
-compact ledger preserves historical negative receipts. Branch
+Status: **PARTIAL for the reopened full scanner-qualification assignment**.
+The prior 339e241c available-function milestone retains its genuine City,
+Other, Treasure, Truck Follow and remote-positive evidence; that milestone did
+not qualify Resource FOV20, native March freshness or consecutive full-engine
+acquisition. Celebration Party/Doom and independent Train lifetime remain
+unavailable source witnesses. This compact ledger preserves historical
+negative receipts. Branch
 `codex/map-owner-fixes-014`, draft PR #10, inherited checkpoint `f068c6c0`.
 
 ## Current measured scanner routes
@@ -84,3 +87,36 @@ unchanged independent camera snapshots and original script restoration.
 Read-only `audit_owned_other.py` report is `owned-other-audit.json`. A prior
 packaged Other-only run saw three Supplies earlier; different time-separated
 counts are not an independently proven scan omission.
+
+## Reopened scanner investigation, 2026-10-14
+
+**Reconciliation:** 339e241c was clean and matched `origin` at takeover;
+no task-owned LastWar/LWBridge app, recovery journal or armed game session;
+official `LWScripts.data` SHA256 `d520dcd3...8d90ab495`, metadata
+`b84cfa87...d272321476933b`, version `c2356069...6c5319db` exactly match
+restored originals. The existing release ZIP under
+`artifacts/release-map014-339e241c/` is the **prior source-identified 339e241c
+candidate**, not evidence for new scanner routes.
+
+| Pending route/gate | Distinguishing evidence | Decision |
+| --- | --- | --- |
+| Resource-only FOV20 | Independently audited **47,967 real SQLite rows** and six exact-run native receipts with 10,000 AOIs/round. Baseline/FOV20 median 149.747/73.370 s (51% faster), 260/119 serial probes. Exact immutable IDs, point indexes, xy, configuration and server fields match shared 7,970/7,998/7,990 IDs; missing 19/4/3 and extra 25/0/0. Earlier missing IDs do not recur later; first-pair 25 new candidates occur in subsequent baseline rounds. Seven late losses were gather-occupied but 16 first-pair losses were unoccupied and fully hydrated. No simultaneous native current-point or native spawn/destruction timestamp. Source audit `docs/MAP_014_RESOURCE_FRESHNESS_QUALIFICATION.md`. | **Keep conservative baseline**; historical lifecycle direction does not prove causality or complete source recall |
+| Individual Truck/Train and mixed FOV20 | Installed hash-gated metadata identifies separate `WorldMarchDataManager` `UpdateViewRect`, `WorldGetRectMarchInfos`, `HandleWorldGetRectMarchInfos`, processing queue, view rectangles and last request/handler timestamps. Mixed archived misses 92/92/83 baseline Truck UUIDs (90/88/82 with future `arriveTs`) and Railway 2/1/1 future arrivals, plus other source-kind differences. Research in `docs/MAP_014_MARCH_FRESHNESS_QUALIFICATION.md`. | **Guarded mobile/mixed route** retained; native March source reply/processing correlation and Train lifetime unresolved |
+| Actual passive native March telemetry | `native-march-source-20261014-102401` failed before scan due diagnostic scenario allowlist, then exact stopped/restored. `native-march-source-20261014-102638` produced **one real point-ready snapshot with 60 March UUIDs**, viewRect/cameraViewRect, queue and merge dictionary (both reported Count 0), last-get/handler native fields. Its `before` stage was dropped by a Lua details-table replacement, so the exact task-owned managed host PID was stopped; owner runner exited/restored scripts. Producer corrected and negative inverse added. | Only the point-ready stage is genuine; **cannot qualify manager freshness or queue completion** |
+| Denied native diagnostic retry | `native-march-source-20261014-103048` failed at startup *before game launch* with `PermissionError [WinError 5]` atomically renaming `overview-bridge/recovery.json.tmp-*` to `recovery.json` in the OneDrive-backed task artifact folder. No process/journal remained; original official hashes independently match. No permission change or reroute was attempted. | Native retest blocked by filesystem denial; corrected observer remains diagnostic opt-in |
+| Consecutive A→B→C final-only restoration | Read-only independent checks pass archived private FOV20 A/B/C source replies, 10k AOI union/49.203s native diagnostic; reject old-A stale footprint, false reply, wrong target, missing home geometry and session reassignment. `docs/MAP_014_CONSECUTIVE_ENGINE_QUALIFICATION.md` identifies missing run-scoped cleanup, cancellation/late-result retirement and final camera/native home-state acknowledgment through `MapScanEngine` and packaged UI. | **Do not enable**; no safe implementation/actual engine/persistence/Stop/packaged proof yet |
+
+**Diagnostic isolation:** `CurrentClientMapBlockSourceHooks.ObserveMarchFreshness`
+is internal and defaults false in production. The native observer uses read-only
+manager fields and existing camera probes, never issues March network requests,
+and requires both before-camera and point-ready snapshots for its own managed
+acceptance. The Lua source digest is pinned in
+`tools/map_009_offline/test_map013_owned_native_observer.py`, retaining
+historical hashes. The installed game remains Chinese and no account-changing
+actions were performed.
+
+**Delivery policy:** Previous `READY_FOR_LEAD_FUNCTIONAL_REVIEW` remains a
+bounded milestone, not completion of the reopened scanner assignment. No new
+final Windows review ZIP or selected Resource/mixed shortcut is justified until
+native source freshness and run-scoped cleanup/packaged gates pass. Keep draft
+PR #10 open; retain every genuine positive and failed receipt.
