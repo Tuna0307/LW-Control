@@ -25,7 +25,12 @@ def complete_synthetic():
             "sourceObserved": True, "sourceClass": "WorldMarch.train",
             "uuid": uuid, "marchUuid": uuid, "trainUuid": train_uuid,
             "trainType": train_type, "ownerServer": 2212, "serverId": 2212,
-            "worldId": 0, "x": x, "y": y, "arriveTs": now // 1000 + 3600,
+            "worldId": 0, "x": x, "y": y, "pointIndex": y * 1000 + x + 1,
+            "positionSource": "WorldMarch.GetMarchCurPosIndex",
+            "positionMethodToken": "0x06003208",
+            "positionConversion": "WorldScene.IndexToTilePos",
+            "positionConversionToken": "0x060039c3",
+            "arriveTs": now // 1000 + 3600,
         }
 
     def cohort(start, end, rows):
@@ -151,6 +156,7 @@ class TypedMobileComparisonTests(unittest.TestCase):
         self.assert_rejected(value, "UUID cache collision")
         value = complete_synthetic()
         value["compareReadyEvidence"]["afterProcessCohort"]["records"][0]["x"] = 62
+        value["compareReadyEvidence"]["afterProcessCohort"]["records"][0]["pointIndex"] = 41063
         self.assert_rejected(value, "cache identity/type/position/lifetime collision")
         value = complete_synthetic()
         value["compareReadyEvidence"]["afterProcessCohort"]["records"][0]["trainUuid"] = "train-Z"
@@ -173,9 +179,64 @@ class TypedMobileComparisonTests(unittest.TestCase):
             value["compareReadyEvidence"]["pointReadyCohort"]["records"][0][key] = mutation
             self.assert_rejected(value, "repurposed")
 
+    def test_point_ready_unexpired_truck_disappears_but_terminal_stage_agrees(self):
+        # The older gate only compared AFTER/ORACLE and silently dropped this
+        # same-session point-ready native Truck that has future final arriveTs.
+        value = complete_synthetic()
+        point = value["compareReadyEvidence"]["pointReadyCohort"]
+        vanished = copy.deepcopy(point["records"][0])
+        vanished.update(uuid="march-vanished", marchUuid="march-vanished",
+                        trainUuid="train-vanished")
+        point["records"].append(vanished)
+        point["count"] += 1
+        stage = value["marchSourceAtPointReady"]
+        stage["marchUuids"].append("march-vanished")
+        stage["marchDictionaryCount"] += 1
+        self.assert_rejected(value, "previously observed unexpired March vanished")
+
+    def test_same_train_rebound_to_new_march_uuid_across_point_and_after(self):
+        # WorldMarch UUID changes while trainUuid is reused: after/oracle
+        # agree but source identity has collided during the interval.
+        value = complete_synthetic()
+        prior = value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]
+        prior["uuid"] = prior["marchUuid"] = "march-prior"
+        stage = value["marchSourceAtPointReady"]
+        stage["marchUuids"] = ["march-prior"]
+        self.assert_rejected(value, "train UUID rebound to different March")
+
+    def test_point_ready_typed_cohort_does_not_exist_in_native_manager(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["uuid"] = "march-not-in-manager"
+        value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["marchUuid"] = "march-not-in-manager"
+        self.assert_rejected(value, "point-ready typed March absent from manager")
+
+    def test_stale_per_stage_cohort_interval_must_bracket_manager_read(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["pointReadyCohort"][
+            "observedStartRuntimeSeconds"] = 90.0
+        value["compareReadyEvidence"]["pointReadyCohort"][
+            "observedEndRuntimeSeconds"] = 91.0
+        self.assert_rejected(value, "point-ready typed cohort does not cover manager read")
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["afterProcessCohort"][
+            "observedStartRuntimeSeconds"] = 100.60
+        value["compareReadyEvidence"]["afterProcessCohort"][
+            "observedEndRuntimeSeconds"] = 100.67
+        self.assert_rejected(value, "after-process typed cohort does not cover manager read")
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["pointReadyCohort"][
+            "observedEndRuntimeSeconds"] = 100.45
+        self.assert_rejected(value, "capture windows overlap or reverse")
+
+    def test_untyped_optional_count_cannot_claim_complete_native_cohort(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["afterProcessCohort"].pop("count")
+        self.assert_rejected(value, "unverified or inconsistent typed count")
+
     def test_movement_requires_exact_observed_transition(self):
         value = complete_synthetic()
         value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["x"] = 34
+        value["compareReadyEvidence"]["pointReadyCohort"]["records"][0]["pointIndex"] = 41035
         self.assert_rejected(value, "no unique source-backed transition")
         value["compareReadyEvidence"]["nativeMovementTransitions"] = [{
             "uuid": "march-A", "sourceObserved": True,
@@ -183,6 +244,7 @@ class TypedMobileComparisonTests(unittest.TestCase):
             "sourceMethodToken": "0x06003208",
             "serverId": 2212, "worldId": 0,
             "from": [34, 41], "to": [35, 41],
+            "fromPointIndex": 41035, "toPointIndex": 41036,
             "observedAtRuntimeSeconds": 100.36,
         }]
         result = audit_compare_ready(value)
@@ -200,6 +262,22 @@ class TypedMobileComparisonTests(unittest.TestCase):
         value = complete_synthetic()
         value["compareReadyEvidence"]["afterProcessCohort"]["records"][0]["sourceClass"] = "WorldMarch"
         self.assert_rejected(value, "unknown/stale/untagged")
+
+    def test_current_position_index_not_an_xy_pair_or_unknown_conversion(self):
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["afterProcessCohort"]["records"][0]["pointIndex"] = 1
+        self.assert_rejected(value, "unknown/stale/untagged Truck/Train type")
+        value = complete_synthetic()
+        value["compareReadyEvidence"]["afterProcessCohort"]["records"][0][
+            "positionConversionToken"] = "0x060039c4"
+        self.assert_rejected(value, "unknown/stale/untagged Truck/Train type")
+
+    def test_final_arrival_inside_observation_clock_skew_is_not_live_proof(self):
+        value = complete_synthetic()
+        end_soon = value["nativeServerTimeUnixMs"] // 1000 + 1
+        for cohort in ("pointReadyCohort", "afterProcessCohort", "independentNativeCohort"):
+            value["compareReadyEvidence"][cohort]["records"][0]["arriveTs"] = end_soon
+        self.assert_rejected(value, "final arrival expired or untyped")
 
 
 if __name__ == "__main__":

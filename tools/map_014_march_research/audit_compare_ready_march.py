@@ -15,7 +15,9 @@ from audit_passive_march_receipt import audit_receipt, _rect
 ASSEMBLY_SHA256 = "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e"
 ALLOWED_TYPES = {1: "truck", 2: "railway"}
 MAX_OBSERVER_SKEW_SECONDS = 1.0
-ARRIVAL_AFTER_CLOCK_MS = 0
+# A native clock sampled inside a (<=1s) snapshot interval cannot attest to
+# freshness at its end if the last arrival is only milliseconds away.
+ARRIVAL_AFTER_CLOCK_MS = 1000
 
 
 def _int(value):
@@ -68,12 +70,22 @@ def _identity_map(cohort, label, server, world, errors):
         train_type = item.get("trainType")
         x, y = item.get("x"), item.get("y")
         arrival = _arrival_ms(item.get("arriveTs"))
+        # GetMarchCurPosIndex():int32 is an *index getter*, NOT a source
+        # method that directly returns an x/y pair or a lifecycle event.
+        # Lua converts the observed index with world.IndexToTilePos, with
+        # a size-based fallback; require the source-backed conversion.
+        raw_index = item.get("pointIndex")
         if (not isinstance(uuid, str) or not uuid or march_uuid != uuid or
                 not isinstance(train_uuid, str) or not train_uuid or
                 not _int(train_type) or train_type not in ALLOWED_TYPES or
                 not _int(item.get("ownerServer")) or item["ownerServer"] <= 0 or
                 not _int(x) or not 0 <= x <= 999 or
                 not _int(y) or not 0 <= y <= 999 or arrival is None or
+                not _int(raw_index) or raw_index != y * 1000 + x + 1 or
+                item.get("positionSource") != "WorldMarch.GetMarchCurPosIndex" or
+                item.get("positionMethodToken") != "0x06003208" or
+                item.get("positionConversion") != "WorldScene.IndexToTilePos" or
+                item.get("positionConversionToken") != "0x060039c3" or
                 item.get("serverId") != server or item.get("worldId") != world or
                 item.get("sourceClass") != "WorldMarch.train" or
                 item.get("sourceObserved") is not True):
@@ -90,11 +102,12 @@ def _identity_map(cohort, label, server, world, errors):
             "trainType": train_type,
             "x": x,
             "y": y,
+            "pointIndex": raw_index,
             "arrivalMs": arrival,
             "ownerServer": item.get("ownerServer"),
         }
-    if isinstance(cohort.get("count"), int) and cohort["count"] != len(rows):
-        errors.append(f"{label}: reported typed count disagrees with rows")
+    if not _int(cohort.get("count")) or cohort["count"] != len(rows):
+        errors.append(f"{label}: unverified or inconsistent typed count")
     if cohort.get("capped") is not False:
         errors.append(f"{label}: capped or unproven complete typed cohort")
     return identities, interval
@@ -165,6 +178,17 @@ def audit_compare_ready(receipt):
     oracle, oracle_interval = _identity_map(
         compare.get("independentNativeCohort"), "independentNativeCohort", server, world, errors
     )
+    point_at = (receipt.get("marchSourceAtPointReady") or {}).get("observedAtRuntimeSeconds")
+    after_at = (receipt.get("marchSourceAfterProcess") or {}).get("observedAtRuntimeSeconds")
+    if point_interval is None or not _runtime(point_at) or not (
+            point_interval[0] <= point_at <= point_interval[1]):
+        errors.append("point-ready typed cohort does not cover manager read")
+    if after_interval is None or not _runtime(after_at) or not (
+            after_interval[0] <= after_at <= after_interval[1]):
+        errors.append("after-process typed cohort does not cover manager read")
+    if (point_interval is not None and after_interval is not None and
+            point_interval[1] >= after_interval[0]):
+        errors.append("point-ready and after-process cohort capture windows overlap or reverse")
     if (not _overlap(after_interval, oracle_interval) or
             clock_time is None or not all(
                 i is not None and i[0] - MAX_OBSERVER_SKEW_SECONDS <= clock_time <=
@@ -173,6 +197,10 @@ def audit_compare_ready(receipt):
             )):
         errors.append("native March UUID cohorts and server clock are not temporally overlapping")
     stage = receipt.get("marchSourceAfterProcess") or {}
+    point_stage = receipt.get("marchSourceAtPointReady") or {}
+    point_source_uuids = point_stage.get("marchUuids")
+    if not isinstance(point_source_uuids, list) or set(point) - set(point_source_uuids):
+        errors.append("point-ready typed March absent from manager source snapshot")
     complete_uuids = stage.get("marchUuids")
     if not isinstance(complete_uuids, list):
         complete_uuids = []
@@ -182,6 +210,25 @@ def audit_compare_ready(receipt):
         errors.append("typed current manager population differs from same-time independent cohort")
     if set(after) - set(complete_uuids):
         errors.append("typed March exists outside sampled native manager UUID population")
+    # Manager UUIDs cannot silently vanish between point-ready and
+    # post-response stages, particularly when the final TrainData.arriveTs
+    # remains in the future. Source-verified terminal lifecycle evidence
+    # (not present in this archive/schema) would need separate admission.
+    for missing_uuid in set(point) - set(after):
+        earlier = point[missing_uuid]
+        if now_ms is not None and earlier["arrivalMs"] > now_ms:
+            errors.append("previously observed unexpired March vanished without source terminal proof")
+        else:
+            errors.append("previously observed March vanished without source terminal proof")
+    # UUID collision may occur *between* stage dictionaries, not only
+    # within one. An old March UUID and a new one sharing the same train
+    # UUID must not become an apparently clean snapshot simply because both
+    # are absent from the same isolated cohort.
+    point_by_train = {item["trainUuid"]: uuid for uuid, item in point.items()}
+    after_by_train = {item["trainUuid"]: uuid for uuid, item in after.items()}
+    for train_uuid in point_by_train.keys() & after_by_train.keys():
+        if point_by_train[train_uuid] != after_by_train[train_uuid]:
+            errors.append("train UUID rebound to different March between native stages")
     for uuid, cur in oracle.items():
         if uuid not in after or uuid not in complete_uuids:
             errors.append("independent native UUID absent from current manager cache")
@@ -215,6 +262,8 @@ def audit_compare_ready(receipt):
                             move.get("serverId") != server or move.get("worldId") != world or
                             move.get("from") != [earlier["x"], earlier["y"]] or
                             move.get("to") != [cur["x"], cur["y"]] or
+                            move.get("fromPointIndex") != earlier["pointIndex"] or
+                            move.get("toPointIndex") != cur["pointIndex"] or
                             not _runtime(move.get("observedAtRuntimeSeconds")) or
                             point_interval is None or after_interval is None or
                             not point_interval[0] <= move["observedAtRuntimeSeconds"] <= after_interval[1]):

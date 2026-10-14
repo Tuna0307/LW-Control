@@ -13,7 +13,7 @@ internal sealed class MapOtherEventScanSource : IMapScanProgressBatchSource
     internal MapOtherEventScanSource(IMapScanBlockSource source) =>
         this.source = source ?? throw new ArgumentNullException(nameof(source));
 
-    private static MapScanExecutionRequest NativeRequest(MapScanExecutionRequest request)
+    internal static MapScanExecutionRequest NativeRequest(MapScanExecutionRequest request)
     {
         if (!request.SelectedTypes.Contains("other", StringComparer.Ordinal)) return request;
         return request with

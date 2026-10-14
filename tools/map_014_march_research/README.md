@@ -1,5 +1,30 @@
 # MAP-014 native march acquisition — offline research
 
+## ce9fedf2 stale terminal / cross-stage collision fix
+
+The synthetic checker initially **falsely passed** a future-arrival Truck
+that was present in the point-ready native snapshot but missing from both
+post-processing manager and independent oracle, and a `trainUuid` rebound
+under a different `marchUuid`. Adversarial tests first reproduced these
+failures on the old implementation. `audit_compare_ready_march.py` now
+requires every point-ready typed March to be present at the terminal
+stage (until a separate genuine terminal lifecycle source can justify its
+departure), prohibits cross-stage train-key rebinding, and verifies typed
+cohort counts, source manager membership and stage capture intervals.
+It also pins `WorldMarch.GetMarchCurPosIndex():int32` token
+`0x06003208` and `WorldScene.IndexToTilePos(int32)` token
+`0x060039c3`, binding raw point indices and claimed tile positions,
+and rejects final `arriveTs` within a one-second source-clock margin.
+These are **fail-closed structural checks**, not genuine mobile positives.
+
+The `102638` native receipt still has 60 unclassified point-ready March
+UUIDs, without a before/processed source or trustworthy queue/reply/clock
+barrier. Independent re-audit of the six Resource rounds confirms capture
+timestamps lie within real camera windows, but 19 baseline-only versus
+25 candidate-only points in pair 0→1 are **sequential** observations, not
+simultaneous proof of spawn/expiry/misses. The WinError5 hard denial
+remains in force. No game, installed scripts or production files were used.
+
 ## 342b3737 source-grounded typed compare-ready gate
 
 `audit_compare_ready_march.py` adds **offline-only** `audit_compare_ready(receipt)`

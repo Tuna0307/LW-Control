@@ -1,5 +1,108 @@
 # MAP-014 Truck / Train march freshness — source-causal offline qualification
 
+## 2026-10-14 ce9fedf2 independent stale-terminal hardening
+
+**Proved RED before fix / GREEN after fix.** The existing
+`audit_compare_ready_march.py` checked that the **post-processing** typed
+manager cohort and independent oracle agreed, but it never compared the
+**point-ready** cohort's entire UUID set with the post-processing cohort. A
+genuine point-ready Truck with a still-future `TrainData.arriveTs` could
+disappear from both later cohorts, leaving two agreeing incomplete sets and
+`sameSessionCompareContractPass=true`. The same bug permitted a train UUID
+to be rebound to a **different** March UUID between snapshots: collisions
+were checked only *within* one cohort. These are **demonstrated offline
+checker false positives using synthetic adversarial fixtures**, not claims
+that the live game actually did either.
+
+Five initial tests failed under the original gate: disappeared unexpired
+point-ready UUID; cross-stage train-UUID rebound; point-ready typed UUID
+missing from the recorded manager snapshot; point-ready cohort timestamp
+interval not containing the actual manager observation; and an absent typed
+`count` treated as acceptable. The fixed contract now rejects those
+cases, as well as overlapping/reversed point-ready versus processed cohort
+capture windows, and near-expiring final arrivals inside a **one-second
+observer/clock uncertainty margin**. A disappearing point-ready UUID
+cannot be legitimized by guessing expiry from the movement-leg
+`WorldMarch.endTime`; the gate fails closed without an independently
+source-observed lifecycle/retirement event. This **may reject legitimate
+departures** but cannot silently publish unproven terminal freshness.
+
+**Native method semantics that exposed an additional hole:** read-only,
+hash-pinned `Assembly-CSharp.rdl` metadata confirms
+`WorldMarch.GetMarchCurPosIndex():int32` at `0x06003208` and
+`WorldScene.IndexToTilePos(int32):UnityEngine.Vector2Int` at
+`0x060039c3`. The existing Lua producer first obtains that **integer
+position index**, then calls `WorldScene.IndexToTilePos`
+(`tools/current_live_resource_probe.lua:467-477,3617-3620`);
+`GetMarchCurPosIndex` is **not** a method yielding a trusted x/y pair
+or a signed movement/retirement event. The offline typed contract now
+requires each claimed x/y to bind to an explicitly source-observed
+`pointIndex` and those exact method/conversion tokens; the x/y formula
+`pointIndex = y*1000+x+1` is required for this proven 1,000-wide
+world domain. A mismatch, unidentified conversion or index-only
+substitution is rejected. A movement transition must also bind the
+before/after raw indices, not just two free-floating x/y pairs. This
+provides a **structural** inverse only: the offline checker cannot
+authenticate a self-reported source method or infer actual movement
+from an integer getter alone. The game owner would need a genuine
+contemporaneous observation of both stages to use it.
+
+**Read-only actual March 102638 replay:** captured
+`2026-10-14T02:29:14Z` with point reply ready and exactly **60
+unique, uncapped, unclassified manager UUIDs**. No
+`marchSourceBefore` or `marchSourceAfterProcess` is present;
+`train_march_records=[]`; no separately correlated march rect
+request/response/process events, numeric `lastGetBlockMessageTicks`
+or `lastHandleBlockMessageTicks`, verified `StepProcessQueue.Count`
+getter, or native server clock. The reported queue/merge zeros cannot
+prove native completion. Both `mobileFreshnessQualified=false` and
+`sameSessionCompareContractPass=false` remain enforced. A previous
+camera-only checkpoint is not a before-March snapshot; the earlier
+mixed mobile receipt comparison is **eight hours apart**, not a
+same-time lifecycle inverse. The later `103048` WinError 5 recovery
+journal denial remains a **hard stop**; no recovery/native/game
+operation was made.
+
+**Independent Resource six-round timestamp re-audit** (read-only external
+lead auditor, no edits to its script or original SQLite): preserved
+`native-benchmark-resource-20261014-024146` has **7,989 /
+7,995 / 8,002 / 7,998 / 7,993 / 7,990** native-hydrated
+resource rows across alternating FOV120/FOV20 rounds. Every row's
+`updated_at` is a **local point-capture time** validated within its
+camera-before/after UTC window, strictly ordered across rounds;
+the windows progress from **[1791916945000,1791917096000]** ms
+in round 0 to **[1791917548000,1791917622000]** ms in round 5.
+In baseline→FOV20 pair 0→1, **19 baseline-only**
+(16 unoccupied, 3 occupied) and **25 candidate-only**
+(24 unoccupied, 1 occupied) were observed. Another same-AOI
+Resource appears in the opposing capture for **11/19** missing
+and **11/25** extra, with 11/19 and 11/25 stable anchors
+across baseline/candidate/following-baseline. Pairs 2→3
+and 4→5 lose **4 occupied** and **3 occupied** points,
+respectively, with opposing same-AOI cohorts for 4/4 and 2/3.
+These native records and clocks corroborate **sequential sampling**
+and field fidelity, **not** server spawn/destruction timestamp,
+unoccupied Resource terminal transition, cache freshness or
+simultaneous resource presence/absence. Re-audit still returns
+`resourceFov20AccuracyQualified=false` and
+`genuineSpawnDestructionOrScannerMissAttribution="unknown"`
+for every pair. In particular do not explain away the sixteen
+previously unoccupied missing Resource points as occupation,
+and do not call the twenty-five candidate-only observations
+baseline misses.
+
+**Validation:** `python -B -m unittest discover -s
+tools/map_014_march_research -p 'test_*.py' -v` runs **47
+passing isolated Python tests**. The hash-gated metadata tracer
+reports both pinned method tokens. These are offline structural
+checks; even a synthetic compare contract pass returns
+`sourceAuthenticityIndependentlyVerified=false` and
+`globalMobileAccuracyQualified=false`. **Maintain baseline for
+Truck/Railway/mixed selections; Resource FOV20 stays
+unqualified**. Only the assigned March research folder and this
+document were edited; no game/production/Lua/PR/commit or
+WinError5 recovery attempts occurred.
+
 ## 2026-10-14 checkout 342b3737: stricter source-grounded comparison proposal
 
 At clean Git checkpoint `342b3737` the preserved installed `Assembly-CSharp.rdl` still hashes to

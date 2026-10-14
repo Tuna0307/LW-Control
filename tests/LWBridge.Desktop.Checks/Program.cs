@@ -41,6 +41,8 @@ await Map014OwnerFixChecks.RunAsync();
 await Map014OtherEventChecks.RunAsync();
 await Map014ConsecutiveEngineCleanupChecks.RunAsync();
 await Map014SharedAcquisitionChecks.RunAsync();
+await Map014Map317SharedAdapterChecks.RunAsync();
+Map014SharedSourceAdmissionChecks.Run();
 Map014BoundedLensChecks.Run();
 Map008InstalledNameChecks.Run();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

@@ -185,3 +185,106 @@ all Stop/failure paths; actual packaged standalone/mixed/remote tests in an
 approved safely admitted game session. No new release ZIP or complete
 lead-ready assertion is warranted. Seasonal Celebration Party, moving Doom
 Walker/BossVO and independent Train lifetime remain unspawned/unwitnessed.
+
+## Current owner continuation — Map317 shared-source production boundary
+
+**Starting state:** `ce9fedf229d6943e4b9bd433c8ee99f1c0259a78`
+was clean and identical to the direct origin branch/draft PR #10. No new live
+receipt after the known native startup `recovery.json.tmp-*` atomic rename
+`WinError 5` failure at `native-march-source-20261014-103048`; game and bridge
+were not running, the active global recovery journal was absent and all three
+installed official scripts had their exact previous hashes. **No new live
+session, permission repair, denied-operation retry or journal reroute.**
+
+### New actual Map317 source-adapter correction
+
+The production `CurrentClientMap317ScanProvider.ActivateAcceptedRun`
+previously always instantiated `new MapOtherEventScanSource(source)`. That
+legacy wrapper implements only progress/batch capture and **erases both**
+`IMapScanSharedAcquisitionSource` and optional
+`IMapScanAcquisitionCleanup` from a native source. A future retained-camera
+source would therefore fall through to legacy per-block capture with no
+end-of-run restoration ACK. This is an actual production wiring defect,
+distinct from the earlier direct-engine SQLite controlled tests.
+
+Now a native shared source without Treasure/Other goes directly to
+`MapScanEngine`. A source selecting Treasure and/or Other uses the explicit
+`MapOtherEventSharedScanSource` adapter, which maps *only* native `other` to
+the existing Treasure source kind, validates a single immutable native
+owner/selection/session/profile/PID/group at source, batch and cleanup, and
+preserves the exact user-selected partition in source-authored durable
+records. It never synthesizes a positive final home-camera reply: both native
+restoration booleans pass unchanged to the original engine gate. For opt-in
+nonshared sources, `MapOtherEventCleanupScanSource` retains the original
+batch/Other partition *and* the source's required cleanup contract; a legacy
+source with no cleanup retains its historical behavior.
+
+**Distinguishing controlled integration:** new
+`tests/LWBridge.Desktop.Checks/Map014Map317SharedAdapterChecks.cs` exercises
+the **actual accepted-run Map317 provider, Map317 control plane, MapScanEngine
+and Map317 SQLite**: one source invocation for 2,500 ordered full-world blocks;
+Other-only, Treasure-only, Treasure+Other and City+Other; real subtype
+`supplies:1` versus independent Treasure; native kind remapping; one
+pre-publication final home cleanup; wrong group in source batch and final
+cleanup fail without publishing partial records. It also tests the legacy
+opt-in cleanup interface with Other and both affirmative and false original
+camera restoration, ensuring no implicit safety downgrade. All of these
+records are **controlled** (not game-spawned positives). Previous native
+Other Scattered Supplies and true Treasure witnesses remain intact.
+
+### Diagnostic-only consecutive source admission and mobile audit
+
+`CurrentClientMapBlockSource.SharedAdmission.cs` adds an explicitly
+**diagnostic-only** structural receipt evaluator against the actual owned
+Overview session: exactly three ordered future-protocol A/B/C replies,
+per-region scan run/server/world/profile/PID/challenge/selection/group and
+native request/reply correlation, monotonically fresh response times,
+native target in complete spatial AOI rectangle and current manager set,
+FOV20 applied after moving, source flag reset, retained camera continuity,
+and on C one original geometry/projection restore and a separate fresh home
+reply. Over 30 synthetic inverses ensure missing/old response, target,
+session, physical subscriptions, stage or home source fails. Genuine private
+A/B/C receipts predate this source/schema and lack the required actual
+run/group/production ownership fields; **no runtime source chooses this
+evaluator as proof of completed native group acquisition**.
+
+The typed WorldMarch comparison audit also now rejects point-ready live
+future-arrival UUIDs that vanish from later native manager/independent
+cohorts without source-verified termination, a train UUID rebound to a
+different March UUID, stale per-stage observations, manager UUID mismatch,
+and missing typed cohort counts. WorldMarch.GetMarchCurPosIndex yields a
+*point index*, not an (x,y) vector; conversion is pinned to the native
+WorldScene.IndexToTilePos method. The current 60-UUID one-stage receipt still
+fails before+after March request/reply/queue proof, and no Train lifetime or
+global mobile parity is claimed. Resource archival 19/4/3 losses (including
+first-pair 16 unoccupied) and 25 candidate-only first-pair IDs still have
+no simultaneous native lifetime-source oracle.
+
+**Selection/readiness:** Keep City-only FOV20 and all previously verified
+City/Other/Treasure/Truck/remote/filter/UI behavior. Keep Resource, Truck,
+Railway and mixed guarded; leave retained-camera consecutive production
+provider/selector **disabled**. No new packaged Windows RC until the
+denied journal recovery guarantee and actual native/engine/Stop/multi-server
+package qualifications pass. Celebration Party, moving Doom Walker and
+independently witnessed Train expiration remain pending, not simulated.
+
+### Offline regression and delivery notes
+
+The production adapter source/engine changes passed `.NET Release` with
+**zero errors/warnings** and the full Home/Map/Auto delivery suite including
+the new actual Map317 accepted-run + source-replaced SQLite checks,
+the real shared engine sink and the read-only A/B/C source schema (30+
+adversarial controls). Native-auditor **40**, March **47**, consecutive-source
+**12** and Lua observer-source **8** isolated tests pass. Other frontend
+source check passes. The local `node_modules` tree initially produced
+`MODULE_NOT_FOUND` for `jsdom` / `css-tree`, a dependency installation problem
+not an application failure; standard project `npm.cmd install --ignore-scripts
+--no-audit --no-fund --prefer-offline` returned success, with no tracked file
+change, and the explicit MAP011 saved-owner plus MAP014 EN desktop/JA narrow
+mounted frontend tests passed on retry. No previously denied aggregate
+`npm.cmd run check` command was retried or rerouted.
+
+No original installed game scripts or native receipts were changed, no task
+game/bridge was launched, and no new executable, ZIP, native life-cycle
+positive or release designation is claimed. The old unpublished
+`339e241c` Windows ZIP is NOT a package for the new source head.

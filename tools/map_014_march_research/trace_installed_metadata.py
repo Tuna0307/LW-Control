@@ -53,15 +53,20 @@ EXPECTED_WORLD_MARCH_METHODS = {
     "GetMarchCurPosIndex": "0x06003208",
 }
 
+EXPECTED_WORLD_SCENE_METHODS = {
+    "IndexToTilePos": "0x060039c3",
+}
+
 
 def extract(image):
     fields = {}
     methods = {}
     protocol = {}
     world_march = {}
+    world_scene = {}
     for type_index, definition in enumerate(image.tables.TypeDef.rows, 1):
         name = image.type_name("TypeDef", type_index)
-        if name not in {"WorldMarchDataManager", "WorldGetRectMarchInfosMessage", "WorldMarch"}:
+        if name not in {"WorldMarchDataManager", "WorldGetRectMarchInfosMessage", "WorldMarch", "WorldScene"}:
             continue
         if name == "WorldMarchDataManager":
             for ref in definition.FieldList:
@@ -77,12 +82,14 @@ def extract(image):
             method_name = str(method.Name)
             expected = (EXPECTED_METHODS if name == "WorldMarchDataManager" else
                         EXPECTED_MESSAGE_METHODS if name == "WorldGetRectMarchInfosMessage" else
-                        EXPECTED_WORLD_MARCH_METHODS)
+                        EXPECTED_WORLD_MARCH_METHODS if name == "WorldMarch" else
+                        EXPECTED_WORLD_SCENE_METHODS)
             if method_name not in expected:
                 continue
             signature, arguments = image.decode_method_signature(bytes(method.Signature.value))
             target = (methods if name == "WorldMarchDataManager" else
-                      protocol if name == "WorldGetRectMarchInfosMessage" else world_march)
+                      protocol if name == "WorldGetRectMarchInfosMessage" else
+                      world_march if name == "WorldMarch" else world_scene)
             target[method_name] = {
                 "token": f"0x{0x06000000 | ref.row_index:08x}",
                 "returns": signature,
@@ -91,6 +98,7 @@ def extract(image):
     for observed, expected in (
         (fields, EXPECTED_FIELDS), (methods, EXPECTED_METHODS),
         (protocol, EXPECTED_MESSAGE_METHODS), (world_march, EXPECTED_WORLD_MARCH_METHODS),
+        (world_scene, EXPECTED_WORLD_SCENE_METHODS),
     ):
         if set(observed) != set(expected):
             raise ValueError(f"current build metadata has absent/extra march symbols: {set(expected) ^ set(observed)}")
@@ -100,8 +108,11 @@ def extract(image):
     move = world_march["GetMarchCurPosIndex"]
     if move["returns"] != "int32" or move["parameters"]:
         raise ValueError("WorldMarch.GetMarchCurPosIndex signature changed")
+    tile = world_scene["IndexToTilePos"]
+    if tile["returns"] != "UnityEngine.Vector2Int" or tile["parameters"] != ["int32"]:
+        raise ValueError("WorldScene.IndexToTilePos signature changed")
     return {"fields": fields, "methods": methods, "protocolMethods": protocol,
-            "worldMarchMethods": world_march}
+            "worldMarchMethods": world_march, "worldSceneMethods": world_scene}
 
 
 def inspect(assembly: Path = DEFAULT):

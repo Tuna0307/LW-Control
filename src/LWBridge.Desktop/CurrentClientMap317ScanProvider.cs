@@ -140,8 +140,38 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
 
         var sink = new Map317ScanRunSink(control);
+        var execution = new MapScanExecutionRequest(
+            request.ScanRunId,
+            request.ServerId,
+            request.WorldId,
+            request.TileWidth,
+            request.TileHeight,
+            request.SelectedTypes,
+            request.Concurrency,
+            // Current-v21 provider mechanics already use two bounded capture
+            // attempts and the live player/home tile. Keep these beneath the
+            // exact 0.3.17 host boundary rather than exposing retryCount as a
+            // host persistence/state contract.
+            MaxAttemptsPerBlock: 2,
+            PlayerTileX: liveContext.PlayerTileX,
+            PlayerTileY: liveContext.PlayerTileY,
+            ScanMode: request.ScanMode,
+            LaunchSessionId: liveContext.LaunchSessionId,
+            LiveServerId: request.ServerId);
+        // A legacy Other/Treasure adapter has no retained-camera cleanup
+        // capability. Never place it around an opt-in native shared source:
+        // doing so silently removes IMapScanSharedAcquisitionSource and its
+        // required single final-home cleanup from the actual Auto/Map317 path.
+        IMapScanBlockSource acquisition = source is IMapScanSharedAcquisitionSource shared
+            ? (execution.SelectedTypes.Contains("treasure", StringComparer.Ordinal) ||
+                execution.SelectedTypes.Contains("other", StringComparer.Ordinal)
+                    ? new MapOtherEventSharedScanSource(shared, execution)
+                    : source)
+            : source is IMapScanAcquisitionCleanup nativeCleanup
+                ? new MapOtherEventCleanupScanSource(source, nativeCleanup)
+                : new MapOtherEventScanSource(source);
         var engine = new MapScanEngine(
-            new MapOtherEventScanSource(source),
+            acquisition,
             sink,
             progress =>
             {
@@ -175,24 +205,6 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
                     Path.Combine(nativeSource.ProbeRuntimeRoot, "map-engine-stage-metrics.json"),
                     JsonSerializer.Serialize(metrics, JsonOptions.Default));
             } : null);
-        var execution = new MapScanExecutionRequest(
-            request.ScanRunId,
-            request.ServerId,
-            request.WorldId,
-            request.TileWidth,
-            request.TileHeight,
-            request.SelectedTypes,
-            request.Concurrency,
-            // Current-v21 provider mechanics already use two bounded capture
-            // attempts and the live player/home tile. Keep these beneath the
-            // exact 0.3.17 host boundary rather than exposing retryCount as a
-            // host persistence/state contract.
-            MaxAttemptsPerBlock: 2,
-            PlayerTileX: liveContext.PlayerTileX,
-            PlayerTileY: liveContext.PlayerTileY,
-            ScanMode: request.ScanMode,
-            LaunchSessionId: liveContext.LaunchSessionId,
-            LiveServerId: request.ServerId);
         // Even an immediate provider response must not finish before the active
         // task has been registered. Otherwise terminal cleanup can precede
         // registration and leave a completed task appearing active.
