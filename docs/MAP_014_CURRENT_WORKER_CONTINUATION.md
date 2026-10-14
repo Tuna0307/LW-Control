@@ -766,3 +766,36 @@ not promoted. Historical City/Other/Treasure/Truck and packaged positives
 are preserved; Celebration Party, moving Doom Walker and independent Train
 lifetime witnesses are pending. No game, installed-script, Auto config, RC,
 merge or deployment actions were performed. **Overall PARTIAL**.
+
+## MAP-014 continuation after pushed `d6f05067` — provider cancellation and native progress
+
+The independently permitted direct remote/draft PR check at entry reported
+`d6f050676b5ec6e5675529b9ab0e4c4ad99f0684` on existing
+`codex/map-owner-fixes-014` and draft PR #10, without any local Git
+status/diff/check inspection. AGENTS and Oct14 source handoffs were read.
+Read-only safety inspection: **zero named LastWar/LWBridge processes**, no
+active recovery journal, original installed `LWScripts.data`, `LWScripts.txt`
+and `version.txt` SHA-256 all unchanged, persisted Auto still
+`enabled=True/nextRunArmed=True/restartActive=False` and old `339e241c`
+release retained. Absence of a journal is **not** permission to retry the
+previous recovery atomic-rename `WinError 5` or start the game/app.
+
+| Actual managed source defect and source change | Qualification status |
+| --- | --- |
+| **Provider-owned cancel never retires its accepted Map317 scan:** `MapScanEngine` catches token cancellation, performs one native cleanup and calls `sink.Stop`, but the real Map317 sink intentionally does nothing there to avoid recursive Stop. `RunEngineAsync` previously swallowed `OperationCanceledException` while expecting the Map317 Stop path to have already committed SQLite cancellation. On independent provider shutdown/retirement, that assumption is false and Map317 remains `Reading` with a `running` durable SQLite row. The provider now attempts idempotent `FailScanForRun(exactRunId)` also on cancellation; a genuine prior Map317 Stop has already made the SQLite row `cancelled`, so the fallback cannot convert it to `failed`, and a retired/foreign successor is untouched. | Controlled real accepted source→MapScanEngine→Map317→SQLite inverse added: hold owned native capture, cancel via provider **without** Map317 Stop, require exactly one cleanup, failed original run, preserved previously published City and successfully completed independent successor. **No .NET compile/test**, unexecuted C# only. This is managed cancellation lifetime protection, not a real game-native ACK. |
+| **Late or oversized exact-run progress can rewrite SQLite:** owner-scoped `ReportOwnedProgress` previously reused the recovered legacy `PreviewProgress` clamping, allowing `CompletedBlocks=Int32.MaxValue` to appear as a full scan or a same-run delayed callback to reset newer progress. The native/provider-owned branch now rejects completed/failed counter regressions, over-total values and invalid in-flight counts under `stateGate`, before any durable SQLite write. The legacy compatibility `ReportProgress` normalization is not changed. | Source reviewed against engine's cumulative scheduler counters. A separately attempted new C# regression-edit operation was **blocked**; it was **not retried/rerouted** through another tool/file. This particular guard has no newly executed test and no claimed RED→GREEN. The preexisting true provider/sink ledger still independently rejects partial checkpoint publication even on plausible full-progress reports. |
+
+**Still missing:** actual Lua `bulk-aoi-diagnostic` remains a single-probe
+producer and authenticated Lua pipe exposes getStatus only. The received-only
+native group ingress has no production implementation; there are no live
+authenticated A→B→C 10,000 AOI / 2,500 typed block packets, native-owned
+group cancel/restore or separately matched final home reply/ACK. Consecutive
+selector stays OFF. Six-round Resource 19/4/3 baseline-only and 25 first-pair
+extras remain causally UNKNOWN; v24 typed March expiry/Train/Doom Walker and
+Celebration Party require real native witnesses. City-only FOV20 remains the
+previous qualified route. The existing 64 transport, 40 native/Resource,
+66 March, 12 consecutive and eight observer Python passes and historical
+119-probe / 10,000 AOI / 49.203s diagnostic remain **prior evidence**, not
+current C# GREEN. No denied .NET, local Git inspection, npm/frontend or
+recovery equivalent execution took place. No RC/merge/installed-script
+change/game actions. **Overall PARTIAL.**

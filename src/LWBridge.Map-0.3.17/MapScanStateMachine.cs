@@ -394,6 +394,21 @@ public sealed class MapScanStateMachine
         lock (stateGate)
         {
             RequireOwnedRunningScan(state, expectedRunId);
+            // The legacy status API intentionally normalizes some malformed
+            // counters. Exact-run native/provider callbacks must instead be
+            // evidence of advancing logical block completion. Clamping an
+            // overreported total to 2,500 can manufacture apparently complete
+            // progress; a delayed callback can otherwise roll a later SQLite
+            // checkpoint backwards. Reject both while the accepted owner and
+            // its durable progress are locked together.
+            if (update.CompletedBlocks < state.CompletedBlocks ||
+                update.FailedBlocks < state.FailedBlocks ||
+                update.CompletedBlocks > state.TotalBlocks ||
+                update.FailedBlocks > state.TotalBlocks ||
+                update.InflightBlocks < 0 ||
+                update.InflightBlocks > state.Concurrency)
+                throw new BridgeCommandException("INVALID_SCAN_PROGRESS",
+                    "native scan progress is stale or exceeds its accepted block bounds");
             next = PreviewProgress(update);
             // Persist the same immutable snapshot we publish to readers.
             // A failed SQLite update must not advance in-memory counters.

@@ -345,6 +345,26 @@ internal sealed class CurrentClientMap317ScanProvider : IMap317RunScopedProvider
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
         {
+            // The normal Map317 Stop path already commits this exact run's
+            // SQLite cancellation before it signals the provider. However a
+            // provider-owned cancellation (for example shutdown/retirement)
+            // can reach MapScanEngine's cancellation handler without ever
+            // passing Map317 Stop. The engine sink.Stop intentionally avoids
+            // recursing into provider.Stop, so the accepted run would remain
+            // SQLite 'running' / Map317 Reading indefinitely. Attempt to
+            // retire ONLY the exact admitted run; a previously canceled or
+            // published run cannot be changed by FailScanForRun. Stop's
+            // durable 'cancelled' status is never converted to 'failed'.
+            try
+            {
+                control.FailScanForRun(request.RunId,
+                    "native map acquisition was cancelled without a completed Map317 Stop");
+            }
+            catch
+            {
+                // The regular Stop won and already retired durable staging,
+                // or the old owner no longer exists. Do not touch a successor.
+            }
         }
         catch (Exception error)
         {

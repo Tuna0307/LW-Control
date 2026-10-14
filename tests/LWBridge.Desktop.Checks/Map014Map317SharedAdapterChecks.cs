@@ -26,6 +26,8 @@ internal static class Map014Map317SharedAdapterChecks
         public int StagedSampleCount;
         public string CityRecordKey = "native-owner-1";
         public Action? AfterNativeHomeAcknowledged;
+        public TaskCompletionSource? CaptureEntered;
+        public TaskCompletionSource? ReleaseCapture;
 
         public Task<MapScanBlockCapture> CaptureAsync(MapScanExecutionRequest _,
             MapScanTargetBlock __, CancellationToken ___) =>
@@ -43,6 +45,10 @@ internal static class Map014Map317SharedAdapterChecks
                 blocks[^1].MaxX == 999 && blocks[^1].MaxY == 999,
                 "shared native input omitted a logical world seam");
             await Task.Yield();
+            cancellationToken.ThrowIfCancellationRequested();
+            CaptureEntered?.TrySetResult();
+            if (ReleaseCapture is not null)
+                await ReleaseCapture.Task.WaitAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             MapStoredRecord treasure = new("treasure", request.ServerId, "real-treasure",
                 10011, "real-treasure", null, null, null, null, null, null, null, 1800000000000L,
@@ -318,6 +324,78 @@ internal static class Map014Map317SharedAdapterChecks
                 activeNative?.Calls == 1 && activeNative?.Cleanups == 1 &&
                 store.SummaryCounts(server)["city"] == 1,
             "valid successor could not publish after pre-Begin native owner rejection");
+    }
+
+    private static async Task CheckProviderCancellationWithoutMap317StopRetiresExactRunAsync()
+    {
+        // Provider shutdown/cancellation can occur without the user or Auto
+        // having called Map317.StopScanAsync. Engine cancellation does exactly
+        // one native cleanup and calls sink.Stop, which intentionally does not
+        // recurse into the provider. Without exact-run fallback terminalization
+        // the accepted SQLite run remained 'running' and Map317 Reading.
+        using Map317.MapStore store = Map317.MapStore.CreateInMemory();
+        const int server = 2213;
+        const string session = "provider-cancel-session";
+        store.UpsertRecord(new Map317.MapRecord("city", server,
+            "before-provider-cancel", 10011, null, "previous", null,
+            1, null, null, null, null, 1700000000000L,
+            "{\"ownerUid\":\"before-provider-cancel\"}"));
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var neverRelease = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        NativeSource? blockedSource = null;
+        NativeSource? successorSource = null;
+        int acceptedSources = 0;
+        var provider = new CurrentClientMap317ScanProvider(
+            new NonSharedOwnedSource(),
+            _ => Task.FromResult(new CurrentClientMapStatusContext(
+                true, server, server, [], [], 0, 1000, 1000, 500, 500)),
+            _ => Task.FromResult(new CurrentClientMapContext(
+                server, 0, 1000, 1000, 500, 500, session)),
+            createSourceForAcceptedRun: (request, _) =>
+            {
+                NativeSource source = new()
+                {
+                    CityRecordKey = acceptedSources == 0
+                        ? "cancelled-unpublished-city" : "completed-successor-city",
+                    AcquisitionOwner = new MapScanSharedAcquisitionOwner(
+                        request.RunId, server, 0, session, ["city"],
+                        "provider-cancel-profile", 12345, "group-" + request.RunId),
+                    CaptureEntered = acceptedSources == 0 ? entered : null,
+                    ReleaseCapture = acceptedSources == 0 ? neverRelease : null,
+                };
+                if (acceptedSources++ == 0) blockedSource = source;
+                else successorSource = source;
+                return source;
+            });
+        using var control = new Map317.MapControlPlane(store, provider);
+        var terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        provider.RunTerminated += id => terminated.TrySetResult(id);
+
+        Map317.MapScanState first = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, first.ScanRunId);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        await provider.StopMapScanAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10));
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(10)) == first.ScanRunId &&
+                control.ScanState.Phase == "failed" && !control.ScanState.IsReading &&
+                store.ReadScanRun(first.ScanRunId)?.Status == "failed" &&
+                blockedSource?.Calls == 1 && blockedSource?.Cleanups == 1 &&
+                store.SummaryCounts(server)["city"] == 1 &&
+                store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                    .GetRawText().Contains("before-provider-cancel", StringComparison.Ordinal),
+            "unowned provider cancellation left a running scan or changed published City");
+
+        terminated = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Map317.MapScanState second = await control.StartScanAsync(
+            new Map317.MapScanStartRequest(["city"], "fast"));
+        provider.ActivateAcceptedRun(control, second.ScanRunId);
+        Require(await terminated.Task.WaitAsync(TimeSpan.FromSeconds(25)) == second.ScanRunId &&
+                control.ScanState.Phase == "completed" &&
+                successorSource?.Calls == 1 && successorSource?.Cleanups == 1 &&
+                store.SummaryCounts(server)["city"] == 1 &&
+                store.Search(new Map317.MapQuery("city", server)).Rows[0]
+                    .GetRawText().Contains("completed-successor-city", StringComparison.Ordinal),
+            "provider cancellation contaminated an independently accepted successor");
     }
 
     private static async Task CheckRetiredOwnerAfterNativeHomeAsync(bool serverChanged)
@@ -771,6 +849,7 @@ internal static class Map014Map317SharedAdapterChecks
         await CheckLegacyCleanupProviderAsync(restored: false);
         await CheckRetiredSessionAtActivationAsync();
         await CheckPreBeginNativeOwnerDriftRetiresExactRunAsync();
+        await CheckProviderCancellationWithoutMap317StopRetiresExactRunAsync();
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: true);
         await CheckRetiredOwnerAfterNativeHomeAsync(serverChanged: false);
         await CheckAcceptedRunSourceFactoryAsync();
