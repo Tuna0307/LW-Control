@@ -1,5 +1,16 @@
 namespace LWBridge.Desktop;
 
+// A source has already obtained an authoritative response, but that response
+// violates the run's completeness/identity contract. Retrying individual
+// blocks cannot repair that evidence and must not downgrade it to a partial
+// per-band acquisition. Ordinary transport IO/timeouts remain retryable.
+internal sealed class MapScanSourceValidationException : Exception
+{
+    public MapScanSourceValidationException(string message) : base(message) { }
+    public MapScanSourceValidationException(string message, Exception innerException)
+        : base(message, innerException) { }
+}
+
 internal sealed record MapScanExecutionRequest(
     string RunId,
     int ServerId,

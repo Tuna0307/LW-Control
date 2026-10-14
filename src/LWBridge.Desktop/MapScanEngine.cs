@@ -244,6 +244,14 @@ internal sealed class MapScanEngine
                     {
                         throw;
                     }
+                    catch (MapScanSourceValidationException)
+                    {
+                        // The complete native response failed a source-owned
+                        // contract. Preserve its first error and retire this
+                        // run through the outer cleanup/SQLite failure path;
+                        // do not retry it or fall back across remaining bands.
+                        throw;
+                    }
                     catch (BridgeCommandException error) when (
                         error.Code == MapScanStartOwnership.MissingConnectionErrorCode)
                     {

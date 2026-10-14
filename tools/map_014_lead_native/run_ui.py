@@ -224,8 +224,8 @@ def admit():
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other", "mixed"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other|mixed")
     mode = sys.argv[1]
     prior_hashes = admit()
     destination = ROOT / "artifacts/map014-takeover" / (

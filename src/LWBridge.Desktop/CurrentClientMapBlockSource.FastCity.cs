@@ -552,6 +552,7 @@ internal sealed partial class CurrentClientMapBlockSource
             : 0;
         if (idleResourceCount > 0)
         {
+            Exception? resourceHydrationCause = null;
             try
             {
                 resourceDetails = await ProbeResourceScanDetailsAsync(
@@ -559,6 +560,7 @@ internal sealed partial class CurrentClientMapBlockSource
             }
             catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
             {
+                resourceHydrationCause = ex;
                 resourceDetails = ResourceScanDetailObservation.Failed(ex.Message);
             }
             // A failed/partial native detail pass previously published every
@@ -566,7 +568,8 @@ internal sealed partial class CurrentClientMapBlockSource
             // completed full-world scan. Require the exact current idle keys
             // before modifying any staged record; a source error must abort
             // this publication attempt, including mixed selections.
-            RequireCompleteResourceHydration(resourceRecords, resourceDetails);
+            RequireFullWorldResourceHydration(probeRuntimeRoot, request,
+                resourceRecords, resourceDetails, resourceHydrationCause);
             foreach ((string key, FirstLivePreparedResource prepared) in resourceRecords.ToArray())
             {
                 if (!IsKnownIdleResource(prepared.Record)) continue;
@@ -1407,11 +1410,132 @@ internal sealed partial class CurrentClientMapBlockSource
             cancellationToken.ThrowIfCancellationRequested();
             JsonElement? root = TryReadJson(resultPath);
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                // Keep the first request-correlated native response BEFORE
+                // validation or the Lua lane clears its state. A retry must
+                // never overwrite the evidence of the original failure.
+                try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
+                    JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                {
+                    Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                }
                 return ValidateResourceScanDetailResult(
                     root.Value, requestId, startedAt, session, request, resourceRecordCount);
+            }
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
+    }
+
+    internal static string RetainFirstResourceHydrationReply(
+        string probeRoot, string runId, string requestId, JsonElement reply)
+    {
+        RequireResourceHydrationArtifactToken(requestId);
+        if (reply.ValueKind != JsonValueKind.Object || !MatchesString(reply, "requestId", requestId))
+            throw new InvalidDataException("Cannot retain a foreign Resource hydration response.");
+        string folder = ResourceHydrationArtifactFolder(probeRoot, runId);
+        Directory.CreateDirectory(folder);
+        string path = Path.Combine(folder, "first-reply.json");
+        WriteResourceHydrationArtifactOnce(path, reply.GetRawText());
+        return path;
+    }
+
+    private static string ResourceHydrationArtifactFolder(string probeRoot, string runId)
+    {
+        RequireResourceHydrationArtifactToken(runId);
+        return Path.Combine(Path.GetFullPath(probeRoot), "resource-hydration-receipts", runId);
+    }
+
+    private static void RequireResourceHydrationArtifactToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token) || token.Length > 128 ||
+            token.Any(value => !char.IsAsciiLetterOrDigit(value) && value is not ('-' or '_')))
+            throw new InvalidDataException("Unsafe Resource hydration artifact identity.");
+    }
+
+    private static void WriteResourceHydrationArtifactOnce(string path, string json)
+    {
+        string temporary = Path.Combine(Path.GetDirectoryName(path)!, ".receipt-" + Guid.NewGuid().ToString("N") + ".tmp");
+        try
+        {
+            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                file.Write(Encoding.UTF8.GetBytes(json));
+                file.Flush(flushToDisk: true);
+            }
+            try { File.Move(temporary, path, overwrite: false); }
+            catch (IOException conflict) when (File.Exists(path) &&
+                (conflict.HResult & 0xFFFF) is 80 or 183 or 17)
+            {
+                // Only the completed-final-file conflict is tolerated. A
+                // partial temporary write is never a retained first receipt.
+            }
+        }
+        finally
+        {
+            // This exact unique temporary belongs to this call; never remove
+            // the pre-existing final receipt or another attempt's temporary.
+            try { if (File.Exists(temporary)) File.Delete(temporary); }
+            catch (Exception cleanupError) when (cleanupError is IOException or UnauthorizedAccessException)
+            { Console.Error.WriteLine("Resource diagnostic temporary cleanup unavailable: " + cleanupError.Message); }
+        }
+    }
+
+    internal static void RequireFullWorldResourceHydration(
+        string probeRoot, MapScanExecutionRequest request,
+        IReadOnlyDictionary<string, FirstLivePreparedResource> resources,
+        ResourceScanDetailObservation observation, Exception? originalCause = null)
+    {
+        try { RequireCompleteResourceHydration(resources, observation); }
+        catch (InvalidDataException validationError)
+        {
+            Exception cause = originalCause ?? validationError;
+            string? failurePath = null;
+            try
+            {
+                string folder = ResourceHydrationArtifactFolder(probeRoot, request.RunId);
+                Directory.CreateDirectory(folder);
+                string replyPath = Path.Combine(folder, "first-reply.json");
+                JsonElement? raw = null;
+                if (File.Exists(replyPath))
+                {
+                    using JsonDocument document = JsonDocument.Parse(File.ReadAllText(replyPath, Encoding.UTF8));
+                    raw = document.RootElement.Clone();
+                }
+                int? ReadCount(string field) => raw is { } value &&
+                    value.TryGetProperty(field, out var item) && item.ValueKind == JsonValueKind.Number &&
+                    item.TryGetInt32(out int count) ? count : null;
+                string failureJson = JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1, scanRunId = request.RunId,
+                    serverId = request.ServerId, worldId = request.WorldId,
+                    phase = "fullworld_resource_hydration_validation_failed",
+                    originalMessage = cause.Message, originalType = cause.GetType().Name,
+                    validationMessage = validationError.Message,
+                    nativeError = raw is { } value ? ReadOptionalString(value, "error") : null,
+                    nativeTargetCount = ReadCount("targetCount"), nativeReadyCount = ReadCount("readyCount"),
+                    nativeDetailCount = raw is { } detailsRoot &&
+                        detailsRoot.TryGetProperty("details", out var nativeDetails) && nativeDetails.ValueKind == JsonValueKind.Array
+                            ? (int?)nativeDetails.GetArrayLength() : null,
+                    currentIdleCount = resources.Values.Count(item => IsKnownIdleResource(item.Record)),
+                    observationTargetCount = observation.TargetCount, observationReadyCount = observation.ReadyCount,
+                    observationDetailCount = observation.Details.Count, observationError = observation.Error,
+                    rawReceiptLocator = File.Exists(replyPath) ? replyPath : null,
+                }, JsonOptions.Default);
+                failurePath = Path.Combine(folder, "first-failure.json");
+                WriteResourceHydrationArtifactOnce(failurePath, failureJson);
+            }
+            catch (Exception diagnosticError) when (diagnosticError is IOException or UnauthorizedAccessException or InvalidDataException or
+                JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+            {
+                Console.Error.WriteLine("Resource hydration failure retention unavailable: " + diagnosticError.Message);
+            }
+            var terminal = new MapScanSourceValidationException(
+                "Full-world Resource hydration validation failed: " + cause.Message, cause);
+            if (failurePath is not null && File.Exists(failurePath)) terminal.Data["resourceHydrationFailureReceipt"] = failurePath;
+            throw terminal;
+        }
     }
 
     private static bool IsKnownIdleResource(MapStoredRecord record)
