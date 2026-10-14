@@ -44,6 +44,30 @@ ownership or publication guard was weakened to satisfy a fixture.
 
 Controlled integration positives above are not real game scans or claims.
 
+## Fresh packaged City and official package refresh
+
+Actual packaged source `193f0e1a` completed a genuine City-only scan: 4,056
+published cities, 2,500 completed logical blocks, 10,000 native AOIs and zero
+failed blocks. Receipt: `artifacts/map014-takeover/native-ui-20261014-082632`.
+The captured clone UI is Chinese/light; the launch argument is not locale proof.
+This is current observation, not a fixed population census or original parity.
+
+The official launcher settled content v26 before bridge installation. Its data
+hash is `49f6249d1530b5f16aad3750388d017ac3032f4b8ef584eec6cff9ea01d19b6d`;
+metadata is `52d5b30c486e9ff222e125eb05a13cc01a6407b0bdb40f15cbf12af0389ffae0`.
+The legacy version marker remains 24. Existing critical-anchor admission passed
+without changing its production policy; game EXE, managed assembly and xLua
+anchors remain unchanged. The read-only package delta is retained locally.
+
+The outer historical exit receipt compared against the older pre-launch v24
+hashes and reported a false restoration failure. It remains preserved. Separate
+`lead-restoration-reassessment.json` verifies the same-session original backup
+bytes/manifest, admitted v26 start, captured process-handle exit, matching host
+and helper Stop, restored installed bytes, cleared journals and no surviving
+installation process. No rollback to v24 occurred. The diagnostic runner now
+checks these same-session originals; its three inert audit tests reject foreign
+identity, missing backup, changed bytes, unsupported packages and pending cleanup.
+
 ## Selected production methods and remaining gates
 
 City-only: previously genuine-qualified FOV20; other selections retain guarded
