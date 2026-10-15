@@ -318,7 +318,11 @@ internal sealed record ResourceCompletenessReport(
             if (!SameOptionalString(raw, "kind", "resource") || !SameOptionalString(raw, "sourceKind", "resource_point")) return "rawKind";
             if (!SameOptionalString(raw, "source",
                     "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange")) return "rawSource";
-            if (!SameOptionalString(raw, "resourceSourceType", "ResPointInfo")) return "rawSourceType";
+            if (!SameOptionalString(raw, "resourceSourceType", "ResPointInfo"))
+                return "rawSourceType=" + (raw.TryGetProperty("resourceSourceType", out JsonElement sourceType) ? sourceType.ToString() : "?") +
+                    " pointType=" + (raw.TryGetProperty("pointType", out JsonElement pointType) ? pointType.ToString() : "?") +
+                    " config=" + (raw.TryGetProperty("resourceConfigId", out JsonElement configId) ? configId.ToString() : "?") +
+                    " level=" + (raw.TryGetProperty("level", out JsonElement levelValue) ? levelValue.ToString() : "?");
             if (!SameOptionalInt(raw, "pointType", row.RawPointType)) return "rawPointType";
             if (!SameOptionalBoolean(raw, "rebuildGatherOccupied", row.GatherOccupied)) return "rawGatherOccupied";
             if (!SameOptionalBoolean(raw, "isBlackTile", row.IsBlackTile)) return "rawIsBlackTile";
