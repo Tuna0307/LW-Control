@@ -8,6 +8,7 @@ internal sealed partial class CurrentClientMapBlockSource
 {
     private static readonly TimeSpan CameraFreeScanTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan CameraFreeCancelTimeout = TimeSpan.FromSeconds(5);
+    private sealed class CameraFreeTerminalDriftException(string message) : Exception(message);
 
     private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureCameraFreeMapAsync(
         OverviewMapScanSession session,
@@ -28,8 +29,39 @@ internal sealed partial class CurrentClientMapBlockSource
         // This state is private until the entire response passes admission.
         FastFullWorldResumeState state = new(session, request) { CameraFreeAcquisition = true };
         progress?.Invoke(new MapScanSourceProgress(1));
-        JsonElement response = await ProbeCameraFreeMapAsync(session, request, cancellationToken)
-            .ConfigureAwait(false);
+        JsonElement response = default;
+        for (int attempt = 0; attempt < 2; attempt++)
+        {
+            try
+            {
+                // Each attempt has a new requestId and an independent 35-second
+                // deadline. No records from an unproven attempt are admitted.
+                response = await ProbeCameraFreeMapAsync(session, request, cancellationToken)
+                    .ConfigureAwait(false);
+                break;
+            }
+            catch (CameraFreeTerminalDriftException error)
+            {
+                if (attempt != 0)
+                    throw new MapScanSourceValidationException(
+                        "Camera-free native camera tile changed again after its one bounded direct retry; " +
+                        "camera fallback was withheld.", error);
+
+                // The native owner has already terminated and restored its exact
+                // AOI set/flags. A moving camera is NOT valid scan evidence and
+                // cannot authorize camera fallback; give startup navigation a
+                // bounded settle before a completely fresh direct attempt.
+                RequireSameSession(session);
+                fastFullWorldResumeState = null;
+                LastResourceCompletenessReport = null;
+                LastMonsterProtectionDetailMetrics = null;
+                Console.Error.WriteLine(
+                    $"CAMERA_FREE_CAMERA_DRIFT_RETRY server={request.ServerId} run={request.RunId} attempt=1/2 reason={error.Message}");
+                await DelayAsync(FastCityStartupSettleDelay, cancellationToken).ConfigureAwait(false);
+                RequireSameSession(session);
+                fastCitySettledSessionId = session.SessionId;
+            }
+        }
         RequireSameSession(session);
 
         // Keep the direct source's staged rows out of the camera resume state.
@@ -132,6 +164,18 @@ internal sealed partial class CurrentClientMapBlockSource
                 if (root is not null && MatchesString(root.Value, "requestId", requestId))
                 {
                     JsonElement result = root.Value;
+                    // Lua finish() first retires the exact native lane and
+                    // restores its original AOI membership/response flags;
+                    // cameraStable independently checks whether game navigation
+                    // moved the physical camera while this lane was running.
+                    // Only a complete, empty, owner/freshness-verified failed
+                    // receipt may initiate a NEW direct retry without cancel.
+                    if (IsCameraFreeTerminalDriftReceipt(result, session, request, requestId, startedAt))
+                    {
+                        nativeStopped = true;
+                        throw new CameraFreeTerminalDriftException(
+                            "Native AOI state was restored, but the camera tile moved during the direct sweep.");
+                    }
                     // A terminal native reply is the only safe handoff to the
                     // camera route: it proves the original AOI set and camera
                     // tile are restored, even if the direct sweep itself failed.
@@ -187,18 +231,7 @@ internal sealed partial class CurrentClientMapBlockSource
         JsonElement root, OverviewMapScanSession session,
         MapScanExecutionRequest request, string requestId, DateTimeOffset startedAt)
     {
-        if (!MatchesInt(root, "schemaVersion", 1) ||
-            !MatchesString(root, "probeVersion", ProbeVersion) ||
-            !MatchesString(root, "requestId", requestId) ||
-            !MatchesString(root, "profileId", session.ProfileId) ||
-            !MatchesString(root, "launchSessionId", session.SessionId) ||
-            !MatchesString(root, "challenge", session.Challenge) ||
-            !MatchesInt(root, "gamePid", session.GamePid) ||
-            !MatchesString(root, "scanRunId", request.RunId) ||
-            !MatchesInt(root, "serverId", request.ServerId) ||
-            !MatchesLong(root, "worldId", request.WorldId))
-            throw new InvalidDataException("Camera-free native result did not match the owned scan/session/server.");
-        RequireFreshCaptureTime(root, startedAt);
+        ValidateCameraFreeScanOwner(root, session, request, requestId, startedAt);
         if (!MatchesString(root, "state", "proven"))
             throw new InvalidDataException(
                 "Camera-free native acquisition failed: " + (ReadOptionalString(root, "error") ?? "unknown source failure"));
@@ -213,6 +246,49 @@ internal sealed partial class CurrentClientMapBlockSource
             !root.TryGetProperty("elapsedSeconds", out JsonElement elapsedValue) ||
             !elapsedValue.TryGetDouble(out double elapsed) || !double.IsFinite(elapsed) || elapsed < 0)
             throw new InvalidDataException("Camera-free native result did not prove all 63 replies and 10,000 AOIs.");
+    }
+
+    private bool IsCameraFreeTerminalDriftReceipt(
+        JsonElement root, OverviewMapScanSession session,
+        MapScanExecutionRequest request, string requestId, DateTimeOffset startedAt)
+    {
+        if (!MatchesString(root, "state", "failed") ||
+            !MatchesString(root, "error", "camera_tile_changed") ||
+            !MatchesBool(root, "curViewRestored", true) ||
+            !MatchesBool(root, "cameraStable", false) ||
+            !MatchesInt(root, "completedAois", 10000) ||
+            !MatchesInt(root, "repliesCaptured", 63) ||
+            !root.TryGetProperty("requestsSent", out JsonElement requestsValue) ||
+            requestsValue.ValueKind != JsonValueKind.Number ||
+            !requestsValue.TryGetInt32(out int requests) || requests is < 63 or > 65 ||
+            !root.TryGetProperty("batches", out JsonElement batches) ||
+            batches.ValueKind != JsonValueKind.Array || batches.GetArrayLength() != 0 ||
+            !root.TryGetProperty("elapsedSeconds", out JsonElement elapsedValue) ||
+            !elapsedValue.TryGetDouble(out double elapsed) || !double.IsFinite(elapsed) || elapsed < 0)
+            return false;
+
+        // A same requestId alone is insufficient. The *entire* native owner
+        // snapshot must match before even considering a new direct attempt.
+        ValidateCameraFreeScanOwner(root, session, request, requestId, startedAt);
+        return true;
+    }
+
+    private void ValidateCameraFreeScanOwner(
+        JsonElement root, OverviewMapScanSession session,
+        MapScanExecutionRequest request, string requestId, DateTimeOffset startedAt)
+    {
+        if (!MatchesInt(root, "schemaVersion", 1) ||
+            !MatchesString(root, "probeVersion", ProbeVersion) ||
+            !MatchesString(root, "requestId", requestId) ||
+            !MatchesString(root, "profileId", session.ProfileId) ||
+            !MatchesString(root, "launchSessionId", session.SessionId) ||
+            !MatchesString(root, "challenge", session.Challenge) ||
+            !MatchesInt(root, "gamePid", session.GamePid) ||
+            !MatchesString(root, "scanRunId", request.RunId) ||
+            !MatchesInt(root, "serverId", request.ServerId) ||
+            !MatchesLong(root, "worldId", request.WorldId))
+            throw new InvalidDataException("Camera-free native result did not match the owned scan/session/server.");
+        RequireFreshCaptureTime(root, startedAt);
     }
 
     private FastCityBatchObservation NormalizeCameraFreeBatch(
