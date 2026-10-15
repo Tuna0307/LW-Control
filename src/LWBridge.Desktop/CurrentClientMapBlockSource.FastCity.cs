@@ -349,6 +349,12 @@ internal sealed partial class CurrentClientMapBlockSource
         LastMonsterProtectionDetailMetrics = null;
         bool boundedLens = ShouldUseBoundedFullWorldCameraLens(request, hooks);
         bool nativeEightRowWindowObserved = false;
+        // Where the native window really starts relative to the target AOI row (measured on unclipped
+        // replies). Lens height / player zoom move it, so placement follows the observation, not a constant.
+        int? windowFirstRowOffset = null;
+        int stalledGapColumn = -1;
+        int lastMissGapColumn = -1;
+        int missesAtGap = 0;
         for (int row = 0; row < (boundedLens ? 1 : FastFullWorldRowRequests); row++)
         {
             int groupStartRow = row * FastCityGroupRows;
@@ -370,7 +376,7 @@ internal sealed partial class CurrentClientMapBlockSource
                     .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
                     .ToArray();
                 int targetY = MapFullWorldAoiPlacement.TargetY(aoiRowStart, missingRows,
-                    nativeEightRowWindowObserved);
+                    nativeEightRowWindowObserved, gapColumn == stalledGapColumn ? null : windowFirstRowOffset);
                 if (boundedLens) targetY = Math.Min(995, (firstGap / 100 + 2) * 10 + 5);
                 if (++requestsThisRow > (boundedLens ? 400 : FastFullWorldMaxRequestsPerRow))
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
@@ -466,10 +472,34 @@ internal sealed partial class CurrentClientMapBlockSource
                     observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount)
                         .Distinct().Count() == FastFullWorldAoiRows - 2)
                     nativeEightRowWindowObserved = true;
+                if (!boundedLens)
+                {
+                    int observedFirstRow = observation.RequestedIndices.Min() / FastCityAoiBlockCount;
+                    int observedLastRow = observation.RequestedIndices.Max() / FastCityAoiBlockCount;
+                    if (observedFirstRow > 0 && observedLastRow < FastCityAoiBlockCount - 1)
+                        windowFirstRowOffset = observedFirstRow - targetY / FastCityAoiBlockSize;
+                    // A calibrated placement that did not reach the first missing cell falls back to the
+                    // proven centre placement for this column instead of repeating itself.
+                    if (observation.RequestedIndices.Contains(missingRows.Min() * FastCityAoiBlockCount + gapColumn))
+                        missesAtGap = 0;
+                    else
+                    {
+                        // Re-calibrate from this reply and retry once; a second miss uses the centre placement.
+                        missesAtGap = lastMissGapColumn == gapColumn ? missesAtGap + 1 : 1;
+                        lastMissGapColumn = gapColumn;
+                        if (missesAtGap >= 2) stalledGapColumn = gapColumn;
+                    }
+                }
 
                 int before = covered.Count;
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
+                {
+                    string shape = observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount).Distinct().Count() +
+                        "x" + observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
+                    state.FootprintHistogram[shape] = state.FootprintHistogram.GetValueOrDefault(shape) + 1;
+                    state.NewlyCoveredAois += covered.Count - before;
+                }
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
                 {
                     MergeLatestCityByOwner(cityRecords, prepared);
@@ -768,11 +798,11 @@ internal sealed partial class CurrentClientMapBlockSource
             $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
             $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
             $"indices=[{string.Join(',', indices.Order())}]";
-        if (rows.Length is < FastFullWorldAoiRows - 2 or > FastFullWorldAoiRows ||
+        // v26 windows measured on a real client: 7-11 rows depending on camera height / lens.
+        if (rows.Length is < FastFullWorldAoiRows - 3 or > FastFullWorldAoiRows + 2 ||
             rows.Length == 0 ||
-            rows[0] < Math.Max(0, rowStart - 1) || rows[0] > rowStart + 2 ||
-            rows[^1] < rowStart + FastFullWorldAoiRows - 3 ||
-            rows[^1] > Math.Min(99, rowStart + FastFullWorldAoiRows) ||
+            // The window may start anywhere that still overlaps the band: placement targets the first
+            // missing row, and the exact 10,000-cell union (not this shape check) proves coverage.
             rows.Zip(rows.Skip(1), (top, bottom) => bottom - top).Any(delta => delta != 1) ||
             columns.Length is < 2 or > 5 ||
             columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
@@ -834,6 +864,11 @@ internal sealed partial class CurrentClientMapBlockSource
         request.SelectedTypes.Contains("monster", StringComparer.Ordinal) ||
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
 
+    // Zombie Boss (MonsterInvasionBoss special 10) rides the same shared AOI sweep as
+    // Monster; the serialized game-native detail queue runs whenever it is selected.
+    private static bool IncludesZombieBoss(MapScanExecutionRequest request) =>
+        request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
+
     private static bool IsZombieBossOnly(MapScanExecutionRequest request) =>
         request.SelectedTypes.Count == 1 &&
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
@@ -853,7 +888,7 @@ internal sealed partial class CurrentClientMapBlockSource
             StringComparison.Ordinal);
 
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count is >= 1 and <= 8 &&
+        request.SelectedTypes.Count is >= 1 and <= 9 &&
         request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch" or "ghost" or "treasure") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
 
@@ -863,6 +898,9 @@ internal sealed partial class CurrentClientMapBlockSource
     // City-only median 227.912s -> 86.179s. Mixed FOV20 missed unexpired
     // Trucks, and Resource snapshots retained unexplained temporal changes:
     // neither is admitted to this production policy.
+    internal static double? ExpectedCoverageZoom(CurrentClientMapBlockSourceHooks? hooks) =>
+        hooks?.DisableCoverageZoomNormalization == true ? null : hooks?.CoverageZoomOverride ?? CanonicalCoverageZoom;
+
     internal static bool ShouldUseBoundedFullWorldCameraLens(
         MapScanExecutionRequest request, CurrentClientMapBlockSourceHooks? hooks) =>
         hooks?.ForceLegacyFullWorldLens != true &&
@@ -896,6 +934,9 @@ internal sealed partial class CurrentClientMapBlockSource
             "viewLevel=-1",
             "requestMode=coverage",
             $"coverageFov={(ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 ? 20 : 120)}",
+            ExpectedCoverageZoom(hooks) is double coverageZoom
+                ? $"coverageZoom={coverageZoom.ToString("0.###", CultureInfo.InvariantCulture)}"
+                : "coverageZoomNormalization=disabled",
             $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
@@ -905,7 +946,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeCity={request.SelectedTypes.Contains("city", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeResource={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
-            $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
+            $"includeMonsterProtection={IncludesZombieBoss(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
             $"observeMarchFreshness={(hooks?.ObserveMarchFreshness == true).ToString().ToLowerInvariant()}",
             $"includeDispatch={request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
@@ -1780,7 +1821,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeCity", request.SelectedTypes.Contains("city", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeResource", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeMonster", IncludesMonsterSource(request)) ||
-            !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
+            !MatchesBool(root, "includeMonsterProtection", IncludesZombieBoss(request)) ||
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
                 request.SelectedTypes.Contains("railway", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeDispatch", request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)) ||
@@ -1817,6 +1858,12 @@ internal sealed partial class CurrentClientMapBlockSource
             MatchesBool(root, "positionRestoredBeforeResponse", false) &&
             MatchesBool(root, "positionRestoredAfterResponse", true) &&
             MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
+        if (ExpectedCoverageZoom(hooks) is double expectedZoom &&
+            (!root.TryGetProperty("coverageZoom", out JsonElement echoedZoom) || echoedZoom.ValueKind != JsonValueKind.Number ||
+             Math.Abs(echoedZoom.GetDouble() - expectedZoom) > 0.001 ||
+             !root.TryGetProperty("coverageZoomApplied", out JsonElement appliedZoom) || appliedZoom.ValueKind != JsonValueKind.Number ||
+             Math.Abs(appliedZoom.GetDouble() - expectedZoom) > 0.01))
+            throw new InvalidDataException("Fast world batch did not prove the canonical coverage camera height was applied.");
         if (ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 && !MatchesInt(root, "coverageFov", 20))
             throw new InvalidDataException("Bounded lens result did not match its admitted lens.");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
@@ -2438,8 +2485,12 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!root.TryGetProperty("monster_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its Monster march snapshot.");
         var result = new List<FastMonsterPrepared>(rows.GetArrayLength());
-        bool zombieBossOnly = IsZombieBossOnly(request);
-        string outputKind = zombieBossOnly ? "zombie_boss" : "monster";
+        // Routing split of one shared sweep: game-identified MonsterInvasionBoss rows
+        // (special 10, `monsterProtectionEligible`) belong to zombie_boss only; every
+        // other row belongs to monster only. A kind that was not selected never
+        // receives the other kind's rows (so Monster-only scans keep excluding them).
+        bool wantsMonster = request.SelectedTypes.Contains("monster", StringComparer.Ordinal);
+        bool wantsZombieBoss = IncludesZombieBoss(request);
         foreach (JsonElement row in rows.EnumerateArray())
         {
             string uuid = RequiredString(row, "uuid");
@@ -2460,7 +2511,19 @@ internal sealed partial class CurrentClientMapBlockSource
                 ? parsedDistance : null;
             bool protectionEligible = row.TryGetProperty("monsterProtectionEligible", out JsonElement protectionEligibleValue) &&
                 protectionEligibleValue.ValueKind == JsonValueKind.True;
-            if (zombieBossOnly ? !protectionEligible : protectionEligible) continue;
+            if (protectionEligible ? !wantsZombieBoss : !wantsMonster) continue;
+            string outputKind = protectionEligible ? MapScanContract.ZombieBossKind : "monster";
+            // Static game template power (`recommend_power`); absent/unparseable stays unknown.
+            long? recommendPower = null;
+            if (protectionEligible && row.TryGetProperty("recommendPower", out JsonElement powerValue))
+            {
+                if (powerValue.ValueKind == JsonValueKind.Number && powerValue.TryGetInt64(out long numericPower) && numericPower > 0)
+                    recommendPower = numericPower;
+                else if (powerValue.ValueKind == JsonValueKind.String && long.TryParse(powerValue.GetString(),
+                    NumberStyles.None, CultureInfo.InvariantCulture, out long textPower) && textPower > 0)
+                    recommendPower = textPower;
+                if (recommendPower is not null) data["recommendPower"] = recommendPower.Value;
+            }
             bool protectionKnown = row.TryGetProperty("monsterProtectionKnown", out JsonElement protectionKnownValue) &&
                 protectionKnownValue.ValueKind == JsonValueKind.True;
             bool protectionActive = row.TryGetProperty("monsterProtectionActive", out JsonElement protectionActiveValue) &&
@@ -2478,10 +2541,15 @@ internal sealed partial class CurrentClientMapBlockSource
             if (distance is not null) data["distanceFromHome"] = distance.Value;
             if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
-            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord(outputKind, serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
+            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord(outputKind, serverId, uuid, pointIndex, uuid, nameKey, null, level, null, recommendPower, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
         }
         return result;
     }
+
+    // Controlled-check seam: exact production routing/normalization of one native Monster snapshot.
+    internal static IReadOnlyList<MapStoredRecord> NormalizeMonsterSnapshotForCheck(
+        JsonElement root, MapScanExecutionRequest request, HashSet<int> requestedSet, DateTimeOffset capturedAt) =>
+        PrepareMonsterRecords(root, request, requestedSet, capturedAt).Select(item => item.Record).ToArray();
 
     private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(
         JsonElement root,
@@ -2889,6 +2957,9 @@ internal sealed partial class CurrentClientMapBlockSource
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
         internal long ValidatedProbeResponses { get; set; }
+        // rows x columns of every validated native AOI window -> count. Shows what a lens/zoom really buys.
+        internal Dictionary<string, int> FootprintHistogram { get; } = new(StringComparer.Ordinal);
+        internal long NewlyCoveredAois { get; set; }
         internal int ActiveCameraProbes;
         internal int PeakCameraProbes;
         internal double AcquisitionMilliseconds;
@@ -2957,6 +3028,8 @@ internal sealed partial class CurrentClientMapBlockSource
             attributableLuaProbeAttempts = state.ProbeAttempts,
             attributableRetries = state.ProbeRetries,
             validatedProbeResponses = state.ValidatedProbeResponses,
+            footprintHistogram = state.FootprintHistogram,
+            newlyCoveredAois = state.NewlyCoveredAois,
             summedProbeWaitMilliseconds = state.ProbeWaitMilliseconds,
             nativePhaseSampleCount = state.NativePhaseSamples,
             summedNativeTargetResponseMilliseconds = state.NativeTargetResponseMilliseconds,

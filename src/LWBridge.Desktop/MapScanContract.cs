@@ -16,7 +16,11 @@ internal static class MapScanContract
     public static readonly string[] RecoveredDefaultTypes =
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
 
-    public static readonly string[] AllTypes = [..RecoveredDefaultTypes, "other"];
+    // Zombie Boss (game text 2901012; MonsterInvasionBoss special 10) is a selectable
+    // passive kind but, like Other, is not part of the implicit eight-kind default.
+    public const string ZombieBossKind = "zombie_boss";
+
+    public static readonly string[] AllTypes = [..RecoveredDefaultTypes, "other", ZombieBossKind];
 
     private static readonly HashSet<string> AllowedTypes = new(AllTypes, StringComparer.Ordinal);
 

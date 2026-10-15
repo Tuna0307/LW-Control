@@ -3,6 +3,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { withMapNameFeedback, MAP_NAME_FEEDBACK } from "../src/locales/map010-feedback.js";
 import { withMapOtherTexts } from "../src/locales/map014-other.js";
+import { withGhostRewardTexts, GHOST_REWARD_MESSAGES } from "../src/locales/map014-ghost-rewards.js";
+import { withZombieBossTexts, ZOMBIE_BOSS_MESSAGES } from "../src/locales/map014-zombie-boss.js";
 import { withHomeLaunchFeedback } from "../src/locales/home-launch-feedback.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -11,7 +13,23 @@ const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "Automatio
 const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
-const withMapExtras = (code, messages) => withHomeLaunchFeedback(code, withMapOtherTexts(code, withMapNameFeedback(code, messages)));
+const withMapExtras = (code, messages) => withHomeLaunchFeedback(code, withZombieBossTexts(code, withGhostRewardTexts(code, withMapOtherTexts(code, withMapNameFeedback(code, messages)))));
+// Ghost reward filter labels: every one of the nine clone languages must carry the
+// complete key set with the same {placeholders} as English (no silent English fallback).
+for (const code of localeCodes) {
+  const set = GHOST_REWARD_MESSAGES[code];
+  if (!set || Object.keys(set).length !== Object.keys(GHOST_REWARD_MESSAGES.en).length ||
+      Object.keys(GHOST_REWARD_MESSAGES.en).some((key) => typeof set[key] !== "string" || !set[key].trim() ||
+        JSON.stringify(set[key].match(/\{\w+\}/g)?.sort() ?? []) !== JSON.stringify(GHOST_REWARD_MESSAGES.en[key].match(/\{\w+\}/g)?.sort() ?? [])))
+    throw new Error(`Ghost reward filter message coverage incomplete for ${code}`);
+}
+// Zombie Boss labels: all nine clone languages carry the full key set (no silent English fallback).
+for (const code of localeCodes) {
+  const set = ZOMBIE_BOSS_MESSAGES[code];
+  if (!set || Object.keys(set).length !== Object.keys(ZOMBIE_BOSS_MESSAGES.en).length ||
+      Object.keys(ZOMBIE_BOSS_MESSAGES.en).some((key) => typeof set[key] !== "string" || !set[key].trim()))
+    throw new Error(`Zombie Boss message coverage incomplete for ${code}`);
+}
 const en = withMapExtras("en", (await import(pathToFileURL(path.join(root, "src", "locales", "en.js")))).default);
 const literalKeys = new Set();
 for (const relative of sourceFiles) {

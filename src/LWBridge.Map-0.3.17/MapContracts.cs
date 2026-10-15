@@ -10,7 +10,10 @@ public static class MapKinds
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
 
     public static readonly string[] All =
-        [..DefaultSelection, "other"];
+        [..DefaultSelection, "other", ZombieBoss];
+
+    // MonsterInvasionBoss (WorldMonsterSpecialType 10), game text key 2901012.
+    public const string ZombieBoss = "zombie_boss";
 
     private static readonly HashSet<string> Allowed = new(All, StringComparer.Ordinal);
 
@@ -82,7 +85,17 @@ public sealed record MapQuery(
     string? ResourceAmountState = null,
     string? ResourceTileState = null,
     IReadOnlyList<string>? ItemKeys = null,
-    string? OtherSubtype = null);
+    string? OtherSubtype = null,
+    IReadOnlyList<MapRewardFilter>? RewardFilters = null,
+    string? RewardMatch = null,
+    // Zombie Boss only: "active" | "inactive" | "unknown" over the stored
+    // game-confirmed protection state (`monsterProtectionKnown/Active`).
+    string? ProtectionState = null);
+
+// Ghost reward constraint over the authoritative stored `$.rewards` list.
+// MinCount 0 means "present with a positive amount"; a positive value is the
+// minimum summed amount of that exact reward identity (`reward:<type>:<id>`).
+public sealed record MapRewardFilter(string Key, long MinCount = 0);
 
 public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, long Page = 1, int PageSize = 50);
 

@@ -12,7 +12,7 @@ internal static class MapFullWorldAoiPlacement
     // has ten rows, so the already-observed rows (not a guessed native width)
     // must drive subsequent vertical placement to recover both seams.
     internal static int TargetY(int bandAoiStartRow, IReadOnlyList<int> missingAoiRows,
-        bool nativeEightRowWindowObserved = false)
+        bool nativeEightRowWindowObserved = false, int? calibratedFirstRowOffset = null)
     {
         if (bandAoiStartRow < 0 || bandAoiStartRow > 90 ||
             bandAoiStartRow % 10 != 0 ||
@@ -21,6 +21,10 @@ internal static class MapFullWorldAoiPlacement
             missingAoiRows.Distinct().Count() != missingAoiRows.Count)
             throw new ArgumentOutOfRangeException(nameof(missingAoiRows));
         int center = bandAoiStartRow * 10 + 75;
+        // Measured on a real reply: window top = target row + offset. Put the window's top on the first
+        // missing row so a window as tall as the band covers it in one request (lens/zoom independent).
+        if (calibratedFirstRowOffset is int offset)
+            return Math.Clamp(missingAoiRows.Min() - offset, 0, 99) * 10 + 5;
         // The first probe still tests the native default; move only after
         // real source coverage has demonstrated that one seam is omitted.
         if (missingAoiRows.Count == 10)

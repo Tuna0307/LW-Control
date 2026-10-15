@@ -1173,6 +1173,52 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             itemKeys = keysValue.EnumerateArray().Select(value => value.GetString()!)
                 .Distinct(StringComparer.Ordinal).ToArray();
         }
+        Map317.MapRewardFilter[]? rewardFilters = null;
+        string? rewardMatch = null;
+        if (queryElement.TryGetProperty("rewardFilters", out JsonElement rewardFilterValue) &&
+            rewardFilterValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            // Ghost-only: [{ key, minCount? }]. Malformed input is rejected,
+            // never widened into an unfiltered or "any reward" query.
+            if (kind != "ghost" || rewardFilterValue.ValueKind != JsonValueKind.Array ||
+                rewardFilterValue.GetArrayLength() is < 1 or > Map317.MapStore.MaxGhostRewardFilters)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward filter selection.");
+            var parsedFilters = new List<Map317.MapRewardFilter>();
+            foreach (JsonElement item in rewardFilterValue.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object ||
+                    !item.TryGetProperty("key", out JsonElement keyValue) || keyValue.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(keyValue.GetString()) || keyValue.GetString()!.Length > 160)
+                    throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward filter selection.");
+                long minimum = 0;
+                if (item.TryGetProperty("minCount", out JsonElement minimumValue) &&
+                    minimumValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+                {
+                    if (minimumValue.ValueKind != JsonValueKind.Number || !minimumValue.TryGetInt64(out minimum) ||
+                        minimum < 1 || minimum > 9_007_199_254_740_991L)
+                        throw new BridgeCommandException("INVALID_MAP_QUERY", "Reward minimum amount must be a positive integer.");
+                }
+                if (parsedFilters.Any(existing => string.Equals(existing.Key, keyValue.GetString(), StringComparison.Ordinal)))
+                    throw new BridgeCommandException("INVALID_MAP_QUERY", "Duplicate reward filter selection.");
+                parsedFilters.Add(new Map317.MapRewardFilter(keyValue.GetString()!, minimum));
+            }
+            rewardFilters = parsedFilters.ToArray();
+        }
+        if (queryElement.TryGetProperty("rewardMatch", out JsonElement rewardMatchValue) &&
+            rewardMatchValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            rewardMatch = rewardMatchValue.ValueKind == JsonValueKind.String ? rewardMatchValue.GetString() : null;
+            if (kind != "ghost" || rewardMatch is not ("all" or "any"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Reward match must be all or any.");
+        }
+        string? protectionState = null;
+        if (queryElement.TryGetProperty("protectionState", out JsonElement protectionValue) &&
+            protectionValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            protectionState = protectionValue.ValueKind == JsonValueKind.String ? protectionValue.GetString() : null;
+            if (kind != Map317.MapKinds.ZombieBoss || protectionState is not ("active" or "inactive" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Zombie Boss protection state.");
+        }
         if (queryElement.TryGetProperty("escortPowerMaxMillions", out JsonElement escortValue) &&
             escortValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
         {
@@ -1194,6 +1240,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             ResourceTileState = tileState,
             OtherSubtype = otherSubtype,
             ItemKeys = itemKeys,
+            RewardFilters = rewardFilters,
+            RewardMatch = rewardMatch,
+            ProtectionState = protectionState,
             // The recovered itemCount sort expression still uses $itemKey.
             // When an ALL selection has no legacy single-key field, use its
             // first selected genuine key as the deterministic sort dimension.

@@ -79,6 +79,27 @@ internal static class Map014NativeFootprintChecks
         Reject(genuineShape.Select(i => i + 3).ToArray()); // misses the requested native target
         try { _ = MapFullWorldAoiPlacement.TargetY(0, [0, 0, 9]); throw new Exception("Duplicate AOI rows passed"); }
         catch (ArgumentOutOfRangeException) { }
+        // Genuine lens-matrix shapes (default zoom lens 130 -> 11x3; zoomed-in player lens 130 -> 10x3; no lens at zoom 60 -> 7x3).
+        foreach (var (firstRow, rowCount) in new[] { (1, 11), (1, 10), (1, 7) })
+            CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(
+                Enumerable.Range(firstRow, rowCount).SelectMany(row => Enumerable.Range(2, 3).Select(col => row * 100 + col)).ToArray(),
+                0, request, session, 35, 75, 1);
+        try { CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(Enumerable.Range(1, 14).SelectMany(row => Enumerable.Range(2, 3)
+            .Select(col => row * 100 + col)).ToArray(), 0, request, session, 35, 75, 1); throw new Exception("too tall window passed"); }
+        catch (InvalidDataException) { }
+        try { CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(Enumerable.Range(1, 5).SelectMany(row => Enumerable.Range(2, 3)
+            .Select(col => row * 100 + col)).ToArray(), 0, request, session, 35, 75, 1); throw new Exception("too short window passed"); }
+        catch (InvalidDataException) { }
+        // Genuine failure 2026-10-15 20:18 (calibrated window starts on the band's last missing row 19, rowStart 10).
+        CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(
+            Enumerable.Range(19, 10).SelectMany(row => Enumerable.Range(0, 2).Select(col => row * 100 + col)).ToArray(), 10, request, session, 5, 275, 3);
+        // Calibrated vertical placement: window top = target row + measured offset (-6 on genuine replies).
+        if (MapFullWorldAoiPlacement.TargetY(20, Enumerable.Range(20, 10).ToArray(), false, -6) != 265 ||
+            MapFullWorldAoiPlacement.TargetY(20, [27, 28, 29], false, -6) != 335 ||
+            MapFullWorldAoiPlacement.TargetY(90, Enumerable.Range(90, 10).ToArray(), false, -6) != 965 ||
+            MapFullWorldAoiPlacement.TargetY(0, Enumerable.Range(0, 10).ToArray(), false, -6) != 65 ||
+            MapFullWorldAoiPlacement.TargetY(20, Enumerable.Range(20, 10).ToArray()) != 275)
+            throw new Exception("Calibrated vertical placement did not follow the measured window offset");
         Console.WriteLine($"MAP014_NATIVE_EIGHT_ROW_FOOTPRINT_OK covered={covered.Count} simulatedProbes={probes} negatives=5 native=false");
     }
 }

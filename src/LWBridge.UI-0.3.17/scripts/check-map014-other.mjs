@@ -10,7 +10,7 @@ import {
 } from "../src/mapTablePresentation.js";
 import { withMapOtherTexts } from "../src/locales/map014-other.js";
 
-assert.equal(MAP_KIND_KEYS.length, 9);
+assert.equal(MAP_KIND_KEYS.length, 10); // eight recovered kinds + Other + Zombie Boss
 assert.equal(MAP_DEFAULT_SCAN_TYPES.length, 8);
 assert.equal(MAP_DEFAULT_SCAN_TYPES.includes("other"), false);
 assert.deepEqual(DEFAULT_SCAN_STATE.selectedTypes, MAP_DEFAULT_SCAN_TYPES);

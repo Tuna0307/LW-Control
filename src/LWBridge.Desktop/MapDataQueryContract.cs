@@ -65,6 +65,13 @@ internal static class MapDataQueryContract
         "itemKeys",
         "escortPowerMaxMillions",
         "otherSubtype",
+        // Ghost reward constraints are implemented only by the canonical
+        // Map317 store; this older indexed store has no `$.rewards` predicate,
+        // so IsRecoveredFilter leaves them unsupported (fail closed here).
+        "rewardFilters",
+        "rewardMatch",
+        // Zombie Boss protection state is implemented only by the canonical Map317 store.
+        "protectionState",
     ];
 
     private static readonly HashSet<string> AllowedKinds =

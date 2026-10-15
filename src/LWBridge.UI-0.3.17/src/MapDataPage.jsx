@@ -43,10 +43,14 @@ import {
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
 import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
 import { MapRetainedGoodsFilter } from "./MapRetainedGoodsFilter.jsx";
+import { MapGhostRewardFilter } from "./MapGhostRewardFilter.jsx";
+import { GHOST_REWARD_MATCH_DEFAULT, buildGhostRewardQuery, pruneGhostRewards, setGhostRewardMinimum, toggleGhostReward } from "./mapGhostRewards.js";
 import { mapOwnerFilterLabel, parseEscortMillions } from "./mapOwnerFilters.js";
 import { mapScanPresentation, scanDateTitle, scanDuration, scanIsoTime, scanSameDay, scanTimeText } from "./mapScanPresentation.js";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
+// Zombie Boss templates exist for levels 5, 10, ... 150 (game table lw_world_monster).
+const ZOMBIE_BOSS_LEVELS = Object.freeze(Array.from({ length: 30 }, (_, index) => (index + 1) * 5));
 
 const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
@@ -57,6 +61,7 @@ const SCAN_TYPE_LABEL_KEYS = Object.freeze({
   city: "map.playerCity",
   resource: "map.resourcePoint",
   monster: "map.monster",
+  zombie_boss: "map.zombieBoss",
   truck: "map.truck",
   railway: "map.allianceTrain",
   dispatch: "map.secretTask",
@@ -68,6 +73,7 @@ const TAB_LABEL_KEYS = Object.freeze({
   city: "map.city",
   resource: "map.resource",
   monster: "map.monster",
+  zombie_boss: "map.zombieBoss",
   truck: "map.truck",
   railway: "map.allianceTrain",
   dispatch: "map.secretTask",
@@ -109,7 +115,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
   useEffect(() => {
     // The arrival guard below also applies to native Railway and moving Monster
     // rows. Keep their visible Follow eligibility current while the tab is open.
-    if (!["truck", "railway", "monster", "dispatch", "ghost"].includes(kind)) return undefined;
+    if (!["truck", "railway", "monster", "zombie_boss", "dispatch", "ghost"].includes(kind)) return undefined;
     setCurrentTime(Date.now());
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => window.clearInterval(timer);
@@ -187,7 +193,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   ) : column.status ? (
                     <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>
                   ) : column.rewards ? (
-                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? "-" : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
+                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? (kind === "ghost" ? <span className="map-reward-unknown" title={t("map.rewardsUnknown")}>{t("map.rewardsUnknown")}</span> : "-") : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
                   ) : kind === "resource" && column.label === t("common.status") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}
                 </td>
               ))}
@@ -219,6 +225,7 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-city": "city",
   "map-resource": "resource",
   "map-monster": "monster",
+  "map-zombie-boss": "zombie_boss",
   "map-truck": "truck",
   "map-railway": "railway",
   "map-dispatch": "dispatch",
@@ -316,10 +323,17 @@ export function MapDataPage({
   const [qualityByKind, setQualityByKind] = useState({});
   const [itemKeyByKind, setItemKeyByKind] = useState({});
   const [truckItemKeys, setTruckItemKeys] = useState([]);
+  // Ghost reward constraints: [{ key, min }] plus an explicit "all" (default) / "any" mode.
+  const [ghostRewards, setGhostRewards] = useState([]);
+  const [ghostRewardMatch, setGhostRewardMatch] = useState(GHOST_REWARD_MATCH_DEFAULT);
   const [resourceMinLevel, setResourceMinLevel] = useState("");
   const [resourceMaxLevel, setResourceMaxLevel] = useState("");
   const [resourceAmountState, setResourceAmountState] = useState("");
   const [resourceTileState, setResourceTileState] = useState("");
+  // Zombie Boss filters: inclusive level range and game-confirmed protection state.
+  const [zombieMinLevel, setZombieMinLevel] = useState("");
+  const [zombieMaxLevel, setZombieMaxLevel] = useState("");
+  const [zombieProtection, setZombieProtection] = useState("");
   const [escortMaxMillions, setEscortMaxMillions] = useState("");
   const [plunderableOnlyByKind, setPlunderableOnlyByKind] = useState({});
   const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(
@@ -562,6 +576,8 @@ export function MapDataPage({
         return !name || loaded.alliances.some((item) => item.name === name) ? current : "all";
       });
       setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
+      // A reward selected for one saved server must never constrain another server's tasks.
+      setGhostRewards((current) => pruneGhostRewards(current, loaded.rewardItems?.ghost));
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
       setOtherSubtype((current) => !current || (loaded.otherTypes || []).some((item) => item.key === current) ? current : "");
     } catch (error) {
@@ -624,6 +640,7 @@ export function MapDataPage({
   useEffect(() => {
     if (dataServerIdRef.current === dataServerId) return;
     dataServerIdRef.current = dataServerId;
+    setGhostRewards((current) => current.length === 0 ? current : []);
     if (dataServerId > 0) optionsGeneration.current += 1;
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
@@ -669,6 +686,11 @@ export function MapDataPage({
       if (resourceTileState) query.resourceTileState = resourceTileState;
     }
     if (tab === "monster" && monsterNameKey) query.monsterNameKey = monsterNameKey;
+    if (tab === "zombie_boss") {
+      if (zombieMinLevel !== "") query.minLevel = Number(zombieMinLevel);
+      if (zombieMaxLevel !== "") query.maxLevel = Number(zombieMaxLevel);
+      if (zombieProtection) query.protectionState = zombieProtection;
+    }
     if (tab === "city") {
       if (alliance === "none") query.withoutAlliance = true;
       else {
@@ -694,6 +716,15 @@ export function MapDataPage({
       if (quality === "reindeer") query.reindeerOnly = true;
       if (tab === "truck" && truckItemKeys.length) query.itemKeys = truckItemKeys;
       else if (itemKey) query.itemKey = itemKey;
+      if (tab === "ghost") {
+        const reward = buildGhostRewardQuery(ghostRewards, ghostRewardMatch);
+        if (!reward.valid) {
+          setQueryError(t("map.ghostRewardInvalidMinimum"));
+          setLoading(false);
+          return;
+        }
+        Object.assign(query, reward.fragment);
+      }
       if (tab === "truck" && escortMaxMillions !== "") {
         const power = parseEscortMillions(escortMaxMillions);
         if (!power.valid) {
@@ -769,8 +800,10 @@ export function MapDataPage({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey, truckItemKeys,
+    ghostRewards, ghostRewardMatch,
     luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, online, page, plunderableOnly, quality, resourceNameKey,
     resourceMinLevel, resourceMaxLevel, resourceAmountState, resourceTileState, escortMaxMillions, language, searchRevision, tab, treasureType, otherSubtype,
+    zombieMinLevel, zombieMaxLevel, zombieProtection,
   ]);
 
   // Original Vn/X effects: one coalesced trailing refresh, rearmed only by a
@@ -901,6 +934,7 @@ export function MapDataPage({
       setMinLevel("");
       setItemKeyByKind({});
       setTruckItemKeys([]);
+      setGhostRewards([]);
       setResourceMinLevel("");
       setResourceMaxLevel("");
       setResourceAmountState("");
@@ -997,6 +1031,12 @@ export function MapDataPage({
     }
     setPage(1);
   }
+
+  const ghostRewardItems = options?.serverId === dataServerId && Array.isArray(options?.rewardItems?.ghost) ? options.rewardItems.ghost : [];
+  const toggleGhostRewardFilter = (key) => { setGhostRewards((current) => toggleGhostReward(current, key)); setPage(1); };
+  const clearGhostRewardFilter = () => { setGhostRewards([]); setPage(1); };
+  const changeGhostRewardMinimum = (key, raw) => { setGhostRewards((current) => setGhostRewardMinimum(current, key, raw)); setPage(1); };
+  const changeGhostRewardMatch = (value) => { setGhostRewardMatch(value); setPage(1); };
 
   async function coordinateJump(row) {
     const moving = tab === "truck" || tab === "railway" || (tab === "monster" && Boolean(row.marchUuid));
@@ -1472,6 +1512,13 @@ export function MapDataPage({
                 <option value="">{mapOwnerFilterLabel(language, "all")}</option><option value="black">{mapOwnerFilterLabel(language, "black")}</option><option value="normal">{mapOwnerFilterLabel(language, "normal")}</option><option value="unknown">{mapOwnerFilterLabel(language, "unknown")}</option>
               </select>
             </> : null}
+            {tab === "zombie_boss" ? <>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "minimum")}</span><select aria-label={t("map.zombieBossMinLevel")} value={zombieMinLevel} onChange={(event) => { setZombieMinLevel(event.target.value); setPage(1); }}><option value="">{t("map.zombieBossAnyLevel")}</option>{ZOMBIE_BOSS_LEVELS.map((level) => <option key={level} value={String(level)}>{level}</option>)}</select></label>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "maximum")}</span><select aria-label={t("map.zombieBossMaxLevel")} value={zombieMaxLevel} onChange={(event) => { setZombieMaxLevel(event.target.value); setPage(1); }}><option value="">{t("map.zombieBossAnyLevel")}</option>{ZOMBIE_BOSS_LEVELS.map((level) => <option key={level} value={String(level)}>{level}</option>)}</select></label>
+              <select aria-label={t("map.zombieBossProtectionFilter")} value={zombieProtection} onChange={(event) => { setZombieProtection(event.target.value); setPage(1); }}>
+                <option value="">{t("map.zombieBossProtectionAll")}</option><option value="active">{t("map.zombieBossProtectionActive")}</option><option value="inactive">{t("map.zombieBossNotProtected")}</option><option value="unknown">{t("map.zombieBossProtectionUnknown")}</option>
+              </select>
+            </> : null}
             {tab === "city" ? (
               <>
                 <select aria-label={t("map.allianceFilter")} value={alliance} onChange={(event) => { setAlliance(event.target.value); setPage(1); }}>
@@ -1514,6 +1561,12 @@ export function MapDataPage({
                   {(tab === "dispatch" || tab === "ghost") ? <option value="special">{t("map.specialQuality")}</option> : null}
                   {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
                 </select>
+                {tab === "ghost" ? (
+                  <>
+                    <MapGhostRewardFilter items={ghostRewardItems} filters={ghostRewards} match={ghostRewardMatch} gameTexts={resolvedGameTexts} onToggle={toggleGhostRewardFilter} onClear={clearGhostRewardFilter} onMinimum={changeGhostRewardMinimum} onMatch={changeGhostRewardMatch} />
+                    {options?.serverId === dataServerId && ghostRewardItems.length === 0 && (counts.ghost || 0) > 0 ? <span className="map-ghost-reward-note" role="status">{t("map.ghostRewardNoData")}</span> : null}
+                  </>
+                ) : null}
                 {(tab === "truck" || tab === "railway") ? (
                   <MapRetainedGoodsFilter label={t("map.itemFilter")} allLabel={t("map.allRetainedGoods")} items={options?.rewardItems?.[tab] || []} value={itemKey} values={truckItemKeys} multiple={tab === "truck"} selectedLabel={mapOwnerFilterLabel(language, "itemsAll")} clearLabel={mapOwnerFilterLabel(language, "clearItems")} onChange={changeItemFilter} />
                 ) : null}

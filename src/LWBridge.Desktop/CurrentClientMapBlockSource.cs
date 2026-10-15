@@ -19,10 +19,19 @@ internal sealed class CurrentClientMapBlockSourceHooks
     // Private, read-only native march-manager telemetry. Never active in the
     // Windows production source; captured only in the owned diagnostic host.
     public bool ObserveMarchFreshness { get; init; }
+    // Diagnostic A/B only: send this lens height instead of the canonical one (simulates a
+    // differently zoomed player) or, when DisableCoverageZoomNormalization is set, send none.
+    public double? CoverageZoomOverride { get; init; }
+    public bool DisableCoverageZoomNormalization { get; init; }
 }
 
 internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatchSource
 {
+    // The native AOI window depends on camera height: a player zoomed in to 81.3 gets 8x3 AOIs per probe
+    // instead of 10x3 and the old validator rejected it. Genuine lens matrix (artifacts/map014-lead-live/
+    // native-lens-matrix-20261015-193845): lens 130 gives 10x3 for players at zoom 81 and 60 (11x3 at the
+    // default 105), serverLod 0 and exact geometry restoration in every probe; lens 105 only reached 9x3.
+    internal const double CanonicalCoverageZoom = 130.0;
     private const string ProbeVersion = "lwbridge-live-resource-probe-2";
     private const string OverviewBridgeVersion = "lwbridge-overview-bridge-1";
     private static readonly TimeSpan NavigationTimeout = TimeSpan.FromSeconds(7);

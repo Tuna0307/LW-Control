@@ -32,7 +32,8 @@ internal static class Map014OtherEventChecks
         Require(Map317.MapScanStateMachine.CreateDefaultIdleState().SelectedTypes
                 .SequenceEqual(Map317.MapKinds.DefaultSelection) &&
             Map317.MapKinds.DefaultSelection.Length == 8 &&
-            Map317.MapKinds.All.Length == 9,
+            Map317.MapKinds.All.Length == 10 && Map317.MapKinds.All.Contains("zombie_boss") &&
+            !Map317.MapKinds.DefaultSelection.Contains("zombie_boss"),
             "idle/default selection remains eight, while explicit Other is allowed");
         Require(MapScanContract.NormalizeStart(JsonSerializer.SerializeToElement(new { }))
                 .SelectedTypes.SequenceEqual(MapScanContract.RecoveredDefaultTypes),

@@ -2488,6 +2488,9 @@ local function read_bulk_aoi_diagnostic(now)
     -- coverage merely from the requested aspect: _curViewIndex remains truth.
     request.coverageAspect = tonumber(values.coverageAspect or "4")
     request.coverageFov = tonumber(values.coverageFov or "120")
+    -- Optional canonical lens height: the native AOI window scales with the camera height, so a
+    -- player-zoomed view must not change coverage. Restored exactly with the full camera geometry.
+    request.coverageZoom = values.coverageZoom ~= nil and tonumber(values.coverageZoom) or nil
     request.targetTileX = tonumber(values.targetTileX)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
@@ -2526,6 +2529,8 @@ local function read_bulk_aoi_diagnostic(now)
        (request.coverageFov ~= 20 and request.coverageFov ~= 120) or
        (request.coverageAspect ~= 4 and request.coverageAspect ~= 6) or
        (request.coverageAspect ~= 4 and request.requestMode ~= "coverage") or
+       (values.coverageZoom ~= nil and (request.coverageZoom == nil or request.coverageZoom < 60 or
+           request.coverageZoom > 130 or request.requestMode ~= "coverage")) or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
@@ -3060,6 +3065,40 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
     return records, nil
 end
 
+-- Ghost rewards use the game's own template path (ActGhostreconTaskTemplate.InitData):
+-- RewardManager:ParseRewardsStr(base_reward_show), entries "itemId;type;count" joined by "|".
+-- Any unresolved or dropped entry makes the whole list unknown (nil), never partial.
+local function ghost_reward_list(raw)
+    raw = tostring(raw or "")
+    local rm = safe_get(rawget(_G, "DataCenter"), "RewardManager")
+    local ok, parsed = call(rm, "ParseRewardsStr", raw)
+    local expected = 0
+    for _ in string.gmatch(raw, "[^|]+") do expected = expected + 1 end
+    if not ok or type(parsed) ~= "table" or expected == 0 or #parsed ~= expected then return nil end
+    local by_key, list = {}, {}
+    for _, r in ipairs(parsed) do
+        local t, id, n = tonumber(safe_get(r, "rewardType")), tonumber(safe_get(r, "itemId")), tonumber(safe_get(r, "count"))
+        if not (t and id and n and n > 0) then return nil end
+        local name, icon = safe_get(r, "itemName"), safe_get(r, "iconName")
+        if name == nil or tostring(name) == "" then
+            local ok_name, resolved = call(rm, "GetNameByType", t, id)
+            name = ok_name and resolved or nil
+        end
+        t, id = math.floor(t), math.floor(id)
+        local key = string.format("reward:%d:%d", t, id)
+        local entry = by_key[key]
+        if entry == nil then
+            entry = { key = key, name = (name ~= nil and tostring(name) ~= "") and tostring(name) or key,
+                iconPath = (icon ~= nil and tostring(icon) ~= "") and tostring(icon) or nil,
+                count = 0, rewardType = t, itemId = id }
+            by_key[key] = entry
+            list[#list + 1] = entry
+        end
+        entry.count = entry.count + n
+    end
+    return list
+end
+
 local function ghost_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
     local collection = reflected_value(point_manager, "_pointInfos")
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
@@ -3070,6 +3109,7 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
     local ok_controller, controller = call(controller_type, "instance")
     local table_name = rawget(_G, "TableName")
     local ghost_table = table_name and safe_get(table_name, "LwGhostreconTask") or nil
+    local reward_cache = {}
     if not ok_controller or controller == nil or ghost_table == nil then
         return nil, "ghost_config_manager_unavailable"
     end
@@ -3119,6 +3159,8 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
 
         local steal_list = safe_get(ghost_source, "stealList") or safe_get(ghost_source, "StealList")
         local member_list = safe_get(ghost_source, "memberList") or safe_get(ghost_source, "MemberList")
+        local reward_config = scalar_field(cfg, { "base_reward_show", "reward", "Reward" })
+        if reward_cache[cfg_id] == nil then reward_cache[cfg_id] = ghost_reward_list(reward_config) or false end
         records[#records + 1] = {
             id = id,
             pointId = id,
@@ -3145,7 +3187,8 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
             size = integer_field(ghost_source, { "size", "Size" }),
             stealListCount = collection_count(steal_list),
             memberListCount = collection_count(member_list),
-            rewardConfig = scalar_field(cfg, { "base_reward_show", "reward", "Reward" }),
+            rewardConfig = reward_config,
+            rewards = reward_cache[cfg_id] or nil,
             worldOpen = scalar_field(cfg, { "world_open", "worldOpen", "WorldOpen" }),
             protectTime = scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }),
             stealMaxTimes = scalar_field(cfg, { "steal_maxtimes", "stealMaxtimes", "StealMaxtimes" }),
@@ -3891,10 +3934,10 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
         local pair = safe_get(enumerator, "Current")
         local march = pair and (safe_get(pair, "Value") or pair) or nil
         if march ~= nil then
-            local ok_boss, boss_flag = call(march, "IsBoss")
             local monster_id = integer_field(march, { "monsterId", "MonsterId" })
             local template = nil
-            if ok_boss and boss_flag == true and monster_id ~= nil and monster_id > 0 then
+            -- Identity is the exact template special (as in monster_march_aoi_records); IsBoss() is not required.
+            if monster_id ~= nil and monster_id > 0 then
                 local ok_template, value = call(template_manager, "TryGetMonsterTemplate", monster_id)
                 if ok_template then template = value end
             end
@@ -4956,6 +4999,11 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                             picture = template and scalar_field(template, { "pic", "Pic" }) or nil,
                             hp = ok_hp and hp or nil, maxHp = ok_max_hp and max_hp or nil,
                             refreshTime = scalar_field(march, { "refreshTime", "RefreshTime" }),
+                            -- Zombie Boss only: template power and game-reported discoverer (unknown stays nil).
+                            recommendPower = protection_eligible and template and scalar_field(template, { "recommend_power" }) or nil,
+                            belongUid = protection_eligible and scalar_field(march, { "belongUid", "BelongUid" }) or nil,
+                            ownerName = protection_eligible and scalar_field(march, { "ownerName", "OwnerName" }) or nil,
+                            allianceAbbr = protection_eligible and scalar_field(march, { "allianceAbbr", "AllianceAbbr" }) or nil,
                             createTime = scalar_field(march, { "createTime", "CreateTime" }),
                             expireTime = scalar_field(march, { "expireTime", "ExpireTime" }),
                             actStartTime = scalar_field(march, { "actStartTime", "ActStartTime" }),
@@ -5355,6 +5403,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         requestMode = request.requestMode,
         coverageAspect = request.coverageAspect,
         coverageFov = request.coverageFov,
+        coverageZoom = request.coverageZoom,
+        coverageZoomApplied = request.coverageZoomApplied,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
@@ -5542,7 +5592,7 @@ local function pump_bulk_aoi_diagnostic(now)
             write_bulk_aoi_result(request, "failed", world_error or "world_unavailable", nil)
             return true
         end
-        if request.includeMonster == true and request.includeMonsterProtection ~= true and
+        if request.includeMonster == true and not (request.includeMonsterProtection == true and request.requestMode == "zoom") and
            M._doomsdayMainInfoScanRunId ~= request.scanRunId then
             request.doomsdayRequestSent = select(1, request_doomsday_main_info())
             request.doomsdayRequestSentAt = runtime_clock()
@@ -5910,6 +5960,13 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_aspect_set_failed", nil, point_manager)
                 return true
             end
+            if request.coverageZoom ~= nil and
+               (not pcall(function() camera_manager.Zoom = request.coverageZoom end) or
+                not select(1, call(camera_manager, "RefreshCameraAnchor"))) then
+                fail_bulk_aoi(request, "coverage_camera_zoom_set_failed", nil, point_manager)
+                return true
+            end
+            request.coverageZoomApplied = tonumber(safe_get(camera_manager, "Zoom"))
         end
         local manager_reply_before = manager_response_flag(point_manager)
         local world_reply_before = world_response_flag(world)
@@ -6348,7 +6405,7 @@ local function pump_bulk_aoi_diagnostic(now)
         -- activity manager and may not yet exist in WorldMarchDataManager. Issue
         -- the same read-only main-info request used by UIDoomsday and give that
         -- response a short bounded settle before taking the whole-world snapshot.
-        if bulk_aoi_request.includeMonsterProtection ~= true and
+        if not (bulk_aoi_request.includeMonsterProtection == true and bulk_aoi_request.requestMode == "zoom") and
            bulk_aoi_request.doomsdayRequestSent == true and
            runtime_clock() - (bulk_aoi_request.doomsdayRequestSentAt or runtime_clock()) < 0.75 then
             return true
@@ -6366,7 +6423,7 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         details.doomsdayBossCount = 0
-        if bulk_aoi_request.includeMonsterProtection ~= true then
+        if not (bulk_aoi_request.includeMonsterProtection == true and bulk_aoi_request.requestMode == "zoom") then
             local doomsday_records, doomsday_error = doomsday_boss_records(
                 world, details.blockSize, details.blockCount, lookup, home_tile, monster_march_records)
             if doomsday_records == nil then

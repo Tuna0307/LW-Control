@@ -46,7 +46,7 @@ assert.notEqual(selectionStorageKey({ ...paddedSelectionRow, serverId: 2213 }),
 
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ key }) => key),
-  ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other"],
+  ["city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure", "other"],
   "scan type mapping must include the source-qualified Other event kind",
 );
 
@@ -108,7 +108,7 @@ assert.match(autoServiceSource, /ScanTimeoutMilliseconds = 2_700_000/,
   "native Auto Scan scheduler must preserve the recovered 45-minute scan timeout");
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ label }) => label),
-  ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure", "Other"],
+  ["Player City", "Resource Point", "Monster", "Zombie Boss", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure", "Other"],
   "scan labels must remain source-faithful",
 );
 

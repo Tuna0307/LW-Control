@@ -40,6 +40,7 @@ export const MAP_SCAN_TYPES = Object.freeze([
   { key: "city", label: "Player City" },
   { key: "resource", label: "Resource Point" },
   { key: "monster", label: "Monster" },
+  { key: "zombie_boss", label: "Zombie Boss" },
   { key: "truck", label: "Truck" },
   { key: "railway", label: "Train" },
   { key: "dispatch", label: "Secret Task" },
@@ -58,12 +59,13 @@ export const MAP_TABS = Object.freeze([
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
   { key: "other", label: "Other" },
+  { key: "zombie_boss", label: "Zombie Boss" },
   { key: "scheduledPlunder", label: "Scheduled Plunder" },
 ]);
 
 export const MAP_KIND_KEYS = Object.freeze(MAP_SCAN_TYPES.map(({ key }) => key));
-// Other is opt-in. Preserve the eight recovered types for an implicit scan.
-export const MAP_DEFAULT_SCAN_TYPES = Object.freeze(MAP_KIND_KEYS.filter((key) => key !== "other"));
+// Other and Zombie Boss are opt-in. Preserve the eight recovered types for an implicit scan.
+export const MAP_DEFAULT_SCAN_TYPES = Object.freeze(MAP_KIND_KEYS.filter((key) => key !== "other" && key !== "zombie_boss"));
 export const MAP_PAGE_SIZE = 50;
 
 export function mapPageCount(total) {
@@ -260,6 +262,7 @@ export function buildSearchPayload(kind, query = {}) {
     "completionStatus", "plunderableOnly", "includeForeignRadarTreasures", "luckyFirst",
     "viewerUid", "viewerAllianceId", "minLevel", "maxLevel",
     "resourceAmountState", "resourceTileState", "escortPowerMaxMillions", "itemKeys",
+    "rewardFilters", "rewardMatch", "protectionState",
   ]) {
     if (query[key] !== undefined && query[key] !== null && query[key] !== "") normalized[key] = query[key];
   }

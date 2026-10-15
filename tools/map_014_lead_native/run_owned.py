@@ -24,7 +24,7 @@ def persisted_snapshot(path):
     return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','truck-dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','truck-dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
     if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
@@ -33,6 +33,17 @@ def main():
     # world entry while the official client is still loading its City scene.
     trace_source=REPO/'tools/map_009_offline/map013_wrapper_trace.lua'
     own_trace=directory/'map013-wrapper-trace.lua'; shutil.copyfile(trace_source,own_trace)
+    if os.environ.get('LWBRIDGE_MAP014_FIXTURE_ZOOM'):
+        # Harness-only reproduction of a zoomed-in owner camera; never part of the shipped probe.
+        fixture=(Path(__file__).parent/'map014_zoom_fixture.lua').read_bytes()
+        combined=own_trace.read_bytes()+b'\n'+fixture
+        if len(combined)>20000: raise RuntimeError('Zoom fixture exceeds the wrapper trace size cap')
+        own_trace.write_bytes(combined)
+    if os.environ.get('LWBRIDGE_MAP014_TERRAIN_FIXTURE'):
+        # Harness-only read-only terrain observation; never part of the shipped probe.
+        combined=own_trace.read_bytes()+bytes([10])+(Path(__file__).parent/'map014_terrain_fixture.lua').read_bytes()
+        if len(combined)>20000: raise RuntimeError('Terrain fixture exceeds the wrapper trace size cap')
+        own_trace.write_bytes(combined)
     os.environ['LWBRIDGE_MAP013_WRAPPER_TRACE']=str(own_trace)
     adapter=REPO/'src/LWBridge.GamePipeAdapter/bin/Release/netstandard2.0/LWBridge.GamePipeAdapter.dll'
     own_adapter=directory/adapter.name; shutil.copyfile(adapter,own_adapter)
