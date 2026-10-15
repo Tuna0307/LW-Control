@@ -903,10 +903,10 @@ internal sealed partial class LWBridgeWindow : Form
             profileRoot,
             profileRegistryService,
             sharedBridgeHostState: bridgeHostState,
+            // Python and the injected Lua derive every Overview path from this
+            // same application root. Sibling runtime overrides split the host
+            // registration/lease from the game-side reader for selected profiles.
             applicationDataRoot: Path.Combine(profileRoot, "current-client"),
-            overviewRuntimeRoot: Path.Combine(profileRoot, "overview-runtime"),
-            overviewEvidenceRoot: Path.Combine(profileRoot, "overview-evidence"),
-            overviewBackupRoot: Path.Combine(profileRoot, "overview-backups"),
             startupReconcile: startupProfileReconcile,
             foreignOwnedProcess: pid => IsAnotherProfileOwnedProcess(profileId, pid),
             foreignOwnedInstallation: root => IsAnotherProfileOwnedInstallation(profileId, root));

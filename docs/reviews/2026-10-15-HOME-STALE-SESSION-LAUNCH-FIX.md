@@ -30,6 +30,24 @@ UnauthorizedAccessException without changing production ownership protection.
 One initial frontend run hit a transient missing dependency; the unchanged
 dependency tree passed the complete rerun. Raw logs remain under artifacts.
 
+## Selected-profile native path defect
+
+A fresh normal-data WebView trial `normal-20261015-034154` independently failed
+with `launch report registration not confirmed before the bridge-connect
+deadline`. The configured primary ID and selected controller profile differ.
+Actual selected-profile composition passed sibling managed runtime/evidence/
+backup directories, but Python and injected Lua derive them below the profile's
+`current-client` application root. Registration/control/heartbeat therefore did
+not share a path. The window factory now lets the existing lifecycle defaults
+derive those paths from the same root as Python/Lua. Explicit custom test API
+overrides remain supported; no old files are deleted or migrated blindly.
+
+Earlier deep-artifact copy trials encountered an independent Windows path-length
+limit before readiness; those are failed diagnostics, not successful fixes or
+proof that the normal owner path has the same length problem. Normal-data
+trials temporarily disable and restore the exact saved Auto preference, require
+zero armed jobs, preserve original scripts and record actual native errors.
+
 **Source checkpoint: native final-package verification pending.** Next verify
 real Home Launch -> stable authenticated Connected -> Home Close using a copy
 of the owner's persisted profile and old record, then the final extracted ZIP.
