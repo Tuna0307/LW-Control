@@ -1498,12 +1498,15 @@ internal sealed partial class LWBridgeWindow : Form
         string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
             ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
         if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
-        if (qualifiedKind is not (null or "city" or "other"))
+        if (qualifiedKind is not (null or "city" or "other" or "all-nontruck"))
             throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
         string desiredSelection = qualifiedKind switch
         {
             "city" => "index === 0",
             "other" => "index === 8",
+            // Opt-in MAP-015 genuine direct AOI proof: every map kind except
+            // moving Truck and seasonal Other, in the recovered UI tab order.
+            "all-nontruck" => "index !== 3 && index !== 8",
             _ when ownerFixNativeProof && !ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NEW_KINDS_UI") == "1" => "index < 7 || index === 9",
             _ when ownerFixNativeProof && !ownerFixRemoteProof => "index < 6",
             _ => "index === 1",
@@ -1685,6 +1688,30 @@ internal sealed partial class LWBridgeWindow : Form
                 throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
 
             string[] actualSelectedTypes = ReadNormalUiProofSelectedTypes(completedStatus);
+
+            if (qualifiedKind == "all-nontruck")
+            {
+                string[] expectedKinds = ["city", "resource", "monster", "railway", "dispatch",
+                    "ghost", "treasure", "zombie_boss"];
+                if (!actualSelectedTypes.SequenceEqual(expectedKinds, StringComparer.Ordinal))
+                    throw new InvalidDataException("MAP015 packaged full scan did not select exactly the eight non-Truck map kinds.");
+                if (ReadStatusInt32(completedStatus, "totalBlocks") != 2500 ||
+                    ReadStatusInt32(completedStatus, "readBlocks") != 2500)
+                    throw new InvalidDataException("MAP015 packaged non-Truck scan did not complete every map block.");
+                object browse = await RunMap015AllNonTruckUiProofAsync(
+                    core, directory, completedStatus, ownedMapSession!, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1, state = "proven",
+                    proof = "actual_packaged_ui_all_nontruck_fullworld_scan_and_results",
+                    genuineGame = true, controlledProvider = false, selection = qualifiedKind,
+                    selectedTypes = actualSelectedTypes,
+                    serverId = ReadStatusInt32(completedStatus, "serverId"),
+                    profileId = backend.ProfileId, gamePid = ownedMapSession!.GamePid,
+                    completedStatus, browse,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), operationCts.Token);
+                return;
+            }
 
             if (qualifiedKind is "city" or "other")
             {

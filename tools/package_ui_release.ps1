@@ -433,6 +433,40 @@ Repository: https://github.com/Tuna0307/LW-Control
 Review and limits: docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md
 "@
 }
+if ($ReleaseLabel -eq 'MAP015') {
+    $readme = @"
+LW-Control MAP-015 — camera-free scanner review candidate
+Source commit: $sourceCommit
+
+Windows x64: extract the entire ZIP to a writable folder and start
+LW-Control-UI/Launch LWBridge.cmd. Requires .NET 10 Desktop Runtime,
+Microsoft Edge WebView2 Runtime and Python for live game integration.
+
+CURRENT SCOPE
+For complete scans of the current normal-world server without Truck,
+the scanner attempts 63 direct AOI requests without moving the camera.
+The existing camera scan remains the automatic fallback after failed,
+empty or unverified direct acquisition with proven native cleanup.
+Truck-bearing scans remain on the accurate camera method pending a
+verified per-push collection method. Other existing Home, Map, saved
+filters, Stop and server-switch behaviors remain available.
+
+EVIDENCE AND OPEN TARGETS
+An exact-owned same-session native City comparison captured 4175 records
+in both routes, with one differing record each way; camera-free took
+23.91 s end-to-end and camera took 196.43 s. A newer optimized City trial
+completed in 20.25 s and Resource in 23.24 s. The full eight-kind scan
+without Truck completed in 64.06 s, including required detail hydration.
+These are native diagnostic-host results; the packaged UI must be audited
+independently. The <=20 s all-kind target and <=40 s non-lossy Truck target
+are NOT certified. Fast mode cannot promise an exact live-world census.
+
+This is a local review candidate for audit, not a merged or published
+release. It includes no private game data or account credentials. Never
+use Map actions such as claim, attack, march or plunder unintentionally.
+Review source: docs/MAP_015_WORKER_REPORT.md
+"@
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

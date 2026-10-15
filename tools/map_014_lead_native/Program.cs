@@ -465,6 +465,7 @@ if (benchmarking)
     string workload = scenario["benchmark-".Length..];
     string[] kinds = workload switch {
         "mixed" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost"],
+        "all-nontruck" => ["city","resource","monster","zombie_boss","railway","dispatch","ghost","treasure"],
         "truck-dispatch" => ["truck","dispatch"],
         _ => [workload]
     };
@@ -479,6 +480,13 @@ if (benchmarking)
         ? configuredRounds : workload == "city" ? 6 : 2;
     // The owner reported the slowdown in Fast mode; default stays Normal for old receipts.
     string benchScanMode = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_MODE") == "fast" ? "fast" : "normal";
+    // MAP-015 owner A/B: a single exact-owned game session may alternate
+    // direct camera-free and the existing camera route. Empty retains MAP-014
+    // lens qualification behavior so prior benchmark scripts remain valid.
+    string[] methodConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_BENCH_METHODS") ?? "")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    if (methodConfigs.Any(mode => mode is not ("direct" or "camera")))
+        throw new ArgumentException("LWBRIDGE_MAP015_BENCH_METHODS supports only direct,camera");
     for (int round=0; round<rounds; round++)
     {
         bool bounded = workload == "city" && round%2 == 1;
@@ -491,7 +499,12 @@ if (benchmarking)
             roundZoom = double.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
             roundFov = parts.Length > 1 ? int.Parse(parts[1]) : null;
         }
-        var measuredSource = MakeSource(bounded, forceLegacy: !bounded, zoomArg: roundZoom, fovArg: roundFov);
+        string sourceMethod = methodConfigs.Length > 0 ? methodConfigs[round % methodConfigs.Length] : "legacy-lens";
+        var measuredSource = sourceMethod switch {
+            "direct" => MakeSource(false),
+            "camera" => MakeSource(false, forceLegacy: true),
+            _ => MakeSource(bounded, forceLegacy: !bounded, zoomArg: roundZoom, fovArg: roundFov),
+        };
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
         if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)
             await measuredSource.JumpToCoordinateAsync(context.ServerId,hx,hy,cts.Token);
@@ -535,7 +548,22 @@ if (benchmarking)
                 provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
                 throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
             File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
-            measurements.Add(new{round,scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
+            JsonElement? directEvidence = null;
+            string directEvidencePath = Path.Combine(probe,"camera-free-scan-result.json");
+            if (sourceMethod == "direct" && File.Exists(directEvidencePath))
+            {
+                using var directDocument = JsonDocument.Parse(File.ReadAllText(directEvidencePath));
+                if (directDocument.RootElement.TryGetProperty("scanRunId",out var correlated) &&
+                    correlated.GetString() == terminal.GetProperty("scanRunId").GetString())
+                    directEvidence = directDocument.RootElement.Clone();
+            }
+            string effectiveMethod = sourceMethod != "direct" ? sourceMethod :
+                directEvidence is JsonElement evidence && evidence.TryGetProperty("state",out var stateValue) &&
+                stateValue.GetString() == "proven" ? "direct" : "camera-fallback";
+            measurements.Add(new{round,method=sourceMethod,effectiveMethod,
+                directEvidenceState=directEvidence is JsonElement sourceState && sourceState.TryGetProperty("state",out var stateProperty) ? stateProperty.GetString() : null,
+                directEvidenceError=directEvidence is JsonElement sourceError && sourceError.TryGetProperty("error",out var errorProperty) && errorProperty.ValueKind==JsonValueKind.String ? errorProperty.GetString() : null,
+                scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
             File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
             Console.WriteLine($"MAP014_BENCHMARK {workload} round={round} lens={(bounded?20:120)} seconds={timer.Elapsed.TotalSeconds:F3}");
         }

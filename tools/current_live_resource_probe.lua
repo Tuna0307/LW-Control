@@ -7128,6 +7128,260 @@ function train_list_runtime.pump(now)
     return true
 end
 
+-- MAP-015 OWN_DESIGN. The owned bridge can request the current server's LOD0
+-- AOIs directly. A reply is harvested in the very frame it is observed: the
+-- native point/march caches are transient outside the physical camera view.
+-- Keep this state on M to respect xLua's 200-top-level-local limit.
+M._map015CameraFree = {
+    path = root .. [[\camera-free-scan.txt]],
+    resultPath = root .. [[\camera-free-scan-result.json]],
+    cancelPath = root .. [[\camera-free-scan-cancel.txt]],
+    active = nil,
+}
+
+function M._map015CameraFree.finish(reason)
+    local lane = M._map015CameraFree
+    local s = lane.active
+    if s == nil then return end
+    lane.active = nil
+    local restored = true
+    if s.current ~= nil then
+        for _, index in ipairs(s.added) do
+            if not select(1, call(s.current, "Remove", s.int32.Parse(tostring(index)))) then
+                restored = false
+            end
+        end
+        local actual = select(1, collection_int_values(s.current, 10001)) or {}
+        if #actual ~= s.originalCount then restored = false end
+        for _, index in ipairs(actual) do if not s.original[index] then restored = false end end
+    else
+        restored = false
+    end
+    if s.manager ~= nil and s.originalReplyFlag ~= nil and
+       not reflected_set_value(s.manager, "isRecvViewPoints", s.originalReplyFlag) then restored = false end
+    if s.world ~= nil and s.originalWorldReplyFlag ~= nil and
+       not reflected_set_value(s.world, "hasReceiveViewPointsReply", s.originalWorldReplyFlag) then restored = false end
+    local world = s.world
+    local tile = world and safe_get(world, "CurTilePosClamped")
+    local x = tonumber(tile and (safe_get(tile, "x") or safe_get(tile, "X")))
+    local y = tonumber(tile and (safe_get(tile, "y") or safe_get(tile, "Y")))
+    local camera_stable = x == s.originalX and y == s.originalY
+    local state = reason == nil and restored and camera_stable and s.completed == 10000 and "proven" or "failed"
+    local batches = s.batches
+    -- Never publish a partial snapshot. The C# owner will use its camera fallback.
+    if state ~= "proven" then batches = {} end
+    local output = {
+        schemaVersion = 1, probeVersion = M.VERSION, requestId = s.requestId,
+        profileId = s.profileId, launchSessionId = s.launchSessionId,
+        challenge = s.challenge, gamePid = s.gamePid, serverId = s.serverId,
+        worldId = 0,
+        scanRunId = s.scanRunId, state = state,
+        error = reason or (not restored and "cur_view_restore_failed") or
+            (not camera_stable and "camera_tile_changed") or
+            (s.completed ~= 10000 and "incomplete_aoi_coverage") or nil,
+        cameraStable = camera_stable, curViewRestored = restored,
+        completedAois = s.completed, requestsSent = s.sent,
+        repliesCaptured = #s.batches,
+        elapsedSeconds = runtime_clock() - s.startedAt,
+        sourceFailureDiagnostics = s.sourceFailureDiagnostics,
+        batches = batches,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
+    }
+    write_json(lane.resultPath, output)
+end
+
+function M._map015CameraFree.capture(s)
+    local c = s.pending
+    if c == nil then return false, "missing_inflight_request" end
+    local selected = {}
+    for _, index in ipairs(c.indices) do selected[index] = true end
+    local batch = { indices = c.indices, point_records = {},
+        monster_march_records = {}, train_march_records = {} }
+    -- Only Resource requires the independent first native point-type census.
+    -- City/Monster/Dispatch/Ghost/Treasure use their own strict typed source
+    -- collectors; enumerating the entire native point store again on all 63
+    -- replies adds measurable work without a second completeness gate.
+    if s.includeResource then
+        local native, native_err = point_aoi_counts(s.world, s.manager, 10, 100, selected)
+        if native == nil then return false, "point_source_" .. tostring(native_err) end
+        batch.matchedCount = native.total
+        batch.nativePointTypeHistogram = native.typeHistogram
+    end
+    local function append_points(kind, fn)
+        if not kind then return true end
+        local records, err, diag = fn()
+        if records == nil then
+            s.sourceFailureDiagnostics = diag
+            return false, err or "point_snapshot_failed"
+        end
+        for _, record in ipairs(records) do batch.point_records[#batch.point_records + 1] = record end
+        return true, nil, diag
+    end
+    local ok, err = append_points(s.includeCity,
+        function() return city_aoi_records(s.world, s.manager, 10, 100, selected) end)
+    if not ok then return false, "city_" .. tostring(err) end
+    local resource_diag
+    ok, err, resource_diag = append_points(s.includeResource,
+        function() return resource_aoi_records(s.world, s.manager, 10, 100, selected, s) end)
+    if not ok then return false, "resource_" .. tostring(err) end
+    batch.resourceCompleteness = resource_diag
+    ok, err = append_points(s.includeDispatch,
+        function() return dispatch_aoi_records(s.world, s.manager, 10, 100, selected) end)
+    if not ok then return false, "dispatch_" .. tostring(err) end
+    ok, err = append_points(s.includeGhost,
+        function() return ghost_aoi_records(s.world, s.manager, 10, 100, selected) end)
+    if not ok then return false, "ghost_" .. tostring(err) end
+    ok, err = append_points(s.includeTreasure,
+        function() return treasure_aoi_records(s.world, s.manager, 10, 100, selected) end)
+    if not ok then return false, "treasure_" .. tostring(err) end
+    if s.includeMonster then
+        local monsters, monster_err = monster_march_aoi_records(s.world, 10, 100, selected, s.homeTile)
+        if monsters == nil then return false, "monster_" .. tostring(monster_err) end
+        batch.monster_march_records = monsters
+        if s.includeMonsterProtection then
+            local targets, count, target_err = monster_invasion_protection_targets(
+                s.world, 10, 100, selected, s.serverId)
+            if targets == nil then return false, "protection_" .. tostring(target_err) end
+            local queued, queue_err = queue_monster_invasion_protection_requests(s, targets)
+            if queue_err ~= nil then return false, "protection_" .. tostring(queue_err) end
+        end
+    end
+    if s.includeTrain then
+        local trains, train_err = train_march_aoi_records(s.world, 10, 100, selected)
+        if trains == nil then return false, "train_" .. tostring(train_err) end
+        batch.train_march_records = trains
+    end
+    s.batches[#s.batches + 1] = batch
+    s.completed = s.completed + #c.indices
+    s.pending = nil
+    return true
+end
+
+function M._map015CameraFree.pump(now)
+    local lane = M._map015CameraFree
+    local s = lane.active
+    if s == nil then
+        local values = read_kv_file(lane.path, 4096)
+        if values == nil then return false end
+        pcall(os.remove, lane.path)
+        local identity = M._sharedRuntimeOwnership.pumpIdentity
+        -- This lane shares the verified ownership preflight with the other
+        -- runtime lanes. An unrelated command never acquires native state.
+        if identity == nil or values.schema ~= "1" or values.probeVersion ~= M.VERSION or
+           values.profileId ~= identity.profileId or values.launchSessionId ~= identity.sessionId or
+           values.challenge ~= identity.challenge or tonumber(values.gamePid) ~= identity.gamePid or
+           not valid_token(tostring(values.requestId or "")) or
+           not valid_token(tostring(values.scanRunId or "")) then return true end
+        local world, manager = runtime_world()
+        local server = tonumber(values.serverId)
+        local current = manager and reflected_value(manager, "_curViewIndex")
+        if world == nil or current == nil or server == nil or server ~= current_server_id() then
+            lane.active = {
+                requestId = values.requestId, profileId = values.profileId,
+                launchSessionId = values.launchSessionId, challenge = values.challenge,
+                gamePid = tonumber(values.gamePid), scanRunId = values.scanRunId,
+                serverId = server, world = world, manager = manager, current = current,
+                startedAt = runtime_clock(), original = {}, originalCount = 0,
+                originalX = -1, originalY = -1, added = {}, completed = 0, sent = 0, batches = {},
+            }
+            M._map015CameraFree.finish("current_server_or_world_unavailable")
+            return true
+        end
+        local before = select(1, collection_int_values(current, 10001))
+        local tile = safe_get(world, "CurTilePosClamped")
+        if before == nil or #before > 10000 or tile == nil then return true end
+        local original = {}
+        for _, index in ipairs(before) do original[index] = true end
+        s = {
+            requestId = values.requestId, profileId = values.profileId,
+            launchSessionId = values.launchSessionId, challenge = values.challenge,
+            gamePid = tonumber(values.gamePid), scanRunId = values.scanRunId,
+            serverId = server, world = world, manager = manager, current = current,
+            original = original, originalCount = #before, added = {}, addedSet = {},
+            originalReplyFlag = reflected_value(manager, "isRecvViewPoints"),
+            originalWorldReplyFlag = reflected_value(world, "hasReceiveViewPointsReply"),
+            originalX = tonumber(safe_get(tile, "x") or safe_get(tile, "X")),
+            originalY = tonumber(safe_get(tile, "y") or safe_get(tile, "Y")),
+            includeCity = values.includeCity == "true", includeResource = values.includeResource == "true",
+            includeDispatch = values.includeDispatch == "true", includeGhost = values.includeGhost == "true",
+            includeTreasure = values.includeTreasure == "true", includeMonster = values.includeMonster == "true",
+            includeMonsterProtection = values.includeMonsterProtection == "true",
+            includeResourceDetails = values.includeResourceDetails == "true",
+            includeTrain = values.includeTrain == "true", homeTile = {
+                x = tonumber(values.homeTileX) or -1, y = tonumber(values.homeTileY) or -1,
+            },
+            int32 = CS.System.Int32, nextAoi = 0, pending = nil,
+            startedAt = runtime_clock(), completed = 0, sent = 0, batches = {},
+        }
+        lane.active = s
+        pcall(os.remove, lane.cancelPath)
+    end
+    local cancel = read_kv_file(lane.cancelPath, 1024)
+    if cancel ~= nil and cancel.requestId == s.requestId then
+        pcall(os.remove, lane.cancelPath)
+        M._map015CameraFree.finish("cancelled")
+        return true
+    end
+    if current_server_id() ~= s.serverId then
+        M._map015CameraFree.finish("server_changed_during_scan")
+        return true
+    end
+    if s.pending ~= nil then
+        local ready = reflected_value(s.manager, "isRecvViewPoints") == true
+        if not ready then
+            if runtime_clock() - s.sentAt >= 1.5 then M._map015CameraFree.finish("reply_timeout") end
+            return true
+        end
+        local ok, err = M._map015CameraFree.capture(s)
+        if not ok then
+            -- A movement of a real player's base between source snapshots can
+            -- temporarily leave a retained owner dictionary behind the fresh
+            -- _pointInfos reply. Retry the identical AOIs at most twice; never
+            -- publish an inconsistent identity and never invent a missing City.
+            if err == "city_city_native_candidate_identity_incomplete" and
+               (s.cityRetryCount or 0) < 2 then
+                s.cityRetryCount = (s.cityRetryCount or 0) + 1
+                s.nextAoi = s.pending.indices[1]
+                s.pending = nil
+            else
+                M._map015CameraFree.finish(err)
+                return true
+            end
+        else
+            s.cityRetryCount = 0
+        end
+        if s.nextAoi >= 10000 then M._map015CameraFree.finish(nil); return true end
+    end
+    local first, last = s.nextAoi, math.min(9999, s.nextAoi + 159)
+    local rowFirst, rowLast = math.floor(first / 100), math.floor(last / 100)
+    local chunk = { indices = {}, x = 500, y = math.floor((rowFirst + rowLast + 1) * 5),
+        lb = rowFirst * 10000 + 1,
+        rt = 1000 + math.min(999, (rowLast + 1) * 10) * 1000 }
+    local r = CS.WorldGetBlockMessage.Request()
+    r.bigMap, r.x, r.y, r.serverId, r.worldId, r.type, r.lod = 0, chunk.x, chunk.y, s.serverId, 0, 0, 0
+    r.blockSize, r.firstTime, r.leftBottom, r.rightTop, r.battleFieldFirst = 10, false, chunk.lb, chunk.rt, false
+    local arr = CS.System.Array.CreateInstance(typeof(CS.System.Int32), last - first + 1)
+    for index = first, last do
+        local n = s.int32.Parse(tostring(index))
+        chunk.indices[#chunk.indices + 1] = index
+        arr:SetValue(n, index - first)
+        if not s.original[index] and not s.addedSet[index] then
+            local added = select(1, call(s.current, "Add", n))
+            if not added then M._map015CameraFree.finish("cur_view_add_failed"); return true end
+            s.added[#s.added + 1] = index
+            s.addedSet[index] = true
+        end
+    end
+    r.index = arr
+    if not reflected_set_value(s.manager, "isRecvViewPoints", false) then
+        M._map015CameraFree.finish("reply_flag_reset_failed"); return true
+    end
+    local sent, send_error = pcall(function() CS.WorldGetBlockMessage.Instance:Send(r) end)
+    if not sent then M._map015CameraFree.finish("direct_request_failed:" .. tostring(send_error)); return true end
+    s.pending, s.sentAt, s.sent, s.nextAoi = chunk, runtime_clock(), s.sent + 1, last + 1
+    return true
+end
+
 function M._sharedRuntimeOwnership.PumpVerified(now)
     -- Read-only asset rendering is an independent lane. It reuses the same
     -- owned Overview session and must not block map acquisition.
@@ -7139,6 +7393,15 @@ function M._sharedRuntimeOwnership.PumpVerified(now)
     -- progress waiting for a protection reply.
     pump_monster_protection_queue()
     if active_request_id == nil then
+        local direct_ok, direct_handled = pcall(M._map015CameraFree.pump, now)
+        if not direct_ok and M._map015CameraFree.active ~= nil then
+            M._map015CameraFree.finish("camera_free_exception:" .. tostring(direct_handled))
+            direct_handled = true
+        end
+        if direct_handled then
+            write_heartbeat(now)
+            return true
+        end
         if pump_monster_protection_detail(now) then
             write_heartbeat(now)
             return true
@@ -7336,6 +7599,9 @@ function M.Pump()
             local world, point_manager = runtime_world()
             if bulk_aoi_request ~= nil then fail_bulk_aoi(bulk_aoi_request, reason, {}, point_manager) end
             if active_request_id ~= nil then fail_request(now, reason, world, point_manager) end
+        end
+        if M._map015CameraFree.active ~= nil then
+            M._map015CameraFree.finish(reason)
         end
         return false
     end

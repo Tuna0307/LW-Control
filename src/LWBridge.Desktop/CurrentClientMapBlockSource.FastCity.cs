@@ -63,12 +63,18 @@ internal sealed partial class CurrentClientMapBlockSource
             RequireSameSession(session);
         }
 
-        if (!string.Equals(fastCitySettledSessionId, session.SessionId, StringComparison.Ordinal))
-        {
-            await DelayAsync(FastCityStartupSettleDelay, cancellationToken).ConfigureAwait(false);
-            RequireSameSession(session);
-            fastCitySettledSessionId = session.SessionId;
-        }
+        // Direct LOD0 AOI requests do not move the camera and have no native
+        // startup settle dependency. Retain the existing per-session 3-second
+        // settle before every camera-based first acquisition, including when
+        // a direct-first attempt has to fall back to the camera scanner.
+        bool directFirst = pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0 &&
+            !request.SelectedTypes.Contains("truck", StringComparer.Ordinal) &&
+            hooks?.ForceLegacyFullWorldLens != true &&
+            hooks?.ExperimentalBoundedCameraLens != true &&
+            !(IsZombieBossOnly(request) && hooks?.UseCoarseZombieBossMap == true &&
+              hooks?.DisableCoarseMonsterMap != true);
+        if (!directFirst)
+            await EnsureFastCityStartupSettledAsync(session, cancellationToken).ConfigureAwait(false);
 
         if (pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0)
         {
@@ -90,6 +96,32 @@ internal sealed partial class CurrentClientMapBlockSource
                     return await CaptureFullMonsterMapViaCoarseLodAsync(
                         session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
                 }
+                // The same-server AOI request route is the normal full-world source for
+                // selections without Trucks. A correlated failure or zero accepted
+                // records falls back to the proven camera route for this same run.
+                if (directFirst)
+                {
+                    try
+                    {
+                        return await CaptureCameraFreeMapAsync(
+                            session, request, pendingBlockIndices, progress, cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+                    catch (Exception error) when (error is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException ||
+                        error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
+                    {
+                        Console.Error.WriteLine(
+                            $"CAMERA_FREE_FALLBACK server={request.ServerId} run={request.RunId} reason={error.Message}");
+                        // Neither a failed native AOI request nor its staged data
+                        // may contaminate the camera scan's resume/coverage state.
+                        fastFullWorldResumeState = null;
+                        LastResourceCompletenessReport = null;
+                        LastMonsterProtectionDetailMetrics = null;
+                        RequireSameSession(session);
+                    }
+                }
+                if (directFirst)
+                    await EnsureFastCityStartupSettledAsync(session, cancellationToken).ConfigureAwait(false);
                 return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
                     .ConfigureAwait(false);
             }
@@ -174,6 +206,15 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!captures.Any(capture => capture.BlockIndex == seedBlock.BlockIndex))
             throw new InvalidDataException("Fast City batch did not contain the requested seed block.");
         return captures;
+    }
+
+    private async Task EnsureFastCityStartupSettledAsync(
+        OverviewMapScanSession session, CancellationToken cancellationToken)
+    {
+        if (string.Equals(fastCitySettledSessionId, session.SessionId, StringComparison.Ordinal)) return;
+        await DelayAsync(FastCityStartupSettleDelay, cancellationToken).ConfigureAwait(false);
+        RequireSameSession(session);
+        fastCitySettledSessionId = session.SessionId;
     }
 
     private async Task<IReadOnlyList<MapScanBlockCapture>> CaptureFullTrainListMapAsync(
@@ -341,13 +382,6 @@ internal sealed partial class CurrentClientMapBlockSource
             LastResourceCompletenessReport = null;
         fastFullWorldResumeState = state;
         HashSet<int> covered = state.Covered;
-        Dictionary<string, FirstLivePreparedResource> cityRecords = state.CityRecords;
-        Dictionary<string, FirstLivePreparedResource> resourceRecords = state.ResourceRecords;
-        Dictionary<string, FastDispatchPrepared> dispatchRecords = state.DispatchRecords;
-        Dictionary<string, FastGhostPrepared> ghostRecords = state.GhostRecords;
-        Dictionary<string, FastTreasurePrepared> treasureRecords = state.TreasureRecords;
-        Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
-        Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
         bool boundedLens = ShouldUseBoundedFullWorldCameraLens(request, hooks);
         bool nativeEightRowWindowObserved = false;
@@ -491,59 +525,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
 
                 int before = covered.Count;
-                foreach (int index in observation.RequestedIndices)
-                    covered.Add(index);
-                {
-                    string shape = observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount).Distinct().Count() +
-                        "x" + observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
-                    state.FootprintHistogram[shape] = state.FootprintHistogram.GetValueOrDefault(shape) + 1;
-                    state.NewlyCoveredAois += covered.Count - before;
-                }
-                foreach (FirstLivePreparedResource prepared in observation.Prepared)
-                {
-                    MergeLatestCityByOwner(cityRecords, prepared);
-                }
-                foreach (FirstLivePreparedResource prepared in observation.Resources)
-                {
-                    bool duplicateRecordKey = resourceRecords.TryGetValue(
-                        prepared.Record.RecordKey, out FirstLivePreparedResource? prior);
-                    state.ResourceCompleteness.RecordAcceptedMerge(prepared, prior);
-                    if (!duplicateRecordKey ||
-                        prepared.Record.UpdatedAt >= prior!.Record.UpdatedAt)
-                        resourceRecords[prepared.Record.RecordKey] = prepared;
-                }
-                if (observation.ResourceCompleteness is { } completeness)
-                    state.ResourceCompleteness.AddBatch(completeness);
-                foreach (FastDispatchPrepared prepared in observation.Dispatches)
-                {
-                    if (!dispatchRecords.TryGetValue(prepared.Record.RecordKey, out FastDispatchPrepared? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        dispatchRecords[prepared.Record.RecordKey] = prepared;
-                }
-                foreach (FastGhostPrepared prepared in observation.Ghosts)
-                {
-                    if (!ghostRecords.TryGetValue(prepared.Record.RecordKey, out FastGhostPrepared? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        ghostRecords[prepared.Record.RecordKey] = prepared;
-                }
-                foreach (FastTreasurePrepared prepared in observation.Treasures)
-                {
-                    if (!treasureRecords.TryGetValue(prepared.Record.RecordKey, out FastTreasurePrepared? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        treasureRecords[prepared.Record.RecordKey] = prepared;
-                }
-                foreach (FastMonsterPrepared prepared in observation.Monsters)
-                {
-                    if (!monsterRecords.TryGetValue(prepared.Record.RecordKey, out FastMonsterPrepared? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        monsterRecords[prepared.Record.RecordKey] = prepared;
-                }
-                foreach (FastTrainPrepared prepared in observation.Trains)
-                {
-                    if (!trainRecords.TryGetValue(prepared.Record.RecordKey, out FastTrainPrepared? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        trainRecords[prepared.Record.RecordKey] = prepared;
-                }
+                MergeFullWorldObservation(state, observation);
 
                 int afterGap = boundedLens ? Enumerable.Range(0, 10000).FirstOrDefault(index => !covered.Contains(index), -1) : FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (covered.Count == before)
@@ -563,6 +545,29 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException($"Fast full-world acquisition covered {covered.Count}/10000 AOIs.");
         state.AcquisitionMilliseconds = (Now() - state.MetricsStartedAt).TotalMilliseconds;
         WriteFastFullWorldMetrics(state, "covered");
+
+        return await CompleteFullWorldMapAsync(session, request, logicalBlocks, state, progress, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    // Both acquisition sources share every downstream detail request, record
+    // enrichment, resource completeness check and 2,500-block projection.
+    private async Task<IReadOnlyList<MapScanBlockCapture>> CompleteFullWorldMapAsync(
+        OverviewMapScanSession session,
+        MapScanExecutionRequest request,
+        IReadOnlyList<MapScanTargetBlock> logicalBlocks,
+        FastFullWorldResumeState state,
+        Action<MapScanSourceProgress>? progress,
+        CancellationToken cancellationToken)
+    {
+        HashSet<int> covered = state.Covered;
+        Dictionary<string, FirstLivePreparedResource> cityRecords = state.CityRecords;
+        Dictionary<string, FirstLivePreparedResource> resourceRecords = state.ResourceRecords;
+        Dictionary<string, FastDispatchPrepared> dispatchRecords = state.DispatchRecords;
+        Dictionary<string, FastGhostPrepared> ghostRecords = state.GhostRecords;
+        Dictionary<string, FastTreasurePrepared> treasureRecords = state.TreasureRecords;
+        Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
+        Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
 
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
         // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
@@ -748,6 +753,7 @@ internal sealed partial class CurrentClientMapBlockSource
         state.OldestCapturedAgeMilliseconds = Math.Max(0, Now().ToUnixTimeMilliseconds() - state.OldestCapturedAgeMilliseconds);
         WriteFastFullWorldMetrics(state, "prepared");
         fastFullWorldResumeState = null;
+        progress?.Invoke(new MapScanSourceProgress(100));
         return captures;
     }
 
@@ -2978,6 +2984,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal string SelectedTypesKey { get; }
         internal string ScanMode { get; }
         internal int RequestedConcurrency { get; }
+        internal bool CameraFreeAcquisition { get; set; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
@@ -3025,17 +3032,22 @@ internal sealed partial class CurrentClientMapBlockSource
         // A diagnostic ForceLegacy baseline still needs its own exact-run
         // coverage metrics; otherwise sequential benchmark rounds could
         // inadvertently reuse an earlier candidate's private metric file.
-        if (hooks is not null && !hooks.ExperimentalBoundedCameraLens && !hooks.ForceLegacyFullWorldLens) return;
+        if (!state.CameraFreeAcquisition && hooks is not null &&
+            !hooks.ExperimentalBoundedCameraLens && !hooks.ForceLegacyFullWorldLens) return;
         // This is an attributable application->Lua AOI probe counter, NOT a
         // raw game-network request counter. Concurrent game traffic cannot be
         // separated from reflection-level global Net send/receive counters.
         var compact = new
         {
             schemaVersion = 1,
-            source = "CurrentClientMapBlockSource.ProbeFastCityBatchAsync",
+            source = state.CameraFreeAcquisition
+                ? "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync"
+                : "CurrentClientMapBlockSource.ProbeFastCityBatchAsync",
             identity = new { state.RunId, state.ServerId, state.WorldId, state.SelectedTypesKey, state.ScanMode },
             phase,
-            acquisitionPolicy = state.ScanMode == "fast" ? "measured_wide_aoi_step" : "conservative_aoi_step",
+            acquisitionPolicy = state.CameraFreeAcquisition
+                ? "direct"
+                : state.ScanMode == "fast" ? "measured_wide_aoi_step" : "conservative_aoi_step",
             requestedConcurrency = state.RequestedConcurrency,
             actualPeakConcurrentCameraProbes = state.PeakCameraProbes,
             elapsedMilliseconds = (DateTimeOffset.UtcNow - state.MetricsStartedAt).TotalMilliseconds,

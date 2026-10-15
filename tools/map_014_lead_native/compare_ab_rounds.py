@@ -18,7 +18,8 @@ for entry in bench:
     keys = {}
     for kind, key in db.execute("select kind, record_key from map_records"):
         keys.setdefault(kind, set()).add(key)
-    rounds[entry["round"]] = dict(config=f"{entry.get('lensZoom')}:{entry.get('lensFov')}",
+    rounds[entry["round"]] = dict(config=entry.get("effectiveMethod",entry.get("method")) if entry.get("method") not in (None,"legacy-lens")
+                                  else f"{entry.get('lensZoom')}:{entry.get('lensFov')}",
                                   seconds=round(entry["seconds"], 1), keys=keys)
 
 print("round config seconds counts")
