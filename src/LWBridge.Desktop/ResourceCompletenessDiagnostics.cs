@@ -229,7 +229,9 @@ internal sealed record ResourceCompletenessReport(
         Check(invalidDuplicates.Length > 0, "invalidDuplicate[" + string.Join(" | ", invalidDuplicates) + "]");
         Check(TileWidth <= 0 || TileHeight <= 0 || NativeAoiBlockSize != 10 || NativeAoiBlockCount != (TileWidth + 9L) / 10, "geometry");
         int invalidRows = AcceptedRows.Count(row => !ValidSourceRow(row));
-        Check(invalidRows > 0, "invalidSourceRows=" + invalidRows);
+        Check(invalidRows > 0, "invalidSourceRows=" + invalidRows + "[" + string.Join(" | ",
+            AcceptedRows.Select(row => (row, problem: SourceRowProblem(row))).Where(item => item.problem is not null)
+            .Take(3).Select(item => $"{item.row.RecordKey}@{item.row.X},{item.row.Y}:{item.problem}")) + "]");
         Check(AcceptedRows.Select(row => row.RecordKey).Distinct(StringComparer.Ordinal).Count() != AcceptedRows.Count, "duplicateRecordKeys");
         Check(AcceptedRows.Select(row => row.PointIndex).Distinct().Count() != AcceptedRows.Count, "duplicatePointIndices");
         Check(ResourcesByNativeAoiIndex.Keys.Any(key => !int.TryParse(key, NumberStyles.None,
@@ -281,59 +283,59 @@ internal sealed record ResourceCompletenessReport(
             current.CapturedAtUnixMilliseconds >= previous.CapturedAtUnixMilliseconds;
     }
 
-    private bool ValidSourceRow(ResourceCompletenessAcceptedRow row)
+    private bool ValidSourceRow(ResourceCompletenessAcceptedRow row) => SourceRowProblem(row) is null;
+
+    // Names the first rule a staged Resource row breaks (null = valid). Same rules as before, one at a time.
+    private string? SourceRowProblem(ResourceCompletenessAcceptedRow row)
     {
-        if (row.ServerId != ServerId || row.SourceServerId != ServerId || row.WorldId != WorldId ||
-            row.PointIndex is not int point || point < 1 || row.UpdatedAt <= 0 ||
-            row.X < 0 || row.X >= TileWidth || row.Y < 0 || row.Y >= TileHeight ||
-            row.RecordKey != point.ToString(CultureInfo.InvariantCulture) ||
-            point != (long)row.Y * TileWidth + row.X + 1 ||
-            row.NativeAoiIndex != (row.Y / 10) * NativeAoiBlockCount + (row.X / 10) ||
-            row.LogicalBlockIndex != (row.Y / MapScanGeometry.RecoveredBlockSpan) *
+        if (row.ServerId != ServerId || row.SourceServerId != ServerId || row.WorldId != WorldId) return "serverWorld";
+        if (row.PointIndex is not int point || point < 1 || row.UpdatedAt <= 0) return "pointOrUpdatedAt";
+        if (row.X < 0 || row.X >= TileWidth || row.Y < 0 || row.Y >= TileHeight) return "bounds";
+        if (row.RecordKey != point.ToString(CultureInfo.InvariantCulture)) return "recordKey";
+        if (point != (long)row.Y * TileWidth + row.X + 1) return "pointIndexFormula";
+        if (row.NativeAoiIndex != (row.Y / 10) * NativeAoiBlockCount + (row.X / 10)) return "nativeAoiIndex";
+        if (row.LogicalBlockIndex != (row.Y / MapScanGeometry.RecoveredBlockSpan) *
                 ((TileWidth + MapScanGeometry.RecoveredBlockSpan - 1) / MapScanGeometry.RecoveredBlockSpan) +
-                row.X / MapScanGeometry.RecoveredBlockSpan ||
-            row.ResourceDetailState is not ("unknown" or "empty" or "partial" or "full") ||
-            (row.ResourceRemainingAmount.HasValue != row.ResourceFullAmount.HasValue) ||
-            (row.ResourceRemainingAmount is long remaining && row.ResourceFullAmount is long full &&
-                (full <= 0 || remaining < 0 || remaining > full ||
-                 row.ResourceDetailState != (remaining == 0 ? "empty" : remaining == full ? "full" : "partial"))))
-            return false;
+                row.X / MapScanGeometry.RecoveredBlockSpan) return "logicalBlockIndex";
+        if (row.ResourceDetailState is not ("unknown" or "empty" or "partial" or "full")) return "detailState=" + row.ResourceDetailState;
+        if (row.ResourceRemainingAmount.HasValue != row.ResourceFullAmount.HasValue) return "amountPairing";
+        if (row.ResourceRemainingAmount is long remaining && row.ResourceFullAmount is long full &&
+            (full <= 0 || remaining < 0 || remaining > full ||
+             row.ResourceDetailState != (remaining == 0 ? "empty" : remaining == full ? "full" : "partial")))
+            return $"amountState remaining={remaining} full={full} state={row.ResourceDetailState}";
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(row.DataJson);
             JsonElement raw = document.RootElement;
-            if (raw.ValueKind != JsonValueKind.Object ||
-                !SameInt(raw, "x", row.X) || !SameInt(raw, "y", row.Y) ||
-                !SameInt(raw, "srcServerId", ServerId) || !SameInt(raw, "worldId", WorldId) ||
-                !SameOptionalInt(raw, "serverId", ServerId) ||
-                !SameOptionalInt(raw, "pointId", point) ||
-                !SameOptionalInt(raw, "pointIndex", point) ||
-                !SameOptionalString(raw, "recordKey", row.RecordKey) ||
-                !SameOptionalInt(raw, "updatedAt", row.UpdatedAt) ||
-                !SameOptionalString(raw, "kind", "resource") ||
-                !SameOptionalString(raw, "sourceKind", "resource_point") ||
-                !SameOptionalString(raw, "source",
-                    "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange") ||
-                !SameOptionalString(raw, "resourceSourceType", "ResPointInfo") ||
-                !SameOptionalInt(raw, "pointType", row.RawPointType) ||
-                !SameOptionalBoolean(raw, "rebuildGatherOccupied", row.GatherOccupied) ||
-                !SameOptionalBoolean(raw, "isBlackTile", row.IsBlackTile) ||
-                !SameOptionalInt(raw, "resourceRemainingAmount", row.ResourceRemainingAmount) ||
-                !SameOptionalInt(raw, "resourceFullAmount", row.ResourceFullAmount))
-                return false;
+            if (raw.ValueKind != JsonValueKind.Object) return "rawNotObject";
+            if (!SameInt(raw, "x", row.X) || !SameInt(raw, "y", row.Y)) return "rawPosition";
+            if (!SameInt(raw, "srcServerId", ServerId) || !SameInt(raw, "worldId", WorldId) ||
+                !SameOptionalInt(raw, "serverId", ServerId)) return "rawServerWorld";
+            if (!SameOptionalInt(raw, "pointId", point) || !SameOptionalInt(raw, "pointIndex", point)) return "rawPointIndex";
+            if (!SameOptionalString(raw, "recordKey", row.RecordKey)) return "rawRecordKey";
+            if (!SameOptionalInt(raw, "updatedAt", row.UpdatedAt)) return "rawUpdatedAt";
+            if (!SameOptionalString(raw, "kind", "resource") || !SameOptionalString(raw, "sourceKind", "resource_point")) return "rawKind";
+            if (!SameOptionalString(raw, "source",
+                    "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange")) return "rawSource";
+            if (!SameOptionalString(raw, "resourceSourceType", "ResPointInfo")) return "rawSourceType";
+            if (!SameOptionalInt(raw, "pointType", row.RawPointType)) return "rawPointType";
+            if (!SameOptionalBoolean(raw, "rebuildGatherOccupied", row.GatherOccupied)) return "rawGatherOccupied";
+            if (!SameOptionalBoolean(raw, "isBlackTile", row.IsBlackTile)) return "rawIsBlackTile";
+            if (!SameOptionalInt(raw, "resourceRemainingAmount", row.ResourceRemainingAmount) ||
+                !SameOptionalInt(raw, "resourceFullAmount", row.ResourceFullAmount)) return "rawAmounts";
 
             if (raw.TryGetProperty("gatherOccupancyKnown", out JsonElement occupancyKnown) &&
                 occupancyKnown.ValueKind == JsonValueKind.True &&
                 !SameOptionalBoolean(raw, "gatherOccupied", row.GatherOccupied))
-                return false;
+                return "rawOccupancyKnownMismatch";
             if (raw.TryGetProperty("resourceDetailKnown", out JsonElement detailKnown) &&
                 detailKnown.ValueKind == JsonValueKind.True &&
                 (!row.ResourceRemainingAmount.HasValue || !row.ResourceFullAmount.HasValue))
-                return false;
-            return true;
+                return "rawDetailKnownWithoutAmounts";
+            return null;
         }
-        catch (JsonException) { return false; }
+        catch (JsonException) { return "rawJson"; }
     }
 
     private static bool SameInt(JsonElement raw, string name, long value) =>
