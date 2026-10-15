@@ -99,7 +99,7 @@ try {
   }
   const context = await browser.newContext({viewport:{width:1080,height:800},reducedMotion:"reduce"});
   await context.addInitScript(() => { localStorage.setItem("lwbridge.language","en"); localStorage.setItem("lwbridge.theme","light"); });
-  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-error","map-data"],["map-auto-running","map-data"],["map-providers-ghost","map-data"],["map-providers-treasure","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
+  for (const [state,route] of [["home-connected","overview"],["automation-save-error","automation"],["map-city","map-data"],["map-resource","map-data"],["map-truck","map-data"],["map-error","map-data"],["map-auto-running","map-data"],["map-providers-ghost","map-data"],["map-providers-treasure","map-data"],["squads-equipment-rename","march"],["city-layout-populated","city-layout"],["hotkeys-save-error","hotkeys"],["mini-games-conflict","mini-games"],["settings-update-error","settings"],["shell-exit-busy","overview"]]) {
     const page=await context.newPage();
     watch(page,state);
     await page.goto(base+"?previewState="+encodeURIComponent(state), {waitUntil:"networkidle"});
@@ -118,7 +118,8 @@ try {
       if (await page.locator(".map-scan-error[role=alert]").count()) throw new Error("Search rejection added an unsupported Map error banner");
     }
     if (state === "map-auto-running") {
-      const stop = page.locator(".map-auto-scan-options button").last();
+      const stop = page.locator(".map-auto-scan-options button").nth(1);
+      if (await page.locator(".map-auto-scan-options button").nth(2).isEnabled()) throw new Error("Auto Clear enabled during a running cycle");
       if (!await stop.isEnabled()) throw new Error("Running Auto must expose an enabled Stop action");
       await capture(page, "conditional-map-auto-running-before-stop");
       await stop.click();
@@ -166,7 +167,8 @@ try {
   await narrowPage.goto(base + "?previewState=map-auto-running", { waitUntil: "networkidle" });
   await wait(narrowPage);
   await narrowPage.locator(".side-nav button").nth(routes.indexOf("map-data")).click();
-  const narrowStop = narrowPage.locator(".map-auto-scan-options button").last();
+  const narrowStop = narrowPage.locator(".map-auto-scan-options button").nth(1);
+  if (await narrowPage.locator(".map-auto-scan-options button").nth(2).isEnabled()) throw new Error("JA narrow Auto Clear enabled during a running cycle");
   if (!await narrowStop.isEnabled()) throw new Error("JA/dark narrow Auto Stop must be enabled while running");
   await capture(narrowPage, "conditional-map-auto-running-ja-dark-narrow-before-stop");
   await narrowStop.click();

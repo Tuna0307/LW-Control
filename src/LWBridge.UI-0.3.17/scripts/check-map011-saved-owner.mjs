@@ -53,7 +53,7 @@ const names = { en: ["Fixture Resource EN", "Fixture Monster EN"], ja: ["Fixture
 const results = [];
 
 let owner = 'A', generation = 1, online = false, scanServer = 0;
-const savedCalls = [], searches = [], optionsReads = [], deferred = [];
+const savedCalls = [], searches = [], optionsReads = [], deferred = [], clearCalls = [];
 const savedValues = new Map([['A', [2212]], ['B', [2213]]]);
 const saveDeferred = new Map(), optionsDeferred = new Map(), searchDeferred = new Map();
 const ownerKey = () => owner + ':' + generation;
@@ -67,13 +67,18 @@ const api = {
     const key = ownerKey();
     optionsReads.push({ key, serverId });
     return optionsDeferred.has(key) ? optionsDeferred.get(key).promise : Promise.resolve({
-      serverId, counts:{city:1}, names:{resource:[],monster:[]}, alliances:[], dispatchLevels:[], treasureTypes:[], rewardItems:{},
+      serverId, counts:{city:serverId===2213?3:1}, names:{resource:[],monster:[]}, alliances:[], dispatchLevels:[], treasureTypes:[], rewardItems:{},
     });
   },
   search: (kind, query) => {
     const key = ownerKey();
     searches.push({key, server:query.serverId});
     return searchDeferred.has(key) ? searchDeferred.get(key).promise : Promise.resolve({rows:[],total:0});
+  },
+  clear: async (serverId, clearSavedServer) => {
+    clearCalls.push({serverId,clearSavedServer});
+    savedValues.set(owner, (savedValues.get(owner) || []).filter((id) => id !== serverId));
+    return {serverId:scanServer,isReading:false,phase:'idle',selectedTypes:['city'],scanMode:'normal'};
   },
   listPlunderJobs: async () => ({dispatchJobs:[],truckJobs:[]}),
 };
@@ -83,7 +88,7 @@ const render = () => flush(() => reactRoot.render(React.createElement(I18nProvid
     online,currentServerId:scanServer,gameTextOwner:ownerKey(), gameTextRoot:'',
     scanState:{serverId:scanServer,isReading:false,phase:'idle',selectedTypes:['city'],scanMode:'normal'},
     summary:{serverId:scanServer,counts:{city:0}},onState(){},
-    onCounts:(serverId)=>deferred.push({owner:ownerKey(),serverId}) }))));
+    onCounts:(serverId,counts)=>deferred.push({owner:ownerKey(),serverId,counts}) }))));
 const selected = () => document.querySelector('[data-map-saved-server]')?.value;
 const selections = () => [...document.querySelectorAll('[data-map-saved-server] option')].map((option) => option.value);
 const switchOwner = async (id) => { owner = id; generation += 1; await render(); };
@@ -166,8 +171,36 @@ await switchOwner('A'); // A:13
 assert.equal(selected(), '2212');
 online=true;scanServer=2212;
 await render();await flush();
-assert.equal(document.querySelector('[data-map-saved-server]'), null,
-  'online authoritative current server removes offline saved selector');
+assert.equal(selected(), '2212',
+  'MAP014 preserves the current owner saved selector while connected');
+savedValues.set('A',[2212,2213]);
+scanServer=2213; await render(); await flush();
+assert.deepEqual(selections(),['2212','2213']);
+const serverSelect=document.querySelector('[data-map-saved-server]');
+await flush(()=>{serverSelect.value='2213';serverSelect.dispatchEvent(new window.Event('change',{bubbles:true}));});
+scanServer=2212; await render(); await flush();
+assert.equal(selected(),'2213','Auto returning home erased the remote dataset selection');
+assert.equal(searches.at(-1)?.server,2213,
+  'Auto returned home but the selected remote server did not reach the real row search');
+assert.ok(optionsReads.some((call)=>call.key==='A:13'&&call.serverId===2213),
+  'Remote saved rows must load their own source-server options');
+const remoteCityCount = () => document.querySelector('.map-tabs button .map-tab-count')?.textContent;
+assert.equal(remoteCityCount(),'3','retained remote dataset must display its own true counts');
+await render();await flush();
+assert.equal(remoteCityCount(),'3','another home-server summary poll must not blank remote server counts');
+const autoTab = document.querySelectorAll('.map-scan-tabs button')[1];
+await flush(()=>autoTab.click());
+const clearButton = document.querySelector('.map-auto-scan-options > button:last-of-type');
+assert.ok(clearButton && !clearButton.disabled, 'Auto Clear must remain usable for the selected remote data');
+await flush(()=>clearButton.click());await flush();
+assert.ok(deferred.some((write)=>write.owner==='A:13'&&write.serverId===2213&&write.counts?.city===0),
+  'Auto Clear must report zero for the cleared remote server, not the current home server');
+assert.deepEqual(clearCalls.at(-1),{serverId:2213,clearSavedServer:true},
+  'Auto must explicitly authorize stored-server Clear at the native bridge boundary');
+assert.equal(selected(),'2212','Auto Clear must switch to the preserved home dataset');
+assert.deepEqual(selections(),['2212'],'Auto Clear must refresh saved-server options after deletion');
+results.push('Auto Clear deletes only selected remote source, refreshes saved selector and preserves home');
+savedValues.set('A',[2212]);
 online=false;scanServer=0;
 await render();await flush();
 assert.equal(selected(), '2212');

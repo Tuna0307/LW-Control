@@ -1,7 +1,68 @@
 # LWB317-MAP-OWNER-FIXES-014
 
-Owner assignment, 2026-10-13. Status: ASSIGNED. One solo worker; new branch
+Latest solo continuation: MAP-014 overall PARTIAL; draft PR #10
+open and unmerged. The newest native City audit directly
+reobserved 80 of 10000 LOD0 AOIs (0.8% audited area) and
+75 current City UIDs with the same saved server-2212
+identities/indexes/positions. The new post-lens native
+consecutive scanner still failed fresh second-region acquisition
+(target AOI 4954 outside nine subscribed old-A AOIs 4244-4446).
+The real event-source diagnostic recovered two ordinary type-21
+Treasure, zero type-27 Supplies and no moving BossVO or identified
+Celebration Party. Current season/source identity availability,
+full current-world City census and faster accuracy-qualified
+scanner remain open. Original 13 owner fixes and natural Truck
+expiry positive remain preserved. No merge/publication.
+
+**Latest same-branch owner-gate status (2026-10-13, draft PR #10):
+OVERALL PARTIAL.** Available Map filters/assets, camera restoration,
+source-server Jump, Auto Clear and sustained moving Truck
+Follow/manual Stop remain genuinely verified. **New genuine
+natural-expiry-positive**: packaged UI/native
+`native-ui-20261013-152235`, 27 same-UUID source Follow requests,
+26 changing positions, 19 camera tiles, nine visible Stop checks
+near deadline, then automatic Stop and no late poll; exact original
+scripts restored. **New source-qualified current City identity:**
+Oct13 mixed-only City at (115,120) missing from an earlier
+time-separated City-only capture was genuinely reacquired at the
+same identity/point index/position in a 13/13 native City region.
+This does *not* quantify global recall. Six accurate LOD0 region
+controls show ~49.46% of measured acquisition+restore time spent
+restoring the home camera, but no faster alternative qualifies
+against correct object freshness/fields. Moving Doom Walker and
+seasonal Scattered Supplies/Celebration Party positive witnesses,
+independent complete City census and faster scanner qualification
+remain unproved. See
+[`MAP_014_COVERAGE_TRACKING_CONTINUATION.md`](../MAP_014_COVERAGE_TRACKING_CONTINUATION.md).
+Older takeovers and negatives below are preserved historical evidence.
+
+**Current 2026-10-13 continuation:** available owner-function scope is
+**READY_FOR_LEAD_FUNCTIONAL_REVIEW** after genuine packaged 2213 Auto scan →
+2212 home → 2213 retained-row native Jump (987,900) → Auto Clear with 2212
+data preserved, plus positive native filters/images/Dispatch names/Truck
+Follow/Stop and genuine camera restoration on completion and Stop. The
+remaining scope is **PARTIAL**: source-backed dormant seasonal events and
+moving BossVO lack current live witnesses; City completeness is not established
+from counts; scanner consecutive/ZoomMax alternatives fail native acquisition
+accuracy and remain disabled. See
+[`MAP_014_SOLO_REVIEW_CANDIDATE.md`](../MAP_014_SOLO_REVIEW_CANDIDATE.md)
+and the new top section of [`MAP_014_LEAD_TAKEOVER.md`](../MAP_014_LEAD_TAKEOVER.md)
+for exact evidence and cleanup. Older paragraphs below are preserved history.
+
+Owner assignment, 2026-10-13. Status: PARTIAL implementation / functional review pending. One solo worker; new branch
 `codex/map-owner-fixes-014` from current main. PR #9 is merged and retired.
+
+Active source changes, the compact 13-obligation matrix, controls tested and
+exact remaining compatibility/native witness dependencies are recorded in
+[`MAP_014_OWNER_HANDOFF.md`](../MAP_014_OWNER_HANDOFF.md). The installed
+original game is v24/18,741 entries and passed the preserved SHA/anchor
+compatibility gate **before the new owned native test**. Genuine same-session
+Ready, read-only native general/World inventory and Chinese World GUI positives
+exist, but **not** a completed native full Map scan or exact camera-return
+proof. The current isolated test session must exit and its recorded backup be
+restored before release/normal owner play. Do not confuse controlled scanner
+tests, an admitted runtime diagnostic, or historical totals with that missing
+functional acceptance.
 Released product source is `6f93c109436ebb80f4f344ad25380151b4f9aba5`;
 pre-assignment main checkpoint is `78e9ea0fab60644075bbb7d9154ce320cc49ed70`.
 Preserve accepted single-game Home, published data and historical negative trials.

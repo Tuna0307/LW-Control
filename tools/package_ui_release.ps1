@@ -344,6 +344,57 @@ This remains an unmerged lead-review candidate. No merge/publication.
     }
     $readme = $readme.Substring(0, $scopeStart) + $scope + "`r`n" + $readme.Substring($scopeEnd)
 }
+if ($ReleaseLabel -eq 'MAP014-OWNER') {
+    $scopeStart = $readme.IndexOf('MANUAL MAP SCAN (MAP-005 review candidate)')
+    $scopeEnd = $readme.IndexOf('Build prerequisites (only for DEVELOPERS', $scopeStart)
+    if ($scopeStart -lt 0 -or $scopeEnd -le $scopeStart) { throw 'MAP-014 scope markers missing.' }
+    $ownerScope = @"
+MAP-014 OWNER FIXES — SCOPED FUNCTIONAL REVIEW CANDIDATE (OVERALL PARTIAL)
+The production Map317 scanner retains the accuracy-guarded shared serial
+camera-assisted LOD0 sweep and exact per-region camera restoration. Normal/Fast
+controls are unchanged. Independent real game City/mixed scan snapshots
+returned to the original camera geometry, as did a separate Stop during
+active acquisition. City record counts (about 4,030 in the latest sample)
+remain measured observations, NOT a proven complete world census.
+
+Map Resource supports level, confirmed full/partial/unknown amount, and
+black/normal/unknown terrain filters without fabricating unknown native facts.
+Truck supports an inclusive maximum escort power in millions and AND matching
+for multiple distinct actual reward item identities. Current client game-owned
+images have rendered in both Truck rows and the reward filter menu. Secret
+Task owners show source-backed matching names (50 of 50 in the positive
+genuine saved-data test), with explicit UID fallback for unknown names.
+Native Truck passive Follow and visible Stop, stable genuine warzone choices,
+and ownership/retirement inverses passed the packaged WebView.
+
+One entire genuine packaged Windows UI Auto Resource cycle started at 2212,
+scanned 2213 (7,996 saved rows), returned to 2212, browsed a stored 2213
+row, issued an exact-owned real server-2213 Jump to tile (987,900), returned
+home, and cleared only the saved 2213 dataset from the Auto Clear control
+while retaining all 7,975 original 2212 Resource rows. The destructive
+Clear command is denied during scan/Auto activity and verifies the current
+live owner and exact published saved server before deletion.
+
+No new faster scanner is accepted: post-camera-correction consecutive
+target/no-intermediate-restoration and ZoomMax candidates failed independently
+qualified second-region replies. Direct AOI and per-kind source lists do not
+establish full-world record completeness. Accuracy takes priority over speed;
+no universal fastest-method or population completeness claim is made.
+Seasonal Scattered Supplies (source WorldSuppliesPoint, suppliesType=1),
+Celebration Party and moving Doom Walker require an actually spawned
+source-correlated live row before claiming positive end-to-end behavior.
+No plunder, marches, claims, sharing, spending or other account-changing
+operations were performed.
+
+Raw native evidence and actual game assets stay private in the controlled
+workspace, not in this package. The detailed 13-issue and scanner-method
+assessment is docs/MAP_014_SOLO_REVIEW_CANDIDATE.md in source. Prior
+negative trials remain preserved, not reinterpreted as successes.
+This is an unmerged, unpublished candidate for independent lead review.
+
+"@
+    $readme = $readme.Substring(0, $scopeStart) + $ownerScope + "`r`n" + $readme.Substring($scopeEnd)
+}
 if ($ReleaseLabel -eq 'MAP-SCANNER-TEST') {
     $readme = @"
 LW-Control — current verified scanner test build

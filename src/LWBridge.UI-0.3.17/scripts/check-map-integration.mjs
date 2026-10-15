@@ -6,6 +6,7 @@ import { applyAutoScanConfigEdit, applyAutoScanConfigIntent, normalizeAutoScanCo
 import { getMapPreviewProvider } from "../src/mapPreviewApi.js";
 import {
   MAP_COMMANDS,
+  MAP_DEFAULT_SCAN_TYPES,
   MAP_KIND_KEYS,
   MAP_PAGE_SIZE,
   MAP_SCAN_TYPES,
@@ -24,11 +25,29 @@ import {
   updateSelectedTypes,
 } from "../src/mapBackend.js";
 import { mapScanPresentation, scanDuration } from "../src/mapScanPresentation.js";
+import { selectionMembershipKey, selectionStorageKey, toggleSelection, selectionKeySet, removeSharedSelection } from "../src/mapInteractions.js";
+import { mapOwnerLabel } from "../src/mapTablePresentation.js";
+
+// Dispatch and Truck UUIDs are native identity strings. A padded string must
+// select and deselect the same checkbox key, even after a fresh row arrives.
+const paddedSelectionRow = { serverId: 2212, uuid: " 12345678901234567890 " };
+const refreshedSelectionRow = { serverId: 2212, uuid: "12345678901234567890" };
+assert.equal(selectionStorageKey(paddedSelectionRow), selectionMembershipKey(refreshedSelectionRow));
+const selectedPaddedRow = toggleSelection({}, paddedSelectionRow);
+assert.equal(selectionKeySet(selectedPaddedRow).has(selectionMembershipKey(refreshedSelectionRow)), true);
+assert.equal(Object.values(selectedPaddedRow)[0].uuid, refreshedSelectionRow.uuid,
+  "native task actions must receive the canonical full-precision UUID string");
+assert.deepEqual(removeSharedSelection(selectedPaddedRow, [" 12345678901234567890 "]), {},
+  "a native shared-UUID acknowledgement must retire its corresponding row");
+assert.deepEqual(toggleSelection(selectedPaddedRow, refreshedSelectionRow), {},
+  "a refreshed native UUID must deselect the previously selected row");
+assert.notEqual(selectionStorageKey({ ...paddedSelectionRow, serverId: 2213 }),
+  selectionStorageKey(paddedSelectionRow), "different servers must retain distinct selections");
 
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ key }) => key),
-  ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"],
-  "scan type mapping must remain the recovered eight-kind contract",
+  ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"],
+  "scan type mapping must include the source-qualified Other event kind",
 );
 
 const mapPageSource = fs.readFileSync(new URL("../src/MapDataPage.jsx", import.meta.url), "utf8");
@@ -89,7 +108,7 @@ assert.match(autoServiceSource, /ScanTimeoutMilliseconds = 2_700_000/,
   "native Auto Scan scheduler must preserve the recovered 45-minute scan timeout");
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ label }) => label),
-  ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure"],
+  ["Player City", "Resource Point", "Monster", "Truck", "Train", "Secret Task", "Ghost Ops", "Treasure", "Other", "Zombie Boss"],
   "scan labels must remain source-faithful",
 );
 
@@ -97,6 +116,14 @@ assert.deepEqual(buildStartPayload(["resource", "resource", "bogus"], "fast"), {
   selectedTypes: ["resource"],
   scanMode: "fast",
 });
+assert.deepEqual(buildStartPayload([], "normal").selectedTypes, [],
+  "Explicitly unchecked manual scan must not silently expand into eight native kinds");
+assert.deepEqual(buildStartPayload(undefined, "normal").selectedTypes, MAP_DEFAULT_SCAN_TYPES,
+  "Unspecified legacy scan selection still uses the recovered default");
+assert.equal(mapOwnerLabel({ ownerName: "Verified Owner", ownerUid: "99234567890123456789" }), "Verified Owner");
+assert.equal(mapOwnerLabel({ ownerUid: "99234567890123456789" }), "UID 99234567890123456789",
+  "Unresolved full-precision native owner UID must be labeled as identity, not displayed as a player name");
+assert.equal(mapOwnerLabel({}), "-");
 assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), [], "Manual editing must allow removing the last scan type");
 assert.deepEqual(updateSelectedTypes(["city"], "resource", true), ["city", "resource"]);
 assert.deepEqual(buildDispatchShareRows([{
@@ -160,7 +187,8 @@ assert.equal(normalizedScan.isReading, true);
 assert.equal(normalizedScan.readBlocks, 12);
 assert.equal(normalizedScan.completedBlocks, 12);
 assert.equal(normalizedScan.concurrency, 20);
-assert.deepEqual(normalizeScanState({}).selectedTypes, MAP_KIND_KEYS);
+assert.deepEqual(normalizeScanState({}).selectedTypes, MAP_DEFAULT_SCAN_TYPES,
+  "new Other event kind is available to opt in without changing the eight-kind default");
 const acquired = normalizeScanState({
   serverId: 317, isReading: true, progressPercent: 0,
   acquisitionProgressPercent: 45, startedAt: 1_760_000_000,

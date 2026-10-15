@@ -6,7 +6,7 @@ import { initialShellUpdateStatus, initialShellProfiles, previewShellFlagStores,
 import { ProfileSidebar } from "./ProfileSidebar.jsx";
 import { AppExitDialog, AppExitPrompt } from "./AppExitDialog.jsx";
 import { ProfileSwitchState } from "./ProfileSwitchState.jsx";
-import { GameAssetImageProvider } from "./GameAssetImage.jsx";
+import { GameAssetImageProvider, createProfileGameAssetReader } from "./GameAssetImage.jsx";
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
@@ -43,7 +43,6 @@ const nativeMapTextLoader = backendBridge.available
   : null;
 // Existing read-only local image contract; no new native producer is introduced.
 // Browser previews never invoke it or lend their synthetic images to this reader.
-const nativeAssetReader = backendBridge.available ? (request) => backendBridge.invoke("game_asset_image", request) : null;
 
 export function normalizeProfileSnapshot(snapshot, fallback = { selectedProfileId: "", profiles: [], maxProfiles: 1 }) {
   const profiles = Array.isArray(snapshot?.profiles) ? snapshot.profiles : fallback.profiles || [];
@@ -182,6 +181,10 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
   const [autoClosePopupIncoming, setAutoClosePopupIncoming] = useState(false);
   const [proxyStatus, setProxyStatus] = useState(null);
   const [gameRootStatus, setGameRootStatus] = useState(null);
+  // Images are native profile commands. Reader identity also separates caches
+  // across profiles and installations, so an old queued image cannot use B.
+  const imageGameRoot = selectedNativeGameTextRoot(gameRootStatus);
+  const nativeAssetReader = useMemo(() => createProfileGameAssetReader(backendBridge), [selectedProfileId, imageGameRoot]);
   const [gameRecoveryStatus, setGameRecoveryStatus] = useState(null);
   const [autoLaunchGame, setAutoLaunchGame] = useState(initialAutoLaunchGame);
   const [homeBusy, setHomeBusy] = useState("");

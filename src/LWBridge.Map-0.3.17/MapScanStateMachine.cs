@@ -31,6 +31,18 @@ public interface IMapScanLocalSink
 }
 
 /// <summary>
+/// Opt-in for a profile-local SQLite sink that can commit a run cancellation
+/// synchronously. Map317 Stop can then arbitrate cancel-vs-publish against the
+/// exact same stateGate used by owned native publication, without holding a
+/// C# monitor across a potentially asynchronous native/provider operation.
+/// Other/legacy sinks keep the original async cancellation behavior.
+/// </summary>
+public interface IMapScanImmediateCancelSink : IMapScanLocalSink
+{
+    void CancelScanImmediately(string scanRunId, CancellationToken cancellationToken);
+}
+
+/// <summary>
 /// Current 0.3.17 host-visible Map scan control/state contract. Deliberately does
 /// not implement traversal geometry, retries, provider transport, or record capture.
 /// </summary>
@@ -91,7 +103,7 @@ public sealed class MapScanStateMachine
             ScanRunId: string.Empty,
             IsReading: false,
             Phase: "idle",
-            SelectedTypes: MapKinds.All.ToArray(),
+            SelectedTypes: MapKinds.DefaultSelection.ToArray(),
             TotalBlocks: 0,
             CompletedBlocks: 0,
             ReadBlocks: 0,
@@ -201,6 +213,15 @@ public sealed class MapScanStateMachine
             if (result.TotalBlocks <= 0 ||
                 (context.ExpectedTotalBlocks is int expected && expected != result.TotalBlocks))
             {
+                // The provider may already have reserved the exact run's
+                // source/transport admission. This response is NOT an accepted
+                // Map317 scan, so no state/SQLite run will be created and the
+                // normal Map317 Stop path will not execute. Retire that pending
+                // provider owner before another manual/Auto Start can try to
+                // acquire it. No native result, camera reply or block success
+                // is inferred from this best-effort rejected-start cleanup.
+                try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
+                catch { /* Keep the authoritative block-count rejection. */ }
                 throw new BridgeCommandException(RejectedCode, BlockCountMismatchMessage);
             }
 
@@ -228,7 +249,51 @@ public sealed class MapScanStateMachine
                 Error: null,
                 StartedAt: nowUnixSeconds());
 
-            return SetState(started);
+            try
+            {
+                return SetState(started);
+            }
+            catch
+            {
+                // StateChanged subscribers are UI/observer notifications, not
+                // an accepted SQLite run. A subscriber exception after
+                // SetState wrote the new owner would otherwise escape before
+                // MapControlPlane could insert its scan_runs row or return
+                // this exact RunId to the command's cleanup handler. No
+                // native engine was activated yet. Restore ONLY this newly
+                // announced run and retire its pending provider reservation.
+                bool restored = false;
+                lock (stateGate)
+                {
+                    if (state.IsReading &&
+                        string.Equals(state.ScanRunId, scanRunId, StringComparison.Ordinal))
+                    {
+                        state = before;
+                        restored = true;
+                    }
+                }
+                // Multicast StateChanged may already have informed earlier
+                // listeners of the phantom accepted run before a later
+                // listener threw. A silent rollback would leave UI/Auto
+                // observers displaying B while Map317 and SQLite never
+                // accepted B. Compensate to every observer independently:
+                // one broken subscriber must not block others from seeing
+                // the actual restored owner. This does not claim successful
+                // provider cleanup or hide the original Start exception.
+                if (restored)
+                {
+                    var reverted = new MapScanStateChangedEventArgs(before);
+                    foreach (Delegate observer in
+                        StateChanged?.GetInvocationList() ?? Array.Empty<Delegate>())
+                    {
+                        try { ((EventHandler<MapScanStateChangedEventArgs>)observer)(this, reverted); }
+                        catch { /* Preserve the original failed Start, notify remaining observers. */ }
+                    }
+                }
+                try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
+                catch { /* Preserve the original notification failure. */ }
+                throw;
+            }
         }
         finally
         {
@@ -357,6 +422,131 @@ public sealed class MapScanStateMachine
         return failed;
     }
 
+    /// <summary>
+    /// Execute a native/provider SQLite mutation while the exact active run
+    /// cannot be replaced by a concurrent Start/Stop/state transition. Checking
+    /// State outside this lock and then writing the *current* scan leaves a
+    /// genuine check-to-use gap when a retired native packet arrives late.
+    /// This is a managed ownership boundary, not native reply authentication.
+    /// </summary>
+    internal void WithOwnedRunningScan(string expectedRunId, Action<MapScanState> mutate)
+    {
+        ArgumentNullException.ThrowIfNull(mutate);
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            mutate(state);
+        }
+    }
+
+    internal MapScanState ReportOwnedProgress(
+        string expectedRunId, MapScanProgressUpdate update, Action<MapScanState> persist)
+    {
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState next;
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            // The legacy status API intentionally normalizes some malformed
+            // counters. Exact-run native/provider callbacks must instead be
+            // evidence of advancing logical block completion. Clamping an
+            // overreported total to 2,500 can manufacture apparently complete
+            // progress; a delayed callback can otherwise roll a later SQLite
+            // checkpoint backwards. Reject both while the accepted owner and
+            // its durable progress are locked together.
+            if (update.CompletedBlocks < state.CompletedBlocks ||
+                update.FailedBlocks < state.FailedBlocks ||
+                update.CompletedBlocks > state.TotalBlocks ||
+                update.FailedBlocks > state.TotalBlocks ||
+                update.InflightBlocks < 0 ||
+                update.InflightBlocks > state.Concurrency)
+                throw new BridgeCommandException("INVALID_SCAN_PROGRESS",
+                    "native scan progress is stale or exceeds its accepted block bounds");
+            next = PreviewProgress(update);
+            // Persist the same immutable snapshot we publish to readers.
+            // A failed SQLite update must not advance in-memory counters.
+            persist(next);
+            state = next;
+        }
+        RaiseStateChanged(next);
+        return next;
+    }
+
+    internal MapScanState CompleteOwnedScan(string expectedRunId, Action<MapScanState> persist)
+    {
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState completed;
+        lock (stateGate)
+        {
+            RequireOwnedRunningScan(state, expectedRunId);
+            // SQLite replacement is atomic at the store level; hold the
+            // state ownership boundary through that commit so Stop/Start
+            // cannot replace the run between validation and publication.
+            persist(state);
+            state = state with
+            {
+                IsReading = false,
+                Phase = "completed",
+                CompletedBlocks = state.TotalBlocks,
+                ReadBlocks = state.TotalBlocks,
+                FailedBlocks = 0,
+                UnreadBlocks = 0,
+                InflightBlocks = 0,
+                ProgressPercent = state.TotalBlocks > 0 ? 100.0 : 0.0,
+                ResumeAvailable = false,
+                Error = null,
+                AcquisitionProgressPercent = 100,
+            };
+            completed = state;
+        }
+        RaiseStateChanged(completed);
+        return completed;
+    }
+
+    internal MapScanState FailOwnedScan(string expectedRunId, string error,
+        Action<MapScanState> persist)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(error);
+        ArgumentNullException.ThrowIfNull(persist);
+        MapScanState failed;
+        lock (stateGate)
+        {
+            // Fail from a retired engine must not fail a newer independent
+            // manual or Auto run, including one on the same server.
+            if (!IsOwnedRunningScan(state, expectedRunId)) return state;
+            persist(state);
+            state = state with
+            {
+                IsReading = false,
+                Phase = "failed",
+                InflightBlocks = 0,
+                ResumeAvailable = false,
+                Error = error,
+                AcquisitionProgressPercent = null,
+            };
+            failed = state;
+        }
+        RaiseStateChanged(failed);
+        return failed;
+    }
+
+    private static bool IsOwnedRunningScan(MapScanState current, string expectedRunId) =>
+        current.IsReading && !string.IsNullOrWhiteSpace(expectedRunId) &&
+        // A server-change observer may have atomically failed this exact
+        // SQLite run while its native provider Stop is still unwinding. Keep
+        // IsReading=true until that cleanup settles so other navigation cannot
+        // take the lease, but NEVER admit another stage/progress/publication
+        // into an already terminal durable run.
+        !string.Equals(current.Phase, "stopping", StringComparison.Ordinal) &&
+        string.Equals(current.ScanRunId, expectedRunId, StringComparison.Ordinal);
+
+    private static void RequireOwnedRunningScan(MapScanState current, string expectedRunId)
+    {
+        if (!IsOwnedRunningScan(current, expectedRunId))
+            throw new BridgeCommandException("INVALID_SCAN",
+                "retired or foreign map scan cannot mutate the active scan owner");
+    }
+
     public async ValueTask<MapScanState> FailAndStopAsync(
         string error, string expectedScanRunId, int expectedServerId,
         MapStore store, Func<long> nowMilliseconds, CancellationToken cancellationToken = default)
@@ -364,14 +554,26 @@ public sealed class MapScanStateMachine
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            MapScanState before = State;
-            // Check the captured owner *under* the same operation gate as Start/Stop.
-            // An old status request must never fail, stop or publish into its successor.
-            if (!before.IsReading || string.IsNullOrEmpty(expectedScanRunId) ||
-                !string.Equals(before.ScanRunId, expectedScanRunId, StringComparison.Ordinal) ||
-                before.ServerId != expectedServerId)
-                return before;
-            store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+            MapScanState before;
+            // An in-flight Map317 publication does not take operationGate.
+            // Check the expected run and commit its SQLite failure under
+            // stateGate, which the exact-run publisher also holds. A status
+            // observer may never fail a different or already published run.
+            lock (stateGate)
+            {
+                before = state;
+                if (!IsOwnedRunningScan(before, expectedScanRunId) ||
+                    before.ServerId != expectedServerId)
+                    return before;
+                store.FailScan(before.ScanRunId, error, nowMilliseconds(), preserveRecords: false);
+                state = state with
+                {
+                    Phase = "stopping",
+                    Error = error,
+                    InflightBlocks = 0,
+                    AcquisitionProgressPercent = null,
+                };
+            }
             try { await provider.StopMapScanAsync(CancellationToken.None).ConfigureAwait(false); }
             catch { /* best effort, like the original stopMapScan after the local boundary */ }
             MapScanState failed;
@@ -397,17 +599,65 @@ public sealed class MapScanStateMachine
         }
     }
 
-    public async ValueTask<MapScanState> StopAsync(CancellationToken cancellationToken = default)
+    public ValueTask<MapScanState> StopAsync(CancellationToken cancellationToken = default) =>
+        StopCoreAsync(null, cancellationToken);
+
+    internal ValueTask<MapScanState> StopOwnedAsync(
+        string expectedScanRunId, CancellationToken cancellationToken = default) =>
+        StopCoreAsync(expectedScanRunId, cancellationToken);
+
+    private async ValueTask<MapScanState> StopCoreAsync(
+        string? expectedScanRunId, CancellationToken cancellationToken)
     {
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             MapScanState before = State;
+            if (expectedScanRunId is not null &&
+                (!IsOwnedRunningScan(before, expectedScanRunId)))
+                return before;
             if (before.IsReading && !string.IsNullOrEmpty(before.ScanRunId))
             {
                 // Local cancellation is authoritative. If it fails, preserve the active
                 // state and fail closed rather than claiming the scan was stopped.
-                await localSink.CancelScanAsync(before.ScanRunId, cancellationToken).ConfigureAwait(false);
+                // The actual Map317 SQLite sink can commit synchronously under
+                // stateGate. This closes a cancel-vs-owned-publish race where
+                // Stop read "running", publication committed, then a late
+                // cancellation no-op caused Stop to label a published run idle.
+                if (localSink is IMapScanImmediateCancelSink immediate)
+                {
+                    lock (stateGate)
+                    {
+                        before = state;
+                        if (before.IsReading && !string.IsNullOrEmpty(before.ScanRunId))
+                        {
+                            immediate.CancelScanImmediately(before.ScanRunId, cancellationToken);
+                            // SQLite cancellation and managed source retirement
+                            // must share the exact native publication gate. A
+                            // late callback cannot remain admissible while the
+                            // provider's asynchronous final Stop/cleanup awaits
+                            // its own terminal native outcome. IsReading stays
+                            // true until provider stop settles, preserving the
+                            // lease and preventing a new manual/Auto jump.
+                            state = state with
+                            {
+                                Phase = "stopping",
+                                InflightBlocks = 0,
+                                AcquisitionProgressPercent = null,
+                            };
+                        }
+                    }
+                    if (!before.IsReading)
+                    {
+                        // A complete/fail owner won the exact-run state+SQLite
+                        // gate before Stop could commit cancellation. Preserve
+                        // that truthful terminal result, not an idle/Stopped
+                        // label for a scan that already published.
+                        return before;
+                    }
+                }
+                else
+                    await localSink.CancelScanAsync(before.ScanRunId, cancellationToken).ConfigureAwait(false);
             }
 
             // 0.3.17 reaches stopMapScan only when the provider is usable. Provider stop
@@ -620,7 +870,7 @@ public sealed class MapScanStateMachine
     private static string[] NormalizeTypes(IReadOnlyList<string>? requested)
     {
         if (requested is null)
-            return MapKinds.All.ToArray();
+            return MapKinds.DefaultSelection.ToArray();
 
         var selected = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);

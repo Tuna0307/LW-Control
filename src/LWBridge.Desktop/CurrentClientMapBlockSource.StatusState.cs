@@ -13,7 +13,8 @@ internal sealed record CurrentClientMapStatusContext(
     int TileWidth,
     int TileHeight,
     int? TileX,
-    int? TileY);
+    int? TileY,
+    bool TruckMatchesKnown = true);
 
 internal sealed partial class CurrentClientMapBlockSource
 {
@@ -98,6 +99,8 @@ internal sealed partial class CurrentClientMapBlockSource
         int homeServerId = ReadPositiveOrZero(root, "homeServerId");
         int[] seasonServerIds = ReadServerIdArray(root, "seasonServerIds");
         int[] truckMatchServerIds = ReadServerIdArray(root, "truckMatchServerIds");
+        bool truckMatchesKnown = !root.TryGetProperty("truckMatchServerIdsKnown", out JsonElement matchesKnownValue) ||
+                                 matchesKnownValue.ValueKind == JsonValueKind.True;
         long worldId = 0;
         if (root.TryGetProperty("worldId", out JsonElement worldValue) &&
             worldValue.TryGetInt64(out long parsedWorld) && parsedWorld >= 0)
@@ -121,7 +124,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
         return new CurrentClientMapStatusContext(
             isInWorld, serverId, homeServerId, seasonServerIds, truckMatchServerIds,
-            worldId, tileWidth, tileHeight, tileX, tileY);
+            worldId, tileWidth, tileHeight, tileX, tileY, truckMatchesKnown);
     }
 
     private static int ReadPositiveOrZero(JsonElement root, string name)

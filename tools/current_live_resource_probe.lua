@@ -95,6 +95,9 @@ local bulk_aoi_native_original_fov = nil
 local bulk_aoi_native_unity_camera = nil
 local bulk_aoi_native_original_aspect = nil
 local bulk_aoi_native_original_zoom = nil
+-- The v24 Lua chunk had 199 active top-level locals before MAP-014. Keep
+-- camera restore state on the existing module table, not five new locals:
+-- xLua/Lua 5.3 rejects a chunk above 200 and reports the whole module missing.
 local bulk_aoi_native_hold_seconds = nil
 local bulk_aoi_native_position_restored = false
 local bulk_aoi_restore_current_view = false
@@ -671,6 +674,7 @@ local function write_heartbeat(now)
         probeVersion = M.VERSION,
         updatedAt = now,
         phase = phase,
+        registrationMethod = registration_method,
         requestId = active_request_id,
         launchSessionId = active_launch_session_id,
         profileId = active_profile_id,
@@ -1911,7 +1915,8 @@ local function read_runtime_diagnostic(now)
         request.error = "runtime_diagnostic_invalid"
         return request
     end
-    if request.mode ~= "general" and request.mode ~= "resource_inventory" then
+    if request.mode ~= "general" and request.mode ~= "resource_inventory" and
+       request.mode ~= "camera_checkpoint" then
         request.error = "runtime_diagnostic_mode_invalid"
         return request
     end
@@ -1958,6 +1963,7 @@ local function write_runtime_diagnostic_result(request, state, error_text, detai
         state = state,
         error = error_text,
         resourceInventory = details.resourceInventory,
+        cameraSnapshot = details.cameraSnapshot,
         globalGameEntry = details.globalGameEntry,
         csGameEntry = details.csGameEntry,
         luaEntry = details.luaEntry,
@@ -2024,6 +2030,32 @@ local function pump_runtime_diagnostic(now)
     if request == nil then return false end
     if request.error ~= nil then
         write_runtime_diagnostic_result(request, "failed", request.error, nil)
+        return true
+    end
+    if request.mode == "camera_checkpoint" then
+        -- Independent, strictly read-only scene/camera baseline. This is
+        -- intentionally separate from the bulk-AOI producer's own restore
+        -- receipt: a second observation can catch an optimistic restore flag.
+        local world, _, world_error = runtime_world()
+        if world == nil then
+            write_runtime_diagnostic_result(request, "failed", world_error or "world_unavailable", nil)
+            return true
+        end
+        local manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+        local unity_camera = manager and (safe_get(manager, "__camera") or reflected_value(manager, "camera")) or nil
+        local observed = M._map014CameraGeometryCheckpoint(manager, unity_camera)
+        if observed == nil or observed.fov == nil or observed.aspect == nil or observed.zoom == nil or
+           observed.position == nil or observed.rotation == nil or observed.projection == nil then
+            write_runtime_diagnostic_result(request, "failed", "camera_geometry_readonly_unavailable", nil)
+            return true
+        end
+        write_runtime_diagnostic_result(request, "proven", nil, {
+            cameraSnapshot = {
+                source = "WorldScene.Camera_UnityCamera_readonly",
+                serverId = current_server_id(),
+                geometry = observed,
+            },
+        })
         return true
     end
     if request.mode == "resource_inventory" then
@@ -2455,6 +2487,10 @@ local function read_bulk_aoi_diagnostic(now)
     -- this and retain the source-verified 4.0 value. Never infer extra native
     -- coverage merely from the requested aspect: _curViewIndex remains truth.
     request.coverageAspect = tonumber(values.coverageAspect or "4")
+    request.coverageFov = tonumber(values.coverageFov or "120")
+    -- Optional canonical lens height: the native AOI window scales with the camera height, so a
+    -- player-zoomed view must not change coverage. Restored exactly with the full camera geometry.
+    request.coverageZoom = values.coverageZoom ~= nil and tonumber(values.coverageZoom) or nil
     request.targetTileX = tonumber(values.targetTileX)
     request.targetTileY = tonumber(values.targetTileY)
     request.requestedCount = tonumber(values.requestedCount or "8")
@@ -2481,6 +2517,8 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeResourceDetails = include_resource_details_raw == "true"
     local defer_restore_until_response_raw = tostring(values.deferRestoreUntilResponse or "false")
     request.deferRestoreUntilResponse = defer_restore_until_response_raw == "true"
+    local observe_march_freshness_raw = tostring(values.observeMarchFreshness or "false")
+    request.observeMarchFreshness = observe_march_freshness_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
        not valid_token(request.challenge) or request.gamePid == nil or request.gamePid <= 0 or
        request.gamePid ~= math.floor(request.gamePid) or
@@ -2488,8 +2526,11 @@ local function read_bulk_aoi_diagnostic(now)
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
        (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
+       (request.coverageFov ~= 20 and request.coverageFov ~= 120) or
        (request.coverageAspect ~= 4 and request.coverageAspect ~= 6) or
        (request.coverageAspect ~= 4 and request.requestMode ~= "coverage") or
+       (values.coverageZoom ~= nil and (request.coverageZoom == nil or request.coverageZoom < 60 or
+           request.coverageZoom > 130 or request.requestMode ~= "coverage")) or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
@@ -2513,6 +2554,9 @@ local function read_bulk_aoi_diagnostic(now)
        (include_treasure_raw ~= "true" and include_treasure_raw ~= "false") or
        (include_resource_details_raw ~= "true" and include_resource_details_raw ~= "false") or
        (defer_restore_until_response_raw ~= "true" and defer_restore_until_response_raw ~= "false") or
+       (observe_march_freshness_raw ~= "true" and observe_march_freshness_raw ~= "false") or
+       (request.observeMarchFreshness == true and (request.includeTrain ~= true or
+           request.requestMode ~= "coverage" or request.deferRestoreUntilResponse ~= true)) or
        (request.deferRestoreUntilResponse == true and not (
           request.includeCity or request.includeResource or request.includeMonster or
           request.includeTrain or request.includeDispatch or request.includeGhost or request.includeTreasure)) then
@@ -2568,6 +2612,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "point_count_invalid" end
     local matched, cities, resources, dispatches, ghosts, treasures = 0, 0, 0, 0, 0, 0
+    local type_histogram = {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
@@ -2581,6 +2626,8 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
         if selected_lookup[aoi_index] == true then
             matched = matched + 1
             local point_type = integer_field(info, { "pointType", "PointType" })
+            local key = point_type == nil and "unknown" or tostring(point_type)
+            type_histogram[key] = (type_histogram[key] or 0) + 1
             if point_type == 6 then cities = cities + 1 end
             if point_type == 1 or point_type == 7 or point_type == 26 then resources = resources + 1 end
             if point_type == 17 then dispatches = dispatches + 1 end
@@ -2590,7 +2637,7 @@ local function point_aoi_counts(world, point_manager, block_size, block_count, s
         return true
     end)
     if scanned ~= expected then return nil, "point_enumeration_mismatch" end
-    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, treasures = treasures, loadedPointCount = expected }, nil
+    return { total = matched, cities = cities, resources = resources, dispatches = dispatches, ghosts = ghosts, treasures = treasures, loadedPointCount = expected, typeHistogram = type_histogram }, nil
 end
 
 local function city_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -2606,24 +2653,57 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
     local expected = collection_count(collection)
     if expected == nil or expected < 0 or expected > MAX_POINTS then return nil, "main_base_list_count_invalid" end
     local records = {}
+    local accounting = { sourceCount = expected, inRequestedAoi = 0, accepted = 0,
+                         missingPointIndex = 0, invalidPosition = 0, missingServer = 0,
+                         missingOwnerUid = 0, missingOwnerName = 0,
+                         duplicateRetainedPointIndices = 0,
+                         nativeCurrentCityCount = 0, missingNativeCurrentPointIndices = 0,
+                         supersededNativeCityCount = 0, nativeOwnerConflicts = 0,
+                         nativeCanonicalLookupFailures = 0 }
+    local retained_ids, retained_owners = {}, {}
     local scanned = each(collection, MAX_POINTS + 1, function(raw)
         local info = safe_get(raw, "Value") or raw
         if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
         local id = integer_field(info, { "pointIndex", "PointIndex" })
-        if id == nil or id <= 0 then return true end
+        if id == nil or id <= 0 then
+            accounting.missingPointIndex = accounting.missingPointIndex + 1
+            return true
+        end
         local tile = index_to_tile(world, id)
-        if tile == nil then return true end
+        if tile == nil then
+            accounting.invalidPosition = accounting.invalidPosition + 1
+            return true
+        end
         local cell_x = math.floor(tile.x / block_size)
         local cell_y = math.floor(tile.y / block_size)
-        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then return true end
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count then
+            accounting.invalidPosition = accounting.invalidPosition + 1
+            return true
+        end
         local aoi_index = cell_y * block_count + cell_x
         if selected_lookup[aoi_index] ~= true then return true end
+        accounting.inRequestedAoi = accounting.inRequestedAoi + 1
         local server_id = integer_field(info, { "serverId", "ServerId" }) or current_server_id()
-        if server_id == nil or server_id <= 0 then return true end
+        if server_id == nil or server_id <= 0 then
+            accounting.missingServer = accounting.missingServer + 1
+            return true
+        end
         local owner_uid = scalar_field(info, { "ownerUid", "OwnerUid" })
         local owner_name = scalar_field(info, { "playerName", "PlayerName" })
-        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" or
-           owner_name == nil or tostring(owner_name) == "" then return true end
+        if owner_uid == nil or tostring(owner_uid) == "" or tostring(owner_uid) == "0" then
+            accounting.missingOwnerUid = accounting.missingOwnerUid + 1
+            return true
+        end
+        if owner_name == nil or tostring(owner_name) == "" then
+            accounting.missingOwnerName = accounting.missingOwnerName + 1
+            return true
+        end
+        if retained_ids[id] == true then
+            accounting.duplicateRetainedPointIndices = accounting.duplicateRetainedPointIndices + 1
+            return true
+        end
+        retained_ids[id] = true
+        retained_owners[id] = tostring(owner_uid)
         local uuid = scalar_field(info, { "uuid", "Uuid" })
         local alliance_id = scalar_field(info, { "allianceId", "AllianceId" })
         local alliance_name = scalar_field(info, { "alAbbr", "AlAbbr" })
@@ -2650,10 +2730,82 @@ local function city_aoi_records(world, point_manager, block_size, block_count, s
             protectEndTime = scalar_field(info, { "protectEndTime", "ProtectEndTime" }),
             source = "WorldPointManager.GetAllMainBaseList",
         }
+        accounting.accepted = accounting.accepted + 1
         return true
     end)
     if scanned ~= expected then return nil, "main_base_list_enumeration_mismatch" end
-    return records, nil
+    -- Independent native producer cross-check, not a population quota:
+    -- _pointInfos contains current view reply identities, while
+    -- GetAllMainBaseList can retain more already-loaded bases. Count-only
+    -- comparison can silently pass if one native reply identity is missing
+    -- and one unrelated retained row takes its place. Verify the exact
+    -- per-point-index subset in the same measured AOI footprint.
+    local current_collection = reflected_value(point_manager, "_pointInfos")
+    local current_count = current_collection and collection_count(current_collection) or nil
+    if current_count == nil or current_count < 0 or current_count > MAX_POINTS then
+        return nil, "city_native_point_infos_unavailable", accounting
+    end
+    local inspected = each(current_collection, MAX_POINTS + 1, function(raw)
+        local info = safe_get(raw, "Value") or raw
+        if integer_field(info, { "pointType", "PointType" }) ~= 6 then return true end
+        local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex" })
+        if id == nil or id <= 0 then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+            return true
+        end
+        local tile = index_to_tile(world, id)
+        if tile == nil then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+            return true
+        end
+        local cell_x, cell_y = math.floor(tile.x / block_size), math.floor(tile.y / block_size)
+        if cell_x < 0 or cell_y < 0 or cell_x >= block_count or cell_y >= block_count or
+           selected_lookup[cell_y * block_count + cell_x] ~= true then return true end
+        local native_owner = scalar_field(info,{"ownerUid","OwnerUid"})
+        local owner = native_owner ~= nil and tostring(native_owner) ~= "" and tostring(native_owner) ~= "0"
+            and tostring(native_owner) or retained_owners[id]
+        local ok_canonical, canonical = false, nil
+        if owner ~= nil then ok_canonical, canonical = call(point_manager,"GetBaseMainInfoByOwnerUid",owner) end
+        local canonical_id = canonical and integer_field(canonical,{"pointIndex","PointIndex"}) or nil
+        local canonical_owner = canonical and scalar_field(canonical,{"ownerUid","OwnerUid"}) or nil
+        if ok_canonical and canonical_id ~= nil and canonical_id > 0 and
+           canonical_owner ~= nil and tostring(canonical_owner) == owner and
+           integer_field(canonical,{"pointType","PointType"}) == 6 and
+           integer_field(canonical,{"serverId","ServerId"}) == current_server_id() then
+            if canonical_id ~= id then
+                -- _pointInfos may still carry the prior location for the same
+                -- player. The game's own owner->main-base resolver identifies
+                -- the current primary point; never resurrect that old location.
+                accounting.supersededNativeCityCount = accounting.supersededNativeCityCount + 1
+                accounting.supersededNativePoints = accounting.supersededNativePoints or {}
+                accounting.supersededNativePoints[#accounting.supersededNativePoints+1] =
+                    {pointIndex=id,canonicalPointIndex=canonical_id,x=tile.x,y=tile.y,
+                     canonicalServerId=current_server_id()}
+                return true
+            end
+        else
+            accounting.nativeCanonicalLookupFailures = accounting.nativeCanonicalLookupFailures + 1
+        end
+        accounting.nativeCurrentCityCount = accounting.nativeCurrentCityCount + 1
+        if owner ~= nil and retained_ids[id] == true and retained_owners[id] ~= owner then
+            accounting.nativeOwnerConflicts = accounting.nativeOwnerConflicts + 1
+        end
+        if retained_ids[id] ~= true then
+            accounting.missingNativeCurrentPointIndices = accounting.missingNativeCurrentPointIndices + 1
+        end
+        return true
+    end)
+    if inspected ~= current_count then return nil, "city_native_point_infos_enumeration_mismatch", accounting end
+    if accounting.missingPointIndex > 0 or accounting.invalidPosition > 0 or
+       accounting.missingServer > 0 or accounting.missingOwnerUid > 0 or
+       accounting.missingOwnerName > 0 or accounting.duplicateRetainedPointIndices > 0 or
+       accounting.missingNativeCurrentPointIndices > 0 or accounting.nativeOwnerConflicts > 0 or
+       accounting.nativeCanonicalLookupFailures > 0 or
+       accounting.nativeCurrentCityCount > accounting.accepted or
+       accounting.accepted ~= accounting.inRequestedAoi then
+        return nil, "city_native_candidate_identity_incomplete", accounting
+    end
+    return records, nil, accounting
 end
 
 local function resource_source_metadata(tile, server_id, resource_source)
@@ -2673,25 +2825,16 @@ local function resource_source_metadata(tile, server_id, resource_source)
         end
     end
 
+    -- SceneUtils.IsInBlackRange(pointIndex, serverId) is the per-tile test behind the game's own
+    -- "gather in the Contaminated Land" warning. (Player:IsInBlackRange(pos) ignores its argument and
+    -- only reports the scanning account's own city, so it cannot describe a Resource tile.)
     local black_known, black_tile = false, nil
-    local lua_entry = rawget(_G, "LuaEntry")
-    local player = lua_entry and safe_get(lua_entry, "Player") or nil
     local scene_utils = rawget(_G, "SceneUtils")
-    local tile_to_world = scene_utils and safe_get(scene_utils, "TileToWorld") or nil
-    local force_change_scene = rawget(_G, "ForceChangeScene")
-    local force_world = force_change_scene and safe_get(force_change_scene, "World") or nil
-    local cs = rawget(_G, "CS")
-    local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-    if player ~= nil and type(tile_to_world) == "function" and force_world ~= nil and vector2_type ~= nil and
-       tile ~= nil and tonumber(tile.x) ~= nil and tonumber(tile.y) ~= nil and tonumber(server_id) ~= nil then
-        local ok_world, world_pos = pcall(tile_to_world, vector2_type(math.floor(tile.x), math.floor(tile.y)), force_world, math.floor(server_id))
-        if ok_world and world_pos ~= nil then
-            local ok_black, observed_black = call(player, "IsInBlackRange", world_pos)
-            if ok_black and type(observed_black) == "boolean" then
-                black_known = true
-                black_tile = observed_black
-            end
-        end
+    local in_black_range = scene_utils and safe_get(scene_utils, "IsInBlackRange") or nil
+    if type(in_black_range) == "function" and tile ~= nil and tonumber(tile.x) ~= nil and tonumber(tile.y) ~= nil and
+       tonumber(server_id) ~= nil then
+        local ok_black, observed_black = pcall(in_black_range, math.floor(tile.x) + math.floor(tile.y) * 1000 + 1, math.floor(server_id))
+        if ok_black and type(observed_black) == "boolean" then black_known, black_tile = true, observed_black end
     end
     return config_id, name_key, reserve, black_known, black_tile
 end
@@ -2808,7 +2951,7 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             resourceSourceType = reflected_type_name(resource_source),
             gatherOccupancyKnown = gather_occupancy_known, gatherOccupied = gather_occupied,
             blackTileKnown = black_tile_known, isBlackTile = is_black_tile,
-            source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+            source = "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange",
         }
         diagnostic.acceptedResourceCount = diagnostic.acceptedResourceCount + 1
         completeness_increment(diagnostic.acceptedAoiCounts, aoi_index)
@@ -2888,6 +3031,8 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
             y = tile.y,
             uuid = tostring(uuid),
             ownerUid = owner_uid ~= nil and tostring(owner_uid) or nil,
+            ownerName = scalar_field(info, { "ownerName", "OwnerName", "playerName", "PlayerName" }),
+            allianceName = scalar_field(info, { "allianceName", "AllianceName", "alAbbr", "AlAbbr" }),
             cfgId = cfg_id,
             level = math.floor(level),
             quality = math.floor(quality),
@@ -2911,6 +3056,40 @@ local function dispatch_aoi_records(world, point_manager, block_size, block_coun
     return records, nil
 end
 
+-- Ghost rewards use the game's own template path (ActGhostreconTaskTemplate.InitData):
+-- RewardManager:ParseRewardsStr(base_reward_show), entries "itemId;type;count" joined by "|".
+-- Any unresolved or dropped entry makes the whole list unknown (nil), never partial.
+local function ghost_reward_list(raw)
+    raw = tostring(raw or "")
+    local rm = safe_get(rawget(_G, "DataCenter"), "RewardManager")
+    local ok, parsed = call(rm, "ParseRewardsStr", raw)
+    local expected = 0
+    for _ in string.gmatch(raw, "[^|]+") do expected = expected + 1 end
+    if not ok or type(parsed) ~= "table" or expected == 0 or #parsed ~= expected then return nil end
+    local by_key, list = {}, {}
+    for _, r in ipairs(parsed) do
+        local t, id, n = tonumber(safe_get(r, "rewardType")), tonumber(safe_get(r, "itemId")), tonumber(safe_get(r, "count"))
+        if not (t and id and n and n > 0) then return nil end
+        local name, icon = safe_get(r, "itemName"), safe_get(r, "iconName")
+        if name == nil or tostring(name) == "" then
+            local ok_name, resolved = call(rm, "GetNameByType", t, id)
+            name = ok_name and resolved or nil
+        end
+        t, id = math.floor(t), math.floor(id)
+        local key = string.format("reward:%d:%d", t, id)
+        local entry = by_key[key]
+        if entry == nil then
+            entry = { key = key, name = (name ~= nil and tostring(name) ~= "") and tostring(name) or key,
+                iconPath = (icon ~= nil and tostring(icon) ~= "") and tostring(icon) or nil,
+                count = 0, rewardType = t, itemId = id }
+            by_key[key] = entry
+            list[#list + 1] = entry
+        end
+        entry.count = entry.count + n
+    end
+    return list
+end
+
 local function ghost_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
     local collection = reflected_value(point_manager, "_pointInfos")
     if collection == nil then return nil, "WorldPointManager._pointInfos unavailable" end
@@ -2921,6 +3100,7 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
     local ok_controller, controller = call(controller_type, "instance")
     local table_name = rawget(_G, "TableName")
     local ghost_table = table_name and safe_get(table_name, "LwGhostreconTask") or nil
+    local reward_cache = {}
     if not ok_controller or controller == nil or ghost_table == nil then
         return nil, "ghost_config_manager_unavailable"
     end
@@ -2970,6 +3150,8 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
 
         local steal_list = safe_get(ghost_source, "stealList") or safe_get(ghost_source, "StealList")
         local member_list = safe_get(ghost_source, "memberList") or safe_get(ghost_source, "MemberList")
+        local reward_config = scalar_field(cfg, { "base_reward_show", "reward", "Reward" })
+        if reward_cache[cfg_id] == nil then reward_cache[cfg_id] = ghost_reward_list(reward_config) or false end
         records[#records + 1] = {
             id = id,
             pointId = id,
@@ -2996,7 +3178,8 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
             size = integer_field(ghost_source, { "size", "Size" }),
             stealListCount = collection_count(steal_list),
             memberListCount = collection_count(member_list),
-            rewardConfig = scalar_field(cfg, { "base_reward_show", "reward", "Reward" }),
+            rewardConfig = reward_config,
+            rewards = reward_cache[cfg_id] or nil,
             worldOpen = scalar_field(cfg, { "world_open", "worldOpen", "WorldOpen" }),
             protectTime = scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }),
             stealMaxTimes = scalar_field(cfg, { "steal_maxtimes", "stealMaxtimes", "StealMaxtimes" }),
@@ -3060,6 +3243,15 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 record_error = "treasure_type_invalid"
                 return false
             end
+            -- Match UIWorldActRadarTreasurePointCtrl.GetTreasureData: eventId
+            -- resolves this Treasure's actual event template when available.
+            -- No source evidence currently maps the owner's "Celebration Party"
+            -- world object to a point class or event ID; do not infer it here.
+            -- Missing event metadata remains unknown, never a fabricated name.
+            local event_id = scalar_field(info, { "eventId", "EventId" })
+            local event_manager = rawget(_G, "DataCenter") and safe_get(DataCenter, "DetectEventTemplateManager") or nil
+            local ok_template, event_template = call(event_manager, "GetDetectEventTemplate", event_id)
+            local treasure_name_key = ok_template and event_template and scalar_field(event_template, { "name" }) or nil
             local reward_users = safe_get(info, "rewardUserList") or safe_get(info, "RewardUserList")
             local digging_users = safe_get(info, "diggingUserList") or safe_get(info, "DiggingUserList")
             local rewarded_count = collection_count(reward_users)
@@ -3085,6 +3277,7 @@ local function treasure_aoi_records(world, point_manager, block_size, block_coun
                 ownerUid = tostring(scalar_field(info, { "ownerUid", "OwnerUid" }) or ""),
                 ownerName = scalar_field(info, { "ownerName", "OwnerName" }),
                 eventId = scalar_field(info, { "eventId", "EventId" }),
+                treasureNameKey = treasure_name_key and tostring(treasure_name_key) or nil,
                 treasureType = math.floor(treasure_type), suppliesType = 0,
                 startTime = scalar_field(info, { "startTime", "StartTime" }),
                 completionTime = scalar_field(info, { "completionTime", "CompletionTime" }),
@@ -3344,7 +3537,10 @@ local function normalize_train_current_goods(march, train, train_data_json, expl
                 end
             end
 
-            if name ~= nil and icon_path ~= nil then
+            -- Item identity/count come from native RewardData. An unresolved
+            -- sprite must not drop an otherwise genuine reward from search,
+            -- filters or quantities. The UI will show an honest placeholder.
+            if name ~= nil then
                 -- Internal rebuild identity only. Last War supplies rewardType/itemId;
                 -- the original LWBridge currentGoods key producer remains unrecovered.
                 local key = "reward:" .. tostring(reward_type) .. ":" .. tostring(item_id)
@@ -3370,6 +3566,64 @@ local function normalize_train_current_goods(march, train, train_data_json, expl
     local result = {}
     for _, key in ipairs(order) do result[#result + 1] = by_key[key] end
     return result, max_loot_count
+end
+
+-- Private read-only observation of the exact installed v24 march-manager
+-- fields. A missing StepProcessQueue.Count is explicitly unknown, not empty.
+function M._map014MarchSourceSnapshot(world)
+    local manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
+    if manager == nil then return { available = false, reason = "MarchDataManager_unavailable" } end
+    local function field(name)
+        local value = reflected_value(manager, name)
+        if value == nil then value = safe_get(manager, name) end
+        return value
+    end
+    local function rect(value)
+        if value == nil then return nil end
+        return {
+            xMin = tonumber(safe_get(value, "xMin") or safe_get(value, "XMin")),
+            yMin = tonumber(safe_get(value, "yMin") or safe_get(value, "YMin")),
+            xMax = tonumber(safe_get(value, "xMax") or safe_get(value, "XMax")),
+            yMax = tonumber(safe_get(value, "yMax") or safe_get(value, "YMax")),
+        }
+    end
+    local queue, merged = field("_messages"), field("_messagesMergeDict")
+    local ok_all, all = call(manager, "GetAllMarchesByCS")
+    if not ok_all or all == nil then all = field("allMarches") end
+    local march_uuids, capped = {}, false
+    if all ~= nil then
+        local ok_enum, iterator = call(all, "GetEnumerator")
+        if ok_enum and iterator ~= nil then
+            for _ = 1, 2048 do
+                local ok_move, moved = call(iterator, "MoveNext")
+                if not ok_move then break end
+                if moved ~= true then break end
+                local pair = safe_get(iterator, "Current")
+                local march = pair and (safe_get(pair, "Value") or pair) or nil
+                local uuid = march and scalar_field(march, { "uuid", "Uuid", "_uuid" }) or nil
+                if uuid ~= nil then march_uuids[#march_uuids + 1] = tostring(uuid) end
+                if #march_uuids >= 2048 then capped = true; break end
+            end
+        end
+    end
+    table.sort(march_uuids)
+    local get_time, handle_time = field("_lastGetBlockMsgTime"), field("_lastHandleBlockMsgTime")
+    return {
+        available = true, observedAtRuntimeSeconds = runtime_clock(),
+        viewBounds = rect(field("viewBounds")), viewRect = rect(field("viewRect")),
+        cameraViewRect = rect(field("cameraViewRect")),
+        lastCameraViewRange = field("lastCameraViewRange") and tostring(field("lastCameraViewRange")) or nil,
+        pendingQueuePresent = queue ~= nil,
+        pendingQueueCount = queue and tonumber(safe_get(queue, "Count") or reflected_value(queue, "Count")) or nil,
+        mergedQueuePresent = merged ~= nil,
+        mergedQueueCount = merged and collection_count(merged) or nil,
+        lastGetBlockMessageTime = get_time and tostring(get_time) or nil,
+        lastHandleBlockMessageTime = handle_time and tostring(handle_time) or nil,
+        lastGetBlockMessageTicks = get_time and tonumber(safe_get(get_time, "Ticks")) or nil,
+        lastHandleBlockMessageTicks = handle_time and tonumber(safe_get(handle_time, "Ticks")) or nil,
+        marchDictionaryCount = all and collection_count(all) or nil,
+        marchUuids = march_uuids, marchUuidSampleCapped = capped,
+    }
 end
 
 local function train_march_aoi_records(world, block_size, block_count, selected_lookup)
@@ -3671,10 +3925,10 @@ local function monster_invasion_protection_targets(world, block_size, block_coun
         local pair = safe_get(enumerator, "Current")
         local march = pair and (safe_get(pair, "Value") or pair) or nil
         if march ~= nil then
-            local ok_boss, boss_flag = call(march, "IsBoss")
             local monster_id = integer_field(march, { "monsterId", "MonsterId" })
             local template = nil
-            if ok_boss and boss_flag == true and monster_id ~= nil and monster_id > 0 then
+            -- Identity is the exact template special (as in monster_march_aoi_records); IsBoss() is not required.
+            if monster_id ~= nil and monster_id > 0 then
                 local ok_template, value = call(template_manager, "TryGetMonsterTemplate", monster_id)
                 if ok_template then template = value end
             end
@@ -4598,6 +4852,9 @@ local function doomsday_boss_records(world, block_size, block_count, selected_lo
                             uuid = uuid,
                             kind = "monster",
                             runtimeClass = "LWDoomsdayManager.BossVO",
+                            -- UIDoomsdayBossItem passes this exact boss.uid to
+                            -- MoveToWorldMarchAndOpen; its callback uses GetMarch(uid).
+                            marchUuid = uuid,
                             serverId = current_server_id(),
                             worldId = 0,
                             x = tile.x, y = tile.y, positionIndex = position_index,
@@ -4733,6 +4990,11 @@ local function monster_march_aoi_records(world, block_size, block_count, selecte
                             picture = template and scalar_field(template, { "pic", "Pic" }) or nil,
                             hp = ok_hp and hp or nil, maxHp = ok_max_hp and max_hp or nil,
                             refreshTime = scalar_field(march, { "refreshTime", "RefreshTime" }),
+                            -- Zombie Boss only: template power and game-reported discoverer (unknown stays nil).
+                            recommendPower = protection_eligible and template and scalar_field(template, { "recommend_power" }) or nil,
+                            belongUid = protection_eligible and scalar_field(march, { "belongUid", "BelongUid" }) or nil,
+                            ownerName = protection_eligible and scalar_field(march, { "ownerName", "OwnerName" }) or nil,
+                            allianceAbbr = protection_eligible and scalar_field(march, { "allianceAbbr", "AllianceAbbr" }) or nil,
                             createTime = scalar_field(march, { "createTime", "CreateTime" }),
                             expireTime = scalar_field(march, { "expireTime", "ExpireTime" }),
                             actStartTime = scalar_field(march, { "actStartTime", "ActStartTime" }),
@@ -4941,8 +5203,96 @@ local function bulk_selected_lookup(indices)
     return lookup
 end
 
+function M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
+    if camera_manager == nil or unity_camera == nil then return nil end
+    local transform = safe_get(unity_camera, "transform")
+    local position = transform and safe_get(transform, "position") or nil
+    local rotation = transform and safe_get(transform, "rotation") or nil
+    local matrix = safe_get(unity_camera, "projectionMatrix")
+    local anchors = safe_get(camera_manager, "cameraAnchor") or reflected_value(camera_manager, "cameraAnchor")
+    local function vector(value, keys)
+        if value == nil then return nil end
+        local result = {}
+        for _, key in ipairs(keys) do
+            result[key] = tonumber(safe_get(value, key))
+            if result[key] == nil then return nil end
+        end
+        return result
+    end
+    local anchors_copy = {}
+    if anchors ~= nil then
+        for index = 0, 3 do
+            anchors_copy[#anchors_copy + 1] = vector(safe_get(anchors, index), { "x", "y", "z" })
+        end
+    end
+    return {
+        fov = tonumber(safe_get(unity_camera, "fieldOfView")),
+        aspect = tonumber(safe_get(unity_camera, "aspect")),
+        zoom = tonumber(safe_get(camera_manager, "Zoom")),
+        orthographic = safe_get(unity_camera, "orthographic") == true,
+        orthographicSize = tonumber(safe_get(unity_camera, "orthographicSize")),
+        nearClipPlane = tonumber(safe_get(unity_camera, "nearClipPlane")),
+        farClipPlane = tonumber(safe_get(unity_camera, "farClipPlane")),
+        position = vector(position, { "x", "y", "z" }),
+        rotation = vector(rotation, { "x", "y", "z", "w" }),
+        projection = vector(matrix, { "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13",
+                                     "m20", "m21", "m22", "m23", "m30", "m31", "m32", "m33" }),
+        anchors = anchors_copy,
+    }
+end
+
+function M._map014CameraCheckpointMatches(baseline, current)
+    if baseline == nil or current == nil then return false end
+    local function same(left, right)
+        if type(left) == "number" and type(right) == "number" then
+            return math.abs(left - right) <= 0.0005 * math.max(1, math.abs(left))
+        end
+        if type(left) == "table" and type(right) == "table" then
+            for key, value in pairs(left) do
+                if not same(value, right[key]) then return false end
+            end
+            for key, _ in pairs(right) do if left[key] == nil then return false end end
+            return true
+        end
+        return left == right
+    end
+    return same(baseline, current)
+end
+
+function M._map014StandardCameraProjection(checkpoint)
+    -- Only classify a supported native standard perspective. Matching the
+    -- stored values alone is not a reason to assign projectionMatrix: Unity
+    -- then stops updating its projection when fieldOfView/aspect changes.
+    local cs = rawget(_G, "CS")
+    local matrix_type = cs and cs.UnityEngine and cs.UnityEngine.Matrix4x4
+    local perspective = matrix_type and safe_get(matrix_type, "Perspective")
+    if checkpoint == nil or checkpoint.orthographic or type(perspective) ~= "function" then return false end
+    local ok, expected = pcall(perspective, checkpoint.fov, checkpoint.aspect,
+        checkpoint.nearClipPlane, checkpoint.farClipPlane)
+    if not ok or expected == nil then return false end
+    local values = {}
+    for key, _ in pairs(checkpoint.projection or {}) do values[key] = tonumber(safe_get(expected, key)) end
+    return M._map014CameraCheckpointMatches(checkpoint.projection, values)
+end
+
+function M._map014RestoreCameraProjection(unity_camera, snapshot)
+    if unity_camera == nil or snapshot == nil or snapshot.checkpoint == nil then return false end
+    local ok = true
+    for _, field in ipairs({ "fieldOfView", "aspect", "orthographic", "orthographicSize", "nearClipPlane", "farClipPlane" }) do
+        if snapshot.checkpoint[field == "fieldOfView" and "fov" or field] ~= nil and
+           not reflected_set_value(unity_camera, field, snapshot.checkpoint[field == "fieldOfView" and "fov" or field]) then ok = false end
+    end
+    if snapshot.standardProjection then
+        if not select(1, call(unity_camera, "ResetProjectionMatrix")) then ok = false end
+    elseif snapshot.projection ~= nil then
+        if not reflected_set_value(unity_camera, "projectionMatrix", snapshot.projection) then ok = false end
+    else ok = false end
+    return ok
+end
+
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
+    local restore_snapshot = M._map014CameraRestore
     local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
     if current_set ~= nil then
         for _, index in ipairs(bulk_aoi_added_indices or {}) do
@@ -4986,7 +5336,29 @@ local function restore_bulk_aoi_state(point_manager)
     end
     if bulk_aoi_native_camera ~= nil then
         if not select(1, call(bulk_aoi_native_camera, "RefreshCameraAnchor")) then ok = false end
+    end
+    -- These must be restored AFTER RefreshCameraAnchor, which can rebuild the
+    -- physical Unity transform/projection even with the same logical tile.
+    if bulk_aoi_native_unity_camera ~= nil and restore_snapshot ~= nil and
+       not M._map014RestoreCameraProjection(bulk_aoi_native_unity_camera, restore_snapshot) then ok = false end
+    if restore_snapshot ~= nil and restore_snapshot.transform ~= nil then
+        if restore_snapshot.rotation ~= nil and
+           not reflected_set_value(restore_snapshot.transform, "rotation", restore_snapshot.rotation) then ok = false end
+        if restore_snapshot.position ~= nil and
+           not reflected_set_value(restore_snapshot.transform, "position", restore_snapshot.position) then ok = false end
+    end
+    if bulk_aoi_native_camera ~= nil then
         if point_manager ~= nil and not bulk_aoi_skip_restore_update then call(point_manager, "UpdateViewRequest", true) end
+    end
+    if bulk_aoi_request ~= nil and restore_snapshot ~= nil and restore_snapshot.checkpoint ~= nil then
+        local after = M._map014CameraGeometryCheckpoint(bulk_aoi_native_camera, bulk_aoi_native_unity_camera)
+        bulk_aoi_request.details = bulk_aoi_request.details or {}
+        bulk_aoi_request.details.cameraProjectionRestored = after ~= nil and
+            M._map014CameraCheckpointMatches(restore_snapshot.checkpoint.projection, after.projection)
+        bulk_aoi_request.details.cameraGeometryRestored = M._map014CameraCheckpointMatches(restore_snapshot.checkpoint, after)
+        bulk_aoi_request.details.originalCameraGeometry = restore_snapshot.checkpoint
+        bulk_aoi_request.details.restoredCameraGeometry = after
+        if not bulk_aoi_request.details.cameraGeometryRestored then ok = false end
     end
     bulk_aoi_skip_restore_update = false
     bulk_aoi_native_camera = nil
@@ -4996,6 +5368,7 @@ local function restore_bulk_aoi_state(point_manager)
     bulk_aoi_native_unity_camera = nil
     bulk_aoi_native_original_aspect = nil
     bulk_aoi_native_original_zoom = nil
+    M._map014CameraRestore = nil
     bulk_aoi_native_hold_seconds = nil
     bulk_aoi_native_position_restored = false
     bulk_aoi_added_indices = {}
@@ -5020,6 +5393,9 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         homeTileY = request.homeTileY,
         requestMode = request.requestMode,
         coverageAspect = request.coverageAspect,
+        coverageFov = request.coverageFov,
+        coverageZoom = request.coverageZoom,
+        coverageZoomApplied = request.coverageZoomApplied,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
@@ -5034,6 +5410,14 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         baselineMatchedCount = details.baselineMatchedCount,
         matchedCount = details.matchedCount,
         matchedCityCount = details.matchedCityCount,
+        cityCompleteness = details.cityCompleteness,
+        nativePointTypeHistogram = details.nativePointTypeHistogram,
+        nativePointInfoCityCount = details.nativePointInfoCityCount,
+        cameraGeometryRestored = details.cameraGeometryRestored,
+        cameraGeometryConfirmed = details.cameraGeometryConfirmed,
+        cameraProjectionRestored = details.cameraProjectionRestored,
+        originalCameraGeometry = details.originalCameraGeometry,
+        restoredCameraGeometry = details.restoredCameraGeometry,
         matchedResourceCount = details.matchedResourceCount,
         matchedDispatchCount = details.matchedDispatchCount,
         matchedGhostCount = details.matchedGhostCount,
@@ -5115,6 +5499,8 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         positionRestoredBeforeResponse = details.positionRestoredBeforeResponse,
         positionRestoreElapsedSeconds = details.positionRestoreElapsedSeconds,
         point_records = details.pointRecords,
+        marchSourceBefore = details.marchSourceBefore,
+        marchSourceAtPointReady = details.marchSourceAtPointReady,
         monster_march_records = details.monsterMarchRecords,
         train_march_records = details.trainMarchRecords,
         doomsdayBossCount = details.doomsdayBossCount or 0,
@@ -5179,7 +5565,7 @@ end
 local function fail_bulk_aoi(request, error_text, details, point_manager)
     local restored = restore_bulk_aoi_state(point_manager)
     if not restored then error_text = tostring(error_text) .. "; bulk_aoi_state_restore_failed" end
-    write_bulk_aoi_result(request, "failed", error_text, details)
+    write_bulk_aoi_result(request, "failed", error_text, details or request.details)
     bulk_aoi_request = nil
     bulk_aoi_started_at = nil
 end
@@ -5197,7 +5583,7 @@ local function pump_bulk_aoi_diagnostic(now)
             write_bulk_aoi_result(request, "failed", world_error or "world_unavailable", nil)
             return true
         end
-        if request.includeMonster == true and request.includeMonsterProtection ~= true and
+        if request.includeMonster == true and not (request.includeMonsterProtection == true and request.requestMode == "zoom") and
            M._doomsdayMainInfoScanRunId ~= request.scanRunId then
             request.doomsdayRequestSent = select(1, request_doomsday_main_info())
             request.doomsdayRequestSentAt = runtime_clock()
@@ -5396,6 +5782,40 @@ local function pump_bulk_aoi_diagnostic(now)
             fail_bulk_aoi(request, "native_camera_state_unavailable", nil, point_manager)
             return true
         end
+        -- Capture the Unity projection and world transform before native
+        -- camera/anchor mutations. Restore these exact values on every exit.
+        local unity_camera = safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")
+        local checkpoint = M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
+        local projection = unity_camera and safe_get(unity_camera, "projectionMatrix") or nil
+        local transform = unity_camera and safe_get(unity_camera, "transform") or nil
+        if checkpoint == nil or checkpoint.fov == nil or checkpoint.aspect == nil or
+           checkpoint.zoom == nil or checkpoint.projection == nil or checkpoint.position == nil or
+           checkpoint.rotation == nil or projection == nil or transform == nil then
+            fail_bulk_aoi(request, "native_camera_projection_state_unavailable", nil, point_manager)
+            return true
+        end
+        if (request.requestMode == "expanded" or request.requestMode == "coverage") and
+           not M._map014StandardCameraProjection(checkpoint) then
+            fail_bulk_aoi(request, "unsupported_custom_camera_projection", nil, point_manager)
+            return true
+        end
+        bulk_aoi_native_unity_camera = unity_camera
+        M._map014CameraRestore = {
+            projection = projection,
+            standardProjection = M._map014StandardCameraProjection(checkpoint),
+            transform = transform,
+            rotation = safe_get(transform, "rotation"),
+            position = safe_get(transform, "position"),
+            checkpoint = checkpoint,
+        }
+        bulk_aoi_native_original_fov = checkpoint.fov
+        bulk_aoi_native_original_aspect = checkpoint.aspect
+        bulk_aoi_native_original_zoom = checkpoint.zoom
+        request.details = request.details or {}
+        request.details.originalCameraGeometry = checkpoint
+        if request.observeMarchFreshness == true then
+            request.details.marchSourceBefore = M._map014MarchSourceSnapshot(world)
+        end
         local shift_x = (request.targetTileX - pre_tile_x) * 2
         local shift_z = (request.targetTileY - pre_tile_y) * 2
         local remote_pos = vector3_type(ox + shift_x, oy, oz + shift_z)
@@ -5519,10 +5939,11 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_aspect_unavailable", nil, point_manager)
                 return true
             end
-            bulk_aoi_native_original_fov = original_fov
-            bulk_aoi_native_unity_camera = unity_camera
-            bulk_aoi_native_original_aspect = original_aspect
-            if not select(1, call(camera_manager, "SetFOV", 120.0)) then
+            if unity_camera ~= bulk_aoi_native_unity_camera then
+                fail_bulk_aoi(request, "native_camera_instance_changed_during_acquisition", nil, point_manager)
+                return true
+            end
+            if not select(1, call(camera_manager, "SetFOV", request.coverageFov)) then
                 fail_bulk_aoi(request, "expanded_camera_fov_set_failed", nil, point_manager)
                 return true
             end
@@ -5530,6 +5951,13 @@ local function pump_bulk_aoi_diagnostic(now)
                 fail_bulk_aoi(request, "expanded_camera_aspect_set_failed", nil, point_manager)
                 return true
             end
+            if request.coverageZoom ~= nil and
+               (not pcall(function() camera_manager.Zoom = request.coverageZoom end) or
+                not select(1, call(camera_manager, "RefreshCameraAnchor"))) then
+                fail_bulk_aoi(request, "coverage_camera_zoom_set_failed", nil, point_manager)
+                return true
+            end
+            request.coverageZoomApplied = tonumber(safe_get(camera_manager, "Zoom"))
         end
         local manager_reply_before = manager_response_flag(point_manager)
         local world_reply_before = world_response_flag(world)
@@ -5667,6 +6095,7 @@ local function pump_bulk_aoi_diagnostic(now)
             requested_indices = native_indices
         end
         request.details = {
+            marchSourceBefore = request.details and request.details.marchSourceBefore,
             requestedIndices = requested_indices,
             bigMap = 0, serverLod = server_lod, blockSize = block_size, blockCount = block_count,
             anchorTileX = request.targetTileX, anchorTileY = request.targetTileY,
@@ -5719,6 +6148,17 @@ local function pump_bulk_aoi_diagnostic(now)
         return true
     end
     local details = bulk_aoi_request.details or {}
+    -- Observe the first point-ready frame *before* resource/Train/Monster
+    -- extraction. March queue processing can finish later than point flags;
+    -- sampling after enrichment would conceal that ordering difference.
+    if bulk_aoi_request.observeMarchFreshness == true and
+       details.marchSourceAtPointReady == nil and details.deferredRestorePending ~= true then
+        local point_flags = bulk_manager_flags(point_manager)
+        if point_flags.isRecvViewPoints == true and world_response_flag(world) == true and
+           reflected_value(point_manager, "_splitLastAOIRequest") ~= true then
+            details.marchSourceAtPointReady = M._map014MarchSourceSnapshot(world)
+        end
+    end
     if bulk_aoi_request.deferRestoreUntilResponse == true and details.deferredRestorePending == true then
         local restored_tile = safe_get(world, "CurTilePosClamped")
         details.restoredTileX = tonumber(restored_tile and (safe_get(restored_tile, "x") or safe_get(restored_tile, "X")))
@@ -5735,6 +6175,16 @@ local function pump_bulk_aoi_diagnostic(now)
         if details.cameraTileStable == true and
            restore_flags.isRecvViewPoints == true and restore_world_reply == true and
            not restore_split_pending then
+            local camera_manager = safe_get(world, "Camera") or reflected_value(world, "<Camera>k__BackingField")
+            local unity_camera = camera_manager and (safe_get(camera_manager, "__camera") or reflected_value(camera_manager, "camera")) or nil
+            local after = M._map014CameraGeometryCheckpoint(camera_manager, unity_camera)
+            details.cameraGeometryConfirmed = details.cameraGeometryRestored == true and
+                M._map014CameraCheckpointMatches(details.originalCameraGeometry, after)
+            details.restoredCameraGeometry = after
+            if not details.cameraGeometryConfirmed then
+                fail_bulk_aoi(bulk_aoi_request, "native_home_camera_geometry_changed", details, point_manager)
+                return true
+            end
             details.deferredRestorePending = false
             details.positionRestoredAfterResponse = true
             details.homeRestorationElapsedSeconds = runtime_clock() - details.deferredRestoreStartedAt
@@ -5856,6 +6306,8 @@ local function pump_bulk_aoi_diagnostic(now)
     details.postTileX = tonumber(post_tile and (safe_get(post_tile, "x") or safe_get(post_tile, "X")))
     details.postTileY = tonumber(post_tile and (safe_get(post_tile, "y") or safe_get(post_tile, "Y")))
     details.matchedCount = observed.total
+    details.nativePointTypeHistogram = observed.typeHistogram
+    details.nativePointInfoCityCount = observed.cities
     details.matchedCityCount = observed.cities
     details.matchedResourceCount = observed.resources
     details.matchedDispatchCount = observed.dispatches
@@ -5864,10 +6316,20 @@ local function pump_bulk_aoi_diagnostic(now)
     details.afterLoadedPointCount = observed.loadedPointCount
     local point_records = {}
     if bulk_aoi_request.includeCity == true then
-        local city_records, point_records_error = city_aoi_records(
+        local city_records, point_records_error, city_completeness = city_aoi_records(
             world, point_manager, details.blockSize, details.blockCount, lookup)
+        details.cityCompleteness = city_completeness
         if city_records == nil then
             fail_bulk_aoi(bulk_aoi_request, point_records_error, details, point_manager)
+            return true
+        end
+        if observed.cities ~= (city_completeness.nativeCurrentCityCount or 0) +
+           (city_completeness.supersededNativeCityCount or 0) then
+            fail_bulk_aoi(bulk_aoi_request, "city_native_source_accounting_mismatch", details, point_manager)
+            return true
+        end
+        if (city_completeness.nativeCurrentCityCount or 0) > #city_records then
+            fail_bulk_aoi(bulk_aoi_request, "city_native_point_info_exceeds_retained_bases", details, point_manager)
             return true
         end
         -- City count follows the retained unique-main-base source, not the current
@@ -5934,7 +6396,7 @@ local function pump_bulk_aoi_diagnostic(now)
         -- activity manager and may not yet exist in WorldMarchDataManager. Issue
         -- the same read-only main-info request used by UIDoomsday and give that
         -- response a short bounded settle before taking the whole-world snapshot.
-        if bulk_aoi_request.includeMonsterProtection ~= true and
+        if not (bulk_aoi_request.includeMonsterProtection == true and bulk_aoi_request.requestMode == "zoom") and
            bulk_aoi_request.doomsdayRequestSent == true and
            runtime_clock() - (bulk_aoi_request.doomsdayRequestSentAt or runtime_clock()) < 0.75 then
             return true
@@ -5952,7 +6414,7 @@ local function pump_bulk_aoi_diagnostic(now)
             return true
         end
         details.doomsdayBossCount = 0
-        if bulk_aoi_request.includeMonsterProtection ~= true then
+        if not (bulk_aoi_request.includeMonsterProtection == true and bulk_aoi_request.requestMode == "zoom") then
             local doomsday_records, doomsday_error = doomsday_boss_records(
                 world, details.blockSize, details.blockCount, lookup, home_tile, monster_march_records)
             if doomsday_records == nil then

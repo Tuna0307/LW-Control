@@ -1,6 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import englishMessages from "./locales/en.js";
 import { withMapNameFeedback } from "./locales/map010-feedback.js";
+import { withMapOtherTexts } from "./locales/map014-other.js";
+import { withGhostRewardTexts } from "./locales/map014-ghost-rewards.js";
+import { withZombieBossTexts } from "./locales/map014-zombie-boss.js";
+import { withHomeLaunchFeedback } from "./locales/home-launch-feedback.js";
 
 export const LANGUAGES = Object.freeze([
   { code: "en", name: "English" },
@@ -14,16 +18,17 @@ export const LANGUAGES = Object.freeze([
   { code: "pt", name: "Português" },
 ]);
 
+const withMapExtras = (language, catalog) => withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog)))));
 const LOADERS = {
-  en: () => Promise.resolve(withMapNameFeedback("en", englishMessages)),
-  "zh-CN": () => import("./locales/zh-CN.js").then((module) => withMapNameFeedback("zh-CN", module.default)),
-  "zh-TW": () => import("./locales/zh-TW.js").then((module) => withMapNameFeedback("zh-TW", module.default)),
-  ja: () => import("./locales/ja.js").then((module) => withMapNameFeedback("ja", module.default)),
-  ko: () => import("./locales/ko.js").then((module) => withMapNameFeedback("ko", module.default)),
-  vi: () => import("./locales/vi.js").then((module) => withMapNameFeedback("vi", module.default)),
-  id: () => import("./locales/id.js").then((module) => withMapNameFeedback("id", module.default)),
-  ru: () => import("./locales/ru.js").then((module) => withMapNameFeedback("ru", module.default)),
-  pt: () => import("./locales/pt.js").then((module) => withMapNameFeedback("pt", module.default)),
+  en: () => Promise.resolve(withMapExtras("en", englishMessages)),
+  "zh-CN": () => import("./locales/zh-CN.js").then((module) => withMapExtras("zh-CN", module.default)),
+  "zh-TW": () => import("./locales/zh-TW.js").then((module) => withMapExtras("zh-TW", module.default)),
+  ja: () => import("./locales/ja.js").then((module) => withMapExtras("ja", module.default)),
+  ko: () => import("./locales/ko.js").then((module) => withMapExtras("ko", module.default)),
+  vi: () => import("./locales/vi.js").then((module) => withMapExtras("vi", module.default)),
+  id: () => import("./locales/id.js").then((module) => withMapExtras("id", module.default)),
+  ru: () => import("./locales/ru.js").then((module) => withMapExtras("ru", module.default)),
+  pt: () => import("./locales/pt.js").then((module) => withMapExtras("pt", module.default)),
 };
 
 const LANGUAGE_KEY = "lwbridge.language";

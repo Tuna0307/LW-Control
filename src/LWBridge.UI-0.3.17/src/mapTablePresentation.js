@@ -1,5 +1,6 @@
 // Recovered Map table presentation. Exact source locators are recorded under
 // evidence/lwbridge-0.3.17/ui/LWB317-UI-LEAD-TABLES-001/.
+import { mapOwnerFilterLabel } from "./mapOwnerFilters.js";
 
 const LIVE_TARGET_KINDS = new Set(["truck", "railway"]);
 const TREASURE_TYPE_KEYS = {
@@ -13,6 +14,30 @@ const TREASURE_TYPE_KEYS = {
 
 function field(row, key) { return row[key]; }
 function isLiveTarget(kind) { return LIVE_TARGET_KINDS.has(kind); }
+export function mapOwnerLabel(row) {
+  const name = field(row, "ownerName");
+  if (name != null && String(name).trim()) return String(name);
+  const uid = field(row, "ownerUid");
+  // A task's numeric UID is an identity, not a verified player display name.
+  // Retain its full native string precision and label the fallback explicitly.
+  return uid != null && String(uid).trim() ? `UID ${String(uid)}` : "-";
+}
+// Ghost presentation: the stored row's server is the server it was observed on
+// (the saved-server selection). The task owner may come from another server;
+// ownerServer / srcServerId are native fields shown only when they differ.
+function positiveServer(value) {
+  const number = Number(value);
+  return value != null && value !== "" && Number.isSafeInteger(number) && number > 0 ? number : 0;
+}
+export function mapGhostServers(row, t) {
+  const server = positiveServer(row.serverId);
+  const owner = positiveServer(row.ownerServer);
+  const source = positiveServer(row.srcServerId);
+  const parts = [server ? String(server) : "-"];
+  if (owner && owner !== server) parts.push(t("map.ghostOwnerServer", { server: owner }));
+  if (source && source !== server && source !== owner) parts.push(t("map.ghostSourceServer", { server: source }));
+  return parts.join(" · ");
+}
 export function lookupMapText(texts, key, defaultName) {
   const nameKey = String(key || "").trim();
   if (!nameKey) return defaultName;
@@ -20,6 +45,9 @@ export function lookupMapText(texts, key, defaultName) {
   return name && name !== nameKey ? name : defaultName;
 }
 export function mapNumber(value, language) {
+  // Unknown native measurements are absent, not zero. Number(null) and
+  // Number("") would otherwise fabricate a zero for missing Truck power/HP.
+  if (value == null || (typeof value === "string" && !value.trim())) return "-";
   const number = Number(value);
   return Number.isFinite(number) ? number.toLocaleString(language) : "-";
 }
@@ -44,6 +72,12 @@ function mapCoordinates(row) {
   const x = Number(row.x), y = Number(row.y);
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
+export function validMapJumpCoordinates(row) {
+  if (row?.x == null || row?.y == null || row.x === "" || row.y === "") return false;
+  const x = Number(row.x), y = Number(row.y);
+  return Number.isInteger(x) && Number.isInteger(y) &&
+    x >= 0 && x <= 999 && y >= 0 && y <= 999;
+}
 function originalResourceOccupied(row) {
   return ["gatherMarchUuid", "gatherUid"].some(key => {
     const value = String(row[key] || "").trim();
@@ -59,6 +93,24 @@ export function mapResourceStatus(row, t, texts) {
   const occupied = resourceOccupancy(row);
   if (occupied === null) return "—";
   return lookupMapText(texts, occupied ? "300039" : "372138", t(occupied ? "map.resourceGathering" : "map.resourceIdle"));
+}
+export function mapResourceAmount(row, language) {
+  // Native amount is separate from occupancy. Never render missing/null
+  // detail as "0 / 0" just because Number(null) happens to be zero.
+  if (row.resourceDetailKnown !== true || row.resourceRemainingAmount == null || row.resourceFullAmount == null)
+    return "—";
+  const remaining = Number(row.resourceRemainingAmount);
+  const full = Number(row.resourceFullAmount);
+  return Number.isSafeInteger(remaining) && Number.isSafeInteger(full) &&
+    remaining >= 0 && full >= remaining
+    ? `${mapNumber(remaining, language)} / ${mapNumber(full, language)}` : "—";
+}
+export function mapResourceTerrain(row, language) {
+  // Legacy rows came from Player.IsInBlackRange(pos) (own-city only): their terrain is unknown.
+  if (String(row.source || "").includes("Player.IsInBlackRange")) return mapOwnerFilterLabel(language, "unknown");
+  if (row.blackTileKnown !== true || typeof row.isBlackTile !== "boolean")
+    return mapOwnerFilterLabel(language, "unknown");
+  return mapOwnerFilterLabel(language, row.isBlackTile ? "black" : "normal");
 }
 export function mapDuration(value) {
   if (!Number.isFinite(value) || value < 0) return "-";
@@ -101,7 +153,7 @@ function treasureTypeKey(type) {
   const number = Number(type);
   return Number.isFinite(number) && TREASURE_TYPE_KEYS[number] ? TREASURE_TYPE_KEYS[number] : "map.treasureTypeUnknown";
 }
-function suppliesNameKey(type) {
+export function suppliesNameKey(type) {
   const number = Number(type);
   return number === 1 ? "season_s2_ice_supplies_11" : number === 3 ? "season_s3_supplies_1"
     : number === 4 ? "season4_supplies_name_2" : "";
@@ -116,6 +168,26 @@ export function treasureName(t, texts, type, suppliesType, nameKey) {
   const name = t(key === "challenge_zombie_box_title" ? "map.treasureTypeTrialGift" : suppliesTypeKey(suppliesType));
   return key ? lookupMapText(texts, key, name) : t(treasureTypeKey(type));
 }
+const OTHER_TYPE_LABELS = Object.freeze({
+  "supplies:1": "map.otherSubtypeSupplies1",
+  "event:27000": "map.otherSubtypeParty",
+});
+export function otherTypeName(t, subtype) {
+  if (OTHER_TYPE_LABELS[subtype]) return t(OTHER_TYPE_LABELS[subtype]);
+  if (/^supplies:[1-9]\d*$/.test(String(subtype))) {
+    return t("map.otherSubtypeUnidentifiedSupplies", { type: subtype.slice("supplies:".length) });
+  }
+  return t("map.otherNameUnavailable");
+}
+export function otherName(t, texts, row) {
+  return lookupMapText(texts, row.otherNameKey, otherTypeName(t, row.otherSubtype));
+}
+export function otherWorkEnd(row, language) {
+  return row.otherSubtype?.startsWith("supplies:") ? mapDate(row.workEndTime, language) : "-";
+}
+export function otherExpiry(row, language) {
+  return row.otherSubtype === "event:27000" ? mapDate(row.expireTime, language) : "-";
+}
 function treasureWorldKey(state) {
   return ({ charging: "map.treasureStateCharging", claimable: "map.treasureStateClaimable",
     depleted: "map.treasureStateDepleted", expired: "map.treasureStateExpired", verifying: "map.treasureStateVerifying" })[String(state || "")] || "map.treasureStateUnknown";
@@ -128,8 +200,14 @@ function treasurePlayerKey(state, reason) {
     scouting: "map.treasurePlayerScouting", digging: "map.treasurePlayerDigging", claiming: "map.treasurePlayerClaiming",
     claimed: "map.treasurePlayerClaimed", failed: "map.treasurePlayerUnclaimed", verifying: "map.treasurePlayerVerifying" })[String(state || "")] || "map.treasurePlayerUnknown";
 }
-export function mapRewardName(item, texts) { return lookupMapText(texts, item.nameKey, item.name || item.key); }
+export function mapRewardName(item, texts) {
+  // Some native reward names (e.g. Skill Medal 180372) are game text keys, not strings: resolve them
+  // with the game's own text like every other map label and keep the key only if it cannot be resolved.
+  const key = item.nameKey || (/^\d+$/.test(String(item.name ?? "")) ? String(item.name) : "");
+  return lookupMapText(texts, key, item.name || item.key);
+}
 export function mapRewardCount(value) {
+  if (value == null || (typeof value === "string" && !value.trim())) return "-";
   const number = Number(value);
   if (!Number.isFinite(number)) return "-";
   const absolute = Math.abs(number), sign = number < 0 ? "-" : "";
@@ -137,6 +215,25 @@ export function mapRewardCount(value) {
     : absolute >= 1e3 ? `${sign}${(absolute / 1e3).toFixed(1)}K` : String(number);
 }
 
+// Zombie Boss (MonsterInvasionBoss) presentation. Remaining lifetime is the game's own
+// WorldMarch.refreshTime; protection is only shown from the game-confirmed detail reply.
+// Unknown values are "-"; nothing is inferred when the game did not supply it.
+export function zombieBossRemaining(row, t, now = Date.now()) {
+  const end = mapTimestamp(row?.refreshTime);
+  if (!end) return "-";
+  return end > now ? mapDuration(end - now) : t("map.zombieBossExpired");
+}
+export function zombieBossProtection(row, t, now = Date.now()) {
+  if (row?.monsterProtectionKnown !== true) return "-";
+  const end = mapTimestamp(row.monsterProtectionEndTime || row.shieldEndTime);
+  return row.monsterProtectionActive === true && end > now ? mapDuration(end - now) : t("map.zombieBossNotProtected");
+}
+export function zombieBossDiscoverer(row) {
+  const name = String(row?.ownerName || "").trim();
+  if (!name) return "-";
+  const abbr = String(row?.allianceAbbr || "").trim();
+  return abbr ? `[${abbr}] ${name}` : name;
+}
 // MapDataPanel nt, UTF-8 byte 9594; binding names expanded for readability.
 export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureStatesRefreshing) {
   let coordinates = {
@@ -190,12 +287,17 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     sortBy: `level`,
     value: e => mapNumber(field(e, `level`), language)
   }, {
+    label: mapOwnerFilterLabel(language, "amount"),
+    width: `150px`,
+    value: e => mapResourceAmount(e, language)
+  }, {
+    label: mapOwnerFilterLabel(language, "terrain"),
+    width: `120px`,
+    value: e => mapResourceTerrain(e, language)
+  }, {
     label: t(`common.status`),
     width: `80px`,
-    value: e => {
-      let n = originalResourceOccupied(e);
-      return lookupMapText(gameTexts, n ? `300039` : `372138`, t(n ? `map.resourceGathering` : `map.resourceIdle`));
-    }
+    value: e => mapResourceStatus(e, t, gameTexts)
   }, updated] : kind === `monster` ? [coordinates, {
     label: t(`common.name`),
     width: `minmax(150px, 1fr)`,
@@ -280,6 +382,55 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     width: `150px`,
     sortBy: `protectTime`,
     value: e => mapDate(field(e, `protectTime`), language)
+  }, updated] : kind === `zombie_boss` ? [coordinates, {
+    label: t(`common.name`),
+    width: `minmax(150px, 1fr)`,
+    value: e => lookupMapText(gameTexts, field(e, `monsterNameKey`), t(`map.zombieBoss`))
+  }, {
+    label: t(`map.level`),
+    width: `70px`,
+    sortBy: `level`,
+    value: e => mapNumber(field(e, `level`), language)
+  }, {
+    label: t(`map.zombieBossPower`),
+    width: `120px`,
+    sortBy: `power`,
+    value: e => mapNumber(field(e, `recommendPower`), language)
+  }, {
+    label: t(`map.zombieBossRemaining`),
+    width: `110px`,
+    sortBy: `remaining`,
+    value: e => zombieBossRemaining(e, t)
+  }, {
+    label: t(`map.zombieBossProtection`),
+    width: `130px`,
+    sortBy: `shield`,
+    value: e => zombieBossProtection(e, t)
+  }, {
+    label: t(`map.zombieBossDiscoverer`),
+    width: `minmax(120px, 1fr)`,
+    value: e => zombieBossDiscoverer(e)
+  }, {
+    label: t(`map.distance`),
+    width: `90px`,
+    sortBy: `distance`,
+    value: e => mapNumber(field(e, `distanceFromHome`), language)
+  }, updated] : kind === `other` ? [coordinates, {
+    label: t(`map.otherEventType`),
+    width: `150px`,
+    value: e => otherTypeName(t, field(e, `otherSubtype`))
+  }, {
+    label: t(`common.name`),
+    width: `minmax(180px, 1fr)`,
+    value: e => otherName(t, gameTexts, e)
+  }, {
+    label: t(`map.otherWorkEnd`),
+    width: `150px`,
+    value: e => otherWorkEnd(e, language)
+  }, {
+    label: t(`map.expireTime`),
+    width: `150px`,
+    value: e => otherExpiry(e, language)
   }, updated] : kind === `treasure` ? [coordinates, {
     label: t(`map.treasureType`),
     width: `160px`,
@@ -315,7 +466,7 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
   }, {
     label: t(`map.owner`),
     width: `minmax(140px, 1fr)`,
-    value: e => String(field(e, `ownerName`) || field(e, `ownerUid`) || `-`)
+    value: e => mapOwnerLabel(e)
   }, {
     label: t(`map.alliance`),
     width: `minmax(110px, 1fr)`,
@@ -332,8 +483,12 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
   }] : []), coordinates, {
     label: t(`map.owner`),
     width: `minmax(150px, 1fr)`,
-    value: e => String(field(e, `ownerName`) || field(e, `ownerUid`) || `-`)
-  }, {
+    value: e => mapOwnerLabel(e)
+  }, ...(kind === `ghost` ? [{
+    label: t(`map.ghostServer`),
+    width: `minmax(150px, 1fr)`,
+    value: e => mapGhostServers(e, t)
+  }] : []), {
     label: t(`map.level`),
     width: `70px`,
     sortBy: `level`,
@@ -356,5 +511,9 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     width: `150px`,
     sortBy: `completionTime`,
     value: e => mapDate(field(e, `completionTime`), language)
-  }, updated];
+  }, ...(kind === `ghost` ? [{
+    label: t(`map.expireTime`),
+    width: `150px`,
+    value: e => mapDate(field(e, `taskExpireTime`), language)
+  }] : []), updated];
 }

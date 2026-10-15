@@ -45,9 +45,18 @@ internal static class Program
         if (useLegacyUi && (uiRootPath is not null || mapUiIntegrationProofPath is not null || normalUiLiveMapProofPath is not null || homeMapCampaignProofPath is not null))
             throw new ArgumentException("--legacy-ui cannot be combined with UI proof/override modes.");
         if (isolatedRootPath is not null &&
-            new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, normalUiLiveResourceProofPath, normalUiLiveMapProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath }.Any(path => path is not null))
+            new[] { capturePath, liveProbePath, hostProbePath, firstLiveResultPath, liveResourceProofPath, liveCityProofPath, mapUiIntegrationProofPath, homeMapCampaignProofPath, cityReopenProofPath }.Any(path => path is not null))
         {
             throw new ArgumentException("--isolated-root is restricted to normal production composition.");
+        }
+        if (isolatedRootPath is not null)
+        {
+            foreach (string proofPath in new[] { normalUiLiveResourceProofPath, normalUiLiveMapProofPath }.OfType<string>())
+            {
+                string relative = Path.GetRelativePath(isolatedRootPath, proofPath);
+                if (Path.IsPathRooted(relative) || relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                    throw new ArgumentException("Normal production proof output must remain inside its explicitly isolated root.");
+            }
         }
         if (homeMapCampaignNarrow && homeMapCampaignProofPath is null)
             throw new ArgumentException("--home-map-campaign-narrow requires --home-map-campaign-proof.");

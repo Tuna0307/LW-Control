@@ -26,6 +26,13 @@ from map_009_offline.run_map013_owned_observer import (
 
 
 class WorldReadyLifecycleTests(unittest.TestCase):
+    # Historical MAP-013 bridge SHA: 559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0.
+    # Historical probe SHA: 8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668.
+    # Pre-live-MAP014 candidate probe SHA: c074605929a248cc2a1a30bd54d0585b54e758f7c034767af9806ff73c29faf2.
+    # Previous native Ready wrapper SHA: 6d935536e73756cc685b0fa361e4cb2dbc45f5333a04107e3ba745d9bc341101.
+    # Older bridge/wrapper/probe control pins (ea701420..., 7a4b7c02..., 716d2cb9...)
+    # predate the accepted MAP-014 lifecycle and native probe changes. Retain
+    # their history; the current source pins below are byte-for-byte controls.
     @classmethod
     def setUpClass(cls):
         cls.original = (TOOLS / "current_overview_bridge.lua").read_bytes()
@@ -36,11 +43,11 @@ class WorldReadyLifecycleTests(unittest.TestCase):
                 "LWBRIDGE_MAP013_WRAPPER_TRACE": "",
                 "LWBRIDGE_MAP013_PRIVATE_TRACE": ""}):
             self.assertEqual(hashlib.sha256(c.base.bridge_source()).hexdigest(),
-                             "559c2a41c4b10925ed85f6cf8d672399f1694d24bc97db16d327ca04ea893ed0")
+                             "c6b2c6f046a4f6a15f94375742ca2159247e96eee099c5b47ac440d23cef534f")
             self.assertEqual(hashlib.sha256(c.base.wrapper_source()).hexdigest(),
-                             "d7441383fc34a096357a43eb7b6dde396df421302a1ebf105cdb3e56e3793708")
+                             "5460b83a66eccf9924a8d043453b3414dbb6c2175a4116ee8f8c39ad8db61304")
             self.assertEqual(hashlib.sha256(c.base.packaged_resource_probe_source()).hexdigest(),
-                             "8c6e150c7c90ccabc196a5d9059b8c81c32bb15f3ae9096d650a90e287e84668")
+                             "5af48655ef47f7ad0deb34b40c160266a8621ac9ba139cbdc36450612a388357")
 
     def test_real_source_syntax_order_and_all_observation_boundaries(self):
         original = self.original.decode("utf-8").replace("\r\n", "\n")

@@ -22,9 +22,17 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
     private const int FastCityExpectedAoiCount = 20;
+    // Genuine v26 target/home-correlated snapshots for Truck and Dispatch
+    // have contracted to 8 native AOI rows x 2 columns (16 AOIs). This is a
+    // lower admission bound, not an assertion that the 10,000-AOI world shrank.
+    private const int FastCityMinimumLiveAoiCount = 16;
     private const int FastFullWorldAoiRows = 10;
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
-    private const int FastFullWorldMaxRequestsPerRow = 50;
+    // A native 8-row viewport may need two vertically distinct fresh replies
+    // for each horizontal footprint to cover a ten-row logical band. The old
+    // 50-probe ceiling would reject a completely valid 10,000-AOI union.
+    // This is a safety upper bound, not a fabricated progress or timeout.
+    private const int FastFullWorldMaxRequestsPerRow = 200;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
@@ -71,19 +79,33 @@ internal sealed partial class CurrentClientMapBlockSource
                     LastResourceCompletenessReport = null;
             }
 
-            if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+            try
             {
-                // Zombie Boss keeps the proven whole-world LOD2 + serialized detail route.
-                // Generic Monster intentionally does not use this shortcut: current-v20
-                // RunningMonster/Doom Walker templates (type 8, special 11, levels 100..220)
-                // are not reliably materialized in the LOD2 MarchDataManager snapshot.
-                // The generic Monster scan therefore falls through to the exact 10,000-cell
-                // LOD0 AOI union below so those WorldMarch rows can be observed when active.
-                return await CaptureFullMonsterMapViaCoarseLodAsync(
-                    session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+                // The LOD2 whole-world Zombie Boss snapshot was only proven on game v18/v19; on v26 the proven
+                // shared LOD0 sweep is used unless a diagnostic explicitly opts in.
+                if (IsZombieBossOnly(request) && hooks?.UseCoarseZombieBossMap == true && hooks?.DisableCoarseMonsterMap != true)
+                {
+                    // Zombie Boss keeps its existing read-only dedicated internal
+                    // path; this is not admission to the public selection.
+                    return await CaptureFullMonsterMapViaCoarseLodAsync(
+                        session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+                }
+                return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
+                    .ConfigureAwait(false);
             }
-            return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
-                .ConfigureAwait(false);
+            catch (Exception error) when (error is not OperationCanceledException &&
+                error is not MapScanSourceValidationException)
+            {
+                // One full-world native camera owner is not 2,500 independent
+                // probes. After its bounded source attempts are exhausted, a
+                // retry of logical block 0 used to drop seed0, switch to the
+                // legacy band route, and count 100+ failures as fake progress.
+                // Retire this run with its actual first fatal source reason,
+                // zero staged blocks and the regular exact-owned cleanup.
+                throw new MapScanSourceValidationException(
+                    "Full-world native source failed before durable block publication: " +
+                    error.Message, error);
+            }
         }
 
         int bandStartRow = (seedBlock.Row / FastCityGroupRows) * FastCityGroupRows;
@@ -327,7 +349,15 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
-        for (int row = 0; row < FastFullWorldRowRequests; row++)
+        bool boundedLens = ShouldUseBoundedFullWorldCameraLens(request, hooks);
+        bool nativeEightRowWindowObserved = false;
+        // Where the native window really starts relative to the target AOI row (measured on unclipped
+        // replies). Lens height / player zoom move it, so placement follows the observation, not a constant.
+        int? windowFirstRowOffset = null;
+        int stalledGapColumn = -1;
+        int lastMissGapColumn = -1;
+        int missesAtGap = 0;
+        for (int row = 0; row < (boundedLens ? 1 : FastFullWorldRowRequests); row++)
         {
             int groupStartRow = row * FastCityGroupRows;
             int aoiRowStart = row * FastFullWorldAoiRows;
@@ -338,19 +368,16 @@ internal sealed partial class CurrentClientMapBlockSource
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                int gapColumn = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                int firstGap = boundedLens ? Enumerable.Range(0, 10000).FirstOrDefault(index => !covered.Contains(index), -1) : -1;
+                int gapColumn = boundedLens ? (firstGap < 0 ? -1 : firstGap % 100) : FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (gapColumn < 0) break;
                 // Current-v21 live proof can contract the conservative request to 9 rows.
                 // If that leaves only the band's bottom AOI missing, nudge one AOI row down and
                 // union the second bounded footprint; exact 10,000-cell coverage remains authoritative.
-                int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
-                    .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
-                    .ToArray();
-                int targetY = missingRows.Length == 1 &&
-                              missingRows[0] == aoiRowStart + FastFullWorldAoiRows - 1
-                    ? baseTargetY + FastCityAoiBlockSize
-                    : baseTargetY;
-                if (++requestsThisRow > FastFullWorldMaxRequestsPerRow)
+                (int targetY, int[] missingRows) = SelectFullWorldProbeY(
+                    boundedLens, covered, firstGap, aoiRowStart, gapColumn,
+                    nativeEightRowWindowObserved, gapColumn == stalledGapColumn ? null : windowFirstRowOffset);
+                if (++requestsThisRow > (boundedLens ? 400 : FastFullWorldMaxRequestsPerRow))
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
                 // Wide footprints are centered around the target: width 4 has two columns
@@ -363,6 +390,7 @@ internal sealed partial class CurrentClientMapBlockSource
                 // neither issues concurrent mutations of the shared game camera.
                 int targetCellX = MapFullWorldAoiPlacement.TargetColumn(
                     request.ScanMode, gapColumn, preferWideStep, previousGap, FastCityAoiBlockCount);
+                if (boundedLens) targetCellX = Math.Min(99, gapColumn + 7);
                 int targetX = checked((targetCellX * FastCityAoiBlockSize) + 5);
 
                 FastCityBatchObservation? observation = null;
@@ -379,7 +407,8 @@ internal sealed partial class CurrentClientMapBlockSource
                         observation = await ProbeFastCityBatchAsync(
                             session, request, -1, groupStartRow, targetX, targetY, cancellationToken)
                             .ConfigureAwait(false);
-                        ValidateAdaptiveRowFootprint(
+                        if (boundedLens) ValidateBoundedLensFootprint(observation.RequestedIndices, firstGap, targetX, targetY);
+                        else ValidateAdaptiveRowFootprint(
                             observation.RequestedIndices,
                             aoiRowStart,
                             request,
@@ -404,7 +433,7 @@ internal sealed partial class CurrentClientMapBlockSource
                         error is BridgeCommandException bridge && bridge.Code == "GAME_CONNECTION_UNAVAILABLE")
                     {
                         lastError = error;
-                        if (hooks is null)
+                        if (boundedLens || hooks is null)
                             Console.Error.WriteLine(
                                 $"FAST_FULL_WORLD_RETRY server={request.ServerId} world={request.WorldId} " +
                                 $"target=({targetX},{targetY}) rowStart={aoiRowStart} attempt={attempt}/3 error={error.Message}");
@@ -438,15 +467,41 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
+                if (!boundedLens &&
+                    observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount)
+                        .Distinct().Count() == FastFullWorldAoiRows - 2)
+                    nativeEightRowWindowObserved = true;
+                if (!boundedLens)
+                {
+                    int observedFirstRow = observation.RequestedIndices.Min() / FastCityAoiBlockCount;
+                    int observedLastRow = observation.RequestedIndices.Max() / FastCityAoiBlockCount;
+                    if (observedFirstRow > 0 && observedLastRow < FastCityAoiBlockCount - 1)
+                        windowFirstRowOffset = observedFirstRow - targetY / FastCityAoiBlockSize;
+                    // A calibrated placement that did not reach the first missing cell falls back to the
+                    // proven centre placement for this column instead of repeating itself.
+                    if (observation.RequestedIndices.Contains(missingRows.Min() * FastCityAoiBlockCount + gapColumn))
+                        missesAtGap = 0;
+                    else
+                    {
+                        // Re-calibrate from this reply and retry once; a second miss uses the centre placement.
+                        missesAtGap = lastMissGapColumn == gapColumn ? missesAtGap + 1 : 1;
+                        lastMissGapColumn = gapColumn;
+                        if (missesAtGap >= 2) stalledGapColumn = gapColumn;
+                    }
+                }
 
                 int before = covered.Count;
                 foreach (int index in observation.RequestedIndices)
                     covered.Add(index);
+                {
+                    string shape = observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount).Distinct().Count() +
+                        "x" + observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
+                    state.FootprintHistogram[shape] = state.FootprintHistogram.GetValueOrDefault(shape) + 1;
+                    state.NewlyCoveredAois += covered.Count - before;
+                }
                 foreach (FirstLivePreparedResource prepared in observation.Prepared)
                 {
-                    if (!cityRecords.TryGetValue(prepared.Record.RecordKey, out FirstLivePreparedResource? prior) ||
-                        prepared.Record.UpdatedAt >= prior.Record.UpdatedAt)
-                        cityRecords[prepared.Record.RecordKey] = prepared;
+                    MergeLatestCityByOwner(cityRecords, prepared);
                 }
                 foreach (FirstLivePreparedResource prepared in observation.Resources)
                 {
@@ -490,13 +545,14 @@ internal sealed partial class CurrentClientMapBlockSource
                         trainRecords[prepared.Record.RecordKey] = prepared;
                 }
 
-                int afterGap = FirstUncoveredAoiColumn(covered, aoiRowStart);
+                int afterGap = boundedLens ? Enumerable.Range(0, 10000).FirstOrDefault(index => !covered.Contains(index), -1) : FirstUncoveredAoiColumn(covered, aoiRowStart);
                 if (covered.Count == before)
                     throw new InvalidDataException("Fast full-world adaptive acquisition returned no new AOI coverage.");
                 int measuredWidth = observation.RequestedIndices.Select(index => index % FastCityAoiBlockCount).Distinct().Count();
                 preferWideStep = measuredWidth >= 4 && afterGap != gapColumn;
                 previousGap = afterGap == gapColumn ? gapColumn : null;
                 progress?.Invoke(new MapScanSourceProgress(covered.Count * 100d / 10000d));
+                if (boundedLens && state.ValidatedProbeResponses % 10 == 0) WriteFastFullWorldMetrics(state, "acquiring");
             }
             // Ten compact checkpoints (and one final) per full-world pass;
             // per-request I/O would itself distort the elapsed benchmark.
@@ -548,6 +604,7 @@ internal sealed partial class CurrentClientMapBlockSource
             : 0;
         if (idleResourceCount > 0)
         {
+            Exception? resourceHydrationCause = null;
             try
             {
                 resourceDetails = await ProbeResourceScanDetailsAsync(
@@ -555,8 +612,16 @@ internal sealed partial class CurrentClientMapBlockSource
             }
             catch (Exception ex) when (ex is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException)
             {
+                resourceHydrationCause = ex;
                 resourceDetails = ResourceScanDetailObservation.Failed(ex.Message);
             }
+            // A failed/partial native detail pass previously published every
+            // known idle Resource with unknown capacity, despite reporting a
+            // completed full-world scan. Require the exact current idle keys
+            // before modifying any staged record; a source error must abort
+            // this publication attempt, including mixed selections.
+            RequireFullWorldResourceHydration(probeRuntimeRoot, request,
+                resourceRecords, resourceDetails, resourceHydrationCause);
             foreach ((string key, FirstLivePreparedResource prepared) in resourceRecords.ToArray())
             {
                 if (!IsKnownIdleResource(prepared.Record)) continue;
@@ -580,6 +645,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 resourceDetails.SendFailureCount,
                 resourceDetails.ReadyCount,
                 resourceDetails.Error);
+            LastResourceCompletenessReport.RequireReconciledBeforePublication(
+                state.ValidatedProbeResponses, resourceRecords.Count);
         }
         state.ResourceHydrationMilliseconds = (Now() - resourceStarted).TotalMilliseconds;
         state.ResourceDetailNativeRequests = resourceDetails.RequestCount;
@@ -714,7 +781,30 @@ internal sealed partial class CurrentClientMapBlockSource
         return -1;
     }
 
-    private static void ValidateAdaptiveRowFootprint(
+    // The bounded City lens walks the entire AOI grid in one outer iteration;
+    // its first gap can move beyond the serial route's current ten-row band.
+    // Do not evaluate serial-band placement before overriding its result: once
+    // that band is covered its missing-row set is empty and correctly rejected
+    // by TargetY. Keep that strict serial guard on the serial route only.
+    internal static (int TargetY, int[] MissingRows) SelectFullWorldProbeY(
+        bool boundedLens, IReadOnlySet<int> covered, int firstGap,
+        int aoiRowStart, int gapColumn, bool nativeEightRowWindowObserved,
+        int? windowFirstRowOffset)
+    {
+        if (boundedLens)
+        {
+            if (firstGap is < 0 or >= 10000)
+                throw new ArgumentOutOfRangeException(nameof(firstGap));
+            return (Math.Min(995, (firstGap / FastCityAoiBlockCount + 2) * FastCityAoiBlockSize + 5), []);
+        }
+        int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
+            .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
+            .ToArray();
+        return (MapFullWorldAoiPlacement.TargetY(aoiRowStart, missingRows,
+            nativeEightRowWindowObserved, windowFirstRowOffset), missingRows);
+    }
+
+    internal static void ValidateAdaptiveRowFootprint(
         int[] indices,
         int rowStart,
         MapScanExecutionRequest request,
@@ -730,15 +820,17 @@ internal sealed partial class CurrentClientMapBlockSource
             $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
             $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
             $"indices=[{string.Join(',', indices.Order())}]";
-        if (rows.Length is < FastFullWorldAoiRows - 1 or > FastFullWorldAoiRows ||
+        // v26 windows measured on a real client: 7-11 rows depending on camera height / lens.
+        if (rows.Length is < FastFullWorldAoiRows - 3 or > FastFullWorldAoiRows + 2 ||
             rows.Length == 0 ||
-            rows[0] < rowStart || rows[0] > rowStart + 1 ||
-            rows[^1] < rowStart + FastFullWorldAoiRows - 2 ||
-            rows[^1] > rowStart + FastFullWorldAoiRows ||
+            // The window may start anywhere that still overlaps the band: placement targets the first
+            // missing row, and the exact 10,000-cell union (not this shape check) proves coverage.
             rows.Zip(rows.Skip(1), (top, bottom) => bottom - top).Any(delta => delta != 1) ||
             columns.Length is < 2 or > 5 ||
             columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
-            indices.Length != rows.Length * columns.Length)
+            indices.Length != rows.Length * columns.Length ||
+            !indices.Contains((targetY / 10) * FastCityAoiBlockCount + targetX / 10) ||
+            rows.All(row => row < rowStart || row >= rowStart + FastFullWorldAoiRows))
             throw new InvalidDataException(
                 "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");
         var expected = rows.SelectMany(row => columns.Select(column => checked(row * FastCityAoiBlockCount + column))).ToHashSet();
@@ -747,8 +839,56 @@ internal sealed partial class CurrentClientMapBlockSource
                 "Fast full-world adaptive acquisition returned an inconsistent AOI footprint: " + detail + ".");
     }
 
+    internal static void ValidateBoundedLensFootprint(int[] indices, int firstGap, int targetX, int targetY)
+    {
+        var actual = indices.ToHashSet();
+        if (indices.Length is < 20 or > 160 || actual.Count != indices.Length ||
+            actual.Any(index => index is < 0 or >= 10000) || !actual.Contains(firstGap) ||
+            !actual.Contains(targetY / 10 * 100 + targetX / 10))
+            throw new InvalidDataException("Bounded lens did not freshly cover the requested target and uncovered cell.");
+        int[] rows = actual.Select(i => i / 100).Distinct().Order().ToArray();
+        int[] columns = actual.Select(i => i % 100).Distinct().Order().ToArray();
+        if (rows.Zip(rows.Skip(1), (a,b) => b-a).Any(d => d != 1) ||
+            columns.Zip(columns.Skip(1), (a,b) => b-a).Any(d => d != 1) ||
+            actual.Count != rows.Length * columns.Length)
+            throw new InvalidDataException("Bounded lens native AOI rectangle has holes or stale geometry.");
+    }
+
+    internal static void MergeLatestCityByOwner(Dictionary<string, FirstLivePreparedResource> rows,
+        FirstLivePreparedResource candidate)
+    {
+        using var data = JsonDocument.Parse(candidate.Record.DataJson);
+        if (candidate.Record.Kind != "city" || candidate.Record.ServerId <= 0 ||
+            candidate.Record.UpdatedAt <= 0 ||
+            !data.RootElement.TryGetProperty("ownerUid", out var owner) ||
+            owner.ValueKind != JsonValueKind.String ||
+            string.IsNullOrWhiteSpace(owner.GetString()) || owner.GetString() == "0")
+            throw new InvalidDataException("City aggregation requires an actual native owner identity.");
+        // The scan state itself is tied to an exact profile/session/run. Within
+        // that state a player has one current observed location per server.
+        string key = candidate.Record.ServerId.ToString(CultureInfo.InvariantCulture) + ":" + owner.GetString();
+        if (!rows.TryGetValue(key, out var prior))
+        {
+            rows.Add(key, candidate);
+            return;
+        }
+        if (candidate.Record.UpdatedAt > prior.Record.UpdatedAt)
+        {
+            rows[key] = candidate;
+            return;
+        }
+        if (candidate.Record.UpdatedAt == prior.Record.UpdatedAt &&
+            candidate.Record.PointIndex != prior.Record.PointIndex)
+            throw new InvalidDataException("City owner has conflicting locations at the same observation time.");
+    }
+
     private static bool IncludesMonsterSource(MapScanExecutionRequest request) =>
         request.SelectedTypes.Contains("monster", StringComparer.Ordinal) ||
+        request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
+
+    // Zombie Boss (MonsterInvasionBoss special 10) rides the same shared AOI sweep as
+    // Monster; the serialized game-native detail queue runs whenever it is selected.
+    private static bool IncludesZombieBoss(MapScanExecutionRequest request) =>
         request.SelectedTypes.Contains("zombie_boss", StringComparer.Ordinal);
 
     private static bool IsZombieBossOnly(MapScanExecutionRequest request) =>
@@ -770,9 +910,25 @@ internal sealed partial class CurrentClientMapBlockSource
             StringComparison.Ordinal);
 
     private static bool CanUseFastCityBatch(MapScanExecutionRequest request) =>
-        request.SelectedTypes.Count is >= 1 and <= 8 &&
+        request.SelectedTypes.Count is >= 1 and <= 9 &&
         request.SelectedTypes.All(type => type is "city" or "resource" or "monster" or "zombie_boss" or "truck" or "railway" or "dispatch" or "ghost" or "treasure") &&
         request.WorldId == 0 && request.TileWidth == 1000 && request.TileHeight == 1000;
+
+    // Same-session Oct 14 baseline/FOV20 six-round native City comparison:
+    // 4,114 current owners in every round, zero omitted/new owner identities,
+    // one source-timestamped relocation, 10,000 AOIs and exact restoration.
+    // City-only median 227.912s -> 86.179s. Mixed FOV20 missed unexpired
+    // Trucks, and Resource snapshots retained unexplained temporal changes:
+    // neither is admitted to this production policy.
+    internal static double? ExpectedCoverageZoom(CurrentClientMapBlockSourceHooks? hooks) =>
+        hooks?.DisableCoverageZoomNormalization == true ? null : hooks?.CoverageZoomOverride ?? CanonicalCoverageZoom;
+
+    internal static bool ShouldUseBoundedFullWorldCameraLens(
+        MapScanExecutionRequest request, CurrentClientMapBlockSourceHooks? hooks) =>
+        hooks?.ForceLegacyFullWorldLens != true &&
+        (hooks?.ExperimentalBoundedCameraLens == true ||
+         request.SelectedTypes.Count == 1 && request.SelectedTypes[0] == "city");
+
     private async Task<FastCityBatchObservation> ProbeFastCityBatchAsync(
         OverviewMapScanSession session,
         MapScanExecutionRequest request,
@@ -799,6 +955,10 @@ internal sealed partial class CurrentClientMapBlockSource
             $"scanRunId={request.RunId}",
             "viewLevel=-1",
             "requestMode=coverage",
+            $"coverageFov={(ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 ? 20 : 120)}",
+            ExpectedCoverageZoom(hooks) is double coverageZoom
+                ? $"coverageZoom={coverageZoom.ToString("0.###", CultureInfo.InvariantCulture)}"
+                : "coverageZoomNormalization=disabled",
             $"targetTileX={targetX.ToString(CultureInfo.InvariantCulture)}",
             $"targetTileY={targetY.ToString(CultureInfo.InvariantCulture)}",
             "requestedCount=8",
@@ -808,8 +968,9 @@ internal sealed partial class CurrentClientMapBlockSource
             $"includeCity={request.SelectedTypes.Contains("city", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeResource={request.SelectedTypes.Contains("resource", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeMonster={IncludesMonsterSource(request).ToString().ToLowerInvariant()}",
-            $"includeMonsterProtection={IsZombieBossOnly(request).ToString().ToLowerInvariant()}",
+            $"includeMonsterProtection={IncludesZombieBoss(request).ToString().ToLowerInvariant()}",
             $"includeTrain={(request.SelectedTypes.Contains("truck", StringComparer.Ordinal) || request.SelectedTypes.Contains("railway", StringComparer.Ordinal)).ToString().ToLowerInvariant()}",
+            $"observeMarchFreshness={(hooks?.ObserveMarchFreshness == true).ToString().ToLowerInvariant()}",
             $"includeDispatch={request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeGhost={request.SelectedTypes.Contains("ghost", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"includeTreasure={request.SelectedTypes.Contains("treasure", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
@@ -829,7 +990,7 @@ internal sealed partial class CurrentClientMapBlockSource
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
             {
                 byte[] bytes = ReadAllBytes(resultPath);
-                return ValidateFastCityBatchResult(
+                try { var validated = ValidateFastCityBatchResult(
                     root.Value,
                     bytes,
                     resultPath,
@@ -841,10 +1002,82 @@ internal sealed partial class CurrentClientMapBlockSource
                     groupStartRow,
                     targetX,
                     targetY);
+                    if (hooks?.ObserveMarchFreshness == true)
+                    {
+                        // Diagnostic admission only: validating two native manager
+                        // snapshots is NOT a March request/reply/queue readiness proof.
+                        // Null, truncated or duplicate UUID receipts must fail closed.
+                        ValidateNativeMarchTelemetry(root.Value);
+                        JsonElement before = root.Value.GetProperty("marchSourceBefore");
+                        JsonElement atPoint = root.Value.GetProperty("marchSourceAtPointReady");
+                        string directory = Path.Combine(probeRuntimeRoot, "march-freshness-owned");
+                        Directory.CreateDirectory(directory);
+                        File.WriteAllText(Path.Combine(directory, requestId + ".json"),
+                            JsonSerializer.Serialize(new { scanRunId = request.RunId, requestId, serverId = request.ServerId,
+                                targetX, targetY, before, atPoint }));
+                    }
+                    return validated; }
+                catch (InvalidDataException)
+                {
+                    if (nativeBatchNegativesRecorded++ < 8 &&
+                        (hooks is null || ShouldUseBoundedFullWorldCameraLens(request, hooks)))
+                    {
+                        try
+                        {
+                            string negativePath = Path.Combine(probeRuntimeRoot,"batch-negatives");
+                            Directory.CreateDirectory(negativePath);
+                            File.WriteAllBytes(Path.Combine(negativePath,requestId+".json"),bytes);
+                        }
+                        catch (IOException) { } catch (UnauthorizedAccessException) { }
+                    }
+                    throw;
+                }
             }
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client fast City batch did not return a correlated result.");
+    }
+
+    internal static void ValidateNativeMarchTelemetry(JsonElement response)
+    {
+        static InvalidDataException Bad(string reason) =>
+            new("Passive native March telemetry invalid: " + reason);
+        static (double Time, int Count) Check(JsonElement response, string field)
+        {
+            if (!response.TryGetProperty(field, out JsonElement snapshot) ||
+                snapshot.ValueKind != JsonValueKind.Object ||
+                !snapshot.TryGetProperty("available", out JsonElement available) ||
+                available.ValueKind != JsonValueKind.True ||
+                !snapshot.TryGetProperty("observedAtRuntimeSeconds", out JsonElement time) ||
+                time.ValueKind != JsonValueKind.Number ||
+                !time.TryGetDouble(out double seconds) ||
+                !double.IsFinite(seconds) || seconds <= 0 ||
+                !snapshot.TryGetProperty("marchDictionaryCount", out JsonElement count) ||
+                count.ValueKind != JsonValueKind.Number ||
+                !count.TryGetInt32(out int reportedCount) || reportedCount < 0 ||
+                !snapshot.TryGetProperty("marchUuidSampleCapped", out JsonElement capped) ||
+                capped.ValueKind != JsonValueKind.False ||
+                !snapshot.TryGetProperty("marchUuids", out JsonElement uuids) ||
+                uuids.ValueKind != JsonValueKind.Array)
+                throw Bad(field + " missing, stale, truncated or unavailable");
+            var unique = new HashSet<string>(StringComparer.Ordinal);
+            int observed = 0;
+            foreach (JsonElement uuid in uuids.EnumerateArray())
+            {
+                if (uuid.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(uuid.GetString()) ||
+                    !unique.Add(uuid.GetString()!))
+                    throw Bad(field + " has a blank or duplicate March UUID");
+                observed++;
+            }
+            if (observed != reportedCount)
+                throw Bad(field + " March UUID count does not match native dictionary");
+            return (seconds, observed);
+        }
+        (double start, _) = Check(response, "marchSourceBefore");
+        (double ready, _) = Check(response, "marchSourceAtPointReady");
+        if (ready < start || ready - start > FastCityProbeTimeout.TotalSeconds)
+            throw Bad("native point-ready snapshot is out of the correlated probe time window");
     }
 
     internal async Task<IReadOnlyList<MapStoredRecord>> CaptureRailwayListSnapshotForTestAsync(
@@ -1265,11 +1498,132 @@ internal sealed partial class CurrentClientMapBlockSource
             cancellationToken.ThrowIfCancellationRequested();
             JsonElement? root = TryReadJson(resultPath);
             if (root is not null && MatchesString(root.Value, "requestId", requestId))
+            {
+                // Keep the first request-correlated native response BEFORE
+                // validation or the Lua lane clears its state. A retry must
+                // never overwrite the evidence of the original failure.
+                try { RetainFirstResourceHydrationReply(probeRuntimeRoot, request.RunId, requestId, root.Value); }
+                catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException or
+                    JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+                {
+                    Console.Error.WriteLine("Resource hydration reply retention unavailable: " + error.Message);
+                }
                 return ValidateResourceScanDetailResult(
                     root.Value, requestId, startedAt, session, request, resourceRecordCount);
+            }
             await DelayAsync(PollDelay, cancellationToken).ConfigureAwait(false);
         }
         throw new TimeoutException("The current-client Resource detail enrichment did not return a correlated result.");
+    }
+
+    internal static string RetainFirstResourceHydrationReply(
+        string probeRoot, string runId, string requestId, JsonElement reply)
+    {
+        RequireResourceHydrationArtifactToken(requestId);
+        if (reply.ValueKind != JsonValueKind.Object || !MatchesString(reply, "requestId", requestId))
+            throw new InvalidDataException("Cannot retain a foreign Resource hydration response.");
+        string folder = ResourceHydrationArtifactFolder(probeRoot, runId);
+        Directory.CreateDirectory(folder);
+        string path = Path.Combine(folder, "first-reply.json");
+        WriteResourceHydrationArtifactOnce(path, reply.GetRawText());
+        return path;
+    }
+
+    private static string ResourceHydrationArtifactFolder(string probeRoot, string runId)
+    {
+        RequireResourceHydrationArtifactToken(runId);
+        return Path.Combine(Path.GetFullPath(probeRoot), "resource-hydration-receipts", runId);
+    }
+
+    private static void RequireResourceHydrationArtifactToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token) || token.Length > 128 ||
+            token.Any(value => !char.IsAsciiLetterOrDigit(value) && value is not ('-' or '_')))
+            throw new InvalidDataException("Unsafe Resource hydration artifact identity.");
+    }
+
+    private static void WriteResourceHydrationArtifactOnce(string path, string json)
+    {
+        string temporary = Path.Combine(Path.GetDirectoryName(path)!, ".receipt-" + Guid.NewGuid().ToString("N") + ".tmp");
+        try
+        {
+            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                file.Write(Encoding.UTF8.GetBytes(json));
+                file.Flush(flushToDisk: true);
+            }
+            try { File.Move(temporary, path, overwrite: false); }
+            catch (IOException conflict) when (File.Exists(path) &&
+                (conflict.HResult & 0xFFFF) is 80 or 183 or 17)
+            {
+                // Only the completed-final-file conflict is tolerated. A
+                // partial temporary write is never a retained first receipt.
+            }
+        }
+        finally
+        {
+            // This exact unique temporary belongs to this call; never remove
+            // the pre-existing final receipt or another attempt's temporary.
+            try { if (File.Exists(temporary)) File.Delete(temporary); }
+            catch (Exception cleanupError) when (cleanupError is IOException or UnauthorizedAccessException)
+            { Console.Error.WriteLine("Resource diagnostic temporary cleanup unavailable: " + cleanupError.Message); }
+        }
+    }
+
+    internal static void RequireFullWorldResourceHydration(
+        string probeRoot, MapScanExecutionRequest request,
+        IReadOnlyDictionary<string, FirstLivePreparedResource> resources,
+        ResourceScanDetailObservation observation, Exception? originalCause = null)
+    {
+        try { RequireCompleteResourceHydration(resources, observation); }
+        catch (InvalidDataException validationError)
+        {
+            Exception cause = originalCause ?? validationError;
+            string? failurePath = null;
+            try
+            {
+                string folder = ResourceHydrationArtifactFolder(probeRoot, request.RunId);
+                Directory.CreateDirectory(folder);
+                string replyPath = Path.Combine(folder, "first-reply.json");
+                JsonElement? raw = null;
+                if (File.Exists(replyPath))
+                {
+                    using JsonDocument document = JsonDocument.Parse(File.ReadAllText(replyPath, Encoding.UTF8));
+                    raw = document.RootElement.Clone();
+                }
+                int? ReadCount(string field) => raw is { } value &&
+                    value.TryGetProperty(field, out var item) && item.ValueKind == JsonValueKind.Number &&
+                    item.TryGetInt32(out int count) ? count : null;
+                string failureJson = JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1, scanRunId = request.RunId,
+                    serverId = request.ServerId, worldId = request.WorldId,
+                    phase = "fullworld_resource_hydration_validation_failed",
+                    originalMessage = cause.Message, originalType = cause.GetType().Name,
+                    validationMessage = validationError.Message,
+                    nativeError = raw is { } value ? ReadOptionalString(value, "error") : null,
+                    nativeTargetCount = ReadCount("targetCount"), nativeReadyCount = ReadCount("readyCount"),
+                    nativeDetailCount = raw is { } detailsRoot &&
+                        detailsRoot.TryGetProperty("details", out var nativeDetails) && nativeDetails.ValueKind == JsonValueKind.Array
+                            ? (int?)nativeDetails.GetArrayLength() : null,
+                    currentIdleCount = resources.Values.Count(item => IsKnownIdleResource(item.Record)),
+                    observationTargetCount = observation.TargetCount, observationReadyCount = observation.ReadyCount,
+                    observationDetailCount = observation.Details.Count, observationError = observation.Error,
+                    rawReceiptLocator = File.Exists(replyPath) ? replyPath : null,
+                }, JsonOptions.Default);
+                failurePath = Path.Combine(folder, "first-failure.json");
+                WriteResourceHydrationArtifactOnce(failurePath, failureJson);
+            }
+            catch (Exception diagnosticError) when (diagnosticError is IOException or UnauthorizedAccessException or InvalidDataException or
+                JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+            {
+                Console.Error.WriteLine("Resource hydration failure retention unavailable: " + diagnosticError.Message);
+            }
+            var terminal = new MapScanSourceValidationException(
+                "Full-world Resource hydration validation failed: " + cause.Message, cause);
+            if (failurePath is not null && File.Exists(failurePath)) terminal.Data["resourceHydrationFailureReceipt"] = failurePath;
+            throw terminal;
+        }
     }
 
     private static bool IsKnownIdleResource(MapStoredRecord record)
@@ -1287,6 +1641,49 @@ internal sealed partial class CurrentClientMapBlockSource
         catch (JsonException)
         {
             return false;
+        }
+    }
+
+    internal static void RequireCompleteResourceHydration(
+        IReadOnlyDictionary<string, FirstLivePreparedResource> resources,
+        ResourceScanDetailObservation observation)
+    {
+        string[] idleKeys = resources.Where(pair => IsKnownIdleResource(pair.Value.Record))
+            .Select(pair => pair.Key).ToArray();
+        if (idleKeys.Length == 0) return;
+        if (!string.IsNullOrWhiteSpace(observation.Error) ||
+            observation.TargetCount < idleKeys.Length ||
+            observation.TargetCount != observation.Details.Count ||
+            observation.ReadyCount != observation.Details.Values.Count(detail => detail.Received))
+            throw new InvalidDataException("Resource source hydration did not complete its current native targets.");
+
+        foreach (string key in idleKeys)
+        {
+            if (!observation.Details.TryGetValue(key, out ResourceScanDetail? detail) ||
+                !detail.Received || detail.FullAmount <= 0 || detail.RemainingAmount < 0 ||
+                detail.RemainingAmount > detail.FullAmount)
+                throw new InvalidDataException("Resource source hydration missed a currently idle Resource identity.");
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(resources[key].Record.DataJson);
+                JsonElement source = document.RootElement;
+                if (!source.TryGetProperty("resourceConfigId", out JsonElement config) ||
+                    !config.TryGetInt32(out int expectedConfig) || expectedConfig <= 0 ||
+                    !source.TryGetProperty("resourceMaxAmount", out JsonElement capacity) ||
+                    !capacity.TryGetInt64(out long expectedCapacity) || expectedCapacity <= 0 ||
+                    !source.TryGetProperty("resourceNameKey", out JsonElement name) ||
+                    name.ValueKind is not (JsonValueKind.String or JsonValueKind.Number) ||
+                    detail.ResourceConfigId != expectedConfig ||
+                    detail.SourceCapacity != expectedCapacity ||
+                    detail.FullAmount != expectedCapacity ||
+                    detail.SourceNameKey != (name.ValueKind == JsonValueKind.String
+                        ? name.GetString() : name.GetRawText()))
+                    throw new InvalidDataException("Resource source hydration identity/configuration changed during acquisition.");
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Resource source hydration metadata is malformed.", ex);
+            }
         }
     }
 
@@ -1325,6 +1722,16 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             string recordKey = RequiredString(item, "recordKey");
             bool received = item.TryGetProperty("received", out JsonElement receivedValue) && receivedValue.ValueKind == JsonValueKind.True;
+            int? configId = item.TryGetProperty("resourceConfigId", out JsonElement configValue) &&
+                configValue.ValueKind == JsonValueKind.Number &&
+                configValue.TryGetInt32(out int observedConfig) ? observedConfig : null;
+            long? capacity = item.TryGetProperty("resourceMaxAmount", out JsonElement capacityValue) &&
+                capacityValue.ValueKind == JsonValueKind.Number &&
+                capacityValue.TryGetInt64(out long observedCapacity) ? observedCapacity : null;
+            string? nameKey = item.TryGetProperty("resourceNameKey", out JsonElement nameValue) &&
+                nameValue.ValueKind is JsonValueKind.String or JsonValueKind.Number
+                    ? nameValue.ValueKind == JsonValueKind.String ? nameValue.GetString() : nameValue.GetRawText()
+                    : null;
             long remaining = 0;
             long fullAmount = 0;
             if (received)
@@ -1335,14 +1742,60 @@ internal sealed partial class CurrentClientMapBlockSource
                     remaining > fullAmount)
                     throw new InvalidDataException("Resource detail enrichment returned an invalid amount pair.");
             }
-            if (!details.TryAdd(recordKey, new ResourceScanDetail(received, remaining, fullAmount)))
+            if (!details.TryAdd(recordKey, new ResourceScanDetail(
+                received, remaining, fullAmount, configId, capacity, nameKey)))
                 throw new InvalidDataException("Resource detail enrichment returned a duplicate record key.");
         }
         if (details.Count != targetCount)
             throw new InvalidDataException("Resource detail enrichment target/detail counts differ.");
+        RequireResourceDetailRowProvenance(detailsValue, targetCount, requestCount,
+            cacheBeforeCount, sendFailureCount, readyCount);
         string? error = ReadOptionalString(root, "error");
         return new ResourceScanDetailObservation(
             targetCount, requestCount, cacheBeforeCount, sendFailureCount, readyCount, details, error);
+    }
+
+    // Native resource_scan_detail_runtime.rows attaches per-target origin
+    // flags; aggregate header counts alone are insufficient to prove them.
+    internal static void RequireResourceDetailRowProvenance(
+        JsonElement rows, int targetCount, int requestCount, int cacheBeforeCount,
+        int sendFailureCount, int readyCount)
+    {
+        if (rows.ValueKind != JsonValueKind.Array || targetCount < 0 ||
+            requestCount < 0 || cacheBeforeCount < 0 || sendFailureCount < 0 ||
+            readyCount < 0 || rows.GetArrayLength() != targetCount)
+            throw new InvalidDataException("Resource detail native target rows are inconsistent.");
+
+        int issued = 0, cached = 0, failed = 0, receivedCount = 0;
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            if (row.ValueKind != JsonValueKind.Object ||
+                !row.TryGetProperty("requestIssued", out JsonElement issuedValue) ||
+                issuedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("cacheBefore", out JsonElement cachedValue) ||
+                cachedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("sendFailed", out JsonElement failedValue) ||
+                failedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                !row.TryGetProperty("received", out JsonElement receivedValue) ||
+                receivedValue.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                throw new InvalidDataException("Resource detail target omitted native request/cache/receive provenance.");
+            bool wasIssued = issuedValue.GetBoolean();
+            bool wasCached = cachedValue.GetBoolean();
+            bool sendFailed = failedValue.GetBoolean();
+            bool received = receivedValue.GetBoolean();
+            if ((wasIssued ? 1 : 0) + (wasCached ? 1 : 0) + (sendFailed ? 1 : 0) != 1 ||
+                sendFailed && received ||
+                !received && row.TryGetProperty("detail", out JsonElement rawDetail) &&
+                    rawDetail.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+                throw new InvalidDataException("Resource detail target has contradictory native origin or result.");
+            if (wasIssued) issued++;
+            if (wasCached) cached++;
+            if (sendFailed) failed++;
+            if (received) receivedCount++;
+        }
+        if (issued != requestCount || cached != cacheBeforeCount ||
+            failed != sendFailureCount || receivedCount != readyCount)
+            throw new InvalidDataException("Resource detail target provenance does not reconcile with native counters.");
     }
 
     private static FirstLivePreparedResource ApplyResourceScanDetail(
@@ -1390,7 +1843,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesBool(root, "includeCity", request.SelectedTypes.Contains("city", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeResource", request.SelectedTypes.Contains("resource", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeMonster", IncludesMonsterSource(request)) ||
-            !MatchesBool(root, "includeMonsterProtection", IsZombieBossOnly(request)) ||
+            !MatchesBool(root, "includeMonsterProtection", IncludesZombieBoss(request)) ||
             !MatchesBool(root, "includeTrain", request.SelectedTypes.Contains("truck", StringComparer.Ordinal) ||
                 request.SelectedTypes.Contains("railway", StringComparer.Ordinal)) ||
             !MatchesBool(root, "includeDispatch", request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)) ||
@@ -1427,10 +1880,21 @@ internal sealed partial class CurrentClientMapBlockSource
             MatchesBool(root, "positionRestoredBeforeResponse", false) &&
             MatchesBool(root, "positionRestoredAfterResponse", true) &&
             MatchesString(root, "requestMethod", "WorldPointManager.UpdateViewRequest(true)+deferred-restore-after-response");
+        if (ExpectedCoverageZoom(hooks) is double expectedZoom &&
+            (!root.TryGetProperty("coverageZoom", out JsonElement echoedZoom) || echoedZoom.ValueKind != JsonValueKind.Number ||
+             Math.Abs(echoedZoom.GetDouble() - expectedZoom) > 0.001 ||
+             !root.TryGetProperty("coverageZoomApplied", out JsonElement appliedZoom) || appliedZoom.ValueKind != JsonValueKind.Number ||
+             Math.Abs(appliedZoom.GetDouble() - expectedZoom) > 0.01))
+            throw new InvalidDataException("Fast world batch did not prove the canonical coverage camera height was applied.");
+        if (ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 && !MatchesInt(root, "coverageFov", 20))
+            throw new InvalidDataException("Bounded lens result did not match its admitted lens.");
         if (!MatchesBool(root, "responseFlagsTransitioned", true) ||
             !MatchesBool(root, "cameraTileStable", true) ||
+            !MatchesBool(root, "cameraGeometryRestored", true) ||
+            !MatchesBool(root, "cameraGeometryConfirmed", true) ||
+            !MatchesBool(root, "cameraProjectionRestored", true) ||
             !restorationContractMatches)
-            throw new InvalidDataException("Fast world batch did not prove the native response/restoration contract.");
+            throw new InvalidDataException("Fast world batch did not prove the native response and full camera geometry restoration contract.");
         if (!MatchesInt(root, "serverLod", 0) ||
             !MatchesInt(root, "blockSize", FastCityAoiBlockSize) ||
             !MatchesInt(root, "blockCount", FastCityAoiBlockCount) ||
@@ -1439,7 +1903,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesInt(root, "postBlockCount", FastCityAoiBlockCount))
             throw new InvalidDataException("Fast world batch AOI geometry changed during acquisition.");
         int[] requestedIndices = RequireNonNegativeIntArray(root, "requestedIndices");
-        if (requestedIndices.Length < FastCityExpectedAoiCount ||
+        if (requestedIndices.Length < FastCityMinimumLiveAoiCount ||
             requestedIndices.Any(index => index >= FastCityAoiBlockCount * FastCityAoiBlockCount))
             throw new InvalidDataException("Fast world batch returned an invalid native AOI footprint.");
         if (!MatchesInt(root, "nativeCurrentSetCount", requestedIndices.Length))
@@ -1456,6 +1920,58 @@ internal sealed partial class CurrentClientMapBlockSource
             pointRecords.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its point record snapshot.");
         int matchedCityCount = RequireNonNegativeInt(root, "matchedCityCount");
+        if (request.SelectedTypes.Contains("city", StringComparer.Ordinal))
+        {
+            if (!root.TryGetProperty("cityCompleteness", out JsonElement cityCompleteness) ||
+                cityCompleteness.ValueKind != JsonValueKind.Object ||
+                !MatchesInt(cityCompleteness, "accepted", matchedCityCount) ||
+                !MatchesInt(cityCompleteness, "inRequestedAoi", matchedCityCount) ||
+                !MatchesInt(cityCompleteness, "missingPointIndex", 0) ||
+                !MatchesInt(cityCompleteness, "invalidPosition", 0) ||
+                !MatchesInt(cityCompleteness, "missingServer", 0) ||
+                !MatchesInt(cityCompleteness, "missingOwnerUid", 0) ||
+                !MatchesInt(cityCompleteness, "missingOwnerName", 0) ||
+                !MatchesInt(cityCompleteness, "duplicateRetainedPointIndices", 0) ||
+                !MatchesInt(cityCompleteness, "missingNativeCurrentPointIndices", 0) ||
+                !cityCompleteness.TryGetProperty("sourceCount", out JsonElement allRetained) ||
+                allRetained.ValueKind != JsonValueKind.Number ||
+                !allRetained.TryGetInt32(out int retainedCount) || retainedCount < matchedCityCount ||
+                !root.TryGetProperty("nativePointInfoCityCount", out JsonElement currentCityValue) ||
+                currentCityValue.ValueKind != JsonValueKind.Number ||
+                !currentCityValue.TryGetInt32(out int currentCityCount) ||
+                !cityCompleteness.TryGetProperty("nativeCurrentCityCount",out var canonicalCityValue) ||
+                canonicalCityValue.ValueKind != JsonValueKind.Number ||
+                !canonicalCityValue.TryGetInt32(out int canonicalCityCount) || canonicalCityCount < 0 ||
+                canonicalCityCount > matchedCityCount || currentCityCount < 0)
+                throw new InvalidDataException("Fast world City producer did not reconcile independent retained-base and current-point counts.");
+            if (cityCompleteness.TryGetProperty("nativeOwnerConflicts", out _) &&
+                !MatchesInt(cityCompleteness,"nativeOwnerConflicts",0))
+                throw new InvalidDataException("Fresh native City owner conflicts with its retained point identity.");
+            int superseded = cityCompleteness.TryGetProperty("supersededNativeCityCount",out var supersededValue)
+                ? supersededValue.ValueKind == JsonValueKind.Number && supersededValue.TryGetInt32(out int n) && n >= 0
+                    ? n : throw new InvalidDataException("Invalid superseded native City count") : 0;
+            if ((long)canonicalCityCount + superseded != currentCityCount ||
+                cityCompleteness.TryGetProperty("nativeCanonicalLookupFailures",out _) &&
+                !MatchesInt(cityCompleteness,"nativeCanonicalLookupFailures",0))
+                throw new InvalidDataException("Native City identities lack complete canonical-owner accounting.");
+            if (superseded > 0)
+            {
+                if (!cityCompleteness.TryGetProperty("supersededNativePoints",out var oldPoints) ||
+                    oldPoints.ValueKind != JsonValueKind.Array || oldPoints.GetArrayLength()!=superseded)
+                    throw new InvalidDataException("Superseded native Cities lack exact identity references.");
+                var oldIds = new HashSet<int>();
+                foreach(var oldPoint in oldPoints.EnumerateArray())
+                {
+                    int oldId=RequirePositiveInt(oldPoint,"pointIndex");
+                    int currentId=RequirePositiveInt(oldPoint,"canonicalPointIndex");
+                    int x=RequireNonNegativeInt(oldPoint,"x"),y=RequireNonNegativeInt(oldPoint,"y");
+                    if(!oldIds.Add(oldId) || oldId==currentId || currentId>1000000 || x>=1000 || y>=1000 ||
+                        oldId!=y*1000+x+1 || !requestedSet.Contains(y/10*100+x/10) ||
+                        !MatchesInt(oldPoint,"canonicalServerId",request.ServerId))
+                        throw new InvalidDataException("Superseded native City identity/context was invalid.");
+                }
+            }
+        }
         int matchedResourceCount = RequireNonNegativeInt(root, "matchedResourceCount");
         int matchedDispatchCount = RequireNonNegativeInt(root, "matchedDispatchCount");
         int matchedGhostCount = RequireNonNegativeInt(root, "matchedGhostCount");
@@ -1476,6 +1992,20 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FirstLivePreparedResource> resources = request.SelectedTypes.Contains("resource", StringComparer.Ordinal) && HasPointKind(pointRecords, "resource_point")
             ? FirstLiveResultImporter.PrepareResourceSnapshot(bytes, resultPath)
             : Array.Empty<FirstLivePreparedResource>();
+        if (resourceCompleteness is not null)
+        {
+            RequireResourceNativeSourceCohort(
+                resources, resourceCompleteness, requestedSet, request.ServerId, request.WorldId);
+            // The Lua producer first counts the native AOI snapshot, then
+            // independently enumerates _pointInfos for Resource records. Its
+            // matchedResourceCount is later overwritten by the second pass;
+            // require that the earlier source evidence still agrees with the
+            // published per-type Resource rows, not just their later totals.
+            if (!root.TryGetProperty("nativePointTypeHistogram", out JsonElement firstNativeTypes))
+                throw new InvalidDataException("Native Resource batch omitted its first AOI point-type snapshot.");
+            RequireResourceFirstAoiTypeSnapshot(
+                firstNativeTypes, resources, RequireNonNegativeInt(root, "matchedCount"));
+        }
         IReadOnlyList<FastDispatchPrepared> dispatches = request.SelectedTypes.Contains("dispatch", StringComparer.Ordinal)
             ? PrepareDispatchRecords(pointRecords, request, requestedSet, startedAt)
             : Array.Empty<FastDispatchPrepared>();
@@ -1528,6 +2058,200 @@ internal sealed partial class CurrentClientMapBlockSource
             monsterInvasionBossCount, monsterProtectionDetailTargetCount, monsterProtectionDetailRequestCount, monsterProtectionDetailReadyCount,
             PhaseMilliseconds("targetResponseElapsedSeconds"), PhaseMilliseconds("homeRestorationElapsedSeconds"),
             PhaseMilliseconds("totalProbeElapsedSeconds"));
+    }
+
+    // The first AOI count is taken before the Resource-specific producer
+    // re-enumerates _pointInfos. Counts from the second pass can reconcile
+    // perfectly even if the first native snapshot was a different cohort.
+    // This bounded cross-enumeration check rejects such source races, though
+    // matching counts do NOT prove equal identities or authoritative absence.
+    internal static void RequireResourceFirstAoiTypeSnapshot(
+        JsonElement firstNativeHistogram, IReadOnlyList<FirstLivePreparedResource> acceptedResources,
+        int firstNativeMatchedCount)
+    {
+        if (firstNativeMatchedCount < 0)
+            throw new InvalidDataException("First native AOI matched-point count is invalid.");
+        var observed = new Dictionary<string, long>(StringComparer.Ordinal);
+        long histogramTotal = 0;
+        if (firstNativeHistogram.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty type in firstNativeHistogram.EnumerateObject())
+            {
+                if (type.Value.ValueKind != JsonValueKind.Number ||
+                    !type.Value.TryGetInt64(out long count) || count < 0 ||
+                    !observed.TryAdd(type.Name, count))
+                    throw new InvalidDataException("First native AOI type histogram is malformed or ambiguous.");
+                // point_aoi_counts increments matched and exactly one type key
+                // in the SAME loop, including unknown/non-Resource types.
+                // A valid Resource-only subset cannot certify a contradictory
+                // total native AOI population. Bound before adding to avoid
+                // overflow on malformed/untrusted histogram values.
+                if (count > firstNativeMatchedCount - histogramTotal)
+                    throw new InvalidDataException("First native AOI histogram exceeds its matched point count.");
+                histogramTotal += count;
+            }
+        }
+        else if (firstNativeHistogram.ValueKind != JsonValueKind.Array ||
+                 firstNativeHistogram.GetArrayLength() != 0)
+        {
+            throw new InvalidDataException("First native AOI type histogram is unavailable.");
+        }
+        if (histogramTotal != firstNativeMatchedCount)
+            throw new InvalidDataException("First native AOI histogram does not reconcile with its matched point count.");
+
+        var acceptedByType = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (FirstLivePreparedResource item in acceptedResources)
+        {
+            try
+            {
+                using JsonDocument parsed = JsonDocument.Parse(item.Record.DataJson);
+                if (parsed.RootElement.ValueKind != JsonValueKind.Object ||
+                    !parsed.RootElement.TryGetProperty("pointType", out JsonElement type) ||
+                    type.ValueKind != JsonValueKind.Number || !type.TryGetInt32(out int value) ||
+                    value is not (1 or 7 or 26))
+                    throw new InvalidDataException("Native Resource point has an invalid native source type.");
+                string typeKey = value.ToString(CultureInfo.InvariantCulture);
+                acceptedByType[typeKey] = acceptedByType.TryGetValue(typeKey, out long prior)
+                    ? checked(prior + 1) : 1;
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Native Resource type source JSON was invalid.", ex);
+            }
+        }
+
+        foreach (string typeKey in new[] { "1", "7", "26" })
+        {
+            observed.TryGetValue(typeKey, out long firstCount);
+            acceptedByType.TryGetValue(typeKey, out long acceptedCount);
+            if (firstCount != acceptedCount)
+                throw new InvalidDataException(
+                    "Independent native AOI Resource types changed between first and accepted source snapshots.");
+        }
+    }
+
+    // The native Resource producer enumerates _pointInfos once, then records
+    // acceptedAoiCounts from the very same accepted resource_point entries.
+    // Global totals and a reported footprint cannot prove which individual
+    // AOI supplied each entry. Check the actual normalized source rows against
+    // that exact per-response histogram before treating any AOI as acquired.
+    internal static void RequireResourceNativeSourceCohort(
+        IReadOnlyList<FirstLivePreparedResource> resources,
+        ResourceCompletenessBatchDiagnostics source,
+        IReadOnlySet<int> requestedAois,
+        int serverId,
+        long worldId)
+    {
+        static bool MatchesLong(JsonElement row, string field, long expected) =>
+            row.TryGetProperty(field, out JsonElement value) &&
+            value.ValueKind == JsonValueKind.Number &&
+            value.TryGetInt64(out long actual) && actual == expected;
+        // resource_aoi_records increments rawPointTypeCounts for every native
+        // _pointInfos entry, then classifies Resource candidates solely by the
+        // same native pointType (1, 7, 26). Aggregate count equality alone
+        // previously accepted a purported Resource snapshot whose native type
+        // histogram contained only non-Resource points.
+        long sourceTypedResources = source.RawPointTypeCounts
+            .Where(entry => entry.Key is "1" or "7" or "26")
+            .Sum(entry => (long)entry.Value);
+        if (!source.Reconciles ||
+            sourceTypedResources != source.ResourceCandidateCount ||
+            source.RejectionReasonCounts.Any(reason =>
+                reason.Value > 0 && reason.Key != "outside_selected_aoi") ||
+            resources.Count != source.AcceptedResourceCount)
+            throw new InvalidDataException("Native Resource source contained an unreconciled or skipped candidate.");
+
+        var byAoi = new Dictionary<string, int>(StringComparer.Ordinal);
+        var acceptedByNativeType = new Dictionary<string, int>(StringComparer.Ordinal);
+        var acceptedByRuntimeClass = new Dictionary<string, int>(StringComparer.Ordinal);
+        var identities = new HashSet<int>();
+        foreach (FirstLivePreparedResource resource in resources)
+        {
+            FirstLiveResultImport origin = resource.Import;
+            MapStoredRecord row = resource.Record;
+            int aoi = checked((origin.Y / 10) * FastCityAoiBlockCount + origin.X / 10);
+            if (origin.ServerId != serverId || row.ServerId != serverId ||
+                row.Kind != "resource" || row.PointIndex != origin.PointIndex ||
+                row.RecordKey != origin.RecordKey ||
+                origin.RecordKey != origin.PointIndex.ToString(CultureInfo.InvariantCulture) ||
+                origin.PointIndex != (long)origin.Y * 1000 + origin.X + 1 ||
+                origin.X is < 0 or >= 1000 || origin.Y is < 0 or >= 1000 ||
+                origin.CapturedAtUnixMilliseconds <= 0 ||
+                row.UpdatedAt != origin.CapturedAtUnixMilliseconds ||
+                !requestedAois.Contains(aoi) || !identities.Add(origin.PointIndex))
+                throw new InvalidDataException("Native Resource point had a foreign, duplicate or stale AOI identity.");
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(row.DataJson);
+                JsonElement data = document.RootElement;
+                bool sourceOccupiedKnown = data.TryGetProperty("gatherOccupancyKnown", out JsonElement known) &&
+                    known.ValueKind == JsonValueKind.True;
+                bool rebuiltKnown = data.TryGetProperty("rebuildGatherOccupancyKnown", out JsonElement rebuildKnown) &&
+                    rebuildKnown.ValueKind == JsonValueKind.True;
+                if (data.ValueKind != JsonValueKind.Object ||
+                    !MatchesInt(data, "pointId", origin.PointIndex) ||
+                    !MatchesInt(data, "pointIndex", origin.PointIndex) ||
+                    !MatchesInt(data, "serverId", serverId) ||
+                    !MatchesInt(data, "srcServerId", serverId) ||
+                    !MatchesLong(data, "worldId", worldId) ||
+                    !MatchesInt(data, "x", origin.X) || !MatchesInt(data, "y", origin.Y) ||
+                    !MatchesString(data, "kind", "resource") ||
+                    !MatchesString(data, "sourceKind", "resource_point") ||
+                    !MatchesString(data, "source",
+                        "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange") ||
+                    !MatchesString(data, "recordKey", origin.RecordKey) ||
+                    !data.TryGetProperty("runtimeClass", out JsonElement runtimeClass) ||
+                    runtimeClass.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(runtimeClass.GetString()) ||
+                    !data.TryGetProperty("resourceSourceType", out JsonElement sourceClass) ||
+                    sourceClass.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(sourceClass.GetString()) ||
+                    !data.TryGetProperty("pointType", out JsonElement type) ||
+                    type.ValueKind != JsonValueKind.Number ||
+                    !type.TryGetInt32(out int nativePointType) ||
+                    nativePointType is not (1 or 7 or 26) ||
+                    !MatchesLong(data, "updatedAt", row.UpdatedAt) ||
+                    sourceOccupiedKnown != rebuiltKnown ||
+                    (sourceOccupiedKnown &&
+                     (!data.TryGetProperty("gatherOccupied", out JsonElement occupied) ||
+                      occupied.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                      !MatchesBool(data, "rebuildGatherOccupied", occupied.GetBoolean()))))
+                    throw new InvalidDataException("Native Resource point lacked source identity or current occupancy provenance.");
+                string nativeTypeKey = nativePointType.ToString(CultureInfo.InvariantCulture);
+                int acceptedForType = acceptedByNativeType.TryGetValue(nativeTypeKey, out int earlier)
+                    ? checked(earlier + 1) : 1;
+                // The accepted AOI records are a subset of the same raw native
+                // enumeration. The source cannot accept more of a type than
+                // it reports observing, even when overall counts reconcile.
+                if (!source.RawPointTypeCounts.TryGetValue(nativeTypeKey, out int enumeratedForType) ||
+                    acceptedForType > enumeratedForType)
+                    throw new InvalidDataException("Native Resource accepted type lacks raw source enumeration evidence.");
+                acceptedByNativeType[nativeTypeKey] = acceptedForType;
+
+                // The same native _pointInfos enumeration increments
+                // runtimeClassCounts BEFORE filtering each candidate and
+                // writes reflected_type_name(info) to each accepted row.
+                // A nonblank row class is not enough: a contradictory raw
+                // class histogram can otherwise certify a foreign source.
+                string nativeClass = runtimeClass.GetString()!;
+                int acceptedForClass = acceptedByRuntimeClass.TryGetValue(nativeClass, out int earlierClass)
+                    ? checked(earlierClass + 1) : 1;
+                if (!source.RuntimeClassCounts.TryGetValue(nativeClass, out int enumeratedForClass) ||
+                    acceptedForClass > enumeratedForClass)
+                    throw new InvalidDataException("Native Resource accepted class lacks raw source enumeration evidence.");
+                acceptedByRuntimeClass[nativeClass] = acceptedForClass;
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidDataException("Native Resource source row has invalid JSON.", ex);
+            }
+            string key = aoi.ToString(CultureInfo.InvariantCulture);
+            byAoi[key] = byAoi.TryGetValue(key, out int previous) ? checked(previous + 1) : 1;
+        }
+        if (source.AcceptedAoiCounts.Count != byAoi.Count ||
+            source.AcceptedAoiCounts.Any(entry =>
+                !byAoi.TryGetValue(entry.Key, out int actual) || actual != entry.Value))
+            throw new InvalidDataException("Native Resource per-AOI source counts differ from accepted point records.");
     }
     private static Dictionary<int, MapStoredRecord[]> RecordsByBlock(FastCityBatchObservation observation, MapScanExecutionRequest request)
     {
@@ -1639,8 +2363,10 @@ internal sealed partial class CurrentClientMapBlockSource
             // as the steal expiry contract.
 
             string recordKey = pointId.ToString(CultureInfo.InvariantCulture);
+            string? ownerName = OptionalStringValue(row, "ownerName");
+            string? allianceName = OptionalStringValue(row, "allianceName");
             result.Add(new FastDispatchPrepared(x, y, new MapStoredRecord(
-                "dispatch", serverId, recordKey, pointId, uuid, null, null,
+                "dispatch", serverId, recordKey, pointId, uuid, ownerName, allianceName,
                 level, quality, null, null, null, updatedAt,
                 data.ToJsonString(JsonOptions.Default))));
         }
@@ -1781,8 +2507,12 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!root.TryGetProperty("monster_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its Monster march snapshot.");
         var result = new List<FastMonsterPrepared>(rows.GetArrayLength());
-        bool zombieBossOnly = IsZombieBossOnly(request);
-        string outputKind = zombieBossOnly ? "zombie_boss" : "monster";
+        // Routing split of one shared sweep: game-identified MonsterInvasionBoss rows
+        // (special 10, `monsterProtectionEligible`) belong to zombie_boss only; every
+        // other row belongs to monster only. A kind that was not selected never
+        // receives the other kind's rows (so Monster-only scans keep excluding them).
+        bool wantsMonster = request.SelectedTypes.Contains("monster", StringComparer.Ordinal);
+        bool wantsZombieBoss = IncludesZombieBoss(request);
         foreach (JsonElement row in rows.EnumerateArray())
         {
             string uuid = RequiredString(row, "uuid");
@@ -1803,7 +2533,19 @@ internal sealed partial class CurrentClientMapBlockSource
                 ? parsedDistance : null;
             bool protectionEligible = row.TryGetProperty("monsterProtectionEligible", out JsonElement protectionEligibleValue) &&
                 protectionEligibleValue.ValueKind == JsonValueKind.True;
-            if (zombieBossOnly ? !protectionEligible : protectionEligible) continue;
+            if (protectionEligible ? !wantsZombieBoss : !wantsMonster) continue;
+            string outputKind = protectionEligible ? MapScanContract.ZombieBossKind : "monster";
+            // Static game template power (`recommend_power`); absent/unparseable stays unknown.
+            long? recommendPower = null;
+            if (protectionEligible && row.TryGetProperty("recommendPower", out JsonElement powerValue))
+            {
+                if (powerValue.ValueKind == JsonValueKind.Number && powerValue.TryGetInt64(out long numericPower) && numericPower > 0)
+                    recommendPower = numericPower;
+                else if (powerValue.ValueKind == JsonValueKind.String && long.TryParse(powerValue.GetString(),
+                    NumberStyles.None, CultureInfo.InvariantCulture, out long textPower) && textPower > 0)
+                    recommendPower = textPower;
+                if (recommendPower is not null) data["recommendPower"] = recommendPower.Value;
+            }
             bool protectionKnown = row.TryGetProperty("monsterProtectionKnown", out JsonElement protectionKnownValue) &&
                 protectionKnownValue.ValueKind == JsonValueKind.True;
             bool protectionActive = row.TryGetProperty("monsterProtectionActive", out JsonElement protectionActiveValue) &&
@@ -1821,10 +2563,15 @@ internal sealed partial class CurrentClientMapBlockSource
             if (distance is not null) data["distanceFromHome"] = distance.Value;
             if (shieldEndTime is not null) data["shieldEndTime"] = shieldEndTime.Value;
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
-            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord(outputKind, serverId, uuid, pointIndex, uuid, nameKey, null, level, null, null, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
+            result.Add(new FastMonsterPrepared(x, y, protectionEligible, new MapStoredRecord(outputKind, serverId, uuid, pointIndex, uuid, nameKey, null, level, null, recommendPower, distance, shieldEndTime, updatedAt, data.ToJsonString(JsonOptions.Default))));
         }
         return result;
     }
+
+    // Controlled-check seam: exact production routing/normalization of one native Monster snapshot.
+    internal static IReadOnlyList<MapStoredRecord> NormalizeMonsterSnapshotForCheck(
+        JsonElement root, MapScanExecutionRequest request, HashSet<int> requestedSet, DateTimeOffset capturedAt) =>
+        PrepareMonsterRecords(root, request, requestedSet, capturedAt).Select(item => item.Record).ToArray();
 
     private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(
         JsonElement root,
@@ -2232,6 +2979,9 @@ internal sealed partial class CurrentClientMapBlockSource
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }
         internal long ValidatedProbeResponses { get; set; }
+        // rows x columns of every validated native AOI window -> count. Shows what a lens/zoom really buys.
+        internal Dictionary<string, int> FootprintHistogram { get; } = new(StringComparer.Ordinal);
+        internal long NewlyCoveredAois { get; set; }
         internal int ActiveCameraProbes;
         internal int PeakCameraProbes;
         internal double AcquisitionMilliseconds;
@@ -2269,7 +3019,10 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private void WriteFastFullWorldMetrics(FastFullWorldResumeState state, string phase)
     {
-        if (hooks is not null) return;
+        // A diagnostic ForceLegacy baseline still needs its own exact-run
+        // coverage metrics; otherwise sequential benchmark rounds could
+        // inadvertently reuse an earlier candidate's private metric file.
+        if (hooks is not null && !hooks.ExperimentalBoundedCameraLens && !hooks.ForceLegacyFullWorldLens) return;
         // This is an attributable application->Lua AOI probe counter, NOT a
         // raw game-network request counter. Concurrent game traffic cannot be
         // separated from reflection-level global Net send/receive counters.
@@ -2297,6 +3050,8 @@ internal sealed partial class CurrentClientMapBlockSource
             attributableLuaProbeAttempts = state.ProbeAttempts,
             attributableRetries = state.ProbeRetries,
             validatedProbeResponses = state.ValidatedProbeResponses,
+            footprintHistogram = state.FootprintHistogram,
+            newlyCoveredAois = state.NewlyCoveredAois,
             summedProbeWaitMilliseconds = state.ProbeWaitMilliseconds,
             nativePhaseSampleCount = state.NativePhaseSamples,
             summedNativeTargetResponseMilliseconds = state.NativeTargetResponseMilliseconds,
@@ -2334,8 +3089,9 @@ internal sealed partial class CurrentClientMapBlockSource
     private sealed record FastTreasurePrepared(int X, int Y, MapStoredRecord Record);
     private sealed record FastMonsterPrepared(int X, int Y, bool ProtectionEligible, MapStoredRecord Record);
     private sealed record MonsterProtectionDetail(bool Received, bool Active, long EndTime);
-    private sealed record ResourceScanDetail(bool Received, long RemainingAmount, long FullAmount);
-    private sealed record ResourceScanDetailObservation(
+    internal sealed record ResourceScanDetail(bool Received, long RemainingAmount, long FullAmount,
+        int? ResourceConfigId, long? SourceCapacity, string? SourceNameKey);
+    internal sealed record ResourceScanDetailObservation(
         int TargetCount,
         int RequestCount,
         int CacheBeforeCount,

@@ -16,7 +16,11 @@ internal static class MapScanContract
     public static readonly string[] RecoveredDefaultTypes =
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
 
-    public static readonly string[] AllTypes = RecoveredDefaultTypes;
+    // Zombie Boss (game text 2901012; MonsterInvasionBoss special 10) is a selectable
+    // passive kind but, like Other, is not part of the implicit eight-kind default.
+    public const string ZombieBossKind = "zombie_boss";
+
+    public static readonly string[] AllTypes = [..RecoveredDefaultTypes, "other", ZombieBossKind];
 
     private static readonly HashSet<string> AllowedTypes = new(AllTypes, StringComparer.Ordinal);
 
@@ -96,9 +100,12 @@ internal static class MapScanStrategyPlanner
 
         if (standardCurrentWorld)
         {
-            string strategy = IsDirectTrainListSelection(selectedTypes)
-                ? FastTrainListStrategy
-                : FastFullWorldStrategy;
+            // The current-v26 production source always executes the
+            // authenticated 10,000-AOI serial LOD0 union for Truck/Railway
+            // as well as mixed kinds. Direct Train-list is an internal
+            // diagnostic only: genuine comparison showed that it omitted
+            // native Trucks. Never mislabel this selected route in UI status.
+            string strategy = FastFullWorldStrategy;
             return new MapScanStrategyPlan(
                 scanMode,
                 concurrency,

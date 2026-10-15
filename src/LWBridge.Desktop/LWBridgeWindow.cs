@@ -403,9 +403,18 @@ internal sealed partial class LWBridgeWindow : Form
                             IsMapScanActive = () => map317CommandService.IsScanActive,
                             ReadStatusAsync = map317CommandService.ReadAutoScanStatusAsync,
                             StartTargetScanAsync = map317CommandService.StartAutoScanTargetAsync,
+                            StartTargetScanIfStillOwnedAsync =
+                                map317CommandService.StartAutoScanTargetIfStillOwnedAsync,
                             ReturnServerAsync = map317CommandService.ReturnAutoScanToServerAsync,
+                            ReturnServerIfStillOwnedAsync =
+                                map317CommandService.ReturnAutoScanToServerIfStillOwnedAsync,
                             StopScanIfOwnedAsync = map317CommandService.StopAutoScanIfOwnedAsync,
                         });
+                if (mapAutoScanService is not null)
+                {
+                    map317CommandService.BindAutoScanCycleBusy(() => mapAutoScanService.IsCycleBusy);
+                    map317CommandService.BindAutoScanClearLease(mapAutoScanService.AcquireMapClearLease);
+                }
                 liveResourceService = null;
             }
             else
@@ -894,10 +903,10 @@ internal sealed partial class LWBridgeWindow : Form
             profileRoot,
             profileRegistryService,
             sharedBridgeHostState: bridgeHostState,
+            // Python and the injected Lua derive every Overview path from this
+            // same application root. Sibling runtime overrides split the host
+            // registration/lease from the game-side reader for selected profiles.
             applicationDataRoot: Path.Combine(profileRoot, "current-client"),
-            overviewRuntimeRoot: Path.Combine(profileRoot, "overview-runtime"),
-            overviewEvidenceRoot: Path.Combine(profileRoot, "overview-evidence"),
-            overviewBackupRoot: Path.Combine(profileRoot, "overview-backups"),
             startupReconcile: startupProfileReconcile,
             foreignOwnedProcess: pid => IsAnotherProfileOwnedProcess(profileId, pid),
             foreignOwnedInstallation: root => IsAnotherProfileOwnedInstallation(profileId, root));
@@ -1130,6 +1139,8 @@ internal sealed partial class LWBridgeWindow : Form
     {
         try
         {
+            if (normalUiLiveMapProofPath is not null)
+                await File.WriteAllTextAsync(normalUiLiveMapProofPath + ".progress.txt", "WebView initialization started");
             string webViewMode =
                 capturePath is not null ? "Capture" :
                 liveProbePath is not null ? "LiveProbe" :
@@ -1394,7 +1405,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1407,12 +1418,12 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 8) return false;
+              if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = index === 1;
                 if (box.checked !== shouldBeChecked) box.click();
               });
-              return boxes.every((box, index) => box.checked === (index === 1));
+              return true;
             })()
             """);
         if (selectionResult != "true")
@@ -1446,6 +1457,25 @@ internal sealed partial class LWBridgeWindow : Form
         }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
     }
 
+    internal static string[] ReadNormalUiProofSelectedTypes(JsonElement completedStatus)
+    {
+        // Receipt metadata must describe the completed native scan, not the
+        // proof's usual six-kind selection or its current environment flags.
+        if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selection) ||
+            selection.ValueKind != JsonValueKind.Array || selection.GetArrayLength() == 0)
+            throw new InvalidDataException("Completed packaged Map proof has no actual scan selection.");
+        var kinds = new List<string>();
+        foreach (JsonElement item in selection.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String ||
+                item.GetString() is not { } kind || !MapScanContract.AllTypes.Contains(kind) ||
+                kinds.Contains(kind, StringComparer.Ordinal))
+                throw new InvalidDataException("Completed packaged Map proof has an invalid actual scan selection.");
+            kinds.Add(kind);
+        }
+        return kinds.ToArray();
+    }
+
     // R8-066: end-to-end proof of the normal production Map path. Unlike the
     // historical bounded resource helper proof above, this keeps the actual
     // Map317CommandService is wired into the recovered WebView and only
@@ -1461,12 +1491,29 @@ internal sealed partial class LWBridgeWindow : Form
         string fullOutputPath = Path.GetFullPath(outputPath);
         string directory = Path.GetDirectoryName(fullOutputPath)!;
         Directory.CreateDirectory(directory);
+        bool ownerFixNativeProof = normalUiLiveMapProofPath is not null && productionPaths?.ExplicitIsolation == true &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") == "1";
+        bool ownerFixRemoteProof = ownerFixNativeProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_UI") == "1";
+        string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
+            ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
+        if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
+        if (qualifiedKind is not (null or "city" or "other"))
+            throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
+        string desiredSelection = qualifiedKind switch
+        {
+            "city" => "index === 0",
+            "other" => "index === 8",
+            _ when ownerFixNativeProof && !ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NEW_KINDS_UI") == "1" => "index < 7 || index === 9",
+            _ when ownerFixNativeProof && !ownerFixRemoteProof => "index < 6",
+            _ => "index === 1",
+        };
 
         bool controlsReady = false;
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 8 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1479,18 +1526,26 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 8) return false;
+              if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
-                const shouldBeChecked = index === 1;
+                const shouldBeChecked = DESIRED_SELECTION;
                 if (box.checked !== shouldBeChecked) box.click();
               });
-              return boxes.every((box, index) => box.checked === (index === 1));
+              return true;
             })()
-            """);
+            """.Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal));
         if (selectionResult != "true")
             throw new InvalidOperationException("The normal production Map Data resource-only selection could not be established.");
+        bool selectionSettled = false;
+        for (int attempt = 0; attempt < 50; attempt++)
+        {
+            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===10 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
+            { selectionSettled = true; break; }
+            await Task.Delay(50);
+        }
+        if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
-        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(8));
+        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(ownerFixRemoteProof ? 14 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
@@ -1554,6 +1609,29 @@ internal sealed partial class LWBridgeWindow : Form
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
+            if (ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_SAVED_HOME") == "1")
+            {
+                await RunMap014NativeRemoteUiProofAsync(core, directory, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    state="proven", proof="real_native_auto_remote_scan_row_jump_and_clear",
+                    newHomeMapScans=0,
+                    newRemoteMapScans=Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE")=="1" ? 0 : 1,
+                    gamePid=ownedMapSession.GamePid,
+                    profileId=ownedMapSession.ProfileId, generatedAt=DateTimeOffset.UtcNow
+                },JsonOptions.Default),operationCts.Token);
+                return;
+            }
+            if (ownerFixNativeProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BROWSE_ONLY") == "1")
+            {
+                await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    state="proven", proof="real_native_ui_browse_existing_genuine_dataset",
+                    newMapScans=0, gamePid=ownedMapSession.GamePid, profileId=ownedMapSession.ProfileId,
+                    sourceData="preserved completed genuine MAP014 scan", generatedAt=DateTimeOffset.UtcNow
+                },JsonOptions.Default),operationCts.Token);
+                return;
+            }
+
             JsonElement initialStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
             string initialRunId = ReadStatusString(initialStatus, "scanRunId") ?? string.Empty;
             JsonElement completedStatus = default;
@@ -1605,6 +1683,80 @@ internal sealed partial class LWBridgeWindow : Form
             }
             if (!completed)
                 throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
+
+            string[] actualSelectedTypes = ReadNormalUiProofSelectedTypes(completedStatus);
+
+            if (qualifiedKind is "city" or "other")
+            {
+                if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selected) ||
+                    selected.ValueKind != JsonValueKind.Array ||
+                    selected.GetArrayLength() != 1 || selected[0].GetString() != qualifiedKind)
+                    throw new InvalidDataException("Packaged source scan selected unexpected map kinds.");
+                int selectedTab = qualifiedKind == "city" ? 0 : 8;
+                long beforeSearch = GetNormalUiProofSearchSequence();
+                string tabClicked = await core.ExecuteScriptAsync($"(()=>{{const tab=document.querySelectorAll('.map-tabs button')[{selectedTab}];if(!tab)return false;tab.click();return true;}})()");
+                if (tabClicked != "true")
+                    throw new InvalidDataException("Packaged Map selection does not expose its actual results tab.");
+                NormalUiResourceProofSearchObservation? selectedResponse = null;
+                for (int attempt = 0; attempt < 250; attempt++)
+                {
+                    operationCts.Token.ThrowIfCancellationRequested();
+                    var seen = ReadNormalUiProofSearchAfter(beforeSearch);
+                    if (seen is not null && MapDataQueryContract.NormalizeSearch(seen.Payload).Kind == qualifiedKind &&
+                        await core.ExecuteScriptAsync($"!!document.querySelector('.map-table--{qualifiedKind}[aria-busy=false]')") == "true")
+                    {
+                        selectedResponse = seen;
+                        break;
+                    }
+                    await Task.Delay(100, operationCts.Token);
+                }
+                if (selectedResponse is null)
+                {
+                    long retryFrom = GetNormalUiProofSearchSequence();
+                    await core.ExecuteScriptAsync("document.querySelector('.map-searchbar > button')?.click()");
+                    for (int attempt = 0; attempt < 200; attempt++)
+                    {
+                        var seen = ReadNormalUiProofSearchAfter(retryFrom);
+                        if (seen is not null && MapDataQueryContract.NormalizeSearch(seen.Payload).Kind == qualifiedKind)
+                        { selectedResponse = seen; break; }
+                        await Task.Delay(100, operationCts.Token);
+                    }
+                }
+                if (selectedResponse is null)
+                    throw new InvalidDataException("Packaged selection had no genuine current-server map_search response: " + qualifiedKind);
+                int actualServer = ReadStatusInt32(completedStatus, "serverId") ?? 0;
+                var selectedQuery = MapDataQueryContract.NormalizeSearch(selectedResponse.Payload);
+                if (selectedQuery.ServerId != actualServer || selectedQuery.Kind != qualifiedKind)
+                    throw new InvalidDataException("Packaged selection results are not tied to the completed owned server.");
+                JsonElement selectedRows = selectedResponse.Result.GetProperty("rows");
+                int selectedTotal = selectedResponse.Result.GetProperty("total").GetInt32();
+                if (qualifiedKind == "city" && selectedTotal == 0)
+                    throw new InvalidDataException("Completed genuine City scan published zero native players.");
+                foreach (JsonElement row in selectedRows.EnumerateArray())
+                {
+                    if (qualifiedKind == "city" && (!row.TryGetProperty("ownerUid", out var ownerId) ||
+                        ownerId.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(ownerId.GetString())))
+                        throw new InvalidDataException("Published packaged City has no native owner identity.");
+                    if (qualifiedKind == "other" && (!row.TryGetProperty("otherSubtype", out var kind) ||
+                        kind.ValueKind != JsonValueKind.String ||
+                        !(kind.GetString()!.StartsWith("supplies:", StringComparison.Ordinal) || kind.GetString() == "event:27000")))
+                        throw new InvalidDataException("Published packaged Other event lacks native source subtype.");
+                }
+                string mountedDom = await core.ExecuteScriptAsync($"({{activeTab:document.querySelector('.map-tabs [aria-selected=true]')?.textContent,tablePresent:!!document.querySelector('.map-table--{qualifiedKind}'),displayedRows:document.querySelectorAll('.map-table--{qualifiedKind} tbody tr').length}})");
+                string snapshot = Path.Combine(directory, "map014-" + qualifiedKind + "-packaged.png");
+                await using (var image = File.Create(snapshot))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, image);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1, state = "proven", proof = "actual_packaged_ui_fullworld_selected_scan_and_results",
+                    genuineGame = true, controlledProvider = false, selection = qualifiedKind,
+                    selectedTypes = actualSelectedTypes,
+                    serverId = actualServer, completedStatus, selectedResponse, total = selectedTotal,
+                    sourceIdentifiedPositiveAvailable = selectedTotal > 0,
+                    mountedDom = JsonSerializer.Deserialize<JsonElement>(mountedDom), screenshot = snapshot,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), operationCts.Token);
+                return;
+            }
 
             bool resourceTabReady = false;
             for (int attempt = 0; attempt < 150; attempt++)
@@ -1994,6 +2146,9 @@ internal sealed partial class LWBridgeWindow : Form
                 };
             }
 
+            if (ownerFixRemoteProof) await RunMap014NativeRemoteUiProofAsync(core, directory, operationCts.Token);
+            else if (ownerFixNativeProof) await RunMap014NativeUiExtrasAsync(core, directory, operationCts.Token);
+
             await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
             {
                 schemaVersion = 1,
@@ -2007,7 +2162,7 @@ internal sealed partial class LWBridgeWindow : Form
                 instanceId,
                 connectionState = ReadStatusString(startJson, "connectionState"),
                 gamePid = expected.GamePid,
-                selectedTypes = new[] { "resource" },
+                selectedTypes = actualSelectedTypes,
                 scan = new
                 {
                     scanRunId = ReadStatusString(completedStatus, "scanRunId"),
@@ -2268,6 +2423,45 @@ internal sealed partial class LWBridgeWindow : Form
     private long GetNormalUiProofSearchSequence()
     {
         lock (normalUiProofGate) return normalUiProofSearchSequence;
+    }
+
+    // Opt-in isolated host trace: distinguishes a request never sent by the
+    // WebView from a received but delayed/cancelled/retired native request.
+    private void TraceNormalUiMapProofSearch(string id, string command, string stage, JsonElement? payload = null)
+    {
+        if (normalUiLiveMapProofPath is null || productionPaths?.ExplicitIsolation != true ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") != "1" ||
+            command != "map_search") return;
+        try
+        {
+            string line = JsonSerializer.Serialize(new { requestId = id, stage,
+                payload, at = DateTimeOffset.UtcNow }, JsonOptions.Default);
+            lock (normalUiProofGate)
+                File.AppendAllText(normalUiLiveMapProofPath + ".command-trace.jsonl", line + Environment.NewLine);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            Console.Error.WriteLine("Isolated Map search trace unavailable: " + error.Message);
+        }
+    }
+
+    private void RecordNormalUiMapProofCommandError(string id, string command, JsonElement payload,
+        string code, string message)
+    {
+        if (normalUiLiveMapProofPath is null || productionPaths?.ExplicitIsolation != true ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NATIVE_UI") != "1" ||
+            command != "map_search") return;
+        try
+        {
+            string receipt=JsonSerializer.Serialize(new {requestId=id,command,payload,code,message,
+                at=DateTimeOffset.UtcNow},JsonOptions.Default);
+            lock(normalUiProofGate)
+                File.AppendAllText(normalUiLiveMapProofPath+".command-errors.jsonl",receipt+Environment.NewLine);
+        }
+        catch(Exception error) when(error is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            Console.Error.WriteLine("Isolated Map query error observation unavailable: "+error.Message);
+        }
     }
 
     private NormalUiResourceProofSearchObservation? ReadNormalUiProofSearchAfter(long sequence)
@@ -5271,6 +5465,7 @@ internal sealed partial class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
+            TraceNormalUiMapProofSearch(id, command, "received", payload);
             RecordHome004F06Dispatch("received", command);
             if (ownerEvidence is not null && OwnerEvidenceResourceContract.IsBlockedOwnerCommand(command))
             {
@@ -5356,24 +5551,34 @@ internal sealed partial class LWBridgeWindow : Form
                         requestProfileGeneration, CancellationToken.None, onReply: true);
                 }
                 if (!IsCurrentDocument(session)) return;
+                TraceNormalUiMapProofSearch(id, command, "executed:" + execution.Status, payload);
                 if (execution.Status == NativeRequestExecutionStatus.Rejected)
                 {
+                    RecordNormalUiMapProofCommandError(id, command, payload, "DUPLICATE_REQUEST_ID",
+                        "Request was rejected by the native request ledger.");
                     if (!sessionClosed)
                         SendError(session, id, "DUPLICATE_REQUEST_ID", "A request with this id is already active or the native session is closing.");
                     return;
                 }
                 if (execution.Status == NativeRequestExecutionStatus.Cancelled)
                 {
+                    RecordNormalUiMapProofCommandError(id, command, payload, "COMMAND_CANCELLED",
+                        "Request was cancelled by the native request ledger.");
                     SendError(session, id, "COMMAND_CANCELLED", "The command was cancelled.");
                     return;
                 }
-                if (sessionClosed) return;
+                if (sessionClosed)
+                {
+                    TraceNormalUiMapProofSearch(id, command, "closed_before_reply", payload);
+                    return;
+                }
                 if (command != "profile_select" && !independentProfileOwnerReply &&
                     (requestProfileGeneration != Volatile.Read(ref profileRuntimeGeneration) ||
                      !ReferenceEquals(requestBackend, backend)))
                 {
                     // The old owner may still be running and complete successfully,
                     // but its reply cannot update the newly selected Home view.
+                    TraceNormalUiMapProofSearch(id, command, "profile_generation_retired", payload);
                     SendError(session, id, "PROFILE_GENERATION_RETIRED",
                         "The selected profile changed before the command completed.");
                     return;
@@ -5396,6 +5601,7 @@ internal sealed partial class LWBridgeWindow : Form
                 }
                 if (command == "map_search" && (normalUiLiveResourceProofPath is not null || normalUiLiveMapProofPath is not null || mapUiIntegrationProofPath is not null))
                     RecordNormalUiProofSearch(id, payload, execution.Result);
+                TraceNormalUiMapProofSearch(id, command, "sending_result", payload);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsResourceSearch(payload))
                     ownerEvidence.RecordSearch(id, payload, execution.Result);
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsCitySearch(payload))
@@ -5412,6 +5618,7 @@ internal sealed partial class LWBridgeWindow : Form
             catch (BridgeCommandException ex)
             {
                 RecordHome004F06Dispatch("error:" + ex.Code, command);
+                RecordNormalUiMapProofCommandError(id, command, payload, ex.Code, ex.Message);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&
@@ -5430,6 +5637,7 @@ internal sealed partial class LWBridgeWindow : Form
             catch (Exception ex)
             {
                 RecordHome004F06Dispatch("exception:" + ex.GetType().Name, command);
+                RecordNormalUiMapProofCommandError(id, command, payload, "NATIVE_COMMAND_FAILED", ex.Message);
                 if (IsCurrentDocument(session))
                 {
                     if (command != "profile_select" && !independentProfileOwnerReply &&

@@ -1,6 +1,7 @@
 """Actual decoded scene guards and inert diagnostic orchestration; no game."""
 from pathlib import Path
 import json
+import os
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -14,7 +15,9 @@ import run_map013_owned_observer as observer
 class SceneGateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        entries = load_entries(probe.paths()["data"])
+        # Explicit immutable original input during an admitted live candidate;
+        # load_entries still enforces the unchanged original v24 SHA-256.
+        entries = load_entries(Path(os.environ.get("LWBRIDGE_MAP013_SOURCE_PACKAGE",probe.paths()["data"])))
         cls.root = lua.parse_chunk(probe.decode_lenc(entries["Util/SceneUtils.luac"]))
         cls.methods = root_methods(cls.root)
 

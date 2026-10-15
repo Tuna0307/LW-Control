@@ -21,6 +21,8 @@ internal sealed record ResourceCompletenessBatchDiagnostics(
         ObservedPointInfos == EnumeratedPointInfos &&
         ObservedPointInfos == ResourceCandidateCount + NonResourcePointCount &&
         ResourceCandidateCount == AcceptedResourceCount + RejectedResourceCandidateCount &&
+        ObservedPointInfos == RuntimeClassCounts.Values.Sum() &&
+        ObservedPointInfos == RawPointTypeCounts.Values.Sum() &&
         RejectedResourceCandidateCount == RejectionReasonCounts.Values.Sum() &&
         AcceptedResourceCount == AcceptedAoiCounts.Values.Sum() &&
         AcceptedResourceCount == ResourceSourceLookupHitCount + ResourceSourceLookupFallbackCount;
@@ -190,6 +192,175 @@ internal sealed record ResourceCompletenessReport(
     internal string ToStableJson(bool indented = true) => JsonSerializer.Serialize(
         this,
         new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = indented });
+
+    // Source accounting is independent of completed AOI geometry. Finishing
+    // all point AOIs cannot turn a duplicate physical Resource identity, an
+    // incomplete candidate classification, or a partial merge into a safe
+    // published map. This gate does not claim same-time population recall.
+    internal void RequireReconciledBeforePublication(long acquiredResponseCount, int stagedResourceCount)
+    {
+        // Every clause is evaluated independently and named, so a failed publication gate states WHICH
+        // accounting rule broke (previously one opaque message). No clause was relaxed.
+        var failed = new List<string>();
+        void Check(bool broken, string name) { if (broken) failed.Add(name); }
+        Check(ResponseCount != acquiredResponseCount, "responseCount");
+        Check(!RawObservationCountersReconcile, "rawObservationCounters");
+        Check(!FinalDeduplicationReconciles, "finalDeduplication");
+        Check(!AcceptedDistributionsReconcile, "acceptedDistributions");
+        Check(FinalAcceptedUniqueRecords != stagedResourceCount, "stagedResourceCount");
+        Check(FinalAcceptedUniqueRecords != AcceptedRows.Count, "acceptedRowCount");
+        Check(Batches.Count != ResponseCount, "batchCount");
+        Check(Batches.Any(batch => !batch.Reconciles), "batchReconciles");
+        Check(RawObservedPointInfoOccurrences != Batches.Sum(batch => batch.ObservedPointInfos), "observedPointInfos");
+        Check(RawEnumeratedPointInfoOccurrences != Batches.Sum(batch => batch.EnumeratedPointInfos), "enumeratedPointInfos");
+        Check(ResourceCandidateOccurrences != Batches.Sum(batch => batch.ResourceCandidateCount), "resourceCandidates");
+        Check(AcceptedResourceOccurrencesBeforeDeduplication != Batches.Sum(batch => batch.AcceptedResourceCount), "acceptedBeforeDedup");
+        Check(RejectedResourceCandidateOccurrences != Batches.Sum(batch => batch.RejectedResourceCandidateCount), "rejectedCandidates");
+        Check(NonResourcePointOccurrences != Batches.Sum(batch => batch.NonResourcePointCount), "nonResourcePoints");
+        Check(RawRuntimeClassOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "runtimeClassSum");
+        Check(RawPointTypeOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "pointTypeSum");
+        Check(RejectionReasonOccurrences.Values.Sum() != RejectedResourceCandidateOccurrences, "rejectionReasonSum");
+        Check(ResourceSourceLookupHitOccurrences + ResourceSourceLookupFallbackOccurrences != AcceptedResourceOccurrencesBeforeDeduplication, "sourceLookupSum");
+        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key != "outside_selected_aoi"), "unexpectedRejectionReason");
+        Check(DuplicateAcceptedRecordKeyOccurrences != DuplicateComparisons.Count, "duplicateCount");
+        Check(AcceptedResourceOccurrencesBeforeDeduplication - DuplicateAcceptedRecordKeyOccurrences != FinalAcceptedUniqueRecords, "dedupArithmetic");
+        string[] invalidDuplicates = DuplicateComparisons.Where(duplicate => !ValidDuplicate(duplicate))
+            .Select(DescribeDuplicate).Take(3).ToArray();
+        Check(invalidDuplicates.Length > 0, "invalidDuplicate[" + string.Join(" | ", invalidDuplicates) + "]");
+        Check(TileWidth <= 0 || TileHeight <= 0 || NativeAoiBlockSize != 10 || NativeAoiBlockCount != (TileWidth + 9L) / 10, "geometry");
+        int invalidRows = AcceptedRows.Count(row => !ValidSourceRow(row));
+        Check(invalidRows > 0, "invalidSourceRows=" + invalidRows + "[" + string.Join(" | ",
+            AcceptedRows.Select(row => (row, problem: SourceRowProblem(row))).Where(item => item.problem is not null)
+            .Take(3).Select(item => $"{item.row.RecordKey}@{item.row.X},{item.row.Y}:{item.problem}")) + "]");
+        Check(AcceptedRows.Select(row => row.RecordKey).Distinct(StringComparer.Ordinal).Count() != AcceptedRows.Count, "duplicateRecordKeys");
+        Check(AcceptedRows.Select(row => row.PointIndex).Distinct().Count() != AcceptedRows.Count, "duplicatePointIndices");
+        Check(ResourcesByNativeAoiIndex.Keys.Any(key => !int.TryParse(key, NumberStyles.None,
+            CultureInfo.InvariantCulture, out int index) || index < 0 ||
+            index >= ((TileWidth + 9L) / 10) * ((TileHeight + 9L) / 10)), "aoiIndexRange");
+        if (failed.Count > 0)
+            throw new InvalidDataException(
+                "Resource native source accounting, provenance, stable identity or staging did not reconcile: " +
+                string.Join(", ", failed) + ".");
+    }
+
+    private static string DescribeDuplicate(ResourceDuplicateComparison duplicate)
+    {
+        ResourceDuplicateObservation a = duplicate.Previous, b = duplicate.Current;
+        var differs = new List<string>();
+        if (!duplicate.SameSemanticIdentity) differs.Add("semanticIdentity");
+        if (duplicate.Classification != "repeated_same_resource_identity") differs.Add("classification=" + duplicate.Classification);
+        if (a.X != b.X || a.Y != b.Y) differs.Add("position");
+        if (a.RuntimeClass != b.RuntimeClass) differs.Add("runtimeClass");
+        if (a.RawPointType != b.RawPointType) differs.Add("rawPointType");
+        if (a.ResourceTypeId != b.ResourceTypeId) differs.Add("resourceTypeId " + a.ResourceTypeId + "->" + b.ResourceTypeId);
+        if (a.ResourceConfigId != b.ResourceConfigId) differs.Add("resourceConfigId " + a.ResourceConfigId + "->" + b.ResourceConfigId);
+        if (b.CapturedAtUnixMilliseconds < a.CapturedAtUnixMilliseconds) differs.Add("captureOrder");
+        if (a.UpdatedAt != a.CapturedAtUnixMilliseconds || b.UpdatedAt != b.CapturedAtUnixMilliseconds) differs.Add("updatedAtVsCapture");
+        return duplicate.RecordKey + ":" + (differs.Count == 0 ? "serverWorldOrKey" : string.Join("+", differs));
+    }
+
+    private bool ValidDuplicate(ResourceDuplicateComparison duplicate)
+    {
+        ResourceDuplicateObservation previous = duplicate.Previous;
+        ResourceDuplicateObservation current = duplicate.Current;
+        return duplicate.SameSemanticIdentity &&
+            duplicate.Classification == "repeated_same_resource_identity" &&
+            duplicate.RecordKey == previous.RecordKey &&
+            duplicate.RecordKey == current.RecordKey &&
+            previous.RecordKey == previous.PointIndex.ToString(CultureInfo.InvariantCulture) &&
+            current.RecordKey == current.PointIndex.ToString(CultureInfo.InvariantCulture) &&
+            previous.ServerId == ServerId && current.ServerId == ServerId &&
+            previous.SourceServerId == ServerId && current.SourceServerId == ServerId &&
+            previous.WorldId == WorldId && current.WorldId == WorldId &&
+            previous.PointIndex == current.PointIndex && previous.X == current.X && previous.Y == current.Y &&
+            previous.RuntimeClass == current.RuntimeClass &&
+            previous.RawPointType == current.RawPointType &&
+            previous.ResourceTypeId == current.ResourceTypeId &&
+            previous.ResourceConfigId == current.ResourceConfigId &&
+            previous.CapturedAtUnixMilliseconds > 0 &&
+            previous.UpdatedAt == previous.CapturedAtUnixMilliseconds &&
+            current.UpdatedAt == current.CapturedAtUnixMilliseconds &&
+            current.CapturedAtUnixMilliseconds >= previous.CapturedAtUnixMilliseconds;
+    }
+
+    private bool ValidSourceRow(ResourceCompletenessAcceptedRow row) => SourceRowProblem(row) is null;
+
+    // Names the first rule a staged Resource row breaks (null = valid). Same rules as before, one at a time.
+    private string? SourceRowProblem(ResourceCompletenessAcceptedRow row)
+    {
+        if (row.ServerId != ServerId || row.SourceServerId != ServerId || row.WorldId != WorldId) return "serverWorld";
+        if (row.PointIndex is not int point || point < 1 || row.UpdatedAt <= 0) return "pointOrUpdatedAt";
+        if (row.X < 0 || row.X >= TileWidth || row.Y < 0 || row.Y >= TileHeight) return "bounds";
+        if (row.RecordKey != point.ToString(CultureInfo.InvariantCulture)) return "recordKey";
+        if (point != (long)row.Y * TileWidth + row.X + 1) return "pointIndexFormula";
+        if (row.NativeAoiIndex != (row.Y / 10) * NativeAoiBlockCount + (row.X / 10)) return "nativeAoiIndex";
+        if (row.LogicalBlockIndex != (row.Y / MapScanGeometry.RecoveredBlockSpan) *
+                ((TileWidth + MapScanGeometry.RecoveredBlockSpan - 1) / MapScanGeometry.RecoveredBlockSpan) +
+                row.X / MapScanGeometry.RecoveredBlockSpan) return "logicalBlockIndex";
+        if (row.ResourceDetailState is not ("unknown" or "empty" or "partial" or "full")) return "detailState=" + row.ResourceDetailState;
+        if (row.ResourceRemainingAmount.HasValue != row.ResourceFullAmount.HasValue) return "amountPairing";
+        if (row.ResourceRemainingAmount is long remaining && row.ResourceFullAmount is long full &&
+            (full <= 0 || remaining < 0 || remaining > full ||
+             row.ResourceDetailState != (remaining == 0 ? "empty" : remaining == full ? "full" : "partial")))
+            return $"amountState remaining={remaining} full={full} state={row.ResourceDetailState}";
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(row.DataJson);
+            JsonElement raw = document.RootElement;
+            if (raw.ValueKind != JsonValueKind.Object) return "rawNotObject";
+            if (!SameInt(raw, "x", row.X) || !SameInt(raw, "y", row.Y)) return "rawPosition";
+            if (!SameInt(raw, "srcServerId", ServerId) || !SameInt(raw, "worldId", WorldId) ||
+                !SameOptionalInt(raw, "serverId", ServerId)) return "rawServerWorld";
+            if (!SameOptionalInt(raw, "pointId", point) || !SameOptionalInt(raw, "pointIndex", point)) return "rawPointIndex";
+            if (!SameOptionalString(raw, "recordKey", row.RecordKey)) return "rawRecordKey";
+            if (!SameOptionalInt(raw, "updatedAt", row.UpdatedAt)) return "rawUpdatedAt";
+            if (!SameOptionalString(raw, "kind", "resource") || !SameOptionalString(raw, "sourceKind", "resource_point")) return "rawKind";
+            if (!SameOptionalString(raw, "source",
+                    "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange")) return "rawSource";
+            // Native type 26 is the alliance collection node (WorldAllianceCollectResource). It has no resource
+            // config/level: those stay unknown. Every other type must still be a ResPointInfo.
+            string expectedSourceType = row.RawPointType == 26 ? "WorldAllianceCollectResource" : "ResPointInfo";
+            if (!SameOptionalString(raw, "resourceSourceType", expectedSourceType))
+                return "rawSourceType=" + (raw.TryGetProperty("resourceSourceType", out JsonElement sourceType) ? sourceType.ToString() : "?") +
+                    " pointType=" + (raw.TryGetProperty("pointType", out JsonElement pointType) ? pointType.ToString() : "?") +
+                    " config=" + (raw.TryGetProperty("resourceConfigId", out JsonElement configId) ? configId.ToString() : "?") +
+                    " level=" + (raw.TryGetProperty("level", out JsonElement levelValue) ? levelValue.ToString() : "?");
+            if (!SameOptionalInt(raw, "pointType", row.RawPointType)) return "rawPointType";
+            if (!SameOptionalBoolean(raw, "rebuildGatherOccupied", row.GatherOccupied)) return "rawGatherOccupied";
+            if (!SameOptionalBoolean(raw, "isBlackTile", row.IsBlackTile)) return "rawIsBlackTile";
+            if (!SameOptionalInt(raw, "resourceRemainingAmount", row.ResourceRemainingAmount) ||
+                !SameOptionalInt(raw, "resourceFullAmount", row.ResourceFullAmount)) return "rawAmounts";
+
+            if (raw.TryGetProperty("gatherOccupancyKnown", out JsonElement occupancyKnown) &&
+                occupancyKnown.ValueKind == JsonValueKind.True &&
+                !SameOptionalBoolean(raw, "gatherOccupied", row.GatherOccupied))
+                return "rawOccupancyKnownMismatch";
+            if (raw.TryGetProperty("resourceDetailKnown", out JsonElement detailKnown) &&
+                detailKnown.ValueKind == JsonValueKind.True &&
+                (!row.ResourceRemainingAmount.HasValue || !row.ResourceFullAmount.HasValue))
+                return "rawDetailKnownWithoutAmounts";
+            return null;
+        }
+        catch (JsonException) { return "rawJson"; }
+    }
+
+    private static bool SameInt(JsonElement raw, string name, long value) =>
+        raw.TryGetProperty(name, out JsonElement item) && item.TryGetInt64(out long actual) && actual == value;
+
+    // Older controlled boundary fixtures omit fields subsequently added by the
+    // native importer. Every field present in a real normalized point is checked.
+    private static bool SameOptionalInt(JsonElement raw, string name, long? value) =>
+        !raw.TryGetProperty(name, out _) || value.HasValue && SameInt(raw, name, value.Value);
+
+    private static bool SameOptionalString(JsonElement raw, string name, string expected) =>
+        !raw.TryGetProperty(name, out JsonElement item) ||
+        item.ValueKind == JsonValueKind.String && item.GetString() == expected;
+
+    private static bool SameOptionalBoolean(JsonElement raw, string name, bool? expected) =>
+        !raw.TryGetProperty(name, out JsonElement item) ||
+        expected.HasValue && item.ValueKind is JsonValueKind.True or JsonValueKind.False &&
+        item.GetBoolean() == expected.Value;
 }
 
 internal sealed class ResourceCompletenessAccumulator

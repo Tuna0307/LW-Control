@@ -33,6 +33,11 @@ function fixtureRow(kind, index) {
       return { ...row, resourceNameKey: index % 2 === 0 ? "100282" : "100281", level: 1 + (index % 10), rebuildGatherOccupancyKnown: true, rebuildGatherOccupied: index % 3 === 0, resourceRemainingAmount: 50_000 + index * 2_000, resourceFullAmount: 200_000 };
     case "monster":
       return { ...row, monsterNameKey: index % 2 === 0 ? "Fixture Monster B" : "Fixture Monster A", level: 20 + (index % 16), distanceFromHome: 40 + index * 7 };
+    case "zombie_boss":
+      // Fixture only: protection is game-confirmed active (0), confirmed inactive (1) or unknown (2).
+      return { ...row, monsterNameKey: "2901012", level: 5 + 5 * (index % 30), recommendPower: 7_317_500 + index * 1_000_000, distanceFromHome: 30 + index * 5,
+        refreshTime: FIXTURE_TIME + index * 600_000, monsterProtectionKnown: index % 3 !== 2, monsterProtectionActive: index % 3 === 0,
+        ...(index % 3 === 0 ? { shieldEndTime: FIXTURE_TIME + index * 60_000, monsterProtectionEndTime: FIXTURE_TIME + index * 60_000 } : {}) };
     case "truck":
       return { ...row, ownerName: `Truck Owner ${index}`, allianceName: index % 3 === 0 ? "TST" : "QA", quality: 1 + (index % 5), isSpecialURQuality: index % 11 === 0, power: 18_000_000 + index * 175_000, currentGoods: [{ key: index % 2 === 0 ? "fixture-medal" : "fixture-reward", name: index % 2 === 0 ? "Fixture Medal" : "Fixture Reward", count: 1 + (index % 8) }], robTimes: index % 3, maxLootCount: 2, maxRobTimes: 2, remainingLootCount: index % 3 === 2 ? 0 : 2 - (index % 2), arriveTs: FIXTURE_TIME + 600_000 + index * 10_000 };
     case "railway":
@@ -40,7 +45,7 @@ function fixtureRow(kind, index) {
     case "dispatch":
       return { ...row, ownerUid: `dispatch-owner-${index}`, ownerName: `Task Owner ${index}`, level: 5 + (index % 4), quality: 1 + (index % 5), isSpecial: index % 9 === 0, rewards: [{ name: "Fixture Intel", count: 1 + (index % 3) }], completionTime: index % 2 === 0 ? FIXTURE_TIME - index * 30_000 : FIXTURE_TIME + index * 30_000, plunderAt: FIXTURE_TIME - 60_000, taskExpireTime: FIXTURE_TIME + 3_600_000, maxStealCount: 2, stolenCount: index % 3 };
     case "ghost":
-      return { ...row, ownerUid: `ghost-owner-${index}`, ownerName: `Ghost Owner ${index}`, level: 4 + (index % 5), quality: 1 + (index % 5), isSpecial: index % 7 === 0, rewards: [{ name: "Fixture Ghost Reward", count: 1 + (index % 5) }], completionTime: index % 2 === 0 ? FIXTURE_TIME - index * 20_000 : FIXTURE_TIME + index * 20_000 };
+      return { ...row, ownerUid: `ghost-owner-${index}`, ownerName: `Ghost Owner ${index}`, level: 4 + (index % 5), quality: 1 + (index % 5), isSpecial: index % 7 === 0, ownerServer: index % 3 === 0 ? FIXTURE_SERVER_ID - 3 : FIXTURE_SERVER_ID, ...(index % 6 === 0 ? {} : { rewards: [{ key: "fixture-ghost-gem", name: "Fixture Ghost Gem", count: 100 * (1 + (index % 5)), rewardType: 1, itemId: 9001 }, ...(index % 2 === 0 ? [{ key: "fixture-ghost-chip", name: "Fixture Ghost Chip", count: 10 + index, rewardType: 1, itemId: 9002 }] : [])] }), completionTime: index % 2 === 0 ? FIXTURE_TIME - index * 20_000 : FIXTURE_TIME + index * 20_000 };
     case "treasure":
       return { ...row, treasureNameKey: index % 2 === 0 ? "Fixture Radar Treasure" : "Fixture Lucky Treasure", treasureType: index % 2 === 0 ? 1 : 2, suppliesType: 0, remainingBoxes: 1 + (index % 5), worldClaimState: index % 3 === 0 ? "digging" : "available", playerClaimState: index % 3 === 0 ? "waiting" : "eligible", rewardedCount: index % 6, diggingCount: index % 4, expireTime: FIXTURE_TIME + 1_800_000 + index * 5_000, ownerName: `Treasure Owner ${index}`, allianceAbbr: index % 4 === 0 ? "TST" : "QA", allianceId: index % 4 === 0 ? "fixture-foreign" : "fixture-viewer-alliance", viewerAllianceId: "fixture-viewer-alliance", claimPriority: index % 5 === 0 ? 0 : 1 };
     default:
@@ -77,6 +82,12 @@ function filterRows(kind, query, fixtureRows = FIXTURE_ROWS[kind], fixtureTime =
     if (query.specialOnly && row.isSpecial !== true) return false;
     if (query.reindeerOnly && row.isSpecialURQuality !== true) return false;
     if (query.itemKey != null && itemCount(row, query.itemKey) <= 0) return false;
+    if (kind === "ghost" && Array.isArray(query.rewardFilters) && query.rewardFilters.length) {
+      // Fixture mirror of the canonical store: unknown (no keyed list) never matches; AND by default.
+      const amount = (key) => (Array.isArray(row.rewards) ? row.rewards : []).filter((item) => item?.key === key && Number(item.count) > 0).reduce((sum, item) => sum + Number(item.count), 0);
+      const satisfied = (filter) => amount(filter.key) >= Math.max(Number(filter.minCount) || 0, 1);
+      if (!(query.rewardMatch === "any" ? query.rewardFilters.some(satisfied) : query.rewardFilters.every(satisfied))) return false;
+    }
     if (query.completionStatus === "pending" && !(Number(row.completionTime || 0) <= 0 || Number(row.completionTime) > fixtureTime)) return false;
     if (query.completionStatus === "completed" && !(Number(row.completionTime) > 0 && Number(row.completionTime) <= fixtureTime)) return false;
     if (query.completionStatus != null && !["pending", "completed"].includes(query.completionStatus)) return false;
@@ -84,6 +95,16 @@ function filterRows(kind, query, fixtureRows = FIXTURE_ROWS[kind], fixtureTime =
     if (query.plunderableOnly && kind === "dispatch" && !(Number(row.completionTime || 0) > 0 && Number(row.plunderAt || row.completionTime || 0) > 0 && (Number(row.taskExpireTime || 0) <= 0 || Number(row.taskExpireTime) > fixtureTime) && (Number(row.maxStealCount || 0) <= 0 || Number(row.stolenCount || 0) < Number(row.maxStealCount)))) return false;
     if (query.minLevel != null && Number(row.level) < Number(query.minLevel)) return false;
     if (query.maxLevel != null && Number(row.level) > Number(query.maxLevel)) return false;
+    if (query.protectionState != null) {
+      if (kind !== "zombie_boss" || !["active", "inactive", "unknown"].includes(query.protectionState)) {
+        const error = new Error("invalid protection state filter");
+        error.code = "INVALID_REQUEST";
+        throw error;
+      }
+      const known = row.monsterProtectionKnown === true;
+      const live = row.monsterProtectionActive === true && Number(row.shieldEndTime) > fixtureTime;
+      if (query.protectionState === "unknown" ? known : !known || (query.protectionState === "active") !== live) return false;
+    }
     return true;
   });
 }
@@ -93,6 +114,8 @@ function sortValue(kind, key, row, query) {
     city: { level: () => row.level, health: () => row.health || null, shield: () => Number(row.protectEndTime || 0) > FIXTURE_TIME ? row.protectEndTime : null, updatedAt: () => row.updatedAt },
     resource: { level: () => row.level, updatedAt: () => row.updatedAt },
     monster: { level: () => row.level, distance: () => row.distanceFromHome, updatedAt: () => row.updatedAt },
+    zombie_boss: { level: () => row.level, power: () => row.recommendPower ?? null, distance: () => row.distanceFromHome, updatedAt: () => row.updatedAt,
+      remaining: () => row.refreshTime || null, shield: () => row.monsterProtectionActive === true && Number(row.shieldEndTime) > FIXTURE_TIME ? row.shieldEndTime : null },
     truck: { quality: () => row.isSpecialURQuality ? 100 : row.quality, power: () => row.power, itemCount: () => itemCount(row, query.itemKey), remainingLootCount: () => row.remainingLootCount ?? 0, arriveTime: () => row.arriveTs || null, updatedAt: () => row.updatedAt },
     railway: { quality: () => row.quality, power: () => row.power, itemCount: () => itemCount(row, query.itemKey), protectTime: () => row.protectTime || null, updatedAt: () => row.updatedAt },
     dispatch: { level: () => row.level, quality: () => row.isSpecial ? 100 : row.quality, completionTime: () => row.completionTime || null, updatedAt: () => row.updatedAt },
@@ -153,7 +176,7 @@ function searchFixture(kind, query = {}, fixtureRows, fixtureTime = FIXTURE_TIME
       if (a != null && b == null) return -1;
       if (a == null && b == null) continue;
       if (a === b) continue;
-      const direction = kind === "monster" && sort.sortBy === "distance" ? 1 : sort.sortOrder === "asc" ? 1 : -1;
+      const direction = (kind === "monster" || kind === "zombie_boss") && sort.sortBy === "distance" ? 1 : sort.sortOrder === "asc" ? 1 : -1;
       return a < b ? -direction : direction;
     }
     return String(left.recordKey).localeCompare(String(right.recordKey));
@@ -198,7 +221,7 @@ function fixtureOptions(fixtureRows = FIXTURE_ROWS) {
       monster: countBy(fixtureRows.monster, "monsterNameKey").map(([key, count]) => ({ key, count })),
     },
     dispatchLevels: [5, 6, 7, 8],
-    rewardItems: { truck: [{ key: "fixture-reward", name: "Fixture Reward" }, { key: "fixture-medal", name: "Fixture Medal" }], railway: [{ key: "fixture-cargo", name: "Fixture Cargo" }, { key: "fixture-supply", name: "Fixture Supply" }] },
+    rewardItems: { truck: [{ key: "fixture-reward", name: "Fixture Reward" }, { key: "fixture-medal", name: "Fixture Medal" }], railway: [{ key: "fixture-cargo", name: "Fixture Cargo" }, { key: "fixture-supply", name: "Fixture Supply" }], ghost: [{ key: "fixture-ghost-gem", name: "Fixture Ghost Gem", taskCount: 40, maxCount: 500 }, { key: "fixture-ghost-chip", name: "Fixture Ghost Chip", taskCount: 26, maxCount: 71 }] },
     treasureTypes: [
       { key: 2, treasureType: 2, suppliesType: 0, treasureNameKey: "Fixture Lucky Treasure", name: "Fixture Lucky Treasure", count: 28 },
       { key: 1, treasureType: 1, suppliesType: 0, treasureNameKey: "Fixture Radar Treasure", name: "Fixture Radar Treasure", count: 31 },

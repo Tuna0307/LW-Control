@@ -1034,7 +1034,9 @@ local function current_match_server_ids()
     local data_center = rawget(_G, "DataCenter")
     local station_manager = data_center and safe_get(data_center, "LWMyStationDataManager") or nil
     local match_servers = station_manager and safe_get(station_manager, "matchServers") or nil
-    if type(match_servers) ~= "table" then return result end
+    -- The native manager is intermittently unavailable during world changes.
+    -- An absent producer is UNKNOWN, not an authoritative empty warzone list.
+    if type(match_servers) ~= "table" then return nil end
     for server_id, covered in pairs(match_servers) do
         local numeric = tonumber(server_id)
         if covered and numeric ~= nil and numeric > 0 and numeric <= 99999 and numeric == math.floor(numeric) then
@@ -1059,6 +1061,7 @@ local function write_world_state_result(request, state, error_text)
     if server_id == nil or server_id <= 0 or server_id ~= math.floor(server_id) then server_id = 0 end
     if home_server_id == nil or home_server_id <= 0 or home_server_id ~= math.floor(home_server_id) then home_server_id = 0 end
     local context = is_in_world and current_map_context() or nil
+    local truck_matches = current_match_server_ids()
     write_json(world_state_result_path, {
         schemaVersion = 1,
         bridgeVersion = M.VERSION,
@@ -1073,7 +1076,8 @@ local function write_world_state_result(request, state, error_text)
         serverId = server_id,
         homeServerId = home_server_id,
         seasonServerIds = {},
-        truckMatchServerIds = current_match_server_ids(),
+        truckMatchServerIdsKnown = truck_matches ~= nil,
+        truckMatchServerIds = truck_matches,
         worldId = context and context.worldId or 0,
         tileWidth = context and context.tileWidth or 0,
         tileHeight = context and context.tileHeight or 0,
@@ -2560,6 +2564,9 @@ local function write_march_follow_result(request, state, error_text)
         worldX = request.worldX,
         worldY = request.worldY,
         worldZ = request.worldZ,
+        marchSource = request.marchSource,
+        cameraTileX = request.cameraTileX,
+        cameraTileY = request.cameraTileY,
         method = request.method,
         error = error_text,
     })
@@ -2669,6 +2676,7 @@ local function pump_march_follow(control)
             request.worldX = ok_pos and tonumber(world_pos and safe_get(world_pos, "x")) or nil
             request.worldY = ok_pos and tonumber(world_pos and safe_get(world_pos, "y")) or nil
             request.worldZ = ok_pos and tonumber(world_pos and safe_get(world_pos, "z")) or nil
+            request.marchSource = "WorldMarchDataManager.GetMarch/GetMarchCurPos"
             observed = true
         end
     end
@@ -2686,10 +2694,17 @@ local function pump_march_follow(control)
                 return
             end
             observed = true
+            request.marchSource = "World.GetMarch"
         end
     end
 
     if observed then
+        local cs = rawget(_G, "CS")
+        local scene_manager = cs and safe_get(cs, "SceneManager") or nil
+        local world = scene_manager and safe_get(scene_manager, "World") or nil
+        local camera_tile = world and safe_get(world, "CurTilePosClamped") or nil
+        request.cameraTileX = tonumber(camera_tile and (safe_get(camera_tile, "x") or safe_get(camera_tile, "X")))
+        request.cameraTileY = tonumber(camera_tile and (safe_get(camera_tile, "y") or safe_get(camera_tile, "Y")))
         write_march_follow_result(request, "proven", nil)
         pending_march_follow = nil
         return

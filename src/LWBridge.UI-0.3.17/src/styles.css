@@ -2,3 +2,14 @@
  * Page-specific reconstruction additions belong here. The recovered 0.3.17
  * visual contract is imported unmodified from reference.css.
  */
+
+/* MAP-014 Ghost reward filter (clone-owned control; the recovered visual contract above is unchanged). */
+.map-ghost-reward-filter{min-width:200px}
+.map-ghost-reward-filter .map-item-filter-menu{min-width:260px}
+.map-ghost-reward-filter .map-item-filter-menu button small{color:var(--muted);margin-left:auto;padding-left:12px}
+.map-ghost-reward-selected{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px}
+.map-ghost-reward-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:2px 6px}
+.map-ghost-reward-chip input{width:84px;min-width:0}
+.map-ghost-reward-chip>button{border:0;background:transparent;cursor:pointer;padding:0 2px}
+.map-reward-unknown{color:var(--muted)}
+.map-ghost-reward-note{color:var(--muted);font-size:var(--font-body)}

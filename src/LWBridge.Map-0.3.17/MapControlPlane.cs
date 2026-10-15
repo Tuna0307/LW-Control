@@ -46,24 +46,34 @@ public sealed class MapControlPlane : IDisposable
         long now = nowMilliseconds();
         try
         {
-            store.InsertScanRun(new MapScanRun(
-                state.ScanRunId,
-                state.ServerId,
-                state.SelectedTypes,
-                "running",
-                state.TotalBlocks,
-                0,
-                0,
-                now,
-                now,
-                null));
+            // StartAsync sets its in-memory owner before this durable insert.
+            // Stop can otherwise cancel a not-yet-inserted run and a late
+            // insert recreates a SQLite 'running' row after Stop settled.
+            // Serialize owner admission + row insertion with exact-run native
+            // cancellation/publication at the state-machine boundary.
+            scan.WithOwnedRunningScan(state.ScanRunId, _ =>
+                store.InsertScanRun(new MapScanRun(
+                    state.ScanRunId,
+                    state.ServerId,
+                    state.SelectedTypes,
+                    "running",
+                    state.TotalBlocks,
+                    0,
+                    0,
+                    now,
+                    now,
+                    null)));
             return state;
         }
         catch
         {
             try
             {
-                await scan.StopAsync(cancellationToken).ConfigureAwait(false);
+                // A newer manual/Auto run may have replaced this accepted
+                // owner while its SQLite insert was pending. Do not let a
+                // stale Start cleanup cancel that unrelated successor.
+                await scan.StopOwnedAsync(state.ScanRunId, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
             catch
             {
@@ -88,6 +98,62 @@ public sealed class MapControlPlane : IDisposable
         }
         return scan.ApplyProgress(next);
     }
+
+    /// <summary>
+    /// Run-owned form for the actual desktop MapScanEngine provider. The
+    /// accepted run remains pinned while both SQLite and in-memory progress
+    /// mutate; a stale native callback cannot update a successor's counters.
+    /// Legacy callers of ReportProgress retain their existing interface.
+    /// </summary>
+    public MapScanState ReportProgressForRun(string expectedRunId, MapScanProgressUpdate update) =>
+        scan.ReportOwnedProgress(expectedRunId, update, next =>
+            store.UpdateScanProgress(expectedRunId, next.CompletedBlocks,
+                next.FailedBlocks, next.Error, nowMilliseconds()));
+
+    public void StageRecordForRun(string expectedRunId, MapRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        scan.WithOwnedRunningScan(expectedRunId, state =>
+        {
+            if (record.ServerId != state.ServerId ||
+                !state.SelectedTypes.Contains(record.Kind, StringComparer.Ordinal))
+                throw new BridgeCommandException("INVALID_MAP_RECORD",
+                    "map record does not belong to the exact active scan");
+            store.StageRecord(expectedRunId, record);
+        });
+    }
+
+    public MapScanState CompleteScanForRun(string expectedRunId) =>
+        scan.CompleteOwnedScan(expectedRunId, state =>
+        {
+            // The caller's RunId alone does not prove that the actual source
+            // completed all 2,500 logical blocks. Previously this method
+            // wrote TotalBlocks to SQLite unconditionally, letting an early
+            // same-owner Publish replace the last good records with a partial
+            // staging set. Enforce the engine-reported completion *inside*
+            // the exact owner lock before modifying durable progress.
+            if (state.TotalBlocks <= 0 ||
+                state.CompletedBlocks != state.TotalBlocks ||
+                state.FailedBlocks != 0 || state.InflightBlocks != 0)
+                throw new BridgeCommandException("INCOMPLETE_SCAN",
+                    "native scan cannot publish before every owned logical block completed");
+            // Owned engine progress was already persisted atomically with the
+            // matching in-memory snapshot by ReportProgressForRun. The SQLite
+            // CompleteScan transaction independently requires durable
+            // completed==total and zero failures before replacing any selected
+            // kind rows. Do not forcibly advance durable progress in a
+            // separate pre-publication UPDATE: it could conceal a missing
+            // checkpoint after a failed progress write and leave a misleading
+            // 100%-but-running row if the publication transaction then fails.
+            store.CompleteScan(expectedRunId, nowMilliseconds());
+        });
+
+    public MapScanState FailScanForRun(string expectedRunId, string error) =>
+        scan.FailOwnedScan(expectedRunId, error, _ =>
+        {
+            // Never preserve a failed/incomplete native source's staged rows.
+            store.FailScan(expectedRunId, error, nowMilliseconds(), preserveRecords: false);
+        });
 
     public void StageRecord(MapRecord record)
     {
@@ -191,7 +257,7 @@ public sealed class MapControlPlane : IDisposable
             : null;
 }
 
-internal sealed class MapStoreScanLocalSink : IMapScanLocalSink
+internal sealed class MapStoreScanLocalSink : IMapScanImmediateCancelSink
 {
     private readonly MapStore store;
     private readonly Func<long> nowMilliseconds;
@@ -204,9 +270,14 @@ internal sealed class MapStoreScanLocalSink : IMapScanLocalSink
 
     public ValueTask CancelScanAsync(string scanRunId, CancellationToken cancellationToken = default)
     {
+        CancelScanImmediately(scanRunId, cancellationToken);
+        return ValueTask.CompletedTask;
+    }
+
+    public void CancelScanImmediately(string scanRunId, CancellationToken cancellationToken)
+    {
         cancellationToken.ThrowIfCancellationRequested();
         store.CancelScan(scanRunId, null, nowMilliseconds());
-        return ValueTask.CompletedTask;
     }
 
     public ValueTask ClearServerAsync(int serverId, CancellationToken cancellationToken = default)

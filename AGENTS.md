@@ -1,4 +1,175 @@
+Latest owner main-test authorization, 2026-10-15: owner explicitly requests
+merging reviewed MAP-014 into main for personal testing. Lead corrected a real
+City-only placement regression and verified the final source-pinned Windows ZIP
+with genuine City-only and eight-kind packaged scans, filters and cleanup.
+Read docs/reviews/2026-10-15-MAP-014-OWNER-TEST-MERGE.md. This supersedes older
+no-merge wording only for this accepted owner-test delivery; whole Map remains
+PARTIAL and account-action/background boundaries remain. Retire merged feature
+refs after ancestry checks; preserve ignored artifacts and unrelated research.
+
 # LW-Control — current contributor instructions
+
+Latest worker update, 2026-10-15: the four owner-reported Map defects (Truck/Secret Task slowness, Black tile,
+Zombie Boss, Ghost rewards) are diagnosed and fixed with genuine native and packaged-app evidence on
+codex/map-owner-fixes-014 / draft PR #10. Read docs/MAP_014_OWNER_DEFECTS_HANDOFF_2026-10-15.md first. Key lesson:
+the native AOI window scales with camera height (player zoom); scans now use a canonical lens and calibrated
+placement. Whole Map remains PARTIAL; no merge or publication; background-only and no-account-action limits unchanged.
+
+Latest owner interruption/worker handback, 2026-10-14: lead execution stopped
+at owner request to conserve tokens; worker should resume the existing branch
+and draft PR #10. Read docs/MAP_014_WORKER_RESUME_HANDOFF_2026-10-14.md first.
+Product e01d01b5 was clean/pushed/published locally; no final ZIP. Genuine mixed
+scan/publication and independent DB audit passed, but Dispatch real UI browsing
+failed. Diagnose it first using the retained genuine DB and new opt-in query
+error observer, rather than repeating a full scan. Finish the remaining native
+Stop/Other/filter/tracking/package gates through fix/retest loops. Available
+subagents allowed, one primary integrator/one live controller; preserve existing
+background/action boundaries, negatives and exact v26 originals. No merge or
+publication; whole Map remains PARTIAL until actual remaining gates pass.
+
+Latest lead takeover, 2026-10-14: owner authorized finishing/testing; external
+worker confirmed stopped. Read docs/MAP_014_LEAD_FINISH_STATUS.md first. Fresh
+current-checkpoint Release rebuild and full inert suite pass under normal tool
+review; earlier denied calls are historical, not blanket owner pauses. Preserve
+their exact scope; never bypass a new denial. Publication-phase, manual busy,
+inclusive edge Jump, Other inspection and pre-acceptance Auto-return defects
+corrected with distinguishing checks. Native final-package verification next.
+Same branch/PR #10/background/action limits; one live controller, no main merge.
+
+Latest owner delegation update, 2026-10-14: the MAP-014 worker may use as many
+subagents as needed within the environment's available concurrency. This
+supersedes all older solo/no-subagent/no-delegation instructions for the current
+assignment. The primary worker owns integration and final verification, assigns
+non-overlapping edits and reviews each contribution. Only one designated agent
+may control live game/app sessions, shared installed scripts and restoration at
+a time. Preserve the existing branch/PR, background-only restrictions, action
+boundaries and tool denials; delegation does not expand those permissions.
+
+Latest owner handoff, 2026-10-14: external worker may resume MAP-014 on existing
+codex/map-owner-fixes-014 / draft PR #10. Read
+docs/MAP_014_WORKER_FINISH_HANDOFF_2026-10-14.md first. Preserve intentional
+uncommitted lead City/source/test changes; no reset/discard. Finish approved
+owner fixes, Other event grouping, moving/expiring identity accuracy and
+per-selection scanner qualification through a self-directed fix/retest loop.
+Cities may relocate; X/Y 0–999; no fixed population quota. FOV20 mixed mobile
+candidate loses unexpired Trucks and remains disabled; Resource paired trials
+completed but identity/field qualification remains. Same background authority,
+no mouse/account actions/new branch/merge/publication. Subagents are allowed
+under the newest owner delegation update above.
+
+Current solo lead takeover, 2026-10-14: read
+docs/MAP_014_LEAD_LENS_QUALIFICATION.md before older continuations.
+Native stage observation proves stale old-A camera-corner anchors despite
+translated logical B; private FOV20 consecutive A/B/C and complete 10000-AOI
+discovery now pass, with exact final restoration. Actual engine FOV20 City
+publication separately passed 4110 rows. FOV40 split/coverage failure remains
+rejected. FOV20 remains diagnostic opt-in until repeated pipeline accuracy,
+performance, Stop and package gates pass; normal default is unchanged.
+Celebration Party is source-identified as detect_event 27000, not a live
+positive. Same branch/PR #10, solo/background/no-action authority; no merge.
+
+Latest MAP-014 source-causal continuation: KEEP OVERALL PARTIAL on
+the existing solo branch/draft PR #10. A distinct private post-lens
+subscription-refresh sequence failed in genuine v24 game: all three
+individually restored A/B/C controls passed, and the first
+consecutive keep returned 27 rows, but logical target B (545,495)
+had native target AOI 4954 while the manager remained subscribed
+to nine OLD A AOIs 4244-4446, no source-matched B reply and no
+exact camera restoration. The diagnostic candidate remains disabled.
+New live event source samples at center and upper-right found 31
+and 18 ordinary Monster WorldMarch records respectively, with
+two ordinary type-21 Treasure at the edge, zero type-27 Supplies
+and no source-labelled Doom Walker; the Doomsday manager existed
+but theater/alliance boss collections were nil. Four current
+native samples directly reobserved 80 of 10,000 LOD0 AOIs (0.8%
+audited footprint, NOT City recall), 75 current City identities
+matched earlier same-server indexes/positions, zero rejects.
+Preserve previous complete scans, City 78/78 and 62/62, genuine
+remote 2213 Auto/Jump/Clear, camera/images/filters and the genuine
+natural Truck expiry 27 Follow/26 positions/19 camera tiles,
+auto-Stop. Never merge/publish; preserve game Chinese, background
+only, no account actions. Consult the newest MAP-014 continuation.
+
+Current 2026-10-13 MAP-014 continuation: a genuine packaged natural
+Truck expiry PASS exists at
+`artifacts/map014-takeover/native-ui-20261013-152235`
+(27 same-UUID native Follow results, 26 moving positions, 19 camera
+tiles, nine pre-arrival Stop observations, automatic Stop after
+arrival, no late polling or owner gaps). A genuine current source
+probe at City (115,120) recovered the Oct13 mixed-only identity
+within 13/13 City source records, showing current discoverability,
+but time-separated earlier absence is not proven ingestion loss.
+Six source-matched serial LOD0 region controls spend 49.46% of
+measured probe time restoring home; no faster alternative is
+accuracy-qualified. Preserve source evidence and negative
+attempts, prior 2213 scan/Jump/Clear, five-position manual Truck
+Stop, camera/image/filter fixes. MAP-014 overall remains PARTIAL
+for complete current City census, event/BossVO positives and
+scanner optimization; solo existing branch/draft PR #10 only,
+no merge, publication, or game account actions. See
+`docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`.
+
+Current MAP-014 solo checkpoint continuation, after `ce121720`: source-level
+City count-only matching is corrected by an exact current-PointInfo versus
+retained-main-base point-index subset join; the managed receiver now requires
+zero identity/membership rejects. A genuine owned v24 target region on
+2212 (995,975) supplied 62 native current City identities matching all
+62 retained rows and zero rejects, with fresh reply/camera restoration and
+exact owned game Stop. It does not prove whole-world recall. Natural
+expiry-only packaged attempts reached genuine source-arrival Truck candidates
+and exact native Follow, but failed to preserve an uninterrupted ready
+session through arrival/automatic Stop; no expiry positive is accepted.
+Intermediate zoom remains explicitly opt-in/unqualified: its test command
+was denied and must not be retried/rerouted. Historical aspect 4/6
+footprints show no gain; ZoomMax LOD2 and consecutive A→B remain disabled.
+See `docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md`. Whole MAP-014 is
+PARTIAL. Continue only on existing branch/draft PR #10, with no merge,
+publication, account-changing action or control of owner windows.
+
+Latest MAP-014 lead-reviewed continuation: Read
+docs/reviews/2026-10-13-MAP-014-SOLO-LEAD-REVIEW.md and
+docs/MAP_014_COVERAGE_TRACKING_CONTINUATION.md. Overall assignment remains
+PARTIAL. Genuine sustained same-UUID Truck Follow now has five successive
+native positions and four camera tiles followed by UI Stop, with exact script
+restoration. Genuine Oct 13 City scans agree on 4,029 stable identities,
+with three later additional identities and seven same-owner coordinate moves;
+historical Oct 12 owner coordinates are all different and its 7,060-range
+count is not today's quota. Unqualified consecutive/ZoomMax routes remain
+disabled; no speed gain or City census completeness is established. Natural
+expiry and seasonal/Doom live positives depend on current object availability,
+and Celebration Party's exact native discriminator remains unidentified.
+The attempted aspect comparison's output retrieval was denied; do not
+retry/reroute that call or claim its result. Work solo on the existing draft
+PR #10; no merge/publication or gameplay action.
+
+Latest MAP-014 solo continuation, 2026-10-13: the saved-server mounted
+ownership bug is fixed. A real packaged Windows UI completed an authenticated
+2212→2213 Auto Resource scan (7,996 2213 rows), returned to 2212, browsed a
+retained 2213 row, jumped to 2213 tile (987,900), returned home and cleared
+2213 via the real Auto control while preserving 7,975 home rows. A separate
+genuine browse UI run verified positive Resource/Truck filters, 50 Dispatch
+owner names, actual game PNGs in row/filter menu, and exact native Truck
+Follow→visible Stop. Independent City, mixed and active Stop camera checkpoints
+matched their original camera geometry. Corrected consecutive/final-restore
+and ZoomMax trials failed fresh second-region native acquisition; neither
+shortcut was enabled. Current evidence/remaining limits:
+docs/MAP_014_SOLO_REVIEW_CANDIDATE.md. Available scoped features are
+READY_FOR_LEAD_FUNCTIONAL_REVIEW, overall City-recall/seasonal/moving BossVO
+and scanner-optimization acceptance is PARTIAL. Preserve original negative
+receipts. Only PR #10 on codex/map-owner-fixes-014; do not merge or publish.
+The interruption warning below is historical and superseded by this result.
+
+Latest owner direction, 2026-10-13: lead execution stopped; hand off the
+interrupted MAP-014 work to one solo worker on codex/map-owner-fixes-014 / PR #10.
+Read docs/MAP_014_LEAD_TAKEOVER.md and
+docs/work-items/LWB317-MAP-014-WORKER-TAKEOVER.md. Genuine camera/full-scan,
+native image/filter/warzone/Follow evidence and negatives are preserved.
+Connected saved-server selection is unfinished: the new MAP011 inverse fails
+because the live-server effect still overwrites the chosen remote dataset.
+Fix it first; do not call this checkpoint accepted or merge-ready. Finish the
+13 owner issues, then qualify consecutive-region/final-only restoration and
+zoom/FOV acquisition improvements with fresh-data/coverage and native cleanup.
+Existing background-only and no-account-action authority remains unchanged.
 
 Latest owner bug assignment, 2026-10-13: complete
 docs/work-items/LWB317-MAP-OWNER-FIXES-014.md on a single new

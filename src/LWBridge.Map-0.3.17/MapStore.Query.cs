@@ -41,7 +41,8 @@ public sealed partial class MapStore
         // Saturating here changes the original returned rows on overflow.
         long offset = unchecked((pageNumber - 1) * pageSize);
         bool city = query.Kind == "city";
-        bool treasure = query.Kind == "treasure";
+            bool treasure = query.Kind == "treasure";
+            bool dispatchOwner = query.Kind is "dispatch" or "ghost";
         bool staging = !string.IsNullOrWhiteSpace(query.ScanRunId);
         string table = staging ? "scan_records" : "map_records";
         string runPredicate = staging ? " AND page.run_id=$run" : string.Empty;
@@ -84,8 +85,34 @@ public sealed partial class MapStore
                     : $"SELECT page.data_json,page.server_id,CASE WHEN mark.owner_uid IS NULL THEN 0 ELSE 1 END FROM {table} page{rowJoin} WHERE {where} ORDER BY {orderBy}"
                 : treasure
                     ? $"SELECT page.data_json,page.server_id,state.state_json FROM {table} page{rowJoin} WHERE {where} ORDER BY {orderBy}"
-                    : $"SELECT page.data_json,page.server_id FROM {table} page WHERE {where} ORDER BY {orderBy}";
-            page.CommandText = select + " LIMIT $limit OFFSET $offset";
+                    : dispatchOwner
+                        ? $"""
+                            WITH chosen_page AS MATERIALIZED (
+                                SELECT page.* FROM {table} page
+                                WHERE {where} ORDER BY {orderBy} LIMIT $limit OFFSET $offset
+                            )
+                            SELECT page.data_json,page.server_id,
+                              (SELECT CAST(json_extract(city.data_json,'$.ownerName') AS TEXT)
+                               FROM map_records city
+                               WHERE city.server_id=page.server_id AND city.kind='city'
+                                 AND CAST(json_extract(city.data_json,'$.ownerUid') AS TEXT)=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)
+                                 AND COALESCE(CAST(json_extract(city.data_json,'$.ownerName') AS TEXT),'')<>''
+                               ORDER BY city.updated_at DESC,city.record_key LIMIT 1),
+                              (SELECT CAST(json_extract(city.data_json,'$.allianceName') AS TEXT)
+                               FROM map_records city
+                               WHERE city.server_id=page.server_id AND city.kind='city'
+                                 AND CAST(json_extract(city.data_json,'$.ownerUid') AS TEXT)=CAST(json_extract(page.data_json,'$.ownerUid') AS TEXT)
+                                 AND COALESCE(CAST(json_extract(city.data_json,'$.allianceName') AS TEXT),'')<>''
+                               ORDER BY city.updated_at DESC,city.record_key LIMIT 1)
+                            FROM chosen_page page ORDER BY {orderBy}
+                            """
+                        : $"SELECT page.data_json,page.server_id FROM {table} page WHERE {where} ORDER BY {orderBy}";
+            // The two Dispatch/Ghost owner-name lookups must run only for the
+            // selected <=200 rows. Performing them before LIMIT exhausted the
+            // WebView's 30-second native request deadline on genuine 842-task
+            // datasets, even though the same DB reopened and counted normally.
+            // MATERIALIZED prevents SQLite from flattening the page boundary.
+            page.CommandText = dispatchOwner ? select : select + " LIMIT $limit OFFSET $offset";
             AddQueryParameters(page, query, now, staging);
             page.Parameters.AddWithValue("$limit", pageSize);
             page.Parameters.AddWithValue("$offset", offset);
@@ -99,7 +126,9 @@ public sealed partial class MapStore
                         reader.IsDBNull(3) ? null : reader.GetInt64(3), reader.GetInt64(4))
                     : ReadSearchRow(reader.GetString(0), reader.GetInt32(1),
                         city ? reader.GetInt32(2) != 0 : null,
-                        treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null));
+                        treasure && !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                        dispatchOwner && !reader.IsDBNull(2) ? reader.GetString(2) : null,
+                        dispatchOwner && !reader.IsDBNull(3) ? reader.GetString(3) : null));
             }
             snapshot.Commit();
             return new MapSearchResult(rows, total, pageNumber, pageSize);
@@ -151,6 +180,7 @@ public sealed partial class MapStore
                 ReadRewardItemsLocked(snapshot, table, serverId, scanRunId,
                     nowUnixMilliseconds ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             List<JsonElement> treasureTypes = ReadTreasureTypesLocked(snapshot, table, serverId, scanRunId);
+            List<JsonElement> otherTypes = ReadOtherTypesLocked(snapshot, table, serverId, scanRunId);
             MapScanRun? progress = staging
                 ? ReadScanRunLocked(scanRunId!, snapshot)
                 : ReadLatestScanRunLocked(serverId, snapshot);
@@ -161,7 +191,7 @@ public sealed partial class MapStore
                     ["resource"] = resources,
                     ["monster"] = monsters,
                 },
-                dispatchLevels, noAlliance, rewardItems, treasureTypes, progress);
+                dispatchLevels, noAlliance, rewardItems, treasureTypes, progress, otherTypes);
         }
     }
 
@@ -280,7 +310,10 @@ public sealed partial class MapStore
             {
                 key = reader.GetString(1),
                 name = reader.GetString(2),
-                iconPath = reader.GetString(3),
+                // A genuine item may have a name while its installed-game
+                // asset path is unavailable. Preserve Unknown, do not fail
+                // map_data_options or invent a diagram for it.
+                iconPath = reader.IsDBNull(3) ? null : reader.GetString(3),
             });
             if (reader.GetString(0) == "truck") truck.Add(option); else railway.Add(option);
         }
@@ -288,7 +321,53 @@ public sealed partial class MapStore
         {
             ["truck"] = truck,
             ["railway"] = railway,
+            ["ghost"] = ReadGhostRewardItemsLocked(tx, table, serverId, runId),
         };
+    }
+
+    // Distinct reward identities that genuinely occur in this server's stored
+    // Ghost tasks. Only rows carrying an authoritative `$.rewards` array of
+    // keyed, named, positive-amount objects contribute; unknown rows add nothing.
+    private List<JsonElement> ReadGhostRewardItemsLocked(SqliteTransaction tx, string table, int serverId, string? runId)
+    {
+        bool staging = !string.IsNullOrWhiteSpace(runId);
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = tx;
+        command.CommandText = $"""
+            SELECT CAST(json_extract(reward.value,'$.key') AS TEXT),
+                   MAX(CAST(json_extract(reward.value,'$.name') AS TEXT)),
+                   MAX(CAST(json_extract(reward.value,'$.iconPath') AS TEXT)),
+                   COUNT(DISTINCT page.record_key),
+                   MAX(CAST(json_extract(reward.value,'$.count') AS REAL))
+            FROM {table} page, json_each(page.data_json,'$.rewards') AS reward
+            WHERE page.server_id=$server {(staging ? "AND page.run_id=$run" : string.Empty)}
+              AND page.kind='ghost'
+              AND json_type(page.data_json,'$.rewards')='array'
+              AND CASE WHEN reward.type='object' THEN
+                    (json_type(reward.value,'$.key')='text' AND json_extract(reward.value,'$.key')<>''
+                     AND json_type(reward.value,'$.name')='text' AND json_extract(reward.value,'$.name')<>''
+                     AND json_type(reward.value,'$.count') IN ('integer','real')
+                     AND json_extract(reward.value,'$.count')>0)
+                  ELSE 0 END
+            GROUP BY CAST(json_extract(reward.value,'$.key') AS TEXT)
+            ORDER BY 2 COLLATE NOCASE,1
+            """;
+        command.Parameters.AddWithValue("$server", serverId);
+        if (staging) command.Parameters.AddWithValue("$run", runId!);
+        using SqliteDataReader reader = command.ExecuteReader();
+        var result = new List<JsonElement>();
+        while (reader.Read())
+        {
+            result.Add(JsonSerializer.SerializeToElement(new
+            {
+                key = reader.GetString(0),
+                name = reader.GetString(1),
+                iconPath = reader.IsDBNull(2) ? null : reader.GetString(2),
+                taskCount = reader.GetInt32(3),
+                maxCount = (long)Math.Floor(reader.GetDouble(4)),
+            }));
+        }
+        return result;
     }
 
     private List<JsonElement> ReadTreasureTypesLocked(SqliteTransaction tx, string table, int serverId, string? runId)
@@ -334,6 +413,32 @@ public sealed partial class MapStore
         return result;
     }
 
+    private List<JsonElement> ReadOtherTypesLocked(SqliteTransaction tx, string table, int serverId, string? runId)
+    {
+        bool staging = !string.IsNullOrWhiteSpace(runId);
+        using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = tx;
+        command.CommandText = $"""
+            SELECT json_extract(data_json,'$.otherSubtype'),COUNT(*)
+            FROM {table}
+            WHERE server_id=$server {(staging ? "AND run_id=$run" : string.Empty)}
+              AND kind='other'
+              AND json_extract(data_json,'$.otherSubtype') IS NOT NULL
+            GROUP BY json_extract(data_json,'$.otherSubtype')
+            ORDER BY json_extract(data_json,'$.otherSubtype')
+            """;
+        command.Parameters.AddWithValue("$server", serverId);
+        if (staging) command.Parameters.AddWithValue("$run", runId!);
+        using SqliteDataReader reader = command.ExecuteReader();
+        var result = new List<JsonElement>();
+        while (reader.Read())
+        {
+            string subtype = reader.GetString(0);
+            result.Add(JsonSerializer.SerializeToElement(new { key = subtype, count = reader.GetInt32(1) }));
+        }
+        return result;
+    }
+
     private MapScanRun? ReadLatestScanRunLocked(int serverId, SqliteTransaction? transaction = null)
     {
         using SqliteCommand command = connection.CreateCommand();
@@ -347,6 +452,8 @@ public sealed partial class MapStore
         return reader.Read() ? ReadScanRun(reader) : null;
     }
 
+    public const int MaxGhostRewardFilters = 24;
+
     private static List<string> BuildPredicates(MapQuery query, long now)
     {
         var predicates = new List<string> { "page.kind=$kind" };
@@ -359,6 +466,12 @@ public sealed partial class MapStore
         if (query.WithoutAlliance) predicates.Add("(page.alliance_name IS NULL OR page.alliance_name='')");
         if (query.ResourceNameKey is not null) predicates.Add("CAST(json_extract(page.data_json,'$.resourceNameKey') AS TEXT)=$resourceNameKey");
         if (query.MonsterNameKey is not null) predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT)=$monsterNameKey");
+        if (query.OtherSubtype is not null)
+        {
+            if (query.Kind != "other" || !MapKinds.IsValidOtherSubtype(query.OtherSubtype))
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid Other event subtype");
+            predicates.Add("CAST(json_extract(page.data_json,'$.otherSubtype') AS TEXT)=$otherSubtype");
+        }
         if (query.SuppliesType > 0) predicates.Add("CAST(json_extract(page.data_json,'$.suppliesType') AS INTEGER)=$suppliesType");
         if (query.TreasureType > 0)
         {
@@ -376,8 +489,74 @@ public sealed partial class MapStore
         else if (query.Quality is not null) throw new BridgeCommandException("INVALID_REQUEST", "invalid map quality");
         if (query.Kind == "truck" && query.Quality == "ur")
             predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER),0)=0");
+        if (query.Kind == "resource")
+        {
+            switch (query.ResourceAmountState)
+            {
+                case null: break;
+                case "full":
+                    predicates.Add("json_extract(page.data_json,'$.resourceDetailKnown')=1 AND CAST(json_extract(page.data_json,'$.resourceRemainingAmount') AS INTEGER)=CAST(json_extract(page.data_json,'$.resourceFullAmount') AS INTEGER)");
+                    break;
+                case "partial":
+                    predicates.Add("json_extract(page.data_json,'$.resourceDetailKnown')=1 AND CAST(json_extract(page.data_json,'$.resourceRemainingAmount') AS INTEGER)<CAST(json_extract(page.data_json,'$.resourceFullAmount') AS INTEGER)");
+                    break;
+                case "unknown":
+                    predicates.Add("(json_extract(page.data_json,'$.resourceDetailKnown') IS NOT 1 OR json_extract(page.data_json,'$.resourceRemainingAmount') IS NULL OR json_extract(page.data_json,'$.resourceFullAmount') IS NULL)");
+                    break;
+                default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource amount filter");
+            }
+            switch (query.ResourceTileState)
+            {
+                case null: break;
+                // Match the UI's strictly boolean terrain presentation: SQLite's
+                // json_extract alone can treat a malformed numeric/string value
+                // as neither black nor normal nor unknown.
+                // Rows written before 2026-10-15 used the per-account Player.IsInBlackRange(pos) call, which ignores the tile
+                // and reports only the scanning account's own city: their terrain is UNKNOWN, never normal/black.
+                case "black": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='true' AND COALESCE(json_extract(page.data_json,'$.source'),'') NOT LIKE '%Player.IsInBlackRange%'"); break;
+                case "normal": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='false' AND COALESCE(json_extract(page.data_json,'$.source'),'') NOT LIKE '%Player.IsInBlackRange%'"); break;
+                case "unknown": predicates.Add("(COALESCE(json_type(page.data_json,'$.blackTileKnown'),'')<>'true' OR COALESCE(json_type(page.data_json,'$.isBlackTile'),'') NOT IN ('true','false') OR COALESCE(json_extract(page.data_json,'$.source'),'') LIKE '%Player.IsInBlackRange%')"); break;
+                default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource terrain filter");
+            }
+        }
+        else if (query.ResourceAmountState is not null || query.ResourceTileState is not null)
+            throw new BridgeCommandException("INVALID_REQUEST", "resource filters require Resource data");
         if (query.ItemKey is not null)
             predicates.Add("EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT)=$itemKey)");
+        if (query.ItemKeys is { Count: > 0 })
+        {
+            if (query.Kind is not ("truck" or "railway") || query.ItemKeys.Count > 24 ||
+                query.ItemKeys.Any(key => string.IsNullOrWhiteSpace(key) || key.Length > 160))
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid reward item selection");
+            foreach (int index in Enumerable.Range(0, query.ItemKeys.Distinct(StringComparer.Ordinal).Count()))
+                predicates.Add($"EXISTS (SELECT 1 FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT)=$itemKey{index})");
+        }
+        if (query.RewardFilters is { Count: > 0 })
+        {
+            // Ghost-only reward constraints over the authoritative stored
+            // `$.rewards` list. A row without that list is UNKNOWN and matches
+            // nothing here (it is never treated as an empty reward set).
+            if (query.Kind != "ghost" || query.RewardFilters.Count > MaxGhostRewardFilters ||
+                query.RewardFilters.Any(filter => filter is null || string.IsNullOrWhiteSpace(filter.Key) ||
+                    filter.Key.Length > 160 || filter.MinCount < 0) ||
+                query.RewardFilters.Select(filter => filter.Key).Distinct(StringComparer.Ordinal).Count() != query.RewardFilters.Count)
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid reward filter selection");
+            if (query.RewardMatch is not (null or "all" or "any"))
+                throw new BridgeCommandException("INVALID_REQUEST", "invalid reward match mode");
+            IEnumerable<string> rewardTerms = Enumerable.Range(0, query.RewardFilters.Count).Select(index =>
+                "(json_type(page.data_json,'$.rewards')='array' AND (SELECT COALESCE(SUM(CASE " +
+                "WHEN reward.type<>'object' THEN 0 " +
+                $"WHEN json_type(reward.value,'$.key')='text' AND json_extract(reward.value,'$.key')=$rewardKey{index} " +
+                "AND json_type(reward.value,'$.count') IN ('integer','real') AND json_extract(reward.value,'$.count')>0 " +
+                "THEN CAST(json_extract(reward.value,'$.count') AS REAL) ELSE 0 END),0) " +
+                "FROM json_each(page.data_json,'$.rewards') AS reward) " +
+                $">=$rewardMin{index})");
+            predicates.Add(query.RewardMatch == "any"
+                ? "(" + string.Join(" OR ", rewardTerms) + ")"
+                : "(" + string.Join(" AND ", rewardTerms) + ")");
+        }
+        else if (query.RewardMatch is not (null or "all" or "any"))
+            throw new BridgeCommandException("INVALID_REQUEST", "invalid reward match mode");
         if (query.CompletionStatus == "pending")
             predicates.Add("(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER) IS NULL OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER)<=0 OR CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER)>$nowUnixMs)");
         else if (query.CompletionStatus == "completed")
@@ -394,6 +573,22 @@ public sealed partial class MapStore
             predicates.Add("COALESCE(CAST(json_extract(page.data_json,'$.plunderAt') AS INTEGER),CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0)>0");
             predicates.Add("(COALESCE(CAST(json_extract(page.data_json,'$.taskExpireTime') AS INTEGER),0)<=0 OR CAST(json_extract(page.data_json,'$.taskExpireTime') AS INTEGER)>$nowUnixMs)");
             predicates.Add("(COALESCE(CAST(json_extract(page.data_json,'$.maxStealCount') AS INTEGER),0)<=0 OR COALESCE(CAST(json_extract(page.data_json,'$.stolenCount') AS INTEGER),0)<CAST(json_extract(page.data_json,'$.maxStealCount') AS INTEGER))");
+        }
+        if (query.ProtectionState is not null)
+        {
+            // Zombie Boss protection is game-confirmed only (MonsterInvasionBossDetail
+            // reply); a row without that confirmation is UNKNOWN, never "inactive".
+            if (query.Kind != MapKinds.ZombieBoss)
+                throw new BridgeCommandException("INVALID_REQUEST", "protection filter requires Zombie Boss data");
+            const string known = "json_type(page.data_json,'$.monsterProtectionKnown')='true'";
+            const string live = "json_type(page.data_json,'$.monsterProtectionActive')='true' AND COALESCE(page.shield_end_time,0)>$nowUnixMs";
+            switch (query.ProtectionState)
+            {
+                case "active": predicates.Add(known + " AND " + live); break;
+                case "inactive": predicates.Add(known + " AND NOT (" + live + ")"); break;
+                case "unknown": predicates.Add("COALESCE(json_type(page.data_json,'$.monsterProtectionKnown'),'')<>'true'"); break;
+                default: throw new BridgeCommandException("INVALID_REQUEST", "invalid protection state filter");
+            }
         }
         if (query.SpecialOnly) predicates.Add("CAST(json_extract(page.data_json,'$.isSpecial') AS INTEGER)=1");
         if (query.ReindeerOnly) predicates.Add("CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER)=1");
@@ -436,7 +631,7 @@ public sealed partial class MapStore
         foreach (MapSort sort in sorts)
         {
             string expression = SortExpression(query, sort.SortBy);
-            string direction = query.Kind == "monster" && sort.SortBy == "distance"
+            string direction = query.Kind is "monster" or MapKinds.ZombieBoss && sort.SortBy == "distance"
                 ? "ASC"
                 : sort.SortOrder == "asc" ? "ASC" : "DESC";
             clauses.Add($"({expression} IS NULL) ASC");
@@ -457,6 +652,14 @@ public sealed partial class MapStore
         ("monster", "level") => "page.level",
         ("monster", "distance") => "page.distance",
         ("monster", "updatedAt") => "page.updated_at",
+        ("zombie_boss", "level") => "page.level",
+        ("zombie_boss", "power") => "page.power",
+        ("zombie_boss", "distance") => "page.distance",
+        ("zombie_boss", "updatedAt") => "page.updated_at",
+        // Remaining lifetime: the game's own WorldMarch.refreshTime (ms). Unknown stays NULL (sorted last).
+        ("zombie_boss", "remaining") => "NULLIF(CAST(json_extract(page.data_json,'$.refreshTime') AS INTEGER),0)",
+        // Active protection end only; expired/unknown protection sorts last.
+        ("zombie_boss", "shield") => "CASE WHEN COALESCE(page.shield_end_time,0)>$nowUnixMs THEN page.shield_end_time ELSE NULL END",
         ("truck", "quality") => "CASE WHEN CAST(json_extract(page.data_json,'$.isSpecialURQuality') AS INTEGER)=1 THEN 100 ELSE page.quality END",
         ("truck", "power") => "page.power",
         ("truck", "itemCount") when query.ItemKey is { Length: > 0 } => "COALESCE((SELECT SUM(CAST(json_extract(good.value,'$.count') AS REAL)) FROM json_each(page.data_json,'$.currentGoods') AS good WHERE CAST(json_extract(good.value,'$.key') AS TEXT)=$itemKey),0)",
@@ -473,6 +676,7 @@ public sealed partial class MapStore
         ("dispatch", "completionTime") or ("ghost", "completionTime") => "NULLIF(CAST(json_extract(page.data_json,'$.completionTime') AS INTEGER),0)",
         ("dispatch", "updatedAt") or ("ghost", "updatedAt") => "page.updated_at",
         ("treasure", "updatedAt") => "page.updated_at",
+        ("other", "updatedAt") => "page.updated_at",
         _ => throw new BridgeCommandException("INVALID_REQUEST", $"unsupported {query.Kind} sort column '{key}'"),
     };
 
@@ -485,6 +689,7 @@ public sealed partial class MapStore
         if (query.Alliance is not null) command.Parameters.AddWithValue("$alliance", query.Alliance);
         if (query.ResourceNameKey is not null) command.Parameters.AddWithValue("$resourceNameKey", query.ResourceNameKey);
         if (query.MonsterNameKey is not null) command.Parameters.AddWithValue("$monsterNameKey", query.MonsterNameKey);
+        if (query.OtherSubtype is not null) command.Parameters.AddWithValue("$otherSubtype", query.OtherSubtype);
         if (query.SuppliesType > 0) command.Parameters.AddWithValue("$suppliesType", query.SuppliesType.Value);
         if (query.TreasureType > 0) command.Parameters.AddWithValue("$treasureType", query.TreasureType.Value);
         if (query.ViewerUid is { Length: > 0 }) command.Parameters.AddWithValue("$viewerUid", query.ViewerUid);
@@ -496,7 +701,26 @@ public sealed partial class MapStore
                 "n" => 1, "r" => 2, "sr" => 3, "ssr" => 4, _ => 0,
             });
         if (query.ItemKey is not null) command.Parameters.AddWithValue("$itemKey", query.ItemKey);
+        if (query.ItemKeys is { Count: > 0 })
+        {
+            int index = 0;
+            foreach (string key in query.ItemKeys.Distinct(StringComparer.Ordinal))
+                command.Parameters.AddWithValue($"$itemKey{index++}", key);
+        }
+        if (query.RewardFilters is { Count: > 0 })
+        {
+            int rewardIndex = 0;
+            foreach (MapRewardFilter filter in query.RewardFilters)
+            {
+                command.Parameters.AddWithValue($"$rewardKey{rewardIndex}", filter.Key);
+                // "Present" means a positive amount, so the effective floor is 1.
+                command.Parameters.AddWithValue($"$rewardMin{rewardIndex}", Math.Max(filter.MinCount, 1L));
+                rewardIndex++;
+            }
+        }
         if (query.Kind is "truck" or "railway" || query.CompletionStatus is not null || query.PlunderableOnly ||
+            query.ProtectionState is not null ||
+            query.Sorts?.Any(sort => query.Kind == MapKinds.ZombieBoss && sort.SortBy == "shield") == true ||
             query.Sorts?.Any(sort => query.Kind == "city" && sort.SortBy == "shield") == true)
         {
             command.Parameters.AddWithValue("$nowUnixMs", now);
@@ -524,7 +748,8 @@ public sealed partial class MapStore
         return JsonSerializer.SerializeToElement(row);
     }
 
-    private static JsonElement ReadSearchRow(string json, int serverId, bool? marked, string? stateJson)
+    private static JsonElement ReadSearchRow(string json, int serverId, bool? marked, string? stateJson,
+        string? ownerNameFromCity = null, string? allianceFromCity = null)
     {
         JsonObject row = ParseRow(json);
         if (!string.IsNullOrEmpty(stateJson))
@@ -534,6 +759,15 @@ public sealed partial class MapStore
         }
         row["serverId"] = serverId;
         if (marked.HasValue) row["marked"] = marked.Value;
+        if (string.IsNullOrWhiteSpace(row["ownerName"]?.ToString()) &&
+            !string.IsNullOrWhiteSpace(ownerNameFromCity))
+        {
+            row["ownerName"] = ownerNameFromCity;
+            row["ownerNameSource"] = "same_server_city";
+        }
+        if (string.IsNullOrWhiteSpace(row["allianceName"]?.ToString()) &&
+            !string.IsNullOrWhiteSpace(allianceFromCity))
+            row["allianceName"] = allianceFromCity;
         return JsonSerializer.SerializeToElement(row);
     }
 

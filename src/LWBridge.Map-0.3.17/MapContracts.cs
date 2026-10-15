@@ -5,12 +5,34 @@ namespace LWBridge.Map317;
 
 public static class MapKinds
 {
-    public static readonly string[] All =
+    // New selectable kinds must not change a caller's implicit eight-kind scan.
+    public static readonly string[] DefaultSelection =
         ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure"];
+
+    public static readonly string[] All =
+        [..DefaultSelection, "other", ZombieBoss];
+
+    // MonsterInvasionBoss (WorldMonsterSpecialType 10), game text key 2901012.
+    public const string ZombieBoss = "zombie_boss";
 
     private static readonly HashSet<string> Allowed = new(All, StringComparer.Ordinal);
 
     public static bool IsValid(string value) => Allowed.Contains(value);
+
+    // A supplies number is only a source-derived config type. The map kind
+    // says nothing about its localized title or claimability.
+    public static bool IsValidOtherSubtype(string? value)
+    {
+        if (value == "event:27000") return true;
+        const string prefix = "supplies:";
+        if (value is null || !value.StartsWith(prefix, StringComparison.Ordinal)) return false;
+        string suffix = value[prefix.Length..];
+        return int.TryParse(suffix, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out int parsed) &&
+            parsed > 0 &&
+            string.Equals(parsed.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                suffix, StringComparison.Ordinal);
+    }
 }
 
 public sealed record MapRecord(
@@ -59,7 +81,21 @@ public sealed record MapQuery(
     double? MaxLevel = null,
     string? ScanRunId = null,
     double? MinPower = null,
-    double? MaxPower = null);
+    double? MaxPower = null,
+    string? ResourceAmountState = null,
+    string? ResourceTileState = null,
+    IReadOnlyList<string>? ItemKeys = null,
+    string? OtherSubtype = null,
+    IReadOnlyList<MapRewardFilter>? RewardFilters = null,
+    string? RewardMatch = null,
+    // Zombie Boss only: "active" | "inactive" | "unknown" over the stored
+    // game-confirmed protection state (`monsterProtectionKnown/Active`).
+    string? ProtectionState = null);
+
+// Ghost reward constraint over the authoritative stored `$.rewards` list.
+// MinCount 0 means "present with a positive amount"; a positive value is the
+// minimum summed amount of that exact reward identity (`reward:<type>:<id>`).
+public sealed record MapRewardFilter(string Key, long MinCount = 0);
 
 public sealed record MapSearchResult(IReadOnlyList<JsonElement> Rows, int Total, long Page = 1, int PageSize = 50);
 
@@ -122,7 +158,8 @@ public sealed record MapOptionSet(
     int NoAllianceCount,
     IReadOnlyDictionary<string, IReadOnlyList<JsonElement>> RewardItems,
     IReadOnlyList<JsonElement> TreasureTypes,
-    MapScanRun? ScanProgress);
+    MapScanRun? ScanProgress,
+    IReadOnlyList<JsonElement>? OtherTypes = null);
 
 public sealed record MapAllianceOption(string Name, int Count);
 

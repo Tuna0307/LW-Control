@@ -42,6 +42,13 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly Task truckWorkerTask;
     private readonly object scanLeaseGate = new();
     private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
+    // A target jump can succeed before its scan obtains a run ID. Idle context
+    // refresh then legitimately clears the previous server's terminal RunId.
+    // Remember only this acknowledged guarded Auto navigation, under the same
+    // transition gate; an empty current RunId alone never authorizes return.
+    private MapAutoScanTargetOwner? acknowledgedAutoTarget;
+    private Func<bool>? isAutoScanCycleBusy;
+    private Func<IDisposable>? acquireAutoClearLease;
     private Map317ScanProcessLease? activeScanLease;
     private string? activeScanRunId;
     private int disposed;
@@ -139,9 +146,17 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     internal ResourceCompletenessReport? LastResourceCompletenessReport =>
         currentSource?.LastResourceCompletenessReport;
 
+    // Bound after the Auto service is constructed for the same profile owner.
+    // No cross-profile busy signals are consulted or mutated here.
+    internal void BindAutoScanCycleBusy(Func<bool> isBusy) =>
+        isAutoScanCycleBusy = isBusy ?? throw new ArgumentNullException(nameof(isBusy));
+
+    internal void BindAutoScanClearLease(Func<IDisposable> acquireLease) =>
+        acquireAutoClearLease = acquireLease ?? throw new ArgumentNullException(nameof(acquireLease));
+
     public bool CanHandle(string command) => Commands.Contains(command);
 
-    internal object CreateStatus() => control.ScanState;
+    internal object CreateStatus() => ApplyStatusOverlay(control.ScanState);
 
     internal bool IsScanActive => control.ScanState.IsReading;
 
@@ -176,7 +191,21 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         int serverId,
         IReadOnlyList<string> selectedTypes,
         string scanMode,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken) =>
+        await StartAutoScanTargetCoreAsync(
+            serverId, selectedTypes, scanMode, null, cancellationToken).ConfigureAwait(false);
+
+    internal Task<string> StartAutoScanTargetIfStillOwnedAsync(
+        MapAutoScanTargetOwner expected, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        return StartAutoScanTargetCoreAsync(expected.TargetServerId,
+            expected.SelectedTypes, expected.ScanMode, expected, cancellationToken);
+    }
+
+    private async Task<string> StartAutoScanTargetCoreAsync(
+        int serverId, IReadOnlyList<string> selectedTypes, string scanMode,
+        MapAutoScanTargetOwner? expected, CancellationToken cancellationToken)
     {
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -184,7 +213,43 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             AcquireScanLease();
             try
             {
+                if (expected is not null)
+                {
+                    // Auto checked this owner asynchronously before the target
+                    // loop, but a manual scan can start AND finish before the
+                    // jump, leaving no live process lock. Check its exact
+                    // terminal RunId again under the same scanTransitionGate
+                    // and process lease used for the upcoming navigation.
+                    Map317.MapScanState current = control.ScanState;
+                    string? observedRunId = string.IsNullOrWhiteSpace(current.ScanRunId)
+                        ? null : current.ScanRunId;
+                    if (current.IsReading ||
+                        (expected.ExpectedCurrentServerId > 0 &&
+                         current.ServerId != expected.ExpectedCurrentServerId) ||
+                        (!string.Equals(observedRunId, expected.LastOwnedScanRunId,
+                             StringComparison.Ordinal) &&
+                         !string.Equals(observedRunId, expected.AdmissionScanRunId,
+                             StringComparison.Ordinal)))
+                        throw new BridgeCommandException(
+                            "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH",
+                            "Auto target cannot override an independently completed manual scan");
+                    // A manual server_jump changes the game without changing
+                    // Map317's cached scan RunId. The target handoff must also
+                    // check a new live server observation under the same
+                    // scanTransitionGate used by the manual jump command.
+                    if (statusReader is not null && expected.ExpectedCurrentServerId > 0)
+                    {
+                        CurrentClientMapStatusContext live =
+                            await statusReader(cancellationToken).ConfigureAwait(false);
+                        if (live.ServerId != expected.ExpectedCurrentServerId)
+                            throw new BridgeCommandException(
+                                "MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH",
+                                "live game server changed before Auto target navigation");
+                    }
+                }
+                acknowledgedAutoTarget = null;
                 _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
+                acknowledgedAutoTarget = expected;
                 JsonElement payload = JsonSerializer.SerializeToElement(new
                 {
                     selectedTypes,
@@ -193,6 +258,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 }, JsonOptions.Default);
                 Map317.MapScanState started =
                     await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
+                acknowledgedAutoTarget = null;
                 return started.ScanRunId;
             }
             catch
@@ -207,19 +273,78 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
     }
 
-    internal async Task ReturnAutoScanToServerAsync(int serverId, CancellationToken cancellationToken)
+    internal Task ReturnAutoScanToServerAsync(int serverId, CancellationToken cancellationToken) =>
+        ReturnAutoScanToServerCoreAsync(serverId, null, cancellationToken);
+
+    internal Task ReturnAutoScanToServerIfStillOwnedAsync(
+        MapAutoScanReturnOwner expected, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        return ReturnAutoScanToServerCoreAsync(
+            expected.OriginalServerId, expected, cancellationToken);
+    }
+
+    private async Task ReturnAutoScanToServerCoreAsync(
+        int serverId, MapAutoScanReturnOwner? expected,
+        CancellationToken cancellationToken)
     {
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             using Map317ScanProcessLease? lease = Map317ScanProcessLease.TryAcquire(store.DatabasePath);
-            if (lease is null || control.ScanState.IsReading)
+            Map317.MapScanState current = control.ScanState;
+            if (lease is null || current.IsReading)
                 throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
             lock (scanLeaseGate)
             {
                 if (activeScanLease is not null)
                     throw new BridgeCommandException("SCAN_RUNNING", "map scan already running");
             }
+            // Recovered Map317 uses an empty string for a genuinely idle
+            // owner, whereas Auto's status contract uses null. A canceled
+            // first jump may have no accepted RunId at all; both representations
+            // must refer to the same *absent* owner, not falsely strand home.
+            string? observedRunId = string.IsNullOrWhiteSpace(current.ScanRunId)
+                ? null : current.ScanRunId;
+            bool acknowledgedPreStartReturn = expected is not null && observedRunId is null &&
+                acknowledgedAutoTarget is { } navigation &&
+                navigation.TargetServerId == expected.LastAttemptedServerId &&
+                current.ServerId == navigation.TargetServerId &&
+                string.Equals(navigation.AdmissionScanRunId, expected.AdmissionScanRunId,
+                    StringComparison.Ordinal) &&
+                string.Equals(navigation.LastOwnedScanRunId, expected.LastOwnedScanRunId,
+                    StringComparison.Ordinal);
+            if (expected is not null &&
+                (serverId <= 0 || expected.LastAttemptedServerId <= 0 ||
+                 (current.ServerId != expected.LastAttemptedServerId &&
+                  current.ServerId != expected.OriginalServerId) ||
+                 (observedRunId is null && current.ServerId != expected.OriginalServerId &&
+                  !acknowledgedPreStartReturn) ||
+                 // A manual scan can start and finish AFTER Auto's asynchronous
+                 // status check yet BEFORE this final server jump. It has no
+                 // active process lease at that point, but its distinct RunId
+                 // remains the most recent Map317 owner. Recheck while holding
+                 // scanTransitionGate AND the process lease, before navigation.
+                 (!string.Equals(observedRunId, expected.LastOwnedScanRunId,
+                      StringComparison.Ordinal) &&
+                  !string.Equals(observedRunId, expected.AdmissionScanRunId,
+                      StringComparison.Ordinal) && !acknowledgedPreStartReturn)))
+                throw new BridgeCommandException(
+                    "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH",
+                    "Auto return cannot replace a newer manual scan or changed server owner");
+            if (expected is not null && statusReader is not null)
+            {
+                CurrentClientMapStatusContext live =
+                    await statusReader(cancellationToken).ConfigureAwait(false);
+                if (live.ServerId != expected.LastAttemptedServerId &&
+                    live.ServerId != expected.OriginalServerId)
+                    throw new BridgeCommandException(
+                        "MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH",
+                        "live game server changed before Auto return navigation");
+            }
+            // This is a one-shot permission. Even a failed return may have
+            // changed native context; never reuse its previous acknowledgement.
+            acknowledgedAutoTarget = null;
             _ = await actions.ServerJumpAsync(serverId, cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -272,12 +397,15 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     return await StopScanAsync(cancellationToken).ConfigureAwait(false);
                 case "map_scan_clear":
                     return await ClearScanAsync(
-                        RequiredInt(payload, "serverId"), cancellationToken).ConfigureAwait(false);
+                        RequiredInt(payload, "serverId"),
+                        payload.TryGetProperty("clearSavedServer", out var savedClear) &&
+                        savedClear.ValueKind == JsonValueKind.True,
+                        cancellationToken).ConfigureAwait(false);
                 case "map_summary":
                     {
-                        _ = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
+                        Map317.MapScanState observedState = await ReadScanStatusAsync(cancellationToken).ConfigureAwait(false);
                         var summary = control.ReadSummary();
-                        return new { serverId = summary.ServerId, counts = summary.Counts, scanState = summary.ScanState };
+                        return new { serverId = summary.ServerId, counts = summary.Counts, scanState = observedState };
                     }
                 case "map_data_options":
                     return control.ReadOptions(OptionsServerId(payload));
@@ -296,20 +424,20 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     throw new BridgeCommandException(
                         "NATIVE_DIALOG_REQUIRED", "City export requires the desktop save dialog host.");
                 case "map_coordinate_jump":
-                    return await actions.CoordinateJumpAsync(
+                    return await ManualCoordinateJumpAsync(
                         RequiredInt(payload, "serverId"),
                         RequiredInt(payload, "x"),
                         RequiredInt(payload, "y"),
                         cancellationToken).ConfigureAwait(false);
                 case "map_march_follow":
-                    return await actions.MarchFollowAsync(
+                    return await ManualMarchFollowAsync(
                         RequiredInt(payload, "serverId"),
                         RequiredString(payload, "marchUuid"),
                         cancellationToken).ConfigureAwait(false);
                 case "server_jump":
                     // Original handler 0x182112: INVALID_SERVER_ID for any missing,
                     // non-integer or out-of-range id, with the original text.
-                    return await actions.ServerJumpAsync(
+                    return await ManualServerJumpAsync(
                         Map317.MapActionControlPlane.RequireServerJumpServerId(payload),
                         cancellationToken).ConfigureAwait(false);
                 case "map_player_mark_set":
@@ -499,6 +627,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            acknowledgedAutoTarget = null;
             AcquireScanLease();
             return await StartScanWithRegisteredLeaseAsync(payload, cancellationToken).ConfigureAwait(false);
         }
@@ -528,6 +657,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         JsonElement payload,
         CancellationToken cancellationToken)
     {
+        string? acceptedScanRunId = null;
         try
         {
             store.ReconcileInterruptedScans(
@@ -544,6 +674,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             Map317.MapScanState state =
                 await control.StartScanAsync(new Map317.MapScanStartRequest(types, mode, resume), cancellationToken)
                     .ConfigureAwait(false);
+            acceptedScanRunId = state.ScanRunId;
+            acknowledgedAutoTarget = null;
             if (scanRunProvider is null)
                 throw new InvalidOperationException(
                     "An accepting Map provider must implement the run-scoped terminal lifetime contract.");
@@ -553,8 +685,18 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         catch (Exception error)
         {
-            if (control.ScanState.IsReading)
-                control.FailScan(error.Message);
+            // A failed pre-acceptance start has NO owned run to fail. An
+            // accepted start whose ActivateAcceptedRun subsequently throws
+            // may already have retired, or a manual/Auto successor may have
+            // taken over. The former generic FailScan mutated whichever
+            // scan was CURRENT, potentially failing a different owner and
+            // replacing its SQLite status. Retire only the RunId returned by
+            // this precise Start invocation; preserve the original error.
+            if (!string.IsNullOrWhiteSpace(acceptedScanRunId))
+            {
+                try { control.FailScanForRun(acceptedScanRunId, error.Message); }
+                catch { /* Never fail an independent successor while handling a stale Start. */ }
+            }
             ReleaseScanLease();
             throw;
         }
@@ -571,6 +713,58 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         {
             scanTransitionGate.Release();
         }
+    }
+
+    private async Task<Map317.ServerJumpResult> ManualServerJumpAsync(
+        int serverId, CancellationToken cancellationToken)
+    {
+        // A manual jump must not slip between Auto's final cached-run check
+        // and its own ServerJumpAsync. Keep the recovered explicit manual
+        // action (including server-change scan-failure behavior) available,
+        // but serialize navigation with Auto target/return and manual scan
+        // transitions. Direct in-game camera changes remain a native gap.
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return await actions.ServerJumpAsync(serverId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        finally { scanTransitionGate.Release(); }
+    }
+
+    private async Task<Map317.CoordinateJumpResult> ManualCoordinateJumpAsync(
+        int serverId, int x, int y, CancellationToken cancellationToken)
+    {
+        // Coordinate Jump can switch servers before navigating to a tile.
+        // Serialize its entire game operation with Auto's guarded navigation
+        // handoff, without changing the original coordinate validation.
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
+        try { return await actions.CoordinateJumpAsync(serverId, x, y, cancellationToken).ConfigureAwait(false); }
+        finally { scanTransitionGate.Release(); }
+    }
+
+    private async Task<Map317.MarchFollowResult> ManualMarchFollowAsync(
+        int serverId, string marchUuid, CancellationToken cancellationToken)
+    {
+        // Truck/Train Follow may also switch the current native server.
+        // Keep its existing UUID/arrival semantics, but not an interleaving
+        // that invalidates Auto's already checked return/target ownership.
+        await EnterManualNavigationAsync(cancellationToken).ConfigureAwait(false);
+        try { return await actions.MarchFollowAsync(serverId, marchUuid, cancellationToken).ConfigureAwait(false); }
+        finally { scanTransitionGate.Release(); }
+    }
+
+    private async Task EnterManualNavigationAsync(CancellationToken cancellationToken)
+    {
+        // Manual commands are explicit one-shot actions. Queuing them behind a
+        // held navigation changes the recovered busy rejection into a later,
+        // unexpected camera move. Retain Auto/scan serialization without queueing.
+        if (!await scanTransitionGate.WaitAsync(0, cancellationToken).ConfigureAwait(false))
+            throw new Map317.BridgeCommandException("GAME_OPERATION_IN_PROGRESS",
+                "another game operation is already in progress");
+        // Explicit manual navigation supersedes an earlier unaccepted Auto
+        // jump even when it returns to the same server and creates no scan ID.
+        acknowledgedAutoTarget = null;
     }
 
     private sealed record ObservedStatus(Map317.MapScanState Captured, CurrentClientMapStatusContext Context);
@@ -606,6 +800,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         CurrentClientMapStatusContext context = observation.Context;
         return state with
         {
+            ServerId = !state.IsReading && context.ServerId > 0 ? context.ServerId : state.ServerId,
+            ServerIdSource = !state.IsReading && context.ServerId > 0 ? "live" : state.ServerIdSource,
             IsInWorld = context.IsInWorld,
             HomeServerId = context.HomeServerId,
             SeasonServerIds = context.SeasonServerIds,
@@ -629,17 +825,28 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             }
         }
         if (statusReader is null)
-            return state;
+            return ApplyStatusOverlay(state);
         try
         {
-            CurrentClientMapStatusContext context =
-                await statusReader(cancellationToken).ConfigureAwait(false);
+            CurrentClientMapStatusContext context;
+            try
+            {
+                context = await statusReader(cancellationToken).ConfigureAwait(false);
+            }
+            catch (TimeoutException)
+            {
+                // A transient world-state response timeout during a long
+                // acquisition is not itself evidence that the scanner failed
+                // or moved server. Keep the exact run's last accepted status;
+                // a later fresh observation still runs the server-change guard.
+                return ApplyStatusOverlay(control.ScanState);
+            }
             // No stale reply (or failed previous poll) may apply a server overlay
             // to the successor's run, profile session or newer status observation.
             if (Volatile.Read(ref disposed) != 0 ||
                 requestSerial != Volatile.Read(ref statusReadSerial) ||
                 !SameStatusOwner(state, control.ScanState))
-                return control.ScanState;
+                return ApplyStatusOverlay(control.ScanState);
 
             Map317.MapScanState guarded = await ApplyLiveServerGuardAsync(
                 state, context.IsInWorld, context.ServerId, cancellationToken).ConfigureAwait(false);
@@ -650,7 +857,13 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 requestSerial != Volatile.Read(ref statusReadSerial) ||
                 !string.Equals(guarded.ScanRunId, current.ScanRunId, StringComparison.Ordinal) ||
                 guarded.StartedAt != current.StartedAt || guarded.ServerId != current.ServerId)
-                return current;
+                return ApplyStatusOverlay(current);
+            ObservedStatus? previouslySeen = Volatile.Read(ref lastStatusContext);
+            if (!context.TruckMatchesKnown && previouslySeen is not null &&
+                SameStatusOwner(current, previouslySeen.Captured))
+            {
+                context = context with { TruckMatchServerIds = previouslySeen.Context.TruckMatchServerIds };
+            }
             Volatile.Write(ref lastStatusContext, new ObservedStatus(current, context));
             return current with
             {
@@ -664,17 +877,26 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         catch (BridgeCommandException)
         {
-            return control.ScanState;
+            // A failed/overlapped routine read must not momentarily erase valid
+            // warzone buttons. The cached overlay is scoped to this very run;
+            // a genuinely new successful observation still replaces the list.
+            return ApplyStatusOverlay(control.ScanState);
         }
     }
 
     private async Task<Map317.MapScanState> ClearScanAsync(
         int requestedServerId,
+        bool clearSavedServer,
         CancellationToken cancellationToken)
     {
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
+            // Reserve against Auto's cycleGate for the whole asynchronous Clear.
+            // Auto cannot admit a new cycle between the busy check and deletion.
+            using IDisposable? clearLease = acquireAutoClearLease?.Invoke();
+            if (isAutoScanCycleBusy?.Invoke() == true)
+                throw new BridgeCommandException("AUTO_SCAN_RUNNING", "Stop the Auto scan cycle before clearing Map data.");
             Map317.MapScanState current = control.ScanState;
             if (current.IsReading)
                 throw new BridgeCommandException(
@@ -700,11 +922,25 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     MapScanClearOwnership.ServerUnavailableErrorMessage);
             }
 
+            // Auto's saved dataset may remain selected after its remote scan
+            // returns the player to the home server. This explicitly requested
+            // saved-row deletion needs fresh authenticated live readiness,
+            // the same profile-owned published store, and an idle scan/Auto
+            // lease. Leave the legacy same-live-server clear strict.
+            if (clearSavedServer && requestedServerId != fresh.ServerId)
+            {
+                if (fresh.IsReading || fresh.ServerId <= 0 ||
+                    fresh.ServerIdSource != MapScanClearOwnership.LiveServerSource ||
+                    !store.ReadPublishedServers().Contains(requestedServerId))
+                    throw new BridgeCommandException(
+                        MapScanClearOwnership.ServerUnavailableErrorCode,
+                        MapScanClearOwnership.ServerUnavailableErrorMessage);
+                cancellationToken.ThrowIfCancellationRequested();
+                store.ClearServer(requestedServerId);
+                return ApplyStatusOverlay(control.ScanState);
+            }
             MapScanClearOwnership.Validate(
-                requestedServerId,
-                fresh.IsReading,
-                fresh.ServerId,
-                fresh.ServerIdSource);
+                requestedServerId, fresh.IsReading, fresh.ServerId, fresh.ServerIdSource);
             return await control.ClearScanAsync(requestedServerId, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -837,7 +1073,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             kindValue.ValueKind != JsonValueKind.String)
             return null;
         string kind = kindValue.GetString() ?? string.Empty;
-        if (!MapScanContract.RecoveredDefaultTypes.Contains(kind, StringComparer.Ordinal))
+        if (!MapScanContract.AllTypes.Contains(kind, StringComparer.Ordinal))
             return null; // original swallows INVALID_MAP_KIND into an empty page
         System.Text.Json.Nodes.JsonObject query =
             payload.TryGetProperty("query", out JsonElement queryValue) && queryValue.ValueKind == JsonValueKind.Object
@@ -898,14 +1134,119 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         double? maxPower = LooseFiniteDouble(queryElement, "maxPower");
         if (minPower.HasValue && maxPower.HasValue && minPower > maxPower)
             (minPower, maxPower) = (maxPower, minPower);
+        // New Map filters are explicitly validated here at the live search
+        // boundary. Reject malformed input; do not turn an invalid maximum or
+        // absent native metadata into an unfiltered/zero-power match.
+        string? amountState = null;
+        string? tileState = null;
+        string? otherSubtype = null;
+        string[]? itemKeys = null;
+        if (queryElement.TryGetProperty("otherSubtype", out JsonElement otherValue) &&
+            otherValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            otherSubtype = otherValue.ValueKind == JsonValueKind.String ? otherValue.GetString() : null;
+            if (kind != "other" || !Map317.MapKinds.IsValidOtherSubtype(otherSubtype))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Unknown Other event subtype.");
+        }
+        if (queryElement.TryGetProperty("resourceAmountState", out JsonElement amountValue) &&
+            amountValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            amountState = amountValue.ValueKind == JsonValueKind.String ? amountValue.GetString() : null;
+            if (kind != "resource" || amountState is not ("full" or "partial" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Resource amount state.");
+        }
+        if (queryElement.TryGetProperty("resourceTileState", out JsonElement tileValue) &&
+            tileValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            tileState = tileValue.ValueKind == JsonValueKind.String ? tileValue.GetString() : null;
+            if (kind != "resource" || tileState is not ("black" or "normal" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Resource terrain state.");
+        }
+        if (queryElement.TryGetProperty("itemKeys", out JsonElement keysValue) &&
+            keysValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            if (kind is not ("truck" or "railway") || keysValue.ValueKind != JsonValueKind.Array ||
+                keysValue.GetArrayLength() is < 1 or > 24 ||
+                keysValue.EnumerateArray().Any(value => value.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(value.GetString()) || value.GetString()!.Length > 160))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward item selection.");
+            itemKeys = keysValue.EnumerateArray().Select(value => value.GetString()!)
+                .Distinct(StringComparer.Ordinal).ToArray();
+        }
+        Map317.MapRewardFilter[]? rewardFilters = null;
+        string? rewardMatch = null;
+        if (queryElement.TryGetProperty("rewardFilters", out JsonElement rewardFilterValue) &&
+            rewardFilterValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            // Ghost-only: [{ key, minCount? }]. Malformed input is rejected,
+            // never widened into an unfiltered or "any reward" query.
+            if (kind != "ghost" || rewardFilterValue.ValueKind != JsonValueKind.Array ||
+                rewardFilterValue.GetArrayLength() is < 1 or > Map317.MapStore.MaxGhostRewardFilters)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward filter selection.");
+            var parsedFilters = new List<Map317.MapRewardFilter>();
+            foreach (JsonElement item in rewardFilterValue.EnumerateArray())
+            {
+                if (item.ValueKind != JsonValueKind.Object ||
+                    !item.TryGetProperty("key", out JsonElement keyValue) || keyValue.ValueKind != JsonValueKind.String ||
+                    string.IsNullOrWhiteSpace(keyValue.GetString()) || keyValue.GetString()!.Length > 160)
+                    throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid reward filter selection.");
+                long minimum = 0;
+                if (item.TryGetProperty("minCount", out JsonElement minimumValue) &&
+                    minimumValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+                {
+                    if (minimumValue.ValueKind != JsonValueKind.Number || !minimumValue.TryGetInt64(out minimum) ||
+                        minimum < 1 || minimum > 9_007_199_254_740_991L)
+                        throw new BridgeCommandException("INVALID_MAP_QUERY", "Reward minimum amount must be a positive integer.");
+                }
+                if (parsedFilters.Any(existing => string.Equals(existing.Key, keyValue.GetString(), StringComparison.Ordinal)))
+                    throw new BridgeCommandException("INVALID_MAP_QUERY", "Duplicate reward filter selection.");
+                parsedFilters.Add(new Map317.MapRewardFilter(keyValue.GetString()!, minimum));
+            }
+            rewardFilters = parsedFilters.ToArray();
+        }
+        if (queryElement.TryGetProperty("rewardMatch", out JsonElement rewardMatchValue) &&
+            rewardMatchValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            rewardMatch = rewardMatchValue.ValueKind == JsonValueKind.String ? rewardMatchValue.GetString() : null;
+            if (kind != "ghost" || rewardMatch is not ("all" or "any"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Reward match must be all or any.");
+        }
+        string? protectionState = null;
+        if (queryElement.TryGetProperty("protectionState", out JsonElement protectionValue) &&
+            protectionValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            protectionState = protectionValue.ValueKind == JsonValueKind.String ? protectionValue.GetString() : null;
+            if (kind != Map317.MapKinds.ZombieBoss || protectionState is not ("active" or "inactive" or "unknown"))
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Invalid Zombie Boss protection state.");
+        }
+        if (queryElement.TryGetProperty("escortPowerMaxMillions", out JsonElement escortValue) &&
+            escortValue.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
+        {
+            if (kind != "truck" || escortValue.ValueKind != JsonValueKind.Number ||
+                !escortValue.TryGetDecimal(out decimal millions) || millions < 0 || millions > 1_000_000_000m)
+                throw new BridgeCommandException("INVALID_MAP_QUERY", "Escort power maximum must be a non-negative number in millions.");
+            maxPower = (double)(millions * 1_000_000m);
+        }
         using JsonDocument envelope = JsonDocument.Parse(JsonSerializer.Serialize(new { kind, query }));
-        return NormalizeQuery(envelope.RootElement) with
+        Map317.MapQuery parsed = NormalizeQuery(envelope.RootElement);
+        return parsed with
         {
             Page = originalPage,
             MinLevel = minLevel,
             MaxLevel = maxLevel,
             MinPower = minPower,
             MaxPower = maxPower,
+            ResourceAmountState = amountState,
+            ResourceTileState = tileState,
+            OtherSubtype = otherSubtype,
+            ItemKeys = itemKeys,
+            RewardFilters = rewardFilters,
+            RewardMatch = rewardMatch,
+            ProtectionState = protectionState,
+            // The recovered itemCount sort expression still uses $itemKey.
+            // When an ALL selection has no legacy single-key field, use its
+            // first selected genuine key as the deterministic sort dimension.
+            ItemKey = parsed.ItemKey ?? itemKeys?.FirstOrDefault(),
         };
     }
 

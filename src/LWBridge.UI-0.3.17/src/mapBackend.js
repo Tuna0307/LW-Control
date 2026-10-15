@@ -13,6 +13,7 @@ export const MAP_COMMANDS = Object.freeze({
   serverJumpHistorySet: "server_jump_history_set",
   serverJumpHistoryImport: "server_jump_history_import",
   coordinateJump: "map_coordinate_jump",
+  marchFollow: "map_march_follow",
   playerMarkSet: "map_player_mark_set",
   cityExport: "map_city_export",
   treasureStateRefresh: "map_treasure_state_refresh",
@@ -44,6 +45,8 @@ export const MAP_SCAN_TYPES = Object.freeze([
   { key: "dispatch", label: "Secret Task" },
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
+  { key: "other", label: "Other" },
+  { key: "zombie_boss", label: "Zombie Boss" },
 ]);
 
 export const MAP_TABS = Object.freeze([
@@ -55,10 +58,14 @@ export const MAP_TABS = Object.freeze([
   { key: "dispatch", label: "Secret Task" },
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
+  { key: "other", label: "Other" },
+  { key: "zombie_boss", label: "Zombie Boss" },
   { key: "scheduledPlunder", label: "Scheduled Plunder" },
 ]);
 
 export const MAP_KIND_KEYS = Object.freeze(MAP_SCAN_TYPES.map(({ key }) => key));
+// Other and Zombie Boss are opt-in. Preserve the eight recovered types for an implicit scan.
+export const MAP_DEFAULT_SCAN_TYPES = Object.freeze(MAP_KIND_KEYS.filter((key) => key !== "other" && key !== "zombie_boss"));
 export const MAP_PAGE_SIZE = 50;
 
 export function mapPageCount(total) {
@@ -71,7 +78,7 @@ export const DEFAULT_SCAN_STATE = Object.freeze({
   scanRunId: "",
   isReading: false,
   phase: "idle",
-  selectedTypes: MAP_KIND_KEYS,
+  selectedTypes: MAP_DEFAULT_SCAN_TYPES,
   totalBlocks: 0,
   completedBlocks: 0,
   readBlocks: 0,
@@ -118,7 +125,7 @@ export function normalizeScanState(value) {
     scanRunId: typeof source.scanRunId === "string" ? source.scanRunId : "",
     isReading: source.isReading === true,
     phase: typeof source.phase === "string" ? source.phase : "idle",
-    selectedTypes: selected.length ? selected : MAP_KIND_KEYS,
+    selectedTypes: selected.length ? selected : [...MAP_DEFAULT_SCAN_TYPES],
     totalBlocks: integer(source.totalBlocks),
     completedBlocks: integer(source.completedBlocks ?? source.readBlocks),
     readBlocks: integer(source.readBlocks ?? source.completedBlocks),
@@ -173,6 +180,7 @@ export function normalizeOptions(value) {
     noAllianceCount: Math.max(0, integer(source.noAllianceCount)),
     rewardItems: source.rewardItems && typeof source.rewardItems === "object" ? source.rewardItems : {},
     treasureTypes: Array.isArray(source.treasureTypes) ? source.treasureTypes : [],
+    otherTypes: Array.isArray(source.otherTypes) ? source.otherTypes : [],
     scanProgress: source.scanProgress || null,
   };
 }
@@ -204,7 +212,7 @@ export function unwrapProfileEvent(value, profileId) {
 
 export function normalizeSelectedTypes(types) {
   const selected = [...new Set((types || []).filter((kind) => MAP_KIND_KEYS.includes(kind)))];
-  return selected.length ? selected : [...MAP_KIND_KEYS];
+  return selected.length ? selected : [...MAP_DEFAULT_SCAN_TYPES];
 }
 
 export function updateSelectedTypes(types, kind, checked) {
@@ -227,7 +235,11 @@ export function cycleSort(sorts, sortBy) {
 
 export function buildStartPayload(selectedTypes, scanMode) {
   return {
-    selectedTypes: normalizeSelectedTypes(selectedTypes),
+    // An omitted legacy selection means the recovered default eight kinds.
+    // An explicitly unchecked manual selection means no kinds: pass [] to the
+    // native admission fence instead of silently launching a full-world scan.
+    selectedTypes: Array.isArray(selectedTypes) && selectedTypes.length === 0
+      ? [] : normalizeSelectedTypes(selectedTypes),
     scanMode: scanMode === "fast" ? "fast" : "normal",
   };
 }
@@ -245,10 +257,12 @@ export function buildSearchPayload(kind, query = {}) {
     sorts,
   };
   for (const key of [
-    "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "alliance",
+    "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "otherSubtype", "alliance",
     "withoutAlliance", "markedOnly", "quality", "specialOnly", "reindeerOnly", "itemKey",
     "completionStatus", "plunderableOnly", "includeForeignRadarTreasures", "luckyFirst",
     "viewerUid", "viewerAllianceId", "minLevel", "maxLevel",
+    "resourceAmountState", "resourceTileState", "escortPowerMaxMillions", "itemKeys",
+    "rewardFilters", "rewardMatch", "protectionState",
   ]) {
     if (query[key] !== undefined && query[key] !== null && query[key] !== "") normalized[key] = query[key];
   }
@@ -330,7 +344,8 @@ export function createMapApi(bridge) {
       buildStartPayload(selectedTypes, scanMode),
     ).then(normalizeScanState),
     stop: () => invokeScoped(MAP_COMMANDS.scanStop).then(normalizeScanState),
-    clear: (serverId) => invokeScoped(MAP_COMMANDS.scanClear, { serverId }).then(normalizeScanState),
+    clear: (serverId, clearSavedServer = false) => invokeScoped(MAP_COMMANDS.scanClear,
+      clearSavedServer ? { serverId, clearSavedServer: true } : { serverId }).then(normalizeScanState),
     search: (kind, query) => invokeScoped(
       MAP_COMMANDS.search,
       buildSearchPayload(kind, query),
@@ -339,6 +354,7 @@ export function createMapApi(bridge) {
     importServerJumpHistory: (history) => invokeScoped(MAP_COMMANDS.serverJumpHistoryImport, { history }),
     setServerJumpHistory: (history) => invokeScoped(MAP_COMMANDS.serverJumpHistorySet, { history }),
     coordinateJump: (row) => invokeScoped(MAP_COMMANDS.coordinateJump, { serverId: row.serverId, x: row.x, y: row.y }),
+    marchFollow: (row) => invokeScoped(MAP_COMMANDS.marchFollow, { serverId: row.serverId, marchUuid: String(row.marchUuid) }),
     setPlayerMark: (row, marked) => invokeScoped(MAP_COMMANDS.playerMarkSet, { row, marked }),
     listenPlayerMarkChanged: (callback) => listenScoped("bridge://player-mark-changed", callback),
     exportCities: (query, options) => invokeScoped(MAP_COMMANDS.cityExport, { query, ...options }),

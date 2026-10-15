@@ -344,7 +344,39 @@ def main() -> int:
                         help="additional bounded direct-request experiment without the initial camera shift")
     parser.add_argument("--sequence-experiment", action="store_true",
                         help="after baseline, three serial coverage regions with one final restoration")
+    parser.add_argument("--zoom-experiment", action="store_true",
+                        help="three paired coverage/ZoomMax observations at the same second region, source-correlated and individually restored")
+    parser.add_argument("--wide-aspect-experiment", action="store_true",
+                        help="three alternating coverage aspect-4/6 pairs on one populated region; each restores home and must pass source-reply checks")
+    parser.add_argument("--city-subset-probe", action="store_true",
+                        help="single current-world City-rich region at 995,975: exact current-point versus retained identity subset; never a full scan")
+    parser.add_argument("--city-mixed-only-target", action="store_true",
+                        help="single native region centered on the genuine Oct13 mixed-only City identity absent from earlier City-only scan")
+    parser.add_argument("--city-rejection-probe", action="store_true",
+                        help="observe the freshly failed baseline City region (45,175); record exact native identity rejection counters")
+    parser.add_argument("--intermediate-zoom-experiment", action="store_true",
+                        help="opt-in source-guarded middle zoom (not ZoomMax), three pairs only if fresh LOD0 and shared identities qualify")
+    parser.add_argument("--event-source-probe", action="store_true",
+                        help="bounded official-game read-only Monster/Doomsday/Treasure/Supplies source availability in one LOD0 region, not a full scan")
+    parser.add_argument("--post-lens-sequence", action="store_true",
+                        help="private LOD0 consecutive A/B/C source test: refresh subscription after each coverage lens change; compared to same-session restored baseline")
+    parser.add_argument("--subscription-stage-trace", action="store_true",
+                        help="private observation of camera anchors/subscriptions before and after updates; preserve first complete camera snapshot")
+    parser.add_argument("--bounded-lens-sequence", action="store_true",
+                        help="distinct private FOV40 candidate: keep ground-facing rays below the observed 45-degree horizon")
+    parser.add_argument("--sequence-lens-fov", type=float, choices=(20.0, 40.0), default=40.0,
+                        help="private bounded lens; FOV20 reduces the FOV40 split-request footprint")
+    parser.add_argument("--full-world-sequence", action="store_true",
+                        help="after three qualified regions, privately observe exact 10000-cell City/Resource coverage and final restoration")
     options = parser.parse_args()
+    if options.city_rejection_probe and (not(options.baseline_region and options.fresh_reply_experiment) or options.sequence_experiment or options.compare_second_region or options.event_source_probe):
+        parser.error("City rejection probe is one distinct source-attributed failure region")
+    if options.subscription_stage_trace and not options.post_lens_sequence:
+        parser.error("subscription stage trace requires the distinct owned post-lens sequence")
+    if options.bounded_lens_sequence and not options.subscription_stage_trace:
+        parser.error("bounded lens candidate requires owned subscription stage observations")
+    if options.full_world_sequence and not (options.bounded_lens_sequence and options.sequence_lens_fov == 20):
+        parser.error("full-world candidate requires the observed non-split FOV20 source path")
     if options.compare_second_region and (not options.baseline_region or options.unmodified_control):
         parser.error("second-region comparison requires the instrumented baseline")
     if options.fresh_reply_experiment and (not options.baseline_region or options.unmodified_control):
@@ -355,6 +387,32 @@ def main() -> int:
         parser.error("sequence requires fresh-reply and a baseline")
     if options.sequence_experiment and (options.camera_free_direct or options.compare_second_region):
         parser.error("sequence is a distinct experiment, not mixed with direct comparisons")
+    if options.zoom_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("zoom experiment requires fresh-reply, baseline-region and compare-second-region")
+    if options.zoom_experiment and (options.sequence_experiment or options.camera_free_direct):
+        parser.error("zoom is a distinct paired camera experiment")
+    if options.wide_aspect_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("aspect experiment requires fresh-reply, baseline-region and compare-second-region")
+    if options.wide_aspect_experiment and (options.zoom_experiment or options.sequence_experiment or options.camera_free_direct):
+        parser.error("aspect is a distinct experiment")
+    if options.city_subset_probe and not (options.baseline_region and options.fresh_reply_experiment):
+        parser.error("City subset requires an instrumented fresh-reply baseline")
+    if options.city_subset_probe and (options.compare_second_region or options.sequence_experiment or options.zoom_experiment or options.wide_aspect_experiment):
+        parser.error("City subset is a single bounded production-source acquisition, not a scanner comparison")
+    if options.city_mixed_only_target and not options.city_subset_probe:
+        parser.error("mixed-only City comparison requires the bounded source-qualified City subset gate")
+    if options.intermediate_zoom_experiment and not (options.fresh_reply_experiment and options.baseline_region and options.compare_second_region):
+        parser.error("intermediate zoom requires source-attributed fresh region comparisons")
+    if options.intermediate_zoom_experiment and (options.zoom_experiment or options.wide_aspect_experiment or options.sequence_experiment or options.camera_free_direct or options.city_subset_probe):
+        parser.error("intermediate zoom is a distinct isolated experiment")
+    if options.event_source_probe and not (options.baseline_region and options.fresh_reply_experiment):
+        parser.error("event source availability requires a fresh native bounded region")
+    if options.event_source_probe and (options.city_subset_probe or options.compare_second_region or options.sequence_experiment or options.zoom_experiment or options.wide_aspect_experiment or options.intermediate_zoom_experiment or options.camera_free_direct):
+        parser.error("event source availability must not be conflated with scanner benchmark or other experiments")
+    if options.post_lens_sequence and not (options.sequence_experiment and options.fresh_reply_experiment and options.baseline_region):
+        parser.error("post-lens candidate requires three owned consecutive-region source comparisons")
+    if options.post_lens_sequence and (options.event_source_probe or options.intermediate_zoom_experiment or options.city_subset_probe or options.city_mixed_only_target):
+        parser.error("post-lens candidate is a distinct lens-order experiment")
     if os.name != "nt":
         raise RuntimeError("live helper supports only owned Windows game")
     BASE.mkdir(exist_ok=True)
@@ -402,6 +460,20 @@ def main() -> int:
         if options.sequence_experiment:
             from sequence_instrument_013 import instrument_sequence
             experimental_body = instrument_sequence(experimental_body)
+        if options.post_lens_sequence:
+            from sequence_post_lens_014 import instrument_post_lens_refresh
+            experimental_body = instrument_post_lens_refresh(experimental_body)
+        if options.subscription_stage_trace:
+            from sequence_stage_trace_014 import instrument_subscription_stages
+            experimental_body = instrument_subscription_stages(
+                experimental_body, bounded_lens=options.bounded_lens_sequence,
+                lens_fov=options.sequence_lens_fov)
+        if options.intermediate_zoom_experiment:
+            from intermediate_zoom_instrument_014 import instrument_intermediate_zoom
+            experimental_body = instrument_intermediate_zoom(experimental_body)
+        if options.event_source_probe:
+            from event_source_instrument_014 import instrument_event_source
+            experimental_body = instrument_event_source(experimental_body)
         (attempt / "experimental-resource-probe.lua").write_bytes(experimental_body)
         experiment_source_hash = hashlib.sha256(experimental_body).hexdigest()
         overview.resource_probe_source = lambda: experimental_body
@@ -430,6 +502,7 @@ def main() -> int:
     trace = None
     world = None
     region = None
+    accuracy_comparison_failed = False
     lease_stop = threading.Event()
     lease_thread = None
     try:
@@ -530,25 +603,48 @@ def main() -> int:
                 "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
             })
             time.sleep(1)
-            region_id = "map013first" + secrets.token_hex(8)
+            region_id = "map013citysubset" + secrets.token_hex(8) if options.city_subset_probe else "map013first" + secrets.token_hex(8)
+            known_target = None
+            if options.city_mixed_only_target:
+                sys.path.insert(0,str(REPO/"tools/map_014_lead_native"))
+                from audit_city_source_coverage import rows_for
+                from audit_city_records import SOURCES
+                old_city = rows_for(SOURCES[0])
+                later_mixed = rows_for(SOURCES[1])
+                only_new = set(later_mixed)-set(old_city)
+                if len(only_new)!=1:
+                    raise RuntimeError("Current genuine mixed-only City witness is ambiguous")
+                known_uid = next(iter(only_new))
+                known_target = {"uid":known_uid, "pointIndex":later_mixed[known_uid][2],
+                                "x":later_mixed[known_uid][0],"y":later_mixed[known_uid][1]}
+                region_x,region_y = known_target["x"],known_target["y"]
+            elif options.event_source_probe:
+                # Distinct from the earlier central event sample. This
+                # checks loaded source/manager availability at the other
+                # genuine populated upper/right border, without a full scan.
+                region_x, region_y = (995, 975)
+            elif options.city_rejection_probe:
+                region_x, region_y = (45,175)
+            else:
+                region_x, region_y = (995,975) if options.city_subset_probe else (455,425)
             region_command = {
                 "schema": "1", "probeVersion": "lwbridge-live-resource-probe-2",
                 "requestId": region_id, "profileId": profile,
                 "launchSessionId": session, "challenge": challenge, "gamePid": str(pid),
                 "serverId": str(world["serverId"]), "scanRunId": region_id,
                 "viewLevel": "-1", "requestMode": options.region_mode,
-                "targetTileX": "455", "targetTileY": "425",
+                "targetTileX": str(region_x), "targetTileY": str(region_y),
                 "requestedCount": "8", "holdMilliseconds": "0",
                 "homeTileX": str(world.get("playerTileX") or -1),
                 "homeTileY": str(world.get("playerTileY") or -1),
                 "includeCity": "true", "includeResource": "true",
-                "includeMonster": "false", "includeMonsterProtection": "false",
+                "includeMonster": "true" if options.event_source_probe else "false", "includeMonsterProtection": "false",
                 "includeTrain": "false", "includeDispatch": "false",
-                "includeGhost": "false", "includeTreasure": "false",
+                "includeGhost": "false", "includeTreasure": "true" if options.event_source_probe else "false",
                 "includeResourceDetails": "false", "deferRestoreUntilResponse": "true",
             }
             region_published = publish_command(live_root / "bulk-aoi-diagnostic.txt", region_command)
-            print("NATIVE_FIRST_REGION_REQUESTED", world["serverId"], "455,425", flush=True)
+            print("NATIVE_FIRST_REGION_REQUESTED", world["serverId"],f"{region_x},{region_y}", flush=True)
             try:
                 region = wait_for(live_root / "bulk-aoi-diagnostic-result.json",
                     ExpectedReply("region", region_id, profile, session, pid, challenge,
@@ -563,6 +659,75 @@ def main() -> int:
                       "matched", region.get("matchedCount"),
                       "cameraStable", region.get("cameraTileStable"),
                       flush=True)
+                if options.event_source_probe:
+                    # A real seasonal source may be empty. That is a genuine
+                    # bounded availability observation, NEVER a positive
+                    # event claim. Keep private player identities out of
+                    # this compact, versioned evidence artifact.
+                    from collections import Counter
+                    all_rows=(region.get("point_records") or [])+(region.get("monster_march_records") or [])
+                    classes=Counter(str(row.get("runtimeClass") or "unspecified") for row in all_rows if isinstance(row,dict))
+                    supplies=[row for row in all_rows if isinstance(row,dict) and row.get("pointType")==27 and row.get("suppliesType")==1]
+                    doom=[row for row in all_rows if isinstance(row,dict) and row.get("runtimeClass")=="LWDoomsdayManager.BossVO" and row.get("marchUuid")]
+                    treasure=[row for row in all_rows if isinstance(row,dict) and row.get("pointType") in (21,27)]
+                    qualified=(region.get("state")=="proven" and region.get("map013NativeReplyState")=="matched"
+                               and region.get("cameraGeometryConfirmed") is True and region.get("cameraTileStable") is True
+                               and region.get("serverLod")==0 and region.get("blockSize")==10
+                               and region.get("blockCount")==100 and len(region.get("requestedIndices") or [])>0)
+                    event_status={
+                        "state":"source_region_qualified" if qualified else "source_region_rejected",
+                        "source":"real exact-owned production Lua world current bounded AOI; no fixture/no claims",
+                        "serverId":world["serverId"],"worldId":world["worldId"],
+                        "aoiCount":len(region.get("requestedIndices") or []),
+                        "nativeReplyState":region.get("map013NativeReplyState"),
+                        "cameraRestored":region.get("cameraGeometryConfirmed"),
+                        "runtimeClasses":dict(classes),
+                        "doomsdayBossAoiCount":region.get("doomsdayBossCount"),
+                        "nativeEventSourceAvailability":region.get("map014EventSourceStats"),
+                        "sourceNamedDoomWalkerCount":len(doom),
+                        "scatteredSuppliesType1Count":len(supplies),
+                        "ordinaryTreasureAndSuppliesCount":len(treasure),
+                        "celebrationPartyIdentified":False,
+                        "claimScope":"single currently requested native LOD0 region; not source-global spawn census",
+                    }
+                    (attempt/"map014-event-availability.json").write_text(json.dumps(event_status,indent=2),encoding="utf-8")
+                    print("MAP014_EVENT_SOURCE_AVAILABILITY",event_status["state"],
+                          "doom",len(doom),"scattered",len(supplies),"treasure",len(treasure),flush=True)
+                    if not qualified:
+                        raise RuntimeError("event source lacks exact fresh LOD0 camera-restored native acceptance")
+                if options.city_subset_probe:
+                    c=region.get("cityCompleteness") or {}
+                    candidates=[r for r in region.get("point_records") or [] if r.get("kind")=="player_base"]
+                    passed=(region.get("state")=="proven" and region.get("map013NativeReplyState")=="matched"
+                            and region.get("cameraGeometryConfirmed") is True
+                            and len(candidates)>0 and c.get("accepted")==len(candidates)
+                            and c.get("nativeCurrentCityCount")==region.get("nativePointInfoCityCount")
+                            and c.get("missingNativeCurrentPointIndices")==0
+                            and c.get("duplicateRetainedPointIndices")==0
+                            and len({r.get("pointId") for r in candidates})==len(candidates)
+                            and all(c.get(k)==0 for k in ("missingPointIndex","invalidPosition","missingServer","missingOwnerUid","missingOwnerName")))
+                    (attempt/"city-subset-verdict.json").write_text(json.dumps({
+                        "state": "verified" if passed else "rejected",
+                        "sourceState":region.get("state"), "replyState":region.get("map013NativeReplyState"),
+                        "nativeCurrentCityCount":region.get("nativePointInfoCityCount"),
+                        "deliveredCityCount":len(candidates), "accounting":c,
+                        "cameraRestored":region.get("cameraGeometryConfirmed"),
+                        "wholeWorldClaim":False,
+                        "independentMixedOnlyReference":({
+                            "source":"genuine same-server Oct13 mixed scan, absent earlier City-only scan",
+                            "targetInRequestedRegion": any(
+                                r.get("ownerUid")==known_target["uid"] and
+                                r.get("pointId")==known_target["pointIndex"] for r in candidates),
+                            "sourceCoordinatesMatched": any(
+                                r.get("ownerUid")==known_target["uid"] and
+                                r.get("pointId")==known_target["pointIndex"] and
+                                r.get("x")==known_target["x"] and r.get("y")==known_target["y"]
+                                for r in candidates),
+                        } if known_target else None),
+                    },indent=2),encoding="utf-8")
+                    print("MAP014_CITY_SUBSET_VERDICT", "verified" if passed else "rejected",flush=True)
+                    if not passed:
+                        raise RuntimeError("native City subset did not qualify exact sources, fresh AOI and restoration")
             except Exception as region_error:
                 print("NATIVE_FIRST_REGION_UNCONFIRMED", repr(region_error), flush=True)
                 (attempt / "native-first-region-error.txt").write_text(
@@ -587,6 +752,10 @@ def main() -> int:
         if options.sequence_experiment:
             if not isinstance(region, dict) or region.get("state") != "proven":
                 raise RuntimeError("sequence requires a working populated baseline")
+            if options.post_lens_sequence and (region.get("map013NativeReplyState")!="matched" or
+                    region.get("cameraGeometryConfirmed") is not True):
+                raise RuntimeError("post-lens baseline lacks a verified owner-scoped reply/restore")
+            peer_regions=[region]
             retire_owned_reply(live_root / "map013-native-trace-result.json",trace_id,profile,session,pid,challenge)
             group_trace_id="map013grouptrace"+secrets.token_hex(8)
             group_trace_time=publish_command(live_root / "map013-native-trace.txt", {
@@ -610,6 +779,10 @@ def main() -> int:
                       "rows",len(baseline_result.get("point_records") or []),flush=True)
                 if baseline_result["state"]!="proven" or baseline_result.get("cameraTileStable") is not True:
                     raise RuntimeError("sequence comparison baseline failed")
+                if options.post_lens_sequence and (baseline_result.get("map013NativeReplyState")!="matched" or
+                        baseline_result.get("cameraGeometryConfirmed") is not True):
+                    raise RuntimeError("post-lens baseline lacks fresh owner-scoped source/restore")
+                peer_regions.append(baseline_result)
                 previous_id=baseline_id
             for index,(tx,ty,step) in enumerate(((455,425,"keep"),(545,495,"keep"),(655,565,"final")),1):
                 retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",previous_id,profile,session,pid,challenge)
@@ -633,11 +806,58 @@ def main() -> int:
                       "restored",result.get("positionRestoredAfterResponse"),flush=True)
                 if result["state"]!="proven" or result.get("map013NativeReplyState")!="matched":
                     raise RuntimeError("sequence region lacks verified fresh native reply")
+                if options.post_lens_sequence:
+                    reference=peer_regions[index-1]
+                    def native_keys(doc):
+                        output={}
+                        indices=set(doc.get("requestedIndices") or [])
+                        for row in doc.get("point_records") or []:
+                            if not isinstance(row,dict) or row.get("serverId")!=world["serverId"] or row.get("worldId")!=world["worldId"]:
+                                raise RuntimeError("post-lens missing native row server/world provenance")
+                            x,y=row.get("x"),row.get("y")
+                            if not isinstance(x,(int,float)) or not isinstance(y,(int,float)) or int(y)//10*100+int(x)//10 not in indices:
+                                raise RuntimeError("post-lens record outside delivered native AOIs")
+                            key=(row.get("kind"),str(row.get("pointId") or row.get("id") or row.get("uuid") or ""))
+                            if key in output or key[1]=="":
+                                raise RuntimeError("post-lens duplicate/empty source record key")
+                            output[key]=(x,y,row.get("pointType"),row.get("ownerUid"),row.get("source"))
+                        return output
+                    if (result.get("serverLod"),result.get("blockSize"),result.get("blockCount")) != (0,10,100):
+                        raise RuntimeError("post-lens native LOD0 geometry failed")
+                    if sorted(result.get("requestedIndices") or [])!=sorted(reference.get("requestedIndices") or []):
+                        raise RuntimeError("post-lens AOI coverage differs from same-session restored control")
+                    if native_keys(result)!=native_keys(reference):
+                        if not options.subscription_stage_trace:
+                            raise RuntimeError("post-lens missing/extra/changed source identities/coordinates/fields")
+                        accuracy_comparison_failed = True
+                        # This flag observes where the subscription diverges;
+                        # it never qualifies this candidate. Preserve a failed
+                        # comparison rather than prevent the next stage from
+                        # being observed after time-separated resource churn.
+                        (attempt / f"sequence-comparison-{index}.json").write_text(
+                            json.dumps({"accuracyQualified": False,
+                                        "reason": "source identity/field sets changed",
+                                        "baselineRows": len(native_keys(reference)),
+                                        "candidateRows": len(native_keys(result)),
+                                        "diagnosticContinuationOnly": True}, indent=2),
+                            encoding="utf-8")
+                        print("SEQUENCE_ACCURACY_NOT_QUALIFIED", index,
+                              "continuing stage observation only", flush=True)
+                    if index==3 and (result.get("cameraGeometryConfirmed") is not True or
+                                     result.get("cameraTileStable") is not True):
+                        raise RuntimeError("post-lens final exact original camera did not restore")
                 if step=="keep" and result.get("map013PositionRetained") is not True:
                     raise RuntimeError("sequence unexpectedly restored between regions")
                 if step=="final" and (result.get("cameraTileStable") is not True or result.get("positionRestoredAfterResponse") is not True):
                     raise RuntimeError("sequence final restoration not confirmed")
                 previous_id=seq_id
+            if options.full_world_sequence:
+                import sys as _sys
+                from full_sequence_observe_014 import run_full_sequence
+                previous_id = run_full_sequence(_sys.modules[__name__], attempt=attempt,
+                    live_root=live_root, command=region_command, world=world,
+                    profile=profile, session=session, pid=pid, challenge=challenge,
+                    previous_id=previous_id)
             group_trace=wait_for(live_root / "map013-native-trace-result.json",
                 ExpectedReply("trace",group_trace_id,profile,session,pid,challenge,group_trace_time),24)
             (attempt / "sequence-trace.json").write_text(json.dumps(group_trace,indent=2),encoding="utf-8")
@@ -648,7 +868,14 @@ def main() -> int:
             # restores after its response; native remains an explicit experiment.
             # This does not enable a consecutive-region production shortcut.
             previous_trace_id, previous_region_id = trace_id, region_id
-            for mode in (("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")):
+            if options.wide_aspect_experiment:
+                methods = ("coverage", "coverage") * 3
+            elif options.zoom_experiment or options.intermediate_zoom_experiment:
+                methods = ("coverage", "zoom") * 3
+            else:
+                methods = ("coverage", "native", "direct") if options.camera_free_direct else ("coverage", "native")
+            zoom_observations = []
+            for comparison_index,mode in enumerate(methods,1):
                 retire_owned_reply(live_root / "map013-native-trace-result.json",
                                    previous_trace_id, profile, session, pid, challenge)
                 retire_owned_reply(live_root / "bulk-aoi-diagnostic-result.json",
@@ -663,6 +890,9 @@ def main() -> int:
                 next_id = "map013second" + secrets.token_hex(8)
                 next_command = {**region_command, "requestId": next_id, "scanRunId": next_id,
                                 "requestMode": mode, "targetTileX": "545", "targetTileY": "495"}
+                aspect = 4 if comparison_index % 2 else 6
+                if options.wide_aspect_experiment:
+                    next_command["coverageAspect"] = str(aspect)
                 if mode == "direct":
                     next_command["requestedCount"] = "50"
                 next_time = publish_command(live_root / "bulk-aoi-diagnostic.txt", next_command)
@@ -671,14 +901,79 @@ def main() -> int:
                         ExpectedReply("region", next_id, profile, session, pid, challenge,
                                       next_time, server_id=world["serverId"], world_id=world["worldId"],
                                       request_mode=mode, target_tile_x=545, target_tile_y=495), 28)
-                    (attempt / ("second-region-" + mode + ".json")).write_text(
+                    output = ("midzoom-pair-%02d-" % comparison_index + mode if options.intermediate_zoom_experiment else
+                              "aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                              if options.wide_aspect_experiment else
+                              ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
+                    (attempt / (output + ".json")).write_text(
                         json.dumps(result, indent=2), encoding="utf-8")
                     print("SECOND_REGION", mode, result.get("state"), result.get("error"),
                           "pointRows", len(result.get("point_records") or []), flush=True)
                 except Exception as error:
-                    (attempt / ("second-region-" + mode + "-error.txt")).write_text(repr(error), encoding="utf-8")
+                    output = ("midzoom-pair-%02d-" % comparison_index + mode if options.intermediate_zoom_experiment else
+                              "aspect-pair-%02d-aspect%d" % (comparison_index, aspect)
+                              if options.wide_aspect_experiment else
+                              ("zoom-pair-%02d-" % comparison_index if options.zoom_experiment else "second-region-") + mode)
+                    (attempt / (output + "-error.txt")).write_text(repr(error), encoding="utf-8")
                     print("SECOND_REGION_UNCONFIRMED", mode, repr(error), flush=True)
                     raise
+                if options.zoom_experiment or options.wide_aspect_experiment or options.intermediate_zoom_experiment:
+                    observation={
+                        "pair":(comparison_index+1)//2,"method":mode,
+                        "aspect": aspect if options.wide_aspect_experiment else None,
+                        "state":result.get("state"),"error":result.get("error"),
+                        "nativeReply":result.get("map013NativeReplyState"),
+                        "cameraRestored":result.get("cameraGeometryRestored"),
+                        "cameraStable":result.get("cameraTileStable"),
+                        "pointCount":len(result.get("point_records") or []),
+                        "aoiCount":len(result.get("requestedIndices") or []),
+                        "requestedIndices":result.get("requestedIndices") or [],
+                        "elapsed":result.get("totalProbeElapsedSeconds"),
+                        "rows":result.get("point_records") or [],
+                        "serverLod":result.get("zoomFinalServerLod") if mode=="zoom" else result.get("serverLod"),
+                        "blockSize":result.get("zoomFinalBlockSize") if mode=="zoom" else result.get("blockSize"),
+                        "blockCount":result.get("zoomFinalBlockCount") if mode=="zoom" else result.get("blockCount"),
+                    }
+                    zoom_observations.append(observation)
+                    (attempt / ("midzoom-paired-results.json" if options.intermediate_zoom_experiment else
+                                "aspect-paired-results.json" if options.wide_aspect_experiment else
+                                "zoom-paired-results.json")).write_text(json.dumps(
+                        zoom_observations, indent=2),encoding="utf-8")
+                    if(result.get("state")!="proven" or result.get("map013NativeReplyState")!="matched" or
+                       result.get("cameraGeometryRestored") is not True or result.get("cameraTileStable") is not True):
+                        raise RuntimeError("Alternative native reply/restore rejected: "+mode)
+                    if options.wide_aspect_experiment:
+                        if not result.get("point_records") or not result.get("requestedIndices"):
+                            raise RuntimeError("Aspect candidate gave a fast empty or missing AOI result")
+                        if comparison_index % 2 == 0:
+                            narrow=zoom_observations[-2]
+                            wide=zoom_observations[-1]
+                            def keys_in_common_aoi(source, common):
+                                return {
+                                    (r.get("kind"),str(r.get("id") or r.get("uuid") or r.get("pointId")))
+                                    for r in source.get("rows") or []
+                                    if isinstance(r,dict) and r.get("x") is not None and r.get("y") is not None and
+                                    ((int(r["y"])//10)*100+(int(r["x"])//10)) in common
+                                }
+                            common=set(wide["requestedIndices"]) & set(narrow["requestedIndices"])
+                            current=keys_in_common_aoi(wide,common)
+                            previous=keys_in_common_aoi(narrow,common)
+                            if not current or not previous or current != previous:
+                                raise RuntimeError("Aspect candidates have missing/extra identities on shared AOIs")
+                    if options.intermediate_zoom_experiment and mode=="zoom":
+                        if observation["serverLod"]!=0 or observation["blockSize"]!=10 or observation["blockCount"]!=100:
+                            raise RuntimeError("Intermediate zoom lost required native LOD0/10x100 geometry")
+                        baseline=zoom_observations[-2]
+                        common=set(observation["requestedIndices"]) & set(baseline["requestedIndices"])
+                        def source_keys(rowset):
+                            return {(r.get("kind"),str(r.get("pointId") or r.get("uuid") or r.get("id")))
+                                    for r in rowset if isinstance(r,dict) and
+                                    isinstance(r.get("x"),(int,float)) and isinstance(r.get("y"),(int,float)) and
+                                    int(r["y"])//10*100+int(r["x"])//10 in common}
+                        if not common or source_keys(observation["rows"])!=source_keys(baseline["rows"]):
+                            raise RuntimeError("Intermediate zoom changed identity set on shared AOIs")
+                        if observation["aoiCount"] <= baseline["aoiCount"]:
+                            raise RuntimeError("Intermediate zoom did not expand fresh native LOD0 coverage")
                 next_trace = wait_for(live_root / "map013-native-trace-result.json",
                     ExpectedReply("trace", next_trace_id, profile, session, pid, challenge, trace_time), 24)
                 (attempt / ("second-trace-" + mode + ".json")).write_text(
@@ -715,7 +1010,8 @@ def main() -> int:
                 print("STOP_REQUIRES_RECOVERY", repr(stop_error), flush=True)
                 exception = (exception or "") + " STOP_ERROR:" + repr(stop_error)
         (attempt / "final.json").write_text(json.dumps({
-            "state": "PARTIAL" if exception or (trace is None and not options.unmodified_control) else "OBSERVATION_ONLY",
+            "state": "PARTIAL" if exception or accuracy_comparison_failed or (trace is None and not options.unmodified_control) else "OBSERVATION_ONLY",
+            "sequenceAccuracyComparisonFailed": accuracy_comparison_failed,
             "error": exception, "ownedGamePid": owned.get("gamePid") if owned else None,
             "exactStopSucceeded": bool(stop_result and stop_result.get("ok")),
             "originalScriptsRestored": bool(stop_result and stop_result.get("installedFilesChanged") is False),

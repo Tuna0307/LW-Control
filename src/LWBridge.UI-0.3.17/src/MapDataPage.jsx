@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_SCAN_STATE,
   EMPTY_COUNTS,
+  MAP_DEFAULT_SCAN_TYPES,
   MAP_KIND_KEYS,
   MAP_PAGE_SIZE,
   MAP_SCAN_TYPES,
@@ -20,7 +21,7 @@ import {
   removeAutoServerId,
 } from "./mapAutoConfig.js";
 import { useI18n } from "./i18n.jsx";
-import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState } from "./mapTablePresentation.js";
+import { buildMapColumns, lookupMapText, mapNumber, mapResourceStatus, mapRewardCount, mapRewardName, mapTaskLabel, mapTaskSelectable, mapTaskState, otherTypeName, suppliesNameKey, validMapJumpCoordinates } from "./mapTablePresentation.js";
 import {
   DEFAULT_RANDOM_DELAY_TEXT,
   SCHEDULING_PROVIDER_METHODS,
@@ -42,9 +43,14 @@ import {
 import { ScheduledPlunder } from "./ScheduledPlunder.jsx";
 import { MapTreasureTypeFilter } from "./MapTreasureTypeFilter.jsx";
 import { MapRetainedGoodsFilter } from "./MapRetainedGoodsFilter.jsx";
+import { MapGhostRewardFilter } from "./MapGhostRewardFilter.jsx";
+import { GHOST_REWARD_MATCH_DEFAULT, buildGhostRewardQuery, pruneGhostRewards, setGhostRewardMinimum, toggleGhostReward } from "./mapGhostRewards.js";
+import { mapOwnerFilterLabel, parseEscortMillions } from "./mapOwnerFilters.js";
 import { mapScanPresentation, scanDateTitle, scanDuration, scanIsoTime, scanSameDay, scanTimeText } from "./mapScanPresentation.js";
 
 const EMPTY_GAME_TEXTS = Object.freeze({});
+// Zombie Boss templates exist for levels 5, 10, ... 150 (game table lw_world_monster).
+const ZOMBIE_BOSS_LEVELS = Object.freeze(Array.from({ length: 30 }, (_, index) => (index + 1) * 5));
 
 const DEFAULT_SORTS = Object.freeze(
   Object.fromEntries(MAP_KIND_KEYS.map((kind) => [kind, [{ sortBy: "updatedAt", sortOrder: "desc" }]])),
@@ -55,21 +61,25 @@ const SCAN_TYPE_LABEL_KEYS = Object.freeze({
   city: "map.playerCity",
   resource: "map.resourcePoint",
   monster: "map.monster",
+  zombie_boss: "map.zombieBoss",
   truck: "map.truck",
   railway: "map.allianceTrain",
   dispatch: "map.secretTask",
   ghost: "map.ghostScout",
   treasure: "map.treasure",
+  other: "map.other",
 });
 const TAB_LABEL_KEYS = Object.freeze({
   city: "map.city",
   resource: "map.resource",
   monster: "map.monster",
+  zombie_boss: "map.zombieBoss",
   truck: "map.truck",
   railway: "map.allianceTrain",
   dispatch: "map.secretTask",
   ghost: "map.ghostScout",
   treasure: "map.treasure",
+  other: "map.other",
   scheduledPlunder: "map.scheduledPlunder",
 });
 
@@ -99,11 +109,13 @@ function coordinateText(row) {
   return Number.isFinite(x) && Number.isFinite(y) ? `${x},${y}` : "-";
 }
 
-function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, onTreasurePreview = () => {}, treasurePreviewAvailable = false, actionBusy, actionDisabled, jumpingKey = "", liveTargetDisabled = true, selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
+function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlayerMark, onTreasurePreview = () => {}, treasurePreviewAvailable = false, actionBusy, actionDisabled, markDisabled = actionDisabled, jumpingKey = "", liveTargetDisabled = true, followingKey = "", selectedKeys, onSelect, gameTexts = EMPTY_GAME_TEXTS, itemKey = "", treasureStatesRefreshing = false }) {
   const { language, t } = useI18n();
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   useEffect(() => {
-    if (!["truck", "dispatch", "ghost"].includes(kind)) return undefined;
+    // The arrival guard below also applies to native Railway and moving Monster
+    // rows. Keep their visible Follow eligibility current while the tab is open.
+    if (!["truck", "railway", "monster", "zombie_boss", "dispatch", "ghost"].includes(kind)) return undefined;
     setCurrentTime(Date.now());
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => window.clearInterval(timer);
@@ -112,14 +124,19 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
   const columnWidths = columns.map((column) => Number(column.width.match(/\d+/)[0]) + 8);
   const rowKey = (row) => `${kind}:${row.serverId}:${String(row.uuid || row.marchUuid || row.recordKey || `${row.pointIndex || ""}:${row.ownerUid || ""}:${row.updatedAt || ""}`)}`;
   function coordinateCell(row) {
-    if (kind === "truck" || kind === "railway") {
+    if (kind === "truck" || kind === "railway" || (kind === "monster" && row.marchUuid)) {
       const marchUuid = String(row.marchUuid || "").trim();
       if (!marchUuid) return "-";
-      return <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy || liveTargetDisabled} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><strong>{t(jumpingKey === `${row.serverId}:${marchUuid}` ? "map.following" : "map.follow")}</strong></button>;
+      const key = `${row.serverId}:${marchUuid}`;
+      const knownArrival = Number(row.arriveTs);
+      const arrived = Number.isFinite(knownArrival) && knownArrival > 0 && knownArrival <= currentTime;
+      // A stored row can expire while visible. Keep an ongoing Follow's Stop
+      // available, but never offer a new Follow after native final arrival.
+      return <button className="map-coordinate-button" type="button" disabled={actionBusy || (followingKey !== key && (actionDisabled || liveTargetDisabled || arrived))} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><strong>{followingKey === key ? t("common.stop") : t(jumpingKey === key ? "map.following" : "map.follow")}</strong></button>;
     }
     const x = Number(row.x);
     const y = Number(row.y);
-    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 1 || y < 1) return "-";
+    if (!validMapJumpCoordinates(row)) return "-";
     return <button className="map-coordinate-button" type="button" disabled={actionDisabled || actionBusy} onClick={() => onCoordinateJump(row)}><span className="map-coordinate-icon" aria-hidden="true" /><span>{coordinateText(row)}</span><strong>{t(jumpingKey === `${row.serverId}:${x}:${y}` ? "map.jumping" : "map.jump")}</strong></button>;
   }
   function markTitle(row) {
@@ -166,7 +183,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   {column.select ? (
                     <input type="checkbox" aria-label={t("map.selectNamedTask", { name: String(row.ownerName || row.allianceName || row.uuid), server: row.serverId })} checked={selectedKeys?.has(selectionMembershipKey(row)) || false} disabled={!mapTaskSelectable(kind, row, currentTime)} onChange={() => onSelect?.(row)} />
                   ) : column.mark ? (
-                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={actionDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
+                    <button className={`map-mark-button${row.marked ? " active" : ""}`} type="button" disabled={markDisabled || !row.ownerUid || actionBusy} title={markTitle(row)} aria-label={t(row.marked ? "map.unmarkPlayer" : "map.markPlayer")} onClick={() => onPlayerMark(row)}>
                       <svg className={`ui-icon${row.marked ? " is-filled" : ""}`} viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m8 2 1.8 3.65 4.03.59-2.92 2.84.69 4.02L8 11.2l-3.6 1.9.69-4.02-2.92-2.84 4.03-.59L8 2Z" /></svg>
                     </button>
                   ) : column.coordinate ? (
@@ -176,7 +193,7 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
                   ) : column.status ? (
                     <span className={`map-task-status ${mapTaskState(row, currentTime)}`}>{mapTaskLabel(mapTaskState(row, currentTime), t)}</span>
                   ) : column.rewards ? (
-                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? "-" : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
+                    !Array.isArray(row[column.rewards]) || row[column.rewards].length === 0 ? (kind === "ghost" ? <span className="map-reward-unknown" title={t("map.rewardsUnknown")}>{t("map.rewardsUnknown")}</span> : "-") : <span className="map-reward-list map-reward-list--retained">{[...row[column.rewards]].sort((left, right) => column.rewards === "currentGoods" && itemKey ? Number(right.key === itemKey) - Number(left.key === itemKey) : 0).map((item, rewardIndex) => { const name = mapRewardName(item, gameTexts); const description = `${name} ×${mapNumber(item.count, language)}`; return <span className="map-reward-item" key={`${item.key}:${rewardIndex}`} title={description} aria-label={description}><GameAssetImage assetPath={item.iconPath} alt={name} className="map-reward-icon" /><strong>×{mapRewardCount(item.count)}</strong></span>; })}</span>
                   ) : kind === "resource" && column.label === t("common.status") ? mapResourceStatus(row, t, gameTexts) : column.value?.(row)}
                 </td>
               ))}
@@ -208,6 +225,7 @@ const PREVIEW_TAB_BY_STATE = Object.freeze({
   "map-city": "city",
   "map-resource": "resource",
   "map-monster": "monster",
+  "map-zombie-boss": "zombie_boss",
   "map-truck": "truck",
   "map-railway": "railway",
   "map-dispatch": "dispatch",
@@ -278,7 +296,7 @@ export function MapDataPage({
     const saved = window.localStorage.getItem("lwbridge.mapScanMode");
     return saved === "normal" || saved === "fast" ? saved : "normal";
   });
-  const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_KIND_KEYS]);
+  const [selectedTypes, setSelectedTypes] = useState(() => [...MAP_DEFAULT_SCAN_TYPES]);
   const [scanState, setScanState] = useState(() => suppliedScanState ? { ...suppliedScanState } : { ...DEFAULT_SCAN_STATE });
   const externallyManaged = suppliedScanState !== null && typeof onState === "function";
   const [scanStateAvailable, setScanStateAvailable] = useState(suppliedScanState !== null);
@@ -291,6 +309,7 @@ export function MapDataPage({
   const localeRequestGeneration = useRef(0);
   const [browseServerId, setBrowseServerId] = useState(() => suppliedScanState?.serverId > 0 ? suppliedScanState.serverId : 0);
   const [savedServers, setSavedServers] = useState([]);
+  const [savedServersRevision, setSavedServersRevision] = useState(0);
   const [localTab, setLocalTab] = useState(PREVIEW_TAB_BY_STATE[previewState] || "city");
   const tab = activeTab ?? localTab;
   const [keyword, setKeyword] = useState("");
@@ -299,9 +318,23 @@ export function MapDataPage({
   const [alliance, setAlliance] = useState("all");
   const [markedOnly, setMarkedOnly] = useState(false);
   const [treasureType, setTreasureType] = useState("");
+  const [otherSubtype, setOtherSubtype] = useState("");
   const [completionStatusByKind, setCompletionStatusByKind] = useState({});
   const [qualityByKind, setQualityByKind] = useState({});
   const [itemKeyByKind, setItemKeyByKind] = useState({});
+  const [truckItemKeys, setTruckItemKeys] = useState([]);
+  // Ghost reward constraints: [{ key, min }] plus an explicit "all" (default) / "any" mode.
+  const [ghostRewards, setGhostRewards] = useState([]);
+  const [ghostRewardMatch, setGhostRewardMatch] = useState(GHOST_REWARD_MATCH_DEFAULT);
+  const [resourceMinLevel, setResourceMinLevel] = useState("");
+  const [resourceMaxLevel, setResourceMaxLevel] = useState("");
+  const [resourceAmountState, setResourceAmountState] = useState("");
+  const [resourceTileState, setResourceTileState] = useState("");
+  // Zombie Boss filters: inclusive level range and game-confirmed protection state.
+  const [zombieMinLevel, setZombieMinLevel] = useState("");
+  const [zombieMaxLevel, setZombieMaxLevel] = useState("");
+  const [zombieProtection, setZombieProtection] = useState("");
+  const [escortMaxMillions, setEscortMaxMillions] = useState("");
   const [plunderableOnlyByKind, setPlunderableOnlyByKind] = useState({});
   const [includeForeignRadarTreasures, setIncludeForeignRadarTreasures] = useState(
     () => window.localStorage.getItem(INCLUDE_FOREIGN_RADAR_STORAGE_KEY) === "true",
@@ -330,6 +363,8 @@ export function MapDataPage({
   const [scanError, setScanError] = useState("");
   const [queryError, setQueryError] = useState("");
   const [actionBusy, setActionBusy] = useState("");
+  const [following, setFollowing] = useState(null);
+  const followGeneration = useRef(0);
   const [exporting, setExporting] = useState(false);
   const localeContext = `${gameTextOwner}|${gameTextRoot}|${language}`;
   const localeContextRef = useRef(localeContext);
@@ -337,8 +372,16 @@ export function MapDataPage({
   const knownNameKeys = useMemo(() => [...new Set([
     ...(options?.names?.resource || []).map((item) => item.key),
     ...(options?.names?.monster || []).map((item) => item.key),
-    ...(options?.treasureTypes || []).map((item) => item.treasureNameKey),
-    ...rows.map((row) => row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    // WorldSuppliesPoint config type has a game-owned localization key even
+    // when a retained row has no optional treasureNameKey. Request that key
+    // from the verified installed-build locale loader before showing labels.
+    ...(options?.treasureTypes || []).map((item) => suppliesNameKey(item.suppliesType) || item.treasureNameKey),
+    ...rows.map((row) => row.kind === "other" ? row.otherNameKey :
+      suppliesNameKey(row.suppliesType) || row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    // Some native reward names (e.g. Skill Medal) are game text keys: load them with the other labels.
+    ...(options?.rewardItems?.ghost || []).map((item) => /^\d+$/.test(String(item?.name ?? "")) ? String(item.name) : ""),
+    ...rows.flatMap((row) => Array.isArray(row.rewards) ? row.rewards.map((reward) => /^\d+$/.test(String(reward?.name ?? "")) ? String(reward.name) : "") : []),
+    "activity_wajueji_27000_name",
     "300039", "372138",
   ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
   const nameKeySignature = knownNameKeys.join("\u0000");
@@ -383,7 +426,7 @@ export function MapDataPage({
     // On owner remount this is cleared before the first asynchronous read,
     // including errors/empty stores/offline transitions.
     setSavedServers([]);
-    if (!backendAvailable || scanState.serverId > 0 || typeof mapApi?.savedServers !== "function") {
+    if (!backendAvailable || scanState.isReading || typeof mapApi?.savedServers !== "function") {
       setBrowseServerId(scanState.serverId > 0 ? scanState.serverId : 0);
       return undefined;
     }
@@ -393,15 +436,19 @@ export function MapDataPage({
       const available = Array.isArray(servers)
         ? [...new Set(servers.filter((server) => Number.isSafeInteger(server) && server > 0))]
         : [];
+      // Saved rows keep their source server when Auto returns home. A live
+      // view is also selectable even before its first publication.
+      if (scanState.serverId > 0 && !available.includes(scanState.serverId)) available.unshift(scanState.serverId);
       setSavedServers(available);
-      setBrowseServerId((current) => available.includes(current) ? current : (available[0] ?? 0));
+      setBrowseServerId((current) => available.includes(current) ? current :
+        (available.includes(scanState.serverId) ? scanState.serverId : available[0] ?? 0));
     }).catch(() => {
       if (retired || !mountedOwnerRef.current) return;
       setSavedServers([]);
       setBrowseServerId(0);
     });
     return () => { retired = true; };
-  }, [backendAvailable, mapApi, scanState.serverId]);
+  }, [backendAvailable, mapApi, scanState.serverId, scanState.isReading, savedServersRevision]);
   useEffect(() => {
     if (!gameTextLoader || !gameTextOwner || !gameTextRoot || !backendAvailable) return undefined;
     const generation = ++localeRequestGeneration.current;
@@ -459,7 +506,7 @@ export function MapDataPage({
   const activeSorts = sortsByKind[tab] || [{ sortBy: "updatedAt", sortOrder: "desc" }];
   const completionStatus = tab === "dispatch" || tab === "ghost" ? completionStatusByKind[tab] || "" : "";
   const quality = ["truck", "railway", "dispatch", "ghost"].includes(tab) ? qualityByKind[tab] || "" : "";
-  const itemKey = tab === "truck" || tab === "railway" ? itemKeyByKind[tab] || "" : "";
+  const itemKey = tab === "truck" ? truckItemKeys[0] || "" : tab === "railway" ? itemKeyByKind[tab] || "" : "";
   const plunderableOnly = plunderableOnlyByKind[tab] === true;
 
   useEffect(() => {
@@ -489,9 +536,17 @@ export function MapDataPage({
     const matchingCounts = suppliedSummary && dataServerId > 0 && suppliedSummary.serverId === dataServerId
       ? suppliedSummary.counts || { ...EMPTY_COUNTS }
       : null;
-    setCounts(matchingCounts || { ...EMPTY_COUNTS });
-    setSummaryReady(matchingCounts !== null);
-  }, [dataServerId, externallyManaged, suppliedSummary]);
+    if (matchingCounts) {
+      setCounts(matchingCounts);
+      setSummaryReady(true);
+    } else if (options?.serverId !== dataServerId) {
+      // A live home-server summary is not authoritative for a retained
+      // remote dataset. Preserve genuine remote options/counts instead of
+      // blanking them on every parent summary tick after Auto returns.
+      setCounts({ ...EMPTY_COUNTS });
+      setSummaryReady(false);
+    }
+  }, [dataServerId, externallyManaged, options?.serverId, suppliedSummary]);
 
   useEffect(() => {
     if (selectionTouched.current) return;
@@ -524,7 +579,10 @@ export function MapDataPage({
         return !name || loaded.alliances.some((item) => item.name === name) ? current : "all";
       });
       setMinLevel((current) => !current || loaded.dispatchLevels.includes(Number(current)) ? current : "");
+      // A reward selected for one saved server must never constrain another server's tasks.
+      setGhostRewards((current) => pruneGhostRewards(current, loaded.rewardItems?.ghost));
       setTreasureType((current) => !current || loaded.treasureTypes.some((item) => item.key === current) ? current : "");
+      setOtherSubtype((current) => !current || (loaded.otherTypes || []).some((item) => item.key === current) ? current : "");
     } catch (error) {
       if (generation === optionsGeneration.current && mountedOwnerRef.current) setQueryError(errorText(error));
     }
@@ -540,7 +598,12 @@ export function MapDataPage({
       setScanStateAvailable(true);
       setCounts(summary.counts);
       setSummaryReady(true);
-      if (summary.serverId > 0) setBrowseServerId(summary.serverId);
+      // A summary describes the live scanner, not the dataset the owner chose.
+      // An active scan may establish its target; idle polls and Auto's home
+      // return must preserve a separately selected saved server.
+      if (summary.scanState?.isReading && summary.scanState.serverId > 0) {
+        setBrowseServerId(summary.scanState.serverId);
+      }
       if (!selectionTouched.current) {
         setSelectedTypes(summary.scanState.selectedTypes);
         setSpeed(summary.scanState.scanMode);
@@ -562,7 +625,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      if (next.isReading && next.serverId > 0) setBrowseServerId(next.serverId);
       if (wasReading && !next.isReading) refreshSummary();
     });
     refreshSummary();
@@ -578,13 +641,9 @@ export function MapDataPage({
   }, [backendAvailable, commitScanState, externallyManaged, mapApi, refreshSummary]);
 
   useEffect(() => {
-    if (scanState.serverId <= 0 || scanState.serverId === dataServerId) return;
-    setBrowseServerId(scanState.serverId);
-  }, [dataServerId, scanState.serverId]);
-
-  useEffect(() => {
     if (dataServerIdRef.current === dataServerId) return;
     dataServerIdRef.current = dataServerId;
+    setGhostRewards((current) => current.length === 0 ? current : []);
     if (dataServerId > 0) optionsGeneration.current += 1;
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
@@ -604,6 +663,13 @@ export function MapDataPage({
 
   // Original `rr`: the query uses the keyword of the render that invoked it; typing alone never searches.
   function runSearch(requestedPage = page) {
+    const traceSearch = (stage, detail = "") => {
+      if (Array.isArray(window.__map014SearchEvents)) {
+        window.__map014SearchEvents.push({ stage, detail, tab, dataServerId, page: requestedPage, at: Date.now() });
+        if (window.__map014SearchEvents.length > 100) window.__map014SearchEvents.shift();
+      }
+    };
+    traceSearch("entered", `${backendAvailable}:${tab}`);
     if (!backendAvailable || !dataServerId || tab === "scheduledPlunder") return;
     const generation = searchGeneration.current + 1;
     searchGeneration.current = generation;
@@ -615,8 +681,19 @@ export function MapDataPage({
       page: requestedPage,
       sorts: activeSorts,
     };
-    if (tab === "resource" && resourceNameKey) query.resourceNameKey = resourceNameKey;
+    if (tab === "resource") {
+      if (resourceNameKey) query.resourceNameKey = resourceNameKey;
+      if (resourceMinLevel !== "") query.minLevel = Number(resourceMinLevel);
+      if (resourceMaxLevel !== "") query.maxLevel = Number(resourceMaxLevel);
+      if (resourceAmountState) query.resourceAmountState = resourceAmountState;
+      if (resourceTileState) query.resourceTileState = resourceTileState;
+    }
     if (tab === "monster" && monsterNameKey) query.monsterNameKey = monsterNameKey;
+    if (tab === "zombie_boss") {
+      if (zombieMinLevel !== "") query.minLevel = Number(zombieMinLevel);
+      if (zombieMaxLevel !== "") query.maxLevel = Number(zombieMaxLevel);
+      if (zombieProtection) query.protectionState = zombieProtection;
+    }
     if (tab === "city") {
       if (alliance === "none") query.withoutAlliance = true;
       else {
@@ -634,19 +711,41 @@ export function MapDataPage({
       query.includeForeignRadarTreasures = includeForeignRadarTreasures;
       query.luckyFirst = luckyFirst;
     }
+    if (tab === "other" && otherSubtype) query.otherSubtype = otherSubtype;
     if (tab === "dispatch" || tab === "ghost" || tab === "truck" || tab === "railway") {
       if (completionStatus && (tab === "dispatch" || tab === "ghost")) query.completionStatus = completionStatus;
       if (quality && quality !== "special" && quality !== "reindeer") query.quality = quality;
       if (quality === "special") query.specialOnly = true;
       if (quality === "reindeer") query.reindeerOnly = true;
-      if (itemKey) query.itemKey = itemKey;
+      if (tab === "truck" && truckItemKeys.length) query.itemKeys = truckItemKeys;
+      else if (itemKey) query.itemKey = itemKey;
+      if (tab === "ghost") {
+        const reward = buildGhostRewardQuery(ghostRewards, ghostRewardMatch);
+        if (!reward.valid) {
+          setQueryError(t("map.ghostRewardInvalidMinimum"));
+          setLoading(false);
+          return;
+        }
+        Object.assign(query, reward.fragment);
+      }
+      if (tab === "truck" && escortMaxMillions !== "") {
+        const power = parseEscortMillions(escortMaxMillions);
+        if (!power.valid) {
+          setQueryError(mapOwnerFilterLabel(language, "invalidPower"));
+          setLoading(false);
+          return;
+        }
+        query.escortPowerMaxMillions = power.value;
+      }
       if (plunderableOnly && (tab === "dispatch" || tab === "truck" || tab === "railway")) query.plunderableOnly = true;
       if (minLevel && tab === "dispatch") {
         query.minLevel = Number(minLevel);
         query.maxLevel = Number(minLevel);
       }
     }
+    traceSearch("issued", JSON.stringify(query));
     mapApi.search(tab, query).then((result) => {
+      traceSearch("resolved", `total:${result?.total},stale:${generation !== searchGeneration.current}`);
       if (generation !== searchGeneration.current || !mountedOwnerRef.current) return;
       const totalPages = mapPageCount(result.total);
       if (requestedPage > totalPages) {
@@ -679,6 +778,7 @@ export function MapDataPage({
         setTreasureStatesRefreshing(false);
       }
     }).catch((error) => {
+      traceSearch("rejected", errorText(error));
       if (generation === searchGeneration.current && mountedOwnerRef.current) {
         if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);
@@ -702,9 +802,11 @@ export function MapDataPage({
   // keyword is deliberately absent (recovered effect dependencies); runSearch closes over the committing render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey,
+    activeSorts, alliance, backendAvailable, completionStatus, dataServerId, includeForeignRadarTreasures, itemKey, truckItemKeys,
+    ghostRewards, ghostRewardMatch,
     luckyFirst, mapApi, markedOnly, minLevel, monsterNameKey, online, page, plunderableOnly, quality, resourceNameKey,
-    searchRevision, tab, treasureType,
+    resourceMinLevel, resourceMaxLevel, resourceAmountState, resourceTileState, escortMaxMillions, language, searchRevision, tab, treasureType, otherSubtype,
+    zombieMinLevel, zombieMaxLevel, zombieProtection,
   ]);
 
   // Original Vn/X effects: one coalesced trailing refresh, rearmed only by a
@@ -779,6 +881,9 @@ export function MapDataPage({
   }
 
   async function startScan() {
+    // Empty manual selection is an intentional user choice, never an implicit
+    // request to scan all eight default kinds.
+    if (!selectedTypes.length) return;
     setOptions((current) => current ? { ...current, scanProgress: null } : current);
     setScanError("");
     try {
@@ -787,7 +892,7 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      if (next.isReading && next.serverId > 0) setBrowseServerId(next.serverId);
     } catch (error) {
       setScanError(String(error));
     }
@@ -801,7 +906,8 @@ export function MapDataPage({
       previousReading.current = next.isReading;
       commitScanState(next);
       setScanStateAvailable(true);
-      if (next.serverId > 0) setBrowseServerId(next.serverId);
+      // Stop may settle while a saved remote dataset is selected. Keep that
+      // choice; startScan/active-status already select an actual new target.
       if (!externallyManaged) await refreshSummary();
     } catch (error) {
       setScanError(errorText(error));
@@ -812,14 +918,17 @@ export function MapDataPage({
     if (!dataServerId) return;
     setScanError("");
     try {
-      const next = await mapApi.clear(dataServerId);
+      // Auto may show a saved remote dataset while the game has already
+      // returned home. Backend independently validates its published owner.
+      const next = await mapApi.clear(dataServerId, scanTab === "auto");
       summaryGeneration.current++;
       optionsGeneration.current++;
       searchGeneration.current += 1;
       commitScanState(next);
       setScanStateAvailable(true);
       setCounts({ ...EMPTY_COUNTS });
-      if (typeof onCounts === "function") onCounts(next.serverId, { ...EMPTY_COUNTS });
+      // Clearing a saved remote store does not clear the live server's counts.
+      if (typeof onCounts === "function") onCounts(dataServerId, { ...EMPTY_COUNTS });
       setSummaryReady(true);
       setOptions(null);
       setAlliance("all");
@@ -827,8 +936,16 @@ export function MapDataPage({
       setMonsterNameKey("");
       setMinLevel("");
       setItemKeyByKind({});
+      setTruckItemKeys([]);
+      setGhostRewards([]);
+      setResourceMinLevel("");
+      setResourceMaxLevel("");
+      setResourceAmountState("");
+      setResourceTileState("");
+      setEscortMaxMillions("");
       setTreasureType("");
       setBrowseServerId(next.serverId);
+      setSavedServersRevision((revision) => revision + 1);
       tabViewCache.current.clear();
       setRows([]);
       setTotal(0);
@@ -874,6 +991,9 @@ export function MapDataPage({
 
   function changeTab(nextTab) {
     if (nextTab === tab) return;
+    followGeneration.current += 1;
+    setFollowing(null);
+    setActionBusy((value) => value.startsWith("jump:") ? "" : value);
     retirePreviewOperation();
     searchGeneration.current += 1;
     treasureRefreshGeneration.current += 1;
@@ -900,6 +1020,14 @@ export function MapDataPage({
   }
 
   function changeItemFilter(value) {
+    if (tab === "truck") {
+      setTruckItemKeys((current) => !value ? [] : current.includes(value) ? current.filter((key) => key !== value) : [...current, value]);
+      if (!value && activeSorts.some((sort) => sort.sortBy === "itemCount")) {
+        setSortsByKind((current) => ({ ...current, [tab]: current[tab].filter((sort) => sort.sortBy !== "itemCount") }));
+      }
+      setPage(1);
+      return;
+    }
     setItemKeyByKind((current) => ({ ...current, [tab]: value || undefined }));
     if (!value && activeSorts.some((sort) => sort.sortBy === "itemCount")) {
       setSortsByKind((current) => ({ ...current, [tab]: current[tab].filter((sort) => sort.sortBy !== "itemCount") }));
@@ -907,13 +1035,87 @@ export function MapDataPage({
     setPage(1);
   }
 
+  const ghostRewardItems = options?.serverId === dataServerId && Array.isArray(options?.rewardItems?.ghost) ? options.rewardItems.ghost : [];
+  const toggleGhostRewardFilter = (key) => { setGhostRewards((current) => toggleGhostReward(current, key)); setPage(1); };
+  const clearGhostRewardFilter = () => { setGhostRewards([]); setPage(1); };
+  const changeGhostRewardMinimum = (key, raw) => { setGhostRewards((current) => setGhostRewardMinimum(current, key, raw)); setPage(1); };
+  const changeGhostRewardMatch = (value) => { setGhostRewardMatch(value); setPage(1); };
+
   async function coordinateJump(row) {
-    setActionBusy(`jump:${row.serverId}:${row.x}:${row.y}`);
+    const moving = tab === "truck" || tab === "railway" || (tab === "monster" && Boolean(row.marchUuid));
+    const marchUuid = moving ? String(row.marchUuid || "").trim() : "";
+    const followKey = moving ? `${row.serverId}:${marchUuid}` : "";
+    if (moving && following?.key === followKey) {
+      followGeneration.current += 1;
+      setFollowing(null);
+      return;
+    }
+    // Independently fence a stale click from a still-mounted scan result.
+    const nativeArrival = Number(row.arriveTs);
+    if (moving && Number.isFinite(nativeArrival) && nativeArrival > 0 && Date.now() >= nativeArrival) return;
+    followGeneration.current += 1;
+    const generation = followGeneration.current;
+    const issuedApi = mapApi;
+    const issuedTab = tab;
+    const currentNavigation = () => mountedOwnerRef.current && generation === followGeneration.current &&
+      previewContextRef.current?.mapApi === issuedApi && previewContextRef.current?.tab === issuedTab;
+    setFollowing(null);
+    setActionBusy(moving ? `jump:${followKey}` : `jump:${row.serverId}:${row.x}:${row.y}`);
     setQueryError("");
-    try { await mapApi.coordinateJump(row); }
-    catch (error) { setQueryError(errorText(error)); }
-    finally { setActionBusy(""); }
+    try {
+      if (moving) {
+        if (!marchUuid || typeof mapApi?.marchFollow !== "function") throw new Error("MARCH_FOLLOW_UNAVAILABLE");
+        await mapApi.marchFollow(row);
+        if (!currentNavigation()) return;
+        // The native command binds session, server and march UUID. A fresh
+        // status read authorizes subsequent passive tracking after Auto return.
+        const status = await mapApi.scanStatus();
+        if (!currentNavigation()) return;
+        if (status.serverId !== row.serverId || status.isReading) throw new Error("MARCH_FOLLOW_SERVER_CHANGED");
+        commitScanState(status);
+        setFollowing({ key: followKey, kind: tab, serverId: row.serverId, marchUuid, arriveTs: Number(row.arriveTs) || 0, mapApi });
+      } else await mapApi.coordinateJump(row);
+    }
+    catch (error) { if (currentNavigation()) setQueryError(errorText(error)); }
+    finally { if (currentNavigation()) setActionBusy(""); }
   }
+
+  // Passive observation: each poll resolves the same March UUID through the
+  // game's *fresh* WorldMarch location. It never uses the stored scan tile or
+  // issues a march/attack. Stop on disappearance, server/profile change,
+  // arrival, scan start or unmount. Only one poll is in flight at a time.
+  useEffect(() => {
+    if (!following) return undefined;
+    if (following.mapApi !== mapApi || following.kind !== tab || !online || autoRunning ||
+        scanState.isReading || scanState.serverId !== following.serverId ||
+        (following.arriveTs > 0 && Date.now() >= following.arriveTs)) {
+      followGeneration.current += 1;
+      setFollowing(null);
+      return undefined;
+    }
+    let retired = false;
+    let busy = false;
+    const token = followGeneration.current;
+    const interval = window.setInterval(async () => {
+      if (busy || retired) return;
+      if (following.arriveTs > 0 && Date.now() >= following.arriveTs) {
+        followGeneration.current += 1;
+        setFollowing(null);
+        return;
+      }
+      busy = true;
+      try {
+        await following.mapApi.marchFollow(following);
+      } catch (error) {
+        if (!retired && token === followGeneration.current && mountedOwnerRef.current) {
+          setQueryError(errorText(error));
+          followGeneration.current += 1;
+          setFollowing(null);
+        }
+      } finally { busy = false; }
+    }, 3000);
+    return () => { retired = true; window.clearInterval(interval); };
+  }, [autoRunning, following, mapApi, online, scanState.isReading, scanState.serverId, tab]);
 
   async function togglePlayerMark(row) {
     setActionBusy(`mark:${row.serverId}:${row.ownerUid}`);
@@ -1181,7 +1383,7 @@ export function MapDataPage({
                 <label><input type="radio" name="map-scan-speed" checked={speed === "normal"} onChange={() => { selectionTouched.current = true; setSpeed("normal"); }} /><span>{t("map.normalSpeed")}</span></label>
                 <label><input type="radio" name="map-scan-speed" checked={speed === "fast"} onChange={() => { selectionTouched.current = true; setSpeed("fast"); }} /><span>{t("map.fastSpeed")}</span></label>
               </fieldset>
-              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning} onClick={startScan}>{t("map.startReading")}</button>
+              <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning || selectedTypes.length === 0} onClick={startScan}>{t("map.startReading")}</button>
               <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t("common.stop")}</button>
               <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
             </>
@@ -1243,6 +1445,7 @@ export function MapDataPage({
             <label><input type="checkbox" checked={autoConfig.returnToOriginalServer} onChange={(event) => emitAutoConfig({ returnToOriginalServer: event.target.checked })} />{t("map.returnAfterAutoScan")}</label>
             <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
             <button type="button" disabled={!autoRunning} onClick={onAutoScanCancel}>{t("common.stop")}</button>
+            <button type="button" disabled={!backendAvailable || !dataServerId || autoRunning || scanState.isReading} onClick={clearData}>{t("map.clearServer")}</button>
           </div>
           <small>{t("map.autoScanNavigationNotice")}</small>
           <small>{t("map.nextAutoScan")}: {autoConfig.enabled && autoConfig.nextRunAt > 0 ? formatAutoScanDate(autoConfig.nextRunAt, language) : "-"}</small>
@@ -1287,7 +1490,7 @@ export function MapDataPage({
 
         {tab !== "scheduledPlunder" ? (
           <div className="map-searchbar">
-            {scanState.serverId <= 0 && savedServers.length > 0 ? (
+            {!scanState.isReading && savedServers.length > 0 ? (
               <label className="map-filter-field"><span>{t("map.savedServer")}</span>
                 <select data-map-saved-server aria-label={t("map.savedServer")} value={dataServerId}
                   onChange={(event) => { setBrowseServerId(Number(event.target.value)); setPage(1); }}>
@@ -1302,6 +1505,23 @@ export function MapDataPage({
                 {(options?.names?.[tab] || []).map((item) => <option key={item.key} value={item.key}>{lookupMapText(resolvedGameTexts, item.key, item.key)} ({item.count})</option>)}
               </select>
             ) : null}
+            {tab === "resource" ? <>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "minimum")}</span><input aria-label={mapOwnerFilterLabel(language, "minimum")} type="number" min="1" step="1" value={resourceMinLevel} onChange={(event) => { setResourceMinLevel(event.target.value); setPage(1); }} /></label>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "maximum")}</span><input aria-label={mapOwnerFilterLabel(language, "maximum")} type="number" min="1" step="1" value={resourceMaxLevel} onChange={(event) => { setResourceMaxLevel(event.target.value); setPage(1); }} /></label>
+              <select aria-label={mapOwnerFilterLabel(language, "amount")} value={resourceAmountState} onChange={(event) => { setResourceAmountState(event.target.value); setPage(1); }}>
+                <option value="">{mapOwnerFilterLabel(language, "all")}</option><option value="full">{mapOwnerFilterLabel(language, "full")}</option><option value="partial">{mapOwnerFilterLabel(language, "partial")}</option><option value="unknown">{mapOwnerFilterLabel(language, "unknown")}</option>
+              </select>
+              <select aria-label={mapOwnerFilterLabel(language, "terrain")} value={resourceTileState} onChange={(event) => { setResourceTileState(event.target.value); setPage(1); }}>
+                <option value="">{mapOwnerFilterLabel(language, "all")}</option><option value="black">{mapOwnerFilterLabel(language, "black")}</option><option value="normal">{mapOwnerFilterLabel(language, "normal")}</option><option value="unknown">{mapOwnerFilterLabel(language, "unknown")}</option>
+              </select>
+            </> : null}
+            {tab === "zombie_boss" ? <>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "minimum")}</span><select aria-label={t("map.zombieBossMinLevel")} value={zombieMinLevel} onChange={(event) => { setZombieMinLevel(event.target.value); setPage(1); }}><option value="">{t("map.zombieBossAnyLevel")}</option>{ZOMBIE_BOSS_LEVELS.map((level) => <option key={level} value={String(level)}>{level}</option>)}</select></label>
+              <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "maximum")}</span><select aria-label={t("map.zombieBossMaxLevel")} value={zombieMaxLevel} onChange={(event) => { setZombieMaxLevel(event.target.value); setPage(1); }}><option value="">{t("map.zombieBossAnyLevel")}</option>{ZOMBIE_BOSS_LEVELS.map((level) => <option key={level} value={String(level)}>{level}</option>)}</select></label>
+              <select aria-label={t("map.zombieBossProtectionFilter")} value={zombieProtection} onChange={(event) => { setZombieProtection(event.target.value); setPage(1); }}>
+                <option value="">{t("map.zombieBossProtectionAll")}</option><option value="active">{t("map.zombieBossProtectionActive")}</option><option value="inactive">{t("map.zombieBossNotProtected")}</option><option value="unknown">{t("map.zombieBossProtectionUnknown")}</option>
+              </select>
+            </> : null}
             {tab === "city" ? (
               <>
                 <select aria-label={t("map.allianceFilter")} value={alliance} onChange={(event) => { setAlliance(event.target.value); setPage(1); }}>
@@ -1318,6 +1538,14 @@ export function MapDataPage({
                 <label className="map-filter-field"><input type="checkbox" checked={includeForeignRadarTreasures} onChange={(event) => { setIncludeForeignRadarTreasures(event.target.checked); setPage(1); }} />{t("map.showForeignRadarTreasures")}</label>
                 <label className="map-filter-field"><input type="checkbox" checked={luckyFirst} onChange={(event) => { setLuckyFirst(event.target.checked); setPage(1); }} />{t("map.prioritizeLuckyTreasures")}</label>
               </>
+            ) : null}
+            {tab === "other" ? (
+              <select aria-label={t("map.otherEventType")} value={otherSubtype} onChange={(event) => { setOtherSubtype(event.target.value); setPage(1); }}>
+                <option value="">{t("map.allOtherTypes")}</option>
+                {(options?.otherTypes || []).map((item) => (
+                  <option key={item.key} value={item.key}>{otherTypeName(t, item.key)} ({item.count})</option>
+                ))}
+              </select>
             ) : null}
             {["truck", "railway", "dispatch", "ghost"].includes(tab) ? (
               <>
@@ -1336,9 +1564,16 @@ export function MapDataPage({
                   {(tab === "dispatch" || tab === "ghost") ? <option value="special">{t("map.specialQuality")}</option> : null}
                   {tab === "truck" ? <option value="reindeer">{t("map.reindeerQuality")}</option> : null}
                 </select>
-                {(tab === "truck" || tab === "railway") ? (
-                  <MapRetainedGoodsFilter label={t("map.itemFilter")} allLabel={t("map.allRetainedGoods")} items={options?.rewardItems?.[tab] || []} value={itemKey} onChange={changeItemFilter} />
+                {tab === "ghost" ? (
+                  <>
+                    <MapGhostRewardFilter items={ghostRewardItems} filters={ghostRewards} match={ghostRewardMatch} gameTexts={resolvedGameTexts} onToggle={toggleGhostRewardFilter} onClear={clearGhostRewardFilter} onMinimum={changeGhostRewardMinimum} onMatch={changeGhostRewardMatch} />
+                    {options?.serverId === dataServerId && ghostRewardItems.length === 0 && (counts.ghost || 0) > 0 ? <span className="map-ghost-reward-note" role="status">{t("map.ghostRewardNoData")}</span> : null}
+                  </>
                 ) : null}
+                {(tab === "truck" || tab === "railway") ? (
+                  <MapRetainedGoodsFilter label={t("map.itemFilter")} allLabel={t("map.allRetainedGoods")} items={options?.rewardItems?.[tab] || []} value={itemKey} values={truckItemKeys} multiple={tab === "truck"} selectedLabel={mapOwnerFilterLabel(language, "itemsAll")} clearLabel={mapOwnerFilterLabel(language, "clearItems")} onChange={changeItemFilter} />
+                ) : null}
+                {tab === "truck" ? <label className="map-filter-field"><span>{mapOwnerFilterLabel(language, "escort")}</span><input type="text" inputMode="decimal" aria-label={mapOwnerFilterLabel(language, "escort")} value={escortMaxMillions} onChange={(event) => { setEscortMaxMillions(event.target.value.trim()); setPage(1); }} /></label> : null}
                 {(tab === "truck" || tab === "railway" || tab === "dispatch") ? <label className="map-filter-field map-plunderable-filter"><input type="checkbox" checked={plunderableOnly} onChange={(event) => { setPlunderableOnlyByKind((current) => ({ ...current, [tab]: event.target.checked || undefined })); setPage(1); }} /><span>{t("map.plunderableOnly")}</span></label> : null}
               </>
             ) : null}
@@ -1370,7 +1605,7 @@ export function MapDataPage({
           <span className="muted" role="status">{t("map.namesLoading")}</span> : null}
         {tab !== "scheduledPlunder" ? (
           <>
-            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
+            <MapTable kind={tab} gameTexts={resolvedGameTexts} itemKey={itemKey} rows={rows} loading={loading} treasureStatesRefreshing={previewFixture ? previewState === "map-treasure-checking" && tab === "treasure" && previewTreasureStatesRefreshing === true : treasureStatesRefreshing} sorts={activeSorts} onSort={changeSort} onCoordinateJump={coordinateJump} onPlayerMark={togglePlayerMark} onTreasurePreview={previewTreasureClaims} treasurePreviewAvailable={typeof mapApi?.previewTreasureClaim === "function"} actionBusy={Boolean(actionBusy || busyKey)} actionDisabled={!online || scanState.isReading} markDisabled={!backendAvailable || !dataServerId || scanState.isReading || typeof mapApi?.setPlayerMark !== "function"} liveTargetDisabled={typeof mapApi?.marchFollow !== "function"} followingKey={following?.key || ""} jumpingKey={previewFixture && previewState === "map-row-actions" ? previewJumpingKeys?.[tab] || "" : actionBusy.startsWith("jump:") ? actionBusy.slice(5) : ""} selectedKeys={tab === "truck" ? truckKeys : dispatchKeys} onSelect={tab === "truck" ? toggleTruckRow : toggleDispatchRow} />
             <Pagination page={page} total={total} onPage={setPage} />
           </>
         ) : (
