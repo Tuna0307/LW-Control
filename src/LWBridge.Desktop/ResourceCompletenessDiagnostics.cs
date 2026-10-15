@@ -199,37 +199,62 @@ internal sealed record ResourceCompletenessReport(
     // published map. This gate does not claim same-time population recall.
     internal void RequireReconciledBeforePublication(long acquiredResponseCount, int stagedResourceCount)
     {
-        if (ResponseCount != acquiredResponseCount ||
-            !RawObservationCountersReconcile || !FinalDeduplicationReconciles ||
-            !AcceptedDistributionsReconcile ||
-            FinalAcceptedUniqueRecords != stagedResourceCount ||
-            FinalAcceptedUniqueRecords != AcceptedRows.Count ||
-            Batches.Count != ResponseCount ||
-            Batches.Any(batch => !batch.Reconciles) ||
-            RawObservedPointInfoOccurrences != Batches.Sum(batch => batch.ObservedPointInfos) ||
-            RawEnumeratedPointInfoOccurrences != Batches.Sum(batch => batch.EnumeratedPointInfos) ||
-            ResourceCandidateOccurrences != Batches.Sum(batch => batch.ResourceCandidateCount) ||
-            AcceptedResourceOccurrencesBeforeDeduplication != Batches.Sum(batch => batch.AcceptedResourceCount) ||
-            RejectedResourceCandidateOccurrences != Batches.Sum(batch => batch.RejectedResourceCandidateCount) ||
-            NonResourcePointOccurrences != Batches.Sum(batch => batch.NonResourcePointCount) ||
-            RawRuntimeClassOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences ||
-            RawPointTypeOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences ||
-            RejectionReasonOccurrences.Values.Sum() != RejectedResourceCandidateOccurrences ||
-            ResourceSourceLookupHitOccurrences + ResourceSourceLookupFallbackOccurrences != AcceptedResourceOccurrencesBeforeDeduplication ||
-            RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key != "outside_selected_aoi") ||
-            DuplicateAcceptedRecordKeyOccurrences != DuplicateComparisons.Count ||
-            AcceptedResourceOccurrencesBeforeDeduplication - DuplicateAcceptedRecordKeyOccurrences != FinalAcceptedUniqueRecords ||
-            DuplicateComparisons.Any(duplicate => !ValidDuplicate(duplicate)) ||
-            TileWidth <= 0 || TileHeight <= 0 || NativeAoiBlockSize != 10 ||
-            NativeAoiBlockCount != (TileWidth + 9L) / 10 ||
-            AcceptedRows.Any(row => !ValidSourceRow(row)) ||
-            AcceptedRows.Select(row => row.RecordKey).Distinct(StringComparer.Ordinal).Count() != AcceptedRows.Count ||
-            AcceptedRows.Select(row => row.PointIndex).Distinct().Count() != AcceptedRows.Count ||
-            ResourcesByNativeAoiIndex.Keys.Any(key => !int.TryParse(key, NumberStyles.None,
-                CultureInfo.InvariantCulture, out int index) || index < 0 ||
-                index >= ((TileWidth + 9L) / 10) * ((TileHeight + 9L) / 10)))
+        // Every clause is evaluated independently and named, so a failed publication gate states WHICH
+        // accounting rule broke (previously one opaque message). No clause was relaxed.
+        var failed = new List<string>();
+        void Check(bool broken, string name) { if (broken) failed.Add(name); }
+        Check(ResponseCount != acquiredResponseCount, "responseCount");
+        Check(!RawObservationCountersReconcile, "rawObservationCounters");
+        Check(!FinalDeduplicationReconciles, "finalDeduplication");
+        Check(!AcceptedDistributionsReconcile, "acceptedDistributions");
+        Check(FinalAcceptedUniqueRecords != stagedResourceCount, "stagedResourceCount");
+        Check(FinalAcceptedUniqueRecords != AcceptedRows.Count, "acceptedRowCount");
+        Check(Batches.Count != ResponseCount, "batchCount");
+        Check(Batches.Any(batch => !batch.Reconciles), "batchReconciles");
+        Check(RawObservedPointInfoOccurrences != Batches.Sum(batch => batch.ObservedPointInfos), "observedPointInfos");
+        Check(RawEnumeratedPointInfoOccurrences != Batches.Sum(batch => batch.EnumeratedPointInfos), "enumeratedPointInfos");
+        Check(ResourceCandidateOccurrences != Batches.Sum(batch => batch.ResourceCandidateCount), "resourceCandidates");
+        Check(AcceptedResourceOccurrencesBeforeDeduplication != Batches.Sum(batch => batch.AcceptedResourceCount), "acceptedBeforeDedup");
+        Check(RejectedResourceCandidateOccurrences != Batches.Sum(batch => batch.RejectedResourceCandidateCount), "rejectedCandidates");
+        Check(NonResourcePointOccurrences != Batches.Sum(batch => batch.NonResourcePointCount), "nonResourcePoints");
+        Check(RawRuntimeClassOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "runtimeClassSum");
+        Check(RawPointTypeOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "pointTypeSum");
+        Check(RejectionReasonOccurrences.Values.Sum() != RejectedResourceCandidateOccurrences, "rejectionReasonSum");
+        Check(ResourceSourceLookupHitOccurrences + ResourceSourceLookupFallbackOccurrences != AcceptedResourceOccurrencesBeforeDeduplication, "sourceLookupSum");
+        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key != "outside_selected_aoi"), "unexpectedRejectionReason");
+        Check(DuplicateAcceptedRecordKeyOccurrences != DuplicateComparisons.Count, "duplicateCount");
+        Check(AcceptedResourceOccurrencesBeforeDeduplication - DuplicateAcceptedRecordKeyOccurrences != FinalAcceptedUniqueRecords, "dedupArithmetic");
+        string[] invalidDuplicates = DuplicateComparisons.Where(duplicate => !ValidDuplicate(duplicate))
+            .Select(DescribeDuplicate).Take(3).ToArray();
+        Check(invalidDuplicates.Length > 0, "invalidDuplicate[" + string.Join(" | ", invalidDuplicates) + "]");
+        Check(TileWidth <= 0 || TileHeight <= 0 || NativeAoiBlockSize != 10 || NativeAoiBlockCount != (TileWidth + 9L) / 10, "geometry");
+        int invalidRows = AcceptedRows.Count(row => !ValidSourceRow(row));
+        Check(invalidRows > 0, "invalidSourceRows=" + invalidRows);
+        Check(AcceptedRows.Select(row => row.RecordKey).Distinct(StringComparer.Ordinal).Count() != AcceptedRows.Count, "duplicateRecordKeys");
+        Check(AcceptedRows.Select(row => row.PointIndex).Distinct().Count() != AcceptedRows.Count, "duplicatePointIndices");
+        Check(ResourcesByNativeAoiIndex.Keys.Any(key => !int.TryParse(key, NumberStyles.None,
+            CultureInfo.InvariantCulture, out int index) || index < 0 ||
+            index >= ((TileWidth + 9L) / 10) * ((TileHeight + 9L) / 10)), "aoiIndexRange");
+        if (failed.Count > 0)
             throw new InvalidDataException(
-                "Resource native source accounting, provenance, stable identity or staging did not reconcile.");
+                "Resource native source accounting, provenance, stable identity or staging did not reconcile: " +
+                string.Join(", ", failed) + ".");
+    }
+
+    private static string DescribeDuplicate(ResourceDuplicateComparison duplicate)
+    {
+        ResourceDuplicateObservation a = duplicate.Previous, b = duplicate.Current;
+        var differs = new List<string>();
+        if (!duplicate.SameSemanticIdentity) differs.Add("semanticIdentity");
+        if (duplicate.Classification != "repeated_same_resource_identity") differs.Add("classification=" + duplicate.Classification);
+        if (a.X != b.X || a.Y != b.Y) differs.Add("position");
+        if (a.RuntimeClass != b.RuntimeClass) differs.Add("runtimeClass");
+        if (a.RawPointType != b.RawPointType) differs.Add("rawPointType");
+        if (a.ResourceTypeId != b.ResourceTypeId) differs.Add("resourceTypeId " + a.ResourceTypeId + "->" + b.ResourceTypeId);
+        if (a.ResourceConfigId != b.ResourceConfigId) differs.Add("resourceConfigId " + a.ResourceConfigId + "->" + b.ResourceConfigId);
+        if (b.CapturedAtUnixMilliseconds < a.CapturedAtUnixMilliseconds) differs.Add("captureOrder");
+        if (a.UpdatedAt != a.CapturedAtUnixMilliseconds || b.UpdatedAt != b.CapturedAtUnixMilliseconds) differs.Add("updatedAtVsCapture");
+        return duplicate.RecordKey + ":" + (differs.Count == 0 ? "serverWorldOrKey" : string.Join("+", differs));
     }
 
     private bool ValidDuplicate(ResourceDuplicateComparison duplicate)
