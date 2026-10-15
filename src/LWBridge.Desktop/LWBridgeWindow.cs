@@ -1485,6 +1485,7 @@ internal sealed partial class LWBridgeWindow : Form
         {
             "city" => "index === 0",
             "other" => "index === 8",
+            _ when ownerFixNativeProof && !ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NEW_KINDS_UI") == "1" => "index < 6 || index === 7 || index === 9",
             _ when ownerFixNativeProof && !ownerFixRemoteProof => "index < 6",
             _ => "index === 1",
         };

@@ -355,6 +355,63 @@ internal sealed partial class LWBridgeWindow
                 await Screenshot("map014-dispatch-owner-names"); await Save();
             }
 
+            // Owner-requested kinds, real packaged UI + real saved scan data (opt-in so older proofs are unchanged).
+            if(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_NEW_KINDS_UI")=="1")
+            {
+                async Task<NormalUiResourceProofSearchObservation> WaitSearch(long since,Func<JsonElement,bool> accepts,string what)
+                {
+                    for(int i=0;i<200;i++)
+                    {
+                        var seen=ReadNormalUiProofSearchAfter(since);
+                        if(seen is not null && seen.Payload.TryGetProperty("query",out var q) && accepts(q)) return seen;
+                        await Task.Delay(100,token);
+                    }
+                    throw new TimeoutException("Real UI did not send the expected "+what+" search.");
+                }
+                // --- Zombie Boss: dedicated tab, rows, real level-filter selects.
+                var zombie=await Tab(9,"zombie_boss");
+                if(zombie.Result.GetProperty("total").GetInt32()==0) throw new InvalidDataException("Packaged Zombie Boss tab had no genuine rows.");
+                int[] zombieLevels=zombie.Result.GetProperty("rows").EnumerateArray().Select(r=>r.GetProperty("level").GetInt32()).Distinct().Order().ToArray();
+                int zombieWitness=zombieLevels[zombieLevels.Length/2];
+                long zombieBefore=GetNormalUiProofSearchSequence();
+                string zombieSet=await core.ExecuteScriptAsync("(()=>{const set=(label,value)=>{const el=[...document.querySelectorAll('.map-searchbar select')].find(e=>e.getAttribute('aria-label')===label);if(!el)return false;Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(el,value);el.dispatchEvent(new Event('change',{bubbles:true}));return true;};return set('Minimum Zombie Boss level','"+zombieWitness+"')&&set('Maximum Zombie Boss level','"+zombieWitness+"');})()");
+                if(zombieSet!="true") throw new InvalidDataException("Real Zombie Boss level selects were not found.");
+                await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.map-searchbar > button');if(b&&!b.disabled)b.click();})()");
+                var zombieFiltered=await WaitSearch(zombieBefore,q=>q.TryGetProperty("minLevel",out var lo)&&lo.GetInt32()==zombieWitness&&q.TryGetProperty("maxLevel",out var hi)&&hi.GetInt32()==zombieWitness,"Zombie Boss level");
+                var zombieRows=zombieFiltered.Result.GetProperty("rows").EnumerateArray().ToArray();
+                if(zombieFiltered.Result.GetProperty("total").GetInt32()==0 || zombieRows.Any(r=>r.GetProperty("level").GetInt32()!=zombieWitness||!r.TryGetProperty("uuid",out var u)||string.IsNullOrWhiteSpace(u.GetString())))
+                    throw new InvalidDataException("Real Zombie Boss level filter returned a nonmatching row or none.");
+                receipts.Add(new{gate="native_zombie_boss_tab_level_filter",total=zombie.Result.GetProperty("total").GetInt32(),levels=zombieLevels,witnessLevel=zombieWitness,filteredTotal=zombieFiltered.Result.GetProperty("total").GetInt32(),zombieFiltered.Payload});
+                await Screenshot("map014-zombie-boss-level-filter"); await Save();
+
+                // --- Ghost Ops: authoritative rewards, two selected rewards combined with AND.
+                var ghost=await Tab(6,"ghost");
+                var ghostRows=ghost.Result.GetProperty("rows").EnumerateArray().ToArray();
+                if(ghost.Result.GetProperty("total").GetInt32()==0) throw new InvalidDataException("Packaged Ghost tab had no genuine rows.");
+                string[][] rewardKeys=ghostRows.Where(r=>r.TryGetProperty("rewards",out var rw)&&rw.ValueKind==JsonValueKind.Array&&rw.GetArrayLength()>=2)
+                    .Select(r=>r.GetProperty("rewards").EnumerateArray().Select(x=>x.GetProperty("key").GetString()??"").ToArray()).ToArray();
+                if(rewardKeys.Length==0) throw new InvalidDataException("Genuine Ghost rows carried no authoritative reward lists.");
+                string[] pair=rewardKeys[0].Where(k=>k!="reward:7:710005"&&k!="reward:7:520004").Take(2).ToArray();
+                if(pair.Length<2) pair=rewardKeys[0].Take(2).ToArray();
+                long ghostBefore=GetNormalUiProofSearchSequence();
+                foreach(string key in pair)
+                {
+                    string ok=await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('[data-map-reward-key]')].find(e=>e.getAttribute('data-map-reward-key')==="+JsonSerializer.Serialize(key)+");if(!b)return false;b.click();return true;})()");
+                    if(ok!="true") throw new InvalidDataException("Real Ghost reward option missing from the filter menu: "+key);
+                    await Task.Delay(150,token);
+                }
+                await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.map-searchbar > button');if(b&&!b.disabled)b.click();})()");
+                var ghostFiltered=await WaitSearch(ghostBefore,q=>q.TryGetProperty("rewardFilters",out var f)&&f.ValueKind==JsonValueKind.Array&&f.GetArrayLength()==2&&(!q.TryGetProperty("rewardMatch",out var m)||m.GetString()=="all"),"Ghost reward");
+                var filteredRows=ghostFiltered.Result.GetProperty("rows").EnumerateArray().ToArray();
+                if(ghostFiltered.Result.GetProperty("total").GetInt32()==0 || filteredRows.Any(r=>{
+                    var keys=r.GetProperty("rewards").EnumerateArray().Select(x=>x.GetProperty("key").GetString()).ToHashSet(StringComparer.Ordinal);
+                    return !pair.All(keys.Contains);}))
+                    throw new InvalidDataException("Real Ghost AND reward filter returned a task missing a selected reward, or none.");
+                string skillMedalLabel=await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('[data-map-reward-key=\"reward:27:5001\"] span');return b?b.textContent:null;})()");
+                receipts.Add(new{gate="native_ghost_reward_and_filter",totalGhost=ghost.Result.GetProperty("total").GetInt32(),selected=pair,filteredTotal=ghostFiltered.Result.GetProperty("total").GetInt32(),skillMedalOptionLabel=skillMedalLabel,ghostFiltered.Payload});
+                await Screenshot("map014-ghost-reward-filter"); await Save();
+            }
+
             var truck=await Tab(3,"truck");
             var sourceWitness=Map014TruckImageWitnessClassifier.Classify(truck.Result);
             if(!sourceWitness.HasPositiveSource)
