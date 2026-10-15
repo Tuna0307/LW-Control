@@ -48,9 +48,63 @@ proof that the normal owner path has the same length problem. Normal-data
 trials temporarily disable and restore the exact saved Auto preference, require
 zero armed jobs, preserve original scripts and record actual native errors.
 
-**Source checkpoint: native final-package verification pending.** Next verify
-real Home Launch -> stable authenticated Connected -> Home Close using a copy
-of the owner's persisted profile and old record, then the final extracted ZIP.
-Preserve the normal profile's data and original game scripts. No Map optimization
-or account action is part of this correction; previous RC acceptance does not
-certify this new source before that proof.
+## Final normal-profile delivery — verified from the extracted review ZIP
+
+**Product source commit:** `4666a8bfdec239efdcee0598eb6646df469cfdf2`.
+This product-source SHA remains embedded in the executable even if a later
+documentation-only commit moves draft PR #10's head. Do not rebuild only to
+change documentation. Both corrected Home launch paths and the localized
+save-failure feedback were included in the one previously validated Release
+publish at `artifacts/map014-takeover/publish/` (not rebuilt here).
+
+The originally tested normal persisted profile proof is
+`artifacts/home-launch-owner-repro/normal-20261015-035236/`: actual
+Home Launch to independently authenticated stable Connected (15 samples,
+15,220 ms), Home Close, exit code 0, unchanged Auto preference, restored v26
+scripts, no new Map scans/gameplay. This is not isolated dummy-provider evidence.
+
+The exact product publish was packaged with the established source-identity
+and private-file allowlist script, without a second build:
+
+- **Canonical ZIP:** `artifacts/release-map014-4666a8bf/LW-Control-MAP014-OWNER-RC-4666a8bfdec2.zip`
+- **Size:** 10,861,804 bytes
+- **SHA-256:** `1cbb9c8404350bd14dc521acd179325c1c3ba7d3fdf4dd553870f238d55abbcf`
+- **Source and EXE ProductVersion:** `4666a8bfdec239efdcee0598eb6646df469cfdf2` and
+  `1.0.0+4666a8bfdec239efdcee0598eb6646df469cfdf2`
+- **ZIP/extraction:** exactly 81 allowlisted Windows payload members, full
+  ZIP CRC, per-member SHA-256, extracted byte-for-byte identity, production UI
+  identity and private-file exclusion all **PASS**; `published:false`.
+  Windows-only binaries retained; debug, non-Windows runtime and generated
+  Python cache artifacts excluded. Manifest at
+  `artifacts/release-map014-4666a8bf/release-integrity.json`.
+- **Fresh extraction:** `artifacts/map014-takeover/extracted-review-4666a8bf/`.
+  Its `LWBridge.Desktop.exe` SHA and product version match this ZIP exactly.
+
+**Genuine extracted-executable normal-profile replay:**
+`artifacts/home-launch-owner-repro/normal-20261015-055825/`.
+The documented `run_normal.py` used that extracted executable, the actual
+normal persisted owner-data root and task-owned WebView controls, with no
+mouse/global keys/focus operations or fabricated native provider.
+`ui-result.json` records actual Launch, authenticated
+`bridgeConnected:true` / `connectionState:connected` /
+`identityConfirmed:true`, game PID 35328, exact instance
+`7bbda6ffa0594c62b0f4c0324f99c2c2`, **15 Connected samples over
+15,217 ms**, `nativeErrors:[]`, and actual Home Close `homeStop:true`.
+`final.json` records `pass:true`, host exit code 0, all three official
+v26 scripts restored, and saved Auto preference restored **byte-for-byte**.
+The selected owner's persisted Auto `config.enabled=true` is intentionally
+unchanged; its restart/active state is **false**. Post-proof inspection found
+no LastWar, launcher or LWBridge.Desktop processes and no selected-profile
+pending recovery/adoption file. No new Map scans or account-changing actions.
+Actual Home before/Connected/stopped screenshots and trace remain alongside
+the original source and post-extraction receipts.
+
+**Delivery verdict:** the corrected Home Launch → stable authenticated
+Connected → Home Close **passes from the new exact ZIP extraction**.
+The previous `e6cafd52` extracted-owner Launch failure, stale-record and
+secondary path negative trials remain preserved as history, not erased or
+relabeled. This acceptance covers the bounded Home correction only. The whole
+Map remains **PARTIAL** with its existing Ghost/Treasure provider, natural
+population, live owner-only action and fresh positive Truck-witness
+dependencies. Keep `codex/map-owner-fixes-014` / draft PR #10 unmerged,
+unpublished and within the existing background-only restrictions.
