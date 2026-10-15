@@ -81,7 +81,28 @@ minimum counts, options per server, 9 locales; controlled/inert tests pass. Skil
 named by its text key `180372`; the UI helper `mapRewardName` now resolves all-digit names through the game text
 (Skill Medal). Passive scan only; no Ghost plunder enabled.
 
+## 5. Intermittent packaged-scan abort found and fixed (alliance collection node)
+Three of seven packaged proofs aborted before publication with "Resource native source accounting ... did not
+reconcile". The gate now names the failing rule/row (no rule loosened): the single failing row was tile (10,202),
+native **pointType 26, class `WorldAllianceCollectResource`** (an alliance collection node with no resource config or
+level) that appeared in the world during the session; the validators demanded `ResPointInfo` for every node. The
+design deliberately requires every native type 1/7/26 point to be an accepted Resource (three separate gates), so the
+fix accepts the alliance class **only for type 26** (config/level stay unknown); every other type must still be
+`ResPointInfo`. An earlier attempt to exclude the node broke the type-accounting invariant and was reverted.
+Controlled tests: positive case + two negatives (unknown class on 26, alliance class on type 7).
+
+## 6. Packaged real-app proof (published EXE, real game, normal mode, English clone UI, Chinese game)
+Passing run `artifacts/map014-takeover/native-ui-20261015-140953/` (source `dd3a962a`): 2,500/2,500 blocks, 0 failed,
+213 s; gates passed: Other tab, warzone popover, Resource combined filters, Dispatch owner names, Zombie Boss tab +
+level filter (207 rows; level 75 -> 46), Ghost two-reward AND filter (251 tasks; selection Tech speed-up + Fiona
+shards -> 13) with the Skill Medal option labelled "Skill Medal", Truck icons, filter-menu icons, Truck Follow->Stop,
+genuine Truck combined filters; original scripts restored, no recovery journal. The Ghost/Zombie gates are opt-in
+(`LWBRIDGE_MAP014_NEW_KINDS_UI=1`); the selection then adds Ghost (index 6) and Zombie Boss (index 9).
+The Skill Medal reward name arrives as game text key 180372; the Map page now loads reward text keys with its other
+game text (`MapDataPage.jsx`) and `mapRewardName` resolves all-digit names.
+
 ## Not done / limits
-Packaged-app (extracted ZIP) Map proof and Home Launch/Connect/Close regression: see the final section below if
-filled in. Not run: Auto-scan packaged proof for the new kinds, natural Zombie Boss expiry, temporary alliance black
-areas, `Localization`-based name resolution in Lua (not available to the probe).
+Natural Zombie Boss expiry removal, temporary alliance-skill black areas, Auto-scan packaged proof for the new kinds,
+Ghost plunder (intentionally not enabled), whole-Map completion. Final ZIP path/SHA-256 and extracted-app results are
+in the final report and `artifacts/release-map014-*/release-integrity.json` (they cannot be inside a commit that the
+EXE's version string must match).

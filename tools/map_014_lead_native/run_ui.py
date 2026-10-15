@@ -268,7 +268,8 @@ def main():
         "gameRoot": str(GAME), "autoLaunchGame": False, "autoReconnect": False,
         "gameDesiredRunning": False, "serverJumpHistory": []
     }), encoding="utf-8")
-    publish = ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
+    # LWBRIDGE_MAP014_UI_EXE lets the same proof drive an extracted release ZIP instead of the publish folder.
+    publish = Path(os.environ["LWBRIDGE_MAP014_UI_EXE"]).resolve(strict=True) if os.environ.get("LWBRIDGE_MAP014_UI_EXE") else ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
                        LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other") else "",

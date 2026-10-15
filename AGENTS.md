@@ -1,5 +1,11 @@
 # LW-Control — current contributor instructions
 
+Latest worker update, 2026-10-15: the four owner-reported Map defects (Truck/Secret Task slowness, Black tile,
+Zombie Boss, Ghost rewards) are diagnosed and fixed with genuine native and packaged-app evidence on
+codex/map-owner-fixes-014 / draft PR #10. Read docs/MAP_014_OWNER_DEFECTS_HANDOFF_2026-10-15.md first. Key lesson:
+the native AOI window scales with camera height (player zoom); scans now use a canonical lens and calibrated
+placement. Whole Map remains PARTIAL; no merge or publication; background-only and no-account-action limits unchanged.
+
 Latest owner interruption/worker handback, 2026-10-14: lead execution stopped
 at owner request to conserve tokens; worker should resume the existing branch
 and draft PR #10. Read docs/MAP_014_WORKER_RESUME_HANDOFF_2026-10-14.md first.
