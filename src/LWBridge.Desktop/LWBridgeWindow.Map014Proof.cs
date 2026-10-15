@@ -408,6 +408,8 @@ internal sealed partial class LWBridgeWindow
                     return !pair.All(keys.Contains);}))
                     throw new InvalidDataException("Real Ghost AND reward filter returned a task missing a selected reward, or none.");
                 string skillMedalLabel=await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('[data-map-reward-key=\"reward:27:5001\"] span');return b?b.textContent:null;})()");
+                if(System.Text.RegularExpressions.Regex.IsMatch(skillMedalLabel ?? "null","^\"(✓ )?\\d+\"$"))
+                    throw new InvalidDataException("Real Ghost reward option shows a raw game text key instead of its name: "+skillMedalLabel);
                 receipts.Add(new{gate="native_ghost_reward_and_filter",totalGhost=ghost.Result.GetProperty("total").GetInt32(),selected=pair,filteredTotal=ghostFiltered.Result.GetProperty("total").GetInt32(),skillMedalOptionLabel=skillMedalLabel,ghostFiltered.Payload});
                 await Screenshot("map014-ghost-reward-filter"); await Save();
             }

@@ -378,6 +378,9 @@ export function MapDataPage({
     ...(options?.treasureTypes || []).map((item) => suppliesNameKey(item.suppliesType) || item.treasureNameKey),
     ...rows.map((row) => row.kind === "other" ? row.otherNameKey :
       suppliesNameKey(row.suppliesType) || row.resourceNameKey || row.monsterNameKey || row.treasureNameKey),
+    // Some native reward names (e.g. Skill Medal) are game text keys: load them with the other labels.
+    ...(options?.rewardItems?.ghost || []).map((item) => /^\d+$/.test(String(item?.name ?? "")) ? String(item.name) : ""),
+    ...rows.flatMap((row) => Array.isArray(row.rewards) ? row.rewards.map((reward) => /^\d+$/.test(String(reward?.name ?? "")) ? String(reward.name) : "") : []),
     "activity_wajueji_27000_name",
     "300039", "372138",
   ].filter((key) => typeof key === "string" && key.trim().length > 0))].sort(), [options, rows]);
