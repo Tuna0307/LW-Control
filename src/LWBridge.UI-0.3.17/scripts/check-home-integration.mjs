@@ -512,6 +512,16 @@ assert.match(appSource, /"profile_delete",\s*\{ profileId \}/,
     "launch failed (original later priority)", "deduplication precedes reverse iteration in original Ir");
   assert.equal(homeFn(t, "unknown wording"), "generic action error", "unknown Home errors keep original generic fallback");
   assert.equal(sidebarFn(t, "unknown wording"), "generic action error", "unknown profile errors keep original generic fallback");
+  const { HOME_LAUNCH_FEEDBACK, withHomeLaunchFeedback } = await import("../src/locales/home-launch-feedback.js");
+  for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
+    const catalog = withHomeLaunchFeedback(language, {});
+    const lookup = (key) => catalog[key] || key;
+    const expected = HOME_LAUNCH_FEEDBACK[language]["error.RECOVERY_RECORD_COMMIT_FAILED"];
+    assert.ok(expected && expected !== "RECOVERY_RECORD_COMMIT_FAILED");
+    assert.equal(homeFn(lookup, "RECOVERY_RECORD_COMMIT_FAILED"), expected,
+      `${language}: session-save failure must not disappear into generic action failure`);
+    assert.equal(sidebarFn(lookup, new Error("RECOVERY_RECORD_COMMIT_FAILED")), expected);
+  }
 }
 {
   // Original LWBridge 0.3.17 Kr, recovered at UTF-8 byte 336469 of the

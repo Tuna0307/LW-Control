@@ -59,7 +59,9 @@ internal sealed partial class OverviewLifecycleService
         Directory.CreateDirectory(runtimeRoot);
         if (!OverviewRuntimeFileOwnership.TryWrite(
             AdoptionRecordPath, bytes,
-            existing => JsonRuntimeFileMatches(existing, session, nonce),
+            existing => JsonRuntimeFileMatches(existing, session, nonce) ||
+                OverviewStaleAdoptionOwnership.CanReplaceRetiredRecord(
+                    existing, profileId, start.GamePath, session, OwnedProcessApi),
             testHooks?.RuntimeFileBeforeMutation))
             throw new BridgeCommandException(
                 "RECOVERY_RECORD_COMMIT_FAILED",
