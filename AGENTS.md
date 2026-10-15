@@ -1,3 +1,9 @@
+Latest lead assignment, 2026-10-16: worker builds the camera-free Map scanner
+(all kinds, then fast Trucks) on codex/map-owner-fixes-015 / draft PR only.
+Read docs/work-items/LWB317-MAP-CAMERA-FREE-015.md first; it supersedes older
+scanner tasks. Subagents allowed, one live-game controller. Same background,
+no-account-action, no-merge/publication rules. Lead audits the handback.
+
 Latest owner main-test authorization, 2026-10-15: owner explicitly requests
 merging reviewed MAP-014 into main for personal testing. Lead corrected a real
 City-only placement regression and verified the final source-pinned Windows ZIP
