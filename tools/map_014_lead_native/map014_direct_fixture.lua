@@ -1,18 +1,12 @@
 local _df_cmd = _trace_root .. [[\live-resource\map014-direct-fixture.txt]]
 local _df_res = _trace_root .. [[\live-resource\map014-direct-fixture-result.json]]
 local _df = nil
-local function _df_now() local ok, t = pcall(function() return CS.UnityEngine.Time.realtimeSinceStartup end); return ok and tonumber(t) or os.clock() end
+local function _df_now() local ok, t = pcall(function() return CS.UnityEngine.Time.realtimeSinceStartup end); return ok and tonumber(t) or 0 end
 local function _df_flags() local b = CS.System.Reflection.BindingFlags; return b.Instance + b.Public + b.NonPublic end
 local function _df_field(o, n)
     for _, f in ipairs({ 52, "enum" }) do
         local ok, v = pcall(function() return o:GetType():GetField(n, f == "enum" and _df_flags() or f):GetValue(o) end)
         if ok and v ~= nil then return v end
-    end
-end
-local function _df_method(o, n)
-    for _, f in ipairs({ "enum", 52 }) do
-        local ok, ms = pcall(function() return o:GetType():GetMethods(f == "enum" and _df_flags() or f) end)
-        if ok and ms then for i = 0, ms.Length - 1 do local m = ms:GetValue(i); if m.Name == n then return m end end end
     end
 end
 local function _df_count(pm, areas)
@@ -57,17 +51,34 @@ local function _df_tick()
     local areas, list = {}, {}
     for v in string.gmatch(req.indices or "", "%d+") do areas[tonumber(v)] = true; list[#list + 1] = tonumber(v) end
     out.areaCount = #list
-    if pm == nil or cur == nil or add == nil then out.error = "manager_unavailable"; _df_write(out); return end
+    if pm == nil or cur == nil or add == nil then out.error = "no_manager"; _df_write(out); return end
     out.before = _df_count(pm, areas)
     local i32 = cs.System.Int32
     local ok, err = pcall(function()
         add:Clear()
         for _, v in ipairs(list) do add:Add(i32.Parse(tostring(v))); cur:Add(i32.Parse(tostring(v))) end
-        local m = _df_method(pm, "SendAoiRequest")
-        local a = cs.System.Array.CreateInstance(typeof(cs.System.Object), 8)
-        local vals = { 0, out.svLod or 0, tonumber(req.x), tonumber(req.y), add, out.blockSize or 10, tonumber(req.lb), tonumber(req.rt) }
-        for k, v in ipairs(vals) do a:SetValue(type(v) == "number" and i32.Parse(tostring(math.floor(v))) or v, k - 1) end
-        m:Invoke(pm, a)
+            local r = CS.WorldGetBlockMessage.Request()
+            r.bigMap, r.x, r.y, r.serverId, r.worldId = 0, tonumber(req.x), tonumber(req.y), tonumber(req.server), 0
+            r.type, r.lod, r.blockSize, r.firstTime = tonumber(req.type or 0), 0, out.blockSize or 10, req.first == "true"
+            r.leftBottom, r.rightTop, r.battleFieldFirst = tonumber(req.lb), tonumber(req.rt), false
+            local idx = cs.System.Array.CreateInstance(typeof(i32), #list)
+            for k, v in ipairs(list) do idx:SetValue(i32.Parse(tostring(v)), k - 1) end
+            r.index = idx
+            local B = function(v) return cs.System.Boolean.Parse(v and "True" or "False") end
+            local I = function(v) return i32.Parse(tostring(math.floor(v))) end
+            local vals = req.layout == "B" and { I(0), I(r.x), I(r.y), I(r.serverId), I(0), I(r.type), I(0), idx, I(r.blockSize),
+                B(false), I(r.leftBottom), I(r.rightTop), B(false) } or req.layout == "C" and { r, B(true) } or { r }
+            local a = cs.System.Array.CreateInstance(typeof(cs.System.Object), #vals)
+            for k, v in ipairs(vals) do a:SetValue(v, k - 1) end
+            local inst, setm = CS.WorldGetBlockMessage.Instance, nil
+            local ms = inst:GetType():GetMethods(52)
+            for i = 0, ms.Length - 1 do if ms:GetValue(i).Name == "CSSetData" then setm = ms:GetValue(i) end end
+            local pa = cs.System.Array.CreateInstance(typeof(cs.System.Object), 1)
+            pa:SetValue(a, 0)
+            local built = setm:Invoke(inst, pa)
+            local okd, dump = pcall(function() return built.Message.Content:GetDump() end)
+            out.dump = string.sub(tostring(okd and dump or tostring(built)), 1, 1500)
+            if built ~= nil then CS.GameEntry.Network:Send(built) end
     end)
     out.sent = ok
     if not ok then out.error = tostring(err); _df_write(out); return end

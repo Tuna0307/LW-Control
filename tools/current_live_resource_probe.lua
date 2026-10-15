@@ -2517,6 +2517,10 @@ local function read_bulk_aoi_diagnostic(now)
     request.includeResourceDetails = include_resource_details_raw == "true"
     local defer_restore_until_response_raw = tostring(values.deferRestoreUntilResponse or "false")
     request.deferRestoreUntilResponse = defer_restore_until_response_raw == "true"
+    -- Opt-in: keep the camera at the target until the client's own 160-area split requests are all answered.
+    request.drainSplit = values.drainSplit == "true" and request.requestMode == "coverage"
+    -- Opt-in experiment: the client's AOI margin (EDGE); restored with the camera.
+    request.coverageEdge = request.requestMode == "coverage" and tonumber(values.coverageEdge) or nil
     local observe_march_freshness_raw = tostring(values.observeMarchFreshness or "false")
     request.observeMarchFreshness = observe_march_freshness_raw == "true"
     if not valid_token(request.profileId) or not valid_token(request.launchSessionId) or
@@ -5302,6 +5306,10 @@ end
 
 local function restore_bulk_aoi_state(point_manager)
     local ok = true
+    if M._map014OriginalEdge ~= nil and point_manager ~= nil then
+        if not reflected_set_value(point_manager, "EDGE", M._map014OriginalEdge) then ok = false end
+        M._map014OriginalEdge = nil
+    end
     local restore_snapshot = M._map014CameraRestore
     local current_set = point_manager and reflected_value(point_manager, "_curViewIndex") or nil
     if current_set ~= nil then
@@ -5406,6 +5414,12 @@ local function write_bulk_aoi_result(request, state, error_text, details)
         coverageFov = request.coverageFov,
         coverageZoom = request.coverageZoom,
         coverageZoomApplied = request.coverageZoomApplied,
+        drainSplit = request.drainSplit,
+        coverageEdge = request.coverageEdge,
+        coverageEdgeOriginal = request.coverageEdgeOriginal,
+        heldViewCount = details.heldViewCount,
+        heldViewIndices = details.heldViewIndices,
+        heldSplitPending = details.heldSplitPending,
         state = state,
         error = error_text,
         requestedIndices = details.requestedIndices,
@@ -5968,6 +5982,14 @@ local function pump_bulk_aoi_diagnostic(now)
                 return true
             end
             request.coverageZoomApplied = tonumber(safe_get(camera_manager, "Zoom"))
+            if request.coverageEdge ~= nil then
+                M._map014OriginalEdge = tonumber(reflected_value(point_manager, "EDGE"))
+                if M._map014OriginalEdge == nil or not reflected_set_value(point_manager, "EDGE", math.floor(request.coverageEdge)) then
+                    fail_bulk_aoi(request, "coverage_edge_set_failed", nil, point_manager)
+                    return true
+                end
+                request.coverageEdgeOriginal = M._map014OriginalEdge
+            end
         end
         local manager_reply_before = manager_response_flag(point_manager)
         local world_reply_before = world_response_flag(world)
@@ -6246,6 +6268,10 @@ local function pump_bulk_aoi_diagnostic(now)
     if bulk_aoi_request.requestMode ~= "zoom" and not bulk_aoi_native_position_restored and bulk_aoi_native_hold_seconds ~= nil and
        elapsed_now >= bulk_aoi_native_hold_seconds and bulk_aoi_native_touch_camera ~= nil and
        bulk_aoi_native_original_pos ~= nil then
+        local held_view = reflected_value(point_manager, "_curViewIndex")
+        details.heldViewCount = collection_count(held_view)
+        details.heldViewIndices = held_view and select(1, collection_int_values(held_view, 10000)) or nil
+        details.heldSplitPending = reflected_value(point_manager, "_splitLastAOIRequest") == true
         if not select(1, call(bulk_aoi_native_touch_camera, "SetCameraPos", bulk_aoi_native_original_pos)) then
             fail_bulk_aoi(bulk_aoi_request, "native_camera_timed_restore_failed", details, point_manager)
             return true
@@ -6265,7 +6291,7 @@ local function pump_bulk_aoi_diagnostic(now)
         details.positionRestoreElapsedSeconds = elapsed_now
     end
     details.positionRestoredBeforeResponse = bulk_aoi_native_position_restored == true
-    if bulk_aoi_request.requestMode == "zoom" then
+    if bulk_aoi_request.requestMode == "zoom" or bulk_aoi_request.drainSplit == true then
         local split_pending_now = reflected_value(point_manager, "_splitLastAOIRequest") == true
         details.splitPending = split_pending_now
         details.splitAddCount = collection_count(reflected_value(point_manager, "_addViewIndex"))
