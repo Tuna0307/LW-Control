@@ -91,3 +91,15 @@ GitHub Release. The package source is pinned above; later acceptance-only docs
 commits do not change its product tree. Retire only the merged feature refs
 once ancestry is verified; preserve ignored analysis artifacts and unrelated
 research until the separately requested repository cleanup.
+
+
+## GitHub download publication
+
+After main merged at `fa1119400a636f96028d066d03ef10f9377e8895`, the owner
+requested the missing GitHub Releases download. Published the same verified
+ZIP, unchanged, as `map-owner-test-2026-10-15`, targeting that main merge.
+GitHub reports this as Latest, not draft; uploaded asset size10,880,087 bytes
+and GitHub's SHA-256 digest match the local verified ZIP above exactly.
+`SHA256SUMS.txt` is also available. README now links directly to the new download.
+This supersedes the earlier locally-only delivery state, not its test scope.
+No rebuild, new native run or account action was needed for publication.

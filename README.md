@@ -1,12 +1,15 @@
 # LW-Control application candidate
 
-**Current scanner test build:** [Windows download](https://github.com/Tuna0307/LW-Control/releases/tag/map-scanner-test-2026-10-13).
-Includes the verified shared camera-assisted scanner, native response/restoration
-correction, installed Monster/Resource names and saved-profile browsing fixes.
-Experimental faster routes remain disabled. See [scope and limits](docs/MAP_SCANNER_TEST_ACCEPTANCE_2026-10-13.md).
+**Latest Windows build:** [Download the ZIP](https://github.com/Tuna0307/LW-Control/releases/download/map-owner-test-2026-10-15/LW-Control-MAP014-OWNER-RC-0c19da1850dd.zip) · [Release details](https://github.com/Tuna0307/LW-Control/releases/tag/map-owner-test-2026-10-15).
+Extract the complete ZIP into a fresh writable folder and run **LWBridge.Desktop.exe**.
+Includes the verified Home Launch fixes, zoom-independent Map scan correction,
+per-tile black-land detection, Zombie Boss category and Ghost reward filters.
+Real City-only and eight-kind packaged scans passed. Whole Map remains partial;
+Ghost plunder, Treasure claims and other documented limits remain unfinished.
+See [lead acceptance and limits](docs/reviews/2026-10-15-MAP-014-OWNER-TEST-MERGE.md).
 
 **Previous stable release:** [Available Map v0.6.0](https://github.com/Tuna0307/LW-Control/releases/tag/map-available-v0.6.0).
-Extract the complete ZIP and run **Launch LWBridge.cmd**. Requires the .NET 10
+The previous stable ZIP uses **Launch LWBridge.cmd**; the latest ZIP uses **LWBridge.Desktop.exe**. Requires the .NET 10
 Desktop Runtime and Microsoft Edge WebView2 Runtime. Game integration additionally
 requires Python and the verified current Last War installation. The UI baseline and single-profile Home Launch â†’ Connected â†’ Close are delivered;
 stored City/Resource browsing and City XLSX export are added in v0.3.0.
