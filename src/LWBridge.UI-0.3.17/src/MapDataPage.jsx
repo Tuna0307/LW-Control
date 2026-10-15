@@ -107,7 +107,9 @@ function MapTable({ kind, rows, loading, sorts, onSort, onCoordinateJump, onPlay
   const { language, t } = useI18n();
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   useEffect(() => {
-    if (!["truck", "dispatch", "ghost"].includes(kind)) return undefined;
+    // The arrival guard below also applies to native Railway and moving Monster
+    // rows. Keep their visible Follow eligibility current while the tab is open.
+    if (!["truck", "railway", "monster", "dispatch", "ghost"].includes(kind)) return undefined;
     setCurrentTime(Date.now());
     const timer = window.setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => window.clearInterval(timer);
