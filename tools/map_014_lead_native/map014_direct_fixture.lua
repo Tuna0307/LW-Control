@@ -64,21 +64,8 @@ local function _df_tick()
             local idx = cs.System.Array.CreateInstance(typeof(i32), #list)
             for k, v in ipairs(list) do idx:SetValue(i32.Parse(tostring(v)), k - 1) end
             r.index = idx
-            local B = function(v) return cs.System.Boolean.Parse(v and "True" or "False") end
-            local I = function(v) return i32.Parse(tostring(math.floor(v))) end
-            local vals = req.layout == "B" and { I(0), I(r.x), I(r.y), I(r.serverId), I(0), I(r.type), I(0), idx, I(r.blockSize),
-                B(false), I(r.leftBottom), I(r.rightTop), B(false) } or req.layout == "C" and { r, B(true) } or { r }
-            local a = cs.System.Array.CreateInstance(typeof(cs.System.Object), #vals)
-            for k, v in ipairs(vals) do a:SetValue(v, k - 1) end
-            local inst, setm = CS.WorldGetBlockMessage.Instance, nil
-            local ms = inst:GetType():GetMethods(52)
-            for i = 0, ms.Length - 1 do if ms:GetValue(i).Name == "CSSetData" then setm = ms:GetValue(i) end end
-            local pa = cs.System.Array.CreateInstance(typeof(cs.System.Object), 1)
-            pa:SetValue(a, 0)
-            local built = setm:Invoke(inst, pa)
-            local okd, dump = pcall(function() return built.Message.Content:GetDump() end)
-            out.dump = string.sub(tostring(okd and dump or tostring(built)), 1, 1500)
-            if built ~= nil then CS.GameEntry.Network:Send(built) end
+            -- Decoded IL: BaseMessage.Send is `params object[]`; pass the Request itself.
+            CS.WorldGetBlockMessage.Instance:Send(r)
     end)
     out.sent = ok
     if not ok then out.error = tostring(err); _df_write(out); return end

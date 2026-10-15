@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi" or "hold-lens")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi" or "hold-lens" or "direct-full")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -157,6 +157,36 @@ async Task<JsonElement> ZoomFixture(string mode, double zoom)
 }
 var history=new List<object>();
 JsonElement before=default, after=default, terminal=default;
+if (scenario == "direct-full")
+{
+    // Camera-free whole world: ~70 world.get.block chunks of <=160 areas, sent N per frame (decoded client path).
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
+    await Task.Delay(3000, cts.Token);
+    var results = new List<object>();
+    foreach (var (perTick, settle, gate, interval, linear) in new[] { (1, 6, "reply", "0", 160), (1, 6, "reply", "0", 160) })
+    {
+        var id = "full" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "map014-fullscan-fixture.txt");
+        var resPath = Path.Combine(probe, "map014-fullscan-fixture-result.json");
+        var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "server=" + ctx.ServerId, "rows=10", "cols=16", "perTick=" + perTick, "settle=" + settle, "gate=" + gate, "interval=" + interval, "linear=" + linear, "mEvery=" + (results.Count == 0 ? "0.05" : "0.2"), "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(120) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(100, cts.Token);
+        }
+        results.Add(new { perTick, settle, gate, interval, linear, wallSeconds = wait.Elapsed.TotalSeconds, result = answer });
+        Console.WriteLine($"MAP014_DIRECT_FULL perTick={perTick} wall={wait.Elapsed.TotalSeconds:F1}");
+        await Task.Delay(8000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    return;
+}
 if (scenario == "hold-lens")
 {
     // Hold a big lens for seconds and let the client's own 160-area chunking fetch the whole view.
@@ -202,10 +232,10 @@ if (scenario == "direct-aoi")
     static int TileIndex(int x, int y) => y * 1000 + x + 1;
     var cases = new List<(string Name, int[] Areas, bool WholeWorldRect, int Type)>
     {
-        ("A:msg-far-250-750-3x3-exact", Areas(24, 74, 3, 3), false, 0),
-        ("B:msg-far-750-750-3x3-exact", Areas(74, 74, 3, 3), false, 0),
-        ("C:msg-far-250-250-3x3-exact", Areas(24, 24, 3, 3), false, 0),
-        ("B:msg-far-750-250-160-exact", Areas(67, 20, 16, 10), false, 0),
+        ("send-far-250-750-3x3", Areas(24, 74, 3, 3), false, 0),
+        ("send-far-750-750-3x3", Areas(74, 74, 3, 3), false, 0),
+        ("send-far-750-250-160", Areas(67, 20, 16, 10), false, 0),
+        ("send-far-250-250-160", Areas(17, 20, 16, 10), false, 0),
     };
     // Arm the read-only 18 s incoming-packet trace (map013 wrapper) so world.get.block replies are recorded.
     string traceCmd = Path.Combine(probe, "map013-native-trace.txt"), traceRes = Path.Combine(probe, "map013-native-trace-result.json");
@@ -218,7 +248,7 @@ if (scenario == "direct-aoi")
     foreach (var (name, areas, wholeWorld, msgType) in cases)
     {
         int minC = areas.Min(a => a % 100), maxC = areas.Max(a => a % 100), minR = areas.Min(a => a / 100), maxR = areas.Max(a => a / 100);
-        int lb = wholeWorld ? 1 : TileIndex(minC * 10, minR * 10), rt = wholeWorld ? 1000000 : TileIndex(maxC * 10 + 9, maxR * 10 + 9);
+        int lb = wholeWorld ? 1 : TileIndex(minC * 10, minR * 10), rt = wholeWorld ? 1000000 : TileIndex(Math.Min(999, (maxC + 1) * 10), Math.Min(999, (maxR + 1) * 10));
         int cx = (minC + maxC + 1) * 5, cy = (minR + maxR + 1) * 5;
         var id = "direct" + Guid.NewGuid().ToString("N");
         var cmdPath = Path.Combine(probe, "map014-direct-fixture.txt");

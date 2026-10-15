@@ -24,7 +24,7 @@ def persisted_snapshot(path):
     return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','zombie_boss','truck-dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source','lens-matrix','terrain-probe','lod-snapshot','direct-aoi','hold-lens','direct-full']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','zombie_boss','truck-dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
     if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)
@@ -38,6 +38,10 @@ def main():
         fixture=(Path(__file__).parent/'map014_zoom_fixture.lua').read_bytes()
         combined=own_trace.read_bytes()+b'\n'+fixture
         if len(combined)>24000: raise RuntimeError('Zoom fixture exceeds the wrapper trace size cap')
+        own_trace.write_bytes(combined)
+    if os.environ.get('LWBRIDGE_MAP014_FULLSCAN_FIXTURE'):
+        combined=own_trace.read_bytes()+bytes([10])+(Path(__file__).parent/'map014_fullscan_fixture.lua').read_bytes()
+        if len(combined)>24000: raise RuntimeError('Fullscan fixture exceeds the wrapper trace size cap')
         own_trace.write_bytes(combined)
     if os.environ.get('LWBRIDGE_MAP014_HOLD_FIXTURE'):
         combined=own_trace.read_bytes()+bytes([10])+(Path(__file__).parent/'map014_hold_fixture.lua').read_bytes()
