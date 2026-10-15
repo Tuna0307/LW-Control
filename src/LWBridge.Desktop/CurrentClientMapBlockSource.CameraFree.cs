@@ -248,7 +248,7 @@ internal sealed partial class CurrentClientMapBlockSource
             throw new InvalidDataException("Camera-free native result did not prove all 63 replies and 10,000 AOIs.");
     }
 
-    private bool IsCameraFreeTerminalDriftReceipt(
+    internal bool IsCameraFreeTerminalDriftReceipt(
         JsonElement root, OverviewMapScanSession session,
         MapScanExecutionRequest request, string requestId, DateTimeOffset startedAt)
     {
