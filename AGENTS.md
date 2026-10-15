@@ -1,3 +1,12 @@
+Latest owner main-test authorization, 2026-10-15: owner explicitly requests
+merging reviewed MAP-014 into main for personal testing. Lead corrected a real
+City-only placement regression and verified the final source-pinned Windows ZIP
+with genuine City-only and eight-kind packaged scans, filters and cleanup.
+Read docs/reviews/2026-10-15-MAP-014-OWNER-TEST-MERGE.md. This supersedes older
+no-merge wording only for this accepted owner-test delivery; whole Map remains
+PARTIAL and account-action/background boundaries remain. Retire merged feature
+refs after ancestry checks; preserve ignored artifacts and unrelated research.
+
 # LW-Control — current contributor instructions
 
 Latest worker update, 2026-10-15: the four owner-reported Map defects (Truck/Secret Task slowness, Black tile,
