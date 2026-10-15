@@ -38,6 +38,7 @@ await Map006TruckCorrelationChecks.RunAsync();
 await Map007ActionProviderChecks.RunAsync();
 await Map007GhostCorrelationChecks.RunAsync();
 await Map014OwnerFixChecks.RunAsync();
+Map014TruckImageWitnessChecks.Run();
 await Map014OtherEventChecks.RunAsync();
 await Map014ConsecutiveEngineCleanupChecks.RunAsync();
 await Map014TerminalSourceValidationChecks.RunAsync();

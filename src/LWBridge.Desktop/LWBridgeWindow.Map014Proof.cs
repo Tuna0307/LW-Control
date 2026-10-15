@@ -356,8 +356,38 @@ internal sealed partial class LWBridgeWindow
             }
 
             var truck=await Tab(3,"truck");
+            var sourceWitness=Map014TruckImageWitnessClassifier.Classify(truck.Result);
+            if(!sourceWitness.HasPositiveSource)
+            {
+                // A saved Truck record may still exist in SQLite, but Map's
+                // canonical query excludes rows at/after native arrival.
+                // An empty table has no reward <img> to decode; treating it
+                // as a failed native PNG load would be a false diagnosis.
+                string observed=await core.ExecuteScriptAsync(
+                    "({rows:document.querySelectorAll('.map-table--truck tbody tr').length,empty:document.querySelector('.map-table--truck .map-empty')?.textContent,images:document.querySelectorAll('.map-table--truck img.map-reward-icon').length,placeholders:document.querySelectorAll('.map-table--truck .game-asset-placeholder').length})");
+                receipts.Add(new{gate="native_truck_image_positive_unavailable",sourceWitness,
+                    reason="The real time-qualified map_search returned no visible Truck reward icon source; no PNG attempt can be accepted or failed.",
+                    dom=JsonSerializer.Deserialize<JsonElement>(observed),truck.Payload,truck.Result});
+                await Screenshot("map014-truck-no-unexpired-rows");
+                await Save();
+                throw new InvalidDataException("TRUCK_POSITIVE_WITNESS_UNAVAILABLE: "+sourceWitness.State);
+            }
             if(!await Wait("[...document.querySelectorAll('img.map-reward-icon')].some(i=>i.complete&&i.naturalWidth>0)",300))
-                throw new InvalidDataException("Genuine Truck rewards did not load an actual native PNG in the WebView.");
+            {
+                string observed=await core.ExecuteScriptAsync(
+                    "({rows:document.querySelectorAll('.map-table--truck tbody tr').length,rewardItems:document.querySelectorAll('.map-table--truck .map-reward-item').length,placeholders:document.querySelectorAll('.map-table--truck .game-asset-placeholder').length,images:[...document.querySelectorAll('.map-table--truck img.map-reward-icon')].slice(0,5).map(i=>({complete:i.complete,width:i.naturalWidth,srcPrefix:i.src.slice(0,22)}))})");
+                string nativeProbe=Path.Combine(productionPaths.Root,"live-resource","asset-image-result.json");
+                string? currentProfile=overviewLifecycleService.GetReadyMapScanSession()?.ProfileId;
+                string? assetCache=string.IsNullOrWhiteSpace(currentProfile)?null:
+                    Path.Combine(productionPaths.ProfileRoot(currentProfile),"asset-cache");
+                receipts.Add(new{gate="native_truck_image_render_failure",sourceWitness,
+                    dom=JsonSerializer.Deserialize<JsonElement>(observed),
+                    nativeProbePresent=File.Exists(nativeProbe),
+                    cachedAssetCount=assetCache is not null&&Directory.Exists(assetCache)?Directory.GetFiles(assetCache,"*.png").Length:0});
+                await Screenshot("map014-truck-image-failure");
+                await Save();
+                throw new InvalidDataException("Genuine positive Truck rewards did not load a native PNG in the WebView.");
+            }
             string icons=await core.ExecuteScriptAsync("[...document.querySelectorAll('img.map-reward-icon')].filter(i=>i.complete&&i.naturalWidth>0).map(i=>({name:i.alt,width:i.naturalWidth,height:i.naturalHeight,source:i.src.slice(0,22)}))");
             receipts.Add(new{gate="native_truck_icons_rendered",icons=JsonSerializer.Deserialize<JsonElement>(icons),truck.Payload,truck.Result});
             await Screenshot("map014-truck-native-icons"); await Save();
