@@ -2883,7 +2883,8 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             local probe_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
             local ok_probe, probe_source = call(point_manager, "GetResourcePointInfoByIndex", probe_id)
             if not ok_probe or probe_source == nil or reflected_type_name(probe_source) ~= "ResPointInfo" then
-                diagnostic.nonResourcePointCount = diagnostic.nonResourcePointCount + 1
+                diagnostic.resourceCandidateCount = diagnostic.resourceCandidateCount + 1
+                completeness_reject_resource(diagnostic, "not_res_point_info")
                 return true
             end
         end

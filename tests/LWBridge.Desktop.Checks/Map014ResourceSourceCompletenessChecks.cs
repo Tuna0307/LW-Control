@@ -52,6 +52,11 @@ internal static class Map014ResourceSourceCompletenessChecks
         Build(resource, Batch(observed: 2, accepted: 1, rejected: 1,
             rejectionReason: "outside_selected_aoi")).RequireReconciledBeforePublication(1, 1);
 
+        // A live alliance WorldAllianceCollectResource (type 26) is not a ResPointInfo: it is a counted candidate
+        // that is rejected with a NAMED reason (never silently skipped), and may not abort the scan.
+        Build(resource, Batch(observed: 2, accepted: 1, rejected: 1,
+            rejectionReason: "not_res_point_info")).RequireReconciledBeforePublication(1, 1);
+
         var duplicates = new ResourceCompletenessAccumulator();
         duplicates.AddBatch(Batch(observed: 2, accepted: 2));
         duplicates.RecordAcceptedMerge(resource, null);

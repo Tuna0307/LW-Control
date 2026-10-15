@@ -221,7 +221,7 @@ internal sealed record ResourceCompletenessReport(
         Check(RawPointTypeOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "pointTypeSum");
         Check(RejectionReasonOccurrences.Values.Sum() != RejectedResourceCandidateOccurrences, "rejectionReasonSum");
         Check(ResourceSourceLookupHitOccurrences + ResourceSourceLookupFallbackOccurrences != AcceptedResourceOccurrencesBeforeDeduplication, "sourceLookupSum");
-        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key != "outside_selected_aoi"), "unexpectedRejectionReason");
+        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key is not ("outside_selected_aoi" or "not_res_point_info")), "unexpectedRejectionReason");
         Check(DuplicateAcceptedRecordKeyOccurrences != DuplicateComparisons.Count, "duplicateCount");
         Check(AcceptedResourceOccurrencesBeforeDeduplication - DuplicateAcceptedRecordKeyOccurrences != FinalAcceptedUniqueRecords, "dedupArithmetic");
         string[] invalidDuplicates = DuplicateComparisons.Where(duplicate => !ValidDuplicate(duplicate))
