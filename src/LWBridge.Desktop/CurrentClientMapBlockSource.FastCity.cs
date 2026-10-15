@@ -2137,7 +2137,7 @@ internal sealed partial class CurrentClientMapBlockSource
         if (!source.Reconciles ||
             sourceTypedResources != source.ResourceCandidateCount ||
             source.RejectionReasonCounts.Any(reason =>
-                reason.Value > 0 && reason.Key is not ("outside_selected_aoi" or "not_res_point_info")) ||
+                reason.Value > 0 && reason.Key != "outside_selected_aoi") ||
             resources.Count != source.AcceptedResourceCount)
             throw new InvalidDataException("Native Resource source contained an unreconciled or skipped candidate.");
 

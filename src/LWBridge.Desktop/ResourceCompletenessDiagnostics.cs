@@ -221,7 +221,7 @@ internal sealed record ResourceCompletenessReport(
         Check(RawPointTypeOccurrences.Values.Sum() != RawEnumeratedPointInfoOccurrences, "pointTypeSum");
         Check(RejectionReasonOccurrences.Values.Sum() != RejectedResourceCandidateOccurrences, "rejectionReasonSum");
         Check(ResourceSourceLookupHitOccurrences + ResourceSourceLookupFallbackOccurrences != AcceptedResourceOccurrencesBeforeDeduplication, "sourceLookupSum");
-        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key is not ("outside_selected_aoi" or "not_res_point_info")), "unexpectedRejectionReason");
+        Check(RejectionReasonOccurrences.Any(reason => reason.Value > 0 && reason.Key != "outside_selected_aoi"), "unexpectedRejectionReason");
         Check(DuplicateAcceptedRecordKeyOccurrences != DuplicateComparisons.Count, "duplicateCount");
         Check(AcceptedResourceOccurrencesBeforeDeduplication - DuplicateAcceptedRecordKeyOccurrences != FinalAcceptedUniqueRecords, "dedupArithmetic");
         string[] invalidDuplicates = DuplicateComparisons.Where(duplicate => !ValidDuplicate(duplicate))
@@ -318,7 +318,10 @@ internal sealed record ResourceCompletenessReport(
             if (!SameOptionalString(raw, "kind", "resource") || !SameOptionalString(raw, "sourceKind", "resource_point")) return "rawKind";
             if (!SameOptionalString(raw, "source",
                     "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange")) return "rawSource";
-            if (!SameOptionalString(raw, "resourceSourceType", "ResPointInfo"))
+            // Native type 26 is the alliance collection node (WorldAllianceCollectResource). It has no resource
+            // config/level: those stay unknown. Every other type must still be a ResPointInfo.
+            string expectedSourceType = row.RawPointType == 26 ? "WorldAllianceCollectResource" : "ResPointInfo";
+            if (!SameOptionalString(raw, "resourceSourceType", expectedSourceType))
                 return "rawSourceType=" + (raw.TryGetProperty("resourceSourceType", out JsonElement sourceType) ? sourceType.ToString() : "?") +
                     " pointType=" + (raw.TryGetProperty("pointType", out JsonElement pointType) ? pointType.ToString() : "?") +
                     " config=" + (raw.TryGetProperty("resourceConfigId", out JsonElement configId) ? configId.ToString() : "?") +

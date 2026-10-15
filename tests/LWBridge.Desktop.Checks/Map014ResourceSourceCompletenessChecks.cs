@@ -52,10 +52,18 @@ internal static class Map014ResourceSourceCompletenessChecks
         Build(resource, Batch(observed: 2, accepted: 1, rejected: 1,
             rejectionReason: "outside_selected_aoi")).RequireReconciledBeforePublication(1, 1);
 
-        // A live alliance WorldAllianceCollectResource (type 26) is not a ResPointInfo: it is a counted candidate
-        // that is rejected with a NAMED reason (never silently skipped), and may not abort the scan.
-        Build(resource, Batch(observed: 2, accepted: 1, rejected: 1,
-            rejectionReason: "not_res_point_info")).RequireReconciledBeforePublication(1, 1);
+        // A live alliance WorldAllianceCollectResource (native type 26) is a real candidate without config/level.
+        ResourceCompletenessReport AllianceNode(int rawType, string runtimeClass) => Rewrite(row =>
+        {
+            JsonObject data = JsonNode.Parse(row.DataJson)!.AsObject();
+            data["pointType"] = rawType;
+            data["resourceSourceType"] = runtimeClass;
+            return row with { RawPointType = rawType, DataJson = data.ToJsonString() };
+        });
+        AllianceNode(26, "WorldAllianceCollectResource").RequireReconciledBeforePublication(
+            good.ResponseCount, good.FinalAcceptedUniqueRecords);
+        Reject(AllianceNode(26, "SomeOtherNativeClass"), "unknown class on an alliance node");
+        Reject(AllianceNode(7, "WorldAllianceCollectResource"), "alliance class on an ordinary type 7 resource");
 
         var duplicates = new ResourceCompletenessAccumulator();
         duplicates.AddBatch(Batch(observed: 2, accepted: 2));
@@ -66,7 +74,7 @@ internal static class Map014ResourceSourceCompletenessChecks
         repeated.RequireReconciledBeforePublication(1, 1);
         Reject(repeated with { DuplicateComparisons = [] }, "unaccounted duplicate identity comparison");
 
-        if (inverses != 17)
+        if (inverses != 19)
             throw new Exception($"Unexpected Resource inverse count {inverses}.");
         Console.WriteLine($"MAP014_RESOURCE_SOURCE_COMPLETENESS_CHECKS_OK inverses={inverses} native=false");
     }

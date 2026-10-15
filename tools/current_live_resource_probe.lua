@@ -2877,17 +2877,6 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             diagnostic.nonResourcePointCount = diagnostic.nonResourcePointCount + 1
             return true
         end
-        if point_type ~= 7 then
-            -- Types 1/26 count as Resources only when the game resolves a real ResPointInfo. An alliance
-            -- WorldAllianceCollectResource (26) has no resource config or level: not an ordinary Resource node.
-            local probe_id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
-            local ok_probe, probe_source = call(point_manager, "GetResourcePointInfoByIndex", probe_id)
-            if not ok_probe or probe_source == nil or reflected_type_name(probe_source) ~= "ResPointInfo" then
-                diagnostic.resourceCandidateCount = diagnostic.resourceCandidateCount + 1
-                completeness_reject_resource(diagnostic, "not_res_point_info")
-                return true
-            end
-        end
         diagnostic.resourceCandidateCount = diagnostic.resourceCandidateCount + 1
         local id = integer_field(info, { "pointIndex", "PointIndex", "mainIndex", "MainIndex", "pointId", "PointId" })
         if id == nil or id <= 0 then
