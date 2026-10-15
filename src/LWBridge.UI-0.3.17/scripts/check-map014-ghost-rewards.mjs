@@ -7,10 +7,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildGhostRewardQuery, ghostRewardsKnown, parseGhostRewardMinimum, pruneGhostRewards, setGhostRewardMinimum, toggleGhostReward } from "../src/mapGhostRewards.js";
 import { buildSearchPayload } from "../src/mapBackend.js";
-import { buildMapColumns, mapGhostServers } from "../src/mapTablePresentation.js";
+import { buildMapColumns, mapGhostServers, mapRewardName } from "../src/mapTablePresentation.js";
 import { GHOST_REWARD_MESSAGES } from "../src/locales/map014-ghost-rewards.js";
 
 // ---- pure helpers -----------------------------------------------------------
+// Genuine native Skill Medal reward arrives named by its text key 180372.
+assert.equal(mapRewardName({ key: "reward:27:5001", name: "180372" }, { "180372": "Skill Medal" }), "Skill Medal");
+assert.equal(mapRewardName({ key: "reward:27:5001", name: "180372" }, {}), "180372", "unresolved key stays visible, never invented");
+assert.equal(mapRewardName({ key: "reward:7:520004", name: "SR Coin Box" }, { "520004": "x" }), "SR Coin Box");
 for (const [raw, expected] of [["", { valid: true, value: null }], ["  ", { valid: true, value: null }], ["1", { valid: true, value: 1 }],
   ["500", { valid: true, value: 500 }], ["9007199254740991", { valid: true, value: 9007199254740991 }]])
   assert.deepEqual(parseGhostRewardMinimum(raw), expected, `minimum ${JSON.stringify(raw)}`);

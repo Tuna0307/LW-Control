@@ -10,6 +10,8 @@ internal sealed class CurrentClientMapBlockSourceHooks
     public Func<DateTimeOffset>? UtcNow { get; init; }
     public Func<TimeSpan, CancellationToken, Task>? DelayAsync { get; init; }
     public bool DisableCoarseMonsterMap { get; init; }
+    // Diagnostic opt-in for the unverified-on-v26 LOD2 Zombie Boss snapshot.
+    public bool UseCoarseZombieBossMap { get; init; }
     // Explicit native diagnostic opt-in; production selects the qualified
     // FOV20 path for City-only, independently of this override.
     public bool ExperimentalBoundedCameraLens { get; init; }

@@ -84,6 +84,11 @@ internal static class Map014OwnerFixChecks
                     new { blackTileKnown = "true", isBlackTile = false });
                 Insert(store, "resource", "numericKnown", 2217, 6, null,
                     new { blackTileKnown = 1, isBlackTile = true });
+                // Rows scanned with the per-account Player.IsInBlackRange(pos) call say nothing about the tile.
+                Insert(store, "resource", "legacyAccountFalse", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = false, source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange" });
+                Insert(store, "resource", "legacyAccountTrue", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = true, source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange" });
                 const string exactUid = "9912345678901234567";
                 Insert(store, "city", "cityForDispatchOwner", 2213, 30, null,
                     new { ownerUid = exactUid, ownerName = "Real Stored City Name", allianceName = "ACTUAL" });
@@ -239,7 +244,7 @@ internal static class Map014OwnerFixChecks
                 resourceAmountState = "partial", resourceTileState = "unknown" }) == 1, "combined level/amount/terrain");
             Require(await Count("resource", new { serverId = 2213, minLevel = 7, maxLevel = 7,
                 resourceAmountState = "unknown", resourceTileState = "black" }) == 1, "unknown + black independent");
-            Require(await Count("resource", new { serverId = 2217 }) == 11,
+            Require(await Count("resource", new { serverId = 2217 }) == 13,
                 "malformed terrain fixture contains every source shape");
             Require(await Count("resource", new { serverId = 2217, resourceTileState = "black" }) == 1,
                 "only a genuine JSON true with boolean known=true is black");
@@ -251,7 +256,7 @@ internal static class Map014OwnerFixChecks
             });
             string[] expectedUnknownTerrainKeys =
             [
-                "missingKnown", "falseKnown", "nullKnown", "missingValue",
+                "missingKnown", "falseKnown", "nullKnown", "missingValue", "legacyAccountFalse", "legacyAccountTrue",
                 "nullValue", "stringValue", "numericValue", "stringKnown", "numericKnown",
             ];
             Require(unknownTerrainRows.GetProperty("total").GetInt32() == expectedUnknownTerrainKeys.Length &&

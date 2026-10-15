@@ -289,7 +289,7 @@ internal sealed record ResourceCompletenessReport(
                 !SameOptionalString(raw, "kind", "resource") ||
                 !SameOptionalString(raw, "sourceKind", "resource_point") ||
                 !SameOptionalString(raw, "source",
-                    "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange") ||
+                    "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange") ||
                 !SameOptionalString(raw, "resourceSourceType", "ResPointInfo") ||
                 !SameOptionalInt(raw, "pointType", row.RawPointType) ||
                 !SameOptionalBoolean(raw, "rebuildGatherOccupied", row.GatherOccupied) ||

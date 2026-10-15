@@ -90,7 +90,7 @@ internal static class Map014ResourceSourceCompletenessChecks
         string json = JsonSerializer.Serialize(new
         {
             kind = "resource", sourceKind = "resource_point",
-            source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+            source = "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange",
             resourceSourceType = "ResPointInfo", runtimeClass = "ResPointInfo",
             pointType = 7, pointId = id, pointIndex = id, recordKey = id.ToString(),
             serverId = 2212, srcServerId = 2212, worldId = 0, x, y,

@@ -280,7 +280,7 @@ internal static class Map014ResourceNativeSourceChecks
         string json = JsonSerializer.Serialize(new
         {
             kind = "resource", sourceKind = "resource_point",
-            source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+            source = "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange",
             resourceSourceType = "ResPointInfo", runtimeClass = "ResPointInfo",
             pointType = 7, pointId = point, pointIndex = point, recordKey,
             serverId = 2212, srcServerId = 2212, worldId = 0, x, y,

@@ -281,7 +281,7 @@ if (benchmarking)
 {
     string workload = scenario["benchmark-".Length..];
     string[] kinds = workload switch {
-        "mixed" => ["city","resource","monster","truck","railway","dispatch","ghost"],
+        "mixed" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost"],
         "truck-dispatch" => ["truck","dispatch"],
         _ => [workload]
     };

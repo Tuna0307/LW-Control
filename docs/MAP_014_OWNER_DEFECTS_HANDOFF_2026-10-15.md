@@ -1,73 +1,87 @@
-# MAP-014 owner defects (4 reports) — handoff, 2026-10-15
+# MAP-014 owner defects (4 reports) — status, 2026-10-15
 
-Branch `codex/map-owner-fixes-014`, draft PR #10. Checkpoint commit `a7edcd0a` (predecessor's uncommitted
-8-row work, committed unchanged). Everything below this line in "uncommitted" is NOT committed and NOT final.
+Branch `codex/map-owner-fixes-014`, draft PR #10. Checkpoints: `a7edcd0a` (predecessor's 8-row work), then the
+commit that adds this file's work. Whole Map remains PARTIAL (owner-only actions and providers unchanged).
+All timings below are from a **diagnostic host** (real native game, real Map pipeline, no packaged WebView)
+unless stated; the packaged-app result is recorded separately at the end.
 
-## 1. Truck / Secret Task slowness — ROOT CAUSE PROVEN, fix partly verified
+## 1. Truck / Secret Task slowness — root cause proven, fixed, live-verified
 
-**Cause (genuine evidence).** The native AOI window scales with camera height (area ~ height^2). The harness
-game runs at zoom 105 (window 10 rows x 4-5 cols); the owner's camera was zoomed in to 81.3 (saved owner
-replies in `%LOCALAPPDATA%\LWBridgeRebuild\live-resource\batch-negatives`: 8 rows x 2-3 cols = 16-24 AOIs).
-Pre-fix code (`f7f80fef`) rejects any reply < 20 AOIs / < 9 rows. Full-world capture throws, the engine
-retries block 0, marks it failed, and every later block runs the legacy per-band route whose probes are
-rejected the same way. Each rejection counts as a "failed block" and advances the displayed progress.
+**Cause.** The native AOI window scales with camera height (area ~ height^2). The harness game sits at zoom 105;
+the owner's camera was zoomed in to 81.3 (saved owner replies in
+`%LOCALAPPDATA%\LWBridgeRebuild\live-resource\batch-negatives`: 8 rows x 2-3 columns). The pre-fix validator rejected
+windows < 20 AOIs / < 9 rows, full-world capture threw, the engine marked block 0 failed and every later block ran
+the legacy per-band route whose probes were rejected the same way. Each rejection counted as a failed block and
+advanced the displayed progress.
 
-**Genuine reproduction.** Pre-fix export, test game camera set to zoom 81.31 (harness-only fixture),
-Truck-only, Fast: first failure at 6 s; **5.4 % at 153.9 s (identical to the owner's screenshot)**; 10.0 % at
-280 s; completed = 0, failed = 257. Progress sampler: `scratchpad/before-zoom81-progress.csv` (not in repo).
-Baseline pre-fix at default zoom 105: completes 192.7 s, 340 probes, 0 retries (so not a general regression).
+**Genuine reproduction (pre-fix code `f7f80fef`, game camera set to zoom 81.31 by a harness-only fixture,
+Truck-only, Fast):** first failure at 6 s; **5.4 % at 153.9 s (owner's screenshot: 5.4 % at 2:33)**; 10.0 % at
+281 s; completed 0, failed 257 — run ended early by the operator. At default zoom the same pre-fix code completes
+normally (192.7 s, 340 probes), so this is a zoom-dependent failure, not a global regression.
 
-**Fix status.**
-- Committed (`a7edcd0a`): accept 8-row windows, placement adapts, probe ceiling 200, fatal full-world error is
-  terminal (no fake failed-block progress), Truck/Railway no longer mislabelled as the unused Train-list route.
-- Uncommitted, live-tested once: probe `coverageZoom` (canonical 105, `CanonicalCoverageZoom` in
-  `CurrentClientMapBlockSource.cs`, echoed as `coverageZoom`/`coverageZoomApplied`, validated in C#; exact camera
-  restoration verified). Post-fix at owner zoom 81.31: **completes, 10,000/10,000 AOIs, 364 Trucks, 0 failed,
-  camera bit-identical, 391 s, 680 probes** (artifacts/map014-lead-live/native-benchmark-truck-20261015-192958).
-  So correctness is restored, but 680 probes vs 340 at default: **setting `Zoom` did not reproduce the default-zoom
-  window** (likely the transform/anchors don't update in the same Lua tick). Open question.
-- Next: a `lens-matrix` diagnostic scenario was added (tools/map_014_lead_native/Program.cs) and started
-  (output under artifacts/map014-lead-live/native-lens-matrix-*): per-probe window rows x cols for player zoom
-  {default, 81.31, 60} x lens {none, 105, 130, 81.31}. Read it to decide: (a) lens via `SetCameraPos` with a
-  raised y and compensated z, (b) larger FOV, or (c) accept the slower-but-correct 8-row path. Do not claim a speed
-  fix until Truck-only, Secret-Task-only, Truck+Secret and a broader mixed run are timed at BOTH zooms.
-- New instrumentation (uncommitted): `footprintHistogram`, `newlyCoveredAois` in map-fullworld-probe-metrics.json.
-- Harness additions (uncommitted): `tools/map_014_lead_native/map014_zoom_fixture.lua` (harness-only, appended to
-  the private trace copy only when `LWBRIDGE_MAP014_FIXTURE_ZOOM` is set), `LWBRIDGE_MAP014_BENCH_MODE=fast`,
-  `..._BENCH_ROUNDS`, `LWBRIDGE_MAP014_COVERAGE_ZOOM=off|<n>`.
-- Probe LENC size: 62,072 / 65,536 bytes after the zoom edit (cap is the 0xFFFF entry limit in
-  `tools/run_overview_bridge.py:192`). Ghost + Zombie + terrain edits must share ~3.4 KB.
-- Honest note: an earlier tool denial recorded in docs concerned an "intermediate zoom" test; none occurred this
-  session, but the new zoom lens is adjacent to it — if any call is denied, stop and report.
+**Correction (all committed).**
+1. Validator accepts 7-12 row windows that overlap the band and contain the target; exact 10,000-AOI union stays the
+   coverage proof. 2. Probe `coverageZoom`: every coverage probe uses canonical lens height 130
+   (`CanonicalCoverageZoom`), the probe echoes requested + applied zoom, C# verifies both, whole camera geometry is
+   restored and verified. Lens matrix (`artifacts/map014-lead-live/native-lens-matrix-20261015-193845`): lens 130 gives
+   10x3 windows for players at zoom 81/60 (11x3 at 105), LOD 0, geometry restored in every probe; lens 105 only
+   reached 9x3. 3. Vertical placement calibrates from the observed window offset (retry once, then proven centre
+   placement), because without it every column step needed 2 probes (680 probes). 4. A fatal full-world source
+   error is terminal (no fake failed-block progress). 5. Footprint histogram + newly-covered-AOI metrics.
 
-## 2. Resource "Black tile" — ROOT CAUSE FOUND (research agent, offline)
-`LuaEntry.Player:IsInBlackRange(worldPos)` ignores its argument (PlayerInfo.luac) and returns whether the
-SCANNING ACCOUNT'S OWN city is in the black land, so it is identical for every tile (all 8,010 stored rows = false;
-19 rows near X398 Y483 included). The real tile predicate is `SceneUtils.IsInBlackRange(pointIndex, serverId)`
-(central rect, e.g. x450-549 y450-549 for the season rows that define it; which season applies to 2212 is
-unknown). The owner's -80°C is most likely `TemperatureManager:GetTemperatureByIndex(x + y*1000 + 1)` in
-season snow mode (global blizzard ambient modified by furnace ranges, time-varying) — PROBABLE, not a fixed terrain
-flag. Plan: probe change to `pcall(SceneUtils.IsInBlackRange, pointIndex, serverId)` + separate nullable
-`temperatureC`; bump producer version so old rows read as UNKNOWN; add a harness-only read-only terrain probe
-(tile list in the research report) to confirm at X398 Y483 vs controls; ask the owner which concept they mean.
-Evidence: `artifacts/map014-blacktile-research/evidence/`. Predecessor's strict-JSON-boolean SQL predicate is
-committed and stays.
+**Live results after the fix (Fast mode, 10,000/10,000 AOIs, 0 failed blocks, 0 retries, camera restored
+bit-exactly, scripts restored, exact Stop):**
 
-## 3. Zombie Boss (喪屍首領) — identified; implementation IN PROGRESS by a subagent (uncommitted)
-Config table `lw_world_monster`, text key 2901012, `special == 10` (MonsterInvasionBoss), 51 templates; level 85
-= ids 1030019/1031017 with recommend_power 34,500,000 (matches the screenshot). Defects found in current code:
-`PrepareMonsterRecords` silently drops special-10 rows; `zMBoss*` fields belong to Zone Mobilization (do not reuse).
-Plan: add `zombie_boss` kind, route rows individually, UI tab/locales, decouple detail queue from Doomsday.
-Live positive and expiry proof NOT done. A `MAP014_OTHER ... selection remains eight` inert check currently
-fails because `AllTypes` was extended mid-work — reconcile (expected default stays 8) before committing.
+| Selection | Player zoom | Rounds (s) | Probes |
+| --- | --- | --- | --- |
+| Truck + Secret Task | 81.31 | 218.1, 216.9 (an earlier 130-lens run without calibration: 380.7, 388.4 with 680 probes) | 375 |
+| Truck only | 81.31 | 205.5, 204.8 | 375 |
+| Secret Task only | 81.31 | 210.3, 211.2 | 375 |
+| Zombie Boss only | default | 199.2 | 340 |
+| Ghost only | default | 183.9 | — |
+| All kinds mixed (city, resource, monster, zombie boss, truck, train, secret task, ghost) | default | 212.6 | 340 |
 
-## 4. Ghost reward filter — backend + UI built by a subagent (uncommitted), blocked on data
-Filter (`rewardFilters`, `rewardMatch` all|any, minCount, options, UI, 9 locales via supplement, controlled tests
-passing). Genuine rows carry no resolved reward list (`rewardConfig` raw scalar only), so every real Ghost row is
-"unknown". A subagent was asked to decode `base_reward_show` offline from the installed config table and emit
-`rewards` from `ghost_aoi_records`. No genuine Ghost record verified; passive scan only, no plunder.
+Where the time goes (mixed, default zoom): acquisition 202 s of 212 s (about half moving the camera to the target,
+half restoring it), hydration ~1.3 s, SQLite checkpoints 4 s, publication 1.3 s. Truck counts differ between rounds
+(e.g. 266 vs 230) because Trucks move/expire; every round covered all 10,000 AOIs. Concurrent subagent builds
+overlapped one run (Truck+Secret 20:22); results were consistent across rounds.
 
-## Not done
-Truck/Secret/mixed repeat timings, Black tile live probe, Zombie live positive, Ghost live positive, final
-source-pinned ZIP + extracted-app tests, Home regression. Run the full inert suite after agents stop; commit only
-when green. Whole Map remains PARTIAL.
+Test-only harness (not shipped): `map014_zoom_fixture.lua`, `map014_terrain_fixture.lua`, `lens-matrix` /
+`terrain-probe` scenarios, env `LWBRIDGE_MAP014_BENCH_MODE|BENCH_ROUNDS|FIXTURE_ZOOM|COVERAGE_ZOOM|TERRAIN_FIXTURE`.
+
+## 2. Resource "Black tile" — cause found, fixed, live-verified
+`LuaEntry.Player:IsInBlackRange(pos)` ignores its argument and only reports whether the scanning account's own city
+is in the black land, so all 8,010 stored rows said "not black". The game's own "gather in the Contaminated Land"
+warning (`world_tip10004`, `UI/UIWorldPoint/Component/UIWorldPointBtn.luac`) uses
+`SceneUtils.IsInBlackRange(pointIndex, serverId)` (rectangle test) or a temporary alliance-skill black area
+(`AllianceSkillManager:GetBlackAreaOverTime > 1000`, NOT scanned). Live read-only terrain probe
+(`native-terrain-probe-20261015-203209`): true exactly for x 450-549, y 450-549 on server 2212 (boundary tiles
+verified). The -80°C is the global blizzard ambient (0.0 everywhere in one pass, -70.0 at sampled tiles 60 s later;
+home furnace tiles 3.5): time-varying, not terrain, so no temperature filter. Owner's X398 Y483 area is outside the
+black land. Fix: probe uses `SceneUtils.IsInBlackRange(x + y*1000 + 1, serverId)` (index formula verified against all
+8,010 rows), source label changed to `...SceneUtils.IsInBlackRange` (two strict C# validators + fixtures updated),
+legacy rows labelled `...Player.IsInBlackRange` read as UNKNOWN in query, old store and table.
+Live mixed scan: 88 black, 7,911 normal, all 88 inside the rectangle, 0 mismatches. Temporary alliance black
+areas are not included (documented limitation).
+
+## 3. Zombie Boss (喪屍首領) — implemented and live-verified (no rewards, per owner)
+Config `lw_world_monster`, text key 2901012, `special == 10`; ordinary 入侵喪屍 (special 9) stays in Monster.
+New opt-in kind `zombie_boss` (last scan checkbox, tab after Other so existing positions are unchanged; default
+selection remains the eight recovered kinds). Level filter (5-150 step 5), power, discoverer, lifetime
+(`refreshTime`), protection state (only when game-confirmed). Routing is per row inside the shared LOD0 sweep (no
+extra pass). The LOD2 shortcut is now an explicit diagnostic opt-in (`UseCoarseZombieBossMap`) because it was only
+proven on v18/v19. Live: 150 rows in the mixed scan, 212 in the Zombie-only scan; level 85 power = 34,500,000
+(matches the owner's screenshot). Expiry removal after `refreshTime` not separately observed.
+
+## 4. Ghost Ops rewards — filter and authoritative rewards verified live
+`base_reward_show` (`itemId;rewardType;count|...`, decoded from the installed table, 81 cfgIds) is parsed with the
+game's `RewardManager:ParseRewardsStr`; live: 205/205 tasks carry resolved reward lists, task owner server (e.g. 2192)
+distinct from source server (2212). Filter: `rewardFilters` + `rewardMatch` (all = default AND, any = explicit),
+minimum counts, options per server, 9 locales; controlled/inert tests pass. Skill Medal (`reward:27:5001`) arrives
+named by its text key `180372`; the UI helper `mapRewardName` now resolves all-digit names through the game text
+(Skill Medal). Passive scan only; no Ghost plunder enabled.
+
+## Not done / limits
+Packaged-app (extracted ZIP) Map proof and Home Launch/Connect/Close regression: see the final section below if
+filled in. Not run: Auto-scan packaged proof for the new kinds, natural Zombie Boss expiry, temporary alliance black
+areas, `Localization`-based name resolution in Lua (not available to the probe).

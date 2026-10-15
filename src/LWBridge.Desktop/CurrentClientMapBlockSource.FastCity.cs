@@ -81,7 +81,9 @@ internal sealed partial class CurrentClientMapBlockSource
 
             try
             {
-                if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+                // The LOD2 whole-world Zombie Boss snapshot was only proven on game v18/v19; on v26 the proven
+                // shared LOD0 sweep is used unless a diagnostic explicitly opts in.
+                if (IsZombieBossOnly(request) && hooks?.UseCoarseZombieBossMap == true && hooks?.DisableCoarseMonsterMap != true)
                 {
                     // Zombie Boss keeps its existing read-only dedicated internal
                     // path; this is not admission to the public selection.
@@ -2176,7 +2178,7 @@ internal sealed partial class CurrentClientMapBlockSource
                     !MatchesString(data, "kind", "resource") ||
                     !MatchesString(data, "sourceKind", "resource_point") ||
                     !MatchesString(data, "source",
-                        "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange") ||
+                        "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange") ||
                     !MatchesString(data, "recordKey", origin.RecordKey) ||
                     !data.TryGetProperty("runtimeClass", out JsonElement runtimeClass) ||
                     runtimeClass.ValueKind != JsonValueKind.String ||

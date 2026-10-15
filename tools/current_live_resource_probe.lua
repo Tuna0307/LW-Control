@@ -2825,25 +2825,16 @@ local function resource_source_metadata(tile, server_id, resource_source)
         end
     end
 
+    -- SceneUtils.IsInBlackRange(pointIndex, serverId) is the per-tile test behind the game's own
+    -- "gather in the Contaminated Land" warning. (Player:IsInBlackRange(pos) ignores its argument and
+    -- only reports the scanning account's own city, so it cannot describe a Resource tile.)
     local black_known, black_tile = false, nil
-    local lua_entry = rawget(_G, "LuaEntry")
-    local player = lua_entry and safe_get(lua_entry, "Player") or nil
     local scene_utils = rawget(_G, "SceneUtils")
-    local tile_to_world = scene_utils and safe_get(scene_utils, "TileToWorld") or nil
-    local force_change_scene = rawget(_G, "ForceChangeScene")
-    local force_world = force_change_scene and safe_get(force_change_scene, "World") or nil
-    local cs = rawget(_G, "CS")
-    local vector2_type = cs and cs.UnityEngine and cs.UnityEngine.Vector2Int or nil
-    if player ~= nil and type(tile_to_world) == "function" and force_world ~= nil and vector2_type ~= nil and
-       tile ~= nil and tonumber(tile.x) ~= nil and tonumber(tile.y) ~= nil and tonumber(server_id) ~= nil then
-        local ok_world, world_pos = pcall(tile_to_world, vector2_type(math.floor(tile.x), math.floor(tile.y)), force_world, math.floor(server_id))
-        if ok_world and world_pos ~= nil then
-            local ok_black, observed_black = call(player, "IsInBlackRange", world_pos)
-            if ok_black and type(observed_black) == "boolean" then
-                black_known = true
-                black_tile = observed_black
-            end
-        end
+    local in_black_range = scene_utils and safe_get(scene_utils, "IsInBlackRange") or nil
+    if type(in_black_range) == "function" and tile ~= nil and tonumber(tile.x) ~= nil and tonumber(tile.y) ~= nil and
+       tonumber(server_id) ~= nil then
+        local ok_black, observed_black = pcall(in_black_range, math.floor(tile.x) + math.floor(tile.y) * 1000 + 1, math.floor(server_id))
+        if ok_black and type(observed_black) == "boolean" then black_known, black_tile = true, observed_black end
     end
     return config_id, name_key, reserve, black_known, black_tile
 end
@@ -2960,7 +2951,7 @@ local function resource_aoi_records(world, point_manager, block_size, block_coun
             resourceSourceType = reflected_type_name(resource_source),
             gatherOccupancyKnown = gather_occupancy_known, gatherOccupied = gather_occupied,
             blackTileKnown = black_tile_known, isBlackTile = is_black_tile,
-            source = "WorldPointManager._pointInfos+GatherResource+LuaEntry.Player.IsInBlackRange",
+            source = "WorldPointManager._pointInfos+GatherResource+SceneUtils.IsInBlackRange",
         }
         diagnostic.acceptedResourceCount = diagnostic.acceptedResourceCount + 1
         completeness_increment(diagnostic.acceptedAoiCounts, aoi_index)

@@ -511,9 +511,11 @@ public sealed partial class MapStore
                 // Match the UI's strictly boolean terrain presentation: SQLite's
                 // json_extract alone can treat a malformed numeric/string value
                 // as neither black nor normal nor unknown.
-                case "black": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='true'"); break;
-                case "normal": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='false'"); break;
-                case "unknown": predicates.Add("(COALESCE(json_type(page.data_json,'$.blackTileKnown'),'')<>'true' OR COALESCE(json_type(page.data_json,'$.isBlackTile'),'') NOT IN ('true','false'))"); break;
+                // Rows written before 2026-10-15 used the per-account Player.IsInBlackRange(pos) call, which ignores the tile
+                // and reports only the scanning account's own city: their terrain is UNKNOWN, never normal/black.
+                case "black": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='true' AND COALESCE(json_extract(page.data_json,'$.source'),'') NOT LIKE '%Player.IsInBlackRange%'"); break;
+                case "normal": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='false' AND COALESCE(json_extract(page.data_json,'$.source'),'') NOT LIKE '%Player.IsInBlackRange%'"); break;
+                case "unknown": predicates.Add("(COALESCE(json_type(page.data_json,'$.blackTileKnown'),'')<>'true' OR COALESCE(json_type(page.data_json,'$.isBlackTile'),'') NOT IN ('true','false') OR COALESCE(json_extract(page.data_json,'$.source'),'') LIKE '%Player.IsInBlackRange%')"); break;
                 default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource terrain filter");
             }
         }

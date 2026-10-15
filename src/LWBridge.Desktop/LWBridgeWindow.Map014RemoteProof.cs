@@ -135,7 +135,7 @@ internal sealed partial class LWBridgeWindow
                 string settled=$"document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[{index}]?.checked===false";
                 await RequireUi(()=>Dom(settled),"Auto deselect "+index);
             }
-            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')];return boxes.length===9&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types including unselected Other");
+            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')];return boxes.length===10&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types including unselected Other");
             if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-options label input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto return-to-original checkbox missing.");
             if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-master input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))

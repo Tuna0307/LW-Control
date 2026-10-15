@@ -13,7 +13,7 @@ import { buildMapColumns, zombieBossDiscoverer, zombieBossProtection, zombieBoss
 import { ZOMBIE_BOSS_KEYS, ZOMBIE_BOSS_MESSAGES } from "../src/locales/map014-zombie-boss.js";
 
 // ---- selection semantics ----------------------------------------------------
-assert.deepEqual(MAP_SCAN_TYPES.map(({ key }) => key), ["city", "resource", "monster", "zombie_boss", "truck", "railway", "dispatch", "ghost", "treasure", "other"]);
+assert.deepEqual(MAP_SCAN_TYPES.map(({ key }) => key), ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"]);
 // Zombie Boss follows Other so every existing tab position stays unchanged.
 assert.deepEqual(MAP_TABS.map(({ key }) => key), ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss", "scheduledPlunder"]);
 assert.equal(MAP_DEFAULT_SCAN_TYPES.length, 8);

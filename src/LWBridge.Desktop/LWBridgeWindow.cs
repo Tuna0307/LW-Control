@@ -1405,7 +1405,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 9 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1418,7 +1418,7 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 9) return false;
+              if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = index === 1;
                 if (box.checked !== shouldBeChecked) box.click();
@@ -1493,7 +1493,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 9 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1506,7 +1506,7 @@ internal sealed partial class LWBridgeWindow : Form
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
               const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
-              if (boxes.length !== 9) return false;
+              if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = DESIRED_SELECTION;
                 if (box.checked !== shouldBeChecked) box.click();
@@ -1519,7 +1519,7 @@ internal sealed partial class LWBridgeWindow : Form
         bool selectionSettled = false;
         for (int attempt = 0; attempt < 50; attempt++)
         {
-            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===9 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
+            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===10 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
             { selectionSettled = true; break; }
             await Task.Delay(50);
         }

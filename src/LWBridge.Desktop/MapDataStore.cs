@@ -803,6 +803,7 @@ internal sealed partial class MapDataStore : IDisposable
             {
                 predicates.Add("CAST(json_extract(page.data_json,'$.blackTileKnown') AS INTEGER) = 1");
                 predicates.Add("CAST(json_extract(page.data_json,'$.isBlackTile') AS INTEGER) = 0");
+                predicates.Add("COALESCE(json_extract(page.data_json,'$.source'),'') NOT LIKE '%Player.IsInBlackRange%'");
             }
             if (options.MonsterNameKey is not null)
                 predicates.Add("CAST(json_extract(page.data_json,'$.monsterNameKey') AS TEXT) = $monsterNameKey");

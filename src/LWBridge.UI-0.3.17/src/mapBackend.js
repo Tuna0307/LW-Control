@@ -40,13 +40,13 @@ export const MAP_SCAN_TYPES = Object.freeze([
   { key: "city", label: "Player City" },
   { key: "resource", label: "Resource Point" },
   { key: "monster", label: "Monster" },
-  { key: "zombie_boss", label: "Zombie Boss" },
   { key: "truck", label: "Truck" },
   { key: "railway", label: "Train" },
   { key: "dispatch", label: "Secret Task" },
   { key: "ghost", label: "Ghost Ops" },
   { key: "treasure", label: "Treasure" },
   { key: "other", label: "Other" },
+  { key: "zombie_boss", label: "Zombie Boss" },
 ]);
 
 export const MAP_TABS = Object.freeze([

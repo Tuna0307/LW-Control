@@ -106,6 +106,8 @@ export function mapResourceAmount(row, language) {
     ? `${mapNumber(remaining, language)} / ${mapNumber(full, language)}` : "—";
 }
 export function mapResourceTerrain(row, language) {
+  // Legacy rows came from Player.IsInBlackRange(pos) (own-city only): their terrain is unknown.
+  if (String(row.source || "").includes("Player.IsInBlackRange")) return mapOwnerFilterLabel(language, "unknown");
   if (row.blackTileKnown !== true || typeof row.isBlackTile !== "boolean")
     return mapOwnerFilterLabel(language, "unknown");
   return mapOwnerFilterLabel(language, row.isBlackTile ? "black" : "normal");
@@ -198,7 +200,12 @@ function treasurePlayerKey(state, reason) {
     scouting: "map.treasurePlayerScouting", digging: "map.treasurePlayerDigging", claiming: "map.treasurePlayerClaiming",
     claimed: "map.treasurePlayerClaimed", failed: "map.treasurePlayerUnclaimed", verifying: "map.treasurePlayerVerifying" })[String(state || "")] || "map.treasurePlayerUnknown";
 }
-export function mapRewardName(item, texts) { return lookupMapText(texts, item.nameKey, item.name || item.key); }
+export function mapRewardName(item, texts) {
+  // Some native reward names (e.g. Skill Medal 180372) are game text keys, not strings: resolve them
+  // with the game's own text like every other map label and keep the key only if it cannot be resolved.
+  const key = item.nameKey || (/^\d+$/.test(String(item.name ?? "")) ? String(item.name) : "");
+  return lookupMapText(texts, key, item.name || item.key);
+}
 export function mapRewardCount(value) {
   if (value == null || (typeof value === "string" && !value.trim())) return "-";
   const number = Number(value);
