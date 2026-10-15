@@ -27,7 +27,7 @@ local function _fs_tick()
         local sent = 0
         local ready = true
         if s.gate == "reply" and s.next > 1 then
-            ready = _fs_field(s.pm, "isRecvViewPoints") == true or now - s.lastSend >= 1.5
+            ready = (_fs_field(s.pm, "isRecvViewPoints") == true or now - s.lastSend >= 1.5) and now - s.lastSend >= s.dwell
         elseif s.interval > 0 then ready = now - s.lastSend >= s.interval end
         if ready and s.next <= #s.chunks and s.gate == "reply" then
             pcall(function() s.pm:GetType():GetField("isRecvViewPoints", 52):SetValue(s.pm, CS.System.Boolean.Parse("False")) end)
@@ -36,7 +36,7 @@ local function _fs_tick()
             local c = s.chunks[s.next]
             local r = CS.WorldGetBlockMessage.Request()
             r.bigMap, r.x, r.y, r.serverId, r.worldId, r.type, r.lod = 0, c.x, c.y, s.server, 0, 0, 0
-            r.blockSize, r.firstTime, r.leftBottom, r.rightTop, r.battleFieldFirst = 10, false, c.lb, c.rt, false
+            r.blockSize, r.firstTime, r.leftBottom, r.rightTop, r.battleFieldFirst = 10, s.first, c.lb, c.rt, false
             local idx = CS.System.Array.CreateInstance(typeof(CS.System.Int32), #c.idx)
             for k, v in ipairs(c.idx) do idx:SetValue(s.i32.Parse(tostring(v)), k - 1); s.cur:Add(s.i32.Parse(tostring(v))) end
             r.index = idx
@@ -44,6 +44,10 @@ local function _fs_tick()
             s.next, sent, s.lastSend = s.next + 1, sent + 1, now
             if s.next > #s.chunks then s.out.lastSendAt = now - s.t0 end
         end
+        local mm = CS.SceneManager.World.MarchDataManager
+        local stamp = tostring(_fs_field(mm, "_lastGetBlockMsgTime"))
+        if stamp ~= s.pushStamp then s.pushStamp = stamp; s.out.marchPushes = (s.out.marchPushes or 0) + 1
+            if #s.out.pushTimes < 300 then s.out.pushTimes[#s.out.pushTimes + 1] = math.floor((now - s.t0) * 100) / 100 end end
         if now >= s.sample then
             local infos = _fs_field(s.pm, "_pointInfos")
             local n = infos and tonumber(_trace_safe(infos, "Count")) or -1
@@ -62,13 +66,15 @@ local function _fs_tick()
                         local u = tostring(m.uuid)
                         if not s.marches[u] then
                             s.marches[u] = true; s.out.marchSeen = (s.out.marchSeen or 0) + 1
-                            if m.train ~= nil then s.out.trainSeen = (s.out.trainSeen or 0) + 1 end
-                            if (tonumber(m.monsterId) or 0) > 0 then s.out.monsterSeen = (s.out.monsterSeen or 0) + 1 end
+                            if m.train ~= nil then
+                                s.out.trainSeen = (s.out.trainSeen or 0) + 1
+                                if #s.out.trains < 400 then
+                                    s.out.trains[#s.out.trains + 1] = { u = u, t = math.floor((now - s.t0) * 10) / 10, c = s.next - 1 } end
+                            end
                         end
                     end
                 end)
             end
-            s.out.timeline[#s.out.timeline + 1] = { t = now - s.t0, n = n, seen = s.seenN }
             s.sample = now + 0.2
         end
         if s.out.lastSendAt and now - s.t0 >= s.out.lastSendAt + s.settle then
@@ -87,7 +93,7 @@ local function _fs_tick()
     local ctl = _trace_kv(_trace_root .. [[\overview-bridge\control.txt]])
     if not ctl or req.profileId ~= ctl.profileId or req.launchSessionId ~= ctl.sessionId or
         req.challenge ~= ctl.challenge or req.gamePid ~= ctl.gamePid then return end
-    local out = { requestId = req.requestId, timeline = {} }
+    local out = { requestId = req.requestId, trains = {}, pushTimes = {} }
     local ok, err = pcall(function()
         local pm = CS.SceneManager.World.PointManager
         local cur = _fs_field(pm, "_curViewIndex")
@@ -117,13 +123,14 @@ local function _fs_tick()
                     c.idx[#c.idx + 1] = i
                     if not before[i] then added[#added + 1] = i end
                 end end
+                if req.one == "1" then c.idx = { math.floor((r0 + r1) / 2) * 100 + math.floor((c0 + c1) / 2) } end
                 chunks[#chunks + 1] = c
             end
         end
         out.chunks, out.beforeTotal = #chunks, (select(1, _fs_census(pm)))
         _fs = { pm = pm, cur = cur, i32 = CS.System.Int32, chunks = chunks, added = added, next = 1,
             perTick = tonumber(req.perTick or 1), settle = tonumber(req.settle or 4), server = tonumber(req.server),
-            gate = req.gate or "none", interval = tonumber(req.interval or 0), lastSend = -1, seen = {}, seenN = 0, marches = {}, mSample = 0, mEvery = tonumber(req.mEvery or 1),
+            gate = req.gate or "none", first = req.first == "true", dwell = tonumber(req.dwell or 0), interval = tonumber(req.interval or 0), lastSend = -1, seen = {}, seenN = 0, marches = {}, mSample = 0, mEvery = tonumber(req.mEvery or 1),
             out = out, t0 = _fs_now(), sample = 0 }
     end)
     if not ok then out.error = tostring(err); _fs_write(out) end

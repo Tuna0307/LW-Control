@@ -27,6 +27,22 @@ exact Stop and script restoration verified on every run). Owner accepted the ant
 - Trucks are not delivered by `world.get.block`; they need another source (the current camera route works).
 - Monster counts include Zombie Bosses (special 10).
 
+## Where Trucks come from (2026-10-16, harness `direct-full`, `LWBRIDGE_MAP014_FULL_CONFIGS`)
+- Trucks are `WorldMarch` objects with a `train` field. They arrive in `push.world.march.world.get.new`
+  (`PushWorldMarchWorldGet` → `WorldMarchDataManager.HandleWorldMarchGet`), which the server sends exactly once per
+  `world.get.block` request (measured 626 pushes for 625 requests). Each push carries the full current march set
+  (`uuidSet`); the client destroys marches missing from the latest set.
+- Stationary marches (monsters) are included for every requested area, but **moving Trucks only near the request's
+  centre/rectangle**: full-width rows → 12 Trucks; 100×160-tile rectangles → 31–46; 50×80 → 103; 40×40 → 256–257
+  (camera scan: 180–266). Truck quality mix is unchanged, so it is a distance cut, not a quality filter.
+- Truck selection follows the rectangle, not the area list: 625 requests of a 40×40 rectangle with only **one** area
+  each still gave 256 Trucks.
+- Holding each position longer (0.5–2 s) does not add Trucks. `world.get.march.infos` only refreshes the player's
+  own marches; `world.get.new` (`SendViewRequest`) is never called by the game scripts.
+- Timing: one-at-a-time 625 requests = 148 s (RTT-bound, ~0.24 s each). Overlapped at 20 requests/s = 34 s and the
+  server answered all 626, but only 169 Trucks (66 %) were read, because the client replaces the march set on each
+  push before our 1-frame sampler sees it. Capturing each push on arrival could close that gap (not tried yet).
+
 ## Not done
 No production code path uses this yet. Open: Truck source, Monster detail/protection hydration timing, Resource
 detail (remaining amount) requests per reply, remote-server variant, packaged-app proof, owner decision.

@@ -165,22 +165,26 @@ if (scenario == "direct-full")
     await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
     await Task.Delay(3000, cts.Token);
     var results = new List<object>();
-    foreach (var (perTick, settle, gate, interval, linear) in new[] { (1, 6, "reply", "0", 160), (1, 6, "reply", "0", 160) })
+    // LWBRIDGE_MAP014_FULL_CONFIGS: ';'-separated "linear,rows,cols,first,mEvery[,dwell,gate,interval,one]" (harness experiments only).
+    var fullConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_FULL_CONFIGS") ?? "160,10,16,false,0.2;160,10,16,false,0.2")
+        .Split(';', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Split(',')).ToArray();
+    foreach (var fc in fullConfigs)
     {
+        var (perTick, settle, gate, interval, linear) = (1, 6, fc.Length > 6 ? fc[6] : "reply", fc.Length > 7 ? fc[7] : "0", int.Parse(fc[0]));
         var id = "full" + Guid.NewGuid().ToString("N");
         var cmdPath = Path.Combine(probe, "map014-fullscan-fixture.txt");
         var resPath = Path.Combine(probe, "map014-fullscan-fixture-result.json");
         var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
-            "gamePid=" + session.GamePid, "server=" + ctx.ServerId, "rows=10", "cols=16", "perTick=" + perTick, "settle=" + settle, "gate=" + gate, "interval=" + interval, "linear=" + linear, "mEvery=" + (results.Count == 0 ? "0.05" : "0.2"), "" };
+            "gamePid=" + session.GamePid, "server=" + ctx.ServerId, "rows=" + fc[1], "cols=" + fc[2], "perTick=" + perTick, "settle=" + settle, "gate=" + gate, "interval=" + interval, "linear=" + linear, "first=" + fc[3], "mEvery=" + fc[4], "dwell=" + (fc.Length > 5 ? fc[5] : "0"), "one=" + (fc.Length > 8 ? fc[8] : "0"), "" };
         var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
         var wait = Stopwatch.StartNew(); JsonElement? answer = null;
-        while (wait.Elapsed < TimeSpan.FromSeconds(120) && answer is null)
+        while (wait.Elapsed < TimeSpan.FromSeconds(300) && answer is null)
         {
             try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
             catch (IOException) { } catch (JsonException) { }
             if (answer is null) await Task.Delay(100, cts.Token);
         }
-        results.Add(new { perTick, settle, gate, interval, linear, wallSeconds = wait.Elapsed.TotalSeconds, result = answer });
+        results.Add(new { config = string.Join(",", fc), perTick, settle, gate, interval, linear, wallSeconds = wait.Elapsed.TotalSeconds, result = answer });
         Console.WriteLine($"MAP014_DIRECT_FULL perTick={perTick} wall={wait.Elapsed.TotalSeconds:F1}");
         await Task.Delay(8000, cts.Token);
     }
