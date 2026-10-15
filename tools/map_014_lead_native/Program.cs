@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -157,6 +157,51 @@ async Task<JsonElement> ZoomFixture(string mode, double zoom)
 }
 var history=new List<object>();
 JsonElement before=default, after=default, terminal=default;
+if (scenario == "direct-aoi")
+{
+    // Camera-free SendAoiRequest experiment (harness-only fixture map014_direct_fixture.lua).
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    // Enter the World map at home first (same as the benchmarks), then let the scene settle.
+    await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
+    await Task.Delay(3000, cts.Token);
+    static int[] Areas(int col0, int row0, int cols, int rows) =>
+        Enumerable.Range(row0, rows).SelectMany(r => Enumerable.Range(col0, cols).Select(c => r * 100 + c)).ToArray();
+    static int TileIndex(int x, int y) => y * 1000 + x + 1;
+    var cases = new List<(string Name, int[] Areas, bool WholeWorldRect)>
+    {
+        ("home-3x3-world-rect", Areas(Math.Clamp(hx / 10 - 1, 0, 97), Math.Clamp(hy / 10 - 1, 0, 97), 3, 3), true),
+        ("far-250-750-3x3-exact-rect", Areas(24, 74, 3, 3), false),
+        ("far-750-750-3x3-world-rect", Areas(74, 74, 3, 3), true),
+        ("far-250-250-160-exact-rect", Areas(17, 20, 16, 10), false),
+        ("far-750-250-160-world-rect", Areas(67, 20, 16, 10), true),
+    };
+    var results = new List<object>();
+    foreach (var (name, areas, wholeWorld) in cases)
+    {
+        int minC = areas.Min(a => a % 100), maxC = areas.Max(a => a % 100), minR = areas.Min(a => a / 100), maxR = areas.Max(a => a / 100);
+        int lb = wholeWorld ? 1 : TileIndex(minC * 10, minR * 10), rt = wholeWorld ? 1000000 : TileIndex(maxC * 10 + 9, maxR * 10 + 9);
+        int cx = (minC + maxC + 1) * 5, cy = (minR + maxR + 1) * 5;
+        var id = "direct" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "map014-direct-fixture.txt");
+        var resPath = Path.Combine(probe, "map014-direct-fixture-result.json");
+        var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "indices=" + string.Join(",", areas), "lb=" + lb, "rt=" + rt, "x=" + cx, "y=" + cy, "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(15) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(50, cts.Token);
+        }
+        results.Add(new { name, areaCount = areas.Length, lb, rt, x = cx, y = cy, result = answer });
+        Console.WriteLine($"MAP014_DIRECT_AOI {name} {(answer?.GetRawText() ?? "timeout").Substring(0, Math.Min(400, (answer?.GetRawText() ?? "timeout").Length))}");
+        await Task.Delay(2000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "direct-aoi.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    return;
+}
 if (scenario == "lod-snapshot")
 {
     // Diagnostic: one coarse whole-world (zoom/LOD2) request with every kind enabled; report what came back.
