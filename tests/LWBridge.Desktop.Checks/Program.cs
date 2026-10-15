@@ -53,5 +53,7 @@ Map014SharedSourceAdmissionChecks.Run();
 Map014ResourceSourceCompletenessChecks.Run();
 Map014ResourceNativeSourceChecks.Run();
 Map014BoundedLensChecks.Run();
+Map014NativeFootprintChecks.Run();
+await Map014WholeWorldFailureChecks.RunAsync();
 Map008InstalledNameChecks.Run();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

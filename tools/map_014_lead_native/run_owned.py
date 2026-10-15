@@ -24,7 +24,7 @@ def persisted_snapshot(path):
     return dict(rows=count,sha256=digest.hexdigest(),jobs=jobs)
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('scenario',choices=['city','mixed','other','treasure-other','stop','march-source']+['benchmark-'+kind for kind in ['city','resource','monster','truck','railway','dispatch','ghost','truck-dispatch','mixed']]); p.add_argument('--saved-db',help='Optional immutable genuine prior publication, only for native Stop retention proof'); opt=p.parse_args()
     if opt.saved_db and opt.scenario!='stop': p.error('--saved-db is only supported for stop')
     directory=REPO/'artifacts'/'map014-lead-live'/('native-'+opt.scenario+'-'+time.strftime('%Y%m%d-%H%M%S'))
     directory.mkdir(parents=True,exist_ok=False)

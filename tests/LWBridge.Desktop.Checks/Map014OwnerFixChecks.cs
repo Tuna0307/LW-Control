@@ -59,6 +59,31 @@ internal static class Map014OwnerFixChecks
                     new { gatherOccupied = true, resourceDetailKnown = true, resourceRemainingAmount = 400, resourceFullAmount = 8000 });
                 Insert(store, "resource", "otherProfileLikeServer", 2212, 8, null,
                     new { resourceDetailKnown = true, resourceRemainingAmount = 8000, resourceFullAmount = 8000 });
+                // The UI regards terrain as known only when BOTH source fields
+                // are JSON booleans. Exercise every malformed/missing variant
+                // against the actual MapStore SQL on an independent server.
+                Insert(store, "resource", "strictBlack", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = true });
+                Insert(store, "resource", "strictNormal", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = false });
+                Insert(store, "resource", "missingKnown", 2217, 6, null,
+                    new { isBlackTile = false });
+                Insert(store, "resource", "falseKnown", 2217, 6, null,
+                    new { blackTileKnown = false, isBlackTile = true });
+                Insert(store, "resource", "nullKnown", 2217, 6, null,
+                    new { blackTileKnown = (bool?)null, isBlackTile = false });
+                Insert(store, "resource", "missingValue", 2217, 6, null,
+                    new { blackTileKnown = true });
+                Insert(store, "resource", "nullValue", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = (bool?)null });
+                Insert(store, "resource", "stringValue", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = "false" });
+                Insert(store, "resource", "numericValue", 2217, 6, null,
+                    new { blackTileKnown = true, isBlackTile = 2 });
+                Insert(store, "resource", "stringKnown", 2217, 6, null,
+                    new { blackTileKnown = "true", isBlackTile = false });
+                Insert(store, "resource", "numericKnown", 2217, 6, null,
+                    new { blackTileKnown = 1, isBlackTile = true });
                 const string exactUid = "9912345678901234567";
                 Insert(store, "city", "cityForDispatchOwner", 2213, 30, null,
                     new { ownerUid = exactUid, ownerName = "Real Stored City Name", allianceName = "ACTUAL" });
@@ -214,6 +239,26 @@ internal static class Map014OwnerFixChecks
                 resourceAmountState = "partial", resourceTileState = "unknown" }) == 1, "combined level/amount/terrain");
             Require(await Count("resource", new { serverId = 2213, minLevel = 7, maxLevel = 7,
                 resourceAmountState = "unknown", resourceTileState = "black" }) == 1, "unknown + black independent");
+            Require(await Count("resource", new { serverId = 2217 }) == 11,
+                "malformed terrain fixture contains every source shape");
+            Require(await Count("resource", new { serverId = 2217, resourceTileState = "black" }) == 1,
+                "only a genuine JSON true with boolean known=true is black");
+            Require(await Count("resource", new { serverId = 2217, resourceTileState = "normal" }) == 1,
+                "only a genuine JSON false with boolean known=true is normal");
+            JsonElement unknownTerrainRows = await Invoke(service, "map_search", new
+            {
+                kind = "resource", query = new { serverId = 2217, resourceTileState = "unknown" }
+            });
+            string[] expectedUnknownTerrainKeys =
+            [
+                "missingKnown", "falseKnown", "nullKnown", "missingValue",
+                "nullValue", "stringValue", "numericValue", "stringKnown", "numericKnown",
+            ];
+            Require(unknownTerrainRows.GetProperty("total").GetInt32() == expectedUnknownTerrainKeys.Length &&
+                unknownTerrainRows.GetProperty("rows").EnumerateArray()
+                    .Select(row => row.GetProperty("uuid").GetString() ?? "")
+                    .ToHashSet(StringComparer.Ordinal).SetEquals(expectedUnknownTerrainKeys),
+                "unknown terrain must include ALL malformed/missing flags without dropping any rows");
             Require(await Count("treasure", new { serverId = 2213 }) == 2,
                 "Other supplies and Celebration Party are excluded from Treasure");
             Require(await Count("other", new { serverId = 2213 }) == 3,

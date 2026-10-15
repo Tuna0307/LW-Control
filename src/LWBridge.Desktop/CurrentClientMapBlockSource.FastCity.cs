@@ -22,9 +22,17 @@ internal sealed partial class CurrentClientMapBlockSource
     private const int FastCityGroupColumns = 1;
     private const int FastCityGroupRows = 5;
     private const int FastCityExpectedAoiCount = 20;
+    // Genuine v26 target/home-correlated snapshots for Truck and Dispatch
+    // have contracted to 8 native AOI rows x 2 columns (16 AOIs). This is a
+    // lower admission bound, not an assertion that the 10,000-AOI world shrank.
+    private const int FastCityMinimumLiveAoiCount = 16;
     private const int FastFullWorldAoiRows = 10;
     private const int FastFullWorldRowRequests = FastCityAoiBlockCount / FastFullWorldAoiRows;
-    private const int FastFullWorldMaxRequestsPerRow = 50;
+    // A native 8-row viewport may need two vertically distinct fresh replies
+    // for each horizontal footprint to cover a ten-row logical band. The old
+    // 50-probe ceiling would reject a completely valid 10,000-AOI union.
+    // This is a safety upper bound, not a fabricated progress or timeout.
+    private const int FastFullWorldMaxRequestsPerRow = 200;
     private static readonly TimeSpan FastCityProbeTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MonsterProtectionProbeTimeout = TimeSpan.FromSeconds(35);
     private static readonly TimeSpan ResourceDetailProbeTimeout = TimeSpan.FromSeconds(12);
@@ -71,19 +79,31 @@ internal sealed partial class CurrentClientMapBlockSource
                     LastResourceCompletenessReport = null;
             }
 
-            if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+            try
             {
-                // Zombie Boss keeps the proven whole-world LOD2 + serialized detail route.
-                // Generic Monster intentionally does not use this shortcut: current-v20
-                // RunningMonster/Doom Walker templates (type 8, special 11, levels 100..220)
-                // are not reliably materialized in the LOD2 MarchDataManager snapshot.
-                // The generic Monster scan therefore falls through to the exact 10,000-cell
-                // LOD0 AOI union below so those WorldMarch rows can be observed when active.
-                return await CaptureFullMonsterMapViaCoarseLodAsync(
-                    session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+                if (IsZombieBossOnly(request) && hooks?.DisableCoarseMonsterMap != true)
+                {
+                    // Zombie Boss keeps its existing read-only dedicated internal
+                    // path; this is not admission to the public selection.
+                    return await CaptureFullMonsterMapViaCoarseLodAsync(
+                        session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
+                }
+                return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
+                    .ConfigureAwait(false);
             }
-            return await CaptureFullCityMapAsync(session, request, pendingBlockIndices, progress, cancellationToken)
-                .ConfigureAwait(false);
+            catch (Exception error) when (error is not OperationCanceledException &&
+                error is not MapScanSourceValidationException)
+            {
+                // One full-world native camera owner is not 2,500 independent
+                // probes. After its bounded source attempts are exhausted, a
+                // retry of logical block 0 used to drop seed0, switch to the
+                // legacy band route, and count 100+ failures as fake progress.
+                // Retire this run with its actual first fatal source reason,
+                // zero staged blocks and the regular exact-owned cleanup.
+                throw new MapScanSourceValidationException(
+                    "Full-world native source failed before durable block publication: " +
+                    error.Message, error);
+            }
         }
 
         int bandStartRow = (seedBlock.Row / FastCityGroupRows) * FastCityGroupRows;
@@ -328,6 +348,7 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
         LastMonsterProtectionDetailMetrics = null;
         bool boundedLens = ShouldUseBoundedFullWorldCameraLens(request, hooks);
+        bool nativeEightRowWindowObserved = false;
         for (int row = 0; row < (boundedLens ? 1 : FastFullWorldRowRequests); row++)
         {
             int groupStartRow = row * FastCityGroupRows;
@@ -348,10 +369,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
                     .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
                     .ToArray();
-                int targetY = missingRows.Length == 1 &&
-                              missingRows[0] == aoiRowStart + FastFullWorldAoiRows - 1
-                    ? baseTargetY + FastCityAoiBlockSize
-                    : baseTargetY;
+                int targetY = MapFullWorldAoiPlacement.TargetY(aoiRowStart, missingRows,
+                    nativeEightRowWindowObserved);
                 if (boundedLens) targetY = Math.Min(995, (firstGap / 100 + 2) * 10 + 5);
                 if (++requestsThisRow > (boundedLens ? 400 : FastFullWorldMaxRequestsPerRow))
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
@@ -443,6 +462,10 @@ internal sealed partial class CurrentClientMapBlockSource
                 }
                 if (lastError is not null || observation is null) throw lastError!;
                 RequireSameSession(session);
+                if (!boundedLens &&
+                    observation.RequestedIndices.Select(index => index / FastCityAoiBlockCount)
+                        .Distinct().Count() == FastFullWorldAoiRows - 2)
+                    nativeEightRowWindowObserved = true;
 
                 int before = covered.Count;
                 foreach (int index in observation.RequestedIndices)
@@ -729,7 +752,7 @@ internal sealed partial class CurrentClientMapBlockSource
         return -1;
     }
 
-    private static void ValidateAdaptiveRowFootprint(
+    internal static void ValidateAdaptiveRowFootprint(
         int[] indices,
         int rowStart,
         MapScanExecutionRequest request,
@@ -745,15 +768,17 @@ internal sealed partial class CurrentClientMapBlockSource
             $"target=({targetX},{targetY}),requestedCount=8,nativeCurrentSetCount={indices.Length}," +
             $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
             $"indices=[{string.Join(',', indices.Order())}]";
-        if (rows.Length is < FastFullWorldAoiRows - 1 or > FastFullWorldAoiRows ||
+        if (rows.Length is < FastFullWorldAoiRows - 2 or > FastFullWorldAoiRows ||
             rows.Length == 0 ||
-            rows[0] < rowStart || rows[0] > rowStart + 1 ||
-            rows[^1] < rowStart + FastFullWorldAoiRows - 2 ||
-            rows[^1] > rowStart + FastFullWorldAoiRows ||
+            rows[0] < Math.Max(0, rowStart - 1) || rows[0] > rowStart + 2 ||
+            rows[^1] < rowStart + FastFullWorldAoiRows - 3 ||
+            rows[^1] > Math.Min(99, rowStart + FastFullWorldAoiRows) ||
             rows.Zip(rows.Skip(1), (top, bottom) => bottom - top).Any(delta => delta != 1) ||
             columns.Length is < 2 or > 5 ||
             columns.Zip(columns.Skip(1), (left, right) => right - left).Any(delta => delta != 1) ||
-            indices.Length != rows.Length * columns.Length)
+            indices.Length != rows.Length * columns.Length ||
+            !indices.Contains((targetY / 10) * FastCityAoiBlockCount + targetX / 10) ||
+            rows.All(row => row < rowStart || row >= rowStart + FastFullWorldAoiRows))
             throw new InvalidDataException(
                 "Fast full-world adaptive acquisition returned a non-rectangular v18 AOI footprint: " + detail + ".");
         var expected = rows.SelectMany(row => columns.Select(column => checked(row * FastCityAoiBlockCount + column))).ToHashSet();
@@ -1809,7 +1834,7 @@ internal sealed partial class CurrentClientMapBlockSource
             !MatchesInt(root, "postBlockCount", FastCityAoiBlockCount))
             throw new InvalidDataException("Fast world batch AOI geometry changed during acquisition.");
         int[] requestedIndices = RequireNonNegativeIntArray(root, "requestedIndices");
-        if (requestedIndices.Length < FastCityExpectedAoiCount ||
+        if (requestedIndices.Length < FastCityMinimumLiveAoiCount ||
             requestedIndices.Any(index => index >= FastCityAoiBlockCount * FastCityAoiBlockCount))
             throw new InvalidDataException("Fast world batch returned an invalid native AOI footprint.");
         if (!MatchesInt(root, "nativeCurrentSetCount", requestedIndices.Length))

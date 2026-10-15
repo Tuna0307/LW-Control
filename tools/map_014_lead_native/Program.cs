@@ -126,12 +126,22 @@ JsonElement before=default, after=default, terminal=default;
 if (benchmarking)
 {
     string workload = scenario["benchmark-".Length..];
-    string[] kinds = workload == "mixed" ? ["city","resource","monster","truck","railway","dispatch"] : [workload];
+    string[] kinds = workload switch {
+        "mixed" => ["city","resource","monster","truck","railway","dispatch","ghost"],
+        "truck-dispatch" => ["truck","dispatch"],
+        _ => [workload]
+    };
     if (kinds.Any(kind => !MapScanContract.AllTypes.Contains(kind))) throw new ArgumentException("Unsupported benchmark kind");
     var measurements = new List<object>();
-    for (int round=0; round<6; round++)
+    // Existing City A/B has an independently qualified bounded-lens run.
+    // For the user's Truck/Dispatch/mixed reproduction, FOV20 is NOT admitted
+    // (it previously missed real moving Trucks). Repeat only the current
+    // supported serial LOD0 full-world route instead of silently crossing
+    // experimental camera modes in a production performance comparison.
+    int rounds = workload == "city" ? 6 : 2;
+    for (int round=0; round<rounds; round++)
     {
-        bool bounded = round%2 == 1;
+        bool bounded = workload == "city" && round%2 == 1;
         var measuredSource = MakeSource(bounded, forceLegacy: !bounded);
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
         if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)

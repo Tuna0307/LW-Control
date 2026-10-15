@@ -96,9 +96,12 @@ internal static class MapScanStrategyPlanner
 
         if (standardCurrentWorld)
         {
-            string strategy = IsDirectTrainListSelection(selectedTypes)
-                ? FastTrainListStrategy
-                : FastFullWorldStrategy;
+            // The current-v26 production source always executes the
+            // authenticated 10,000-AOI serial LOD0 union for Truck/Railway
+            // as well as mixed kinds. Direct Train-list is an internal
+            // diagnostic only: genuine comparison showed that it omitted
+            // native Trucks. Never mislabel this selected route in UI status.
+            string strategy = FastFullWorldStrategy;
             return new MapScanStrategyPlan(
                 scanMode,
                 concurrency,

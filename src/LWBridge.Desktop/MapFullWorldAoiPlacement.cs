@@ -7,6 +7,29 @@ namespace LWBridge.Desktop;
 /// </summary>
 internal static class MapFullWorldAoiPlacement
 {
+    // The current v26 camera can return an eight-row LOD0 footprint while
+    // preserving the genuine native reply and exact home restoration. A band
+    // has ten rows, so the already-observed rows (not a guessed native width)
+    // must drive subsequent vertical placement to recover both seams.
+    internal static int TargetY(int bandAoiStartRow, IReadOnlyList<int> missingAoiRows,
+        bool nativeEightRowWindowObserved = false)
+    {
+        if (bandAoiStartRow < 0 || bandAoiStartRow > 90 ||
+            bandAoiStartRow % 10 != 0 ||
+            missingAoiRows is null || missingAoiRows.Count == 0 ||
+            missingAoiRows.Any(row => row < bandAoiStartRow || row >= bandAoiStartRow + 10) ||
+            missingAoiRows.Distinct().Count() != missingAoiRows.Count)
+            throw new ArgumentOutOfRangeException(nameof(missingAoiRows));
+        int center = bandAoiStartRow * 10 + 75;
+        // The first probe still tests the native default; move only after
+        // real source coverage has demonstrated that one seam is omitted.
+        if (missingAoiRows.Count == 10)
+            return nativeEightRowWindowObserved ? center - 10 : center;
+        if (missingAoiRows.Contains(bandAoiStartRow)) return center - 10;
+        if (missingAoiRows.Contains(bandAoiStartRow + 9)) return center + 10;
+        return center;
+    }
+
     internal static int TargetColumn(
         string scanMode, int firstUncoveredColumn, bool measuredWide,
         int? previousGapColumn, int columnCount = 100)

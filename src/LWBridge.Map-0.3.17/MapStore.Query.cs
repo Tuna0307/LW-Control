@@ -460,9 +460,12 @@ public sealed partial class MapStore
             switch (query.ResourceTileState)
             {
                 case null: break;
-                case "black": predicates.Add("json_extract(page.data_json,'$.blackTileKnown')=1 AND json_extract(page.data_json,'$.isBlackTile')=1"); break;
-                case "normal": predicates.Add("json_extract(page.data_json,'$.blackTileKnown')=1 AND json_extract(page.data_json,'$.isBlackTile')=0"); break;
-                case "unknown": predicates.Add("(json_extract(page.data_json,'$.blackTileKnown') IS NOT 1 OR json_extract(page.data_json,'$.isBlackTile') IS NULL)"); break;
+                // Match the UI's strictly boolean terrain presentation: SQLite's
+                // json_extract alone can treat a malformed numeric/string value
+                // as neither black nor normal nor unknown.
+                case "black": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='true'"); break;
+                case "normal": predicates.Add("json_type(page.data_json,'$.blackTileKnown')='true' AND json_type(page.data_json,'$.isBlackTile')='false'"); break;
+                case "unknown": predicates.Add("(COALESCE(json_type(page.data_json,'$.blackTileKnown'),'')<>'true' OR COALESCE(json_type(page.data_json,'$.isBlackTile'),'') NOT IN ('true','false'))"); break;
                 default: throw new BridgeCommandException("INVALID_REQUEST", "invalid resource terrain filter");
             }
         }
