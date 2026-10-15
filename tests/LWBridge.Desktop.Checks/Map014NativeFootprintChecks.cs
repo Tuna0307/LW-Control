@@ -85,7 +85,7 @@ internal static class Map014NativeFootprintChecks
             CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(
                 Enumerable.Range(firstRow, rowCount).SelectMany(row => Enumerable.Range(2, 3).Select(col => row * 100 + col)).ToArray(),
                 0, request, session, 35, 75, 1);
-        try { CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(Enumerable.Range(1, 14).SelectMany(row => Enumerable.Range(2, 3)
+        try { CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(Enumerable.Range(1, 70).SelectMany(row => Enumerable.Range(2, 3)
             .Select(col => row * 100 + col)).ToArray(), 0, request, session, 35, 75, 1); throw new Exception("too tall window passed"); }
         catch (InvalidDataException) { }
         try { CurrentClientMapBlockSource.ValidateAdaptiveRowFootprint(Enumerable.Range(1, 5).SelectMany(row => Enumerable.Range(2, 3)

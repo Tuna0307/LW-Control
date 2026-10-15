@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -55,10 +55,10 @@ OverviewMapScanSession? ReadSession()
 string? zoomSwitch = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_COVERAGE_ZOOM");
 bool zoomOff = string.Equals(zoomSwitch, "off", StringComparison.OrdinalIgnoreCase);
 double? zoomOverride = double.TryParse(zoomSwitch, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double zo) ? zo : null;
-CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false) => new(ReadSession,runtime,probe,
+CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false, double? zoomArg=null, int? fovArg=null) => new(ReadSession,runtime,probe,
     hooks: marchProbe ? new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
         : bounded ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
-        : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride } : null,
+        : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomArg ?? zoomOverride, CoverageFovOverride = fovArg } : null,
     waitForHealthySession: async (expected, token) =>
     {
         var deadline=Stopwatch.StartNew();
@@ -157,6 +157,47 @@ async Task<JsonElement> ZoomFixture(string mode, double zoom)
 }
 var history=new List<object>();
 JsonElement before=default, after=default, terminal=default;
+if (scenario == "lod-snapshot")
+{
+    // Diagnostic: one coarse whole-world (zoom/LOD2) request with every kind enabled; report what came back.
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    var results = new List<object>();
+    foreach (var (tx, ty) in new[] { (hx, hy), (505, 505), (250, 750) })
+    {
+        var id = "lodsnap" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "bulk-aoi-diagnostic.txt");
+        var resPath = Path.Combine(probe, "bulk-aoi-diagnostic-result.json");
+        var cmd = new[] { "schema=1", "probeVersion=lwbridge-live-resource-probe-2", "requestId=" + id,
+            "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "serverId=" + ctx.ServerId, "scanRunId=" + id, "viewLevel=-1", "requestMode=zoom",
+            "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=160", "holdMilliseconds=0",
+            "homeTileX=" + hx, "homeTileY=" + hy, "includeCity=true", "includeResource=true", "includeMonster=true",
+            "includeMonsterProtection=false", "includeTrain=true", "includeDispatch=true", "includeGhost=true",
+            "includeTreasure=false", "includeResourceDetails=false", "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, cmd); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(30) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(50, cts.Token);
+        }
+        double seconds = wait.Elapsed.TotalSeconds;
+        var summary = new Dictionary<string, object?> { ["target"] = new[] { tx, ty }, ["wallSeconds"] = seconds };
+        if (answer is JsonElement r)
+            foreach (var prop in r.EnumerateObject())
+                summary[prop.Name] = prop.Value.ValueKind == JsonValueKind.Array ? $"array[{prop.Value.GetArrayLength()}]"
+                    : prop.Value.ValueKind == JsonValueKind.Object ? "object" : prop.Value.ToString();
+        else summary["timeout"] = true;
+        results.Add(summary);
+        File.WriteAllText(Path.Combine(root, "lod-snapshot-" + results.Count + ".json"), answer?.GetRawText() ?? "null");
+        await Task.Delay(4000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "lod-snapshot.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    Console.WriteLine("MAP014_LOD_SNAPSHOT_DONE");
+    return;
+}
 if (scenario == "terrain-probe")
 {
     // Read-only: evaluates every candidate terrain predicate on the same tiles (harness-only Lua fixture).
@@ -216,7 +257,7 @@ if (scenario == "lens-matrix")
     // lens heights. Reports each native AOI window (rows x columns); verifies exact camera restoration.
     var ctx = await source.GetCurrentContextAsync(cts.Token);
     int hx = ctx.PlayerTileX ?? throw new InvalidOperationException("home tile unknown"), hy = ctx.PlayerTileY!.Value;
-    async Task<JsonElement> LensProbe(int tx, int ty, double? lensZoom)
+    async Task<JsonElement> LensProbe(int tx, int ty, double? lensZoom, int aspect = 4, int fov = 120)
     {
         var id = "lensmatrix" + Guid.NewGuid().ToString("N");
         var cmdPath = Path.Combine(probe, "bulk-aoi-diagnostic.txt");
@@ -224,7 +265,7 @@ if (scenario == "lens-matrix")
         var cmd = new List<string> { "schema=1", "probeVersion=lwbridge-live-resource-probe-2", "requestId=" + id,
             "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
             "gamePid=" + session.GamePid, "serverId=" + ctx.ServerId, "scanRunId=" + id, "viewLevel=-1", "requestMode=coverage",
-            "coverageFov=120", "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=8", "holdMilliseconds=0",
+            "coverageFov=" + fov, "coverageAspect=" + aspect, "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=8", "holdMilliseconds=0",
             "homeTileX=" + hx, "homeTileY=" + hy, "includeCity=false", "includeResource=false", "includeMonster=false",
             "includeMonsterProtection=false", "includeTrain=true", "observeMarchFreshness=false", "includeDispatch=false",
             "includeGhost=false", "includeTreasure=false", "includeResourceDetails=false", "deferRestoreUntilResponse=true" };
@@ -247,18 +288,31 @@ if (scenario == "lens-matrix")
         throw new TimeoutException("lens probe timed out");
     }
     var matrixRows = new List<object>();
-    foreach (double? playerZoom in new double?[] { null, 81.31, 60.0 })
+    // Env overrides for the speed study: LWBRIDGE_MAP014_LENS_LIST="130,200,300", LWBRIDGE_MAP014_LENS_ASPECTS="4,6",
+    // LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS="" (default only).
+    double?[] ParseList(string name, double?[] fallback) => Environment.GetEnvironmentVariable(name) is string raw
+        ? raw.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(v => v.Trim() == "none" ? (double?)null : double.Parse(v, System.Globalization.CultureInfo.InvariantCulture)).ToArray()
+        : fallback;
+    double?[] lensList = ParseList("LWBRIDGE_MAP014_LENS_LIST", new double?[] { null, 105.0, 130.0, 81.31 });
+    int[] aspects = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_ASPECTS") ?? "4").Split(',').Select(int.Parse).ToArray();
+    int[] fovs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_FOVS") ?? "120").Split(',').Select(int.Parse).ToArray();
+    double?[] playerZooms = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS") is not null
+        ? ParseList("LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS", new double?[] { null }).Prepend(null).Distinct().ToArray()
+        : new double?[] { null, 81.31, 60.0 };
+    foreach (double? playerZoom in playerZooms)
     {
         if (playerZoom is double pz) { await ZoomFixture("set", pz); await Task.Delay(1500, cts.Token); }
         var camBefore = await Camera("lens-matrix-before-" + (playerZoom?.ToString("0.##") ?? "default"));
         foreach (var (tx, ty) in new[] { (505, 505), (275, 675) })
-            foreach (double? lens in new double?[] { null, 105.0, 130.0, 81.31 })
+            foreach (double? lens in lensList)
+            foreach (int aspect in aspects)
+            foreach (int fov in fovs)
             {
-                var r = await LensProbe(tx, ty, lens);
+                var r = await LensProbe(tx, ty, lens, aspect, fov);
                 string state = r.GetProperty("state").GetString() ?? "";
                 int[] idx = r.TryGetProperty("requestedIndices", out var ri) && ri.ValueKind == JsonValueKind.Array
                     ? ri.EnumerateArray().Select(v => v.GetInt32()).ToArray() : [];
-                matrixRows.Add(new { playerZoom, lensZoom = lens, target = new[] { tx, ty }, state,
+                matrixRows.Add(new { playerZoom, lensZoom = lens, aspect, fov, matched = r.TryGetProperty("matchedCount", out var mc) ? mc.ToString() : null, target = new[] { tx, ty }, state,
                     error = r.TryGetProperty("error", out var er) ? er.ToString() : null,
                     aois = idx.Length, rows = idx.Select(i => i / 100).Distinct().Count(), cols = idx.Select(i => i % 100).Distinct().Count(),
                     firstRow = idx.Length > 0 ? idx.Min() / 100 : -1, firstCol = idx.Length > 0 ? idx.Min(i => i % 100) : -1,
@@ -299,7 +353,16 @@ if (benchmarking)
     for (int round=0; round<rounds; round++)
     {
         bool bounded = workload == "city" && round%2 == 1;
-        var measuredSource = MakeSource(bounded, forceLegacy: !bounded);
+        // LWBRIDGE_MAP014_BENCH_CONFIGS="130:120,600:150" alternates lens:fov per round (A/B accuracy + speed).
+        string[] benchConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_CONFIGS") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+        double? roundZoom = null; int? roundFov = null;
+        if (benchConfigs.Length > 0)
+        {
+            string[] parts = benchConfigs[round % benchConfigs.Length].Split(':');
+            roundZoom = double.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
+            roundFov = parts.Length > 1 ? int.Parse(parts[1]) : null;
+        }
+        var measuredSource = MakeSource(bounded, forceLegacy: !bounded, zoomArg: roundZoom, fovArg: roundFov);
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
         if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)
             await measuredSource.JumpToCoordinateAsync(context.ServerId,hx,hy,cts.Token);
@@ -343,7 +406,7 @@ if (benchmarking)
                 provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
                 throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
             File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
-            measurements.Add(new{round,scanMode=benchScanMode,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
+            measurements.Add(new{round,scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
             File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
             Console.WriteLine($"MAP014_BENCHMARK {workload} round={round} lens={(bounded?20:120)} seconds={timer.Elapsed.TotalSeconds:F3}");
         }

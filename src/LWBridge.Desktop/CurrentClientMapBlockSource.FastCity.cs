@@ -821,7 +821,8 @@ internal sealed partial class CurrentClientMapBlockSource
             $"rowStart={rowStart},rows=[{string.Join(',', rows)}],columns=[{string.Join(',', columns)}]," +
             $"indices=[{string.Join(',', indices.Order())}]";
         // v26 windows measured on a real client: 7-11 rows depending on camera height / lens.
-        if (rows.Length is < FastFullWorldAoiRows - 3 or > FastFullWorldAoiRows + 2 ||
+        // Tall windows (lens/FOV study: up to ~54 rows, capped near 160 AOIs) are accepted when they overlap the band.
+        if (rows.Length is < FastFullWorldAoiRows - 3 or > 60 ||
             rows.Length == 0 ||
             // The window may start anywhere that still overlaps the band: placement targets the first
             // missing row, and the exact 10,000-cell union (not this shape check) proves coverage.
@@ -920,6 +921,8 @@ internal sealed partial class CurrentClientMapBlockSource
     // City-only median 227.912s -> 86.179s. Mixed FOV20 missed unexpired
     // Trucks, and Resource snapshots retained unexplained temporal changes:
     // neither is admitted to this production policy.
+    internal static int ExpectedCoverageFov(CurrentClientMapBlockSourceHooks? hooks) => hooks?.CoverageFovOverride ?? CanonicalCoverageFov;
+
     internal static double? ExpectedCoverageZoom(CurrentClientMapBlockSourceHooks? hooks) =>
         hooks?.DisableCoverageZoomNormalization == true ? null : hooks?.CoverageZoomOverride ?? CanonicalCoverageZoom;
 
@@ -955,7 +958,7 @@ internal sealed partial class CurrentClientMapBlockSource
             $"scanRunId={request.RunId}",
             "viewLevel=-1",
             "requestMode=coverage",
-            $"coverageFov={(ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 ? 20 : 120)}",
+            $"coverageFov={(ShouldUseBoundedFullWorldCameraLens(request, hooks) && groupStartColumn < 0 ? 20 : ExpectedCoverageFov(hooks))}",
             ExpectedCoverageZoom(hooks) is double coverageZoom
                 ? $"coverageZoom={coverageZoom.ToString("0.###", CultureInfo.InvariantCulture)}"
                 : "coverageZoomNormalization=disabled",

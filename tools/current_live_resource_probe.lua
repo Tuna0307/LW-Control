@@ -2526,11 +2526,11 @@ local function read_bulk_aoi_diagnostic(now)
        not valid_token(request.scanRunId) or
        request.viewLevel == nil or request.viewLevel < -1 or request.viewLevel > 2 or request.viewLevel ~= math.floor(request.viewLevel) or
        (request.requestMode ~= "native" and request.requestMode ~= "expanded" and request.requestMode ~= "direct" and request.requestMode ~= "coverage" and request.requestMode ~= "anchor" and request.requestMode ~= "edge" and request.requestMode ~= "zoom") or
-       (request.coverageFov ~= 20 and request.coverageFov ~= 120) or
+       request.coverageFov == nil or request.coverageFov < 20 or request.coverageFov > 170 or
        (request.coverageAspect ~= 4 and request.coverageAspect ~= 6) or
        (request.coverageAspect ~= 4 and request.requestMode ~= "coverage") or
        (values.coverageZoom ~= nil and (request.coverageZoom == nil or request.coverageZoom < 60 or
-           request.coverageZoom > 130 or request.requestMode ~= "coverage")) or
+           request.coverageZoom > 5000 or request.requestMode ~= "coverage")) or
        request.targetTileX == nil or request.targetTileY == nil or
        request.targetTileX < 0 or request.targetTileX >= 1000 or request.targetTileY < 0 or request.targetTileY >= 1000 or
        request.targetTileX ~= math.floor(request.targetTileX) or request.targetTileY ~= math.floor(request.targetTileY) or
@@ -3059,8 +3059,12 @@ end
 -- Ghost rewards use the game's own template path (ActGhostreconTaskTemplate.InitData):
 -- RewardManager:ParseRewardsStr(base_reward_show), entries "itemId;type;count" joined by "|".
 -- Any unresolved or dropped entry makes the whole list unknown (nil), never partial.
-local function ghost_reward_list(raw)
+-- Plunder share shown in the game popup (WorldPointGhostrecon 任務獎勵): floor(count * steal_reward_ratio / 100),
+-- zero entries dropped. Unknown ratio -> unknown list (never the full owner reward).
+local function ghost_reward_list(raw, ratio)
     raw = tostring(raw or "")
+    ratio = tonumber(ratio)
+    if ratio == nil or ratio <= 0 then return nil end
     local rm = safe_get(rawget(_G, "DataCenter"), "RewardManager")
     local ok, parsed = call(rm, "ParseRewardsStr", raw)
     local expected = 0
@@ -3087,7 +3091,12 @@ local function ghost_reward_list(raw)
         end
         entry.count = entry.count + n
     end
-    return list
+    local plunder = {}
+    for _, entry in ipairs(list) do
+        entry.count = math.floor(entry.count * ratio / 100)
+        if entry.count > 0 then plunder[#plunder + 1] = entry end
+    end
+    return plunder
 end
 
 local function ghost_aoi_records(world, point_manager, block_size, block_count, selected_lookup)
@@ -3151,7 +3160,8 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
         local steal_list = safe_get(ghost_source, "stealList") or safe_get(ghost_source, "StealList")
         local member_list = safe_get(ghost_source, "memberList") or safe_get(ghost_source, "MemberList")
         local reward_config = scalar_field(cfg, { "base_reward_show", "reward", "Reward" })
-        if reward_cache[cfg_id] == nil then reward_cache[cfg_id] = ghost_reward_list(reward_config) or false end
+        local steal_ratio = scalar_field(cfg, { "steal_reward_ratio", "stealRewardRatio" })
+        if reward_cache[cfg_id] == nil then reward_cache[cfg_id] = ghost_reward_list(reward_config, steal_ratio) or false end
         records[#records + 1] = {
             id = id,
             pointId = id,
