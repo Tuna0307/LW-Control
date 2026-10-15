@@ -1457,6 +1457,25 @@ internal sealed partial class LWBridgeWindow : Form
         }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
     }
 
+    internal static string[] ReadNormalUiProofSelectedTypes(JsonElement completedStatus)
+    {
+        // Receipt metadata must describe the completed native scan, not the
+        // proof's usual six-kind selection or its current environment flags.
+        if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selection) ||
+            selection.ValueKind != JsonValueKind.Array || selection.GetArrayLength() == 0)
+            throw new InvalidDataException("Completed packaged Map proof has no actual scan selection.");
+        var kinds = new List<string>();
+        foreach (JsonElement item in selection.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.String ||
+                item.GetString() is not { } kind || !MapScanContract.AllTypes.Contains(kind) ||
+                kinds.Contains(kind, StringComparer.Ordinal))
+                throw new InvalidDataException("Completed packaged Map proof has an invalid actual scan selection.");
+            kinds.Add(kind);
+        }
+        return kinds.ToArray();
+    }
+
     // R8-066: end-to-end proof of the normal production Map path. Unlike the
     // historical bounded resource helper proof above, this keeps the actual
     // Map317CommandService is wired into the recovered WebView and only
@@ -1665,6 +1684,8 @@ internal sealed partial class LWBridgeWindow : Form
             if (!completed)
                 throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
 
+            string[] actualSelectedTypes = ReadNormalUiProofSelectedTypes(completedStatus);
+
             if (qualifiedKind is "city" or "other")
             {
                 if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selected) ||
@@ -1729,6 +1750,7 @@ internal sealed partial class LWBridgeWindow : Form
                 {
                     schemaVersion = 1, state = "proven", proof = "actual_packaged_ui_fullworld_selected_scan_and_results",
                     genuineGame = true, controlledProvider = false, selection = qualifiedKind,
+                    selectedTypes = actualSelectedTypes,
                     serverId = actualServer, completedStatus, selectedResponse, total = selectedTotal,
                     sourceIdentifiedPositiveAvailable = selectedTotal > 0,
                     mountedDom = JsonSerializer.Deserialize<JsonElement>(mountedDom), screenshot = snapshot,
@@ -2140,7 +2162,7 @@ internal sealed partial class LWBridgeWindow : Form
                 instanceId,
                 connectionState = ReadStatusString(startJson, "connectionState"),
                 gamePid = expected.GamePid,
-                selectedTypes = ownerFixNativeProof && !ownerFixRemoteProof ? new[]{"city","resource","monster","truck","railway","dispatch"} : new[] { "resource" },
+                selectedTypes = actualSelectedTypes,
                 scan = new
                 {
                     scanRunId = ReadStatusString(completedStatus, "scanRunId"),

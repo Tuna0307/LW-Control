@@ -42,6 +42,35 @@ internal static class Map014OwnerFixChecks
 
     internal static async Task RunAsync()
     {
+        // The packaged proof also has eight-kind, City-only and Other-only
+        // modes. Its receipt must retain the actual native completion selection
+        // even when that differs from the historical six-kind proof default.
+        foreach (string[] kinds in new string[][]
+        {
+            ["city", "resource", "monster", "truck", "railway", "dispatch"],
+            ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "zombie_boss"],
+            ["city"], ["other"], ["resource"],
+        })
+        {
+            string[] retained;
+            using (JsonDocument status = JsonDocument.Parse(JsonSerializer.Serialize(new { selectedTypes = kinds })))
+                retained = LWBridgeWindow.ReadNormalUiProofSelectedTypes(status.RootElement);
+            Require(retained.SequenceEqual(kinds), "packaged proof receipt misreported its actual completed selection");
+        }
+        foreach (object malformed in new object[]
+        {
+            new { }, new { selectedTypes = Array.Empty<string>() },
+            new { selectedTypes = "city" }, new { selectedTypes = new[] { "city", "city" } },
+            new { selectedTypes = new[] { "not-a-map-kind" } },
+            new { selectedTypes = new object[] { "city", 1 } },
+        })
+        {
+            bool rejected = false;
+            try { _ = LWBridgeWindow.ReadNormalUiProofSelectedTypes(Json(malformed)); }
+            catch (InvalidDataException) { rejected = true; }
+            Require(rejected, "packaged proof fabricated selection metadata from malformed native completion");
+        }
+
         string directory = Path.Combine(Path.GetTempPath(), "lwbridge-map014-owner-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         string db = Path.Combine(directory, "data.db");

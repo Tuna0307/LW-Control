@@ -10,6 +10,7 @@ internal static class Map014NativeFootprintChecks
 {
     internal static void Run()
     {
+        CheckBoundedCityBandTransition();
         var request = new MapScanExecutionRequest(
             "eight-native-rows", 2212, 0, 1000, 1000, ["truck"], 20,
             PlayerTileX: 500, PlayerTileY: 500, ScanMode: "fast");
@@ -101,5 +102,43 @@ internal static class Map014NativeFootprintChecks
             MapFullWorldAoiPlacement.TargetY(20, Enumerable.Range(20, 10).ToArray()) != 275)
             throw new Exception("Calibrated vertical placement did not follow the measured window offset");
         Console.WriteLine($"MAP014_NATIVE_EIGHT_ROW_FOOTPRINT_OK covered={covered.Count} simulatedProbes={probes} negatives=5 native=false");
+    }
+
+    private static void CheckBoundedCityBandTransition()
+    {
+        var cityRequest = new MapScanExecutionRequest(
+            "bounded-city-band-transition", 2212, 0, 1000, 1000, ["city"], 8);
+        bool bounded = CurrentClientMapBlockSource.ShouldUseBoundedFullWorldCameraLens(cityRequest, null);
+        if (!bounded) throw new Exception("City production selection did not choose the bounded lens.");
+        // Reproduce the real failure's control-flow state: the bounded route's
+        // outer band stays zero while its global gap advances beyond row nine.
+        var covered = Enumerable.Range(0, 1000).ToHashSet();
+        int firstGap = Enumerable.Range(0, 10000).First(index => !covered.Contains(index));
+        int gapColumn = firstGap % 100;
+        int[] oldMissingRows = Enumerable.Range(0, 10)
+            .Where(row => !covered.Contains(row * 100 + gapColumn)).ToArray();
+        bool oldFailed = false;
+        try { _ = MapFullWorldAoiPlacement.TargetY(0, oldMissingRows); }
+        catch (ArgumentOutOfRangeException) { oldFailed = true; }
+        if (!oldFailed || oldMissingRows.Length != 0)
+            throw new Exception("The historical bounded City placement failure was not reproduced.");
+
+        var selected = CurrentClientMapBlockSource.SelectFullWorldProbeY(
+            bounded, covered, firstGap, 0, gapColumn, false, null);
+        if (selected.TargetY != 125 || selected.MissingRows.Length != 0)
+            throw new Exception("Bounded City placement evaluated serial-band missing rows.");
+        // Source coverage and target membership still go through the actual
+        // bounded footprint guard; this is a controlled rectangle, not native evidence.
+        int[] freshFootprint = Enumerable.Range(10, 8).SelectMany(row =>
+            Enumerable.Range(0, 15).Select(col => row * 100 + col)).ToArray();
+        CurrentClientMapBlockSource.ValidateBoundedLensFootprint(
+            freshFootprint, firstGap, 75, selected.TargetY);
+        // Do not weaken the serial route: an empty band remains invalid there.
+        bool serialRejected = false;
+        try { _ = CurrentClientMapBlockSource.SelectFullWorldProbeY(
+            false, covered, -1, 0, gapColumn, false, null); }
+        catch (ArgumentOutOfRangeException) { serialRejected = true; }
+        if (!serialRejected) throw new Exception("Serial empty-band validation was weakened.");
+        Console.WriteLine("MAP014_BOUNDED_CITY_BAND_TRANSITION_OK before=ArgumentOutOfRange afterTargetY=125 native=false");
     }
 }

@@ -374,12 +374,9 @@ internal sealed partial class CurrentClientMapBlockSource
                 // Current-v21 live proof can contract the conservative request to 9 rows.
                 // If that leaves only the band's bottom AOI missing, nudge one AOI row down and
                 // union the second bounded footprint; exact 10,000-cell coverage remains authoritative.
-                int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
-                    .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
-                    .ToArray();
-                int targetY = MapFullWorldAoiPlacement.TargetY(aoiRowStart, missingRows,
+                (int targetY, int[] missingRows) = SelectFullWorldProbeY(
+                    boundedLens, covered, firstGap, aoiRowStart, gapColumn,
                     nativeEightRowWindowObserved, gapColumn == stalledGapColumn ? null : windowFirstRowOffset);
-                if (boundedLens) targetY = Math.Min(995, (firstGap / 100 + 2) * 10 + 5);
                 if (++requestsThisRow > (boundedLens ? 400 : FastFullWorldMaxRequestsPerRow))
                     throw new InvalidDataException($"Fast full-world acquisition made no bounded progress in AOI row band {row}.");
 
@@ -782,6 +779,29 @@ internal sealed partial class CurrentClientMapBlockSource
             if (!complete) return column;
         }
         return -1;
+    }
+
+    // The bounded City lens walks the entire AOI grid in one outer iteration;
+    // its first gap can move beyond the serial route's current ten-row band.
+    // Do not evaluate serial-band placement before overriding its result: once
+    // that band is covered its missing-row set is empty and correctly rejected
+    // by TargetY. Keep that strict serial guard on the serial route only.
+    internal static (int TargetY, int[] MissingRows) SelectFullWorldProbeY(
+        bool boundedLens, IReadOnlySet<int> covered, int firstGap,
+        int aoiRowStart, int gapColumn, bool nativeEightRowWindowObserved,
+        int? windowFirstRowOffset)
+    {
+        if (boundedLens)
+        {
+            if (firstGap is < 0 or >= 10000)
+                throw new ArgumentOutOfRangeException(nameof(firstGap));
+            return (Math.Min(995, (firstGap / FastCityAoiBlockCount + 2) * FastCityAoiBlockSize + 5), []);
+        }
+        int[] missingRows = Enumerable.Range(aoiRowStart, FastFullWorldAoiRows)
+            .Where(rowIndex => !covered.Contains(checked(rowIndex * FastCityAoiBlockCount + gapColumn)))
+            .ToArray();
+        return (MapFullWorldAoiPlacement.TargetY(aoiRowStart, missingRows,
+            nativeEightRowWindowObserved, windowFirstRowOffset), missingRows);
     }
 
     internal static void ValidateAdaptiveRowFootprint(
