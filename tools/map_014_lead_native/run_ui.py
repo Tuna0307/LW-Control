@@ -35,7 +35,14 @@ EXPECTED_26_CURRENT = {
 }
 FILE_ROLES = {"data": "LWScripts.data", "metadata": "LWScripts.txt", "version": "version.txt"}
 TRUSTED_SETTLED_PROOF = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451"
-NO_UPDATER_MODES = frozenset(("auto-all-nine", "saved-clear-reopen", "auto-interval-20m"))
+# MAP016 acceptance is permitted to reuse only the EXACT existing, independently
+# proven official settlement. Manual all-nine / Truck / Railway measurements
+# must have this same no-updater gate as Auto acceptance: do not let a normal
+# manual proof accidentally run the official updater on a first-use profile.
+NO_UPDATER_MODES = frozenset((
+    "all-nine", "truck", "railway",
+    "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
+))
 
 
 def admitted_original_version(hashes):

@@ -822,7 +822,8 @@ class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
         copied = self.copy()
         self.assertEqual(copied.read_bytes(), self.marker.read_bytes())
         self.assertEqual(self.runner.NO_UPDATER_MODES,
-                         {"auto-all-nine", "saved-clear-reopen", "auto-interval-20m"})
+                         {"all-nine", "truck", "railway",
+                          "auto-all-nine", "saved-clear-reopen", "auto-interval-20m"})
 
     def test_mismatch_and_untrusted_marker_fail_before_app_launch(self):
         for name, action in [

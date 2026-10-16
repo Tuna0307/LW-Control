@@ -17,6 +17,7 @@ internal static class Map016LaunchScheduleChecks
         try
         {
             CheckSettlementIdentity(root);
+            CheckNoGameUiDispatchBarrier();
             await CheckFirstIntervalAndReconnectAsync(root);
             await Map016DataChecks.RunAsync();
         }
@@ -25,6 +26,41 @@ internal static class Map016LaunchScheduleChecks
             Directory.Delete(root, recursive: true);
         }
         Console.WriteLine("MAP016_LAUNCH_SCHEDULE_OK");
+    }
+
+    private static void CheckNoGameUiDispatchBarrier()
+    {
+        JsonElement disabled = JsonSerializer.SerializeToElement(new { autoLaunchAll = false });
+        JsonElement enabled = JsonSerializer.SerializeToElement(new { autoLaunchAll = true });
+        JsonElement missing = JsonSerializer.SerializeToElement(new { });
+        Require(LWBridgeWindow.Map016NoGameUiCommandAllowed("profile_instances_reconcile", disabled),
+            "a real startup reconcile with native Auto Launch disabled was blocked");
+        Require(!LWBridgeWindow.Map016NoGameUiCommandAllowed("profile_instances_reconcile", enabled),
+            "an unexpected Auto Launch true reconcile can reach the game launcher");
+        Require(!LWBridgeWindow.Map016NoGameUiCommandAllowed("profile_instances_reconcile", missing),
+            "missing reconcile flag re-enables the original implicit Auto Launch default");
+        Require(LWBridgeWindow.Map016NoGameUiCommandAllowed("server_jump_history_import",
+                JsonSerializer.SerializeToElement(new { profileId = "map014-native-ui", history = new[] { 2212 } })),
+            "startup local-only saved history migration unexpectedly blocked");
+        Require(!LWBridgeWindow.Map016NoGameUiCommandAllowed("server_jump_history_import",
+                JsonSerializer.SerializeToElement(new { profileId = "map014-native-ui", history = new[] { -1 } })),
+            "invalid saved history migration escaped the read-only proof guard");
+        Require(!LWBridgeWindow.Map016NoGameUiCommandAllowed("server_jump_history_import",
+                JsonSerializer.SerializeToElement(new { profileId = "other", history = new[] { 2212 } })),
+            "foreign profile migration escaped the proof guard");
+        foreach (string command in new[]
+        {
+            "profile_instance_start", "profile_instances_update_and_restart",
+            "profile_instance_stop", "map_scan_start", "map_scan_clear",
+            "local_map_auto_scan_run_now", "local_map_auto_scan_config_set",
+            "server_jump", "map_coordinate_jump", "map_treasure_claim", "game_root_select"
+        })
+            Require(!LWBridgeWindow.Map016NoGameUiCommandAllowed(command, disabled),
+                "no-game UI dispatch admitted a mutation: " + command);
+        foreach (string command in new[] { "map_search", "map_saved_servers", "map_data_options",
+            "map_scan_status", "local_config_get", "profile_instance_status" })
+            Require(LWBridgeWindow.Map016NoGameUiCommandAllowed(command, disabled),
+                "saved read-only Map/UI proof command was blocked: " + command);
     }
 
     private static void CheckSettlementIdentity(string root)

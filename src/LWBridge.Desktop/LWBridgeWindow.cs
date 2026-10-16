@@ -531,7 +531,8 @@ internal sealed partial class LWBridgeWindow : Form
         Text = "lwbridge";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = homeMapCampaignNarrow ? new Size(900, 720) : new Size(1120, 720);
+        ClientSize = homeMapCampaignNarrow ? new Size(900, 720) :
+            Map016NoGameUiProofEnabled ? new Size(1100, 720) : new Size(1120, 720);
         MinimumSize = new Size(900, 640);
         BackColor = Color.FromArgb(245, 245, 247);
         Controls.Add(webView);
@@ -1166,6 +1167,9 @@ internal sealed partial class LWBridgeWindow : Form
             await core.AddScriptToExecuteOnDocumentCreatedAsync(
                 "window.__LWBridgeBootstrap=" + bootstrapJson + ";" +
                 "(()=>{try{const s=new URL(location.href).searchParams.get('nativeSession');if(s)window.__LWBridgeBootstrap.sessionId=s;}catch{}})();");
+            if (Map016NoGameUiProofEnabled)
+                await core.AddScriptToExecuteOnDocumentCreatedAsync(
+                    "window.__LWBridgeMap016InitialAutoLaunchGlobal=localStorage.getItem('lwbridge.autoLaunchGame');");
             if (map010NamesProofPath is not null)
             {
                 // Isolated task WebView storage only. This changes clone UI locale,
@@ -1291,6 +1295,12 @@ internal sealed partial class LWBridgeWindow : Form
             if (theme is not null) url += "&theme=" + Uri.EscapeDataString(theme);
             core.Navigate(WithDocumentSession(url, documentSession.Id));
             await ready.Task.WaitAsync(TimeSpan.FromSeconds(15));
+            if (Map016NoGameUiProofEnabled)
+            {
+                await RunMap016NoGameUiProofAsync(core, normalUiLiveMapProofPath!);
+                Close();
+                return;
+            }
             if (map010NamesProofPath is not null)
             {
                 await RunMap010BackgroundNamesProofAsync(core, map010NamesProofPath);
@@ -5635,6 +5645,13 @@ internal sealed partial class LWBridgeWindow : Form
             JsonElement payload = root.TryGetProperty("payload", out JsonElement supplied)
                 ? supplied.Clone()
                 : EmptyObject();
+            if (Map016NoGameUiProofEnabled &&
+                !Map016NoGameUiProofAllowCommand(command, payload))
+            {
+                SendError(session, id, "MAP016_NO_GAME_UI_READ_ONLY",
+                    "No-game UI proof blocked a request that could change the game or profile.");
+                return;
+            }
             TraceNormalUiMapProofSearch(id, command, "received", payload);
             RecordHome004F06Dispatch("received", command);
             if (ownerEvidence is not null && OwnerEvidenceResourceContract.IsBlockedOwnerCommand(command))
@@ -5777,6 +5794,8 @@ internal sealed partial class LWBridgeWindow : Form
                 if (command == "map_search" && ownerEvidence is not null && OwnerEvidenceResourceContract.IsCitySearch(payload))
                     ownerEvidence.RecordCitySearch(id, payload, execution.Result);
                 SendResult(session, id, execution.Result);
+                if (Map016NoGameUiProofEnabled && command == "profile_instances_reconcile")
+                    Map016NoGameUiProofReconcileCompleted();
                 RecordHome004F06Dispatch("result", command);
                 if (command == "map_search" && ownerEvidence is not null)
                     BeginOwnerEvidenceRenderCapture(id, payload, execution.Result);
