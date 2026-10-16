@@ -51,8 +51,8 @@ KNOWN_LIMITS = [
     "mixed-six selects City/Resource/Monster/Truck/Railway/Dispatch; mixed-eight "
     "also selects Ghost/Zombie Boss, but excludes Treasure/Other.",
     "No existing packaged proof stops a scan mid-flight or exercises the Home UI regression.",
-    "Ghost reward AND filtering is covered with positive saved native rows; the "
-    "actual plunder-share amount is not asserted by that filter proof.",
+    "Ghost plunder-share rendering is source-calculated against native base_reward_show and steal_reward_ratio; "
+    "the separate AND-filter proof still uses genuine saved native rows.",
     "remote-clear requires a 2212 authenticated owned start; it performs an Auto "
     "visit to 2213 and verifies Clear of 2213 saved rows after returning to 2212.",
     "The existing UI runner uses a retained native DB path even for new scans, "
@@ -215,10 +215,15 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         ghost_result = next(item for item in results if item["kind"] == "ghost")
         reward_witness = ghost_result.get("positiveGhostRewardRendering")
         if (not isinstance(reward_witness, dict) or reward_witness.get("displayed") is not True or
+                reward_witness.get("sourceCalculatedPlunderShareMatches") is not True or
+                reward_witness.get("formula") !=
+                "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)" or
+                type(reward_witness.get("stealRewardRatio")) not in (int, float) or
+                not 0 < reward_witness["stealRewardRatio"] <= 100 or
                 not isinstance(reward_witness.get("nativeRewardCounts"), list) or
                 not reward_witness["nativeRewardCounts"] or
                 any(type(v) is not int or v <= 0 for v in reward_witness["nativeRewardCounts"])):
-            raise ValueError("Packaged Ghost native reward quantities were not positively rendered")
+            raise ValueError("Packaged Ghost plunder-share calculation and native reward rendering were not proven")
 
     # SQLite is the independent publication record and supplies the scanRunId
     # when older UI receipts omit it. Refuse to use another profile's database.
@@ -324,6 +329,60 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
                 metricsPhase="prepared", metricsPath=str(metrics_path), nativePath=str(direct_path))
 
 
+def audit_fresh_truck_filter(destination: Path, proof: dict, restoration: dict) -> dict:
+    """Require a positive real packaged filter against this run's freshly scanned Trucks."""
+    selected = MODES["mixed-eight"]["selected"]
+    scan = proof.get("scan", {})
+    run_id = scan.get("scanRunId")
+    server = scan.get("serverId")
+    if (proof.get("proof") != "normal_production_map_window_start_scan_search_render" or
+            proof.get("selectedTypes") != selected or scan.get("phase") != "completed" or
+            not isinstance(run_id, str) or not run_id or type(server) is not int or server <= 0):
+        raise ValueError("Packaged Truck proof has no fresh genuine completed mixed scan")
+    profile = restoration.get("profileId")
+    if profile != "map014-native-ui":
+        raise ValueError("Packaged Truck proof has an unexpected native profile")
+    db_path = destination / "profiles" / profile / "map-data" / "map-data.db"
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+        runs = database.execute("SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,"
+                                "failed_blocks FROM scan_runs ORDER BY created_at DESC LIMIT 2").fetchall()
+        if runs != [(run_id, server, json.dumps(selected, separators=(",", ":")),
+                     "completed", 2500, 2500, 0)]:
+            raise ValueError("Packaged Truck filter does not belong to one fresh completed scan")
+        scanned = {row[0] for row in database.execute(
+            "SELECT uuid FROM map_records WHERE kind='truck' AND server_id=? AND uuid IS NOT NULL", (server,))}
+    if not scanned:
+        raise ValueError("Fresh published Truck scan has no positive source-backed rows")
+    extras = json.loads((destination / "map014-ui-extras.json").read_text(encoding="utf-8"))
+    witnesses = [item for item in extras.get("receipts", [])
+                 if item.get("gate") == "genuine_truck_combined_filters"]
+    if len(witnesses) != 1:
+        raise ValueError("Packaged Truck filter lacks a unique actual UI witness")
+    witness = witnesses[0]
+    keys = witness.get("witnessKeys")
+    payload = witness.get("payload", {})
+    query = payload.get("query", {})
+    result = witness.get("result", {})
+    if (not isinstance(keys, list) or len(keys) != 2 or
+            any(not isinstance(key, str) or not key for key in keys) or keys[0] == keys[1] or
+            payload.get("kind") != "truck" or query.get("serverId") != server or
+            query.get("escortPowerMaxMillions") != 25 or
+            sorted(query.get("itemKeys", [])) != sorted(keys) or
+            type(result.get("total")) is not int or result["total"] < 1 or
+            not isinstance(result.get("rows"), list) or not result["rows"] or
+            not (destination / "map014-truck-filtered.png").is_file()):
+        raise ValueError("Packaged Truck UI did not apply its positive power and two-item filters")
+    for item in result["rows"]:
+        if (item.get("uuid") not in scanned or item.get("serverId") != server or
+                type(item.get("power")) not in (int, float) or item["power"] > 25_000_000 or
+                not isinstance(item.get("currentGoods"), list) or
+                not set(keys).issubset({good.get("key") for good in item["currentGoods"]})):
+            raise ValueError("Packaged Truck query included an unsaved or nonmatching native row")
+    return dict(scanRunId=run_id, serverId=server, scannedTruckCount=len(scanned),
+                filteredTotal=result["total"], selectedItemKeys=keys,
+                screenshot=str(destination / "map014-truck-filtered.png"))
+
+
 def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     read = lambda name: json.loads((destination / name).read_text(encoding="utf-8"))
     exit_receipt, owned = read("owned-exit.json"), read("owned-process.json")
@@ -359,10 +418,12 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         if not {"native_zombie_boss_tab_level_filter", "native_ghost_reward_and_filter"}.issubset(gates):
             raise ValueError("Saved genuine Zombie Boss/Ghost positive UI filters were not proven")
     direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck") else None
+    truck = audit_fresh_truck_filter(destination, proof, restoration) if mode == "mixed-eight" else None
     return dict(mode=mode, state="proven", proof=str(destination / "native-ui-map.json"),
                 ownedExit=str(destination / "owned-exit.json"), hostPid=restoration["hostPid"],
                 gamePid=restoration["gamePid"], sessionId=restoration["sessionId"],
-                **({"cameraFree": direct} if direct else {}))
+                **({"cameraFree": direct} if direct else {}),
+                **({"freshTruckFilter": truck} if truck else {}))
 
 
 def main(argv: list[str] | None = None) -> int:

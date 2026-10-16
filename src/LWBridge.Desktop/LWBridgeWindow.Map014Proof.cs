@@ -164,10 +164,10 @@ internal sealed partial class LWBridgeWindow
             object? positiveGhostRewardRendering = null;
             if (kind == "ghost")
             {
-                // The native source has positive authoritative reward counts.
-                // Compare their visible aria-label quantities with the first
-                // positive Ghost row; do not infer an unsupported plunder share.
-                (int Row, long[] Counts)? positive = null;
+                // The current-client task template supplies both base rewards
+                // and steal_reward_ratio. Require that the displayed rewards
+                // are the game's floored PLUNDER SHARE, not the owner's total.
+                (int Row, long[] Counts, double Ratio)? positive = null;
                 for (int rowIndex = 0; rowIndex < rows.GetArrayLength(); rowIndex++)
                 {
                     JsonElement row = rows[rowIndex];
@@ -181,11 +181,12 @@ internal sealed partial class LWBridgeWindow
                         { counts.Clear(); break; }
                         counts.Add(count);
                     }
-                    if (counts.Count == rewards.GetArrayLength())
-                    { positive = (rowIndex, counts.ToArray()); break; }
+                    if (counts.Count == rewards.GetArrayLength() &&
+                        IsNativeGhostPlunderShare(row, out double ratio))
+                    { positive = (rowIndex, counts.ToArray(), ratio); break; }
                 }
                 if (positive is null)
-                    throw new InvalidDataException("MAP015 genuine Ghost rows have no positive native reward-count witness.");
+                    throw new InvalidDataException("MAP015 genuine Ghost rows have no positive source-calculated plunder-share witness.");
                 int witnessRow = positive.Value.Row;
                 string countsJson = JsonSerializer.Serialize(positive.Value.Counts);
                 string visible = await core.ExecuteScriptAsync($$"""
@@ -202,7 +203,9 @@ internal sealed partial class LWBridgeWindow
                 if (visible != "true")
                     throw new InvalidDataException("MAP015 packaged Ghost native reward quantities were not displayed.");
                 positiveGhostRewardRendering = new { rowIndex = witnessRow,
-                    nativeRewardCounts = positive.Value.Counts, displayed = true };
+                    nativeRewardCounts = positive.Value.Counts, stealRewardRatio = positive.Value.Ratio,
+                    formula = "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)",
+                    sourceCalculatedPlunderShareMatches = true, displayed = true };
             }
             string screenshotPath = Path.Combine(directory, "map015-" + kind + "-packaged.png");
             await using (var image = File.Create(screenshotPath))
@@ -218,6 +221,50 @@ internal sealed partial class LWBridgeWindow
                 batchesCaptured = batches.GetArrayLength(), requestsSent = sent,
                 cameraStable = true, curViewRestored = true, metricsPhase = "prepared" },
             results, ghostNativeRewardDisplayProven = true };
+    }
+
+    private static bool IsNativeGhostPlunderShare(JsonElement row, out double ratio)
+    {
+        ratio = 0;
+        if (!row.TryGetProperty("stealRewardRatio", out JsonElement ratioValue) ||
+            !ratioValue.TryGetDouble(out ratio) || !double.IsFinite(ratio) || ratio is <= 0 or > 100 ||
+            !row.TryGetProperty("rewardConfig", out JsonElement configValue) ||
+            configValue.ValueKind != JsonValueKind.String ||
+            !row.TryGetProperty("rewards", out JsonElement rewardValue) ||
+            rewardValue.ValueKind != JsonValueKind.Array)
+            return false;
+        string[] parts = (configValue.GetString() ?? "").Split('|', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return false;
+        var ownerAmounts = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (string part in parts)
+        {
+            string[] fields = part.Split(';'); // game's base_reward_show: itemId;type;count
+            if (fields.Length != 3 ||
+                !long.TryParse(fields[0], out long id) || id < 0 ||
+                !long.TryParse(fields[1], out long type) || type < 0 ||
+                !long.TryParse(fields[2], out long count) || count <= 0)
+                return false;
+            string key = $"reward:{type}:{id}";
+            if (!ownerAmounts.TryAdd(key, count))
+            {
+                if (ownerAmounts[key] > long.MaxValue - count) return false;
+                ownerAmounts[key] += count;
+            }
+        }
+        double sourceRatio = ratio;
+        var shares = ownerAmounts.ToDictionary(pair => pair.Key,
+            pair => (long)Math.Floor(pair.Value * sourceRatio / 100), StringComparer.Ordinal);
+        foreach (string key in shares.Where(pair => pair.Value == 0).Select(pair => pair.Key).ToArray())
+            shares.Remove(key);
+        if (shares.Count == 0 || shares.Count != rewardValue.GetArrayLength()) return false;
+        foreach (JsonElement reward in rewardValue.EnumerateArray())
+        {
+            if (!reward.TryGetProperty("key", out JsonElement keyValue) || keyValue.ValueKind != JsonValueKind.String ||
+                !reward.TryGetProperty("count", out JsonElement countValue) || !countValue.TryGetInt64(out long amount) ||
+                !shares.Remove(keyValue.GetString() ?? "", out long expected) || amount != expected)
+                return false;
+        }
+        return shares.Count == 0;
     }
 
     // Opt-in, explicitly isolated normal-window verification only. All scans,

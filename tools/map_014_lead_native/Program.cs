@@ -83,7 +83,8 @@ var source = MakeSource(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BOUN
 using var commands = new Map317CommandService(Path.Combine(root,"map-014.db"),
     new CurrentClientMap317ScanProvider(source), new CurrentClientMap317ActionProvider(source), false,
     source.GetMapStatusContextAsync);
-using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : 12));
+bool pairedTruck = scenario == "direct-full" && Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_PAIRED_TRUCK") == "1";
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : pairedTruck ? 35 : 12));
 async Task<JsonElement> Invoke(string command, object payload)
 {
     var value = await commands.InvokeAsync(command, JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token);
@@ -165,6 +166,7 @@ if (scenario == "direct-full")
     await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
     await Task.Delay(3000, cts.Token);
     var results = new List<object>();
+    var cameraRounds = new List<object>();
     // LWBRIDGE_MAP014_FULL_CONFIGS: ';'-separated "linear,rows,cols,first,mEvery[,dwell,gate,interval,one]" (harness experiments only).
     var fullConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_FULL_CONFIGS") ?? "160,10,16,false,0.2;160,10,16,false,0.2")
         .Split(';', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Split(',')).ToArray();
@@ -184,8 +186,63 @@ if (scenario == "direct-full")
             catch (IOException) { } catch (JsonException) { }
             if (answer is null) await Task.Delay(100, cts.Token);
         }
-        results.Add(new { config = string.Join(",", fc), perTick, settle, gate, interval, linear, wallSeconds = wait.Elapsed.TotalSeconds, result = answer });
+        bool completePushObservation = answer is JsonElement tested &&
+            tested.TryGetProperty("chunks", out var chunkCount) && chunkCount.GetInt32() == 625 &&
+            tested.TryGetProperty("marchPushes", out var pushCount) && pushCount.GetInt32() >= 625 &&
+            !tested.TryGetProperty("marchSampleError", out _) &&
+            !tested.TryGetProperty("error", out _);
+        results.Add(new { config = string.Join(",", fc), perTick, settle, gate, interval, linear,
+            wallSeconds = wait.Elapsed.TotalSeconds, completePushObservation, result = answer });
+        File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results,
+            new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
         Console.WriteLine($"MAP014_DIRECT_FULL perTick={perTick} wall={wait.Elapsed.TotalSeconds:F1}");
+        // MAP-015 R2: an independent full production camera Truck round after
+        // EACH fast rectangle trial, within the same genuine owned game. Persist
+        // both records before advancing, so a later owner timeout cannot make
+        // an unpaired trial look accepted.
+        if (pairedTruck)
+        {
+            if (answer is not JsonElement direct ||
+                !direct.TryGetProperty("doneAt", out var finished) || !finished.TryGetDouble(out _) ||
+                direct.TryGetProperty("error", out _))
+                throw new InvalidDataException("Fast Truck fixture did not finish its native-owned cleanup; no camera comparison is safe.");
+            int round = cameraRounds.Count;
+            var cameraBefore = await Camera($"truck-paired-{round}-before");
+            var cameraSource = MakeSource(false, forceLegacy: true);
+            var cameraDb = Path.Combine(root, $"truck-paired-{round}.db");
+            using var cameraCommands = new Map317CommandService(cameraDb,
+                new CurrentClientMap317ScanProvider(cameraSource),
+                new CurrentClientMap317ActionProvider(cameraSource), false,
+                cameraSource.GetMapStatusContextAsync);
+            async Task<JsonElement> CameraCall(string name, object payload) => JsonSerializer.SerializeToElement(
+                await cameraCommands.InvokeAsync(name, JsonSerializer.SerializeToElement(payload, JsonOptions.Default), cts.Token),
+                JsonOptions.Default);
+            var cameraTimer = Stopwatch.StartNew();
+            await CameraCall("map_scan_start", new { selectedTypes = new[] { "truck" }, scanMode = "fast" });
+            JsonElement cameraTerminal;
+            while (true)
+            {
+                cameraTerminal = await CameraCall("map_scan_status", new { });
+                if (!cameraTerminal.GetProperty("isReading").GetBoolean() &&
+                    cameraTerminal.GetProperty("phase").GetString() is "completed" or "failed" or "cancelled") break;
+                await Task.Delay(100, cts.Token);
+            }
+            cameraTimer.Stop();
+            if (cameraTerminal.GetProperty("phase").GetString() != "completed")
+                throw new InvalidOperationException("Paired camera Truck scan failed: " + cameraTerminal.GetRawText());
+            var cameraAfter = await Camera($"truck-paired-{round}-after");
+            if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"), cameraAfter.GetProperty("cameraSnapshot")))
+                throw new InvalidDataException("Paired camera Truck scan did not restore original camera.");
+            var cameraSummary = await CameraCall("map_summary", new { });
+            cameraRounds.Add(new { round, rate = fc.Length > 7 ? fc[7] : "0", fastPushComplete = completePushObservation,
+                seconds = cameraTimer.Elapsed.TotalSeconds,
+                database = cameraDb, terminal = cameraTerminal, summary = cameraSummary,
+                cameraBefore, cameraAfter });
+            File.WriteAllText(Path.Combine(root, "direct-full-cameras.json"), JsonSerializer.Serialize(cameraRounds,
+                new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+            Console.WriteLine($"MAP015_PAIRED_CAMERA round={round} seconds={cameraTimer.Elapsed.TotalSeconds:F3}");
+        }
+        File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
         await Task.Delay(8000, cts.Token);
     }
     File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));

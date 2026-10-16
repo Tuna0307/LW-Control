@@ -171,6 +171,93 @@ class PackagedCityCameraFreeTests(unittest.TestCase):
         self.write("native-ui-map.json", self.proof)
         self.assertNotIn("cameraFree", self.audit("other"))
 
+    def test_eight_kind_ghost_requires_source_calculated_plunder_share(self):
+        selected = package_ui.MODES["all-nontruck"]["selected"]
+        witness = dict(displayed=True, sourceCalculatedPlunderShareMatches=True,
+                       formula="floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)",
+                       stealRewardRatio=30.0, nativeRewardCounts=[300, 42], rowIndex=0)
+        results = [dict(kind=kind, serverId=self.server, firstPageRows=1, total=1,
+                        nativeSearchRequestId="real-source-request-" + kind,
+                        positiveGhostRewardRendering=witness if kind == "ghost" else None)
+                   for kind in selected]
+        self.proof.update(selection="all-nontruck", selectedTypes=selected,
+                          proof="actual_packaged_ui_all_nontruck_fullworld_scan_and_results",
+                          browse=dict(ghostNativeRewardDisplayProven=True,
+                                      scanRunId=self.run, serverId=self.server, selectedKinds=selected,
+                                      cameraFree=dict(source="direct", completedAois=10000,
+                                                      repliesCaptured=63, batchesCaptured=63,
+                                                      requestsSent=63, cameraStable=True,
+                                                      curViewRestored=True, metricsPhase="prepared"),
+                                      results=results))
+        self.proof["completedStatus"]["selectedTypes"] = selected
+        self.metrics["identity"]["SelectedTypesKey"] = "\x1f".join(sorted(selected))
+        self.metrics["uniqueRecordKeys"]["ghost"] = 4
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("UPDATE scan_runs SET selected_types=? WHERE id=?",
+                             (json.dumps(selected, separators=(",", ":")), self.run))
+            database.commit()
+        self.save_receipts()
+        self.assertEqual(self.audit("all-nontruck")["cameraFree"]["runId"], self.run)
+
+        for name, mutate in [
+            ("missing calculated share", lambda: witness.pop("sourceCalculatedPlunderShareMatches")),
+            ("owner rewards mislabeled as share", lambda: witness.update(sourceCalculatedPlunderShareMatches=False)),
+            ("missing ratio", lambda: witness.pop("stealRewardRatio")),
+            ("invalid ratio", lambda: witness.update(stealRewardRatio=150)),
+            ("missing formula", lambda: witness.pop("formula")),
+            ("missing actual quantities", lambda: witness.update(nativeRewardCounts=[])),
+        ]:
+            with self.subTest(name=name):
+                original = witness.copy()
+                mutate()
+                self.save_receipts()
+                with self.assertRaisesRegex(ValueError, "plunder-share"):
+                    self.audit("all-nontruck")
+                witness.clear()
+                witness.update(original)
+
+    def test_mixed_eight_truck_filter_requires_fresh_matching_rows(self):
+        selected = package_ui.MODES["mixed-eight"]["selected"]
+        uuid = "native-truck-witness"
+        reward_keys = ["reward:1:1", "reward:7:200364"]
+        truck_row = dict(uuid=uuid, serverId=self.server, power=3_000_000,
+                         currentGoods=[dict(key=key, count=10) for key in reward_keys])
+        witness = dict(gate="genuine_truck_combined_filters", witnessKeys=reward_keys,
+                       payload=dict(kind="truck", query=dict(serverId=self.server,
+                                    escortPowerMaxMillions=25, itemKeys=reward_keys)),
+                       result=dict(total=1, rows=[truck_row]))
+        self.proof = dict(proof="normal_production_map_window_start_scan_search_render",
+                          state="proven", selectedTypes=selected, serverId=self.server,
+                          scan=dict(phase="completed", scanRunId=self.run, serverId=self.server))
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("UPDATE scan_runs SET selected_types=? WHERE id=?",
+                             (json.dumps(selected, separators=(",", ":")), self.run))
+            database.execute("CREATE TABLE map_records(kind TEXT,server_id INTEGER,uuid TEXT)")
+            database.execute("INSERT INTO map_records VALUES('truck',?,?)", (self.server, uuid))
+            database.commit()
+        self.write("map014-ui-extras.json", dict(receipts=[witness]))
+        (self.root / "map014-truck-filtered.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+        self.save_receipts()
+        self.assertEqual(self.audit("mixed-eight")["freshTruckFilter"]["scannedTruckCount"], 1)
+
+        for name, mutate in [
+            ("unpublished Truck", lambda: truck_row.update(uuid="different-native-uuid")),
+            ("power outside filter", lambda: truck_row.update(power=30_000_000)),
+            ("missing selected goods", lambda: truck_row.update(currentGoods=[])),
+            ("wrong scan", lambda: self.proof["scan"].update(scanRunId="old-run")),
+            ("wrong item filters", lambda: witness["payload"]["query"].update(itemKeys=[])),
+        ]:
+            with self.subTest(name=name):
+                self.proof["scan"]["scanRunId"] = self.run
+                truck_row.update(uuid=uuid, power=3_000_000,
+                                 currentGoods=[dict(key=key, count=10) for key in reward_keys])
+                witness["payload"]["query"]["itemKeys"] = reward_keys[:]
+                mutate()
+                self.save_receipts()
+                self.write("map014-ui-extras.json", dict(receipts=[witness]))
+                with self.assertRaises(ValueError, msg=name):
+                    self.audit("mixed-eight")
+
 
 if __name__ == "__main__":
     unittest.main()

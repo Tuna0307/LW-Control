@@ -108,7 +108,7 @@ def main():
         dll=Path(__file__).parent/'bin/Release/net10.0-windows10.0.17763.0/LWBridge.Desktop.Checks.dll'
         with (directory/'managed-native.log').open('w',encoding='utf8') as log:
             process=subprocess.Popen(['dotnet',str(dll),str(directory/'owner.json'),opt.scenario],stdout=log,stderr=subprocess.STDOUT)
-            deadline=time.monotonic()+(1860 if opt.scenario.startswith('benchmark-') else 780)
+            deadline=time.monotonic()+(2100 if opt.scenario=='direct-full' and os.environ.get('LWBRIDGE_MAP015_PAIRED_TRUCK')=='1' else 1860 if opt.scenario.startswith('benchmark-') else 780)
             while process.poll() is None:
                 if time.monotonic()>deadline:
                     process.terminate(); process.wait(timeout=30); raise TimeoutError('Own managed diagnostic exceeded its bound')

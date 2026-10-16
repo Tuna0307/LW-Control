@@ -3193,6 +3193,7 @@ local function ghost_aoi_records(world, point_manager, block_size, block_count, 
             stealListCount = collection_count(steal_list),
             memberListCount = collection_count(member_list),
             rewardConfig = reward_config,
+            stealRewardRatio = tonumber(steal_ratio),
             rewards = reward_cache[cfg_id] or nil,
             worldOpen = scalar_field(cfg, { "world_open", "worldOpen", "WorldOpen" }),
             protectTime = scalar_field(cfg, { "protect_times", "protectTime", "ProtectTime" }),
@@ -7168,6 +7169,20 @@ function M._map015CameraFree.finish(reason)
     local camera_stable = x == s.originalX and y == s.originalY
     local state = reason == nil and restored and camera_stable and s.completed == 10000 and "proven" or "failed"
     local batches = s.batches
+    -- Record independent detail progress at the native AOI boundary. The
+    -- later C# hydration receipt can show exactly how much work overlapped.
+    local detail_scan = monster_protection_scan
+    local detail_at_aoi_finish = nil
+    if s.includeMonsterProtection and same_monster_protection_scan(detail_scan, s) then
+        detail_at_aoi_finish = {
+            targets = #detail_scan.targets,
+            queued = #detail_scan.requestQueue,
+            requestsSent = detail_scan.requestCount,
+            repliesReady = detail_scan.responseCount,
+            pendingIndex = detail_scan.queueIndex,
+            inflight = detail_scan.inflightTarget ~= nil,
+        }
+    end
     -- Never publish a partial snapshot. The C# owner will use its camera fallback.
     if state ~= "proven" then batches = {} end
     local output = {
@@ -7183,6 +7198,7 @@ function M._map015CameraFree.finish(reason)
         completedAois = s.completed, requestsSent = s.sent,
         repliesCaptured = #s.batches,
         elapsedSeconds = runtime_clock() - s.startedAt,
+        monsterProtectionAtAoiFinish = detail_at_aoi_finish,
         sourceFailureDiagnostics = s.sourceFailureDiagnostics,
         batches = batches,
         capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
@@ -7235,6 +7251,22 @@ function M._map015CameraFree.capture(s)
         function() return treasure_aoi_records(s.world, s.manager, 10, 100, selected) end)
     if not ok then return false, "treasure_" .. tostring(err) end
     if s.includeMonster then
+        if s.includeMonsterProtection and not s.protectionPrefetchAttempted then
+            s.protectionPrefetchAttempted = true
+            -- All already loaded WorldMarch identities belong to the live
+            -- game. Start passive protection detail reads early, while the AOI
+            -- source is still visiting its distinct point footprints. Any
+            -- later AOI-discovered boss is deduplicated by exact UUID and still
+            -- obtains its own authoritative reply before publication.
+            local prefetch, _, prefetch_err = monster_invasion_protection_targets(
+                s.world, 10, 100, nil, s.serverId)
+            if prefetch ~= nil then
+                queue_monster_invasion_protection_requests(s, prefetch)
+                s.protectionPrefetchCount = #prefetch
+            else
+                s.protectionPrefetchError = prefetch_err
+            end
+        end
         local monsters, monster_err = monster_march_aoi_records(s.world, 10, 100, selected, s.homeTile)
         if monsters == nil then return false, "monster_" .. tostring(monster_err) end
         batch.monster_march_records = monsters
