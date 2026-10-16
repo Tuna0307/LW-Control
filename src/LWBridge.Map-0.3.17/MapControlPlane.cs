@@ -209,8 +209,8 @@ public sealed class MapControlPlane : IDisposable
     public MapOptionSet ReadOptions(int requestedServerId)
     {
         MapScanState state = scan.State;
-        int serverId = requestedServerId > 0 ? requestedServerId : state.ServerId;
-        MapStore.ValidateServerId(serverId);
+        int serverId = requestedServerId;
+        MapStore.ValidateReadServerId(serverId);
         return store.ReadOptions(serverId, ActiveRunForServer(serverId, state), nowMilliseconds());
     }
 

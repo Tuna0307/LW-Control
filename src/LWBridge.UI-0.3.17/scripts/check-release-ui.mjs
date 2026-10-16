@@ -126,16 +126,10 @@ try {
       if (await stop.isEnabled()) throw new Error("Auto Stop did not acknowledge the preview cancellation");
     }
     if (state === "map-providers-ghost") {
-      const prepare = page.getByRole("button", { name: "Prepare Ghost tasks" });
-      if (!await prepare.count() || await prepare.isEnabled()) throw new Error("Ghost preparation must remain selection-gated");
-      if (await page.getByRole("button", { name: /Schedule selected/i }).count())
-        throw new Error("Unverified Ghost execution must not be advertised as scheduled");
-      const selectable = page.locator(".map-table--ghost input[type=checkbox]:not(:disabled)").first();
-      await selectable.waitFor({ state: "visible" });
-      await selectable.check();
-      if (!await prepare.isEnabled()) throw new Error("Ghost prepare button did not enable for valid selection");
-      await prepare.click();
-      await page.getByRole("status").getByText("No jobs were scheduled").waitFor({ state: "visible" });
+      if (await page.getByRole("button", { name: /Prepare Ghost tasks|Schedule selected|Share to alliance/i }).count())
+        throw new Error("Owner-removed plunder/schedule/share controls must not reappear");
+      if (await page.locator(".map-table--ghost input[type=checkbox]").count())
+        throw new Error("Removed scheduling must leave no orphan Ghost selection");
     }
     if (state === "map-providers-treasure") {
       const preview = page.getByRole("button", { name: "Preview boxes" });

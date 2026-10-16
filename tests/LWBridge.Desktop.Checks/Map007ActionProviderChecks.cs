@@ -90,15 +90,9 @@ internal static class Map007ActionProviderChecks
                         "GAME_PROVIDER_UNAVAILABLE", "controlled claim terminal protocol unavailable"));
                 },
                 ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("No sharing"),
-                PrepareGhostPlunderTasks = (rows, _) =>
-                {
-                    try { return ValueTask.FromResult(CurrentClientMap317ActionProvider.PrepareGhostPlunderRows(rows)); }
-                    catch (InvalidDataException error)
-                    {
-                        return ValueTask.FromException<IReadOnlyList<JsonElement>>(
-                            new Map317.BridgeCommandException("INVALID_REQUEST", error.Message));
-                    }
-                },
+                PrepareGhostPlunderTasks = (_, _) =>
+                    ValueTask.FromException<IReadOnlyList<JsonElement>>(
+                        new Map317.BridgeCommandException("FEATURE_REMOVED", "Ghost preparation retired")),
                 GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
                 ArmDispatchPlunder = (_, _) =>
                 {
@@ -158,7 +152,7 @@ internal static class Map007ActionProviderChecks
             { rows = new[] { new { taskKind = "ghost", uuid = "12345", serverId = 317,
                 completionTime = now - 1_000, plunderAt = now + 10_000,
                 taskExpireTime = now + 60_000, stolenCount = 0, maxStealCount = 2 } } }),
-                "GHOST_PLUNDER_PROVIDER_UNAVAILABLE");
+                "FEATURE_REMOVED");
 
             var ghost = new
             {
@@ -169,26 +163,18 @@ internal static class Map007ActionProviderChecks
                 plunderAt = now + 29_000, taskExpireTime = now + 120_000,
                 stealListCount = 0, stolenCount = 0, stealMaxTimes = 2, maxStealCount = 2,
             };
-            JsonElement prepared = await Call(service, "map_ghost_plunder_prepare", new { rows = new[] { ghost } });
-            Require(prepared.GetArrayLength() == 1 && prepared[0].GetProperty("uuid").GetString() == "123456" &&
-                dispatchSends == 0, "Ghost preparation was routed as Dispatch game transport");
-            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { ghost, ghost } }), "INVALID_REQUEST");
-            JsonElement wrong = JsonSerializer.SerializeToElement(ghost);
-            using var changed = JsonDocument.Parse(wrong.GetRawText().Replace("GhostreconPointInfo", "DispatchPointInfo"));
-            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { changed.RootElement.Clone() } }), "INVALID_REQUEST");
-
+            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new { rows = new[] { ghost } }),
+                "FEATURE_REMOVED");
             hold = true;
             Task<JsonElement> held = Call(service, "map_treasure_claim_status", new { });
             await readGate.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { ghost } }), "GAME_OPERATION_IN_PROGRESS");
+            { rows = new[] { ghost } }), "FEATURE_REMOVED");
             identity = "different-user";
             releaseGate.TrySetResult(true);
             await held;
             Require(claimSends == 1 && dispatchSends == 0, "read-only preview sent an extra action request");
-            Console.WriteLine("MAP_007_REAL_COMMAND_GHOST_PREP_TREASURE_INSPECT_PREVIEW_OK");
+            Console.WriteLine("MAP_007_RETIRED_GHOST_TREASURE_INSPECT_PREVIEW_OK");
         }
         finally
         {

@@ -92,7 +92,13 @@ function initialTheme() {
 }
 
 function initialAutoLaunchGame() {
-  return readAutoLaunchGamePreference(localStorage);
+  // An existing global browser preference remains authoritative. If there is
+  // none, use the native profile startup preference instead of silently
+  // treating a native disabled Launch as an enabled first-run Auto Launch.
+  const nativeDefault = window.__LWBridgeBootstrap?.autoLaunchGame;
+  return readAutoLaunchGamePreference(
+    localStorage, typeof nativeDefault === "boolean" ? nativeDefault : true,
+  );
 }
 
 function initialAutoScanConfig(profileId, previewState) {

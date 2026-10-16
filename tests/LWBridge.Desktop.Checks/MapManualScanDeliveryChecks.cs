@@ -161,7 +161,9 @@ internal static class MapManualScanDeliveryChecks
                 JsonElement start = await Invoke(service, "map_scan_start",
                     new { selectedTypes = new[] { "city" }, scanMode = "normal" });
                 Require(start.GetProperty("isReading").GetBoolean() &&
-                        start.GetProperty("concurrency").GetInt32() == 8, "normal start");
+                        start.GetProperty("concurrency").GetInt32() == 20 &&
+                        start.GetProperty("scanMode").GetString() == "fast",
+                    "legacy normal start must use the best automatic scan method");
                 await reachedSecond.Task.WaitAsync(TimeSpan.FromSeconds(4));
                 Require((await Search(service, "city")).GetProperty("total").GetInt32() == 1,
                     "live search observes genuine engine staging");

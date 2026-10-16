@@ -15,7 +15,7 @@ import { ZOMBIE_BOSS_KEYS, ZOMBIE_BOSS_MESSAGES } from "../src/locales/map014-zo
 // ---- selection semantics ----------------------------------------------------
 assert.deepEqual(MAP_SCAN_TYPES.map(({ key }) => key), ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"]);
 // Zombie Boss follows Other so every existing tab position stays unchanged.
-assert.deepEqual(MAP_TABS.map(({ key }) => key), ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss", "scheduledPlunder"]);
+assert.deepEqual(MAP_TABS.map(({ key }) => key), ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"]);
 assert.equal(MAP_DEFAULT_SCAN_TYPES.length, 8);
 assert.equal(MAP_DEFAULT_SCAN_TYPES.includes("zombie_boss"), false, "Zombie Boss is opt-in; the implicit scan stays the eight recovered kinds");
 assert.deepEqual(buildStartPayload(undefined, "normal").selectedTypes, MAP_DEFAULT_SCAN_TYPES);
@@ -126,7 +126,7 @@ for (const language of ["en", "zh-TW"]) {
     el.dispatchEvent(new window.Event("input", { bubbles: true })); el.dispatchEvent(new window.Event("change", { bubbles: true })); });
 
   // Scan-type checkbox exists, labelled, and is not part of the implicit selection.
-  const scanCheckbox = [...document.querySelectorAll(".map-types label")].find((label) => label.textContent.trim() === text["map.zombieBoss"]);
+  const scanCheckbox = [...document.querySelectorAll(".map-category-menu label")].find((label) => label.textContent.trim() === text["map.zombieBoss"]);
   assert.ok(scanCheckbox, `${language}: scan type list lacks Zombie Boss`);
   assert.equal(scanCheckbox.querySelector("input").checked, false, "Zombie Boss is not checked by default");
 

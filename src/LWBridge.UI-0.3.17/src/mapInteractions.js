@@ -1,11 +1,10 @@
-// Recovered Map interaction rules: selection ownership, random delay and action predicates.
+// Retained Map filter and action-error presentation. Scheduling/sharing were removed by MAP-016 owner direction.
 // Exact source: evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/MapDataPanel-B4GXEND2.js
 // (SHA-256 CE74345518BE72E417A510B982C591729E5683F69751E190805598C4C05D3089); binding names below are
 // expanded for readability. Locators and the original-component differential live under
 // evidence/lwbridge-0.3.17/ui/LWB317-UI-MAP-INTERACTIONS-001/.
 //
-// Nothing here talks to a provider. Original UI predicates are kept separate from the canonical runtime
-// availability fence (a provider that does not implement scheduling/sharing leaves those buttons disabled).
+// This module only formats retained filters and errors; no provider actions are dispatched.
 
 export const NAME_FILTER_KINDS = Object.freeze(["resource", "monster"]);
 
@@ -13,95 +12,11 @@ export function isNameFilterKind(kind) {
   return kind === "resource" || kind === "monster";
 }
 
-// Task selection is keyed by the same canonical UUID used for checkbox
-// membership. A native row with padded UUID must be toggleable and visibly
-// selected; storing the raw UUID left its checkbox permanently unchecked.
-export function selectionStorageKey(row) {
-  return `${row.serverId}:${String(row.uuid || "").trim()}`;
-}
-
-export function selectionMembershipKey(row) {
-  return selectionStorageKey(row);
-}
-
-export function toggleSelection(selection, row) {
-  const key = selectionStorageKey(row);
-  if (selection[key]) {
-    const next = { ...selection };
-    delete next[key];
-    return next;
-  }
-  // The selected payload also goes to native schedule/share actions. Keep its
-  // UUID aligned with the checkbox key without converting long IDs to Number.
-  return { ...selection, [key]: { ...row, uuid: String(row.uuid || "").trim() } };
-}
-
-export function selectionCount(selection) {
-  return Object.keys(selection).length;
-}
-
-export function selectionKeySet(selection) {
-  return new Set(Object.keys(selection));
-}
-
-// Original `or` receives the table row with `taskKind` forced to ghost/dispatch from the active table kind.
-export function dispatchSelectionPayload(kind, row) {
-  return { ...row, taskKind: kind === "ghost" ? "ghost" : "dispatch" };
-}
-
-// Original share success: keep only entries whose `String(row.uuid || "")` is not in `sharedUuids`.
-export function removeSharedSelection(selection, sharedUuids) {
-  const shared = new Set((sharedUuids || []).map((uuid) => String(uuid).trim()));
-  return Object.fromEntries(Object.entries(selection).filter(([, row]) => !shared.has(String(row.uuid || "").trim())));
-}
-
-// Original: `Gn = Number(delayText); Kn = Number.isSafeInteger(Gn) && Gn >= 0`.
-export const DEFAULT_RANDOM_DELAY_TEXT = "0";
-export function parseRandomDelay(text) {
-  const seconds = Number(text);
-  return { seconds, valid: Number.isSafeInteger(seconds) && seconds >= 0 };
-}
-
-// Original Dispatch/Ghost "Schedule selected" button:
-// disabled = count === 0 || busyKey === "schedule" || sharing || !delayValid. Its label never changes.
-export function scheduleSelectedDisabled({ count, busyKey, sharing, delayValid }) {
-  return count === 0 || busyKey === "schedule" || sharing || !delayValid;
-}
-
-// Original Dispatch "Share to alliance" button:
-// disabled = !online || isReading || count === 0 || busyKey === "schedule" || sharing; label flips while sharing.
-export function shareAllianceDisabled({ online, isReading, count, busyKey, sharing }) {
-  return !online || isReading || count === 0 || busyKey === "schedule" || sharing;
-}
-export function shareAllianceLabelKey(sharing) {
-  return sharing ? "map.sharingAlliance" : "map.shareAlliance";
-}
-
-// Original Truck "Schedule selected trucks" button: disabled = count === 0 || busyKey === "schedule-truck".
-export function scheduleTrucksDisabled({ count, busyKey }) {
-  return count === 0 || busyKey === "schedule-truck";
-}
-
-// Canonical runtime availability: a provider has to implement the operation before its button can enable.
-export const SCHEDULING_PROVIDER_METHODS = Object.freeze({
-  dispatch: ["scheduleDispatchPlunder"],
-  truck: ["scheduleTruckPlunder"],
-  share: ["shareDispatchToAlliance"],
-  jobActions: ["cancelDispatchPlunder", "cancelTruckPlunder", "clearDispatchPlunderHistory", "clearTruckPlunderHistory", "scheduleTruckPlunder"],
-});
-
-export function providerSupports(mapApi, methods) {
-  return methods.every((name) => typeof mapApi?.[name] === "function");
-}
-
-// Original action-failure translator (`m` = Lr in the main asset, byte 328684; its helper Ir extracts error codes):
-// collect the error's `code` plus every upper-case token of the message, newest first, and return the first
-// `error.*`, `auth.error.*` or `update.error.*` catalog entry that exists, else `common.actionFailed`.
-// Identical to the Home-page `translatedError` accepted earlier.
+// Preserve catalog translations, explain Auto failure codes, then retain native error details.
 export function translateActionError(t, value, fallbackKey = "common.actionFailed") {
   const codes = [];
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") codes.push(value.code);
-  const message = value instanceof Error ? value.message : String(value ?? "");
+  const message = value && typeof value.message === "string" ? value.message : String(value ?? "");
   codes.push(...message.match(/\b[A-Z][A-Z0-9_]{2,}\b/g) || []);
   for (const code of [...new Set(codes)].reverse()) {
     for (const namespace of ["error", "auth.error", "update.error"]) {
@@ -110,5 +25,22 @@ export function translateActionError(t, value, fallbackKey = "common.actionFaile
       if (translated !== key) return translated;
     }
   }
-  return t(fallbackKey);
+  const autoErrors = {
+    MAP_AUTO_SCAN_NOT_PUBLISHED: "map.autoScanNotPublished",
+    MAP_AUTO_SCAN_SERVER_UNAVAILABLE: "map.autoScanServerUnavailable",
+    MAP_AUTO_SCAN_TIMEOUT: "map.autoScanTimedOut",
+    MAP_AUTO_SCAN_OWNER_MISMATCH: "map.autoScanOwnerChanged",
+    MAP_AUTO_SCAN_TARGET_OWNER_MISMATCH: "map.autoScanOwnerChanged",
+    MAP_AUTO_SCAN_RETURN_OWNER_MISMATCH: "map.autoScanOwnerChanged",
+    MAP_AUTO_SCAN_RETURN_FAILED: "map.autoScanReturnFailed",
+    MAP_AUTO_SCAN_STOP_FAILED: "map.autoScanStopFailed",
+  };
+  for (const code of Object.keys(autoErrors)) {
+    if (!codes.includes(code)) continue;
+    const text = t(autoErrors[code]);
+    return `${text} (${message.trim()})`;
+  }
+  // Native plain-language errors must remain visible, including retained errors
+  // loaded on the Auto tab. A missing catalog entry must never hide their cause.
+  return message.trim() || t(fallbackKey);
 }

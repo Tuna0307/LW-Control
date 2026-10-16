@@ -36,10 +36,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     private readonly IMap317RunScopedProvider? scanRunProvider;
     private readonly Map317.MapControlPlane control;
     private readonly Map317.MapActionControlPlane actions;
-    private readonly Map317.MapPlunderWorker plunderWorker;
-    private readonly CancellationTokenSource workerCancellation = new();
-    private readonly Task dispatchWorkerTask;
-    private readonly Task truckWorkerTask;
     private readonly object scanLeaseGate = new();
     private readonly SemaphoreSlim scanTransitionGate = new(1, 1);
     // A target jump can succeed before its scan obtains a run ID. Idle context
@@ -74,20 +70,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         scanRunProvider.RunTerminated += ReleaseScanLease;
         var actionProvider = new CurrentClientMap317ActionProvider(currentSource);
         actions = new Map317.MapActionControlPlane(store, actionProvider);
-        plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
+        store.RetireAutomaticPlunder();
 
         control.ScanStateChanged += (_, args) => ScanStatusChanged?.Invoke(ApplyStatusOverlay(args.State));
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
         actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
         actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
-        plunderWorker.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
-        plunderWorker.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
-
-        plunderWorker.RecoverAfterRestart();
-        dispatchWorkerTask = Task.Run(() => RunPlunderWorkerAsync(
-            plunderWorker.RunDispatchOnceAsync, workerCancellation.Token));
-        truckWorkerTask = Task.Run(() => RunPlunderWorkerAsync(
-            plunderWorker.RunTruckOnceAsync, workerCancellation.Token));
     }
 
     /// <summary>
@@ -118,7 +106,7 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                     DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         }
         actions = new Map317.MapActionControlPlane(store, actionProvider);
-        plunderWorker = new Map317.MapPlunderWorker(store, actionProvider);
+        store.RetireAutomaticPlunder();
         if (scanRunProvider is not null)
             scanRunProvider.RunTerminated += ReleaseScanLease;
 
@@ -126,16 +114,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         control.PlayerMarkChanged += (_, _) => PlayerMarkChanged?.Invoke();
         actions.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
         actions.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
-        plunderWorker.DispatchPlunderChanged += (_, _) => DispatchPlunderChanged?.Invoke();
-        plunderWorker.TruckPlunderChanged += (_, _) => TruckPlunderChanged?.Invoke();
-
-        plunderWorker.RecoverAfterRestart();
-        dispatchWorkerTask = startPlunderWorkers
-            ? Task.Run(() => RunPlunderWorkerAsync(plunderWorker.RunDispatchOnceAsync, workerCancellation.Token))
-            : Task.CompletedTask;
-        truckWorkerTask = startPlunderWorkers
-            ? Task.Run(() => RunPlunderWorkerAsync(plunderWorker.RunTruckOnceAsync, workerCancellation.Token))
-            : Task.CompletedTask;
     }
 
     public event Action<object>? ScanStatusChanged;
@@ -157,6 +135,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     public bool CanHandle(string command) => Commands.Contains(command);
 
     internal object CreateStatus() => ApplyStatusOverlay(control.ScanState);
+
+    // A completed remote Auto scan may no longer be the live Map status after
+    // returning to the home server. Read the exact durable run for diagnostic
+    // provenance, independently of the current live status overlay.
+    internal Map317.MapScanRun? ReadPersistedScanRunForProof(string runId) =>
+        store.ReadScanRun(runId);
 
     internal bool IsScanActive => control.ScanState.IsReading;
 
@@ -464,9 +448,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                             preview.ServerId, preview.ClaimScope, preview.PrioritizeLuckySlots,
                             preview.TargetUuid, cancellationToken).ConfigureAwait(false);
                     }
-                case "map_ghost_plunder_prepare":
-                    return await actions.PrepareGhostPlunderAsync(
-                        ReadRows(payload, "rows"), cancellationToken).ConfigureAwait(false);
                 case "map_treasure_claim":
                     {
                         // Original handler 0x18EE07: INVALID_SERVER_ID /
@@ -476,44 +457,21 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                             claim.ServerId, claim.ClaimScope, claim.PrioritizeLuckySlots,
                             claim.TargetUuid, cancellationToken).ConfigureAwait(false);
                     }
+                case "map_ghost_plunder_prepare":
                 case "map_dispatch_share_alliance":
-                    return await actions.ShareDispatchToAllianceAsync(
-                        ReadRows(payload, "rows"), cancellationToken).ConfigureAwait(false);
                 case "map_plunder_jobs_list":
-                    {
-                        Map317.MapPlunderJobsSnapshot jobs =
-                            await actions.ListPlunderJobsAsync(cancellationToken).ConfigureAwait(false);
-                        return new { dispatchJobs = jobs.DispatchJobs, truckJobs = jobs.TruckJobs };
-                    }
                 case "map_dispatch_plunder_schedule":
-                    return await actions.ScheduleDispatchPlunderAsync(
-                        ReadRows(payload, "rows"), cancellationToken).ConfigureAwait(false);
                 case "map_dispatch_plunder_cancel":
-                    actions.CancelDispatchPlunder(
-                        RequiredLong(payload, "serverId"), RequiredString(payload, "taskUuid"));
-                    return null;
                 case "map_dispatch_plunder_clear":
-                    return actions.ClearDispatchPlunder(
-                        RequiredLong(payload, "before"), OptionalString(payload, "taskKind"));
                 case "map_dispatch_plunder_list":
-                    return actions.ListDispatchPlunderJobs();
                 case "map_dispatch_plunder_retry":
-                    actions.RetryDispatchPlunder(
-                        RequiredLong(payload, "serverId"), RequiredString(payload, "taskUuid"));
-                    return null;
                 case "map_truck_plunder_schedule":
-                    return actions.ScheduleTruckPlunder(ReadRows(payload, "rows"));
                 case "map_truck_plunder_cancel":
-                    actions.CancelTruckPlunder(
-                        RequiredLong(payload, "serverId"), RequiredString(payload, "trainUuid"));
-                    return null;
                 case "map_truck_plunder_clear":
-                    return actions.ClearTruckPlunder(RequiredLong(payload, "before"));
                 case "map_truck_plunder_list":
-                    return actions.ListTruckPlunderJobs();
                 case "map_truck_plunder_retry":
-                    return actions.RetryTruckPlunder(
-                        RequiredLong(payload, "serverId"), RequiredString(payload, "trainUuid"));
+                    throw new BridgeCommandException("FEATURE_REMOVED",
+                        "Automatic plunder, scheduling and alliance sharing were removed by the owner.");
                 default:
                     throw new BridgeCommandException(
                         "COMMAND_NOT_IMPLEMENTED", $"Map317 cannot handle '{command}'.");
@@ -573,8 +531,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
                 ? (System.Text.Json.Nodes.JsonObject)System.Text.Json.Nodes.JsonNode.Parse(query.GetRawText())!
                 : new System.Text.Json.Nodes.JsonObject();
         long exportServer = LooseInt64(JsonSerializer.SerializeToElement(queryObject), "serverId") ?? 0;
-        if (exportServer <= 0) exportServer = control.ScanState.ServerId;
-        if (exportServer <= 0)
+        bool allServers = IsAllServers(JsonSerializer.SerializeToElement(queryObject));
+        if (exportServer <= 0 && !allServers) exportServer = control.ScanState.ServerId;
+        if (exportServer <= 0 && !allServers)
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export server is unavailable");
         queryObject["serverId"] = (int)Math.Min(exportServer, int.MaxValue);
         int serverId = (int)Math.Min(exportServer, int.MaxValue);
@@ -608,9 +567,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
     public void Dispose()
     {
         if (Interlocked.Exchange(ref disposed, 1) != 0) return;
-        workerCancellation.Cancel();
-        try { Task.WhenAll(dispatchWorkerTask, truckWorkerTask).GetAwaiter().GetResult(); }
-        catch (OperationCanceledException) { }
         if (scanRunProvider is not null)
         {
             scanRunProvider.Dispose();
@@ -618,12 +574,17 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         }
         ReleaseScanLease();
         control.Dispose();
-        workerCancellation.Dispose();
         scanTransitionGate.Dispose();
     }
 
     private async Task<object> StartScanAsync(JsonElement payload, CancellationToken cancellationToken)
     {
+        // OWNER_DIRECTION MAP-016: legacy Normal settings remain readable,
+        // but every user scan uses the accuracy-qualified best route/fallback.
+        var request = System.Text.Json.Nodes.JsonNode.Parse(payload.GetRawText()) as System.Text.Json.Nodes.JsonObject
+            ?? new System.Text.Json.Nodes.JsonObject();
+        request["scanMode"] = "fast";
+        payload = JsonSerializer.SerializeToElement(request);
         await scanTransitionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -1032,12 +993,22 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         owner.ValueKind == JsonValueKind.Object && owner.TryGetProperty(name, out JsonElement value)
             ? LooseInt64(value) : null;
 
-    // map_data_options: a non-positive/missing server is replaced by the shared-state server.
+    private static bool IsAllServers(JsonElement owner) =>
+        owner.ValueKind == JsonValueKind.Object && owner.TryGetProperty("serverId", out var value) &&
+        value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int server) && server == 0;
+
+    // Only explicit numeric zero opts into all saved servers; malformed legacy input retains its fallback.
     private int OptionsServerId(JsonElement payload)
     {
         long requested = LooseInt64(payload, "serverId") ?? 0;
-        if (requested <= 0) requested = control.ScanState.ServerId;
-        return requested is >= 0 and <= int.MaxValue ? (int)requested : 0;
+        if (requested <= 0 && !IsAllServers(payload))
+        {
+            requested = control.ScanState.ServerId;
+            if (requested <= 0) throw new BridgeCommandException("SERVER_UNAVAILABLE", "Choose a saved server before loading Map options.");
+        }
+        if (requested is < 0 or > 99_999)
+            throw new BridgeCommandException("INVALID_SERVER_ID", "Choose a saved server from 1 through 99999, or All servers.");
+        return (int)requested;
     }
 
     // The original Map handler returns the full native empty-page envelope,
@@ -1086,8 +1057,8 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
         long? page = LooseInt64(queryElement, "page");
         long? pageSize = LooseInt64(queryElement, "pageSize");
         long server = LooseInt64(queryElement, "serverId") ?? 0;
-        if (server <= 0) server = control.ScanState.ServerId;
-        if (server is < 1 or > 99_999) return null; // final non-positive server -> empty page; >99999 matches nothing
+        if (server <= 0 && !IsAllServers(queryElement)) server = control.ScanState.ServerId;
+        if ((server == 0 && !IsAllServers(queryElement)) || server is < 0 or > 99_999) return null; // final non-positive server -> empty page; >99999 matches nothing
 
         long originalPage = Math.Max(page ?? 1L, 1L);
         // The legacy normalization DTO is int32. Give it only a representable
@@ -1281,39 +1252,6 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             parsed.ViewerAllianceId,
             parsed.MinLevel,
             parsed.MaxLevel);
-    }
-
-    private static async Task RunPlunderWorkerAsync(
-        Func<CancellationToken, ValueTask> runOnce,
-        CancellationToken cancellationToken)
-    {
-        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(Map317.MapPlunderWorker.TickMilliseconds));
-        try
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
-            {
-                try
-                {
-                    await runOnce(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-                catch (Map317.BridgeCommandException)
-                {
-                    // The durable worker persists recovered failure/waiting states.
-                    // A provider-level failure must not terminate future scheduled work.
-                }
-                catch (Exception)
-                {
-                    // Keep the scheduler alive across an adapter/runtime fault. Individual
-                    // provider calls translate expected malformed-current-client failures
-                    // into Map317 errors before they reach this boundary.
-                }
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     }
 
     private static IReadOnlyList<JsonElement> ReadRows(JsonElement payload, string name)

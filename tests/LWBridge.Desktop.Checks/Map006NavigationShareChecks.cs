@@ -166,19 +166,16 @@ internal static class Map006NavigationShareChecks
                 new { uuid = "2", serverId = 317, x = 2, y = 3, cfgId = 4 },
                 new { uuid = "3", serverId = 317, x = 2, y = 3, cfgId = 4 },
             };
-            JsonElement shared = await Invoke(service, "map_dispatch_share_alliance", new { rows });
-            Require(shared.GetProperty("shared").GetInt32() == 1 &&
-                shared.GetProperty("failed").GetInt32() == 2 &&
-                shared.GetProperty("sharedUuids").GetArrayLength() == 1 &&
-                shared.GetProperty("sharedUuids")[0].GetString() == "1" && shareCalls == 3,
-                "share batch counted a rejected/unacknowledged request as success");
+            await MustReject(async () => _ = await Invoke(service, "map_dispatch_share_alliance", new { rows }),
+                "FEATURE_REMOVED", "owner-removed alliance sharing");
+            Require(shareCalls == 0, "removed native sharing route reached the provider");
             JsonElement inspection = await Invoke(service, "map_treasure_claim_status", new { });
             Require(inspection.GetProperty("serverId").GetInt32() == 318 &&
                 inspection.GetProperty("candidateCount").GetInt32() == 0 &&
                 inspection.GetProperty("mode").GetString() == "inspection_only" &&
                 !inspection.GetProperty("claimExecutionAvailable").GetBoolean(),
                 "empty Treasure inspection did not honestly report read-only status");
-            Console.WriteLine("MAP_006_CONTROLLED_NAVIGATION_SHARE_ACK_GATE_OK");
+            Console.WriteLine("MAP_006_CONTROLLED_NAVIGATION_RETIRED_SHARE_GATE_OK");
         }
         finally
         {

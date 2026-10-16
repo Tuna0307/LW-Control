@@ -859,8 +859,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
                     RecoveryClockMilliseconds() +
                     (long)OfficialClientSettleTimeout.TotalMilliseconds);
                 await EnsureOfficialClientSettledAsync(
-                    selectedRoot, cancellationToken, officialSettleDeadline,
-                    forceOfficialSettle: true).ConfigureAwait(false);
+                    selectedRoot, cancellationToken, officialSettleDeadline).ConfigureAwait(false);
 
                 startDeadline = checked(
                     RecoveryClockMilliseconds() +

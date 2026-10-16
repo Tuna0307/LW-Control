@@ -83,7 +83,41 @@ def excluded_non_target_runtime(relative: Path) -> bool:
     return relative.as_posix() in NON_TARGET_RUNTIME_FILES
 
 
-def create() -> dict:
+def map016_support_files(source_commit: str) -> dict[str, bytes]:
+    """Review-only launcher and source identity for the packaged UI proof runner."""
+    if not re.fullmatch(r'[0-9a-f]{40}', source_commit):
+        raise ValueError('MAP016 package requires an exact source commit')
+    root = 'LW-Control-UI/'
+    return {
+        root + 'SOURCE-COMMIT.txt': (source_commit + '\r\n').encode('ascii'),
+        root + 'Launch LWBridge.cmd': (
+            '@echo off\r\nsetlocal\r\n'
+            'set "APP=%~dp0LWBridge.Desktop.exe"\r\n'
+            'if not exist "%APP%" (echo Missing LWBridge.Desktop.exe & exit /b 2)\r\n'
+            'start "" "%APP%" %*\r\n').encode('ascii'),
+        root + 'README-RELEASE.txt': (
+            'LW-Control MAP-016 owner fixes — UNPUBLISHED review candidate\r\n'
+            f'Source commit: {source_commit}\r\n'
+            'Windows x64: extract the whole ZIP into a writable folder and run '
+            'Launch LWBridge.cmd. Requires .NET 10 Desktop Runtime, Edge WebView2 '
+            'Runtime and Python for live game integration.\r\n'
+            'MAP-016 removes scheduled/automatic plunder, alliance sharing, '
+            'Add to schedule and Normal/Fast selection. Saved Map browsing '
+            'includes All servers. Scan scheduling waits its configured interval '
+            'after enabling or reconnecting. Remote scans use an automatic '
+            'guarded switch, fast scan and return.\r\n'
+            'This is a local review build, not a published release. Full live '
+            'functional parity, first-use official launcher behavior and '
+            'remote raw world reply decoding remain unverified. Never perform '
+            'plunder, attacks, claims, marches, spending or relocation.\r\n'
+            'Audit: docs/MAP_016_WORKER_REPORT.md in the source repository.\r\n'
+        ).encode('utf-8'),
+    }
+
+
+def create(label: str = 'MAP014') -> dict:
+    if label not in ('MAP014', 'MAP016'):
+        raise ValueError('Unsupported review work-item label')
     sha_commit = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT,
                                 capture_output=True, text=True, check=True).stdout.strip()
     if len(sha_commit) != 40 or not all(char in '0123456789abcdef' for char in sha_commit):
@@ -123,21 +157,26 @@ def create() -> dict:
         raise ValueError(f'Unexpected publish manifest length: {len(included)}')
 
     short = sha_commit[:12]
-    destination = ROOT / 'artifacts' / f'release-map014-{short[:8]}'
+    destination = ROOT / 'artifacts' / f'release-{label.lower()}-{short[:8]}'
     destination.mkdir(parents=True, exist_ok=True)
-    package = destination / f'LW-Control-MAP014-OWNER-RC-{short}.zip'
+    package = destination / f'LW-Control-{label}-OWNER-RC-{short}.zip'
     if package.exists():
         raise FileExistsError(f'The one final candidate already exists: {package}')
     temporary = package.with_suffix('.zip.staging')
     if temporary.exists():
         raise FileExistsError(f'A prior interrupted staging artifact needs review: {temporary}')
     recorded = {}
+    prefix = 'LW-Control-UI/' if label == 'MAP016' else ''
     try:
         with zipfile.ZipFile(temporary, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for source, relative in included:
-                key = relative.as_posix()
+                key = prefix + relative.as_posix()
                 archive.write(source, key)
                 recorded[key] = sha(source)
+            if label == 'MAP016':
+                for name, data in map016_support_files(sha_commit).items():
+                    archive.writestr(name, data)
+                    recorded[name] = hashlib.sha256(data).hexdigest()
         with zipfile.ZipFile(temporary, 'r') as archive:
             if archive.testzip() is not None:
                 raise RuntimeError('Release ZIP CRC validation failed')
@@ -157,8 +196,8 @@ def create() -> dict:
         'package': str(package),
         'sizeBytes': package.stat().st_size,
         'sha256': sha(package),
-        'executableSha256': recorded['LWBridge.Desktop.exe'],
-        'files': len(included),
+        'executableSha256': recorded[prefix + 'LWBridge.Desktop.exe'],
+        'files': len(recorded),
         'excludedDebugArtifacts': exclusions,
         'excludedNonTargetRuntimeAssets': runtime_exclusions,
         'manifest': recorded,
@@ -172,5 +211,6 @@ def create() -> dict:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.parse_args()
-    print(json.dumps(create(), indent=2))
+    parser.add_argument('--label', choices=('MAP014', 'MAP016'), default='MAP014')
+    args = parser.parse_args()
+    print(json.dumps(create(args.label), indent=2))

@@ -10,11 +10,8 @@ import {
   MAP_KIND_KEYS,
   MAP_PAGE_SIZE,
   MAP_SCAN_TYPES,
-  buildDispatchPlunderRows,
-  buildDispatchShareRows,
   buildSearchPayload,
   buildStartPayload,
-  buildTruckPlunderRows,
   connectionState,
   createMapApi,
   cycleSort,
@@ -24,26 +21,11 @@ import {
   normalizeSummary,
   updateSelectedTypes,
 } from "../src/mapBackend.js";
+import { translateActionError } from "../src/mapInteractions.js";
 import { mapScanPresentation, scanDuration } from "../src/mapScanPresentation.js";
-import { selectionMembershipKey, selectionStorageKey, toggleSelection, selectionKeySet, removeSharedSelection } from "../src/mapInteractions.js";
 import { mapOwnerLabel } from "../src/mapTablePresentation.js";
 
-// Dispatch and Truck UUIDs are native identity strings. A padded string must
-// select and deselect the same checkbox key, even after a fresh row arrives.
-const paddedSelectionRow = { serverId: 2212, uuid: " 12345678901234567890 " };
-const refreshedSelectionRow = { serverId: 2212, uuid: "12345678901234567890" };
-assert.equal(selectionStorageKey(paddedSelectionRow), selectionMembershipKey(refreshedSelectionRow));
-const selectedPaddedRow = toggleSelection({}, paddedSelectionRow);
-assert.equal(selectionKeySet(selectedPaddedRow).has(selectionMembershipKey(refreshedSelectionRow)), true);
-assert.equal(Object.values(selectedPaddedRow)[0].uuid, refreshedSelectionRow.uuid,
-  "native task actions must receive the canonical full-precision UUID string");
-assert.deepEqual(removeSharedSelection(selectedPaddedRow, [" 12345678901234567890 "]), {},
-  "a native shared-UUID acknowledgement must retire its corresponding row");
-assert.deepEqual(toggleSelection(selectedPaddedRow, refreshedSelectionRow), {},
-  "a refreshed native UUID must deselect the previously selected row");
-assert.notEqual(selectionStorageKey({ ...paddedSelectionRow, serverId: 2213 }),
-  selectionStorageKey(paddedSelectionRow), "different servers must retain distinct selections");
-
+// MAP-016 retires the selection-only scheduling bridge; source rows retain native UUID identity.
 assert.deepEqual(
   MAP_SCAN_TYPES.map(({ key }) => key),
   ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "other", "zombie_boss"],
@@ -56,18 +38,15 @@ const autoConfigSource = fs.readFileSync(new URL("../src/mapAutoConfig.js", impo
 const autoServiceSource = fs.readFileSync(new URL("../../LWBridge.Desktop/MapAutoScanCommandService.cs", import.meta.url), "utf8");
 assert.match(mapPageSource, /mapApi\.listenPlayerMarkChanged\(\(\) => setSearchRevision\(\(value\) => value \+ 1\)\)/,
   "canonical Map page must converge external profile-scoped player-mark changes into the active query");
-assert.match(mapPageSource, /const scheduleProvider = tab === "dispatch" && providerSupports\(mapApi, SCHEDULING_PROVIDER_METHODS\.dispatch\)/,
-  "Ghost schedule must stay fenced while current-client ghost preparation is unavailable");
+assert.doesNotMatch(mapPageSource, /ScheduledPlunder|scheduleSelectedDispatch|scheduleSelectedTrucks|shareSelectedDispatch|randomDelay|prepareSelectedGhost/, "owner-removed action controls must be absent");
 assert.match(mapPageSource, /tab === "treasure" && online && !scanState\.isReading &&[\s\S]*scanState\.serverId === dataServerId && result\.rows\.length > 0[\s\S]*mapApi\.refreshTreasureStates\(dataServerId, result\.rows\)/,
   "native Treasure rows must use the recovered same-server idle read-only refresh producer");
 assert.match(mapPageSource, /!message\.includes\("SCAN_RUNNING"\) && !message\.includes\("stop the map scan first"\)/,
   "Treasure state refresh must preserve the recovered scan-running error suppression");
 assert.match(mapPageSource, /previewFixture \? previewState === "map-treasure-checking"[\s\S]*: treasureStatesRefreshing/,
   "Treasure Checking must be driven by the native refresh lifetime outside explicit preview fixtures");
-assert.match(mapPageSource, /localStorage\.getItem\("lwbridge\.mapScanMode"\)/,
-  "canonical Map UI must restore the exact recovered persisted Manual scan-mode key");
-assert.match(mapPageSource, /localStorage\.setItem\("lwbridge\.mapScanMode", speed\)/,
-  "canonical Map UI must persist Manual scan mode with the exact recovered key");
+assert.doesNotMatch(mapPageSource, /map-speed-toggle|map-scan-speed|normalSpeed|fastSpeed|lwbridge\.mapScanMode/, "removed speed choice must be absent");
+assert.equal(buildStartPayload(["city"], "normal").scanMode, "fast", "legacy normal uses best method");
 for (const unsupportedKey of ["selectedTypes", "browseServer", "resultTab", "scanTab"]) {
   assert.doesNotMatch(mapPageSource, new RegExp(`localStorage\\.(?:getItem|setItem)\\([^\\n]*${unsupportedKey}`),
     `canonical Map UI must not invent recovered persistence for ${unsupportedKey}`);
@@ -126,30 +105,13 @@ assert.equal(mapOwnerLabel({ ownerUid: "99234567890123456789" }), "UID 992345678
 assert.equal(mapOwnerLabel({}), "-");
 assert.deepEqual(updateSelectedTypes(["resource"], "resource", false), [], "Manual editing must allow removing the last scan type");
 assert.deepEqual(updateSelectedTypes(["city"], "resource", true), ["city", "resource"]);
-assert.deepEqual(buildDispatchShareRows([{
-  uuid: 123, serverId: 7, x: 11, y: 12, cfgId: 4,
-  ownerName: "owner", allianceAbbr: "QA", ignored: "not-forwarded",
-}]), [{
-  uuid: "123", serverId: 7, x: 11, y: 12, cfgId: 4,
-  ownerName: "owner", allianceAbbr: "QA",
-}], "Dispatch share adapter must preserve the recovered public row projection");
-assert.deepEqual(buildDispatchPlunderRows([{
-  uuid: "task-1", plunderAt: 1_000, taskExpireTime: 8_001,
-}], 10, () => 0.999), [{
-  uuid: "task-1",
-  plunderAt: 8_000,
-  taskExpireTime: 8_001,
-  maxRandomDelaySeconds: 10,
-  randomDelaySeconds: 7,
-}], "Dispatch random delay must be capped below task expiry before native scheduling");
-assert.deepEqual(buildTruckPlunderRows([
-  { uuid: "protected", protectTime: 5_000 },
-  { uuid: "ready", protectTime: 3_000 },
-], 4_000), [
-  { uuid: "protected", protectTime: 5_000, executeAt: 5_000 },
-  { uuid: "ready", protectTime: 3_000, executeAt: 4_000 },
-], "Truck schedule adapter must execute no earlier than now/protection expiry");
-
+assert.equal("dispatchPlunderSchedule" in MAP_COMMANDS, false);
+assert.equal("truckPlunderSchedule" in MAP_COMMANDS, false);
+assert.equal("dispatchShareAlliance" in MAP_COMMANDS, false);
+const enabledAt = 1_800_000_000_000;
+assert.equal(applyAutoScanConfigEdit(normalizeAutoScanConfig(null), {enabled:true, intervalMinutes:20}, enabledAt).nextRunAt, enabledAt + 20 * 60_000,
+  "enabling Auto must wait its interval before the first cycle");
+assert.equal(normalizeAutoScanConfig({scanMode:"normal"}).scanMode, "fast", "legacy Auto settings load with the best route");
 assert.deepEqual(cycleSort([{ sortBy: "updatedAt", sortOrder: "desc" }], "level"), [
   { sortBy: "level", sortOrder: "desc" },
   { sortBy: "updatedAt", sortOrder: "desc" },
@@ -293,7 +255,7 @@ function deferred() {
   );
   assert.equal(saves[1].intervalMinutes, 45,
     "a second pre-hydration edit must preserve the first edit after serialized acknowledgement");
-  assert.equal(saves[1].scanMode, "normal",
+  assert.equal(saves[1].scanMode, "fast",
     "a second pre-hydration edit must apply its own field intent");
   assert.deepEqual(saves[1].serverIds, [321, 322],
     "two edits before hydration must still preserve persisted server targets");
@@ -331,7 +293,7 @@ function deferred() {
   assert.equal(reads, 2, "a later edit must retry failed native hydration");
   assert.equal(writes[0].intervalMinutes, 35,
     "retry hydration must retain the earlier unsaved edit intent");
-  assert.equal(writes[0].scanMode, "normal",
+  assert.equal(writes[0].scanMode, "fast",
     "retry hydration must merge the later edit intent in order");
   assert.deepEqual(writes[0].serverIds, [777],
     "retry hydration must preserve unrelated persisted fields");
@@ -569,6 +531,7 @@ const fakeBridge = {
   },
 };
 const api = createMapApi(fakeBridge);
+for (const name of ["scheduleDispatchPlunder", "scheduleTruckPlunder", "shareDispatchToAlliance", "prepareGhostPlunder", "listPlunderJobs"]) assert.equal(name in api, false, `${name} must be removed`);
 let markEvent = null;
 const offMark = api.listenPlayerMarkChanged((event) => { markEvent = event; });
 assert.equal(typeof listeners.get("bridge://player-mark-changed"), "function");
@@ -603,14 +566,6 @@ await api.refreshTreasureStates(7, [{ uuid: "treasure-1" }]);
 await api.refreshAllTreasureStates(7);
 await api.treasureClaimStatus();
 await api.claimTreasure(7, "single", true, "treasure-1");
-await api.shareDispatchToAlliance([{ uuid: "task-1", serverId: 7, x: 1, y: 2 }]);
-await api.listPlunderJobs();
-await api.scheduleDispatchPlunder([{ uuid: "task-1", plunderAt: 1_000, taskExpireTime: 9_000 }], 0);
-await api.cancelDispatchPlunder(7, "task-1");
-await api.clearDispatchPlunderHistory(1234, "dispatch");
-await api.scheduleTruckPlunder([{ uuid: "truck-1", protectTime: 2_000 }]);
-await api.cancelTruckPlunder(7, "truck-1");
-await api.clearTruckPlunderHistory(1234);
 await api.autoScanStatus();
 await api.updateAutoScanConfig({ enabled: true, intervalMinutes: 60, serverIds: [7], selectedTypes: ["truck"], scanMode: "fast", returnToOriginalServer: true, nextRunAt: 1 });
 await api.runAutoScanNow();
@@ -620,9 +575,6 @@ assert.deepEqual(calls.map(({ command }) => command), [
   "server_jump", "server_jump_history_import", "server_jump_history_set",
   "map_coordinate_jump", "map_player_mark_set", "map_city_export",
   "map_treasure_state_refresh", "map_treasure_state_refresh_all", "map_treasure_claim_status", "map_treasure_claim",
-  "map_dispatch_share_alliance", "map_plunder_jobs_list",
-  "map_dispatch_plunder_schedule", "map_dispatch_plunder_cancel", "map_dispatch_plunder_clear",
-  "map_truck_plunder_schedule", "map_truck_plunder_cancel", "map_truck_plunder_clear",
   "local_map_auto_scan_status", "local_map_auto_scan_config_set", "local_map_auto_scan_run_now", "local_map_auto_scan_cancel",
 ]);
 assert.deepEqual(calls[0].payload, { selectedTypes: ["resource"], scanMode: "fast", profileId: "profile-test" });
@@ -647,13 +599,11 @@ assert.deepEqual(calls[16].payload, {
   targetUuid: "treasure-1",
   profileId: "profile-test",
 });
-assert.equal(calls[19].payload.rows[0].randomDelaySeconds, 0);
-assert.equal(calls[22].payload.rows[0].executeAt >= 2_000, true);
-assert.deepEqual(calls[25].payload, { profileId: "profile-test" });
-assert.equal(calls[26].payload.profileId, "profile-test");
-assert.equal(calls[26].payload.config.enabled, true);
-assert.deepEqual(calls[27].payload, { profileId: "profile-test" });
-assert.deepEqual(calls[28].payload, { profileId: "profile-test" });
+assert.deepEqual(calls[17].payload, { profileId: "profile-test" });
+assert.equal(calls[18].payload.profileId, "profile-test");
+assert.equal(calls[18].payload.config.enabled, true);
+assert.deepEqual(calls[19].payload, { profileId: "profile-test" });
+assert.deepEqual(calls[20].payload, { profileId: "profile-test" });
 
 const expectedFailure = Object.assign(new Error("query failed"), { code: "MAP_QUERY_FAILED", details: { field: "resourceNameKey" } });
 const failingApi = createMapApi({
@@ -767,3 +717,7 @@ await assert.rejects(() => failed, (error) => error.code === "INVALID_MAP_QUERY"
 nativeBridge.dispose();
 
 console.log("LWB317_MAP_UI_INTEGRATION_CHECKS_OK");
+
+assert.equal(translateActionError(key=>key, new Error("Auto scan interrupted by restart")), "Auto scan interrupted by restart");
+assert.match(translateActionError(key=>key === "map.autoScanNotPublished" ? "Automatic scan ended without saving results." : key, "MAP_AUTO_SCAN_NOT_PUBLISHED: native reply timed out"), /Automatic scan ended without saving results.*native reply timed out/);
+assert.equal(translateActionError(key=>key === "error.KNOWN_CODE" ? "Known translated reason" : key, {code:"KNOWN_CODE",message:"raw"}), "Known translated reason");

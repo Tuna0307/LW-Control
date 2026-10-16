@@ -95,10 +95,10 @@ const switchOwner = async (id) => { owner = id; generation += 1; await render();
 
 await render(); await flush();
 assert.equal(selected(), '2212');
-assert.deepEqual(selections(), ['2212']);
+assert.deepEqual(selections(), ['all', '2212']);
 await switchOwner('B'); await flush();
 assert.equal(selected(), '2213');
-assert.deepEqual(selections(), ['2213']);
+assert.deepEqual(selections(), ['all', '2213']);
 results.push('same API A/B stopped owners isolate servers');
 
 await switchOwner('A'); await flush();
@@ -175,7 +175,7 @@ assert.equal(selected(), '2212',
   'MAP014 preserves the current owner saved selector while connected');
 savedValues.set('A',[2212,2213]);
 scanServer=2213; await render(); await flush();
-assert.deepEqual(selections(),['2212','2213']);
+assert.deepEqual(selections(),['all','2212','2213']);
 const serverSelect=document.querySelector('[data-map-saved-server]');
 await flush(()=>{serverSelect.value='2213';serverSelect.dispatchEvent(new window.Event('change',{bubbles:true}));});
 scanServer=2212; await render(); await flush();
@@ -198,7 +198,7 @@ assert.ok(deferred.some((write)=>write.owner==='A:13'&&write.serverId===2213&&wr
 assert.deepEqual(clearCalls.at(-1),{serverId:2213,clearSavedServer:true},
   'Auto must explicitly authorize stored-server Clear at the native bridge boundary');
 assert.equal(selected(),'2212','Auto Clear must switch to the preserved home dataset');
-assert.deepEqual(selections(),['2212'],'Auto Clear must refresh saved-server options after deletion');
+assert.deepEqual(selections(),['all','2212'],'Auto Clear must refresh saved-server options after deletion');
 results.push('Auto Clear deletes only selected remote source, refreshes saved selector and preserves home');
 savedValues.set('A',[2212]);
 online=false;scanServer=0;

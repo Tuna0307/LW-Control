@@ -57,6 +57,7 @@ internal static class MapAutoScanTerminalChecks
             {
                 _ = await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
                     true, 20, [317], ["monster"], "fast", false, 0));
+                await scheduler.RunNowAsync();
                 await scheduler.WaitForIdleAsync();
                 MapAutoScanSnapshot result = await scheduler.GetSnapshotAsync();
                 // A matching terminal failure already releases its owner token;
@@ -102,6 +103,7 @@ internal static class MapAutoScanTerminalChecks
 
     internal static async Task RunAsync()
     {
+        await Map016LaunchScheduleChecks.RunAsync();
         await CheckAsync("published", "completed", null, "owned-006", 317, true);
         await CheckAsync("cancelled", "cancelled", null, "owned-006", 317, false);
         await CheckAsync("failed", "failed", "capture failure", "owned-006", 317, false);
@@ -136,8 +138,8 @@ internal static class MapAutoScanTerminalChecks
                         : new MapAutoScanRuntimeStatus(currentServer, false, null, run, "completed")),
                     StartTargetScanAsync = (server, kinds, speed, _) =>
                     {
-                        Require(kinds.SequenceEqual(["truck", "ghost"]) && speed == "normal",
-                            "controlled target kind/speed normalization changed");
+                        Require(kinds.SequenceEqual(["truck", "ghost"]) && speed == "fast",
+                            "legacy normal setting did not normalize to the best automatic scan method");
                         starts.Add(server);
                         currentServer = server;
                         return Task.FromResult("ordered-" + starts.Count);
@@ -158,6 +160,7 @@ internal static class MapAutoScanTerminalChecks
             await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 1, [318, 319, 318, 0, 317],
                 ["truck", "unknown", "ghost", "truck"], "normal", true, 0));
+            await scheduler.RunNowAsync();
             await scheduler.WaitForIdleAsync();
             MapAutoScanSnapshot result = await scheduler.GetSnapshotAsync();
             Require(starts.SequenceEqual([318, 319, 317]) && returns.SequenceEqual([317]) &&
@@ -216,6 +219,7 @@ internal static class MapAutoScanTerminalChecks
                 }, startScheduler: false);
             await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [317, 318], ["monster"], "fast", false, 0));
+            await scheduler.RunNowAsync();
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot before = await scheduler.GetSnapshotAsync();
             Require(before.Running && before.OwnsActiveScan && starts.SequenceEqual([317]),
@@ -278,6 +282,7 @@ internal static class MapAutoScanTerminalChecks
                 }, startScheduler: false);
             await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [317, 318], ["railway", "dispatch"], "fast", false, 0));
+            await scheduler.RunNowAsync();
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot holding = await scheduler.GetSnapshotAsync();
             Require(holding.Running && starts.SequenceEqual([(317, "railway,dispatch")]),
@@ -356,6 +361,7 @@ internal static class MapAutoScanTerminalChecks
             // cancelling the first same-origin scan did not leave server 317.
             // Return here would hit SCAN_RUNNING during native Stop teardown.
             await scheduler.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [317, 318], ["railway"], "fast", true, 0));
+            await scheduler.RunNowAsync();
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await scheduler.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot final = await scheduler.GetSnapshotAsync();
@@ -413,6 +419,7 @@ internal static class MapAutoScanTerminalChecks
             {
                 await scheduler.UpdateConfigAsync(new MapAutoScanConfig(
                     true, 20, [318], ["truck"], "fast", true, 0));
+                await scheduler.RunNowAsync();
                 await scheduler.WaitForIdleAsync();
                 MapAutoScanSnapshot failed = await scheduler.GetSnapshotAsync();
                 Require(starts == 1 && returns == 1 && !failed.OwnsActiveScan &&
@@ -475,6 +482,7 @@ internal static class MapAutoScanTerminalChecks
                     DelayAsync = (_, _) => Task.CompletedTask,
                 }, startScheduler: false);
             await scheduler.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [317], ["monster"], "fast", false, 0));
+            await scheduler.RunNowAsync();
             await scheduler.WaitForIdleAsync();
             Require((await scheduler.GetSnapshotAsync()).LastError is not null && starts == 1,
                 "initial controlled failure was not persisted");

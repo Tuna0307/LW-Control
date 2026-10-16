@@ -13,3 +13,48 @@
 .map-ghost-reward-chip>button{border:0;background:transparent;cursor:pointer;padding:0 2px}
 .map-reward-unknown{color:var(--muted)}
 .map-ghost-reward-note{color:var(--muted);font-size:var(--font-body)}
+
+/* MAP-016 owner-directed compact controls and wrapping result tables. */
+.map-panel,.map-search{min-width:0;max-width:100%}
+.map-header{gap:12px;flex-wrap:wrap}
+.map-actions{gap:8px;flex-wrap:wrap;min-width:0}
+.map-category-picker{position:relative;min-width:150px}
+.map-category-picker summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;border:1px solid var(--line);background:var(--surface);padding:9px 12px;border-radius:7px;min-height:36px;box-sizing:border-box}
+.map-category-picker summary::-webkit-details-marker{display:none}
+.map-category-picker summary>span{margin-left:auto}
+.map-category-menu{position:absolute;top:calc(100% + 5px);left:0;z-index:25;display:grid;grid-template-columns:repeat(2,minmax(125px,1fr));gap:10px 14px;width:max-content;max-width:min(360px,80vw);padding:14px;border:1px solid var(--line);background:var(--surface);border-radius:8px;box-shadow:0 8px 24px var(--shadow-strong)}
+.map-category-menu label{display:flex;align-items:center;gap:7px}
+.map-category-menu input{width:auto}
+.map-scan-timing{order:2;flex-basis:100%;justify-content:flex-end}
+.map-scan-summary{flex-wrap:wrap;gap:10px}
+.map-active-categories{min-width:0;overflow-wrap:anywhere;flex:1 1 210px}
+.map-tabs{flex-wrap:wrap;overflow:visible;gap:5px}
+.map-tabs button{min-width:0;flex:1 1 100px;padding:8px}
+.map-tab-label{white-space:normal;overflow-wrap:anywhere}
+.map-searchbar{min-width:0;flex-wrap:wrap;gap:8px}
+.map-searchbar>input{min-width:120px;flex:1 1 160px}
+.map-auto-scan-grid{grid-template-columns:minmax(0,2fr) minmax(120px,1fr)}
+.map-table-scroll{max-width:100%;overflow:visible}
+.map-table{width:100%;min-width:0!important;table-layout:fixed}
+.map-table th,.map-table td{padding:8px 5px;white-space:normal;overflow-wrap:anywhere;word-break:normal}
+.map-table .map-column-coordinate{width:100px}
+.map-table .map-column-mark{width:32px}
+.map-table .map-coordinate-button{max-width:100%;min-width:0;flex-wrap:wrap;gap:4px;padding:5px}
+.map-table .map-sort-button{max-width:100%;white-space:normal;overflow-wrap:anywhere;flex-wrap:wrap}
+.map-reward-list{max-width:100%;flex-wrap:wrap;gap:5px}
+.map-reward-item{max-width:100%}
+.map-filter-field,.map-item-filter,.map-ghost-reward-filter{max-width:100%;min-width:0}
+/* Keep the retained-goods popover inside the Map at the default 1100px view.
+   The recovered left-anchored menu otherwise extends past the right window edge. */
+.map-searchbar .map-item-filter-menu{left:auto;right:0;max-width:min(360px,calc(100vw - 24px))}
+@media (max-width:1100px){.map-actions{flex:1 1 100%;justify-content:flex-start}.map-header h2{margin:0}.map-scan-timing{justify-content:flex-start}.map-tabs button{flex-basis:95px}.map-table th,.map-table td{font-size:11px}.map-table .map-column-coordinate{width:85px}.map-table .map-reward-icon{width:22px;height:22px}}
+
+.map-auto-scan-options{justify-content:flex-start}.map-auto-scan-options button{margin-left:0}.map-auto-return{display:flex;align-items:center;gap:7px}.map-auto-return input{width:auto}
+
+/* Fixed columns are unnecessary once the complete table fits the page. */
+.map-table .map-column-coordinate,.map-table .map-column-mark{position:static;left:auto;z-index:auto}
+.map-table .map-column-mark{width:52px}
+.map-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.map-tabs button{justify-content:center;min-width:0}
+@media (max-width:1100px){.map-table th,.map-table td{font-size:12px}.map-table .map-column-coordinate{width:105px}}
+@media (max-width:600px){.map-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.map-auto-scan-grid{grid-template-columns:1fr}}

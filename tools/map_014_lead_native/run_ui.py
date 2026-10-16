@@ -34,6 +34,15 @@ EXPECTED_26_CURRENT = {
     "version.txt": "5f9c4ab08cac7457e9111a30e4664920607ea2c115a1433d7be98e97e64244ca",
 }
 FILE_ROLES = {"data": "LWScripts.data", "metadata": "LWScripts.txt", "version": "version.txt"}
+TRUSTED_SETTLED_PROOF = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451"
+# MAP016 acceptance is permitted to reuse only the EXACT existing, independently
+# proven official settlement. Manual all-nine / Truck / Railway measurements
+# must have this same no-updater gate as Auto acceptance: do not let a normal
+# manual proof accidentally run the official updater on a first-use profile.
+NO_UPDATER_MODES = frozenset((
+    "all-nine", "truck", "railway",
+    "auto-all-nine", "saved-clear-reopen", "auto-interval-20m",
+))
 
 
 def admitted_original_version(hashes):
@@ -224,9 +233,52 @@ def admit():
     return hashes
 
 
+def copy_verified_official_settlement(destination, original_hashes, *,
+                                      prior_proof=TRUSTED_SETTLED_PROOF, game_root=GAME):
+    """Copy exact already-settled ORIGINAL bytes; never run/forge an updater.
+
+    The native lifecycle separately enforces this same marker against its
+    freshly recovered installed-package SHA before any official launcher.
+    """
+    prior_proof = Path(prior_proof)
+    source = prior_proof / "overview-evidence/official-settled-client.json"
+    prior_exit = prior_proof / "owned-exit.json"
+    marker_bytes = source.read_bytes()
+    marker = json.loads(marker_bytes)
+    outcome = json.loads(prior_exit.read_text(encoding="utf-8"))
+    restoration = outcome.get("restorationAudit", {})
+    if (marker.get("schemaVersion") != 1 or
+            not _same_path(marker.get("gameRoot"), game_root) or
+            marker.get("packageSha256") != original_hashes["LWScripts.data"] or
+            admitted_original_version(original_hashes) != 26 or
+            outcome.get("exitCode") != 0 or outcome.get("proof") is not True or
+            outcome.get("error") is not None or
+            outcome.get("recoveryJournalPresent") is not False or
+            restoration.get("state") != "proven" or
+            restoration.get("profileId") != "map014-native-ui" or
+            restoration.get("diagnosticResultSucceeded") is not True or
+            restoration.get("capturedOriginalHashes") != original_hashes or
+            restoration.get("installedHashes") != original_hashes):
+        raise RuntimeError("Trusted official settlement is not the same proven original package")
+    try:
+        settled = datetime.datetime.fromisoformat(marker["settledAtUtc"].replace("Z", "+00:00"))
+    except (KeyError, AttributeError, TypeError, ValueError) as error:
+        raise RuntimeError("Trusted original settlement has no valid UTC time") from error
+    if settled.tzinfo is None or settled > datetime.datetime.now(datetime.timezone.utc):
+        raise RuntimeError("Trusted original settlement is future-dated or unzoned")
+    target = Path(destination) / "overview-evidence/official-settled-client.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        raise RuntimeError("Refusing to overwrite a pre-existing official settlement marker")
+    target.write_bytes(marker_bytes)
+    if target.read_bytes() != marker_bytes:
+        raise RuntimeError("Trusted official settlement copy differs from its read-only source")
+    return target
+
+
 def main():
-    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other", "mixed", "all-nontruck", "truck", "all-nine", "truck-stop"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other|mixed|all-nontruck")
+    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "auto-all-nine", "saved-clear-reopen", "auto-interval-20m", "truck-stop"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-railway|remote-reuse|track|expiry|city|other|railway|mixed|all-nontruck|truck|all-nine|auto-all-nine|saved-clear-reopen|auto-interval-20m|truck-stop")
     mode = sys.argv[1]
     saved_db = None
     if len(sys.argv) == 4:
@@ -244,6 +296,8 @@ def main():
         "native-ui-" + datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d-%H%M%S"))
     destination.mkdir(parents=True, exist_ok=False)
     (destination / "preflight-originals.json").write_text(json.dumps(prior_hashes, indent=2), encoding="utf-8")
+    if mode in NO_UPDATER_MODES:
+        copy_verified_official_settlement(destination, prior_hashes)
     profile = "map014-native-ui"
     source = (ROOT / "artifacts/map014-takeover/native-ui-20261013-123802/profiles/map014-native-ui/map-data"
               if mode == "remote-reuse" else
@@ -254,7 +308,7 @@ def main():
         raise FileNotFoundError("Preserved genuine published Map database is unavailable")
     store = destination / "profiles" / profile / "map-data"
     store.mkdir(parents=True)
-    if mode in ("browse", "remote", "remote-reuse", "track", "expiry"):
+    if mode in ("browse", "remote", "remote-reuse", "track", "expiry", "saved-clear-reopen"):
         with sqlite3.connect((source / "map-data.db").resolve().as_uri() + "?mode=ro", uri=True) as readonly, \
              sqlite3.connect(store / "map-data.db") as snapshot:
             readonly.backup(snapshot)
@@ -272,11 +326,16 @@ def main():
     publish = Path(os.environ["LWBRIDGE_MAP014_UI_EXE"]).resolve(strict=True) if os.environ.get("LWBRIDGE_MAP014_UI_EXE") else ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
-                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "all-nontruck", "truck", "all-nine", "truck-stop") else "",
+                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "truck-stop") else "",
                        LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode in ("browse", "track", "expiry") else "0",
-                       LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse") else "0",
-                       LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse") else "0",
+                       LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
+                       LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
                        LWBRIDGE_MAP014_REMOTE_REUSE="1" if mode == "remote-reuse" else "0",
+                       LWBRIDGE_MAP016_REMOTE_RAILWAY="1" if mode == "remote-railway" else "0",
+                       LWBRIDGE_MAP016_AUTO_ALL_NINE="1" if mode == "auto-all-nine" else "0",
+                       LWBRIDGE_MAP016_SAVED_CLEAR_REOPEN="1" if mode == "saved-clear-reopen" else "0",
+                       LWBRIDGE_MAP016_AUTO_INTERVAL="1" if mode == "auto-interval-20m" else "0",
+                       LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if mode in NO_UPDATER_MODES else "0",
                        LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0",
                        LWBRIDGE_MAP014_EXPIRY_UI="1" if mode == "expiry" else "0")
     startup = subprocess.STARTUPINFO()
@@ -291,7 +350,8 @@ def main():
         "pid": owned.pid, "publish": str(publish), "source": str(source)
     }, indent=2), encoding="utf-8")
     print(f"MAP014_OWNED_UI_PID={owned.pid} ROOT={destination}", flush=True)
-    deadline = time.monotonic() + (1200 if mode == "remote" else 900)
+    deadline = time.monotonic() + (2100 if mode == "auto-interval-20m" else
+                                   1200 if mode in ("remote", "remote-railway") else 900)
     while owned.poll() is None:
         if time.monotonic() >= deadline:
             raise TimeoutError(f"Owned app PID {owned.pid} exceeded proof bound; inspect exact owner before cleanup")

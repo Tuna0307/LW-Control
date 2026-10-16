@@ -3641,7 +3641,7 @@ function M._map014MarchSourceSnapshot(world)
     }
 end
 
-local function train_march_aoi_records(world, block_size, block_count, selected_lookup, already_seen)
+local function train_march_aoi_records(world, block_size, block_count, selected_lookup, already_seen, capture_type)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
         local ok_manager, value = call(world, "get_MarchDataManager")
@@ -3679,7 +3679,8 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         -- position has moved into another rectangle).
         -- train.type is authoritative here: type 2 Railway remains on the
         -- Railway route, and must never be hydrated as a Truck candidate.
-        if train ~= nil and (already_seen == nil or train_type_hint == 1) and
+        if train ~= nil and (already_seen == nil or train_type_hint == (capture_type or 1) or
+            (capture_type == 3 and (train_type_hint == 1 or train_type_hint == 2))) and
             (already_seen == nil or not already_seen[
             tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")]) then
             local ok_index, position_index = call(march, "GetMarchCurPosIndex")
@@ -7196,8 +7197,11 @@ function M._map015FastTruck.finish(reason)
     local x = tonumber(tile and (safe_get(tile, "x") or safe_get(tile, "X")))
     local y = tonumber(tile and (safe_get(tile, "y") or safe_get(tile, "Y")))
     local stable = x == s.originalX and y == s.originalY
+    -- A complete Railway sweep may genuinely be empty. Truck retains its
+    -- existing positive-row requirement; a recommended enemy-train list is
+    -- never used as evidence of world-wide Railway coverage.
     local proven = reason == nil and restored and stable and s.initialSent == 625 and
-        s.verified == 625 and s.pushes <= s.sent and #s.records > 0
+        s.verified == 625 and s.pushes <= s.sent and (s.railwayOnly or #s.records > 0)
     write_json(lane.resultPath, {
         schemaVersion = 1, probeVersion = M.VERSION, requestId = s.requestId,
         profileId = s.profileId, launchSessionId = s.launchSessionId,
@@ -7205,13 +7209,17 @@ function M._map015FastTruck.finish(reason)
         serverId = s.serverId, worldId = 0, state = proven and "proven" or "failed",
         error = reason or (not restored and "cur_view_restore_failed") or
             (not stable and "camera_tile_changed") or
-            (s.verified ~= 625 and "lost_march_push") or (#s.records == 0 and "zero_train_rows") or nil,
+            (s.verified ~= 625 and "lost_march_push") or
+            (not s.railwayOnly and #s.records == 0 and "zero_train_rows") or nil,
         cameraStable = stable, curViewRestored = restored, requestsSent = s.sent,
         pushesObserved = s.pushes, rectanglesCompleted = s.verified,
         initialRequestsSent = s.initialSent, repairRequestsSent = s.sent - s.initialSent,
         repairPasses = s.pass, unprovenRectangles = 625 - s.verified,
         responseFenceSize = 25, responseAttribution = "bounded_sequential_fences",
         trainRecords = proven and s.records or {}, trainRecordCount = #s.records,
+        railwayRecords = proven and (s.railwayRecords or {}) or {},
+        railwayRecordCount = #(s.railwayRecords or {}),
+        railwayIncluded = s.includeRailway == true, railwayOnly = s.railwayOnly == true,
         requestsPerSecond = s.rate,
         logMarchUuidCount = s.logSeenCount, elapsedSeconds = runtime_clock() - s.startedAt,
         captureSeconds = s.captureSeconds or 0, replyWaitSeconds = s.replyWaitSeconds or 0,
@@ -7256,7 +7264,11 @@ function M._map015FastTruck.pump(now)
             originalX = tonumber(safe_get(tile, "x") or safe_get(tile, "X")),
             originalY = tonumber(safe_get(tile, "y") or safe_get(tile, "Y")),
             int32 = CS.System.Int32, added = {}, addedSet = {}, seen = {}, records = {},
-            wholeWorld = whole_world,
+            wholeWorld = whole_world, railwayRecords = {},
+            railwayOnly = values.trainType == "2",
+            includeRailway = values.includeRailway == "true" or values.trainType == "2",
+            captureType = values.trainType == "2" and 2 or
+                (values.includeRailway == "true" and 3 or 1),
             logSeenCount = 0, next = 0, sent = 0, initialSent = 0,
             pushes = 0, completed = {}, verified = 0, pass = 0,
             group = nil, unproven = {}, repair = {}, repairCursor = 1,
@@ -7303,16 +7315,24 @@ function M._map015FastTruck.pump(now)
                 s.replyWaitSeconds = (s.replyWaitSeconds or 0) + runtime_clock() - s.lastSend
             end
             local capturedAt = runtime_clock()
-            local rows, err = train_march_aoi_records(s.world, 10, 100, s.wholeWorld, s.seen)
+            local rows, err = train_march_aoi_records(s.world, 10, 100, s.wholeWorld, s.seen, s.captureType)
             s.captureSeconds = (s.captureSeconds or 0) + runtime_clock() - capturedAt
             if rows == nil then M._map015FastTruck.finish("train_" .. tostring(err)); return true end
             local captured_at_ms = os.time() * 1000
             for _, row in ipairs(rows) do
-                if row.uuid ~= "" and row.trainType == 1 and
+                if row.uuid ~= "" and row.trainType == 1 and not s.railwayOnly and
                    M._map015FastTruck.unarrived(row, captured_at_ms) then
                     s.seen[row.uuid] = true
                     row.capturedAtMs = captured_at_ms
                     s.records[#s.records + 1] = row
+                elseif row.uuid ~= "" and row.trainType == 2 and s.includeRailway then
+                    -- Railway can be dwelling at an intermediate station.
+                    -- Truck segment endTime/expiry admission does not describe
+                    -- that lifecycle. Presence in the current native march set
+                    -- and its game-calculated position are the live authority.
+                    s.seen[row.uuid] = true
+                    row.capturedAtMs = captured_at_ms
+                    s.railwayRecords[#s.railwayRecords + 1] = row
                 end
             end
             if new_push then

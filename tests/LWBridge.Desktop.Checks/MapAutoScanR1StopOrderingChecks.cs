@@ -81,6 +81,7 @@ internal static class MapAutoScanR1StopOrderingChecks
 
             int[] targets = later ? [317, 318, 319] : [318, 319];
             await auto.UpdateConfigAsync(new(true, 20, targets, ["truck"], "fast", returnEnabled, 0));
+            await auto.RunNowAsync();
             if (heldStart) await startEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             else await pollEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Task ending = retire ? auto.RetireAsync() : auto.CancelAsync();

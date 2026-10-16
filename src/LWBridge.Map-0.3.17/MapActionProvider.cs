@@ -145,20 +145,21 @@ public sealed class MapActionProviderAdapter : IMapActionProvider, IGhostPlunder
     public ValueTask<TreasureInspectionResult> InspectTreasureStatesAsync(IReadOnlyList<JsonElement> records, bool refresh, CancellationToken cancellationToken = default) => InspectTreasureStates(records, refresh, cancellationToken);
     public ValueTask<JsonElement> GetTreasureClaimStatusAsync(CancellationToken cancellationToken = default) => GetTreasureClaimStatus(cancellationToken);
     public ValueTask<JsonElement> ClaimTreasuresAsync(TreasureClaimProviderRequest request, CancellationToken cancellationToken = default) => ClaimTreasures(request, cancellationToken);
-    public ValueTask<DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(JsonElement row, CancellationToken cancellationToken = default) => ShareDispatchTaskToAlliance(row, cancellationToken);
-    public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => PrepareGhostPlunderTasks(rows, cancellationToken);
-    public ValueTask<MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => GetMapPlunderServerDayStart(cancellationToken);
-    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ArmDispatchPlunder(jobs, cancellationToken);
-    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmGhostPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ArmGhostPlunder is not null
-        ? ArmGhostPlunder(jobs, cancellationToken)
-        : ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(new BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE", "no dedicated Ghost request/result provider"));
-    public ValueTask<TruckPlunderArmResult> ArmTruckPlunderAsync(TruckPlunderArmJob job, CancellationToken cancellationToken = default) => ArmTruckPlunder(job, cancellationToken);
-    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainDispatchPlunderResults(cancellationToken);
-    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainGhostPlunderResults is not null
-        ? DrainGhostPlunderResults(cancellationToken)
-        : ValueTask.FromResult<IReadOnlyList<DispatchPlunderResultEvent>>([]);
-    public ValueTask<IReadOnlyList<TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => DrainTruckPlunderResults(cancellationToken);
-    public ValueTask ClearTruckPlunderPendingAsync(int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default) => ClearTruckPlunderPending(serverId, trainUuid, jobId, cancellationToken);
+    // Retain the original interface shape for compile-time compatibility with
+    // legacy game boundary fakes. None of these methods can execute a retired
+    // account action, even when an adapter supplies a former action delegate.
+    private static BridgeCommandException Retired() =>
+        new("FEATURE_REMOVED", "Automatic plunder, scheduling and alliance sharing were removed by the owner.");
+    public ValueTask<DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(JsonElement row, CancellationToken cancellationToken = default) => ValueTask.FromException<DispatchShareProviderResult>(Retired());
+    public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<JsonElement>>(Retired());
+    public ValueTask<MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<MapPlunderServerDayProviderResult?>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmGhostPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(Retired());
+    public ValueTask<TruckPlunderArmResult> ArmTruckPlunderAsync(TruckPlunderArmJob job, CancellationToken cancellationToken = default) => ValueTask.FromException<TruckPlunderArmResult>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderResultEvent>>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderResultEvent>>(Retired());
+    public ValueTask<IReadOnlyList<TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<TruckPlunderResultEvent>>(Retired());
+    public ValueTask ClearTruckPlunderPendingAsync(int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default) => ValueTask.FromException(Retired());
 }
 
 public sealed class UnavailableMapActionProvider : IMapActionProvider
@@ -166,6 +167,7 @@ public sealed class UnavailableMapActionProvider : IMapActionProvider
     public static UnavailableMapActionProvider Instance { get; } = new();
     private UnavailableMapActionProvider() { }
     private static BridgeCommandException Error() => new("GAME_CONNECTION_UNAVAILABLE", "game connection unavailable");
+    private static BridgeCommandException Retired() => new("FEATURE_REMOVED", "Automatic plunder, scheduling and alliance sharing were removed by the owner.");
     public ValueTask GotoWorldCoordinateAsync(int serverId, int x, int y, CancellationToken cancellationToken = default) => ValueTask.FromException(Error());
     public ValueTask GotoWorldMarchAsync(int serverId, string marchUuid, CancellationToken cancellationToken = default) => ValueTask.FromException(Error());
     public ValueTask<int> GetCurrentServerIdAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<int>(Error());
@@ -173,12 +175,12 @@ public sealed class UnavailableMapActionProvider : IMapActionProvider
     public ValueTask<TreasureInspectionResult> InspectTreasureStatesAsync(IReadOnlyList<JsonElement> records, bool refresh, CancellationToken cancellationToken = default) => ValueTask.FromException<TreasureInspectionResult>(Error());
     public ValueTask<JsonElement> GetTreasureClaimStatusAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<JsonElement>(Error());
     public ValueTask<JsonElement> ClaimTreasuresAsync(TreasureClaimProviderRequest request, CancellationToken cancellationToken = default) => ValueTask.FromException<JsonElement>(Error());
-    public ValueTask<DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(JsonElement row, CancellationToken cancellationToken = default) => ValueTask.FromException<DispatchShareProviderResult>(Error());
-    public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<JsonElement>>(Error());
-    public ValueTask<MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<MapPlunderServerDayProviderResult?>(Error());
-    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(Error());
-    public ValueTask<TruckPlunderArmResult> ArmTruckPlunderAsync(TruckPlunderArmJob job, CancellationToken cancellationToken = default) => ValueTask.FromException<TruckPlunderArmResult>(Error());
-    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderResultEvent>>(Error());
-    public ValueTask<IReadOnlyList<TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<TruckPlunderResultEvent>>(Error());
-    public ValueTask ClearTruckPlunderPendingAsync(int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default) => ValueTask.FromException(Error());
+    public ValueTask<DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(JsonElement row, CancellationToken cancellationToken = default) => ValueTask.FromException<DispatchShareProviderResult>(Retired());
+    public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<JsonElement>>(Retired());
+    public ValueTask<MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<MapPlunderServerDayProviderResult?>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderArmResult>> ArmDispatchPlunderAsync(IReadOnlyList<DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderArmResult>>(Retired());
+    public ValueTask<TruckPlunderArmResult> ArmTruckPlunderAsync(TruckPlunderArmJob job, CancellationToken cancellationToken = default) => ValueTask.FromException<TruckPlunderArmResult>(Retired());
+    public ValueTask<IReadOnlyList<DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<DispatchPlunderResultEvent>>(Retired());
+    public ValueTask<IReadOnlyList<TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(CancellationToken cancellationToken = default) => ValueTask.FromException<IReadOnlyList<TruckPlunderResultEvent>>(Retired());
+    public ValueTask ClearTruckPlunderPendingAsync(int serverId, string trainUuid, string jobId, CancellationToken cancellationToken = default) => ValueTask.FromException(Retired());
 }

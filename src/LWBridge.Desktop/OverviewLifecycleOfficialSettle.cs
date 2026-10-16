@@ -10,10 +10,40 @@ internal sealed partial class OverviewLifecycleService
     private static readonly TimeSpan OfficialNormalCloseTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan OfficialProcessPoll = TimeSpan.FromMilliseconds(250);
 
-    // IMPLEMENTATION POLICY LWB-OVR-016: production starts force one untouched
-    // official-launcher preflight before candidate installation so newly available
-    // server-side game/Lua updates cannot patch an injected package. The persisted
-    // settled marker remains available for bounded non-forced/internal call paths.
+    // A first-use official launcher is allowed to update the game on its own.
+    // Source-only MAP016 packaged acceptance can inspect the true admission
+    // boundary without authorizing any updater or manufacturing a settlement.
+    internal static bool OfficialSettleNoUpdaterProofAllowed(
+        string markerPath, string selectedRoot, string packageSha256, bool forceOfficialSettle) =>
+        !forceOfficialSettle &&
+        OfficialSettleMarkerMatches(markerPath, selectedRoot, packageSha256);
+
+    private bool Map016NoUpdaterProofEnabled =>
+        Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF") == "1" &&
+        string.Equals(profileId, "map014-native-ui", StringComparison.Ordinal);
+
+    private void WriteMap016OfficialSettleAdmission(
+        string selectedRoot, string? packageSha256, bool allowed, bool forceOfficialSettle)
+    {
+        Directory.CreateDirectory(evidenceRoot);
+        File.WriteAllText(Path.Combine(evidenceRoot, "map016-official-settle-admission.json"),
+            JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                state = allowed ? "settled_reuse_allowed" : "first_use_official_launcher_required",
+                gameRoot = Path.GetFullPath(selectedRoot),
+                packageSha256,
+                forceOfficialSettle,
+                officialLauncherStartedByThisAdmission = false,
+                updaterActionAuthorized = false,
+                capturedAtUtc = RecoveryNow().ToString("O", CultureInfo.InvariantCulture),
+            }, JsonOptions.Default));
+    }
+
+    // MAP-016 OWNER_DIRECTION: reuse an official settlement only when restore-only
+    // recovery and current-client admission prove the exact same original package.
+    // First use or a changed package still needs untouched official settlement;
+    // unchanged launches must not open, close and reopen the game every time.
     private async Task EnsureOfficialClientSettledAsync(
         string selectedRoot,
         CancellationToken cancellationToken,
@@ -35,6 +65,13 @@ internal sealed partial class OverviewLifecycleService
         long deadline = overallDeadline.Value;
 
         string? packageSha256 = null;
+        if (Map016NoUpdaterProofEnabled && forceOfficialSettle)
+        {
+            WriteMap016OfficialSettleAdmission(selectedRoot, null,
+                allowed: false, forceOfficialSettle: true);
+            throw new BridgeCommandException("MAP016_OFFICIAL_UPDATER_NOT_AUTHORIZED",
+                "The official launcher restart needs separate authorization; no official updater was started.");
+        }
         if (forceOfficialSettle)
         {
             await RecoverPendingOnlyBeforeOfficialSettleAsync(
@@ -45,6 +82,17 @@ internal sealed partial class OverviewLifecycleService
         {
             packageSha256 = await RecoverPendingBeforeOfficialSettleAsync(
                 selectedRoot, deadline, cancellationToken).ConfigureAwait(false);
+            if (Map016NoUpdaterProofEnabled)
+            {
+                bool admitted = OfficialSettleNoUpdaterProofAllowed(
+                    OfficialSettleMarkerPath, selectedRoot, packageSha256,
+                    forceOfficialSettle: false);
+                WriteMap016OfficialSettleAdmission(
+                    selectedRoot, packageSha256, admitted, forceOfficialSettle: false);
+                if (!admitted)
+                    throw new BridgeCommandException("MAP016_OFFICIAL_UPDATER_NOT_AUTHORIZED",
+                        "First-use official settlement requires the unmodified launcher; no updater was started.");
+            }
             if (OfficialSettleMarkerMatches(selectedRoot, packageSha256))
                 return;
         }
@@ -214,13 +262,20 @@ internal sealed partial class OverviewLifecycleService
 
 
     private bool OfficialSettleMarkerMatches(string selectedRoot, string packageSha256)
+        => OfficialSettleMarkerMatches(OfficialSettleMarkerPath, selectedRoot, packageSha256);
+
+    internal static bool OfficialSettleMarkerMatches(
+        string markerPath, string selectedRoot, string packageSha256)
     {
         try
         {
-            using JsonDocument marker = JsonDocument.Parse(File.ReadAllBytes(OfficialSettleMarkerPath));
+            using JsonDocument marker = JsonDocument.Parse(File.ReadAllBytes(markerPath));
             JsonElement root = marker.RootElement;
             return MatchesInt(root, "schemaVersion", 1) &&
-                   MatchesString(root, "gameRoot", Path.GetFullPath(selectedRoot)) &&
+                   root.TryGetProperty("gameRoot", out JsonElement savedGameRoot) &&
+                   savedGameRoot.ValueKind == JsonValueKind.String &&
+                   !string.IsNullOrWhiteSpace(savedGameRoot.GetString()) &&
+                   PathEquals(savedGameRoot.GetString()!, selectedRoot) &&
                    MatchesString(root, "packageSha256", packageSha256);
         }
         catch { return false; }

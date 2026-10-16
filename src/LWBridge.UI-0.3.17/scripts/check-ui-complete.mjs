@@ -80,13 +80,14 @@ if (!app.includes('backendBridge.mode === "preview" ? new URLSearchParams(window
 
 const pages = pageModules.map((file) => fs.readFileSync(path.join(root, "src", file), "utf8")).join("\n");
 const mapPage = fs.readFileSync(path.join(root, "src", "MapDataPage.jsx"), "utf8");
+if (fs.existsSync(path.join(root, "src", "ScheduledPlunder.jsx"))) throw new Error("Owner-removed Scheduled Plunder component must be deleted");
 const mapPreview = fs.readFileSync(path.join(root, "src", "mapPreviewApi.js"), "utf8");
 const equipmentPreview = fs.readFileSync(path.join(root, "src", "previewEquipmentContracts.js"), "utf8");
 const previewCoverageSource = [app, pages, mapPage, mapPreview, equipmentPreview].join("\n");
 for (const marker of [
   "home-missing", "home-connected", "home-repair", "home-recovery-failed",
   "automation-config", "automation-saving", "automation-saved", "automation-save-error", "automation-validation-error",
-  "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure", "map-scheduled",
+  "map-city", "map-resource", "map-monster", "map-truck", "map-railway", "map-dispatch", "map-ghost", "map-treasure",
   "map-auto-scheduled", "map-loading", "map-error",
   "squads-profile", "squads-equipment", "city-layout-populated", "city-layout-populated-conflict",
   "squads-equipment-rename", "squads-equipment-rename-busy", "squads-equipment-result", "squads-equipment-error", "squads-equipment-progress", "squads-equipment-offline",

@@ -26,6 +26,12 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.WorldId != 0 || request.LiveServerId is int liveServer && liveServer != request.ServerId)
             throw new InvalidDataException("Camera-free scan is available only for the game's current normal-world server.");
 
+        // Mobile Train rows belong to the independently verified rectangle
+        // source. Do not spend the point sweep reading a sparse second source
+        // or allow it to overwrite the typed mobile snapshot.
+        MapScanExecutionRequest pointRequest = fastTrucks is null ? request :
+            request with { SelectedTypes = request.SelectedTypes.Where(kind => kind is not ("truck" or "railway")).ToArray() };
+
         // Start metrics before the native sweep, not after awaiting its result.
         // This state is private until the entire response passes admission.
         FastFullWorldResumeState state = new(session, request) { CameraFreeAcquisition = true };
@@ -37,7 +43,7 @@ internal sealed partial class CurrentClientMapBlockSource
             {
                 // Each attempt has a new requestId and an independent 35-second
                 // deadline. No records from an unproven attempt are admitted.
-                response = await ProbeCameraFreeMapAsync(session, request, cancellationToken)
+                response = await ProbeCameraFreeMapAsync(session, pointRequest, cancellationToken)
                     .ConfigureAwait(false);
                 break;
             }
@@ -81,8 +87,6 @@ internal sealed partial class CurrentClientMapBlockSource
         // observes a small, transient Truck subset with different coverage;
         // accepting that subset as a second Truck source could replace a
         // qualified fast row or admit an unverified one.
-        MapScanExecutionRequest pointRequest = fastTrucks is null ? request :
-            request with { SelectedTypes = request.SelectedTypes.Where(kind => kind != "truck").ToArray() };
         long lastBatchCapturedMs = 0;
         long terminalCapturedMs = capturedAt.ToUnixTimeMilliseconds();
         for (int i = 0; i < batches.GetArrayLength(); i++)
@@ -115,11 +119,12 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             foreach (FastTrainPrepared truck in fastTrucks)
             {
-                if (truck.Record.Kind != "truck" ||
-                    !request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
-                    throw new InvalidDataException("Fast Truck result contained a non-Truck or unselected kind.");
+                if (truck.Record.Kind is not ("truck" or "railway") ||
+                    !request.SelectedTypes.Contains(truck.Record.Kind, StringComparer.Ordinal))
+                    throw new InvalidDataException("Fast mobile Train result contained an unknown or unselected kind.");
                 state.TrainRecords[truck.Record.RecordKey] = truck;
             }
+            state.RailwaySweepVerified = request.SelectedTypes.Contains("railway", StringComparer.Ordinal);
         }
         if (state.CityRecords.Count + state.ResourceRecords.Count + state.DispatchRecords.Count +
             state.GhostRecords.Count + state.TreasureRecords.Count + state.MonsterRecords.Count +
