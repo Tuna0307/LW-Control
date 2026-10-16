@@ -2,6 +2,7 @@ import { CITY_BASE_CELL_SIZE, cityGridRow, cityLayoutIssues, cityMovedOccupiedPo
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
+import { backendBridge } from "./backendBridge.js";
 
 const CITY_LAYOUT_PREVIEW_STATES = new Set([
   "city-layout-populated",
@@ -19,8 +20,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const { t } = useI18n();
   const previewEnabled = CITY_LAYOUT_PREVIEW_STATES.has(previewState);
   const fixture = useMemo(() => previewEnabled && previewState !== "city-layout-loading" && previewState !== "city-layout-error" ? previewCityLayoutFixture(previewState) : null, [previewEnabled, previewState]);
-  const layout = fixture;
-  const loading = previewState === "city-layout-loading";
+  const [liveLayout, setLiveLayout] = useState(null);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const layout = previewEnabled ? fixture : liveLayout;
+  const loading = previewEnabled ? previewState === "city-layout-loading" : liveLoading;
   const [history, setHistory] = useState(() => ({ past: [], present: fixture?.placements ?? [], future: [] }));
   const [zoom, setZoom] = useState(CITY_BASE_CELL_SIZE);
   const [selectedUuid, setSelectedUuid] = useState(() => fixture?.buildings[0]?.uuid ?? "");
@@ -34,6 +37,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const [errorText, setErrorText] = useState(previewState === "city-layout-error" ? t("common.actionFailed") : "");
   const [applyConfirmOpen, setApplyConfirmOpen] = useState(false);
   const [applyPreparing, setApplyPreparing] = useState(false);
+  const [liveApplyStatus, setLiveApplyStatus] = useState(null);
+  const [reloadRevision, setReloadRevision] = useState(0);
+  const draftQueueRef = useRef(Promise.resolve());
+  const draftRevisionRef = useRef(fixture?.draftRevision ?? 0);
   const dragStateRef = useRef(null);
   const setDragState = (next) => {
     const value = typeof next === "function" ? next(dragStateRef.current) : next;
@@ -45,7 +52,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const draftTimerRef = useRef(0);
   const savedSignatureRef = useRef(cityPlacementSignature(fixture?.placements ?? []));
   const placements = history.present;
-  const applyStatus = previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null;
+  const applyStatus = previewEnabled ? (previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null) : liveApplyStatus;
   const applyRunning = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
   const busy = applyPreparing || applyConfirmOpen || applyRunning;
   const cellsByPoint = useMemo(() => new Map(layout?.cells.map((cell) => [cell.pointId, cell]) ?? []), [layout]);
@@ -221,47 +228,191 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     setCitySelectionState(null);
   };
 
-  const saveDraftNow = () => {
-    if (!previewEnabled || stale || busy) return;
+  const saveDraftNow = async () => {
+    if (!layout || stale || busy) return;
     if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
-    savedSignatureRef.current = cityPlacementSignature(placements);
-    setDraftRevision((revision) => revision + 1);
+    const signature = cityPlacementSignature(placements);
+    if (previewEnabled) {
+      savedSignatureRef.current = signature;
+      setDraftRevision((revision) => revision + 1);
+      return;
+    }
+    try {
+      await enqueueDraftSave(placements, layout.layoutRevision);
+    } catch (error) {
+      setErrorText(error.message || t("common.actionFailed"));
+    }
+  };
+
+  const enqueueDraftSave = (nextPlacements, baseRevision) => {
+    const value = { version: 1, baseRevision, placements: nextPlacements, updatedAt: Date.now() };
+    const signature = cityPlacementSignature(nextPlacements);
+    const save = () => backendBridge.invokeProfileScoped("city_layout_draft_save", {
+      revision: draftRevisionRef.current, value,
+    }).then((record) => {
+      draftRevisionRef.current = record.revision;
+      setDraftRevision(record.revision);
+      savedSignatureRef.current = signature;
+      return record;
+    });
+    const queued = draftQueueRef.current.then(save);
+    draftQueueRef.current = queued.catch(() => {});
+    return queued;
+  };
+
+  useEffect(() => {
+    if (previewEnabled || !online) {
+      setLiveLayout(null);
+      return undefined;
+    }
+    let active = true;
+    setLiveLoading(true);
+    setErrorText("");
+    const owner = backendBridge.currentProfileOwner();
+    const load = async () => {
+      try {
+        await draftQueueRef.current;
+        const snapshot = await backendBridge.invokeProfileScoped("city_layout_snapshot_get");
+        if (!snapshot || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.buildings) ||
+          !Array.isArray(snapshot.regions) || snapshot.layoutRevision == null) {
+          throw new Error("CITY_LAYOUT_INVALID: game did not return a valid city snapshot");
+        }
+        const draft = await backendBridge.invokeProfileScoped("city_layout_draft_get");
+        const status = await backendBridge.invokeProfileScoped("city_layout_apply_status");
+        if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+        const saved = draft?.value?.version === 1 ? draft.value : null;
+        const mismatch = saved != null && saved.baseRevision !== snapshot.layoutRevision;
+        const next = saved?.placements && Array.isArray(saved.placements) ? saved.placements : [];
+        setLiveLayout(snapshot);
+        setHistory({ past: [], present: next, future: [] });
+        savedSignatureRef.current = cityPlacementSignature(next);
+        draftRevisionRef.current = Number(draft?.revision) || 0;
+        setDraftRevision(draftRevisionRef.current);
+        setStale(mismatch);
+        setLiveApplyStatus(status);
+        setServerValidation(null);
+      } catch (error) {
+        if (active) {
+          setLiveLayout(null);
+          setErrorText(error.message || t("common.actionFailed"));
+        }
+      } finally {
+        if (active) setLiveLoading(false);
+      }
+    };
+    void load();
+    return () => { active = false; };
+  }, [previewEnabled, online, reloadRevision, backendBridge.profileGeneration]);
+
+  useEffect(() => {
+    if (previewEnabled || !online || !applyRunning) return undefined;
+    let active = true;
+    const poll = async () => {
+      try {
+        const status = await backendBridge.invokeProfileScoped("city_layout_apply_status", {}, 5000);
+        if (!active) return;
+        setLiveApplyStatus(status);
+        if (status?.state !== "running" && status?.state !== "cancelling") {
+          setReloadRevision((value) => value + 1);
+        }
+      } catch (error) {
+        if (active) setErrorText(error.message || t("common.actionFailed"));
+      }
+    };
+    const timer = window.setInterval(() => void poll(), 500);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [previewEnabled, online, applyRunning]);
+
+  const discardStaleDraft = async () => {
+    if (previewEnabled) {
+      setHistory({ past: [], present: [], future: [] }); setDraftRevision(0);
+      savedSignatureRef.current = ""; setStale(false); return;
+    }
+    try {
+      await draftQueueRef.current;
+      await backendBridge.invokeProfileScoped("city_layout_draft_clear", { revision: draftRevisionRef.current });
+      draftRevisionRef.current = 0;
+      setDraftRevision(0);
+      setHistory({ past: [], present: [], future: [] });
+      savedSignatureRef.current = "";
+      setStale(false);
+    } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
   };
 
   const prepareApply = async () => {
-    if (!layout || stale || busy || !placements.length || !previewEnabled) return;
+    if (!layout || stale || busy || !placements.length) return;
     setApplyConfirmOpen(false);
     setApplyPreparing(true);
     try {
-      await Promise.resolve();
+      if (!previewEnabled) await draftQueueRef.current;
       const nextIssues = cityLayoutIssues(layout, placements);
       if (nextIssues.length) {
         setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
         return;
       }
-      setServerValidation({ valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 });
+      const validation = previewEnabled
+        ? { valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 }
+        : await backendBridge.invokeProfileScoped("city_layout_validate", { baseRevision: layout.layoutRevision, placements });
+      setServerValidation(validation);
+      if (!validation.valid) return;
       setApplyConfirmOpen(true);
-    } catch {
-      setErrorText(t("common.actionFailed"));
+    } catch (error) {
+      setErrorText(error.message || t("common.actionFailed"));
     } finally {
       setApplyPreparing(false);
     }
   };
 
   useEffect(() => {
-    if (!previewEnabled || stale) return undefined;
+    if (!previewEnabled && (!layout || !online)) return undefined;
+    if (stale) return undefined;
     const signature = cityPlacementSignature(placements);
     if (signature === savedSignatureRef.current) return undefined;
     draftTimerRef.current = window.setTimeout(() => {
-      savedSignatureRef.current = signature;
-      setDraftRevision((revision) => revision + 1);
+      if (previewEnabled) {
+        savedSignatureRef.current = signature;
+        setDraftRevision((revision) => revision + 1);
+      } else {
+        void enqueueDraftSave(placements, layout.layoutRevision).catch((error) =>
+          setErrorText(error.message || t("common.actionFailed")));
+      }
       draftTimerRef.current = 0;
     }, 500);
     return () => {
       if (draftTimerRef.current) window.clearTimeout(draftTimerRef.current);
       draftTimerRef.current = 0;
     };
-  }, [placements, previewEnabled, stale]);
+  }, [placements, previewEnabled, stale, layout, online]);
+
+  const applyConfirmed = async () => {
+    setApplyConfirmOpen(false);
+    if (previewEnabled) { setErrorText(t("common.actionFailed")); return; }
+    setApplyPreparing(true);
+    try {
+      await draftQueueRef.current;
+      if (savedSignatureRef.current !== cityPlacementSignature(placements)) {
+        await enqueueDraftSave(placements, layout.layoutRevision);
+      }
+      const result = await backendBridge.invokeProfileScoped("city_layout_apply_start", {
+        baseRevision: layout.layoutRevision, placements,
+      });
+      if (!result?.accepted) {
+        setServerValidation({ valid: false, issues: result?.issues || [], totalMoves: 0, temporaryMoves: 0 });
+        setErrorText(t("common.actionFailed"));
+        return;
+      }
+      setLiveApplyStatus(result.status);
+    } catch (error) {
+      setErrorText(error.message || t("common.actionFailed"));
+    } finally { setApplyPreparing(false); }
+  };
+
+  const cancelApply = async () => {
+    if (previewEnabled || !applyStatus?.jobId) return;
+    try {
+      setLiveApplyStatus(await backendBridge.invokeProfileScoped("city_layout_apply_cancel", { jobId: applyStatus.jobId }));
+    } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
+  };
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -287,7 +438,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   }, [busy]);
 
   if (!previewEnabled && !online) return <div className="panel city-layout-empty">{t("cityLayout.offline")}</div>;
-  if (!layout) return <div className="panel city-layout-empty">{loading ? t("common.processing") : errorText || t("cityLayout.noData")}</div>;
+  if (!layout) return <div className="panel city-layout-empty" role="status">{loading ? t("common.processing") : errorText || t("cityLayout.noData")}{!loading && !previewEnabled && online ? <button type="button" onClick={() => setReloadRevision((revision) => revision + 1)}>{t("common.refresh")}</button> : null}</div>;
   const currentHover = buildingsByUuid.get(hoveredUuid) ?? selected;
   const lassoStyle = (() => {
     if (!citySelectionState || !region) return null;
@@ -305,15 +456,15 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       <header className="city-layout-header">
         <div><h2>{t("cityLayout.title")}</h2><span>{t("cityLayout.stats", { cells: layout.cells.filter((cell) => cell.unlocked).length, buildings: layout.buildings.length, movable: layout.buildings.filter((item) => item.movable).length })}</span></div>
         <div className="city-layout-actions">
-          <button type="button" disabled={loading || busy} onClick={() => { setErrorText(""); setServerValidation(null); }}>{t("common.refresh")}</button>
+          <button type="button" disabled={loading || busy} onClick={() => { setErrorText(""); setServerValidation(null); if (!previewEnabled) setReloadRevision((value) => value + 1); }}>{t("common.refresh")}</button>
           <button type="button" disabled={!history.past.length || busy} onClick={undo}>{t("cityLayout.undo")}</button>
           <button type="button" disabled={!history.future.length || busy} onClick={redo}>{t("cityLayout.redo")}</button>
           <button type="button" disabled={!placements.length || busy} onClick={restoreInitial}>{t("cityLayout.restoreInitial")}</button>
-          <button type="button" disabled={stale || busy || !previewEnabled} onClick={saveDraftNow}>{t("cityLayout.saveDraft")}</button>
-          <button type="button" className="primary" disabled={stale || !placements.length || busy || !previewEnabled} onClick={() => void prepareApply()}>{t("cityLayout.apply")}</button>
+          <button type="button" disabled={stale || busy || !layout} onClick={() => void saveDraftNow()}>{t("cityLayout.saveDraft")}</button>
+          <button type="button" className="primary" disabled={stale || !placements.length || busy || !layout} onClick={() => void prepareApply()}>{t("cityLayout.apply")}</button>
         </div>
       </header>
-      {stale ? <div className="city-layout-warning">{t("cityLayout.stale")} <button type="button" onClick={() => { setHistory({ past: [], present: [], future: [] }); setDraftRevision(0); savedSignatureRef.current = ""; setStale(false); }}>{t("cityLayout.discardDraft")}</button></div> : null}
+      {stale ? <div className="city-layout-warning">{t("cityLayout.stale")} <button type="button" onClick={() => void discardStaleDraft()}>{t("cityLayout.discardDraft")}</button></div> : null}
       {layout.isInCity ? null : <div className="city-layout-warning">{t("cityLayout.enterCity")}</div>}
       {errorText ? <div className="city-layout-error">{errorText}</div> : null}
       <div className="city-layout-workbench">
@@ -419,11 +570,11 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
           <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>
-          {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => setErrorText(t("common.actionFailed"))}>{t("cityLayout.cancelApply")}</button></div> : null}
+          {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => void cancelApply()} disabled={previewEnabled}>{t("cityLayout.cancelApply")}</button></div> : null}
         </aside>
       </div>
       <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: draftRevision })}</span><span>{t("cityLayout.conflicts", { count: issues.length })}</span></footer>
-      {applyConfirmOpen ? <div className="scheme-modal-backdrop" data-preview-only-confirm="city-layout"><section className="scheme-modal" role="dialog" aria-modal="true"><strong>{t("cityLayout.applyConfirm", { count: serverValidation?.totalMoves ?? placements.length })}</strong><div className="scheme-modal-actions"><button type="button" onClick={() => setApplyConfirmOpen(false)}>{t("common.cancel")}</button><button className="primary" type="button" onClick={() => { setApplyConfirmOpen(false); setErrorText(t("common.actionFailed")); }}>{t("cityLayout.apply")}</button></div></section></div> : null}
+      {applyConfirmOpen ? <div className="scheme-modal-backdrop" data-preview-only-confirm={previewEnabled ? "city-layout" : undefined}><section className="scheme-modal" role="dialog" aria-modal="true"><strong>{t("cityLayout.applyConfirm", { count: serverValidation?.totalMoves ?? placements.length })}</strong><div className="scheme-modal-actions"><button type="button" onClick={() => setApplyConfirmOpen(false)}>{t("common.cancel")}</button><button className="primary" type="button" onClick={() => void applyConfirmed()}>{t("cityLayout.apply")}</button></div></section></div> : null}
     </section>
   );
 }
