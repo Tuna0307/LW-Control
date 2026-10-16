@@ -1,3 +1,8 @@
+Latest lead audit R3, 2026-10-16: MAP-015 34331cde fast Truck accuracy accepted.
+Worker does final R4 (drop arrived Trucks, re-request lost rectangles before camera
+fallback, packaged proof) on the same branch/PR #11. See the R3 section of
+docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
 Latest lead audit R2, 2026-10-16: MAP-015 7e93b92f accepted for non-Truck speed,
 Ghost plunder and Truck filter witnesses. Worker does final R3: production fast
 Truck sweep (typed, full fields, camera fallback) on the same branch/PR #11.

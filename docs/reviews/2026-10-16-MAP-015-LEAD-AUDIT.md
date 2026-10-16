@@ -52,3 +52,25 @@ checks: all pass.
    drift (fast-vs-fast pair as the drift control) and every fast Truck row has the same fields as camera rows.
 3. Packaged app: Truck-only scan and all-nine-kinds scan, Truck filter, Stop mid-scan, restoration.
 4. Final ZIP, report update, status READY_FOR_LEAD_AUDIT or PARTIAL.
+
+## R3 audit — source 34331cde (lead)
+Verified: remote SHA 34331cde; ZIP `artifacts/release-map015-r3-final-34331cde/LW-Control-MAP015-RC-34331cde3433.zip`
+SHA-256 8b7184ad…727c matches; Desktop.Checks, map_014_lead_native and map_015 package tests pass (lead re-run).
+Lead accuracy analysis of the genuine all-nine run (`artifacts/map014-takeover/native-ui-20261016-052647`, fast 1,179
+Truck rows) against the next session's camera fallback (`native-ui-20261016-053232`, 499 rows):
+- All 1,179 rows unique, `trainType` 1, server 2212, full production fields; ≤4 Trucks per owner (578 owners).
+- Camera-only 177: 155 started after the fast scan began → only ~22 true misses (≈2 % of fast set).
+- Fast-only 857: 708 had already ended before the camera scan began. The camera route undercounts because each
+  camera view only receives Trucks near its centre. **Fast Truck accuracy accepted (better than camera).**
+- LEADMAP015-05 (defect): 88/1,179 fast rows were already arrived (`endTime < updatedAt`) when captured; camera
+  route: 1/499. Arrived Trucks must not be published.
+- LEADMAP015-06 (reliability): a few lost pushes (615/625, 623/625) send the whole scan to the 200 s camera
+  fallback. Re-request only the missing rectangles first (bounded retries), camera fallback only after that fails.
+
+## R4 assignment (final fixes) — same branch/PR #11
+1. LEADMAP015-05: drop Trucks whose arrival time ≤ capture time (and recheck at publication); add a regression check.
+2. LEADMAP015-06: track which rectangle each push answers; after the sweep re-send only missing rectangles (max 2
+   passes) before any camera fallback; add a regression check.
+3. Packaged app: Truck-only scan and all-nine scan both complete on the fast path (no camera fallback), no arrived
+   Trucks published, Truck filter works. Empty Ghost tab is acceptable if verified empty.
+4. Final ZIP from final commit, report, status READY_FOR_LEAD_AUDIT. No new fast-vs-camera study needed.
