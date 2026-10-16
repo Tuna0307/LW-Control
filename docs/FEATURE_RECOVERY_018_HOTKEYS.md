@@ -12,8 +12,8 @@ Original seven cards and all nine configurable Hotkeys fields: Q/W/E/R attack, a
 
 | Feature | Status | Proof or exact limitation |
 |---|---|---|
-| Toggle and persist all Hotkeys and G preference booleans, read/reopen saved settings, rollback on failure | WORKING for native config | Feature018HotkeyConfigChecks and desktop full suite passed, including native get/save, read-after-reopen, migrated ten-field config, invalid-save rejection. |
-| Black Market hint preference persistence | WORKING for native config | The added treasureChestHint property round-trips under the real native HotkeyConfigCommandService; effect in the game is a separate unimplemented feature. |
+| Toggle and persist all Hotkeys and G preference booleans, read/reopen saved settings, rollback on failure | NOT_POSSIBLE as accepted packaged feature (native config PASS) | Feature018HotkeyConfigChecks and desktop full suite passed native get/save, reopen, migration and malformed-save checks. Genuine packaged proof was denied by pre-existing foreign recovery journal. |
+| Black Market hint preference persistence | NOT_POSSIBLE as accepted packaged feature (native config PASS) | The added treasureChestHint property round-trips in native HotkeyConfigCommandService; there is no packaged proof or live chest marking. |
 | Q/W/E/R attack and optional march speedups | NOT_POSSIBLE as live hotkeys in this checkpoint | There is no current-game keyboard capture/attack-target selection or confirmed march-speedup action consumer for this Hotkeys config. |
 | A/S/D/F squad recall | NOT_POSSIBLE | No current-game keyboard capture/selected-squad recall binding; merely persisting the toggle does not dispatch a recall. |
 | Space shield countdown | NOT_POSSIBLE | No current-game keyboard capture or game-sourced shield countdown overlay. |

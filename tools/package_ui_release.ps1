@@ -469,6 +469,55 @@ use Map actions such as claim, attack, march or plunder unintentionally.
 Review source: docs/MAP_015_WORKER_REPORT.md
 "@
 }
+if ($ReleaseLabel -eq 'FEATURE-RECOVERY-018') {
+    $readme = @"
+LW-Control FEATURE-RECOVERY-018 — PARTIAL review candidate
+Source commit: $sourceCommit
+Reference UI: LWBridge 0.3.17 post-auth
+
+Windows x64: extract the ENTIRE ZIP to a writable folder and run
+LW-Control-UI/Launch LWBridge.cmd. Requires Microsoft .NET 10 Desktop Runtime,
+Microsoft Edge WebView2 Runtime and Python for optional current game integration.
+
+VERIFIED FEATURE SCOPE
+City Layout original panel editing and placement presentation are available in
+isolated UI fixtures. The live UI now requests original native City Layout
+snapshot, drafts, validation and apply/status/cancel operations, displaying
+real error responses. Revisioned per-profile draft persistence is implemented.
+The current rebuild has no authenticated interior-city snapshot producer,
+verified placement planner or building relocation game executor.
+
+Hotkeys and Mini Games preferences now load/save real per-profile native settings,
+including original Black Market grand-prize hint. Native persistence and old
+ten-field migration were tested. Game-window keyboard dispatch for Q/W/E/R,
+A/S/D/F, Space, F6/F7/F8, Alt+1-4, F9/F10 and G is not implemented and no
+gameplay success is claimed.
+
+Mini Games Land Cell sends the original monopoly_cell_open command and reports
+native failure; the current backend cannot unlock cells. Food House uses
+automation_start/stop for sheepGame with real status polling but the solver task
+and game-side confirmed moves are absent. A saved chest preference does not
+prove a visible grand-prize marker.
+
+PACKAGED LIVE PROOF NOT COMPLETED
+The exact-sub-account lifecycle preflight encountered an older unrelated
+overview-bridge recovery journal and refused to launch the game. The journal
+and installed game scripts were left untouched. Reverify ownership and safely
+complete that recovery independently before attempting another live session.
+This release candidate therefore has code-level and offline-native evidence
+only, with no new FEATURE-RECOVERY-018 in-game operation receipts. Do not infer
+fully recovered game features from controls or their saved preferences.
+
+Other Map and Home work remains under its own existing acceptance and risk
+conditions. This is an unmerged source-pinned review ZIP, not a published
+production release. Private account state, credentials and runtime proof files
+are NOT bundled.
+
+Repository: https://github.com/Tuna0307/LW-Control
+Draft review: https://github.com/Tuna0307/LW-Control/pull/14
+Detailed verdicts: docs/FEATURE_RECOVERY_018_WORKER_REPORT.md
+"@
+}
 [IO.File]::WriteAllText((Join-Path $appRoot 'README-RELEASE.txt'), $readme, [Text.UTF8Encoding]::new($false))
 [IO.File]::WriteAllText((Join-Path $appRoot 'SOURCE-COMMIT.txt'), "$sourceCommit`r`n", [Text.Encoding]::ASCII)
 $destination = Join-Path $OutputDirectory ("LW-Control-" + $ReleaseLabel + "-RC-" + $sourceCommit.Substring(0,12) + ".zip")

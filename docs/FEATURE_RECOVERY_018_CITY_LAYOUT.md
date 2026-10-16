@@ -14,8 +14,8 @@ Read-only inspection of the installed current Assembly-CSharp.rdl confirms nativ
 
 | Feature | Status | Exact reason or proof |
 |---|---|---|
-| Local Zoom, selection/drag, group drag, undo/redo, inspection, local overlap/road/locked validation | WORKING in isolated UI fixture | Frontend deterministic UI checks passed; no live current-city layout is claimed. |
-| Per-profile native revisioned draft persistence | WORKING in existing backend | Revisioned profile-state save, stale-write/clear conflicts; existing CityLayoutDraftChecks. |
+| Local Zoom, selection/drag, group drag, undo/redo, inspection, local overlap/road/locked validation | NOT_POSSIBLE as accepted live feature (UI fixture PASS) | Frontend deterministic UI checks passed; no live current-city layout is claimed. |
+| Per-profile native revisioned draft persistence | NOT_POSSIBLE as accepted packaged feature (native backend PASS) | Revisioned profile-state save and stale-write/clear conflicts exist, but genuine packaged City snapshot/draft interaction is unavailable. |
 | Live city snapshot and real building/footprint/region display | NOT_POSSIBLE | Native city_layout_snapshot_get is not implemented; no verified current-client city interior snapshot provider. |
 | Server-side validation and move plan | NOT_POSSIBLE | Native city_layout_validate is not implemented; game zone and temporary-buffer planner unverified. |
 | Real placement Apply/progress/Stop | NOT_POSSIBLE | Native apply start/status/cancel are not implemented; authoritative current-client executor absent. |
