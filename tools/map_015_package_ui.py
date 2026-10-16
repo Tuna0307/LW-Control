@@ -39,6 +39,13 @@ MODES = {
     "all-nine": {"args": ["all-nine"], "selected": [
         "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
         "requires_db": True},
+    "auto-all-nine": {"args": ["auto-all-nine"], "selected": [
+        "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
+        "requires_db": True, "remote": True},
+    "saved-clear-reopen": {"args": ["saved-clear-reopen"], "selected": None,
+                           "requires_db": True, "remote": True},
+    "auto-interval-20m": {"args": ["auto-interval-20m"], "selected": None,
+                          "requires_db": True, "remote": True},
     "truck-stop": {"args": ["truck-stop"], "selected": None, "requires_db": True},
     "all-nontruck": {"args": ["all-nontruck"], "selected": [
         "city", "resource", "monster", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
@@ -65,6 +72,15 @@ KNOWN_LIMITS = [
     "visit to 2213 and verifies Clear of 2213 saved rows after returning to 2212.",
     "The existing UI runner uses a retained native DB path even for new scans, "
     "and browse-new-kinds additionally needs an explicit saved complete genuine DB.",
+    "auto-all-nine is opt-in only: a single real Auto Run Now scans all nine on 2211 "
+    "from original 2212 and must return home. Interval runs, Manual Start, and "
+    "partial native/SQLite/UI evidence are not accepted.",
+    "saved-clear-reopen clones genuine preserved 2212 source SQLite, performs one "
+    "owned Resource Auto 2213 scan, clears only 2213 via real Auto UI and reloads "
+    "the same packaged WebView; the original 2212 data and game server must remain.",
+    "auto-interval-20m observes >=1200 real monotonic seconds of an enabled "
+    "but idle native Auto Railway scheduler, then its due 2211 scan/return. No "
+    "clock substitution, Run Now, Manual Start or updater is permitted.",
 ]
 
 
@@ -74,6 +90,13 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def exact_unordered_selected_types(actual, expected):
+    """React checkbox selection order is not semantic; duplicates still fail."""
+    return (isinstance(actual, list) and len(actual) == len(expected) and
+            all(isinstance(value, str) for value in actual) and
+            len(set(actual)) == len(expected) and set(actual) == set(expected))
 
 
 def within(path: Path, root: Path) -> bool:
@@ -186,16 +209,21 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         raise ValueError("City direct receipt does not match the genuine helper-start owner")
 
     selected = MODES[mode]["selected"]
-    all_nontruck = mode in ("all-nontruck", "all-nine")
+    all_nontruck = mode in ("all-nontruck", "all-nine", "auto-all-nine")
     completed = proof.get("completedStatus", {})
     ui_run = completed.get("scanRunId")
     if ui_run is not None and (not isinstance(ui_run, str) or not ui_run):
         raise ValueError("City UI completedStatus has an invalid scanRunId")
-    if completed.get("selectedTypes") is not None and completed["selectedTypes"] != selected:
+    if completed.get("selectedTypes") is not None and not (
+            exact_unordered_selected_types(completed["selectedTypes"], selected)
+            if mode == "auto-all-nine" else completed["selectedTypes"] == selected):
         raise ValueError("Packaged completed native scan selected unexpected kinds")
+    expected_proof = ("actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results"
+                      if mode == "auto-all-nine" else
+                      "actual_packaged_ui_all_nontruck_fullworld_scan_and_results"
+                      if all_nontruck else "actual_packaged_ui_fullworld_selected_scan_and_results")
     if (proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or
-            proof.get("proof") != ("actual_packaged_ui_all_nontruck_fullworld_scan_and_results"
-                                   if all_nontruck else "actual_packaged_ui_fullworld_selected_scan_and_results") or
+            proof.get("proof") != expected_proof or
             proof.get("selectedTypes") != selected or proof.get("selection") != mode):
         raise ValueError("Packaged UI proof has an unexpected scan selection")
     if all_nontruck:
@@ -204,7 +232,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         native_gate = browse.get("cameraFree", {})
         ghost_tab = next((item for item in results if item.get("kind") == "ghost"), {})
         ghost_positive_proven = browse.get("ghostNativeRewardDisplayProven") is True
-        if (not (ghost_positive_proven or mode == "all-nine" and
+        if (not (ghost_positive_proven or mode in ("all-nine", "auto-all-nine") and
                  ghost_tab.get("total") == 0 and ghost_tab.get("firstPageRows") == 0 and
                  ghost_tab.get("positiveGhostRewardRendering") is None) or
                 not isinstance(browse.get("scanRunId"), str) or not browse["scanRunId"] or
@@ -251,7 +279,8 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
      created_at, updated_at) = rows[0]
     if (not isinstance(run_id, str) or not run_id or
             ui_run is not None and ui_run != run_id or
-            json.loads(selected_json) != selected or status != "completed" or
+            not (exact_unordered_selected_types(json.loads(selected_json), selected)
+                 if mode == "auto-all-nine" else json.loads(selected_json) == selected) or status != "completed" or
             total != 2500 or finished != 2500 or failed != 0 or
             type(server_id) is not int or server_id <= 0 or
             type(created_at) is not int or type(updated_at) is not int or
@@ -690,6 +719,358 @@ def audit_remote_railway(destination: Path, proof: dict, restoration: dict) -> d
                 noCoordinateJump=True, noClear=True)
 
 
+def audit_auto_all_nine(destination: Path, proof: dict, restoration: dict) -> dict:
+    """Supplement existing exact-owned native/SQLite/UI gates with Auto ownership."""
+    auto, run, browse = proof.get("auto", {}), proof.get("completedStatus", {}), proof.get("browse", {})
+    cycle = auto.get("lastCycle", {}) if isinstance(auto, dict) else {}
+    selected = MODES["auto-all-nine"]["selected"]
+    if (proof.get("proof") != "actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results" or
+            proof.get("selection") != "auto-all-nine" or proof.get("selectedTypes") != selected or
+            proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or
+            not isinstance(cycle, dict) or
+            auto.get("originalServerId") != 2212 or auto.get("targetServerId") != 2211 or
+            auto.get("restoredServerId") != 2212 or type(auto.get("runNowClicks")) is not int or
+            auto.get("runNowClicks") != 1 or auto.get("noIntervalRunBeforeExplicit") is not True or
+            auto.get("sawRunning") is not True or auto.get("sawRemote") is not True or
+            auto.get("serverIds") != [2211] or
+            not exact_unordered_selected_types(auto.get("selectedTypes"), selected) or
+            auto.get("returnToOriginalServer") is not True or auto.get("scanMode") != "fast" or
+            auto.get("cleanupEnabled") is not False or auto.get("cleanupRunning") is not False or
+            cycle.get("outcome") != "completed" or cycle.get("lastError") is not None or
+            cycle.get("originalServerId") != 2212 or cycle.get("targetServerIds") != [2211] or
+            cycle.get("completedServerIds") != [2211] or
+            run.get("phase") != "completed" or run.get("serverId") != 2211 or
+            not exact_unordered_selected_types(run.get("selectedTypes"), selected) or
+            run.get("scanMode") != "fast" or
+            run.get("isReading") is not False or run.get("totalBlocks") != 2500 or
+            run.get("readBlocks") != 2500 or run.get("failedBlocks") != 0 or
+            run.get("unreadBlocks") != 0 or browse.get("serverId") != 2211 or
+            browse.get("scanRunId") != run.get("scanRunId")):
+        raise ValueError("MAP016 Auto all-nine lacks a single explicit complete Run Now and verified original-server return")
+    if (type(cycle.get("startedAt")) is not int or type(cycle.get("completedAt")) is not int or
+            cycle["completedAt"] <= cycle["startedAt"]):
+        raise ValueError("MAP016 Auto cycle timestamps invalid")
+    try:
+        triggered = datetime.fromisoformat(auto["triggeredAt"].replace("Z", "+00:00"))
+    except (KeyError, TypeError, AttributeError, ValueError) as error:
+        raise ValueError("MAP016 Auto explicit trigger timestamp missing") from error
+    if triggered.tzinfo is None or cycle["startedAt"] < triggered.timestamp() * 1000 - 2000:
+        raise ValueError("MAP016 Auto cycle began before the Run Now trigger")
+    if (proof.get("profileId") != restoration.get("profileId") or
+            proof.get("gamePid") != restoration.get("gamePid") or
+            not isinstance(run.get("scanRunId"), str) or not run["scanRunId"]):
+        raise ValueError("MAP016 Auto profile/game/run is not the exact owned session")
+
+    stage = json.loads((destination / "live-resource/map-engine-stage-metrics.json").read_text(encoding="utf-8"))
+    if (stage != proof.get("timings") or stage.get("runId") != run["scanRunId"] or
+            stage.get("serverId") != 2211 or stage.get("scanMode") != "fast"):
+        raise ValueError("MAP016 Auto timings are not from the same completed scan")
+    stages = ("sourceCaptureMilliseconds", "checkpointMilliseconds",
+              "publicationMilliseconds", "wholeEngineMilliseconds")
+    if any(type(stage.get(key)) not in (int, float) or not 0 < stage[key] < 900_000
+           for key in stages):
+        raise ValueError("MAP016 Auto timings are incomplete")
+    if abs(stage[stages[-1]] - sum(stage[key] for key in stages[:-1])) > 2000:
+        raise ValueError("MAP016 Auto stage timings disagree with the whole engine")
+
+    results = browse.get("results")
+    if not isinstance(results, list) or [row.get("kind") for row in results] != selected:
+        raise ValueError("MAP016 Auto did not browse all nine current native Map result tabs")
+    ids = set()
+    for row in results:
+        screenshot = Path(row.get("screenshotPath", "")).resolve()
+        request_id = row.get("nativeSearchRequestId")
+        if (row.get("serverId") != 2211 or type(row.get("total")) is not int or
+                type(row.get("firstPageRows")) is not int or
+                not 0 <= row["firstPageRows"] <= row["total"] or
+                not isinstance(request_id, str) or not request_id or request_id in ids or
+                not within(screenshot, destination.resolve()) or
+                not screenshot.is_file() or screenshot.stat().st_size < 1000):
+            raise ValueError("MAP016 Auto native UI search or screenshot is missing or foreign")
+        with screenshot.open("rb") as stream:
+            if stream.read(8) != b"\x89PNG\r\n\x1a\n":
+                raise ValueError("MAP016 Auto screenshot is not PNG evidence")
+        ids.add(request_id)
+    return dict(originalServerId=2212, targetServerId=2211, restoredServerId=2212,
+                runNowClicks=1, scanRunId=run["scanRunId"], timings=stage, nativeUiKinds=selected)
+
+
+def audit_saved_clear_reopen(destination: Path, proof: dict, restoration: dict) -> dict:
+    """Exact owned Resource Auto and persisted 2213 Clear/reopen, no fake rows."""
+    result = json.loads((destination / "map016-saved-clear-reopen.json").read_text(encoding="utf-8"))
+    stages = result.get("stages")
+    required = ["preserved_home", "two_server_auto_published",
+                "clear_remote_preserve_home", "reopened_saved_dropdown", "cleanup"]
+    if (proof.get("state") != "proven" or
+            proof.get("proof") != "real_map016_saved_multi_server_clear_reopen" or
+            result.get("proof") != "real_map016_saved_multi_server_clear_reopen" or
+            result.get("schemaVersion") != 1 or result.get("genuineGame") is not True or
+            result.get("controlledProvider") is not False or
+            result.get("homeServer") != 2212 or result.get("remoteServer") != 2213 or
+            result.get("profileId") != restoration.get("profileId") or
+            result.get("sessionId") != restoration.get("sessionId") or
+            result.get("gamePid") != restoration.get("gamePid") or
+            proof.get("profileId") != restoration.get("profileId") or
+            proof.get("gamePid") != restoration.get("gamePid") or
+            not isinstance(stages, list) or
+            [entry.get("stage") for entry in stages if isinstance(entry, dict)] != required or
+            len(stages) != len(required)):
+        raise ValueError("MAP016 Saved Clear lacks exactly one genuine owned scan/clear/reopen sequence")
+    home, published, cleared, reopened, cleanup = stages
+    source = json.loads((destination / "source.json").read_text(encoding="utf-8"))
+    if (source.get("genuine") is not True or source.get("fixture") is not False or
+            source.get("mode") != "saved-clear-reopen" or
+            not isinstance(source.get("sha256"), str) or len(source["sha256"]) != 64):
+        raise ValueError("MAP016 Saved Clear did not clone genuine preserved home data")
+    original_count = home.get("count")
+    cycle = published.get("scan")
+    if (home.get("serverId") != 2212 or type(original_count) is not int or original_count <= 0 or
+            home.get("priorRemote") != 0 or
+            2212 not in home.get("beforeServers", []) or 2213 in home.get("beforeServers", []) or
+            not isinstance(cycle, dict) or cycle.get("outcome") != "completed" or
+            cycle.get("lastError") is not None or cycle.get("originalServerId") != 2212 or
+            cycle.get("targetServerIds") != [2213] or
+            cycle.get("completedServerIds") != [2213] or
+            published.get("observedRemote") is not True or
+            published.get("liveServerId") != 2212 or
+            published.get("homeRows") != original_count or
+            type(published.get("remoteRows")) is not int or published["remoteRows"] <= 0 or
+            not {2212, 2213}.issubset(set(published.get("savedServers", []))) or
+            cleared.get("clearedServerId") != 2213 or cleared.get("remoteRows") != 0 or
+            cleared.get("homeRows") != original_count or
+            cleared.get("liveServerId") != 2212 or
+            2212 not in cleared.get("savedServers", []) or 2213 in cleared.get("savedServers", []) or
+            reopened.get("absentServerId") != 2213 or
+            reopened.get("retainedServerId") != 2212 or
+            reopened.get("retainedRows") != original_count or
+            reopened.get("liveServerId") != 2212 or
+            reopened.get("reloadType") != "same_exact_owned_app_webview" or
+            2212 not in reopened.get("savedServers", []) or
+            2213 in reopened.get("savedServers", []) or
+            cleanup.get("restored") is not True or cleanup.get("autoEnabled") is not False or
+            cleanup.get("autoRunning") is not False or cleanup.get("liveServerId") != 2212):
+        raise ValueError("MAP016 Saved Clear did not preserve 2212/restore home/remove 2213 after real WebView reload")
+    try:
+        requested = datetime.fromisoformat(published["requestedAt"].replace("Z", "+00:00"))
+    except (KeyError, TypeError, AttributeError, ValueError) as error:
+        raise ValueError("MAP016 Saved Clear explicit Auto trigger time missing") from error
+    if (requested.tzinfo is None or type(cycle.get("startedAt")) is not int or
+            type(cycle.get("completedAt")) is not int or
+            cycle["startedAt"] < requested.timestamp() * 1000 - 2000 or
+            cycle["completedAt"] <= cycle["startedAt"]):
+        raise ValueError("MAP016 Saved Clear scan predates its explicit Auto request")
+
+    for name in ("map016-saved-before-clear.png", "map016-saved-after-clear.png",
+                 "map016-saved-reopened-manual.png", "map016-saved-reopened-auto.png",
+                 "map016-saved-after-reopen.png"):
+        screenshot = destination / name
+        if not screenshot.is_file() or screenshot.stat().st_size < 1000:
+            raise ValueError("MAP016 Saved Clear missing actual mounted WebView screenshot: " + name)
+        with screenshot.open("rb") as stream:
+            if stream.read(8) != b"\x89PNG\r\n\x1a\n":
+                raise ValueError("MAP016 Saved Clear screenshot is invalid: " + name)
+
+    # The Clear action can retire the 2213 durable run, so cross-check against
+    # its preserved *native* receipt and stage metrics, never fabricated rows.
+    direct = json.loads((destination / "live-resource/camera-free-scan-result.json").read_text(encoding="utf-8"))
+    metrics = json.loads((destination / "live-resource/map-fullworld-probe-metrics.json").read_text(encoding="utf-8"))
+    stage = json.loads((destination / "live-resource/map-engine-stage-metrics.json").read_text(encoding="utf-8"))
+    run_id = direct.get("scanRunId")
+    helper = json.loads((destination / "overview-evidence" / restoration["sessionId"] / "helper-start.json")
+                        .read_text(encoding="utf-8"))
+    if (not isinstance(run_id, str) or not run_id or
+            direct.get("state") != "proven" or direct.get("serverId") != 2213 or
+            direct.get("profileId") != restoration["profileId"] or
+            direct.get("launchSessionId") != restoration["sessionId"] or
+            direct.get("gamePid") != restoration["gamePid"] or
+            direct.get("worldId") != 0 or
+            hashlib.sha256(str(direct.get("challenge", "")).encode()).hexdigest() !=
+                helper.get("challengeSha256") or
+            direct.get("cameraStable") is not True or
+            direct.get("curViewRestored") is not True or
+            direct.get("completedAois") != 10000 or direct.get("repliesCaptured") != 63 or
+            type(direct.get("requestsSent")) is not int or
+            not 63 <= direct["requestsSent"] <= 65 or
+            metrics.get("source") != "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync" or
+            metrics.get("phase") != "prepared" or
+            metrics.get("identity", {}).get("RunId") != run_id or
+            metrics["identity"].get("ServerId") != 2213 or
+            metrics["identity"].get("SelectedTypesKey") != "resource" or
+            metrics.get("validatedProbeResponses") != 63 or
+            metrics.get("uniqueCoveredAois") != 10000 or
+            stage.get("runId") != run_id or stage.get("serverId") != 2213 or
+            stage.get("scanMode") != "fast" or
+            type(stage.get("wholeEngineMilliseconds")) not in (int, float) or
+            not 0 < stage["wholeEngineMilliseconds"] < 900_000):
+        raise ValueError("MAP016 Saved Clear native Resource scan identity, coverage or timing was not verified")
+    areas = direct.get("batches")
+    if not isinstance(areas, list) or len(areas) != 63:
+        raise ValueError("MAP016 Saved Clear lacks exactly 63 owned native Resource replies")
+    seen = set()
+    for batch in areas:
+        indices = batch.get("indices") if isinstance(batch, dict) else None
+        if (not isinstance(indices, list) or not 1 <= len(indices) <= 160 or
+                any(type(index) is not int or index < 0 or index >= 10000 for index in indices) or
+                len(indices) != len(set(indices)) or not seen.isdisjoint(indices)):
+            raise ValueError("MAP016 Saved Clear native AOI footprint is duplicated or missing")
+        seen.update(indices)
+    if len(seen) != 10000:
+        raise ValueError("MAP016 Saved Clear did not prove all 10000 unique native AOIs")
+    db_path = destination / "profiles" / restoration["profileId"] / "map-data/map-data.db"
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+        home_rows, remote_rows = (
+            database.execute("SELECT COUNT(*) FROM map_records WHERE kind='resource' AND server_id=?",
+                             (server,)).fetchone()[0] for server in (2212, 2213))
+    if home_rows != original_count or remote_rows != 0:
+        raise ValueError("MAP016 Saved Clear SQLite contains phantom remote or missing genuine home Resource data")
+    return dict(originalServerId=2212, clearedServerId=2213, restoredServerId=2212,
+                preservedResourceRows=home_rows, remoteResourceRows=0,
+                ownedScanRunId=run_id, nativeAois=10000,
+                sourceTimingMilliseconds=stage["wholeEngineMilliseconds"],
+                reopenedManualAndAuto=True)
+
+
+def audit_no_official_updater(destination: Path, restoration: dict) -> dict:
+    """The game lifecycle must explicitly refuse any unauthorized updater."""
+    evidence = destination / "overview-evidence"
+    source = ROOT / "artifacts/map014-takeover/native-ui-20261016-124451/overview-evidence/official-settled-client.json"
+    installed = evidence / "official-settled-client.json"
+    admission = json.loads((evidence / "map016-official-settle-admission.json").read_text(encoding="utf-8"))
+    if not source.is_file() or not installed.is_file() or source.read_bytes() != installed.read_bytes():
+        raise ValueError("MAP016 isolated proof changed or invented its officially settled marker")
+    marker = json.loads(installed.read_text(encoding="utf-8"))
+    if (marker.get("schemaVersion") != 1 or
+            marker.get("gameRoot") != admission.get("gameRoot") or
+            marker.get("packageSha256") != admission.get("packageSha256") or
+            marker.get("packageSha256") != restoration.get("capturedOriginalHashes", {}).get("LWScripts.data") or
+            admission.get("schemaVersion") != 1 or
+            admission.get("state") != "settled_reuse_allowed" or
+            admission.get("forceOfficialSettle") is not False or
+            admission.get("officialLauncherStartedByThisAdmission") is not False or
+            admission.get("updaterActionAuthorized") is not False):
+        raise ValueError("MAP016 source-pinned official client admission did not prohibit updater actions")
+    return dict(originalPackageSha256=marker["packageSha256"],
+                reusedExistingSettlement=True, updaterAuthorized=False)
+
+
+def audit_auto_interval(destination: Path, proof: dict, restoration: dict) -> dict:
+    """Require 20 real idle minutes before the first owned Auto Railway cycle."""
+    marker = "real_20_minute_enabled_auto_railway_scheduler_2212_to_2211_return"
+    progress_path = destination / "map016-auto-interval-progress.json"
+    progress = json.loads(progress_path.read_text(encoding="utf-8"))
+    if progress != proof or proof.get("proof") != marker or proof.get("state") != "proven" or \
+            proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or \
+            proof.get("systemClockInjected") is not False or proof.get("runNowCalls") != 0 or \
+            proof.get("manualStartCalls") != 0 or proof.get("intervalMinutes") != 20 or \
+            proof.get("originalServer") != 2212 or proof.get("targetServer") != 2211 or \
+            proof.get("profileId") != restoration.get("profileId") or \
+            proof.get("sessionId") != restoration.get("sessionId") or \
+            proof.get("gamePid") != restoration.get("gamePid") or \
+            proof.get("observedScheduledRun") is not True or \
+            proof.get("observedTargetServer") is not True or \
+            proof.get("observedHomeReturn") is not True or \
+            proof.get("failure") is not None or proof.get("cleanupFailure") is not None:
+        raise ValueError("MAP016 genuine 20-minute Auto scheduler ownership or result is unproven")
+    elapsed = proof.get("firstFireElapsedMilliseconds")
+    idle = proof.get("lastIdleElapsedMilliseconds")
+    deadline = proof.get("deadlineUtcMilliseconds")
+    samples = proof.get("samples")
+    events = proof.get("events")
+    if (type(elapsed) is not int or elapsed < 1_200_000 or
+            type(idle) is not int or idle < 1_196_500 or idle >= elapsed or
+            type(deadline) is not int or deadline <= 0 or
+            not isinstance(samples, list) or len(samples) < 1150 or
+            not isinstance(events, list)):
+        raise ValueError("Auto scheduler has no complete observed 20-minute idle interval")
+    def parse_iso(name):
+        value = proof.get(name)
+        try:
+            dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except (TypeError, AttributeError, ValueError) as exc:
+            raise ValueError("Auto interval missing observed timestamp: " + name) from exc
+        if dt.tzinfo is None: raise ValueError("Auto interval timestamp lacks timezone")
+        return dt
+    enabled, fired = parse_iso("enabledAt"), parse_iso("firstFireAt")
+    if (fired.timestamp()*1000 < deadline or
+            fired.timestamp()*1000 - enabled.timestamp()*1000 < 1_196_000 or
+            abs((fired-enabled).total_seconds()*1000 - elapsed) > 10_000):
+        raise ValueError("Auto scheduler fired too early or with incompatible monotonic time")
+    previous = -1
+    consecutive_unknown = 0
+    for i,item in enumerate(samples):
+        if not isinstance(item, dict): raise ValueError("Auto status sample malformed")
+        now = item.get("monotonicMilliseconds")
+        if (item.get("index") != i or type(now) is not int or now <= previous or
+                (previous >= 0 and now - previous > 3500) or
+                item.get("autoEnabled") is not True or item.get("autoUiMounted") is not True or
+                item.get("deadlineUtcMilliseconds") != deadline):
+            raise ValueError("Auto interval has a gap, wrong owner, missing UI or deadline")
+        if now < 1_196_500 and (item.get("autoRunning") is True or
+                item.get("autoCycleBusy") is True or
+                item.get("manualReading") is True or
+                item.get("manualScanActive") is True or
+                item.get("liveServerId") not in (2212, None)):
+            raise ValueError("Auto scan or navigation began before 20-minute due time")
+        if now < 1_196_500:
+            if item.get("liveServerId") is None:
+                consecutive_unknown += 1
+                if consecutive_unknown > 10 or item.get("secondaryServerId") != 2212:
+                    raise ValueError("Idle Auto interval lost bounded live-home attribution")
+            else:
+                consecutive_unknown = 0
+        previous = now
+    stages = [item.get("stage") for item in events if isinstance(item,dict)]
+    if (not {"scheduler_armed", "first_real_scheduled_admission", "scheduler_cycle_settled",
+             "native_sqlite_railway_verified", "cleanup_verified"}.issubset(stages) or
+            "cleanup_failed" in stages or "source_owned_server_return_recovery" in stages):
+        raise ValueError("Auto interval lacks native completed run or natural owned return")
+    run_id = proof.get("runId")
+    if not isinstance(run_id,str) or not run_id:
+        raise ValueError("Auto interval missing its native owner run ID")
+    with closing(sqlite3.connect((destination / "profiles" / restoration["profileId"] /
+                                  "map-data/map-data.db").resolve().as_uri()+"?mode=ro",uri=True)) as db:
+        runs=db.execute("SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at FROM scan_runs").fetchall()
+        count=db.execute("SELECT count(*) FROM map_records WHERE server_id=2211 AND kind='railway'").fetchone()[0]
+    if (len(runs) != 1 or runs[0][:2] != (run_id,2211) or
+            json.loads(runs[0][2]) != ["railway"] or
+            runs[0][3:7] != ("completed",2500,2500,0) or
+            runs[0][7] < deadline or count != proof.get("savedRailwayRecords") or
+            type(proof.get("nativeRailwayRecords")) is not int or
+            (proof["nativeRailwayRecords"] == 0) != (count == 0)):
+        raise ValueError("Real Auto interval lacks exact durable 2211 Railway publication")
+    native=json.loads((destination/"live-resource/fast-truck-scan-result.json").read_text(encoding="utf-8"))
+    helper=json.loads((destination/"overview-evidence"/restoration["sessionId"]/
+                       "helper-start.json").read_text(encoding="utf-8"))
+    metrics=json.loads((destination/"live-resource/map-engine-stage-metrics.json").read_text(encoding="utf-8"))
+    if (native.get("state") != "proven" or native.get("scanRunId") != run_id or
+            native.get("serverId") != 2211 or native.get("profileId") != restoration["profileId"] or
+            native.get("launchSessionId") != restoration["sessionId"] or
+            native.get("gamePid") != restoration["gamePid"] or
+            hashlib.sha256(str(native.get("challenge","")).encode()).hexdigest() != helper.get("challengeSha256") or
+            native.get("rectanglesCompleted") != 625 or native.get("initialRequestsSent") != 625 or
+            native.get("unprovenRectangles") != 0 or native.get("cameraStable") is not True or
+            native.get("curViewRestored") is not True or native.get("railwayOnly") is not True or
+            native.get("railwayIncluded") is not True or
+            native.get("railwayRecordCount") != proof["nativeRailwayRecords"] or
+            metrics.get("runId") != run_id or metrics.get("serverId") != 2211 or
+            metrics.get("scanMode") != "fast" or
+            type(metrics.get("wholeEngineMilliseconds")) not in (int,float) or
+            not 0 < metrics["wholeEngineMilliseconds"] < 300_000):
+        raise ValueError("Scheduled Railway native sweep, camera state, or timings unproven")
+    for name in ("map016-auto-interval-armed.png","map016-auto-interval-returned.png"):
+        screenshot=destination/name
+        if not screenshot.is_file() or screenshot.stat().st_size < 1000:
+            raise ValueError("Scheduled Auto interval missing genuine Map screenshot: "+name)
+        with screenshot.open("rb") as stream:
+            if stream.read(8) != b"\x89PNG\r\n\x1a\n":
+                raise ValueError("Scheduled Auto interval screenshot is not PNG: "+name)
+    return dict(source="genuine_real_time_auto_interval",idleMonotonicMilliseconds=idle,
+                firstFireMonotonicMilliseconds=elapsed,serverId=2211,restoredServerId=2212,
+                runId=run_id,rectanglesVerified=625,railwayCount=count,
+                wholeEngineMilliseconds=metrics["wholeEngineMilliseconds"],
+                noRunNow=True,noManualStart=True)
+
+
 def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     read = lambda name: json.loads((destination / name).read_text(encoding="utf-8"))
     exit_receipt, owned = read("owned-exit.json"), read("owned-process.json")
@@ -709,10 +1090,10 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     if config["selected"] is not None:
         if proof.get("selectedTypes") != config["selected"] or proof.get("scan", {}).get("phase") != "completed":
             # City/Other selection proof records completedStatus instead of scan.
-            if not (mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine") and proof.get("selectedTypes") == config["selected"]
+            if not (mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "auto-all-nine") and proof.get("selectedTypes") == config["selected"]
                     and proof.get("completedStatus", {}).get("phase") == "completed"):
                 raise ValueError("Packaged proof does not certify the requested completed selection")
-    if mode in ("truck", "all-nine"):
+    if mode in ("truck", "all-nine", "auto-all-nine"):
         browse = proof.get("browse", {})
         native = browse.get("native") if mode == "truck" else browse.get("fastTruck")
         if (not isinstance(native, dict) or native.get("pushes") != 625 or
@@ -798,17 +1179,25 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         gates = [entry.get("gate") for entry in extras.get("receipts", [])]
         if not {"native_zombie_boss_tab_level_filter", "native_ghost_reward_and_filter"}.issubset(gates):
             raise ValueError("Saved genuine Zombie Boss/Ghost positive UI filters were not proven")
-    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine") else None
+    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine", "auto-all-nine") else None
     truck = audit_fresh_truck_filter(destination, proof, restoration) if mode == "mixed-eight" else None
     railway = audit_fast_railway(destination, proof, restoration) if mode == "railway" else None
     remote_railway = audit_remote_railway(destination, proof, restoration) if mode == "remote-railway" else None
+    auto_all_nine = audit_auto_all_nine(destination, proof, restoration) if mode == "auto-all-nine" else None
+    saved_clear = audit_saved_clear_reopen(destination, proof, restoration) if mode == "saved-clear-reopen" else None
+    interval = audit_auto_interval(destination, proof, restoration) if mode == "auto-interval-20m" else None
+    no_updater = audit_no_official_updater(destination, restoration) if mode in ("auto-all-nine", "saved-clear-reopen", "auto-interval-20m") else None
     return dict(mode=mode, state="proven", proof=str(destination / "native-ui-map.json"),
                 ownedExit=str(destination / "owned-exit.json"), hostPid=restoration["hostPid"],
                 gamePid=restoration["gamePid"], sessionId=restoration["sessionId"],
                 **({"cameraFree": direct} if direct else {}),
                 **({"freshTruckFilter": truck} if truck else {}),
                 **({"fastRailway": railway} if railway else {}),
-                **({"remoteRailway": remote_railway} if remote_railway else {}))
+                **({"remoteRailway": remote_railway} if remote_railway else {}),
+                **({"autoAllNine": auto_all_nine} if auto_all_nine else {}),
+                **({"savedClearReopen": saved_clear} if saved_clear else {}),
+                **({"autoInterval20m": interval} if interval else {}),
+                **({"officialSettlement": no_updater} if no_updater else {}))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -819,7 +1208,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mode", required=True, choices=sorted(MODES))
     parser.add_argument("--saved-db", help="Existing genuine completed scan DB for browse-new-kinds")
     parser.add_argument("--allow-remote", action="store_true",
-                        help="Explicitly allow owned 2212->2213->2212 Resource or 2212->2211->2212 Railway Auto proof")
+                        help="Explicitly allow owned 2212->2213->2212 Resource or 2212->2211->2212 Railway / all-nine Auto proof")
     parser.add_argument("--execute", action="store_true", help="Start the exact-owned app/game proof")
     args = parser.parse_args(argv)
     package = verify_package(require_artifact(args.zip, file=True),

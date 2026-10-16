@@ -34,20 +34,41 @@ internal static class Map016LaunchScheduleChecks
         string hash = new('a', 64);
         Require(!OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game, hash),
             "first-use installation skipped official settlement");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(marker, game, hash, false),
+            "no-updater packaged proof admitted first use with no genuine settlement");
         void Write(object value) => File.WriteAllText(marker, JsonSerializer.Serialize(value));
         Write(new { schemaVersion = 1, gameRoot = Path.GetFullPath(game), packageSha256 = hash });
         Require(OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game, hash),
             "unchanged admitted installation could not reuse official settlement");
+        Require(OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game.ToUpperInvariant(), hash),
+            "Windows path-casing difference incorrectly forced a second official launcher cycle");
+        Require(OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(
+                marker, game.ToUpperInvariant(), hash, false),
+            "Windows path-casing difference rejected an unchanged settled client");
+        Require(OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(marker, game, hash, false),
+            "matching official-settled package could not safely reuse its existing settlement");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(marker, game, hash, true),
+            "forced official launcher restart bypassed no-updater acceptance");
         Require(!OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game, new string('b', 64)),
             "changed original package reused a stale settlement");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(
+                marker, game, new string('b', 64), false),
+            "changed package started without required official settlement");
         Require(!OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game + "-other", hash),
             "another installation reused the marker");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(
+                marker, game + "-other", hash, false),
+            "foreign installation was accepted as settled");
         Write(new { schemaVersion = 2, gameRoot = Path.GetFullPath(game), packageSha256 = hash });
         Require(!OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game, hash),
             "unknown marker schema skipped settlement");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(marker, game, hash, false),
+            "unknown marker schema bypassed official preflight");
         File.WriteAllText(marker, "{broken");
         Require(!OverviewLifecycleService.OfficialSettleMarkerMatches(marker, game, hash),
             "malformed marker skipped settlement");
+        Require(!OverviewLifecycleService.OfficialSettleNoUpdaterProofAllowed(marker, game, hash, false),
+            "malformed settlement marker admitted no-updater Launch");
     }
 
     private static async Task CheckFirstIntervalAndReconnectAsync(string root)

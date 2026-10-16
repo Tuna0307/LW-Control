@@ -1,7 +1,7 @@
 """Inert MAP-015 packaged City receipt admission checks; never starts UI/game."""
 
 from contextlib import closing
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import hashlib
 import json
 import os
@@ -10,6 +10,7 @@ import sqlite3
 import tempfile
 import time
 import unittest
+import importlib.util
 
 import map_015_package_ui as package_ui
 
@@ -562,6 +563,364 @@ class PackagedRemoteRailwayTests(unittest.TestCase):
                 self.save_remote()
                 with self.assertRaises(ValueError):
                     self.audit("remote-railway")
+
+
+class PackagedAutoAllNineProofTests(unittest.TestCase):
+    """Inert fail-closed Auto timing/ownership evidence; never starts game/app."""
+
+    setUp = PackagedCityCameraFreeTests.setUp
+    write = PackagedCityCameraFreeTests.write
+    save_receipts = PackagedCityCameraFreeTests.save_receipts
+
+    def make_auto(self):
+        kinds = package_ui.MODES["auto-all-nine"]["selected"]
+        self.assertTrue(package_ui.MODES["auto-all-nine"]["remote"])
+        self.assertEqual(package_ui.MODES["auto-all-nine"]["args"], ["auto-all-nine"])
+        self.assertIn('LWBRIDGE_MAP016_AUTO_ALL_NINE="1" if mode == "auto-all-nine"',
+                      (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8"))
+        t = int(time.time() * 1000)
+        metrics = dict(runId=self.run, serverId=2211, scanMode="fast",
+                       sourceCaptureMilliseconds=150000,
+                       checkpointMilliseconds=7000, publicationMilliseconds=2000,
+                       wholeEngineMilliseconds=159000)
+        self.proof = dict(state="proven", selection="auto-all-nine",
+                          proof="actual_packaged_ui_auto_all_nine_run_now_fullworld_scan_and_results",
+                          genuineGame=True, controlledProvider=False,
+                          profileId=self.profile, gamePid=self.pid,
+                          selectedTypes=kinds, serverId=2211,
+                          completedStatus=dict(phase="completed", scanRunId=self.run,
+                                               serverId=2211, selectedTypes=kinds,
+                                               scanMode="fast", isReading=False,
+                                               totalBlocks=2500, readBlocks=2500,
+                                               failedBlocks=0, unreadBlocks=0),
+                          auto=dict(originalServerId=2212, targetServerId=2211,
+                                    restoredServerId=2212, runNowClicks=1,
+                                    noIntervalRunBeforeExplicit=True,
+                                    sawRunning=True, sawRemote=True,
+                                    serverIds=[2211], selectedTypes=kinds,
+                                    returnToOriginalServer=True, scanMode="fast",
+                                    cleanupEnabled=False, cleanupRunning=False,
+                                    triggeredAt=datetime.fromtimestamp((t - 1000) / 1000, timezone.utc).isoformat(),
+                                    lastCycle=dict(outcome="completed", lastError=None,
+                                                   originalServerId=2212, targetServerIds=[2211],
+                                                   completedServerIds=[2211], startedAt=t,
+                                                   completedAt=t + 160000)),
+                          browse=dict(serverId=2211, scanRunId=self.run, results=[]),
+                          timings=metrics)
+        for kind in kinds:
+            screenshot = self.root / (kind + ".png")
+            screenshot.write_bytes(b"\x89PNG\r\n\x1a\n" + b"x" * 1200)
+            self.proof["browse"]["results"].append(dict(
+                kind=kind, serverId=2211, total=0, firstPageRows=0,
+                nativeSearchRequestId="native-" + kind, screenshotPath=str(screenshot)))
+        self.write("live-resource/map-engine-stage-metrics.json", metrics)
+
+    def audit_auto(self):
+        return package_ui.audit_auto_all_nine(self.root, self.proof, self.restoration)
+
+    def test_exact_one_auto_run_and_time_admission(self):
+        self.make_auto()
+        result = self.audit_auto()
+        self.assertEqual(result["runNowClicks"], 1)
+        self.assertEqual(result["restoredServerId"], 2212)
+        self.assertEqual(result["scanRunId"], self.run)
+        self.assertEqual(result["timings"]["wholeEngineMilliseconds"], 159000)
+
+    def test_auto_cannot_substitute_interval_manual_or_foreign_owner(self):
+        mutations = [
+            ("two Run Now clicks", lambda: self.proof["auto"].update(runNowClicks=2)),
+            ("interval started", lambda: self.proof["auto"].update(noIntervalRunBeforeExplicit=False)),
+            ("no running observation", lambda: self.proof["auto"].update(sawRunning=False)),
+            ("no server visit", lambda: self.proof["auto"].update(sawRemote=False)),
+            ("not returned", lambda: self.proof["auto"].update(restoredServerId=2211)),
+            ("still enabled", lambda: self.proof["auto"].update(cleanupEnabled=True)),
+            ("wrong target", lambda: self.proof["auto"].update(targetServerId=2212)),
+            ("wrong types", lambda: self.proof["auto"].update(selectedTypes=["city"])),
+            ("missing return setting", lambda: self.proof["auto"].update(returnToOriginalServer=False)),
+            ("failed Auto cycle", lambda: self.proof["auto"]["lastCycle"].update(outcome="failed")),
+            ("not completed target", lambda: self.proof["auto"]["lastCycle"].update(completedServerIds=[])),
+            ("cycle before click", lambda: self.proof["auto"]["lastCycle"].update(startedAt=100)),
+            ("wrong SQLite selection", lambda: self.proof["completedStatus"].update(selectedTypes=["city"])),
+            ("2499 blocks", lambda: self.proof["completedStatus"].update(readBlocks=2499)),
+            ("stale run", lambda: self.proof["browse"].update(scanRunId="other")),
+            ("wrong helper", lambda: self.proof.update(gamePid=777)),
+            ("extra UI kind", lambda: self.proof["browse"]["results"].append(
+                self.proof["browse"]["results"][0].copy())),
+            ("foreign search", lambda: self.proof["browse"]["results"][2].update(serverId=2212)),
+            ("missing search id", lambda: self.proof["browse"]["results"][0].update(nativeSearchRequestId=None)),
+            ("foreign screenshot", lambda: self.proof["browse"]["results"][0].update(
+                screenshotPath=str(self.root.parent / "foreign.png"))),
+            ("wrong timing run", lambda: self.proof["timings"].update(runId="old-run")),
+            ("missing time", lambda: self.proof["timings"].update(checkpointMilliseconds=0)),
+            ("fake duration", lambda: self.proof["timings"].update(wholeEngineMilliseconds=1)),
+        ]
+        for label, mutate in mutations:
+            with self.subTest(label=label):
+                self.make_auto()
+                mutate()
+                with self.assertRaises((ValueError, FileNotFoundError)):
+                    self.audit_auto()
+
+
+class PackagedSavedClearReopenProofTests(unittest.TestCase):
+    """Reopen and remote Clear cannot be proven by an old/foreign test run."""
+
+    setUp = PackagedCityCameraFreeTests.setUp
+    write = PackagedCityCameraFreeTests.write
+    save_receipts = PackagedCityCameraFreeTests.save_receipts
+
+    def make_saved(self):
+        self.assertIn("saved-clear-reopen", package_ui.MODES)
+        self.assertTrue(package_ui.MODES["saved-clear-reopen"]["remote"])
+        self.assertIn('LWBRIDGE_MAP016_SAVED_CLEAR_REOPEN="1" if mode == "saved-clear-reopen"',
+                      (package_ui.ROOT / "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8"))
+        self.assertIn('"saved-clear-reopen"', (package_ui.ROOT /
+                      "tools/map_014_lead_native/run_ui.py").read_text(encoding="utf-8"))
+        now = int(time.time() * 1000)
+        self.proof = dict(state="proven",
+                          proof="real_map016_saved_multi_server_clear_reopen",
+                          profileId=self.profile, gamePid=self.pid)
+        self.saved = dict(schemaVersion=1, proof=self.proof["proof"],
+                          genuineGame=True, controlledProvider=False,
+                          profileId=self.profile, sessionId=self.session, gamePid=self.pid,
+                          homeServer=2212, remoteServer=2213,
+                          stages=[
+                              dict(stage="preserved_home", serverId=2212, count=3,
+                                   priorRemote=0, beforeServers=[2212]),
+                              dict(stage="two_server_auto_published",
+                                   requestedAt=datetime.fromtimestamp((now-1000)/1000, timezone.utc).isoformat(),
+                                   scan=dict(outcome="completed", lastError=None,
+                                             startedAt=now, completedAt=now+120000,
+                                             originalServerId=2212, targetServerIds=[2213],
+                                             completedServerIds=[2213]),
+                                   observedRemote=True, liveServerId=2212,
+                                   homeRows=3, remoteRows=5, savedServers=[2212,2213]),
+                              dict(stage="clear_remote_preserve_home", clearedServerId=2213,
+                                   remoteRows=0, homeRows=3, savedServers=[2212],
+                                   liveServerId=2212),
+                              dict(stage="reopened_saved_dropdown", savedServers=[2212],
+                                   absentServerId=2213, retainedServerId=2212,
+                                   retainedRows=3, liveServerId=2212,
+                                   reloadType="same_exact_owned_app_webview"),
+                              dict(stage="cleanup", restored=True, autoEnabled=False,
+                                   autoRunning=False, liveServerId=2212)])
+        self.native.update(serverId=2213)
+        self.metrics["identity"].update(ServerId=2213, SelectedTypesKey="resource", ScanMode="fast")
+        self.metrics["uniqueRecordKeys"]["resource"] = 5
+        self.metrics["source"] = "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync"
+        self.metrics.update(phase="prepared", validatedProbeResponses=63, uniqueCoveredAois=10000)
+        self.stage = dict(runId=self.run, serverId=2213, scanMode="fast",
+                          sourceCaptureMilliseconds=31000, checkpointMilliseconds=250,
+                          publicationMilliseconds=150, wholeEngineMilliseconds=31400)
+        self.write("live-resource/map-engine-stage-metrics.json", self.stage)
+        self.write("source.json", dict(genuine=True, fixture=False,
+                                     mode="saved-clear-reopen", sha256="a"*64))
+        self.write("overview-evidence/owned-session-id/helper-start.json",
+                   dict(profileId=self.profile, sessionId=self.session, gamePid=self.pid,
+                        challengeSha256=hashlib.sha256(self.challenge.encode()).hexdigest()))
+        for name in ("map016-saved-before-clear.png", "map016-saved-after-clear.png",
+                     "map016-saved-reopened-manual.png", "map016-saved-reopened-auto.png",
+                     "map016-saved-after-reopen.png"):
+            (self.root / name).write_bytes(b"\x89PNG\r\n\x1a\n" + b"x"*1200)
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("CREATE TABLE IF NOT EXISTS map_records("
+                             "kind TEXT,server_id INTEGER,record_key TEXT,uuid TEXT,"
+                             "updated_at INTEGER,data_json TEXT)")
+            database.execute("DELETE FROM map_records")
+            database.executemany("INSERT INTO map_records VALUES (?,?,?,?,?,?)",
+                                 [("resource",2212,str(i),str(i),now,"{}") for i in range(3)])
+            database.commit()
+        self.write("map016-saved-clear-reopen.json", self.saved)
+        self.save_receipts()
+
+    def audit_saved(self):
+        return package_ui.audit_saved_clear_reopen(self.root, self.proof, self.restoration)
+
+    def test_real_clear_saved_auto_and_reopen_require_source_receipt(self):
+        self.make_saved()
+        accepted = self.audit_saved()
+        self.assertEqual(accepted["preservedResourceRows"], 3)
+        self.assertEqual(accepted["nativeAois"], 10000)
+        self.assertTrue(accepted["reopenedManualAndAuto"])
+
+    def test_saved_clear_reopen_negative_mutations(self):
+        cases = [
+            ("foreign owner", lambda: self.saved.update(sessionId="old")),
+            ("synthetic", lambda: self.saved.update(genuineGame=False)),
+            ("wrong stage", lambda: self.saved["stages"][1].update(stage="extra_jump")),
+            ("missing first home", lambda: self.saved["stages"][0].update(count=0)),
+            ("remote preexists", lambda: self.saved["stages"][0].update(priorRemote=4)),
+            ("not scanned remote", lambda: self.saved["stages"][1].update(remoteRows=0)),
+            ("not returned", lambda: self.saved["stages"][1].update(liveServerId=2213)),
+            ("wrong Auto target", lambda: self.saved["stages"][1]["scan"].update(targetServerIds=[2212])),
+            ("scan before Run Now", lambda: self.saved["stages"][1]["scan"].update(startedAt=0)),
+            ("clear home", lambda: self.saved["stages"][2].update(homeRows=0)),
+            ("phantom saved 2213", lambda: self.saved["stages"][3].update(savedServers=[2212,2213])),
+            ("no reload", lambda: self.saved["stages"][3].update(reloadType="fixture")),
+            ("bad cleanup", lambda: self.saved["stages"][4].update(restored=False)),
+            ("missing native AOI", lambda: self.native["batches"][0]["indices"].pop()),
+            ("missing native reply", lambda: self.native.update(repliesCaptured=62)),
+            ("wrong native server", lambda: self.native.update(serverId=2212)),
+            ("invalid timing owner", lambda: self.stage.update(runId="other")),
+            ("no Resource provenance", lambda: self.metrics["identity"].update(SelectedTypesKey="city")),
+            ("missing screenshot", lambda: (self.root/"map016-saved-after-clear.png").unlink()),
+            ("wrong sqlite retained", lambda: self.remove_resource_rows()),
+        ]
+        for label, mutate in cases:
+            with self.subTest(label=label):
+                self.make_saved()
+                mutate()
+                self.write("map016-saved-clear-reopen.json", self.saved)
+                self.write("live-resource/camera-free-scan-result.json", self.native)
+                self.write("live-resource/map-fullworld-probe-metrics.json", self.metrics)
+                self.write("live-resource/map-engine-stage-metrics.json", self.stage)
+                with self.assertRaises((ValueError, FileNotFoundError)):
+                    self.audit_saved()
+
+    def remove_resource_rows(self):
+        with closing(sqlite3.connect(self.db_path)) as database:
+            database.execute("DELETE FROM map_records WHERE server_id=2212")
+            database.commit()
+
+
+class OfficialSettleNoUpdaterAdmissionTests(unittest.TestCase):
+    """Verifier copies byte-identical trusted settlement, never creates one."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="map016-official-source-", dir=package_ui.ARTIFACTS)
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.proof = self.root / "prior"
+        self.marker = self.proof / "overview-evidence/official-settled-client.json"
+        self.marker.parent.mkdir(parents=True)
+        self.game = self.root / "game"
+        spec = importlib.util.spec_from_file_location(
+            "map014_runner_for_inert_admission",
+            package_ui.ROOT / "tools/map_014_lead_native/run_ui.py")
+        self.runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.runner)
+        self.hashes = self.runner.EXPECTED_26_CURRENT.copy()
+        self.put_marker()
+
+    def put_marker(self):
+        self.marker.write_text(json.dumps(dict(
+            schemaVersion=1, gameRoot=str(self.game),
+            packageSha256=self.hashes["LWScripts.data"],
+            settledAtUtc=datetime.now(timezone.utc).isoformat())), encoding="utf-8")
+        (self.proof / "owned-exit.json").write_text(json.dumps(dict(
+            exitCode=0, proof=True, error=None, recoveryJournalPresent=False,
+            restorationAudit=dict(state="proven", profileId="map014-native-ui",
+                                  diagnosticResultSucceeded=True,
+                                  capturedOriginalHashes=self.hashes,
+                                  installedHashes=self.hashes))), encoding="utf-8")
+
+    def copy(self):
+        return self.runner.copy_verified_official_settlement(
+            self.root / "new", self.hashes, prior_proof=self.proof, game_root=self.game)
+
+    def test_trusted_marker_copied_byte_for_byte(self):
+        copied = self.copy()
+        self.assertEqual(copied.read_bytes(), self.marker.read_bytes())
+        self.assertEqual(self.runner.NO_UPDATER_MODES,
+                         {"auto-all-nine", "saved-clear-reopen", "auto-interval-20m"})
+
+    def test_mismatch_and_untrusted_marker_fail_before_app_launch(self):
+        for name, action in [
+            ("package mismatch", lambda: self.put_modified_marker(packageSha256="0"*64)),
+            ("game root mismatch", lambda: self.put_modified_marker(gameRoot=str(self.root/"other-game"))),
+            ("future settlement", lambda: self.put_modified_marker(settledAtUtc="2099-01-01T00:00:00+00:00")),
+            ("unproved exit", lambda: self.put_modified_exit(exitCode=1)),
+            ("changed original", lambda: self.hashes.update({"LWScripts.data": "0"*64})),
+        ]:
+            with self.subTest(name=name):
+                self.hashes = self.runner.EXPECTED_26_CURRENT.copy()
+                self.put_marker()
+                action()
+                with self.assertRaises(RuntimeError):
+                    self.copy()
+                self.assertFalse((self.root / "new/overview-evidence/official-settled-client.json").exists())
+
+    def put_modified_marker(self, **change):
+        item = json.loads(self.marker.read_text(encoding="utf-8"))
+        item.update(change)
+        self.marker.write_text(json.dumps(item), encoding="utf-8")
+
+    def put_modified_exit(self, **change):
+        path = self.proof / "owned-exit.json"
+        item = json.loads(path.read_text(encoding="utf-8"))
+        item.update(change)
+        path.write_text(json.dumps(item), encoding="utf-8")
+
+
+class PackagedAutoIntervalTests(PackagedRemoteRailwayTests):
+    """Inert inverses for the independent 20 real-minute receipt auditor."""
+
+    def interval_defaults(self):
+        self.remote_defaults(False)
+        enabled=datetime.now(timezone.utc)-timedelta(minutes=22)
+        fire=enabled+timedelta(milliseconds=1_202_000)
+        deadline=int(enabled.timestamp()*1000)+1_200_000
+        samples=[dict(index=i,monotonicMilliseconds=i*1000,
+                      autoEnabled=True,autoRunning=i>=1200,
+                      autoCycleBusy=i>=1200,manualReading=False,
+                      manualScanActive=False,autoUiMounted=True,
+                      liveServerId=2212 if i<1200 else 2211,
+                      secondaryServerId=2212,deadlineUtcMilliseconds=deadline)
+                 for i in range(1202)]
+        self.interval_proof=dict(
+            proof="real_20_minute_enabled_auto_railway_scheduler_2212_to_2211_return",
+            state="proven",genuineGame=True,controlledProvider=False,
+            systemClockInjected=False,runNowCalls=0,manualStartCalls=0,
+            originalServer=2212,targetServer=2211,intervalMinutes=20,
+            profileId=self.profile,sessionId=self.session,gamePid=self.pid,
+            enabledAt=enabled.isoformat(),firstFireAt=fire.isoformat(),
+            deadlineUtcMilliseconds=deadline,
+            firstFireElapsedMilliseconds=1_202_000,
+            lastIdleElapsedMilliseconds=1_199_000,
+            observedScheduledRun=True,observedTargetServer=True,
+            observedHomeReturn=True, failure=None,cleanupFailure=None,
+            runId=self.run,nativeRailwayRecords=0,savedRailwayRecords=0,
+            samples=samples,events=[dict(stage=s) for s in (
+                "scheduler_armed","first_real_scheduled_admission",
+                "scheduler_cycle_settled","native_sqlite_railway_verified","cleanup_verified")])
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.execute("UPDATE scan_runs SET created_at=?,updated_at=?",
+                       (deadline+1000,deadline+3000));db.commit()
+        self.metric=dict(runId=self.run,serverId=2211,scanMode="fast",wholeEngineMilliseconds=30000)
+        for name in ("map016-auto-interval-armed.png","map016-auto-interval-returned.png"):
+            (self.root/name).write_bytes(b"\x89PNG\r\n\x1a\n"+b"X"*1024)
+        self.save_interval()
+
+    def save_interval(self):
+        self.write("live-resource/fast-truck-scan-result.json",self.railway_native)
+        self.write("live-resource/map-engine-stage-metrics.json",self.metric)
+        self.write("map016-auto-interval-progress.json",self.interval_proof)
+        self.write("native-ui-map.json",self.interval_proof)
+
+    def test_full_real_interval_shape_and_inverse_failures(self):
+        self.interval_defaults()
+        result=package_ui.audit_auto_interval(self.root,self.interval_proof,self.restoration)
+        self.assertEqual(result["firstFireMonotonicMilliseconds"],1_202_000)
+        self.assertEqual(result["rectanglesVerified"],625)
+        cases=[
+            ("premature fire",lambda:self.interval_proof.update(firstFireElapsedMilliseconds=1_199_999)),
+            ("fake clock",lambda:self.interval_proof.update(systemClockInjected=True)),
+            ("Run Now",lambda:self.interval_proof.update(runNowCalls=1)),
+            ("Manual Start",lambda:self.interval_proof.update(manualStartCalls=1)),
+            ("early server move",lambda:self.interval_proof["samples"][120].update(liveServerId=2211)),
+            ("unknown status without fallback",lambda:self.interval_proof["samples"][120].update(liveServerId=None,secondaryServerId=0)),
+            ("status observation gap",lambda:self.interval_proof["samples"][120].update(monotonicMilliseconds=125000)),
+            ("missing restoration",lambda:self.interval_proof.update(observedHomeReturn=False)),
+            ("wrong source owner",lambda:self.railway_native.update(launchSessionId="foreign-session")),
+            ("incomplete native",lambda:self.railway_native.update(rectanglesCompleted=624)),
+            ("stale native timing",lambda:self.metric.update(runId="stale-run")),
+        ]
+        for label,mutate in cases:
+            with self.subTest(case=label):
+                self.interval_defaults()
+                mutate();self.save_interval()
+                with self.assertRaises(ValueError):
+                    package_ui.audit_auto_interval(self.root,self.interval_proof,self.restoration)
 
 
 if __name__ == "__main__":

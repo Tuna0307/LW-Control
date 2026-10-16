@@ -601,10 +601,10 @@ const initialAutoLaunchSource = appSource.slice(
   appSource.indexOf("function initialAutoLaunchGame()"),
   appSource.indexOf("function initialAutoScanConfig("),
 );
-assert.match(initialAutoLaunchSource, /return readAutoLaunchGamePreference\(localStorage\)/,
-  "native startup must read the recovered one-key Auto Launch preference");
-assert.doesNotMatch(initialAutoLaunchSource, /__LWBridgeBootstrap|profileId/,
-  "profile/bootstrap state must not replace the recovered global Auto Launch preference");
+assert.match(initialAutoLaunchSource, /readAutoLaunchGamePreference\(/,
+  "native startup must retain the recovered one-key Auto Launch preference");
+assert.match(initialAutoLaunchSource, /__LWBridgeBootstrap\?\.autoLaunchGame/,
+  "a missing global preference must defer to the native first-run Auto Launch setting");
 
 {
   const values = new Map();
@@ -614,9 +614,18 @@ assert.doesNotMatch(initialAutoLaunchSource, /__LWBridgeBootstrap|profileId/,
   };
   assert.equal(readAutoLaunchGamePreference(storage), true,
     "missing Auto Launch key must preserve recovered default true");
+  assert.equal(readAutoLaunchGamePreference(storage, false), false,
+    "missing key must honor an explicit native first-use no-Auto-Launch preference");
+  assert.equal(readAutoLaunchGamePreference(storage, true), true,
+    "native first-use Auto Launch remains allowed when explicitly enabled");
   values.set(AUTO_LAUNCH_GAME_STORAGE_KEY, "false");
   assert.equal(readAutoLaunchGamePreference(storage), false,
     "only literal persisted false must disable Auto Launch");
+  assert.equal(readAutoLaunchGamePreference(storage, true), false,
+    "a persisted disabled global preference always wins over native first-use default");
+  values.set(AUTO_LAUNCH_GAME_STORAGE_KEY, "true");
+  assert.equal(readAutoLaunchGamePreference(storage, false), true,
+    "an explicitly saved enabled global preference remains authoritative");
   values.set(AUTO_LAUNCH_GAME_STORAGE_KEY, "other");
   assert.equal(readAutoLaunchGamePreference(storage), true,
     "non-false legacy/corrupt values must preserve recovered default true");

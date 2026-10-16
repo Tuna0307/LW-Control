@@ -1556,7 +1556,10 @@ internal sealed partial class LWBridgeWindow : Form
         if (await core.ExecuteScriptAsync("document.querySelector('[name=map-scan-speed]') === null") != "true")
             throw new InvalidDataException("MAP016 packaged Map exposed a retired scan-speed selector.");
 
-        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(ownerFixRemoteProof ? 14 : 8));
+        bool intervalAcceptance = ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_INTERVAL") == "1";
+        using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(
+            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
@@ -1619,6 +1622,33 @@ internal sealed partial class LWBridgeWindow : Form
                 throw new TimeoutException("The normal production UI lifecycle did not reach connected state within the proof bound.");
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
+
+            if (intervalAcceptance)
+            {
+                await RunMap016AutoIntervalUiProofAsync(
+                    core, fullOutputPath, directory, ownedMapSession, operationCts.Token);
+                return;
+            }
+
+            if (ownerFixNativeProof && !ownerFixRemoteProof &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_ALL_NINE") == "1")
+            {
+                await RunMap016AutoAllNineUiProofAsync(
+                    core, fullOutputPath, directory, ownedMapSession, operationCts.Token);
+                return;
+            }
+            if (ownerFixNativeProof && !ownerFixRemoteProof &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_SAVED_CLEAR_REOPEN") == "1")
+            {
+                await RunMap016SavedClearReopenProofAsync(core, directory, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    state = "proven", proof = "real_map016_saved_multi_server_clear_reopen",
+                    gamePid = ownedMapSession.GamePid,
+                    profileId = ownedMapSession.ProfileId,
+                    generatedAt = DateTimeOffset.UtcNow,
+                }, JsonOptions.Default), operationCts.Token);
+                return;
+            }
 
             if (ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_SAVED_HOME") == "1")
             {

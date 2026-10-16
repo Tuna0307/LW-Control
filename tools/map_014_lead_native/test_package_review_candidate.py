@@ -4,11 +4,28 @@ from pathlib import Path
 
 from package_review_candidate import (
     permitted, excluded_non_target_runtime, NON_TARGET_RUNTIME_FILES,
-    TOP_FILES, TOOLS_FILES, UI_FILES, SOURCE,
+    TOP_FILES, TOOLS_FILES, UI_FILES, SOURCE, map016_support_files,
 )
 
 
 class ReleaseManifestChecks(unittest.TestCase):
+    def test_map016_release_has_packaged_proof_identity_and_no_old_actions(self):
+        commit = '1' * 40
+        files = map016_support_files(commit)
+        self.assertEqual(set(files), {
+            'LW-Control-UI/SOURCE-COMMIT.txt',
+            'LW-Control-UI/Launch LWBridge.cmd',
+            'LW-Control-UI/README-RELEASE.txt',
+        })
+        self.assertEqual(files['LW-Control-UI/SOURCE-COMMIT.txt'],
+                         (commit + '\r\n').encode('ascii'))
+        readme = files['LW-Control-UI/README-RELEASE.txt'].decode('utf-8')
+        self.assertIn('UNPUBLISHED', readme)
+        self.assertIn('removes scheduled/automatic plunder', readme)
+        self.assertIn('remote raw world reply decoding remain unverified', readme)
+        with self.assertRaises(ValueError):
+            map016_support_files('not-a-real-commit')
+
     def test_required_runtime_roots_and_known_resources(self):
         for name in sorted(TOP_FILES | TOOLS_FILES | UI_FILES):
             with self.subTest(name=name):
