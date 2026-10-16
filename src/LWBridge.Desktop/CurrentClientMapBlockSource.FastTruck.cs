@@ -82,7 +82,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 new { train_march_records = currentRows }, JsonOptions.Default);
             MapScanExecutionRequest truckRequest = request with { SelectedTypes = ["truck"] };
             IReadOnlyList<FastTrainPrepared> prepared = PrepareTrainRecords(
-                wrapped, truckRequest, Enumerable.Range(0, 10000).ToHashSet(), capturedAt);
+                wrapped, truckRequest, Enumerable.Range(0, 10000).ToHashSet(), capturedAt,
+                receiptTimeMs);
             if (prepared.Count == 0 || prepared.Count != currentRows.Count ||
                 prepared.Select(item => item.Record.RecordKey).Distinct(StringComparer.Ordinal).Count() != prepared.Count)
                 throw new InvalidDataException("Fast Truck producer returned duplicate, empty or unclassifiable Truck rows.");

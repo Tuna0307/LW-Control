@@ -2619,7 +2619,8 @@ internal sealed partial class CurrentClientMapBlockSource
         JsonElement root,
         MapScanExecutionRequest request,
         HashSet<int> requestedSet,
-        DateTimeOffset capturedAt)
+        DateTimeOffset capturedAt,
+        long? truckReceiptAdmissionUnixMs = null)
     {
         if (!root.TryGetProperty("train_march_records", out JsonElement rows) || rows.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Fast world batch is missing its Train march snapshot.");
@@ -2656,7 +2657,13 @@ internal sealed partial class CurrentClientMapBlockSource
             string? allianceName = OptionalStringValue(row, "allianceName");
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
             long? arriveTs = OptionalPositiveInt64(row, "arriveTs");
-            if (kind == "truck" && !FastTruckArrivalIsAfter(row, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()))
+            // The dedicated fast Truck importer already admitted its rows at
+            // one exact receipt time. Rechecking against a later clock here
+            // can drop a Truck arriving during parsing, spuriously failing the
+            // strict row-count reconciliation. Its final block publisher still
+            // independently drops anything that has arrived by publication.
+            if (kind == "truck" && !FastTruckArrivalIsAfter(row,
+                    truckReceiptAdmissionUnixMs ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()))
                 continue;
             int? robTimes = OptionalNonNegativeInt(row, "robTimes");
             long? protectTime = OptionalPositiveInt64(row, "protectTime");
@@ -2682,6 +2689,12 @@ internal sealed partial class CurrentClientMapBlockSource
                 ["source"] = OptionalStringValue(row, "source") ??
                     "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train",
             };
+            // Persist the actual acquisition lane for independent packaged
+            // publication audits. The same native march builder also serves
+            // the camera route, so its ordinary source string is insufficient
+            // evidence that this record came from the verified 625 rectangles.
+            if (kind == "truck" && truckReceiptAdmissionUnixMs is not null)
+                data["captureProtocol"] = "current_fast_truck_625_v1";
             if (row.TryGetProperty("trainUuid", out JsonElement trainUuidValue)) data["trainUuid"] = JsonNode.Parse(trainUuidValue.GetRawText());
             if (row.TryGetProperty("ownerUid", out JsonElement ownerUidValue) && ownerUidValue.ValueKind == JsonValueKind.String) data["ownerUid"] = ownerUidValue.GetString();
             if (row.TryGetProperty("allianceUid", out JsonElement allianceUidValue) && allianceUidValue.ValueKind == JsonValueKind.String) data["allianceUid"] = allianceUidValue.GetString();

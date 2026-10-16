@@ -392,6 +392,37 @@ def audit_fresh_truck_filter(destination: Path, proof: dict, restoration: dict) 
                 screenshot=str(destination / "map014-truck-filtered.png"))
 
 
+def audit_published_fast_truck_rows(db_path: Path, server_id: int) -> int:
+    """Prove actual SQLite publication came from the verified fast producer.
+
+    The presence of a proven 625-rectangle receipt by itself is insufficient:
+    managed import can fail after native cleanup and the scan can complete with
+    camera fallback. Check every saved Truck and its capture-time deadline.
+    """
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+        published = database.execute(
+            "SELECT updated_at,data_json FROM map_records WHERE kind='truck' AND server_id=?",
+            (server_id,)).fetchall()
+    if not published:
+        raise ValueError("Fast Truck scan published no current owned Truck records")
+    for updated_at, raw in published:
+        data = json.loads(raw)
+        if type(updated_at) is not int or not isinstance(data, dict):
+            raise ValueError("Fast Truck row lacks an auditable capture timestamp")
+        if data.get("captureProtocol") != "current_fast_truck_625_v1":
+            raise ValueError("Published Truck records originated from camera fallback despite a proven native receipt")
+        for field in ("endTime", "arriveTs"):
+            value = data.get(field)
+            if value is None:
+                continue
+            if type(value) is not int or value <= 0:
+                raise ValueError("Fast Truck row has an invalid arrival deadline")
+            arrive_ms = value * 1000 if value < 100_000_000_000 else value
+            if arrive_ms <= updated_at:
+                raise ValueError("Fast Truck published a row already arrived at capture")
+    return len(published)
+
+
 def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     read = lambda name: json.loads((destination / name).read_text(encoding="utf-8"))
     exit_receipt, owned = read("owned-exit.json"), read("owned-process.json")
@@ -444,25 +475,7 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
                 receipt.get("repairRequestsSent") != receipt.get("requestsSent", -1) - 625):
             raise ValueError("Fast Truck source has unverified rectangles or lacks bounded native repair evidence")
         db_path = destination / "profiles" / restoration["profileId"] / "map-data" / "map-data.db"
-        with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
-            published = database.execute(
-                "SELECT updated_at,data_json FROM map_records WHERE kind='truck' AND server_id=?",
-                (receipt["serverId"],)).fetchall()
-        if not published:
-            raise ValueError("Fast Truck scan published no current owned Truck records")
-        for updated_at, raw in published:
-            data = json.loads(raw)
-            if type(updated_at) is not int or not isinstance(data, dict):
-                raise ValueError("Fast Truck row lacks an auditable capture timestamp")
-            for field in ("endTime", "arriveTs"):
-                value = data.get(field)
-                if value is None:
-                    continue
-                if type(value) is not int or value <= 0:
-                    raise ValueError("Fast Truck row has an invalid arrival deadline")
-                arrive_ms = value * 1000 if value < 100_000_000_000 else value
-                if arrive_ms <= updated_at:
-                    raise ValueError("Fast Truck published a row already arrived at capture")
+        audit_published_fast_truck_rows(db_path, receipt["serverId"])
     if mode == "truck-stop":
         if (proof.get("proof") != "actual_packaged_ui_truck_stop_mid_sweep" or
                 proof.get("startedStatus", {}).get("phase") not in ("scanning", "reading", "running") and

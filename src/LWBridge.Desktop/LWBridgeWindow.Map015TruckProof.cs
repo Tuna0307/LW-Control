@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Data.Sqlite;
 using Microsoft.Web.WebView2.Core;
 
 namespace LWBridge.Desktop;
@@ -53,6 +54,36 @@ internal sealed partial class LWBridgeWindow
                 !captured.TryGetInt64(out long capturedMs) || capturedMs <= 0 ||
                 !CurrentClientMapBlockSource.FastTruckArrivalIsAfter(row, capturedMs))
                 throw new InvalidDataException("MAP015 packaged fast Truck record lacks camera-parity fields or native Truck type.");
+        }
+        // A native sweep can be proven while its managed importer later fails,
+        // leaving the scan engine to publish a *camera* fallback. Require the
+        // actual SQLite Truck rows to carry the fast-producer marker, which is
+        // set only after managed native admission and survives real publication.
+        if (productionApplicationRoot is null)
+            throw new InvalidDataException("MAP015 packaged fast Truck proof has no owned publication root.");
+        string dbPath = Path.Combine(productionApplicationRoot, "profiles", session.ProfileId,
+            "map-data", "map-data.db");
+        using (var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = dbPath, Mode = SqliteOpenMode.ReadOnly,
+        }.ToString()))
+        {
+            connection.Open();
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT data_json FROM map_records WHERE kind='truck' AND server_id=$server";
+            command.Parameters.AddWithValue("$server", serverId);
+            using SqliteDataReader reader = command.ExecuteReader();
+            int published = 0;
+            while (reader.Read())
+            {
+                using JsonDocument saved = JsonDocument.Parse(reader.GetString(0));
+                if (!saved.RootElement.TryGetProperty("captureProtocol", out JsonElement protocol) ||
+                    protocol.GetString() != "current_fast_truck_625_v1")
+                    throw new InvalidDataException("MAP015 packaged Truck rows were published by camera fallback, not the verified native fast producer.");
+                published++;
+            }
+            if (published == 0)
+                throw new InvalidDataException("MAP015 packaged Truck fast-producer publication is empty.");
         }
         return new { nativePath = path, requestsPerSecond = receipt.GetProperty("requestsPerSecond").GetInt32(),
             pushes = 625, repairPasses = receipt.GetProperty("repairPasses").GetInt32(),

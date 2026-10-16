@@ -439,5 +439,56 @@ s.pushes = 625
                     check_managed_rectangle_admission(mutated)
 
 
+class FastTruckReceiptClockR4(unittest.TestCase):
+    """An arrival between receipt admission and parsing must not corrupt row reconciliation."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.truck = CS_TRUCK_PATH.read_text(encoding="utf-8")
+        cls.world = CS_WORLD_PATH.read_text(encoding="utf-8")
+
+    @staticmethod
+    def require_one_receipt_clock(truck, world):
+        capture = method(truck, "CaptureFastTruckRowsAsync(")
+        prepare = method(world, "private static IReadOnlyList<FastTrainPrepared> PrepareTrainRecords(")
+        if ("long receiptTimeMs = Now().ToUnixTimeMilliseconds();" not in capture or
+                "FastTruckArrivalIsAfter(row, receiptTimeMs)" not in capture or
+                "Enumerable.Range(0, 10000).ToHashSet(), capturedAt,\n                receiptTimeMs" not in capture):
+            raise AssertionError("Truck parsing must reuse its own receipt admission clock")
+        if ("long? truckReceiptAdmissionUnixMs = null" not in world or
+                "truckReceiptAdmissionUnixMs ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()" not in prepare):
+            raise AssertionError("Train importer lost the fixed native receipt admission time")
+        if ("FastTruckArrivalIsAfter(raw.Record, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())" not in truck or
+                "FastTruckArrivalIsAfter(item.Record, Now().ToUnixTimeMilliseconds())" not in world):
+            raise AssertionError("Truck arrival must still be rechecked during publication")
+
+    def test_receipt_admission_clock_is_reused_and_publication_rechecks(self):
+        self.require_one_receipt_clock(self.truck, self.world)
+
+    def test_later_parse_clock_mutation_is_detected(self):
+        mutated = self.truck.replace(
+            "Enumerable.Range(0, 10000).ToHashSet(), capturedAt,\n                receiptTimeMs",
+            "Enumerable.Range(0, 10000).ToHashSet(), capturedAt,\n                Now().ToUnixTimeMilliseconds()", 1)
+        self.assertNotEqual(mutated, self.truck)
+        with self.assertRaisesRegex(AssertionError, "receipt admission clock"):
+            self.require_one_receipt_clock(mutated, self.world)
+
+    def test_importer_independent_clock_mutation_is_detected(self):
+        mutated = self.world.replace(
+            "truckReceiptAdmissionUnixMs ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()",
+            "DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()", 1)
+        self.assertNotEqual(mutated, self.world)
+        with self.assertRaisesRegex(AssertionError, "fixed native receipt admission time"):
+            self.require_one_receipt_clock(self.truck, mutated)
+
+    def test_publication_expiry_bypass_is_detected(self):
+        mutated = self.truck.replace(
+            "FastTruckArrivalIsAfter(raw.Record, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())",
+            "FastTruckArrivalIsAfter(raw.Record, receiptTimeMs)", 1)
+        self.assertNotEqual(mutated, self.truck)
+        with self.assertRaisesRegex(AssertionError, "rechecked during publication"):
+            self.require_one_receipt_clock(mutated, self.world)
+
+
 if __name__ == "__main__":
     unittest.main()

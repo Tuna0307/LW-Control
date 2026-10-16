@@ -259,5 +259,46 @@ class PackagedCityCameraFreeTests(unittest.TestCase):
                     self.audit("mixed-eight")
 
 
+class PackagedPublishedFastTruckSourceTests(unittest.TestCase):
+    """A completed camera fallback may coexist with a proven native receipt."""
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="map015-fast-publication-", dir=package_ui.ARTIFACTS)
+        self.addCleanup(self.temporary.cleanup)
+        self.database = Path(self.temporary.name) / "map-data.db"
+        self.server = 2212
+        self.captured = int(time.time() * 1000)
+        with closing(sqlite3.connect(self.database)) as database:
+            database.execute("CREATE TABLE map_records(kind TEXT,server_id INTEGER,updated_at INTEGER,data_json TEXT)")
+            database.commit()
+
+    def put(self, data):
+        with closing(sqlite3.connect(self.database)) as database:
+            database.execute("DELETE FROM map_records")
+            database.execute("INSERT INTO map_records VALUES('truck',?,?,?)",
+                             (self.server, self.captured, json.dumps(data)))
+            database.commit()
+
+    def test_verified_fast_publication_and_future_arrival(self):
+        self.put(dict(captureProtocol="current_fast_truck_625_v1",
+                      arriveTs=self.captured + 100_000))
+        self.assertEqual(package_ui.audit_published_fast_truck_rows(self.database, self.server), 1)
+
+    def test_camera_fallback_with_proven_native_receipt_is_rejected(self):
+        self.put(dict(arriveTs=self.captured + 100_000))
+        with self.assertRaisesRegex(ValueError, "camera fallback"):
+            package_ui.audit_published_fast_truck_rows(self.database, self.server)
+        self.put(dict(captureProtocol="camera", arriveTs=self.captured + 100_000))
+        with self.assertRaisesRegex(ValueError, "camera fallback"):
+            package_ui.audit_published_fast_truck_rows(self.database, self.server)
+
+    def test_arrived_at_capture_or_equal_deadline_is_rejected(self):
+        for arrived in (self.captured, self.captured - 1):
+            with self.subTest(arrived=arrived):
+                self.put(dict(captureProtocol="current_fast_truck_625_v1", arriveTs=arrived))
+                with self.assertRaisesRegex(ValueError, "already arrived"):
+                    package_ui.audit_published_fast_truck_rows(self.database, self.server)
+
+
 if __name__ == "__main__":
     unittest.main()
