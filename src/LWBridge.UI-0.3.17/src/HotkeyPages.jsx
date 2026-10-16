@@ -2,6 +2,7 @@ import { useI18n } from "./i18n.jsx";
 import { formatSheepElapsed, HOTKEY_CARDS, mergeHotkeyField, MINI_GAME_HOTKEY_CARDS, previewHotkeyConfig, previewSheepStatus, sheepStatusKey } from "./previewRemainingPagesContracts.js";
 import { useEffect, useRef, useState } from "react";
 import { Switch, ToggleRow, PanelTitle } from "./sharedPageUI.jsx";
+import { backendBridge } from "./backendBridge.js";
 
 function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = false }) {
   const { t } = useI18n();
@@ -9,7 +10,7 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
   const cardWarning = card.warning ? t(card.warning) : "";
   const sourceAttack = card.key === "attack";
   return (
-    <article className={`hotkey-card${cardWarning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-config" : "runtime-config-unobserved"}>
+    <article className={`hotkey-card${cardWarning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-config" : undefined}>
       <div className="hotkey-card-header">
         <kbd className="hotkey-binding">{card.binding}</kbd>
         <button className="hotkey-switch" type="button" disabled={pendingField !== null} aria-label={`${t(card.title)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => onSaveField({ ...config, [card.key]: !enabled }, card.key)}><Switch checked={enabled} /></button>
@@ -80,9 +81,31 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
   const [landResult, setLandResult] = useState(() => previewState === "mini-games-land-success" ? t("miniGames.landCellSent", { id: 17 }) : "");
   const [sheepBusy, setSheepBusy] = useState(previewState === "mini-games-sheep-pending");
   const [sheepActionError, setSheepActionError] = useState(() => previewState === "mini-games-start-failed" ? t("miniGames.sheep.failed") : "");
-  const [sheepStatus] = useState(() => previewEnabled ? previewSheepStatus(previewState, Date.now()) : null);
+  const [previewSheepSnapshot] = useState(() => previewEnabled ? previewSheepStatus(previewState, Date.now()) : null);
+  const [liveSheepStatus, setLiveSheepStatus] = useState(null);
+  const sheepStatus = previewEnabled ? previewSheepSnapshot : liveSheepStatus;
   const [now, setNow] = useState(() => Date.now());
   const sheepRunning = sheepStatus?.running === true;
+
+  useEffect(() => {
+    if (previewEnabled) return undefined;
+    let active = true;
+    const owner = backendBridge.currentProfileOwner();
+    setHotkeyConfig(null);
+    setHotkeyError("");
+    const read = async () => {
+      try {
+        const config = await backendBridge.invokeProfileScoped("hotkey_config_get");
+        if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+        sourceConfigRef.current = config;
+        setHotkeyConfig(config);
+      } catch (error) {
+        if (active) setHotkeyError(`${t("hotkeys.loadFailed")} (${error.code || error.message})`);
+      }
+    };
+    void read();
+    return () => { active = false; };
+  }, [previewEnabled, category, backendBridge.profileGeneration]);
 
   async function saveHotkeyField(nextConfig, field) {
     if (!hotkeyConfig || pendingField !== null) return;
@@ -90,17 +113,28 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
     setHotkeyConfig(nextConfig);
     setPendingField(field);
     setHotkeyError("");
+    const owner = backendBridge.currentProfileOwner();
     try {
-      await Promise.resolve();
-      if (previewState === saveErrorState) throw new Error("preview hotkey save failure");
-      const saved = mergeHotkeyField(sourceConfigRef.current, nextConfig, field);
+      let saved;
+      if (previewEnabled) {
+        await Promise.resolve();
+        if (previewState === saveErrorState) throw new Error("preview hotkey save failure");
+        saved = mergeHotkeyField(sourceConfigRef.current, nextConfig, field);
+      } else {
+        // Original 0.3.17 performs a fresh get before every whole-object save,
+        // so another tab's updated fields are retained.
+        const fresh = await backendBridge.invokeProfileScoped("hotkey_config_get");
+        saved = await backendBridge.invokeProfileScoped("hotkey_config_save", { ...fresh, [field]: nextConfig[field] });
+      }
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
       sourceConfigRef.current = saved;
       setHotkeyConfig(saved);
-    } catch {
+    } catch (error) {
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
       setHotkeyConfig(previous);
-      setHotkeyError(t("hotkeys.saveFailed"));
+      setHotkeyError(`${t("hotkeys.saveFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
     } finally {
-      setPendingField(null);
+      if (backendBridge.isCurrentProfileOwner(owner)) setPendingField(null);
     }
   }
 
@@ -111,31 +145,73 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
     return () => window.clearInterval(interval);
   }, [isMiniGames, sheepRunning]);
 
+  useEffect(() => {
+    if (!isMiniGames || previewEnabled || !online) {
+      setLiveSheepStatus(null);
+      return undefined;
+    }
+    let active = true;
+    const refresh = async () => {
+      try {
+        const response = await backendBridge.invokeProfileScoped("automation_status", {}, 5000);
+        if (!active) return;
+        // The original task key is sheepGame. Other automation statuses must
+        // never masquerade as the Food House current-level solver.
+        const task = response?.tasks?.sheepGame;
+        if (task && typeof task === "object" && typeof task.running === "boolean") {
+          setLiveSheepStatus(task);
+        } else {
+          setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
+        }
+      } catch {
+        if (active) setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
+      }
+    };
+    void refresh();
+    const interval = window.setInterval(() => void refresh(), 2000);
+    return () => { active = false; window.clearInterval(interval); };
+  }, [isMiniGames, previewEnabled, online, backendBridge.profileGeneration]);
+
   async function openLandCell() {
-    if (!previewEnabled || !online || landBusy) return;
+    if (!online || landBusy) return;
     setLandBusy(true);
     setLandResult("");
     setHotkeyError("");
     try {
-      await Promise.resolve();
-      if (previewState === "mini-games-land-error") throw new Error("preview land cell failure");
-      setLandResult(t("miniGames.landCellSent", { id: 17 }));
-    } catch {
-      setHotkeyError(t("miniGames.landCellFailed"));
+      if (previewEnabled) {
+        await Promise.resolve();
+        if (previewState === "mini-games-land-error") throw new Error("preview land cell failure");
+        setLandResult(t("miniGames.landCellSent", { id: 17 }));
+      } else {
+        const result = await backendBridge.invokeProfileScoped("monopoly_cell_open");
+        if (!Number.isInteger(result?.cellId) || result.cellId < 0) {
+          throw new Error("monopoly_cell_open did not confirm a cell ID");
+        }
+        setLandResult(t("miniGames.landCellSent", { id: result.cellId }));
+      }
+    } catch (error) {
+      setHotkeyError(`${t("miniGames.landCellFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
     } finally {
       setLandBusy(false);
     }
   }
 
   async function toggleSheepGame() {
-    if (!previewEnabled || !online || sheepBusy) return;
+    if (!online || sheepBusy) return;
     setSheepBusy(true);
     setSheepActionError("");
     try {
-      await Promise.resolve();
-      if (previewState === "mini-games-start-failed") throw new Error("preview sheep failure");
-    } catch {
-      setSheepActionError(t("miniGames.sheep.failed"));
+      if (previewEnabled) {
+        await Promise.resolve();
+        if (previewState === "mini-games-start-failed") throw new Error("preview sheep failure");
+      } else {
+        // The exact original frontend calls startAutomation/stopAutomation
+        // with the task name sheepGame. A successful dispatch is only an
+        // acknowledgement; the next real automation_status decides running.
+        await backendBridge.invokeProfileScoped(sheepRunning ? "automation_stop" : "automation_start", { taskName: "sheepGame" });
+      }
+    } catch (error) {
+      setSheepActionError(`${t("miniGames.sheep.failed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
     } finally {
       setSheepBusy(false);
     }
@@ -164,7 +240,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.landCell.title")}</h3>
           <p>{t("miniGames.landCell.description")}</p>
-          <div className="mini-game-actions"><button className="primary" type="button" disabled={!previewEnabled || !online || landBusy} onClick={() => void openLandCell()}>{t(landBusy ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
+          <div className="mini-game-actions"><button className="primary" type="button" disabled={!online || landBusy} onClick={() => void openLandCell()}>{t(landBusy ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
           {landResult ? <span className="hotkey-state enabled">{landResult}</span> : null}
         </article> : null}
         {isMiniGames ? <article className="hotkey-card">
@@ -173,7 +249,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           {sheepStatus?.currentLevel ? <span className="hotkey-state">{t("miniGames.sheep.level", { level: sheepStatus.currentLevel })}</span> : null}
           {showSheepElapsed ? <span className="hotkey-state">{t("miniGames.sheep.elapsed", { time: formatSheepElapsed(sheepDurationMs) })}</span> : null}
           <span className={sheepStatus?.step === "completed" ? "hotkey-state enabled" : "hotkey-state"}>{sheepStatusText}</span>
-          <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!previewEnabled || !online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
+          <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
           {sheepActionError ? <div className="automation-error" role="alert">{sheepActionError}</div> : null}
         </article> : null}
       </div> : null}

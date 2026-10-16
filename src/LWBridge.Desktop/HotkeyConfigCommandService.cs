@@ -14,7 +14,8 @@ internal sealed record HotkeyConfig(
     bool Equipment = true,
     bool RandomRelocate = false,
     bool AllianceRelocate = false,
-    bool FrontlineReinforce = true)
+    bool FrontlineReinforce = true,
+    bool TreasureChestHint = false)
 {
     internal static HotkeyConfig Default { get; } = new();
 }
@@ -470,7 +471,19 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
             payload.GetProperty("equipment").GetBoolean(),
             payload.GetProperty("randomRelocate").GetBoolean(),
             payload.GetProperty("allianceRelocate").GetBoolean(),
-            payload.GetProperty("frontlineReinforce").GetBoolean());
+            payload.GetProperty("frontlineReinforce").GetBoolean(),
+            ReadTreasureChestHint(payload));
+    }
+
+    // Added by the observed 0.3.17 Mini Games panel; older profile configs
+    // written by 0.3.1 contained the original ten fields only.
+    private static bool ReadTreasureChestHint(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("treasureChestHint", out JsonElement value))
+            return false;
+        if (value.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+            throw InvalidHotkeyConfig();
+        return value.GetBoolean();
     }
 
     private static BridgeCommandException InvalidHotkeyConfig() =>

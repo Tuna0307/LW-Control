@@ -25,6 +25,7 @@ await HomeFunctionalProfileCrudChecks.RunAsync();
 await HomeR1AdoptionChecks.RunAsync();
 await HomeStaleAdoptionChecks.RunAsync();
 await HomeSecondaryRuntimeCompositionChecks.RunAsync();
+await Feature018HotkeyConfigChecks.RunAsync();
 await HomeR2RecoveryChecks.RunAsync();
 await OrderedProfileReconcileChecks.RunAsync();
 HomeR4TransportChecks.Run();
