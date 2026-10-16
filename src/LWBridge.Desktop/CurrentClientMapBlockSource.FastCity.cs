@@ -603,6 +603,13 @@ internal sealed partial class CurrentClientMapBlockSource
         Dictionary<string, FastMonsterPrepared> monsterRecords = state.MonsterRecords;
         Dictionary<string, FastTrainPrepared> trainRecords = state.TrainRecords;
 
+        // Point AOI completion alone cannot establish an empty March source.
+        // Until native source admission proves an empty Boss census, both the
+        // direct lane and its camera fallback must surface this uncertainty.
+        // Otherwise a camera fallback or positive unrelated kinds can turn an
+        // unverified empty Boss source into a misleading successful publication.
+        RequireZombieBossSourceRows(request, monsterRecords.Values.Any(item => item.ProtectionEligible));
+
         // OWNER WORKFLOW R7-147: current-v20 Railway UI does not rely solely on
         // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
         // and consumes the response allianceTrainList. Reproduce that read-only
@@ -810,6 +817,13 @@ internal sealed partial class CurrentClientMapBlockSource
         await waitForHealthySession(resume.Session, cancellationToken).ConfigureAwait(false);
         RequireSameSession(resume.Session);
         return resume.Session;
+    }
+
+    internal static void RequireZombieBossSourceRows(MapScanExecutionRequest request, bool hasZombieBossRows)
+    {
+        if (IncludesZombieBoss(request) && !hasZombieBossRows)
+            throw new MapScanSourceValidationException(
+                "Zombie Boss source returned no confirmed rows; empty March-source coverage could not be verified. Retry the scan.");
     }
 
     private static int FirstUncoveredAoiColumn(IReadOnlySet<int> covered, int rowStart)

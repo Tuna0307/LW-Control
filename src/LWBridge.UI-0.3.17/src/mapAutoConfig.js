@@ -49,12 +49,12 @@ export function normalizeAutoScanConfig(value) {
     Math.max(20, Math.trunc(Number(value?.intervalMinutes ?? DEFAULT_AUTO_SCAN_CONFIG.intervalMinutes))),
   );
   const serverIds = parseAutoServerIds((value?.serverIds || []).join(","));
-  const selectedTypes = [...new Set((value?.selectedTypes || []).filter((kind) => MAP_KIND_KEYS.includes(kind)))];
+  const selectedTypes = [...new Set((Array.isArray(value?.selectedTypes) ? value.selectedTypes : AUTO_SCAN_DEFAULT_TYPES).filter((kind) => MAP_KIND_KEYS.includes(kind)))];
   return {
     enabled: value?.enabled === true,
     intervalMinutes,
     serverIds,
-    selectedTypes: selectedTypes.length > 0 ? selectedTypes : [...AUTO_SCAN_DEFAULT_TYPES],
+    selectedTypes,
     scanMode: "fast",
     returnToOriginalServer: value?.returnToOriginalServer !== false,
     nextRunAt: Math.max(0, Math.trunc(Number(value?.nextRunAt) || 0)),
@@ -100,9 +100,7 @@ export function applyAutoScanConfigIntent(previous, edit) {
     const selected = operation.checked
       ? [...previous.selectedTypes, operation.type]
       : previous.selectedTypes.filter((type) => type !== operation.type);
-    // The source disallows deselecting the last Auto type. Evaluate that predicate
-    // on the real base as well as on the optimistic visible draft.
-    candidate.selectedTypes = selected.length > 0 ? selected : previous.selectedTypes;
+    candidate.selectedTypes = selected;
   }
   return applyAutoScanConfigEdit(previous, candidate, edit.editedAt);
 }
@@ -121,7 +119,7 @@ export function advanceAutoScanDeadline(config, now = Date.now()) {
 }
 
 export function autoScanShouldRun(config, now, online, autoScanRunning, isReading) {
-  return config.enabled && online && !autoScanRunning && !isReading && now >= config.nextRunAt;
+  return config.enabled && config.selectedTypes.length > 0 && online && !autoScanRunning && !isReading && now >= config.nextRunAt;
 }
 
 export function formatAutoScanDate(value, locale) {

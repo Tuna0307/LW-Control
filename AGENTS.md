@@ -1,3 +1,11 @@
+Latest lead audit, 2026-10-17: MAP-017 d788b797 (draft PR #13) ACCEPTED pending owner
+test; on owner pass, merge and mark Map tab complete for owner scope. See
+docs/reviews/2026-10-17-MAP-017-LEAD-AUDIT.md. No worker task open.
+
+Latest lead assignment, 2026-10-17: owner test round 2. Worker completes
+docs/work-items/LWB317-MAP-OWNER-FIXES-017.md on codex/map-owner-fixes-017 / new
+draft PR only. Same background/no-account-action, no-merge/publication rules.
+
 Latest lead audit, 2026-10-17: MAP-016 010db520 ACCEPTED and merged to main
 (2a57dd99, PR #12) for owner testing; test ZIP built from identical code; see docs/reviews/2026-10-17-MAP-016-LEAD-AUDIT.md. No worker task open.
 MAP-015 and MAP-016 branches retired after merge.

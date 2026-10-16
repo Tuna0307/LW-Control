@@ -1180,6 +1180,7 @@ export function MapDataPage({
                 <div className="map-category-menu">{MAP_SCAN_TYPES.map(({ key }) => <label key={key}><input type="checkbox" checked={selectedTypes.includes(key)} disabled={scanState.isReading || autoRunning} onChange={event => toggleType(key, event.target.checked)} /><span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span></label>)}</div>
               </details>
               <button type="button" className={!scanState.isReading ? "primary" : ""} disabled={!online || scanState.isReading || autoRunning || selectedTypes.length === 0} onClick={startScan}>{t("map.startReading")}</button>
+              {selectedTypes.length === 0 ? <small data-map-empty-selection="manual" role="status">{t("map.scanCategoryRequired")}</small> : null}
               <button type="button" className={scanState.isReading ? "danger" : ""} disabled={!backendAvailable || !scanState.isReading} onClick={stopScan}>{t("common.stop")}</button>
               <button type="button" disabled={!backendAvailable || !dataServerId || scanState.isReading || autoRunning} onClick={clearData}>{t("map.clearServer")}</button>
             </>
@@ -1231,9 +1232,10 @@ export function MapDataPage({
           <div className="map-auto-scan-options">
             <details className="map-category-picker">
               <summary>{t("map.scanTypes")} <strong>{autoConfig.selectedTypes.length}</strong><span aria-hidden="true">⌄</span></summary>
-              <div className="map-category-menu">{MAP_SCAN_TYPES.map(({ key }) => <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning || (autoConfig.selectedTypes.length === 1 && autoConfig.selectedTypes[0] === key)} onChange={event => toggleAutoType(key, event.target.checked)} /><span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span></label>)}</div>
+              <div className="map-category-menu">{MAP_SCAN_TYPES.map(({ key }) => <label key={key}><input type="checkbox" checked={autoConfig.selectedTypes.includes(key)} disabled={autoRunning} onChange={event => toggleAutoType(key, event.target.checked)} /><span>{t(SCAN_TYPE_LABEL_KEYS[key])}</span></label>)}</div>
             </details>
-            <button type="button" className="primary" disabled={!online || !autoConfig.enabled || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
+            <button type="button" className="primary" disabled={!online || autoConfig.selectedTypes.length === 0 || autoRunning || scanState.isReading} onClick={onAutoScanRunNow}>{t("map.runAutoScanNow")}</button>
+            {autoConfig.selectedTypes.length === 0 ? <small data-map-empty-selection="auto" role="status">{t("map.scanCategoryRequired")}</small> : null}
             <button type="button" disabled={!autoRunning} onClick={onAutoScanCancel}>{t("common.stop")}</button>
             <button type="button" disabled={!backendAvailable || !dataServerId || autoRunning || scanState.isReading} onClick={clearData}>{t("map.clearServer")}</button>
           </div>

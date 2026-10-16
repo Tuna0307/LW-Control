@@ -1633,6 +1633,13 @@ internal sealed partial class LWBridgeWindow : Form
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
+            if (ownerFixNativeProof && !ownerFixRemoteProof &&
+                !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("LWBRIDGE_MAP017_UI_MODE")))
+            {
+                await RunMap017UiProofAsync(core, fullOutputPath, directory, ownedMapSession, operationCts.Token);
+                return;
+            }
+
             if (intervalAcceptance)
             {
                 await RunMap016AutoIntervalUiProofAsync(

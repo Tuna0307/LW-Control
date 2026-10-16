@@ -12,7 +12,7 @@
     "check:map011-owner": "node scripts/check-map011-saved-owner.mjs",
     "check:release-ui": "node scripts/check-release-ui.mjs",
     "preview": "vite preview",
-    "check": "node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-map011-saved-owner.mjs && node scripts/check-map014-mounted.mjs && node scripts/check-map014-ghost-rewards.mjs && node scripts/check-map014-zombie-boss.mjs && node scripts/check-map014-arrival-clock.mjs && node scripts/check-map016-mounted.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs"
+    "check": "node scripts/check-static.mjs && node scripts/check-home-integration.mjs && node scripts/check-map-integration.mjs && node scripts/check-map011-saved-owner.mjs && node scripts/check-map014-mounted.mjs && node scripts/check-map014-ghost-rewards.mjs && node scripts/check-map014-zombie-boss.mjs && node scripts/check-map014-arrival-clock.mjs && node scripts/check-map016-mounted.mjs && node scripts/check-map017-controls.mjs && node scripts/check-ui-complete.mjs && node scripts/check-ui-drafts.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",

@@ -6,6 +6,7 @@ import { withMapOtherTexts } from "../src/locales/map014-other.js";
 import { withGhostRewardTexts, GHOST_REWARD_MESSAGES } from "../src/locales/map014-ghost-rewards.js";
 import { withZombieBossTexts, ZOMBIE_BOSS_MESSAGES } from "../src/locales/map014-zombie-boss.js";
 import { withHomeLaunchFeedback } from "../src/locales/home-launch-feedback.js";
+import { withMapScanControlTexts } from "../src/locales/map017-scan-controls.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -13,7 +14,7 @@ const pageModules = ["Pages.jsx", "sharedPageUI.jsx", "HomePage.jsx", "Automatio
 const sourceFiles = ["src/App.jsx", ...pageModules.map((file) => `src/${file}`), "src/MapDataPage.jsx", "src/mapTablePresentation.js", "src/previewConfigHook.jsx", "src/AutomationMeta.jsx", "src/RallyJoinSettings.jsx", "src/DispatchAssistManual.jsx", "src/previewEquipmentContracts.js"];
 const localeCodes = ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"];
 
-const withMapExtras = (code, messages) => withHomeLaunchFeedback(code, withZombieBossTexts(code, withGhostRewardTexts(code, withMapOtherTexts(code, withMapNameFeedback(code, messages)))));
+const withMapExtras = (code, messages) => withMapScanControlTexts(code, withHomeLaunchFeedback(code, withZombieBossTexts(code, withGhostRewardTexts(code, withMapOtherTexts(code, withMapNameFeedback(code, messages))))));
 // Ghost reward filter labels: every one of the nine clone languages must carry the
 // complete key set with the same {placeholders} as English (no silent English fallback).
 for (const code of localeCodes) {
