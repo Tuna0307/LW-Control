@@ -90,15 +90,9 @@ internal static class Map007ActionProviderChecks
                         "GAME_PROVIDER_UNAVAILABLE", "controlled claim terminal protocol unavailable"));
                 },
                 ShareDispatchTaskToAlliance = (_, _) => throw new InvalidOperationException("No sharing"),
-                PrepareGhostPlunderTasks = (rows, _) =>
-                {
-                    try { return ValueTask.FromResult(CurrentClientMap317ActionProvider.PrepareGhostPlunderRows(rows)); }
-                    catch (InvalidDataException error)
-                    {
-                        return ValueTask.FromException<IReadOnlyList<JsonElement>>(
-                            new Map317.BridgeCommandException("INVALID_REQUEST", error.Message));
-                    }
-                },
+                PrepareGhostPlunderTasks = (_, _) =>
+                    ValueTask.FromException<IReadOnlyList<JsonElement>>(
+                        new Map317.BridgeCommandException("FEATURE_REMOVED", "Ghost preparation retired")),
                 GetMapPlunderServerDayStart = _ => ValueTask.FromResult<Map317.MapPlunderServerDayProviderResult?>(null),
                 ArmDispatchPlunder = (_, _) =>
                 {
@@ -112,8 +106,6 @@ internal static class Map007ActionProviderChecks
             };
             using var service = new Map317CommandService(path, Map317.UnavailableMapProvider.Instance,
                 boundary, startPlunderWorkers: false);
-            using var historicalStore = new Map317.MapStore(Path.Combine(root, "historical-preparation.db"));
-            var historicalActions = new Map317.MapActionControlPlane(historicalStore, boundary);
             JsonElement snapshot = await Call(service, "map_treasure_claim_status", new { });
             Require(snapshot.GetProperty("candidateCount").GetInt32() == 101 &&
                 snapshot.GetProperty("inspectedCount").GetInt32() == 101 && inspections == 2 &&
@@ -173,19 +165,6 @@ internal static class Map007ActionProviderChecks
             };
             await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new { rows = new[] { ghost } }),
                 "FEATURE_REMOVED");
-            // Historical validation remains covered in an inert library instance;
-            // the retired native command cannot reach this code/provider anymore.
-            JsonElement prepared = JsonSerializer.SerializeToElement(await historicalActions.PrepareGhostPlunderAsync(
-                new[] { JsonSerializer.SerializeToElement(ghost) }));
-            Require(prepared.GetArrayLength() == 1 && prepared[0].GetProperty("uuid").GetString() == "123456" &&
-                dispatchSends == 0, "Ghost preparation was routed as Dispatch game transport");
-            await Reject(async () => _ = await historicalActions.PrepareGhostPlunderAsync(
-                new[] { JsonSerializer.SerializeToElement(ghost), JsonSerializer.SerializeToElement(ghost) }), "INVALID_REQUEST");
-            JsonElement wrong = JsonSerializer.SerializeToElement(ghost);
-            using var changed = JsonDocument.Parse(wrong.GetRawText().Replace("GhostreconPointInfo", "DispatchPointInfo"));
-            await Reject(async () => _ = await historicalActions.PrepareGhostPlunderAsync(
-                new[] { changed.RootElement.Clone() }), "INVALID_REQUEST");
-
             hold = true;
             Task<JsonElement> held = Call(service, "map_treasure_claim_status", new { });
             await readGate.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -195,7 +174,7 @@ internal static class Map007ActionProviderChecks
             releaseGate.TrySetResult(true);
             await held;
             Require(claimSends == 1 && dispatchSends == 0, "read-only preview sent an extra action request");
-            Console.WriteLine("MAP_007_REAL_COMMAND_GHOST_PREP_TREASURE_INSPECT_PREVIEW_OK");
+            Console.WriteLine("MAP_007_RETIRED_GHOST_TREASURE_INSPECT_PREVIEW_OK");
         }
         finally
         {

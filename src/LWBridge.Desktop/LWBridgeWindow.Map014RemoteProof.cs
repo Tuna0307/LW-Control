@@ -21,7 +21,9 @@ internal sealed partial class LWBridgeWindow
             await Task.Delay(100,token);
             homeServer=overviewLifecycleService.GetLiveServerId() ?? 0;
         }
-        const int remoteServer = 2213;
+        bool remoteRailway = Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_REMOTE_RAILWAY") == "1";
+        int remoteServer = remoteRailway ? 2211 : 2213;
+        string? ownedRailwayRunId = null;
         bool reuseGenuineRemote = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE") == "1";
         if (homeServer != 2212)
             throw new InvalidDataException("Remote proof requires authenticated game start on 2212; observed "+homeServer);
@@ -35,7 +37,10 @@ internal sealed partial class LWBridgeWindow
         var results = new List<object>();
         string receipt = Path.Combine(directory, "map014-remote-ui.json");
         async Task Save() => await File.WriteAllTextAsync(receipt,
-            JsonSerializer.Serialize(new {genuineGame=true, controlledProvider=false,homeServer,remoteServer,
+            JsonSerializer.Serialize(new {genuineGame=true, controlledProvider=false,
+                proof=remoteRailway ? "real_native_auto_remote_railway_2211_fast_625_return" :
+                    "real_native_auto_remote_resource_2213_jump_clear",
+                homeServer,remoteServer,
                 proofSession.ProfileId,proofSession.SessionId,proofSession.GamePid,proofSession.GameStartedAtUtc,results},
                 new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}),token);
         async Task RequireUi(Func<Task<bool>> condition, string stage, int attempts=250)
@@ -102,6 +107,242 @@ internal sealed partial class LWBridgeWindow
         }
         try
         {
+            if (remoteRailway)
+            {
+                // This proof is deliberately scan-only. Remote Resource's later
+                // coordinate Jump and saved-server Clear are not Railway actions.
+                MapAutoScanSnapshot initialAuto = await mapAutoScanService.GetSnapshotAsync(token);
+                RequireProofOwner();
+                if (initialAuto.Config.Enabled || initialAuto.Running || mapAutoScanService.IsCycleBusy ||
+                    initialAuto.Config.ServerIds is { Count: > 0 })
+                    throw new InvalidDataException("Remote Railway requires a fresh idle isolated Auto owner.");
+                results.Add(new { stage="railway_original_server",serverId=await ObserveLiveServer(homeServer,
+                    "Railway original 2212 heartbeat") });
+                await Save();
+
+                if (!await Dom("(()=>{const tab=document.querySelectorAll('.map-scan-tabs button')[1];if(!tab)return false;tab.click();return true;})()"))
+                    throw new InvalidDataException("Actual Auto tab is unavailable for Railway.");
+                await RequireUi(()=>Dom("!!document.querySelector('.map-auto-scan-card')"),
+                    "Railway Auto controls");
+                if (!await Dom("(()=>{const input=document.querySelector('.map-auto-scan-server-input input');if(!input)return false;Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'2211');input.dispatchEvent(new Event('input',{bubbles:true}));return true;})()"))
+                    throw new InvalidDataException("Railway Auto server input unavailable.");
+                await RequireUi(()=>Dom("!!document.querySelector('.map-auto-scan-server-input button:not(:disabled)')"),
+                    "Railway target 2211 entry");
+                if (!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-server-input button:not(:disabled)');if(!b)return false;b.click();return true;})()"))
+                    throw new InvalidDataException("Railway Auto Add server unavailable.");
+                await RequireUi(()=>Dom("[...document.querySelectorAll('.map-auto-scan-server-chips > span')].some(x=>x.textContent.includes('2211'))"),
+                    "Railway target 2211 persisted");
+                // The last selected category is disabled in the live UI:
+                // select Railway first so a saved City-only config can be
+                // safely narrowed without attempting to click its last box.
+                if (!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[4];if(!b)return false;if(!b.checked)b.click();return true;})()"))
+                    throw new InvalidDataException("Railway Auto category checkbox unavailable.");
+                await RequireUi(()=>Dom("document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[4]?.checked===true"),
+                    "Railway Auto category selected before deselection");
+                for (int index=0;index<10;index++)
+                {
+                    if(index==4) continue;
+                    string select=$"(()=>{{const box=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{index}];if(!box)return false;if(box.checked!==({index}===4))box.click();return true;}})()";
+                    if (!await Dom(select))
+                        throw new InvalidDataException("Railway Auto category checkbox unavailable: "+index);
+                    string settled=$"document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{index}]?.checked===({index}===4)";
+                    await RequireUi(()=>Dom(settled),"Railway Auto category selection "+index);
+                }
+                await RequireUi(()=>Dom("(()=>{const a=[...document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')];return a.length===10&&a.every((b,i)=>b.checked===(i===4));})()"),
+                    "Railway only Auto categories");
+                if (!await Dom("(()=>{const b=document.querySelector('.map-auto-return input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
+                    throw new InvalidDataException("Railway Auto return-to-original control unavailable.");
+                if (!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-master input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
+                    throw new InvalidDataException("Railway Auto master enable unavailable.");
+                MapAutoScanSnapshot configured = await mapAutoScanService.GetSnapshotAsync(token);
+                await RequireUi(async ()=>{
+                    configured=await mapAutoScanService.GetSnapshotAsync(token);
+                    return configured.Config.Enabled && configured.Config.ReturnToOriginalServer &&
+                        configured.Config.ServerIds is {Count:1} && configured.Config.ServerIds[0]==remoteServer &&
+                        configured.Config.SelectedTypes is {Count:1} &&
+                        configured.Config.SelectedTypes[0]=="railway" && configured.Config.ScanMode=="fast";
+                },"exact persisted Railway Auto configuration");
+                RequireProofOwner();
+                if (mapAutoScanService.IsCycleBusy || configured.Running)
+                    throw new InvalidDataException("Railway Auto started without explicit Run Now.");
+                results.Add(new {stage="railway_auto_config_persisted",
+                    configured.Config.ServerIds, configured.Config.SelectedTypes,
+                    configured.Config.ScanMode, configured.Config.ReturnToOriginalServer});
+                await Save();
+
+                DateTimeOffset triggeredAt=DateTimeOffset.UtcNow;
+                if (!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-options button.primary:not(:disabled)');if(!b)return false;b.click();return true;})()"))
+                    throw new InvalidDataException("Explicit Railway Auto Run Now was unavailable.");
+                bool sawRunning=false;
+                DateTimeOffset? sawRemoteAt=null;
+                MapAutoScanSnapshot cycle=configured;
+                for(int poll=0;poll<6200;poll++)
+                {
+                    token.ThrowIfCancellationRequested();
+                    RequireProofOwner();
+                    cycle=await mapAutoScanService.GetSnapshotAsync(token);
+                    if(cycle.Running) sawRunning=true;
+                    if(sawRemoteAt is null && overviewLifecycleService.GetLiveServerId()==remoteServer)
+                        sawRemoteAt=DateTimeOffset.UtcNow;
+                    if(sawRunning && !cycle.Running && cycle.LastCycle is {StartedAt:>0} &&
+                       cycle.LastCycle.StartedAt >= triggeredAt.ToUnixTimeMilliseconds()-2000 &&
+                       cycle.LastCycle.OriginalServerId==homeServer &&
+                       cycle.LastCycle.TargetServerIds.SequenceEqual([remoteServer]) &&
+                       cycle.LastCycle.CompletedServerIds.SequenceEqual([remoteServer]))
+                        break;
+                    await Task.Delay(100,token);
+                }
+                if(!sawRunning || sawRemoteAt is null || cycle.Running ||
+                   cycle.LastCycle?.Outcome!="completed" || cycle.LastCycle.LastError is not null ||
+                   cycle.LastCycle.OriginalServerId!=homeServer ||
+                   !cycle.LastCycle.TargetServerIds.SequenceEqual([remoteServer]) ||
+                   !cycle.LastCycle.CompletedServerIds.SequenceEqual([remoteServer]))
+                    throw new InvalidDataException("Source-owned Railway Auto cycle did not complete: "+
+                        JsonSerializer.Serialize(cycle.LastCycle,JsonOptions.Default));
+                DateTimeOffset observedHomeAt=DateTimeOffset.UtcNow;
+                int observedHome=await ObserveLiveServer(homeServer,"Railway native return home 2212");
+                observedHomeAt=DateTimeOffset.UtcNow;
+                RequireProofOwner();
+
+                string nativePath=Path.Combine(overviewLifecycleService.LiveResourceRuntimeRoot,
+                    "fast-truck-scan-result.json");
+                using JsonDocument nativeDocument=JsonDocument.Parse(await File.ReadAllTextAsync(nativePath,token));
+                JsonElement native=nativeDocument.RootElement;
+                string nativeRunId=ReadStatusString(native,"scanRunId") ?? "";
+                DateTimeOffset nativeReceiptAt=new(File.GetLastWriteTimeUtc(nativePath));
+                if(nativeRunId.Length==0 || ReadStatusString(native,"state")!="proven" ||
+                   ReadStatusString(native,"profileId")!=proofSession.ProfileId ||
+                   ReadStatusString(native,"launchSessionId")!=proofSession.SessionId ||
+                   ReadStatusString(native,"challenge")!=proofSession.Challenge ||
+                   ReadStatusInt32(native,"gamePid")!=proofSession.GamePid ||
+                   ReadStatusInt32(native,"serverId")!=remoteServer ||
+                   ReadStatusInt32(native,"rectanglesCompleted")!=625 ||
+                   ReadStatusInt32(native,"initialRequestsSent")!=625 ||
+                   ReadStatusInt32(native,"unprovenRectangles")!=0 ||
+                   ReadStatusInt32(native,"railwayRecordCount") is null ||
+                   !native.TryGetProperty("railwayOnly",out JsonElement railwayOnly) ||
+                   railwayOnly.ValueKind!=JsonValueKind.True ||
+                   !native.TryGetProperty("railwayIncluded",out JsonElement railwayIncluded) ||
+                   railwayIncluded.ValueKind!=JsonValueKind.True ||
+                   !native.TryGetProperty("cameraStable",out JsonElement cameraStable) ||
+                   cameraStable.ValueKind!=JsonValueKind.True ||
+                   !native.TryGetProperty("curViewRestored",out JsonElement nativeRestored) ||
+                   nativeRestored.ValueKind!=JsonValueKind.True)
+                    throw new InvalidDataException("Railway Auto did not retain its exact 625 native typed rectangles.");
+                ownedRailwayRunId=nativeRunId;
+                results.Add(new {stage="railway_auto_returned_home",originalServerId=homeServer,
+                    targetServerId=remoteServer,liveServerId=observedHome,scanRunId=nativeRunId,
+                    nativeRailwayRecords=ReadStatusInt32(native,"railwayRecordCount"),
+                    nativeRectangles=625, cycle.LastCycle,
+                    triggeredAt,sawRemoteAt,observedHomeAt,
+                    nativeReceiptAt,
+                    switchObservedMilliseconds=(sawRemoteAt.Value-triggeredAt).TotalMilliseconds,
+                    sweepElapsedSeconds=native.TryGetProperty("elapsedSeconds",out JsonElement elapsed) &&
+                        elapsed.TryGetDouble(out double elapsedSeconds) ? elapsedSeconds : (double?)null,
+                    returnObservedMilliseconds=(observedHomeAt-nativeReceiptAt).TotalMilliseconds});
+                await Save();
+
+                // The normal current-status UI is now on 2212; it is allowed to
+                // forget the previously completed 2211 run. Require that the
+                // exact native run was published durably and keep the current
+                // status separately rather than presenting it as the 2211 scan.
+                LWBridge.Map317.MapScanRun persistedRun =
+                    map317CommandService.ReadPersistedScanRunForProof(nativeRunId)
+                    ?? throw new InvalidDataException("Remote Railway completed scan is absent from durable Map storage.");
+                if(persistedRun.Id!=nativeRunId || persistedRun.ServerId!=remoteServer ||
+                   persistedRun.Status!="completed" ||
+                   !persistedRun.SelectedTypes.SequenceEqual(["railway"],StringComparer.Ordinal) ||
+                   persistedRun.TotalBlocks!=2500 || persistedRun.CompletedBlocks!=2500 ||
+                   persistedRun.FailedBlocks!=0 || persistedRun.Error is not null)
+                    throw new InvalidDataException("Remote Railway did not publish its exact completed 2500-block run.");
+                var completedStatus=new {
+                    source="persisted_completed_scan_run", serverId=persistedRun.ServerId,
+                    scanRunId=persistedRun.Id, phase=persistedRun.Status,
+                    selectedTypes=persistedRun.SelectedTypes, totalBlocks=persistedRun.TotalBlocks,
+                    readBlocks=persistedRun.CompletedBlocks, failedBlocks=persistedRun.FailedBlocks,
+                    unreadBlocks=persistedRun.TotalBlocks-persistedRun.CompletedBlocks-persistedRun.FailedBlocks,
+                    scanMode="fast"
+                };
+                JsonElement postReturnLiveStatus=JsonSerializer.SerializeToElement(
+                    map317CommandService.CreateStatus(),JsonOptions.Default);
+                if(postReturnLiveStatus.TryGetProperty("isReading",out JsonElement postReturnReading) &&
+                   postReturnReading.ValueKind==JsonValueKind.True)
+                    throw new InvalidDataException("Remote Railway left the live Map scan active after returning home.");
+                if(ReadStatusInt32(native,"railwayRecordCount")==0)
+                {
+                    // A complete empty Railway scan creates no Saved 2211
+                    // option. Query that server through the production
+                    // Map317 backend and prove the dropdown has no phantom.
+                    JsonElement query=JsonSerializer.SerializeToElement(new
+                    {kind="railway",query=new {serverId=remoteServer,page=1,pageSize=50}},JsonOptions.Default);
+                    object? zeroSearch=await map317CommandService.InvokeAsync(
+                        "map_search",query,token);
+                    JsonElement emptyResult=JsonSerializer.SerializeToElement(zeroSearch,JsonOptions.Default);
+                    if(!emptyResult.TryGetProperty("total",out JsonElement emptyTotal) ||
+                       emptyTotal.GetInt32()!=0 ||
+                       !emptyResult.TryGetProperty("rows",out JsonElement emptyRows) ||
+                       emptyRows.ValueKind!=JsonValueKind.Array || emptyRows.GetArrayLength()!=0)
+                        throw new InvalidDataException("Verified empty native Railway disagreed with production Map search.");
+                    await RequireUi(()=>Dom("![...document.querySelectorAll('select[data-map-saved-server] option')].some(o=>o.value==='2211')"),
+                        "empty Railway has no phantom saved server 2211");
+                    if(!await Dom("(()=>{const b=document.querySelectorAll('.map-tabs button')[4];if(!b)return false;b.click();return true;})()"))
+                        throw new InvalidDataException("Empty Railway results tab is unavailable.");
+                    await RequireUi(()=>Dom("!!document.querySelector('.map-table--railway')"),
+                        "empty Railway results table");
+                    string emptyScreenshot=Path.Combine(directory,"map016-remote-railway-2211.png");
+                    await using(var image=File.Create(emptyScreenshot))
+                        await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,image);
+                    results.Add(new {stage="railway_remote_ui_saved_result",scanRunId=nativeRunId,
+                        serverId=remoteServer,selectedServerId=(int?)null,
+                        selectedResponse=new{payload=query,result=emptyResult},
+                        completedStatus,postReturnLiveStatus,total=0,
+                        mountedDom=new{serverOptionAbsent=true,tablePresent=true,displayedRows=0},
+                        screenshot=emptyScreenshot,source="production_map_search_verified_empty"});
+                    await Save();
+                    return;
+                }
+                await RequireUi(()=>Dom("[...document.querySelectorAll('select[data-map-saved-server] option')].some(o=>o.value==='2211')"),
+                    "Railway published saved server 2211");
+                if(!await Dom("(()=>{const s=document.querySelector('select[data-map-saved-server]');if(!s)return false;s.value='2211';s.dispatchEvent(new Event('change',{bubbles:true}));return true;})()"))
+                    throw new InvalidDataException("Railway saved server 2211 UI selection unavailable.");
+                await RequireUi(()=>Dom("document.querySelector('select[data-map-saved-server]')?.value==='2211'"),
+                    "Railway saved server selection settled");
+                if(!await Dom("(()=>{const b=document.querySelectorAll('.map-tabs button')[4];if(!b)return false;b.click();return true;})()"))
+                    throw new InvalidDataException("Railway results tab unavailable.");
+                await RequireUi(()=>Dom("!!document.querySelector('.map-table--railway[aria-busy=false]')"),
+                    "Railway saved results table");
+                long explicitSearchBefore=GetNormalUiProofSearchSequence();
+                if(!await Dom("(()=>{const b=document.querySelector('.map-searchbar > button:not(:disabled)');if(!b)return false;b.click();return true;})()"))
+                    throw new InvalidDataException("Railway real UI search unavailable.");
+                NormalUiResourceProofSearchObservation? railwaySearch=null;
+                for(int poll=0;poll<300;poll++)
+                {
+                    railwaySearch=ReadNormalUiProofSearchAfter(explicitSearchBefore);
+                    if(railwaySearch is not null && MapDataQueryContract.NormalizeSearch(railwaySearch.Payload) is
+                       {Kind:"railway",ServerId:2211} && railwaySearch.Result.TryGetProperty("rows",out JsonElement rows) &&
+                       rows.ValueKind==JsonValueKind.Array &&
+                       railwaySearch.Result.TryGetProperty("total",out JsonElement total) && total.TryGetInt32(out int count) &&
+                       count>=0 && await Dom("!!document.querySelector('.map-table--railway[aria-busy=false]')"))
+                        break;
+                    await Task.Delay(100,token);
+                }
+                if(railwaySearch is null || MapDataQueryContract.NormalizeSearch(railwaySearch.Payload) is not
+                   {Kind:"railway",ServerId:2211})
+                    throw new InvalidDataException("Railway Auto returned no same-server real UI search.");
+                string screenshot=Path.Combine(directory,"map016-remote-railway-2211.png");
+                await using(var image=File.Create(screenshot))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,image);
+                string mountedDom=await core.ExecuteScriptAsync(
+                    "({tablePresent:!!document.querySelector('.map-table--railway'),displayedRows:document.querySelectorAll('.map-table--railway tbody tr').length})");
+                results.Add(new {stage="railway_remote_ui_saved_result",scanRunId=nativeRunId,
+                    serverId=remoteServer,selectedServerId=remoteServer,
+                    selectedResponse=railwaySearch,completedStatus,postReturnLiveStatus,
+                    total=railwaySearch.Result.GetProperty("total").GetInt32(),
+                    mountedDom=JsonSerializer.Deserialize<JsonElement>(mountedDom),
+                    screenshot,source="real_packaged_webview_map_search"});
+                await Save();
+                return;
+            }
             JsonElement startingRows=await RealRows(homeServer);
             int originalCount=startingRows.GetProperty("total").GetInt32();
             if(originalCount<1) throw new InvalidDataException("Preserved genuine 2212 scan does not contain home Resource rows.");
@@ -124,19 +365,19 @@ internal sealed partial class LWBridgeWindow
 
             // Auto defaults exclude Resource. Select it first, then disable
             // other kinds after each controlled React state commit.
-            if(!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[1];if(!b)return false;if(!b.checked)b.click();return true;})()"))
+            if(!await Dom("(()=>{const b=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[1];if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto Resource checkbox missing.");
-            await RequireUi(()=>Dom("document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[1]?.checked===true"),"Auto Resource selection");
-            for(int index=0;index<9;index++)
+            await RequireUi(()=>Dom("document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[1]?.checked===true"),"Auto Resource selection");
+            for(int index=0;index<10;index++)
             {
                 if(index==1) continue;
-                string predicate=$"(()=>{{const box=document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[{index}];if(!box)return false;if(box.checked)box.click();return true;}})()";
+                string predicate=$"(()=>{{const box=document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{index}];if(!box)return false;if(box.checked)box.click();return true;}})()";
                 if(!await Dom(predicate)) throw new InvalidDataException("Auto type checkbox is unavailable: "+index);
-                string settled=$"document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')[{index}]?.checked===false";
+                string settled=$"document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')[{index}]?.checked===false";
                 await RequireUi(()=>Dom(settled),"Auto deselect "+index);
             }
-            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-types input[type=checkbox]')];return boxes.length===10&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types including unselected Other");
-            if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-options label input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
+            await RequireUi(()=>Dom("(()=>{const boxes=[...document.querySelectorAll('.map-auto-scan-card .map-category-menu input[type=checkbox]')];return boxes.length===10&&boxes.every((box,i)=>box.checked===(i===1));})()"),"resource-only Auto types including unselected Other");
+            if(!await Dom("(()=>{const b=document.querySelector('.map-auto-return input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto return-to-original checkbox missing.");
             if(!await Dom("(()=>{const b=document.querySelector('.map-auto-scan-master input[type=checkbox]');if(!b)return false;if(!b.checked)b.click();return true;})()"))
                 throw new InvalidDataException("Auto master enable control missing.");
@@ -218,7 +459,7 @@ internal sealed partial class LWBridgeWindow
             {
                 searched=ReadNormalUiProofSearchAfter(searchBefore);
                 if(searched is not null && MapDataQueryContract.NormalizeSearch(searched.Payload) is
-                    {Kind:"resource",ServerId:remoteServer} &&
+                    {Kind:"resource"} && MapDataQueryContract.NormalizeSearch(searched.Payload).ServerId==remoteServer &&
                     searched.Result.TryGetProperty("total",out var count) && count.GetInt32()>0 &&
                     await Dom("!!document.querySelector('.map-table--resource[aria-busy=false]')"))
                 { searchSettled=true; break; }
@@ -341,6 +582,53 @@ internal sealed partial class LWBridgeWindow
         }
         finally
         {
+            if (remoteRailway)
+            {
+                try
+                {
+                    MapAutoScanSnapshot current=await mapAutoScanService.GetSnapshotAsync(CancellationToken.None);
+                    await mapAutoScanService.UpdateConfigAsync(
+                        current.Config with {Enabled=false},CancellationToken.None);
+                    if(mapAutoScanService.IsCycleBusy)
+                        await mapAutoScanService.CancelAsync(CancellationToken.None);
+                    MapAutoScanSnapshot stopped=await mapAutoScanService.GetSnapshotAsync(CancellationToken.None);
+                    RequireProofOwner();
+                    bool recoveryReturn=false;
+                    if(overviewLifecycleService.GetLiveServerId()==remoteServer)
+                    {
+                        // The Auto cycle normally returns itself. Only try a
+                        // bounded exact-owner recovery if its *own* most recent
+                        // scan token remains current and fully idle. Never
+                        // replace a newer manual scan or unknown target owner.
+                        JsonElement currentScan=JsonSerializer.SerializeToElement(
+                            map317CommandService.CreateStatus(),JsonOptions.Default);
+                        if(!mapAutoScanService.IsCycleBusy && ownedRailwayRunId is {Length:>0} &&
+                           ReadStatusString(currentScan,"scanRunId")==ownedRailwayRunId &&
+                           ReadStatusString(currentScan,"phase")=="completed" &&
+                           currentScan.TryGetProperty("isReading",out JsonElement reading) &&
+                           reading.ValueKind==JsonValueKind.False)
+                        {
+                            await ReturnHome();
+                            recoveryReturn=true;
+                        }
+                    }
+                    int liveHome=await ObserveLiveServer(homeServer,"Railway cleanup home 2212");
+                    if(stopped.Config.Enabled || stopped.Running || liveHome!=homeServer)
+                        throw new InvalidDataException("Railway Auto cleanup did not confirm disabled and home 2212.");
+                    results.Add(new{stage="cleanup",homeServer,restored=true,
+                        autoEnabled=false,autoRunning=false,liveServerId=liveHome,
+                        noAdditionalNavigation=!recoveryReturn});
+                }
+                catch(Exception error)
+                {
+                    results.Add(new{stage="cleanup",homeServer,restored=false,
+                        noAdditionalNavigation=true,error=error.Message});
+                    throw;
+                }
+                finally { await Save(); }
+            }
+            else
+            {
             Exception? disableError=null;
             try
             {
@@ -369,6 +657,7 @@ internal sealed partial class LWBridgeWindow
                 throw;
             }
             finally { await Save(); }
+            }
         }
     }
 }

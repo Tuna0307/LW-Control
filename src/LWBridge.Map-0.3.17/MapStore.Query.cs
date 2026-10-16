@@ -344,7 +344,7 @@ public sealed partial class MapStore
             SELECT CAST(json_extract(reward.value,'$.key') AS TEXT),
                    MAX(CAST(json_extract(reward.value,'$.name') AS TEXT)),
                    MAX(CAST(json_extract(reward.value,'$.iconPath') AS TEXT)),
-                   COUNT(DISTINCT page.record_key),
+                   COUNT(DISTINCT CAST(page.server_id AS TEXT)||':'||page.record_key),
                    MAX(CAST(json_extract(reward.value,'$.count') AS REAL))
             FROM {table} page, json_each(page.data_json,'$.rewards') AS reward
             WHERE (page.server_id>0 AND ($server=0 OR page.server_id=$server)) {(staging ? "AND page.run_id=$run" : string.Empty)}

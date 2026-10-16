@@ -55,6 +55,12 @@ assert.equal(queries.at(-1).markedOnly,true,"aggregate filters must reach the qu
 assert.equal(document.querySelector(".map-actions button:last-child").disabled,true,"All servers must not imply a destructive all-server Clear");
 await flush(()=>document.querySelector('.map-actions button.primary').click());
 assert.equal(starts.at(-1).mode,"fast","legacy normal preference must use the best method");
+const workingSearch=api.search;
+api.search=async()=>{throw new Error("Saved server query failed: database unavailable");};
+await flush(()=>document.querySelector('.map-searchbar > button').click());
+assert.match(document.querySelector('.map-search .map-scan-error[role="alert"]')?.textContent||"",/database unavailable/,
+  "a failed aggregate query must report its error rather than show an empty successful table");
+api.search=workingSearch;
 // A live server without records must not be reinserted as a saved server.
 servers=[];state={...state,serverId:2211};await render();await flush();
 assert.equal(document.querySelector('[data-map-saved-server]'),null,"cleared/live-only servers must not remain in Saved lists");

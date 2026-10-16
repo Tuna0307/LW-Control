@@ -1405,7 +1405,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel .map-header .map-category-menu input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1417,7 +1417,7 @@ internal sealed partial class LWBridgeWindow : Form
 
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
-              const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
+              const boxes = [...document.querySelectorAll('.panel.map-panel .map-header .map-category-menu input[type=checkbox]')];
               if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = index === 1;
@@ -1498,12 +1498,13 @@ internal sealed partial class LWBridgeWindow : Form
         string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
             ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
         if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
-        if (qualifiedKind is not (null or "city" or "other" or "all-nontruck" or "truck" or "all-nine" or "truck-stop"))
+        if (qualifiedKind is not (null or "city" or "other" or "railway" or "all-nontruck" or "truck" or "all-nine" or "truck-stop"))
             throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
         string desiredSelection = qualifiedKind switch
         {
             "city" => "index === 0",
             "other" => "index === 8",
+            "railway" => "index === 4",
             "truck" or "truck-stop" => "index === 3",
             "all-nine" => "index !== 8",
             // Opt-in MAP-015 genuine direct AOI proof: every map kind except
@@ -1518,7 +1519,7 @@ internal sealed partial class LWBridgeWindow : Form
         for (int attempt = 0; attempt < 150; attempt++)
         {
             if (await core.ExecuteScriptAsync(
-                "document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
+                "document.querySelectorAll('.panel.map-panel .map-header .map-category-menu input[type=checkbox]').length === 10 && !!document.querySelector('.map-header .map-actions button.primary')") == "true")
             {
                 controlsReady = true;
                 break;
@@ -1530,7 +1531,7 @@ internal sealed partial class LWBridgeWindow : Form
 
         string selectionResult = await core.ExecuteScriptAsync("""
             (() => {
-              const boxes = [...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];
+              const boxes = [...document.querySelectorAll('.panel.map-panel .map-header .map-category-menu input[type=checkbox]')];
               if (boxes.length !== 10) return false;
               boxes.forEach((box, index) => {
                 const shouldBeChecked = DESIRED_SELECTION;
@@ -1544,27 +1545,16 @@ internal sealed partial class LWBridgeWindow : Form
         bool selectionSettled = false;
         for (int attempt = 0; attempt < 50; attempt++)
         {
-            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel > .map-controls .map-types input[type=checkbox]')];return boxes.length===10 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
+            if (await core.ExecuteScriptAsync("(()=>{const boxes=[...document.querySelectorAll('.panel.map-panel .map-header .map-category-menu input[type=checkbox]')];return boxes.length===10 && boxes.every((box,index)=>box.checked === (DESIRED_SELECTION));})()".Replace("DESIRED_SELECTION", desiredSelection, StringComparison.Ordinal)) == "true")
             { selectionSettled = true; break; }
             await Task.Delay(50);
         }
         if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
 
-        if (qualifiedKind is "truck" or "all-nine" or "truck-stop")
-        {
-            string speedClicked = await core.ExecuteScriptAsync("(()=>{const toggle=document.querySelectorAll('input[name=map-scan-speed]')[1];if(!toggle||toggle.disabled)return false;if(!toggle.checked)toggle.click();return true;})()");
-            if (speedClicked != "true")
-                throw new InvalidDataException("MAP015 packaged Truck proof could not choose real Fast mode.");
-            bool fastSelected = false;
-            for (int attempt = 0; attempt < 60; attempt++)
-            {
-                if (await core.ExecuteScriptAsync("document.querySelectorAll('input[name=map-scan-speed]')[1]?.checked === true") == "true")
-                { fastSelected = true; break; }
-                await Task.Delay(50);
-            }
-            if (!fastSelected)
-                throw new InvalidDataException("MAP015 packaged Truck Fast mode did not settle.");
-        }
+        // MAP-016 always chooses the fastest qualified scanner. The speed radio
+        // group is gone, so verify the real owner UI reflects its removal.
+        if (await core.ExecuteScriptAsync("document.querySelector('[name=map-scan-speed]') === null") != "true")
+            throw new InvalidDataException("MAP016 packaged Map exposed a retired scan-speed selector.");
 
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(ownerFixRemoteProof ? 14 : 8));
         string? instanceId = null;
@@ -1633,10 +1623,13 @@ internal sealed partial class LWBridgeWindow : Form
             if (ownerFixRemoteProof && Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_SAVED_HOME") == "1")
             {
                 await RunMap014NativeRemoteUiProofAsync(core, directory, operationCts.Token);
+                bool remoteRailway = Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_REMOTE_RAILWAY") == "1";
                 await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
-                    state="proven", proof="real_native_auto_remote_scan_row_jump_and_clear",
+                    state="proven", proof=remoteRailway
+                        ? "real_native_auto_remote_railway_2211_fast_625_return"
+                        : "real_native_auto_remote_scan_row_jump_and_clear",
                     newHomeMapScans=0,
-                    newRemoteMapScans=Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE")=="1" ? 0 : 1,
+                    newRemoteMapScans=remoteRailway || Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_REMOTE_REUSE")!="1" ? 1 : 0,
                     gamePid=ownedMapSession.GamePid,
                     profileId=ownedMapSession.ProfileId, generatedAt=DateTimeOffset.UtcNow
                 },JsonOptions.Default),operationCts.Token);
@@ -1786,6 +1779,8 @@ internal sealed partial class LWBridgeWindow : Form
                 throw new TimeoutException("The normal production Map scan did not complete within the proof bound.");
 
             string[] actualSelectedTypes = ReadNormalUiProofSelectedTypes(completedStatus);
+            if (ReadStatusString(completedStatus, "scanMode") != "fast")
+                throw new InvalidDataException("MAP016 packaged Map did not use its automatic fast scanner.");
 
             if (qualifiedKind is "all-nontruck" or "all-nine")
             {
@@ -1828,13 +1823,13 @@ internal sealed partial class LWBridgeWindow : Form
                 return;
             }
 
-            if (qualifiedKind is "city" or "other")
+            if (qualifiedKind is "city" or "other" or "railway")
             {
                 if (!completedStatus.TryGetProperty("selectedTypes", out JsonElement selected) ||
                     selected.ValueKind != JsonValueKind.Array ||
                     selected.GetArrayLength() != 1 || selected[0].GetString() != qualifiedKind)
                     throw new InvalidDataException("Packaged source scan selected unexpected map kinds.");
-                int selectedTab = qualifiedKind == "city" ? 0 : 8;
+                int selectedTab = qualifiedKind switch { "city" => 0, "railway" => 4, _ => 8 };
                 long beforeSearch = GetNormalUiProofSearchSequence();
                 string tabClicked = await core.ExecuteScriptAsync($"(()=>{{const tab=document.querySelectorAll('.map-tabs button')[{selectedTab}];if(!tab)return false;tab.click();return true;}})()");
                 if (tabClicked != "true")
@@ -1890,7 +1885,10 @@ internal sealed partial class LWBridgeWindow : Form
                     await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, image);
                 await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
                 {
-                    schemaVersion = 1, state = "proven", proof = "actual_packaged_ui_fullworld_selected_scan_and_results",
+                    schemaVersion = 1, state = "proven",
+                    proof = qualifiedKind == "railway"
+                        ? "actual_packaged_ui_fast_railway_fullworld_scan_and_results"
+                        : "actual_packaged_ui_fullworld_selected_scan_and_results",
                     genuineGame = true, controlledProvider = false, selection = qualifiedKind,
                     selectedTypes = actualSelectedTypes,
                     serverId = actualServer, completedStatus, selectedResponse, total = selectedTotal,
@@ -4958,7 +4956,7 @@ internal sealed partial class LWBridgeWindow : Form
         {
             await RequireUiActionAsync($$"""
                 (() => {
-                  const input = document.querySelectorAll('.map-auto-scan-card .map-types input')[{{index}}];
+                  const input = document.querySelectorAll('.map-auto-scan-card .map-category-menu input')[{{index}}];
                   if (!input || input.disabled) return false;
                   if(input.checked !== {{(value ? "true" : "false")}}) input.click();
                   return true;
@@ -4987,7 +4985,7 @@ internal sealed partial class LWBridgeWindow : Form
             if (snapshot.Config.IntervalMinutes == 35 &&
                 snapshot.Config.ServerIds?.SequenceEqual(new[] { 317, 10, 11, 9 }) == true &&
                 snapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "resource" }) == true &&
-                snapshot.Config.ScanMode == "normal" &&
+                snapshot.Config.ScanMode == "fast" &&
                 !snapshot.Config.ReturnToOriginalServer)
             {
                 mergedHydrationEdits = true;
@@ -5001,7 +4999,7 @@ internal sealed partial class LWBridgeWindow : Form
 
         await WaitForRequestsToDrainAsync("semantic Auto acknowledgement convergence");
         await WaitForDomAsync(
-            "document.querySelectorAll('.map-auto-scan-server-chips button').length === 4 && document.querySelectorAll('.map-auto-scan-card .map-types input')[0]?.checked && document.querySelectorAll('.map-auto-scan-card .map-types input')[1]?.checked && !document.querySelectorAll('.map-auto-scan-card .map-types input')[7]?.checked",
+            "document.querySelectorAll('.map-auto-scan-server-chips button').length === 4 && document.querySelectorAll('.map-auto-scan-card .map-category-menu input')[0]?.checked && document.querySelectorAll('.map-auto-scan-card .map-category-menu input')[1]?.checked && !document.querySelectorAll('.map-auto-scan-card .map-category-menu input')[7]?.checked",
             "native semantic intent restored in actual mounted controls");
         // Restore only via real controls so the existing retry/profile evidence
         // can continue from its original persisted arrays.
@@ -5031,7 +5029,7 @@ internal sealed partial class LWBridgeWindow : Form
         if (pendingArraySnapshot.Config.ServerIds?.SequenceEqual(new[] { 317, 13 }) != true ||
             pendingArraySnapshot.Config.SelectedTypes?.SequenceEqual(new[] { "city", "treasure", "resource" }) != true)
             throw new InvalidDataException("Mounted semantic edits during pending save lost saved entries, order, or acknowledged operations.");
-        await WaitForDomAsync("document.querySelectorAll('.map-auto-scan-server-chips button').length === 2 && document.querySelectorAll('.map-auto-scan-card .map-types input')[1]?.checked", "settled pending-array corrected controls");
+        await WaitForDomAsync("document.querySelectorAll('.map-auto-scan-server-chips button').length === 2 && document.querySelectorAll('.map-auto-scan-card .map-category-menu input')[1]?.checked", "settled pending-array corrected controls");
         await CaptureCorrectedControlAsync("auto-rebase");
         await RemoveAutoServerThroughControlAsync(13);
         await WaitForRequestsToDrainAsync("pending server restoration");

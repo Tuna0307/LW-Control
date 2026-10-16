@@ -34,6 +34,7 @@ KIND_ORDER = ["city", "resource", "monster", "truck", "railway",
               "dispatch", "ghost", "treasure", "other", "zombie_boss"]
 MODES = {
     "city": {"args": ["city"], "selected": ["city"], "requires_db": True},
+    "railway": {"args": ["railway"], "selected": ["railway"], "requires_db": True},
     "truck": {"args": ["truck"], "selected": ["truck"], "requires_db": True},
     "all-nine": {"args": ["all-nine"], "selected": [
         "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
@@ -50,9 +51,11 @@ MODES = {
                          "new_kinds": True, "requires_saved_db": True},
     "remote-clear": {"args": ["remote"], "selected": None,
                      "remote": True, "requires_db": True},
+    "remote-railway": {"args": ["remote-railway"], "selected": None,
+                       "remote": True, "requires_db": True},
 }
 KNOWN_LIMITS = [
-    "Individual City and Other selections and the opt-in full eight-kind non-Truck selection are supported.",
+    "Individual City, Railway and Other selections and the opt-in full eight-kind non-Truck selection are supported.",
     "mixed-six selects City/Resource/Monster/Truck/Railway/Dispatch; mixed-eight "
     "also selects Ghost/Zombie Boss, but excludes Treasure/Other.",
     "No existing packaged proof stops a scan mid-flight or exercises the Home UI regression.",
@@ -423,6 +426,270 @@ def audit_published_fast_truck_rows(db_path: Path, server_id: int) -> int:
     return len(published)
 
 
+def audit_fast_railway(destination: Path, proof: dict, restoration: dict,
+                       screenshot_name: str = "map014-railway-packaged.png",
+                       returned_to_server: int | None = None) -> dict:
+    """Admit an exact-owned 625-rectangle Railway publication, including a verified empty one.
+
+    A positive native receipt alone cannot establish that managed import was used:
+    a subsequent camera fallback may have completed the scan. Reconcile the
+    native identity set, persisted source markers and real UI search together.
+    A genuinely empty result additionally requires an absence of the fallback
+    sidecar in this fresh isolated owner root.
+    """
+    selected = ["railway"]
+    profile = restoration.get("profileId")
+    session = restoration.get("sessionId")
+    game_pid = restoration.get("gamePid")
+    completed = proof.get("completedStatus", {})
+    run_id = completed.get("scanRunId")
+    # Map317 overlays the *live* server after Auto returns home, while the
+    # scan_run and native receipt retain the scanned server. Only the remote
+    # proof has this separately verified home-return exception.
+    observed_server = completed.get("serverId")
+    server_id = proof.get("serverId") if returned_to_server is not None else observed_server
+    if (proof.get("proof") != "actual_packaged_ui_fast_railway_fullworld_scan_and_results" or
+            proof.get("genuineGame") is not True or proof.get("controlledProvider") is not False or
+            proof.get("selection") != "railway" or proof.get("selectedTypes") != selected or
+            completed.get("selectedTypes") != selected or completed.get("phase") != "completed" or
+            type(completed.get("totalBlocks")) is not int or completed["totalBlocks"] != 2500 or
+            type(completed.get("readBlocks")) is not int or completed["readBlocks"] != 2500 or
+            completed.get("failedBlocks") != 0 or completed.get("unreadBlocks") != 0 or
+            not isinstance(run_id, str) or not run_id or
+            type(server_id) is not int or server_id <= 0 or proof.get("serverId") != server_id or
+            (returned_to_server is not None and
+             observed_server not in (server_id, returned_to_server)) or
+            profile != "map014-native-ui" or not isinstance(session, str) or not session or
+            type(game_pid) is not int or game_pid <= 0):
+        raise ValueError("Railway packaged UI lacks one completed exact-owned selected scan")
+
+    screenshot = destination / screenshot_name
+    if (not screenshot.is_file() or not isinstance(proof.get("screenshot"), str) or
+            Path(proof["screenshot"]).resolve() != screenshot.resolve()):
+        raise ValueError("Railway packaged results screenshot is missing or belongs to another root")
+    selected_response = proof.get("selectedResponse", {})
+    payload = selected_response.get("payload", {})
+    query = payload.get("query", {})
+    result = selected_response.get("result", {})
+    total = result.get("total")
+    rows = result.get("rows")
+    mounted = proof.get("mountedDom", {})
+    if (payload.get("kind") != "railway" or query.get("serverId") != server_id or
+            type(total) is not int or total < 0 or proof.get("total") != total or
+            not isinstance(rows, list) or len(rows) > total or
+            not isinstance(mounted, dict) or mounted.get("tablePresent") is not True or
+            type(mounted.get("displayedRows")) is not int or mounted["displayedRows"] < 0):
+        raise ValueError("Railway packaged results lack a genuine same-server map_search and mounted table")
+
+    db_path = destination / "profiles" / profile / "map-data" / "map-data.db"
+    with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+        runs = database.execute(
+            "SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,"
+            "failed_blocks,created_at,updated_at FROM scan_runs ORDER BY created_at DESC LIMIT 2"
+        ).fetchall()
+        if len(runs) != 1:
+            raise ValueError("Railway packaged scan lacks a unique owned SQLite run")
+        (saved_id, saved_server, selected_json, status, blocks, done, failed,
+         created_at, updated_at) = runs[0]
+        if (saved_id != run_id or saved_server != server_id or
+                json.loads(selected_json) != selected or status != "completed" or
+                (blocks, done, failed) != (2500, 2500, 0) or
+                type(created_at) is not int or type(updated_at) is not int or
+                updated_at < created_at):
+            raise ValueError("Railway published SQLite scan does not match the owned UI run")
+        published = database.execute(
+            "SELECT record_key,uuid,updated_at,data_json FROM map_records "
+            "WHERE kind='railway' AND server_id=?", (server_id,)
+        ).fetchall()
+
+    helper = json.loads((destination / "overview-evidence" / session / "helper-start.json")
+                        .read_text(encoding="utf-8"))
+    native_path = destination / "live-resource" / "fast-truck-scan-result.json"
+    native = json.loads(native_path.read_text(encoding="utf-8"))
+    challenge = native.get("challenge")
+    if (helper.get("profileId") != profile or helper.get("sessionId") != session or
+            helper.get("gamePid") != game_pid or
+            not isinstance(challenge, str) or not challenge or
+            hashlib.sha256(challenge.encode("utf-8")).hexdigest() != helper.get("challengeSha256")):
+        raise ValueError("Railway native challenge does not belong to the exact owned helper")
+    attempts = native.get("requestsSent")
+    passes = native.get("repairPasses")
+    pushes = native.get("pushesObserved")
+    railway_rows = native.get("railwayRecords")
+    if (native.get("schemaVersion") != 1 or native.get("state") != "proven" or
+            not isinstance(native.get("requestId"), str) or
+            not native["requestId"].startswith("truck") or
+            native.get("profileId") != profile or native.get("launchSessionId") != session or
+            native.get("gamePid") != game_pid or native.get("scanRunId") != run_id or
+            native.get("serverId") != server_id or native.get("worldId") != 0 or
+            native.get("railwayIncluded") is not True or native.get("railwayOnly") is not True or
+            native.get("cameraStable") is not True or native.get("curViewRestored") is not True or
+            native.get("initialRequestsSent") != 625 or native.get("rectanglesCompleted") != 625 or
+            native.get("unprovenRectangles") != 0 or native.get("requestsPerSecond") != 20 or
+            native.get("responseFenceSize") != 25 or
+            native.get("responseAttribution") != "bounded_sequential_fences" or
+            type(attempts) is not int or attempts < 625 or
+            type(passes) is not int or not 0 <= passes <= 2 or
+            native.get("repairRequestsSent") != attempts - 625 or
+            type(pushes) is not int or not 625 <= pushes <= attempts or
+            not isinstance(railway_rows, list) or
+            type(native.get("railwayRecordCount")) is not int or
+            native["railwayRecordCount"] != len(railway_rows) or
+            native.get("trainRecordCount") != 0 or native.get("trainRecords") != []):
+        raise ValueError("Railway native source lacks 625 verified typed rectangles or restoration")
+    captured_raw = native.get("capturedAt")
+    if not isinstance(captured_raw, str):
+        raise ValueError("Railway native source has no capture time")
+    try:
+        captured = datetime.fromisoformat(captured_raw.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError("Railway native source has an invalid capture time") from error
+    if captured.tzinfo is None:
+        raise ValueError("Railway native capture time lacks UTC offset")
+    captured_ms = captured.timestamp() * 1000
+    native_file_ms = native_path.stat().st_mtime_ns / 1_000_000
+    if (not created_at - 2000 <= captured_ms <= updated_at + 2000 or
+            not created_at - 2000 <= native_file_ms <= updated_at + 2000 or
+            (destination / "live-resource" / "map015-direct-fallback.json").exists()):
+        raise ValueError("Railway native receipt is stale or a camera fallback was used")
+
+    source = "WorldScene.MarchDataManager.GetAllMarchesByCS+WorldMarch.train"
+    identities = set()
+    for row in railway_rows:
+        if not isinstance(row, dict):
+            raise ValueError("Railway native record has an invalid shape")
+        uuid = row.get("uuid")
+        observed = row.get("capturedAtMs")
+        if (not isinstance(uuid, str) or not uuid or uuid in identities or
+                type(row.get("trainType")) is not int or row["trainType"] != 2 or
+                row.get("serverId") != server_id or row.get("worldId") != 0 or
+                type(row.get("x")) is not int or not 0 <= row["x"] < 1000 or
+                type(row.get("y")) is not int or not 0 <= row["y"] < 1000 or
+                type(row.get("trainQuality")) is not int or row["trainQuality"] < 1 or
+                type(row.get("trainCfgId")) is not int or
+                type(row.get("carriageNum")) is not int or
+                type(observed) is not int or not captured_ms - 240_000 <= observed <= captured_ms + 2000 or
+                row.get("source") != source):
+            raise ValueError("Railway native typed source has a foreign, duplicate or invalid row")
+        identities.add(uuid)
+
+    published_ids = set()
+    for key, uuid, observed, raw in published:
+        data = json.loads(raw)
+        if (not isinstance(data, dict) or not isinstance(key, str) or not key or
+                key != uuid or uuid in published_ids or
+                uuid not in identities or data.get("uuid") != uuid or
+                data.get("trainType") != 2 or data.get("source") != source or
+                data.get("captureProtocol") != "current_fast_railway_625_v1" or
+                type(observed) is not int or
+                type(data.get("updatedAt")) is not int or data["updatedAt"] != observed):
+            raise ValueError("Railway published a foreign or camera fallback row")
+        published_ids.add(uuid)
+    if published_ids != identities or total != len(identities):
+        raise ValueError("Railway native, SQLite and real UI result counts disagree")
+    if any(not isinstance(row, dict) or row.get("uuid") not in published_ids or
+           row.get("serverId") != server_id for row in rows):
+        raise ValueError("Railway UI displayed a foreign or unpublished native record")
+    return dict(source="fast_railway_625", runId=run_id, serverId=server_id,
+                rectanglesVerified=625, railwayCount=len(identities),
+                verifiedEmpty=not identities, repairPasses=passes,
+                cameraStable=True, curViewRestored=True,
+                screenshot=str(screenshot), nativePath=str(native_path))
+
+
+def audit_remote_railway(destination: Path, proof: dict, restoration: dict) -> dict:
+    """Reconcile a single owned Auto 2212→2211 Railway scan and natural return."""
+    marker = "real_native_auto_remote_railway_2211_fast_625_return"
+    remote = json.loads((destination / "map014-remote-ui.json").read_text(encoding="utf-8"))
+    results = remote.get("results")
+    if (proof.get("proof") != marker or remote.get("proof") != marker or
+            remote.get("genuineGame") is not True or remote.get("controlledProvider") is not False or
+            remote.get("homeServer") != 2212 or remote.get("remoteServer") != 2211 or
+            remote.get("profileId") != restoration.get("profileId") or
+            remote.get("sessionId") != restoration.get("sessionId") or
+            remote.get("gamePid") != restoration.get("gamePid") or
+            not isinstance(results, list)):
+        raise ValueError("Remote Railway proof lacks one genuine exact-owned 2212→2211 session")
+    stages = [item.get("stage") for item in results if isinstance(item, dict)]
+    required = ["railway_original_server", "railway_auto_config_persisted",
+                "railway_auto_returned_home", "railway_remote_ui_saved_result", "cleanup"]
+    if (stages != required or any(stage in stages for stage in
+            ("remote_ui_stored_row_native_jump", "auto_clear_ui_correct_server"))):
+        raise ValueError("Remote Railway proof included unwanted Jump/Clear or missing lifecycle stages")
+    original, config, returned, saved, cleanup = results
+    cycle = returned.get("lastCycle", {})
+    if (original.get("serverId") != 2212 or config.get("serverIds") != [2211] or
+            config.get("selectedTypes") != ["railway"] or
+            config.get("scanMode") != "fast" or config.get("returnToOriginalServer") is not True or
+            returned.get("originalServerId") != 2212 or
+            returned.get("targetServerId") != 2211 or returned.get("liveServerId") != 2212 or
+            returned.get("nativeRectangles") != 625 or
+            not isinstance(returned.get("scanRunId"), str) or not returned["scanRunId"] or
+            type(returned.get("nativeRailwayRecords")) is not int or
+            cycle.get("outcome") != "completed" or cycle.get("originalServerId") != 2212 or
+            cycle.get("targetServerIds") != [2211] or cycle.get("completedServerIds") != [2211] or
+            cycle.get("lastError") is not None or
+            cleanup.get("restored") is not True or cleanup.get("homeServer") != 2212 or
+            cleanup.get("liveServerId") != 2212 or cleanup.get("autoEnabled") is not False or
+            cleanup.get("autoRunning") is not False or
+            cleanup.get("noAdditionalNavigation") is not True or
+            saved.get("scanRunId") != returned["scanRunId"] or
+            saved.get("serverId") != 2211):
+        raise ValueError("Remote Railway Auto cycle or exact original-server return is unproven")
+    verified_empty = returned["nativeRailwayRecords"] == 0
+    if verified_empty:
+        if (saved.get("selectedServerId") is not None or
+                saved.get("source") != "production_map_search_verified_empty" or
+                saved.get("total") != 0 or
+                not isinstance(saved.get("mountedDom"), dict) or
+                saved["mountedDom"].get("serverOptionAbsent") is not True):
+            raise ValueError("Verified empty Railway invented a saved server or skipped backend empty search")
+    elif (saved.get("selectedServerId") != 2211 or
+          saved.get("source") != "real_packaged_webview_map_search"):
+        raise ValueError("Positive Railway did not browse the real saved 2211 result")
+    try:
+        triggered = datetime.fromisoformat(returned["triggeredAt"].replace("Z", "+00:00"))
+        remote_at = datetime.fromisoformat(returned["sawRemoteAt"].replace("Z", "+00:00"))
+        native_at = datetime.fromisoformat(returned["nativeReceiptAt"].replace("Z", "+00:00"))
+        home_at = datetime.fromisoformat(returned["observedHomeAt"].replace("Z", "+00:00"))
+    except (KeyError, AttributeError, ValueError) as error:
+        raise ValueError("Remote Railway missing source-observed stage timestamps") from error
+    if (any(item.tzinfo is None for item in (triggered, remote_at, native_at, home_at)) or
+            not triggered <= remote_at <= native_at <= home_at or
+            type(returned.get("switchObservedMilliseconds")) not in (int, float) or
+            type(returned.get("sweepElapsedSeconds")) not in (int, float) or
+            returned["sweepElapsedSeconds"] <= 0 or
+            type(returned.get("returnObservedMilliseconds")) not in (int, float) or
+            abs((remote_at - triggered).total_seconds() * 1000 -
+                returned["switchObservedMilliseconds"]) > 250 or
+            abs((home_at - native_at).total_seconds() * 1000 -
+                returned["returnObservedMilliseconds"]) > 250):
+        raise ValueError("Remote Railway switch/sweep/return observations are inconsistent")
+    observed = dict(
+        proof="actual_packaged_ui_fast_railway_fullworld_scan_and_results",
+        genuineGame=True, controlledProvider=False, selection="railway",
+        selectedTypes=["railway"], serverId=2211,
+        completedStatus=saved.get("completedStatus"),
+        selectedResponse=saved.get("selectedResponse"),
+        total=saved.get("total"), mountedDom=saved.get("mountedDom"),
+        screenshot=saved.get("screenshot"))
+    if (not isinstance(saved.get("completedStatus"), dict) or
+            saved["completedStatus"].get("source") != "persisted_completed_scan_run" or
+            not isinstance(saved.get("postReturnLiveStatus"), dict) or
+            saved["postReturnLiveStatus"].get("isReading") is not False):
+        raise ValueError("Remote Railway lacks distinct persisted run and idle post-return live status")
+    fast = audit_fast_railway(destination, observed, restoration,
+                              screenshot_name="map016-remote-railway-2211.png",
+                              returned_to_server=2212)
+    if fast["runId"] != returned["scanRunId"] or fast["railwayCount"] != returned["nativeRailwayRecords"]:
+        raise ValueError("Remote Railway native, published and UI owner/count disagree")
+    return dict(**fast, originalServerId=2212, restoredServerId=2212,
+                switchObservedMilliseconds=returned["switchObservedMilliseconds"],
+                sweepElapsedSeconds=returned["sweepElapsedSeconds"],
+                returnObservedMilliseconds=returned["returnObservedMilliseconds"],
+                noCoordinateJump=True, noClear=True)
+
+
 def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     read = lambda name: json.loads((destination / name).read_text(encoding="utf-8"))
     exit_receipt, owned = read("owned-exit.json"), read("owned-process.json")
@@ -442,7 +709,7 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     if config["selected"] is not None:
         if proof.get("selectedTypes") != config["selected"] or proof.get("scan", {}).get("phase") != "completed":
             # City/Other selection proof records completedStatus instead of scan.
-            if not (mode in ("city", "other", "all-nontruck", "truck", "all-nine") and proof.get("selectedTypes") == config["selected"]
+            if not (mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine") and proof.get("selectedTypes") == config["selected"]
                     and proof.get("completedStatus", {}).get("phase") == "completed"):
                 raise ValueError("Packaged proof does not certify the requested completed selection")
     if mode in ("truck", "all-nine"):
@@ -519,7 +786,7 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         if (len(runs) != 1 or runs[0][0:4] != (run_id, "cancelled", '["truck"]', 2500) or
                 runs[0][4] >= 2500 or runs[0][5] != 0 or staged != 0 or live != 0):
             raise ValueError("Packaged Truck Stop left incomplete durability or staged scan records")
-    if config.get("remote"):
+    if mode == "remote-clear":
         remote = read("map014-remote-ui.json")
         stages = [entry.get("stage") for entry in remote.get("results", [])]
         if "auto_clear_ui_correct_server" not in stages or "cleanup" not in stages or not any(
@@ -533,11 +800,15 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
             raise ValueError("Saved genuine Zombie Boss/Ghost positive UI filters were not proven")
     direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine") else None
     truck = audit_fresh_truck_filter(destination, proof, restoration) if mode == "mixed-eight" else None
+    railway = audit_fast_railway(destination, proof, restoration) if mode == "railway" else None
+    remote_railway = audit_remote_railway(destination, proof, restoration) if mode == "remote-railway" else None
     return dict(mode=mode, state="proven", proof=str(destination / "native-ui-map.json"),
                 ownedExit=str(destination / "owned-exit.json"), hostPid=restoration["hostPid"],
                 gamePid=restoration["gamePid"], sessionId=restoration["sessionId"],
                 **({"cameraFree": direct} if direct else {}),
-                **({"freshTruckFilter": truck} if truck else {}))
+                **({"freshTruckFilter": truck} if truck else {}),
+                **({"fastRailway": railway} if railway else {}),
+                **({"remoteRailway": remote_railway} if remote_railway else {}))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -547,14 +818,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--commit", required=True, help="Exact 40-character source commit used in the release")
     parser.add_argument("--mode", required=True, choices=sorted(MODES))
     parser.add_argument("--saved-db", help="Existing genuine completed scan DB for browse-new-kinds")
-    parser.add_argument("--allow-remote", action="store_true", help="Explicitly allow owned 2212->2213->2212 Auto test")
+    parser.add_argument("--allow-remote", action="store_true",
+                        help="Explicitly allow owned 2212->2213->2212 Resource or 2212->2211->2212 Railway Auto proof")
     parser.add_argument("--execute", action="store_true", help="Start the exact-owned app/game proof")
     args = parser.parse_args(argv)
     package = verify_package(require_artifact(args.zip, file=True),
                              require_artifact(args.extracted, file=False), args.commit)
     mode = MODES[args.mode]
     if mode.get("remote") and not args.allow_remote:
-        parser.error("remote-clear requires --allow-remote")
+        parser.error("remote proof requires --allow-remote")
     saved_db = require_artifact(args.saved_db, file=True) if args.saved_db else None
     if mode.get("requires_saved_db"):
         if saved_db is None or saved_db.name != "map-data.db":

@@ -136,6 +136,12 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
 
     internal object CreateStatus() => ApplyStatusOverlay(control.ScanState);
 
+    // A completed remote Auto scan may no longer be the live Map status after
+    // returning to the home server. Read the exact durable run for diagnostic
+    // provenance, independently of the current live status overlay.
+    internal Map317.MapScanRun? ReadPersistedScanRunForProof(string runId) =>
+        store.ReadScanRun(runId);
+
     internal bool IsScanActive => control.ScanState.IsReading;
 
     internal async Task<MapAutoScanRuntimeStatus> ReadAutoScanStatusAsync(

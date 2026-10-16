@@ -12,13 +12,6 @@ namespace LWBridge.Desktop;
 internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvider, Map317.IGhostPlunderProvider
 {
     private readonly CurrentClientMapBlockSource source;
-    private readonly object plunderGate = new();
-    private readonly Dictionary<string, CurrentClientDispatchPlunderPendingHandle> dispatchPending =
-        new(StringComparer.Ordinal);
-    private readonly Queue<Map317.DispatchPlunderResultEvent> dispatchImmediate = new();
-    private CurrentClientTruckPlunderPendingHandle? truckPending;
-    private readonly Queue<Map317.TruckPlunderResultEvent> truckImmediate = new();
-
     internal CurrentClientMap317ActionProvider(CurrentClientMapBlockSource source)
     {
         this.source = source ?? throw new ArgumentNullException(nameof(source));
@@ -95,276 +88,53 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         CancellationToken cancellationToken = default) =>
         ValueTask.FromException<JsonElement>(ProviderUnavailable("current-client Treasure claim provider is unavailable"));
 
-    public async ValueTask<Map317.DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(
-        JsonElement row,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            bool shared = await TranslateAsync(
-                () => source.ShareDispatchTaskToAllianceAsync(row, cancellationToken)).ConfigureAwait(false);
-            return new Map317.DispatchShareProviderResult(shared);
-        }
-        catch (Map317.BridgeCommandException)
-        {
-            // Exact 0.3.17 aggregates a protected-call error/timeout as a failed
-            // row. The provider only returns Shared=true after the current client
-            // observes ChatHeroDispatchShare.HandleMessage without errorCode.
-            return new Map317.DispatchShareProviderResult(false);
-        }
-    }
+    // Compatibility signatures remain on IMapActionProvider because historic
+    // consumers and the upgrade probe compile against this interface. Every
+    // retired operation rejects before reading game state or sending a command.
+    private static Map317.BridgeCommandException Retired() =>
+        new("FEATURE_REMOVED", "Automatic plunder, scheduling and alliance sharing were removed by the owner.");
+
+    public ValueTask<Map317.DispatchShareProviderResult> ShareDispatchTaskToAllianceAsync(
+        JsonElement row, CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<Map317.DispatchShareProviderResult>(Retired());
 
     public ValueTask<IReadOnlyList<JsonElement>> PrepareGhostPlunderTasksAsync(
-        IReadOnlyList<JsonElement> rows,
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        try { return ValueTask.FromResult(PrepareGhostPlunderRows(rows)); }
-        catch (InvalidDataException error)
-        {
-            return ValueTask.FromException<IReadOnlyList<JsonElement>>(
-                new Map317.BridgeCommandException("INVALID_REQUEST", error.Message));
-        }
-    }
+        IReadOnlyList<JsonElement> rows, CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<JsonElement>>(Retired());
 
+    public ValueTask<Map317.MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<Map317.MapPlunderServerDayProviderResult?>(Retired());
 
-    internal static IReadOnlyList<JsonElement> PrepareGhostPlunderRows(IReadOnlyList<JsonElement> rows)
-    {
-        ArgumentNullException.ThrowIfNull(rows);
-        if (rows.Count is < 1 or > 200)
-            throw new InvalidDataException("Select between 1 and 200 Ghost tasks.");
-        var prepared = new JsonElement[rows.Count];
-        var identities = new HashSet<string>(StringComparer.Ordinal);
-        for (int index = 0; index < rows.Count; index++)
-        {
-            JsonElement row = rows[index];
-            if (row.ValueKind != JsonValueKind.Object ||
-                ReadText(row, "taskKind") != "ghost" ||
-                ReadText(row, "kind") != "ghost" ||
-                ReadInteger(row, "pointType") != 29 ||
-                !ReadText(row, "runtimeClass").EndsWith("GhostreconPointInfo", StringComparison.Ordinal))
-                throw new InvalidDataException("Ghost plunder requires a supported GhostreconPointInfo scan row.");
-            string uuid = ReadText(row, "uuid");
-            // GhostReconSteal serializes this identity as a signed PutLong.
-            // Accepting an arbitrarily large decimal string here would display
-            // a prepared task that the native request cannot represent.
-            if (!IsPositiveInt64(uuid))
-                throw new InvalidDataException("Ghost plunder row contains invalid task UUID.");
-
-            long serverId = ReadInteger(row, "serverId");
-            long ownerServer = ReadInteger(row, "ownerServer");
-            long completionTime = ReadInteger(row, "completionTime");
-            long protectSeconds = ReadInteger(row, "protectTime");
-            long plunderAt = ReadInteger(row, "plunderAt");
-            long taskExpireTime = ReadInteger(row, "taskExpireTime");
-            long stealListCount = ReadInteger(row, "stealListCount");
-            long stealMaxTimes = ReadInteger(row, "stealMaxTimes");
-            long stolenCount = ReadInteger(row, "stolenCount");
-            long maxStealCount = ReadInteger(row, "maxStealCount");
-
-            if (serverId is < 1 or > 99999 || !identities.Add($"{serverId}:{uuid}") ||
-                ownerServer is < 1 or > 99999 || completionTime <= 0 || protectSeconds < 0 ||
-                protectSeconds > (long.MaxValue - completionTime) / 1000L ||
-                stealListCount < 0 || stealMaxTimes < 0 ||
-                stolenCount != stealListCount || maxStealCount != stealMaxTimes)
-            {
-                throw new InvalidDataException("Ghost plunder row is not a source-backed current-v22 task projection.");
-            }
-
-            long earliestPlunderAt = checked(completionTime + protectSeconds * 1000L);
-            if (plunderAt < earliestPlunderAt ||
-                (taskExpireTime > 0 && plunderAt >= taskExpireTime) ||
-                (stealMaxTimes > 0 && stealListCount >= stealMaxTimes))
-                throw new InvalidDataException("Ghost plunder row contains invalid protection/expiry timing.");
-
-            prepared[index] = row.Clone();
-        }
-        return prepared;
-    }
-
-    public async ValueTask<Map317.MapPlunderServerDayProviderResult?> GetMapPlunderServerDayStartAsync(
-        CancellationToken cancellationToken = default)
-    {
-        CurrentClientMapPlunderServerDayResult result = await TranslateAsync(
-            () => source.GetMapPlunderServerDayStartAsync(cancellationToken)).ConfigureAwait(false);
-        return new Map317.MapPlunderServerDayProviderResult(result.ServerTime, result.ServerDayStartAt);
-    }
-
-    public async ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmDispatchPlunderAsync(
-        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(jobs);
-        var results = new Map317.DispatchPlunderArmResult[jobs.Count];
-        var toArm = new List<(int Index, Map317.DispatchPlunderArmJob Job)>();
-        lock (plunderGate)
-        {
-            for (int index = 0; index < jobs.Count; index++)
-            {
-                Map317.DispatchPlunderArmJob job = jobs[index];
-                if (dispatchPending.TryGetValue(DispatchKey(job.Kind, job.ServerId, job.TaskUuid),
-                        out CurrentClientDispatchPlunderPendingHandle? existing))
-                    results[index] = new Map317.DispatchPlunderArmResult(
-                        job.Kind, job.ServerId, job.TaskUuid, true,
-                        AttemptId: existing.RequestId, LaunchSessionId: existing.Session.SessionId);
-                else
-                    toArm.Add((index, job));
-            }
-        }
-
-        if (toArm.Count > 0)
-        {
-            IReadOnlyList<CurrentClientDispatchPlunderArmOutcome> outcomes = await TranslateAsync(
-                () => source.ArmDispatchPlunderBatchAsync(
-                    toArm.Select(item => item.Job).ToArray(), cancellationToken)).ConfigureAwait(false);
-            if (outcomes.Count != toArm.Count)
-                throw new Map317.BridgeCommandException("GAME_PROVIDER_ERROR", "dispatch arm result count mismatch");
-
-            lock (plunderGate)
-            {
-                for (int offset = 0; offset < outcomes.Count; offset++)
-                {
-                    (int index, Map317.DispatchPlunderArmJob job) = toArm[offset];
-                    CurrentClientDispatchPlunderArmOutcome outcome = outcomes[offset];
-                    results[index] = outcome.Result;
-                    if (outcome.Pending is not null)
-                        dispatchPending[DispatchKey(job.Kind, job.ServerId, job.TaskUuid)] = outcome.Pending;
-                    if (outcome.ImmediateResult is not null)
-                        dispatchImmediate.Enqueue(outcome.ImmediateResult);
-                }
-            }
-        }
-        return results;
-    }
+    public ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmDispatchPlunderAsync(
+        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(Retired());
 
     public ValueTask<IReadOnlyList<Map317.DispatchPlunderArmResult>> ArmGhostPlunderAsync(
-        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs,
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        if (jobs is null || jobs.Count is < 1 or > 200 ||
-            jobs.Any(job => job is null || job.Kind != "ghost" || job.ServerId is < 1 or > 99999 ||
-                job.OwnerServer is < 1 or > 99999 || !IsPositiveInt64(job.TaskUuid) || job.ExecuteAt <= 0) ||
-            jobs.Select(job => (job.ServerId, job.TaskUuid)).Distinct().Count() != jobs.Count)
-            return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
-                new Map317.BridgeCommandException("INVALID_REQUEST", "dedicated Ghost arm identity invalid"));
-        return ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(
-            new Map317.BridgeCommandException("GHOST_PLUNDER_PROVIDER_UNAVAILABLE",
-                "current-client Ghost game request and correlated terminal response have not been confirmed"));
-    }
+        IReadOnlyList<Map317.DispatchPlunderArmJob> jobs, CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderArmResult>>(Retired());
 
-    public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        return ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>([]);
-    }
-
-    public async ValueTask<Map317.TruckPlunderArmResult> ArmTruckPlunderAsync(
-        Map317.TruckPlunderArmJob job,
-        CancellationToken cancellationToken = default)
-    {
-        lock (plunderGate)
-        {
-            if (truckPending is not null &&
-                truckPending.Job.ServerId == job.ServerId &&
-                string.Equals(truckPending.Job.TrainUuid, job.TrainUuid, StringComparison.Ordinal) &&
-                string.Equals(truckPending.Job.JobId, job.JobId, StringComparison.Ordinal))
-                return new Map317.TruckPlunderArmResult(true,
-                    AttemptId: truckPending.RequestId,
-                    LaunchSessionId: truckPending.Session.SessionId);
-        }
-
-        CurrentClientTruckPlunderArmOutcome outcome = await TranslateAsync(
-            () => source.ArmTruckPlunderAsync(job, cancellationToken)).ConfigureAwait(false);
-        lock (plunderGate)
-        {
-            if (outcome.Pending is not null) truckPending = outcome.Pending;
-            if (outcome.ImmediateResult is not null) truckImmediate.Enqueue(outcome.ImmediateResult);
-        }
-        return outcome.Result;
-    }
+    public ValueTask<Map317.TruckPlunderArmResult> ArmTruckPlunderAsync(
+        Map317.TruckPlunderArmJob job, CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<Map317.TruckPlunderArmResult>(Retired());
 
     public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainDispatchPlunderResultsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var results = new List<Map317.DispatchPlunderResultEvent>();
-        CurrentClientDispatchPlunderPendingHandle[] snapshot;
-        lock (plunderGate)
-        {
-            while (dispatchImmediate.Count > 0) results.Add(dispatchImmediate.Dequeue());
-            snapshot = dispatchPending.Values.ToArray();
-        }
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(Retired());
 
-        foreach (CurrentClientDispatchPlunderPendingHandle handle in snapshot)
-        {
-            Map317.DispatchPlunderResultEvent? terminal = Translate(
-                () => source.TryDrainDispatchPlunderResult(handle));
-            if (terminal is null) continue;
-            results.Add(terminal);
-            lock (plunderGate)
-            {
-                string key = DispatchKey(handle.Job.Kind, handle.Job.ServerId, handle.Job.TaskUuid);
-                if (dispatchPending.TryGetValue(key, out CurrentClientDispatchPlunderPendingHandle? current) &&
-                    current == handle)
-                    dispatchPending.Remove(key);
-            }
-        }
-        return ValueTask.FromResult<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(results);
-    }
+    public ValueTask<IReadOnlyList<Map317.DispatchPlunderResultEvent>> DrainGhostPlunderResultsAsync(
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<Map317.DispatchPlunderResultEvent>>(Retired());
 
     public ValueTask<IReadOnlyList<Map317.TruckPlunderResultEvent>> DrainTruckPlunderResultsAsync(
-        CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var results = new List<Map317.TruckPlunderResultEvent>();
-        CurrentClientTruckPlunderPendingHandle? handle;
-        lock (plunderGate)
-        {
-            while (truckImmediate.Count > 0) results.Add(truckImmediate.Dequeue());
-            handle = truckPending;
-        }
-        if (handle is not null)
-        {
-            Map317.TruckPlunderResultEvent? terminal = Translate(
-                () => source.TryDrainTruckPlunderResult(handle));
-            if (terminal is not null)
-            {
-                results.Add(terminal);
-                lock (plunderGate)
-                {
-                    if (truckPending == handle) truckPending = null;
-                }
-            }
-        }
-        return ValueTask.FromResult<IReadOnlyList<Map317.TruckPlunderResultEvent>>(results);
-    }
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromException<IReadOnlyList<Map317.TruckPlunderResultEvent>>(Retired());
 
-    public async ValueTask ClearTruckPlunderPendingAsync(
-        int serverId,
-        string trainUuid,
-        string jobId,
-        CancellationToken cancellationToken = default)
-    {
-        CurrentClientTruckPlunderPendingHandle? handle;
-        lock (plunderGate)
-        {
-            handle = truckPending;
-            if (handle is null || handle.Job.ServerId != serverId ||
-                !string.Equals(handle.Job.TrainUuid, trainUuid, StringComparison.Ordinal) ||
-                !string.Equals(handle.Job.JobId, jobId, StringComparison.Ordinal))
-                return;
-        }
-        await TranslateAsync(() => source.ClearTruckPlunderPendingAsync(handle, cancellationToken)).ConfigureAwait(false);
-        lock (plunderGate)
-        {
-            if (truckPending == handle) truckPending = null;
-        }
-    }
+    public ValueTask ClearTruckPlunderPendingAsync(
+        int serverId, string trainUuid, string jobId,
+        CancellationToken cancellationToken = default) =>
+        ValueTask.FromException(Retired());
 
-    private static string DispatchKey(string kind, int serverId, string taskUuid) =>
-        kind + ":" + serverId.ToString(CultureInfo.InvariantCulture) + ":" + taskUuid;
 
     private static CurrentClientTreasureInspectionRecord ToTreasureRecord(int expectedServerId, JsonElement row)
     {
@@ -431,23 +201,6 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
         }
     }
 
-    private static T Translate<T>(Func<T> action)
-    {
-        try { return action(); }
-        catch (BridgeCommandException error)
-        {
-            throw new Map317.BridgeCommandException(error.Code, error.Message, error.Details);
-        }
-        catch (TimeoutException error)
-        {
-            throw new Map317.BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", error.Message);
-        }
-        catch (InvalidDataException error)
-        {
-            throw new Map317.BridgeCommandException("GAME_PROVIDER_ERROR", error.Message);
-        }
-    }
-
     private static Map317.BridgeCommandException ProviderUnavailable(string message) =>
         new("GAME_PROVIDER_UNAVAILABLE", message);
 
@@ -458,9 +211,6 @@ internal sealed class CurrentClientMap317ActionProvider : Map317.IMapActionProvi
     }
 
     private static long ReadInteger(JsonElement row, string name) => ReadNullableInteger(row, name) ?? 0;
-
-    private static bool IsPositiveInt64(string? value) =>
-        long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out long parsed) && parsed > 0;
 
     private static long? ReadNullableInteger(JsonElement row, string name)
     {

@@ -64,6 +64,12 @@ internal static class Map016DataChecks
                 serverId = 9999, uuid = "duplicate-uuid", ownerUid = "same-owner",
                 completionTime = 7_000_000_000_000L, x = 10, y = 20,
             });
+            Put("ghost", 5, new
+            {
+                serverId = 9999, uuid = "duplicate-uuid", ownerUid = "same-owner",
+                completionTime = 7_000_000_000_000L, x = 10, y = 20,
+                rewards = new[] { new { key = "reward:1:100", name = "Gold", count = 5 } },
+            });
         }
         store.SetPlayerMark(new(2213, "same-owner", "active", 1, null, "{}"), true);
     }
@@ -130,6 +136,20 @@ internal static class Map016DataChecks
             options.GetProperty("names").GetProperty("resource").GetArrayLength() == 2 &&
             options.GetProperty("dispatchLevels").EnumerateArray().Select(x => x.GetInt32()).SequenceEqual(new[] { 4, 6 }),
             "aggregate filter options/counts did not include exactly the saved positive servers");
+        Require(options.GetProperty("rewardItems").GetProperty("ghost")[0].GetProperty("taskCount").GetInt32() == 2,
+            "aggregate Ghost reward task count collapsed same-key tasks from different servers");
+        foreach (long overflow in new[] { 2_147_483_648L, long.MaxValue })
+        {
+            try
+            {
+                await Invoke(service, "map_data_options", new { serverId = overflow });
+                throw new InvalidOperationException("overflow server unexpectedly loaded options");
+            }
+            catch (BridgeCommandException error)
+            {
+                Require(error.Code == "INVALID_SERVER_ID", "overflow server did not fail before aggregate options");
+            }
+        }
         JsonElement remote = rows[0];
         await Invoke(service, "map_coordinate_jump", new { serverId = remote.GetProperty("serverId").GetInt32(),
             x = remote.GetProperty("x").GetInt32(), y = remote.GetProperty("y").GetInt32() });

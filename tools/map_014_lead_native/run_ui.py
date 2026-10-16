@@ -225,8 +225,8 @@ def admit():
 
 
 def main():
-    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-reuse", "track", "expiry", "city", "other", "mixed", "all-nontruck", "truck", "all-nine", "truck-stop"):
-        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-reuse|track|expiry|city|other|mixed|all-nontruck")
+    if len(sys.argv) not in (2, 4) or sys.argv[1] not in ("browse", "remote", "remote-railway", "remote-reuse", "track", "expiry", "city", "other", "railway", "mixed", "all-nontruck", "truck", "all-nine", "truck-stop"):
+        raise SystemExit("usage: python tools/map_014_lead_native/run_ui.py browse|remote|remote-railway|remote-reuse|track|expiry|city|other|railway|mixed|all-nontruck|truck|all-nine|truck-stop")
     mode = sys.argv[1]
     saved_db = None
     if len(sys.argv) == 4:
@@ -272,11 +272,12 @@ def main():
     publish = Path(os.environ["LWBRIDGE_MAP014_UI_EXE"]).resolve(strict=True) if os.environ.get("LWBRIDGE_MAP014_UI_EXE") else ROOT / "artifacts/map014-takeover/publish/LWBridge.Desktop.exe"
     proof = destination / "native-ui-map.json"
     environment = dict(os.environ, LWBRIDGE_MAP014_NATIVE_UI="1",
-                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "all-nontruck", "truck", "all-nine", "truck-stop") else "",
+                       LWBRIDGE_MAP014_SELECTION_UI=mode if mode in ("city", "other", "railway", "all-nontruck", "truck", "all-nine", "truck-stop") else "",
                        LWBRIDGE_MAP014_BROWSE_ONLY="1" if mode in ("browse", "track", "expiry") else "0",
-                       LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse") else "0",
-                       LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse") else "0",
+                       LWBRIDGE_MAP014_REMOTE_UI="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
+                       LWBRIDGE_MAP014_REMOTE_SAVED_HOME="1" if mode in ("remote","remote-reuse","remote-railway") else "0",
                        LWBRIDGE_MAP014_REMOTE_REUSE="1" if mode == "remote-reuse" else "0",
+                       LWBRIDGE_MAP016_REMOTE_RAILWAY="1" if mode == "remote-railway" else "0",
                        LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0",
                        LWBRIDGE_MAP014_EXPIRY_UI="1" if mode == "expiry" else "0")
     startup = subprocess.STARTUPINFO()
@@ -291,7 +292,7 @@ def main():
         "pid": owned.pid, "publish": str(publish), "source": str(source)
     }, indent=2), encoding="utf-8")
     print(f"MAP014_OWNED_UI_PID={owned.pid} ROOT={destination}", flush=True)
-    deadline = time.monotonic() + (1200 if mode == "remote" else 900)
+    deadline = time.monotonic() + (1200 if mode in ("remote", "remote-railway") else 900)
     while owned.poll() is None:
         if time.monotonic() >= deadline:
             raise TimeoutError(f"Owned app PID {owned.pid} exceeded proof bound; inspect exact owner before cleanup")

@@ -740,7 +740,9 @@ export function MapDataPage({
         if (tab === "treasure") setTreasureStatesRefreshing(false);
         setRows([]);
         setTotal(0);
-        // Recovered rr logs search rejection without adding a visible query-error banner.
+        // An aggregate Saved-server query can fail independently of its cached
+        // options. Surface the real rejection instead of claiming zero rows.
+        setQueryError(errorText(error));
       }
     }).finally(() => {
       if (generation === searchGeneration.current && mountedOwnerRef.current) setLoading(false);

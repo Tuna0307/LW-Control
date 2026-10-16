@@ -83,7 +83,9 @@ def excluded_non_target_runtime(relative: Path) -> bool:
     return relative.as_posix() in NON_TARGET_RUNTIME_FILES
 
 
-def create() -> dict:
+def create(label: str = 'MAP014') -> dict:
+    if label not in ('MAP014', 'MAP016'):
+        raise ValueError('Unsupported review work-item label')
     sha_commit = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT,
                                 capture_output=True, text=True, check=True).stdout.strip()
     if len(sha_commit) != 40 or not all(char in '0123456789abcdef' for char in sha_commit):
@@ -123,9 +125,9 @@ def create() -> dict:
         raise ValueError(f'Unexpected publish manifest length: {len(included)}')
 
     short = sha_commit[:12]
-    destination = ROOT / 'artifacts' / f'release-map014-{short[:8]}'
+    destination = ROOT / 'artifacts' / f'release-{label.lower()}-{short[:8]}'
     destination.mkdir(parents=True, exist_ok=True)
-    package = destination / f'LW-Control-MAP014-OWNER-RC-{short}.zip'
+    package = destination / f'LW-Control-{label}-OWNER-RC-{short}.zip'
     if package.exists():
         raise FileExistsError(f'The one final candidate already exists: {package}')
     temporary = package.with_suffix('.zip.staging')
@@ -172,5 +174,6 @@ def create() -> dict:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.parse_args()
-    print(json.dumps(create(), indent=2))
+    parser.add_argument('--label', choices=('MAP014', 'MAP016'), default='MAP014')
+    args = parser.parse_args()
+    print(json.dumps(create(args.label), indent=2))

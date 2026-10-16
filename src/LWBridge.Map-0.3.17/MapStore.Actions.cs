@@ -70,9 +70,6 @@ public sealed partial class MapStore
         }
     }
 
-    public IReadOnlyList<JsonElement> ReadDispatchPlunderJobs() => ReadPlunderJobs().DispatchJobs;
-    public IReadOnlyList<JsonElement> ReadTruckPlunderJobs() => ReadPlunderJobs().TruckJobs;
-
     private static IReadOnlyList<JsonElement> ReadJsonRows(SqliteCommand command)
     {
         using SqliteDataReader reader = command.ExecuteReader();
