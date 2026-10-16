@@ -1,3 +1,10 @@
+Latest lead assignment, 2026-10-17: Map tab COMPLETE for owner scope (MAP-017 merged,
+c43c689f, PR #13). Worker now completes docs/work-items/LWB317-FEATURE-RECOVERY-018.md
+(City Layout, Hotkeys, Mini Games) on codex/feature-recovery-018 / new draft PR.
+Owner granted in-game action authority on the sub-account: read
+docs/OWNER_DIRECTION_SUB_ACCOUNT_ACTIONS_2026-10-17.md; it supersedes older no-claims/
+plunder/sharing/attack/march/spending/relocation limits for that account only.
+
 Latest lead audit, 2026-10-17: MAP-017 d788b797 (draft PR #13) ACCEPTED pending owner
 test; on owner pass, merge and mark Map tab complete for owner scope. See
 docs/reviews/2026-10-17-MAP-017-LEAD-AUDIT.md. No worker task open.
