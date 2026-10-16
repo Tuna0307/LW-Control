@@ -63,12 +63,10 @@ internal sealed partial class CurrentClientMapBlockSource
             RequireSameSession(session);
         }
 
-        // Direct LOD0 AOI requests do not move the camera and have no native
-        // startup settle dependency. Retain the existing per-session 3-second
-        // settle before every camera-based first acquisition, including when
-        // a direct-first attempt has to fall back to the camera scanner.
+        // Fast Truck and direct LOD0 AOI requests leave the physical camera
+        // untouched. Truck begins after a startup settle to avoid an in-flight
+        // scene transition while sampling ephemeral march pushes.
         bool directFirst = pendingBlockIndices.Count == 2500 && seedBlock.BlockIndex == 0 &&
-            !request.SelectedTypes.Contains("truck", StringComparer.Ordinal) &&
             hooks?.ForceLegacyFullWorldLens != true &&
             hooks?.ExperimentalBoundedCameraLens != true &&
             !(IsZombieBossOnly(request) && hooks?.UseCoarseZombieBossMap == true &&
@@ -96,15 +94,25 @@ internal sealed partial class CurrentClientMapBlockSource
                     return await CaptureFullMonsterMapViaCoarseLodAsync(
                         session, request, pendingBlockIndices, progress, cancellationToken).ConfigureAwait(false);
                 }
-                // The same-server AOI request route is the normal full-world source for
-                // selections without Trucks. A correlated failure or zero accepted
-                // records falls back to the proven camera route for this same run.
+                // Truck uses an independently owned 625-rectangle sweep before
+                // the static AOI capture; failures retry via the camera route.
+                // Mixed scans merge typed Truck rows with the normal direct
+                // point/march source only after BOTH native receipts qualify.
                 if (directFirst)
                 {
                     try
                     {
+                        IReadOnlyList<FastTrainPrepared>? fastTrucks = null;
+                        if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
+                        {
+                            await EnsureFastCityStartupSettledAsync(session, cancellationToken).ConfigureAwait(false);
+                            fastTrucks = await CaptureFastTruckRowsAsync(session, request, cancellationToken)
+                                .ConfigureAwait(false);
+                            if (request.SelectedTypes.Count == 1)
+                                return ProjectFastTruckOnly(request, pendingBlockIndices, fastTrucks, progress);
+                        }
                         return await CaptureCameraFreeMapAsync(
-                            session, request, pendingBlockIndices, progress, cancellationToken)
+                            session, request, pendingBlockIndices, progress, cancellationToken, fastTrucks)
                             .ConfigureAwait(false);
                     }
                     catch (Exception error) when (error is TimeoutException or InvalidDataException or IOException or UnauthorizedAccessException ||

@@ -595,18 +595,22 @@ if (benchmarking)
             if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
                 throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
             var summary=await Call("map_summary",new{});
-            if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
-            using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
-            JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
-            if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
-                nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
-                provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
-                provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
-                provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
-                throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
-            File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
+            bool nativeFastTruck = sourceMethod == "direct" && workload == "truck";
+            if (!nativeFastTruck)
+            {
+                if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
+                using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
+                JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
+                if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
+                    nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
+                    provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
+                    provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
+                    provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
+                    throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
+                File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
+            }
             JsonElement? directEvidence = null;
-            string directEvidencePath = Path.Combine(probe,"camera-free-scan-result.json");
+            string directEvidencePath = Path.Combine(probe,nativeFastTruck ? "fast-truck-scan-result.json" : "camera-free-scan-result.json");
             if (sourceMethod == "direct" && File.Exists(directEvidencePath))
             {
                 using var directDocument = JsonDocument.Parse(File.ReadAllText(directEvidencePath));
@@ -617,6 +621,13 @@ if (benchmarking)
             string effectiveMethod = sourceMethod != "direct" ? sourceMethod :
                 directEvidence is JsonElement evidence && evidence.TryGetProperty("state",out var stateValue) &&
                 stateValue.GetString() == "proven" ? "direct" : "camera-fallback";
+            if (nativeFastTruck && (effectiveMethod != "direct" ||
+                directEvidence is not JsonElement truckReceipt ||
+                truckReceipt.GetProperty("pushesObserved").GetInt32() != 625 ||
+                truckReceipt.GetProperty("requestsSent").GetInt32() != 625 ||
+                truckReceipt.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
+                truckReceipt.GetProperty("curViewRestored").ValueKind != JsonValueKind.True))
+                throw new InvalidDataException("Benchmark did not qualify genuine 625-push native fast Truck acquisition.");
             measurements.Add(new{round,method=sourceMethod,effectiveMethod,
                 directEvidenceState=directEvidence is JsonElement sourceState && sourceState.TryGetProperty("state",out var stateProperty) ? stateProperty.GetString() : null,
                 directEvidenceError=directEvidence is JsonElement sourceError && sourceError.TryGetProperty("error",out var errorProperty) && errorProperty.ValueKind==JsonValueKind.String ? errorProperty.GetString() : null,

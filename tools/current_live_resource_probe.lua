@@ -3641,7 +3641,7 @@ function M._map014MarchSourceSnapshot(world)
     }
 end
 
-local function train_march_aoi_records(world, block_size, block_count, selected_lookup)
+local function train_march_aoi_records(world, block_size, block_count, selected_lookup, already_seen)
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
         local ok_manager, value = call(world, "get_MarchDataManager")
@@ -3651,6 +3651,12 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
     local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
     if not ok_all or collection == nil then collection = reflected_value(march_manager, "allMarches") end
     if collection == nil then return nil, "WorldMarchDataManager.allMarches unavailable" end
+    -- R2's fully observed 20/s fixture took a fresh GetAllMarchesByCS
+    -- enumerator every frame. The _logMarchUuids1 dictionary is NOT a
+    -- correlated reply payload: using its historic keys mistakenly surfaced
+    -- ~1,000 typed entries where the live R2 dictionary saw ~100. Do the
+    -- same native current-dictionary enumeration as the camera builder and
+    -- reject already captured UUIDs before any expensive metadata lookup.
     local ok_enum, enumerator = call(collection, "GetEnumerator")
     if not ok_enum or enumerator == nil then return nil, "march_enumerator_unavailable" end
     local records, scanned = {}, 0
@@ -3662,7 +3668,20 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
         local pair = safe_get(enumerator, "Current")
         local march = pair and (safe_get(pair, "Value") or pair) or nil
         local train = march and safe_get(march, "train") or nil
-        if train ~= nil then
+        local train_type_hint = train and integer_field(train, { "type", "Type" }) or nil
+        if train ~= nil and train_type_hint == nil then
+            local hint = scalar_field(train, { "type", "Type" })
+            if hint ~= nil then train_type_hint = tonumber(tostring(hint):match(":%s*(-?%d+)%s*$")) end
+        end
+        -- The fast Truck lane revisits this dictionary on every response
+        -- frame. Reject UUIDs already captured *before* expensive position,
+        -- DataCenter TrainData and reward reflection (even if their current
+        -- position has moved into another rectangle).
+        -- train.type is authoritative here: type 2 Railway remains on the
+        -- Railway route, and must never be hydrated as a Truck candidate.
+        if train ~= nil and (already_seen == nil or train_type_hint == 1) and
+            (already_seen == nil or not already_seen[
+            tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")]) then
             local ok_index, position_index = call(march, "GetMarchCurPosIndex")
             local index = ok_index and tonumber(position_index) or nil
             if index == nil or index <= 0 then index = integer_field(march, { "targetPos", "TargetPos" }) end
@@ -3671,9 +3690,11 @@ local function train_march_aoi_records(world, block_size, block_count, selected_
                 local cell_x = math.floor(tile.x / block_size)
                 local cell_y = math.floor(tile.y / block_size)
                 local aoi_index = cell_y * block_count + cell_x
-                if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and selected_lookup[aoi_index] == true then
+                local march_id = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+                if cell_x >= 0 and cell_y >= 0 and cell_x < block_count and cell_y < block_count and
+                   selected_lookup[aoi_index] == true and (already_seen == nil or not already_seen[march_id]) then
                     local config = safe_get(train, "config")
-                    local march_uuid = tostring(scalar_field(march, { "uuid", "Uuid", "_uuid" }) or "")
+                    local march_uuid = march_id
                     local raw_train_data = safe_get(train, "trainData")
                     local train_data = nil
                     local data_center = rawget(_G, "DataCenter")
@@ -7129,6 +7150,201 @@ function train_list_runtime.pump(now)
     return true
 end
 
+-- MAP-015 R3: each 40x40-tile rectangle returns a transient march push.
+-- Read the game's actual train marches on every update frame before that push
+-- can be overwritten. Reuse the production train_march_aoi_records builder;
+-- its train.type is the sole Truck/Railway discriminator.
+M._map015FastTruck = {
+    path = root .. [[\fast-truck-scan.txt]],
+    resultPath = root .. [[\fast-truck-scan-result.json]],
+    startedPath = root .. [[\fast-truck-scan-started.json]],
+    cancelPath = root .. [[\fast-truck-scan-cancel.txt]], active = nil,
+}
+
+function M._map015FastTruck.finish(reason)
+    local lane, s = M._map015FastTruck, M._map015FastTruck.active
+    if s == nil then return end
+    lane.active = nil
+    local restored = s.current ~= nil
+    if restored then
+        for _, index in ipairs(s.added) do
+            if not select(1, call(s.current, "Remove", s.int32.Parse(tostring(index)))) then restored = false end
+        end
+        local actual = select(1, collection_int_values(s.current, 10001))
+        if actual == nil or #actual ~= s.originalCount then restored = false
+        else for _, index in ipairs(actual) do if not s.original[index] then restored = false end end end
+    end
+    if s.manager ~= nil and s.originalReplyFlag ~= nil and
+       not reflected_set_value(s.manager, "isRecvViewPoints", s.originalReplyFlag) then restored = false end
+    if s.world ~= nil and s.originalWorldReplyFlag ~= nil and
+       not reflected_set_value(s.world, "hasReceiveViewPointsReply", s.originalWorldReplyFlag) then restored = false end
+    local tile = s.world and safe_get(s.world, "CurTilePosClamped")
+    local x = tonumber(tile and (safe_get(tile, "x") or safe_get(tile, "X")))
+    local y = tonumber(tile and (safe_get(tile, "y") or safe_get(tile, "Y")))
+    local stable = x == s.originalX and y == s.originalY
+    local proven = reason == nil and restored and stable and s.sent == 625 and s.pushes == 625 and #s.records > 0
+    write_json(lane.resultPath, {
+        schemaVersion = 1, probeVersion = M.VERSION, requestId = s.requestId,
+        profileId = s.profileId, launchSessionId = s.launchSessionId,
+        challenge = s.challenge, gamePid = s.gamePid, scanRunId = s.scanRunId,
+        serverId = s.serverId, worldId = 0, state = proven and "proven" or "failed",
+        error = reason or (not restored and "cur_view_restore_failed") or
+            (not stable and "camera_tile_changed") or
+            (s.pushes ~= 625 and "lost_march_push") or (#s.records == 0 and "zero_train_rows") or nil,
+        cameraStable = stable, curViewRestored = restored, requestsSent = s.sent,
+        pushesObserved = s.pushes, rectanglesCompleted = s.pushes,
+        trainRecords = proven and s.records or {}, trainRecordCount = #s.records,
+        requestsPerSecond = s.rate,
+        logMarchUuidCount = s.logSeenCount, elapsedSeconds = runtime_clock() - s.startedAt,
+        captureSeconds = s.captureSeconds or 0, replyWaitSeconds = s.replyWaitSeconds or 0,
+        capturedAt = os.date("!%Y-%m-%dT%H:%M:%SZ", os.time()),
+    })
+end
+
+function M._map015FastTruck.pump(now)
+    local lane, s = M._map015FastTruck, M._map015FastTruck.active
+    if s == nil then
+        local values = read_kv_file(lane.path, 4096)
+        if values == nil then return false end
+        pcall(os.remove, lane.path)
+        local owner = M._sharedRuntimeOwnership.pumpIdentity
+        if owner == nil or values.schema ~= "1" or values.probeVersion ~= M.VERSION or
+           values.profileId ~= owner.profileId or values.launchSessionId ~= owner.sessionId or
+           values.challenge ~= owner.challenge or tonumber(values.gamePid) ~= owner.gamePid or
+           not valid_token(tostring(values.requestId or "")) or
+           not valid_token(tostring(values.scanRunId or "")) then return true end
+        local world, manager = runtime_world()
+        local server = tonumber(values.serverId)
+        local current = manager and reflected_value(manager, "_curViewIndex")
+        local marchManager = world and safe_get(world, "MarchDataManager")
+        if world == nil or current == nil or marchManager == nil or server ~= current_server_id() then
+            return true -- the managed owner times out; never mutate an unready scene
+        end
+        local before = select(1, collection_int_values(current, 10001))
+        local tile = safe_get(world, "CurTilePosClamped")
+        if before == nil or tile == nil then return true end
+        local original = {}
+        for _, index in ipairs(before) do original[index] = true end
+        local whole_world = {}
+        for index = 0, 9999 do whole_world[index] = true end
+        s = {
+            requestId = values.requestId, profileId = values.profileId,
+            launchSessionId = values.launchSessionId, challenge = values.challenge,
+            gamePid = tonumber(values.gamePid), scanRunId = values.scanRunId,
+            serverId = server, world = world, manager = manager, marchManager = marchManager,
+            current = current, original = original, originalCount = #before,
+            originalReplyFlag = reflected_value(manager, "isRecvViewPoints"),
+            originalWorldReplyFlag = reflected_value(world, "hasReceiveViewPointsReply"),
+            originalX = tonumber(safe_get(tile, "x") or safe_get(tile, "X")),
+            originalY = tonumber(safe_get(tile, "y") or safe_get(tile, "Y")),
+            int32 = CS.System.Int32, added = {}, addedSet = {}, seen = {}, records = {},
+            wholeWorld = whole_world,
+            logSeenCount = 0, next = 0, sent = 0, pushes = 0,
+            pending = nil, startedAt = runtime_clock(), lastSend = -1,
+            rate = values.rate == "15" and 15 or 20,
+            interval = values.rate == "15" and 1 / 15 or 1 / 20,
+        }
+        lane.active = s
+        pcall(os.remove, lane.cancelPath)
+        pcall(os.remove, lane.startedPath)
+    end
+    local cancel = read_kv_file(lane.cancelPath, 1024)
+    if cancel ~= nil and cancel.requestId == s.requestId then
+        pcall(os.remove, lane.cancelPath)
+        M._map015FastTruck.finish("cancelled")
+        return true
+    end
+    if current_server_id() ~= s.serverId then M._map015FastTruck.finish("server_changed"); return true end
+    -- _logMarchUuids1 accumulates thousands of historical UUIDs. Inspect its
+    -- passive count at most once every five seconds: enumerating its entire
+    -- dictionary on EVERY frame was measured at only 435 pushes/100 seconds.
+    if s.nextLogSample == nil or runtime_clock() >= s.nextLogSample then
+        local log = reflected_value(s.marchManager, "_logMarchUuids1")
+        s.logSeenCount = log and (collection_count(log) or s.logSeenCount) or s.logSeenCount
+        s.nextLogSample = runtime_clock() + 5
+    end
+    local stamp = tostring(reflected_value(s.marchManager, "_lastGetBlockMsgTime"))
+    if s.sent > 0 then
+        local new_push = stamp ~= s.lastPushStamp
+        if new_push and s.pushes >= s.sent then
+            M._map015FastTruck.finish("unexpected_march_push"); return true
+        end
+            -- This native builder is the same one used by the camera route.
+            -- Capture on every response frame. Requests are sent at a bounded
+            -- 20/s (15/s retry) without waiting for an ACK; R2 measured all
+            -- 625 native pushes at this send rate. The native march dictionary
+            -- is source-owned, and every returned position is checked against
+            -- the entire world rather than guessed from an asynchronous reply
+            -- order or a point-only AOI: moving marches can cross rectangles.
+            if new_push then
+                s.replyWaitSeconds = (s.replyWaitSeconds or 0) + runtime_clock() - s.lastSend
+            end
+            local capturedAt = runtime_clock()
+            local rows, err = train_march_aoi_records(s.world, 10, 100, s.wholeWorld, s.seen)
+            s.captureSeconds = (s.captureSeconds or 0) + runtime_clock() - capturedAt
+            if rows == nil then M._map015FastTruck.finish("train_" .. tostring(err)); return true end
+            for _, row in ipairs(rows) do
+                if row.uuid ~= "" and row.trainType == 1 then
+                    s.seen[row.uuid] = true
+                    s.records[#s.records + 1] = row
+                end
+            end
+            if new_push then
+                s.pushes = s.pushes + 1
+                s.lastPushStamp = stamp
+            end
+    end
+    if s.sent == 625 and s.pushes == 625 then
+        M._map015FastTruck.finish(nil); return true
+    end
+    -- R2's exact native fixture allowed the game's queued march-push handler
+    -- to drain AFTER the final paced send. Three seconds truncated two late
+    -- pushes in repeated 15/s runs (623/625); allow one bounded 12-second
+    -- post-send drain while still requiring all 625 distinct stamp changes.
+    if s.sent == 625 and runtime_clock() - s.lastSend >= 12 then
+        M._map015FastTruck.finish("lost_march_push"); return true
+    end
+    if s.next < 625 and runtime_clock() - s.lastSend >= s.interval then
+        local n = s.next
+        local cx, cy = n % 25, math.floor(n / 25)
+        local x0, y0 = cx * 40, cy * 40
+        local index = (cy * 4 + 2) * 100 + cx * 4 + 2
+        local value = s.int32.Parse(tostring(index))
+        if not s.original[index] and not s.addedSet[index] then
+            if not select(1, call(s.current, "Add", value)) then
+                M._map015FastTruck.finish("cur_view_add_failed"); return true end
+            s.added[#s.added + 1] = index
+            s.addedSet[index] = true
+        end
+        local r = CS.WorldGetBlockMessage.Request()
+        r.bigMap, r.x, r.y, r.serverId, r.worldId, r.type, r.lod =
+            0, x0 + 20, y0 + 20, s.serverId, 0, 0, 0
+        r.blockSize, r.firstTime, r.leftBottom, r.rightTop, r.battleFieldFirst =
+            10, false, x0 + y0 * 1000 + 1,
+            math.min(999, x0 + 40) + math.min(999, y0 + 40) * 1000 + 1, false
+        local indices = CS.System.Array.CreateInstance(typeof(CS.System.Int32), 1)
+        indices:SetValue(value, 0)
+        r.index = indices
+        -- R2's independently complete 20/s sweep did not reset the point
+        -- response gate between paced one-AOI sends. This Truck lane observes
+        -- march pushes, so modifying the unrelated point gate would add
+        -- reflection overhead and alter normal native reply processing.
+        if s.sent == 0 then s.lastPushStamp = stamp end
+        local ok, err = pcall(function() CS.WorldGetBlockMessage.Instance:Send(r) end)
+        if not ok then M._map015FastTruck.finish("request_failed:" .. tostring(err)); return true end
+        s.next, s.sent, s.lastSend = n + 1, s.sent + 1, runtime_clock()
+        if s.sent == 20 then
+            write_json(lane.startedPath, {
+                schemaVersion = 1, probeVersion = M.VERSION,
+                requestId = s.requestId, scanRunId = s.scanRunId,
+                profileId = s.profileId, launchSessionId = s.launchSessionId,
+                gamePid = s.gamePid, requestsSent = s.sent, nativeActive = true,
+            })
+        end
+    end
+    return true
+end
+
 -- MAP-015 OWN_DESIGN. The owned bridge can request the current server's LOD0
 -- AOIs directly. A reply is harvested in the very frame it is observed: the
 -- native point/march caches are transient outside the physical camera view.
@@ -7425,6 +7641,12 @@ function M._sharedRuntimeOwnership.PumpVerified(now)
     -- progress waiting for a protection reply.
     pump_monster_protection_queue()
     if active_request_id == nil then
+        local truck_ok, truck_handled = pcall(M._map015FastTruck.pump, now)
+        if not truck_ok and M._map015FastTruck.active ~= nil then
+            M._map015FastTruck.finish("fast_truck_exception:" .. tostring(truck_handled))
+            truck_handled = true
+        end
+        if truck_handled then write_heartbeat(now); return true end
         local direct_ok, direct_handled = pcall(M._map015CameraFree.pump, now)
         if not direct_ok and M._map015CameraFree.active ~= nil then
             M._map015CameraFree.finish("camera_free_exception:" .. tostring(direct_handled))
@@ -7634,6 +7856,9 @@ function M.Pump()
         end
         if M._map015CameraFree.active ~= nil then
             M._map015CameraFree.finish(reason)
+        end
+        if M._map015FastTruck.active ~= nil then
+            M._map015FastTruck.finish(reason)
         end
         return false
     end

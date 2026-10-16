@@ -34,6 +34,11 @@ KIND_ORDER = ["city", "resource", "monster", "truck", "railway",
               "dispatch", "ghost", "treasure", "other", "zombie_boss"]
 MODES = {
     "city": {"args": ["city"], "selected": ["city"], "requires_db": True},
+    "truck": {"args": ["truck"], "selected": ["truck"], "requires_db": True},
+    "all-nine": {"args": ["all-nine"], "selected": [
+        "city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
+        "requires_db": True},
+    "truck-stop": {"args": ["truck-stop"], "selected": None, "requires_db": True},
     "all-nontruck": {"args": ["all-nontruck"], "selected": [
         "city", "resource", "monster", "railway", "dispatch", "ghost", "treasure", "zombie_boss"],
         "requires_db": True},
@@ -178,7 +183,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         raise ValueError("City direct receipt does not match the genuine helper-start owner")
 
     selected = MODES[mode]["selected"]
-    all_nontruck = mode == "all-nontruck"
+    all_nontruck = mode in ("all-nontruck", "all-nine")
     completed = proof.get("completedStatus", {})
     ui_run = completed.get("scanRunId")
     if ui_run is not None and (not isinstance(ui_run, str) or not ui_run):
@@ -402,9 +407,66 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
     if config["selected"] is not None:
         if proof.get("selectedTypes") != config["selected"] or proof.get("scan", {}).get("phase") != "completed":
             # City/Other selection proof records completedStatus instead of scan.
-            if not (mode in ("city", "other", "all-nontruck") and proof.get("selectedTypes") == config["selected"]
+            if not (mode in ("city", "other", "all-nontruck", "truck", "all-nine") and proof.get("selectedTypes") == config["selected"]
                     and proof.get("completedStatus", {}).get("phase") == "completed"):
                 raise ValueError("Packaged proof does not certify the requested completed selection")
+    if mode in ("truck", "all-nine"):
+        browse = proof.get("browse", {})
+        native = browse.get("native") if mode == "truck" else browse.get("fastTruck")
+        if (not isinstance(native, dict) or native.get("pushes") != 625 or
+                native.get("requestsPerSecond") not in (15, 20) or
+                native.get("cameraStable") is not True or native.get("curViewRestored") is not True or
+                not isinstance(native.get("trainRecordCount"), int) or native["trainRecordCount"] <= 0):
+            raise ValueError("Packaged fast Truck native push/field/restoration proof missing")
+        if mode == "truck":
+            filter_result = browse.get("filter", {})
+        else:
+            filter_result = browse.get("truckFilter")
+        if (not isinstance(filter_result, dict) or filter_result.get("filteredTotal", 0) < 1 or
+                not Path(filter_result.get("screenshot", "")).is_file()):
+            raise ValueError("Packaged fast Truck positive combined filter is missing")
+    if mode == "truck-stop":
+        if (proof.get("proof") != "actual_packaged_ui_truck_stop_mid_sweep" or
+                proof.get("startedStatus", {}).get("phase") not in ("scanning", "reading", "running") and
+                proof.get("startedStatus", {}).get("isReading") is not True or
+                proof.get("stoppedStatus", {}).get("phase") != "cancelled"):
+            raise ValueError("Packaged Truck mid-sweep Stop did not durably cancel")
+        native_started = proof.get("nativeStarted", {})
+        run_id = proof.get("stopRunId")
+        if (not isinstance(run_id, str) or not run_id or
+                proof.get("startedStatus", {}).get("scanRunId") != run_id or
+                proof.get("stoppedStatus", {}).get("scanRunId") != run_id or
+                native_started.get("scanRunId") != run_id or
+                native_started.get("profileId") != restoration.get("profileId") or
+                native_started.get("launchSessionId") != restoration.get("sessionId") or
+                native_started.get("gamePid") != restoration.get("gamePid") or
+                native_started.get("requestsSent") != 20 or
+                native_started.get("nativeActive") is not True):
+            raise ValueError("Truck Stop did not interrupt the exact native owned request after 20 sends")
+        native = read("live-resource/fast-truck-scan-result.json")
+        if (native.get("state") != "failed" or native.get("error") != "cancelled" or
+                not isinstance(native_started.get("requestId"), str) or
+                not native_started["requestId"] or
+                native.get("requestId") != native_started["requestId"] or
+                native.get("scanRunId") != run_id or
+                native.get("profileId") != restoration.get("profileId") or
+                native.get("launchSessionId") != restoration.get("sessionId") or
+                native.get("gamePid") != restoration.get("gamePid") or
+                native.get("cameraStable") is not True or
+                native.get("curViewRestored") is not True or
+                type(native.get("requestsSent")) is not int or
+                not 20 <= native["requestsSent"] < 625):
+            raise ValueError("Native Truck Stop lacks a correlated safe cancellation and restoration receipt")
+        db_path = destination / "profiles" / restoration["profileId"] / "map-data" / "map-data.db"
+        with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+            runs = database.execute(
+                "SELECT id,status,selected_types,total_blocks,completed_blocks,failed_blocks "
+                "FROM scan_runs ORDER BY created_at DESC LIMIT 2").fetchall()
+            staged = database.execute("SELECT COUNT(*) FROM scan_records WHERE run_id=?", (run_id,)).fetchone()[0]
+            live = database.execute("SELECT COUNT(*) FROM scan_runs WHERE status IN ('running','paused')").fetchone()[0]
+        if (len(runs) != 1 or runs[0][0:4] != (run_id, "cancelled", '["truck"]', 2500) or
+                runs[0][4] >= 2500 or runs[0][5] != 0 or staged != 0 or live != 0):
+            raise ValueError("Packaged Truck Stop left incomplete durability or staged scan records")
     if config.get("remote"):
         remote = read("map014-remote-ui.json")
         stages = [entry.get("stage") for entry in remote.get("results", [])]
@@ -417,7 +479,7 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         gates = [entry.get("gate") for entry in extras.get("receipts", [])]
         if not {"native_zombie_boss_tab_level_filter", "native_ghost_reward_and_filter"}.issubset(gates):
             raise ValueError("Saved genuine Zombie Boss/Ghost positive UI filters were not proven")
-    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck") else None
+    direct = audit_city_camera_free(destination, proof, restoration, mode) if mode in ("city", "all-nontruck", "all-nine") else None
     truck = audit_fresh_truck_filter(destination, proof, restoration) if mode == "mixed-eight" else None
     return dict(mode=mode, state="proven", proof=str(destination / "native-ui-map.json"),
                 ownedExit=str(destination / "owned-exit.json"), hostPid=restoration["hostPid"],

@@ -1498,12 +1498,14 @@ internal sealed partial class LWBridgeWindow : Form
         string? qualifiedKind = ownerFixNativeProof && !ownerFixRemoteProof
             ? Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_SELECTION_UI") : null;
         if (string.IsNullOrEmpty(qualifiedKind)) qualifiedKind = null;
-        if (qualifiedKind is not (null or "city" or "other" or "all-nontruck"))
+        if (qualifiedKind is not (null or "city" or "other" or "all-nontruck" or "truck" or "all-nine" or "truck-stop"))
             throw new InvalidOperationException("MAP014 packaged selection proof requested an unsupported kind.");
         string desiredSelection = qualifiedKind switch
         {
             "city" => "index === 0",
             "other" => "index === 8",
+            "truck" or "truck-stop" => "index === 3",
+            "all-nine" => "index !== 8",
             // Opt-in MAP-015 genuine direct AOI proof: every map kind except
             // moving Truck and seasonal Other, in the recovered UI tab order.
             "all-nontruck" => "index !== 3 && index !== 8",
@@ -1547,6 +1549,22 @@ internal sealed partial class LWBridgeWindow : Form
             await Task.Delay(50);
         }
         if (!selectionSettled) throw new InvalidDataException("Actual production Resource selection did not settle.");
+
+        if (qualifiedKind is "truck" or "all-nine" or "truck-stop")
+        {
+            string speedClicked = await core.ExecuteScriptAsync("(()=>{const toggle=document.querySelectorAll('input[name=map-scan-speed]')[1];if(!toggle||toggle.disabled)return false;if(!toggle.checked)toggle.click();return true;})()");
+            if (speedClicked != "true")
+                throw new InvalidDataException("MAP015 packaged Truck proof could not choose real Fast mode.");
+            bool fastSelected = false;
+            for (int attempt = 0; attempt < 60; attempt++)
+            {
+                if (await core.ExecuteScriptAsync("document.querySelectorAll('input[name=map-scan-speed]')[1]?.checked === true") == "true")
+                { fastSelected = true; break; }
+                await Task.Delay(50);
+            }
+            if (!fastSelected)
+                throw new InvalidDataException("MAP015 packaged Truck Fast mode did not settle.");
+        }
 
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(ownerFixRemoteProof ? 14 : 8));
         string? instanceId = null;
@@ -1657,6 +1675,68 @@ internal sealed partial class LWBridgeWindow : Form
             if (clickResult != "true")
                 throw new InvalidOperationException("The normal production Map Data Start Reading button could not be clicked.");
 
+            if (qualifiedKind == "truck-stop")
+            {
+                // Wait for this owned sweep to enter native acquisition before
+                // using the real Stop command. The correlated native cancel
+                // receipt and durable DB status are inspected by the audit.
+                string startedPath = Path.Combine(overviewLifecycleService.LiveResourceRuntimeRoot,
+                    "fast-truck-scan-started.json");
+                JsonElement startedStatus = default;
+                JsonElement nativeStarted = default;
+                string stopRunId = string.Empty;
+                for (int attempt = 0; attempt < 200; attempt++)
+                {
+                    operationCts.Token.ThrowIfCancellationRequested();
+                    JsonElement status = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
+                    string liveId = ReadStatusString(status, "scanRunId") ?? string.Empty;
+                    if (liveId.Length > 0 && liveId != initialRunId &&
+                        status.TryGetProperty("isReading", out var active) && active.ValueKind == JsonValueKind.True &&
+                        File.Exists(startedPath))
+                    {
+                        try
+                        {
+                            using JsonDocument nativeDocument = JsonDocument.Parse(
+                                await File.ReadAllTextAsync(startedPath, operationCts.Token));
+                            JsonElement marker = nativeDocument.RootElement;
+                            if (ReadStatusString(marker, "scanRunId") == liveId &&
+                                ReadStatusString(marker, "profileId") == ownedMapSession!.ProfileId &&
+                                ReadStatusString(marker, "launchSessionId") == ownedMapSession.SessionId &&
+                                ReadStatusInt32(marker, "gamePid") == ownedMapSession.GamePid &&
+                                ReadStatusInt32(marker, "requestsSent") == 20 &&
+                                marker.TryGetProperty("nativeActive", out var nativeActive) &&
+                                nativeActive.ValueKind == JsonValueKind.True)
+                            { stopRunId = liveId; startedStatus = status; nativeStarted = marker.Clone(); break; }
+                        }
+                        catch (IOException) { } // Atomic native JSON may be crossing this poll.
+                        catch (JsonException) { }
+                    }
+                    await Task.Delay(150, operationCts.Token);
+                }
+                if (stopRunId.Length == 0)
+                    throw new InvalidDataException("Packaged Stop proof lacked 20 source-attributed native Truck sends within its live run.");
+                string stopClicked = await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('.map-header .map-actions button')].find(b=>/stop/i.test(b.textContent||''));if(!b||b.disabled)return false;b.click();return true;})()");
+                if (stopClicked != "true")
+                    throw new InvalidDataException("Packaged Truck Stop control was unavailable.");
+                JsonElement stoppedStatus = default;
+                for (int attempt = 0; attempt < 150; attempt++)
+                {
+                    stoppedStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
+                    if (ReadStatusString(stoppedStatus, "phase") == "cancelled" &&
+                        ReadStatusString(stoppedStatus, "scanRunId") == stopRunId) break;
+                    await Task.Delay(100, operationCts.Token);
+                }
+                if (ReadStatusString(stoppedStatus, "phase") != "cancelled")
+                    throw new InvalidDataException("Packaged Truck Stop did not durably cancel the owned run.");
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    schemaVersion=1, state="proven", proof="actual_packaged_ui_truck_stop_mid_sweep",
+                    genuineGame=true, controlledProvider=false, selection=qualifiedKind,
+                    stopRunId, startedStatus, nativeStarted, stoppedStatus,
+                    gamePid=ownedMapSession!.GamePid, profileId=ownedMapSession.ProfileId,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented=true }), operationCts.Token);
+                return;
+            }
+
             for (int attempt = 0; attempt < 3600; attempt++)
             {
                 operationCts.Token.ThrowIfCancellationRequested();
@@ -1689,17 +1769,19 @@ internal sealed partial class LWBridgeWindow : Form
 
             string[] actualSelectedTypes = ReadNormalUiProofSelectedTypes(completedStatus);
 
-            if (qualifiedKind == "all-nontruck")
+            if (qualifiedKind is "all-nontruck" or "all-nine")
             {
-                string[] expectedKinds = ["city", "resource", "monster", "railway", "dispatch",
-                    "ghost", "treasure", "zombie_boss"];
+                string[] expectedKinds = qualifiedKind == "all-nine"
+                    ? ["city", "resource", "monster", "truck", "railway", "dispatch", "ghost", "treasure", "zombie_boss"]
+                    : ["city", "resource", "monster", "railway", "dispatch", "ghost", "treasure", "zombie_boss"];
                 if (!actualSelectedTypes.SequenceEqual(expectedKinds, StringComparer.Ordinal))
                     throw new InvalidDataException("MAP015 packaged full scan did not select exactly the eight non-Truck map kinds.");
                 if (ReadStatusInt32(completedStatus, "totalBlocks") != 2500 ||
                     ReadStatusInt32(completedStatus, "readBlocks") != 2500)
                     throw new InvalidDataException("MAP015 packaged non-Truck scan did not complete every map block.");
                 object browse = await RunMap015AllNonTruckUiProofAsync(
-                    core, directory, completedStatus, ownedMapSession!, operationCts.Token);
+                    core, directory, completedStatus, ownedMapSession!, operationCts.Token,
+                    includeTruck: qualifiedKind == "all-nine");
                 await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new
                 {
                     schemaVersion = 1, state = "proven",
@@ -1710,6 +1792,21 @@ internal sealed partial class LWBridgeWindow : Form
                     profileId = backend.ProfileId, gamePid = ownedMapSession!.GamePid,
                     completedStatus, browse,
                 }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), operationCts.Token);
+                return;
+            }
+
+            if (qualifiedKind == "truck")
+            {
+                if (!actualSelectedTypes.SequenceEqual(["truck"], StringComparer.Ordinal))
+                    throw new InvalidDataException("Packaged Truck-only selected unexpected map kinds.");
+                object browse = await RunMap015TruckOnlyUiProofAsync(
+                    core, directory, completedStatus, ownedMapSession!, operationCts.Token);
+                await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
+                    schemaVersion=1,state="proven",proof="actual_packaged_ui_truck_only_scan_and_filter",
+                    genuineGame=true,controlledProvider=false,selection=qualifiedKind,
+                    selectedTypes=actualSelectedTypes,completedStatus,browse,
+                    gamePid=ownedMapSession!.GamePid,profileId=ownedMapSession.ProfileId,
+                },new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}), operationCts.Token);
                 return;
             }
 

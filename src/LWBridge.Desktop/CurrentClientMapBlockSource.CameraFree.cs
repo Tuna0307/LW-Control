@@ -15,7 +15,8 @@ internal sealed partial class CurrentClientMapBlockSource
         MapScanExecutionRequest request,
         IReadOnlySet<int> pendingBlockIndices,
         Action<MapScanSourceProgress>? progress,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyList<FastTrainPrepared>? fastTrucks = null)
     {
         IReadOnlyList<MapScanTargetBlock> logicalBlocks = MapScanTraversal.Build(
             request.TileWidth, request.TileHeight);
@@ -89,6 +90,16 @@ internal sealed partial class CurrentClientMapBlockSource
         }
         if (state.Covered.Count != 10000 || state.ValidatedProbeResponses != 63)
             throw new InvalidDataException("Camera-free scan did not independently verify 10,000 AOIs in 63 replies.");
+        if (fastTrucks is not null)
+        {
+            foreach (FastTrainPrepared truck in fastTrucks)
+            {
+                if (truck.Record.Kind != "truck" ||
+                    !request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
+                    throw new InvalidDataException("Fast Truck result contained a non-Truck or unselected kind.");
+                state.TrainRecords[truck.Record.RecordKey] = truck;
+            }
+        }
         if (state.CityRecords.Count + state.ResourceRecords.Count + state.DispatchRecords.Count +
             state.GhostRecords.Count + state.TreasureRecords.Count + state.MonsterRecords.Count +
             state.TrainRecords.Count == 0 &&

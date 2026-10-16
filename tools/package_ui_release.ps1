@@ -443,23 +443,24 @@ LW-Control-UI/Launch LWBridge.cmd. Requires .NET 10 Desktop Runtime,
 Microsoft Edge WebView2 Runtime and Python for live game integration.
 
 CURRENT SCOPE
-For complete scans of the current normal-world server without Truck,
-the scanner attempts 63 direct AOI requests without moving the camera.
-The existing camera scan remains the automatic fallback after failed,
+For complete scans of the current normal-world server, the scanner
+attempts direct AOI collection without moving the camera. Truck uses a
+separate 625-rectangle march-push sweep, initially at 20 requests/s,
+with a 15 requests/s retry after a lost native push. Only game-owned
+train.type=Truck records with production fields can enter Truck rows;
+Railway remains separate. Camera scan is the fallback after failed,
 empty or unverified direct acquisition with proven native cleanup.
-Truck-bearing scans remain on the accurate camera method pending a
-verified per-push collection method. Other existing Home, Map, saved
-filters, Stop and server-switch behaviors remain available.
+Other existing Home, Map, saved filters, Stop and server-switch
+behaviors remain available.
 
 EVIDENCE AND OPEN TARGETS
-An exact-owned same-session native City comparison captured 4175 records
-in both routes, with one differing record each way; camera-free took
-23.91 s end-to-end and camera took 196.43 s. A newer optimized City trial
-completed in 20.25 s and Resource in 23.24 s. The full eight-kind scan
-without Truck completed in 64.06 s, including required detail hydration.
-These are native diagnostic-host results; the packaged UI must be audited
-independently. The <=20 s all-kind target and <=40 s non-lossy Truck target
-are NOT certified. Fast mode cannot promise an exact live-world census.
+Earlier exact-owned native R2 trials proved the 625-rectangle transport
+at up to 20/s and the full eight-kind non-Truck scan in 46.36 s. The
+Truck fast route is subject to current exact-session qualification and
+source-stamped packaged UI acceptance, detailed in the worker report.
+The <=20 s all-kind target and <=40 s non-lossy Truck target are NOT
+certified without independent current receipts. Moving records can change
+between two full-world sweeps.
 
 This is a local review candidate for audit, not a merged or published
 release. It includes no private game data or account credentials. Never

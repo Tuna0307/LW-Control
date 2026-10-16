@@ -11,7 +11,7 @@ internal sealed partial class LWBridgeWindow
     // correlating production map_search responses to the same completed server.
     private async Task<object> RunMap015AllNonTruckUiProofAsync(
         CoreWebView2 core, string directory, JsonElement completedStatus,
-        OverviewMapScanSession ownedSession, CancellationToken token)
+        OverviewMapScanSession ownedSession, CancellationToken token, bool includeTruck = false)
     {
         if (productionPaths?.ExplicitIsolation != true || map317CommandService is null ||
             overviewLifecycleService is null)
@@ -27,6 +27,9 @@ internal sealed partial class LWBridgeWindow
             (0, "city"), (1, "resource"), (2, "monster"), (4, "railway"),
             (5, "dispatch"), (6, "ghost"), (7, "treasure"), (9, "zombie_boss")
         };
+        if (includeTruck) kinds = kinds.Append((Index: 3, Kind: "truck")).OrderBy(kind => kind.Index).ToArray();
+        object? fastTruck = includeTruck ? await RequireMap015FastTruckNativeProofAsync(
+            ownedSession, runId, serverId, token) : null;
         // A completed UI scan can silently have used the safe camera fallback.
         // The packaged receipt must only say proven for a genuinely completed
         // same-session camera-free sweep and its prepared C# publication source.
@@ -84,6 +87,7 @@ internal sealed partial class LWBridgeWindow
             throw new InvalidDataException("MAP015 direct proof lacks complete unique AOI coverage.");
 
         var results = new List<object>();
+        JsonElement? capturedTruckRows = null;
         foreach ((int index, string kind) in kinds)
         {
             token.ThrowIfCancellationRequested();
@@ -126,6 +130,7 @@ internal sealed partial class LWBridgeWindow
             if (matching is null)
                 throw new TimeoutException("MAP015 packaged UI lacked a same-server native search: " + kind);
             JsonElement rows = matching.Result.GetProperty("rows");
+            if (kind == "truck") capturedTruckRows = rows.Clone();
             int total = matching.Result.GetProperty("total").GetInt32();
             if (rows.ValueKind != JsonValueKind.Array || total < 0 || rows.GetArrayLength() > total ||
                 (total > 0 && rows.GetArrayLength() == 0))
@@ -214,13 +219,31 @@ internal sealed partial class LWBridgeWindow
                 firstPageRows = rows.GetArrayLength(), nativeSearchRequestId = matching.RequestId,
                 positiveGhostRewardRendering, screenshotPath });
         }
+        object? truckFilter = null;
+        if (includeTruck)
+        {
+            if (capturedTruckRows is null ||
+                await core.ExecuteScriptAsync("(()=>{const tab=document.querySelectorAll('.map-tabs button')[3];if(!tab)return false;tab.click();return true;})()") != "true")
+                throw new InvalidDataException("MAP015 full nine-kind Truck filter had no captured rows or tab.");
+            bool mountedTruckControls = false;
+            for (int attempt = 0; attempt < 150; attempt++)
+            {
+                if (await core.ExecuteScriptAsync("!!document.querySelector('.map-table--truck[aria-busy=false]') && !!document.querySelector('.map-searchbar input[inputmode=decimal]')") == "true")
+                { mountedTruckControls = true; break; }
+                await Task.Delay(100, token);
+            }
+            if (!mountedTruckControls)
+                throw new InvalidDataException("MAP015 full nine-kind Truck filter controls did not mount.");
+            truckFilter = await RunMap015TruckFilterUiProofAsync(
+                core, directory, capturedTruckRows.Value, serverId, token);
+        }
         if (!overviewLifecycleService.MatchesOwnedMapScanSession(ownedSession))
             throw new InvalidDataException("MAP015 packaged UI owner was retired before its final proof receipt.");
         return new { scanRunId = runId, serverId, selectedKinds = kinds.Select(item => item.Kind).ToArray(),
             cameraFree = new { source = "direct", completedAois = covered.Count, repliesCaptured = 63,
                 batchesCaptured = batches.GetArrayLength(), requestsSent = sent,
                 cameraStable = true, curViewRestored = true, metricsPhase = "prepared" },
-            results, ghostNativeRewardDisplayProven = true };
+            results, fastTruck, truckFilter, ghostNativeRewardDisplayProven = true };
     }
 
     private static bool IsNativeGhostPlunderShare(JsonElement row, out double ratio)
