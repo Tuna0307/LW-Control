@@ -88,6 +88,7 @@ internal sealed partial class LWBridgeWindow
 
         var results = new List<object>();
         JsonElement? capturedTruckRows = null;
+        bool positiveGhostRewardProven = false;
         foreach ((int index, string kind) in kinds)
         {
             token.ThrowIfCancellationRequested();
@@ -190,11 +191,17 @@ internal sealed partial class LWBridgeWindow
                         IsNativeGhostPlunderShare(row, out double ratio))
                     { positive = (rowIndex, counts.ToArray(), ratio); break; }
                 }
-                if (positive is null)
+                if (positive is null && (!includeTruck || total > 0))
                     throw new InvalidDataException("MAP015 genuine Ghost rows have no positive source-calculated plunder-share witness.");
-                int witnessRow = positive.Value.Row;
-                string countsJson = JsonSerializer.Serialize(positive.Value.Counts);
-                string visible = await core.ExecuteScriptAsync($$"""
+                // In the all-nine-kind proof, an empty fresh Ghost source is
+                // a valid observed kind, and the same native UI has already
+                // proven its empty table. Preserve the original strict
+                // positive Ghost reward witness for all-nontruck runs.
+                if (positive is not null)
+                {
+                    int witnessRow = positive.Value.Row;
+                    string countsJson = JsonSerializer.Serialize(positive.Value.Counts);
+                    string visible = await core.ExecuteScriptAsync($$"""
                     (() => {
                       const counts = {{countsJson}};
                       const row = document.querySelectorAll('.map-table--ghost tbody tr')[{{witnessRow}}];
@@ -205,12 +212,14 @@ internal sealed partial class LWBridgeWindow
                       });
                     })()
                     """);
-                if (visible != "true")
-                    throw new InvalidDataException("MAP015 packaged Ghost native reward quantities were not displayed.");
-                positiveGhostRewardRendering = new { rowIndex = witnessRow,
-                    nativeRewardCounts = positive.Value.Counts, stealRewardRatio = positive.Value.Ratio,
-                    formula = "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)",
-                    sourceCalculatedPlunderShareMatches = true, displayed = true };
+                    if (visible != "true")
+                        throw new InvalidDataException("MAP015 packaged Ghost native reward quantities were not displayed.");
+                    positiveGhostRewardRendering = new { rowIndex = witnessRow,
+                        nativeRewardCounts = positive.Value.Counts, stealRewardRatio = positive.Value.Ratio,
+                        formula = "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)",
+                        sourceCalculatedPlunderShareMatches = true, displayed = true };
+                    positiveGhostRewardProven = true;
+                }
             }
             string screenshotPath = Path.Combine(directory, "map015-" + kind + "-packaged.png");
             await using (var image = File.Create(screenshotPath))
@@ -243,7 +252,7 @@ internal sealed partial class LWBridgeWindow
             cameraFree = new { source = "direct", completedAois = covered.Count, repliesCaptured = 63,
                 batchesCaptured = batches.GetArrayLength(), requestsSent = sent,
                 cameraStable = true, curViewRestored = true, metricsPhase = "prepared" },
-            results, fastTruck, truckFilter, ghostNativeRewardDisplayProven = true };
+            results, fastTruck, truckFilter, ghostNativeRewardDisplayProven = positiveGhostRewardProven };
     }
 
     private static bool IsNativeGhostPlunderShare(JsonElement row, out double ratio)

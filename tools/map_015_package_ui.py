@@ -199,7 +199,11 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
         browse = proof.get("browse", {})
         results = browse.get("results", [])
         native_gate = browse.get("cameraFree", {})
-        if (browse.get("ghostNativeRewardDisplayProven") is not True or
+        ghost_tab = next((item for item in results if item.get("kind") == "ghost"), {})
+        ghost_positive_proven = browse.get("ghostNativeRewardDisplayProven") is True
+        if (not (ghost_positive_proven or mode == "all-nine" and
+                 ghost_tab.get("total") == 0 and ghost_tab.get("firstPageRows") == 0 and
+                 ghost_tab.get("positiveGhostRewardRendering") is None) or
                 not isinstance(browse.get("scanRunId"), str) or not browse["scanRunId"] or
                 (ui_run is not None and browse["scanRunId"] != ui_run) or
                 browse.get("serverId") != proof.get("serverId") or
@@ -219,7 +223,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
             raise ValueError("Packaged eight-kind native search/render proof is missing or inconsistent")
         ghost_result = next(item for item in results if item["kind"] == "ghost")
         reward_witness = ghost_result.get("positiveGhostRewardRendering")
-        if (not isinstance(reward_witness, dict) or reward_witness.get("displayed") is not True or
+        if (ghost_positive_proven and (not isinstance(reward_witness, dict) or reward_witness.get("displayed") is not True or
                 reward_witness.get("sourceCalculatedPlunderShareMatches") is not True or
                 reward_witness.get("formula") !=
                 "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)" or
@@ -227,7 +231,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
                 not 0 < reward_witness["stealRewardRatio"] <= 100 or
                 not isinstance(reward_witness.get("nativeRewardCounts"), list) or
                 not reward_witness["nativeRewardCounts"] or
-                any(type(v) is not int or v <= 0 for v in reward_witness["nativeRewardCounts"])):
+                any(type(v) is not int or v <= 0 for v in reward_witness["nativeRewardCounts"]))):
             raise ValueError("Packaged Ghost plunder-share calculation and native reward rendering were not proven")
 
     # SQLite is the independent publication record and supplies the scanRunId
