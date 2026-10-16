@@ -120,6 +120,24 @@ internal sealed partial class CurrentClientMapBlockSource
                     {
                         Console.Error.WriteLine(
                             $"CAMERA_FREE_FALLBACK server={request.ServerId} run={request.RunId} reason={error.Message}");
+                        // Keep the exact managed rejection reason in this
+                        // owned scan's ignored runtime evidence. The packaged
+                        // Windows UI has no attached stderr console, and a
+                        // successful native 63-reply receipt alone cannot
+                        // reveal which later parser/hydrator rejected it.
+                        try
+                        {
+                            await File.WriteAllTextAsync(
+                                Path.Combine(probeRuntimeRoot, "map015-direct-fallback.json"),
+                                JsonSerializer.Serialize(new
+                                {
+                                    runId = request.RunId, serverId = request.ServerId,
+                                    causeType = error.GetType().Name, reason = error.Message,
+                                    recordedAt = DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture),
+                                }, JsonOptions.Default), CancellationToken.None).ConfigureAwait(false);
+                        }
+                        catch (IOException) { /* diagnostic only */ }
+                        catch (UnauthorizedAccessException) { /* diagnostic only */ }
                         // Neither a failed native AOI request nor its staged data
                         // may contaminate the camera scan's resume/coverage state.
                         fastFullWorldResumeState = null;
@@ -584,8 +602,14 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
         {
             DateTimeOffset railwayStarted = Now();
+            // The official train-list endpoint returns both TrainType.Train and
+            // TrainType.Truck when the request selects both. A complete mixed
+            // scan already has an independently verified fast Truck sweep;
+            // this final refresh must ask for Railway alone or a live Truck
+            // would fail the Railway-only source check and force camera fallback.
+            MapScanExecutionRequest railwayRequest = request with { SelectedTypes = ["railway"] };
             IReadOnlyList<FastTrainPrepared> refreshedRailway = (await ProbeTrainListAsync(
-                session, request, cancellationToken).ConfigureAwait(false)).Rows;
+                session, railwayRequest, cancellationToken).ConfigureAwait(false)).Rows;
             state.RailwayRefreshMilliseconds = (Now() - railwayStarted).TotalMilliseconds;
             RequireSameSession(session);
             foreach (FastTrainPrepared prepared in refreshedRailway)

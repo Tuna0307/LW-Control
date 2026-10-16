@@ -76,12 +76,19 @@ internal sealed partial class CurrentClientMapBlockSource
             DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
         JsonElement batches = response.GetProperty("batches");
         string resultPath = Path.Combine(probeRuntimeRoot, "camera-free-scan-result.json");
+        // In a mixed scan Truck rows belong exclusively to the independently
+        // verified 625-rectangle producer. The 63-chunk point/Railway sweep
+        // observes a small, transient Truck subset with different coverage;
+        // accepting that subset as a second Truck source could replace a
+        // qualified fast row or admit an unverified one.
+        MapScanExecutionRequest pointRequest = fastTrucks is null ? request :
+            request with { SelectedTypes = request.SelectedTypes.Where(kind => kind != "truck").ToArray() };
         for (int i = 0; i < batches.GetArrayLength(); i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             JsonElement batch = batches[i];
             FastCityBatchObservation normalized = NormalizeCameraFreeBatch(
-                batch, request, resultPath, capturedAt);
+                batch, pointRequest, resultPath, capturedAt);
             int previousAois = state.Covered.Count;
             MergeFullWorldObservation(state, normalized);
             if (state.Covered.Count - previousAois != normalized.RequestedIndices.Length)
