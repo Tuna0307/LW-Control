@@ -10,10 +10,10 @@ internal sealed partial class OverviewLifecycleService
     private static readonly TimeSpan OfficialNormalCloseTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan OfficialProcessPoll = TimeSpan.FromMilliseconds(250);
 
-    // IMPLEMENTATION POLICY LWB-OVR-016: production starts force one untouched
-    // official-launcher preflight before candidate installation so newly available
-    // server-side game/Lua updates cannot patch an injected package. The persisted
-    // settled marker remains available for bounded non-forced/internal call paths.
+    // MAP-016 OWNER_DIRECTION: reuse an official settlement only when restore-only
+    // recovery and current-client admission prove the exact same original package.
+    // First use or a changed package still needs untouched official settlement;
+    // unchanged launches must not open, close and reopen the game every time.
     private async Task EnsureOfficialClientSettledAsync(
         string selectedRoot,
         CancellationToken cancellationToken,
@@ -214,10 +214,14 @@ internal sealed partial class OverviewLifecycleService
 
 
     private bool OfficialSettleMarkerMatches(string selectedRoot, string packageSha256)
+        => OfficialSettleMarkerMatches(OfficialSettleMarkerPath, selectedRoot, packageSha256);
+
+    internal static bool OfficialSettleMarkerMatches(
+        string markerPath, string selectedRoot, string packageSha256)
     {
         try
         {
-            using JsonDocument marker = JsonDocument.Parse(File.ReadAllBytes(OfficialSettleMarkerPath));
+            using JsonDocument marker = JsonDocument.Parse(File.ReadAllBytes(markerPath));
             JsonElement root = marker.RootElement;
             return MatchesInt(root, "schemaVersion", 1) &&
                    MatchesString(root, "gameRoot", Path.GetFullPath(selectedRoot)) &&

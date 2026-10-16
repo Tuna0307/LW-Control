@@ -1013,7 +1013,7 @@ internal sealed partial class LWBridgeWindow : Form
             profileRegistryService,
             mapProvider: provider,
             mapActionProvider: actionProvider,
-            startPlunderWorkers: true,
+            startPlunderWorkers: false,
             startAutoScheduler: true,
             startRecoveryMonitor: false,
             startBridgeTransport: false,
@@ -5326,7 +5326,7 @@ internal sealed partial class LWBridgeWindow : Form
             runtimeComposition = new
             {
                 autoSchedulerEnabled = true,
-                plunderWorkersEnabled = true,
+                plunderWorkersEnabled = false,
                 recoveryMonitorEnabled = false,
                 bridgeTransportEnabled = false,
                 namedEvents = eventProof,

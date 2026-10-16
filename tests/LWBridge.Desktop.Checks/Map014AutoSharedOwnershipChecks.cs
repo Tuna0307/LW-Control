@@ -84,6 +84,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     throw new InvalidOperationException("return tried to navigate over active successor");
                 });
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await enteredPoll.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Volatile.Write(ref successorActive, 1);
             await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
@@ -137,6 +138,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     return Task.CompletedTask;
                 });
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["resource"], "fast", true, 0));
+            await auto.RunNowAsync();
             await enteredPoll.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
@@ -186,6 +188,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     throw new InvalidOperationException("return over active successor");
                 });
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
             Require(stops == 0 && returns == 0 &&
@@ -235,6 +238,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     Volatile.Write(ref currentServer, server);
                 });
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["resource"], "fast", true, 0));
+            await auto.RunNowAsync();
             await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
             Require(starts == 1 && stops == 0 && returns == 0 &&
@@ -283,6 +287,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 },
                 startTarget: server => Volatile.Write(ref currentServer, server));
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["treasure"], "fast", true, 0));
+            await auto.RunNowAsync();
             await enteredPoll.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Volatile.Write(ref currentServer, 319);
             await auto.CancelAsync().WaitAsync(TimeSpan.FromSeconds(5));
@@ -334,6 +339,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     return Task.CompletedTask;
                 });
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await returnReadEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Task retiring = auto.RetireAsync();
             try
@@ -415,6 +421,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 }, startScheduler: false);
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 25, [318, 319], ["city", "resource"], "fast", true, 0));
+            await auto.RunNowAsync();
             await secondPolling.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Task cancel = auto.CancelAsync();
             await stopEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
@@ -502,6 +509,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 }, startScheduler: false);
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
             Require(globalReads == (manualStillReading ? 1 : 2) &&
@@ -584,6 +592,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 }, startScheduler: false);
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [318, 319], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
             Require(firstStarts == 1 && secondStarts == 0 && stops == 0 && returns == 0 &&
@@ -644,6 +653,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     "new temporary Auto owner unexpectedly enabled by default");
                 await auto.UpdateConfigAsync(new MapAutoScanConfig(
                     true, 27, [318], ["city"], "fast", true, 0));
+                await auto.RunNowAsync();
                 await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
                 MapAutoScanSnapshot after = await auto.GetSnapshotAsync();
                 long deadline = now + 27 * 60_000L;
@@ -740,6 +750,7 @@ internal static class Map014AutoSharedOwnershipChecks
 
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await jumped.Task.WaitAsync(TimeSpan.FromSeconds(5));
             if (independentSwitch)
                 Volatile.Write(ref currentServer, 319); // another owner changes live server while no run exists
@@ -874,6 +885,7 @@ internal static class Map014AutoSharedOwnershipChecks
                     DelayAsync = (_, _) => Task.CompletedTask,
                 }, startScheduler: false);
             await auto.UpdateConfigAsync(new MapAutoScanConfig(true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await startContextHeld.Task.WaitAsync(TimeSpan.FromSeconds(5));
             Require(Volatile.Read(ref liveServer) == 318 && remoteStarts == 1 && source.Calls == 1,
                 "cancellation did not land after owned navigation and before accepted capture");
@@ -999,6 +1011,7 @@ internal static class Map014AutoSharedOwnershipChecks
 
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [318, 319], ["city", "resource"], "fast", true, 0));
+            await auto.RunNowAsync();
             await secondStartEntered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             // When the 319 jump succeeded, this is an INDEPENDENT manual jump
             // back to already-published 318. If 319 never jumped, no extra
@@ -1083,6 +1096,7 @@ internal static class Map014AutoSharedOwnershipChecks
                 }, startScheduler: false);
             await auto.UpdateConfigAsync(new MapAutoScanConfig(
                 true, 20, [318], ["city"], "fast", true, 0));
+            await auto.RunNowAsync();
             await auto.WaitForIdleAsync().WaitAsync(TimeSpan.FromSeconds(5));
             MapAutoScanSnapshot result = await auto.GetSnapshotAsync();
             Require(starts == 1 && stops == 0 && returns == 0 &&

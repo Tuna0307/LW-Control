@@ -111,6 +111,14 @@ internal sealed partial class CurrentClientMapBlockSource
                             if (request.SelectedTypes.Count == 1)
                                 return ProjectFastTruckOnly(request, pendingBlockIndices, fastTrucks, progress);
                         }
+                        else if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+                        {
+                            await EnsureFastCityStartupSettledAsync(session, cancellationToken).ConfigureAwait(false);
+                            fastTrucks = await CaptureFastRailwayRowsAsync(session, request, cancellationToken)
+                                .ConfigureAwait(false);
+                        }
+                        if (fastTrucks is not null && request.SelectedTypes.All(kind => kind is "truck" or "railway"))
+                            return ProjectFastMobileTrains(request, pendingBlockIndices, fastTrucks, progress);
                         return await CaptureCameraFreeMapAsync(
                             session, request, pendingBlockIndices, progress, cancellationToken, fastTrucks)
                             .ConfigureAwait(false);
@@ -599,7 +607,7 @@ internal sealed partial class CurrentClientMapBlockSource
         // WorldScene.MarchDataManager. It explicitly refreshes LWTrainDataManager
         // and consumes the response allianceTrainList. Reproduce that read-only
         // source once per completed full-world scan, then merge by exact march UUID.
-        if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+        if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal) && !state.RailwaySweepVerified)
         {
             DateTimeOffset railwayStarted = Now();
             // The official train-list endpoint returns both TrainType.Train and
@@ -2650,7 +2658,7 @@ internal sealed partial class CurrentClientMapBlockSource
             int aoiIndex = checked((y / FastCityAoiBlockSize) * FastCityAoiBlockCount + (x / FastCityAoiBlockSize));
             if (!requestedSet.Contains(aoiIndex))
                 throw new InvalidDataException("Fast world Truck fell outside the native AOI footprint.");
-            long updatedAt = kind == "truck" && OptionalPositiveInt64(row, "capturedAtMs") is long frameTime
+            long updatedAt = OptionalPositiveInt64(row, "capturedAtMs") is long frameTime
                 ? frameTime : capturedAt.ToUnixTimeMilliseconds();
             long? power = row.TryGetProperty("power", out JsonElement powerValue) && powerValue.TryGetInt64(out long parsedPower) && parsedPower >= 0 ? parsedPower : null;
             string? ownerName = OptionalStringValue(row, "ownerName");
@@ -3034,6 +3042,7 @@ internal sealed partial class CurrentClientMapBlockSource
         internal string ScanMode { get; }
         internal int RequestedConcurrency { get; }
         internal bool CameraFreeAcquisition { get; set; }
+        internal bool RailwaySweepVerified { get; set; }
         internal DateTimeOffset MetricsStartedAt { get; } = DateTimeOffset.UtcNow;
         internal long ProbeAttempts { get; set; }
         internal long ProbeRetries { get; set; }

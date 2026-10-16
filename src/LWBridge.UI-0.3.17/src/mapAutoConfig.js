@@ -55,7 +55,7 @@ export function normalizeAutoScanConfig(value) {
     intervalMinutes,
     serverIds,
     selectedTypes: selectedTypes.length > 0 ? selectedTypes : [...AUTO_SCAN_DEFAULT_TYPES],
-    scanMode: value?.scanMode === "normal" ? "normal" : "fast",
+    scanMode: "fast",
     returnToOriginalServer: value?.returnToOriginalServer !== false,
     nextRunAt: Math.max(0, Math.trunc(Number(value?.nextRunAt) || 0)),
   };
@@ -81,7 +81,7 @@ export function saveAutoScanConfig(profileId, config, storage = window.localStor
 
 export function applyAutoScanConfigEdit(previous, candidate, now = Date.now()) {
   const next = normalizeAutoScanConfig(candidate);
-  if (next.enabled && !previous.enabled) next.nextRunAt = now;
+  if (next.enabled && !previous.enabled) next.nextRunAt = now + next.intervalMinutes * 60_000;
   if (!next.enabled) next.nextRunAt = 0;
   return next;
 }

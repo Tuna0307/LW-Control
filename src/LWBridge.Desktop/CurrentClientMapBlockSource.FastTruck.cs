@@ -88,6 +88,11 @@ internal sealed partial class CurrentClientMapBlockSource
                 prepared.Select(item => item.Record.RecordKey).Distinct(StringComparer.Ordinal).Count() != prepared.Count)
                 throw new InvalidDataException("Fast Truck producer returned duplicate, empty or unclassifiable Truck rows.");
             RequireSameSession(session);
+            // One native rectangle sweep observes both mobile kinds when
+            // Railway is selected. Keep Truck's existing typed/arrival gates,
+            // then independently admit the Railway sidecar from this receipt.
+            if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
+                return prepared.Concat(PrepareFastRailwayRows(response, request, capturedAt, railwayOnly: false)).ToArray();
             return prepared;
         }
     }
@@ -119,7 +124,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private async Task<JsonElement> ProbeFastTruckAsync(
         OverviewMapScanSession session, MapScanExecutionRequest request,
-        int rate, CancellationToken cancellationToken)
+        int rate, CancellationToken cancellationToken, bool railwayOnly = false)
     {
         string requestId = "truck" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
         string commandPath = Path.Combine(probeRuntimeRoot, "fast-truck-scan.txt");
@@ -133,6 +138,8 @@ internal sealed partial class CurrentClientMapBlockSource
             $"gamePid={session.GamePid.ToString(CultureInfo.InvariantCulture)}",
             $"scanRunId={request.RunId}",
             $"serverId={request.ServerId.ToString(CultureInfo.InvariantCulture)}",
+            $"trainType={(railwayOnly ? 2 : 1)}",
+            $"includeRailway={request.SelectedTypes.Contains("railway", StringComparer.Ordinal).ToString().ToLowerInvariant()}",
             $"rate={rate.ToString(CultureInfo.InvariantCulture)}", string.Empty,
         });
         DateTimeOffset started = Now();

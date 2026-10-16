@@ -59,5 +59,6 @@ Map014BoundedLensChecks.Run();
 Map014NativeFootprintChecks.Run();
 await Map014WholeWorldFailureChecks.RunAsync();
 await Map015CameraFreeDriftChecks.RunAsync();
+await Map016RailwayChecks.RunAsync();
 Map008InstalledNameChecks.Run();
 Console.WriteLine("HOME_FEATURE_DELIVERY_CHECKS_OK");

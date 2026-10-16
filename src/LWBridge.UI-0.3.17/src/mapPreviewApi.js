@@ -1,5 +1,4 @@
 import { MAP_KIND_KEYS, normalizeOptions, normalizeScanState, normalizeSearchResult, normalizeSummary } from "./mapBackend.js";
-import { plunderFixtureFor, plunderFixtureGameTexts } from "./mapPlunderFixtures.js";
 import { scanHeaderFixture } from "./mapScanHeaderFixtures.js";
 
 const FIXTURE_SERVER_ID = 321;
@@ -292,7 +291,6 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
   const headerFixture = scanHeaderFixture(previewState, tableTime);
   const summary = fixtureSummary(previewState === "map-scan-feedback-error" ? { lastError: "MAP_SCAN_START_FAILED" } : headerFixture?.scanState);
   const tableRows = previewState === "map-filter-lifecycle" ? filterLifecycleFixtureRows() : previewState === "map-row-actions" ? rowActionFixtureRows(tableTime) : previewState === "map-treasure-checking" ? treasureCheckingFixtureRows(tableTime) : previewState === "map-table-states" || previewState.startsWith("map-actions-") || previewState === "map-providers-ghost" ? tableStateFixtureRows(tableTime) : null;
-  const plunderFixture = plunderFixtureFor(previewState, tableTime) || { dispatchJobs: [], truckJobs: [], online: null, busyKey: "" };
   const api = {
     profileId: "preview-map-profile",
     previewFixture: true,
@@ -316,9 +314,6 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
     coordinateJump: () => blocked("coordinate jump"),
     setPlayerMark: () => blocked("player mark"),
     exportCities: () => blocked("city export"),
-    ...(previewState === "map-providers-ghost" ? {
-      prepareGhostPlunder: async (rows) => rows.map(row => ({ ...row, taskKind: "ghost", execute: false })),
-    } : {}),
     ...(previewState === "map-providers-treasure" ? {
       previewTreasureClaim: async (serverId, claimScope, luckyFirst, targetUuid) => ({
         serverId, claimScope, prioritizeLuckySlots: luckyFirst, targetUuid,
@@ -327,34 +322,14 @@ export function getMapPreviewProvider(bridgeMode, previewState) {
         claimExecutionAvailable: false, mode: "preview_only",
       }),
     } : {}),
-    // Scheduled Plunder: the list is a deterministic offline fixture (empty unless the state names one).
-    listPlunderJobs: async () => ({ dispatchJobs: plunderFixture.dispatchJobs, truckJobs: plunderFixture.truckJobs }),
-    listenPlunderJobsChanged: () => () => {},
-    // Scheduling/sharing/cancel/clear methods exist ONLY for the dedicated action/scheduled fixture states, so
-    // the recovered button predicates can be presented; every one is rejected exactly like the other native
-    // actions. All other preview states behave like production, where these buttons stay fenced (disabled).
-    ...(previewState.startsWith("map-actions-") || previewState.startsWith("map-scheduled") ? {
-      scheduleDispatchPlunder: () => blocked("dispatch plunder schedule"),
-      scheduleTruckPlunder: () => blocked("truck plunder schedule"),
-      shareDispatchToAlliance: () => blocked("dispatch alliance share"),
-      cancelDispatchPlunder: () => blocked("dispatch plunder cancel"),
-      cancelTruckPlunder: () => blocked("truck plunder cancel"),
-      clearDispatchPlunderHistory: () => blocked("dispatch plunder history clear"),
-      clearTruckPlunderHistory: () => blocked("truck plunder history clear"),
-    } : {}),
   };
   const provider = {
     previewTreasureStatesRefreshing: previewState === "map-treasure-checking",
     previewJumpingKeys: previewState === "map-row-actions" ? { truck: `${FIXTURE_SERVER_ID}:fixture-following`, railway: `${FIXTURE_SERVER_ID}:fixture-following`, city: `${FIXTURE_SERVER_ID}:413:523` } : null,
     // Synthetic labels for browser-only presentation checks, not recovered game text.
-    gameTexts: { "100282": "Fixture Resource A", "100281": "Fixture Resource B", "Fixture Monster A": "Fixture Monster A Label", "Fixture Monster B": "Fixture Monster B Label", "Fixture Radar Treasure": "Fixture Radar Treasure Label", "Fixture Lucky Treasure": "Fixture Lucky Treasure Label" , ...(previewState.startsWith("map-scheduled") ? plunderFixtureGameTexts : {}) },
+    gameTexts: { "100282": "Fixture Resource A", "100281": "Fixture Resource B", "Fixture Monster A": "Fixture Monster A Label", "Fixture Monster B": "Fixture Monster B Label", "Fixture Radar Treasure": "Fixture Radar Treasure Label", "Fixture Lucky Treasure": "Fixture Lucky Treasure Label" },
     // Explicit presentation inputs (disclosed in the evidence): they seed render state only and never execute anything.
-    previewPlunderOnline: plunderFixture.online,
-    previewBusyKey: plunderFixture.busyKey || (previewState === "map-actions-schedule-busy" ? "schedule" : previewState === "map-actions-truck-busy" ? "schedule-truck" : ""),
-    previewSharing: previewState === "map-actions-share-busy",
-    previewActionMessage: previewState === "map-actions-message" ? { key: "map.shareAllianceSuccess", values: { count: 3 } }
-      : previewState === "map-export-feedback" ? { key: "map.exportExcelSuccess", values: { count: 37, path: "C:/Fixture/東京 export.xlsx" } }
-      : previewState === "map-actions-message-partial" ? { key: "map.shareAlliancePartial", values: { shared: 2, failed: 1 } } : null,
+    previewActionMessage: previewState === "map-export-feedback" ? { key: "map.exportExcelSuccess", values: { count: 37, path: "C:/Fixture/東京 export.xlsx" } } : null,
     scanState: normalizeScanState(summary.scanState),
     summary,
     mapApi: api,

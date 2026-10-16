@@ -312,12 +312,7 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     width: `90px`,
     sortBy: `distance`,
     value: e => mapNumber(field(e, `distanceFromHome`), language)
-  }, updated] : kind === `truck` ? [{
-    label: t(`map.selectTask`),
-    width: `56px`,
-    className: `map-task-select`,
-    select: !0
-  }, coordinates, {
+  }, updated] : kind === `truck` ? [coordinates, {
     label: t(`map.playerAlliance`),
     width: `minmax(170px, 1fr)`,
     value: e => String(field(e, `ownerName`) || field(e, `allianceName`) || `-`)
@@ -475,12 +470,7 @@ export function buildMapColumns(kind, t, language, gameTexts, itemKey, treasureS
     label: t(`map.actions`),
     width: `90px`,
     action: !0
-  }, updated] : [...(kind === `dispatch` || kind === `ghost` ? [{
-    label: t(`map.selectTask`),
-    width: `56px`,
-    className: `map-task-select`,
-    select: !0
-  }] : []), coordinates, {
+  }, updated] : [coordinates, {
     label: t(`map.owner`),
     width: `minmax(150px, 1fr)`,
     value: e => mapOwnerLabel(e)

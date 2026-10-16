@@ -148,6 +148,9 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
     private Task? activeCycleTask;
     private CancellationTokenSource? activeCycleCancellation;
     private string? ownedScanRunId;
+    // Protected by stateGate. A saved overdue schedule must wait a full interval
+    // after connection, including reconnects and reopening the application.
+    private bool observedOnline;
     private int retired;
     private int disposed;
 
@@ -263,7 +266,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             intervalMinutes,
             serverIds,
             selectedTypes,
-            string.Equals(source.ScanMode, "normal", StringComparison.Ordinal) ? "normal" : "fast",
+            "fast",
             source.ReturnToOriginalServer,
             Math.Max(0, source.NextRunAt));
     }
@@ -300,7 +303,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             // browser snapshot undo a deadline advanced by a completed cycle.
             MapAutoScanConfig next = normalized with { NextRunAt = previous.NextRunAt };
             if (next.Enabled && !previous.Enabled)
-                next = next with { NextRunAt = utcNowMilliseconds() };
+                next = next with { NextRunAt = NextIntervalDeadline(next) };
             if (!next.Enabled)
                 next = next with { NextRunAt = 0 };
             CommitLocked(state with { Config = next });
@@ -343,7 +346,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         }
 
         Publish(snapshot);
-        await TryAdmitDueCycleAsync().ConfigureAwait(false);
+        await TryAdmitDueCycleAsync(explicitRunNow: true).ConfigureAwait(false);
         return await GetSnapshotAsync(cancellationToken).ConfigureAwait(false);
     }
 
@@ -453,23 +456,46 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     }
 
-    private async Task<bool> TryAdmitDueCycleAsync()
+    private long NextIntervalDeadline(MapAutoScanConfig config) =>
+        checked(utcNowMilliseconds() + config.IntervalMinutes * 60_000L);
+
+    private async Task<bool> TryAdmitDueCycleAsync(bool explicitRunNow = false)
     {
-        if (Volatile.Read(ref retired) != 0 || !execution.IsOnline() || execution.IsMapScanActive())
+        if (Volatile.Read(ref retired) != 0)
             return false;
 
         MapAutoScanConfig config;
+        MapAutoScanSnapshot? connectionSnapshot = null;
+        bool due;
         await stateGate.WaitAsync().ConfigureAwait(false);
         try
         {
-            config = state.Config;
-            if (!config.Enabled || utcNowMilliseconds() < config.NextRunAt)
+            if (!execution.IsOnline())
+            {
+                observedOnline = false;
                 return false;
+            }
+            if (!observedOnline)
+            {
+                observedOnline = true;
+                if (state.Config.Enabled && !explicitRunNow)
+                {
+                    CommitLocked(state with
+                    {
+                        Config = state.Config with { NextRunAt = NextIntervalDeadline(state.Config) },
+                    });
+                    connectionSnapshot = CreateSnapshotLocked();
+                }
+            }
+            config = state.Config;
+            due = config.Enabled && (explicitRunNow || utcNowMilliseconds() >= config.NextRunAt);
         }
         finally
         {
             stateGate.Release();
         }
+        if (connectionSnapshot is not null) Publish(connectionSnapshot);
+        if (!due || execution.IsMapScanActive()) return false;
 
         if (beforeDueAdmissionAsync is not null)
             await beforeDueAdmissionAsync().ConfigureAwait(false);
@@ -482,13 +508,17 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         try
         {
             config = state.Config;
-            if (!config.Enabled || utcNowMilliseconds() < config.NextRunAt)
+            if (!config.Enabled || (!explicitRunNow && utcNowMilliseconds() < config.NextRunAt))
                 return false;
             lock (cycleGate)
             {
+                if (!execution.IsOnline())
+                {
+                    observedOnline = false;
+                    return false;
+                }
                 if (mapClearReserved || Volatile.Read(ref retired) != 0 ||
                     activeCycleTask is { IsCompleted: false } ||
-                    !execution.IsOnline() ||
                     execution.IsMapScanActive())
                     return false;
 

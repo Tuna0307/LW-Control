@@ -154,12 +154,8 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   for (const [key, value] of Object.entries({ minLevel: 7, maxLevel: 9, resourceAmountState: "partial", resourceTileState: "black" }))
     assert.equal(queries.at(-1).query[key], value, `mounted Resource ${key}`);
   await goto(3);
-  const taskCheckbox = document.querySelector(".map-table--truck input[type=checkbox]");
-  assert.ok(taskCheckbox && !taskCheckbox.disabled && !taskCheckbox.checked);
-  await flush(() => taskCheckbox.click());
-  assert.equal(taskCheckbox.checked, true, "padded native Truck UUID must show as selected");
-  await flush(() => taskCheckbox.click());
-  assert.equal(taskCheckbox.checked, false, "padded native Truck UUID must deselect visibly");
+  assert.equal(document.querySelector(".map-table--truck input[type=checkbox]"), null,
+    "owner-removed scheduling must leave no orphan task checkbox");
   await click(document.querySelectorAll(".map-item-filter-menu button")[1]);
   await click(document.querySelectorAll(".map-item-filter-menu button")[2]);
   assert.match(document.querySelector(".map-item-filter summary").textContent, /\(2\)/);
@@ -223,7 +219,7 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.equal(queries.at(-1).query.suppliesType, 1, "Scattered Supplies must filter native suppliesType=1");
   assert.equal(queries.at(-1).query.treasureType, 0, "ordinary Treasure type is distinct");
   await goto(0);
-  const allManualChoices = [...document.querySelectorAll(".map-types input[type=checkbox]")];
+  const allManualChoices = [...document.querySelectorAll(".map-category-menu input[type=checkbox]")];
   for (const item of allManualChoices.filter((item) => item.checked)) await flush(() => item.click());
   assert.ok(allManualChoices.every((item) => !item.checked), "manual map type controls did not become empty");
   const manualStart = document.querySelector(".map-actions button.primary");
@@ -233,7 +229,7 @@ for (const [language, theme, width] of [["en", "light", 1280], ["ja", "dark", 37
   assert.equal(document.querySelector(".map-actions button.primary").disabled, false,
     "choosing a single type did not re-enable manual Start");
   await click(document.querySelector(".map-actions button.primary"));
-  assert.deepEqual(starts, [{ types: ["city"], speed: "normal" }],
+  assert.deepEqual(starts, [{ types: ["city"], speed: "fast" }],
     "manual Start expanded a single selected type into unintended kinds");
   onlineFlag = false; await render();
   const markButton = document.querySelector(".map-table--city .map-mark-button");

@@ -666,6 +666,27 @@ public sealed partial class MapStore : IDisposable
         }
     }
 
+    // OWNER_DIRECTION MAP-016: legacy databases still load, but no saved
+    // automatic account-action job or retired setting can execute after upgrade.
+    public void RetireAutomaticPlunder()
+    {
+        lock (gate)
+        {
+            using var tx = connection.BeginTransaction();
+            using var command = connection.CreateCommand();
+            command.Transaction = tx;
+            command.CommandText = """
+                DELETE FROM dispatch_plunder_jobs;
+                DELETE FROM truck_plunder_jobs;
+                DELETE FROM truck_plunder_history;
+                DELETE FROM dispatch_assist_jobs;
+                DELETE FROM app_settings WHERE key LIKE '%plunder%' OR key LIKE '%randomDelay%';
+                """;
+            command.ExecuteNonQuery();
+            tx.Commit();
+        }
+    }
+
     public void Dispose()
     {
         lock (gate) connection.Dispose();

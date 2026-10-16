@@ -11,7 +11,7 @@ public sealed class MapExporter
 
     public static string DefaultCityFileName(int serverId, DateTimeOffset utcNow)
     {
-        MapStore.ValidateServerId(serverId);
+        MapStore.ValidateReadServerId(serverId);
         DateTimeOffset value = utcNow.ToUniversalTime();
         return $"map-cities-{serverId}-{value:yyyyMMdd-HHmmss}.xlsx";
     }
@@ -22,7 +22,7 @@ public sealed class MapExporter
         ArgumentNullException.ThrowIfNull(options);
         if (!string.Equals(query.Kind, "city", StringComparison.Ordinal))
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export requires a City query");
-        MapStore.ValidateServerId(query.ServerId);
+        MapStore.ValidateReadServerId(query.ServerId);
         if (options.Headers.Count != 12 || options.Headers.Any(string.IsNullOrWhiteSpace))
             throw new BridgeCommandException("MAP_EXPORT_FAILED", "city export headers are invalid");
         if (string.IsNullOrWhiteSpace(path))

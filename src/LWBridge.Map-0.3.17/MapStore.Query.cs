@@ -7,6 +7,11 @@ namespace LWBridge.Map317;
 
 public sealed partial class MapStore
 {
+    internal static void ValidateReadServerId(int serverId)
+    {
+        if (serverId != 0) ValidateServerId(serverId);
+    }
+
     // Passive saved-data browsing while disconnected. No invented scan status.
     public IReadOnlyList<int> ReadPublishedServers()
     {
@@ -30,7 +35,9 @@ public sealed partial class MapStore
     {
         ArgumentNullException.ThrowIfNull(query);
         ValidateKind(query.Kind);
-        ValidateServerId(query.ServerId);
+        ValidateReadServerId(query.ServerId);
+        if (query.ServerId == 0 && !string.IsNullOrWhiteSpace(query.ScanRunId))
+            throw new BridgeCommandException("INVALID_REQUEST", "All servers reads published data only");
         long pageNumber = Math.Max(query.Page, 1L);
         int pageSize = Math.Clamp(query.PageSize <= 0 ? 50 : query.PageSize, 1, 200);
         IReadOnlyList<MapSort> sorts = NormalizeSorts(query);
@@ -64,7 +71,7 @@ public sealed partial class MapStore
                     : string.Empty;
 
             List<string> predicates = BuildPredicates(query, now);
-            predicates.Add("page.server_id=$server");
+            predicates.Add("(page.server_id>0 AND ($server=0 OR page.server_id=$server))");
             if (staging) predicates.Add("page.run_id=$run");
             string where = string.Join(" AND ", predicates);
 
@@ -137,15 +144,15 @@ public sealed partial class MapStore
 
     public IReadOnlyDictionary<string, int> SummaryCounts(int serverId, string? scanRunId = null)
     {
-        ValidateServerId(serverId);
+        ValidateReadServerId(serverId);
         bool staging = !string.IsNullOrWhiteSpace(scanRunId);
         string table = staging ? "scan_records" : "map_records";
         lock (gate)
         {
             using SqliteCommand command = connection.CreateCommand();
             command.CommandText = staging
-                ? $"SELECT kind,COUNT(*) FROM {table} WHERE server_id=$server AND run_id=$run GROUP BY kind"
-                : $"SELECT kind,COUNT(*) FROM {table} WHERE server_id=$server GROUP BY kind";
+                ? $"SELECT kind,COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)) AND run_id=$run GROUP BY kind"
+                : $"SELECT kind,COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)) GROUP BY kind";
             command.Parameters.AddWithValue("$server", serverId);
             if (staging) command.Parameters.AddWithValue("$run", scanRunId!);
             using SqliteDataReader reader = command.ExecuteReader();
@@ -157,7 +164,7 @@ public sealed partial class MapStore
 
     public MapOptionSet ReadOptions(int serverId, string? scanRunId = null, long? nowUnixMilliseconds = null)
     {
-        ValidateServerId(serverId);
+        ValidateReadServerId(serverId);
         bool staging = !string.IsNullOrWhiteSpace(scanRunId);
         string table = staging ? "scan_records" : "map_records";
         string run = staging ? " AND run_id=$run" : string.Empty;
@@ -166,15 +173,15 @@ public sealed partial class MapStore
             using SqliteTransaction snapshot = connection.BeginTransaction(deferred: true);
             IReadOnlyDictionary<string, int> counts = ReadCountsLocked(snapshot, table, serverId, scanRunId);
             List<MapAllianceOption> alliances = ReadAllianceOptionsLocked(snapshot,
-                $"SELECT alliance_name,COUNT(*) FROM {table} WHERE server_id=$server{run} AND kind='city' GROUP BY alliance_name ORDER BY alliance_name COLLATE NOCASE,alliance_name",
+                $"SELECT alliance_name,COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)){run} AND kind='city' GROUP BY alliance_name ORDER BY alliance_name COLLATE NOCASE,alliance_name",
                 serverId, scanRunId);
             int noAlliance = ScalarIntLocked(snapshot,
-                $"SELECT COUNT(*) FROM {table} WHERE server_id=$server{run} AND kind='city' AND (alliance_name IS NULL OR alliance_name='')",
+                $"SELECT COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)){run} AND kind='city' AND (alliance_name IS NULL OR alliance_name='')",
                 serverId, scanRunId);
             List<MapNameOption> resources = ReadNameOptionsLocked(snapshot, table, serverId, scanRunId, "resource", "resourceNameKey");
             List<MapNameOption> monsters = ReadNameOptionsLocked(snapshot, table, serverId, scanRunId, "monster", "monsterNameKey");
             List<int> dispatchLevels = ReadDistinctIntLocked(snapshot,
-                $"SELECT level FROM {table} WHERE server_id=$server{run} AND kind='dispatch' AND level IS NOT NULL GROUP BY level ORDER BY level",
+                $"SELECT level FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)){run} AND kind='dispatch' AND level IS NOT NULL GROUP BY level ORDER BY level",
                 serverId, scanRunId);
             IReadOnlyDictionary<string, IReadOnlyList<JsonElement>> rewardItems =
                 ReadRewardItemsLocked(snapshot, table, serverId, scanRunId,
@@ -183,7 +190,7 @@ public sealed partial class MapStore
             List<JsonElement> otherTypes = ReadOtherTypesLocked(snapshot, table, serverId, scanRunId);
             MapScanRun? progress = staging
                 ? ReadScanRunLocked(scanRunId!, snapshot)
-                : ReadLatestScanRunLocked(serverId, snapshot);
+                : serverId == 0 ? null : ReadLatestScanRunLocked(serverId, snapshot);
             snapshot.Commit();
             return new MapOptionSet(serverId, counts, alliances,
                 new Dictionary<string, IReadOnlyList<MapNameOption>>(StringComparer.Ordinal)
@@ -201,8 +208,8 @@ public sealed partial class MapStore
         using SqliteCommand command = connection.CreateCommand();
         command.Transaction = tx;
         command.CommandText = staging
-            ? $"SELECT kind,COUNT(*) FROM {table} WHERE server_id=$server AND run_id=$run GROUP BY kind"
-            : $"SELECT kind,COUNT(*) FROM {table} WHERE server_id=$server GROUP BY kind";
+            ? $"SELECT kind,COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)) AND run_id=$run GROUP BY kind"
+            : $"SELECT kind,COUNT(*) FROM {table} WHERE (server_id>0 AND ($server=0 OR server_id=$server)) GROUP BY kind";
         command.Parameters.AddWithValue("$server", serverId);
         if (staging) command.Parameters.AddWithValue("$run", runId!);
         using SqliteDataReader reader = command.ExecuteReader();
@@ -260,7 +267,7 @@ public sealed partial class MapStore
         command.CommandText = $"""
             SELECT CAST(json_extract(data_json,'$.{jsonKey}') AS TEXT),COUNT(*)
             FROM {table}
-            WHERE server_id=$server {(staging ? "AND run_id=$run" : string.Empty)} AND kind=$kind
+            WHERE (server_id>0 AND ($server=0 OR server_id=$server)) {(staging ? "AND run_id=$run" : string.Empty)} AND kind=$kind
               AND json_extract(data_json,'$.{jsonKey}') IS NOT NULL
             GROUP BY CAST(json_extract(data_json,'$.{jsonKey}') AS TEXT)
             ORDER BY CAST(json_extract(data_json,'$.{jsonKey}') AS TEXT) COLLATE NOCASE
@@ -290,7 +297,7 @@ public sealed partial class MapStore
                    CAST(json_extract(good.value,'$.name') AS TEXT),
                    CAST(json_extract(good.value,'$.iconPath') AS TEXT)
             FROM {table} page, json_each(page.data_json,'$.currentGoods') AS good
-            WHERE page.server_id=$server {(staging ? "AND page.run_id=$run" : string.Empty)}
+            WHERE (page.server_id>0 AND ($server=0 OR page.server_id=$server)) {(staging ? "AND page.run_id=$run" : string.Empty)}
               AND page.kind IN ('truck','railway')
               AND (json_extract(page.data_json,'$.arriveTs') IS NULL
                    OR CAST(json_extract(page.data_json,'$.arriveTs') AS INTEGER)>$now)
@@ -340,7 +347,7 @@ public sealed partial class MapStore
                    COUNT(DISTINCT page.record_key),
                    MAX(CAST(json_extract(reward.value,'$.count') AS REAL))
             FROM {table} page, json_each(page.data_json,'$.rewards') AS reward
-            WHERE page.server_id=$server {(staging ? "AND page.run_id=$run" : string.Empty)}
+            WHERE (page.server_id>0 AND ($server=0 OR page.server_id=$server)) {(staging ? "AND page.run_id=$run" : string.Empty)}
               AND page.kind='ghost'
               AND json_type(page.data_json,'$.rewards')='array'
               AND CASE WHEN reward.type='object' THEN
@@ -384,7 +391,7 @@ public sealed partial class MapStore
                   THEN 0 ELSE COALESCE(CAST(json_extract(data_json,'$.treasureType') AS INTEGER),0) END AS treasure_type,
                 COALESCE(CAST(json_extract(data_json,'$.treasureNameKey') AS TEXT),'') AS name_key
               FROM {table}
-              WHERE server_id=$server {(staging ? "AND run_id=$run" : string.Empty)} AND kind='treasure'
+              WHERE (server_id>0 AND ($server=0 OR server_id=$server)) {(staging ? "AND run_id=$run" : string.Empty)} AND kind='treasure'
             )
             SELECT supplies_type,treasure_type,MAX(name_key),COUNT(*)
             FROM treasure_options
@@ -421,7 +428,7 @@ public sealed partial class MapStore
         command.CommandText = $"""
             SELECT json_extract(data_json,'$.otherSubtype'),COUNT(*)
             FROM {table}
-            WHERE server_id=$server {(staging ? "AND run_id=$run" : string.Empty)}
+            WHERE (server_id>0 AND ($server=0 OR server_id=$server)) {(staging ? "AND run_id=$run" : string.Empty)}
               AND kind='other'
               AND json_extract(data_json,'$.otherSubtype') IS NOT NULL
             GROUP BY json_extract(data_json,'$.otherSubtype')
@@ -445,7 +452,7 @@ public sealed partial class MapStore
         command.Transaction = transaction;
         command.CommandText = """
             SELECT id,server_id,selected_types,status,total_blocks,completed_blocks,failed_blocks,created_at,updated_at,error
-            FROM scan_runs WHERE server_id=$server AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1
+            FROM scan_runs WHERE (server_id>0 AND ($server=0 OR server_id=$server)) AND status<>'discarded' ORDER BY updated_at DESC LIMIT 1
             """;
         command.Parameters.AddWithValue("$server", serverId);
         using SqliteDataReader reader = command.ExecuteReader();
@@ -637,12 +644,14 @@ public sealed partial class MapStore
             clauses.Add($"({expression} IS NULL) ASC");
             clauses.Add($"{expression} {direction}");
         }
+        clauses.Add("page.server_id ASC");
         clauses.Add("page.record_key ASC");
         return string.Join(", ", clauses);
     }
 
     private static string SortExpression(MapQuery query, string key) => (query.Kind, key) switch
     {
+        (_, "serverId") => "page.server_id",
         ("city", "level") => "page.level",
         ("city", "health") => "NULLIF(CAST(json_extract(page.data_json,'$.health') AS REAL),0)",
         ("city", "shield") => "CASE WHEN COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)>=1000000000000 AND COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)>$nowUnixMs THEN COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0) WHEN COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)<1000000000000 AND COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0)>$nowUnixSeconds THEN COALESCE(page.shield_end_time,CAST(json_extract(page.data_json,'$.protectEndTime') AS INTEGER),0) ELSE NULL END",

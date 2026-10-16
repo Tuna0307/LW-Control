@@ -21,15 +21,6 @@ export const MAP_COMMANDS = Object.freeze({
   treasureClaimStatus: "map_treasure_claim_status",
   treasureClaim: "map_treasure_claim",
   treasureClaimPreview: "map_treasure_claim_preview",
-  ghostPlunderPrepare: "map_ghost_plunder_prepare",
-  dispatchShareAlliance: "map_dispatch_share_alliance",
-  plunderJobsList: "map_plunder_jobs_list",
-  dispatchPlunderSchedule: "map_dispatch_plunder_schedule",
-  dispatchPlunderCancel: "map_dispatch_plunder_cancel",
-  dispatchPlunderClear: "map_dispatch_plunder_clear",
-  truckPlunderSchedule: "map_truck_plunder_schedule",
-  truckPlunderCancel: "map_truck_plunder_cancel",
-  truckPlunderClear: "map_truck_plunder_clear",
   localAutoScanStatus: "local_map_auto_scan_status",
   localAutoScanConfigSet: "local_map_auto_scan_config_set",
   localAutoScanRunNow: "local_map_auto_scan_run_now",
@@ -60,7 +51,6 @@ export const MAP_TABS = Object.freeze([
   { key: "treasure", label: "Treasure" },
   { key: "other", label: "Other" },
   { key: "zombie_boss", label: "Zombie Boss" },
-  { key: "scheduledPlunder", label: "Scheduled Plunder" },
 ]);
 
 export const MAP_KIND_KEYS = Object.freeze(MAP_SCAN_TYPES.map(({ key }) => key));
@@ -85,7 +75,7 @@ export const DEFAULT_SCAN_STATE = Object.freeze({
   failedBlocks: 0,
   unreadBlocks: 0,
   inflightBlocks: 0,
-  scanMode: "normal",
+  scanMode: "fast",
   concurrency: 8,
   scanRate: 0,
   progressPercent: 0,
@@ -132,7 +122,7 @@ export function normalizeScanState(value) {
     failedBlocks: integer(source.failedBlocks),
     unreadBlocks: integer(source.unreadBlocks),
     inflightBlocks: integer(source.inflightBlocks),
-    scanMode: source.scanMode === "fast" ? "fast" : "normal",
+    scanMode: "fast",
     concurrency: integer(source.concurrency, source.scanMode === "fast" ? 20 : 8),
     scanRate: finiteNumber(source.scanRate),
     progressPercent: Math.max(0, Math.min(100, finiteNumber(source.progressPercent))),
@@ -240,7 +230,7 @@ export function buildStartPayload(selectedTypes, scanMode) {
     // native admission fence instead of silently launching a full-world scan.
     selectedTypes: Array.isArray(selectedTypes) && selectedTypes.length === 0
       ? [] : normalizeSelectedTypes(selectedTypes),
-    scanMode: scanMode === "fast" ? "fast" : "normal",
+    scanMode: "fast",
   };
 }
 
@@ -257,7 +247,7 @@ export function buildSearchPayload(kind, query = {}) {
     sorts,
   };
   for (const key of [
-    "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "otherSubtype", "alliance",
+    "allServers", "resourceNameKey", "monsterNameKey", "treasureType", "suppliesType", "otherSubtype", "alliance",
     "withoutAlliance", "markedOnly", "quality", "specialOnly", "reindeerOnly", "itemKey",
     "completionStatus", "plunderableOnly", "includeForeignRadarTreasures", "luckyFirst",
     "viewerUid", "viewerAllianceId", "minLevel", "maxLevel",
@@ -267,46 +257,6 @@ export function buildSearchPayload(kind, query = {}) {
     if (query[key] !== undefined && query[key] !== null && query[key] !== "") normalized[key] = query[key];
   }
   return { kind, query: normalized };
-}
-
-export function buildDispatchShareRows(rows) {
-  return (rows || []).map((row) => ({
-    uuid: String(row?.uuid || ""),
-    serverId: row?.serverId,
-    x: row?.x,
-    y: row?.y,
-    cfgId: row?.cfgId,
-    ownerName: row?.ownerName,
-    allianceAbbr: row?.allianceAbbr,
-  }));
-}
-
-export function buildDispatchPlunderRows(rows, maxRandomDelaySeconds = 0, random = Math.random) {
-  return (rows || []).map((row) => {
-    const base = Number(row?.plunderAt) || 0;
-    const expiry = Number(row?.taskExpireTime) || 0;
-    const expiryCap = expiry > 0
-      ? Math.max(0, Math.floor((expiry - base - 1) / 1000))
-      : maxRandomDelaySeconds;
-    const safeIntegerCap = Math.max(0, Math.floor((2 ** 53 - 1 - base) / 1000));
-    const effectiveCap = Math.min(maxRandomDelaySeconds, expiryCap, safeIntegerCap);
-    const randomDelaySeconds = effectiveCap > 0
-      ? Math.floor(random() * (effectiveCap + 1))
-      : 0;
-    return {
-      ...row,
-      plunderAt: base + randomDelaySeconds * 1000,
-      maxRandomDelaySeconds,
-      randomDelaySeconds,
-    };
-  });
-}
-
-export function buildTruckPlunderRows(rows, now = Date.now()) {
-  return (rows || []).map((row) => ({
-    ...row,
-    executeAt: Math.max(now, Number(row?.protectTime) || 0),
-  }));
 }
 
 export function createMapApi(bridge) {
@@ -375,39 +325,6 @@ export function createMapApi(bridge) {
       MAP_COMMANDS.treasureClaimPreview,
       { serverId, claimScope, prioritizeLuckySlots, targetUuid },
     ),
-    prepareGhostPlunder: (rows, maxRandomDelaySeconds = 0) => invokeScoped(
-      MAP_COMMANDS.ghostPlunderPrepare,
-      { rows: buildDispatchPlunderRows((rows || []).map(row => ({ ...row, taskKind: "ghost" })), maxRandomDelaySeconds) },
-    ),
-    shareDispatchToAlliance: (rows) => invokeScoped(
-      MAP_COMMANDS.dispatchShareAlliance,
-      { rows: buildDispatchShareRows(rows) },
-    ),
-    listPlunderJobs: () => invokeScoped(MAP_COMMANDS.plunderJobsList),
-    scheduleDispatchPlunder: (rows, maxRandomDelaySeconds = 0) => invokeScoped(
-      MAP_COMMANDS.dispatchPlunderSchedule,
-      { rows: buildDispatchPlunderRows(rows, maxRandomDelaySeconds) },
-    ),
-    cancelDispatchPlunder: (serverId, taskUuid) => invokeScoped(
-      MAP_COMMANDS.dispatchPlunderCancel,
-      { serverId, taskUuid },
-    ),
-    clearDispatchPlunderHistory: (before, taskKind) => invokeScoped(
-      MAP_COMMANDS.dispatchPlunderClear,
-      { before, taskKind },
-    ),
-    scheduleTruckPlunder: (rows) => invokeScoped(
-      MAP_COMMANDS.truckPlunderSchedule,
-      { rows: buildTruckPlunderRows(rows) },
-    ),
-    cancelTruckPlunder: (serverId, trainUuid) => invokeScoped(
-      MAP_COMMANDS.truckPlunderCancel,
-      { serverId, trainUuid },
-    ),
-    clearTruckPlunderHistory: (before) => invokeScoped(
-      MAP_COMMANDS.truckPlunderClear,
-      { before },
-    ),
     autoScanStatus: () => invokeScoped(MAP_COMMANDS.localAutoScanStatus),
     updateAutoScanConfig: (config) => invokeScoped(
       MAP_COMMANDS.localAutoScanConfigSet,
@@ -416,14 +333,6 @@ export function createMapApi(bridge) {
     runAutoScanNow: () => invokeScoped(MAP_COMMANDS.localAutoScanRunNow),
     cancelAutoScan: () => invokeScoped(MAP_COMMANDS.localAutoScanCancel),
     listenAutoScanChanged: (callback) => listenScoped("bridge://local-map-auto-scan-changed", callback),
-    listenPlunderJobsChanged: (callback) => {
-      const offDispatch = listenScoped("bridge://dispatch-plunder-changed", callback);
-      const offTruck = listenScoped("bridge://truck-plunder-changed", callback);
-      return () => {
-        offDispatch();
-        offTruck();
-      };
-    },
     listenScanStatus: (callback) => listenScoped("bridge://map-scan-status", callback, normalizeScanState),
     listenStatus: (callback) => listenScoped("bridge://status", callback),
   };

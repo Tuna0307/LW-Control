@@ -112,6 +112,8 @@ internal static class Map007ActionProviderChecks
             };
             using var service = new Map317CommandService(path, Map317.UnavailableMapProvider.Instance,
                 boundary, startPlunderWorkers: false);
+            using var historicalStore = new Map317.MapStore(Path.Combine(root, "historical-preparation.db"));
+            var historicalActions = new Map317.MapActionControlPlane(historicalStore, boundary);
             JsonElement snapshot = await Call(service, "map_treasure_claim_status", new { });
             Require(snapshot.GetProperty("candidateCount").GetInt32() == 101 &&
                 snapshot.GetProperty("inspectedCount").GetInt32() == 101 && inspections == 2 &&
@@ -158,7 +160,7 @@ internal static class Map007ActionProviderChecks
             { rows = new[] { new { taskKind = "ghost", uuid = "12345", serverId = 317,
                 completionTime = now - 1_000, plunderAt = now + 10_000,
                 taskExpireTime = now + 60_000, stolenCount = 0, maxStealCount = 2 } } }),
-                "GHOST_PLUNDER_PROVIDER_UNAVAILABLE");
+                "FEATURE_REMOVED");
 
             var ghost = new
             {
@@ -169,21 +171,26 @@ internal static class Map007ActionProviderChecks
                 plunderAt = now + 29_000, taskExpireTime = now + 120_000,
                 stealListCount = 0, stolenCount = 0, stealMaxTimes = 2, maxStealCount = 2,
             };
-            JsonElement prepared = await Call(service, "map_ghost_plunder_prepare", new { rows = new[] { ghost } });
+            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new { rows = new[] { ghost } }),
+                "FEATURE_REMOVED");
+            // Historical validation remains covered in an inert library instance;
+            // the retired native command cannot reach this code/provider anymore.
+            JsonElement prepared = JsonSerializer.SerializeToElement(await historicalActions.PrepareGhostPlunderAsync(
+                new[] { JsonSerializer.SerializeToElement(ghost) }));
             Require(prepared.GetArrayLength() == 1 && prepared[0].GetProperty("uuid").GetString() == "123456" &&
                 dispatchSends == 0, "Ghost preparation was routed as Dispatch game transport");
-            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { ghost, ghost } }), "INVALID_REQUEST");
+            await Reject(async () => _ = await historicalActions.PrepareGhostPlunderAsync(
+                new[] { JsonSerializer.SerializeToElement(ghost), JsonSerializer.SerializeToElement(ghost) }), "INVALID_REQUEST");
             JsonElement wrong = JsonSerializer.SerializeToElement(ghost);
             using var changed = JsonDocument.Parse(wrong.GetRawText().Replace("GhostreconPointInfo", "DispatchPointInfo"));
-            await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { changed.RootElement.Clone() } }), "INVALID_REQUEST");
+            await Reject(async () => _ = await historicalActions.PrepareGhostPlunderAsync(
+                new[] { changed.RootElement.Clone() }), "INVALID_REQUEST");
 
             hold = true;
             Task<JsonElement> held = Call(service, "map_treasure_claim_status", new { });
             await readGate.Task.WaitAsync(TimeSpan.FromSeconds(5));
             await Reject(async () => _ = await Call(service, "map_ghost_plunder_prepare", new
-            { rows = new[] { ghost } }), "GAME_OPERATION_IN_PROGRESS");
+            { rows = new[] { ghost } }), "FEATURE_REMOVED");
             identity = "different-user";
             releaseGate.TrySetResult(true);
             await held;
