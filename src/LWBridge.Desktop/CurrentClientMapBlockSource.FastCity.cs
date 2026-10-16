@@ -715,7 +715,8 @@ internal sealed partial class CurrentClientMapBlockSource
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("truck", StringComparer.Ordinal))
             foreach (FastTrainPrepared item in trainRecords.Values.Where(item => item.Record.Kind == "truck"))
-                AddRecordToBlock(buckets, item.X, item.Y, item.Record);
+                if (FastTruckArrivalIsAfter(item.Record, Now().ToUnixTimeMilliseconds()))
+                    AddRecordToBlock(buckets, item.X, item.Y, item.Record);
         if (request.SelectedTypes.Contains("railway", StringComparer.Ordinal))
             foreach (FastTrainPrepared item in trainRecords.Values.Where(item => item.Record.Kind == "railway"))
                 AddRecordToBlock(buckets, item.X, item.Y, item.Record);
@@ -2624,12 +2625,15 @@ internal sealed partial class CurrentClientMapBlockSource
             int aoiIndex = checked((y / FastCityAoiBlockSize) * FastCityAoiBlockCount + (x / FastCityAoiBlockSize));
             if (!requestedSet.Contains(aoiIndex))
                 throw new InvalidDataException("Fast world Truck fell outside the native AOI footprint.");
-            long updatedAt = capturedAt.ToUnixTimeMilliseconds();
+            long updatedAt = kind == "truck" && OptionalPositiveInt64(row, "capturedAtMs") is long frameTime
+                ? frameTime : capturedAt.ToUnixTimeMilliseconds();
             long? power = row.TryGetProperty("power", out JsonElement powerValue) && powerValue.TryGetInt64(out long parsedPower) && parsedPower >= 0 ? parsedPower : null;
             string? ownerName = OptionalStringValue(row, "ownerName");
             string? allianceName = OptionalStringValue(row, "allianceName");
             int? pointIndex = row.TryGetProperty("positionIndex", out JsonElement pi) && pi.TryGetInt32(out int piv) ? piv : null;
             long? arriveTs = OptionalPositiveInt64(row, "arriveTs");
+            if (kind == "truck" && !FastTruckArrivalIsAfter(row, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()))
+                continue;
             int? robTimes = OptionalNonNegativeInt(row, "robTimes");
             long? protectTime = OptionalPositiveInt64(row, "protectTime");
             if (kind == "railway" && (arriveTs is null || robTimes is null || protectTime is null))

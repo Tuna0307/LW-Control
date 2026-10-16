@@ -309,7 +309,7 @@ def audit_city_camera_free(destination: Path, proof: dict, restoration: dict,
             metrics.get("validatedProbeResponses") != 63 or
             metrics.get("attributableLuaProbeAttempts") != direct["requestsSent"] or
             type(record_counts.get("city")) is not int or record_counts["city"] < 1 or
-            (all_nontruck and (type(record_counts.get("ghost")) is not int or
+            (mode == "all-nontruck" and (type(record_counts.get("ghost")) is not int or
                                record_counts["ghost"] < 1)) or
             (not all_nontruck and (type(proof.get("total")) is not int or proof["total"] < 1))):
         raise ValueError("City prepared metrics do not prove the same complete direct acquisition")
@@ -429,6 +429,40 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         if (not isinstance(filter_result, dict) or filter_result.get("filteredTotal", 0) < 1 or
                 not Path(filter_result.get("screenshot", "")).is_file()):
             raise ValueError("Packaged fast Truck positive combined filter is missing")
+        receipt = read("live-resource/fast-truck-scan-result.json")
+        scan_run = (proof.get("completedStatus") or {}).get("scanRunId") or browse.get("scanRunId")
+        if (receipt.get("state") != "proven" or receipt.get("scanRunId") != scan_run or
+                receipt.get("profileId") != restoration.get("profileId") or
+                receipt.get("launchSessionId") != restoration.get("sessionId") or
+                receipt.get("gamePid") != restoration.get("gamePid") or
+                receipt.get("rectanglesCompleted") != 625 or
+                receipt.get("initialRequestsSent") != 625 or
+                receipt.get("unprovenRectangles") != 0 or
+                receipt.get("responseAttribution") != "bounded_sequential_fences" or
+                type(receipt.get("repairPasses")) is not int or
+                not 0 <= receipt["repairPasses"] <= 2 or
+                receipt.get("repairRequestsSent") != receipt.get("requestsSent", -1) - 625):
+            raise ValueError("Fast Truck source has unverified rectangles or lacks bounded native repair evidence")
+        db_path = destination / "profiles" / restoration["profileId"] / "map-data" / "map-data.db"
+        with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True)) as database:
+            published = database.execute(
+                "SELECT updated_at,data_json FROM map_records WHERE kind='truck' AND server_id=?",
+                (receipt["serverId"],)).fetchall()
+        if not published:
+            raise ValueError("Fast Truck scan published no current owned Truck records")
+        for updated_at, raw in published:
+            data = json.loads(raw)
+            if type(updated_at) is not int or not isinstance(data, dict):
+                raise ValueError("Fast Truck row lacks an auditable capture timestamp")
+            for field in ("endTime", "arriveTs"):
+                value = data.get(field)
+                if value is None:
+                    continue
+                if type(value) is not int or value <= 0:
+                    raise ValueError("Fast Truck row has an invalid arrival deadline")
+                arrive_ms = value * 1000 if value < 100_000_000_000 else value
+                if arrive_ms <= updated_at:
+                    raise ValueError("Fast Truck published a row already arrived at capture")
     if mode == "truck-stop":
         if (proof.get("proof") != "actual_packaged_ui_truck_stop_mid_sweep" or
                 proof.get("startedStatus", {}).get("phase") not in ("scanning", "reading", "running") and

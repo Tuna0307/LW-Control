@@ -446,7 +446,8 @@ CURRENT SCOPE
 For complete scans of the current normal-world server, the scanner
 attempts direct AOI collection without moving the camera. Truck uses a
 separate 625-rectangle march-push sweep, initially at 20 requests/s,
-with a 15 requests/s retry after a lost native push. Only game-owned
+with bounded re-requests of unverified rectangle groups (at most two
+repair passes) after missing native pushes. Only game-owned
 train.type=Truck records with production fields can enter Truck rows;
 Railway remains separate. Camera scan is the fallback after failed,
 empty or unverified direct acquisition with proven native cleanup.

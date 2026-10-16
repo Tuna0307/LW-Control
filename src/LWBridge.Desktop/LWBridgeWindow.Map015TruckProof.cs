@@ -24,9 +24,16 @@ internal sealed partial class LWBridgeWindow
             receipt.GetProperty("worldId").GetInt32() != 0 ||
             receipt.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
             receipt.GetProperty("curViewRestored").ValueKind != JsonValueKind.True ||
-            receipt.GetProperty("requestsSent").GetInt32() != 625 ||
-            receipt.GetProperty("pushesObserved").GetInt32() != 625 ||
+            receipt.GetProperty("initialRequestsSent").GetInt32() != 625 ||
+            receipt.GetProperty("requestsSent").GetInt32() < 625 ||
+            receipt.GetProperty("pushesObserved").GetInt32() < 625 ||
+            receipt.GetProperty("pushesObserved").GetInt32() > receipt.GetProperty("requestsSent").GetInt32() ||
             receipt.GetProperty("rectanglesCompleted").GetInt32() != 625 ||
+            receipt.GetProperty("unprovenRectangles").GetInt32() != 0 ||
+            receipt.GetProperty("repairRequestsSent").GetInt32() !=
+                receipt.GetProperty("requestsSent").GetInt32() - 625 ||
+            receipt.GetProperty("repairPasses").GetInt32() is < 0 or > 2 ||
+            receipt.GetProperty("responseAttribution").GetString() != "bounded_sequential_fences" ||
             receipt.GetProperty("requestsPerSecond").GetInt32() is not (15 or 20))
             throw new InvalidDataException("MAP015 packaged Truck scan did not complete 625 typed native pushes with restoration.");
         JsonElement records = receipt.GetProperty("trainRecords");
@@ -41,11 +48,16 @@ internal sealed partial class LWBridgeWindow
                 !row.TryGetProperty("ownerName", out var owner) || string.IsNullOrWhiteSpace(owner.GetString()) ||
                 !row.TryGetProperty("trainQuality", out var quality) || quality.GetInt32() < 1 ||
                 !row.TryGetProperty("power", out var power) || !power.TryGetInt64(out _) ||
-                !row.TryGetProperty("arriveTs", out var arrive) || !arrive.TryGetInt64(out long value) || value <= 0)
+                !row.TryGetProperty("arriveTs", out var arrive) || !arrive.TryGetInt64(out long value) || value <= 0 ||
+                !row.TryGetProperty("capturedAtMs", out var captured) ||
+                !captured.TryGetInt64(out long capturedMs) || capturedMs <= 0 ||
+                !CurrentClientMapBlockSource.FastTruckArrivalIsAfter(row, capturedMs))
                 throw new InvalidDataException("MAP015 packaged fast Truck record lacks camera-parity fields or native Truck type.");
         }
         return new { nativePath = path, requestsPerSecond = receipt.GetProperty("requestsPerSecond").GetInt32(),
-            pushes = 625, trainRecordCount = records.GetArrayLength(), cameraStable = true, curViewRestored = true };
+            pushes = 625, repairPasses = receipt.GetProperty("repairPasses").GetInt32(),
+            repairRequests = receipt.GetProperty("repairRequestsSent").GetInt32(),
+            trainRecordCount = records.GetArrayLength(), cameraStable = true, curViewRestored = true };
     }
 
     private async Task<object> RunMap015TruckFilterUiProofAsync(

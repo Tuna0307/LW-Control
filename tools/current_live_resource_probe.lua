@@ -7161,6 +7161,20 @@ M._map015FastTruck = {
     cancelPath = root .. [[\fast-truck-scan-cancel.txt]], active = nil,
 }
 
+-- Truck arrival fields can come from the live march (endTime) or TrainData
+-- (arriveTs). Both are Unix times; installed game builds expose milliseconds,
+-- while a seconds-valued field is conservatively normalized before comparison.
+function M._map015FastTruck.unarrived(row, captured_at_ms)
+    for _, field in ipairs({ "endTime", "arriveTs" }) do
+        local arrival = tonumber(row[field])
+        if arrival ~= nil and arrival > 0 then
+            if arrival < 100000000000 then arrival = arrival * 1000 end
+            if arrival <= captured_at_ms then return false end
+        end
+    end
+    return true
+end
+
 function M._map015FastTruck.finish(reason)
     local lane, s = M._map015FastTruck, M._map015FastTruck.active
     if s == nil then return end
@@ -7182,7 +7196,8 @@ function M._map015FastTruck.finish(reason)
     local x = tonumber(tile and (safe_get(tile, "x") or safe_get(tile, "X")))
     local y = tonumber(tile and (safe_get(tile, "y") or safe_get(tile, "Y")))
     local stable = x == s.originalX and y == s.originalY
-    local proven = reason == nil and restored and stable and s.sent == 625 and s.pushes == 625 and #s.records > 0
+    local proven = reason == nil and restored and stable and s.initialSent == 625 and
+        s.verified == 625 and s.pushes <= s.sent and #s.records > 0
     write_json(lane.resultPath, {
         schemaVersion = 1, probeVersion = M.VERSION, requestId = s.requestId,
         profileId = s.profileId, launchSessionId = s.launchSessionId,
@@ -7190,9 +7205,12 @@ function M._map015FastTruck.finish(reason)
         serverId = s.serverId, worldId = 0, state = proven and "proven" or "failed",
         error = reason or (not restored and "cur_view_restore_failed") or
             (not stable and "camera_tile_changed") or
-            (s.pushes ~= 625 and "lost_march_push") or (#s.records == 0 and "zero_train_rows") or nil,
+            (s.verified ~= 625 and "lost_march_push") or (#s.records == 0 and "zero_train_rows") or nil,
         cameraStable = stable, curViewRestored = restored, requestsSent = s.sent,
-        pushesObserved = s.pushes, rectanglesCompleted = s.pushes,
+        pushesObserved = s.pushes, rectanglesCompleted = s.verified,
+        initialRequestsSent = s.initialSent, repairRequestsSent = s.sent - s.initialSent,
+        repairPasses = s.pass, unprovenRectangles = 625 - s.verified,
+        responseFenceSize = 25, responseAttribution = "bounded_sequential_fences",
         trainRecords = proven and s.records or {}, trainRecordCount = #s.records,
         requestsPerSecond = s.rate,
         logMarchUuidCount = s.logSeenCount, elapsedSeconds = runtime_clock() - s.startedAt,
@@ -7239,8 +7257,10 @@ function M._map015FastTruck.pump(now)
             originalY = tonumber(safe_get(tile, "y") or safe_get(tile, "Y")),
             int32 = CS.System.Int32, added = {}, addedSet = {}, seen = {}, records = {},
             wholeWorld = whole_world,
-            logSeenCount = 0, next = 0, sent = 0, pushes = 0,
-            pending = nil, startedAt = runtime_clock(), lastSend = -1,
+            logSeenCount = 0, next = 0, sent = 0, initialSent = 0,
+            pushes = 0, completed = {}, verified = 0, pass = 0,
+            group = nil, unproven = {}, repair = {}, repairCursor = 1,
+            startedAt = runtime_clock(), lastSend = -1,
             rate = values.rate == "15" and 15 or 20,
             interval = values.rate == "15" and 1 / 15 or 1 / 20,
         }
@@ -7255,6 +7275,9 @@ function M._map015FastTruck.pump(now)
         return true
     end
     if current_server_id() ~= s.serverId then M._map015FastTruck.finish("server_changed"); return true end
+    if runtime_clock() - s.startedAt >= 210 then
+        M._map015FastTruck.finish("bounded_repair_deadline"); return true
+    end
     -- _logMarchUuids1 accumulates thousands of historical UUIDs. Inspect its
     -- passive count at most once every five seconds: enumerating its entire
     -- dictionary on EVERY frame was measured at only 435 pushes/100 seconds.
@@ -7266,8 +7289,8 @@ function M._map015FastTruck.pump(now)
     local stamp = tostring(reflected_value(s.marchManager, "_lastGetBlockMsgTime"))
     if s.sent > 0 then
         local new_push = stamp ~= s.lastPushStamp
-        if new_push and s.pushes >= s.sent then
-            M._map015FastTruck.finish("unexpected_march_push"); return true
+        if new_push and (s.group == nil or s.group.acks >= s.group.sent) then
+            M._map015FastTruck.finish("unattributed_march_push"); return true
         end
             -- This native builder is the same one used by the camera route.
             -- Capture on every response frame. Requests are sent at a bounded
@@ -7283,29 +7306,66 @@ function M._map015FastTruck.pump(now)
             local rows, err = train_march_aoi_records(s.world, 10, 100, s.wholeWorld, s.seen)
             s.captureSeconds = (s.captureSeconds or 0) + runtime_clock() - capturedAt
             if rows == nil then M._map015FastTruck.finish("train_" .. tostring(err)); return true end
+            local captured_at_ms = os.time() * 1000
             for _, row in ipairs(rows) do
-                if row.uuid ~= "" and row.trainType == 1 then
+                if row.uuid ~= "" and row.trainType == 1 and
+                   M._map015FastTruck.unarrived(row, captured_at_ms) then
                     s.seen[row.uuid] = true
+                    row.capturedAtMs = captured_at_ms
                     s.records[#s.records + 1] = row
                 end
             end
             if new_push then
                 s.pushes = s.pushes + 1
+                s.group.acks = s.group.acks + 1
                 s.lastPushStamp = stamp
             end
     end
-    if s.sent == 625 and s.pushes == 625 then
-        M._map015FastTruck.finish(nil); return true
+    -- The march push contains NO echoed rectangle coordinates/request ID.
+    -- Fence each small set of overlapping sends and refuse to mark any of
+    -- its rectangles verified unless every expected push arrives inside that
+    -- fence. An incomplete fence leaves the WHOLE ambiguous set unproven.
+    -- Repair those unproven rectangles one at a time, so each repair push has
+    -- exactly one outstanding rectangle. Never guess an individual loss by
+    -- FIFO order; there are at most two bounded repair passes.
+    if s.group ~= nil and s.group.sent == #s.group.indices and
+       (s.group.acks == s.group.sent or runtime_clock() - s.lastSend >= 3) then
+        if s.group.acks == s.group.sent then
+            for _, n in ipairs(s.group.indices) do
+                if not s.completed[n] then
+                    s.completed[n] = true
+                    s.verified = s.verified + 1
+                end
+            end
+        end
+        s.group = nil
     end
-    -- R2's exact native fixture allowed the game's queued march-push handler
-    -- to drain AFTER the final paced send. Three seconds truncated two late
-    -- pushes in repeated 15/s runs (623/625); allow one bounded 12-second
-    -- post-send drain while still requiring all 625 distinct stamp changes.
-    if s.sent == 625 and runtime_clock() - s.lastSend >= 12 then
-        M._map015FastTruck.finish("lost_march_push"); return true
+    if s.group == nil and ((s.pass == 0 and s.next >= 625) or
+       (s.pass > 0 and s.repairCursor > #s.repair)) then
+        if s.verified == 625 then M._map015FastTruck.finish(nil); return true end
+        if s.pass == 2 then M._map015FastTruck.finish("lost_march_push"); return true end
+        s.pass = s.pass + 1
+        s.repair, s.repairCursor = {}, 1
+        for n = 0, 624 do
+            if not s.completed[n] then s.repair[#s.repair + 1] = n end
+        end
     end
-    if s.next < 625 and runtime_clock() - s.lastSend >= s.interval then
-        local n = s.next
+    if s.group == nil then
+        local indices = {}
+        if s.pass == 0 then
+            for n = s.next, math.min(624, s.next + 24) do
+                indices[#indices + 1] = n
+            end
+            s.next = s.next + #indices
+        elseif s.repairCursor <= #s.repair then
+            indices[1] = s.repair[s.repairCursor]
+            s.repairCursor = s.repairCursor + 1
+        end
+        if #indices > 0 then s.group = { indices = indices, cursor = 1, sent = 0, acks = 0 } end
+    end
+    if s.group ~= nil and s.group.cursor <= #s.group.indices and
+       runtime_clock() - s.lastSend >= (s.pass == 0 and s.interval or 0.05) then
+        local n = s.group.indices[s.group.cursor]
         local cx, cy = n % 25, math.floor(n / 25)
         local x0, y0 = cx * 40, cy * 40
         local index = (cy * 4 + 2) * 100 + cx * 4 + 2
@@ -7332,7 +7392,9 @@ function M._map015FastTruck.pump(now)
         if s.sent == 0 then s.lastPushStamp = stamp end
         local ok, err = pcall(function() CS.WorldGetBlockMessage.Instance:Send(r) end)
         if not ok then M._map015FastTruck.finish("request_failed:" .. tostring(err)); return true end
-        s.next, s.sent, s.lastSend = n + 1, s.sent + 1, runtime_clock()
+        s.group.cursor, s.group.sent = s.group.cursor + 1, s.group.sent + 1
+        s.sent, s.lastSend = s.sent + 1, runtime_clock()
+        if s.pass == 0 then s.initialSent = s.initialSent + 1 end
         if s.sent == 20 then
             write_json(lane.startedPath, {
                 schemaVersion = 1, probeVersion = M.VERSION,

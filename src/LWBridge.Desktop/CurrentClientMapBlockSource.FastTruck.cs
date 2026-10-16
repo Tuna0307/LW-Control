@@ -5,11 +5,10 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class CurrentClientMapBlockSource
 {
-    // One exact 625-rectangle send pass at 15/s plus the bounded native
-    // post-send drain remains below 90 s in observed live trials. A missing
-    // terminal receipt must cancel and prove native restoration before any
-    // camera fallback can begin.
-    private static readonly TimeSpan FastTruckSweepTimeout = TimeSpan.FromSeconds(90);
+    // Each 625-rectangle sweep now fences sends and has up to two selective
+    // single-outstanding repair passes. The native owner imposes its own
+    // bounded deadline and must prove restoration on failure or cancellation.
+    private static readonly TimeSpan FastTruckSweepTimeout = TimeSpan.FromSeconds(240);
 
     private async Task<IReadOnlyList<FastTrainPrepared>> CaptureFastTruckRowsAsync(
         OverviewMapScanSession session, MapScanExecutionRequest request,
@@ -18,37 +17,45 @@ internal sealed partial class CurrentClientMapBlockSource
         if (request.WorldId != 0 || request.LiveServerId is int live && live != request.ServerId)
             throw new InvalidDataException("Fast Truck requires the current normal-world server.");
 
-        // The native owner runs at 20/s. A lost push means the entire sweep
-        // was rejected; attempt exactly one fresh 15/s sweep, then let the
-        // caller use the existing camera route.
-        for (int attempt = 0; attempt < 2; attempt++)
+        // One 20/s native sweep performs at most two repair passes over its
+        // unverified rectangles. A terminal native loss is eligible for the
+        // established camera fallback after exact owned cleanup.
         {
-            int rate = attempt == 0 ? 20 : 15;
+            const int rate = 20;
             JsonElement response = await ProbeFastTruckAsync(session, request, rate, cancellationToken)
                 .ConfigureAwait(false);
             if (MatchesString(response, "state", "failed"))
             {
                 string cause = ReadOptionalString(response, "error") ?? "native_source_failed";
-                if (cause == "lost_march_push" && attempt == 0)
-                {
-                    RequireSameSession(session);
-                    Console.Error.WriteLine($"FAST_TRUCK_PUSH_RETRY server={request.ServerId} run={request.RunId} rate=15");
-                    continue;
-                }
                 throw new InvalidDataException("Fast Truck native sweep failed: " + cause);
             }
             if (!MatchesString(response, "state", "proven") ||
-                !MatchesInt(response, "requestsSent", 625) ||
-                !MatchesInt(response, "pushesObserved", 625) ||
+                !MatchesInt(response, "initialRequestsSent", 625) ||
                 !MatchesInt(response, "rectanglesCompleted", 625) ||
                 !MatchesInt(response, "requestsPerSecond", rate) ||
+                !MatchesInt(response, "unprovenRectangles", 0) ||
+                !MatchesString(response, "responseAttribution", "bounded_sequential_fences") ||
+                !MatchesInt(response, "responseFenceSize", 25) ||
+                !response.TryGetProperty("repairPasses", out JsonElement passes) ||
+                !passes.TryGetInt32(out int passCount) || passCount is < 0 or > 2 ||
+                !response.TryGetProperty("requestsSent", out JsonElement sent) ||
+                !sent.TryGetInt32(out int totalSent) || totalSent < 625 ||
+                !response.TryGetProperty("pushesObserved", out JsonElement pushes) ||
+                !pushes.TryGetInt32(out int observed) || observed < 625 || observed > totalSent ||
+                !MatchesInt(response, "repairRequestsSent", totalSent - 625) ||
                 !response.TryGetProperty("trainRecords", out JsonElement rows) ||
                 rows.ValueKind != JsonValueKind.Array || rows.GetArrayLength() == 0 ||
                 !MatchesInt(response, "trainRecordCount", rows.GetArrayLength()))
                 throw new InvalidDataException("Fast Truck native sweep did not prove 625 unique pushes and positive typed rows.");
 
+            var currentRows = new List<JsonElement>(rows.GetArrayLength());
+            long receiptTimeMs = Now().ToUnixTimeMilliseconds();
             foreach (JsonElement row in rows.EnumerateArray())
             {
+                // Native checks at each capture frame. The receipt can arrive
+                // tens of seconds later, so repeat the arrival check before
+                // importing anything that could reach the published map.
+                if (!FastTruckArrivalIsAfter(row, receiptTimeMs)) continue;
                 // The authoritative builder is train_march_aoi_records, exactly
                 // as for a camera sweep. Unknown/reclassified trains cannot
                 // enter Truck publication, and incomplete native metadata
@@ -66,22 +73,47 @@ internal sealed partial class CurrentClientMapBlockSource
                     !row.TryGetProperty("truckCurrentGoodsRaw", out JsonElement rewards) ||
                     rewards.ValueKind != JsonValueKind.Array)
                     throw new InvalidDataException("Fast Truck row lacks production owner, reward, power or arrival metadata.");
+                currentRows.Add(row);
             }
             DateTimeOffset capturedAt = DateTimeOffset.Parse(
                 RequiredString(response, "capturedAt"), CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
             JsonElement wrapped = JsonSerializer.SerializeToElement(
-                new { train_march_records = rows }, JsonOptions.Default);
+                new { train_march_records = currentRows }, JsonOptions.Default);
             MapScanExecutionRequest truckRequest = request with { SelectedTypes = ["truck"] };
             IReadOnlyList<FastTrainPrepared> prepared = PrepareTrainRecords(
                 wrapped, truckRequest, Enumerable.Range(0, 10000).ToHashSet(), capturedAt);
-            if (prepared.Count == 0 || prepared.Count != rows.GetArrayLength() ||
+            if (prepared.Count == 0 || prepared.Count != currentRows.Count ||
                 prepared.Select(item => item.Record.RecordKey).Distinct(StringComparer.Ordinal).Count() != prepared.Count)
                 throw new InvalidDataException("Fast Truck producer returned duplicate, empty or unclassifiable Truck rows.");
             RequireSameSession(session);
             return prepared;
         }
-        throw new InvalidDataException("Fast Truck 15/s retry did not complete.");
+    }
+
+    // Both native march.endTime and TrainData.arriveTs are possible arrival
+    // deadlines. Source generations have used Unix seconds and milliseconds;
+    // reject a Truck when either positive deadline has passed.
+    internal static bool FastTruckArrivalIsAfter(JsonElement row, long nowUnixMs)
+    {
+        foreach (string field in new[] { "endTime", "arriveTs" })
+        {
+            if (!row.TryGetProperty(field, out JsonElement value)) continue;
+            long? raw = value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out long number)
+                ? number : value.ValueKind == JsonValueKind.String &&
+                  long.TryParse(value.GetString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed)
+                    ? parsed : null;
+            if (raw is not > 0) continue;
+            long arrivalMs = raw.Value < 100_000_000_000 ? checked(raw.Value * 1000) : raw.Value;
+            if (arrivalMs <= nowUnixMs) return false;
+        }
+        return true;
+    }
+
+    private static bool FastTruckArrivalIsAfter(MapStoredRecord record, long nowUnixMs)
+    {
+        using JsonDocument document = JsonDocument.Parse(record.DataJson);
+        return FastTruckArrivalIsAfter(document.RootElement, nowUnixMs);
     }
 
     private async Task<JsonElement> ProbeFastTruckAsync(
@@ -153,6 +185,7 @@ internal sealed partial class CurrentClientMapBlockSource
         {
             if (raw.Record.Kind != "truck" || raw.X is < 0 or >= 1000 || raw.Y is < 0 or >= 1000)
                 throw new InvalidDataException("Fast Truck projection encountered an invalid typed position.");
+            if (!FastTruckArrivalIsAfter(raw.Record, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())) continue;
             FastTrainPrepared item = ApplyFinalTruckMetadataEnrichment(raw);
             int blockIndex = (raw.Y / MapScanGeometry.RecoveredBlockSpan) * 50 +
                              raw.X / MapScanGeometry.RecoveredBlockSpan;
