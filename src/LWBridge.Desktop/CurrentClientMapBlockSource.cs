@@ -24,6 +24,7 @@ internal sealed class CurrentClientMapBlockSourceHooks
     // Diagnostic A/B only: send this lens height instead of the canonical one (simulates a
     // differently zoomed player) or, when DisableCoverageZoomNormalization is set, send none.
     public double? CoverageZoomOverride { get; init; }
+    public int? CoverageFovOverride { get; init; }
     public bool DisableCoverageZoomNormalization { get; init; }
 }
 
@@ -34,6 +35,7 @@ internal sealed partial class CurrentClientMapBlockSource : IMapScanProgressBatc
     // native-lens-matrix-20261015-193845): lens 130 gives 10x3 for players at zoom 81 and 60 (11x3 at the
     // default 105), serverLod 0 and exact geometry restoration in every probe; lens 105 only reached 9x3.
     internal const double CanonicalCoverageZoom = 130.0;
+    internal const int CanonicalCoverageFov = 120;
     private const string ProbeVersion = "lwbridge-live-resource-probe-2";
     private const string OverviewBridgeVersion = "lwbridge-overview-bridge-1";
     private static readonly TimeSpan NavigationTimeout = TimeSpan.FromSeconds(7);

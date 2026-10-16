@@ -3,7 +3,7 @@
 // map014-other.js. The official game text itself stays in the game's language.
 const GHOST_REWARD_MESSAGES = Object.freeze({
   en: {
-    "map.ghostRewardFilter": "Reward filter",
+    "map.ghostRewardFilter": "Plunder reward filter",
     "map.ghostRewardAll": "All rewards",
     "map.ghostRewardSelected": "Rewards ({count})",
     "map.ghostRewardClear": "Clear selected rewards",
@@ -21,7 +21,7 @@ const GHOST_REWARD_MESSAGES = Object.freeze({
     "map.ghostSourceServer": "source server {server}",
   },
   "zh-CN": {
-    "map.ghostRewardFilter": "奖励筛选",
+    "map.ghostRewardFilter": "抢夺奖励筛选",
     "map.ghostRewardAll": "全部奖励",
     "map.ghostRewardSelected": "奖励（{count}）",
     "map.ghostRewardClear": "清除已选奖励",
@@ -39,7 +39,7 @@ const GHOST_REWARD_MESSAGES = Object.freeze({
     "map.ghostSourceServer": "来源服 {server}",
   },
   "zh-TW": {
-    "map.ghostRewardFilter": "獎勵篩選",
+    "map.ghostRewardFilter": "搶奪獎勵篩選",
     "map.ghostRewardAll": "全部獎勵",
     "map.ghostRewardSelected": "獎勵（{count}）",
     "map.ghostRewardClear": "清除已選獎勵",
@@ -57,7 +57,7 @@ const GHOST_REWARD_MESSAGES = Object.freeze({
     "map.ghostSourceServer": "來源伺服器 {server}",
   },
   ja: {
-    "map.ghostRewardFilter": "報酬フィルター",
+    "map.ghostRewardFilter": "略奪報酬フィルター",
     "map.ghostRewardAll": "すべての報酬",
     "map.ghostRewardSelected": "報酬（{count}）",
     "map.ghostRewardClear": "選択した報酬を解除",

@@ -15,7 +15,7 @@ sys.path.insert(0, str(repo / "artifacts/map-013-lua-site"))
 from lupa.lua53 import LuaRuntime
 
 source = (repo / "tools/current_live_resource_probe.lua").read_text(encoding="utf-8")
-start = source.index("local function ghost_reward_list(raw)")
+start = source.index("local function ghost_reward_list(raw, ratio)")
 end = source.index("local function ghost_aoi_records(", start)
 helper = source[start:end]
 
@@ -69,10 +69,10 @@ local function make_manager(name_for_type)
     end
     return m
 end
-function run(raw, mode)
+function run(raw, mode, ratio)
     local named = mode ~= "unnamed"
     if mode == "no_manager" then DataCenter = {} else DataCenter = { RewardManager = make_manager(named) } end
-    return ghost_reward_list(raw)
+    return ghost_reward_list(raw, ratio or 100)
 end
 '''
 
@@ -102,6 +102,12 @@ check(run("710005;7;20|999999;7;1", "named") is None, "dropped/unresolvable entr
 for bad in (None, "", "garbage", "710005;7", "710005;7;0", "|"):
     check(run(bad, "named") is None, f"unusable config {bad!r} must be unknown")
 check(run("710005;7;20", "no_manager") is None, "no RewardManager means unknown")
+# Plunder share (WorldPointGhostrecon popup): floor(count * steal_reward_ratio / 100); owner screenshot 20/3/50/1.
+lua.execute("templates = templates or {}; for _, i in ipairs({710005, 520004, 500104, 2270041}) do templates[i] = 'Item' .. i end")
+plunder = listify(run("710005;7;200|520004;7;30|500104;7;500|7038;27;10|2270041;7;5", "named", 10))
+check([(e["key"], e["count"]) for e in plunder] == [("reward:7:710005", 20), ("reward:7:520004", 3), ("reward:7:500104", 50), ("reward:27:7038", 1)],
+      "plunder share = floor(count*ratio/100), zero entries (hero shard 5 -> 0) dropped")
+check(run("710005;7;200", "named", "not-a-number") is None and run("710005;7;200", "named", 0) is None, "unknown steal ratio -> unknown, never the full reward")
 fallback = listify(run("5001;27;200", "unnamed"))
 check(fallback is None or fallback[0]["name"] == "reward:27:5001", "unnamed resource keeps identity, name falls back to key")
 by_type = listify(run("5001;27;200", "by_type"))

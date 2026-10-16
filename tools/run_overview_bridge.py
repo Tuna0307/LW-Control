@@ -159,7 +159,7 @@ def wrapper_source() -> bytes:
             raise OverviewBridgeError("MAP-013 wrapper trace requires task-specific private root")
         base = Path(isolation_root).resolve()
         source = Path(extension).resolve()
-        if source != base / "map013-wrapper-trace.lua" or not source.is_file() or source.stat().st_size > 20000:
+        if source != base / "map013-wrapper-trace.lua" or not source.is_file() or source.stat().st_size > 24000:
             raise OverviewBridgeError("MAP-013 wrapper trace must be exact private file below source size cap")
         extra = source.read_bytes()
         if extra.startswith(b"\xef\xbb\xbf"):

@@ -927,7 +927,9 @@ internal sealed class Map317CommandService : INativeAsyncCommandService, IDispos
             // saved-row deletion needs fresh authenticated live readiness,
             // the same profile-owned published store, and an idle scan/Auto
             // lease. Leave the legacy same-live-server clear strict.
-            if (clearSavedServer && requestedServerId != fresh.ServerId)
+            // Owner report 2026-10-15: standing on another server (e.g. 2211) must not block clearing a
+            // saved dataset (e.g. home 2212), whichever tab asked. The saved-server path below keeps every guard.
+            if (requestedServerId != fresh.ServerId)
             {
                 if (fresh.IsReading || fresh.ServerId <= 0 ||
                     fresh.ServerIdSource != MapScanClearOwnership.LiveServerSource ||

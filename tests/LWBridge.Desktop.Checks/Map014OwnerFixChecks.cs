@@ -441,10 +441,12 @@ internal static class Map014OwnerFixChecks
             // for an actually persisted remote server with fresh world owner.
             authoritativeWorld = authoritativeWorld with { ServerId = 2212 };
             currentServer = 2212;
-            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 }), "SERVER_UNAVAILABLE");
+            // Owner fix: a plain (Manual tab) Clear of a saved server the game is not on is allowed;
+            // a server with no published rows is still refused, with or without the flag.
+            await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2216 }), "SERVER_UNAVAILABLE");
             await Reject(async () => _ = await Invoke(service, "map_scan_clear", new { serverId = 2216, clearSavedServer = true }), "SERVER_UNAVAILABLE");
             Require(await Count("resource", new { serverId = 2213 }) == 4, "mismatched or absent stored server must not be deleted");
-            _ = await Invoke(service, "map_scan_clear", new { serverId = 2213, clearSavedServer = true });
+            _ = await Invoke(service, "map_scan_clear", new { serverId = 2213 });
             Require(await Count("resource", new { serverId = 2213 }) == 0 &&
                 await Count("truck", new { serverId = 2213 }) == 0 &&
                 await Count("resource", new { serverId = 2212 }) == 1 &&

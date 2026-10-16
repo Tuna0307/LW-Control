@@ -1,3 +1,28 @@
+Latest lead audit R4, 2026-10-16: MAP-015 6deef6cc fast scanner (all nine kinds incl.
+fast Truck) ACCEPTED for owner testing; awaiting owner merge decision. No worker
+task open. See the R4 section of docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
+Latest lead audit R3, 2026-10-16: MAP-015 34331cde fast Truck accuracy accepted.
+Worker does final R4 (drop arrived Trucks, re-request lost rectangles before camera
+fallback, packaged proof) on the same branch/PR #11. See the R3 section of
+docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
+Latest lead audit R2, 2026-10-16: MAP-015 7e93b92f accepted for non-Truck speed,
+Ghost plunder and Truck filter witnesses. Worker does final R3: production fast
+Truck sweep (typed, full fields, camera fallback) on the same branch/PR #11.
+See the R2 section of docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
+Latest lead audit, 2026-10-16: MAP-015 26212916 camera-free non-Truck scan
+accepted for owner testing scope; overall PARTIAL. Worker continues R2 (fast
+Truck, faster detail hydration, Ghost plunder witness) on the same branch/PR #11.
+Read docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md first. Same rules.
+
+Latest lead assignment, 2026-10-16: worker builds the camera-free Map scanner
+(all kinds, then fast Trucks) on codex/map-owner-fixes-015 / draft PR only.
+Read docs/work-items/LWB317-MAP-CAMERA-FREE-015.md first; it supersedes older
+scanner tasks. Subagents allowed, one live-game controller. Same background,
+no-account-action, no-merge/publication rules. Lead audits the handback.
+
 Latest owner main-test authorization, 2026-10-15: owner explicitly requests
 merging reviewed MAP-014 into main for personal testing. Lead corrected a real
 City-only placement regression and verified the final source-pinned Windows ZIP

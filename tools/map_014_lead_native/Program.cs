@@ -15,7 +15,7 @@ var runtime = Path.Combine(root, "overview-bridge");
 var probe = Path.Combine(root, "live-resource");
 var scenario = args[1];
 bool benchmarking = scenario.StartsWith("benchmark-", StringComparison.Ordinal);
-if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe")) throw new ArgumentException("Unknown scenario");
+if (!benchmarking && scenario is not ("city" or "mixed" or "other" or "treasure-other" or "stop" or "march-source" or "lens-matrix" or "terrain-probe" or "lod-snapshot" or "direct-aoi" or "hold-lens" or "direct-full")) throw new ArgumentException("Unknown scenario");
 string Text(string field) => owner.GetProperty(field).GetString()!;
 var session = new OverviewMapScanSession(Text("profileId"), Text("sessionId"), Text("challenge"),
     owner.GetProperty("gamePid").GetInt32(), Text("gamePath"), Text("gameStartedAtUtc"));
@@ -55,10 +55,10 @@ OverviewMapScanSession? ReadSession()
 string? zoomSwitch = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_COVERAGE_ZOOM");
 bool zoomOff = string.Equals(zoomSwitch, "off", StringComparison.OrdinalIgnoreCase);
 double? zoomOverride = double.TryParse(zoomSwitch, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double zo) ? zo : null;
-CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false) => new(ReadSession,runtime,probe,
+CurrentClientMapBlockSource MakeSource(bool bounded, bool forceLegacy=false, bool marchProbe=false, double? zoomArg=null, int? fovArg=null) => new(ReadSession,runtime,probe,
     hooks: marchProbe ? new CurrentClientMapBlockSourceHooks { ObserveMarchFreshness = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
         : bounded ? new CurrentClientMapBlockSourceHooks { ExperimentalBoundedCameraLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride }
-        : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomOverride } : null,
+        : forceLegacy ? new CurrentClientMapBlockSourceHooks { ForceLegacyFullWorldLens = true, DisableCoverageZoomNormalization = zoomOff, CoverageZoomOverride = zoomArg ?? zoomOverride, CoverageFovOverride = fovArg } : null,
     waitForHealthySession: async (expected, token) =>
     {
         var deadline=Stopwatch.StartNew();
@@ -83,7 +83,8 @@ var source = MakeSource(Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BOUN
 using var commands = new Map317CommandService(Path.Combine(root,"map-014.db"),
     new CurrentClientMap317ScanProvider(source), new CurrentClientMap317ActionProvider(source), false,
     source.GetMapStatusContextAsync);
-using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : 12));
+bool pairedTruck = scenario == "direct-full" && Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_PAIRED_TRUCK") == "1";
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(benchmarking ? 30 : pairedTruck ? 35 : 12));
 async Task<JsonElement> Invoke(string command, object payload)
 {
     var value = await commands.InvokeAsync(command, JsonSerializer.SerializeToElement(payload,JsonOptions.Default),cts.Token);
@@ -157,6 +158,224 @@ async Task<JsonElement> ZoomFixture(string mode, double zoom)
 }
 var history=new List<object>();
 JsonElement before=default, after=default, terminal=default;
+if (scenario == "direct-full")
+{
+    // Camera-free whole world: ~70 world.get.block chunks of <=160 areas, sent N per frame (decoded client path).
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
+    await Task.Delay(3000, cts.Token);
+    var results = new List<object>();
+    var cameraRounds = new List<object>();
+    // LWBRIDGE_MAP014_FULL_CONFIGS: ';'-separated "linear,rows,cols,first,mEvery[,dwell,gate,interval,one]" (harness experiments only).
+    var fullConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_FULL_CONFIGS") ?? "160,10,16,false,0.2;160,10,16,false,0.2")
+        .Split(';', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Split(',')).ToArray();
+    foreach (var fc in fullConfigs)
+    {
+        var (perTick, settle, gate, interval, linear) = (1, 6, fc.Length > 6 ? fc[6] : "reply", fc.Length > 7 ? fc[7] : "0", int.Parse(fc[0]));
+        var id = "full" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "map014-fullscan-fixture.txt");
+        var resPath = Path.Combine(probe, "map014-fullscan-fixture-result.json");
+        var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "server=" + ctx.ServerId, "rows=" + fc[1], "cols=" + fc[2], "perTick=" + perTick, "settle=" + settle, "gate=" + gate, "interval=" + interval, "linear=" + linear, "first=" + fc[3], "mEvery=" + fc[4], "dwell=" + (fc.Length > 5 ? fc[5] : "0"), "one=" + (fc.Length > 8 ? fc[8] : "0"), "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(300) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(100, cts.Token);
+        }
+        bool completePushObservation = answer is JsonElement tested &&
+            tested.TryGetProperty("chunks", out var chunkCount) && chunkCount.GetInt32() == 625 &&
+            tested.TryGetProperty("marchPushes", out var pushCount) && pushCount.GetInt32() >= 625 &&
+            !tested.TryGetProperty("marchSampleError", out _) &&
+            !tested.TryGetProperty("error", out _);
+        results.Add(new { config = string.Join(",", fc), perTick, settle, gate, interval, linear,
+            wallSeconds = wait.Elapsed.TotalSeconds, completePushObservation, result = answer });
+        File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results,
+            new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+        Console.WriteLine($"MAP014_DIRECT_FULL perTick={perTick} wall={wait.Elapsed.TotalSeconds:F1}");
+        // MAP-015 R2: an independent full production camera Truck round after
+        // EACH fast rectangle trial, within the same genuine owned game. Persist
+        // both records before advancing, so a later owner timeout cannot make
+        // an unpaired trial look accepted.
+        if (pairedTruck)
+        {
+            if (answer is not JsonElement direct ||
+                !direct.TryGetProperty("doneAt", out var finished) || !finished.TryGetDouble(out _) ||
+                direct.TryGetProperty("error", out _))
+                throw new InvalidDataException("Fast Truck fixture did not finish its native-owned cleanup; no camera comparison is safe.");
+            int round = cameraRounds.Count;
+            var cameraBefore = await Camera($"truck-paired-{round}-before");
+            var cameraSource = MakeSource(false, forceLegacy: true);
+            var cameraDb = Path.Combine(root, $"truck-paired-{round}.db");
+            using var cameraCommands = new Map317CommandService(cameraDb,
+                new CurrentClientMap317ScanProvider(cameraSource),
+                new CurrentClientMap317ActionProvider(cameraSource), false,
+                cameraSource.GetMapStatusContextAsync);
+            async Task<JsonElement> CameraCall(string name, object payload) => JsonSerializer.SerializeToElement(
+                await cameraCommands.InvokeAsync(name, JsonSerializer.SerializeToElement(payload, JsonOptions.Default), cts.Token),
+                JsonOptions.Default);
+            var cameraTimer = Stopwatch.StartNew();
+            await CameraCall("map_scan_start", new { selectedTypes = new[] { "truck" }, scanMode = "fast" });
+            JsonElement cameraTerminal;
+            while (true)
+            {
+                cameraTerminal = await CameraCall("map_scan_status", new { });
+                if (!cameraTerminal.GetProperty("isReading").GetBoolean() &&
+                    cameraTerminal.GetProperty("phase").GetString() is "completed" or "failed" or "cancelled") break;
+                await Task.Delay(100, cts.Token);
+            }
+            cameraTimer.Stop();
+            if (cameraTerminal.GetProperty("phase").GetString() != "completed")
+                throw new InvalidOperationException("Paired camera Truck scan failed: " + cameraTerminal.GetRawText());
+            var cameraAfter = await Camera($"truck-paired-{round}-after");
+            if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"), cameraAfter.GetProperty("cameraSnapshot")))
+                throw new InvalidDataException("Paired camera Truck scan did not restore original camera.");
+            var cameraSummary = await CameraCall("map_summary", new { });
+            cameraRounds.Add(new { round, rate = fc.Length > 7 ? fc[7] : "0", fastPushComplete = completePushObservation,
+                seconds = cameraTimer.Elapsed.TotalSeconds,
+                database = cameraDb, terminal = cameraTerminal, summary = cameraSummary,
+                cameraBefore, cameraAfter });
+            File.WriteAllText(Path.Combine(root, "direct-full-cameras.json"), JsonSerializer.Serialize(cameraRounds,
+                new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+            Console.WriteLine($"MAP015_PAIRED_CAMERA round={round} seconds={cameraTimer.Elapsed.TotalSeconds:F3}");
+        }
+        File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+        await Task.Delay(8000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "direct-full.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    return;
+}
+if (scenario == "hold-lens")
+{
+    // Hold a big lens for seconds and let the client's own 160-area chunking fetch the whole view.
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
+    await Task.Delay(3000, cts.Token);
+    var holdCases = new (int x, int y, double zoom, int fov, double hold)[] { (500, 500, 130.0, 120, 2.0), (500, 500, 600.0, 150, 4.0),
+        (500, 500, 1000.0, 150, 5.0), (250, 750, 2000.0, 150, 6.0), (750, 250, 3000.0, 170, 6.0) };
+    var results = new List<object>();
+    foreach (var c in holdCases)
+    {
+        var id = "hold" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "map014-hold-fixture.txt");
+        var resPath = Path.Combine(probe, "map014-hold-fixture-result.json");
+        var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "x=" + c.x, "y=" + c.y, "zoom=" + c.zoom.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            "fov=" + c.fov, "hold=" + c.hold.ToString(System.Globalization.CultureInfo.InvariantCulture), "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(c.hold + 10) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(50, cts.Token);
+        }
+        results.Add(new { c.x, c.y, c.zoom, c.fov, c.hold, result = answer });
+        await Task.Delay(3000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "hold-lens.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    return;
+}
+if (scenario == "direct-aoi")
+{
+    // Camera-free SendAoiRequest experiment (harness-only fixture map014_direct_fixture.lua).
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    // Enter the World map at home first (same as the benchmarks), then let the scene settle.
+    await source.JumpToCoordinateAsync(ctx.ServerId, hx, hy, cts.Token);
+    await Task.Delay(3000, cts.Token);
+    static int[] Areas(int col0, int row0, int cols, int rows) =>
+        Enumerable.Range(row0, rows).SelectMany(r => Enumerable.Range(col0, cols).Select(c => r * 100 + c)).ToArray();
+    static int TileIndex(int x, int y) => y * 1000 + x + 1;
+    var cases = new List<(string Name, int[] Areas, bool WholeWorldRect, int Type)>
+    {
+        ("send-far-250-750-3x3", Areas(24, 74, 3, 3), false, 0),
+        ("send-far-750-750-3x3", Areas(74, 74, 3, 3), false, 0),
+        ("send-far-750-250-160", Areas(67, 20, 16, 10), false, 0),
+        ("send-far-250-250-160", Areas(17, 20, 16, 10), false, 0),
+    };
+    // Arm the read-only 18 s incoming-packet trace (map013 wrapper) so world.get.block replies are recorded.
+    string traceCmd = Path.Combine(probe, "map013-native-trace.txt"), traceRes = Path.Combine(probe, "map013-native-trace-result.json");
+    if (File.Exists(traceRes)) File.Delete(traceRes);
+    File.WriteAllLines(traceCmd + ".tmp", new[] { "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId,
+        "challenge=" + session.Challenge, "gamePid=" + session.GamePid, "sceneOnly=false", "" });
+    File.Move(traceCmd + ".tmp", traceCmd);
+    await Task.Delay(1500, cts.Token);
+    var results = new List<object>();
+    foreach (var (name, areas, wholeWorld, msgType) in cases)
+    {
+        int minC = areas.Min(a => a % 100), maxC = areas.Max(a => a % 100), minR = areas.Min(a => a / 100), maxR = areas.Max(a => a / 100);
+        int lb = wholeWorld ? 1 : TileIndex(minC * 10, minR * 10), rt = wholeWorld ? 1000000 : TileIndex(Math.Min(999, (maxC + 1) * 10), Math.Min(999, (maxR + 1) * 10));
+        int cx = (minC + maxC + 1) * 5, cy = (minR + maxR + 1) * 5;
+        var id = "direct" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "map014-direct-fixture.txt");
+        var resPath = Path.Combine(probe, "map014-direct-fixture-result.json");
+        var lines = new[] { "requestId=" + id, "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "indices=" + string.Join(",", areas), "lb=" + lb, "rt=" + rt, "x=" + cx, "y=" + cy,
+            "mode=msg", "type=" + msgType, "server=" + ctx.ServerId, "first=false", "layout=" + name[..1], "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, lines); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(15) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(50, cts.Token);
+        }
+        results.Add(new { name, areaCount = areas.Length, lb, rt, x = cx, y = cy, result = answer });
+        Console.WriteLine($"MAP014_DIRECT_AOI {name} {(answer?.GetRawText() ?? "timeout").Substring(0, Math.Min(400, (answer?.GetRawText() ?? "timeout").Length))}");
+        await Task.Delay(2000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "direct-aoi.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    var traceWait = Stopwatch.StartNew();
+    while (traceWait.Elapsed < TimeSpan.FromSeconds(25) && !File.Exists(traceRes)) await Task.Delay(250, cts.Token);
+    if (File.Exists(traceRes)) File.Copy(traceRes, Path.Combine(root, "direct-aoi-packets.json"), true);
+    return;
+}
+if (scenario == "lod-snapshot")
+{
+    // Diagnostic: one coarse whole-world (zoom/LOD2) request with every kind enabled; report what came back.
+    var ctx = await source.GetCurrentContextAsync(cts.Token);
+    int hx = ctx.PlayerTileX ?? 500, hy = ctx.PlayerTileY ?? 500;
+    var results = new List<object>();
+    foreach (var (tx, ty) in new[] { (hx, hy), (505, 505), (250, 750) })
+    {
+        var id = "lodsnap" + Guid.NewGuid().ToString("N");
+        var cmdPath = Path.Combine(probe, "bulk-aoi-diagnostic.txt");
+        var resPath = Path.Combine(probe, "bulk-aoi-diagnostic-result.json");
+        var cmd = new[] { "schema=1", "probeVersion=lwbridge-live-resource-probe-2", "requestId=" + id,
+            "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
+            "gamePid=" + session.GamePid, "serverId=" + ctx.ServerId, "scanRunId=" + id, "viewLevel=-1", "requestMode=zoom",
+            "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=160", "holdMilliseconds=0",
+            "homeTileX=" + hx, "homeTileY=" + hy, "includeCity=true", "includeResource=true", "includeMonster=true",
+            "includeMonsterProtection=false", "includeTrain=true", "includeDispatch=true", "includeGhost=true",
+            "includeTreasure=false", "includeResourceDetails=false", "" };
+        var tmp = cmdPath + "." + id; File.WriteAllLines(tmp, cmd); File.Move(tmp, cmdPath);
+        var wait = Stopwatch.StartNew(); JsonElement? answer = null;
+        while (wait.Elapsed < TimeSpan.FromSeconds(30) && answer is null)
+        {
+            try { using var doc = JsonDocument.Parse(File.ReadAllText(resPath)); if (doc.RootElement.GetProperty("requestId").GetString() == id) answer = doc.RootElement.Clone(); }
+            catch (IOException) { } catch (JsonException) { }
+            if (answer is null) await Task.Delay(50, cts.Token);
+        }
+        double seconds = wait.Elapsed.TotalSeconds;
+        var summary = new Dictionary<string, object?> { ["target"] = new[] { tx, ty }, ["wallSeconds"] = seconds };
+        if (answer is JsonElement r)
+            foreach (var prop in r.EnumerateObject())
+                summary[prop.Name] = prop.Value.ValueKind == JsonValueKind.Array ? $"array[{prop.Value.GetArrayLength()}]"
+                    : prop.Value.ValueKind == JsonValueKind.Object ? "object" : prop.Value.ToString();
+        else summary["timeout"] = true;
+        results.Add(summary);
+        File.WriteAllText(Path.Combine(root, "lod-snapshot-" + results.Count + ".json"), answer?.GetRawText() ?? "null");
+        await Task.Delay(4000, cts.Token);
+    }
+    File.WriteAllText(Path.Combine(root, "lod-snapshot.json"), JsonSerializer.Serialize(results, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }));
+    Console.WriteLine("MAP014_LOD_SNAPSHOT_DONE");
+    return;
+}
 if (scenario == "terrain-probe")
 {
     // Read-only: evaluates every candidate terrain predicate on the same tiles (harness-only Lua fixture).
@@ -216,7 +435,7 @@ if (scenario == "lens-matrix")
     // lens heights. Reports each native AOI window (rows x columns); verifies exact camera restoration.
     var ctx = await source.GetCurrentContextAsync(cts.Token);
     int hx = ctx.PlayerTileX ?? throw new InvalidOperationException("home tile unknown"), hy = ctx.PlayerTileY!.Value;
-    async Task<JsonElement> LensProbe(int tx, int ty, double? lensZoom)
+    async Task<JsonElement> LensProbe(int tx, int ty, double? lensZoom, int aspect = 4, int fov = 120, string edge = "")
     {
         var id = "lensmatrix" + Guid.NewGuid().ToString("N");
         var cmdPath = Path.Combine(probe, "bulk-aoi-diagnostic.txt");
@@ -224,10 +443,12 @@ if (scenario == "lens-matrix")
         var cmd = new List<string> { "schema=1", "probeVersion=lwbridge-live-resource-probe-2", "requestId=" + id,
             "profileId=" + session.ProfileId, "launchSessionId=" + session.SessionId, "challenge=" + session.Challenge,
             "gamePid=" + session.GamePid, "serverId=" + ctx.ServerId, "scanRunId=" + id, "viewLevel=-1", "requestMode=coverage",
-            "coverageFov=120", "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=8", "holdMilliseconds=0",
+            "coverageFov=" + fov, "coverageAspect=" + aspect, "targetTileX=" + tx, "targetTileY=" + ty, "requestedCount=8", "holdMilliseconds=" + (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_HOLD_MS") ?? "0"),
             "homeTileX=" + hx, "homeTileY=" + hy, "includeCity=false", "includeResource=false", "includeMonster=false",
             "includeMonsterProtection=false", "includeTrain=true", "observeMarchFreshness=false", "includeDispatch=false",
-            "includeGhost=false", "includeTreasure=false", "includeResourceDetails=false", "deferRestoreUntilResponse=true" };
+            "includeGhost=false", "includeTreasure=false", "includeResourceDetails=false", "deferRestoreUntilResponse=" + (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_HOLD_MS") is null ? "true" : "false"),
+            "drainSplit=" + (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_DRAIN") == "1" ? "true" : "false"),
+            "coverageEdge=" + edge };
         if (lensZoom is double z) cmd.Add("coverageZoom=" + z.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
         cmd.Add("");
         var tmp = cmdPath + "." + id;
@@ -247,25 +468,44 @@ if (scenario == "lens-matrix")
         throw new TimeoutException("lens probe timed out");
     }
     var matrixRows = new List<object>();
-    foreach (double? playerZoom in new double?[] { null, 81.31, 60.0 })
+    // Env overrides for the speed study: LWBRIDGE_MAP014_LENS_LIST="130,200,300", LWBRIDGE_MAP014_LENS_ASPECTS="4,6",
+    // LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS="" (default only).
+    double?[] ParseList(string name, double?[] fallback) => Environment.GetEnvironmentVariable(name) is string raw
+        ? raw.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(v => v.Trim() == "none" ? (double?)null : double.Parse(v, System.Globalization.CultureInfo.InvariantCulture)).ToArray()
+        : fallback;
+    double?[] lensList = ParseList("LWBRIDGE_MAP014_LENS_LIST", new double?[] { null, 105.0, 130.0, 81.31 });
+    int[] aspects = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_ASPECTS") ?? "4").Split(',').Select(int.Parse).ToArray();
+    int[] fovs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_FOVS") ?? "120").Split(',').Select(int.Parse).ToArray();
+    double?[] playerZooms = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS") is not null
+        ? ParseList("LWBRIDGE_MAP014_LENS_PLAYER_ZOOMS", new double?[] { null }).Prepend(null).Distinct().ToArray()
+        : new double?[] { null, 81.31, 60.0 };
+    foreach (double? playerZoom in playerZooms)
     {
         if (playerZoom is double pz) { await ZoomFixture("set", pz); await Task.Delay(1500, cts.Token); }
         var camBefore = await Camera("lens-matrix-before-" + (playerZoom?.ToString("0.##") ?? "default"));
         foreach (var (tx, ty) in new[] { (505, 505), (275, 675) })
-            foreach (double? lens in new double?[] { null, 105.0, 130.0, 81.31 })
+            foreach (double? lens in lensList)
+            foreach (int aspect in aspects)
+            foreach (int fov in fovs)
+            foreach (string edge in (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_LENS_EDGES") ?? "").Split(',').Select(e => e.Trim() == "none" ? "" : e.Trim()))
             {
-                var r = await LensProbe(tx, ty, lens);
+                var r = await LensProbe(tx, ty, lens, aspect, fov, edge);
                 string state = r.GetProperty("state").GetString() ?? "";
                 int[] idx = r.TryGetProperty("requestedIndices", out var ri) && ri.ValueKind == JsonValueKind.Array
                     ? ri.EnumerateArray().Select(v => v.GetInt32()).ToArray() : [];
-                matrixRows.Add(new { playerZoom, lensZoom = lens, target = new[] { tx, ty }, state,
+                matrixRows.Add(new { playerZoom, lensZoom = lens, aspect, fov, edge, matched = r.TryGetProperty("matchedCount", out var mc) ? mc.ToString() : null, target = new[] { tx, ty }, state,
                     error = r.TryGetProperty("error", out var er) ? er.ToString() : null,
                     aois = idx.Length, rows = idx.Select(i => i / 100).Distinct().Count(), cols = idx.Select(i => i % 100).Distinct().Count(),
                     firstRow = idx.Length > 0 ? idx.Min() / 100 : -1, firstCol = idx.Length > 0 ? idx.Min(i => i % 100) : -1,
                     applied = r.TryGetProperty("coverageZoomApplied", out var ap) ? ap.ToString() : null,
                     geometryRestored = r.TryGetProperty("cameraGeometryRestored", out var gr) ? gr.ToString() : null,
                     serverLod = r.TryGetProperty("serverLod", out var sl) ? sl.ToString() : null,
-                    elapsed = r.TryGetProperty("totalProbeElapsedSeconds", out var el) ? el.ToString() : null });
+                    elapsed = r.TryGetProperty("totalProbeElapsedSeconds", out var el) ? el.ToString() : null,
+                    edgeOriginal = r.TryGetProperty("coverageEdgeOriginal", out var eo) ? eo.ToString() : null,
+                    held = r.TryGetProperty("heldViewCount", out var hc) ? hc.ToString() : null,
+                    heldRows = r.TryGetProperty("heldViewIndices", out var hi) && hi.ValueKind == JsonValueKind.Array ? hi.EnumerateArray().Select(v => v.GetInt32() / 100).Distinct().Count() : 0,
+                    heldCols = r.TryGetProperty("heldViewIndices", out var hj) && hj.ValueKind == JsonValueKind.Array ? hj.EnumerateArray().Select(v => v.GetInt32() % 100).Distinct().Count() : 0,
+                    heldSplit = r.TryGetProperty("heldSplitPending", out var hs) ? hs.ToString() : null });
                 await Task.Delay(700, cts.Token);
             }
         var camAfter = await Camera("lens-matrix-after-" + (playerZoom?.ToString("0.##") ?? "default"));
@@ -282,6 +522,7 @@ if (benchmarking)
     string workload = scenario["benchmark-".Length..];
     string[] kinds = workload switch {
         "mixed" => ["city","resource","monster","zombie_boss","truck","railway","dispatch","ghost"],
+        "all-nontruck" => ["city","resource","monster","zombie_boss","railway","dispatch","ghost","treasure"],
         "truck-dispatch" => ["truck","dispatch"],
         _ => [workload]
     };
@@ -296,10 +537,31 @@ if (benchmarking)
         ? configuredRounds : workload == "city" ? 6 : 2;
     // The owner reported the slowdown in Fast mode; default stays Normal for old receipts.
     string benchScanMode = Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_MODE") == "fast" ? "fast" : "normal";
+    // MAP-015 owner A/B: a single exact-owned game session may alternate
+    // direct camera-free and the existing camera route. Empty retains MAP-014
+    // lens qualification behavior so prior benchmark scripts remain valid.
+    string[] methodConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP015_BENCH_METHODS") ?? "")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    if (methodConfigs.Any(mode => mode is not ("direct" or "camera")))
+        throw new ArgumentException("LWBRIDGE_MAP015_BENCH_METHODS supports only direct,camera");
     for (int round=0; round<rounds; round++)
     {
         bool bounded = workload == "city" && round%2 == 1;
-        var measuredSource = MakeSource(bounded, forceLegacy: !bounded);
+        // LWBRIDGE_MAP014_BENCH_CONFIGS="130:120,600:150" alternates lens:fov per round (A/B accuracy + speed).
+        string[] benchConfigs = (Environment.GetEnvironmentVariable("LWBRIDGE_MAP014_BENCH_CONFIGS") ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+        double? roundZoom = null; int? roundFov = null;
+        if (benchConfigs.Length > 0)
+        {
+            string[] parts = benchConfigs[round % benchConfigs.Length].Split(':');
+            roundZoom = double.Parse(parts[0], System.Globalization.CultureInfo.InvariantCulture);
+            roundFov = parts.Length > 1 ? int.Parse(parts[1]) : null;
+        }
+        string sourceMethod = methodConfigs.Length > 0 ? methodConfigs[round % methodConfigs.Length] : "legacy-lens";
+        var measuredSource = sourceMethod switch {
+            "direct" => MakeSource(false),
+            "camera" => MakeSource(false, forceLegacy: true),
+            _ => MakeSource(bounded, forceLegacy: !bounded, zoomArg: roundZoom, fovArg: roundFov),
+        };
         var context = await measuredSource.GetCurrentContextAsync(cts.Token);
         if(context.PlayerTileX is int hx && context.PlayerTileY is int hy)
             await measuredSource.JumpToCoordinateAsync(context.ServerId,hx,hy,cts.Token);
@@ -333,17 +595,43 @@ if (benchmarking)
             if (!JsonElement.DeepEquals(cameraBefore.GetProperty("cameraSnapshot"),cameraAfter.GetProperty("cameraSnapshot")))
                 throw new InvalidDataException("Independent benchmark camera checkpoint differs after full scan.");
             var summary=await Call("map_summary",new{});
-            if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
-            using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
-            JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
-            if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
-                nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
-                provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
-                provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
-                provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
-                throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
-            File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
-            measurements.Add(new{round,scanMode=benchScanMode,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
+            bool nativeFastTruck = sourceMethod == "direct" && workload == "truck";
+            if (!nativeFastTruck)
+            {
+                if (!File.Exists(metricsPath)) throw new InvalidDataException("Native benchmark omitted acquisition metrics");
+                using var nativeMetrics = JsonDocument.Parse(File.ReadAllText(metricsPath));
+                JsonElement provenance = nativeMetrics.RootElement.GetProperty("identity");
+                if (nativeMetrics.RootElement.GetProperty("phase").GetString() != "prepared" ||
+                    nativeMetrics.RootElement.GetProperty("uniqueCoveredAois").GetInt32()!=10000 ||
+                    provenance.GetProperty("RunId").GetString()!=terminal.GetProperty("scanRunId").GetString() ||
+                    provenance.GetProperty("ServerId").GetInt32()!=terminal.GetProperty("serverId").GetInt32() ||
+                    provenance.GetProperty("SelectedTypesKey").GetString()!=string.Join("\u001f",kinds.OrderBy(kind=>kind,StringComparer.Ordinal)))
+                    throw new InvalidDataException("Native benchmark metrics lacked this exact completed run/selection/coverage identity");
+                File.Copy(metricsPath,Path.Combine(root,$"benchmark-{round}-probe-metrics.json"));
+            }
+            JsonElement? directEvidence = null;
+            string directEvidencePath = Path.Combine(probe,nativeFastTruck ? "fast-truck-scan-result.json" : "camera-free-scan-result.json");
+            if (sourceMethod == "direct" && File.Exists(directEvidencePath))
+            {
+                using var directDocument = JsonDocument.Parse(File.ReadAllText(directEvidencePath));
+                if (directDocument.RootElement.TryGetProperty("scanRunId",out var correlated) &&
+                    correlated.GetString() == terminal.GetProperty("scanRunId").GetString())
+                    directEvidence = directDocument.RootElement.Clone();
+            }
+            string effectiveMethod = sourceMethod != "direct" ? sourceMethod :
+                directEvidence is JsonElement evidence && evidence.TryGetProperty("state",out var stateValue) &&
+                stateValue.GetString() == "proven" ? "direct" : "camera-fallback";
+            if (nativeFastTruck && (effectiveMethod != "direct" ||
+                directEvidence is not JsonElement truckReceipt ||
+                truckReceipt.GetProperty("pushesObserved").GetInt32() != 625 ||
+                truckReceipt.GetProperty("requestsSent").GetInt32() != 625 ||
+                truckReceipt.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
+                truckReceipt.GetProperty("curViewRestored").ValueKind != JsonValueKind.True))
+                throw new InvalidDataException("Benchmark did not qualify genuine 625-push native fast Truck acquisition.");
+            measurements.Add(new{round,method=sourceMethod,effectiveMethod,
+                directEvidenceState=directEvidence is JsonElement sourceState && sourceState.TryGetProperty("state",out var stateProperty) ? stateProperty.GetString() : null,
+                directEvidenceError=directEvidence is JsonElement sourceError && sourceError.TryGetProperty("error",out var errorProperty) && errorProperty.ValueKind==JsonValueKind.String ? errorProperty.GetString() : null,
+                scanMode=benchScanMode,lensZoom=roundZoom,lensFov=roundFov,boundedLens=bounded,seconds=timer.Elapsed.TotalSeconds,terminal,summary,cameraBefore,cameraAfter});
             File.WriteAllText(Path.Combine(root,"benchmark.json"),JsonSerializer.Serialize(measurements,new JsonSerializerOptions(JsonOptions.Default){WriteIndented=true}));
             Console.WriteLine($"MAP014_BENCHMARK {workload} round={round} lens={(bounded?20:120)} seconds={timer.Elapsed.TotalSeconds:F3}");
         }

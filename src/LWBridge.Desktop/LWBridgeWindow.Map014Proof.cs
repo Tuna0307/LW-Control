@@ -6,6 +6,299 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class LWBridgeWindow
 {
+    // MAP-015: opt-in read-only acceptance on the owner's isolated packaged WebView.
+    // The real Manual Start has already finished; browse the actual eight tabs,
+    // correlating production map_search responses to the same completed server.
+    private async Task<object> RunMap015AllNonTruckUiProofAsync(
+        CoreWebView2 core, string directory, JsonElement completedStatus,
+        OverviewMapScanSession ownedSession, CancellationToken token, bool includeTruck = false)
+    {
+        if (productionPaths?.ExplicitIsolation != true || map317CommandService is null ||
+            overviewLifecycleService is null)
+            throw new InvalidOperationException("MAP015 packaged browse requires isolated production services.");
+        string? runId = ReadStatusString(completedStatus, "scanRunId");
+        int serverId = ReadStatusInt32(completedStatus, "serverId") ?? 0;
+        if (string.IsNullOrWhiteSpace(runId) || serverId <= 0 ||
+            !overviewLifecycleService.MatchesOwnedMapScanSession(ownedSession))
+            throw new InvalidDataException("MAP015 browse lost its actual completed owned scan.");
+
+        var kinds = new (int Index, string Kind)[]
+        {
+            (0, "city"), (1, "resource"), (2, "monster"), (4, "railway"),
+            (5, "dispatch"), (6, "ghost"), (7, "treasure"), (9, "zombie_boss")
+        };
+        if (includeTruck) kinds = kinds.Append((Index: 3, Kind: "truck")).OrderBy(kind => kind.Index).ToArray();
+        object? fastTruck = includeTruck ? await RequireMap015FastTruckNativeProofAsync(
+            ownedSession, runId, serverId, token) : null;
+        // A completed UI scan can silently have used the safe camera fallback.
+        // The packaged receipt must only say proven for a genuinely completed
+        // same-session camera-free sweep and its prepared C# publication source.
+        string liveRoot = overviewLifecycleService.LiveResourceRuntimeRoot;
+        using JsonDocument nativeDocument = JsonDocument.Parse(await File.ReadAllTextAsync(
+            Path.Combine(liveRoot, "camera-free-scan-result.json"), token));
+        using JsonDocument metricsDocument = JsonDocument.Parse(await File.ReadAllTextAsync(
+            Path.Combine(liveRoot, "map-fullworld-probe-metrics.json"), token));
+        JsonElement native = nativeDocument.RootElement;
+        JsonElement metrics = metricsDocument.RootElement;
+        string selectedKey = string.Join("\u001f", kinds.Select(item => item.Kind).Order(StringComparer.Ordinal));
+        int sent = native.GetProperty("requestsSent").GetInt32();
+        JsonElement batches = native.GetProperty("batches");
+        JsonElement identity = metrics.GetProperty("identity");
+        if (native.GetProperty("state").GetString() != "proven" ||
+            native.GetProperty("scanRunId").GetString() != runId ||
+            native.GetProperty("profileId").GetString() != ownedSession.ProfileId ||
+            native.GetProperty("launchSessionId").GetString() != ownedSession.SessionId ||
+            native.GetProperty("challenge").GetString() != ownedSession.Challenge ||
+            native.GetProperty("gamePid").GetInt32() != ownedSession.GamePid ||
+            native.GetProperty("serverId").GetInt32() != serverId ||
+            native.GetProperty("worldId").GetInt32() != 0 ||
+            native.GetProperty("cameraStable").ValueKind != JsonValueKind.True ||
+            native.GetProperty("curViewRestored").ValueKind != JsonValueKind.True ||
+            native.GetProperty("completedAois").GetInt32() != 10000 ||
+            native.GetProperty("repliesCaptured").GetInt32() != 63 ||
+            sent is < 63 or > 65 || batches.ValueKind != JsonValueKind.Array ||
+            batches.GetArrayLength() != 63 ||
+            metrics.GetProperty("source").GetString() != "CurrentClientMapBlockSource.ProbeCameraFreeMapAsync" ||
+            metrics.GetProperty("phase").GetString() != "prepared" ||
+            metrics.GetProperty("acquisitionPolicy").GetString() != "direct" ||
+            identity.GetProperty("RunId").GetString() != runId ||
+            identity.GetProperty("ServerId").GetInt32() != serverId ||
+            identity.GetProperty("WorldId").GetInt32() != 0 ||
+            identity.GetProperty("SelectedTypesKey").GetString() != selectedKey ||
+            metrics.GetProperty("uniqueCoveredAois").GetInt32() != 10000 ||
+            metrics.GetProperty("requiredAois").GetInt32() != 10000 ||
+            metrics.GetProperty("newlyCoveredAois").GetInt32() != 10000 ||
+            metrics.GetProperty("validatedProbeResponses").GetInt32() != 63 ||
+            metrics.GetProperty("attributableLuaProbeAttempts").GetInt32() != sent)
+            throw new InvalidDataException("MAP015 packaged all-nontruck scan used an unverified camera source or mismatched direct receipt.");
+        var covered = new HashSet<int>();
+        foreach (JsonElement batch in batches.EnumerateArray())
+        {
+            JsonElement indices = batch.GetProperty("indices");
+            if (indices.ValueKind != JsonValueKind.Array || indices.GetArrayLength() is < 1 or > 160)
+                throw new InvalidDataException("MAP015 direct batch has an invalid AOI count.");
+            foreach (JsonElement index in indices.EnumerateArray())
+            {
+                if (!index.TryGetInt32(out int aoi) || aoi is < 0 or >= 10000 || !covered.Add(aoi))
+                    throw new InvalidDataException("MAP015 direct AOI reply repeats or exceeds its native index.");
+            }
+        }
+        if (covered.Count != 10000)
+            throw new InvalidDataException("MAP015 direct proof lacks complete unique AOI coverage.");
+
+        var results = new List<object>();
+        JsonElement? capturedTruckRows = null;
+        bool positiveGhostRewardProven = false;
+        foreach ((int index, string kind) in kinds)
+        {
+            token.ThrowIfCancellationRequested();
+            if (!overviewLifecycleService.MatchesOwnedMapScanSession(ownedSession))
+                throw new InvalidDataException("MAP015 browse owner changed during genuine tab verification.");
+            long before = GetNormalUiProofSearchSequence();
+            string clicked = await core.ExecuteScriptAsync($"(()=>{{const b=document.querySelectorAll('.map-tabs button')[{index}];if(!b)return false;b.click();return true;}})()");
+            if (clicked != "true")
+                throw new InvalidDataException("MAP015 packaged Map tab missing: " + kind);
+
+            NormalUiResourceProofSearchObservation? matching = null;
+            async Task<NormalUiResourceProofSearchObservation?> WaitForTab(int attempts, long since)
+            {
+                for (int poll = 0; poll < attempts; poll++)
+                {
+                    token.ThrowIfCancellationRequested();
+                    NormalUiResourceProofSearchObservation? seen = ReadNormalUiProofSearchAfter(since);
+                    if (seen is not null)
+                    {
+                        MapDataQueryOptions query = MapDataQueryContract.NormalizeSearch(seen.Payload);
+                        if (query.Kind == kind && query.ServerId == serverId && query.Page == 1 &&
+                            await core.ExecuteScriptAsync($"!!document.querySelector('.map-table--{kind}[aria-busy=false]')") == "true")
+                            return seen;
+                    }
+                    await Task.Delay(100, token);
+                }
+                return null;
+            }
+            matching = await WaitForTab(200, before);
+            if (matching is null)
+            {
+                // The first tab can already be active. The explicit Search
+                // control is the same read-only action a user would perform.
+                long retryFrom = GetNormalUiProofSearchSequence();
+                string search = await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelector('.map-searchbar > button');if(!b||b.disabled)return false;b.click();return true;})()");
+                if (search != "true") throw new InvalidDataException("MAP015 native Search unavailable: " + kind);
+                matching = await WaitForTab(250, retryFrom);
+            }
+            if (matching is null)
+                throw new TimeoutException("MAP015 packaged UI lacked a same-server native search: " + kind);
+            JsonElement rows = matching.Result.GetProperty("rows");
+            if (kind == "truck") capturedTruckRows = rows.Clone();
+            int total = matching.Result.GetProperty("total").GetInt32();
+            if (rows.ValueKind != JsonValueKind.Array || total < 0 || rows.GetArrayLength() > total ||
+                (total > 0 && rows.GetArrayLength() == 0))
+                throw new InvalidDataException("MAP015 native Map result invalid: " + kind);
+            foreach (JsonElement row in rows.EnumerateArray())
+            {
+                if (!row.TryGetProperty("serverId", out JsonElement rowServer) ||
+                    rowServer.ValueKind != JsonValueKind.Number || rowServer.GetInt32() != serverId ||
+                    !(row.TryGetProperty("pointId", out JsonElement point) &&
+                      point.ValueKind == JsonValueKind.Number && point.TryGetInt32(out int pointId) && pointId > 0) &&
+                    !(row.TryGetProperty("uuid", out JsonElement uuid) &&
+                      uuid.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(uuid.GetString())) &&
+                    !(row.TryGetProperty("recordKey", out JsonElement key) &&
+                      key.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(key.GetString())) &&
+                    !(row.TryGetProperty("ownerUid", out JsonElement ownerUid) &&
+                      ownerUid.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(ownerUid.GetString())))
+                    throw new InvalidDataException("MAP015 rendered source row was not identified: " + kind);
+            }
+            bool settled = false;
+            for (int attempt = 0; attempt < 200; attempt++)
+            {
+                string render = await core.ExecuteScriptAsync($$"""
+                    (() => {
+                      const table = document.querySelector('.map-table--{{kind}}[aria-busy=false]');
+                      if (!table) return false;
+                      const rows = table.querySelectorAll('tbody tr');
+                      return {{(total == 0 ? "!!table.querySelector('tbody .map-empty')" : $"rows.length === {rows.GetArrayLength()} && !table.querySelector('tbody .map-empty')")}};
+                    })()
+                    """);
+                if (render == "true") { settled = true; break; }
+                await Task.Delay(100, token);
+            }
+            if (!settled)
+                throw new InvalidDataException("MAP015 packaged UI did not render the native first page: " + kind);
+
+            object? positiveGhostRewardRendering = null;
+            if (kind == "ghost")
+            {
+                // The current-client task template supplies both base rewards
+                // and steal_reward_ratio. Require that the displayed rewards
+                // are the game's floored PLUNDER SHARE, not the owner's total.
+                (int Row, long[] Counts, double Ratio)? positive = null;
+                for (int rowIndex = 0; rowIndex < rows.GetArrayLength(); rowIndex++)
+                {
+                    JsonElement row = rows[rowIndex];
+                    if (!row.TryGetProperty("rewards", out JsonElement rewards) ||
+                        rewards.ValueKind != JsonValueKind.Array || rewards.GetArrayLength() == 0) continue;
+                    var counts = new List<long>();
+                    foreach (JsonElement reward in rewards.EnumerateArray())
+                    {
+                        if (!reward.TryGetProperty("count", out JsonElement amount) ||
+                            !amount.TryGetInt64(out long count) || count <= 0)
+                        { counts.Clear(); break; }
+                        counts.Add(count);
+                    }
+                    if (counts.Count == rewards.GetArrayLength() &&
+                        IsNativeGhostPlunderShare(row, out double ratio))
+                    { positive = (rowIndex, counts.ToArray(), ratio); break; }
+                }
+                if (positive is null && (!includeTruck || total > 0))
+                    throw new InvalidDataException("MAP015 genuine Ghost rows have no positive source-calculated plunder-share witness.");
+                // In the all-nine-kind proof, an empty fresh Ghost source is
+                // a valid observed kind, and the same native UI has already
+                // proven its empty table. Preserve the original strict
+                // positive Ghost reward witness for all-nontruck runs.
+                if (positive is not null)
+                {
+                    int witnessRow = positive.Value.Row;
+                    string countsJson = JsonSerializer.Serialize(positive.Value.Counts);
+                    string visible = await core.ExecuteScriptAsync($$"""
+                    (() => {
+                      const counts = {{countsJson}};
+                      const row = document.querySelectorAll('.map-table--ghost tbody tr')[{{witnessRow}}];
+                      const rewards = [...(row?.querySelectorAll('.map-reward-cell .map-reward-item') || [])];
+                      return rewards.length === counts.length && counts.every((count, index) => {
+                        const label = rewards[index].getAttribute('aria-label') || '';
+                        return label.endsWith(' ×' + Number(count).toLocaleString(document.documentElement.lang || undefined));
+                      });
+                    })()
+                    """);
+                    if (visible != "true")
+                        throw new InvalidDataException("MAP015 packaged Ghost native reward quantities were not displayed.");
+                    positiveGhostRewardRendering = new { rowIndex = witnessRow,
+                        nativeRewardCounts = positive.Value.Counts, stealRewardRatio = positive.Value.Ratio,
+                        formula = "floor(sum(base_reward_show count for item) * steal_reward_ratio / 100)",
+                        sourceCalculatedPlunderShareMatches = true, displayed = true };
+                    positiveGhostRewardProven = true;
+                }
+            }
+            string screenshotPath = Path.Combine(directory, "map015-" + kind + "-packaged.png");
+            await using (var image = File.Create(screenshotPath))
+                await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, image);
+            results.Add(new { kind, tabIndex = index, serverId, total,
+                firstPageRows = rows.GetArrayLength(), nativeSearchRequestId = matching.RequestId,
+                positiveGhostRewardRendering, screenshotPath });
+        }
+        object? truckFilter = null;
+        if (includeTruck)
+        {
+            if (capturedTruckRows is null ||
+                await core.ExecuteScriptAsync("(()=>{const tab=document.querySelectorAll('.map-tabs button')[3];if(!tab)return false;tab.click();return true;})()") != "true")
+                throw new InvalidDataException("MAP015 full nine-kind Truck filter had no captured rows or tab.");
+            bool mountedTruckControls = false;
+            for (int attempt = 0; attempt < 150; attempt++)
+            {
+                if (await core.ExecuteScriptAsync("!!document.querySelector('.map-table--truck[aria-busy=false]') && !!document.querySelector('.map-searchbar input[inputmode=decimal]')") == "true")
+                { mountedTruckControls = true; break; }
+                await Task.Delay(100, token);
+            }
+            if (!mountedTruckControls)
+                throw new InvalidDataException("MAP015 full nine-kind Truck filter controls did not mount.");
+            truckFilter = await RunMap015TruckFilterUiProofAsync(
+                core, directory, capturedTruckRows.Value, serverId, token);
+        }
+        if (!overviewLifecycleService.MatchesOwnedMapScanSession(ownedSession))
+            throw new InvalidDataException("MAP015 packaged UI owner was retired before its final proof receipt.");
+        return new { scanRunId = runId, serverId, selectedKinds = kinds.Select(item => item.Kind).ToArray(),
+            cameraFree = new { source = "direct", completedAois = covered.Count, repliesCaptured = 63,
+                batchesCaptured = batches.GetArrayLength(), requestsSent = sent,
+                cameraStable = true, curViewRestored = true, metricsPhase = "prepared" },
+            results, fastTruck, truckFilter, ghostNativeRewardDisplayProven = positiveGhostRewardProven };
+    }
+
+    private static bool IsNativeGhostPlunderShare(JsonElement row, out double ratio)
+    {
+        ratio = 0;
+        if (!row.TryGetProperty("stealRewardRatio", out JsonElement ratioValue) ||
+            !ratioValue.TryGetDouble(out ratio) || !double.IsFinite(ratio) || ratio is <= 0 or > 100 ||
+            !row.TryGetProperty("rewardConfig", out JsonElement configValue) ||
+            configValue.ValueKind != JsonValueKind.String ||
+            !row.TryGetProperty("rewards", out JsonElement rewardValue) ||
+            rewardValue.ValueKind != JsonValueKind.Array)
+            return false;
+        string[] parts = (configValue.GetString() ?? "").Split('|', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return false;
+        var ownerAmounts = new Dictionary<string, long>(StringComparer.Ordinal);
+        foreach (string part in parts)
+        {
+            string[] fields = part.Split(';'); // game's base_reward_show: itemId;type;count
+            if (fields.Length != 3 ||
+                !long.TryParse(fields[0], out long id) || id < 0 ||
+                !long.TryParse(fields[1], out long type) || type < 0 ||
+                !long.TryParse(fields[2], out long count) || count <= 0)
+                return false;
+            string key = $"reward:{type}:{id}";
+            if (!ownerAmounts.TryAdd(key, count))
+            {
+                if (ownerAmounts[key] > long.MaxValue - count) return false;
+                ownerAmounts[key] += count;
+            }
+        }
+        double sourceRatio = ratio;
+        var shares = ownerAmounts.ToDictionary(pair => pair.Key,
+            pair => (long)Math.Floor(pair.Value * sourceRatio / 100), StringComparer.Ordinal);
+        foreach (string key in shares.Where(pair => pair.Value == 0).Select(pair => pair.Key).ToArray())
+            shares.Remove(key);
+        if (shares.Count == 0 || shares.Count != rewardValue.GetArrayLength()) return false;
+        foreach (JsonElement reward in rewardValue.EnumerateArray())
+        {
+            if (!reward.TryGetProperty("key", out JsonElement keyValue) || keyValue.ValueKind != JsonValueKind.String ||
+                !reward.TryGetProperty("count", out JsonElement countValue) || !countValue.TryGetInt64(out long amount) ||
+                !shares.Remove(keyValue.GetString() ?? "", out long expected) || amount != expected)
+                return false;
+        }
+        return shares.Count == 0;
+    }
+
     // Opt-in, explicitly isolated normal-window verification only. All scans,
     // navigation and images use the normal production services and real game.
     private async Task RunMap014NativeUiExtrasAsync(CoreWebView2 core, string directory, CancellationToken token)

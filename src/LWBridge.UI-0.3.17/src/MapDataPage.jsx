@@ -920,7 +920,7 @@ export function MapDataPage({
     try {
       // Auto may show a saved remote dataset while the game has already
       // returned home. Backend independently validates its published owner.
-      const next = await mapApi.clear(dataServerId, scanTab === "auto");
+      const next = await mapApi.clear(dataServerId, scanTab === "auto" || (currentServerId > 0 && dataServerId !== currentServerId));
       summaryGeneration.current++;
       optionsGeneration.current++;
       searchGeneration.current += 1;
