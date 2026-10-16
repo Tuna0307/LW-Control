@@ -1,3 +1,8 @@
+Latest lead audit, 2026-10-16: MAP-015 26212916 camera-free non-Truck scan
+accepted for owner testing scope; overall PARTIAL. Worker continues R2 (fast
+Truck, faster detail hydration, Ghost plunder witness) on the same branch/PR #11.
+Read docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md first. Same rules.
+
 Latest lead assignment, 2026-10-16: worker builds the camera-free Map scanner
 (all kinds, then fast Trucks) on codex/map-owner-fixes-015 / draft PR only.
 Read docs/work-items/LWB317-MAP-CAMERA-FREE-015.md first; it supersedes older
