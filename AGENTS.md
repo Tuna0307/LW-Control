@@ -1,3 +1,7 @@
+Latest lead audit, 2026-10-17: MAP-016 010db520 (draft PR #12) ACCEPTED for owner
+testing; see docs/reviews/2026-10-17-MAP-016-LEAD-AUDIT.md. No worker task open.
+MAP-015 branch retired after merge.
+
 Latest lead assignment, 2026-10-16: owner tested merged MAP-015 and reported bugs/
 removals. Worker completes docs/work-items/LWB317-MAP-OWNER-FIXES-016.md on
 codex/map-owner-fixes-016 / new draft PR only. It supersedes older Map tasks.
