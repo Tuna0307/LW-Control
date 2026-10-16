@@ -33,6 +33,14 @@ LUA_ENTRY = lr.LUA_ENTRY
 ORIGINAL_LUA_ENTRY = lr.ORIGINAL_LUA_ENTRY
 RESOURCE_PROBE_ENTRY = "DataCenter/Global/LWBridgeLiveResourceProbe.luac"
 RESOURCE_PROBE_MODULE = "DataCenter.Global.LWBridgeLiveResourceProbe"
+FEATURE018_GAME_ENTRY = "DataCenter/Global/LWBridgeFeature018GameBridge.luac"
+FEATURE018_GAME_MODULE = "DataCenter.Global.LWBridgeFeature018GameBridge"
+FEATURE018_MINI_ENTRY = "DataCenter/Global/LWBridgeFeature018MiniGame.luac"
+FEATURE018_MINI_MODULE = "DataCenter.Global.LWBridgeFeature018MiniGame"
+FEATURE018_HOTKEY_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyGame.luac"
+FEATURE018_HOTKEY_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyGame"
+FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
+FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 MESSAGE = "LWbridge is running"
 
 # HOME 009 R2 D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
@@ -117,6 +125,34 @@ def resource_probe_source() -> bytes:
     return (HERE / "current_live_resource_probe.lua").read_bytes()
 
 
+def feature018_game_source() -> bytes:
+    data = (HERE / "feature018_game_bridge.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 module must not contain BOM")
+    return data
+
+
+def feature018_mini_source() -> bytes:
+    data = (HERE / "feature018_mini_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Mini module must not contain BOM")
+    return data
+
+
+def feature018_hotkey_source() -> bytes:
+    data = (HERE / "feature018_hotkey_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Hotkeys module must not contain BOM")
+    return data
+
+
+def feature018_city_source() -> bytes:
+    data = (HERE / "feature018_city_game.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 City module must not contain BOM")
+    return data
+
+
 def packaged_resource_probe_source() -> bytes:
     # v21 xLua rejects functions created by runtime load()/loadstring() with
     # E8472 provenance enforcement. Package the probe as a normal LENC module
@@ -137,7 +173,7 @@ def packaged_resource_probe_source() -> bytes:
 
 def wrapper_source() -> bytes:
     prefix = b'''-- LWBRIDGE_OVERVIEW_LOADER\nlocal unpack_values = table.unpack or unpack\nlocal ok_original, original = pcall(require, "DataCenter.Global.LuaEntry_original")\nif not ok_original then error(original) end\nlocal bridge = (function()\n'''
-    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\npump_runtime()\nreturn original\n'''
+    between = b'''\nend)()\nif type(bridge) ~= "table" then error("embedded overview bridge did not return a table") end\nlocal ok_probe, probe = pcall(require, "DataCenter.Global.LWBridgeLiveResourceProbe")\nif not ok_probe then error(probe) end\nif type(probe) ~= "table" then error("live-resource probe did not return a table") end\nlocal ok_feature, feature = pcall(require, "DataCenter.Global.LWBridgeFeature018GameBridge")\nif not ok_feature then error(feature) end\nif type(feature) ~= "table" then error("FEATURE018 game bridge did not return a table") end\nlocal function record_probe_pump_error(value)\n    local root = os.getenv and os.getenv("LWBRIDGE_REBUILD_DATA_ROOT") or nil\n    if root == nil or root == "" then\n        local local_app_data = os.getenv and os.getenv("LOCALAPPDATA") or nil\n        if local_app_data ~= nil then root = local_app_data .. [[\\LWBridgeRebuild]] end\n    end\n    if root == nil or type(io) ~= "table" or type(io.open) ~= "function" then return end\n    local text = tostring(value)\n    if type(debug) == "table" and type(debug.traceback) == "function" then\n        local ok_trace, trace = pcall(debug.traceback, text, 2)\n        if ok_trace and type(trace) == "string" then text = trace end\n    end\n    local ok_file, file = pcall(io.open, root .. [[\\live-resource\\probe-pump-error.txt]], "w")\n    if not ok_file or file == nil then return end\n    pcall(function() file:write(text); file:close() end)\nend\nlocal function pump_runtime()\n    if type(bridge.Register) == "function" then pcall(bridge.Register) end\n    if type(bridge.Pump) == "function" then pcall(bridge.Pump) end\n    if type(probe.Pump) == "function" then\n        local ok_pump, pump_error = pcall(probe.Pump)\n        if not ok_pump then record_probe_pump_error(pump_error) end\n    end\n    if type(feature.Pump) == "function" then pcall(feature.Pump) end\nend\nlocal function wrap(name)\n    if type(original) ~= "table" or type(original[name]) ~= "function" then return end\n    local previous = original[name]\n    original[name] = function(...)\n        local values = { pcall(previous, ...) }\n        local ok = table.remove(values, 1)\n        pump_runtime()\n        if not ok then error(values[1]) end\n        return unpack_values(values)\n    end\nend\nfor _, method in ipairs({"init", "__InitCModule", "Async_Init", "Async_Update", "AsyncUpdate", "Update", "LateUpdate"}) do wrap(method) end\nrawset(_G, "LWBridgeOverviewBridge", bridge)\nrawset(_G, "LWBridgeLiveResourceProbe", probe)\nrawset(_G, "LWBridgeFeature018GameBridge", feature)\npump_runtime()\nreturn original\n'''
     # LuaEntry can load before UpdateManager / the game timer exists. Overview
     # retries Register on later original lifecycle calls, but the Map probe
     # formerly tried only once at module load and then stopped pumping as soon
@@ -168,6 +204,51 @@ def wrapper_source() -> bytes:
         if between.count(marker) != 1:
             raise OverviewBridgeError("MAP-013 wrapper runtime dispatch seam not unique")
         between = between.replace(marker, extra + b"\n" + marker, 1)
+    mini_load = b'''local ok_mini, mini = pcall(require, "DataCenter.Global.LWBridgeFeature018MiniGame")
+if not ok_mini then error(mini) end
+if type(mini) ~= "table" then error("FEATURE018 Mini module did not return a table") end
+'''
+    mini_marker = b'local function record_probe_pump_error(value)'
+    if between.count(mini_marker) != 1:
+        raise OverviewBridgeError("FEATURE018 Mini module load seam is not unique")
+    between = between.replace(mini_marker, mini_load + mini_marker, 1)
+    hotkey_load = b'''local ok_hotkey, hotkey = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyGame")
+if not ok_hotkey then error(hotkey) end
+if type(hotkey) ~= "table" then error("FEATURE018 Hotkeys module did not return a table") end
+'''
+    between = between.replace(mini_marker, hotkey_load + mini_marker, 1)
+    city_load = b'''local ok_city, city = pcall(require, "DataCenter.Global.LWBridgeFeature018CityGame")
+if not ok_city then error(city) end
+if type(city) ~= "table" then error("FEATURE018 City module did not return a table") end
+'''
+    between = between.replace(mini_marker, city_load + mini_marker, 1)
+    register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
+    if between.count(register_marker) != 1:
+        raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
+    between = between.replace(register_marker, register_marker +
+        b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
+        b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
+        b'if type(city.Register) == "function" then city.Register(feature) end\n' +
+        b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
+    # A Mini Game view wrapper or marker belongs to exactly one authenticated
+    # Overview session. The native bridge controls whether that owner is still
+    # lease-fresh. On loss/replacement restore only our in-memory UI wrappers
+    # and effects; this never touches installed Lua package bytes or journals.
+    setup = b'local function pump_runtime()'
+    if between.count(setup) != 1:
+        raise OverviewBridgeError("FEATURE018 owner cleanup declaration seam missing")
+    between = between.replace(setup, b'local feature018_previous_owner = nil\n' + setup, 1)
+    original_pump = b'    if type(feature.Pump) == "function" then pcall(feature.Pump) end\n'
+    if between.count(original_pump) != 1:
+        raise OverviewBridgeError("FEATURE018 session-bound game pump seam not unique")
+    bound_pump = b'''    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
+    if feature018_previous_owner ~= current_feature_owner then
+        if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+        feature018_previous_owner = current_feature_owner
+    end
+    if current_feature_owner ~= nil and type(feature.Pump) == "function" then pcall(feature.Pump) end
+'''
+    between = between.replace(original_pump, bound_pump, 1)
     return prefix + bridge_source() + between
 
 
@@ -181,6 +262,14 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the preserved LuaEntry marker")
     if RESOURCE_PROBE_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the live-resource probe module")
+    if FEATURE018_GAME_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 game bridge module")
+    if FEATURE018_MINI_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Mini module")
+    if FEATURE018_HOTKEY_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys module")
+    if FEATURE018_CITY_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 City module")
     wrapper_plain = wrapper_source()
     wrapper = lr.encode_lenc(wrapper_plain)
     if lr.decode_lenc(wrapper) != wrapper_plain:
@@ -192,10 +281,30 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     if len(probe_entry) > 0xFFFF:
         raise OverviewBridgeError(
             f"live-resource probe exceeds the require-able 64KiB entry limit: {len(probe_entry)}")
+    feature_plain = feature018_game_source()
+    feature_entry = lr.encode_lenc(feature_plain)
+    if len(feature_entry) > 0xFFFF or lr.decode_lenc(feature_entry) != feature_plain:
+        raise OverviewBridgeError("FEATURE018 module exceeds 64KiB or failed LENC round-trip")
+    mini_plain = feature018_mini_source()
+    mini_entry = lr.encode_lenc(mini_plain)
+    if len(mini_entry) > 0xFFFF or lr.decode_lenc(mini_entry) != mini_plain:
+        raise OverviewBridgeError("FEATURE018 Mini module exceeds 64KiB or failed LENC round-trip")
+    hotkey_plain = feature018_hotkey_source()
+    hotkey_entry = lr.encode_lenc(hotkey_plain)
+    if len(hotkey_entry) > 0xFFFF or lr.decode_lenc(hotkey_entry) != hotkey_plain:
+        raise OverviewBridgeError("FEATURE018 Hotkeys module exceeds 64KiB or failed LENC round-trip")
+    city_plain = feature018_city_source()
+    city_entry = lr.encode_lenc(city_plain)
+    if len(city_entry) > 0xFFFF or lr.decode_lenc(city_entry) != city_plain:
+        raise OverviewBridgeError("FEATURE018 City module exceeds 64KiB or failed LENC round-trip")
     mapped[LUA_ENTRY] = wrapper
     output = [(name, mapped[name]) for name, _ in entries]
     output.append((ORIGINAL_LUA_ENTRY, official))
     output.append((RESOURCE_PROBE_ENTRY, probe_entry))
+    output.append((FEATURE018_GAME_ENTRY, feature_entry))
+    output.append((FEATURE018_MINI_ENTRY, mini_entry))
+    output.append((FEATURE018_HOTKEY_ENTRY, hotkey_entry))
+    output.append((FEATURE018_CITY_ENTRY, city_entry))
     data = directory / "LWScripts.data"
     metadata = directory / "LWScripts.txt"
     version = directory / "version.txt"
@@ -208,6 +317,14 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate LuaEntry preservation/serialization verification failed")
     if lr.decode_lenc(verify_map[RESOURCE_PROBE_ENTRY]) != probe_plain:
         raise OverviewBridgeError("Overview candidate probe serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_GAME_ENTRY]) != feature_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_MINI_ENTRY]) != mini_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Mini serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ENTRY]) != hotkey_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_CITY_ENTRY]) != city_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
     package_crc = lr.crc32_file(data)
     metadata.write_text(f"{data.stat().st_size}|{package_crc}", encoding="utf-8")
     version.write_text(str(content_version), encoding="utf-8")
@@ -218,6 +335,10 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "bridgeSourceSha256": hashlib.sha256(bridge_source()).hexdigest(),
         "resourceProbeSourceSha256": hashlib.sha256(resource_probe_source()).hexdigest(),
         "resourceProbePackagedSha256": hashlib.sha256(probe_plain).hexdigest(),
+        "feature018GameSourceSha256": hashlib.sha256(feature_plain).hexdigest(),
+        "feature018MiniSourceSha256": hashlib.sha256(mini_plain).hexdigest(),
+        "feature018HotkeySourceSha256": hashlib.sha256(hotkey_plain).hexdigest(),
+        "feature018CitySourceSha256": hashlib.sha256(city_plain).hexdigest(),
         "resourceProbeLencSize": len(probe_entry),
         "resourceProbePlainSize": len(probe_plain),
         "wrapperPlaintextSha256": hashlib.sha256(wrapper_plain).hexdigest(),

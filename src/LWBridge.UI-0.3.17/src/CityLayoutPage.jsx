@@ -410,7 +410,9 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const cancelApply = async () => {
     if (previewEnabled || !applyStatus?.jobId) return;
     try {
-      setLiveApplyStatus(await backendBridge.invokeProfileScoped("city_layout_apply_cancel", { jobId: applyStatus.jobId }));
+      const result = await backendBridge.invokeProfileScoped("city_layout_apply_cancel", { jobId: applyStatus.jobId });
+      if (!result?.accepted || !result?.status) throw new Error("Game did not acknowledge this layout cancellation");
+      setLiveApplyStatus(result.status);
     } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
   };
 

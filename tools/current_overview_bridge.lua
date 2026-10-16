@@ -3807,6 +3807,26 @@ function M.Register()
     return registration_method ~= nil
 end
 
+-- FEATURE018 producer admission for a separately packaged game module. The
+-- native app's request must match this very instance and its fresh host lease.
+function M.IsAuthorizedFeature018Request(values)
+    if active == nil or type(values) ~= "table" then return false end
+    if active.profileId ~= values.profileId or active.sessionId ~= values.launchSessionId or
+       active.challenge ~= values.challenge or active.gamePid ~= tonumber(values.gamePid) then
+        return false
+    end
+    return lease_is_fresh(active, tonumber(os.time()) or 0) == true
+end
+
+-- Read-only owner-token gate for exact-session cleanup of transient feature
+-- UI wrappers and chest markers; unavailable on a stale or missing host lease.
+function M.Feature018OwnerToken()
+    if active == nil or lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then
+        return nil
+    end
+    return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
+end
+
 -- Registration is deliberately lazy. LuaEntry is loaded before all current-client
 -- update/timer surfaces are guaranteed to exist; the preserved LuaEntry lifecycle
 -- wrapper retries Register after original lifecycle calls without making module load

@@ -478,6 +478,7 @@ internal sealed partial class LWBridgeWindow : Form
             if (profileRegistryService is not null) services.Add(profileRegistryService);
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
+            if (overviewLifecycleService is not null) services.Add(new Feature018GameCommandService(overviewLifecycleService));
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
@@ -539,6 +540,7 @@ internal sealed partial class LWBridgeWindow : Form
         ownerEvidence?.Record("session-start", new { processId = Environment.ProcessId, profileId = config.Snapshot.ProfileId, initialView });
         Shown += OnShown;
         FormClosed += OnFormClosed;
+        StartFeature018HotkeyMonitoring();
         InitializeHome004IsolatedRouteFault(isolatedRootPath);
     }
 
@@ -6317,6 +6319,7 @@ internal sealed partial class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        StopFeature018HotkeyMonitoring();
         home004RouteFaultTimer?.Stop();
         home004RouteFaultTimer?.Dispose();
         Interlocked.Exchange(ref profileRuntimeClosed, 1);

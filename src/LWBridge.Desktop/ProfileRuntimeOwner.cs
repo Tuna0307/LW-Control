@@ -210,6 +210,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 profileRegistryService,
                 settings,
                 hotkeys,
+                new Feature018GameCommandService(lifecycle),
                 visualMetrics,
                 equipment,
                 monsterAfk,
