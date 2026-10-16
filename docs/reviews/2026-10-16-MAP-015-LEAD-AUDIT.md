@@ -31,3 +31,24 @@ Verdict: **Task A ACCEPTED for owner testing scope; Task B NOT STARTED live; ove
    without dropping fields. Targets: all non-Truck ≤ 40 s, Zombie Boss ≤ 30 s.
 3. Packaged UI: Ghost plunder-share witness on a live Ghost row; Truck filter on fresh Trucks.
 4. One final ZIP from the final commit, report update, status READY_FOR_LEAD_AUDIT or PARTIAL.
+
+## R2 audit — source 7e93b92f (lead)
+Verified: remote SHA 7e93b92f; ZIP `artifacts/release-map015-r2-7e93b92f/LW-Control-MAP015-RC-7e93b92f42d0.zip`
+SHA-256 3ffc29da…e105d matches; lead re-ran Desktop.Checks, map_014_lead_native, map_015 package and Ghost reward
+checks: all pass.
+- LEADMAP015-02 ACCEPTED: Zombie Boss 51→34 s, all non-Truck 64→46 s with full fields; close enough to targets for
+  owner testing.
+- LEADMAP015-04 CLOSED: packaged Ghost plunder-share witness and fresh Truck filter witness passed.
+- LEADMAP015-03 OPEN but de-risked: all 625 pushes captured at 5–20/s; 40–134 s. Native train set (98–108) vs
+  camera (40–55); camera-only misses 16–26 are below camera↔camera drift (33–47). Missing: Truck vs Railway
+  `train.type` classification and full production Truck fields.
+
+## R3 assignment (final) — same branch/PR #11
+1. Productionize the fast Truck sweep at 20/s (fall back to 15/s if pushes are lost): on every frame run the
+   existing production Truck record builder (`train_march_aoi_records` path: rewards, owner, quality, power,
+   arrival) on newly seen train marches; classify by `train.type` so only Trucks become Truck rows (Railway rows
+   stay with Railway). Camera Truck scan stays as automatic fallback (lost pushes, errors, zero rows).
+2. Qualification: same session, order fast → camera → fast. Pass when fast-vs-camera misses ≤ camera↔camera-style
+   drift (fast-vs-fast pair as the drift control) and every fast Truck row has the same fields as camera rows.
+3. Packaged app: Truck-only scan and all-nine-kinds scan, Truck filter, Stop mid-scan, restoration.
+4. Final ZIP, report update, status READY_FOR_LEAD_AUDIT or PARTIAL.

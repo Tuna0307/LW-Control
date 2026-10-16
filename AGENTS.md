@@ -1,3 +1,8 @@
+Latest lead audit R2, 2026-10-16: MAP-015 7e93b92f accepted for non-Truck speed,
+Ghost plunder and Truck filter witnesses. Worker does final R3: production fast
+Truck sweep (typed, full fields, camera fallback) on the same branch/PR #11.
+See the R2 section of docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
 Latest lead audit, 2026-10-16: MAP-015 26212916 camera-free non-Truck scan
 accepted for owner testing scope; overall PARTIAL. Worker continues R2 (fast
 Truck, faster detail hydration, Ghost plunder witness) on the same branch/PR #11.
