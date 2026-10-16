@@ -1,3 +1,9 @@
+Latest lead assignment, 2026-10-16: owner tested merged MAP-015 and reported bugs/
+removals. Worker completes docs/work-items/LWB317-MAP-OWNER-FIXES-016.md on
+codex/map-owner-fixes-016 / new draft PR only. It supersedes older Map tasks.
+Subagents allowed, one live-game controller; same background/no-account-action,
+no-merge/publication rules. Lead audits the handback.
+
 Latest lead audit R4, 2026-10-16: MAP-015 6deef6cc fast scanner (all nine kinds incl.
 fast Truck) ACCEPTED and merged to main (5f6b84a1, PR #11) for owner personal
 testing; test ZIP built from identical code 6deef6cc. No worker task open. See the R4 section of docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
