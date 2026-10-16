@@ -252,15 +252,12 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
 
         var selectedTypes = new List<string>(AllowedSelectedTypes.Length);
         var seenTypes = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string? kind in source.SelectedTypes ?? Array.Empty<string>())
+        foreach (string? kind in source.SelectedTypes ?? DefaultSelectedTypes)
         {
             if (kind is null || !AllowedSelectedTypeSet.Contains(kind) || !seenTypes.Add(kind))
                 continue;
             selectedTypes.Add(kind);
         }
-        if (selectedTypes.Count == 0)
-            selectedTypes.AddRange(DefaultSelectedTypes);
-
         return new MapAutoScanConfig(
             source.Enabled,
             intervalMinutes,
@@ -316,9 +313,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         }
 
         Publish(snapshot);
-        // Original: disabling only clears the persisted deadline; a running cycle
-        // finishes its in-flight scan and observes `enabled` between targets (there
-        // is no Auto-specific Stop; Manual Stop remains the scan Stop surface).
+        // Disabling clears the schedule deadline. Cycles admitted with enabled
+        // scheduling observe Disable between targets; schedule-off one-offs use Stop.
         if (!disabling)
             await TryAdmitDueCycleAsync().ConfigureAwait(false);
 
@@ -332,12 +328,12 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         await stateGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            if (!state.Config.Enabled)
-                throw new InvalidOperationException("Auto scan is disabled");
-            CommitLocked(state with
-            {
-                Config = state.Config with { NextRunAt = utcNowMilliseconds() },
-            });
+            if (state.Config.SelectedTypes is not { Count: > 0 })
+                throw new BridgeCommandException("MAP_SCAN_TYPES_REQUIRED", "Select at least one scan category.");
+            // Retain the existing enabled-schedule Run now deadline semantics,
+            // including retirement. A schedule-off one-off never arms a deadline.
+            if (state.Config.Enabled)
+                CommitLocked(state with { Config = state.Config with { NextRunAt = utcNowMilliseconds() } });
             snapshot = CreateSnapshotLocked();
         }
         finally
@@ -488,7 +484,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 }
             }
             config = state.Config;
-            due = config.Enabled && (explicitRunNow || utcNowMilliseconds() >= config.NextRunAt);
+            due = config.SelectedTypes is { Count: > 0 } &&
+                (explicitRunNow || (config.Enabled && utcNowMilliseconds() >= config.NextRunAt));
         }
         finally
         {
@@ -508,7 +505,8 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         try
         {
             config = state.Config;
-            if (!config.Enabled || (!explicitRunNow && utcNowMilliseconds() < config.NextRunAt))
+            if (config.SelectedTypes is not { Count: > 0 } ||
+                (!explicitRunNow && (!config.Enabled || utcNowMilliseconds() < config.NextRunAt)))
                 return false;
             lock (cycleGate)
             {
@@ -576,7 +574,10 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
             for (int index = 0; index < targets.Length; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (!await IsStillEnabledAsync().ConfigureAwait(false))
+                // A cycle admitted with its schedule off is a one-off. It must
+                // finish its captured targets independently of later schedule
+                // edits. Preserve enabled-cycle Disable behavior for old owners.
+                if (admittedConfig.Enabled && !await IsStillEnabledAsync().ConfigureAwait(false))
                 {
                     outcome = "disabled";
                     break;
@@ -670,7 +671,7 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
         {
             outcome = Volatile.Read(ref retired) != 0
                 ? "retired"
-                : await IsStillEnabledAsync().ConfigureAwait(false) ? "canceled" : "disabled";
+                : !admittedConfig.Enabled || await IsStillEnabledAsync().ConfigureAwait(false) ? "canceled" : "disabled";
         }
         catch (Exception error)
         {
@@ -1109,10 +1110,11 @@ internal sealed class MapAutoScanCommandService : INativeAsyncCommandService, ID
                 if (item.TryGetInt32(out int serverId)) serverIds.Add(serverId);
         }
 
-        var selectedTypes = new List<string>();
+        List<string>? selectedTypes = null;
         if (config.TryGetProperty("selectedTypes", out JsonElement typesValue) &&
             typesValue.ValueKind == JsonValueKind.Array)
         {
+            selectedTypes = new List<string>();
             foreach (JsonElement item in typesValue.EnumerateArray())
                 if (item.ValueKind == JsonValueKind.String && item.GetString() is { } kind)
                     selectedTypes.Add(kind);

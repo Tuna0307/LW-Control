@@ -65,8 +65,8 @@ class CityBatchCaptureTimeChecks(unittest.TestCase):
 
     def test_terminal_timestamp_substitution_is_rejected(self):
         damaged = self.managed.replace(
-            "DateTimeOffset.FromUnixTimeMilliseconds(batchCapturedMs));",
-            "capturedAt);", 1)
+            "DateTimeOffset.FromUnixTimeMilliseconds(batchCapturedMs)",
+            "capturedAt", 1)
         self.assertNotEqual(damaged, self.managed)
         with self.assertRaisesRegex(AssertionError, "per-batch validation"):
             require_true_batch_times(self.lua, damaged, self.cities)

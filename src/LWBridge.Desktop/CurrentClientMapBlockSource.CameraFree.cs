@@ -106,7 +106,8 @@ internal sealed partial class CurrentClientMapBlockSource
             lastBatchCapturedMs = batchCapturedMs;
             FastCityBatchObservation normalized = NormalizeCameraFreeBatch(
                 batch, pointRequest, resultPath,
-                DateTimeOffset.FromUnixTimeMilliseconds(batchCapturedMs));
+                DateTimeOffset.FromUnixTimeMilliseconds(batchCapturedMs),
+                DateTimeOffset.FromUnixTimeMilliseconds(terminalCapturedMs + 2_000));
             int previousAois = state.Covered.Count;
             MergeFullWorldObservation(state, normalized);
             if (state.Covered.Count - previousAois != normalized.RequestedIndices.Length)
@@ -330,7 +331,7 @@ internal sealed partial class CurrentClientMapBlockSource
 
     private FastCityBatchObservation NormalizeCameraFreeBatch(
         JsonElement batch, MapScanExecutionRequest request,
-        string resultPath, DateTimeOffset capturedAt)
+        string resultPath, DateTimeOffset capturedAt, DateTimeOffset terminalCaptureUpperBound)
     {
         if (batch.ValueKind != JsonValueKind.Object ||
             !batch.TryGetProperty("indices", out JsonElement indicesValue) ||
@@ -433,7 +434,8 @@ internal sealed partial class CurrentClientMapBlockSource
         IReadOnlyList<FastTreasurePrepared> treasures = wantsTreasure
             ? PrepareTreasureRecords(points, request, requestedSet, capturedAt) : Array.Empty<FastTreasurePrepared>();
         IReadOnlyList<FastMonsterPrepared> monsters = IncludesMonsterSource(request)
-            ? PrepareMonsterRecords(batch, request, requestedSet, capturedAt) : Array.Empty<FastMonsterPrepared>();
+            ? PrepareMonsterRecords(batch, request, requestedSet,
+                RequireCameraFreeMonsterReceipt(batch, capturedAt, terminalCaptureUpperBound)) : Array.Empty<FastMonsterPrepared>();
         IReadOnlyList<FastTrainPrepared> trains = request.SelectedTypes.Contains("railway", StringComparer.Ordinal)
             ? PrepareTrainRecords(batch, request, requestedSet, capturedAt) : Array.Empty<FastTrainPrepared>();
         if (!IncludesMonsterSource(request) && monsterMarches.GetArrayLength() > 0 ||
@@ -442,6 +444,34 @@ internal sealed partial class CurrentClientMapBlockSource
 
         return new FastCityBatchObservation(indices, cities, resources, dispatch, ghosts, treasures,
             monsters, trains, completeness, 0, 0, 0, 0, null, null, null);
+    }
+
+    internal static DateTimeOffset RequireCameraFreeMonsterReceipt(
+        JsonElement batch, DateTimeOffset pointCapturedAt, DateTimeOffset terminalCaptureUpperBound)
+    {
+        if (!batch.TryGetProperty("marchSource", out JsonElement receipt) || receipt.ValueKind != JsonValueKind.Object ||
+            !MatchesString(receipt, "source", "WorldMarchDataManager.HandleWorldMarchGetImpl+ParseDataWorldMarchGet") ||
+            !MatchesString(receipt, "comparison", "System.DateTime.CompareTo") ||
+            !receipt.TryGetProperty("receivedComparedToBeforeSend", out JsonElement receivedValue) ||
+            receivedValue.ValueKind != JsonValueKind.Number ||
+            !receivedValue.TryGetInt32(out int received) || received != 1 ||
+            !receipt.TryGetProperty("handledComparedToReceived", out JsonElement handledValue) ||
+            handledValue.ValueKind != JsonValueKind.Number ||
+            !handledValue.TryGetInt32(out int handled) || handled is < 0 or > 1 ||
+            !MatchesBool(receipt, "receivedAfterSend", true) ||
+            !MatchesBool(receipt, "handledAtOrAfterReceived", true) ||
+            !receipt.TryGetProperty("waitSeconds", out JsonElement waitValue) ||
+            waitValue.ValueKind != JsonValueKind.Number ||
+            !waitValue.TryGetDouble(out double waitSeconds) || !double.IsFinite(waitSeconds) || waitSeconds is < 0 or >= 2 ||
+            !batch.TryGetProperty("marchCapturedAtUnixMs", out JsonElement capturedValue) ||
+            capturedValue.ValueKind != JsonValueKind.Number ||
+            !capturedValue.TryGetInt64(out long capturedMs) ||
+            capturedMs < pointCapturedAt.ToUnixTimeMilliseconds() ||
+            capturedMs > terminalCaptureUpperBound.ToUnixTimeMilliseconds() ||
+            capturedMs > pointCapturedAt.ToUnixTimeMilliseconds() + (long)CameraFreeScanTimeout.TotalMilliseconds)
+            throw new InvalidDataException(
+                "Camera-free Monster source omitted a fresh processed companion March receipt.");
+        return DateTimeOffset.FromUnixTimeMilliseconds(capturedMs);
     }
 
     private static void MergeFullWorldObservation(

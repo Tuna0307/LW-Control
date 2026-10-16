@@ -115,8 +115,26 @@ def map016_support_files(source_commit: str) -> dict[str, bytes]:
     }
 
 
+def review_support_files(label: str, source_commit: str) -> dict[str, bytes]:
+    files = map016_support_files(source_commit)
+    if label == 'MAP016':
+        return files
+    if label != 'MAP017':
+        raise ValueError('Unsupported support-file label')
+    files['LW-Control-UI/README-RELEASE.txt'] = (
+        'LW-Control MAP-017 owner fixes - UNPUBLISHED review candidate\r\n'
+        f'Source commit: {source_commit}\r\n'
+        'Extract the whole Windows x64 ZIP and run Launch LWBridge.cmd.\r\n'
+        'Requires .NET 10 Desktop Runtime, Edge WebView2 Runtime and Python.\r\n'
+        'Audit and qualification limits: docs/MAP_017_WORKER_REPORT.md in the repository.\r\n'
+        'Remote scans use guarded switch, fast scan and return.\r\n'
+        'This local review build is not a published release.\r\n'
+    ).encode('utf-8')
+    return files
+
+
 def create(label: str = 'MAP014') -> dict:
-    if label not in ('MAP014', 'MAP016'):
+    if label not in ('MAP014', 'MAP016', 'MAP017'):
         raise ValueError('Unsupported review work-item label')
     sha_commit = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT,
                                 capture_output=True, text=True, check=True).stdout.strip()
@@ -166,15 +184,15 @@ def create(label: str = 'MAP014') -> dict:
     if temporary.exists():
         raise FileExistsError(f'A prior interrupted staging artifact needs review: {temporary}')
     recorded = {}
-    prefix = 'LW-Control-UI/' if label == 'MAP016' else ''
+    prefix = 'LW-Control-UI/' if label in ('MAP016', 'MAP017') else ''
     try:
         with zipfile.ZipFile(temporary, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for source, relative in included:
                 key = prefix + relative.as_posix()
                 archive.write(source, key)
                 recorded[key] = sha(source)
-            if label == 'MAP016':
-                for name, data in map016_support_files(sha_commit).items():
+            if label in ('MAP016', 'MAP017'):
+                for name, data in review_support_files(label, sha_commit).items():
                     archive.writestr(name, data)
                     recorded[name] = hashlib.sha256(data).hexdigest()
         with zipfile.ZipFile(temporary, 'r') as archive:
@@ -211,6 +229,6 @@ def create(label: str = 'MAP014') -> dict:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--label', choices=('MAP014', 'MAP016'), default='MAP014')
+    parser.add_argument('--label', choices=('MAP014', 'MAP016', 'MAP017'), default='MAP014')
     args = parser.parse_args()
     print(json.dumps(create(args.label), indent=2))

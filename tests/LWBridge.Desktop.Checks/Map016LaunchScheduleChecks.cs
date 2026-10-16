@@ -19,6 +19,7 @@ internal static class Map016LaunchScheduleChecks
             CheckSettlementIdentity(root);
             CheckNoGameUiDispatchBarrier();
             await CheckFirstIntervalAndReconnectAsync(root);
+            await Map017ScanControlChecks.RunAsync();
             await Map016DataChecks.RunAsync();
         }
         finally

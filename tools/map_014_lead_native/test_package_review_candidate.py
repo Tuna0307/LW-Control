@@ -4,11 +4,20 @@ from pathlib import Path
 
 from package_review_candidate import (
     permitted, excluded_non_target_runtime, NON_TARGET_RUNTIME_FILES,
-    TOP_FILES, TOOLS_FILES, UI_FILES, SOURCE, map016_support_files,
+    TOP_FILES, TOOLS_FILES, UI_FILES, SOURCE, map016_support_files, review_support_files,
 )
 
 
 class ReleaseManifestChecks(unittest.TestCase):
+    def test_map017_source_identity_and_report(self):
+        files = review_support_files('MAP017', '2' * 40)
+        self.assertEqual(files['LW-Control-UI/SOURCE-COMMIT.txt'],
+                         ('2' * 40 + '\r\n').encode('ascii'))
+        readme = files['LW-Control-UI/README-RELEASE.txt'].decode('utf-8')
+        self.assertIn('MAP-017', readme)
+        self.assertIn('docs/MAP_017_WORKER_REPORT.md', readme)
+        self.assertNotIn('MAP_016_WORKER_REPORT', readme)
+
     def test_map016_release_has_packaged_proof_identity_and_no_old_actions(self):
         commit = '1' * 40
         files = map016_support_files(commit)

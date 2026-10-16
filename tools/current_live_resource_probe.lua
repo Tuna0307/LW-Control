@@ -3847,6 +3847,60 @@ local function is_monster_invasion_template(template)
     return same_enum_value(special, invasion_boss)
 end
 
+-- The classifier must have its game-owned discriminator before any Monster
+-- snapshot is admitted. Treating an unavailable enum as false routes every
+-- real Zombie Boss into ordinary Monster and silently drops a Boss-only scan.
+function M._map017MonsterClassifierAvailable()
+    local specials = rawget(_G, "WorldMonsterSpecialType")
+    return specials ~= nil and safe_get(specials, "MonsterInvasionBoss") ~= nil
+end
+
+-- RECOVERED current v26: HandleWorldMarchGet (0x06003278) records receipt
+-- and enqueues the companion push. HandleMessage dispatches that queued push
+-- to HandleWorldMarchGetImpl (0x06003279); its native DateTime handle marker
+-- precedes synchronous ParseDataWorldMarchGet (0x0600327a). This Lua Update
+-- runs after that main-thread native call has returned. Point readiness does
+-- not imply that the independent March queue has reached this stage.
+-- Compare native DateTimes through their method: their tostring() suffixes
+-- are opaque and converting 64-bit ticks to a Lua number loses precision.
+function M._map017CompareDateTimes(left, right)
+    if left == nil or right == nil then return nil end
+    local ok, compared = call(left, "CompareTo", right)
+    compared = ok and tonumber(compared) or nil
+    if compared == -1 or compared == 0 or compared == 1 then return compared end
+    return nil
+end
+
+function M._map017CameraFreeMarchReady(s)
+    local c = s.pending
+    local manager = safe_get(s.world, "MarchDataManager") or reflected_value(s.world, "MarchDataManager")
+    if manager == nil then return false, "march_manager_unavailable" end
+    local received = reflected_value(manager, "_lastGetBlockMsgTime")
+    local handled = reflected_value(manager, "_lastHandleBlockMsgTime")
+    local received_after_send = M._map017CompareDateTimes(received, c.marchBeforeSend)
+    local handled_after_received = M._map017CompareDateTimes(handled, received)
+    local witness = {
+        source = "WorldMarchDataManager.HandleWorldMarchGetImpl+ParseDataWorldMarchGet",
+        comparison = "System.DateTime.CompareTo",
+        beforeSendReceived = c.marchBeforeSend and tostring(c.marchBeforeSend) or nil,
+        received = received and tostring(received) or nil,
+        handled = handled and tostring(handled) or nil,
+        receivedComparedToBeforeSend = received_after_send,
+        handledComparedToReceived = handled_after_received,
+        receivedAfterSend = received_after_send == 1,
+        handledAtOrAfterReceived = handled_after_received ~= nil and handled_after_received >= 0,
+        waitSeconds = runtime_clock() - (c.marchWaitStarted or runtime_clock()),
+    }
+    if received_after_send == nil or handled_after_received == nil then
+        return false, "march_datetime_comparison_unavailable", witness
+    end
+    if witness.waitSeconds >= 2 then
+        return false, "march_processing_timeout", witness
+    end
+    if received_after_send == 1 and handled_after_received >= 0 then return true, nil, witness end
+    return false, "march_pending", witness
+end
+
 local function monster_invasion_protection_deadline(march)
     local create_time = tonumber(scalar_field(march, { "createTime", "CreateTime" })) or 0
     local lua_entry = rawget(_G, "LuaEntry")
@@ -3942,6 +3996,9 @@ local function ensure_monster_protection_capture()
 end
 
 local function monster_invasion_protection_targets(world, block_size, block_count, selected_lookup, requested_server_id)
+    if not M._map017MonsterClassifierAvailable() then
+        return nil, nil, "monster_invasion_discriminator_unavailable"
+    end
     local march_manager = safe_get(world, "MarchDataManager") or reflected_value(world, "MarchDataManager")
     if march_manager == nil then return nil, nil, "WorldScene.MarchDataManager unavailable" end
     local ok_all, collection = call(march_manager, "GetAllMarchesByCS")
@@ -4948,6 +5005,9 @@ local function request_doomsday_main_info()
 end
 
 local function monster_march_aoi_records(world, block_size, block_count, selected_lookup, home_tile)
+    if not M._map017MonsterClassifierAvailable() then
+        return nil, "monster_invasion_discriminator_unavailable"
+    end
     local march_manager = safe_get(world, "MarchDataManager")
     if march_manager == nil then
         local ok_manager, value = call(world, "get_MarchDataManager")
@@ -7514,7 +7574,9 @@ function M._map015CameraFree.capture(s)
     -- time for all batches falsely makes a City relocation look simultaneous.
     -- Retain an actual monotonic runtime offset from this exact native owner's
     -- start, anchored to its own OS epoch second (Unix milliseconds).
-    local batch = { indices = c.indices,
+    local batch = c.pointBatch
+    if batch == nil then
+    batch = { indices = c.indices,
         capturedAtUnixMs = math.floor(s.wallClockStartMs +
             (runtime_clock() - s.startedAt) * 1000), point_records = {},
         monster_march_records = {}, train_march_records = {} }
@@ -7555,7 +7617,24 @@ function M._map015CameraFree.capture(s)
     ok, err = append_points(s.includeTreasure,
         function() return treasure_aoi_records(s.world, s.manager, 10, 100, selected) end)
     if not ok then return false, "treasure_" .. tostring(err) end
+    -- Preserve the fresh point snapshot immediately. Native points outside
+    -- the physical camera can be evicted while the companion March push waits
+    -- for its separate queue. Never re-read points after that wait or advance
+    -- the requested footprint until both independent sources have qualified.
+    c.pointBatch = batch
+    c.marchWaitStarted = runtime_clock()
+    end
     if s.includeMonster then
+        local march_ready, march_error, march_witness = M._map017CameraFreeMarchReady(s)
+        batch.marchSource = march_witness
+        if not march_ready then
+            if march_error ~= "march_pending" then
+                s.sourceFailureDiagnostics = { marchSource = march_witness }
+            end
+            return false, march_error
+        end
+        batch.marchCapturedAtUnixMs = math.floor(s.wallClockStartMs +
+            (runtime_clock() - s.startedAt) * 1000)
         if s.includeMonsterProtection and not s.protectionPrefetchAttempted then
             s.protectionPrefetchAttempted = true
             -- All already loaded WorldMarch identities belong to the live
@@ -7665,13 +7744,14 @@ function M._map015CameraFree.pump(now)
         return true
     end
     if s.pending ~= nil then
-        local ready = reflected_value(s.manager, "isRecvViewPoints") == true
+        local ready = s.pending.pointBatch ~= nil or reflected_value(s.manager, "isRecvViewPoints") == true
         if not ready then
             if runtime_clock() - s.sentAt >= 1.5 then M._map015CameraFree.finish("reply_timeout") end
             return true
         end
         local ok, err = M._map015CameraFree.capture(s)
         if not ok then
+            if err == "march_pending" then return true end
             -- A movement of a real player's base between source snapshots can
             -- temporarily leave a retained owner dictionary behind the fresh
             -- _pointInfos reply. Retry the identical AOIs at most twice; never
@@ -7711,6 +7791,13 @@ function M._map015CameraFree.pump(now)
         end
     end
     r.index = arr
+    if s.includeMonster then
+        local march_manager = safe_get(s.world, "MarchDataManager") or reflected_value(s.world, "MarchDataManager")
+        chunk.marchBeforeSend = march_manager and reflected_value(march_manager, "_lastGetBlockMsgTime") or nil
+        if M._map017CompareDateTimes(chunk.marchBeforeSend, chunk.marchBeforeSend) ~= 0 then
+            M._map015CameraFree.finish("march_datetime_comparison_unavailable"); return true
+        end
+    end
     if not reflected_set_value(s.manager, "isRecvViewPoints", false) then
         M._map015CameraFree.finish("reply_flag_reset_failed"); return true
     end

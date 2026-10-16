@@ -92,6 +92,71 @@ internal static class Map014ZombieBossChecks
         Require(zombieOnly.Select(row => row.RecordKey).OrderBy(key => key).SequenceEqual(["z-active", "z-bare", "z-unknown"]) &&
             zombieOnly.All(row => row.Kind == "zombie_boss"),
             "Zombie-Boss-only scan stores exactly the special-10 rows as zombie_boss");
+        CurrentClientMapBlockSource.RequireZombieBossSourceRows(Request("zombie_boss"), true);
+        CurrentClientMapBlockSource.RequireZombieBossSourceRows(Request("resource"), false);
+        try
+        {
+            CurrentClientMapBlockSource.RequireZombieBossSourceRows(Request("zombie_boss"), false);
+            throw new InvalidOperationException("MAP017_ZOMBIE_BOSS: unverified empty source was accepted");
+        }
+        catch (MapScanSourceValidationException error)
+        {
+            Require(error.Message.Contains("empty March-source coverage", StringComparison.Ordinal),
+                "a final empty Boss-only source surfaces uncertainty instead of completing with zero rows");
+        }
+        try
+        {
+            CurrentClientMapBlockSource.RequireZombieBossSourceRows(Request("resource", "monster", "zombie_boss"), false);
+            throw new InvalidOperationException("MAP017_ZOMBIE_BOSS: positive unrelated kinds concealed an empty Boss source");
+        }
+        catch (MapScanSourceValidationException) { }
+        // A point-ready receipt never substitutes for independent processed
+        // March evidence. Reject delayed, stale and incomplete source witnesses
+        // before their rows can acquire trusted normalized timestamps.
+        JsonObject MarchBatch() => new()
+        {
+            ["marchCapturedAtUnixMs"] = Now + 500,
+            ["marchSource"] = new JsonObject
+            {
+                ["source"] = "WorldMarchDataManager.HandleWorldMarchGetImpl+ParseDataWorldMarchGet",
+                ["comparison"] = "System.DateTime.CompareTo",
+                ["receivedComparedToBeforeSend"] = 1, ["handledComparedToReceived"] = 1,
+                ["receivedAfterSend"] = true, ["handledAtOrAfterReceived"] = true, ["waitSeconds"] = 0.5,
+            },
+        };
+        DateTimeOffset pointAt = DateTimeOffset.FromUnixTimeMilliseconds(Now);
+        DateTimeOffset terminalAt = pointAt.AddSeconds(1);
+        Require(CurrentClientMapBlockSource.RequireCameraFreeMonsterReceipt(
+            JsonSerializer.SerializeToElement(MarchBatch()), pointAt, terminalAt).ToUnixTimeMilliseconds() == Now + 500,
+            "delayed Monster observation retains its actual post-point capture time");
+        foreach (Action<JsonObject> change in new Action<JsonObject>[]
+        {
+            batch => batch.Remove("marchSource"),
+            batch => batch["marchSource"]!["receivedComparedToBeforeSend"] = 0,
+            batch => batch["marchSource"]!["receivedComparedToBeforeSend"] = "1",
+            batch => batch["marchSource"]!["handledComparedToReceived"] = -1,
+            batch => batch["marchSource"]!["handledComparedToReceived"] = true,
+            batch => batch["marchSource"]!["comparison"] = "opaque text ordering",
+            batch => batch["marchSource"]!["receivedAfterSend"] = false,
+            batch => batch["marchSource"]!["handledAtOrAfterReceived"] = false,
+            batch => batch["marchSource"]!["waitSeconds"] = -1,
+            batch => batch["marchSource"]!["waitSeconds"] = 2,
+            batch => batch["marchSource"]!["waitSeconds"] = "0.5",
+            batch => batch["marchCapturedAtUnixMs"] = Now - 1,
+            batch => batch["marchCapturedAtUnixMs"] = Now + 1_001,
+            batch => batch["marchCapturedAtUnixMs"] = true,
+        })
+        {
+            JsonObject malformed = MarchBatch();
+            change(malformed);
+            try
+            {
+                CurrentClientMapBlockSource.RequireCameraFreeMonsterReceipt(
+                    JsonSerializer.SerializeToElement(malformed), pointAt, terminalAt);
+                throw new InvalidOperationException("MAP017_ZOMBIE_BOSS: invalid processed March source was accepted");
+            }
+            catch (InvalidDataException) { }
+        }
         IReadOnlyList<MapStoredRecord> both = Normalize(snapshot, "monster", "zombie_boss");
         Require(both.Count == 5 && both.Count(row => row.Kind == "zombie_boss") == 3 && both.Count(row => row.Kind == "monster") == 2 &&
             both.Select(row => row.RecordKey).Distinct().Count() == 5,
