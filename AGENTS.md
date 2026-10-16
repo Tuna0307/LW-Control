@@ -1,3 +1,7 @@
+Latest lead audit R4, 2026-10-16: MAP-015 6deef6cc fast scanner (all nine kinds incl.
+fast Truck) ACCEPTED for owner testing; awaiting owner merge decision. No worker
+task open. See the R4 section of docs/reviews/2026-10-16-MAP-015-LEAD-AUDIT.md.
+
 Latest lead audit R3, 2026-10-16: MAP-015 34331cde fast Truck accuracy accepted.
 Worker does final R4 (drop arrived Trucks, re-request lost rectangles before camera
 fallback, packaged proof) on the same branch/PR #11. See the R3 section of

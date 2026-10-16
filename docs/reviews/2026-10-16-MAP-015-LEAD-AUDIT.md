@@ -74,3 +74,15 @@ Truck rows) against the next session's camera fallback (`native-ui-20261016-0532
 3. Packaged app: Truck-only scan and all-nine scan both complete on the fast path (no camera fallback), no arrived
    Trucks published, Truck filter works. Empty Ghost tab is acceptable if verified empty.
 4. Final ZIP from final commit, report, status READY_FOR_LEAD_AUDIT. No new fast-vs-camera study needed.
+
+## R4 audit — source 6deef6cc (lead): ACCEPTED for owner testing
+Verified: remote SHA 6deef6cc; ZIP `artifacts/release-map015-r4-final-6deef6cc/LW-Control-MAP015-RC-6deef6cce373.zip`
+SHA-256 a3936ca4…ec48f matches; Desktop.Checks, map_014_lead_native and map_015 package tests pass (lead re-run).
+Genuine packaged proofs (lead re-read the saved SQLite):
+- Truck-only `native-ui-20261016-090222`: 687 unique typed Trucks, 0 arrived, 72 s run, fast path.
+- All-nine `native-ui-20261016-090519`: 159 s run; City 4,189, Resource 8,012, Monster 13,657, Zombie Boss 291,
+  Secret Task 967 (all unique points, ≤8 per owner), Truck 549 (0 arrived), Treasure 27; Ghost/Railway empty at
+  that moment.
+- LEADMAP015-05 and -06 CLOSED. MAP-015 scanner speed work is complete for owner testing.
+Still outside MAP-015: owner-only live actions (plunder/claims/sharing/Ghost attack/Treasure claims) never live-
+tested by workers; season-dependent Treasure; rare events; remote-server scans still switch servers first.
