@@ -360,6 +360,20 @@ def main():
           'native SendMessage false return was mistaken for a dispatched request')
     check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['state'] == 'failed',
           'declined native send left a false-positive running job')
+
+    # A foreign/successor game owner must never inherit a pending multi-step
+    # plan. An already sent message stays sent, but the old job cannot advance.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    started = get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
+    check(started['state'] == 'accepted', 'owner-loss fixture never sent first native move')
+    producer.CleanupAfterLeaseLoss()
+    check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['state'] == 'idle',
+          'retired owner kept a running City job')
+    successor = get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
+    check(successor['state'] == 'accepted',
+          'successor was blocked by another game session City plan')
     print('FEATURE018_CITY_GAME_LUA53_OFFLINE_PASS')
 
 

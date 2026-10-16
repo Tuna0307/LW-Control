@@ -21,7 +21,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "city_layout_apply_status" or "city_layout_apply_cancel" or
         "monopoly_cell_open" or "mini_land_status" or "mini_sheep_status" or "mini_sheep_board" or
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
-        "automation_start" or "automation_stop" or
+        "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_input_focus" or
         "feature018_hotkey_action";
 
@@ -114,6 +114,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "mini_chest_mark":
             case "mini_chest_unmark":
             case "feature018_input_focus":
+            case "feature018_sheep_automation_status":
                 break;
         }
         return fields;

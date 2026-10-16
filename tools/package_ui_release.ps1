@@ -481,32 +481,40 @@ Microsoft Edge WebView2 Runtime and Python for optional current game integration
 
 VERIFIED FEATURE SCOPE
 City Layout original panel editing and placement presentation are available in
-isolated UI fixtures. The live UI now requests original native City Layout
-snapshot, drafts, validation and apply/status/cancel operations, displaying
-real error responses. Revisioned per-profile draft persistence is implemented.
-The current rebuild has no authenticated interior-city snapshot producer,
-verified placement planner or building relocation game executor.
+isolated UI fixtures. The live UI requests original native City Layout snapshot,
+drafts, validation and apply/status/cancel operations. Revisioned per-profile
+draft persistence is tested. A source-verified native game candidate now reads
+BuildManager and CityZone/LandLock/road data, validates placements and submits
+original FreeBuildingReplaceNew messages in a bounded one-step-at-a-time plan.
+Subsequent game state confirmation, cancellation and exact grid rules require
+live testing and cannot be claimed WORKING yet.
 
-Hotkeys and Mini Games preferences now load/save real per-profile native settings,
-including original Black Market grand-prize hint. Native persistence and old
-ten-field migration were tested. Game-window keyboard dispatch for Q/W/E/R,
-A/S/D/F, Space, F6/F7/F8, Alt+1-4, F9/F10 and G is not implemented and no
-gameplay success is claimed.
+Hotkeys and Mini Games preferences load/save native per-profile settings,
+including the Black Market grand-prize hint. Original shortcut recognition and
+game-only foreground PID/path/start-time polling, authenticated input-focus
+checks and read-only shield timing are now implemented and offline tested.
+Source-backed action routes are guarded. Several hotkeys still lack proven
+target/formation/item and server confirmation semantics. Their native key
+recognition must not be mistaken for a completed game action.
 
-Mini Games Land Cell sends the original monopoly_cell_open command and reports
-native failure; the current backend cannot unlock cells. Food House uses
-automation_start/stop for sheepGame with real status polling but the solver task
-and game-side confirmed moves are absent. A saved chest preference does not
-prove a visible grand-prize marker.
+Mini Games now has a source-backed next Land Cell request and confirmation
+check, real Black Market prize-chest position/effect hooks and a bounded Season4
+Food House current-level 3-match solver candidate that uses native UI clicks and
+requires a server acknowledgement after each move. Start/Stop are wired and
+status reports real native observations; the solver does not spend paid props or
+advance into a new level. Frontline G +5 still has no safe proven game sender.
+No City, Hotkey or Mini Games live-game success has been proved in this run.
 
 PACKAGED LIVE PROOF NOT COMPLETED
-The exact-sub-account lifecycle preflight encountered an older unrelated
-overview-bridge recovery journal and refused to launch the game. The journal
-and installed game scripts were left untouched. Reverify ownership and safely
-complete that recovery independently before attempting another live session.
-This release candidate therefore has code-level and offline-native evidence
-only, with no new FEATURE-RECOVERY-018 in-game operation receipts. Do not infer
-fully recovered game features from controls or their saved preferences.
+The exact-sub-account lifecycle preflight encountered an older FOREIGN
+overview-bridge recovery journal at active_ready_deferred_restore. It still
+owns an injected candidate package; its original backups are preserved.
+Reconciliation requires the original owner/independently authorized recovery
+mechanism and a same-owner restoration receipt. Journal, backups and installed
+scripts were NOT changed by this task; no game was launched. Code builds,
+offline native Lua bytecode tests and a full temporary LENC package roundtrip
+passed, but there are NO new FEATURE-RECOVERY-018 in-game action receipts.
+Do not infer fully recovered gameplay from controls or native dispatches.
 
 Other Map and Home work remains under its own existing acceptance and risk
 conditions. This is an unmerged source-pinned review ZIP, not a published

@@ -104,17 +104,23 @@ local function snapshot()
     local cells = {}
     local by_id = {}
     local zone_points = ctx.zone.allZonePoint
+    local zone_signature = {}
     for pid = 1, width * width do
         local x, y = point_xy(pid, width)
         local template = zone_points[pid]
-        local allowed = template ~= nil and ctx.land:CanBuildByPointId(pid) == true
+        -- LandLockManager.CanBuildByPointId (362-369) represents the separate
+        -- land restriction. A missing CityZoneTemplate must be rejected by
+        -- CanPutBuildByPoint (70-75) as a ZONE issue, not mislabeled LOCKED.
+        local unlocked = ctx.land:CanBuildByPointId(pid) == true
+        zone_signature[#zone_signature + 1] = template == nil and 'missing'
+            or tostring(template.zone_type)
         -- IsCanPutDownByPoint (513-520) uses GetPointType == CityPointType.Road.
         -- IsInFlagPosition's four special cells are exclusively for LW_BUILD_FLAG.
         local road = ctx.world:GetPointType(pid) == ctx.roadType
         local flag_only = ctx.buildingUtils.IsInFlagPosition(pid) == true
         local cell = {
             pointId = pid, x = x, y = y, regionId = CITY_REGION,
-            unlocked = allowed, road = road, flagOnly = flag_only,
+            unlocked = unlocked, road = road, flagOnly = flag_only,
         }
         cells[#cells + 1] = cell
         by_id[pid] = cell
@@ -184,13 +190,18 @@ local function snapshot()
     local signature = {}
     for _, building in ipairs(buildings) do
         signature[#signature + 1] = building.uuid .. ':' .. building.pointId .. ':' ..
-            table.concat(building.occupiedPoints, ',')
+            table.concat(building.occupiedPoints, ',') .. ':' ..
+            tostring(building.itemId) .. ':' .. tostring(building.tileX) .. ':' ..
+            tostring(building.tileY) .. ':' .. (building.movable and '1' or '0') .. ':' ..
+            (building.isFlag and '1' or '0')
     end
-    -- Include actual unlock/road state so stale layouts cannot be applied after
-    -- a land unlock or road change even when building positions stay unchanged.
+    -- Preserve a revision on *placement permissions*, not only building
+    -- coordinates: newly allowed/restricted zones and the military gate's
+    -- CanMoveBuild result can change without moving a single building.
     for _, cell in ipairs(cells) do
         signature[#signature + 1] = (cell.unlocked and '1' or '0') ..
-            (cell.road and '1' or '0')
+            (cell.road and '1' or '0') .. (cell.flagOnly and '1' or '0') ..
+            ':' .. zone_signature[cell.pointId]
     end
     local point_ids = {}
     for i = 1, width * width do point_ids[i] = i end
@@ -592,6 +603,18 @@ function M.Register(feature)
         return confirmed({ accepted = true, status = status_data(job) })
     end) and ok
     return ok
+end
+
+-- Once the exact Overview owner or its lease disappears, no successor may
+-- inherit a pending city relocation job. An in-flight server message cannot
+-- be revoked, but subsequent planned moves must never be sent under a new
+-- game session. Preserve no editable job state across that ownership change.
+function M.CleanupAfterLeaseLoss()
+    if M.active ~= nil then
+        M.active.cancelRequested = true
+        M.active.state = 'cancelled'
+    end
+    M.active = nil
 end
 
 return M

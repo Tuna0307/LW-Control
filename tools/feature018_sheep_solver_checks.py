@@ -1,0 +1,143 @@
+"""Offline contract checks against the ADMITTED original v26 Season 4 code.
+
+No game process, credentials, installed-file mutation or SFSNetwork connection.
+Decode the current original Lua methods and execute selected real bytecode with
+bounded/inert Python fixtures. The new Lua solver's syntax/guard surface is
+checked separately; these tests are not live proof of auto-clear success.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import re
+import sys
+import unittest
+from collections import defaultdict
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path[:0] = [str(ROOT), str(ROOT / "map_009_offline")]
+import compact_lua53 as lua  # noqa: E402
+import execute_selected as vm  # noqa: E402
+import run_live_resource_probe as probe  # noqa: E402
+from feature018_mini_lua import ORIGINAL_ENTRY_SHA256  # noqa: E402
+from inspect_current import root_methods, walk  # noqa: E402
+
+
+class NativeSeasonFourBytecode(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        v1, v2, items = probe.read_lwlf(probe.paths()["data"])
+        cls.items = dict(items)
+        original = cls.items.get(probe.ORIGINAL_LUA_ENTRY, cls.items.get(probe.LUA_ENTRY))
+        if (v1, v2) != (3, 26) or not original or \
+           hashlib.sha256(original).hexdigest() != ORIGINAL_ENTRY_SHA256:
+            raise unittest.SkipTest("Admitted original v26 Lua entry unavailable")
+
+    def method(self, module, name):
+        proto = lua.parse_chunk(probe.decode_lenc(self.items[module]))
+        path = root_methods(proto).get(name)
+        self.assertIsNotNone(path, f"Missing native v26 {module}:{name}")
+        for part in path.split("/")[1:]:
+            proto = proto["children"][int(part)]
+        return proto
+
+    def test_current_season_is_source_specific(self):
+        method = self.method("DataCenter/SmallGameManager/GSheep.luac", "GetCurrentLevel")
+        season = {"GetCurrentLevel": lambda self: 4}
+        context = {"source": "Season", "TryGetValue": lambda *args: 3}
+        globals_ = {"MiniGameSource": {"Season": "Season"},
+                    "DataCenter": {"LWSheepDataManager": season}}
+        self.assertEqual(vm.execute(method, context, globals_=globals_), (4,))
+
+    def test_native_can_click_requires_visible_and_tray_room(self):
+        method = self.method("DataCenter/LWSheep/LWSheep.luac", "CanClick")
+        game = {"visualList": defaultdict(lambda: None, {11: "present"}),
+                "removeList": {}}
+        globals_ = {"table": {"count": lambda table: len(table)}}
+        self.assertEqual(vm.execute(method, game, 11, globals_=globals_,
+                                    upvalues={1: 7}), (True,))
+        self.assertEqual(vm.execute(method, game, 12, globals_=globals_,
+                                    upvalues={1: 7}), (False,))
+        game["removeList"] = {i: i for i in range(1, 8)}
+        self.assertEqual(vm.execute(method, game, 11, globals_=globals_,
+                                    upvalues={1: 7}), (False,))
+
+    def test_card_has_precise_original_server_coordinates(self):
+        method = self.method("DataCenter/LWSheep/LWSheepCard.luac", "GetPosToServer")
+        globals_ = {"string": {"format": lambda spec, x, y, z: spec.replace('%d', '{}').format(x, y, z)}}
+        self.assertEqual(vm.execute(method, {"pos": {"x": 3, "y": 9, "z": 2}},
+                                    globals_=globals_), ("3_9_2",))
+
+    def test_ui_card_routes_local_engine_then_view_sync(self):
+        method = self.method("UI/LWSeason4/LWUISheepGame/Component/LWUISheepCardItem.luac",
+                             "OnClickCard")
+        callbacks = []
+        board_card = object()
+        parent = {
+            "refresh": False,
+            "isMoveItemAnimating": False,
+            "ISCanOp": lambda self: True,
+            "engine": {"ClickCard": lambda self, card: (
+                callbacks.append(("native_click", card)) or True, 2, {}, 3, False)},
+            "OnClickCard": lambda self, position, visual, item, temporary: callbacks.append(
+                ("queue_sync", position, visual, item, temporary)),
+        }
+        button = {"SetInteractable": lambda self, flag: callbacks.append(("interactable", flag))}
+        component = {"parent": parent, "card": board_card, "btn_card": button}
+        globals_ = {"SmallGameManager": {"GSheep": {"IsEnd": lambda self: False}}}
+        self.assertEqual(vm.execute(method, component, globals_=globals_), ())
+        self.assertEqual(callbacks[0], ("native_click", board_card))
+        self.assertEqual(callbacks[1], ("interactable", False))
+        self.assertEqual(callbacks[2], ("queue_sync", {}, 3, component, False))
+
+    def test_ui_card_refuses_closed_game_or_unsafe_animation(self):
+        method = self.method("UI/LWSeason4/LWUISheepGame/Component/LWUISheepCardItem.luac",
+                             "OnClickCard")
+        callbacks = []
+        parent = {"refresh": False, "isMoveItemAnimating": True,
+                  "ISCanOp": lambda _: False,
+                  "engine": {"ClickCard": lambda *args: callbacks.append("click")}}
+        component = {"parent": parent}
+        terminal = {"SmallGameManager": {"GSheep": {"IsEnd": lambda _: True}},
+                    "UIUtil": {"ShowTipsId": lambda *_: None}}
+        self.assertEqual(vm.execute(method, component, globals_=terminal), ())
+        self.assertFalse(callbacks)
+        terminal["SmallGameManager"]["GSheep"]["IsEnd"] = lambda _: False
+        self.assertEqual(vm.execute(method, component, globals_=terminal), ())
+        self.assertFalse(callbacks)
+
+    def test_server_reconciliation_and_no_item_action_contract(self):
+        module = "UI/LWSeason4/LWUISheepGame/View/LWUISheepGameView.luac"
+        op = self.method(module, "SeasonSheepOpHandle")
+        update = self.method(module, "Update")
+        sync_server = self.method(module, "SyncServer")
+        sync_finish = self.method(module, "SyncFinish")
+        constants = lambda p: {str(value) for value in p["constants"]}
+        self.assertTrue({"OpCheck", "SyncFinish", "opPointId", "Error"} <= constants(op))
+        self.assertTrue({"SyncServer", "IsSyncFinish", "ReBuild", "GetPosToServer"} <= constants(update))
+        self.assertTrue({"isSend", "serverPos", "Move", "GSheep"} <= constants(sync_server))
+        self.assertTrue({"syncOps", "serverPos", "remove"} <= constants(sync_finish))
+        game = self.method("DataCenter/LWSheep/LWSheep.luac", "CheckGameState")
+        self.assertTrue({"removeList", "Fair", "Success", "rewardsInfo"} <= constants(game))
+
+    def test_bounded_plan_only_through_source_native_card_ui(self):
+        source = (ROOT / "feature018_sheep_solver.lua").read_text(encoding="utf-8")
+        from luaparser import ast
+        ast.parse(source)
+        self.assertIn("MAX_SEARCH_NODES, SEARCH_SLICE", source)
+        self.assertIn("if run.plan == nil", source)
+        self.assertIn("run.pending = {point = next_card.point", source)
+        self.assertIn("if not pending.ack then return false end", source)
+        self.assertIn("M.CleanupAfterLeaseLoss", source)
+        self.assertIn("feature018_sheep_automation_status", source)
+        self.assertIn("coroutine.yield('searching'", source)
+        self.assertIn("get(packet, 'opPointId') == run.pending.point", source)
+        self.assertNotIn("SFSNetwork", source.replace("-- Source", "-- Source"))
+        for forbidden in (r"call\([^\n]*'UseItem'", r"call\([^\n]*'NextLevel'",
+                          r"call\([^\n]*'Again'", r"SendMessage\("):
+            self.assertIsNone(re.search(forbidden, source))
+
+
+if __name__ == "__main__":
+    unittest.main()

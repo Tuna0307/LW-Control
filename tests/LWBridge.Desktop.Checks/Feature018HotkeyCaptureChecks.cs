@@ -180,6 +180,23 @@ internal static class Feature018HotkeyCaptureChecks
             stub.LastPayload.GetProperty("slot").GetInt32() == 2,
             "attack game intent was not sent with original squad");
 
+        // Native bridge now returns a correlated state=accepted data body
+        // for a source-backed send. It intentionally has no observation yet.
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            requestDispatched = true,
+            awaitingGameConfirmation = true,
+            slot = 1,
+        });
+        Feature018HotkeyActionOutcome sentRecall = await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 1));
+        Require(sentRecall.Status == Feature018HotkeyActionStatus.Submitted &&
+                !sentRecall.Working,
+            "native send-only recall receipt was not preserved as Submitted");
+        Require(stub.LastPayload.GetProperty("action").GetString() == "recall" &&
+                stub.LastPayload.GetProperty("slot").GetInt32() == 1,
+            "native recall call lost its owner squad slot");
+
         int beforeSpend = stub.Calls;
         config = config with { AttackMarchSpeedupDiamond = true };
         Require((await nativeCoordinator.TryDispatchAsync(

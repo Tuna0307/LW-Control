@@ -1,6 +1,6 @@
 # FEATURE-RECOVERY-018 worker report
 
-**Disposition: PARTIAL — not READY_FOR_LEAD_AUDIT.**
+**Disposition: PARTIAL — not READY_FOR_LEAD_AUDIT.** This report originated at the first partial checkpoint (9f2b8d66); the **2026-10-17 source-backed continuation ledger below supersedes its earlier missing-handler statements**. Offline implementation is not a genuine packaged-game acceptance receipt.
 
 Branch: `codex/feature-recovery-018`; draft PR [#14](https://github.com/Tuna0307/LW-Control/pull/14) to `main`, deliberately unmerged. Target source: original **LWBridge 0.3.17 post-auth**, reference executable SHA-256 `4E9C3113DEDFD7E1A752404C6936AAB304E67D7FFDB0952A5003C2EC948D6783`. Work item: `docs/work-items/LWB317-FEATURE-RECOVERY-018.md`. Owner's sub-account authorization: `docs/OWNER_DIRECTION_SUB_ACCOUNT_ACTIONS_2026-10-17.md`.
 
@@ -17,7 +17,7 @@ This is a partial code and offline-native delivery, **not** proof that the three
 
 Only original frontend UI strings/calls are attributed to original **0.3.17**. Historical original **0.3.1** native city planning and hotkey defaults are recorded as corroboration, not evidence that the current game accepts those calls. Direct reference files: `research/offline-controller:evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/CityLayoutPanel-DoNWkywK.js` and `HotkeyPanel-XA8idRHB.js`; branch `research/offline-controller` `docs/reviews/2026-09-29-LWB317-UI-002[E-G]-*-inventory.md` and historical City Layout contract reviews.
 
-## Final per-feature behavior difference ledger
+## Earlier checkpoint feature ledger (historical; superseded by continuation below)
 
 Here **NOT_POSSIBLE** means cannot be accepted as genuinely WORKING on this delivered, admitted current-client runtime. It does not mean that a future independently identified legitimate game API could never support the feature. A blocked packaged session is a separately tracked proof limitation. Native and deterministic test passes are not gameplay confirmations.
 
@@ -64,8 +64,44 @@ Passed before the final source-only documentation edits:
 
 This preflight decision is binding for this run. Current packaged proof's source path is `src/LWBridge.Desktop/LWBridgeWindow.Feature018Proof.cs`; it checks the actual authenticated game UID and server 2212 before doing any UI action and returns settings to their original values, but **has not been executed** due to the foreign recovery journal. The existing owned game lifecycle is responsible for exact stop and script restoration *if* a future admitted session runs. No statement here asserts restoration of a game session that was never started.
 
-## Final deliverables and lead follow-up
+## Earlier checkpoint deliverables and lead follow-up (historical)
 
 `tools/package_ui_release.ps1 -ReleaseLabel FEATURE-RECOVERY-018` creates one source-identified Windows review ZIP with a specific **PARTIAL** README, original feature limits, no research datasets/credentials and complete published app tree. Its generated `SOURCE-COMMIT.txt` and exe ProductVersion identify the **final** commit; ZIP path and independent SHA-256 are reported at handoff.
 
 To close the current acceptance gaps, an authorized separate process must first investigate/resolve the **foreign** recovery journal and confirm clean ownership; then admit an authenticated, UID-verified server-2212 live session. Implement and game-verify the actual City interior/planner/mover, game-window keyboard action dispatch, Black Market marker, Land Cell unlock and Food House solver against current supported game methods before changing any feature verdict to WORKING. Re-run the isolated packaged UI path with before/after game receipts and exact installed original script restoration. Preserve draft PR status and seek lead audit only after that evidence exists.
+
+## 2026-10-17 continuation: source-backed current v26 integration
+
+The partial checkpoint above no longer describes the complete current source tree. The later pushed checkpoint `2d1239ae864657b8351ab757e6d3a85f12a1a6bf` added actual C#/Lua per-owner game IPC, source-backed City placement read/plan/move, scoped Hotkey capture and status, guarded next-cell Land unlock and Black Market chest marker. Its exact current-game producers were traced from *the original v26 Lua package*, with managed RDL details where applicable. The new offline Season 4 Food House solver and any subsequently tested Hotkeys/City refinements are represented in this continuation's final commit.
+
+### Superseding acceptance ledger
+
+All features here remain **NOT_POSSIBLE to certify WORKING in the required live packaged game** at this handoff because an independent owner's recovery journal still governs installed files. That is a precise *authorization and environment blocker for live proof*, not a claim that the game interface is permanently impossible. The following records what works **offline/source verified** and which technical gaps remain:
+
+| Original feature | Current implemented candidate and evidence | Remaining acceptance blocker |
+|---|---|---|
+| City snapshot, refresh, regions, cells/building list/levels/footprints | `feature018_city_game.lua` reads current `BuildManager`, `BuildingDate.GetRangedPoints`, zone, road and LandLock data; produces native revision and cells; refresh calls original snapshot endpoint | No observed admitted-session City JSON or full displayed building list; runtime managers/labels still require genuine UI proof |
+| City zoom/selection/group drag/undo/redo/restore/inspector | Original frontend interactions over current production snapshot with local deterministic tests | Need real snapshot and actual packaged editing before WORKING |
+| City road/flag/locked/zone, overlap and buffer placement validation | Source-checked `BuildingUtils`, CityZone and LandLock admission; native validator plans one-at-a-time moves and a free temporary buffer for cycles | Current-client actual flag/zone states and move plan must be tested against live game; server may reject a source-admitted candidate |
+| City revisioned draft get/save/clear | Existing real per-profile SQLite optimistic revision, stale-write and discard tested | Packaged authenticated profile+city reopen receipt absent |
+| City apply start/status/cancel and confirmed building moves | Official current client `UIPlaceBuildView.OnConfirmBtnClick` sends `FreeBuildingReplaceNew{buildUuid,pointId}`; reply modifies `BuildManager`; worker candidate counts only later changed position, no retry, cancels before next | No actual gameplay before/after evidence, including failure/cancel or true server acknowledgement |
+| Hotkeys Q/W/E/R attack and optional speedups | Exact game-only key-edge recognizer and preference gates; native source research for attack route | No safe current-pointer target→formation dispatch and confirmed speedup item/diamonds; **action execution remains unsupported** |
+| Hotkeys A/S/D/F recall | `feature018_hotkey_actions.lua` uses original `MarchUtil.OnBackHome`; explicitly checks player UID+slot formation+fresh march UUID (native `GetOwnerMarches` ignores its owner args), only sends with source-native `slide_left_return` confirmation preference; later BACK_HOME transition required | Source-gated sender and inert Lua53 checks PASS; no genuinely observed game march/ACK or packaged shortcut receipt, so NOT_POSSIBLE for live acceptance |
+| Hotkeys Space shield status | Read-only v26 `StatusManager.GetShieldStatusIds/GetBuffTimeInfo` and native game server clock, exact authenticated focus/input gate | UI shield countdown and real foreground game-key receipt unproven; background-only constraint forbids stealing focus |
+| Hotkeys F6/F7/F8 item shields | v26 `CityShieldPage.ConfirmUse` sends `ItemUse{uuid,num=1}` | Exact owned item duration, cooldown, meteorite warnings, server ACK and packaged consumption receipt unknown; **sender intentionally disabled** |
+| Hotkeys Alt+1–4 equipment | All binding/preference/input guards pass. A source `PVPFormationPresetManager.SendPresetApplyMsg` applies formation UUIDs | No proved original equipment preset slot→UUID/formation equivalence; **unsupported** |
+| Hotkeys F9/F10 relocations | Preferences and scoped key recognition | No verified item/target/alliance placement confirmation action, **unsupported** |
+| Frontline G adds five soldiers | Original keyboard intention and preference reproduced | Current `ParkourBattleLogic.AddMember` requires four unknown parameters, and `FrontBreakSundayChallengeResult` records END challenge score, not G +5; **no safe implementation possible with current proven interface** |
+| Mini Games land next one-cell unlock | Native `LandLockBubbleManager.OnClickBubble` route, `MsgDefines.UnlockUserLand` sends only eligible next Locked cell and returns **request sent**; later `LandLockManager` state read is required for completion | No game unlock/receipt observed. The original frontend command `monopoly_cell_open` is translated to source-identified current city land lock (adaptation, not alleged original message equivalence) |
+| Mini Games Black Market best-prize chest marker | `UITreasureChestView.GetBigRewardBoxIndex`, current `GetCurPosition`, `switchState=SwitchEnd`, `ShowSwitchEffect/HideSwitchEffect`, owner-bound per-profile background preference monitor with mark/unmark and cleanup | Inert monitor owner/pre-shuffle receipt tests pass. No genuine shuffle, marker-after-switch screenshot or disabling/reopen proof |
+| Mini Games Food House current-level Start/Stop, time/progress and states | `feature018_sheep_solver.lua`: source-native Season 4 `LWSheepDataManager`, bounded current-board 3-match/7-tray solver, input via the game's own `LWUISheepCardItem.OnClickCard`, `SeasonSheepOpHandle` ACK and matching point, one server-confirmed move at a time; no items/next-level; `automation_start/stop` and task-specific status | No authenticated current-level game, genuine before/after card states, final Success/rewards receipt or live stop/cancel; solver deliberately fails closed for unsolvable/oversized/ambiguous boards |
+
+### Offline execution, safety and packaging proof
+
+The previously blocking global recovery journal was re-audited read-only in `docs/FEATURE_RECOVERY_018_FOREIGN_JOURNAL_AUDIT.md`: state `active_ready_deferred_restore`, backup manifest `backup_ready`, installed data/text hashes match its recorded foreign **candidate**, and preserved originals match their journal metadata. No owner process is running, but process disappearance does **not** authorize a different session to restore or remove a foreign journal. As required, no tool in this task edited its journal, backup, live game installation, credentials or account, and no fresh FEATURE018 game was launched.
+
+`tools/feature018_package_checks.py` performs an isolated *read-only-source* candidate round trip from the preserved original Lua assets into a fresh temporary directory. On the current admitted v26 data the most recent action-module build passed with **18,751 entries**, all seven modular LENC files present, candidate SHA-256 `f716643be3f65c74a9f4a9c47240659db37e70e879c30b363efb85aa16feace2` (prior to final tiny City lease cleanup), and verified source `LWScripts.data` remained SHA-256 `49f6249d1530b5f16aad3750388d017ac3032f4b8ef584eec6cff9ea01d19b6d`. This confirms serialization integrity only; **it does not constitute a game startup**.
+
+Offline Lua source, guard and regression checks: `tools/feature018_city_game_checks.py`, `tools/feature018_hotkey_game_checks.py`, `tools/feature018_mini_test.py`, `tools/feature018_sheep_solver_checks.py`, plus `Feature018OwnedGameExchangeChecks`, `Feature018HotkeyCaptureChecks`, full Desktop Checks and UI checks. These validations never promote submitted network messages or fixture playback to game success. The final command outputs, release source commit and ZIP SHA are reported in the final user handoff.
+
+**Required future gate:** independent rightful owner resolves the old recovery state with exact restore proof; fresh read-only preflight shows clean journal, original triplet and no foreign process; only then run Chinese-language, background-owned, UID/name/server-2212 admitted packaged feature trials with before/after state and exact own-session stop/restore. Original work item remains PARTIAL until this and the remaining source/action gaps are closed.

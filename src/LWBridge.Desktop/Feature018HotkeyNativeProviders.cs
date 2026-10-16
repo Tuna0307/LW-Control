@@ -68,12 +68,26 @@ internal sealed class Feature018HotkeyNativeProviders
         {
             object? raw = await gameCommands.InvokeAsync(
                 CommandName, request, cancellationToken).ConfigureAwait(false);
-            // The native exchange yields ONLY data from a fully correlated
-            // game-side state=confirmed result. Still require the observed
-            // shield fields or an explicitly named native-state observation.
+            // A source-verified game sender may return a correlated
+            // state=accepted receipt without a game-state observation.
+            // Preserve that distinction instead of falsely marking it failed.
             if (raw is not JsonElement evidence ||
-                evidence.ValueKind != JsonValueKind.Object ||
-                !evidence.TryGetProperty("observation", out var origin) ||
+                evidence.ValueKind != JsonValueKind.Object)
+            {
+                return new(Feature018HotkeyActionStatus.Failed,
+                    "native_game_state_receipt_missing");
+            }
+
+            if (evidence.TryGetProperty("requestDispatched", out var dispatched) &&
+                dispatched.ValueKind == JsonValueKind.True)
+            {
+                return new(Feature018HotkeyActionStatus.Submitted,
+                    "game_message_sent_without_independent_state_confirmation");
+            }
+
+            // The remaining path may claim success only for a native
+            // response containing an independently observed game state.
+            if (!evidence.TryGetProperty("observation", out var origin) ||
                 origin.ValueKind != JsonValueKind.String ||
                 string.IsNullOrWhiteSpace(origin.GetString()))
             {
@@ -93,14 +107,6 @@ internal sealed class Feature018HotkeyNativeProviders
                     "native_game_shield_status_receipt_invalid");
             }
 
-            if (evidence.TryGetProperty("requestDispatched", out var dispatched) &&
-                dispatched.ValueKind == JsonValueKind.True)
-            {
-                // A source-verified network send without independently
-                // observed state is not completed gameplay.
-                return new(Feature018HotkeyActionStatus.Submitted,
-                    "game_message_sent_without_independent_state_confirmation");
-            }
             return new(Feature018HotkeyActionStatus.Confirmed,
                 "verified_native_game_state_observation");
         }

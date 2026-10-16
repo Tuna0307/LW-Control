@@ -24,6 +24,7 @@ internal sealed partial class LWBridgeWindow
             return;
         feature018HotkeyMonitor.Tick += Feature018HotkeyTick;
         feature018HotkeyMonitor.Start();
+        StartFeature018ChestMonitoring();
     }
 
     private Feature018HotkeySession? ReadFeature018AuthenticatedAccount(
@@ -176,5 +177,6 @@ internal sealed partial class LWBridgeWindow
         feature018HotkeyMonitor.Tick -= Feature018HotkeyTick;
         RetireFeature018Hotkeys();
         feature018HotkeyMonitor.Dispose();
+        StopFeature018ChestMonitoring();
     }
 }

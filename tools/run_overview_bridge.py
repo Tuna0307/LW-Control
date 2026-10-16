@@ -39,8 +39,12 @@ FEATURE018_MINI_ENTRY = "DataCenter/Global/LWBridgeFeature018MiniGame.luac"
 FEATURE018_MINI_MODULE = "DataCenter.Global.LWBridgeFeature018MiniGame"
 FEATURE018_HOTKEY_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyGame.luac"
 FEATURE018_HOTKEY_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyGame"
+FEATURE018_HOTKEY_ACTION_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyActions.luac"
+FEATURE018_HOTKEY_ACTION_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyActions"
 FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
 FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
+FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
+FEATURE018_SHEEP_MODULE = "DataCenter.Global.LWBridgeFeature018SheepSolver"
 MESSAGE = "LWbridge is running"
 
 # HOME 009 R2 D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
@@ -146,10 +150,24 @@ def feature018_hotkey_source() -> bytes:
     return data
 
 
+def feature018_hotkey_actions_source() -> bytes:
+    data = (HERE / "feature018_hotkey_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Hotkeys actions module must not contain BOM")
+    return data
+
+
 def feature018_city_source() -> bytes:
     data = (HERE / "feature018_city_game.lua").read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
         raise OverviewBridgeError("FEATURE018 City module must not contain BOM")
+    return data
+
+
+def feature018_sheep_source() -> bytes:
+    data = (HERE / "feature018_sheep_solver.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Sheep solver module must not contain BOM")
     return data
 
 
@@ -217,11 +235,24 @@ if not ok_hotkey then error(hotkey) end
 if type(hotkey) ~= "table" then error("FEATURE018 Hotkeys module did not return a table") end
 '''
     between = between.replace(mini_marker, hotkey_load + mini_marker, 1)
+    hotkey_actions_load = b'''local ok_hotkey_actions, hotkey_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyActions")
+if not ok_hotkey_actions then error(hotkey_actions) end
+if type(hotkey_actions) ~= "table" or type(hotkey_actions.Wrap) ~= "function" then
+    error("FEATURE018 Hotkeys actions module did not return the original handler adapter")
+end
+hotkey.Handle = hotkey_actions.Wrap(hotkey)
+'''
+    between = between.replace(mini_marker, hotkey_actions_load + mini_marker, 1)
     city_load = b'''local ok_city, city = pcall(require, "DataCenter.Global.LWBridgeFeature018CityGame")
 if not ok_city then error(city) end
 if type(city) ~= "table" then error("FEATURE018 City module did not return a table") end
 '''
     between = between.replace(mini_marker, city_load + mini_marker, 1)
+    sheep_load = b'''local ok_sheep, sheep = pcall(require, "DataCenter.Global.LWBridgeFeature018SheepSolver")
+if not ok_sheep then error(sheep) end
+if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a table") end
+'''
+    between = between.replace(mini_marker, sheep_load + mini_marker, 1)
     register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
     if between.count(register_marker) != 1:
         raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
@@ -229,6 +260,7 @@ if type(city) ~= "table" then error("FEATURE018 City module did not return a tab
         b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
         b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
+        b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
     # A Mini Game view wrapper or marker belongs to exactly one authenticated
     # Overview session. The native bridge controls whether that owner is still
@@ -244,9 +276,14 @@ if type(city) ~= "table" then error("FEATURE018 City module did not return a tab
     bound_pump = b'''    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
     if feature018_previous_owner ~= current_feature_owner then
         if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+        if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
+        if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
         feature018_previous_owner = current_feature_owner
     end
-    if current_feature_owner ~= nil and type(feature.Pump) == "function" then pcall(feature.Pump) end
+    if current_feature_owner ~= nil then
+        if type(sheep.Pump) == "function" then pcall(sheep.Pump) end
+        if type(feature.Pump) == "function" then pcall(feature.Pump) end
+    end
 '''
     between = between.replace(original_pump, bound_pump, 1)
     return prefix + bridge_source() + between
@@ -268,8 +305,12 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the FEATURE018 Mini module")
     if FEATURE018_HOTKEY_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys module")
+    if FEATURE018_HOTKEY_ACTION_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys actions module")
     if FEATURE018_CITY_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 City module")
+    if FEATURE018_SHEEP_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Sheep solver module")
     wrapper_plain = wrapper_source()
     wrapper = lr.encode_lenc(wrapper_plain)
     if lr.decode_lenc(wrapper) != wrapper_plain:
@@ -293,10 +334,18 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     hotkey_entry = lr.encode_lenc(hotkey_plain)
     if len(hotkey_entry) > 0xFFFF or lr.decode_lenc(hotkey_entry) != hotkey_plain:
         raise OverviewBridgeError("FEATURE018 Hotkeys module exceeds 64KiB or failed LENC round-trip")
+    hotkey_actions_plain = feature018_hotkey_actions_source()
+    hotkey_actions_entry = lr.encode_lenc(hotkey_actions_plain)
+    if len(hotkey_actions_entry) > 0xFFFF or lr.decode_lenc(hotkey_actions_entry) != hotkey_actions_plain:
+        raise OverviewBridgeError("FEATURE018 Hotkeys actions module exceeds 64KiB or failed LENC round-trip")
     city_plain = feature018_city_source()
     city_entry = lr.encode_lenc(city_plain)
     if len(city_entry) > 0xFFFF or lr.decode_lenc(city_entry) != city_plain:
         raise OverviewBridgeError("FEATURE018 City module exceeds 64KiB or failed LENC round-trip")
+    sheep_plain = feature018_sheep_source()
+    sheep_entry = lr.encode_lenc(sheep_plain)
+    if len(sheep_entry) > 0xFFFF or lr.decode_lenc(sheep_entry) != sheep_plain:
+        raise OverviewBridgeError("FEATURE018 Sheep solver exceeds 64KiB or failed LENC round-trip")
     mapped[LUA_ENTRY] = wrapper
     output = [(name, mapped[name]) for name, _ in entries]
     output.append((ORIGINAL_LUA_ENTRY, official))
@@ -304,7 +353,9 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     output.append((FEATURE018_GAME_ENTRY, feature_entry))
     output.append((FEATURE018_MINI_ENTRY, mini_entry))
     output.append((FEATURE018_HOTKEY_ENTRY, hotkey_entry))
+    output.append((FEATURE018_HOTKEY_ACTION_ENTRY, hotkey_actions_entry))
     output.append((FEATURE018_CITY_ENTRY, city_entry))
+    output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
     data = directory / "LWScripts.data"
     metadata = directory / "LWScripts.txt"
     version = directory / "version.txt"
@@ -323,8 +374,12 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate FEATURE018 Mini serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ENTRY]) != hotkey_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ACTION_ENTRY]) != hotkey_actions_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys actions serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_CITY_ENTRY]) != city_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_SHEEP_ENTRY]) != sheep_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Sheep serialization verification failed")
     package_crc = lr.crc32_file(data)
     metadata.write_text(f"{data.stat().st_size}|{package_crc}", encoding="utf-8")
     version.write_text(str(content_version), encoding="utf-8")
@@ -338,7 +393,9 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "feature018GameSourceSha256": hashlib.sha256(feature_plain).hexdigest(),
         "feature018MiniSourceSha256": hashlib.sha256(mini_plain).hexdigest(),
         "feature018HotkeySourceSha256": hashlib.sha256(hotkey_plain).hexdigest(),
+        "feature018HotkeyActionsSourceSha256": hashlib.sha256(hotkey_actions_plain).hexdigest(),
         "feature018CitySourceSha256": hashlib.sha256(city_plain).hexdigest(),
+        "feature018SheepSourceSha256": hashlib.sha256(sheep_plain).hexdigest(),
         "resourceProbeLencSize": len(probe_entry),
         "resourceProbePlainSize": len(probe_plain),
         "wrapperPlaintextSha256": hashlib.sha256(wrapper_plain).hexdigest(),

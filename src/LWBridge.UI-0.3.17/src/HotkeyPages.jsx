@@ -155,12 +155,27 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
     let active = true;
     const refresh = async () => {
       try {
-        const response = await backendBridge.invokeProfileScoped("mini_sheep_status", {}, 5000);
+        const [response, solver] = await Promise.all([
+          backendBridge.invokeProfileScoped("mini_sheep_status", {}, 5000),
+          backendBridge.invokeProfileScoped("feature018_sheep_automation_status", {}, 5000),
+        ]);
         if (!active) return;
-        // Current-client native manager confirms the present level but does
-        // not itself prove that the original Auto Clear solver is running.
+        // Level is always the current game's manager, while solver progress is
+        // returned by the exact owned Season4 game-side state machine. Native
+        // send-only acknowledgements cannot set completed or confirmedMoves.
         if (response?.game === "LWSheep" && Number.isInteger(response?.level) && response.level >= 0) {
-          setLiveSheepStatus({ running: false, state: "idle", step: "idle", currentLevel: response.level });
+          const stage = typeof solver?.status === "string" ? solver.status : "idle";
+          const running = solver?.running === true;
+          const elapsed = Number(solver?.elapsedSeconds);
+          setLiveSheepStatus({
+            running, state: stage === "solve_failed" ? "error" : running ? "running" : "idle",
+            step: stage, currentLevel: response.level,
+            confirmedMoves: Number.isInteger(solver?.confirmedMoves) ? solver.confirmedMoves : 0,
+            plannedMoves: Number.isInteger(solver?.totalMoves) && solver.totalMoves > 0 ? solver.totalMoves : 0,
+            startedAt: running && Number.isFinite(elapsed) && elapsed >= 0 ? Date.now() - elapsed * 1000 : null,
+            durationMs: Number.isFinite(elapsed) && elapsed >= 0 ? elapsed * 1000 : null,
+            error: typeof solver?.error === "string" ? solver.error : "",
+          });
         } else {
           setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
         }
@@ -318,6 +333,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           <span className={sheepStatus?.step === "completed" ? "hotkey-state enabled" : "hotkey-state"}>{sheepStatusText}</span>
           <div className="mini-game-actions"><button className={sheepRunning ? "" : "primary"} type="button" disabled={!online || sheepBusy} onClick={() => void toggleSheepGame()}>{t(sheepBusy ? "common.processing" : sheepRunning ? "common.stop" : "common.start")}</button></div>
           {sheepActionError ? <div className="automation-error" role="alert">{sheepActionError}</div> : null}
+          {!previewEnabled && sheepStatus?.error && sheepStatus?.step === "solve_failed" ? <div className="automation-error" role="alert">{sheepStatus.error}</div> : null}
         </article> : null}
       </div> : null}
       {hotkeyError ? <div className="automation-error" role="alert">{hotkeyError}</div> : null}

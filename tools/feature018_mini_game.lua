@@ -359,15 +359,11 @@ function M.BindSheepView(view)
     return true
 end
 
--- The game uses Lua BaseClass view modules: their Update/OnDestroy methods
--- are defined in UI/LWTreasureChest/UITreasureChestView.luac and
--- UI/LWSeason4/LWUISheepGame/View/LWUISheepGameView.luac. We observe existing,
--- already loaded classes; never require new game UI modules or search a guessed
--- UIManager window dictionary. Wrappers only read view data and invoke the
--- game's exact original methods, which are restored by RemoveUiObservation.
+-- Chest's view may be observed here; Season 4 Sheep is owned solely by the
+-- dedicated solver's Update/OnDestroy wrappers and calls BindSheepView.
+-- This prevents two independent modules from restoring overlapping wrappers.
 local watched_view_paths = {
     { path = "UI.LWTreasureChest.UITreasureChestView", kind = "chest" },
-    { path = "UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView", kind = "sheep" },
 }
 
 function M.TryObserveUiClasses()
@@ -384,20 +380,12 @@ function M.TryObserveUiClasses()
             if type(cls) == "table" and type(original_update) == "function" and
                type(original_destroy) == "function" then
                 local update = function(view, ...)
-                    if entry.kind == "chest" then
-                        if bound_chest_view ~= view then M.BindTreasureChestView(view) end
-                    elseif bound_sheep_view ~= view then
-                        M.BindSheepView(view)
-                    end
+                    if bound_chest_view ~= view then M.BindTreasureChestView(view) end
                     return original_update(view, ...)
                 end
                 local destroy = function(view, ...)
-                    if entry.kind == "chest" then
-                        if marker_owned_view == view then marker_owned_view = nil end
-                        if bound_chest_view == view then bound_chest_view = nil end
-                    elseif bound_sheep_view == view then
-                        bound_sheep_view = nil
-                    end
+                    if marker_owned_view == view then marker_owned_view = nil end
+                    if bound_chest_view == view then bound_chest_view = nil end
                     return original_destroy(view, ...)
                 end
                 local ok = pcall(function()
