@@ -429,7 +429,8 @@ def audit_receipts(destination: Path, mode: str, package: dict) -> dict:
         if (proof.get("proof") != "actual_packaged_ui_truck_stop_mid_sweep" or
                 proof.get("startedStatus", {}).get("phase") not in ("scanning", "reading", "running") and
                 proof.get("startedStatus", {}).get("isReading") is not True or
-                proof.get("stoppedStatus", {}).get("phase") != "cancelled"):
+                proof.get("stoppedStatus", {}).get("phase") != "idle" or
+                proof.get("stoppedStatus", {}).get("isReading") is not False):
             raise ValueError("Packaged Truck mid-sweep Stop did not durably cancel")
         native_started = proof.get("nativeStarted", {})
         run_id = proof.get("stopRunId")

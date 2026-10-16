@@ -1715,19 +1715,37 @@ internal sealed partial class LWBridgeWindow : Form
                 }
                 if (stopRunId.Length == 0)
                     throw new InvalidDataException("Packaged Stop proof lacked 20 source-attributed native Truck sends within its live run.");
-                string stopClicked = await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('.map-header .map-actions button')].find(b=>/stop/i.test(b.textContent||''));if(!b||b.disabled)return false;b.click();return true;})()");
+                // Three manual Map actions have stable semantic order:
+                // Start, Stop, Clear. Visible text is localized, so an English
+                // label lookup cannot prove or operate the Chinese UI.
+                string stopClicked = "false";
+                for (int attempt = 0; attempt < 100; attempt++)
+                {
+                    stopClicked = await core.ExecuteScriptAsync("(()=>{const b=document.querySelectorAll('.map-header .map-actions > button')[1];if(!b||b.disabled)return false;b.click();return true;})()");
+                    if (stopClicked == "true") break;
+                    await Task.Delay(100, operationCts.Token);
+                }
                 if (stopClicked != "true")
                     throw new InvalidDataException("Packaged Truck Stop control was unavailable.");
                 JsonElement stoppedStatus = default;
                 for (int attempt = 0; attempt < 150; attempt++)
                 {
                     stoppedStatus = JsonSerializer.SerializeToElement(map317CommandService.CreateStatus(), JsonOptions.Default);
-                    if (ReadStatusString(stoppedStatus, "phase") == "cancelled" &&
-                        ReadStatusString(stoppedStatus, "scanRunId") == stopRunId) break;
+                    // MapScanStateMachine.StopCoreAsync publishes Phase=idle
+                    // after committing the durable SQLite status=cancelled.
+                    // The Python native/SQLite auditor independently checks
+                    // that durable run and exact native cancelled receipt.
+                    if (ReadStatusString(stoppedStatus, "phase") == "idle" &&
+                        ReadStatusString(stoppedStatus, "scanRunId") == stopRunId &&
+                        stoppedStatus.TryGetProperty("isReading", out var reading) &&
+                        reading.ValueKind == JsonValueKind.False) break;
                     await Task.Delay(100, operationCts.Token);
                 }
-                if (ReadStatusString(stoppedStatus, "phase") != "cancelled")
-                    throw new InvalidDataException("Packaged Truck Stop did not durably cancel the owned run.");
+                if (ReadStatusString(stoppedStatus, "phase") != "idle" ||
+                    ReadStatusString(stoppedStatus, "scanRunId") != stopRunId ||
+                    !stoppedStatus.TryGetProperty("isReading", out var stoppedReading) ||
+                    stoppedReading.ValueKind != JsonValueKind.False)
+                    throw new InvalidDataException("Packaged Truck Stop did not reach the source-owned idle boundary.");
                 await File.WriteAllTextAsync(fullOutputPath, JsonSerializer.Serialize(new {
                     schemaVersion=1, state="proven", proof="actual_packaged_ui_truck_stop_mid_sweep",
                     genuineGame=true, controlledProvider=false, selection=qualifiedKind,
