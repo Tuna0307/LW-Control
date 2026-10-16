@@ -7489,7 +7489,14 @@ function M._map015CameraFree.capture(s)
     if c == nil then return false, "missing_inflight_request" end
     local selected = {}
     for _, index in ipairs(c.indices) do selected[index] = true end
-    local batch = { indices = c.indices, point_records = {},
+    -- Every AOI reply is a different real native observation. The terminal
+    -- capturedAt names the end of the entire 63-reply sweep; using that one
+    -- time for all batches falsely makes a City relocation look simultaneous.
+    -- Retain an actual monotonic runtime offset from this exact native owner's
+    -- start, anchored to its own OS epoch second (Unix milliseconds).
+    local batch = { indices = c.indices,
+        capturedAtUnixMs = math.floor(s.wallClockStartMs +
+            (runtime_clock() - s.startedAt) * 1000), point_records = {},
         monster_march_records = {}, train_march_records = {} }
     -- Only Resource requires the independent first native point-type census.
     -- City/Monster/Dispatch/Ghost/Treasure use their own strict typed source
@@ -7621,7 +7628,8 @@ function M._map015CameraFree.pump(now)
                 x = tonumber(values.homeTileX) or -1, y = tonumber(values.homeTileY) or -1,
             },
             int32 = CS.System.Int32, nextAoi = 0, pending = nil,
-            startedAt = runtime_clock(), completed = 0, sent = 0, batches = {},
+            startedAt = runtime_clock(), wallClockStartMs = os.time() * 1000,
+            completed = 0, sent = 0, batches = {},
         }
         lane.active = s
         pcall(os.remove, lane.cancelPath)

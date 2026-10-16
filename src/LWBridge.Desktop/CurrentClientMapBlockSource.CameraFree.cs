@@ -83,12 +83,26 @@ internal sealed partial class CurrentClientMapBlockSource
         // qualified fast row or admit an unverified one.
         MapScanExecutionRequest pointRequest = fastTrucks is null ? request :
             request with { SelectedTypes = request.SelectedTypes.Where(kind => kind != "truck").ToArray() };
+        long lastBatchCapturedMs = 0;
+        long terminalCapturedMs = capturedAt.ToUnixTimeMilliseconds();
         for (int i = 0; i < batches.GetArrayLength(); i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             JsonElement batch = batches[i];
+            // City positions may change during the 20–35s sweep. Preserve the
+            // actual per-reply observation order from native monotonic time;
+            // never relabel all 63 replies with the terminal timestamp and
+            // thereby manufacture simultaneous conflicting City locations.
+            if (!batch.TryGetProperty("capturedAtUnixMs", out JsonElement captureValue) ||
+                !captureValue.TryGetInt64(out long batchCapturedMs) ||
+                batchCapturedMs <= lastBatchCapturedMs ||
+                batchCapturedMs < terminalCapturedMs - 40_000 ||
+                batchCapturedMs > terminalCapturedMs + 2_000)
+                throw new InvalidDataException("Camera-free batch has missing, unordered or implausible native capture time.");
+            lastBatchCapturedMs = batchCapturedMs;
             FastCityBatchObservation normalized = NormalizeCameraFreeBatch(
-                batch, pointRequest, resultPath, capturedAt);
+                batch, pointRequest, resultPath,
+                DateTimeOffset.FromUnixTimeMilliseconds(batchCapturedMs));
             int previousAois = state.Covered.Count;
             MergeFullWorldObservation(state, normalized);
             if (state.Covered.Count - previousAois != normalized.RequestedIndices.Length)
