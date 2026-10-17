@@ -78,6 +78,6 @@ def submit(directory, operation, timeout=45):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
-    parser.add_argument("operation", help="JSON operation; command, key, tab, capture, equipmentConfig or finish")
+    parser.add_argument("operation", help="JSON operation; command, key, observedKeys, show, tab, capture, equipmentConfig or finish")
     args = parser.parse_args()
     print(json.dumps(submit(args.directory, json.loads(args.operation)), ensure_ascii=False))

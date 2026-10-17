@@ -144,6 +144,12 @@ internal sealed partial class LWBridgeWindow
                                 observedAtUtc = DateTimeOffset.UtcNow,
                                 inputOriginProvenByThisRead = false };
                         }
+                        else if (kind == "show")
+                        {
+                            Show();
+                            WindowState = FormWindowState.Normal;
+                            result = new { visible = Visible, ownedAppOnly = true };
+                        }
                         else if (kind == "tab")
                         {
                             int index = root.GetProperty("index").GetInt32();
