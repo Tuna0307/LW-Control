@@ -1,3 +1,7 @@
+Latest lead update, 2026-10-17 night: sub-account moved to server 2288 (actions only there; 2212
+main read-only). Worker does FEATURE-RECOVERY-018 R12 = G-key troops first, then hands back —
+see the R12 section of docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
 Latest lead correction, 2026-10-17: the SUB-ACCOUNT is server 2289, UID 3133546747002289
 (actions allowed). Server 2212 is the owner's MAIN account: read-only only. Worker does
 FEATURE-RECOVERY-018 R3 live proof on 2289 — see the R2/R3 sections of

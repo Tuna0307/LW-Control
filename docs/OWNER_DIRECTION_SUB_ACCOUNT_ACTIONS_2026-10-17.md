@@ -26,3 +26,11 @@ This supersedes older "no claims/plunder/sharing/attacks/marches/spending/reloca
 - Reverse engineering the game client and its protocol for these features is allowed.
 - The owner also offered to allow tampering with the anti-cheat. The lead declined to direct that: anti-cheat
   (ACE) must not be disabled, patched, hooked, spoofed or evaded. Work with it as-is, as all accepted features do.
+
+## Owner update (2026-10-17 night) — sub-account now on server 2288
+- The owner moved the sub-account to **server 2288**. Gameplay/in-game spending is allowed only when the logged-in
+  game reports **server 2288**. The previous UID was 3133546747002289; if the UID on 2288 differs, record it in the
+  first session's admission receipt and lock all later actions to that UID + 2288. Server 2289 is no longer
+  approved. Main account **2212 stays read-only**.
+- Shield items need alliance coins the sub-account lacks: skip F6/F7/F8 shield testing for now.
+- Black Market chest marker and Food House auto-clear: event not running — set aside (no work now).

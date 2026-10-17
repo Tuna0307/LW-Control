@@ -52,3 +52,15 @@ Final ZIP, report, status READY_FOR_LEAD_AUDIT or PARTIAL.
   round), not every commit.
 - LEAD018-04: stop adding further offline "fence/guard" layers without a live test. Next round is live-first: each
   remaining feature gets a real 2289 attempt before any more code hardening.
+
+## R12 assignment — G key troops first (owner priority), same branch/PR #14
+Owner wants the original "press G to add troops while clearing stages" working first so they can use it.
+1. Behaviour: with the G switch on (Hotkeys/Mini Games page), each **physical G press in the game window** during a
+   Frontline Breakthrough / 關卡 stage run (the owner's screenshot: 關卡 5 bridge runner) adds 5 soldiers, same as the
+   original 0.3.17. No confirmation popup per press. Not limited to the Sunday challenge: any stage run where the
+   game itself allows adding members. Outside a stage run, G does nothing.
+2. Prove live on the 2288 sub-account in the packaged app: before/after unit count for several presses, stage run
+   continues normally; screenshot.
+3. Then stop and hand back (owner tests G before the rest). Push once at this checkpoint.
+After owner OK: continue the live-first list from the "Lead status check" section (skip shields, Black Market,
+Food House). Commit locally freely, push only at checkpoints. One-off OS errors are not denials (LEAD018-02).
