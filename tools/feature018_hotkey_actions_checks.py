@@ -26,13 +26,13 @@ ORIGINAL_V26_LUA_ENTRY_SHA = (
 
 GAME = """
 state = {
-    playerUid='2553945035002288', focusClear=true, canReturn=true,
-    ownerUid='2553945035002288', formationId=1001, candidateFormationId=1001,
-    squadUuid=803001, candidateUid='2553945035002288', target=17, dispatches=0,
+    playerUid='1183884595002296', focusClear=true, canReturn=true,
+    ownerUid='1183884595002296', formationId=1001, candidateFormationId=1001,
+    squadUuid=803001, candidateUid='1183884595002296', target=17, dispatches=0,
     slot=1, numberOfOwnedShield=2, numberOfOwnedShield12=1,
     numberOfOwnedShield24=1, fallbackCalls=0, inventoryReads=0,
     itemUseCalls=0,
-    sourceServer=2288, selfServer=2288, currentServer=2288,
+    sourceServer=2296, selfServer=2296, currentServer=2296,
 }
 LuaEntry = { Player={uid=state.playerUid,allianceId=700,
     GetSourceServerId=function() return state.sourceServer end,
@@ -105,6 +105,13 @@ MarchUtil={OnBackHome=function(uuid)
     assert(uuid==state.squadUuid)
     state.dispatches=state.dispatches+1
 end}
+recallReplyClass={HandleMessage=function(self,response,...)
+    state.replyCalls=(state.replyCalls or 0)+1
+    return 'original_return',nil,'third_return'
+end}
+package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
+    return recallReplyClass
+end
 frozen={Handle=function(fields)
     state.fallbackCalls=state.fallbackCalls+1
     return {state='unsupported',errorCode='FALLBACK_USED',
@@ -137,6 +144,19 @@ def scenario():
     return lua, module, wrapped, state, call
 
 
+def return_reply(lua, state, **overrides):
+    fields = {
+        "uuid": state["squadUuid"], "ownerUid": state["playerUid"],
+        "ownerFormationUuid": state["formationId"], "target": 77,
+        "targetServer": state["currentServer"],
+        "ownerCurServerId": state["currentServer"],
+    }
+    fields.update(overrides)
+    response = lua.table_from(fields)
+    return lua.globals().recallReplyClass.HandleMessage(
+        lua.globals().recallReplyClass, response)
+
+
 def test_registered_shield_inventory():
     lua, actions, _, state, _ = scenario()
     lua.execute('''
@@ -164,26 +184,26 @@ def test_registered_shield_inventory():
 
     def call(**fields):
         return handler(lua.table_from({
-            "authorizedUid": "2553945035002288", **fields
+            "authorizedUid": "1183884595002296", **fields
         }))
 
     require(handler(None)["state"] == "failed" and state["inventoryReads"] == 0,
             "malformed native inventory request accessed game state")
-    for malformed_uid in (None, "invalid", "3133546747002212", "3133546747002289", "25539450350022880"):
+    for malformed_uid in (None, "invalid", "3133546747002212", "3133546747002289", "11838845950022960"):
         lua.globals().LuaEntry.Player.uid = malformed_uid
-        bad = call(authorizedUid="2553945035002288")
+        bad = call(authorizedUid="1183884595002296")
         require(bad["state"] == "failed" and state["inventoryReads"] == 0 and
                 state["itemUseCalls"] == 0,
                 "wrong/malformed native UID reached shield stock reader")
-    lua.globals().LuaEntry.Player.uid = "2553945035002288"
+    lua.globals().LuaEntry.Player.uid = "1183884595002296"
     for getter in ("sourceServer", "selfServer", "currentServer"):
-        for invalid in (2212, 2213, 2289, None, "not-a-server", "02288", "2288.0", 2288.5):
+        for invalid in (2212, 2213, 2289, None, "not-a-server", "02296", "2296.0", 2296.5):
             state[getter] = invalid
-            denied = call(authorizedUid="2553945035002288")
+            denied = call(authorizedUid="1183884595002296")
             require(denied["state"] == "failed" and
                     state["inventoryReads"] == 0 and state["itemUseCalls"] == 0,
                     "invalid native server getter accessed owned shield stock: " + getter)
-        state[getter] = 2288
+        state[getter] = 2296
 
     # A new valid account is admitted only when the caller's request UID and
     # *all three* current native server getters match that same account.
@@ -193,9 +213,9 @@ def test_registered_shield_inventory():
     state["currentServer"] = 2212
     require(call(authorizedUid="3133546747002212")["state"] == "confirmed",
             "arbitrary valid logged-in UID/server denied read-only shield inventory")
-    lua.globals().LuaEntry.Player.uid = "2553945035002288"
+    lua.globals().LuaEntry.Player.uid = "1183884595002296"
     for getter in ("sourceServer", "selfServer", "currentServer"):
-        state[getter] = 2288
+        state[getter] = 2296
 
     # Client fields cannot select an item or authorize a spend. Data comes
     # exclusively from v26 native ItemData, Goods templates and StatusTab.
@@ -311,10 +331,10 @@ def test_wrapped_original_shield_sender():
             fields["queryOnly"] = "1"
         return wrapped(lua.table_from(fields))
 
-    require(call(authorized_uid="2553945035002288")["state"] == "failed" and
+    require(call(authorized_uid="1183884595002296")["state"] == "failed" and
             state["sent"] == 0 and state["cooldownSets"] == 0,
             "forged request UID reached the native shield ItemUse sender")
-    account["cur"] = 2288
+    account["cur"] = 2296
     require(call()["state"] == "failed" and state["sent"] == 0,
             "disagreeing source/self/current server getters admitted shield send")
     account["cur"] = 2212
@@ -323,7 +343,7 @@ def test_wrapped_original_shield_sender():
             sent["data"]["requestDispatched"] is True and
             state["sent"] == 1 and state["cooldownSets"] == 1,
             "valid 2212 owner was blocked from the original source-proven ItemUse")
-    account["cur"] = 2288
+    account["cur"] = 2296
     require(call(status=True)["state"] == "failed" and state["sent"] == 1,
             "server switched before pending shield observation")
     account["cur"] = 2212
@@ -345,7 +365,7 @@ def test_registered_relocation_readonly():
       LWBridgeFeature018RelocationActions={
         Readiness=function(fields,clear,action)
           state.relocationReads=state.relocationReads+1
-          assert(fields.authorizedUid=='2553945035002288')
+          assert(fields.authorizedUid=='1183884595002296')
           assert(action=='randomRelocate' or action=='allianceRelocate')
           return {state='confirmed',data={
             action=action,ownerUid=fields.authorizedUid,readOnly=true,
@@ -378,9 +398,9 @@ def test_registered_relocation_readonly():
     require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed" and
             state["relocationReads"]==2,
             "main server reached original relocation preflight")
-    state["sourceServer"]=2288
+    state["sourceServer"]=2296
     lua.execute("LWBridgeFeature018RelocationActions.Readiness=function() return "
-                "{state='confirmed',data={action='randomRelocate',ownerUid='2553945035002288',"
+                "{state='confirmed',data={action='randomRelocate',ownerUid='1183884595002296',"
                 "readOnly=true,requestDispatched=true,relocationConfirmed=true}} end")
     require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed",
             "native preflight forged a relocation dispatch or confirmation")
@@ -430,7 +450,7 @@ def test_consent_bound_source_frontline_action():
     require(request(frontlineOptIn="1")["state"]=="failed" and
             state["frontlineCalls"]==0,
             "Main server2212 was admitted to mutate a Frontline battle")
-    state["sourceServer"]=2288
+    state["sourceServer"]=2296
     state["focusClear"]=False
     require(request(frontlineOptIn="1")["state"]=="failed" and
             state["frontlineCalls"]==0,
@@ -478,10 +498,10 @@ def test_original_recall_uncertain_native_send_is_one_intent_across_challenge_ro
                 'new challenge replayed uncertain original recall sender')
     state['target']=77
     post=call(challenge='rotatedChallenge',query_only=True)
-    require(post['state']=='confirmed' and
+    require(post['state']=='accepted' and
+            post['data']['nativePostStateObserved'] is True and
+            post['data']['identityMatchedReturnReplyObserved'] is False and
             post['data']['nativeReplyCausalityConfirmed'] is False and
-            post['data']['priorDispatchOutcomeUncertain'] is True and
-            post['data']['observedAfterPreviousDispatch'] is False and
             state['dispatches']==1,
             'uncertain native send was misreported as an acknowledged dispatch')
 
@@ -534,7 +554,7 @@ def test_original_recall_uncertain_native_send_is_one_intent_across_challenge_ro
         fields=lua.table_from({'action':'recall','slot':'1',
             'profileId':'profile','launchSessionId':'launch',
             'challenge':'challenge','gamePid':'7020',
-            'authorizedUid':'2553945035002288'})
+            'authorizedUid':'1183884595002296'})
         result=wrapped(fields)
         require(result['state']=='failed' and state['dispatches']==0,
                 'native '+change+' changed in late focus callback but recall was sent')
@@ -558,14 +578,14 @@ def test_recall_pending_uid_server_snapshot():
     lua.execute("""
       LuaEntry.Player.GetCurServerId=function(self)
         self.uid='3133546747002212'
-        return 2288
+        return 2296
       end
     """)
-    require(direct_request("2553945035002288")["state"] == "failed" and
+    require(direct_request("1183884595002296")["state"] == "failed" and
             state["dispatches"] == 0,
             "UID switched inside native server getter but recall was dispatched")
     lua.execute("""
-      LuaEntry.Player.uid='2553945035002288'
+      LuaEntry.Player.uid='1183884595002296'
       LuaEntry.Player.GetCurServerId=function() return state.currentServer end
     """)
     require(call()["state"] == "accepted" and state["dispatches"] == 1,
@@ -583,17 +603,183 @@ def test_recall_pending_uid_server_snapshot():
             "pending recall was confirmed by new UID/server reusing the same march")
     require(call()["state"] == "failed" and state["dispatches"] == 1,
             "account switch retransmitted the previous account's march")
-    state["playerUid"] = "2553945035002288"
-    state["ownerUid"] = "2553945035002288"
-    state["candidateUid"] = "2553945035002288"
-    lua.globals().LuaEntry.Player.uid = "2553945035002288"
+    state["playerUid"] = "1183884595002296"
+    state["ownerUid"] = "1183884595002296"
+    state["candidateUid"] = "1183884595002296"
+    lua.globals().LuaEntry.Player.uid = "1183884595002296"
     for getter in ("sourceServer", "selfServer", "currentServer"):
-        state[getter] = 2288
-    require(call(query_only=True)["state"] == "confirmed" and state["dispatches"] == 1,
-            "original account could not observe its pending native recall poststate")
+        state[getter] = 2296
+    restored = call(query_only=True)
+    require(restored["state"] == "accepted" and
+            restored["data"]["nativePostStateObserved"] is True and
+            restored["data"]["identityMatchedReturnReplyObserved"] is False and
+            state["dispatches"] == 1,
+            "restored original account poststate was promoted to reply proof")
+
+
+def test_recall_original_reply_and_queued_poststate():
+    lua, _, _, state, call = scenario()
+    # A preexisting matching original reply cannot donate proof to a later send.
+    return_reply(lua, state)
+    require(call()["state"] == "accepted", "baseline return was not sent")
+    before_reply = call(query_only=True)
+    require(before_reply["data"]["identityMatchedReturnReplyObserved"] is False,
+            "pre-dispatch original reply was attributed to the later hotkey")
+    original_returns = return_reply(lua, state)
+    require(original_returns == ("original_return", None, "third_return"),
+            "reply observer changed original multiple returns or nil holes")
+    queued = call(query_only=True)
+    require(queued["state"] == "accepted" and
+            queued["data"]["identityMatchedReturnReplyObserved"] is True and
+            queued["data"]["nativePostStateObserved"] is False and
+            state["target"] == 17,
+            "queued original reply was mistaken for already applied native poststate")
+    state["target"] = 77
+    confirmed = call(query_only=True)
+    data = confirmed["data"]
+    require(confirmed["state"] == "confirmed" and
+            data["replyMessage"] == "WorldMarchChangeMessage" and
+            data["replyMarchUuid"] == "803001" and
+            data["replyOwnerUid"] == "1183884595002296" and
+            data["replyFormationUuid"] == "1001" and
+            data["replyTargetType"] == 77 and data["replyTargetServer"] == "2296" and
+            data["replyCorrelation"] == "native_owner_formation_march_return_reply" and
+            data["replyCount"] == 1 and
+            data["identityMatchedReturnReplyObserved"] is True and
+            data["nativeReturnReplyMatched"] is True and
+            data["requestPreviouslyDispatched"] is True and
+            data["ownerUid"] == "1183884595002296" and
+            data["sourceServerId"] == "2296" and
+            data["nativePostStateObserved"] is True and
+            data["originalResponseObserved"] is True and
+            data["exactRequestCausality"] is False and
+            data["nativeReplyCausalityConfirmed"] is False and
+            data["serverAcknowledgementCorrelated"] is False and
+            state["dispatches"] == 1,
+            "original identity-matched return reply plus independent poststate contract failed")
+
+    for wrong in (
+        {"uuid": 803002}, {"ownerUid": "3133546747002212"},
+        {"ownerFormationUuid": 1002}, {"target": 17},
+        {"targetServer": 2212}, {"ownerCurServerId": 2212},
+        {"errorCode": "recall_denied"}, {"ownerUid": None},
+        {"ownerFormationUuid": None}, {"targetServer": None},
+    ):
+        lua, _, _, state, call = scenario()
+        require(call()["state"] == "accepted", "return send unavailable")
+        return_reply(lua, state, **wrong)
+        state["target"] = 77
+        outcome = call(query_only=True)
+        require(outcome["state"] == "accepted" and
+                outcome["data"]["nativePostStateObserved"] is True and
+                outcome["data"]["identityMatchedReturnReplyObserved"] is False and
+                state["dispatches"] == 1,
+                "unrelated/error/incomplete original reply donated recall proof: " + repr(wrong))
+
+    lua, _, _, state, call = scenario()
+    require(call()["state"] == "accepted", "return send unavailable")
+    state["currentServer"] = 2212
+    return_reply(lua, state, targetServer=2296, ownerCurServerId=2296)
+    state["currentServer"] = 2296
+    state["target"] = 77
+    require(call(query_only=True)["data"]["identityMatchedReturnReplyObserved"] is False,
+            "reply received while authenticated server disagreed was retained as owner proof")
+
+    lua, _, _, state, call = scenario()
+    require(call()["state"] == "accepted", "return send unavailable")
+    call(challenge="rotatedChallenge", query_only=True)
+    return_reply(lua, state)
+    state["target"] = 77
+    require(call(challenge="rotatedChallenge", query_only=True)["data"][
+                "identityMatchedReturnReplyObserved"] is False and state["dispatches"] == 1,
+            "rotated bridge session reused an earlier recall reply identity")
+
+    lua, _, _, state, call = scenario()
+    lua.execute("state.clock=1000; os.time=function() return state.clock end")
+    require(call()["state"] == "accepted", "return send unavailable")
+    state["clock"] = 1045
+    return_reply(lua, state)
+    state["target"] = 77
+    require(call(query_only=True)["state"] == "failed" and state["dispatches"] == 1,
+            "expired pending return was confirmed or retransmitted by a late reply")
+
+
+def test_recall_reply_observer_preserves_original_and_owner():
+    lua, _, _, state, call = scenario()
+    lua.execute('''
+      recallReplyClass.HandleMessage=function(...)
+        state.originalArgs=table.pack(...)
+        return 11,nil,33
+      end
+    ''')
+    require(call()["state"] == "accepted", "return send unavailable")
+    lua.execute('''
+      local response={uuid=803001,ownerUid=state.playerUid,ownerFormationUuid=1001,
+        target=77,targetServer=2296}
+      local returned=table.pack(recallReplyClass.HandleMessage(recallReplyClass,response,9,nil,10))
+      assert(state.originalArgs.n==5 and state.originalArgs[1]==recallReplyClass and
+        state.originalArgs[2]==response and state.originalArgs[3]==9 and
+        state.originalArgs[4]==nil and state.originalArgs[5]==10)
+      assert(returned.n==3 and returned[1]==11 and returned[2]==nil and returned[3]==33)
+    ''')
+
+    lua, _, _, state, call = scenario()
+    lua.execute('''
+      state.errorIdentity={original='native_handler_error'}
+      recallReplyClass.HandleMessage=function(self,response,...)
+        error(state.errorIdentity,0)
+      end
+    ''')
+    require(call()["state"] == "accepted", "return send unavailable")
+    lua.execute('''
+      local ok,err=pcall(recallReplyClass.HandleMessage,recallReplyClass,
+        {uuid=803001,ownerUid=state.playerUid,ownerFormationUuid=1001,target=77,targetServer=2296})
+      assert(not ok and err==state.errorIdentity)
+    ''')
+    state["target"] = 77
+    require(call(query_only=True)["data"]["identityMatchedReturnReplyObserved"] is False,
+            "throwing original reply handler was recorded as successfully applied")
+
+    lua, _, _, state, call = scenario()
+    lua.execute('''
+      recallReplyClass.HandleMessage=function(self,response)
+        state.currentServer=2212
+      end
+    ''')
+    require(call()["state"] == "accepted", "return send unavailable")
+    return_reply(lua, state)
+    state["currentServer"] = 2296
+    state["target"] = 77
+    require(call(query_only=True)["data"]["identityMatchedReturnReplyObserved"] is False,
+            "owner/server changed within original reply handler but donated recall proof")
+
+    lua, _, _, state, call = scenario()
+    require(call()["state"] == "accepted", "return send unavailable")
+    lua.execute('''
+      local previous=recallReplyClass.HandleMessage
+      recallReplyClass.HandleMessage=function(...) return previous(...) end
+    ''')
+    return_reply(lua, state)
+    state["target"] = 77
+    require(call(query_only=True)["data"]["identityMatchedReturnReplyObserved"] is False,
+            "replaced original reply observer was silently readmitted")
+
+    lua, _, _, state, call = scenario()
+    lua.execute("package.preload['Net.Msgs.WorldMarchChangeMessage']=nil")
+    require(call()["state"] == "unsupported" and state["dispatches"] == 0,
+            "recall sent while original reply observer was unavailable")
+
+    for mutation in ("state.currentServer=2212", "state.focusClear=false"):
+        lua, _, _, state, call = scenario()
+        lua.execute("package.preload['Net.Msgs.WorldMarchChangeMessage']=function() " +
+                    mutation + "; return recallReplyClass end")
+        require(call()["state"] == "failed" and state["dispatches"] == 0,
+                "original module loader changed owner/text focus before recall: " + mutation)
 
 
 def main():
+    test_recall_original_reply_and_queued_poststate()
+    test_recall_reply_observer_preserves_original_and_owner()
     test_recall_pending_uid_server_snapshot()
     test_original_recall_uncertain_native_send_is_one_intent_across_challenge_rotation()
     test_consent_bound_source_frontline_action()
@@ -611,17 +797,25 @@ def main():
             "pending return was resent before receiving authoritative state")
     require(state["dispatches"] == 1, "duplicate return dispatch")
     state["target"] = 77
+    cached = call(query_only=True)
+    require(cached["state"] == "accepted" and
+            cached["data"]["nativePostStateObserved"] is True and
+            cached["data"]["identityMatchedReturnReplyObserved"] is False,
+            "cached BACK_HOME without an original reply confirmed the recall")
+    return_reply(lua,state)
     confirmed = call(query_only=True)
     require(confirmed["state"] == "confirmed" and
-            confirmed["data"]["observation"] == "native_world_march_return_target" and
+            confirmed["data"]["observation"] == "native_world_march_return_reply_and_target" and
             confirmed["data"]["nativePostStateObserved"] is True and
             confirmed["data"]["observedAfterPreviousDispatch"] is True and
             confirmed["data"]["priorTarget"] == 17 and
-            confirmed["data"]["originalResponseObserved"] is False and
+            confirmed["data"]["originalResponseObserved"] is True and
+            confirmed["data"]["identityMatchedReturnReplyObserved"] is True and
+            confirmed["data"]["exactRequestCausality"] is False and
             confirmed["data"]["nativeReplyCausalityConfirmed"] is False and
             confirmed["data"]["serverAcknowledgementCorrelated"] is False and
             confirmed["data"]["requestDispatched"] is False,
-            "cached post-send native return was promoted to uniquely correlated server ACK")
+            "identity-matched reply/poststate was lost or promoted to exact-request causality")
     require(state["dispatches"] == 1, "poststate polling created another request")
     require(call(query_only=True)["state"] == "failed" and state["dispatches"] == 1,
             "recall query-only started or confirmed without matching pending send")
@@ -641,7 +835,7 @@ def main():
     s["candidateUid"] = "foreignUid"
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "foreign owner march admitted after misleading native GetOwnerFormationMarch")
-    s["candidateUid"] = "2553945035002288"
+    s["candidateUid"] = "1183884595002296"
     s["candidateFormationId"] = 1111
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "wrong formation march admitted")
@@ -677,14 +871,14 @@ def main():
         require(outcome["state"] == "failed" and "UID" in outcome["error"] and
                 s["dispatches"] == 0,
                 "malformed native UID reached mutable shield handler: " + duration)
-    s["playerUid"] = "2553945035002288"
+    s["playerUid"] = "1183884595002296"
     lua_second.globals().LuaEntry.Player.uid = s["playerUid"]
     s["sourceServer"] = 2212
     require(call(action="shieldUse",slot="8")["state"] == "failed" and
             call(action="shieldUse",slot="8",query_only=True)["state"] == "failed" and
             s["dispatches"] == 0 and s["fallbackCalls"] == 0,
             "wrong-server owner reached shield sender")
-    s["sourceServer"] = 2288
+    s["sourceServer"] = 2296
     for duration in ("8", "12", "24"):
         outcome = call(action="shieldUse",slot=duration)
         require(outcome["state"] == "unsupported" and s["dispatches"] == 0 and
@@ -713,7 +907,7 @@ def main():
     require(call(action="equipment",slot="1")["state"] == "failed",
             "equipment without trusted persisted presets reached a mutable sender")
 
-    state["playerUid"] = "2553945035002288"
+    state["playerUid"] = "1183884595002296"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     shield = actions.ShieldOwnedInventory()
     require(shield["state"] == "confirmed", "owned shield inventory unavailable")
@@ -736,7 +930,7 @@ def main():
     require(actions.ShieldOwnedInventory()["state"] == "unsupported",
             "missing native shield template source admitted")
     lua, actions, _, state, call = scenario()
-    state["playerUid"] = "2553945035002288"
+    state["playerUid"] = "1183884595002296"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     lua.execute("DataCenter.ItemTemplateManager.GetTypeListByTypes=function() "
                 "return {{id=8,para1=801},{id=12,para1=801},{id=24,para1=803}} end")
@@ -753,13 +947,13 @@ def main():
     lua.globals().LuaEntry.Player.uid = "bad-native-uid"
     require(actions.ShieldOwnedInventory()["state"] == "failed",
             "malformed native UID disclosed shield inventory")
-    state["playerUid"] = "2553945035002288"
+    state["playerUid"] = "1183884595002296"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     for server in ("sourceServer", "selfServer", "currentServer"):
         state[server] = 2212
         require(actions.ShieldOwnedInventory()["state"] == "failed",
                 "shield inventory read with disagreeing native server: " + server)
-        state[server] = 2288
+        state[server] = 2296
     lua.globals().LuaEntry.Player.uid = "3133546747002212"
     for server in ("sourceServer", "selfServer", "currentServer"):
         state[server] = 2212

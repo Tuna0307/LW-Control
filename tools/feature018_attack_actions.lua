@@ -73,7 +73,8 @@ local PENDING_LIMIT = 45
 local function member(object, key)
     if object == nil then return nil end
     local ok, result = pcall(function() return object[key] end)
-    return ok and result or nil
+    if ok then return result end
+    return nil
 end
 
 local function invoke(object, method, ...)
@@ -116,40 +117,105 @@ local function number(value)
     return nil
 end
 
--- Mirrors v26 UIFormationSelectListV2Ctrl.GetCurSoldierNum (root/41,
--- lines 1949-1960): sum positive values in the authoritative formation's
--- soldiers table. MarchUtil.CheckFormation separately consumes heroes.
--- This is observation only; native AutoAddSoldier* mutates the formation.
+-- Current v26 ArmyFormationInfo.luac SHA256
+-- 869783338b53ea39f7fbeda36884dec97d359fc2b7b18e664891f746aba74d32:
+-- ConscriptSoldier root/19 lines454-566 builds soldiers[heroSlot] with
+-- numeric soldier-id counts and supply/heroMaxCapacity, then totalSoldierNum.
+-- RefreshFormationSoldier root/17 lines332-361 consumes server canMarch and
+-- serverSoldiers. V2 BestSelect root/53 line2257 (New root/52) conscripts
+-- the current SoldierDataManager inventory inside the original chooser.
+-- Empty pre-chooser staffing must not prevent opening that original UI.
+-- This reader NEVER calls ConscriptSoldier or changes any formation.
 local function formation_staffing(form)
-    local result={soldierCount=nil,heroCount=nil,staffedForAttack=false}
+    local result={soldierCount=nil,heroCount=nil,staffedForAttack=false,
+        staffingShape="unavailable",canMarch=member(form,"canMarch"),
+        nativeTotalSoldierNum=number(member(form,"totalSoldierNum")),
+        heroTotalSoldierCapacity=number(member(form,"heroTotalSoldierCapacity")),
+        soldierSlots={}}
     local soldiers=member(form,"soldiers")
+    local current=member(form,"totalSoldierNum")~=nil or
+        member(form,"heroTotalSoldierCapacity")~=nil or member(form,"canMarch")~=nil
     if type(soldiers)=="table" then
-        local total,valid=0,true
-        for _,count in pairs(soldiers) do
-            local n=number(count)
-            if n==nil or n<0 or n%1~=0 then valid=false; break end
-            if n>0 then total=total+n end
+        local scalar,nested=false,false
+        for _,v in pairs(soldiers) do
+            if type(v)=="table" then nested=true else scalar=true end
         end
+        current=current or nested
+        local total,valid,slots=0,true,0
+        result.staffingShape=current and "current_nested_hero_slots" or "legacy_scalar_counts"
+        if current and scalar then valid=false end
+        for slot,value in pairs(soldiers) do
+            slots=slots+1
+            if slots>16 then valid=false;break end
+            if current then
+                local supply=number(member(value,"supply"))
+                local capacity=number(member(value,"heroMaxCapacity"))
+                local sum,entries=0,0
+                if type(value)~="table" or not integer(slot) or supply==nil or
+                   supply<0 or supply%1~=0 then valid=false;break end
+                for key,count in pairs(value) do
+                    if key~="supply" and key~="heroMaxCapacity" then
+                        local n=number(count)
+                        if not integer(key) or n==nil or n<0 or n%1~=0 then valid=false;break end
+                        entries=entries+1
+                        if entries>256 then valid=false;break end
+                        sum=sum+n
+                    end
+                end
+                if sum~=supply or (capacity~=nil and
+                    (capacity<0 or capacity%1~=0 or supply>capacity)) then valid=false end
+                result.soldierSlots[tostring(slot)]={supply=supply,
+                    heroMaxCapacity=capacity,soldierTypeCount=entries}
+                total=total+supply
+            else
+                local n=number(value)
+                if n==nil or n<0 or n%1~=0 then valid=false;break end
+                total=total+n
+            end
+        end
+        if current and result.nativeTotalSoldierNum~=nil and
+           result.nativeTotalSoldierNum~=total then valid=false end
         if valid then result.soldierCount=total end
     end
     local heroes=member(form,"heroes")
     if type(heroes)=="table" then
         local count=0
         for _,hero in pairs(heroes) do
-            if hero~=nil and hero~=false and tostring(hero)~="0" then
-                count=count+1
-            end
+            if ident(hero) then count=count+1 end
         end
         result.heroCount=count
     end
     local ok_local,local_count=invoke(form,"GetLocalHeroesCount")
     local n_local=ok_local and number(local_count) or nil
-    if n_local~=nil and n_local>=0 and n_local%1==0 then
-        result.localHeroCount=n_local
-    end
-    result.staffedForAttack=result.soldierCount~=nil and
-        result.soldierCount>0 and result.heroCount~=nil and result.heroCount>0 and
+    if n_local~=nil and n_local>=0 and n_local%1==0 then result.localHeroCount=n_local end
+    result.heroesReady=result.heroCount~=nil and result.heroCount>0 and
         (result.localHeroCount==nil or result.localHeroCount>0)
+    result.staffedForAttack=result.soldierCount~=nil and result.soldierCount>0 and
+        result.heroesReady and (not current or (result.canMarch==true and
+        result.heroTotalSoldierCapacity~=nil and result.heroTotalSoldierCapacity>0))
+    return result
+end
+
+-- Current inventory is separate from legacy ArmyManager.free projections.
+local function current_soldier_inventory(center)
+    local manager=member(center,"SoldierDataManager")
+    local ok,list=invoke(manager,"GetInsideSoldiers")
+    local result={observed=false,source="SoldierDataManager.GetInsideSoldiers",total=nil,byId={}}
+    if not ok or type(list)~="table" then return result end
+    local total,entries=0,0
+    for _,item in pairs(list) do
+        entries=entries+1
+        local id=ident(member(item,"id"))
+        local count=number(member(item,"count"))
+        if entries>256 or not id or count==nil or count<0 or count%1~=0 then
+            result.reason="malformed_current_soldier_inventory";return result
+        end
+        result.byId[id]=(result.byId[id] or 0)+count
+        total=total+count
+    end
+    result.observed,result.total=true,total
+    local ok_all,all=invoke(manager,"GetPlayerSoldiersTotalNum")
+    result.nativePlayerTotal=ok_all and number(all) or nil
     return result
 end
 
@@ -244,8 +310,39 @@ local function alliance_identity(value)
     return ident(value)
 end
 
+-- Original DataCenter/Global/PlayerInfo.luac SHA256
+-- 7b676b165212689d1213258464cfd7d23fa3ae0332a3f0ff565c8ec8c484a7b1:
+-- IsInAlliance root/57 line1217 returns NOT string.IsNullOrEmpty(allianceId);
+-- GetAllianceUid root/64 line1298 returns allianceId. Empty current player
+-- membership is therefore source-known unaffiliated, not a positive alliance.
+local function player_alliance_observation(player)
+    local ok_in,in_alliance=invoke(player,"IsInAlliance")
+    local ok_uid,native_uid=invoke(player,"GetAllianceUid")
+    local raw=member(player,"allianceId")
+    local data={membershipReadSucceeded=ok_in,
+        allianceUidReadSucceeded=ok_uid,allianceUidRaw=native_uid~=nil and tostring(native_uid) or nil,
+        allianceIdRaw=raw~=nil and tostring(raw) or nil}
+    if type(in_alliance)=="boolean" then data.isInAlliance=in_alliance end
+    return data,ok_in,in_alliance,ok_uid,native_uid,raw
+end
+
 local function target_alliance_guard(account,target,is_march,is_resource)
-    local own=alliance_identity(member(account and account.player,"allianceId"))
+    local _,ok_in,in_alliance,ok_uid,native_uid,raw=
+        player_alliance_observation(account and account.player)
+    local field=alliance_identity(raw)
+    local own
+    if ok_in and in_alliance==false then
+        -- Original explicit membership false is a known unaffiliated owner.
+        -- Positive contradictory identity is unknown, never silently ignored.
+        if (field and field~="0") or (alliance_identity(native_uid) and
+            alliance_identity(native_uid)~="0") then
+            return nil,failed("Own alliance membership contradicts identity; attack suppressed")
+        end
+        own="0"
+    elseif ok_in and in_alliance==true and ok_uid then
+        own=alliance_identity(native_uid)
+        if own=="0" or (field and field~=own) then own=nil end
+    end
     if not own then return nil,failed("Own alliance identity unknown; attack suppressed") end
     local target_alliance
     if is_resource then
@@ -981,7 +1078,7 @@ local function attack_readiness(fields,uid)
         nativeExistingMarchUuid=ident(member(existing,"uuid")),
         formationStaffing=staffing,
         nativeFormationCapacity=capacity,
-        unassignedSoldiers=unassigned,
+        unassignedSoldiers=unassigned,currentSoldiers=current_soldier_inventory(center),
         originalManualEditorMayHelp=can_editor_help==true,
         target=target,
         targetDenial=denial and denial.error or nil,
@@ -1146,6 +1243,16 @@ local function native_cursor_point(fields, uid)
             army.hitFound=uuid~=nil
             army.marchUuid=uuid
             if uuid then
+                local _,native_march=invoke(scene,"GetMarch",hit)
+                local _,managed_march=invoke(member(rawget(_G,"DataCenter"),"WorldMarchDataManager"),"GetMarch",hit)
+                local native_alliance=member(native_march,"allianceUid")
+                local managed_alliance=member(managed_march,"allianceUid")
+                army.nativeAllianceUidRaw=native_alliance~=nil and tostring(native_alliance) or nil
+                army.managerAllianceUidRaw=managed_alliance~=nil and tostring(managed_alliance) or nil
+                local guard,denial=target_alliance_guard(account,native_march,true,false)
+                army.targetAllianceVerified=guard~=nil
+                army.targetAllianceUid=guard and guard.targetAllianceUid or nil
+                army.allianceDenial=denial and denial.error or nil
                 local ok_troop,troop=invoke(scene,"GetTroop",hit)
                 local ok_troop_id,troop_id=invoke(troop,"GetMarchUUID")
                 local ok_monster,is_monster=invoke(troop,"IsMonsterTroop")
@@ -1177,7 +1284,9 @@ local function native_cursor_point(fields, uid)
         ownerUid=account.uid,readOnly=sampled,physicalCursorRead=not sampled,
         source="WorldScene.GetTouchPoint+WorldToTile+TilePosToIndex",
         nativeMainWorldTileProjected=true,targetTypeVerified=kind~=nil,
-        target=target,worldArmy=army,safeToDispatchFromPhysicalCursor=false,
+        target=target,worldArmy=army,
+        playerAlliance=player_alliance_observation(account.player),
+        safeToDispatchFromPhysicalCursor=false,
         requestDispatched=false},nil
 end
 
@@ -1383,14 +1492,12 @@ local function native_hover_open(fields,input_clear,uid)
            (member(form,"ownerUid")~=nil and ident(member(form,"ownerUid"))~=uid) then
             return failed("Native hover squad identity/owner unavailable")
         end
-        -- On the observed 2296 sub-account, slot 1 has two heroes but ZERO
-        -- soldiers. The original formation action is not dispatch-ready:
-        -- attack_selected requires both assigned heroes and soldiers. Reject
-        -- before requesting a transient chooser so the refusal is explicit,
-        -- rather than a generic deferred chooser failure with no native send.
+        -- Original BestSelect previews current global soldiers inside the
+        -- chooser. Require saved heroes here; validate nested supply/canMarch
+        -- only after that original preview and again at the send boundary.
         local staffing=formation_staffing(form)
-        if not staffing.staffedForAttack then
-            return failed("Selected squad has no verified assigned soldiers and heroes; staff it in the original game before the attack hotkey")
+        if not staffing.heroCount or staffing.heroCount<1 then
+            return failed("Selected squad has no verified assigned heroes")
         end
         local account=native_account()
         local ok_idle,active=invoke(member(center,"WorldMarchDataManager"),
@@ -1546,6 +1653,7 @@ function M.Prepare(fields, input_clear)
             formationState=number(member(form,"state")),formationIndex=number(member(form,"index")),
             heroCount=staffing.heroCount,localHeroCount=number(local_heroes),
             soldierCount=staffing.soldierCount,staffedForAttack=staffing.staffedForAttack,
+            formationStaffing=staffing,
             formationCapacity=capacity,
             canPrepareWithUnassignedSoldiers=can_prepare==true,
             preparationMethod="native_formation_assignment_ui_required_no_mutation",
@@ -1580,7 +1688,8 @@ function M.Prepare(fields, input_clear)
     end
     return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",
         candidates=candidates,squads=squads,ownedMarches=owned_marches,
-        unassignedSoldiers=unassigned,staffingPreparationPerformed=false,
+        unassignedSoldiers=unassigned,currentSoldiers=current_soldier_inventory(center),
+        staffingPreparationPerformed=false,
         currentSelector=selector_data,playerUidNativeType=type(member(member(rawget(_G,"LuaEntry"),"Player"),"uid")),
         requestDispatched=false}}
 end

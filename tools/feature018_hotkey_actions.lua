@@ -181,6 +181,86 @@ local function read_return_state(selected)
     return target
 end
 
+-- WorldMarchChange has no source-serialized request nonce. Observe its original
+-- successful reply by exact owner/formation/march/return target within the
+-- pending session, then require a separate native poststate read. This records
+-- identity and temporal agreement, never unique request causality. The original
+-- native handler queues application, so poststate can arrive on a later tick.
+local recall_reply_class, recall_reply_handler
+local function recall_observer_intact()
+    return recall_reply_class ~= nil and
+        member(recall_reply_class,"HandleMessage") == recall_reply_handler
+end
+
+local function pending_recall_owner(pending)
+    local uid, _, server = authorized_subaccount()
+    local elapsed = os.time() - pending.sentAt
+    return uid == pending.uid and server == pending.server and
+        pending.identity == owner_token and elapsed >= 0 and
+        elapsed < MAX_PENDING_SECONDS and
+        member(rawget(_G,"LuaEntry"),"Player") == pending.player and
+        rawget(_G,"DataCenter") == pending.center and
+        member(pending.center,"WorldMarchDataManager") == pending.marches
+end
+
+local function observe_recall_replies()
+    if recall_reply_class then return recall_observer_intact() end
+    local loaded, class = pcall(require,"Net.Msgs.WorldMarchChangeMessage")
+    local original = loaded and member(class,"HandleMessage") or nil
+    if type(original) ~= "function" then return false end
+    local wrapper
+    wrapper = function(self,response,...)
+        -- Observation failures must never alter the original callback. Snapshot
+        -- response identity before it is handed to native code; do not mutate it.
+        local captured, match = pcall(function()
+            if not recall_observer_intact() or member(response,"errorCode") ~= nil then
+                return nil
+            end
+            local uuid = id_string(member(response,"uuid"))
+            local uid = id_string(member(response,"ownerUid"))
+            local formation = id_string(member(response,"ownerFormationUuid"))
+            local target = member(response,"target")
+            local target_server = id_string(member(response,"targetServer"))
+            local owner_server = id_string(member(response,"ownerCurServerId"))
+            local found
+            for slot,pending in pairs(outstanding) do
+                if pending.dispatchStarted and pending.uuid == uuid and
+                   pending.uid == uid and pending.formation == formation and
+                   target == pending.returnTarget and
+                   target_server == pending.server and
+                   (member(response,"ownerCurServerId") == nil or owner_server == pending.server) and
+                   pending_recall_owner(pending) then
+                    if found then return nil end
+                    found = {pending=pending,slot=slot,uuid=uuid,uid=uid,
+                        formation=formation,target=target,targetServer=target_server}
+                end
+            end
+            return found
+        end)
+        local returned = table.pack(pcall(original,self,response,...))
+        if returned[1] and captured and match then
+            pcall(function()
+                local pending = match.pending
+                if recall_observer_intact() and outstanding[match.slot] == pending and
+                   pending_recall_owner(pending) then
+                    pending.returnReplyObserved = true
+                    pending.replyCount = (pending.replyCount or 0) + 1
+                    pending.replyMarchUuid = match.uuid
+                    pending.replyOwnerUid = match.uid
+                    pending.replyFormationUuid = match.formation
+                    pending.replyTargetType = match.target
+                    pending.replyTargetServer = match.targetServer
+                end
+            end)
+        end
+        if not returned[1] then error(returned[2],0) end
+        return table.unpack(returned,2,returned.n)
+    end
+    class.HandleMessage = wrapper
+    recall_reply_class, recall_reply_handler = class, wrapper
+    return recall_observer_intact()
+end
+
 local function recall(fields, game_input_clear)
     local admitted, denial, server = request_account(fields)
     if not admitted then return denial end
@@ -232,20 +312,36 @@ local function recall(fields, game_input_clear)
         end
         local current = read_return_state(selected)
         if current == nil then return blocked("Pending march state could not be revalidated") end
-        if current == target_enum then
+        local matched_reply = pending.returnReplyObserved == true and
+            pending.identity == identity and recall_observer_intact() and
+            pending_recall_owner(pending)
+        if current == target_enum and matched_reply then
             outstanding[slot] = nil
             return {state="confirmed", data={
-                observation="native_world_march_return_target", slot=slot,
+                observation="native_world_march_return_reply_and_target", slot=slot,
                 marchUuid=selected.uuid, formationUuid=selected.formation,
+                ownerUid=admitted, serverId=server,sourceServerId=server,
                 target="BACK_HOME", returning=true,
                 nativePostStateObserved=true,
                 observedAfterPreviousDispatch=pending.dispatchOutcomeUncertain~=true,
+                requestPreviouslyDispatched=pending.dispatchOutcomeUncertain~=true,
                 priorDispatchOutcomeUncertain=pending.dispatchOutcomeUncertain==true,
                 priorTarget=pending.beforeTarget,
                 -- WorldMarchChange has no verified per-request echoed nonce;
                 -- a cached BACK_HOME transition after our send can coincide
                 -- with an original game UI/manually initiated recall.
-                originalResponseObserved=false,
+                originalResponseObserved=true,
+                identityMatchedReturnReplyObserved=true,
+                nativeReturnReplyMatched=true,
+                replyCorrelation="native_owner_formation_march_return_reply",
+                replyMessage="WorldMarchChangeMessage",
+                replyCount=pending.replyCount,
+                replyMarchUuid=pending.replyMarchUuid,
+                replyOwnerUid=pending.replyOwnerUid,
+                replyFormationUuid=pending.replyFormationUuid,
+                replyTargetType=pending.replyTargetType,
+                replyTargetServer=pending.replyTargetServer,
+                exactRequestCausality=false,
                 nativeReplyCausalityConfirmed=false,
                 serverAcknowledgementCorrelated=false,
                 requestDispatched=false
@@ -255,7 +351,17 @@ local function recall(fields, game_input_clear)
             return blocked("Earlier return has no authoritative game update; refresh session before retry")
         end
         return {state="accepted",data={requestDispatched=false,
-            awaitingGameConfirmation=true,slot=slot,marchUuid=selected.uuid}}
+            awaitingGameConfirmation=true,slot=slot,marchUuid=selected.uuid,
+            formationUuid=selected.formation,ownerUid=admitted,serverId=server,
+            sourceServerId=server,
+            nativePostStateObserved=current==target_enum,
+            observedAfterPreviousDispatch=pending.dispatchOutcomeUncertain~=true,
+            requestPreviouslyDispatched=pending.dispatchOutcomeUncertain~=true,
+            priorDispatchOutcomeUncertain=pending.dispatchOutcomeUncertain==true,
+            identityMatchedReturnReplyObserved=matched_reply,
+            nativeReturnReplyMatched=matched_reply,
+            originalResponseObserved=matched_reply,exactRequestCausality=false,
+            nativeReplyCausalityConfirmed=false,serverAcknowledgementCorrelated=false}}
     end
     if query_only then
         return blocked("No matching in-flight owned recall is available")
@@ -269,6 +375,8 @@ local function recall(fields, game_input_clear)
             nativePostStateObserved=true,
             observedAfterPreviousDispatch=false,
             originalResponseObserved=false,
+            identityMatchedReturnReplyObserved=false,
+            exactRequestCausality=false,
             nativeReplyCausalityConfirmed=false,
             serverAcknowledgementCorrelated=false,
             requestDispatched=false,actionPerformed=false
@@ -303,6 +411,28 @@ local function recall(fields, game_input_clear)
     if type(member(util, "OnBackHome")) ~= "function" then
         return unavailable("Current game MarchUtil.OnBackHome missing")
     end
+    for _, pending in pairs(outstanding) do
+        if pending.uid == admitted and pending.server == server and
+           (pending.uuid == selected.uuid or pending.formation == selected.formation) then
+            return blocked("Exact owned march already has a pending return in another slot")
+        end
+    end
+    if not observe_recall_replies() then
+        return unavailable("Original native return reply observer is unavailable or changed")
+    end
+    if game_input_clear() ~= true then
+        return blocked("Text focus changed during return reply observer setup")
+    end
+    -- Requiring the original reply module can execute its loader. Recheck
+    -- account/producer/march after observer setup as well as before it.
+    local ready_uid, _, ready_server = authorized_subaccount()
+    if ready_uid ~= admitted or ready_server ~= server or
+       member(rawget(_G,"LuaEntry"),"Player") ~= selected.player or
+       rawget(_G,"DataCenter") ~= selected.center or
+       member(selected.center,"WorldMarchDataManager") ~= selected.marches or
+       read_return_state(selected) ~= selected.target then
+        return blocked("Native recall owner or march changed during reply observer setup")
+    end
     -- The original method can throw or return false AFTER sending a network
     -- request. Fence before crossing native code and preserve that fence on
     -- uncertain outcomes. A later BACK_HOME observation is never a unique
@@ -310,16 +440,18 @@ local function recall(fields, game_input_clear)
     local tx = {uuid=selected.uuid,formation=selected.formation,
                 beforeTarget=selected.target,sentAt=os.time(),
                 uid=admitted,server=server,
+                identity=identity,center=selected.center,returnTarget=target_enum,
                 player=member(rawget(_G,"LuaEntry"),"Player"),
-                marches=selected.marches,dispatchOutcomeUncertain=true}
+                marches=selected.marches,dispatchOutcomeUncertain=true,
+                dispatchStarted=true}
     outstanding[slot] = tx
     local sent, send_result = pcall(member(util, "OnBackHome"), selected.uuid_number)
     if not sent or send_result == false then
         return blocked("Native return-home send outcome is uncertain; observe prior intent without resending")
     end
     tx.dispatchOutcomeUncertain=false
-    -- Native method sends an RPC; only a later game-owned WorldMarch target
-    -- of BACK_HOME confirms its effective state transition.
+    -- The original method can send an RPC. Confirmation requires its matching
+    -- original reply AND a later independent native WorldMarch BACK_HOME read.
     return {state="accepted",data={
         slot=slot, marchUuid=selected.uuid,
         requestDispatched=true,awaitingGameConfirmation=true

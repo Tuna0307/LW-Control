@@ -42,6 +42,11 @@ state={
  category=108, stale=false, ownsItem=true,
 }
 LuaEntry={Player={uid=state.uid,allianceId=700}}
+LuaEntry.Player.IsInAlliance=function(self)
+ if state.forceNoAlliance then return false end
+ return self.allianceId~=0
+end
+LuaEntry.Player.GetAllianceUid=function(self) return self.allianceId end
 LuaEntry.Player.GetCurServerId=function(self) return state.serverId end
 LuaEntry.Player.GetSourceServerId=LuaEntry.Player.GetCurServerId
 LuaEntry.Player.GetSelfServerId=LuaEntry.Player.GetCurServerId
@@ -1535,16 +1540,13 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             return mod.Handle(vm.table_from(dict(payload,**changes)),
                               vm.globals().input_clear)
         first=execute()
-        if target in ('boss','occupied_resource','monster_no_soldiers',
+        if target in ('boss','occupied_resource',
                       'unknown_ground_point','monster_same_alliance','monster_unknown_alliance',
                       'monster_alliance_drift','owner_alliance_unknown',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             require(first['state']=='failed' and state.openCalls==0 and
                     state.rpcCount==0,
                     'unsafe or unstaffed native hover entered original march UI')
-            if target=='monster_no_soldiers':
-                require('soldiers' in first['error'],
-                        'server-2296 observed 0 soldiers did not give an actionable native refusal')
             continue
         require(first['state']=='accepted' and
                 first['data']['awaitingNativeChooser'] is True and
@@ -1556,7 +1558,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                 state.openCalls==1 and state.rpcCount==0,
                 'physical hover did not invoke one source-native chooser without sending')
         args=state.openArgs
-        if target in ('monster','monster_no_ground'):
+        if target in ('monster','monster_no_ground','monster_no_soldiers'):
             require(args[1]==19 and args[2]==35723 and
                     str(args[3])=='9007199254740993' and
                     args[4]==-1 and args[5]==1 and args['n']==5 and
@@ -1587,10 +1589,86 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                 'account/server switch continued frozen hover intent')
 
 
+def test_current_nested_staffing_and_native_membership():
+    for case in ('ready','zero','denied','unknown_permission','bad_supply','bad_total',
+                 'changed_at_send','alliance_contradiction','target_unknown'):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.existingAbsent=true
+          state.currentCount=170
+          state.currentSupply=170
+          state.currentTotal=170
+          state.currentCanMarch=true
+          state.formReads=0
+          state.forceNoAlliance=true
+          LuaEntry.Player.allianceId=''
+          DataCenter.WorldMarchDataManager.GetOwnerFormationMarch=function()return nil end
+          DataCenter.SoldierDataManager={
+            GetInsideSoldiers=function()return {{id=101,count=480,lv=1}} end,
+            GetPlayerSoldiersTotalNum=function()return 480 end,
+          }
+          DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+            if slot~=1 then return nil end
+            state.formReads=state.formReads+1
+            if state.changeAtSend and state.formReads==2 then state.currentCanMarch=false end
+            return {uuid=state.formation,ownerUid=state.uid,index=1,
+              heroes={[1]=777,[2]=778},
+              soldiers={[1]={[101]=state.currentCount,supply=state.currentSupply,heroMaxCapacity=170}},
+              totalSoldierNum=state.currentTotal,heroTotalSoldierCapacity=170,
+              canMarch=state.currentCanMarch,
+              GetLocalHeroesCount=function()return 2 end}
+          end
+          UIWindowNames={UIFormationSelectListV2='formation'}
+          nativeCtrl={targetType=17,targetPoint=state.touchedTile,targetUuid=state.worldUuid}
+          nativeCtrl.OnCheckTime=function(self,formation)
+            state.attackDelegateCount=state.attackDelegateCount+1
+            SFSNetwork.SendMessage(99,formation,17,state.worldUuid,'current-path')
+          end
+          nativeWindow={Ctrl=nativeCtrl}
+          UIManager={GetInstance=function()return {
+            IsWindowOpen=function(self,name)return name=='formation' end,
+            GetWindow=function(self,name)return name=='formation' and nativeWindow end}end}
+          MsgDefines.WorldMarchFormationNew=99
+          package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+            return {OnCreate=function(self)end,HandleMessage=function(self,response)end} end
+          package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
+            return {HandleMessage=function(self,response)end} end
+        """)
+        state=vm.globals().state
+        if case=='zero': state.currentCount=0;state.currentSupply=0;state.currentTotal=0
+        if case=='denied': state.currentCanMarch=False
+        if case=='unknown_permission': state.currentCanMarch=None
+        if case=='bad_supply': state.currentSupply=171
+        if case=='bad_total': state.currentTotal=171
+        if case=='changed_at_send': state.changeAtSend=True
+        if case=='alliance_contradiction':
+            vm.execute('LuaEntry.Player.allianceId=0;LuaEntry.Player.IsInAlliance=function()return true end')
+        if case=='target_unknown': state.worldAlliance=None
+        mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        fields=dict(slot='1',authorizedUid='1183884595002296',profileId='profile',
+                    launchSessionId='launch',challenge='request',gamePid='7020')
+        inventory=mod.Prepare(vm.table_from(dict(fields,mode='inventory')),vm.globals().input_clear)
+        require(inventory['state']=='confirmed' and
+                inventory['data']['currentSoldiers']['total']==480 and
+                inventory['data']['squads']['1']['formationStaffing']['staffingShape']=='current_nested_hero_slots',
+                'current native troop diagnostics were reduced to legacy ArmyManager inventory')
+        state.formReads=0
+        sent=mod.Handle(vm.table_from(dict(fields,action='attack')),vm.globals().input_clear)
+        if case=='ready':
+            require(sent['state']=='accepted' and state.attackDelegateCount==1 and state.attackSends==1,
+                    'source-backed nested170/170 ready formation or explicit unaffiliated owner was rejected')
+        else:
+            require(sent['state'] in ('failed','unsupported') and state.attackDelegateCount==0 and
+                    state.attackSends is None,
+                    'unready/malformed/drifted current nested staffing dispatched: '+case)
+
+
 def main():
     check_original()
     check_installed_managed_nonce_source()
     test_selected_attack_and_diamond()
+    test_current_nested_staffing_and_native_membership()
     test_original_world_scene_cursor_projection_is_read_only()
     test_original_hover_monster_and_resource_one_shot_chooser()
     test_attack_final_action_boundary_and_sender_truth()
