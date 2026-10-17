@@ -272,7 +272,10 @@ local function stop_internal(reason)
     if run.pending ~= nil and not run.pending.ack then
         -- Retain the exact view and original pending record across Stop and
         -- a future lease transition; neither action cancels an in-flight send.
-        unresolved_move = {view = observed, pending = run.pending}
+        -- Source LWUISheepGameView.Update may bind a *different* view before
+        -- Stop or an asynchronous response. The send belongs to the click's
+        -- ORIGINAL view, never whichever view was observed most recently.
+        unresolved_move = {view = run.pending.view, pending = run.pending}
     end
     run.pending = nil
     -- The planner is a coroutine. Releasing the actual field on Stop also
@@ -347,7 +350,12 @@ local function hook_loaded_view()
         return total
     end
     local update = function(view, ...)
-        if observed ~= view then observed = view end
+        if observed ~= view then
+            if executing_or_preparing() and run.view ~= nil and run.view ~= view then
+                stop_internal('Food House native view was replaced during the current level')
+            end
+            observed = view
+        end
         local mini = rawget(_G, 'LWBridgeFeature018MiniGame')
         if type(get(mini, 'BindSheepView')) == 'function' then
             pcall(mini.BindSheepView, view)
@@ -359,9 +367,15 @@ local function hook_loaded_view()
         local retired = unresolved_move ~= nil and unresolved_move.view == view and
                         unresolved_move.pending or nil
         local event = rawget(_G, 'SheepGameOpType')
-        local is_click = pending ~= nil and observed == view and event ~= nil and
+        local is_click = pending ~= nil and pending.view == view and
+                         pending.engine == get(view, 'engine') and
+                         pending.game == get(get(view, 'engine'), 'game') and
+                         event ~= nil and
                          get(packet, 'type') == get(event, 'Click')
-        local is_retired_click = retired ~= nil and event ~= nil and
+        local is_retired_click = retired ~= nil and
+                                 retired.engine == get(view, 'engine') and
+                                 retired.game == get(get(view, 'engine'), 'game') and
+                                 event ~= nil and
                                  get(packet, 'type') == get(event, 'Click') and
                                  get(packet, 'opPointId') == retired.point
         local queued_before = is_click and queued_point_count(view, pending.point, true) or nil
@@ -376,51 +390,52 @@ local function hook_loaded_view()
                 unresolved_move = nil
             end
         end
-        if pending ~= nil and run ~= nil and run.pending == pending and observed == view then
-            if is_click then
-                if get(packet, 'opPointId') == pending.point then
-                    -- SeasonSheepOpHandle can ignore a Click packet when the
-                    -- game's OpCheck returns nil (v26 lines 180-182). Its
-                    -- source SyncFinish removes the exact queued serverPos
-                    -- only after the accepted Click (lines 200, 853-866).
-                    -- Matching packet text alone is not server confirmation.
-                    local queued_after = queued_point_count(view, pending.point, false)
-                    if ok and queued_before == 1 and queued_after == 0 then
-                        pending.ack = true
-                    else
-                        stop_internal('Native server Click was not reconciled with its sent move')
-                    end
+        if pending ~= nil and run ~= nil and run.pending == pending and
+           pending.view == view and is_click then
+            if get(packet, 'opPointId') == pending.point then
+                -- SeasonSheepOpHandle may ignore a packet on OpCheck failure.
+                -- Only source SyncFinish draining our exact queued sent point
+                -- on the original view establishes a native reply receipt.
+                local queued_after = queued_point_count(view, pending.point, false)
+                if ok and queued_before == 1 and queued_after == 0 then
+                    pending.ack = true
                 else
-                    stop_internal('Unrecognized manual or competing sheep move')
+                    stop_internal('Native server Click was not reconciled with its sent move')
                 end
-            elseif event ~= nil and get(packet, 'type') == get(event, 'Error') then
-                stop_internal('Server rejected sheep action')
+            else
+                stop_internal('Unrecognized manual or competing sheep move')
             end
+        elseif pending ~= nil and run ~= nil and run.pending == pending and
+               pending.view == view and event ~= nil and
+               get(packet, 'type') == get(event, 'Error') then
+            stop_internal('Server rejected sheep action')
         end
         if not ok then error(value) end
         return value
     end
     local destroy = function(view, ...)
+        local owns_run = executing_or_preparing() and run.view == view
         if observed == view then
             observed = nil
             local mini = rawget(_G, 'LWBridgeFeature018MiniGame')
             if type(get(mini, 'BindSheepView')) == 'function' then
                 pcall(mini.BindSheepView, nil)
             end
-            if executing_or_preparing() then
-                local pending = run.pending
-                local game = get(get(view, 'engine'), 'game')
-                local states = rawget(_G, 'SheepGameState')
-                if pending ~= nil and pending.ack and run.plan ~= nil and
-                   run.confirmed + 1 == #run.plan and states ~= nil and
-                   get(game, 'gameState') == get(states, 'Success') and
-                   get(game, 'rewardsInfo') ~= nil then
-                    run.pending = nil
-                    run.confirmed = #run.plan
-                    run.status = 'completed'
-                else
-                    stop_internal('Food House window closed before completion')
-                end
+        end
+        if owns_run then
+            local pending = run.pending
+            local game = get(get(view, 'engine'), 'game')
+            local states = rawget(_G, 'SheepGameState')
+            if pending ~= nil and pending.ack and pending.view == view and
+               pending.game == game and run.plan ~= nil and
+               run.confirmed + 1 == #run.plan and states ~= nil and
+               get(game, 'gameState') == get(states, 'Success') and
+               get(game, 'rewardsInfo') ~= nil then
+                run.pending = nil
+                run.confirmed = #run.plan
+                run.status = 'completed'
+            else
+                stop_internal('Food House source view closed before completion')
             end
         end
         return prior_destroy(view, ...)
@@ -594,6 +609,8 @@ function M.Pump()
         local pending = run.pending
         local states = rawget(_G, 'SheepGameState')
         if status_now == 'executing' and pending ~= nil and pending.ack and
+           pending.view == view and pending.engine == engine and
+           pending.game == game and run.view == view and
            run.plan ~= nil and run.confirmed + 1 == #run.plan and
            states ~= nil and get(game, 'gameState') == get(states, 'Success') and
            get(game, 'rewardsInfo') ~= nil then
@@ -609,12 +626,21 @@ function M.Pump()
         if clock() - run.started > BOARD_TIMEOUT then stop_internal('Food House window did not open') end
         return false
     end
+    if run.view ~= nil and
+       (run.view ~= view or run.engine ~= engine or run.game ~= game) then
+        stop_internal('Native Food House view or engine changed during this level')
+        return false
+    end
     if status_now == 'opening' then
         local data, failure = board_snapshot(view, game)
         if data == nil then
             if clock() - run.started > BOARD_TIMEOUT then stop_internal(failure) end
             return false
         end
+        -- Pin the source view *and* its original engine/game. The server reply
+        -- handler can be shared by two view instances whose tile point IDs
+        -- happen to match; only this exact native board admits our next click.
+        run.view, run.engine, run.game = view, engine, game
         run.initial = data
         run.coroutine = coroutine.create(function() return plan_board(data) end)
         run.status = 'solving'
@@ -718,7 +744,8 @@ function M.Pump()
     end
     -- Arm the response fence before invoking the UI producer: even an
     -- immediately delivered callback cannot be mistaken for an unrelated op.
-    run.pending = {point = next_card.point, untilTime = clock() + MOVE_TIMEOUT, ack = false}
+    run.pending = {point = next_card.point, untilTime = clock() + MOVE_TIMEOUT,
+                   ack = false, view = view, engine = engine, game = game}
     run.acting = true
     local click_ok = call(item, 'OnClickCard')
     run.acting = false

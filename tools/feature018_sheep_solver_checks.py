@@ -275,6 +275,14 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         end
         function cls.SeasonSheepOpHandle(self,packet)
           if packet.type~=3 or points[packet.opPointId]==nil then return end
+          if self ~= View then
+            -- A separate source-native window can independently carry the
+            -- same point ID. Its own SyncFinish removes only its own queue.
+            assert(#self.syncOps==1)
+            assert(self.syncOps[1].serverPos==packet.opPointId)
+            table.remove(self.syncOps,1)
+            return
+          end
           local id=points[packet.opPointId]
           assert(id and #self.syncOps==1)
           assert(self.syncOps[1].serverPos==packet.opPointId)
@@ -381,6 +389,108 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
                          'accepted', 'matching original SyncFinish may retire old fence')
         self.assertEqual(lua.globals().ClickCount, 1)
+
+    def test_new_native_view_same_point_cannot_ack_old_in_flight_click(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.execute(r'''
+          local cls=getmetatable(View).__index
+          OtherGame={gameState=1,CanClick=function() return true end}
+          Other=setmetatable({
+            engine={game=OtherGame,ClickCard=function() end},
+            syncOps={{serverPos='10_0_1',isSend=true}},
+            ISCanOp=function() return true end
+          }, {__index=cls})
+          Other:Update()
+        ''')
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed',
+                         'A new bound view must terminate the old run')
+        self.assertTrue(status['restartFenced'])
+        self.assertTrue(status['awaitingServer'])
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        lua.execute("Other:SeasonSheepOpHandle({type=3,opPointId='10_0_1'})")
+        self.assertEqual(len(lua.globals().Other.syncOps), 0)
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        self.assertTrue(solver.Status()['data']['restartFenced'],
+                        'A different view draining an identical point is not our ACK')
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'failed')
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.globals().AckFirst()
+        self.assertFalse(solver.Status()['data']['restartFenced'],
+                         'The original view receiving its own exact ACK releases fence')
+
+    def test_stop_then_rebind_retains_source_view_for_delayed_ack(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        self.assertTrue(solver.Stop(lua.table_from({'taskName': 'sheepGame'}))
+                        ['data']['restartFenced'])
+        lua.execute(r'''
+          local cls=getmetatable(View).__index
+          Another=setmetatable({engine={game=Game,ClickCard=function() end},
+            syncOps={{serverPos='10_0_1',isSend=true}},
+            ISCanOp=function() return true end}, {__index=cls})
+          Another:Update()
+          Another:SeasonSheepOpHandle({type=3,opPointId='10_0_1'})
+        ''')
+        self.assertTrue(solver.Status()['data']['restartFenced'])
+        lua.globals().AckFirst()
+        self.assertFalse(solver.Status()['data']['restartFenced'])
+
+    def test_native_engine_replacement_cannot_promote_same_point_reply(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.execute(r'''
+          OtherGame={gameState=1,CanClick=function() return true end}
+          View.engine.game=OtherGame
+          -- Same view and source point, but different native game instance.
+          View:SeasonSheepOpHandle({type=3,opPointId='10_0_1'})
+        ''')
+        self.assertFalse(solver.Status()['data']['restartFenced'])
+        solver.Pump()
+        result = solver.Status()['data']
+        self.assertEqual(result['status'], 'solve_failed')
+        self.assertTrue(result['restartFenced'],
+                        'Unrelated view-engine state must never clear in-flight fence')
+        self.assertEqual(result['confirmedMoves'], 0)
+        self.assertEqual(lua.globals().ClickCount, 1)
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'failed')
+
+    def test_original_view_destroy_after_new_view_binding_preserves_click_fence(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.execute(r'''
+          local cls=getmetatable(View).__index
+          Another=setmetatable({engine={game=Game,ClickCard=function() end},
+            syncOps={},ISCanOp=function() return true end}, {__index=cls})
+        ''')
+        self.assertTrue(solver.BindView(lua.globals().Another))
+        lua.execute('View:OnDestroy()')
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertTrue(status['restartFenced'])
+        self.assertTrue(status['awaitingServer'])
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        lua.globals().AckFirst()
+        self.assertFalse(solver.Status()['data']['restartFenced'])
 
     def test_lease_loss_preserves_uncertain_request_even_if_hook_unloaded(self):
         lua, solver = self.three_card_board(auto_reply=False)

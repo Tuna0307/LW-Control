@@ -284,6 +284,28 @@ class NativeLandAckChecks(unittest.TestCase):
                         {str(v) for v in end_packet["constants"]})
         self.assertNotIn("AddMember", {str(v) for v in end_packet["constants"]})
 
+    def test_frontline_end_of_battle_server_result_is_not_a_per_g_ack(self):
+        # Original v26 has a separate final-stage server packet (id/soldier).
+        # Its response reaches the activity's scoring manager, and the Parkour
+        # handler consumes whole-battle metrics. It never observes an AddMember
+        # invocation or the five unique GUIDs created by this client's G.
+        packet = "Net/Msgs/FrontBreakSunday/FrontBreakSundayChallengeResultMessage.luac"
+        written = self.method(packet, "OnCreate")
+        handled = self.method(packet, "HandleMessage")
+        battle = self.method(
+            "DataCenter/LWBattle/Logic/ParkourBattle/ParkourBattleLogic.luac",
+            "OnFrontBreakSundayChallengeResult")
+        self.assertTrue({"PutInt", "id", "soldier"} <=
+                        {str(c) for c in written["constants"]})
+        self.assertTrue({"errorCode", "ActFrontBreakSundayDataManager",
+                         "HandleChallengeResultMessage"} <=
+                        {str(c) for c in handled["constants"]})
+        self.assertTrue({"waitingFrontBreakSundayChallengeResult", "errorCode",
+                         "killNum", "curStage", "frontBreakSundayActId"} <=
+                        {str(c) for c in battle["constants"]})
+        self.assertNotIn("AddMember", {str(c) for c in battle["constants"]})
+        self.assertNotIn("GetMemberCount", {str(c) for c in handled["constants"]})
+
 
 class NativeChestMarkerLua53Checks(unittest.TestCase):
     @staticmethod
