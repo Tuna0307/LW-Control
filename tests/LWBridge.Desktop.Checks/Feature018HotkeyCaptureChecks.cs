@@ -14,6 +14,7 @@ internal static class Feature018HotkeyCaptureChecks
         internal JsonElement LastPayload;
         internal int Calls;
         internal Func<object?> Receipt = () => null;
+        internal Func<CancellationToken, Task<object?>>? AsyncReceipt;
         public bool CanHandle(string command) =>
             Available && command == "feature018_hotkey_action";
 
@@ -22,7 +23,7 @@ internal static class Feature018HotkeyCaptureChecks
             LastName = command;
             LastPayload = payload.Clone();
             Calls++;
-            return Task.FromResult(Receipt());
+            return AsyncReceipt?.Invoke(cancellationToken) ?? Task.FromResult(Receipt());
         }
     }
 
@@ -193,7 +194,8 @@ internal static class Feature018HotkeyCaptureChecks
         CaptureExactRootRaceChecks();
         await OwnedWindowAdmissionChecksAsync();
 
-        var session = new Feature018HotkeySession("p", "i", "123456789", 2212);
+        var session = new Feature018HotkeySession("p", "i",
+            LWBridgeWindow.Feature018ApprovedGameUid, LWBridgeWindow.Feature018ApprovedServerId);
         Feature018HotkeySession? current = session;
         bool focused = true;
         HotkeyConfig config = new();
@@ -238,6 +240,104 @@ internal static class Feature018HotkeyCaptureChecks
 
         var stub = new StubNativeCommandService();
         var wired = new Feature018HotkeyNativeProviders(stub).Create();
+        // The recognizer and broker each have their own focus/session gate,
+        // but the native provider must independently reject wrong-account
+        // mutation requests, including when invoked directly.
+        foreach (Feature018HotkeyKind mutation in new[]
+        {
+            Feature018HotkeyKind.AttackSquad, Feature018HotkeyKind.RecallSquad,
+            Feature018HotkeyKind.UseShield, Feature018HotkeyKind.ApplyEquipmentPreset,
+            Feature018HotkeyKind.RandomRelocate, Feature018HotkeyKind.AllianceRelocate,
+            Feature018HotkeyKind.ReinforceFrontline,
+        })
+        {
+            var forbidden = new Feature018HotkeyCommand(
+                new Feature018HotkeySession("main", "i", "3133546747002212", 2212),
+                new Feature018HotkeyIntent(mutation, mutation switch
+                {
+                    Feature018HotkeyKind.UseShield => 8,
+                    Feature018HotkeyKind.ReinforceFrontline => 5,
+                    Feature018HotkeyKind.RandomRelocate or Feature018HotkeyKind.AllianceRelocate => 0,
+                    _ => 1,
+                }));
+            int beforeForbidden = stub.Calls;
+            Feature018HotkeyActionOutcome denied =
+                await wired[mutation](forbidden, CancellationToken.None);
+            Require(denied.Status == Feature018HotkeyActionStatus.SessionChanged &&
+                    denied.Reason == "native_hotkey_mutation_owner_not_approved" &&
+                    stub.Calls == beforeForbidden,
+                "main account reached mutating native action provider through " + mutation);
+        }
+        var wrongServer = new Feature018HotkeyCommand(
+            session with { ServerId = 2212 },
+            new Feature018HotkeyIntent(Feature018HotkeyKind.UseShield, 8));
+        Require((await wired[Feature018HotkeyKind.UseShield](
+                    wrongServer, CancellationToken.None)).Status ==
+                Feature018HotkeyActionStatus.SessionChanged && stub.Calls == 0,
+            "approved UID on wrong server reached native shield ItemUse");
+
+        // Even two distinct provider instances (e.g., a retired capture and
+        // its newly created replacement) share the same native mutating route.
+        // The second must not overlap, queue or retry while the first is
+        // unresolved; a read-only shield observation remains eligible.
+        var nativeHeld = new TaskCompletionSource<object?>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstStub = new StubNativeCommandService
+        {
+            AsyncReceipt = token => nativeHeld.Task.WaitAsync(token),
+        };
+        var secondStub = new StubNativeCommandService
+        {
+            Receipt = () => JsonSerializer.SerializeToElement(new
+            {
+                observation = "native_MAIN_SHIELD_effect_status_map",
+                active = false, serverTimeMilliseconds = 1000, shieldStatusCount = 0,
+            }),
+        };
+        var firstNative = new Feature018HotkeyNativeProviders(firstStub).Create();
+        var secondNative = new Feature018HotkeyNativeProviders(secondStub).Create();
+        using (var abortOld = new CancellationTokenSource())
+        {
+            Task<Feature018HotkeyActionOutcome> oldPending =
+                firstNative[Feature018HotkeyKind.UseShield](
+                    new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.UseShield, 8)),
+                    abortOld.Token);
+            Require(!oldPending.IsCompleted && firstStub.Calls == 1,
+                "first native shield use did not hold its pending-RPC lease");
+            Feature018HotkeyActionOutcome simultaneous = await secondNative[
+                Feature018HotkeyKind.RandomRelocate](
+                    new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.RandomRelocate)),
+                    CancellationToken.None);
+            Require(simultaneous.Status == Feature018HotkeyActionStatus.Busy &&
+                    simultaneous.Reason == "another_native_hotkey_mutation_pending" &&
+                    secondStub.Calls == 0,
+                "replacement provider overlapped pending shield ItemUse with relocation RPC");
+            Feature018HotkeyActionOutcome overlayDuringPending = await secondNative[
+                Feature018HotkeyKind.ShieldRemaining](
+                    new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.ShieldRemaining)),
+                    CancellationToken.None);
+            Require(overlayDuringPending.Working && secondStub.Calls == 1,
+                "independent read-only shield status was blocked by mutating native lease");
+            abortOld.Cancel();
+            try
+            {
+                await oldPending;
+                throw new InvalidOperationException("aborted native send fixture did not cancel");
+            }
+            catch (OperationCanceledException) { }
+        }
+        secondStub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            requestDispatched = true, awaitingGameConfirmation = true, slot = 0,
+        });
+        Feature018HotkeyActionOutcome afterRetirement = await secondNative[
+            Feature018HotkeyKind.RandomRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.RandomRelocate)),
+                CancellationToken.None);
+        Require(afterRetirement.Status == Feature018HotkeyActionStatus.Submitted &&
+                !afterRetirement.Working && secondStub.Calls == 2,
+            "cancelled old-provider native lease either leaked or fabricated relocation ACK");
+
         current = session;
         focused = true;
         config = new HotkeyConfig();
@@ -289,9 +389,32 @@ internal static class Feature018HotkeyCaptureChecks
             target = "BACK_HOME",
             returning = true,
         });
+        Feature018HotkeyActionOutcome alreadyHome = await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 2));
+        Require(alreadyHome.Status == Feature018HotkeyActionStatus.Failed &&
+                !alreadyHome.Working &&
+                alreadyHome.Reason == "native_recall_back_home_state_lacks_attributed_send_and_reply",
+            "cached BACK_HOME before native send falsely confirmed keyed recall");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_target",
+            slot = 2, marchUuid = "803001", formationUuid = "1001",
+            target = "BACK_HOME", returning = true,
+            requestPreviouslyDispatched = true, nativeReturnReplyMatched = false,
+        });
+        Require(!(await nativeCoordinator.TryDispatchAsync(
+                    new(Feature018HotkeyKind.RecallSquad, 2))).Working,
+            "native send without original matching reply falsely confirmed keyed recall");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_target",
+            slot = 2, marchUuid = "803001", formationUuid = "1001",
+            target = "BACK_HOME", returning = true,
+            requestPreviouslyDispatched = true, nativeReturnReplyMatched = true,
+        });
         Require((await nativeCoordinator.TryDispatchAsync(
-            new(Feature018HotkeyKind.RecallSquad, 2))).Working,
-            "source-observed owner squad return-home state rejected");
+                    new(Feature018HotkeyKind.RecallSquad, 2))).Working,
+            "explicit independently matched native return reply rejected");
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.RecallSquad, 3))).Status == Feature018HotkeyActionStatus.Failed,
             "another squad slot's return-home receipt falsely confirmed shortcut");
@@ -383,6 +506,8 @@ internal static class Feature018HotkeyCaptureChecks
                 formationUuid = "1001",
                 target = "BACK_HOME",
                 returning = true,
+                requestPreviouslyDispatched = true,
+                nativeReturnReplyMatched = true,
             })
             : JsonSerializer.SerializeToElement(new
             {

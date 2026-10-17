@@ -10,6 +10,11 @@ namespace LWBridge.Desktop;
 internal sealed class Feature018HotkeyNativeProviders
 {
     private const string CommandName = "feature018_hotkey_action";
+    // The UI broker locks only its own session. A replacement broker/provider
+    // created during a slow game RPC can otherwise enter a second mutating
+    // call while the first native request/confirmation is unresolved.
+    // Never queue/replay that key: fail closed and leave read-only status free.
+    private static int mutatingNativeActionInFlight;
     private readonly INativeAsyncCommandService gameCommands;
 
     internal Feature018HotkeyNativeProviders(INativeAsyncCommandService gameCommands)
@@ -41,6 +46,37 @@ internal sealed class Feature018HotkeyNativeProviders
     };
 
     private async Task<Feature018HotkeyActionOutcome> ExecuteAsync(
+        Feature018HotkeyCommand command, CancellationToken cancellationToken)
+    {
+        // The broker normally authenticates the selected session. Validate the
+        // exact native mutation owner *again* at the provider boundary, before
+        // even probing the native mailbox. A synthetic key or stale coordinator
+        // cannot make a main-account (2212) item/gear/march/relocation action.
+        if (command.Intent.Kind != Feature018HotkeyKind.ShieldRemaining &&
+            (command.Session.GameUid != LWBridgeWindow.Feature018ApprovedGameUid ||
+             command.Session.ServerId != LWBridgeWindow.Feature018ApprovedServerId ||
+             string.IsNullOrWhiteSpace(command.Session.ProfileId) ||
+             string.IsNullOrWhiteSpace(command.Session.InstanceId)))
+        {
+            return new(Feature018HotkeyActionStatus.SessionChanged,
+                "native_hotkey_mutation_owner_not_approved");
+        }
+        if (command.Intent.Kind == Feature018HotkeyKind.ShieldRemaining)
+            return await ExecuteAdmittedAsync(command, cancellationToken).ConfigureAwait(false);
+        if (Interlocked.CompareExchange(ref mutatingNativeActionInFlight, 1, 0) != 0)
+            return new(Feature018HotkeyActionStatus.Busy,
+                "another_native_hotkey_mutation_pending");
+        try
+        {
+            return await ExecuteAdmittedAsync(command, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            Volatile.Write(ref mutatingNativeActionInFlight, 0);
+        }
+    }
+
+    private async Task<Feature018HotkeyActionOutcome> ExecuteAdmittedAsync(
         Feature018HotkeyCommand command, CancellationToken cancellationToken)
     {
         if (!gameCommands.CanHandle(CommandName))
@@ -120,6 +156,18 @@ internal sealed class Feature018HotkeyNativeProviders
             // game state was checked. Match the exact source-backed receipt
             // for the requested kind before calling it Confirmed; new action
             // kinds need their own independently verified poststate schema.
+            if (command.Intent.Kind == Feature018HotkeyKind.RecallSquad &&
+                evidence.TryGetProperty("observation", out JsonElement recallObservation) &&
+                recallObservation.ValueKind == JsonValueKind.String &&
+                recallObservation.GetString() == "native_world_march_return_target" &&
+                !RecallCausalityMatches(evidence))
+            {
+                // The previous native client returned this same target when
+                // already BACK_HOME, without dispatching anything. A cached
+                // state alone is never a successful key-to-RPC/ACK receipt.
+                return new(Feature018HotkeyActionStatus.Failed,
+                    "native_recall_back_home_state_lacks_attributed_send_and_reply");
+            }
             if (!ConfirmedReceiptMatches(command.Intent, evidence))
                 return new(Feature018HotkeyActionStatus.Failed,
                     "native_game_action_observation_unverified");
@@ -276,6 +324,7 @@ internal sealed class Feature018HotkeyNativeProviders
 
             case Feature018HotkeyKind.RecallSquad:
                 return observed.GetString() == "native_world_march_return_target" &&
+                       RecallCausalityMatches(evidence) &&
                        evidence.TryGetProperty("slot", out JsonElement slot) &&
                        slot.TryGetInt32(out int actualSlot) && actualSlot == intent.Slot &&
                        evidence.TryGetProperty("target", out JsonElement target) &&
@@ -336,6 +385,15 @@ internal sealed class Feature018HotkeyNativeProviders
                 return false;
         }
     }
+
+    private static bool RecallCausalityMatches(JsonElement evidence) =>
+        // Only a genuine original reply observer can establish these fields.
+        // A matching cached GetMarch target, or an accepted network send
+        // without matching its reply, proves neither origin nor ACK.
+        evidence.TryGetProperty("requestPreviouslyDispatched", out JsonElement sent) &&
+        sent.ValueKind == JsonValueKind.True &&
+        evidence.TryGetProperty("nativeReturnReplyMatched", out JsonElement ack) &&
+        ack.ValueKind == JsonValueKind.True;
 
     private static bool IsNativeUuid(JsonElement evidence, string name) =>
         evidence.TryGetProperty(name, out JsonElement field) &&
