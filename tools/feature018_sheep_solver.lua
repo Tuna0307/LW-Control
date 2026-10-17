@@ -24,6 +24,12 @@ local owner_class = nil
 -- Until the original result handler consumes that exact sent syncOps entry,
 -- starting a new run could attribute the old reply to the new run's point ID.
 local unresolved_move = nil
+-- GSheep.Start can send the source-native LWSheepStartGame request when
+-- CheckNeedSendStartGameMsgOrOnlyCheck finds no resumable game (v26 GSheep
+-- 99-116 / LWSheepDataManager 204-229). Stop/open timeout cannot unsend it.
+-- Retain this fence across a stopped run or lease loss until an independent
+-- current native Food House board is visible; never repeat an uncertain Start.
+local unresolved_start = nil
 local MAX_CARDS, MAX_SEARCH_NODES, SEARCH_SLICE = 108, 24000, 160
 local MAX_MOVES, MOVE_TIMEOUT, BOARD_TIMEOUT = 108, 12, 18
 
@@ -292,8 +298,8 @@ end
 local function status()
     if run == nil then return result('confirmed', nil, {
         taskName = 'sheepGame', status = 'idle', running = false,
-        awaitingServer = unresolved_move ~= nil,
-        restartFenced = unresolved_move ~= nil
+        awaitingServer = unresolved_move ~= nil or unresolved_start ~= nil,
+        restartFenced = unresolved_move ~= nil or unresolved_start ~= nil
     }) end
     local active = run.status == 'opening' or run.status == 'solving' or run.status == 'executing'
     return result('confirmed', nil, {
@@ -301,8 +307,8 @@ local function status()
         currentLevel = run.level, confirmedMoves = run.confirmed or 0,
         totalMoves = run.plan and #run.plan or 0,
         searchNodes = run.nodes or 0, elapsedSeconds = clock() - run.started,
-        awaitingServer = run.pending ~= nil or unresolved_move ~= nil,
-        restartFenced = unresolved_move ~= nil, error = run.error,
+        awaitingServer = run.pending ~= nil or unresolved_move ~= nil or unresolved_start ~= nil,
+        restartFenced = unresolved_move ~= nil or unresolved_start ~= nil, error = run.error,
         terminal = not active,
         source = 'native_Season4_LWSheep_server_ack'
     })
@@ -546,29 +552,43 @@ local function start(request)
     if not challenge_ok or can ~= true then
         return result('unsupported', 'Current Food House challenge is unavailable or exhausted')
     end
+    -- An old Lua view can remain bound when its native window is closed. A
+    -- bound view alone does not prove an earlier Start reached the live game.
+    local window_open = is_sheep_window_open()
+    if window_open == nil then
+        return result('unsupported', 'Native UIManager cannot establish Food House window ownership')
+    end
+    local view, _, game = native_view()
+    if unresolved_start ~= nil then
+        local pending = unresolved_start
+        local snapshot = view ~= nil and window_open and board_snapshot(view, game) or nil
+        if pending.manager ~= ctx.manager or pending.small ~= ctx.small or
+           pending.level ~= ctx.level or pending.blockId ~= ctx.blockId or
+           snapshot == nil then
+            return result('failed', 'Prior native Food House Start remains unresolved; no duplicate Start')
+        end
+        -- Same original manager, current-level board and visible native window
+        -- independently establish readiness without another Start send.
+        unresolved_start = nil
+    end
     local first = {started = clock(), level = ctx.level, blockId = ctx.blockId,
                    status = 'opening', confirmed = 0, nodes = 0}
     run = first
     hook_loaded_view()
-    local view = native_view()
-    if view == nil then
-        local is_open = is_sheep_window_open()
-        if is_open == nil then
-            stop_internal('Native UIManager cannot establish Food House window ownership')
-            return result('unsupported', run.error)
+    -- Source GSheep.Start may dispatch LWSheepStartGame before the native
+    -- window exists, including when an old bound view has survived its close.
+    -- Arm the single-attempt fence BEFORE entering that native producer.
+    if not window_open then
+        if not approved_native_owner() then
+            stop_internal('Food House native account changed before Start')
+            return result('failed', run.error)
         end
-        -- Source GSheep.Start handles the Season 4 UI open and the native
-        -- LWSheepStartGame request only as required. No NextLevel/Again.
-        if not is_open then
-            if not approved_native_owner() then
-                stop_internal('Food House native account changed before Start')
-                return result('failed', run.error)
-            end
-            local call_ok = call(ctx.small, 'Start')
-            if not call_ok then
-                stop_internal('Native GSheep.Start could not open current Food House level')
-                return result('unsupported', run.error)
-            end
+        unresolved_start = {manager = ctx.manager, small = ctx.small,
+                            level = ctx.level, blockId = ctx.blockId}
+        local call_ok = call(ctx.small, 'Start')
+        if not call_ok then
+            stop_internal('Native GSheep.Start may have submitted an uncertain start request')
+            return result('failed', run.error)
         end
     end
     return result('accepted', nil, {accepted = true, taskName = 'sheepGame',
@@ -632,6 +652,12 @@ function M.Pump()
         return false
     end
     if status_now == 'opening' then
+        if is_sheep_window_open() ~= true then
+            if clock() - run.started > BOARD_TIMEOUT then
+                stop_internal('Food House native window did not open')
+            end
+            return false
+        end
         local data, failure = board_snapshot(view, game)
         if data == nil then
             if clock() - run.started > BOARD_TIMEOUT then stop_internal(failure) end
@@ -641,6 +667,12 @@ function M.Pump()
         -- handler can be shared by two view instances whose tile point IDs
         -- happen to match; only this exact native board admits our next click.
         run.view, run.engine, run.game = view, engine, game
+        if unresolved_start ~= nil and unresolved_start.level == ctx.level and
+           unresolved_start.blockId == ctx.blockId and
+           unresolved_start.manager == ctx.manager and
+           unresolved_start.small == ctx.small then
+            unresolved_start = nil
+        end
         run.initial = data
         run.coroutine = coroutine.create(function() return plan_board(data) end)
         run.status = 'solving'

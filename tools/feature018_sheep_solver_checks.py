@@ -57,6 +57,32 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         self.assertTrue({"UIManager", "OpenWindow", "UIWindowNames",
                          "UILUISheepCloud"} <= constants)
 
+    def test_source_start_can_send_before_any_window_or_board_exists(self):
+        # The original GSheep.Start branches into the manager's *mutating*
+        # CheckNeedSendStartGameMsgOrOnlyCheck(true). Its native manager method
+        # sends LWSheepStartGame when the server has no resumable game, and
+        # success comes later through UpdateGameInfo + ToEnter.
+        start = self.method("DataCenter/SmallGameManager/GSheep.luac", "Start")
+        manager = self.method("DataCenter/LWSheep/LWSheepDataManager.luac",
+                              "CheckNeedSendStartGameMsgOrOnlyCheck")
+        reply = self.method("Net/Msgs/LWSheep/LWSheepStartGameMessage.luac",
+                            "HandleMessage")
+        self.assertTrue({"CheckNeedSendStartGameMsgOrOnlyCheck", "Enter"} <=
+                        {str(c) for c in start["constants"]})
+        self.assertTrue({"LWSheepStartGame", "SendMessage", "CheckHasGame"} <=
+                        {str(c) for c in manager["constants"]})
+        self.assertTrue({"UpdateGameInfo", "ToEnter", "errorCode"} <=
+                        {str(c) for c in reply["constants"]})
+        sends = []
+        context = {"sheepData": None}
+        network = {"SFSNetwork": {"SendMessage": lambda *args: sends.append(args)},
+                   "MsgDefines": {"LWSheepStartGame": 912}}
+        self.assertEqual(vm.execute(manager, context, False, globals_=network), (True,))
+        self.assertEqual(sends, [], "Read-only native start eligibility must never send")
+        self.assertEqual(vm.execute(manager, context, True, globals_=network), (True,))
+        self.assertEqual(len(sends), 1,
+                         "The same native source path sends when Start is requested")
+
     def test_native_can_click_requires_visible_and_tray_room(self):
         method = self.method("DataCenter/LWSheep/LWSheep.luac", "CanClick")
         game = {"visualList": defaultdict(lambda: None, {11: "present"}),
@@ -216,6 +242,38 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertEqual(result['state'], 'accepted')
         self.assertEqual(lua.globals().GameOpens, 1)
 
+    def test_stop_and_lease_loss_cannot_duplicate_pending_native_start(self):
+        lua, solver = self.fixture()
+        request = lua.table_from({'taskName': 'sheepGame'})
+        self.assertEqual(solver.Start(request)['state'], 'accepted')
+        self.assertTrue(solver.Stop(request)['data']['restartFenced'])
+        self.assertTrue(solver.Stop(request)['data']['awaitingServer'])
+        self.assertEqual(solver.Start(request)['state'], 'failed')
+        self.assertEqual(lua.globals().GameOpens, 1)
+        solver.CleanupAfterLeaseLoss()
+        self.assertEqual(solver.Status()['data']['status'], 'idle')
+        self.assertTrue(solver.Status()['data']['restartFenced'])
+        lua.globals().WindowOpen = True  # A window alone has no board proof.
+        self.assertEqual(solver.Start(request)['state'], 'failed')
+        self.assertEqual(lua.globals().GameOpens, 1)
+
+    def test_open_timeout_and_exception_do_not_retry_uncertain_start(self):
+        for failing_start in (False, True):
+            lua, solver = self.fixture()
+            if failing_start:
+                lua.execute('SmallGameManager.GSheep.Start=function() '
+                            'GameOpens=GameOpens+1; error("sent then failed") end')
+            request = lua.table_from({'taskName': 'sheepGame'})
+            state = solver.Start(request)['state']
+            self.assertEqual(state, 'failed' if failing_start else 'accepted')
+            if not failing_start:
+                lua.execute('local now=os.time(); os.time=function() return now+30 end')
+                solver.Pump()
+                self.assertEqual(solver.Status()['data']['status'], 'solve_failed')
+            self.assertTrue(solver.Status()['data']['restartFenced'])
+            self.assertEqual(solver.Start(request)['state'], 'failed')
+            self.assertEqual(lua.globals().GameOpens, 1)
+
     def test_main_account_or_other_server_never_opens_season_game(self):
         for change in ("LuaEntry.Player.uid='3133546747002212'",
                        'Account.source=2212', 'Account.selfServer=2212',
@@ -309,6 +367,11 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
 
     def test_closed_current_native_window_refuses_card_click(self):
         lua, solver = self.three_card_board(auto_reply=False)
+        # Capture and plan against the real open UI, then close it before the
+        # first irreversible card action. The new opening gate correctly waits
+        # on a closed window instead of accepting an old bound board object.
+        for _ in range(2):
+            solver.Pump()
         lua.globals().WindowOpen = False
         for _ in range(12):
             solver.Pump()
@@ -318,6 +381,26 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertEqual(status['status'], 'solve_failed')
         self.assertIn('window closed', status['error'])
         self.assertEqual(lua.globals().ClickCount, 0)
+
+    def test_ready_native_board_releases_start_without_resending_and_stale_closed_view_reopens(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        request = lua.table_from({'taskName': 'sheepGame'})
+        self.assertEqual(lua.globals().GameOpens, 1)
+        self.assertTrue(solver.Stop(request)['data']['restartFenced'])
+        self.assertEqual(solver.Start(request)['state'], 'accepted',
+                         'The exact current native board can resume without Start')
+        self.assertEqual(lua.globals().GameOpens, 1)
+        solver.Pump()  # Native current board has become the source of truth.
+        self.assertFalse(solver.Status()['data']['restartFenced'])
+        solver.Stop(request)
+        lua.globals().WindowOpen = False
+        self.assertEqual(solver.Start(request)['state'], 'accepted',
+                         'A bound stale view must not suppress original UI Start')
+        self.assertEqual(lua.globals().GameOpens, 2)
+        solver.Stop(request)
+        self.assertEqual(solver.Start(request)['state'], 'failed',
+                         'The new pending native Start cannot be repeated')
+        self.assertEqual(lua.globals().GameOpens, 2)
 
     def test_lost_native_response_watcher_refuses_any_tile_click(self):
         lua, solver = self.three_card_board(auto_reply=False)
