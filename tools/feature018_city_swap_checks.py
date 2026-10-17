@@ -1248,6 +1248,105 @@ def test_stale_cancel_does_not_hit_reused_request_id():
                 'new-job Cancel dispatched remaining 2x2 steps')
 
 
+def test_reentrant_cancel_before_native_move_send():
+    # The actual v26 sender is invoked only after native placement-zone checks.
+    # A native callback can synchronously consume the owner Cancel during those
+    # checks, after an earlier ACK but before the next packet. Previously the
+    # dispatcher ignored the terminal Cancel and sent a second Move, leaving a
+    # permanently in-flight packet on a cancelled job with no running pump.
+    for phase in ('initial', 'second', 'restore_child'):
+        lua, producer = scene()
+        lua.globals().ProbeCityProducer = producer
+        revision = state(lua)['layoutRevision']
+        if phase == 'restore_child':
+            started = lua.globals().Act('city_layout_apply_start',
+                                        values(lua, revision))
+            parent_id = started['data']['status']['jobId']
+            cancel_fields = {
+                'jobId': parent_id, 'profileId': 'p1',
+                'launchSessionId': 'session1', 'challenge': 'nonce',
+            }
+            lua.globals().Act('city_layout_apply_cancel',
+                              lua.table_from(cancel_fields))
+            confirm(lua, ONE, 4244)
+            producer.Pump()
+            assert_that(status(lua, revision)['state'] == 'cancelled',
+                        'setup did not settle first partial native Move')
+        elif phase == 'second':
+            started = lua.globals().Act('city_layout_apply_start',
+                                        values(lua, revision))
+            parent_id = started['data']['status']['jobId']
+
+        # This hook is the same source-native CanPutBuildByPoint invoked by the
+        # sender for each destination footprint; call Cancel only with an
+        # exact current owner-bound job and BEFORE any new packet is in flight.
+        target = 4244 if phase == 'initial' else 4242
+        lua.execute(f'''
+          LocalCancelTriggered = false
+          local original = DataCenter.CityZoneManager.CanPutBuildByPoint
+          DataCenter.CityZoneManager.CanPutBuildByPoint = function(self,pid,zone)
+            local job = ProbeCityProducer.active
+            if not LocalCancelTriggered and pid == {target} and job and
+                job.state == 'running' and job.waiting == nil then
+              LocalCancelTriggered = true
+              LocalCancelReceipt = Act('city_layout_apply_cancel', {{
+                jobId=job.jobId, profileId='p1',
+                launchSessionId='session1', challenge='nonce',
+              }})
+            end
+            return original(self,pid,zone)
+          end
+        ''')
+        if phase == 'restore_child':
+            sends_before = len(lua.globals().ObservedMoves)
+            cancelled = restore_start(lua, parent_id,
+                                      request_id='reentrant-restore')
+        elif phase == 'initial':
+            sends_before = 0
+            cancelled = lua.globals().Act('city_layout_apply_start',
+                                          values(lua, revision))
+        else:
+            sends_before = len(lua.globals().ObservedMoves)
+            confirm(lua, ONE, 4244)
+            producer.Pump()
+            cancelled = None
+        after = status(lua, revision)
+        assert_that(lua.globals().LocalCancelTriggered is True and
+                    lua.globals().LocalCancelReceipt['data']['accepted'] is True and
+                    after['state'] == 'cancelled' and
+                    after['cancelRequested'] is True and
+                    after['inFlight'] is False and
+                    len(lua.globals().ObservedMoves) == sends_before and
+                    lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                    lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply') and
+                    lua.eval('SFSNetwork.SendMessage == OriginalNativeSend'),
+                    f'{phase}: Cancel during native placement sent a packet or retained hooks')
+        if cancelled is not None:
+            assert_that(cancelled['state'] == 'confirmed' and
+                        cancelled['data']['accepted'] is False and
+                        cancelled['data']['requestDispatched'] is False,
+                        f'{phase}: unsent cancelled action claimed dispatch')
+        inverse = restore(lua, after['jobId'])['data']
+        assert_that(inverse['ready'] is True and
+                    inverse['pendingNativeMove'] is False and
+                    inverse['restorationRequired'] == (phase != 'initial'),
+                    f'{phase}: source-original restoration was lost on Cancel')
+        if phase != 'initial':
+            # Restore still moves through the original BuildWorldMoveNew wire
+            # and exact native ACK after the interrupted job was cancelled.
+            followup = restore_start(lua, after['jobId'],
+                                     request_id='after-reentrant-cancel')
+            assert_that(followup['state'] == 'accepted' and
+                        len(lua.globals().ObservedMoves) == sends_before + 1,
+                        f'{phase}: valid opt-in original restore did not dispatch')
+            confirm(lua, ONE, 4242)
+            producer.Pump()
+            assert_that(status(lua, revision)['state'] == 'completed' and
+                        restore(lua, followup['data']['status']['jobId'])
+                            ['data']['originalLayoutConfirmed'] is True,
+                        f'{phase}: source-original restore did not settle')
+
+
 def main():
     check_original_game_wire()
     check_historical_wrong_type_source()
@@ -1268,6 +1367,7 @@ def main():
     test_unexpected_native_occupancy_during_swap()
     test_displaced_native_observers_and_sync_reply()
     test_stale_cancel_does_not_hit_reused_request_id()
+    test_reentrant_cancel_before_native_move_send()
     print('FEATURE018_CITY_SWAP: PASS source-v26 2x2/9726; historical '
           '9725 no-send; native ACK/cancel/restore; terminal lease-loss '
           'original recovery, same-VM reload tombstone, manager rebind fence')

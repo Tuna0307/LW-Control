@@ -1042,6 +1042,12 @@ local function check_positions(job)
 end
 
 local function dispatch_step(job)
+    -- Native placement rules can invoke game callbacks while a later step is
+    -- being prepared. Cancel/lease loss may be delivered during those calls.
+    -- Never issue another packet once the owner has cancelled the sequence.
+    if job.cancelRequested or job.state ~= 'running' or M.active ~= job then
+        return true
+    end
     local step = job.steps[job.completed + 1]
     if step == nil then
         job.state = 'completed'
@@ -1110,6 +1116,13 @@ local function dispatch_step(job)
         -- A partial observer installation did not send a packet. Release it.
         remove_move_observers(job)
         return false
+    end
+    -- A native game callback during zone/terrain checks or observer setup can
+    -- consume Cancel before the next move is sent. No packet escaped, so the
+    -- terminal cancellation must release these observers immediately.
+    if job.cancelRequested or job.state ~= 'running' or M.active ~= job then
+        remove_move_observers(job)
+        return true
     end
     -- v26 UIPlaceBuildView.OnConfirmBtnClick:436-459, PlaceBuildType.Move.
     -- OnCreate encodes uuid as PutLong and pointId as PutInt; lastIndex is
@@ -1441,6 +1454,10 @@ function M.Register(feature)
             return failed(job.errorCode or 'GAME_ACTION_FAILED',
                 job.error or 'The first building move could not be dispatched.')
         end
+        if not job.waiting then
+            return confirmed({ accepted = false, requestDispatched = false,
+                status = status_data(job) })
+        end
         -- A queued ACK is not the game-server confirmation. Status observes
         -- the official BuildManager updates before marking a move completed.
         return { state = 'accepted', data = {
@@ -1550,6 +1567,10 @@ function M.Register(feature)
         if not dispatch_step(child) then
             return failed(child.errorCode or 'GAME_ACTION_FAILED',
                 child.error or 'The original restore Move could not be dispatched.')
+        end
+        if not child.waiting then
+            return confirmed({ accepted = false, requestDispatched = false,
+                status = status_data(child) })
         end
         return { state = 'accepted', data = {
             accepted = true, requestDispatched = true,
