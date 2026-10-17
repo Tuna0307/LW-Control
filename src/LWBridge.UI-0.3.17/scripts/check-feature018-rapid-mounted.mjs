@@ -172,6 +172,9 @@ window.chrome = { webview: {
         response = shieldShopConfirmed ? {
           ...response, observation: "native_shield_purchase_inventory_and_gold",
           beforeCount: 0, beforeGold: 3000, spentGems: 1500, purchasedCount: 1,
+          nativeShopReplyObserved: true, nativeShopReplyMatched: true,
+          nativeShopReplyCount: 1, nativeReplyCausalityConfirmed: false,
+          purchaseProofKind: "matching_original_reply_and_cached_poststate_no_nonce",
         } : { ...response, awaitingGameConfirmation: true };
       } else assert.equal(request.payload.mode, "inspect");
     } else if (request.command === "feature018_hotkey_action" &&
@@ -341,6 +344,8 @@ await flush(() => shopButtons().at(-1).click());
 assert.equal(shieldShopSends, 1, "Read-only purchase status retriggered shop");
 assert.match(shopPanel().textContent, /游戏库存\+1及金币扣费确认/,
   "Gold and item count native poststate did not confirm purchase");
+assert.match(shopPanel().textContent, /协议没有请求 nonce/,
+  "A matching original shop reply was misreported as a unique network acknowledgement");
 await flush(() => shopButtons()[0].click());
 assert.ok(shopPanel().querySelector('input[type="checkbox"]'),
   "Owned shield missing separate consumption consent");

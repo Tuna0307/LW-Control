@@ -471,6 +471,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     buy: "购买一件至库存", use: "使用一件保护罩", check: "只读核对前次请求",
     awaiting: "请求可能已发送；等待原生库存和状态核对，不得重复发送",
     purchased: "游戏库存+1及金币扣费确认；请重新读取库存后再使用",
+    shopReply: "观察到一次原生商店回复，但协议没有请求 nonce，无法唯一证明这次购买的服务器归属。",
+    shopCache: "只核实游戏本地库存和金币变化；没有唯一匹配的服务器回复。请在游戏中确认。",
+    shopAmbiguous: "原生商店回复观察不确定；禁止重复发送。请核对游戏后手动处理。",
     used: "道具减少及 MAIN_SHIELD 生效均已确认",
     unavailable: "当前没有可用库存或金币。此操作不会自动赚取或购买金币。",
     daily: "当前任务可领取", goldTasks: "奖励类型含金币的任务", signIn: "可领取签到活动",
@@ -487,6 +490,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     buy: "Buy one owned shield", use: "Use one owned shield", check: "Read previous action status",
     awaiting: "The request may have been sent. Await native inventory/effect confirmation; do not send again.",
     purchased: "Native item count +1 and gold debit confirmed; inspect inventory again before use.",
+    shopReply: "One matching original shop reply was observed. The protocol has no request nonce, so server causality is unproven.",
+    shopCache: "Only cached game inventory/gold changes verified. No uniquely correlated server reply; inspect in the game.",
+    shopAmbiguous: "Original shop reply observer became ambiguous. No retry; reconcile in the game.",
     used: "Owned item debit and MAIN_SHIELD effect both confirmed.",
     unavailable: "No eligible inventory or in-game gold. This does not earn or purchase gold automatically.",
     daily: "Claimable daily tasks", goldTasks: "Tasks tagged with gold reward type",
@@ -500,6 +506,7 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
   const [consent, setConsent] = useState("");
   const [pending, setPending] = useState(null);
   const [status, setStatus] = useState("");
+  const [purchaseProof, setPurchaseProof] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const nativeInFlight = useRef(false);
@@ -509,14 +516,15 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     nativeInFlight.current = false;
     nativePending.current = null;
     setShop(null); setOwned(false); setConsent(""); setPending(null);
-    setStatus(""); setError(""); setBusy(false);
+    setStatus(""); setPurchaseProof(""); setError(""); setBusy(false);
   }, [duration, live, backendBridge.profileGeneration]);
 
   async function inspect() {
     if (!live || busy || pending || nativeInFlight.current || nativePending.current) return;
     nativeInFlight.current = true;
     const owner = backendBridge.currentProfileOwner();
-    setBusy(true); setError(""); setStatus(""); setShop(null); setOwned(false); setConsent("");
+    setBusy(true); setError(""); setStatus(""); setPurchaseProof("");
+    setShop(null); setOwned(false); setConsent("");
     try {
       const [price, inventory] = await Promise.all([
         backendBridge.invokeProfileScoped("feature018_shield_shop",
@@ -565,7 +573,8 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     // click events in the same task from launching two native item sends.
     nativePending.current = baseline;
     nativeInFlight.current = true;
-    setPending(baseline); setBusy(true); setConsent(""); setError(""); setStatus("pending");
+    setPending(baseline); setBusy(true); setConsent(""); setError("");
+    setStatus("pending"); setPurchaseProof("");
     try {
       const result = await backendBridge.invokeProfileScoped(
         kind === "buy" ? "feature018_shield_shop" : "feature018_hotkey_action",
@@ -612,7 +621,13 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         result.beforeCount === baseline.count &&
         result.count === baseline.count + 1 &&
         result.gold === baseline.gold - baseline.price &&
-        result.purchasedCount === 1;
+        result.purchasedCount === 1 &&
+        result.nativeReplyCausalityConfirmed === false &&
+        (result.purchaseProofKind === "matching_original_reply_and_cached_poststate_no_nonce"
+          ? result.nativeShopReplyObserved === true &&
+            result.nativeShopReplyMatched === true && result.nativeShopReplyCount === 1
+          : result.purchaseProofKind === "native_cached_inventory_and_gold_only" &&
+            result.nativeShopReplyMatched !== true);
       const used = baseline.kind === "use" &&
         result?.observation === "native_owned_shield_consumption_and_MAIN_SHIELD" &&
         result.slot === baseline.duration && result.itemId === baseline.itemId &&
@@ -620,10 +635,15 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         result.durationMilliseconds === baseline.duration * 3600000 &&
         result.remainingMilliseconds > 0 &&
         result.remainingMilliseconds <= result.durationMilliseconds + 15000;
-      if (bought || used) {
+      if (bought && result.nativeReplyAmbiguous === true) {
+        // Exact cache differences cannot overcome an interrupted/foreign
+        // native handler. Retain the one-shot browser tombstone.
+        setStatus("shopAmbiguous");
+      } else if (bought || used) {
         nativePending.current = null;
         setPending(null); setShop(null); setOwned(false);
         setStatus(bought ? "purchased" : "used");
+        setPurchaseProof(bought ? result.purchaseProofKind : "");
       } else if (result?.awaitingGameConfirmation === true &&
           result?.requestDispatched === false &&
           (baseline.kind !== "buy" || result.itemId === baseline.itemId)) {
@@ -682,6 +702,11 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     {status === "purchased" || status === "used" ?
       <span role="status" className="hotkey-state enabled">
         {status === "purchased" ? words.purchased : words.used}</span> : null}
+    {status === "purchased" && purchaseProof ? <small role="status">
+      {purchaseProof === "matching_original_reply_and_cached_poststate_no_nonce"
+        ? words.shopReply : words.shopCache}
+    </small> : null}
+    {status === "shopAmbiguous" ? <small role="alert">{words.shopAmbiguous}</small> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
 }
