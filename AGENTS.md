@@ -1,3 +1,8 @@
+Latest lead audit, 2026-10-17: FEATURE-RECOVERY-018 8d99f358 NOT ACCEPTED (no live proof).
+Lead restored owner-session game scripts and archived the stale recovery journal; live work is
+unblocked. Worker does R2 on the same branch/PR #14 — see
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
 Latest lead assignment, 2026-10-17: Map tab COMPLETE for owner scope (MAP-017 merged,
 c43c689f, PR #13). Worker now completes docs/work-items/LWB317-FEATURE-RECOVERY-018.md
 (City Layout, Hotkeys, Mini Games) on codex/feature-recovery-018 / new draft PR.
