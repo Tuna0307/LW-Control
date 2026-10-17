@@ -241,6 +241,14 @@ local function pending_recall_owner(pending)
         member(pending.center,"WorldMarchDataManager") == pending.marches
 end
 
+local function response_field(response, key, getter)
+    local direct = member(response, key)
+    if direct ~= nil then return direct end
+    local ok, value = invoke(response, getter, key)
+    if ok then return value end
+    return nil
+end
+
 local function observe_recall_replies()
     if recall_reply_class then return recall_observer_intact() end
     local loaded, class = pcall(require,"Net.Msgs.WorldMarchChangeMessage")
@@ -254,12 +262,16 @@ local function observe_recall_replies()
             if not recall_observer_intact() or member(response,"errorCode") ~= nil then
                 return nil
             end
-            local uuid = id_string(member(response,"uuid"))
-            local uid = id_string(member(response,"ownerUid"))
-            local formation = id_string(member(response,"ownerFormationUuid"))
-            local target = member(response,"target")
-            local target_server = id_string(member(response,"targetServer"))
-            local owner_server = id_string(member(response,"ownerCurServerId"))
+            -- Native WorldMarchChange replies are Sfs2X ISFSObject instances,
+            -- not ordinary Lua tables. v26 ParseFormationUpdate/WorldMarch
+            -- UpdateFromSFS read these fields through GetLong/GetUtfString/
+            -- GetInt. Keep direct-table fallback only for inert fixtures.
+            local uuid = id_string(response_field(response,"uuid","GetLong"))
+            local uid = id_string(response_field(response,"ownerUid","GetUtfString"))
+            local formation = id_string(response_field(response,"ownerFormationUuid","GetLong"))
+            local target = response_field(response,"target","GetInt")
+            local target_server = id_string(response_field(response,"targetServer","GetInt"))
+            local owner_server = id_string(response_field(response,"ownerCurServerId","GetInt"))
             local found
             for slot,pending in pairs(outstanding) do
                 if pending.dispatchStarted and pending.uuid == uuid and

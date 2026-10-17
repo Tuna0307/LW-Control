@@ -159,6 +159,37 @@ def return_reply(lua, state, **overrides):
         lua.globals().recallReplyClass, response)
 
 
+def return_sfs_reply(lua, state):
+    response = lua.table_from({
+        "_values": lua.table_from({
+            "uuid": state["squadUuid"],
+            "ownerUid": state["playerUid"],
+            "ownerFormationUuid": state["formationId"],
+            "target": 77,
+            "targetServer": state["currentServer"],
+            "ownerCurServerId": state["currentServer"],
+        }),
+    })
+    lua.execute("""
+      function installSfsGetters(response)
+        response.GetLong=function(self,key)
+          local value=self._values[key]
+          if value==nil then error('missing '..key) end
+          return value
+        end
+        response.GetUtfString=function(self,key)
+          local value=self._values[key]
+          if value==nil then error('missing '..key) end
+          return tostring(value)
+        end
+        response.GetInt=response.GetLong
+      end
+    """)
+    lua.globals().installSfsGetters(response)
+    return lua.globals().recallReplyClass.HandleMessage(
+        lua.globals().recallReplyClass, response)
+
+
 def test_registered_shield_inventory():
     lua, actions, _, state, _ = scenario()
     lua.execute('''
@@ -659,6 +690,19 @@ def test_recall_original_reply_and_queued_poststate():
             data["serverAcknowledgementCorrelated"] is False and
             state["dispatches"] == 1,
             "original identity-matched return reply plus independent poststate contract failed")
+
+    lua, _, _, state, call = scenario()
+    require(call()["state"] == "accepted", "return send unavailable")
+    return_sfs_reply(lua, state)
+    state["target"] = 77
+    sfs_confirmed = call(query_only=True)
+    require(sfs_confirmed["state"] == "confirmed" and
+            sfs_confirmed["data"]["replyMarchUuid"] == "803001" and
+            sfs_confirmed["data"]["replyOwnerUid"] == "1183884595002296" and
+            sfs_confirmed["data"]["replyFormationUuid"] == "1001" and
+            sfs_confirmed["data"]["nativeReturnReplyMatched"] is True and
+            state["dispatches"] == 1,
+            "native ISFSObject getter-shaped return reply was not correlated")
 
     lua, _, _, state, call = scenario()
     require(call()["state"] == "accepted", "return send unavailable")
