@@ -84,6 +84,13 @@ local all = { [101] = FixtureBuilding(101,11,1), [102] = FixtureBuilding(102,12,
 DataCenter = {
     BuildManager = {allBuilding=all,
        GetBuildingDataByUuid=function(self, uuid) return self.allBuilding[uuid] end,
+       BuildWorldMoveNewHandle=function(self, reply)
+           if reply.errorCode == nil and reply.buildInfo then
+               local data = reply.buildInfo
+               local building = self:GetBuildingDataByUuid(data.uuid)
+               if building then building.pointId=data.pointId end
+           end
+       end,
        GetBuildingDatasByBuildingId=function(self, itemId)
            if itemId ~= BuildingTypes.LW_BUILD_GATE or GateLevel < 0 then return {} end
            return {{level=GateLevel}}
@@ -122,6 +129,11 @@ DataCenter = {
 }
 for pointId=1,CityTileCount*CityTileCount do
     DataCenter.CityZoneManager.allZonePoint[pointId] = {zone_type=1}
+end
+function ConfirmNativeMove(uuid, pointId)
+    local building=DataCenter.BuildManager:GetBuildingDataByUuid(uuid)
+    DataCenter.BuildManager:BuildWorldMoveNewHandle({
+        buildInfo={uuid=uuid,pointId=pointId,bId=building.itemId}})
 end
 handlers = {}
 Feature = {RegisterHandler = function(command, fn)
@@ -236,7 +248,10 @@ def check_original_game_wire() -> None:
     move_poststate = list(disassemble(native_method(
         'DataCenter/BuildManager/BuildManager.luac', 'BuildWorldMoveNewHandle')))
     check(any('sourceLine=4113' in line and 'errorCode' in line for line in move_poststate) and
+          any('sourceLine=4114' in line and 'buildInfo' in line for line in move_poststate) and
+          any('sourceLine=4117' in line and 'uuid' in line for line in move_poststate) and
           any('sourceLine=4120' in line and 'AddBuilding' in line for line in move_poststate) and
+          any('sourceLine=4125' in line and 'bId' in line for line in move_poststate) and
           any('sourceLine=4123' in line and "'uuid'" in line for line in move_poststate) and
           any('sourceLine=4124' in line and 'BuildingMove' in line for line in move_poststate),
           'original Move authoritative UUID-bound poststate changed')
@@ -522,12 +537,65 @@ def main():
           dispatched[1]['lastIndex'] == 1,
           'official existing-building Move message/args incorrect')
     pending = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
-    check(pending['state'] == 'running' and pending['completedMoves'] == 0,
+    check(pending['state'] == 'running' and pending['completedMoves'] == 0 and
+          pending['matchingNativeReplies'] == 0,
           'unconfirmed native move reported complete')
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('ConfirmNativeMove(101,3)')
     complete = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
-    check(complete['state'] == 'completed' and complete['completedMoves'] == 1,
-          'server-observed building update did not complete job')
+    check(complete['state'] == 'completed' and complete['completedMoves'] == 1 and
+          complete['matchingNativeReplies'] == 1 and
+          complete['pendingNativeReplyObserved'] is False,
+          'matching native Move reply plus authoritative building update required')
+
+    # An independently changed in-memory point is not an original server
+    # HandleMessage. An unrelated error packet, another UUID and a changed
+    # response item must not satisfy the exact pending UUID/target reply gate.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    lua.execute('OriginalNativeMoveReply = DataCenter.BuildManager.BuildWorldMoveNewHandle')
+    check(get('city_layout_apply_start', lua.globals().Fields(
+        revision, '101:3'))['state'] == 'accepted',
+          'native reply attribution fixture failed to send')
+    lua.execute('''
+      DataCenter.BuildManager:BuildWorldMoveNewHandle({errorCode=1004})
+      DataCenter.BuildManager:BuildWorldMoveNewHandle({
+        buildInfo={uuid=102,pointId=2,bId=12}})
+      DataCenter.BuildManager:BuildWorldMoveNewHandle({
+        buildInfo={uuid=101,pointId=1,bId=12}})
+    ''')
+    unrelated = get('city_layout_apply_status',
+                    lua.globals().Fields(revision,''))['data']
+    check(unrelated['state'] == 'running' and
+          unrelated['matchingNativeReplies'] == 0 and
+          unrelated['completedMoves'] == 0,
+          'error/foreign-UUID/wrong-type native replies matched a pending move')
+    lua.execute('ConfirmNativeMove(101,3)')
+    confirmed = get('city_layout_apply_status',
+                    lua.globals().Fields(revision,''))['data']
+    check(confirmed['state'] == 'completed' and
+          confirmed['matchingNativeReplies'] == 1 and
+          lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
+          'exact native reply did not advance or restore original game handler')
+
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get('city_layout_apply_start', lua.globals().Fields(
+        revision, '101:3'))['state'] == 'accepted',
+          'point-only false-positive fixture failed to send')
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    producer.Pump()
+    point_only = get('city_layout_apply_status',
+                     lua.globals().Fields(revision,''))['data']
+    check(point_only['state'] == 'failed' and
+          point_only['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          point_only['completedMoves'] == 0 and point_only['inFlight'] is True and
+          point_only['matchingNativeReplies'] == 0 and
+          get('city_layout_apply_start', lua.globals().Fields(
+              get('city_layout_snapshot_get')['data']['layoutRevision'],
+              '101:4'))['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN',
+          'local coordinate-only change falsely released uncertain native Move')
 
     # A real 2289 building UUID is > 2^53. Preserve the exact source-native
     # integer through the public decimal ID lookup and original Move packet;
@@ -564,6 +632,17 @@ def main():
           len(lua_no_move.globals().ObservedMoves) == 0,
           'missing original Move wire silently fell back to unsafe Replace')
 
+    lua_no_reply, _ = fake()
+    no_reply_revision = lua_no_reply.globals().Act(
+        'city_layout_snapshot_get')['data']['layoutRevision']
+    lua_no_reply.execute('DataCenter.BuildManager.BuildWorldMoveNewHandle = nil')
+    no_reply = lua_no_reply.globals().Act('city_layout_apply_start',
+        lua_no_reply.globals().Fields(no_reply_revision, '101:3'))
+    check(no_reply['state'] == 'failed' and
+          no_reply['errorCode'] == 'GAME_METHOD_UNAVAILABLE' and
+          len(lua_no_reply.globals().ObservedMoves) == 0,
+          'missing original Move ACK handler allowed unverified dispatch')
+
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
     revision = get('city_layout_snapshot_get')['data']['layoutRevision']
@@ -589,7 +668,7 @@ def main():
               'swap Move sender/rollback anchor mismatched original City action')
         check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['completedMoves'] == i-1,
               'step confirmed without authoritative update')
-        lua.execute(f'DataCenter.BuildManager.allBuilding[{uid}].pointId={to_point}')
+        lua.execute(f'ConfirmNativeMove({uid},{to_point})')
         updated = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
         check(updated['completedMoves'] == i, 'game step ACK not observed')
     check(updated['state'] == 'completed', 'server-observed swap not completed')
@@ -628,12 +707,12 @@ def main():
     swap = get('city_layout_apply_start',lua.globals().Fields(revision,'101:2;102:1'))
     check(swap['state'] == 'accepted' and lua.globals().ObservedMoves[1]['pointId'] == 4,
           'buffer planner selected prohibited secondary buffer instead of 4')
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=4')
+    lua.execute('ConfirmNativeMove(101,4)')
     producer.Pump()
     check(lua.globals().ObservedMoves[2]['uuid'] == 102 and
           lua.globals().ObservedMoves[2]['pointId'] == 1,
           'secondary range swap did not advance after original native ACK')
-    lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=1')
+    lua.execute('ConfirmNativeMove(102,1)')
     lua.execute('AllowedMainSub[2] = nil')
     producer.Pump()
     stopped = get('city_layout_apply_status',lua.globals().Fields(revision,''))['data']
@@ -673,7 +752,7 @@ def main():
     revision = get('city_layout_snapshot_get')['data']['layoutRevision']
     check(get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
           ['state'] == 'accepted', 'third-party drift scenario was not dispatched')
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('ConfirmNativeMove(101,3)')
     lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=4')
     producer.Pump()
     drift = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
@@ -691,7 +770,7 @@ def main():
         check(get('city_layout_apply_start', lua.globals().Fields(
             revision, '101:3'))['state'] == 'accepted',
               f'{kind} ACK-drift fixture failed to start')
-        lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+        lua.execute('ConfirmNativeMove(101,3)')
         if kind == 'item':
             lua.execute('DataCenter.BuildManager.allBuilding[101].itemId=12')
         else:
@@ -718,7 +797,7 @@ def main():
         producer.Pump()
         check(len(lua.globals().ObservedMoves) == index,
               'game tick treated an unconfirmed request as a completed move')
-        lua.execute(f'DataCenter.BuildManager.allBuilding[{uid}].pointId={target}')
+        lua.execute(f'ConfirmNativeMove({uid},{target})')
         producer.Pump()
     finished = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(finished['state'] == 'completed' and finished['completedMoves'] == 3,
@@ -735,7 +814,7 @@ def main():
             revision, '101:2;102:1'))
         check(started['state'] == 'accepted', 'multistep cancel fixture failed to start')
         if cancel_after == 2:
-            lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+            lua.execute('ConfirmNativeMove(101,3)')
             producer.Pump()
             check(len(lua.globals().ObservedMoves) == 2,
                   'second swap packet was not sent before controlled cancellation')
@@ -756,9 +835,9 @@ def main():
         check(len(lua.globals().ObservedMoves) == pending_count,
               'cancel dispatched later swap step without receiving ACK')
         if cancel_after == 1:
-            lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+            lua.execute('ConfirmNativeMove(101,3)')
         else:
-            lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=1')
+            lua.execute('ConfirmNativeMove(102,1)')
         producer.Pump()
         stopped = get('city_layout_apply_status',
                       lua.globals().Fields(revision, ''))['data']
@@ -783,7 +862,7 @@ def main():
     start = get('city_layout_apply_start',
                 lua.globals().Fields(revision, '101:2;102:1'))
     check(start['state'] == 'accepted', 'zone-drift swap did not begin')
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('ConfirmNativeMove(101,3)')
     lua.execute('DataCenter.CityZoneManager.allZonePoint[1] = nil')
     producer.Pump()
     stale = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
@@ -801,7 +880,7 @@ def main():
     check(cancelled['state'] == 'confirmed' and
           cancelled['data']['status']['state'] == 'cancelling',
           'inflight cancel did not visibly acknowledge pending server result')
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('ConfirmNativeMove(101,3)')
     outcome = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(outcome['state'] == 'cancelled', 'cancel did not stop additional dispatch')
     check(len(lua.globals().ObservedMoves) == 1, 'cancel dispatched an extra move')
@@ -844,7 +923,7 @@ def main():
           'cancellation of timed-out native packet wrongly unlocked retry')
     # A late official BuildManager result releases only the ambiguity fence.
     # It is partial completion, never permission to continue the old swap.
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId = 3')
+    lua.execute('ConfirmNativeMove(101,3)')
     producer.Pump()
     recovered = get('city_layout_apply_status',
                     lua.globals().Fields(revision, ''))['data']
@@ -888,8 +967,10 @@ def main():
     lua.execute('SFSNetwork.SendMessage = function() return false end')
     refused = get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
     check(refused['state'] == 'failed' and
-          refused['errorCode'] == 'GAME_MOVE_DISPATCH_FAILED',
-          'native SendMessage false return was mistaken for a dispatched request')
+          refused['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
+          ['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN',
+          'uncertain native SendMessage result allowed a potentially duplicate move')
     check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['state'] == 'failed',
           'declined native send left a false-positive running job')
 
@@ -934,7 +1015,7 @@ def main():
           'second transient nil owner token advanced an abandoned swap')
     # Native point confirmation can release the fence without resuming stale
     # steps 2 and 3. It remains a partial failed result for the old owner.
-    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('ConfirmNativeMove(101,3)')
     producer.Pump()
     recovered = get('city_layout_apply_status',
                     lua.globals().Fields(revision, ''))['data']
