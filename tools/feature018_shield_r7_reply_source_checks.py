@@ -17,6 +17,8 @@ from inspect_current import root_methods  # noqa: E402
 
 
 EXPECTED = {
+    'Net/Msgs/ItemUseMessage.luac':
+        '9313f37b8183fd7338fcfc82cfd3a0d211db1d9cc5ac67fc5d0692de78262a1c',
     'Net/Msgs/UIShopBuyMessage.luac':
         'f7bcd8091f79c695ee6da6e9a4eeb7d86cfea6dc281c8c2dffaf445cb002ba0d',
     'DataCenter/ItemManager/ItemManager.luac':
@@ -59,6 +61,17 @@ def check():
     assert 'requestId' not in send_fields and 'requestId' not in reply_fields
     assert 'clientCreateUuid' not in handler_fields and 'clientCreateUuid' not in reply_fields
 
+    # R8 source-matched ItemUse receiver and count update. The original
+    # SendMessage sends only uuid+num; reply contains uuid,itemId,count and
+    # errorCode, which ItemManager.ItemUseHandle applies to owned ItemData.
+    use = 'Net/Msgs/ItemUseMessage.luac'
+    use_send = method(use, 'OnCreate', ['PutUtfString', 'uuid', 'PutInt', 'num'])
+    use_receiver = method(use, 'HandleMessage', ['ItemManager', 'ItemUseHandle', 'errorCode'])
+    use_handler = method(inventory, 'ItemUseHandle', ['errorCode', 'uuid',
+        'itemId', 'count', 'GetItemByUuid', 'UpdateOneItem', 'OnUseRet', 'opType'])
+    assert 'requestUuid' not in use_send and 'requestId' not in use_handler
+    assert 'clientCreateUuid' not in use_receiver and 'clientCreateUuid' not in use_handler
+
     # The original DailyTask claim response owns reward updates, but its
     # Gold view preview reads Player.sm_addGoldCount instead of a task grant.
     method(daily, 'DailyTaskRewardMessageHandle',
@@ -67,6 +80,7 @@ def check():
            ['Gold', 'sm_addGoldCount', 'rewardType', 'count'])
     print('FEATURE018_R7_SHIELD_REPLY_NATIVE_V26_SOURCE_PASS')
     print('ORIGINAL_SHOP_REPLY_FIELDS: errorCode,item.id,costGold,remainGold; NO request nonce')
+    print('ORIGINAL_ITEMUSE_REPLY_FIELDS: errorCode,uuid,itemId,count; NO request nonce')
     print('GOLD_REWARD_AMOUNT: no verified current-2289 claimable Gold payout')
 
 

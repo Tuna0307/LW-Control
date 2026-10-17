@@ -56,6 +56,10 @@ DataCenter = {
       state.cooldownSets = state.cooldownSets + 1
     end
   },
+  ItemManager = {ItemUseHandle=function(self, reply)
+    state.originalItemUseReplyHandled=(state.originalItemUseReplyHandled or 0)+1
+    state.lastItemUseReply=reply
+  end},
   DefenceWallDataManager={GetDefenceWallData=function(self)
     return {protectEndTime=state.protectEnd}
   end},

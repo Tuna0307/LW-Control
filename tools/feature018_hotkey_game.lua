@@ -29,6 +29,7 @@ local M = { VERSION = "feature018-hotkey-game-1" }
 local mark_array = nil
 local pending_shield = nil
 local SHIELD_PENDING_SECONDS = 45
+local shield_use_observer = nil
 local pending_purchase = nil
 local purchase_observer = nil
 local PURCHASE_OBSERVER_SECONDS = 90
@@ -923,6 +924,83 @@ local function shield_safe_to_consume(hours, replacement_confirmed)
     return nil
 end
 
+-- Original v26 Net/Msgs/ItemUseMessage.HandleMessage (SHA 9313f37b...)
+-- invokes ItemManager.ItemUseHandle (SHA febee839..., root/3), which reads
+-- errorCode, uuid, itemId and remaining count, and updates ItemData. This
+-- watcher is NOT an independent server ACK: native replies lack a request
+-- nonce and a matching manual/parallel use cannot be uniquely attributed.
+-- Never replace the original handler permanently or suppress its exceptions.
+local function restore_shield_use_observer()
+    local observer = shield_use_observer
+    if observer == nil then return true end
+    shield_use_observer = nil
+    if member(observer.manager, "ItemUseHandle") ~= observer.wrapper then
+        return false -- A different code owner replaced this handler.
+    end
+    local ok = pcall(function()
+        observer.manager.ItemUseHandle = observer.rawOriginal
+    end)
+    return ok and member(observer.manager, "ItemUseHandle") == observer.original
+end
+
+local function install_shield_use_observer(pending, center, player)
+    if shield_use_observer ~= nil then return false end
+    local manager = member(center, "ItemManager")
+    if type(manager) ~= "table" then return false end
+    local original = member(manager, "ItemUseHandle")
+    if type(original) ~= "function" then return false end
+    local raw_original = rawget(manager, "ItemUseHandle")
+    local observer = {manager=manager,original=original,rawOriginal=raw_original}
+    observer.wrapper = function(self, reply)
+        local active = pending_shield
+        if active == pending and (os.time() < pending.sentAt or
+           os.time() - pending.sentAt > SHIELD_PENDING_SECONDS) then
+            pending.observerExpired = true
+            restore_shield_use_observer()
+        end
+        local ok_original, result = pcall(original, self, reply)
+        if pending_shield == pending and shield_use_observer == observer then
+            pending.replyCount = pending.replyCount + 1
+            local item_uuid = native_item_uuid(member(reply, "uuid"))
+            local item_id = digit_id(member(reply, "itemId"))
+            local remaining = number(member(reply, "count"))
+            local reply_error = member(reply, "errorCode")
+            local op_type = number(member(reply, "opType"))
+            local same_owner = ok_original and self == manager and
+                rawget(_G, "DataCenter") == center and
+                member(center, "ItemManager") == manager and
+                member(rawget(_G, "LuaEntry"), "Player") == player and
+                native_sub_account()
+            if same_owner and reply_error == nil and
+               (op_type == nil or op_type == 0) and
+               item_uuid == pending.uuid and item_id == pending.itemId and
+               remaining == pending.count - 1 and pending.replyCount == 1 then
+                pending.replyMatched = true
+            else
+                pending.replyAmbiguous = true
+                pending.replyMatched = false
+            end
+            if reply_error ~= nil then pending.replyError = true end
+            if not same_owner then pending.replyOwnerOrHandlerUncertain = true end
+        end
+        if not ok_original then error(result) end
+        return result
+    end
+    local ok = pcall(function() manager.ItemUseHandle = observer.wrapper end)
+    if not ok or member(manager, "ItemUseHandle") ~= observer.wrapper then
+        if ok then
+            pcall(function()
+                if rawget(manager, "ItemUseHandle") == observer.wrapper then
+                    manager.ItemUseHandle = raw_original
+                end
+            end)
+        end
+        return false
+    end
+    shield_use_observer = observer
+    return true
+end
+
 local function shield_use(fields)
     local owner = shield_owner(fields)
     local hours = tonumber(fields.slot)
@@ -950,10 +1028,15 @@ local function shield_use(fields)
         end
         local elapsed = os.time() - pending.sentAt
         if elapsed < 0 or elapsed > SHIELD_PENDING_SECONDS then
+            pending.observerExpired = true
+            restore_shield_use_observer()
             return invalid("Shield ItemUse remains unconfirmed; manual state refresh required")
         end
         if pending.player ~= player or pending.center ~= center then
             return invalid("Native shield pending ItemUse belongs to another native player/session")
+        end
+        if member(center, "ItemManager") ~= pending.manager then
+            return invalid("Original ItemUse handler owner/session changed")
         end
         local snapshot = shield_snapshot()
         if snapshot.state ~= "confirmed" then return snapshot end
@@ -963,6 +1046,25 @@ local function shield_use(fields)
            member(rawget(_G,"LuaEntry"),"Player") ~= player or
            rawget(_G,"DataCenter") ~= center then
             return invalid("Native shield status owner changed during observation")
+        end
+        local observer_intact = shield_use_observer ~= nil and
+            shield_use_observer.manager == pending.manager and
+            member(pending.manager, "ItemUseHandle") == shield_use_observer.wrapper
+        local reply_info = {
+            nativeItemUseReplyObserved = pending.replyCount > 0,
+            nativeItemUseReplyMatched = pending.replyMatched and
+                not pending.replyAmbiguous and observer_intact,
+            nativeItemUseReplyCount = pending.replyCount,
+            nativeReplyCausalityConfirmed = false,
+            itemUseReplyOrigin = "original_ItemManager_ItemUseHandle_no_nonce",
+        }
+        if pending.replyAmbiguous or (not observer_intact and not pending.observerExpired) then
+            reply_info.nativeReplyAmbiguous = true
+            reply_info.awaitingGameConfirmation = true
+            reply_info.requestDispatched = false
+            reply_info.slot = hours
+            reply_info.itemUuid = pending.uuid
+            return {state="accepted",data=reply_info}
         end
         local match = false
         for _, effect in pairs(snapshot.data.statuses) do
@@ -978,17 +1080,34 @@ local function shield_use(fields)
             (snapshot.data.endTime ~= nil and snapshot.data.endTime > pending.beforeEndTime)
         if count == pending.count - 1 and match and end_advanced and
            snapshot.data.shieldStatusCount == 1 then
+            reply_info.itemUseProofKind = reply_info.nativeItemUseReplyMatched and
+                "matching_original_itemuse_reply_and_shield_poststate_no_nonce" or
+                "native_cached_shield_inventory_and_MAIN_SHIELD_only"
+            if not restore_shield_use_observer() then
+                reply_info.nativeItemUseReplyMatched = false
+                reply_info.nativeReplyAmbiguous = true
+                reply_info.itemUseProofKind = "native_cached_shield_inventory_and_MAIN_SHIELD_only"
+            end
             pending_shield = nil
             return {state="confirmed",data={
                 observation="native_owned_shield_consumption_and_MAIN_SHIELD",
                 slot=hours, itemUuid=pending.uuid, itemId=pending.itemId,
                 statusId=pending.statusId, durationMilliseconds=pending.durationMs,
                 consumedCount=1, remainingMilliseconds=snapshot.data.remainingMilliseconds,
-                serverTimeMilliseconds=snapshot.data.serverTimeMilliseconds
+                serverTimeMilliseconds=snapshot.data.serverTimeMilliseconds,
+                nativeItemUseReplyObserved=reply_info.nativeItemUseReplyObserved,
+                nativeItemUseReplyMatched=reply_info.nativeItemUseReplyMatched,
+                nativeItemUseReplyCount=reply_info.nativeItemUseReplyCount,
+                nativeReplyCausalityConfirmed=false,
+                itemUseProofKind=reply_info.itemUseProofKind,
+                nativeReplyAmbiguous=reply_info.nativeReplyAmbiguous,
             }}
         end
-        return {state="accepted",data={requestDispatched=false,
-            awaitingGameConfirmation=true,slot=hours,itemUuid=pending.uuid}}
+        reply_info.requestDispatched = false
+        reply_info.awaitingGameConfirmation = true
+        reply_info.slot = hours
+        reply_info.itemUuid = pending.uuid
+        return {state="accepted",data=reply_info}
     end
     if pending ~= nil then
         return invalid("Prior ItemUse is unconfirmed; never consume again in this session")
@@ -1017,9 +1136,11 @@ local function shield_use(fields)
     local network = rawget(_G, "SFSNetwork")
     local message = member(rawget(_G, "MsgDefines"), "ItemUse")
     local status = member(rawget(_G, "DataCenter"), "StatusManager")
+    local item_manager = member(center, "ItemManager")
     if type(member(network, "SendMessage")) ~= "function" or message == nil or
-       type(member(status, "SetUseShieldCD")) ~= "function" then
-        return unavailable("Native shield ItemUse sender/cooldown method unavailable")
+       type(member(status, "SetUseShieldCD")) ~= "function" or
+       type(member(item_manager, "ItemUseHandle")) ~= "function" then
+        return unavailable("Native shield ItemUse sender/cooldown/reply handler unavailable")
     end
     -- Re-evaluate volatile warning and cooldown immediately before sending.
     local final_safety = shield_safe_to_consume(hours,replace)
@@ -1063,11 +1184,17 @@ local function shield_use(fields)
     armed_shield_replace=nil
     pending_shield = {
         owner=owner, player=player, center=center,
+        manager=item_manager,
         hours=hours, uuid=item.uuid, itemId=item.itemId,
         statusId=item.statusId, durationMs=item.durationMs, count=item.count,
         beforeClock=before.data.serverTimeMilliseconds,
-        beforeEndTime=before.data.endTime, sentAt=os.time()
+        beforeEndTime=before.data.endTime, sentAt=os.time(),
+        replyCount=0, replyMatched=false, replyAmbiguous=false
     }
+    if not install_shield_use_observer(pending_shield, center, player) then
+        pending_shield = nil -- The network request has not yet been sent.
+        return unavailable("Original ItemUseHandle observer could not be installed")
+    end
     -- A native exception/false return can follow a transmitted request.
     -- Install the tombstone before calling and retain it on uncertainty.
     local ok_send, send_result = pcall(member(network, "SendMessage"), message,
