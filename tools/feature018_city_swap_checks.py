@@ -6,7 +6,7 @@ action tests; the real owner layout remains 9725/9726, not this fixture.
 """
 from __future__ import annotations
 
-from feature018_city_game_checks import fake, check_original_game_wire
+from feature018_city_game_checks import fake, check_original_game_wire, MODULE
 from feature018_city_game_checks import bytecode, probe, root_methods, disassemble
 
 
@@ -403,6 +403,183 @@ def test_restore_cancel_preserves_true_original_anchors():
                 lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId']==4242 and
                 lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId']==4442,
                 'nested restoration failed genuine original native footprint readiness')
+
+
+def test_settled_owner_loss_retains_original_restore():
+    # R9 erased the entire M.active job on a temporary owner-token nil if
+    # the most recent native Move had already settled. This destroyed the
+    # *only* originalAnchors map: the client could no longer restore even a
+    # positively ACKed pair on exactly the same approved owner/session.
+    for end_step in (1, 3):
+        lua,producer=scene()
+        revision=state(lua)['layoutRevision']
+        started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        parent=started['data']['status']['jobId']
+        for i,(who,point) in enumerate(((ONE,4244),(TWO,4242),(ONE,4442)),1):
+            if end_step == i and end_step < 3:
+                cancelled=lua.globals().Act('city_layout_apply_cancel', lua.table_from({
+                    'profileId':'p1', 'launchSessionId':'session1',
+                    'challenge':'nonce', 'jobId':parent,
+                }))
+                assert_that(cancelled['state']=='confirmed',
+                            'native partial cancel not accepted before ACK')
+            confirm(lua,who,point)
+            producer.Pump()
+            if end_step == i: break
+        terminal=status(lua,revision)
+        assert_that(terminal['state']==('cancelled' if end_step==1 else 'completed') and
+                    terminal['completedMoves']==end_step and
+                    terminal['inFlight'] is False,
+                    'native terminal state missing before lease-loss fixture')
+        count=len(lua.globals().ObservedMoves)
+        producer.CleanupAfterLeaseLoss()
+        after=status(lua,revision)
+        assert_that(after['state']==terminal['state'] and
+                    after['jobId']==parent and
+                    after['completedMoves']==end_step and
+                    after['inFlight'] is False and
+                    len(lua.globals().ObservedMoves)==count,
+                    'transient owner loss destroyed exact settled native state')
+        foreign=lua.globals().Fields(revision,'')
+        foreign['profileId']='different-owner'
+        assert_that(lua.globals().Act('city_layout_apply_status',foreign)
+                    ['data']['state']=='idle' and
+                    restore_start(lua,parent,extra={'profileId':'different-owner'})
+                    ['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                    restore(lua,parent)['data']['ready'] is True,
+                    'terminal owner-bound source anchors leaked or disappeared')
+        restore_job=restore_start(lua,parent,request_id=f'restore-after-loss-{end_step}')
+        assert_that(restore_job['state']=='accepted' and
+                    restore_job['data']['status']['restoration'] is True and
+                    len(lua.globals().ObservedMoves)==count+1,
+                    'owner re-admission lost affirmative original restore action')
+        child=restore_job['data']['status']['jobId']
+        expected=((ONE,4242),) if end_step==1 else (
+            (ONE,4444),(TWO,4442),(ONE,4242))
+        for who,target in expected:
+            confirm(lua,who,target)
+            producer.Pump()
+        result=status(lua,revision)
+        assert_that(result['state']=='completed' and result['jobId']==child and
+                    restore(lua,child)['data']['originalLayoutConfirmed'] is True and
+                    lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId']==4242 and
+                    lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId']==4442 and
+                    lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
+                    lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                    lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply'),
+                    'same owner post-loss restore failed complete native original/observer state')
+
+
+def test_same_vm_reload_preserves_inflight_and_job_ids():
+    # Re-executing the producer chunk in an unchanged Lua VM previously
+    # discarded active, resetting nextJobSequence while leaving SFS/BuildManager
+    # wrappers from the old producer in place. The second instance could
+    # accept an overlapping native Move with no shared in-flight tombstone.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    first_id=started['data']['status']['jobId']
+    original_sends=len(lua.globals().ObservedMoves)
+    reloaded=lua.execute(MODULE.read_text(encoding='utf-8'))
+    lua.globals().CityOldProducer=producer
+    lua.globals().CityReloadedProducer=reloaded
+    assert_that(lua.eval('CityOldProducer == CityReloadedProducer') and
+                reloaded.VERSION==producer.VERSION and
+                reloaded.Register(lua.globals().Feature) is True and
+                len(lua.globals().ObservedMoves)==original_sends,
+                'same-VM reload lost producer/native wrapper or existing feature registry')
+    pending=status(lua,revision)
+    assert_that(pending['jobId']==first_id and
+                pending['inFlight'] is True and pending['completedMoves']==0,
+                'same-VM reload erased pending in-flight Move')
+    second=lua.globals().Act('city_layout_apply_start',
+                             lua.globals().Fields(revision,f'{TWO}:4444'))
+    assert_that(second['errorCode']=='CITY_LAYOUT_BUSY' and
+                len(lua.globals().ObservedMoves)==original_sends,
+                'reloaded producer dispatched a duplicate native packet')
+    reloaded.CleanupAfterLeaseLoss()
+    assert_that(status(lua,revision)['errorCode']=='CITY_LAYOUT_OWNER_LOSS_UNCERTAIN' and
+                len(lua.globals().ObservedMoves)==original_sends,
+                'reloaded producer failed to preserve native owner-loss fence')
+    reloaded_again=lua.execute(MODULE.read_text(encoding='utf-8'))
+    lua.globals().CityReloadedAgain=reloaded_again
+    assert_that(lua.eval('CityOldProducer == CityReloadedAgain'),
+                'second source eval reset the same in-flight native identity')
+    confirm(lua,ONE,4244)
+    reloaded_again.Pump()
+    terminal=status(lua,revision)
+    assert_that(terminal['state']=='failed' and
+                terminal['errorCode']=='CITY_LAYOUT_OWNER_LOSS_RECONCILED' and
+                terminal['completedMoves']==1 and
+                terminal['inFlight'] is False and
+                len(lua.globals().ObservedMoves)==original_sends,
+                'reload leaked queued second Move or failed to reconcile late original ACK')
+    authorized_restore=restore_start(lua,first_id,request_id='after-reload')
+    assert_that(authorized_restore['state']=='accepted' and
+                authorized_restore['data']['status']['jobId']!=first_id and
+                len(lua.globals().ObservedMoves)==original_sends+1,
+                'reloaded producer lost original anchors or generated old job ID')
+    child_id=authorized_restore['data']['status']['jobId']
+    stale_cancel=lua.globals().Act('city_layout_apply_cancel',lua.table_from({
+        'profileId':'p1', 'launchSessionId':'session1',
+        'challenge':'nonce', 'jobId':first_id,
+    }))
+    assert_that(stale_cancel['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                status(lua,revision)['jobId']==child_id,
+                'old Cancel affected restored child after VM reload')
+    confirm(lua,ONE,4242)
+    reloaded_again.Pump()
+    assert_that(status(lua,revision)['state']=='completed' and
+                restore(lua,child_id)['data']['originalLayoutConfirmed'] is True,
+                'reloaded producer did not settle exact native restore ACK')
+
+
+def test_native_manager_rebind_during_ack_fences_move():
+    # The R9 receiver checked only that the old observer *object* was intact.
+    # A new City BuildManager/SFSNetwork/MsgDefines may replace the originals
+    # after a previous exact reply but before Pump. It is unsafe to treat the
+    # obsolete handler's receipt as authority to send step two in the NEW
+    # manager, even if building UUID, position and footprint still match.
+    for change in ('manager', 'network', 'message_ids'):
+        lua,producer=scene()
+        revision=state(lua)['layoutRevision']
+        started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        assert_that(started['state']=='accepted',
+                    f'{change}: native two-building fixture never issued step one')
+        confirm(lua,ONE,4244)
+        if change=='manager':
+            lua.execute('''
+               OldCityManager=DataCenter.BuildManager
+               DataCenter.BuildManager=setmetatable({
+                  allBuilding=OldCityManager.allBuilding,
+               },{__index=OldCityManager})
+            ''')
+        elif change=='network':
+            lua.execute('''
+               OldCityNetwork=SFSNetwork
+               SFSNetwork={SendMessage=OldCityNetwork.SendMessage}
+            ''')
+        else:
+            lua.execute('''
+               MsgDefines={
+                   BuildWorldMoveNew='different_current_move_kind',
+                   FreeBuildingReplaceNew='native_free_building_replace_new',
+               }
+            ''')
+        producer.Pump()
+        stalled=status(lua,revision)
+        assert_that(stalled['state']=='failed' and
+                    stalled['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    stalled['inFlight'] is True and
+                    stalled['completedMoves']==0 and
+                    stalled['matchingNativeReplies']==1 and
+                    len(lua.globals().ObservedMoves)==1,
+                    f'{change}: stale native observer permitted a cross-manager step two')
+        rejected=lua.globals().Act('city_layout_apply_start',
+            lua.globals().Fields(state(lua)['layoutRevision'],f'{TWO}:4444'))
+        assert_that(rejected['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    len(lua.globals().ObservedMoves)==1,
+                    f'{change}: rebind lost pending server result fence')
 
 
 def test_restoration_late_ack_and_historical_inbound_fence():
@@ -1078,6 +1255,9 @@ def main():
     test_historical_original_uuid_never_sent()
     test_explicit_restoration_action()
     test_restore_cancel_preserves_true_original_anchors()
+    test_settled_owner_loss_retains_original_restore()
+    test_same_vm_reload_preserves_inflight_and_job_ids()
+    test_native_manager_rebind_during_ack_fences_move()
     test_restoration_late_ack_and_historical_inbound_fence()
     test_negative_native_zones()
     test_nearest_full_2x2_buffer()
@@ -1088,9 +1268,9 @@ def main():
     test_unexpected_native_occupancy_during_swap()
     test_displaced_native_observers_and_sync_reply()
     test_stale_cancel_does_not_hit_reused_request_id()
-    print('FEATURE018_CITY_SWAP: PASS source-v26 safe synthetic 2x2 peer + '
-          'real-shaped 9726; historical 9725 no-send; 3x ACK, explicit '
-          'restore/cancel/late uncertainty/inbound-outbound collision/occupancy')
+    print('FEATURE018_CITY_SWAP: PASS source-v26 2x2/9726; historical '
+          '9725 no-send; native ACK/cancel/restore; terminal lease-loss '
+          'original recovery, same-VM reload tombstone, manager rebind fence')
 
 
 if __name__=='__main__':

@@ -18,6 +18,21 @@
 -- Only a later authoritative BuildManager update counts as completion. A
 -- dispatch response is always state='accepted', never a server ACK.
 
+-- The feature bridge may re-evaluate this Lua chunk in the SAME game VM
+-- without replacing the native SFSNetwork/BuildManager. Previously a new
+-- module table forgot a still-outstanding native Move, leaving the old
+-- observer attached while a new producer could send an overlapping Move.
+-- Reuse the original owner-bound module/observer state on same-VM reload;
+-- this deliberately makes NO promise about a new game process, where _G
+-- and all original native objects are newly allocated.
+local PROCESS_MODULE_KEY = '__LW_FEATURE018_CITY_V26_OWNER_MODULE'
+local prior_module = rawget(_G, PROCESS_MODULE_KEY)
+if type(prior_module) == 'table' and
+    prior_module.VERSION == 'feature018-city-v26-1' and
+    type(prior_module.Register) == 'function' and
+    type(prior_module.CleanupAfterLeaseLoss) == 'function' then
+    return prior_module
+end
 local M = { VERSION = 'feature018-city-v26-1', active = nil, nextJobSequence = 0 }
 local CITY_REGION = 'main-city'
 local MAX_BUILDINGS = 512
@@ -899,18 +914,27 @@ local function observe_native_move_sends(job, net, message)
     end
     net.SendMessage = observer
     if net.SendMessage ~= observer then return false end
+    job.nativeMoveKind, job.nativeReplaceKind =
+        message.BuildWorldMoveNew, message.FreeBuildingReplaceNew
     job.sendNetwork, job.originalSendMessage, job.sendObserver =
         net, original, observer
     return true
 end
 
 local function move_observers_intact(job)
+    local data = rawget(_G, 'DataCenter')
+    local net = rawget(_G, 'SFSNetwork')
+    local message = rawget(_G, 'MsgDefines')
     return type(job.replyObserver) == 'function' and
         type(job.replaceObserver) == 'function' and
         type(job.sendObserver) == 'function' and
         job.replyManager ~= nil and
         job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
         job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver and
+        data ~= nil and data.BuildManager == job.replyManager and
+        net == job.sendNetwork and message ~= nil and
+        message.BuildWorldMoveNew == job.nativeMoveKind and
+        message.FreeBuildingReplaceNew == job.nativeReplaceKind and
         job.sendNetwork ~= nil and
         job.sendNetwork.SendMessage == job.sendObserver
 end
@@ -1321,6 +1345,11 @@ end
 
 function M.Register(feature)
     if not feature or type(feature.RegisterHandler) ~= 'function' then return false end
+    -- The same game VM may re-evaluate this producer while retaining the
+    -- original bridge handler registry. Re-registering the same command keys
+    -- returns false in that owner. Existing live closures remain valid: avoid
+    -- misreporting a benign same-registry module rebinding as failed setup.
+    if M.registeredFeature == feature then return true end
     local ok = feature.RegisterHandler('city_layout_snapshot_get', function()
         local current, meta_or_reason = snapshot()
         if not current then return unsupported('CITY_LAYOUT_UNAVAILABLE', meta_or_reason) end
@@ -1550,6 +1579,7 @@ function M.Register(feature)
         -- subsequent move dispatch after the in-flight result is observed.
         return confirmed({ accepted = true, status = status_data(job) })
     end) and ok
+    if ok then M.registeredFeature = feature end
     return ok
 end
 
@@ -1562,19 +1592,30 @@ end
 -- and cannot send a new move while this message remains uncertain.
 function M.CleanupAfterLeaseLoss()
     if M.active ~= nil then
-        M.active.cancelRequested = true
-        if M.active.waiting then
-            M.active.state = 'failed'
-            if M.active.errorCode ~= 'CITY_LAYOUT_OWNER_LOSS_RECONCILED' then
-                M.active.errorCode = 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN'
-                M.active.error = 'Native owner admission was interrupted after a building move was sent. Its server outcome is unknown; another move is blocked.'
+        local job = M.active
+        if job.waiting then
+            job.cancelRequested = true
+            job.state = 'failed'
+            if job.errorCode ~= 'CITY_LAYOUT_OWNER_LOSS_RECONCILED' then
+                job.errorCode = 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN'
+                job.error = 'Native owner admission was interrupted after a building move was sent. Its server outcome is unknown; another move is blocked.'
             end
             return
         end
-        M.active.state = 'cancelled'
-        remove_move_observers(M.active)
+        -- A completed/cancelled/settled partial plan has an immutable
+        -- originalAnchors witness used by the affirmative Restore action.
+        -- Erasing it on a *transient* owner-token loss made native original
+        -- restoration impossible despite no remaining in-flight packet.
+        -- Keep the terminal owner-bound job for exact same-owner fresh
+        -- revalidation; a new owner cannot read/restore it (same_owner), and
+        -- a newly approved Apply may replace it after checking no pending.
+        if job.state == 'running' then
+            job.state = 'cancelled'
+            job.cancelRequested = true
+        end
+        remove_move_observers(job)
     end
-    M.active = nil
 end
 
+rawset(_G, PROCESS_MODULE_KEY, M)
 return M
