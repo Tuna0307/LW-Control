@@ -116,11 +116,30 @@ internal sealed class Feature018HotkeyNativeProviders
                     "native_game_state_receipt_missing");
             }
 
-            if ((evidence.TryGetProperty("requestDispatched", out var dispatched) &&
-                 dispatched.ValueKind == JsonValueKind.True) ||
-                (evidence.TryGetProperty("accepted", out var accepted) &&
-                 accepted.ValueKind == JsonValueKind.True))
+            bool dispatchedNativeRequest =
+                evidence.TryGetProperty("requestDispatched", out var dispatched) &&
+                dispatched.ValueKind == JsonValueKind.True;
+            bool nativeAcceptedOnly =
+                evidence.TryGetProperty("accepted", out var accepted) &&
+                accepted.ValueKind == JsonValueKind.True;
+            if (dispatchedNativeRequest || nativeAcceptedOnly)
             {
+                // A source-backed accepted UI chooser/preflight need not have
+                // sent a game RPC. Nor can an accepted-but-missing send field
+                // prove which original key caused a native action. Reserve
+                // 'message sent' and queryOnly polling for explicit TRUE send.
+                if (evidence.TryGetProperty("slot", out JsonElement echoedSlot) &&
+                    (!echoedSlot.TryGetInt32(out int actualSlot) ||
+                     actualSlot != command.Intent.Slot) ||
+                    evidence.TryGetProperty("action", out JsonElement echoedAction) &&
+                    (echoedAction.ValueKind != JsonValueKind.String ||
+                     echoedAction.GetString() != ActionName(command.Intent.Kind)))
+                    return new(Feature018HotkeyActionStatus.Failed,
+                        "native_action_accepted_for_different_intent");
+                if (!dispatchedNativeRequest)
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        "native_action_accepted_without_verified_game_rpc_dispatch");
+
                 // Only a single verified outbound send is allowed. Once sent,
                 // queryOnly follow-ups must be read-only and preserve the
                 // original native object UUID throughout confirmation.
@@ -183,8 +202,31 @@ internal sealed class Feature018HotkeyNativeProviders
         }
         catch (BridgeCommandException error) when (error.Code == "GAME_ACTION_UNCONFIRMED")
         {
+            // The authenticated native exchange exposes data even when an
+            // accepted response is NOT eligible as a game send. For example,
+            // source v26 F10 can request the original chooser while explicitly
+            // reporting originalPacketSend=false. Never label this a delivered
+            // relocation packet, nor mistake absence of evidence for success.
+            if (error.Details is JsonElement data && data.ValueKind == JsonValueKind.Object)
+            {
+                bool noPacket =
+                    data.TryGetProperty("requestDispatched", out var notSent) &&
+                    notSent.ValueKind == JsonValueKind.False ||
+                    data.TryGetProperty("originalPacketSend", out var packet) &&
+                    packet.ValueKind == JsonValueKind.False;
+                if (noPacket)
+                {
+                    if (command.Intent.Kind == Feature018HotkeyKind.AllianceRelocate &&
+                        data.TryGetProperty("chooserRequestMade", out var chooser) &&
+                        chooser.ValueKind == JsonValueKind.True)
+                        return new(Feature018HotkeyActionStatus.Submitted,
+                            "native_f10_chooser_requested_no_relocation_packet");
+                    return new(Feature018HotkeyActionStatus.Failed,
+                        "native_game_request_not_dispatched");
+                }
+            }
             return new(Feature018HotkeyActionStatus.Submitted,
-                "game_request_not_independently_confirmed");
+                "native_action_outcome_unconfirmed_dispatch_unknown");
         }
         catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
         {

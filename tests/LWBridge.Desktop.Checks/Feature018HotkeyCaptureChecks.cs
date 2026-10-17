@@ -131,6 +131,21 @@ internal static class Feature018HotkeyCaptureChecks
         Require(recognizer.Observe(Down(Keys.A, Keys.F), true, true) is null,
             "two keys in same sample must be ambiguous");
         _ = recognizer.Observe(Down(), true, true);
+        Require(recognizer.Observe(Down(Keys.Q, Keys.D1), true, true) is null,
+            "Q plus unmodified equipment digit falsely dispatched an attack");
+        Require(recognizer.Observe(Down(Keys.Q), true, true) is null,
+            "a Q held through an ambiguous chord acquired a fabricated new key edge");
+        _ = recognizer.Observe(Down(), true, true);
+        Require(recognizer.Observe(Down(Keys.F9, Keys.D4), true, true) is null,
+            "relocation F9 plus another watched digit falsely dispatched");
+        _ = recognizer.Observe(Down(), true, true);
+        Require(recognizer.Observe(Down(Keys.Menu, Keys.D2, Keys.Q), true, true) is null,
+            "equipment Alt+2 plus unrelated Q falsely dispatched");
+        _ = recognizer.Observe(Down(), true, true);
+        Require(recognizer.Observe(Down(Keys.Menu, Keys.LMenu, Keys.D2), true, true) ==
+                new Feature018HotkeyIntent(Feature018HotkeyKind.ApplyEquipmentPreset, 2),
+            "legitimate overlapping Windows generic/left Alt aliases were rejected");
+        _ = recognizer.Observe(Down(), true, true);
         Require(recognizer.Observe(Down(Keys.G), true, false) is null,
             "shortcut typed into game input");
         Require(recognizer.Observe(Down(Keys.G), true, true) is null,
@@ -276,6 +291,86 @@ internal static class Feature018HotkeyCaptureChecks
                 Feature018HotkeyActionStatus.SessionChanged && stub.Calls == 0,
             "approved UID on wrong server reached native shield ItemUse");
 
+        // The real exchange returns accepted game data ONLY when there was a
+        // source-classified native request/accepted response; an F10 chooser
+        // may have been requested while NO relocation packet was sent. Provider
+        // must not fabricate a send, poll or successful relocation from it.
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = false,
+            awaitingGameConfirmation = true, slot = 0,
+            action = "allianceRelocate", itemUuid = "991001",
+            originalPacketSend = false,
+        });
+        Feature018HotkeyActionOutcome chooserOnly = await wired[
+            Feature018HotkeyKind.AllianceRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.AllianceRelocate)),
+                CancellationToken.None);
+        Require(chooserOnly.Status == Feature018HotkeyActionStatus.Submitted &&
+                !chooserOnly.Working &&
+                chooserOnly.Reason == "native_action_accepted_without_verified_game_rpc_dispatch" &&
+                stub.Calls == 1 && !stub.LastPayload.TryGetProperty("queryOnly", out _),
+            "F10 accepted chooser falsely counted as packet send or triggered query retry");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = true,
+            action = "randomRelocate", slot = 0,
+        });
+        Feature018HotkeyActionOutcome wrongAction = await wired[
+            Feature018HotkeyKind.AllianceRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.AllianceRelocate)),
+                CancellationToken.None);
+        Require(wrongAction.Status == Feature018HotkeyActionStatus.Failed &&
+                wrongAction.Reason == "native_action_accepted_for_different_intent" &&
+                stub.Calls == 2,
+            "one native action's accepted send was attributed to a different shortcut");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = true,
+            action = "shieldUse", slot = 12,
+        });
+        Feature018HotkeyActionOutcome wrongSlot = await wired[
+            Feature018HotkeyKind.UseShield](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.UseShield, 8)),
+                CancellationToken.None);
+        Require(wrongSlot.Status == Feature018HotkeyActionStatus.Failed &&
+                wrongSlot.Reason == "native_action_accepted_for_different_intent" &&
+                stub.Calls == 3,
+            "one shield slot's accepted send was attributed to a different F6/F7 key");
+
+        stub.Receipt = () => throw new BridgeCommandException(
+            "GAME_ACTION_UNCONFIRMED", "Native F10 chooser open is not a move",
+            JsonSerializer.SerializeToElement(new
+            {
+                action = "allianceRelocate", chooserRequestMade = true,
+                originalPacketSend = false, requestDispatched = false,
+            }));
+        Feature018HotkeyActionOutcome nativeChooser = await wired[
+            Feature018HotkeyKind.AllianceRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.AllianceRelocate)),
+                CancellationToken.None);
+        Require(nativeChooser.Status == Feature018HotkeyActionStatus.Submitted &&
+                !nativeChooser.Working &&
+                nativeChooser.Reason == "native_f10_chooser_requested_no_relocation_packet" &&
+                stub.Calls == 4,
+            "accepted original F10 native chooser without MoveCity was reported as a game request");
+        stub.Receipt = () => throw new BridgeCommandException(
+            "GAME_ACTION_UNCONFIRMED", "No native F9 item-use packet sent",
+            JsonSerializer.SerializeToElement(new
+            {
+                action = "randomRelocate", originalPacketSend = false,
+                requestDispatched = false,
+            }));
+        Feature018HotkeyActionOutcome noNativePacket = await wired[
+            Feature018HotkeyKind.RandomRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.RandomRelocate)),
+                CancellationToken.None);
+        Require(noNativePacket.Status == Feature018HotkeyActionStatus.Failed &&
+                noNativePacket.Reason == "native_game_request_not_dispatched" &&
+                stub.Calls == 5,
+            "explicitly absent original F9 game send was misreported as Submitted");
+
         // Even two distinct provider instances (e.g., a retired capture and
         // its newly created replacement) share the same native mutating route.
         // The second must not overlap, queue or retry while the first is
@@ -350,11 +445,12 @@ internal static class Feature018HotkeyCaptureChecks
             serverTimeMilliseconds = 1000,
             shieldStatusCount = 1,
         });
+        int beforeReadOnly = stub.Calls;
         Feature018HotkeyActionOutcome observed = await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.ShieldRemaining));
         Require(observed.Working && observed.Status == Feature018HotkeyActionStatus.Confirmed,
             "native confirmed shield status not admitted");
-        Require(stub.LastName == "feature018_hotkey_action" && stub.Calls == 1 &&
+        Require(stub.LastName == "feature018_hotkey_action" && stub.Calls == beforeReadOnly + 1 &&
             stub.LastPayload.GetProperty("action").GetString() == "shieldOverlay" &&
             stub.LastPayload.GetProperty("slot").GetInt32() == 0,
             "native game request did not use exact feature018 action schema");
@@ -725,6 +821,13 @@ internal static class Feature018HotkeyCaptureChecks
 
         int beforeSpend = stub.Calls;
         config = config with { AttackMarchSpeedupDiamond = true };
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            requestDispatched = true,
+            awaitingGameConfirmation = true,
+            slot = 3,
+            action = "attack",
+        });
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.AttackSquad, 3))).Status == Feature018HotkeyActionStatus.Submitted &&
             stub.Calls == beforeSpend + 1 &&
@@ -791,6 +894,16 @@ internal static class Feature018HotkeyCaptureChecks
             43210, @"C:\fake\LastWar.exe", new DateTime(2026, 10, 17, 0, 0, 0, DateTimeKind.Utc),
             () => { nativeFocusChecks++; return inputClear; }, dispatched.Add, os);
 
+        Require(capture.IsExactForegroundOwner(),
+            "approved root and owned GUI keyboard focus were incorrectly rejected");
+        os.KeyboardFocusOwned = false;
+        Require(!capture.IsExactForegroundOwner(),
+            "async native broker focus gate admitted root while keyboard focused elsewhere");
+        os.KeyboardFocusOwned = true;
+        os.ExactOwner = false;
+        Require(!capture.IsExactForegroundOwner(),
+            "async native broker focus gate admitted replaced owner");
+        os.ExactOwner = true;
         capture.PollOnceForChecks(); // Exact owned root, no pressed keys: arm.
         os.DownKeys.Add(Keys.Q);
         capture.PollOnceForChecks();

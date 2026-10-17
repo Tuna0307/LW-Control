@@ -83,7 +83,15 @@ internal sealed class Feature018HotkeyRecognizer
         Feature018HotkeyIntent? found = null;
         int candidates = 0;
 
-        if (!control && !shift && !windows)
+        // The original unmodified matcher only counted keys whose *binding*
+        // agreed with Alt's presence: Q plus held D1 (without Alt) produced a
+        // single Q candidate and incorrectly dispatched. The owned SendInput
+        // witness already requires one exact primary, with only Win32 Alt
+        // aliases permitted for equipment chords. Enforce that same rule for
+        // real observed key edges, including mixed physical/synthetic states.
+        bool singlePrimary = pressed.Count(key =>
+            key != Keys.Menu && key != Keys.LMenu && key != Keys.RMenu) == 1;
+        if (!control && !shift && !windows && singlePrimary)
         {
             foreach ((Keys key, Feature018HotkeyIntent intent, bool needsAlt) in Bindings)
             {
@@ -276,7 +284,15 @@ internal sealed class Feature018HotkeyCapture : IDisposable
     internal bool IsExactForegroundOwner()
     {
         nint hwnd = platform.ForegroundWindow();
-        return platform.IsExactOwnedRoot(hwnd, gamePid, gamePath, startTimeUtc);
+        // This public predicate is also the asynchronous action broker's
+        // final focus gate, after the recognizer Tick has returned. The
+        // foreground game root can remain unchanged while GUI-thread keyboard
+        // focus moves to another window; do not dispatch based on root alone.
+        return hwnd != 0 &&
+            platform.IsExactOwnedRoot(hwnd, gamePid, gamePath, startTimeUtc) &&
+            platform.ForegroundWindow() == hwnd &&
+            platform.HasOwnedKeyboardFocus(hwnd, gamePid) &&
+            platform.ForegroundWindow() == hwnd;
     }
 
     public void Dispose()
