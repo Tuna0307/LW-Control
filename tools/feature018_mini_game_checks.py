@@ -240,6 +240,23 @@ class NativeLandAckChecks(unittest.TestCase):
         self.assertTrue({"ComponentDefine", "DataDefine"} <=
                         {str(value) for value in native["constants"]})
 
+    def test_native_prize_rows_come_from_source_isbest_and_three_component_boxes(self):
+        data = self.method("UI/LWTreasureChest/UITreasureChestView.luac", "DataDefine")
+        best = self.method("UI/LWTreasureChest/UITreasureChestView.luac",
+                           "GetBigRewardBoxIndex")
+        switch = self.method("UI/LWTreasureChest/UITreasureChestView.luac", "SwitchBoxs")
+        rows = self.method("DataCenter/TreasureChest/TreasureChestDataManager.luac",
+                           "GetBoxRewardDatas")
+        self.assertTrue({"GetBoxRewardDatas", "bestRewardIndex", "GetBigRewardBoxIndex",
+                         "compBox1", "compBox2", "compBox3", "boxItems"} <=
+                        {str(v) for v in data["constants"]})
+        self.assertIn("IsBest", {str(v) for v in best["constants"]})
+        self.assertIn("IsBest", {str(v) for v in rows["constants"]})
+        self.assertTrue({"GetBoxItem", "GetCurPosition", "AnimToMoveTargetPosition"} <=
+                        {str(v) for v in switch["constants"]})
+        self.assertNotIn("rewardDatas", {str(v) for v in switch["constants"]},
+                         "Source shuffle moves chest positions, not prize rows")
+
     def test_frontline_event_must_be_launched_by_original_sunday_activity(self):
         event = self.method("DataCenter/ActFrontBreakSundayManger/ActFrontBreakSundayData.luac",
                             "EnterStage")
@@ -301,9 +318,15 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
           self.position = {x=x,y=y,z=z}
         end
         Chest = setmetatable({switchState='SwitchEnd',received=false,
+          treasureChestId=105, rewardDatas={{IsBest=false},{IsBest=true},{IsBest=false}},
           bestRewardIndex=2,boxItems={[2]=NativeBox},switchEffect=Effect},
           {__index=cls})
-        function Chest:GetBigRewardBoxIndex() return 2 end
+        function Chest:GetBigRewardBoxIndex()
+          for i,row in ipairs(self.rewardDatas) do
+            if row.IsBest then return i end
+          end
+          return 0
+        end
         function Chest:GetBoxItem(i) return self.boxItems[i] end
         function Chest:ShowSwitchEffect(x,y,z)
           self.switchEffect:SetActive(true)
@@ -342,6 +365,47 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         self.assertTrue(runtime.globals().Effect.activeSelf)
         runtime.execute('Chest.bestRewardIndex=3')
         runtime.execute('Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_replaced_best_reward_row_same_index_and_position_retires_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('Chest.rewardDatas[2]={IsBest=true}; Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        self.assertEqual(mini.UnmarkChest()['state'], 'unsupported')
+
+    def test_new_native_chest_box_at_identical_position_retires_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('Chest.boxItems[2]={IsMoving=NativeBox.IsMoving, '
+                        'GetCurPosition=NativeBox.GetCurPosition}; Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_chest_id_swapped_without_changing_prize_index_retires_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('Chest.treasureChestId=106; Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_winner_ambiguity_or_missing_reward_rows_blocks_marker(self):
+        for native_mutation in (
+            'Chest.rewardDatas[3].IsBest=true',
+            'Chest.rewardDatas[2].IsBest=false',
+            'Chest.rewardDatas=nil',
+            'Chest.rewardDatas[2]=nil'):
+            runtime, mini = self.fixture()
+            runtime.execute(native_mutation)
+            self.assertEqual(mini.MarkChest()['state'], 'unsupported', native_mutation)
+            self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_reward_row_replaced_synchronously_during_marker_activation_is_rolled_back(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local original=Chest.ShowSwitchEffect
+            Chest.ShowSwitchEffect=function(self,...)
+                original(self,...)
+                self.rewardDatas[2]={IsBest=true}
+            end''')
+        self.assertEqual(mini.MarkChest()['state'], 'failed')
         self.assertFalse(runtime.globals().Effect.activeSelf)
 
     def test_marker_shown_only_when_native_effect_reaches_winning_chest(self):
@@ -514,6 +578,39 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         self.assertEqual(result['data']['guidAllocatorAfter'], 6)
         self.assertEqual(runtime.globals().Sends, 5)
         self.assertEqual(len(runtime.globals().Team.teamUnits), 6)
+
+    def test_reentrant_native_member_callback_cannot_create_ten_soldiers(self):
+        runtime, mini = self.fixture()
+        runtime.globals().Producer = mini
+        runtime.execute(r'''local original=Logic.AddMember
+            NestedState=nil
+            Logic.AddMember=function(self,...)
+              original(self,...)
+              if Sends == 1 then
+                local outcome=Producer.FrontlineReinforce({action='frontlineReinforce',slot='5'})
+                NestedState=outcome.state
+              end
+            end''')
+        result = self.call(runtime, mini)
+        self.assertEqual(runtime.globals().NestedState, 'failed')
+        self.assertEqual(result['state'], 'failed')
+        self.assertEqual(result['data']['observedAdded'], 1)
+        self.assertEqual(runtime.globals().Sends, 1,
+                         'Recursive input must not create five extra units')
+        self.assertEqual(len(runtime.globals().Team.teamUnits), 2)
+
+    def test_unexpected_native_member_exception_never_invokes_retry(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local original=Logic.AddMember
+            Logic.AddMember=function(self,...)
+              original(self,...)
+              error('native view interrupted after adding unit')
+            end''')
+        first = self.call(runtime, mini)
+        self.assertEqual(first['state'], 'failed')
+        self.assertFalse(first['data']['serverAckObserved'])
+        self.assertEqual(runtime.globals().Sends, 1)
+        self.assertEqual(len(runtime.globals().Team.teamUnits), 2)
 
     def test_fabricated_new_member_guid_never_counts_as_native_reinforcement(self):
         for change in (

@@ -604,7 +604,10 @@ local function frontline_units(team)
     return refs, ids, count
 end
 
-local function frontline_reinforce(fields)
+local frontline_active = false
+local frontline_reentry_seen = false
+
+local function frontline_reinforce_once(fields)
     -- Source-native producer invoked solely through the authenticated owner
     -- hotkey command. No stand-alone network sender or fabricated game state.
     if type(fields) ~= "table" or fields.action ~= "frontlineReinforce" or
@@ -615,6 +618,12 @@ local function frontline_reinforce(fields)
     if context == nil then return unsupported(reason) end
     local confirmed = 0
     for _ = 1, 5 do
+        if frontline_reentry_seen then
+            return blocked("Overlapping native Frontline G intent interrupted reinforcement", {
+                beforeCount = context.count, observedAdded = confirmed,
+                serverAckObserved = false,
+                observationScope = "native_local_battle" })
+        end
         -- Recheck the current battle, window and source player hero before
         -- every irreversible unit creation. Any missing receipt stops further
         -- additions and reports partial failure, never a claimed +5 success.
@@ -692,6 +701,37 @@ local function frontline_reinforce(fields)
     } }
 end
 
+local function frontline_reinforce(fields)
+    -- Original ParkourBattleLogic.AddMember can invoke game callbacks while
+    -- creating a MemberUnit. A nested hotkey intent within that callback must
+    -- never start another five-add loop or turn the first loop into +10.
+    if frontline_active then
+        frontline_reentry_seen = true
+        return blocked("Native Frontline G reinforcement is already in progress", {
+            serverAckObserved = false,
+            observationScope = "native_local_battle" })
+    end
+    frontline_active = true
+    frontline_reentry_seen = false
+    local ok, outcome = pcall(frontline_reinforce_once, fields)
+    frontline_active = false
+    if not ok then
+        -- Do not retry a native producer after an exception; AddMember may
+        -- have inserted a soldier before the source method failed.
+        return blocked("Native Frontline G producer aborted; no automatic retry", {
+            serverAckObserved = false,
+            observationScope = "native_local_battle" })
+    end
+    if frontline_reentry_seen and outcome.state == "confirmed" then
+        return blocked("Overlapping Frontline G intent was observed", {
+            beforeCount = outcome.data.beforeCount,
+            observedAdded = outcome.data.addedMembers,
+            serverAckObserved = false,
+            observationScope = "native_local_battle" })
+    end
+    return outcome
+end
+
 -- Original UITreasureChestCtrl.CloseSelf (v26 9-11) destroys the exact
 -- UIWindowNames.UITreasureChest window. A bound Lua view can outlive the
 -- visible window; only the original UIManager.IsWindowOpen can admit a mark.
@@ -727,6 +767,28 @@ local function chest_snapshot(view)
     end
     if not is_integer(index) or index > 3 then
         return unsupported("No best reward is identified in native chest data")
+    end
+    -- Source TreasureChestDataManager.GetBoxRewardDatas (v26 lines 45-55)
+    -- constructs each reward row with IsBest. GetBigRewardBoxIndex returns
+    -- the FIRST truthy IsBest (v26 lines 116-124), which is ambiguous if two
+    -- rows are marked; a stale UI cached index alone is not winner proof.
+    local rewards = member(view, "rewardDatas")
+    if type(rewards) ~= "table" or #rewards ~= 3 then
+        return unsupported("Source-native three-chest reward rows are unavailable")
+    end
+    local unique_best = nil
+    for i = 1, 3 do
+        local row = member(rewards, i)
+        if row == nil then return unsupported("Original reward row was removed") end
+        if member(row, "IsBest") == true then
+            if unique_best ~= nil then
+                return unsupported("Ambiguous multiple native grand-prize rows")
+            end
+            unique_best = i
+        end
+    end
+    if unique_best ~= index then
+        return unsupported("Native grand-prize row no longer matches the cached box index")
     end
     local boxes = member(view, "boxItems")
     local item = member(boxes, index)
@@ -802,6 +864,11 @@ local function retire_chest_marker_if_ineligible(view)
         local current = chest_snapshot(view)
         if current.state == "confirmed" and
            current.data.bestRewardBoxIndex == target.index and
+           member(view, "treasureChestId") == target.chestId and
+           member(view, "rewardDatas") == target.rewards and
+           member(target.rewards, target.index) == target.reward and
+           member(view, "boxItems") == target.boxes and
+           member(target.boxes, target.index) == target.box and
            chest_effect_at(view, target.x, target.y, target.z) and
            chest_effect_at(view, current.data.x, current.data.y, current.data.z) then
             return true
@@ -859,13 +926,24 @@ local function mark_chest()
     -- partial activation. Retain ownership if cleanup itself is unsuccessful.
     marker_owned_view = view
     marker_owned_target = {index = data.bestRewardBoxIndex,
-                           x = data.x, y = data.y, z = data.z}
+                           x = data.x, y = data.y, z = data.z,
+                           chestId = member(view, "treasureChestId"),
+                           rewards = member(view, "rewardDatas"),
+                           reward = member(member(view, "rewardDatas"), data.bestRewardBoxIndex),
+                           boxes = member(view, "boxItems"),
+                           box = member(member(view, "boxItems"), data.bestRewardBoxIndex)}
     marker_initializing_view = view
     local ok = pcall(show, view, data.x, data.y, data.z)
     marker_initializing_view = nil
     local still_eligible = chest_snapshot(view)
+    local target = marker_owned_target
     if not ok or not native_owner_verified() or still_eligible.state ~= "confirmed" or
        still_eligible.data.bestRewardBoxIndex ~= data.bestRewardBoxIndex or
+       target == nil or member(view, "treasureChestId") ~= target.chestId or
+       member(view, "rewardDatas") ~= target.rewards or
+       member(target.rewards, target.index) ~= target.reward or
+       member(view, "boxItems") ~= target.boxes or
+       member(target.boxes, target.index) ~= target.box or
        not chest_effect_at(view, data.x, data.y, data.z) or
        not chest_effect_at(view, still_eligible.data.x,
                            still_eligible.data.y, still_eligible.data.z) then
