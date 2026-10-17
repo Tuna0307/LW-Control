@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path[:0] = [str(ROOT), str(ROOT / "map_009_offline")]
+sys.path.insert(0, str(ROOT.parent / "artifacts" / "map-013-lua-site"))
 import compact_lua53 as lua  # noqa: E402
 import execute_selected as vm  # noqa: E402
 import run_live_resource_probe as probe  # noqa: E402
@@ -166,10 +167,130 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         self.assertIn("feature018_sheep_automation_status", source)
         self.assertIn("coroutine.yield('searching'", source)
         self.assertIn("get(packet, 'opPointId') == pending.point", source)
+        self.assertIn("if not approved_native_owner() then", source)
+        self.assertIn("run.pending ~= nil and run.pending.ack", source)
         self.assertNotIn("SFSNetwork", source.replace("-- Source", "-- Source"))
         for forbidden in (r"call\([^\n]*'UseItem'", r"call\([^\n]*'NextLevel'",
                           r"call\([^\n]*'Again'", r"SendMessage\("):
             self.assertIsNone(re.search(forbidden, source))
+
+
+class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
+    @staticmethod
+    def fixture():
+        from lupa.lua53 import LuaRuntime
+        lua = LuaRuntime(unpack_returned_tuples=True)
+        lua.execute(r'''
+        Account={source=2289,selfServer=2289,current=2289}
+        LuaEntry={Player={uid='3133546747002289',
+          GetSourceServerId=function() return Account.source end,
+          GetSelfServerId=function() return Account.selfServer end,
+          GetCurServerId=function() return Account.current end}}
+        MiniGameSource={Season=4}
+        GameOpens=0
+        SmallGameManager={GSheep={source=4,
+          Start=function() GameOpens=GameOpens+1 end}}
+        DataCenter={LWSheepDataManager={sheepData={blockId=42},
+          IsVail=function() return true end,
+          IsEnd=function() return false end,
+          GetCurrentLevel=function() return 3 end,
+          CanChallenge=function() return true end}}
+        UIWindowNames={UILUISheepCloud='FoodHouse'}
+        UIManager={GetInstance=function() return
+          {IsWindowOpen=function(self, name) return false end} end}
+        ''')
+        solver = lua.execute((ROOT / 'feature018_sheep_solver.lua').read_text(
+            encoding='utf-8'))
+        return lua, solver
+
+    def test_authorized_native_season_start(self):
+        lua, solver = self.fixture()
+        result = solver.Start(lua.table_from({'taskName': 'sheepGame'}))
+        self.assertEqual(result['state'], 'accepted')
+        self.assertEqual(lua.globals().GameOpens, 1)
+
+    def test_main_account_or_other_server_never_opens_season_game(self):
+        for change in ("LuaEntry.Player.uid='3133546747002212'",
+                       'Account.source=2212', 'Account.selfServer=2212',
+                       'Account.current=2212'):
+            lua, solver = self.fixture()
+            lua.execute(change)
+            self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                             'unsupported')
+            self.assertEqual(lua.globals().GameOpens, 0)
+
+    def test_change_after_challenge_before_game_open_does_not_send(self):
+        lua, solver = self.fixture()
+        lua.execute('DataCenter.LWSheepDataManager.CanChallenge=function() '
+                    'Account.current=2212; return true end')
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'failed')
+        self.assertEqual(lua.globals().GameOpens, 0)
+
+    def test_synchronous_exact_native_click_ack_drains_queue_without_false_failure(self):
+        # Simulated source UI ordering: OnClickCard enqueues a sent operation,
+        # its matching reply invokes SeasonSheepOpHandle immediately, and
+        # SyncFinish removes the operation before the click method returns.
+        # This can occur on an immediate local callback; it must never resend.
+        lua, solver = self.fixture()
+        lua.execute(r'''
+        SheepGameState={Doing=1,Success=2}
+        SheepGameOpType={Click=3,Error=4}
+        local cls={}
+        for _,name in ipairs({'Update','OnDestroy','OnClickCard',
+          'OnUseItem','NextLevel','Again'}) do
+          cls[name]=function() end
+        end
+        ClickCount=0
+        Game={gameState=1,showCards={{}},visualList={},mapCards={},
+          removeList={},temporaryList={}}
+        function Game:CanClick(id) return self.visualList[id]~=nil end
+        local points={}
+        View=setmetatable({engine={game=Game,ClickCard=function() end},
+          syncOps={},cardViews={},lock=false,isMoveItemAnimating=false,
+          ISCanOp=function() return true end}, {__index=cls})
+        for i=1,3 do
+          local id=i*11
+          local x=i*10
+          local point=tostring(x)..'_0_1'
+          local card={gridId=id,pos={x=x,y=0,z=1},pictureId=7,
+            occGridList={1,2,3,4},
+            GetPosToServer=function() return point end}
+          Game.showCards[1][id]=card
+          Game.visualList[id]=card
+          Game.mapCards[id]=card
+          points[point]=id
+          View.cardViews[id]={card=card,OnClickCard=function()
+            ClickCount=ClickCount+1
+            table.insert(View.syncOps,{serverPos=point,isSend=true})
+            View:SeasonSheepOpHandle({type=3,opPointId=point})
+          end}
+        end
+        function cls.SeasonSheepOpHandle(self,packet)
+          local id=points[packet.opPointId]
+          assert(id and #self.syncOps==1)
+          assert(self.syncOps[1].serverPos==packet.opPointId)
+          table.remove(self.syncOps,1)
+          Game.mapCards[id]=nil
+          Game.visualList[id]=nil
+          local empty=true
+          for _ in pairs(Game.mapCards) do empty=false end
+          if empty then Game.gameState=2;Game.rewardsInfo={1} end
+        end
+        package.loaded['UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView']=cls
+        ''')
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'accepted')
+        self.assertTrue(solver.BindView(lua.globals().View))
+        for _ in range(18):
+            solver.Pump()
+            if solver.Status()['data']['status'] == 'completed':
+                break
+        final = solver.Status()['data']
+        self.assertEqual(final['status'], 'completed')
+        self.assertEqual(final['confirmedMoves'], 3)
+        self.assertEqual(lua.globals().ClickCount, 3)
+        self.assertFalse(final['awaitingServer'])
 
 
 if __name__ == "__main__":

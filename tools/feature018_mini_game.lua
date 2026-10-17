@@ -58,7 +58,7 @@ end
 -- an asynchronous packet is in flight. Re-read the original Player identity
 -- and every native server getter at dispatch, serialization, reply and proof.
 -- Never trust a request-supplied UID or the currently selected UI profile.
-local function land_owner_verified()
+local function native_owner_verified()
     local player = member(rawget(_G, "LuaEntry"), "Player")
     if tostring(member(player, "uid")) ~= "3133546747002289" then return false end
     for _, getter in ipairs({ "GetSourceServerId", "GetSelfServerId", "GetCurServerId" }) do
@@ -93,7 +93,7 @@ local function install_land_observer()
         if proof ~= nil and tonumber(id) == proof.cellId then
             proof.targetRequestCount = proof.targetRequestCount + 1
             if proof.dispatching then proof.ownRequestObserved = true end
-            if not land_owner_verified() then proof.ownerMismatchSeen = true end
+            if not native_owner_verified() then proof.ownerMismatchSeen = true end
         end
         return original_create(self, id, ...)
     end
@@ -109,7 +109,7 @@ local function install_land_observer()
             if proof.targetRequestCount ~= 1 or not proof.ownRequestObserved then
                 proof.replyBeforeSoleRequest = true
             end
-            if not land_owner_verified() then proof.ownerMismatchSeen = true end
+            if not native_owner_verified() then proof.ownerMismatchSeen = true end
             proof.replyLandId = id
             proof.replyErrorCode = member(packet, "errorCode")
             proof.replyNativeState = member(packet, "state")
@@ -137,7 +137,7 @@ local function land_receipt(id, fresh_unlocked)
         package.loaded["Net.Msgs.UnlockUserLandMessage"] == land_observer.class and
         land_observer.class.OnCreate == land_observer.create and
         land_observer.class.HandleMessage == land_observer.reply
-    local owner_intact = land_owner_verified() and not proof.ownerMismatchSeen
+    local owner_intact = native_owner_verified() and not proof.ownerMismatchSeen
     return {
         requestId = proof.requestId, beforeState = "locked",
         targetRequestCount = proof.targetRequestCount,
@@ -322,7 +322,7 @@ local function land_unlock_one(fields)
         return blocked("Earlier land unlock is awaiting a native state transition",
                        { cellId = last_land_request_id })
     end
-    if not land_owner_verified() then
+    if not native_owner_verified() then
         return blocked("Land unlock requires UID 3133546747002289 on native server 2289")
     end
     if type(fields) ~= "table" then
@@ -366,7 +366,7 @@ local function land_unlock_one(fields)
        member(check_row, "state") ~= member(next_land.states, "Locked") then
         return blocked("Land changed before the native request could be sent", { cellId = id })
     end
-    if not land_owner_verified() then
+    if not native_owner_verified() then
         return blocked("Native land owner changed before send", { cellId = id })
     end
     land_proof = { cellId = id, requestId = fields.requestId,
@@ -382,7 +382,7 @@ local function land_unlock_one(fields)
     land_proof.dispatched = ok and send_result ~= false and
         land_proof.ownRequestObserved == true and
         land_proof.targetRequestCount == 1 and not land_proof.ownerMismatchSeen and
-        land_owner_verified() and install_land_observer()
+        native_owner_verified() and install_land_observer()
     if not ok or send_result == false then
         return blocked("Native UnlockUserLand dispatch failed", { cellId = id })
     end
@@ -494,6 +494,9 @@ end
 -- logic:AddMember(controlHeroId, heroLevel, true). Never derive IDs/levels from
 -- arbitrary caller input; take both from an already living native team hero.
 local function frontline_context()
+    if not native_owner_verified() then
+        return nil, "Native Frontline requires authorized UID/server 2289"
+    end
     local battle = member(rawget(_G, "DataCenter"), "LWBattleManager")
     local pve = rawget(_G, "PVEType")
     local ui = rawget(_G, "UIManager")
@@ -508,6 +511,14 @@ local function frontline_context()
        logic == nil or member(battle, "curLogic") ~= logic or
        member(battle, "logic") ~= logic then
         return nil, "The current native battle is not this Parkour logic"
+    end
+    -- Original ActFrontBreakSundayData.EnterStage (v26 lines 85-90) marks its
+    -- exact Parkour launch parameter. Generic Parkour battles also pass the
+    -- type/window gate, but may not receive Frontline's G reinforcement.
+    local event = member(logic, "param")
+    if member(event, "fromActFrontBreakSunday") ~= true or
+       not is_integer(member(event, "frontBreakSundayActId")) then
+        return nil, "Current Parkour battle is not a Frontline Breakthrough event"
     end
     local ui_ok, instance = invoke(ui, "GetInstance")
     local open_ok, is_open = invoke(instance, "IsWindowOpen", window_name)
@@ -557,7 +568,8 @@ local function frontline_context()
         return nil, "Native Parkour team count is not independently readable"
     end
     return { battle = battle, logic = logic, team = team, heroId = primary_id,
-             heroLevel = level, count = count }
+             heroLevel = level, count = count,
+             eventId = member(event, "frontBreakSundayActId") }
 end
 
 local function frontline_units(team)
@@ -602,7 +614,9 @@ local function frontline_reinforce(fields)
         local current, changed = frontline_context()
         if current == nil or current.logic ~= context.logic or
            current.team ~= context.team or current.heroId ~= context.heroId or
-           current.heroLevel ~= context.heroLevel or current.count ~= context.count + confirmed then
+           current.heroLevel ~= context.heroLevel or
+           current.eventId ~= context.eventId or
+           current.count ~= context.count + confirmed then
             return blocked(changed or "Native Parkour team changed during reinforcement", {
                 beforeCount = context.count, observedAdded = confirmed,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
@@ -654,9 +668,13 @@ local function frontline_reinforce(fields)
     end
     return { state = "confirmed", data = {
         action = "frontlineReinforce", slot = 5, heroId = context.heroId,
+        frontBreakSundayActId = context.eventId,
         beforeCount = context.count, afterCount = context.count + confirmed,
         addedMembers = confirmed, unitIdentityVerified = true,
         observedCreatedUnits = confirmed,
+        -- Original AddMember has no per-key server request or response. This
+        -- confirms five distinct client battle units, not a server score ACK.
+        serverAckObserved = false, observationScope = "native_local_battle",
         unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
         observation = "native_ParkourBattleLogic_GetMemberCount"
     } }
@@ -672,11 +690,12 @@ local function chest_snapshot(view)
     if member(view, "curSelectIndex") ~= nil then
         return unsupported("A treasure chest has already been selected in this shuffle")
     end
-    local index = member(view, "bestRewardIndex")
-    if not is_integer(index) or index > 3 then
-        local ok, value = invoke(view, "GetBigRewardBoxIndex")
-        if not ok then return unsupported("Best-reward chest is not identified by game data") end
-        index = value
+    -- DataDefine caches this rewardDatas-derived result in bestRewardIndex.
+    -- It must still agree with GetBigRewardBoxIndex on the current shuffle:
+    -- an old cached index can point to a different physical chest.
+    local ok_index, index = invoke(view, "GetBigRewardBoxIndex")
+    if not ok_index or member(view, "bestRewardIndex") ~= index then
+        return unsupported("Native best reward identity changed in this shuffle")
     end
     if not is_integer(index) or index > 3 then
         return unsupported("No best reward is identified in native chest data")
@@ -684,6 +703,10 @@ local function chest_snapshot(view)
     local boxes = member(view, "boxItems")
     local item = member(boxes, index)
     if item == nil then return unsupported("Native chest item is not available") end
+    local item_ok, genuine = invoke(view, "GetBoxItem", index)
+    if not item_ok or genuine ~= item then
+        return unsupported("Native chest item no longer matches the reward index")
+    end
     local moving_ok, moving = invoke(item, "IsMoving")
     local pos_ok, pos = invoke(item, "GetCurPosition")
     if not moving_ok or not pos_ok or pos == nil then
@@ -721,6 +744,21 @@ local function clear_owned_chest_marker()
     return true
 end
 
+local function chest_effect_at(view, x, y, z)
+    -- Original UITreasureChestView.ShowSwitchEffect writes the Unity transform
+    -- position, and UITreasureChestItem.GetCurPosition reads the same property.
+    -- An active effect alone does not establish where the GUI marker appeared.
+    local effect = member(view, "switchEffect")
+    if member(effect, "activeSelf") ~= true then return false end
+    local pos = member(member(effect, "transform"), "position")
+    local px, py, pz = member(pos, "x"), member(pos, "y"), member(pos, "z")
+    local function near(a, b)
+        return type(a) == "number" and type(b) == "number" and
+               a == a and b == b and math.abs(a - b) <= 0.001
+    end
+    return near(px, x) and near(py, y) and near(pz, z)
+end
+
 local function retire_chest_marker_if_ineligible(view)
     if marker_owned_view ~= view then return true end
     -- Same-view state transitions are not view teardown. The source game can
@@ -735,6 +773,9 @@ local function retire_chest_marker_if_ineligible(view)
 end
 
 local function mark_chest()
+    if not native_owner_verified() then
+        return blocked("Black Market marker requires authorized UID/server 2289")
+    end
     M.TryObserveUiClasses()
     local game_state = chest_snapshot(bound_chest_view)
     if game_state.state ~= "confirmed" then return game_state end
@@ -764,13 +805,19 @@ local function mark_chest()
     -- partial activation. Retain ownership if cleanup itself is unsuccessful.
     marker_owned_view = view
     local ok = pcall(show, view, data.x, data.y, data.z)
-    if not ok or member(effect, "activeSelf") ~= true then
+    local still_eligible = chest_snapshot(view)
+    if not ok or still_eligible.state ~= "confirmed" or
+       still_eligible.data.bestRewardBoxIndex ~= data.bestRewardBoxIndex or
+       not chest_effect_at(view, data.x, data.y, data.z) or
+       not chest_effect_at(view, still_eligible.data.x,
+                           still_eligible.data.y, still_eligible.data.z) then
         if not clear_owned_chest_marker() then
             return blocked("Native prize marker failed and owned effect cleanup is incomplete")
         end
-        return blocked("Native prize marker position or activation was not observed")
+        return blocked("Native prize marker position, activation or winning chest changed")
     end
     data.markerVisible = true
+    data.markerPositionVerified = true
     data.markerSource = "UITreasureChestView.ShowSwitchEffect"
     return { state = "confirmed", data = data }
 end
@@ -842,11 +889,15 @@ function M.TryObserveUiClasses()
             local original_state = member(cls, "ChangeSwitchState")
             local original_click = member(cls, "OnClickBox")
             local original_result = member(cls, "OnTreasureChestEndResult")
+            local original_close = member(cls, "OnBtnCloseClick")
+            local original_black = member(cls, "OnBtnBlackClick")
             if type(cls) == "table" and type(original_update) == "function" and
                type(original_destroy) == "function" and
                type(original_state) == "function" and
                type(original_click) == "function" and
-               type(original_result) == "function" then
+               type(original_result) == "function" and
+               type(original_close) == "function" and
+               type(original_black) == "function" then
                 local update = function(view, ...)
                     if bound_chest_view ~= view then M.BindTreasureChestView(view) end
                     retire_chest_marker_if_ineligible(view)
@@ -876,6 +927,14 @@ function M.TryObserveUiClasses()
                     retire_chest_marker_if_ineligible(view)
                     return value
                 end
+                local close = function(view, ...)
+                    if marker_owned_view == view then clear_owned_chest_marker() end
+                    return original_close(view, ...)
+                end
+                local black = function(view, ...)
+                    if marker_owned_view == view then clear_owned_chest_marker() end
+                    return original_black(view, ...)
+                end
                 local destroy = function(view, ...)
                     if marker_owned_view == view then
                         -- The original view is being destroyed. Release the
@@ -892,6 +951,8 @@ function M.TryObserveUiClasses()
                     cls.ChangeSwitchState = state
                     cls.OnClickBox = click
                     cls.OnTreasureChestEndResult = chest_result
+                    cls.OnBtnCloseClick = close
+                    cls.OnBtnBlackClick = black
                 end)
                 if ok then
                     watched_ui_classes[entry.path] = {
@@ -899,9 +960,11 @@ function M.TryObserveUiClasses()
                         originalDestroy = original_destroy,
                         originalState = original_state, originalClick = original_click,
                         originalResult = original_result,
+                        originalClose = original_close, originalBlack = original_black,
                         updateWrapper = update, destroyWrapper = destroy,
                         stateWrapper = state, clickWrapper = click,
                         resultWrapper = chest_result,
+                        closeWrapper = close, blackWrapper = black,
                     }
                     attached = attached + 1
                 else
@@ -913,6 +976,8 @@ function M.TryObserveUiClasses()
                         if member(cls, "ChangeSwitchState") == state then cls.ChangeSwitchState = original_state end
                         if member(cls, "OnClickBox") == click then cls.OnClickBox = original_click end
                         if member(cls, "OnTreasureChestEndResult") == chest_result then cls.OnTreasureChestEndResult = original_result end
+                        if member(cls, "OnBtnCloseClick") == close then cls.OnBtnCloseClick = original_close end
+                        if member(cls, "OnBtnBlackClick") == black then cls.OnBtnBlackClick = original_black end
                     end)
                 end
             end
@@ -941,6 +1006,12 @@ function M.RemoveUiObservation()
             end
             if member(saved.class, "OnTreasureChestEndResult") == saved.resultWrapper then
                 saved.class.OnTreasureChestEndResult = saved.originalResult
+            end
+            if member(saved.class, "OnBtnCloseClick") == saved.closeWrapper then
+                saved.class.OnBtnCloseClick = saved.originalClose
+            end
+            if member(saved.class, "OnBtnBlackClick") == saved.blackWrapper then
+                saved.class.OnBtnBlackClick = saved.originalBlack
             end
         end)
         watched_ui_classes[path] = nil

@@ -60,7 +60,22 @@ local function dictionary_size(obj, max)
     return count
 end
 
+local function approved_native_owner()
+    -- The host authenticates its session, but a login/server transition can
+    -- occur between an accepted Start and a later automated native UI click.
+    local player = get(rawget(_G, 'LuaEntry'), 'Player')
+    if tostring(get(player, 'uid')) ~= '3133546747002289' then return false end
+    for _, getter in ipairs({'GetSourceServerId', 'GetSelfServerId', 'GetCurServerId'}) do
+        local ok, server = call(player, getter)
+        if not ok or tostring(server) ~= '2289' then return false end
+    end
+    return true
+end
+
 local function context()
+    if not approved_native_owner() then
+        return nil, 'Food House requires the authorized native UID/server 2289'
+    end
     local small = get(rawget(_G, 'SmallGameManager'), 'GSheep')
     local manager = get(rawget(_G, 'DataCenter'), 'LWSheepDataManager')
     local source_enum = get(rawget(_G, 'MiniGameSource'), 'Season')
@@ -486,6 +501,10 @@ local function start(request)
         -- Source GSheep.Start handles the Season 4 UI open and the native
         -- LWSheepStartGame request only as required. No NextLevel/Again.
         if not is_open then
+            if not approved_native_owner() then
+                stop_internal('Food House native account changed before Start')
+                return result('failed', run.error)
+            end
             local call_ok = call(ctx.small, 'Start')
             if not call_ok then
                 stop_internal('Native GSheep.Start could not open current Food House level')
@@ -638,6 +657,10 @@ function M.Pump()
         stop_internal('Planned tile is not the current native clickable UI card')
         return false
     end
+    if not approved_native_owner() then
+        stop_internal('Food House native account changed before UI tile click')
+        return false
+    end
     -- Arm the response fence before invoking the UI producer: even an
     -- immediately delivered callback cannot be mistaken for an unrelated op.
     run.pending = {point = next_card.point, untilTime = clock() + MOVE_TIMEOUT, ack = false}
@@ -645,6 +668,7 @@ function M.Pump()
     local click_ok = call(item, 'OnClickCard')
     run.acting = false
     if not click_ok then stop_internal('Native UI tile click failed'); return false end
+    if run.status == 'completed' then return true end
     local sync = get(view, 'syncOps')
     local found = false
     if type(sync) == 'table' then
@@ -652,7 +676,11 @@ function M.Pump()
             if get(op, 'serverPos') == next_card.point then found = true end
         end
     end
-    if not found then
+    -- The original callback can process an immediate matching packet while
+    -- OnClickCard is still on the Lua stack. The reply hook proves it saw
+    -- exactly one sent queued op and SyncFinish removed that exact point;
+    -- in that case absence from syncOps is an ACK, not missing dispatch.
+    if not found and not (run.pending ~= nil and run.pending.ack) then
         stop_internal('Native UI did not queue the expected source-serialized move')
         return false
     end
