@@ -321,7 +321,18 @@ end
 
 local function recall(fields, game_input_clear)
     local admitted, denial, server = request_account(fields)
-    if not admitted then return denial end
+    if not admitted then
+        local requested_slot = type(fields)=="table" and tonumber(fields.slot) or nil
+        local pending = requested_slot and outstanding[requested_slot] or nil
+        if pending then
+            local native_uid, _, native_server = authorized_subaccount()
+            if native_uid and native_server and
+               (native_uid ~= pending.uid or native_server ~= pending.server) then
+                pending.accountFenceBroken = true
+            end
+        end
+        return denial
+    end
     if type(fields.authorizedUid)~="string" or fields.authorizedUid~=admitted then
         return blocked("Recall request UID differs from authenticated native account")
     end
@@ -356,6 +367,10 @@ local function recall(fields, game_input_clear)
     end
     local pending = outstanding[slot]
     if pending and (pending.uid ~= admitted or pending.server ~= server) then
+        pending.accountFenceBroken = true
+        return blocked("Native recall account/server changed after dispatch; earlier return remains unresolved")
+    end
+    if pending and pending.accountFenceBroken then
         return blocked("Native recall account/server changed after dispatch; earlier return remains unresolved")
     end
     local selected, reason
@@ -384,26 +399,36 @@ local function recall(fields, game_input_clear)
         local matched_reply = pending.returnReplyObserved == true and
             pending.identity == identity and recall_observer_intact() and
             pending_recall_owner(pending)
-        if current == target_enum and matched_reply then
+        if current == target_enum and pending.dispatchOutcomeUncertain~=true and
+           pending.accountFenceBroken~=true and
+           pending.beforeTarget ~= target_enum and pending_recall_owner(pending) then
             outstanding[slot] = nil
+            local observation = matched_reply and
+                "native_world_march_return_reply_and_target" or
+                "native_world_march_return_server_applied_poststate"
             return {state="confirmed", data={
-                observation="native_world_march_return_reply_and_target", slot=slot,
+                observation=observation, slot=slot,
                 marchUuid=selected.uuid, formationUuid=selected.formation,
                 ownerUid=admitted, serverId=server,sourceServerId=server,
                 target="BACK_HOME", returning=true,
                 nativePostStateObserved=true,
+                serverAppliedPostStateObserved=true,
+                authoritativePostStateSource="WorldMarch.GetMarchTargetType_after_dispatch",
                 observedAfterPreviousDispatch=pending.dispatchOutcomeUncertain~=true,
                 requestPreviouslyDispatched=pending.dispatchOutcomeUncertain~=true,
                 priorDispatchOutcomeUncertain=pending.dispatchOutcomeUncertain==true,
                 priorTarget=pending.beforeTarget,
+                priorTargetWasBackHome=false,
                 -- WorldMarchChange has no verified per-request echoed nonce;
                 -- a cached BACK_HOME transition after our send can coincide
                 -- with an original game UI/manually initiated recall.
-                originalResponseObserved=true,
-                identityMatchedReturnReplyObserved=true,
-                nativeReturnReplyMatched=true,
-                replyCorrelation="native_owner_formation_march_return_reply",
-                replyMessage="WorldMarchChangeMessage",
+                originalResponseObserved=matched_reply,
+                identityMatchedReturnReplyObserved=matched_reply,
+                nativeReturnReplyMatched=matched_reply,
+                replyCorrelation=matched_reply and
+                    "native_owner_formation_march_return_reply" or
+                    "authoritative_same_real_march_back_home_poststate",
+                replyMessage=matched_reply and "WorldMarchChangeMessage" or nil,
                 replyCount=pending.replyCount,
                 replyMarchUuid=pending.replyMarchUuid,
                 replyOwnerUid=pending.replyOwnerUid,

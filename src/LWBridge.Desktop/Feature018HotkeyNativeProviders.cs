@@ -646,8 +646,12 @@ internal sealed class Feature018HotkeyNativeProviders
                 return active.GetBoolean() == (shields > 0);
 
             case Feature018HotkeyKind.RecallSquad:
-                return observed.GetString() == "native_world_march_return_reply_and_target" &&
-                       RecallCausalityMatches(evidence) &&
+                bool recallProof =
+                    observed.GetString() == "native_world_march_return_reply_and_target"
+                        ? RecallCausalityMatches(evidence)
+                        : observed.GetString() == "native_world_march_return_server_applied_poststate" &&
+                          RecallServerAppliedPostStateMatches(evidence);
+                return recallProof &&
                        evidence.TryGetProperty("slot", out JsonElement slot) &&
                        slot.TryGetInt32(out int actualSlot) && actualSlot == intent.Slot &&
                        evidence.TryGetProperty("target", out JsonElement target) &&
@@ -742,6 +746,21 @@ internal sealed class Feature018HotkeyNativeProviders
         sent.ValueKind == JsonValueKind.True &&
         evidence.TryGetProperty("nativeReturnReplyMatched", out JsonElement ack) &&
         ack.ValueKind == JsonValueKind.True;
+
+    private static bool RecallServerAppliedPostStateMatches(JsonElement evidence) =>
+        evidence.TryGetProperty("requestPreviouslyDispatched", out JsonElement sent) &&
+        sent.ValueKind == JsonValueKind.True &&
+        evidence.TryGetProperty("nativePostStateObserved", out JsonElement poststate) &&
+        poststate.ValueKind == JsonValueKind.True &&
+        evidence.TryGetProperty("serverAppliedPostStateObserved", out JsonElement applied) &&
+        applied.ValueKind == JsonValueKind.True &&
+        evidence.TryGetProperty("priorTargetWasBackHome", out JsonElement alreadyReturning) &&
+        alreadyReturning.ValueKind == JsonValueKind.False &&
+        evidence.TryGetProperty("authoritativePostStateSource", out JsonElement source) &&
+        source.ValueKind == JsonValueKind.String &&
+        source.GetString() == "WorldMarch.GetMarchTargetType_after_dispatch" &&
+        evidence.TryGetProperty("serverAcknowledgementCorrelated", out JsonElement ack) &&
+        ack.ValueKind == JsonValueKind.False;
 
     private static bool IsNativeUuid(JsonElement evidence, string name) =>
         evidence.TryGetProperty(name, out JsonElement field) &&

@@ -564,6 +564,36 @@ internal static class Feature018HotkeyCaptureChecks
         Require((await nativeCoordinator.TryDispatchAsync(
                     new(Feature018HotkeyKind.RecallSquad, 2))).Working,
             "explicit independently matched native return reply rejected");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_server_applied_poststate",
+            slot = 2, marchUuid = "803001", formationUuid = "1001",
+            target = "BACK_HOME", returning = true,
+            requestPreviouslyDispatched = true,
+            nativePostStateObserved = true,
+            serverAppliedPostStateObserved = true,
+            priorTargetWasBackHome = false,
+            authoritativePostStateSource = "WorldMarch.GetMarchTargetType_after_dispatch",
+            serverAcknowledgementCorrelated = false,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+                    new(Feature018HotkeyKind.RecallSquad, 2))).Working,
+            "authoritative same-real-march BACK_HOME transition rejected without diagnostic reply");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_server_applied_poststate",
+            slot = 2, marchUuid = "803001", formationUuid = "1001",
+            target = "BACK_HOME", returning = true,
+            requestPreviouslyDispatched = true,
+            nativePostStateObserved = true,
+            serverAppliedPostStateObserved = true,
+            priorTargetWasBackHome = true,
+            authoritativePostStateSource = "WorldMarch.GetMarchTargetType_after_dispatch",
+            serverAcknowledgementCorrelated = false,
+        });
+        Require(!(await nativeCoordinator.TryDispatchAsync(
+                    new(Feature018HotkeyKind.RecallSquad, 2))).Working,
+            "preexisting BACK_HOME state falsely admitted as server-applied recall transition");
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.RecallSquad, 3))).Status == Feature018HotkeyActionStatus.Failed,
             "another squad slot's return-home receipt falsely confirmed shortcut");
@@ -648,14 +678,18 @@ internal static class Feature018HotkeyCaptureChecks
                               only.ValueKind == JsonValueKind.True
             ? JsonSerializer.SerializeToElement(new
             {
-                observation = "native_world_march_return_reply_and_target",
+                observation = "native_world_march_return_server_applied_poststate",
                 slot = 2,
                 marchUuid = "803001",
                 formationUuid = "1001",
                 target = "BACK_HOME",
                 returning = true,
                 requestPreviouslyDispatched = true,
-                nativeReturnReplyMatched = true,
+                nativePostStateObserved = true,
+                serverAppliedPostStateObserved = true,
+                priorTargetWasBackHome = false,
+                authoritativePostStateSource = "WorldMarch.GetMarchTargetType_after_dispatch",
+                serverAcknowledgementCorrelated = false,
             })
             : JsonSerializer.SerializeToElement(new
             {

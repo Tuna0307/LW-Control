@@ -643,11 +643,9 @@ def test_recall_pending_uid_server_snapshot():
     for getter in ("sourceServer", "selfServer", "currentServer"):
         state[getter] = 2296
     restored = call(query_only=True)
-    require(restored["state"] == "accepted" and
-            restored["data"]["nativePostStateObserved"] is True and
-            restored["data"]["identityMatchedReturnReplyObserved"] is False and
+    require(restored["state"] == "failed" and
             state["dispatches"] == 1,
-            "restored original account poststate was promoted to reply proof")
+            "restored original account revived recall after observed UID/server switch")
 
 
 def test_recall_original_reply_and_queued_poststate():
@@ -728,11 +726,16 @@ def test_recall_original_reply_and_queued_poststate():
         return_reply(lua, state, **wrong)
         state["target"] = 77
         outcome = call(query_only=True)
-        require(outcome["state"] == "accepted" and
+        require(outcome["state"] == "confirmed" and
                 outcome["data"]["nativePostStateObserved"] is True and
                 outcome["data"]["identityMatchedReturnReplyObserved"] is False and
+                outcome["data"]["serverAppliedPostStateObserved"] is True and
+                outcome["data"]["priorTargetWasBackHome"] is False and
+                outcome["data"]["observation"] ==
+                "native_world_march_return_server_applied_poststate" and
                 state["dispatches"] == 1,
-                "unrelated/error/incomplete original reply donated recall proof: " + repr(wrong))
+                "authoritative BACK_HOME poststate was lost when reply diagnostics mismatched: " +
+                repr(wrong))
 
     for partial in (
         {"ownerUid": None},
@@ -879,24 +882,17 @@ def main():
     require(state["dispatches"] == 1, "duplicate return dispatch")
     state["target"] = 77
     cached = call(query_only=True)
-    require(cached["state"] == "accepted" and
+    require(cached["state"] == "confirmed" and
             cached["data"]["nativePostStateObserved"] is True and
-            cached["data"]["identityMatchedReturnReplyObserved"] is False,
-            "cached BACK_HOME without an original reply confirmed the recall")
-    return_reply(lua,state)
-    confirmed = call(query_only=True)
-    require(confirmed["state"] == "confirmed" and
-            confirmed["data"]["observation"] == "native_world_march_return_reply_and_target" and
-            confirmed["data"]["nativePostStateObserved"] is True and
-            confirmed["data"]["observedAfterPreviousDispatch"] is True and
-            confirmed["data"]["priorTarget"] == 17 and
-            confirmed["data"]["originalResponseObserved"] is True and
-            confirmed["data"]["identityMatchedReturnReplyObserved"] is True and
-            confirmed["data"]["exactRequestCausality"] is False and
-            confirmed["data"]["nativeReplyCausalityConfirmed"] is False and
-            confirmed["data"]["serverAcknowledgementCorrelated"] is False and
-            confirmed["data"]["requestDispatched"] is False,
-            "identity-matched reply/poststate was lost or promoted to exact-request causality")
+            cached["data"]["serverAppliedPostStateObserved"] is True and
+            cached["data"]["identityMatchedReturnReplyObserved"] is False and
+            cached["data"]["observation"] ==
+            "native_world_march_return_server_applied_poststate" and
+            cached["data"]["priorTarget"] == 17 and
+            cached["data"]["priorTargetWasBackHome"] is False and
+            cached["data"]["serverAcknowledgementCorrelated"] is False and
+            cached["data"]["exactRequestCausality"] is False,
+            "authoritative post-send BACK_HOME transition was not confirmed conservatively")
     require(state["dispatches"] == 1, "poststate polling created another request")
     require(call(query_only=True)["state"] == "failed" and state["dispatches"] == 1,
             "recall query-only started or confirmed without matching pending send")
