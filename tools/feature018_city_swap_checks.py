@@ -1,7 +1,8 @@
 """Inert source-v26/Lua53 2x2 City swap, native ACK, cancel and retry inverses.
 
-Uses the two exact 2289 snapshot UUIDs and anchors from receipt 080448, while
-explicitly modelling hypothetical zone permissions; does not access the game.
+Uses exact genuine 9726 and an explicitly hypothetical 9724 replacement for
+sendable two-building simulations. Historical 9725 is read-only/blocked in all
+action tests; the real owner layout remains 9725/9726, not this fixture.
 """
 from __future__ import annotations
 
@@ -9,7 +10,8 @@ from feature018_city_game_checks import fake, check_original_game_wire
 from feature018_city_game_checks import bytecode, probe, root_methods, disassemble
 
 
-ONE = 1392040865799139725
+HISTORICAL = 1392040865799139725
+ONE = 1392040865799139724  # synthetic peer, never claimed present in the account
 TWO = 1392040865799139726
 SWAP = f'{ONE}:4442;{TWO}:4242'
 
@@ -32,7 +34,7 @@ local function fixture(uuid, point)
       return {[p]=true,[p-1]=true,[p-100]=true,[p-101]=true}
     end}
 end
-local a=1392040865799139725
+local a=1392040865799139724
 local b=1392040865799139726
 DataCenter.BuildManager.allBuilding = {
    [a]=fixture(a,4242),[b]=fixture(b,4442),
@@ -125,6 +127,16 @@ def restore(lua, job_id):
     }))
 
 
+def restore_start(lua, job_id, *, opt_in='1', request_id='restore-new', extra=None):
+    fields = {
+        'jobId': job_id, 'profileId': 'p1', 'launchSessionId': 'session1',
+        'challenge': 'nonce', 'requestId': request_id, 'restoreOptIn': opt_in,
+    }
+    if extra:
+        fields.update(extra)
+    return lua.globals().Act('city_layout_restore_start',lua.table_from(fields))
+
+
 def planned_steps(preflight):
     return [(preflight['plannedMoves'][i]['uuid'],
              preflight['plannedMoves'][i]['fromPointId'],
@@ -139,7 +151,7 @@ def test_exact_native_swap():
     assert_that(len(before['buildings']) == 2 and
                 [before['buildings'][i]['uuid'] for i in (1,2)] ==
                 [str(ONE),str(TWO)],
-                'exact native 2289 large integer building identities changed')
+                'synthetic safe 2x2 peer and real 9726 int64 fixture identities changed')
     assert_that(before['swapPreflightSearch']['examinedPairs'] == 1 and
                 before['swapPreflightSearch']['validPairs'] == 1 and
                 before['swapPreflightSearch']['historicalRequestsReconciled'] is False and
@@ -186,6 +198,280 @@ def test_exact_native_swap():
     assert_that(lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId'] == 4442
                 and lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId'] == 4242,
                 '2x2 final authoritative positions incorrect')
+
+
+def test_historical_original_uuid_never_sent():
+    # Preserve the original genuine 9725/9726 read-only pair as historical
+    # evidence, independently of the synthetic 9724/9726 actionable fixture.
+    # Historical 9725's missing native Replace nonce prohibits direct and
+    # temporary-buffer sends, irrespective of a current pointId match.
+    lua, producer = scene()
+    lua.execute(f'''
+      local b=DataCenter.BuildManager.allBuilding[{ONE}]
+      DataCenter.BuildManager.allBuilding[{ONE}]=nil
+      b.uuid={HISTORICAL}
+      DataCenter.BuildManager.allBuilding[{HISTORICAL}]=b
+    ''')
+    observed=state(lua)
+    preflight=observed['swapPreflights'][1]
+    assert_that({observed['buildings'][i]['uuid'] for i in (1,2)} ==
+                {str(HISTORICAL),str(TWO)} and
+                preflight['preflightOnly'] is True and
+                preflight['dispatchAuthorized'] is False and
+                preflight['historicalUncertaintyInPlan'] is True and
+                preflight['dispatchBlockReason']=='CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN',
+                'genuine historical 2x2 pair advertised as action-ready')
+    for placements in (
+        f'{HISTORICAL}:4244',
+        f'{HISTORICAL}:4442;{TWO}:4242',
+        f'{TWO}:4242;{HISTORICAL}:4442',
+    ):
+        denied=lua.globals().Act('city_layout_apply_start',
+                     lua.globals().Fields(observed['layoutRevision'],placements))
+        assert_that(denied['state']=='failed' and
+                    denied['errorCode']=='CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN' and
+                    len(lua.globals().ObservedMoves)==0,
+                    'old 9725 uncertain native Replace was replayed through Move')
+    # A different building remains usable; the old 9725 still cannot be sent,
+    # even though this new request was admitted and positively acknowledged.
+    approved=lua.globals().Act('city_layout_apply_start',
+             lua.globals().Fields(observed['layoutRevision'],f'{TWO}:4444'))
+    assert_that(approved['state']=='accepted' and
+                len(lua.globals().ObservedMoves)==1 and
+                lua.globals().ObservedMoves[1]['uuid']==TWO,
+                'historical guard incorrectly disabled safe unrelated 9726 Move')
+    confirm(lua,TWO,4444)
+    producer.Pump()
+    inverse=restore(lua,approved['data']['status']['jobId'])['data']
+    assert_that(inverse['ready'] is True and
+                inverse['historicalUncertaintyInPlan'] is False and
+                inverse['historicalRequestsReconciled'] is False,
+                'safe 9726 partial restore implied old 9725 ACK clearance')
+
+
+def test_explicit_restoration_action():
+    # The opt-in handler is a fully separate native job. It must obtain its
+    # destinations from the original immutable source, not arbitrary inputs,
+    # and respect the same one-packet/native reply/full footprint lifecycle.
+    phases = (
+        (1, ((ONE,4244),), ((ONE,4242),)),
+        (2, ((ONE,4244),(TWO,4242)), ((TWO,4442),(ONE,4242))),
+        (3, ((ONE,4244),(TWO,4242),(ONE,4442)),
+            ((ONE,4444),(TWO,4442),(ONE,4242))),
+    )
+    for count, forward, backward in phases:
+        lua, producer=scene()
+        revision=state(lua)['layoutRevision']
+        start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        parent_id=start['data']['status']['jobId']
+        # An explicit Restore request must not turn a running job into a
+        # mutation or confuse its first already-issued native packet.
+        still_pending=restore_start(lua,parent_id)
+        assert_that(still_pending['errorCode']=='CITY_LAYOUT_BUSY' and
+                    len(lua.globals().ObservedMoves)==1,
+                    'Restore started while original native Move was outstanding')
+        denied=restore_start(lua,parent_id,opt_in='0')
+        assert_that(denied['errorCode']=='CITY_LAYOUT_RESTORE_CONSENT_REQUIRED' and
+                    len(lua.globals().ObservedMoves)==1,
+                    'Restore accepted without affirmative consent')
+        for index,(uuid,target) in enumerate(forward,1):
+            if count<3 and index==count:
+                lua.globals().Act('city_layout_apply_cancel',lua.table_from({
+                    'jobId':parent_id,'profileId':'p1','launchSessionId':'session1',
+                    'challenge':'nonce',
+                }))
+            confirm(lua,uuid,target)
+            producer.Pump()
+        settled=status(lua,revision)
+        assert_that(settled['completedMoves']==count and
+                    settled['state']==('completed' if count==3 else 'cancelled') and
+                    settled['inFlight'] is False,
+                    'original 2x2 job not terminally settled before restore')
+        preflight=restore(lua,parent_id)['data']
+        assert_that(preflight['ready'] is True and
+                    preflight['dispatchAuthorized'] is False and
+                    len(preflight['plannedMoves'])==len(backward),
+                    'read-only inverse missing source-backed original anchors')
+        packets=len(lua.globals().ObservedMoves)
+        wrong_job=restore_start(lua,parent_id+'-old')
+        wrong_owner=restore_start(lua,parent_id,extra={'profileId':'other'})
+        invalid_token=restore_start(lua,parent_id,request_id='forged nonce')
+        forged=restore_start(lua,parent_id,opt_in='0',extra={
+            'placements': f'{TWO}:9999','uuid':str(TWO),'pointId':9999})
+        assert_that(wrong_job['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                    wrong_owner['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                    invalid_token['errorCode']=='CITY_LAYOUT_RESTORE_REQUEST_INVALID' and
+                    forged['errorCode']=='CITY_LAYOUT_RESTORE_CONSENT_REQUIRED' and
+                    len(lua.globals().ObservedMoves)==packets,
+                    'invalid restore identity/consent caused native action')
+        authorized=restore_start(lua,parent_id,extra={
+            'placements':f'{TWO}:9999','uuid':str(TWO),'pointId':9999})
+        assert_that(authorized['state']=='accepted' and
+                    authorized['data']['status']['restoration'] is True and
+                    authorized['data']['status']['restoreOfJobId']==parent_id and
+                    authorized['data']['status']['jobId']!=parent_id and
+                    len(lua.globals().ObservedMoves)==packets+1,
+                    'explicit restore did not dispatch first exact child Move')
+        child=authorized['data']['status']['jobId']
+        reentry=restore_start(lua,parent_id)
+        assert_that(reentry['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                    len(lua.globals().ObservedMoves)==packets+1,
+                    'retired original job allowed duplicate opt-in restore')
+        for index,(uuid,target) in enumerate(backward,1):
+            observed_packet=lua.globals().ObservedMoves[packets+index]
+            assert_that(observed_packet['uuid']==uuid and
+                        observed_packet['pointId']==target,
+                        'restore sender used forged destination or wrong building')
+            producer.Pump()
+            assert_that(len(lua.globals().ObservedMoves)==packets+index,
+                        'restoration dispatched later stage before native ACK')
+            confirm(lua,uuid,target)
+            producer.Pump()
+        completed=status(lua,revision)
+        assert_that(completed['state']=='completed' and
+                    completed['jobId']==child and
+                    completed['restoration'] is True and
+                    completed['completedMoves']==len(backward) and
+                    completed['matchingNativeReplies']==len(backward) and
+                    completed['inFlight'] is False and
+                    lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId']==4242 and
+                    lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId']==4442 and
+                    lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
+                    lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                    lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply'),
+                    'original 2x2 native restoration lacked exact ACKs/state/hook cleanup')
+
+
+def test_restore_cancel_preserves_true_original_anchors():
+    # Three-step completed pair swap, then a second original-restore job
+    # cancelled with its second native packet in flight. A subsequent inverse
+    # MUST finish the first job's original layout, not undo the partial
+    # restore back to the swapped arrangement.
+    lua, producer=scene()
+    rev=state(lua)['layoutRevision']
+    first=lua.globals().Act('city_layout_apply_start',values(lua,rev))
+    for who,target in ((ONE,4244),(TWO,4242),(ONE,4442)):
+        confirm(lua,who,target)
+        producer.Pump()
+    first_id=first['data']['status']['jobId']
+    child_start=restore_start(lua,first_id)
+    assert_that(child_start['state']=='accepted', 'first restoration not admitted')
+    child_id=child_start['data']['status']['jobId']
+    initial_packet_count=len(lua.globals().ObservedMoves)
+    confirm(lua,ONE,4444)
+    producer.Pump()
+    assert_that(len(lua.globals().ObservedMoves)==initial_packet_count+1 and
+                lua.globals().ObservedMoves[initial_packet_count+1]['uuid']==TWO,
+                'second restore step was not sent after first source ACK')
+    cancelled=lua.globals().Act('city_layout_apply_cancel',lua.table_from({
+        'jobId':child_id,'profileId':'p1','launchSessionId':'session1',
+        'challenge':'nonce',
+    }))
+    assert_that(cancelled['data']['status']['state']=='cancelling',
+                'restore-child in-flight cancellation not acknowledged')
+    confirm(lua,TWO,4442)
+    producer.Pump()
+    stopped=status(lua,rev)
+    assert_that(stopped['state']=='cancelled' and
+                stopped['completedMoves']==2 and
+                stopped['matchingNativeReplies']==2 and
+                stopped['inFlight'] is False and
+                len(lua.globals().ObservedMoves)==initial_packet_count+1,
+                'restore-child cancel dispatched last packet')
+    inverse=restore(lua,child_id)['data']
+    assert_that(inverse['ready'] is True and
+                inverse['restorationRequired'] is True and
+                inverse['originalPlacements']==f'{ONE}:4242' and
+                planned_steps(inverse)==[(str(ONE),4444,4242,False)],
+                'nested restored job incorrectly defined swapped intermediate anchors as original')
+    followup=restore_start(lua,child_id)
+    assert_that(followup['state']=='accepted' and
+                followup['data']['status']['restoreOfJobId']==child_id and
+                len(lua.globals().ObservedMoves)==initial_packet_count+2 and
+                lua.globals().ObservedMoves[initial_packet_count+2]['uuid']==ONE and
+                lua.globals().ObservedMoves[initial_packet_count+2]['pointId']==4242,
+                'second restore did not continue towards true initial layout')
+    confirm(lua,ONE,4242)
+    producer.Pump()
+    latest_id=followup['data']['status']['jobId']
+    complete=status(lua,rev)
+    assert_that(complete['state']=='completed' and
+                complete['completedMoves']==1 and
+                complete['matchingNativeReplies']==1 and
+                restore(lua,latest_id)['data']['originalLayoutConfirmed'] is True and
+                restore(lua,latest_id)['data']['restorationRequired'] is False and
+                lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId']==4242 and
+                lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId']==4442,
+                'nested restoration failed genuine original native footprint readiness')
+
+
+def test_restoration_late_ack_and_historical_inbound_fence():
+    # Actual source .9726 has previously moved/restored. A new restoration
+    # child still must not send a second Move while its reply is uncertain.
+    lua,producer=scene()
+    lua.execute('Clock=100; os.time=function() return Clock end')
+    revision=state(lua)['layoutRevision']
+    first=lua.globals().Act('city_layout_apply_start',
+             lua.globals().Fields(revision,f'{TWO}:4444'))
+    assert_that(first['state']=='accepted','safe 9726 fixture not dispatched')
+    confirm(lua,TWO,4444)
+    producer.Pump()
+    parent=first['data']['status']['jobId']
+    child=restore_start(lua,parent)
+    assert_that(child['state']=='accepted','9726 restore child not sent')
+    child_id=child['data']['status']['jobId']
+    count=len(lua.globals().ObservedMoves)
+    lua.execute('Clock=116')
+    timed=status(lua,revision)
+    assert_that(timed['state']=='failed' and
+                timed['errorCode']=='GAME_MOVE_RESULT_TIMEOUT' and
+                timed['inFlight'] is True and timed['restoration'] is True and
+                restore_start(lua,child_id)['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                restore(lua,child_id)['data']['ready'] is False and
+                len(lua.globals().ObservedMoves)==count,
+                'timed-out restore child unlocked uncertain duplicate Move')
+    confirm(lua,TWO,4442)
+    producer.Pump()
+    settled=status(lua,revision)
+    final_inverse=restore(lua,child_id)['data']
+    assert_that(settled['state']=='failed' and
+                settled['completedMoves']==1 and
+                settled['matchingNativeReplies']==1 and
+                settled['inFlight'] is False and
+                final_inverse['originalLayoutConfirmed'] is True and
+                final_inverse['restorationRequired'] is False and
+                len(lua.globals().ObservedMoves)==count and
+                lua.eval('SFSNetwork.SendMessage == OriginalNativeSend'),
+                'late exact native child ACK resumed abandoned plan or lost original layout')
+
+    # The historical 9725 Replace reply has no nonce, even after the .9726
+    # parent settled. It may arrive while the new child is pending, so keep
+    # the child quarantined despite matching Move buildInfo/after-state.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    parent=lua.globals().Act('city_layout_apply_start',
+             lua.globals().Fields(revision,f'{TWO}:4444'))
+    confirm(lua,TWO,4444)
+    producer.Pump()
+    child=restore_start(lua,parent['data']['status']['jobId'])
+    assert_that(child['state']=='accepted','inbound child fence fixture not sent')
+    count=len(lua.globals().ObservedMoves)
+    lua.execute('DataCenter.BuildManager:FreeBuildingReplaceNewHandle({errorCode=99001})')
+    assert_that(lua.eval('NativeReplaceReplyInvocations')==1,
+                'original v26 historical Replace handler was bypassed')
+    confirm(lua,TWO,4442)
+    producer.Pump()
+    stuck=status(lua,revision)
+    assert_that(stuck['state']=='failed' and
+                stuck['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                stuck['inFlight'] is True and
+                stuck['nativeReplaceReplyCount']==1 and
+                stuck['inboundReplaceCollisionObserved'] is True and
+                stuck['historicalRequestsReconciled'] is False and
+                restore_start(lua,child['data']['status']['jobId'])
+                    ['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                len(lua.globals().ObservedMoves)==count,
+                'historical old Replace inbound reply falsely cleared 9726 restoration')
 
 
 def test_negative_native_zones():
@@ -309,9 +595,8 @@ def test_read_only_original_restoration():
                     info['restorationRequired'] is True and
                     info['originalLayoutConfirmed'] is False and
                     info['historicalRequestsReconciled'] is False and
-                    info['historicalUncertaintyInPlan'] is True and
+                    info['historicalUncertaintyInPlan'] is False and
                     info['dispatchAuthorized'] is False and
-                    info['dispatchBlockReason']=='CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN' and
                     info['preflightOnly'] is True and
                     info['requestDispatched'] is False and
                     info['pendingNativeMove'] is False and
@@ -356,7 +641,7 @@ def test_read_only_original_restoration():
     after=restore(lua,job_id)['data']
     assert_that(after['ready'] is True and
                 after['restorationRequired'] is True and
-                after['historicalUncertaintyInPlan'] is True and
+                after['historicalUncertaintyInPlan'] is False and
                 planned_steps(after)==[(str(ONE),4244,4242,False)] and
                 len(lua.globals().ObservedMoves)==1,
                 'late exact native Move ACK did not permit fresh read-only restore plan')
@@ -536,7 +821,7 @@ def test_historical_inbound_replace_collision():
     # The original handler must still run once, including its error path.
     for phase, reply in (
         ('error_before_move_ack', '{errorCode=80001}'),
-        ('old_9725_success', f'{{buildInfo={{uuid={ONE},pointId=4144,bId=10210000}}}}'),
+        ('old_9725_success', f'{{buildInfo={{uuid={HISTORICAL},pointId=4144,bId=10210000}}}}'),
         ('foreign_building_success', f'{{buildInfo={{uuid={TWO},pointId=4444,bId=10210000}}}}'),
         ('after_move_ack_before_pump', '{errorCode=81000}'),
         ('after_timeout', '{errorCode=82000}'),
@@ -790,6 +1075,10 @@ def main():
     check_original_game_wire()
     check_historical_wrong_type_source()
     test_exact_native_swap()
+    test_historical_original_uuid_never_sent()
+    test_explicit_restoration_action()
+    test_restore_cancel_preserves_true_original_anchors()
+    test_restoration_late_ack_and_historical_inbound_fence()
     test_negative_native_zones()
     test_nearest_full_2x2_buffer()
     test_read_only_original_restoration()
@@ -799,9 +1088,9 @@ def main():
     test_unexpected_native_occupancy_during_swap()
     test_displaced_native_observers_and_sync_reply()
     test_stale_cancel_does_not_hit_reused_request_id()
-    print('FEATURE018_CITY_SWAP: PASS v26 exact 2x2 native UUID '
-          'swap preflight/3x ACK/cancel/no-buffer/late uncertainty/'
-          'outbound collision/old Replace inbound reply/native occupancy')
+    print('FEATURE018_CITY_SWAP: PASS source-v26 safe synthetic 2x2 peer + '
+          'real-shaped 9726; historical 9725 no-send; 3x ACK, explicit '
+          'restore/cancel/late uncertainty/inbound-outbound collision/occupancy')
 
 
 if __name__=='__main__':

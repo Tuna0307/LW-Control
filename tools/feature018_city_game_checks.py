@@ -607,17 +607,17 @@ def main():
               '101:4'))['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN',
           'local coordinate-only change falsely released uncertain native Move')
 
-    # A real 2289 building UUID is > 2^53. Preserve the exact source-native
-    # integer through the public decimal ID lookup and original Move packet;
-    # converting its decimal ID through a Lua double would silently retarget.
+    # The safe synthetic adjacent UUID is > 2^53. Preserve an exact native
+    # integer through the decimal lookup and original Move wire, without
+    # re-sending the historically unresolved real 9725 building.
     lua_large, _ = fake()
     get_large = lambda name, fields=None: lua_large.globals().Act(name, fields)
-    native_uuid = 1392040865799139725
+    native_uuid = 1392040865799139724
     lua_large.execute('''
       local building = DataCenter.BuildManager.allBuilding[101]
       DataCenter.BuildManager.allBuilding[101] = nil
-      building.uuid = 1392040865799139725
-      DataCenter.BuildManager.allBuilding[1392040865799139725] = building
+      building.uuid = 1392040865799139724
+      DataCenter.BuildManager.allBuilding[1392040865799139724] = building
     ''')
     large_revision = get_large('city_layout_snapshot_get')['data']['layoutRevision']
     large_start = get_large('city_layout_apply_start',

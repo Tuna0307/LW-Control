@@ -27,6 +27,14 @@ local MAX_CANDIDATE_BUILDINGS = 16
 local MAX_CANDIDATES_PER_BUILDING = 3
 local MAX_SWAP_PREFLIGHT_PAIRS = 8
 local MOVE_RESPONSE_TIMEOUT_SECONDS = 15
+-- Exact native 2289 UUID. The preserved 062112/063021 receipts contain an
+-- existing-building movement attempted through the *wrong* Replace message,
+-- without a uniquely attributable server ACK. A fresh current coordinate or
+-- a source-valid plan cannot settle that old request. Do not permit this
+-- native building to be sent again through any generated Move sequence until
+-- an independently source-attributable settlement exists (not available in
+-- the v26 reply schema). Unrelated buildings remain actionable.
+local HISTORICAL_UNCERTAIN_UUID = '1392040865799139725'
 
 local function unsupported(code, message)
     return { state = 'unsupported', errorCode = code, error = message }
@@ -674,6 +682,13 @@ local function validate_state(values, known_state, known_meta)
         temporaryMoves = temporary }, state, meta, steps
 end
 
+local function historical_uncertainty_in_steps(steps)
+    for _, step in ipairs(steps or {}) do
+        if step.uuid == HISTORICAL_UNCERTAIN_UUID then return true end
+    end
+    return false
+end
+
 local function snapshot_swap_preflights(state, meta)
     -- The R4 native 2289 snapshot has exactly two movable 2x2 buildings:
     -- UUIDs ending 9725 and 9726. Their separate free destinations cannot
@@ -718,6 +733,11 @@ local function snapshot_swap_preflights(state, meta)
                         secondUuid = b.uuid, secondPointId = b.pointId,
                         bufferCount = validation.temporaryMoves,
                         plannedMoves = sequence,
+                        dispatchAuthorized = not historical_uncertainty_in_steps(steps),
+                        historicalUncertaintyInPlan = historical_uncertainty_in_steps(steps),
+                        dispatchBlockReason =
+                            historical_uncertainty_in_steps(steps) and
+                            'CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN' or nil,
                         -- Geometric/source permission only. Server ACK and
                         -- independent earlier-send settlement are unproven.
                         preflightOnly = true,
@@ -755,6 +775,9 @@ local function status_data(job)
     if job == nil then return { state = 'idle' } end
     return {
         jobId = job.jobId,
+        restoration = job.restoreOfJobId ~= nil,
+        restoreOfJobId = job.restoreOfJobId,
+        historicalRequestsReconciled = false,
         state = job.state == 'running' and job.cancelRequested and 'cancelling' or job.state,
         totalMoves = #job.steps, completedMoves = job.completed,
         temporaryMoves = job.temporaryMoves,
@@ -1241,7 +1264,11 @@ local function read_original_restore_preflight(job, feature)
     end
     local original_placements = {}
     for uuid, source in pairs(job.sources) do
-        local before = source.public.pointId
+        -- In a restoration child, source.public.pointId is the *intermediate*
+        -- pre-restore position. Never treat that as the user's original
+        -- layout when a second Cancel/late ACK requires recovery again.
+        local before = job.originalAnchors and job.originalAnchors[uuid]
+            or source.public.pointId
         if job.expected[uuid] ~= before then
             original_placements[#original_placements + 1] =
                 uuid .. ':' .. tostring(before)
@@ -1280,10 +1307,12 @@ local function read_original_restore_preflight(job, feature)
     -- The historical owner-2289 UUID had an uncorrelated Replace send in a
     -- previous session; no fresh native snapshot can prove its old ACK. A
     -- source-valid inverse plan is NOT clearance to send that same UUID.
-    local historical_uuid = '1392040865799139725'
-    local historical_building = job.sources[historical_uuid]
+    local historical_building = job.sources[HISTORICAL_UNCERTAIN_UUID]
+    local historical_target = job.originalAnchors and
+        job.originalAnchors[HISTORICAL_UNCERTAIN_UUID] or
+        (historical_building and historical_building.public.pointId)
     result.historicalUncertaintyInPlan = historical_building ~= nil and
-        job.expected[historical_uuid] ~= historical_building.public.pointId
+        job.expected[HISTORICAL_UNCERTAIN_UUID] ~= historical_target
     if result.historicalUncertaintyInPlan then
         result.dispatchBlockReason = 'CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN'
     end
@@ -1346,10 +1375,19 @@ function M.Register(feature)
         if #steps == 0 then
             return confirmed({ accepted = false, issues = {{ code = 'CITY_LAYOUT_NO_CHANGES', uuid = '' }} })
         end
-        local sources, expected, source_count = {}, {}, 0
+        -- An R3 wrong-type FreeBuildingReplaceNew request for this exact
+        -- placed UUID lacks a correlatable server outcome. A current position
+        -- does NOT establish the old packet failed or settled. Block direct
+        -- and indirect/buffer sends for the historical UUID in every plan.
+        if historical_uncertainty_in_steps(steps) then
+            return failed('CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN',
+                'The prior native Replace request for this building has no attributable result; no new Move packet is allowed.')
+        end
+        local sources, expected, original_anchors, source_count = {}, {}, {}, 0
         for uuid, source in pairs(meta.by_uuid) do
             sources[uuid] = source
             expected[uuid] = source.public.pointId
+            original_anchors[uuid] = source.public.pointId
             source_count = source_count + 1
         end
         -- A caller may reuse requestId after an earlier job completed.
@@ -1366,6 +1404,7 @@ function M.Register(feature)
             temporaryMoves = validation.temporaryMoves,
             width = meta.ctx.width,
             expected = expected, sources = sources,
+            originalAnchors = original_anchors,
             sourceCount = source_count,
         }
         M.active = job
@@ -1397,6 +1436,96 @@ function M.Register(feature)
         -- A failed timeout may settle internally without another send.
         reconcile_timed_out(job)
         return confirmed(read_original_restore_preflight(job, feature))
+    end) and ok
+    ok = feature.RegisterHandler('city_layout_restore_start', function(values)
+        -- This action is deliberately separate from the read-only preflight.
+        -- A caller must name the exact settled original job and opt into a
+        -- native Move. The original destinations are immutable server-side
+        -- saved snapshots; NEVER consume client placements/UUID/anchors.
+        if tostring(values.restoreOptIn or '') ~= '1' then
+            return failed('CITY_LAYOUT_RESTORE_CONSENT_REQUIRED',
+                'Restoration requires an explicit owner-confirmed action.')
+        end
+        local parent = M.active
+        if not parent or not same_owner(parent, values) or
+            values.jobId ~= parent.jobId then
+            return failed('CITY_LAYOUT_JOB_MISSING',
+                'The owner-bound settled layout job is unavailable.')
+        end
+        if parent.state == 'running' then
+            return failed('CITY_LAYOUT_BUSY', 'The original city plan is still running.')
+        end
+        if parent.waiting then
+            return failed('CITY_LAYOUT_RESULT_UNCERTAIN',
+                'The previous native Move may still receive a server result; restoration cannot start.')
+        end
+        if type(values.requestId) ~= 'string' or
+            #values.requestId < 1 or #values.requestId > 128 or
+            values.requestId:match('^[%w%-]+$') == nil then
+            return failed('CITY_LAYOUT_RESTORE_REQUEST_INVALID',
+                'A fresh owner-bound restoration request identifier is required.')
+        end
+        -- Fresh native census, source zone and exact original-footprint
+        -- validation. A preflight response is never reused as authority.
+        local inverse = read_original_restore_preflight(parent, feature)
+        if not inverse.ready then
+            return failed(inverse.issueCode or 'CITY_LAYOUT_RESTORE_NOT_VALID',
+                'Original building coordinates are not independently ready for restoration.')
+        end
+        if not inverse.restorationRequired then
+            return confirmed({ accepted = false,
+                issues = feature.Array({{ code = 'CITY_LAYOUT_NO_CHANGES', uuid = '' }}) })
+        end
+        if inverse.historicalUncertaintyInPlan then
+            return failed('CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN',
+                'A prior native Replace request for building 9725 has no attributable result; cannot dispatch restoration.')
+        end
+        local validation, current, meta, steps = validate_state({
+            placements = inverse.originalPlacements,
+            baseRevision = inverse.currentRevision,
+        })
+        if not validation or not validation.valid or not current or
+            not current.isInCity or #steps == 0 then
+            return failed('CITY_LAYOUT_RESTORE_NOT_VALID',
+                'Fresh source validation of the original placement changed.')
+        end
+        if historical_uncertainty_in_steps(steps) then
+            return failed('CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN',
+                'Restoration cannot send the earlier uncertain building.')
+        end
+        local sources, expected, source_count = {}, {}, 0
+        for uuid, source in pairs(meta.by_uuid) do
+            sources[uuid] = source
+            expected[uuid] = source.public.pointId
+            source_count = source_count + 1
+        end
+        -- One new monotonic child job consumes the original job ID. A
+        -- duplicate Cancel/Restore using the old ID cannot affect it.
+        M.nextJobSequence = M.nextJobSequence + 1
+        local child = {
+            jobId = 'f018cityrestore' .. values.requestId .. '-' ..
+                tostring(M.nextJobSequence),
+            restoreOfJobId = parent.jobId,
+            profileId = parent.profileId,
+            launchSessionId = parent.launchSessionId,
+            challenge = parent.challenge,
+            state = 'running', completed = 0, steps = steps,
+            temporaryMoves = validation.temporaryMoves,
+            width = meta.ctx.width,
+            expected = expected, sources = sources, sourceCount = source_count,
+            -- The desired baseline is inherited from the first original
+            -- job, never recaptured from an intermediate restoration step.
+            originalAnchors = parent.originalAnchors,
+        }
+        M.active = child
+        if not dispatch_step(child) then
+            return failed(child.errorCode or 'GAME_ACTION_FAILED',
+                child.error or 'The original restore Move could not be dispatched.')
+        end
+        return { state = 'accepted', data = {
+            accepted = true, requestDispatched = true,
+            status = status_data(child),
+        }}
     end) and ok
     ok = feature.RegisterHandler('city_layout_apply_cancel', function(values)
         local job = M.active
