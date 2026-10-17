@@ -149,3 +149,23 @@ below with what is proven (artifact path) and what is next; push at task checkpo
 ### R14 progress (worker updates this)
 - Task 1 (2026-10-18): **PROVEN harness admission / OFFLINE guard checks**. Approved proof UID/server and active attack fixtures/City driver now pin `1183884595002296/2296`; product remains any-account. Reviewed and retained all eight inherited files (native error detail, independent moving-troop raycast, zero-soldier refusal, staged timeout). Native target alliance guard rejects same/unknown alliance at hover, selector and final dispatch; empty resources require explicit zero gather UUID. New same/unknown/changed-alliance inverses pass. Land requests are disabled in R14 proof tools. Actual authenticated admission: `artifacts/map014-takeover/native-ui-20261017-174201/feature018-account-admission.json`; read-only inventory operation `331c66a340c449c48ac88454bb29645d` reports squad 1 two heroes/zero soldiers, squad 2 zero heroes/zero soldiers and no unassigned soldiers. This is not a march positive. Next: staff squads through the original game, then physical hover+Q monster and hover+W empty resource with native reply/visible march.
 - Task 2 in progress: first R14 live round `native-ui-20261017-174201` identified a **current-client staffing bug**, not lack of real troops. Original level-4 barracks showed 450 troops; normal training of 30 with six 5-minute items raised this to 480. Hero1 was upgraded from level1 to5 using existing experience and its completed quest claimed. Original monster search/chooser then displayed **170/170 troops** with two heroes (`r14-original-chooser-170-troops.png`), while the adapter's legacy scalar/ArmyManager reader still reported zero/unreadable. Current original `ArmyFormationInfo.ConscriptSoldier` stores nested `soldiers[heroSlot].supply`; V2 chooser `BestSelect` performs this original preview automatically. Correcting that preflight before further sends. A real computer-use Q on owned HWND45157928 was captured once, then correctly rejected `Own alliance identity unknown; attack suppressed` (operation `870e10ede218491e952c1d2cedd68b6d`); no march/ACK claimed. Session ended normally; `owned-exit.json` independently proves exact v26 script restoration and no journal. Next: current-client staffing and explicit unaffiliated-owner handling, then new genuine hover Q/W round. Tasks3–7 remain unproven.
+
+## Lead audit of Codex R14 partial — 2026-10-18
+Codex ran out of tokens. Pushed a936d95c (= local HEAD). Uncommitted: attack Lua/checks + recall reply observer in
+`feature018_hotkey_actions.lua`/checks (599+/86-) — next worker reviews, tests and commits it.
+- Task 1 ACCEPTED: harness pinned to 1183884595002296/2296, product any-account, alliance fence added.
+- Task 2 NOT DONE: one physical Q was rejected by our own guard ("Own alliance identity unknown"), and the adapter
+  read zero soldiers while the original chooser showed 170/170. No march sent yet.
+- Later run `native-ui-20261017-175459` failed: "Staged proof lost its exact 2296 owner for 15 seconds". Lead checked:
+  original scripts restored (hashes match), no journal; `restorationAuditError` only says the Stop proof was missing.
+- In-game training/hero upgrade/quest claim by the worker were within owner authority.
+
+Lead direction for the next worker:
+1. Alliance rule: monsters and resource nodes need no alliance check. For player targets: if the sub-account's own
+   alliance is definitely none (empty/0 alliance id read from the game), every player target counts as non-alliance;
+   block only same-alliance or truly unreadable state.
+2. Staffing: read soldiers the way the original does (`ArmyFormationInfo.ConscriptSoldier` nested
+   `soldiers[slot].supply` / V2 chooser `BestSelect`), not the legacy scalar.
+3. Diagnose and fix the 15 s owner loss in 175459 before the next long run.
+4. Get the first real positive now: hover + Q on a monster → march visible + server reply. No more guard hardening
+   until one march has been sent and recalled.
