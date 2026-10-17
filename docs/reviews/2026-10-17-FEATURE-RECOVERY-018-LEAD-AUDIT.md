@@ -120,3 +120,31 @@ nor is it physical hover, target hit, squad send or server ACK. The session exit
 while its independently audited `restorationAudit.state=proven` found all original game scripts identical,
 no recovery journal, and zero surviving task-owned processes. The historical failed proof is preserved;
 none of Q/W/E/R or A/S/D/F are yet classified as working live. The R13 owner-test ZIP must say so.
+
+## Lead status check and R14 assignment — 2026-10-18
+Worker R13 stopped mid-round (disconnected). Pushed: 2fc682c1 (any-account same-account fence in shipped code;
+lead spot check: no fixed UID left in `src/`), 0cce49b1 (native hover-target research, one read-only cursor→tile
+receipt). Uncommitted worker work remains in 8 files (attack Lua/checks, native providers, proof, live queue):
+review it, keep what is correct, commit it — do not discard.
+
+Owner update: sub-account is now **UID 1183884595002296 / server 2296** (see the authority doc 2026-10-18 section).
+Mini Games accepted as done. Unlock Land Cell must never be tested again. Space, F6/F7/F8, Alt+1–4 set aside.
+
+R14 tasks, in this order (live first, each proven on 2296 with a real key press in the game window):
+1. Move the proof harness/test pins from 2288 to 2296 (harness only; shipped app stays any-account). Add a
+   same-alliance check before any attack: never attack own-alliance targets.
+2. **Q/W/E/R** hover attack: mouse over a target on the world map + key → squad 1–4 marches there
+   (monster, resource node, non-alliance enemy city/troops; skip world bosses/rally monsters). Prove hover+Q on a
+   monster and hover+W on a resource node with matching server reply and visible march.
+3. **A/S/D/F** recall of those marches (live proof).
+4. **March speed-ups** by item and by gem on a live march (exact item/gem change + shorter arrival).
+5. **F9** random relocation and **F10** alliance relocation (live, before/after city position).
+6. **City Layout:** read the real 2296 city into the grid, move one building and swap two buildings via Apply,
+   Cancel mid-apply, then restore the original layout. Screenshots before/after.
+7. Owner-test ZIP from the final commit with an honest README (what works / not yet).
+
+Handoff rule (worker may run out of tokens): after every finished task, commit + update the "R14 progress" list
+below with what is proven (artifact path) and what is next; push at task checkpoints, not every commit.
+
+### R14 progress (worker updates this)
+- (none yet)

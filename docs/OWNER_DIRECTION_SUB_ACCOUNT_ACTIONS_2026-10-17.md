@@ -34,3 +34,17 @@ This supersedes older "no claims/plunder/sharing/attacks/marches/spending/reloca
   approved. Main account **2212 stays read-only**.
 - Shield items need alliance coins the sub-account lacks: skip F6/F7/F8 shield testing for now.
 - Black Market chest marker and Food House auto-clear: event not running — set aside (no work now).
+
+## Owner update (2026-10-18) — sub-account now on server 2296
+- The approved sub-account is now **UID 1183884595002296 on server 2296**. All worker gameplay, marches and
+  in-game spending (gems allowed, never real money) only when the game reports exactly this UID + server.
+  2288 and 2289 are no longer approved. Main account **2212 stays read-only**.
+- **Attacks:** the worker may attack any target (monsters, resource nodes, other players' cities/troops) **except
+  members of the sub-account's own alliance**. Check the target's alliance before every attack; if same alliance
+  or unknown, do not send.
+- **March speed-ups:** item and gem (diamond) speed-ups may be used on 2296 through the game's own confirm.
+- **F9/F10 relocation** may be tried on 2296.
+- **Never press/test Unlock Land Cell again.** The owner confirmed it works; before the tutorial is finished it
+  breaks the game. No live Land Cell requests at all.
+- Set aside until the owner says so: Space shield countdown, F6/F7/F8 shields, Alt+1–4 equipment presets.
+- Mini Games tab is accepted as done for now (G works; Food House/Black Market wait for their events).
