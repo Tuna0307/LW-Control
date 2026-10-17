@@ -28,10 +28,10 @@ state = {
   season = false, meteorite = false, protectEnd = 0,
   serverTime = 1000000, focus = true, failCD = false,
 }
-LuaEntry = {Player = {uid='3133546747002289',
-  GetSourceServerId=function(self) return 2289 end,
-  GetSelfServerId=function(self) return 2289 end,
-  GetCurServerId=function(self) return 2289 end}}
+LuaEntry = {Player = {uid='2553945035002288',
+  GetSourceServerId=function(self) return 2288 end,
+  GetSelfServerId=function(self) return 2288 end,
+  GetCurServerId=function(self) return 2288 end}}
 DataCenter = {
   ItemData = {GetItemList=function(self, t, u)
     assert(t==4 and u==1)
@@ -230,7 +230,7 @@ def main():
             "read-only ItemUse status used across a main-account transition")
     require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 1,
             "unresolved ItemUse resent on the main account")
-    runtime.execute("LuaEntry.Player.GetCurServerId=function() return 2289 end")
+    runtime.execute("LuaEntry.Player.GetCurServerId=function() return 2288 end")
     state["items"][1]["count"] = 1
     state["effectEnd"][501] = state["serverTime"] + 8 * 3600000
     require(command(runtime, module, 8, query=True)["state"] == "confirmed" and state["sent"] == 1,

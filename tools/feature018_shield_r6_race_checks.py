@@ -67,7 +67,7 @@ class ShieldShopPreSendRaces(unittest.TestCase):
 
     def test_game_player_or_manager_changes_after_inspection_but_before_shop_send(self):
         for change in (
-            "LuaEntry.Player={uid='3133546747002289',gold=1000, GetSourceServerId=function()return 2289 end,GetSelfServerId=function()return 2289 end,GetCurServerId=function()return 2289 end}",
+            "LuaEntry.Player={uid='2553945035002288',gold=1000, GetSourceServerId=function()return 2288 end,GetSelfServerId=function()return 2288 end,GetCurServerId=function()return 2288 end}",
             "DataCenter=setmetatable({}, {__index=DataCenter})",
         ):
             with self.subTest(change=change):
@@ -100,7 +100,7 @@ class ShieldShopPreSendRaces(unittest.TestCase):
         ''')
         self.assertEqual(call('status')['state'], 'failed')
         self.assertEqual(state['sent'],1)
-        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'")
         self.assertEqual(call('status')['state'], 'confirmed')
         self.assertEqual(state['sent'], 1)
 
@@ -114,10 +114,10 @@ class ShieldShopPreSendRaces(unittest.TestCase):
           state.originalGetList=DataCenter.ItemData.GetItemList
           DataCenter.ItemData.GetItemList=function(...)
             local items=state.originalGetList(...)
-            LuaEntry.Player={uid='3133546747002289',gold=500,
-              GetSourceServerId=function()return 2289 end,
-              GetSelfServerId=function()return 2289 end,
-              GetCurServerId=function()return 2289 end}
+            LuaEntry.Player={uid='2553945035002288',gold=500,
+              GetSourceServerId=function()return 2288 end,
+              GetSelfServerId=function()return 2288 end,
+              GetCurServerId=function()return 2288 end}
             return items
           end
         ''')
@@ -209,7 +209,7 @@ class ShieldUseAfterCooldownRaces(unittest.TestCase):
         ''')
         self.assertEqual(shield.command(lua,module,8,query=True)['state'], 'failed')
         self.assertEqual(state['sent'],1)
-        lua.execute("LuaEntry.Player.uid='3133546747002289'; DataCenter.ItemData.GetItemList=state.previousGetItemList")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'; DataCenter.ItemData.GetItemList=state.previousGetItemList")
         self.assertEqual(shield.command(lua,module,8,query=True)['state'],'confirmed')
         self.assertEqual(state['sent'],1)
 
@@ -223,10 +223,10 @@ class ShieldUseAfterCooldownRaces(unittest.TestCase):
           state.originalGetList=DataCenter.ItemData.GetItemList
           DataCenter.ItemData.GetItemList=function(...)
             local items=state.originalGetList(...)
-            LuaEntry.Player={uid='3133546747002289',
-              GetSourceServerId=function()return 2289 end,
-              GetSelfServerId=function()return 2289 end,
-              GetCurServerId=function()return 2289 end}
+            LuaEntry.Player={uid='2553945035002288',
+              GetSourceServerId=function()return 2288 end,
+              GetSelfServerId=function()return 2288 end,
+              GetCurServerId=function()return 2288 end}
             return items
           end
         ''')

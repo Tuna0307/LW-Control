@@ -24,7 +24,7 @@ SCRIPT = ROOT / "feature018_relocation_actions.lua"
 
 FIXTURE = r"""
 world = {
-    uid='3133546747002289', source=2289, selfServer=2289, current=2289,
+    uid='2553945035002288', source=2288, selfServer=2288, current=2288,
     position=501234, alliance=true, focusClear=true, itemCalls=0,
     sends=0, dialogs=0, relocations=0,
     standard=2, season=0, allianceItem=1, allianceUid='7070000123456789',
@@ -36,7 +36,7 @@ local function fake_mark(kind,server,point)
             pos=point*10+3,
             GetPointIndex=function(self) return math.floor(self.pos / 10) end}
 end
-world.homeRally=fake_mark(MarkType.Alliance_rally,2289,514999)
+world.homeRally=fake_mark(MarkType.Alliance_rally,2288,514999)
 world.otherRally=nil
 LuaEntry = {Player={
     uid=world.uid,
@@ -101,7 +101,7 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertEqual(snapshot["state"], "confirmed")
         data = snapshot["data"]
         self.assertEqual(data["observation"], "native_player_world_position_and_owned_move_items")
-        self.assertEqual(data["sourceServerId"], 2289)
+        self.assertEqual(data["sourceServerId"], 2288)
         self.assertEqual(data["worldPointId"], 501234)
         self.assertEqual(data["itemCounts"]["ITEM_MOVE_CITY"]["count"], 2)
         self.assertEqual(data["itemCounts"]["SEASON_LIMIT_MOVE_CITY"]["count"], 0)
@@ -148,7 +148,7 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertFalse(rally["selectedTargetValidated"])
         self.assertFalse(rally["worldMvAcknowledged"])
         self.assertEqual(rally["homeRally"]["worldPointId"], 514999)
-        self.assertEqual(rally["homeRally"]["serverId"], 2289)
+        self.assertEqual(rally["homeRally"]["serverId"], 2288)
         self.assertTrue(rally["homeRally"]["authorizedHomeServer"])
         self.assertIsNone(rally["otherServerRally"])
         self.assertEqual(state["rallyReads"], 2)
@@ -193,7 +193,7 @@ class InertRelocationChecks(unittest.TestCase):
         state["alliance"] = True
         state["homeRally"]["server"] = None
         self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
-        state["homeRally"]["server"] = 2289
+        state["homeRally"]["server"] = 2288
         state["homeRally"]["type"] = 702
         self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
         state["homeRally"]["type"] = 701
@@ -251,15 +251,15 @@ class InertRelocationChecks(unittest.TestCase):
         state["current"] = 2212
         reject = call("allianceRelocate")
         self.assertEqual(reject["state"], "unsupported")
-        self.assertIn("server-2289", reject["error"])
+        self.assertIn("server-2288", reject["error"])
         self.assertEqual(actions.Snapshot()["state"], "unsupported")
-        state["current"] = 2289
+        state["current"] = 2288
         state["source"] = 2212
         self.assertEqual(call("allianceRelocate")["state"], "unsupported")
-        state["source"] = 2289
+        state["source"] = 2288
         runtime.globals().LuaEntry.Player.uid = "3133546747002212"
-        self.assertIn("exact authorized 2289", call("allianceRelocate")["error"])
-        runtime.globals().LuaEntry.Player.uid = "3133546747002289"
+        self.assertIn("exact authorized 2288", call("allianceRelocate")["error"])
+        runtime.globals().LuaEntry.Player.uid = "2553945035002288"
         # An unparseable native UID is rejected; the fixture's native Player
         # property must change, not just the backing state used by methods.
         runtime.globals().LuaEntry.Player.uid = "not-an-uid"
@@ -420,7 +420,7 @@ class OriginalV26Sources(unittest.TestCase):
             self.assertIn(warning,body['children'][index]['constants'])
 
     def test_original_f10_source_home_uses_move_cross_server_not_alliance_ack(self):
-        # MoveCityUtil's source==self branch on the authorized 2289 home world
+        # MoveCityUtil's source==self branch on the authorized 2288 home world
         # invokes MoveCityFromOtherToSource, not the line-136 AllianceMoveCity.
         # The latter branch and its reason-240 reply are never a valid
         # matching ACK for the source==self path.
@@ -561,8 +561,8 @@ class RelocationActionChecks(unittest.TestCase):
         data=result['data']
         self.assertEqual(data['observation'],'original_v26_authenticated_relocation_readiness')
         self.assertEqual(data['action'],'randomRelocate')
-        self.assertEqual(data['ownerUid'],'3133546747002289')
-        self.assertEqual(data['sourceServerId'],2289)
+        self.assertEqual(data['ownerUid'],'2553945035002288')
+        self.assertEqual(data['sourceServerId'],2288)
         self.assertEqual(data['originalNativeRoute'],'ItemUse')
         self.assertEqual(data['itemType'],'ITEM_MOVE_RANDOM')
         self.assertEqual(data['itemUuid'],'100004')
@@ -651,7 +651,7 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute('world.current=2212')
         self.assertEqual(module.Readiness(
             fields,lua.eval('function()return true end'))['state'],'unsupported')
-        lua.execute('world.current=2289;LuaEntry.Player.uid="3133546747002212"')
+        lua.execute('world.current=2288;LuaEntry.Player.uid="3133546747002212"')
         self.assertEqual(module.Readiness(
             fields,lua.eval('function()return true end'))['state'],'unsupported')
         self.assertEqual(state['sends'],0)
@@ -783,7 +783,7 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(response['state'],'unsupported')
         self.assertIn('MoveCrossServer',response['error'])
         self.assertEqual(state['sends'],0)
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,result=1,worldMainPoint=514998},240)')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,result=1,worldMainPoint=514998},240)')
         result=call('allianceRelocate',True)
         self.assertEqual(result['state'],'failed')
         self.assertEqual(state['sends'],0)
@@ -1116,9 +1116,9 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['sends'],1)
 
     def test_f10_unrelated_alliance_reply_is_not_an_ack_on_home_world(self):
-        for reply in ('{serverId=2289,result=2,worldMainPoint=514998}',
-                      '{serverId=2289,result=1,worldMainPoint=514998,buildInfo={pId=514999}}',
-                      '{serverId=2289,result=1,worldMainPoint=514998}'):
+        for reply in ('{serverId=2288,result=2,worldMainPoint=514998}',
+                      '{serverId=2288,result=1,worldMainPoint=514998,buildInfo={pId=514999}}',
+                      '{serverId=2288,result=1,worldMainPoint=514998}'):
             lua,_,state,call=self.fixture()
             self.assertEqual(call('allianceRelocate')['state'],'unsupported')
             lua.execute('DataCenter.BuildManager:WorldMvHandle('+reply+',240)')
@@ -1136,7 +1136,7 @@ class RelocationActionChecks(unittest.TestCase):
     def test_f10_no_source_home_rpc_even_if_external_world_move_occurs(self):
         lua,_,state,call=self.fixture()
         self.assertEqual(call('allianceRelocate')['state'],'unsupported')
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998})')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,worldMainPoint=514998})')
         result=call('allianceRelocate',True)
         self.assertEqual(result['state'],'failed')
         self.assertEqual(state['sends'],0)

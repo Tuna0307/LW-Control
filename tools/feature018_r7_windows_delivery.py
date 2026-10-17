@@ -130,7 +130,7 @@ def build() -> None:
         "The R4 recovery-marker WinError5 remains unresolved. Do not replay it.\n"
         "R5 npm ci unlink denial was not retried or bypassed; the supported\n"
         "independent frontend and C# build entrypoints were used instead.\n"
-        "Game actions MUST be restricted to UID3133546747002289/server2289.\n"
+        "Game actions MUST be restricted to UID2553945035002288/server2288.\n"
         f"Exact committed source: {sha}\n"
         "Status: PARTIAL; see docs/FEATURE_RECOVERY_018_WORKER_REPORT.md\n"
     ).encode()

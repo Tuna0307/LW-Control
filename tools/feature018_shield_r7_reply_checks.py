@@ -163,7 +163,7 @@ class ShopOriginalReplyChecks(unittest.TestCase):
         ''')
         self.assertEqual(call('buy',gemOptIn='1')['state'],'accepted')
         reply(lua)
-        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'")
         after(lua)
         result=call('status')
         self.assertEqual(result['state'],'accepted')

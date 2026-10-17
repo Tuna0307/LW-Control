@@ -898,7 +898,116 @@ internal static class Feature018HotkeyCaptureChecks
         }
 
         await EquipmentReadOnlyPreflightChecksAsync();
+        await QueuedStageReinforcementChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static async Task QueuedStageReinforcementChecksAsync()
+    {
+        var session = new Feature018HotkeySession("queue-profile", "queue-instance",
+            LWBridgeWindow.Feature018ApprovedGameUid, LWBridgeWindow.Feature018ApprovedServerId);
+        var g = new Feature018HotkeyIntent(Feature018HotkeyKind.ReinforceFrontline, 5);
+        foreach (string scenario in new[]
+        {
+            "two_presses", "disabled_while_waiting", "owner_changed_while_waiting",
+            "focus_lost_while_waiting", "prior_submitted", "prior_failed",
+            "prior_unsupported", "prior_missing_run", "other_key_busy", "cancel_waiter",
+        })
+        {
+            Feature018HotkeySession? current = session;
+            bool focused = true;
+            HotkeyConfig config = new();
+            var seen = new List<Feature018HotkeyCommand>();
+            var firstDone = new TaskCompletionSource<Feature018HotkeyActionOutcome>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            var confirmed = new Feature018HotkeyActionOutcome(
+                Feature018HotkeyActionStatus.Confirmed, "native_five_members",
+                JsonSerializer.SerializeToElement(new { stageRunId = "native-run-A" }));
+            var providers = new Dictionary<Feature018HotkeyKind,
+                Func<Feature018HotkeyCommand, CancellationToken, Task<Feature018HotkeyActionOutcome>>>
+            {
+                [Feature018HotkeyKind.ReinforceFrontline] = (command, _) =>
+                {
+                    seen.Add(command);
+                    return seen.Count == 1 ? firstDone.Task : Task.FromResult(confirmed);
+                },
+                [Feature018HotkeyKind.AttackSquad] = (_, _) =>
+                    throw new InvalidOperationException("busy non-G action reached producer"),
+            };
+            var broker = new Feature018HotkeyActions(session, () => current,
+                () => focused, () => config, providers);
+            Task<Feature018HotkeyActionOutcome> first = broker.TryDispatchAsync(g);
+            Require(seen.Count == 1 && seen[0].ExpectedStageRunId is null,
+                "first G was incorrectly bound to a previous run: " + scenario);
+            using var cancellation = new CancellationTokenSource();
+            Task<Feature018HotkeyActionOutcome> waiting = broker.TryDispatchAsync(g, cancellation.Token);
+            Require(!waiting.IsCompleted && seen.Count == 1,
+                "second physical G was dropped or dispatched concurrently: " + scenario);
+            Feature018HotkeyActionOutcome firstResult = confirmed;
+            Feature018HotkeyActionStatus expected = Feature018HotkeyActionStatus.Failed;
+            switch (scenario)
+            {
+                case "two_presses": expected = Feature018HotkeyActionStatus.Confirmed; break;
+                case "disabled_while_waiting":
+                    config = config with { FrontlineReinforce = false };
+                    expected = Feature018HotkeyActionStatus.Disabled;
+                    break;
+                case "owner_changed_while_waiting":
+                    current = session with { GameUid = "different-owner" };
+                    expected = Feature018HotkeyActionStatus.SessionChanged;
+                    break;
+                case "focus_lost_while_waiting":
+                    focused = false;
+                    expected = Feature018HotkeyActionStatus.NotFocused;
+                    break;
+                case "prior_submitted":
+                    firstResult = new(Feature018HotkeyActionStatus.Submitted, "unknown_native_outcome");
+                    break;
+                case "prior_failed":
+                    firstResult = new(Feature018HotkeyActionStatus.Failed, "native_failure");
+                    break;
+                case "prior_unsupported":
+                    firstResult = new(Feature018HotkeyActionStatus.Unsupported, "outside_stage");
+                    break;
+                case "prior_missing_run":
+                    firstResult = new(Feature018HotkeyActionStatus.Confirmed, "missing_stage_identity");
+                    break;
+                case "other_key_busy":
+                    Require((await broker.TryDispatchAsync(new(Feature018HotkeyKind.AttackSquad, 1))).Status ==
+                        Feature018HotkeyActionStatus.Busy, "non-G action no longer returns Busy");
+                    break;
+                case "cancel_waiter": cancellation.Cancel(); break;
+            }
+            firstDone.SetResult(firstResult);
+            _ = await first;
+            if (scenario == "cancel_waiter")
+            {
+                try
+                {
+                    _ = await waiting;
+                    throw new InvalidOperationException("cancelled waiting G was dispatched");
+                }
+                catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+            }
+            else
+            {
+                Feature018HotkeyActionOutcome outcome = await waiting;
+                Require(outcome.Status == expected, "wrong waiting G outcome: " + scenario + ": " + outcome.Status);
+            }
+            if (scenario == "two_presses")
+            {
+                Require(seen.Count == 2 && seen[1].ExpectedStageRunId == "native-run-A",
+                    "second captured G did not dispatch once against the preceding native run");
+                _ = await broker.TryDispatchAsync(g);
+                Require(seen.Count == 3 && seen[2].ExpectedStageRunId is null,
+                    "a fresh nonqueued physical press inherited an old run binding");
+            }
+            else
+            {
+                Require(seen.Count == 1, "invalid queued G replayed or automatically resent: " + scenario);
+            }
+        }
+        Console.WriteLine("FEATURE018_G_QUEUED_STAGE_PRESS_PASS");
     }
 
     private static void CaptureExactRootRaceChecks()

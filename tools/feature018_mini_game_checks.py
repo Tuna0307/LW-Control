@@ -313,12 +313,12 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         from lupa.lua53 import LuaRuntime
         runtime = LuaRuntime(unpack_returned_tuples=True)
         runtime.execute(r'''
-        Account={source=2289,selfServer=2289,current=2289}
+        Account={source=2288,selfServer=2288,current=2288}
         WindowOpen=true
         UIWindowNames={UITreasureChest='NativeTreasureChest'}
         UIManager={GetInstance=function() return {IsWindowOpen=function(_,name)
           return name=='NativeTreasureChest' and WindowOpen end} end}
-        LuaEntry={Player={uid='3133546747002289',
+        LuaEntry={Player={uid='2553945035002288',
           GetSourceServerId=function() return Account.source end,
           GetSelfServerId=function() return Account.selfServer end,
           GetCurServerId=function() return Account.current end}}
@@ -507,7 +507,7 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         runtime.execute('LuaEntry.Player.uid="3133546747002212"')
         self.assertEqual(mini.MarkChest()['state'], 'failed')
         self.assertFalse(runtime.globals().Effect.activeSelf)
-        runtime.execute('LuaEntry.Player.uid="3133546747002289"; Account.current=2212')
+        runtime.execute('LuaEntry.Player.uid="2553945035002288"; Account.current=2212')
         self.assertEqual(mini.MarkChest()['state'], 'failed')
         self.assertFalse(runtime.globals().Effect.activeSelf)
 
@@ -540,8 +540,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         from lupa.lua53 import LuaRuntime
         runtime = LuaRuntime(unpack_returned_tuples=True)
         runtime.execute(r'''
-        Account = {uid='3133546747002289',source=2289,selfServer=2289,current=2289}
-        LuaEntry = {Player = {uid=Account.uid,
+        Account = {uid='2553945035002288',source=2288,selfServer=2288,current=2288}
+        LuaEntry = {DataConfig={TryGetNum=function(self,key,slot) return 203 end}, Player = {uid=Account.uid,
           GetSourceServerId=function() return Account.source end,
           GetSelfServerId=function() return Account.selfServer end,
           GetCurServerId=function() return Account.current end}}
@@ -581,10 +581,10 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         runtime, mini = self.fixture()
         pre = mini.FrontlineStatus()
         self.assertEqual(pre['state'], 'confirmed')
-        self.assertEqual(pre['data']['observation'], 'native_frontline_sunday_battle_readonly')
+        self.assertEqual(pre['data']['observation'], 'native_parkour_battle_readonly')
         self.assertEqual(pre['data']['memberCount'], 1)
         self.assertEqual(pre['data']['guidAllocator'], 1)
-        self.assertEqual(pre['data']['sourceServerId'], 2289)
+        self.assertEqual(pre['data']['sourceServerId'], 2288)
         self.assertFalse(pre['data']['requestDispatched'])
         self.assertFalse(pre['data']['serverAckObserved'])
         self.assertTrue(pre['data']['actionEligible'])
@@ -629,15 +629,66 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         self.assertEqual(runtime.globals().Sends, 6,
                          'New source-native battle could not add exactly five')
 
-    def test_non_sunday_parkour_and_other_owner_do_not_add_members(self):
-        for expression in ("Logic.param.fromActFrontBreakSunday=false",
-                           "Logic.param.frontBreakSundayActId=nil",
+    def test_outside_active_run_and_other_owner_do_not_add_members(self):
+        for expression in ("DataCenter.LWBattleManager.gameStart=false",
+                           "DataCenter.LWBattleManager.gamePause=true",
+                           "DataCenter.LWBattleManager.gameOver=true",
+                           "DataCenter.LWBattleManager.GetCurBattleType=function() return 5 end",
+                           "UIManager.GetInstance=function() return {IsWindowOpen=function() return false end} end",
                            "LuaEntry.Player.uid='3133546747002212'",
-                           "Account.current=2212"):
+                           "Account.current=2212", "Account.current=2289"):
             runtime, mini = self.fixture()
             runtime.execute(expression)
             self.assertEqual(self.call(runtime, mini)['state'], 'unsupported')
             self.assertEqual(runtime.globals().Sends, 0)
+
+    def test_normal_numbered_stage_accepts_repeated_g_without_sunday_params(self):
+        runtime, mini = self.fixture()
+        runtime.execute('Team.defaultHeroIds={};Logic.param={type=4,levelId=5,fromChapter=true,memRecord=true}')
+        for before in (1, 6, 11):
+            result = self.call(runtime, mini)
+            self.assertEqual(result['state'], 'confirmed')
+            self.assertEqual(result['data']['stageMode'], 'normal')
+            self.assertEqual(result['data']['levelId'], 5)
+            self.assertEqual(result['data']['beforeCount'], before)
+            self.assertEqual(result['data']['afterCount'], before + 5)
+        self.assertEqual(runtime.globals().Sends, 15)
+
+    def test_normal_stage_member_count_excludes_workers_and_pets(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''Logic.param={levelId=5,fromChapter=true}
+          table.insert(Team.teamUnits,{guid=2,hero={heroId=999,level=1}})
+          Logic.unitGuid=2
+          Logic.GetMemberCount=function(self) return #self.team.teamUnits-1 end
+          Team.GetMemberCount=function(self) return #self.teamUnits-1 end''')
+        self.assertEqual(mini.FrontlineStatus()['data']['memberCount'], 1)
+        result = self.call(runtime, mini)
+        self.assertEqual(result['state'], 'confirmed')
+        self.assertEqual(result['data']['afterCount'], 6)
+
+    def test_queued_g_for_an_old_run_does_not_add_to_new_run(self):
+        runtime, mini = self.fixture()
+        first = self.call(runtime, mini)
+        token = first['data']['stageRunId']
+        runtime.execute('local new={} for k,v in pairs(Logic) do new[k]=v end;Logic=new;Team.logic=new;DataCenter.LWBattleManager.logic=new;DataCenter.LWBattleManager.curLogic=new')
+        result = mini.FrontlineReinforce(runtime.table_from({
+            'action':'frontlineReinforce','slot':'5','expectedStageRunId':token}))
+        self.assertEqual(result['state'], 'unsupported')
+        self.assertEqual(runtime.globals().Sends, 5)
+
+    def test_native_replacement_and_shared_upgraded_level_remain_valid(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''Logic.param={levelId=5,fromChapter=true}
+          Logic.GetReplaceAppearance=function(self,id) return 204 end
+          local original=Logic.AddMember
+          Logic.AddMember=function(self,...)
+            original(self,...)
+            local hero=self.team.teamUnits[#self.team.teamUnits].hero
+            hero.heroId=204;hero.level=3
+          end''')
+        for _ in range(3):
+            self.assertEqual(self.call(runtime, mini)['state'], 'confirmed')
+        self.assertEqual(runtime.globals().Sends, 15)
 
     def test_real_sunday_context_adds_exactly_five_distinct_native_guids(self):
         runtime, mini = self.fixture()

@@ -3840,8 +3840,8 @@ local function feature018_approved_subaccount()
     -- native player again before each FEATURE018 command or asynchronous pump.
     local game = observe_game_connection()
     return game.observed == true and game.loggedIn == true and
-        game.connected == true and game.gameUid == "3133546747002289" and
-        game.serverId == 2289
+        game.connected == true and game.gameUid == "2553945035002288" and
+        game.serverId == 2288
 end
 function M.IsAuthorizedFeature018Request(values)
     if active == nil or type(values) ~= "table" then return false end

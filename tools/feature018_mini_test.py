@@ -198,8 +198,8 @@ class MiniGameNativeTests(unittest.TestCase):
                       "after_count == prior_count + 1",
                       "new_units ~= 1", "if after_units[unit] == nil then identities_match = false end",
                       'member(unit, "originalHeroId") ~= context.heroId',
-                      'member(hero, "heroId") ~= context.heroId',
-                      'member(hero, "level") ~= context.heroLevel',
+                      'member(hero, "heroId") ~= context.configHeroId',
+                      'not is_integer(member(hero, "level"))',
                       "unitIdentityVerified = true", "observedCreatedUnits = confirmed"):
             self.assertIn(guard, mini)
 

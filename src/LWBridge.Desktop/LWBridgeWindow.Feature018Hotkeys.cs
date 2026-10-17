@@ -21,7 +21,8 @@ internal sealed partial class LWBridgeWindow
     private Feature018HotkeySession? feature018R2ApprovedAccount;
     private readonly ConcurrentQueue<Feature018R2KeyOutcome> feature018R2KeyOutcomes = new();
     private sealed record Feature018R2KeyOutcome(string Kind, int Slot,
-        string Status, string Reason, DateTimeOffset ObservedAtUtc);
+        string Status, string Reason, DateTimeOffset ObservedAtUtc,
+        JsonElement? NativeObservation = null);
     private HotkeyConfig feature018Preferences = new();
 
     private void StartFeature018HotkeyMonitoring()
@@ -85,7 +86,7 @@ internal sealed partial class LWBridgeWindow
         OverviewMapScanSession owner, Feature018HotkeySession account)
     {
         return !sessionClosed && feature018InputClear &&
-               DateTimeOffset.UtcNow - feature018InputObservedAt < TimeSpan.FromMilliseconds(300) &&
+               DateTimeOffset.UtcNow - feature018InputObservedAt < TimeSpan.FromMilliseconds(900) &&
                feature018Owner == owner && feature018Account == account &&
                lifecycle.MatchesOwnedMapScanSession(owner) &&
                ReadFeature018AuthenticatedAccount(lifecycle, owner) == account;
@@ -146,7 +147,6 @@ internal sealed partial class LWBridgeWindow
                 feature018InputClear = false;
                 return;
             }
-            feature018InputClear = false;
             using JsonDocument empty = JsonDocument.Parse("{}");
             object? rawConfig = await hotkeyConfigService.InvokeAsync("hotkey_config_get",
                 empty.RootElement.Clone(), CancellationToken.None);
@@ -156,7 +156,10 @@ internal sealed partial class LWBridgeWindow
             var commands = new Feature018GameCommandService(lifecycle!);
             // The current game's UpdateManager pump is typically 250 ms;
             // accept a delayed reply only at its receive time, then require a
-            // separate <300 ms focus freshness gate on each pressed key.
+            // separate <900 ms cached-focus gate on each pressed key. The game
+            // rechecks text focus synchronously before every native action.
+            // Keep the last fresh sample during a query; clearing it here
+            // used to disarm the recognizer between every two replies.
             using var timeout = new CancellationTokenSource(TimeSpan.FromMilliseconds(900));
             object? rawFocus = await commands.InvokeAsync("feature018_input_focus",
                 empty.RootElement.Clone(), timeout.Token);
@@ -165,7 +168,10 @@ internal sealed partial class LWBridgeWindow
                 isClear.ValueKind != JsonValueKind.True ||
                 !lifecycle.MatchesOwnedMapScanSession(owner) ||
                 ReadFeature018AuthenticatedAccount(lifecycle, owner) != account)
+            {
+                feature018InputClear = false;
                 return;
+            }
             feature018InputObservedAt = DateTimeOffset.UtcNow;
             feature018InputClear = true;
         }
@@ -196,7 +202,8 @@ internal sealed partial class LWBridgeWindow
             if (feature018R2ApprovedAccount is not null &&
                 feature018R2ApprovedAccount == feature018Account)
                 feature018R2KeyOutcomes.Enqueue(new(intent.Kind.ToString(), intent.Slot,
-                    result.Status.ToString(), result.Reason, DateTimeOffset.UtcNow));
+                    result.Status.ToString(), result.Reason, DateTimeOffset.UtcNow,
+                    result.AuthoritativeObservation));
             // A native request being sent does not prove gameplay succeeded;
             // leave outcomes in their actual statuses for diagnostics.
             if (result.Status is Feature018HotkeyActionStatus.Failed or

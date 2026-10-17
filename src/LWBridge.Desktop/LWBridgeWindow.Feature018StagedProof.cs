@@ -23,7 +23,7 @@ internal sealed partial class LWBridgeWindow
         void Owned()
         {
             token.ThrowIfCancellationRequested();
-            if (!IsOwner()) throw new InvalidDataException("Staged proof lost its exact 2289 owner.");
+            if (!IsOwner()) throw new InvalidDataException("Staged proof lost its exact 2288 owner.");
         }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
@@ -58,7 +58,7 @@ internal sealed partial class LWBridgeWindow
                 {
                     missingOwnerSince ??= DateTimeOffset.UtcNow;
                     if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(15))
-                        throw new InvalidDataException("Staged proof lost its exact 2289 owner for 15 seconds.");
+                        throw new InvalidDataException("Staged proof lost its exact 2288 owner for 15 seconds.");
                     await Task.Delay(200, token);
                     continue;
                 }
@@ -107,7 +107,7 @@ internal sealed partial class LWBridgeWindow
                             var sent = await Feature018OwnedWindowKeys.PressAsync(owner, binding,
                                 IsOwner, () => feature018InputClear &&
                                     feature018Capture?.IsExactForegroundOwner() == true &&
-                                    DateTimeOffset.UtcNow - feature018InputObservedAt < TimeSpan.FromMilliseconds(280), token);
+                                    DateTimeOffset.UtcNow - feature018InputObservedAt < TimeSpan.FromMilliseconds(850), token);
                             if (sent.Pressed)
                                 for (int i = 0; i < 180 && !feature018R2KeyOutcomes.ToArray().Skip(before).Any(
                                     item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot); i++)

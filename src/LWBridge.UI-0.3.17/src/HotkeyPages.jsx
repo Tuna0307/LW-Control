@@ -477,7 +477,7 @@ function ShieldOwnedInventoryPanel({ online, previewEnabled }) {
       const validated = result.items.map((item) => {
         // Current v26 ItemUse serializes an opaque item-stack UUID via
         // PutUtfString; only its *template itemId* must be numeric. This
-        // exact native contract was proven on the approved 2289 account.
+        // exact native contract was proven on the approved 2288 account.
         if (!/^[1-9]\d{0,19}$/.test(String(item?.itemId || "")) ||
             !/^(?!0$)[A-Za-z0-9_-]{1,128}$/.test(String(item?.uuid || "")) ||
             !Number.isSafeInteger(item?.count) || item.count <= 0 ||
@@ -951,9 +951,9 @@ function RelocationNativeReadinessPanel({ online, previewEnabled }) {
           native.relocationConfirmed !== false ||
           native.destinationVerified !== false ||
           native.serverAckAttributable !== false ||
-          native.sourceServerId !== 2289 ||
-          native.selfServerId !== 2289 || native.currentServerId !== 2289 ||
-          String(native.ownerUid) !== "3133546747002289" ||
+          native.sourceServerId !== 2288 ||
+          native.selfServerId !== 2288 || native.currentServerId !== 2288 ||
+          String(native.ownerUid) !== "2553945035002288" ||
           (action === "allianceRelocate" &&
             (native.actionable !== false ||
              native.homeDirectRelocationEnabled !== false)))
@@ -998,7 +998,7 @@ function RelocationNativeReadinessPanel({ online, previewEnabled }) {
   </article>;
 }
 
-// Original Sunday Frontline G adds five local Parkour units. The original
+// Normal stage and Sunday Frontline G adds five local Parkour units. The original
 // per-G operation does not send a battle-score RPC. Inspect the independent
 // current battle before allowing one deliberate UI action per owner lifetime.
 // A timeout may happen after units were created: NEVER retry that UI intent.
@@ -1007,7 +1007,7 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
   const zh = language?.startsWith("zh");
   const words = zh ? {
     title: "前线突破：原生 G 五名士兵",
-    description: "只可在游戏真正进行的周日前线战斗中增援。五名士兵只代表游戏本地战斗状态，非服务器战斗结算。",
+    description: "开启 G 后，在普通关卡或周日前线的战斗中，每次按 G 增加五名士兵。离开战斗后无效。",
     inspect: "检查正在进行的原生战斗", ready: "原生前线可操作",
     count: "当前士兵", event: "活动", hero: "英雄",
     consent: "确认当前这一场战斗只增加五名原生士兵；若等待超时，我会在游戏中核对，不重复发送",
@@ -1016,7 +1016,7 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
     changed: "前线战斗已变化；本次动作不能按原计划确认",
   } : {
     title: "Frontline: original G adds five units",
-    description: "Requires the original active Sunday Frontline battle. Five locally created soldiers do not prove server battle scoring.",
+    description: "With G enabled, press G in a running normal stage or Sunday challenge to add five soldiers. G does nothing outside a run.",
     inspect: "Inspect active original battle", ready: "Native Frontline ready",
     count: "Current members", event: "Event", hero: "Hero",
     consent: "I approve adding five native units in this battle once. If the outcome times out, I will inspect the game without retrying.",
@@ -1039,12 +1039,12 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
     inflight.current = false; actionLatch.current = false;
   }, [live, backendBridge.profileGeneration]);
   const validRead = (data) =>
-    data?.observation === "native_frontline_sunday_battle_readonly" &&
+    data?.observation === "native_parkour_battle_readonly" &&
     data?.readOnly === true && data?.requestDispatched === false &&
-    data?.ownerUid === "3133546747002289" && data?.sourceServerId === 2289 &&
+    data?.ownerUid === "2553945035002288" && data?.sourceServerId === 2288 &&
     data?.observationScope === "native_local_battle" &&
     data?.serverAckObserved === false &&
-    Number.isInteger(data?.frontBreakSundayActId) && data.frontBreakSundayActId > 0 &&
+    (data?.stageMode === "normal" || data?.stageMode === "sunday") &&
     Number.isInteger(data?.memberCount) && data.memberCount > 0 &&
     Number.isInteger(data?.guidAllocator) && data.guidAllocator > 0 &&
     Number.isInteger(data?.heroId) && data.heroId > 0;
@@ -1083,6 +1083,7 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
       if (action?.observation !== "native_ParkourBattleLogic_GetMemberCount" ||
           action?.action !== "frontlineReinforce" || action?.slot !== 5 ||
           action?.frontBreakSundayActId !== before.frontBreakSundayActId ||
+          action?.stageMode !== before.stageMode || action?.levelId !== before.levelId ||
           action?.heroId !== before.heroId ||
           action?.beforeCount !== before.memberCount ||
           action?.guidAllocatorBefore !== before.guidAllocator ||
@@ -1114,7 +1115,7 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
     <div className="mini-game-actions"><button type="button" disabled={!live || busy}
       onClick={() => void inspect()}>{words.inspect}</button></div>
     {ready ? <div role="status"><span className="hotkey-state">{words.ready}</span>
-      <small>{words.event}: {ready.frontBreakSundayActId} · {words.hero}: {ready.heroId} · {words.count}: {ready.memberCount}</small>
+      <small>{words.event}: {ready.levelId ?? ready.frontBreakSundayActId ?? ready.stageMode} · {words.hero}: {ready.heroId} · {words.count}: {ready.memberCount}</small>
     </div> : null}
     {ready?.actionEligible === true && !latched ? <>
       <label><input type="checkbox" checked={consent} disabled={!live || busy}

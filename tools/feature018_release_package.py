@@ -16,8 +16,8 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_UID = "3133546747002289"
-EXPECTED_SERVER = 2289
+EXPECTED_UID = "2553945035002288"
+EXPECTED_SERVER = 2288
 ORIGINAL_SHA = {
     "LWScripts.data": "49f6249d1530b5f16aad3750388d017ac3032f4b8ef584eec6cff9ea01d19b6d",
     "LWScripts.txt": "52d5b30c486e9ff222e125eb05a13cc01a6407b0bdb40f15cbf12af0389ffae0",

@@ -34,8 +34,8 @@ local M = {VERSION = "feature018-hotkey-actions-1"}
 local outstanding = {}
 local owner_token = nil
 local MAX_PENDING_SECONDS = 45
-local AUTHORIZED_SUBACCOUNT_UID = "3133546747002289"
-local AUTHORIZED_SUBACCOUNT_SERVER = 2289
+local AUTHORIZED_SUBACCOUNT_UID = "2553945035002288"
+local AUTHORIZED_SUBACCOUNT_SERVER = 2288
 
 local function member(object, key)
     if object == nil then return nil end
@@ -88,18 +88,18 @@ end
 local function authorized_subaccount()
     local player, uid = current_account()
     if uid ~= AUTHORIZED_SUBACCOUNT_UID then
-        return nil, blocked("Native game UID is not the authorized server-2289 sub-account")
+        return nil, blocked("Native game UID is not the authorized server-2288 sub-account")
     end
     for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
         local ok, server = invoke(player, source)
-        -- Reject decimal-looking or padded server aliases such as "02289"
-        -- and "2289.0": admission must reflect the exact native server.
+        -- Reject decimal-looking or padded server aliases such as "02288"
+        -- and "2288.0": admission must reflect the exact native server.
         local valid_server =
             (type(server) == "number" and server == AUTHORIZED_SUBACCOUNT_SERVER)
             or (type(server) == "string" and
                 server == tostring(AUTHORIZED_SUBACCOUNT_SERVER))
         if not ok or not valid_server then
-            return nil, blocked("Native game server is not the authorized server-2289 sub-account")
+            return nil, blocked("Native game server is not the authorized server-2288 sub-account")
         end
     end
     return uid, nil
@@ -410,7 +410,7 @@ end
 
 -- Read-only native inventory endpoint for the Hotkeys panel. The FEATURE018
 -- bridge authenticates the profile/lease and this producer independently
--- verifies the current game's exact UID and all three 2289 server getters.
+-- verifies the current game's exact UID and all three 2288 server getters.
 -- No client-supplied item identity, duration or spend instruction is used.
 function M.RegisterShieldInventory(feature)
     if type(feature) ~= "table" or
@@ -526,7 +526,7 @@ function M.Wrap(frozen_hotkeys)
             end
             -- Unlike a browser/session token, these values are read from the
             -- game owner on every use AND read-only pending-status query.
-            -- The frozen shield sender does not itself check the 2289 server.
+            -- The frozen shield sender does not itself check the 2288 server.
             local uid, denial = authorized_subaccount()
             if not uid then return denial end
             -- The frozen Hotkey game module now joins owned inventory to the
@@ -675,7 +675,7 @@ end
 
 -- Explicitly owner-confirmed Frontline UI action. This is the same original
 -- ParkourBattleLogic five-AddMember producer as G, not a server-scored reward.
--- The original Sunday battle must already exist; never manufacture one.
+-- The original Parkour run must already exist; never manufacture one.
 local frontline_ui_attempts = {}
 function M.RegisterFrontline(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
@@ -705,20 +705,20 @@ function M.RegisterFrontline(feature, frozen_hotkeys)
         local mini = rawget(_G,"LWBridgeFeature018MiniGame")
         if type(member(mini,"FrontlineReinforce")) ~= "function" or
            type(member(mini,"FrontlineStatus")) ~= "function" then
-            return unavailable("Original Sunday Frontline battle producer unavailable")
+            return unavailable("Native Parkour stage producer unavailable")
         end
         local ready, snapshot = pcall(mini.FrontlineStatus)
         if not ready or type(snapshot) ~= "table" or snapshot.state ~= "confirmed" or
            type(snapshot.data) ~= "table" or
-           snapshot.data.observation ~= "native_frontline_sunday_battle_readonly" or
+           snapshot.data.observation ~= "native_parkour_battle_readonly" or
            snapshot.data.actionEligible ~= true or
            snapshot.data.uncertainPriorAction ~= false or
            snapshot.data.requestDispatched ~= false or
            snapshot.data.serverAckObserved ~= false then
             return blocked("Native Frontline source battle is not independently action-ready")
         end
-        -- Source-native action independently revalidates UID2289, all three
-        -- servers, Sunday event, exact live UI, hero, five GUIDs and count.
+        -- Source-native action independently revalidates UID2288, all three
+        -- servers, active Parkour run, exact live UI, hero, five GUIDs and count.
         -- It is not safe to retry if it throws after some AddMember calls.
         -- The browser latch is lost when a tab remounts. Retain a second,
         -- native one-intent tombstone for this authenticated game session

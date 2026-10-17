@@ -41,7 +41,7 @@
 --       native persisted equipment_config_get, never frontend draft/client
 --       provided JSON. No mutation method is reachable from this function.
 --   M.Handle(fields, confirmedPresets, gameInputClear)
---       Exact 2289-only sequential original RPC plan; queryOnly resumes its
+--       Exact 2288-only sequential original RPC plan; queryOnly resumes its
 --       authorized next step after native state confirms the prior step.
 -- Nothing is registered, sent, mutated or executed when this file loads.
 --
@@ -100,15 +100,15 @@ local function exact_session(fields)
     end
     local player = member(rawget(_G, "LuaEntry"), "Player")
     local native_uid = exact_id(member(player,"uid"))
-    if native_uid ~= "3133546747002289" or
+    if native_uid ~= "2553945035002288" or
        type(fields.authorizedUid) ~= "string" or
        fields.authorizedUid ~= native_uid then return false end
     -- The public read-only Preflight also runs with native Lua authority:
     -- it cannot depend solely on the C# owner check preceding a mailbox
-    -- request. Every original native server getter must agree on home 2289.
+    -- request. Every original native server getter must agree on home 2288.
     for _,getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
         local ok,server=invoke(player,getter)
-        if not ok or (server~=2289 and server~="2289") then return false end
+        if not ok or (server~=2288 and server~="2288") then return false end
     end
     return true
 end
@@ -376,10 +376,10 @@ local transaction = nil
 local function action_owner(fields)
     if not exact_session(fields) then return false end
     local player = member(rawget(_G,"LuaEntry"),"Player")
-    if exact_id(member(player,"uid")) ~= "3133546747002289" then return false end
+    if exact_id(member(player,"uid")) ~= "2553945035002288" then return false end
     for _, getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
         local ok, server = invoke(player,getter)
-        if not ok or (server ~= 2289 and server ~= "2289") then return false end
+        if not ok or (server ~= 2288 and server ~= "2288") then return false end
     end
     return true
 end
@@ -455,7 +455,7 @@ end
 -- Source read-only owner snapshot for saving ordinary app equipment presets.
 -- Returned gear identifiers are native UUID strings, never template IDs.
 function M.Snapshot(fields)
-    if not action_owner(fields) then return blocked("Equipment snapshot requires the exact authorized 2289 session") end
+    if not action_owner(fields) then return blocked("Equipment snapshot requires the exact authorized 2288 session") end
     local squads, candidates={},{}
     local center=rawget(_G,"DataCenter")
     local manager=member(center,"ArmyFormationDataManager")
@@ -504,11 +504,11 @@ function M.Snapshot(fields)
     table.sort(candidates,function(a,b)return a.equipUuid<b.equipUuid end)
     return {state="confirmed",data={observation="native_HeroEquip_owner_snapshot",
         readOnly=true,requestDispatched=false,ownerUid=fields.authorizedUid,
-        serverId=2289,squads=squads,items=candidates}}
+        serverId=2288,squads=squads,items=candidates}}
 end
 
 function M.Handle(fields, confirmed_presets, game_input_clear)
-    if not action_owner(fields) then return blocked("Equipment actions require exact authorized UID on server 2289") end
+    if not action_owner(fields) then return blocked("Equipment actions require exact authorized UID on server 2288") end
     if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then return blocked("Unknown equipment query mode") end
     local audit = M.Preflight(fields,confirmed_presets,
         fields.queryOnly == "1" and function() return true end or game_input_clear)

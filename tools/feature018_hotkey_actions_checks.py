@@ -26,13 +26,13 @@ ORIGINAL_V26_LUA_ENTRY_SHA = (
 
 GAME = """
 state = {
-    playerUid='3133546747002289', focusClear=true, canReturn=true,
-    ownerUid='3133546747002289', formationId=1001, candidateFormationId=1001,
-    squadUuid=803001, candidateUid='3133546747002289', target=17, dispatches=0,
+    playerUid='2553945035002288', focusClear=true, canReturn=true,
+    ownerUid='2553945035002288', formationId=1001, candidateFormationId=1001,
+    squadUuid=803001, candidateUid='2553945035002288', target=17, dispatches=0,
     slot=1, numberOfOwnedShield=2, numberOfOwnedShield12=1,
     numberOfOwnedShield24=1, fallbackCalls=0, inventoryReads=0,
     itemUseCalls=0,
-    sourceServer=2289, selfServer=2289, currentServer=2289,
+    sourceServer=2288, selfServer=2288, currentServer=2288,
 }
 LuaEntry = { Player={uid=state.playerUid,allianceId=700,
     GetSourceServerId=function() return state.sourceServer end,
@@ -166,21 +166,21 @@ def test_registered_shield_inventory():
 
     require(handler(None)["state"] == "failed" and state["inventoryReads"] == 0,
             "malformed native inventory request accessed game state")
-    for malformed_uid in (None, "invalid", "3133546747002212", "31335467470022890"):
+    for malformed_uid in (None, "invalid", "3133546747002212", "3133546747002289", "25539450350022880"):
         lua.globals().LuaEntry.Player.uid = malformed_uid
-        bad = call(authorizedUid="3133546747002289")
+        bad = call(authorizedUid="2553945035002288")
         require(bad["state"] == "failed" and state["inventoryReads"] == 0 and
                 state["itemUseCalls"] == 0,
                 "wrong/malformed native UID reached shield stock reader")
-    lua.globals().LuaEntry.Player.uid = "3133546747002289"
+    lua.globals().LuaEntry.Player.uid = "2553945035002288"
     for getter in ("sourceServer", "selfServer", "currentServer"):
-        for invalid in (2212, 2213, None, "not-a-server", "02289", "2289.0", 2289.5):
+        for invalid in (2212, 2213, 2289, None, "not-a-server", "02288", "2288.0", 2288.5):
             state[getter] = invalid
-            denied = call(authorizedUid="3133546747002289")
+            denied = call(authorizedUid="2553945035002288")
             require(denied["state"] == "failed" and
                     state["inventoryReads"] == 0 and state["itemUseCalls"] == 0,
                     "invalid native server getter accessed owned shield stock: " + getter)
-        state[getter] = 2289
+        state[getter] = 2288
 
     # Client fields cannot select an item or authorize a spend. Data comes
     # exclusively from v26 native ItemData, Goods templates and StatusTab.
@@ -296,21 +296,21 @@ def test_wrapped_original_shield_sender():
     require(call()["state"] == "failed" and state["sent"] == 0 and
             state["cooldownSets"] == 0,
             "main 2212 account reached a real ItemUse sender")
-    account["uid"] = "3133546747002289"
+    account["uid"] = "2553945035002288"
     lua.globals().LuaEntry.Player.uid = account["uid"]
     for key in ("source", "selfServer", "cur"):
         require(call()["state"] == "failed" and state["sent"] == 0,
-                "2289 UID with stale main-account server was admitted")
-        account[key] = 2289
+                "2288 UID with stale main-account server was admitted")
+        account[key] = 2288
     sent = call()
     require(sent["state"] == "accepted" and
             sent["data"]["requestDispatched"] is True and
             state["sent"] == 1 and state["cooldownSets"] == 1,
-            "proper 2289 owner was blocked from the original source-proven ItemUse")
+            "proper 2288 owner was blocked from the original source-proven ItemUse")
     account["cur"] = 2212
     require(call(status=True)["state"] == "failed" and state["sent"] == 1,
             "server switched before pending shield observation")
-    account["cur"] = 2289
+    account["cur"] = 2288
     require(call(status=True)["state"] == "accepted" and state["sent"] == 1,
             "unconfirmed ItemUse query initiated a duplicate send")
     state["items"][1]["count"] = 1
@@ -329,7 +329,7 @@ def test_registered_relocation_readonly():
       LWBridgeFeature018RelocationActions={
         Readiness=function(fields,clear,action)
           state.relocationReads=state.relocationReads+1
-          assert(fields.authorizedUid=='3133546747002289')
+          assert(fields.authorizedUid=='2553945035002288')
           assert(action=='randomRelocate' or action=='allianceRelocate')
           return {state='confirmed',data={
             action=action,ownerUid=fields.authorizedUid,readOnly=true,
@@ -362,9 +362,9 @@ def test_registered_relocation_readonly():
     require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed" and
             state["relocationReads"]==2,
             "main server reached original relocation preflight")
-    state["sourceServer"]=2289
+    state["sourceServer"]=2288
     lua.execute("LWBridgeFeature018RelocationActions.Readiness=function() return "
-                "{state='confirmed',data={action='randomRelocate',ownerUid='3133546747002289',"
+                "{state='confirmed',data={action='randomRelocate',ownerUid='2553945035002288',"
                 "readOnly=true,requestDispatched=true,relocationConfirmed=true}} end")
     require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed",
             "native preflight forged a relocation dispatch or confirmation")
@@ -376,7 +376,7 @@ def test_consent_bound_source_frontline_action():
       LWBridgeFeature018MiniGame={
         FrontlineStatus=function()
           return {state='confirmed',data={
-            observation='native_frontline_sunday_battle_readonly',
+            observation='native_parkour_battle_readonly',
             actionEligible=true,uncertainPriorAction=false,
             requestDispatched=false,serverAckObserved=false}}
         end,
@@ -414,7 +414,7 @@ def test_consent_bound_source_frontline_action():
     require(request(frontlineOptIn="1")["state"]=="failed" and
             state["frontlineCalls"]==0,
             "Main server2212 was admitted to mutate a Frontline battle")
-    state["sourceServer"]=2289
+    state["sourceServer"]=2288
     state["focusClear"]=False
     require(request(frontlineOptIn="1")["state"]=="failed" and
             state["frontlineCalls"]==0,
@@ -570,7 +570,7 @@ def main():
     s["candidateUid"] = "foreignUid"
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "foreign owner march admitted after misleading native GetOwnerFormationMarch")
-    s["candidateUid"] = "3133546747002289"
+    s["candidateUid"] = "2553945035002288"
     s["candidateFormationId"] = 1111
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "wrong formation march admitted")
@@ -606,14 +606,14 @@ def main():
         require(outcome["state"] == "failed" and "UID" in outcome["error"] and
                 s["dispatches"] == 0,
                 "main/unknown game owner reached mutable shield handler: " + duration)
-    s["playerUid"] = "3133546747002289"
+    s["playerUid"] = "2553945035002288"
     lua_second.globals().LuaEntry.Player.uid = s["playerUid"]
     s["sourceServer"] = 2212
     require(call(action="shieldUse",slot="8")["state"] == "failed" and
             call(action="shieldUse",slot="8",query_only=True)["state"] == "failed" and
             s["dispatches"] == 0 and s["fallbackCalls"] == 0,
             "wrong-server owner reached shield sender")
-    s["sourceServer"] = 2289
+    s["sourceServer"] = 2288
     for duration in ("8", "12", "24"):
         outcome = call(action="shieldUse",slot=duration)
         require(outcome["state"] == "unsupported" and s["dispatches"] == 0 and
@@ -642,7 +642,7 @@ def main():
     require(call(action="equipment",slot="1")["state"] == "failed",
             "equipment without trusted persisted presets reached a mutable sender")
 
-    state["playerUid"] = "3133546747002289"
+    state["playerUid"] = "2553945035002288"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     shield = actions.ShieldOwnedInventory()
     require(shield["state"] == "confirmed", "owned shield inventory unavailable")
@@ -665,7 +665,7 @@ def main():
     require(actions.ShieldOwnedInventory()["state"] == "unsupported",
             "missing native shield template source admitted")
     lua, actions, _, state, call = scenario()
-    state["playerUid"] = "3133546747002289"
+    state["playerUid"] = "2553945035002288"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     lua.execute("DataCenter.ItemTemplateManager.GetTypeListByTypes=function() "
                 "return {{id=8,para1=801},{id=12,para1=801},{id=24,para1=803}} end")
@@ -682,13 +682,13 @@ def main():
     lua.globals().LuaEntry.Player.uid = "222"
     require(actions.ShieldOwnedInventory()["state"] == "failed",
             "main-account shield inventory disclosed without native UID admission")
-    state["playerUid"] = "3133546747002289"
+    state["playerUid"] = "2553945035002288"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
     for server in ("sourceServer", "selfServer", "currentServer"):
         state[server] = 2212
         require(actions.ShieldOwnedInventory()["state"] == "failed",
                 "shield inventory read through unapproved native server: " + server)
-        state[server] = 2289
+        state[server] = 2288
     lua.execute("DataCenter.StatusManager.GetShieldStatusIds=function() return {} end")
     require(actions.ShieldOwnedInventory()["state"] == "unsupported",
             "missing MAIN_SHIELD status classification was accepted")

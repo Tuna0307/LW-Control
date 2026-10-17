@@ -13,7 +13,7 @@ SOURCE = (HERE / "feature018_hotkey_actions.lua").read_text(encoding="utf-8")
 
 GAME = r"""
 state = {
-  uid="3133546747002289", source=2289, selfServer=2289, current=2289,
+  uid="2553945035002288", source=2288, selfServer=2288, current=2288,
   focused=true, sends=0, probes=0, status=0, items=2, pending=false,
 }
 LuaEntry={Player={
@@ -129,22 +129,22 @@ def main():
     # Every inventory/read and spending command must re-fetch all three
     # authenticated server signals; server 2212 remains the owner's main.
     for key in ("source", "selfServer", "current"):
-        for incorrect in (2212, 2213, None):
+        for incorrect in (2212, 2213, 2289, None):
             state[key] = incorrect
             for params in ({}, {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108"},
                            {"mode": "status"}):
                 before = (state["probes"], state["sends"], state["status"])
                 rejected = call(**params)
-                check(rejected["state"] == "failed" and "server-2289" in rejected["error"]
+                check(rejected["state"] == "failed" and "server-2288" in rejected["error"]
                       and before == (state["probes"], state["sends"], state["status"]),
                       "unauthorized server reached rapid preflight: " + key)
-            state[key] = 2289
+            state[key] = 2288
 
     def change_native_uid(uid):
         state["uid"] = uid
         lua.globals().LuaEntry.Player.uid = uid
 
-    for incorrect in ("3133546747002212", "3133546747002299",
+    for incorrect in ("3133546747002212", "3133546747002289", "3133546747002299",
                       "not-an-authenticated-uid", None):
         change_native_uid(incorrect)
         for params in ({}, {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108"},
@@ -154,7 +154,7 @@ def main():
             check(rejected["state"] == "failed" and "UID" in rejected["error"]
                   and before == (state["probes"], state["sends"], state["status"]),
                   "different/missing native UID reached rapid preflight")
-    change_native_uid("3133546747002289")
+    change_native_uid("2553945035002288")
     state["focused"] = False
     check(call(mode="itemUse", itemOptIn="1", itemId="30108")["state"] == "failed"
           and state["sends"] == 0, "sender ignored game text input")
@@ -170,13 +170,13 @@ def main():
     check(denied["state"] == "failed" and "UID" in denied["error"] and
           state["sends"] == 1 and state["status"] == 1,
           "post-dispatch status observed a different account")
-    change_native_uid("3133546747002289")
+    change_native_uid("2553945035002288")
     state["current"] = 2212
     denied = call(mode="status")
-    check(denied["state"] == "failed" and "server-2289" in denied["error"] and
+    check(denied["state"] == "failed" and "server-2288" in denied["error"] and
           state["sends"] == 1 and state["status"] == 1,
           "post-dispatch status observed the protected main server")
-    state["current"] = 2289
+    state["current"] = 2288
     waiting = call(mode="status")
     check(waiting["state"] == "confirmed" and
           waiting["data"]["state"] == "pending" and
@@ -210,12 +210,12 @@ def main():
         denied = wrapped(lua.table_from({"action": action}))
         check(denied["state"] == "failed" and state["wrapCalls"] == 2,
               "wrapped speedup admitted main-account UID")
-        change_native_uid("3133546747002289")
+        change_native_uid("2553945035002288")
         state["current"] = 2212
         denied = wrapped(lua.table_from({"action": action}))
         check(denied["state"] == "failed" and state["wrapCalls"] == 2,
               "wrapped speedup admitted main-account server")
-        state["current"] = 2289
+        state["current"] = 2288
     print("FEATURE018_RAPID_NATIVE_BRIDGE_LUA53_OFFLINE_PASS")
 
 

@@ -184,7 +184,7 @@ internal sealed class Feature018OwnedGameExchange
             throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "Owned game session changed during FEATURE018 request.");
         if (!approvedAccount(owner))
             throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED",
-                "FEATURE018 requires the currently authenticated UID 3133546747002289 on server 2289.");
+                "FEATURE018 requires the currently authenticated UID 2553945035002288 on server 2288.");
     }
 
     internal static bool FreshApprovedSubaccount(string heartbeatPath, OverviewMapScanSession owner)
@@ -204,9 +204,9 @@ internal sealed class Feature018OwnedGameExchange
                    connected.ValueKind == JsonValueKind.True &&
                    heartbeat.TryGetProperty("gameUid", out var uid) &&
                    uid.ValueKind == JsonValueKind.String &&
-                   uid.GetString() == "3133546747002289" &&
+                   uid.GetString() == "2553945035002288" &&
                    heartbeat.TryGetProperty("serverId", out var server) &&
-                   server.TryGetInt32(out int serverId) && serverId == 2289;
+                   server.TryGetInt32(out int serverId) && serverId == 2288;
         }
         catch (IOException) { return false; }
         catch (JsonException) { return false; }

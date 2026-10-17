@@ -10,7 +10,7 @@ from lupa.lua53 import LuaRuntime
 FIXTURE = r'''
 LandLockState={Locked=1, Unlocked=2, Finished=3}
 LandLockCondition={Unknown=0}
-Account={uid='3133546747002289',source=2289,selfServer=2289,current=2289}
+Account={uid='2553945035002288',source=2288,selfServer=2288,current=2288}
 LuaEntry={Player={uid=Account.uid,
   GetSourceServerId=function() return Account.source end,
   GetSelfServerId=function() return Account.selfServer end,
@@ -106,11 +106,11 @@ class LandPacketChecks(unittest.TestCase):
         lua, mod = fixture()
         lua.execute("LuaEntry.Player.uid='3133546747002212'")
         self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
-        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'")
         for getter in ('source', 'selfServer', 'current'):
             lua.globals().Account[getter] = 2212
             self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
-            lua.globals().Account[getter] = 2289
+            lua.globals().Account[getter] = 2288
         self.assertEqual(lua.globals().SendCount, 0)
 
     def test_owner_changes_during_preflight_before_dispatch(self):
@@ -125,7 +125,7 @@ class LandPacketChecks(unittest.TestCase):
         lua, mod = self.start()
         lua.execute("LuaEntry.Player.uid='3133546747002212'")
         lua.globals().Reply(6, 2, None)
-        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'")
         proof = self.proof(lua, mod)
         self.assertFalse(proof['accountFenceIntact'])
         self.assertFalse(proof['requestCausalityConfirmed'])
@@ -137,7 +137,7 @@ class LandPacketChecks(unittest.TestCase):
         lua, mod = fixture()
         lua.execute("SFSNetwork.SendMessage=function(command,id) "
                     "SendCount=SendCount+1; Account.selfServer=2212; "
-                    "NativeClass.OnCreate({},id); Account.selfServer=2289 end")
+                    "NativeClass.OnCreate({},id); Account.selfServer=2288 end")
         result = mod.LandUnlockOne(lua.table())
         self.assertEqual(result['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)

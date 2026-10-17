@@ -385,6 +385,13 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid game hotkey slot.");
                 fields["action"] = action;
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
+                if (action == "frontlineReinforce" && payload.TryGetProperty("expectedStageRunId", out _))
+                {
+                    string run = ReadValue(payload, "expectedStageRunId", 20);
+                    if (!run.All(char.IsAsciiDigit) || run[0] == '0')
+                        throw new BridgeCommandException("INVALID_REQUEST", "Invalid queued stage identity.");
+                    fields["expectedStageRunId"] = run;
+                }
                 if (action == "attack")
                 {
                     foreach (string option in new[] { "allowRapidItem", "allowRapidDiamond" })

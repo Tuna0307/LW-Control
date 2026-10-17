@@ -261,12 +261,12 @@ end
 -- In particular server 2212 is the owner's read-only MAIN account.
 local function native_sub_account()
     local player = member(rawget(_G, "LuaEntry"), "Player")
-    if digit_id(member(player, "uid")) ~= "3133546747002289" then
+    if digit_id(member(player, "uid")) ~= "2553945035002288" then
         return false
     end
     for _, getter in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
         local ok, server = invoke(player, getter)
-        if not ok or tostring(server) ~= "2289" then return false end
+        if not ok or tostring(server) ~= "2288" then return false end
     end
     return true
 end

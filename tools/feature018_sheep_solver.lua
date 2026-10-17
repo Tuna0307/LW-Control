@@ -74,17 +74,17 @@ local function approved_native_owner()
     -- The host authenticates its session, but a login/server transition can
     -- occur between an accepted Start and a later automated native UI click.
     local player = get(rawget(_G, 'LuaEntry'), 'Player')
-    if tostring(get(player, 'uid')) ~= '3133546747002289' then return false end
+    if tostring(get(player, 'uid')) ~= '2553945035002288' then return false end
     for _, getter in ipairs({'GetSourceServerId', 'GetSelfServerId', 'GetCurServerId'}) do
         local ok, server = call(player, getter)
-        if not ok or tostring(server) ~= '2289' then return false end
+        if not ok or tostring(server) ~= '2288' then return false end
     end
     return true
 end
 
 local function context()
     if not approved_native_owner() then
-        return nil, 'Food House requires the authorized native UID/server 2289'
+        return nil, 'Food House requires the authorized native UID/server 2288'
     end
     local small = get(rawget(_G, 'SmallGameManager'), 'GSheep')
     local manager = get(rawget(_G, 'DataCenter'), 'LWSheepDataManager')

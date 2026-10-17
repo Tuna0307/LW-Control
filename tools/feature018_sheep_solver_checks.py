@@ -213,8 +213,8 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         from lupa.lua53 import LuaRuntime
         lua = LuaRuntime(unpack_returned_tuples=True)
         lua.execute(r'''
-        Account={source=2289,selfServer=2289,current=2289}
-        LuaEntry={Player={uid='3133546747002289',
+        Account={source=2288,selfServer=2288,current=2288}
+        LuaEntry={Player={uid='2553945035002288',
           GetSourceServerId=function() return Account.source end,
           GetSelfServerId=function() return Account.selfServer end,
           GetCurServerId=function() return Account.current end}}

@@ -47,8 +47,8 @@ local M = {VERSION = "feature018-relocation-actions-10"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
-local HOME_SERVER = 2289 -- Authorized sub-account only. 2212 is the read-only main.
-local APPROVED_UID = "3133546747002289"
+local HOME_SERVER = 2288 -- Authorized sub-account only. 2212 is the read-only main.
+local APPROVED_UID = "2553945035002288"
 
 local function member(object, name)
     if object == nil then return nil end
@@ -127,7 +127,7 @@ local function world_snapshot()
     local ok_pos, position = invoke(player, "GetMainWorldPos")
     for _,raw_server in ipairs({source_server,self_server,current_server})do
         if raw_server~=HOME_SERVER and raw_server~=tostring(HOME_SERVER) then
-            return nil,"Connected world is not the exact authorized server-2289 home world"
+            return nil,"Connected world is not the exact authorized server-2288 home world"
         end
     end
     source_server, self_server = integer(source_server, 1), integer(self_server, 1)
@@ -138,11 +138,11 @@ local function world_snapshot()
         return nil, "Native owner, server and city position snapshot incomplete"
     end
     if player_uid ~= APPROVED_UID then
-        return nil, "Connected UID does not match the exact authorized 2289 sub-account"
+        return nil, "Connected UID does not match the exact authorized 2288 sub-account"
     end
     if source_server ~= HOME_SERVER or self_server ~= HOME_SERVER or
        current_server ~= HOME_SERVER then
-        return nil, "Connected world is not the authorized server-2289 home world"
+        return nil, "Connected world is not the authorized server-2288 home world"
     end
 
     local item_data = member(rawget(_G, "DataCenter"), "ItemData")
@@ -382,10 +382,10 @@ end
 -- matching native ItemUse UUID and independent inventory+position it remains
 -- unconfirmed; the server's random destination is never predicted.
 -- Important v26 correction: AllianceMoveCityToSourceRallyPoint on *this*
--- source=self=2289 home world invokes upvalue MoveCityFromOtherToSource.
+-- source=self=2288 home world invokes upvalue MoveCityFromOtherToSource.
 -- That upvalue instead sends MsgDefines.MoveCrossServer (BackToSrcServer,
 -- dstPoint=0, useCrossItem=not CanFreeAllianceMove). Its line-136
--- AllianceMoveCity sender runs only on the OTHER branch and is not the 2289
+-- AllianceMoveCity sender runs only on the OTHER branch and is not the 2288
 -- direct F10 packet. Never invoke this mismatched direct path or claim its
 -- WorldMvHandle(reason=240) could acknowledge the attempted request.
 local pending=nil
@@ -486,7 +486,7 @@ end
 -- "actionable" here means only that an original F9 ItemUse REQUEST can be
 -- attempted under the native owner+stock+warning+focus guards. It does not
 -- mean the server will choose a valid destination or acknowledge the move.
--- F10's source=self=2289 native direct route is MoveCrossServer; it is
+-- F10's source=self=2288 native direct route is MoveCrossServer; it is
 -- NEVER actionable as relocation even if a UI chooser is available.
 function M.Readiness(fields,input_clear,action)
     if action==nil and type(fields)=="table" then action=fields.action end
@@ -789,7 +789,7 @@ local function perform(fields,input_clear,action)
             end
             chooser_marks=marks
         else
-            -- Exact source=self=current=2289 owner fence makes this native
+            -- Exact source=self=current=2288 owner fence makes this native
             -- original request MoveCrossServer, NOT AllianceMoveCity. It
             -- cannot be paired with the old WorldMvHandle(reason=240)
             -- confirmation; reject rather than spending a cross-server item.

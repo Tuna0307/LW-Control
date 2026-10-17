@@ -97,6 +97,12 @@ internal sealed class Feature018HotkeyNativeProviders
                 allowRapidItem = command.AllowMarchSpeedupItems,
                 allowRapidDiamond = command.AllowMarchSpeedupDiamonds,
             }, JsonOptions.Default)
+            : command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline && command.ExpectedStageRunId is not null
+            ? JsonSerializer.SerializeToElement(new
+            {
+                action = ActionName(command.Intent.Kind), slot = command.Intent.Slot,
+                expectedStageRunId = command.ExpectedStageRunId,
+            }, JsonOptions.Default)
             : JsonSerializer.SerializeToElement(new
             {
                 action = ActionName(command.Intent.Kind),
@@ -259,6 +265,11 @@ internal sealed class Feature018HotkeyNativeProviders
         {
             return new(Feature018HotkeyActionStatus.SessionChanged,
                 "authenticated_game_route_unavailable");
+        }
+        catch (BridgeCommandException error) when (command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline)
+        {
+            return new(Feature018HotkeyActionStatus.Failed, error.Message,
+                error.Details is JsonElement data ? data.Clone() : null);
         }
         catch (BridgeCommandException)
         {

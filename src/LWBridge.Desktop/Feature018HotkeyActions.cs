@@ -12,7 +12,8 @@ internal sealed record Feature018HotkeyCommand(
     Feature018HotkeySession Session,
     Feature018HotkeyIntent Intent,
     bool AllowMarchSpeedupItems = false,
-    bool AllowMarchSpeedupDiamonds = false);
+    bool AllowMarchSpeedupDiamonds = false,
+    string? ExpectedStageRunId = null);
 
 internal enum Feature018HotkeyActionStatus
 {
@@ -50,6 +51,11 @@ internal sealed class Feature018HotkeyActions
     private readonly IReadOnlyDictionary<Feature018HotkeyKind,
         Func<Feature018HotkeyCommand, CancellationToken, Task<Feature018HotkeyActionOutcome>>> providers;
     private readonly SemaphoreSlim dispatchGate = new(1, 1);
+    // Only consecutive confirmed G actions can admit waiting G edges. The
+    // native run identity prevents a pending key migrating to a later stage.
+    private string? lastConfirmedStageRunId;
+    private long lastConfirmedStageEpoch;
+    private long reinforcementEpoch;
 
     internal Feature018HotkeyActions(
         Feature018HotkeySession expected,
@@ -77,8 +83,11 @@ internal sealed class Feature018HotkeyActions
         Feature018HotkeyIntent intent,
         CancellationToken cancellationToken = default)
     {
+        bool reinforcement = intent.Kind == Feature018HotkeyKind.ReinforceFrontline;
+        if (!reinforcement) Interlocked.Increment(ref reinforcementEpoch);
+        long capturedEpoch = Volatile.Read(ref reinforcementEpoch);
         if (!SameAdmittedSession())
-            return new(Feature018HotkeyActionStatus.SessionChanged, "admitted_game_session_unavailable");
+            return Reject(Feature018HotkeyActionStatus.SessionChanged, "admitted_game_session_unavailable");
         bool focused;
         HotkeyConfig config;
         try
@@ -88,50 +97,104 @@ internal sealed class Feature018HotkeyActions
         }
         catch
         {
-            return new(Feature018HotkeyActionStatus.NotFocused, "game_focus_or_config_unavailable");
+            return Reject(Feature018HotkeyActionStatus.NotFocused, "game_focus_or_config_unavailable");
         }
         if (!focused)
-            return new(Feature018HotkeyActionStatus.NotFocused, "game_window_or_text_focus_unverified");
+            return Reject(Feature018HotkeyActionStatus.NotFocused, "game_window_or_text_focus_unverified");
         if (!Enabled(config, intent.Kind))
-            return new(Feature018HotkeyActionStatus.Disabled, "profile_hotkey_preference_disabled");
+            return Reject(Feature018HotkeyActionStatus.Disabled, "profile_hotkey_preference_disabled");
         if (!ValidSlot(intent))
-            return new(Feature018HotkeyActionStatus.Unsupported, "invalid_original_hotkey_slot");
+            return Reject(Feature018HotkeyActionStatus.Unsupported, "invalid_original_hotkey_slot");
         if (!providers.TryGetValue(intent.Kind, out var producer))
-            return new(Feature018HotkeyActionStatus.Unsupported, "current_client_action_provider_unverified");
-        if (!await dispatchGate.WaitAsync(0, cancellationToken).ConfigureAwait(false))
-            return new(Feature018HotkeyActionStatus.Busy, "other_hotkey_action_pending");
+            return Reject(Feature018HotkeyActionStatus.Unsupported, "current_client_action_provider_unverified");
+        bool queued;
+        try
+        {
+            queued = !await dispatchGate.WaitAsync(0, cancellationToken).ConfigureAwait(false);
+            if (queued)
+            {
+                if (!reinforcement)
+                    return new(Feature018HotkeyActionStatus.Busy, "other_hotkey_action_pending");
+                await dispatchGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Interlocked.Increment(ref reinforcementEpoch);
+            throw;
+        }
 
         try
         {
-            if (!SameAdmittedSession() || !safeGameForeground())
-                return new(Feature018HotkeyActionStatus.SessionChanged, "game_session_or_focus_changed_before_dispatch");
-
+            cancellationToken.ThrowIfCancellationRequested();
+            // A waiting key is a distinct captured press, not a retry of the
+            // preceding call. Re-read every mutable admission after waiting.
+            if (!SameAdmittedSession())
+                return Reject(Feature018HotkeyActionStatus.SessionChanged, "game_session_changed_before_dispatch");
+            if (!safeGameForeground())
+                return Reject(Feature018HotkeyActionStatus.NotFocused, "game_focus_changed_before_dispatch");
+            config = currentPreferences();
+            if (!Enabled(config, intent.Kind))
+                return Reject(Feature018HotkeyActionStatus.Disabled, "profile_hotkey_preference_disabled");
+            string? expectedStageRunId = null;
+            if (queued)
+            {
+                if (Volatile.Read(ref reinforcementEpoch) != capturedEpoch ||
+                    lastConfirmedStageEpoch != capturedEpoch ||
+                    string.IsNullOrWhiteSpace(lastConfirmedStageRunId))
+                    return Reject(Feature018HotkeyActionStatus.Failed, "queued_g_prior_stage_not_confirmed");
+                expectedStageRunId = lastConfirmedStageRunId;
+            }
+            lastConfirmedStageRunId = null;
             var command = new Feature018HotkeyCommand(
                 expected,
                 intent,
                 intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupItem,
-                intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupDiamond);
+                intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupDiamond,
+                expectedStageRunId);
             Feature018HotkeyActionOutcome result = await producer(command, cancellationToken)
                 .ConfigureAwait(false) ??
                 new(Feature018HotkeyActionStatus.Failed, "game_action_returned_no_receipt");
             if (!SameAdmittedSession())
-                return new(Feature018HotkeyActionStatus.SessionChanged, "game_session_changed_after_native_call");
+                return Reject(Feature018HotkeyActionStatus.SessionChanged, "game_session_changed_after_native_call");
+            if (reinforcement && result.Status == Feature018HotkeyActionStatus.Confirmed &&
+                result.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } receipt &&
+                receipt.TryGetProperty("stageRunId", out JsonElement stage) &&
+                stage.ValueKind == JsonValueKind.String &&
+                !string.IsNullOrWhiteSpace(stage.GetString()) &&
+                (expectedStageRunId is null || expectedStageRunId == stage.GetString()) &&
+                Volatile.Read(ref reinforcementEpoch) == capturedEpoch)
+            {
+                lastConfirmedStageRunId = stage.GetString();
+                lastConfirmedStageEpoch = capturedEpoch;
+            }
+            else
+            {
+                Interlocked.Increment(ref reinforcementEpoch);
+            }
             // A request accepted by a game message sender is still Submitted;
             // a provider can return Confirmed only after an observed game state.
             return result;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            Interlocked.Increment(ref reinforcementEpoch);
             throw;
         }
         catch (Exception)
         {
-            return new(Feature018HotkeyActionStatus.Failed, "native_game_action_failed");
+            return Reject(Feature018HotkeyActionStatus.Failed, "native_game_action_failed");
         }
         finally
         {
             dispatchGate.Release();
         }
+    }
+
+    private Feature018HotkeyActionOutcome Reject(Feature018HotkeyActionStatus status, string reason)
+    {
+        Interlocked.Increment(ref reinforcementEpoch);
+        return new(status, reason);
     }
 
     private bool SameAdmittedSession()

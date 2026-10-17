@@ -29,7 +29,7 @@ ADAPTER = ROOT / "feature018_equipment_actions.lua"
 FAKE_GAME = """
 state = {
   sent=0,focus=true,
-  uid='3133546747002289',source=2289,selfServer=2289,current=2289,
+  uid='2553945035002288',source=2288,selfServer=2288,current=2288,
   hero101={uuid=101,heroType=7,equips={}},
   hero202={uuid=202,heroType=7,equips={}},
   formation1={uuid=3001,localIndexToHeroDic={[1]=101}},
@@ -108,7 +108,7 @@ def fields(lua, slot=1, **kwargs):
         "launchSessionId": "session",
         "challenge": "challenge",
         "gamePid": "9245",
-        "authorizedUid": "3133546747002289",
+        "authorizedUid": "2553945035002288",
         "presetId": f"preset{slot}",
     }
     values.update(kwargs)
@@ -318,10 +318,10 @@ class EquipmentApplyChecks(unittest.TestCase):
     def fixture(self):
         lua,module,state,presets=setup()
         lua.execute("""
-        LuaEntry.Player.uid='3133546747002289'
-        function LuaEntry.Player:GetSourceServerId()return 2289 end
-        function LuaEntry.Player:GetSelfServerId()return 2289 end
-        function LuaEntry.Player:GetCurServerId()return 2289 end
+        LuaEntry.Player.uid='2553945035002288'
+        function LuaEntry.Player:GetSourceServerId()return 2288 end
+        function LuaEntry.Player:GetSelfServerId()return 2288 end
+        function LuaEntry.Player:GetCurServerId()return 2288 end
         MsgDefines={HeroEquipInstall='install',HeroEquipUninstall='remove'}
         state.requests={}
         SFSNetwork.SendMessage=function(message,hero,slots)
@@ -346,7 +346,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         end
         """)
         def call(query=False,slot=2):
-            extra={'authorizedUid':'3133546747002289'}
+            extra={'authorizedUid':'2553945035002288'}
             if query: extra['queryOnly']='1'
             return module.Handle(fields(lua,slot,**extra),presets,
                                  lua.eval('function()return state.focus end'))
@@ -355,7 +355,7 @@ class EquipmentApplyChecks(unittest.TestCase):
     def test_native_snapshot_supplies_legitimate_persistable_loadout_and_inventory(self):
         lua,module,state,_,_=self.fixture()
         lua.execute('function DataCenter.EquipDataManager:GetAllEquipList()return state.items end')
-        result=module.Snapshot(fields(lua,authorizedUid='3133546747002289'))
+        result=module.Snapshot(fields(lua,authorizedUid='2553945035002288'))
         self.assertEqual(result['state'],'confirmed');data=result['data']
         self.assertEqual(data['squads'][1]['positions'][1]['equips'][1]['equipUuid'],'501')
         self.assertEqual(data['squads'][2]['positions'][1]['heroUuid'],'202')
@@ -427,7 +427,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertIn('unexpected equipment UUID',response['error'])
         self.assertEqual(state['sent'],1)
 
-    def test_exact_2289_uid_and_all_three_native_servers_before_every_step(self):
+    def test_exact_2288_uid_and_all_three_native_servers_before_every_step(self):
         lua,_,state,_,call=self.fixture();call();lua.globals().apply_push()
         lua.execute('function LuaEntry.Player:GetCurServerId()return 2212 end')
         self.assertEqual(call(True)['state'],'failed');self.assertEqual(state['sent'],1)
@@ -525,7 +525,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(call()['state'],'accepted')
         lua.globals().apply_push()
         lua.execute('function LuaEntry.Player:GetCurServerId()return state.current end')
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+        result=module.Handle(fields(lua,2,authorizedUid='2553945035002288',queryOnly='1'),
             presets,lua.eval("""
               function()
                 state.current=2212
@@ -551,7 +551,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         lua,module,state,presets,call=self.fixture()
         self.assertEqual(call()['state'],'accepted')
         lua.globals().apply_push()
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+        result=module.Handle(fields(lua,2,authorizedUid='2553945035002288',queryOnly='1'),
             presets,lua.eval('''
               function()
                 state.hero202.equips[1]=nil
@@ -570,7 +570,7 @@ class EquipmentApplyChecks(unittest.TestCase):
             self.assertEqual(call(query=True)['state'],'accepted')
         self.assertEqual(state['sent'],3)
         lua.globals().apply_push()
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+        result=module.Handle(fields(lua,2,authorizedUid='2553945035002288',queryOnly='1'),
             presets,lua.eval('''
               function()
                 state.items[501].uuid=999
@@ -585,7 +585,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         lua,module,state,presets,call=self.fixture()
         self.assertEqual(call()['state'],'accepted')
         lua.globals().apply_push()
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+        result=module.Handle(fields(lua,2,authorizedUid='2553945035002288',queryOnly='1'),
             presets,lua.eval('''
               function()
                 presets[2].squads[1].positions[1].equips[1].equipUuid="503"
@@ -602,7 +602,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         presets[2]['squads'][2]['positions'][1]['heroUuid']='202'
         self.assertEqual(call()['state'],'accepted')
         lua.globals().apply_push()
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+        result=module.Handle(fields(lua,2,authorizedUid='2553945035002288',queryOnly='1'),
             presets,lua.eval('''
               function()
                 presets[2].squads[2].positions[1].heroUuid="101"

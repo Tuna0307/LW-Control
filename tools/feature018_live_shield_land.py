@@ -1,4 +1,4 @@
-"""Controlled one-shot approved 2289 shield and exact Land Cell staged receipts.
+"""Controlled one-shot approved 2288 shield and exact Land Cell staged receipts.
 
 Only the caller's existing task-owned packaged app may act. Every request has a
 separate native response. Never retry a sent purchase, ItemUse or land unlock.

@@ -240,7 +240,7 @@ local function native_selector_target(ctrl,uid)
     local selector_server=member(ctrl,"targetServerId")
     local server=number(selector_server)
     if selector_server~=nil and (server==nil or
-       (server>0 and server~=2289)) then
+       (server>0 and server~=2288)) then
         return nil, failed("Native target selector server differs from admitted owner server")
     end
     local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
@@ -255,7 +255,7 @@ local function native_selector_target(ctrl,uid)
         return nil, failed("Native typed selector target belongs to approved own account")
     end
     local target_server=member(target,"serverId")
-    if target_server~=nil and number(target_server)~=2289 then
+    if target_server~=nil and number(target_server)~=2288 then
         return nil, failed("Native typed selector target belongs to another server")
     end
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
@@ -503,13 +503,13 @@ local function owner_and_focus(fields, input_clear, read_only)
        fields.authorizedUid ~= uid then
         return nil, failed("Fresh game UID must match admitted owner-session UID")
     end
-    if uid ~= "3133546747002289" then
-        return nil, failed("Only the authorized server-2289 sub-account may act")
+    if uid ~= "2553945035002288" then
+        return nil, failed("Only the authorized server-2288 sub-account may act")
     end
     for _, method in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
         local ok, server = invoke(player, method)
-        if not ok or not (server == 2289 or server == "2289") then
-            return nil, failed("Only the authorized server-2289 sub-account may act")
+        if not ok or not (server == 2288 or server == "2288") then
+            return nil, failed("Only the authorized server-2288 sub-account may act")
         end
     end
     if not read_only and
@@ -1050,10 +1050,10 @@ function M.Prepare(fields, input_clear)
         local open=member(rawget(_G,"UIUtil"),"OpenFormationSelectUI")
         local kind=member(rawget(_G,"MarchTargetType"),"ATTACK_MONSTER")
         if type(open)~="function" or not kind then return unsupported("Native formation selector helper unavailable") end
-        local ok_open=pcall(open,1,kind,selected.pointIndex,tonumber(selected.uuid),nil,nil,nil,2289,0)
+        local ok_open=pcall(open,1,kind,selected.pointIndex,tonumber(selected.uuid),nil,nil,nil,2288,0)
         if not ok_open then return failed("Native selector opening failed") end
         return {state="confirmed",data={observation="native_attack_selector_open_invoked",
-            targetUuid=selected.uuid,targetPoint=selected.pointIndex,targetServerId=2289,
+            targetUuid=selected.uuid,targetPoint=selected.pointIndex,targetServerId=2288,
             source="UIUtil.OpenFormationSelectUI",marchDispatched=false}}
     end
     return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",

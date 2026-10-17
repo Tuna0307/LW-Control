@@ -16,7 +16,7 @@ def submit(directory, operation, timeout=45):
     if not directory.name.startswith("native-ui-"):
         raise ValueError("Expected an existing task-owned native UI receipt directory")
     admission = json.loads((directory / "feature018-account-admission.json").read_text("utf-8-sig"))
-    if admission["uid"] != "3133546747002289" or admission["serverId"] != 2289:
+    if admission["uid"] != "2553945035002288" or admission["serverId"] != 2288:
         raise ValueError("Wrong game account admission")
     if (directory / "owned-exit.json").exists():
         raise ValueError("Session already exited")

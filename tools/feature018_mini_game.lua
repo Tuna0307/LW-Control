@@ -62,10 +62,10 @@ end
 -- Never trust a request-supplied UID or the currently selected UI profile.
 local function native_owner_verified()
     local player = member(rawget(_G, "LuaEntry"), "Player")
-    if tostring(member(player, "uid")) ~= "3133546747002289" then return false end
+    if tostring(member(player, "uid")) ~= "2553945035002288" then return false end
     for _, getter in ipairs({ "GetSourceServerId", "GetSelfServerId", "GetCurServerId" }) do
         local ok, server = invoke(player, getter)
-        if not ok or tostring(server) ~= "2289" then return false end
+        if not ok or tostring(server) ~= "2288" then return false end
     end
     return true
 end
@@ -325,7 +325,7 @@ local function land_unlock_one(fields)
                        { cellId = last_land_request_id })
     end
     if not native_owner_verified() then
-        return blocked("Land unlock requires UID 3133546747002289 on native server 2289")
+        return blocked("Land unlock requires UID 2553945035002288 on native server 2288")
     end
     if type(fields) ~= "table" then
         return blocked("Land unlock requires a valid native request")
@@ -493,11 +493,14 @@ end
 -- ParkourTeam.AddMember (396-417) passes its second argument to GenHeroCfg as
 -- the HERO LEVEL, and creates only ONE unit per invocation. The genuine
 -- StaticNumberDoorMonster.OnCollisionViewHandle (165-166) calls
--- logic:AddMember(controlHeroId, heroLevel, true). Never derive IDs/levels from
--- arbitrary caller input; take both from an already living native team hero.
+-- logic:AddMember(controlHeroId, heroLevel, true). Resolve the soldier template
+-- exactly as native NumberDoorMonster.Init does; normal stages can initialize
+-- squad heroes without any defaultHeroIds. The native door's default level is 1.
+local frontline_run_logic = nil
+local frontline_run_sequence = 0
 local function frontline_context()
     if not native_owner_verified() then
-        return nil, "Native Frontline requires authorized UID/server 2289"
+        return nil, "Native stage reinforcement requires authorized UID/server 2288"
     end
     local battle = member(rawget(_G, "DataCenter"), "LWBattleManager")
     local pve = rawget(_G, "PVEType")
@@ -514,14 +517,11 @@ local function frontline_context()
        member(battle, "logic") ~= logic then
         return nil, "The current native battle is not this Parkour logic"
     end
-    -- Original ActFrontBreakSundayData.EnterStage (v26 lines 85-90) marks its
-    -- exact Parkour launch parameter. Generic Parkour battles also pass the
-    -- type/window gate, but may not receive Frontline's G reinforcement.
+    -- Normal numbered stages (LWUIStageFeatureChapterView:330-343) and Sunday
+    -- (ActFrontBreakSundayData:85-91) both launch PVEType.Parkour. AddMember
+    -- is the common native door producer; the Sunday flag is metadata only.
+    -- Eligibility comes from this active native run, never the event calendar.
     local event = member(logic, "param")
-    if member(event, "fromActFrontBreakSunday") ~= true or
-       not is_integer(member(event, "frontBreakSundayActId")) then
-        return nil, "Current Parkour battle is not a Frontline Breakthrough event"
-    end
     local ui_ok, instance = invoke(ui, "GetInstance")
     local open_ok, is_open = invoke(instance, "IsWindowOpen", window_name)
     if not ui_ok or instance == nil or not open_ok or is_open ~= true then
@@ -539,30 +539,26 @@ local function frontline_context()
        type(member(team, "GetMemberCount")) ~= "function" then
         return nil, "The source-native Parkour team or reinforcement API is unavailable"
     end
-    local defaults = member(team, "defaultHeroIds")
     local slots = member(team, "teamUnits")
-    local primary_id = member(defaults, 1)
+    local primary_id = tonumber(member(logic, "parkourDoorHeroId"))
+    if not is_integer(primary_id) then
+        local ok, configured = invoke(member(rawget(_G, "LuaEntry"), "DataConfig"),
+                                      "TryGetNum", "parkour_door_hero_id", "k1")
+        primary_id = ok and tonumber(configured) or nil
+    end
     if not is_integer(primary_id) or type(slots) ~= "table" then
-        return nil, "No source-native primary hero identity is available"
+        return nil, "The native number-door soldier template is unavailable"
     end
-    local level = nil
-    local found = false
-    for _, unit in pairs(slots) do
-        local hero = member(unit, "hero")
-        if member(unit, "originalHeroId") == primary_id and
-           member(hero, "heroId") == primary_id then
-            local candidate_level = member(hero, "level")
-            if not is_integer(candidate_level) then
-                return nil, "Primary live hero level cannot be verified"
-            end
-            if level ~= nil and candidate_level ~= level then
-                return nil, "Primary hero levels disagree in the native team"
-            end
-            found = true
-            level = candidate_level
-        end
+    local level = 1
+    -- AddMember itself applies the stage's current replacement appearance and
+    -- may reuse cached HeroInfo with an upgraded level. Read the same pure
+    -- lookup; do not change a template/cache to force our requested level.
+    local config_id = primary_id
+    if type(member(logic, "GetReplaceAppearance")) == "function" then
+        local ok, replacement = invoke(logic, "GetReplaceAppearance", primary_id)
+        if not ok then return nil, "Native soldier appearance is unreadable" end
+        if is_integer(replacement) then config_id = replacement end
     end
-    if not found then return nil, "The native primary hero is no longer alive" end
     local count_ok, count = invoke(logic, "GetMemberCount")
     local team_ok, team_count = invoke(team, "GetMemberCount")
     local allocated = member(logic, "unitGuid")
@@ -571,9 +567,17 @@ local function frontline_context()
        not is_integer(allocated) then
         return nil, "Native Parkour team count or GUID allocator is unreadable"
     end
+    if frontline_run_logic ~= logic then
+        frontline_run_logic = logic
+        frontline_run_sequence = frontline_run_sequence + 1
+    end
     return { battle = battle, logic = logic, team = team, heroId = primary_id,
-             heroLevel = level, count = count,
+             stageRunId = tostring(frontline_run_sequence),
+             heroLevel = level, configHeroId = config_id, count = count,
              eventId = member(event, "frontBreakSundayActId"),
+             levelId = member(event, "levelId"),
+             stageMode = member(event, "fromActFrontBreakSunday") == true and
+                         "sunday" or "normal",
              lastGuid = allocated }
 end
 
@@ -614,16 +618,22 @@ local frontline_attempted_logic = nil
 local function frontline_status()
     local context, reason = frontline_context()
     if context == nil then return unsupported(reason) end
+    local sunday_ok, sunday_open = invoke(member(rawget(_G,"DataCenter"),
+        "ActFrontBreakSundayDataManager"), "IsOpen")
     local units, _, count = frontline_units(context.team)
-    if units == nil or count ~= context.count then
+    if units == nil or count < context.count then
         return blocked("Original Parkour battle units changed during inspection")
     end
     return {state="confirmed",data={
-        observation="native_frontline_sunday_battle_readonly",
-        ownerUid="3133546747002289", sourceServerId=2289,
+        observation="native_parkour_battle_readonly",
+        ownerUid="2553945035002288", sourceServerId=2288,
         frontBreakSundayActId=context.eventId,
+        levelId=context.levelId,stageMode=context.stageMode,
+        stageRunId=context.stageRunId,
+        sundayAvailabilityObserved=sunday_ok and type(sunday_open)=="boolean",
+        sundayChallengeOpen=sunday_ok and sunday_open or false,
         heroId=context.heroId, heroLevel=context.heroLevel,
-        memberCount=count, guidAllocator=context.lastGuid,
+        memberCount=context.count, nativeUnitCount=count, guidAllocator=context.lastGuid,
         actionEligible=not frontline_active and
                        frontline_uncertain_battle ~= context.logic,
         actionInProgress=frontline_active,
@@ -642,6 +652,10 @@ local function frontline_reinforce_once(fields)
     end
     local context, reason = frontline_context()
     if context == nil then return unsupported(reason) end
+    if fields.expectedStageRunId ~= nil and
+       fields.expectedStageRunId ~= context.stageRunId then
+        return unsupported("The queued G press belongs to a previous stage run")
+    end
     local confirmed = 0
     for _ = 1, 5 do
         if frontline_reentry_seen then
@@ -656,6 +670,7 @@ local function frontline_reinforce_once(fields)
         local current, changed = frontline_context()
         if current == nil or current.logic ~= context.logic or
            current.team ~= context.team or current.heroId ~= context.heroId or
+           current.configHeroId ~= context.configHeroId or
            current.heroLevel ~= context.heroLevel or
            current.eventId ~= context.eventId or
            current.lastGuid ~= context.lastGuid + confirmed or
@@ -670,7 +685,7 @@ local function frontline_reinforce_once(fields)
                 beforeCount = context.count, observedAdded = confirmed })
         end
         -- Original StaticNumberDoorMonster's source UI-equivalent producer:
-        -- exactly one soldier, same hero and level as the live primary hero.
+        -- exactly one soldier using the source-native door template/default level.
         -- Call exactly once. invoke() has a fallback for mixed static/colon
         -- accessors; retrying a mutating method after an exception could
         -- duplicate a unit even though the first call already took effect.
@@ -680,6 +695,7 @@ local function frontline_reinforce_once(fields)
         local count_ok, after = invoke(context.logic, "GetMemberCount")
         local after_units, _, after_count = frontline_units(context.team)
         local new_units = 0
+        local created_unit = nil
         local identities_match = after_units ~= nil and after_count == prior_count + 1
         if identities_match then
             for unit, guid in pairs(after_units) do
@@ -687,12 +703,15 @@ local function frontline_reinforce_once(fields)
                     if prior_units[unit] ~= guid then identities_match = false end
                 else
                     local hero = member(unit, "hero")
+                    created_unit = {guid=member(unit,"guid"),
+                        originalHeroId=member(unit,"originalHeroId"),
+                        heroId=member(hero,"heroId"),heroLevel=member(hero,"level")}
                     new_units = new_units + 1
                     if prior_ids[guid] or
                        member(unit, "guid") ~= member(context.logic, "unitGuid") or
                        member(unit, "originalHeroId") ~= context.heroId or
-                       member(hero, "heroId") ~= context.heroId or
-                       member(hero, "level") ~= context.heroLevel then
+                       member(hero, "heroId") ~= context.configHeroId or
+                       not is_integer(member(hero, "level")) then
                         identities_match = false
                     end
                 end
@@ -707,6 +726,8 @@ local function frontline_reinforce_once(fields)
             return blocked("Native Parkour member addition was not confirmed", {
                 beforeCount = context.count, observedAdded = confirmed,
                 observedAfterCount = count_ok and after or nil,
+                createdUnit=created_unit, allocator=member(context.logic,"unitGuid"),
+                expectedHeroId=context.heroId,expectedLevel=context.heroLevel,
                 unitIdentityVerified = identities_match and new_units == 1 or false,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
         end
@@ -715,6 +736,8 @@ local function frontline_reinforce_once(fields)
     return { state = "confirmed", data = {
         action = "frontlineReinforce", slot = 5, heroId = context.heroId,
         frontBreakSundayActId = context.eventId,
+        levelId = context.levelId, stageMode = context.stageMode,
+        stageRunId = context.stageRunId,
         beforeCount = context.count, afterCount = context.count + confirmed,
         addedMembers = confirmed, unitIdentityVerified = true,
         observedCreatedUnits = confirmed,
@@ -927,7 +950,7 @@ end
 
 local function mark_chest()
     if not native_owner_verified() then
-        return blocked("Black Market marker requires authorized UID/server 2289")
+        return blocked("Black Market marker requires authorized UID/server 2288")
     end
     M.TryObserveUiClasses()
     local watched = watched_ui_classes["UI.LWTreasureChest.UITreasureChestView"]

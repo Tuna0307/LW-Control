@@ -6,10 +6,10 @@ import unittest
 def fixture():
     lua, module, state = base.run()
     lua.execute('''
-    LuaEntry={Player={uid='3133546747002289',gold=1000,
-      GetSourceServerId=function() return 2289 end,
-      GetSelfServerId=function() return 2289 end,
-      GetCurServerId=function() return 2289 end}}
+    LuaEntry={Player={uid='2553945035002288',gold=1000,
+      GetSourceServerId=function() return 2288 end,
+      GetSelfServerId=function() return 2288 end,
+      GetCurServerId=function() return 2288 end}}
     state.items={}
     state.templates[1].price=500
     state.templates[2].price=2500
@@ -38,7 +38,7 @@ def main():
     assert call('buy')['state'] == 'failed' and state.sent == 0
     lua.globals().LuaEntry.Player.uid='3133546747002212'
     assert call('buy',gemOptIn='1')['state'] == 'failed' and state.sent == 0
-    lua.globals().LuaEntry.Player.uid='3133546747002289'
+    lua.globals().LuaEntry.Player.uid='2553945035002288'
     assert call('buy',gemOptIn='1')['state'] == 'accepted' and state.sent == 1
     assert call('buy',gemOptIn='1')['state'] == 'failed' and state.sent == 1
     assert call('status')['state'] == 'accepted' and state.sent == 1
@@ -54,10 +54,10 @@ def main():
 def replacement_fixture():
     lua, module, state = base.run()
     lua.execute('''
-      LuaEntry={Player={uid='3133546747002289',gold=10000,
-        GetSourceServerId=function() return 2289 end,
-        GetSelfServerId=function() return 2289 end,
-        GetCurServerId=function() return 2289 end}}
+      LuaEntry={Player={uid='2553945035002288',gold=10000,
+        GetSourceServerId=function() return 2288 end,
+        GetSelfServerId=function() return 2288 end,
+        GetCurServerId=function() return 2288 end}}
       Clock=100; os.time=function() return Clock end
       state.protectEnd=state.serverTime+4*3600000
       state.effectEnd[501]=state.protectEnd
@@ -256,7 +256,7 @@ class GemPurchaseChecks(unittest.TestCase):
         self.assertEqual(call('status')['state'], 'failed')
         self.assertEqual(call('buy', gemOptIn='1')['state'], 'failed')
         self.assertEqual(state.sent, 1)
-        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        lua.execute("LuaEntry.Player.uid='2553945035002288'")
         self.assertEqual(call('status')['state'], 'confirmed')
 
 

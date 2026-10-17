@@ -21,7 +21,7 @@ internal static class Feature018EquipmentProviderChecks
     }
 
     private static readonly Feature018HotkeySession Owner =
-        new("owner", "launch", "3133546747002289", 2289);
+        new("owner", "launch", "2553945035002288", 2288);
     private static void Require(bool condition, string detail)
     {
         if (!condition) throw new InvalidOperationException("FEATURE018_EQUIPMENT_PROVIDER: " + detail);

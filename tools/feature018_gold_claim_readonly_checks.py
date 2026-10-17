@@ -173,7 +173,7 @@ class GoldClaimReadOnlyChecks(unittest.TestCase):
         self.assertIsNone(result['claimableEventCount'])
         self.assertEqual(state['sent'], 0)
 
-    def test_native_account_must_remain_uid2289_all_three_servers(self):
+    def test_native_account_must_remain_uid2288_all_three_servers(self):
         for change in (
             "LuaEntry.Player.uid='3133546747002212'",
             'LuaEntry.Player.GetSourceServerId=function()return 2212 end',
@@ -200,10 +200,10 @@ class GoldClaimReadOnlyChecks(unittest.TestCase):
 
     def test_same_uid_session_or_native_reward_cache_swap_fails_closed(self):
         # The user-facing session tokens are identical, and each mock still
-        # presents UID2289: only the native Player/manager/cache identity fence
+        # presents UID2288: only the native Player/manager/cache identity fence
         # distinguishes an in-flight native session/claim transition.
         mutations = (
-            "LuaEntry.Player={uid='3133546747002289',gold=1000,GetSourceServerId=function()return 2289 end,GetSelfServerId=function()return 2289 end,GetCurServerId=function()return 2289 end}",
+            "LuaEntry.Player={uid='2553945035002288',gold=1000,GetSourceServerId=function()return 2288 end,GetSelfServerId=function()return 2288 end,GetCurServerId=function()return 2288 end}",
             'DataCenter.DailyTaskManager.dailyQuestTasks={}',
             'DataCenter.DailyTaskManager={dailyQuestTasks={},GetAllDailyTask=function()return {} end}',
         )

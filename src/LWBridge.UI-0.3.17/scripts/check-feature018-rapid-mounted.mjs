@@ -140,7 +140,7 @@ window.chrome = { webview: {
       response = { observation: "native_MAIN_SHIELD_StatusTab_owned_item_duration_join",
         durationMappingVerified: true, readOnly: true, requestDispatched: false,
         // Current v26 ItemUse PutUtfString UUID, independently observed on
-        // the 2289 account; it is not constrained to a 20-digit number.
+        // the 2288 account; it is not constrained to a 20-digit number.
         items: [{ itemId: "81008", uuid: "e43623c3ec5e4cd78ae1b3f904094fd7", count: shieldCount || 2,
           statusId: "7801", durationHours: 8, uniqueDuration: true },
           { itemId: "81024", uuid: "882024", count: 1,
@@ -164,8 +164,8 @@ window.chrome = { webview: {
       const alliance = request.payload.action === "allianceRelocate";
       assert.equal(alliance || request.payload.action === "randomRelocate", true);
       response = { observation: "original_v26_authenticated_relocation_readiness",
-        action: request.payload.action, ownerUid: "3133546747002289",
-        sourceServerId: 2289, selfServerId: 2289, currentServerId: 2289,
+        action: request.payload.action, ownerUid: "2553945035002288",
+        sourceServerId: 2288, selfServerId: 2288, currentServerId: 2288,
         readOnly: true, originalPacketSend: false, requestDispatched: false,
         serverReplyObserved: false, serverAckAttributable: false,
         relocationConfirmed: false, destinationVerified: false,

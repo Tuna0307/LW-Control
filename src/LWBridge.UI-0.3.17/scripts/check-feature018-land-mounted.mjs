@@ -41,7 +41,7 @@ let frontlineUncertain = false;
 const requests = [];
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "approved-inert-session",
-  profiles: { selectedProfileId: "approved-2289-profile" },
+  profiles: { selectedProfileId: "approved-2288-profile" },
 };
 window.chrome = { webview: {
   addEventListener(type, callback) { if (type === "message") receiver = callback; },
@@ -76,9 +76,9 @@ window.chrome = { webview: {
       assert.deepEqual(request.payload, {
         profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId,
       });
-      response = { observation: "native_frontline_sunday_battle_readonly",
-        ownerUid: "3133546747002289", sourceServerId: 2289,
-        frontBreakSundayActId: 114, heroId: 203, heroLevel: 12,
+      response = { observation: "native_parkour_battle_readonly",
+        ownerUid: "2553945035002288", sourceServerId: 2288,
+        stageMode: "normal", frontBreakSundayActId: 0, heroId: 203, heroLevel: 12,
         memberCount: frontlineMembers, guidAllocator: frontlineGuid,
         actionEligible: true, uncertainPriorAction: false,
         readOnly: true, requestDispatched: false,
@@ -95,7 +95,7 @@ window.chrome = { webview: {
       frontlineGuid += 5;
       response = { observation: "native_ParkourBattleLogic_GetMemberCount",
         action: "frontlineReinforce", slot: 5,
-        frontBreakSundayActId: 114, heroId: 203,
+        stageMode: "normal", frontBreakSundayActId: 0, heroId: 203,
         beforeCount: before, afterCount: frontlineMembers,
         guidAllocatorBefore: previousGuid, guidAllocatorAfter: frontlineGuid,
         addedMembers: 5, observedCreatedUnits: 5,
