@@ -1,4 +1,4 @@
-"""Integrity-verified R5 source-review ZIP; NEVER label this a Windows delivery.
+"""Integrity-verified R5/R6 source-review ZIP; NEVER label this a Windows delivery.
 
 The last actual Windows executable was built for R4. The R5 Windows build
 cannot be credited because an unrelated npm ci operation was denied by the
@@ -9,6 +9,7 @@ unverified Windows binaries. Never use its result as packaged-app proof.
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -34,8 +35,11 @@ def source_file(path: str) -> bool:
             Path(path).suffix in (".lua", ".py")) or (
         path.startswith("src/LWBridge.Desktop/Feature018") and
         path.endswith(".cs")) or (
+        path.startswith("src/LWBridge.Desktop/LWBridgeWindow.Feature018") and
+        path.endswith(".cs")) or (
         path.startswith("tests/LWBridge.Desktop.Checks/Feature018") and
         path.endswith(".cs")) or path in {
+        "tests/LWBridge.Desktop.Checks/Program.cs",
         "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
         "src/LWBridge.UI-0.3.17/scripts/check-feature018-rapid-mounted.mjs",
         "src/LWBridge.UI-0.3.17/scripts/check-feature018-land-mounted.mjs",
@@ -48,8 +52,11 @@ def source_file(path: str) -> bool:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--round", choices=("R5", "R6"), default="R5")
+    release = parser.parse_args().round
     if git("branch", "--show-current") != BRANCH or git("status", "--porcelain"):
-        raise RuntimeError("R5 source review requires a clean feature branch")
+        raise RuntimeError(release + " source review requires a clean feature branch")
     sha = git("rev-parse", "HEAD")
     remote = git("ls-remote", "origin", "refs/heads/" + BRANCH).split()[0]
     if sha != remote:
@@ -60,27 +67,29 @@ def main() -> None:
     paths = [p for p in git("ls-files").splitlines() if source_file(p)]
     if len(paths) < 25 or not all((ROOT / p).is_file() for p in paths):
         raise RuntimeError("Missing source, tests or accepted original inventory")
-    output = ROOT / "artifacts/feature018" / ("source-review-r5-" + sha[:8])
+    output = ROOT / "artifacts/feature018" / ("source-review-" + release.lower() + "-" + sha[:8])
     output.mkdir(parents=True, exist_ok=True)
-    target = output / ("LW-Control-FEATURE-018-R5-SOURCE-ONLY-" + sha[:12] + ".zip")
+    target = output / ("LW-Control-FEATURE-018-" + release + "-SOURCE-ONLY-" + sha[:12] + ".zip")
     if target.exists():
         raise FileExistsError("Never overwrite an existing source-review ZIP")
     files = {}
     for path in paths:
         files["Source/" + path] = (ROOT / path).read_bytes()
-    readme = (f"FEATURE-RECOVERY-018 R5 SOURCE REVIEW ONLY — NOT A WINDOWS DELIVERY\n"
+    readme = (f"FEATURE-RECOVERY-018 {release} SOURCE REVIEW ONLY — NOT A WINDOWS DELIVERY\n"
               f"Commit: {sha}\nBranch: {BRANCH}\n"
               "Status: PARTIAL / NOT READY_FOR_LEAD_AUDIT\n"
               "Do not install or infer packaged game proof from these sources.\n"
               "The R4 Windows executable remains the LAST independently published/build-verified app.\n"
-              "R5 full build was prevented by the explicit OS EPERM denial during npm ci unlink.\n"
+              "Production Windows frontend build remains unverified after OS EPERM denied npm ci unlink.\n"
+              "Later C# compile-only checks do not establish a current runnable Windows frontend.\n"
               "The R4 game helper's separate WinError5 recovery-marker rename denial was not retried.\n"
               f"R4 Windows delivery SHA256: {R4_SHA}\n"
-              "No approved account gameplay was attempted or credited in R5.\n"
+              f"No approved account gameplay was attempted or credited in {release}.\n"
               "Read Source/docs/FEATURE_RECOVERY_018_WORKER_REPORT.md before interpreting source results.\n")
     files["README-NOT-WINDOWS-DELIVERY.txt"] = readme.encode("utf-8")
     manifest = {
-        "task": "FEATURE-RECOVERY-018", "branch": BRANCH, "commit": sha,
+        "task": "FEATURE-RECOVERY-018", "round": release,
+        "branch": BRANCH, "commit": sha,
         "status": "PARTIAL", "sourceOnly": True, "windowsDelivery": False,
         "lastValidatedWindowsCommit": "3c9049aa06624e4b02f80db1a0828d5ee545bfaa",
         "lastValidatedWindowsZipSha256": R4_SHA,
@@ -109,7 +118,7 @@ def main() -> None:
     }
     (output / "source-integrity.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print("FEATURE018_R5_SOURCE_REVIEW_ONLY_OK", json.dumps(report))
+    print("FEATURE018_" + release + "_SOURCE_REVIEW_ONLY_OK", json.dumps(report))
 
 
 if __name__ == "__main__":
