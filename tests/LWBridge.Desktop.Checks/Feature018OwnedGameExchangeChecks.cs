@@ -89,9 +89,15 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(nativeFormationEditor.Count == 3 && nativeFormationEditor["slot"] == "2" &&
             nativeFormationEditor["editorOptIn"] == "1",
             "original manual formation staffing editor consent/slot not marshalled");
+        var selectedNativeTarget = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "selectorTarget" }));
+        Require(selectedNativeTarget.Count == 1 && selectedNativeTarget["mode"] == "selectorTarget",
+            "original selected-target observation forwarded client-supplied targeting fields");
         foreach (object invalidEditor in new object[]
         {
             new { mode = "inventory", slot = 1 },
+            new { mode = "selectorTarget", targetUuid = "123" },
+            new { mode = "selectorTarget", pointIndex = 1723 },
             new { mode = "staffingEditor", slot = 2 },
             new { mode = "staffingEditor", slot = 2, editorOptIn = false },
             new { mode = "staffingEditor", slot = 0, editorOptIn = true },

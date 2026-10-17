@@ -217,6 +217,54 @@ local function selected_window()
     return found
 end
 
+-- R7: the v26 V2 formation controller's InitData (root/2 lines 31-46)
+-- receives targetType, targetPoint, targetUuid and targetServerId as
+-- SEPARATE fields. It does not obtain the CURRENT physical mouse position.
+-- Keep a source-native typed-target witness; never convert a remembered
+-- World.curTouchPoint or caller-supplied cursor coordinates into an attack.
+local function native_selector_target(ctrl,uid)
+    local kind=member(ctrl,"targetType")
+    local kinds=rawget(_G,"MarchTargetType")
+    local is_city=kind~=nil and kind==member(kinds,"ATTACK_CITY")
+    local is_army=kind~=nil and kind==member(kinds,"ATTACK_ARMY")
+    local is_monster=kind~=nil and kind==member(kinds,"ATTACK_MONSTER")
+    local uuid,native_uuid=ident(member(ctrl,"targetUuid"))
+    if not uuid or not (is_city or is_army or is_monster) then
+        return nil, failed("Open a native formation selector on a typed city/army/monster target")
+    end
+    local point=member(ctrl,"targetPoint")
+    local point_id=ident(point)
+    if is_city and not point_id then
+        return nil, failed("Native city selector has no original targetPoint")
+    end
+    local selector_server=member(ctrl,"targetServerId")
+    local server=number(selector_server)
+    if selector_server~=nil and (server==nil or
+       (server>0 and server~=2289)) then
+        return nil, failed("Native target selector server differs from admitted owner server")
+    end
+    local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    local ok,target
+    if is_city then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
+    else ok,target=invoke(world,"GetMarch",native_uuid) end
+    if not ok or ident(member(target,"uuid"))~=uuid then
+        return nil, failed("Native typed selector target is absent or changed")
+    end
+    local owner=ident(member(target,"ownerUid"))
+    if owner==uid then
+        return nil, failed("Native typed selector target belongs to approved own account")
+    end
+    local target_server=member(target,"serverId")
+    if target_server~=nil and number(target_server)~=2289 then
+        return nil, failed("Native typed selector target belongs to another server")
+    end
+    return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
+        targetOwnerUid=owner,targetServerId=target_server,
+        observation="open_native_formation_selector_only",
+        currentCursorVerified=false,physicalCursorTargetVerified=false,
+        requestDispatched=false}
+end
+
 -- Observation only. Preserve the original static sender, exact arguments,
 -- return values and exceptions. Track ONLY exact pending formation/march,
 -- target kind and target UUID on the two source-native attack routes.
@@ -301,11 +349,17 @@ end
 
 local observed_replies={}
 local function observe_attack_replies()
+    local create_reply_observer_intact=false
     for _,name in ipairs({"WorldMarchFormationNewMessage","WorldMarchChangeMessage"}) do
-        if not observed_replies[name] then
-            local ok,class=pcall(require,"Net.Msgs."..name)
-            local original=ok and member(class,"HandleMessage") or nil
-            if type(original)=="function" then
+        local ok,class=pcall(require,"Net.Msgs."..name)
+        local current=ok and member(class,"HandleMessage") or nil
+        if observed_replies[name] and current~=observed_replies[name] then
+            -- Another owner replaced or reloaded the original reply handler.
+            -- Never silently recapture it: the original callback chain and
+            -- exact native response attribution are no longer demonstrated.
+            if name=="WorldMarchFormationNewMessage" then return false end
+        elseif not observed_replies[name] and type(current)=="function" then
+                local original=current
                 local source_route=name=="WorldMarchFormationNewMessage" and
                     "WorldMarchFormationNew" or "WorldMarchChange"
                 local wrapper=function(self,response,...)
@@ -348,9 +402,14 @@ local function observe_attack_replies()
                 end
                 class.HandleMessage=wrapper
                 observed_replies[name]=wrapper
-            end
+        end
+        if name=="WorldMarchFormationNewMessage" then
+            create_reply_observer_intact=ok and
+                observed_replies[name]~=nil and
+                member(class,"HandleMessage")==observed_replies[name]
         end
     end
+    return create_reply_observer_intact
 end
 
 local function transaction_view(transaction)
@@ -769,6 +828,16 @@ function M.Prepare(fields, input_clear)
     local uid, denial = owner_and_focus(fields,input_clear,fields.mode == "inventory")
     if not uid then return denial end
     if fields.mode=="staffingEditor" then return open_manual_staffing_editor(fields,uid) end
+    if fields.mode=="selectorTarget" then
+        local selection=selected_window()
+        if not selection then return failed("Original formation selector not uniquely open") end
+        local witness,denial=native_selector_target(selection.ctrl,uid)
+        if not witness then return denial end
+        return {state="confirmed",data={
+            observation="native_typed_formation_selector_readonly",
+            target=witness,safeToDispatchFromPhysicalCursor=false,
+            requestDispatched=false}}
+    end
     if fields.mode ~= "inventory" and fields.mode ~= "open" then return failed("Invalid native attack prepare mode") end
     local center = rawget(_G,"DataCenter")
     local manager = member(center,"WorldMarchDataManager")
@@ -1105,33 +1174,18 @@ local function attack_selected(fields, input_clear, uid)
     local selector=selected_window()
     local window=selector and selector.window
     local ctrl=selector and selector.ctrl
-    local target_uuid, target_number = ident(member(ctrl,"targetUuid"))
-    local kind = member(ctrl,"targetType")
-    local kinds = rawget(_G,"MarchTargetType")
-    local is_city = kind ~= nil and kind == member(kinds,"ATTACK_CITY")
-    local is_army = kind ~= nil and kind == member(kinds,"ATTACK_ARMY")
-    local is_monster = kind ~= nil and kind == member(kinds,"ATTACK_MONSTER")
-    if not selector or not ctrl or not target_uuid or
-       not (is_city or is_army or is_monster) then
+    if not selector or not ctrl then
         return failed("Open the native attack formation selector on a current city/army/monster target first")
     end
+    local target,denial=native_selector_target(ctrl,uid)
+    if not target then return denial end
+    local target_uuid,kind=target.uuid,target.kind
     local staffing=formation_staffing(form)
     if staffing.soldierCount==nil or staffing.heroCount==nil then
         return unsupported("Native formation soldier/hero staffing cannot be verified")
     end
     if not staffing.staffedForAttack then
         return failed("Selected native formation must contain soldiers and assigned heroes before attack")
-    end
-    local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
-    local ok_target, target
-    if is_city then
-        ok_target,target = invoke(world,"GetPointInfo",tonumber(member(ctrl,"targetPoint")))
-    else
-        ok_target,target = invoke(world,"GetMarch",target_number)
-    end
-    if not ok_target or ident(member(target,"uuid")) ~= target_uuid or
-       ident(member(target,"ownerUid")) == uid then
-        return failed("Current selector target is absent, changed or owned by this account")
     end
     local old, old_uuid
     if existing ~= nil then
@@ -1146,10 +1200,6 @@ local function attack_selected(fields, input_clear, uid)
     local old_start = number(member(old,"startTime"))
     local method = existing ~= nil and "OnAtkClick" or "OnCheckTime"
     if type(member(ctrl,method)) ~= "function" then return unsupported("Original native attack controller missing") end
-    if input_clear() ~= true or member(window,"Ctrl") ~= ctrl or
-       member(ctrl,"targetType") ~= kind or ident(member(ctrl,"targetUuid")) ~= target_uuid then
-        return failed("Native selector changed immediately before attack")
-    end
     local ok_fresh_form,fresh_form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
     local fresh_staffing=formation_staffing(fresh_form)
     if not ok_fresh_form or ident(member(fresh_form,"uuid"))~=formation or
@@ -1162,7 +1212,24 @@ local function attack_selected(fields, input_clear, uid)
         return unsupported("Original create-march request nonce observer unavailable")
     end
     if not observe_attack_sender() then return unsupported("Native attack sender observation unavailable") end
-    observe_attack_replies()
+    if not observe_attack_replies() then
+        return unsupported("Exact original native create-march reply observer missing or displaced; attack suppressed")
+    end
+    -- Native formation reads or observer initialization can change selection.
+    -- Re-resolve the typed target AFTER them, at the last safe boundary
+    -- immediately preceding the native controller call.
+    local fresh_selector=selected_window()
+    local fresh_target=fresh_selector and native_selector_target(fresh_selector.ctrl,uid)
+    if input_clear() ~= true or not fresh_selector or
+       fresh_selector.window~=window or fresh_selector.ctrl~=ctrl or
+       member(window,"Ctrl")~=ctrl or not fresh_target or
+       fresh_target.kind~=kind or fresh_target.uuid~=target_uuid or
+       fresh_target.point~=target.point or
+       fresh_target.selectorServer~=target.selectorServer or
+       fresh_target.targetOwnerUid~=target.targetOwnerUid or
+       fresh_target.targetServerId~=target.targetServerId then
+        return failed("Native selector changed immediately before attack")
+    end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",

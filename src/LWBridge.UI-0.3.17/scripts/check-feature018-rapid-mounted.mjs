@@ -59,7 +59,15 @@ window.chrome = { webview: {
     if (request.command === "hotkey_config_get") {
       response = { attack: true, attackMarchSpeedupItem: false };
     } else if (request.command === "feature018_attack_prepare") {
-      if (request.payload.mode === "staffingEditor") {
+      if (request.payload.mode === "selectorTarget") {
+        assert.deepEqual(request.payload,
+          { mode: "selectorTarget", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
+        response = { observation: "native_typed_formation_selector_readonly",
+          requestDispatched: false, safeToDispatchFromPhysicalCursor: false,
+          target: { uuid: "778812", point: 35723,
+            requestDispatched: false, currentCursorVerified: false,
+            physicalCursorTargetVerified: false } };
+      } else if (request.payload.mode === "staffingEditor") {
         assert.equal(request.payload.slot, 1);
         assert.equal(request.payload.editorOptIn, true);
         assert.equal(request.payload.authorizedUid, undefined);
@@ -264,6 +272,15 @@ assert.match(attackPanel().textContent, /还没有可核实的出征编队/, "Ze
 assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 1,
   "QWER read-only readiness initiated more than one source observation");
 assert.equal(nativeStaffingEditorOpens, 0, "Read-only attack inventory opened formation editor");
+const readSelectedTarget = [...attackPanel().querySelectorAll("button")]
+  .find((button) => button.textContent.includes("只读核对游戏当前已选择的目标"));
+assert.ok(readSelectedTarget, "Original native selector read-only inspection absent");
+await flush(() => readSelectedTarget.click());
+assert.match(attackPanel().textContent, /778812/, "Exact original selector target missing from Hotkeys");
+assert.match(attackPanel().textContent, /不能证明当前物理鼠标/,
+  "Remembered native selector was promoted into a physical cursor witness");
+assert.equal(nativeStaffingEditorOpens, 0,
+  "Native read-only selector inspection automatically opened editor");
 const editorConsent = attackPanel().querySelector('input[type="checkbox"]');
 assert.ok(editorConsent, "Confirmed original formation selector had no explicit manual editor consent");
 const editorButton = () => [...attackPanel().querySelectorAll("button")].at(-1);

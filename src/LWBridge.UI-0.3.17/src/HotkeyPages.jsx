@@ -45,6 +45,9 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     editorConsent: "确认仅打开游戏原生编队编辑器；我会在游戏中手动保存，不自动出征",
     editor: "打开原生编队编辑器", editorOpened: "原生编辑器已打开；未保存编队、未派遣攻击，请在游戏中操作",
     needSelector: "请先在游戏中打开原生出征队伍选择界面，再重新检查",
+    inspectSelector: "只读核对游戏当前已选择的目标",
+    selectedTarget: "原生已选择的目标",
+    selectorGuard: "该结果不能证明当前物理鼠标指向此目标；未出征，未调用攻击。",
   } : {
     title: "Q/W/E/R native attack readiness",
     description: "Inspect current squads, unassigned soldiers and game-owned targets. Does not assign troops or attack.",
@@ -57,6 +60,9 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     editorConsent: "Open only the original game formation editor; I will save there myself. Never auto-attack.",
     editor: "Open native formation editor", editorOpened: "Original editor opened. No troop save or attack dispatched; continue in the game.",
     needSelector: "First open the game's original march selector, then inspect again.",
+    inspectSelector: "Read currently selected native target",
+    selectedTarget: "Game-selected native target",
+    selectorGuard: "This does not prove the current physical mouse target. No attack was dispatched.",
   };
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -64,15 +70,18 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
   const [editorSlot, setEditorSlot] = useState(1);
   const [editorConsent, setEditorConsent] = useState(false);
   const [editorOpened, setEditorOpened] = useState(false);
+  const [nativeTarget, setNativeTarget] = useState(null);
   const editorInFlight = useRef(false);
   const live = online && !previewEnabled;
   useEffect(() => { setData(null); setBusy(false); setError("");
-    setEditorConsent(false); setEditorOpened(false); editorInFlight.current = false; },
+    setEditorConsent(false); setEditorOpened(false); setNativeTarget(null);
+    editorInFlight.current = false; },
     [live, backendBridge.profileGeneration]);
   async function inspect() {
     if (!live || busy) return;
     const owner = backendBridge.currentProfileOwner();
-    setData(null); setError(""); setBusy(true); setEditorOpened(false); setEditorConsent(false);
+    setData(null); setError(""); setBusy(true); setEditorOpened(false);
+    setEditorConsent(false); setNativeTarget(null);
     try {
       const result = await backendBridge.invokeProfileScoped(
         "feature018_attack_prepare", { mode: "inventory" }, 10000);
@@ -86,6 +95,29 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
             typeof result.squads[String(slot)].unlocked === "boolean"))
         throw Error("Native attack preparation did not prove a read-only owner snapshot");
       setData(result);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  async function inspectSelectedTarget() {
+    if (!live || busy || !data?.currentSelector || editorInFlight.current) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setError(""); setNativeTarget(null);
+    try {
+      const result = await backendBridge.invokeProfileScoped("feature018_attack_prepare",
+        { mode: "selectorTarget" }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.observation !== "native_typed_formation_selector_readonly" ||
+          result.requestDispatched !== false ||
+          result.safeToDispatchFromPhysicalCursor !== false ||
+          result.target?.requestDispatched !== false ||
+          result.target.currentCursorVerified !== false ||
+          result.target.physicalCursorTargetVerified !== false ||
+          !/^[1-9]\d{0,19}$/.test(String(result.target.uuid || "")))
+        throw Error("Original game selector target could not be read independently");
+      setNativeTarget(result.target);
     } catch (cause) {
       if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
     } finally {
@@ -145,6 +177,12 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
         <small>{words.missing}</small> : null}
       <small>{words.guard}</small>
       {data.currentSelector ? <div>
+        <div className="mini-game-actions"><button type="button" disabled={busy || editorOpened}
+          onClick={() => void inspectSelectedTarget()}>{words.inspectSelector}</button></div>
+        {nativeTarget ? <div role="status">
+          <small>{words.selectedTarget}: {String(nativeTarget.uuid)} · {String(nativeTarget.point ?? "—")}</small>
+          <small>{words.selectorGuard}</small>
+        </div> : null}
         <label>{words.squad} <select value={editorSlot} disabled={busy || editorOpened}
           onChange={(event) => { setEditorSlot(Number(event.target.value)); setEditorConsent(false); }}>
           {[1, 2, 3, 4].map((slot) => <option key={slot} value={slot}>{slot}</option>)}

@@ -105,7 +105,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "feature018_attack_prepare":
             {
                 string mode = ReadValue(payload,"mode",16);
-                if (mode is not ("inventory" or "open" or "staffingEditor"))
+                if (mode is not ("inventory" or "open" or "staffingEditor" or "selectorTarget"))
                     throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
                 var attackPrepareKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (JsonProperty entry in payload.EnumerateObject())
