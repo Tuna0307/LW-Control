@@ -106,7 +106,11 @@ def main() -> None:
         source = ROOT / "artifacts/map014-takeover" / name
         for path in sorted(source.iterdir()):
             if path.is_file() and (path.name in (
-                    "feature018-account-admission.json", "native-ui-map.json", "owned-exit.json") or
+                    "feature018-account-admission.json", "native-ui-map.json", "owned-exit.json",
+                    "feature018-live-land.json", "feature018-live-shield8.json",
+                    "feature018-live-shieldUseOwned.json",
+                    "feature018-live-readiness.json") or
+                    path.name.startswith("feature018-city-driver-") and path.suffix == ".json" or
                     path.name.startswith("feature018-r2-") and path.suffix == ".png"):
                 files[(Path("Proof-R3") / name / path.name).as_posix()] = path
     for dest, source in {

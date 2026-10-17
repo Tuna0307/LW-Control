@@ -229,6 +229,19 @@ local function digit_id(value)
     return str
 end
 
+-- v26 Net.Msgs.ItemUseMessage.OnCreate uses PutUtfString("uuid"), while
+-- Goods.itemId remains numeric. A real owned item-stack UUID may therefore
+-- be an opaque game-assigned token longer than the 20-digit item/template ID.
+-- Only the exact current owner's ItemData may supply this token; callers
+-- cannot pass a UUID to shieldUse. Never transform the native token.
+local function native_item_uuid(value)
+    if type(value) ~= "string" and type(value) ~= "number" then return nil end
+    local token = tostring(value)
+    if #token < 1 or #token > 128 or token == "0" or
+       token:find("[^%w_-]") then return nil end
+    return token
+end
+
 local function shield_owner(fields)
     local tokens = {}
     for _, key in ipairs({"profileId", "launchSessionId", "challenge", "gamePid"}) do
@@ -262,7 +275,7 @@ local function owned_item_count(uuid, item_id)
     if not ok or type(list) ~= "table" then return nil end
     local count = 0
     for _, item in pairs(list) do
-        if digit_id(member(item, "uuid")) == uuid then
+        if native_item_uuid(member(item, "uuid")) == uuid then
             if digit_id(member(item, "itemId")) ~= item_id then return nil end
             local available = number(member(item, "count"))
             if available == nil or available < 0 or available % 1 ~= 0 then
@@ -310,7 +323,7 @@ local function shield_item_for_hours(hours)
             if seconds == hours * 3600 then
                 for _, item in pairs(owned) do
                     local count = number(member(item, "count"))
-                    local uuid = digit_id(member(item, "uuid"))
+                    local uuid = native_item_uuid(member(item, "uuid"))
                     if digit_id(member(item, "itemId")) == template_id and
                        uuid ~= nil and count ~= nil and count >= 1 and count % 1 == 0 then
                         if chosen ~= nil then
@@ -390,11 +403,24 @@ local function shield_shop(fields)
         end
     end
     if chosen == nil or chosen.itemId == nil then return unavailable("Native shield duration template absent") end
+    local observed_stacks = {}
     for _, item in pairs(owned) do
         if digit_id(member(item,"itemId")) == chosen.itemId then
             local amount = number(member(item,"count"))
             if amount == nil or amount < 0 or amount % 1 ~= 0 then return invalid("Invalid owned shield count") end
             count = count + amount
+            -- Read-only, source-bound inspection for an inventory identity
+            -- discrepancy. The UI's original ItemUse serializes item.uuid;
+            -- zero/missing/non-numeric UUID must never become an ItemUse.
+            local raw_uuid = member(item,"uuid")
+            local uuid_text = raw_uuid ~= nil and tostring(raw_uuid) or nil
+            if uuid_text ~= nil and (#uuid_text > 128 or
+                uuid_text:find("[^%w_-]")) then uuid_text = nil end
+            observed_stacks[#observed_stacks+1] = {
+                uuidType = type(raw_uuid), uuidText = uuid_text,
+                validItemUseUuid = native_item_uuid(raw_uuid) ~= nil,
+                count = amount,
+            }
         end
     end
     local gold = number(member(player,"gold"))
@@ -402,7 +428,10 @@ local function shield_shop(fields)
     local data = {observation="native_shield_shop_inventory",readOnly=true,
         itemId=chosen.itemId,statusId=chosen.statusId,durationHours=hours,
         nativePrice=chosen.price,gold=gold,count=count,requestDispatched=false}
-    if fields.mode == "inspect" then return {state="confirmed",data=data} end
+    if fields.mode == "inspect" then
+        data.nativeMatchedShieldStacks = observed_stacks
+        return {state="confirmed",data=data}
+    end
     if fields.mode == "armUse" then
         if fields.shieldReplaceOptIn ~= "1" then return invalid("Shield replacement confirmation required") end
         local snapshot=shield_snapshot()

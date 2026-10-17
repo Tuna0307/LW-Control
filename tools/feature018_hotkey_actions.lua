@@ -68,6 +68,14 @@ local function id_string(value)
     return nil
 end
 
+local function native_item_uuid(value)
+    if type(value) ~= "string" and type(value) ~= "number" then return nil end
+    local token = tostring(value)
+    if #token < 1 or #token > 128 or token == "0" or
+       token:find("[^%w_-]") then return nil end
+    return token
+end
+
 local function current_account()
     local player = member(rawget(_G, "LuaEntry"), "Player")
     return player, id_string(member(player, "uid"))
@@ -320,7 +328,7 @@ function M.ShieldOwnedInventory()
     for _, item in pairs(owned) do
         local item_id = id_string(member(item,"itemId"))
         local count = tonumber(member(item,"count"))
-        local uuid = id_string(member(item,"uuid"))
+        local uuid = native_item_uuid(member(item,"uuid"))
         local entry = item_id and mapped[item_id] or nil
         if entry ~= nil then
             if uuid == nil or count == nil or count < 0 or count % 1 ~= 0 or

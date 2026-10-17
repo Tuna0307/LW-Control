@@ -116,6 +116,25 @@ def command(runtime, module, hours, *, query=False, challenge="challenge"):
 
 
 def main():
+    # Current v26 ItemUseMessage.OnCreate PutUtfString("uuid") accepts a
+    # game-issued opaque stack UUID: numeric itemId and stack UUID are separate.
+    runtime, module, state = run()
+    opaque_uuid = "shield-stack-" + "a" * 48
+    state["items"][1]["uuid"] = opaque_uuid
+    sent_opaque = command(runtime, module, 8)
+    require(sent_opaque["state"] == "accepted" and
+            sent_opaque["data"]["itemUuid"] == opaque_uuid and
+            state["lastUuid"] == opaque_uuid and state["sent"] == 1,
+            "source PutUtfString rejected genuine long owned stack UUID")
+    state["items"][1]["count"] = 1
+    state["effectEnd"][501] = state["serverTime"] + 8 * 3600000
+    require(command(runtime, module, 8, query=True)["state"] == "confirmed",
+            "opaque game-owned ItemUse UUID lost poststate correlation")
+    for bad in ("", "bad space", "bad\nline", "z" * 129):
+        runtime, module, state = run()
+        state["items"][1]["uuid"] = bad
+        require(command(runtime, module, 8)["state"] == "unsupported" and state["sent"] == 0,
+                "invalid native item UUID was forwarded to ItemUse")
     for hours, uuid, status in ((8, "101001", 501), (12, "101002", 502), (24, "101003", 503)):
         runtime, module, state = run()
         require(command(runtime, module, hours, query=True)["state"] == "failed",

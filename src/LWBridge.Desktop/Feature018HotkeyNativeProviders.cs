@@ -103,7 +103,9 @@ internal sealed class Feature018HotkeyNativeProviders
                         _ => null,
                     };
                     if (uuidProperty is not null &&
-                        (IsNativeUuid(evidence, uuidProperty) ||
+                        ((command.Intent.Kind == Feature018HotkeyKind.UseShield
+                            ? IsNativeItemUseUuid(evidence, uuidProperty)
+                            : IsNativeUuid(evidence, uuidProperty)) ||
                          (uuidProperty == "presetId" && evidence.TryGetProperty("presetId", out var preset) &&
                           preset.ValueKind == JsonValueKind.String && preset.GetString() is { Length: > 0 and <= 128 })))
                         return await PollAfterSendAsync(command, uuidProperty,
@@ -288,7 +290,7 @@ internal sealed class Feature018HotkeyNativeProviders
                 return observed.GetString() == "native_owned_shield_consumption_and_MAIN_SHIELD" &&
                        evidence.TryGetProperty("slot", out JsonElement shieldSlot) &&
                        shieldSlot.TryGetInt32(out int actualHours) && actualHours == intent.Slot &&
-                       IsNativeUuid(evidence, "itemUuid") &&
+                       IsNativeItemUseUuid(evidence, "itemUuid") &&
                        IsNativeUuid(evidence, "itemId") &&
                        evidence.TryGetProperty("statusId", out JsonElement statusId) &&
                        statusId.TryGetInt32(out int shieldStatusId) && shieldStatusId > 0 &&
@@ -340,4 +342,10 @@ internal sealed class Feature018HotkeyNativeProviders
         field.ValueKind == JsonValueKind.String &&
         field.GetString() is { Length: > 0 and <= 20 } value &&
         value[0] != '0' && value.All(char.IsAsciiDigit);
+
+    private static bool IsNativeItemUseUuid(JsonElement evidence, string name) =>
+        evidence.TryGetProperty(name, out JsonElement field) &&
+        field.ValueKind == JsonValueKind.String &&
+        field.GetString() is { Length: > 0 and <= 128 } token &&
+        token != "0" && token.All(c => char.IsAsciiLetterOrDigit(c) || c is '_' or '-');
 }
