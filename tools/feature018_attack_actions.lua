@@ -236,6 +236,37 @@ local function native_account()
     return {uid=uid,server=server,player=player}
 end
 
+-- Native city points expose allianceId; WorldMarchData exposes allianceUid.
+-- An explicit zero is unaffiliated. Missing/malformed membership is unknown,
+-- never an enemy. A resource is neutral only with an explicit empty gather UUID.
+local function alliance_identity(value)
+    if value==0 or value=="0" then return "0" end
+    return ident(value)
+end
+
+local function target_alliance_guard(account,target,is_march,is_resource)
+    local own=alliance_identity(member(account and account.player,"allianceId"))
+    if not own then return nil,failed("Own alliance identity unknown; attack suppressed") end
+    local target_alliance
+    if is_resource then
+        local gather=member(target,"gatherMarchUuid")
+        if gather~=0 and gather~="0" then
+            return nil,failed("Resource occupancy/alliance unknown or occupied; attack suppressed")
+        end
+        target_alliance="0"
+    else
+        target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
+    end
+    if not target_alliance then
+        return nil,failed("Target alliance identity unknown; attack suppressed")
+    end
+    if own~="0" and target_alliance==own then
+        return nil,failed("Target belongs to own alliance; attack suppressed")
+    end
+    return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
+        targetAllianceVerified=true,sameAlliance=false}
+end
+
 local function native_selector_target(ctrl,uid)
     local kind=member(ctrl,"targetType")
     local kinds=rawget(_G,"MarchTargetType")
@@ -291,8 +322,12 @@ local function native_selector_target(ctrl,uid)
     if target_server~=nil and tostring(target_server)~=account.server then
         return nil, failed("Native typed selector target belongs to another server")
     end
+    local alliance,alliance_error=target_alliance_guard(account,target,is_army or is_monster,is_resource)
+    if not alliance then return nil,alliance_error end
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
         targetOwnerUid=owner,targetServerId=target_server,
+        ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
+        targetAllianceVerified=true,
         observation="open_native_formation_selector_only",
         currentCursorVerified=false,physicalCursorTargetVerified=false,
         requestDispatched=false}
@@ -971,6 +1006,15 @@ end
 -- token 0x060035e2 calls Lua UIUtil.OnClickWorld(pointIndex,1), whose
 -- category-specific target resolution still needs independent evidence.
 -- This only observes the native world tile; it never clicks/sends.
+local function exact_march_id(value)
+    if value==nil or type(value)=="boolean" then return nil end
+    if type(value)=="number" and
+       (not math.type or math.type(value)~="integer") then return nil end
+    local decimal=tostring(value)
+    if not decimal:match("^[1-9]%d*$") or #decimal>19 then return nil end
+    return decimal
+end
+
 local function native_cursor_point(fields, uid)
     local account=native_account()
     if not account or account.uid~=uid then
@@ -1077,6 +1121,49 @@ local function native_cursor_point(fields, uid)
             return nil,failed("Unity mouse moved during native world cursor projection")
         end
     end
+    -- The original moving-monster pointer identity is independent of the
+    -- ground PointInfo category. Expose an *observation only* raycast in the
+    -- existing cursorPoint diagnostic; an empty terrain tile does not prove
+    -- absence of a hovered WorldArmy March_<Int64> collider.
+    local army={raycastSupported=false,raycastSucceeded=false,
+        hitFound=false,monsterVerified=false,worldBoss=false}
+    if type(member(scene,"GetRaycastHitMarch"))=="function" then
+        army.raycastSupported=true
+        local raycast_point=pos
+        if sampled then
+            local vector=rawget(_G,"Vector3") or member(unity,"Vector3")
+            local create=member(vector,"New")
+            local ok_vector,point=false,nil
+            if type(create)=="function" then
+                ok_vector,point=pcall(create,x,y,0)
+            end
+            if ok_vector then raycast_point=point end
+        end
+        if raycast_point~=nil then
+            local ok_army,hit=invoke(scene,"GetRaycastHitMarch",raycast_point)
+            army.raycastSucceeded=ok_army
+            local uuid=ok_army and exact_march_id(hit) or nil
+            army.hitFound=uuid~=nil
+            army.marchUuid=uuid
+            if uuid then
+                local ok_troop,troop=invoke(scene,"GetTroop",hit)
+                local ok_troop_id,troop_id=invoke(troop,"GetMarchUUID")
+                local ok_monster,is_monster=invoke(troop,"IsMonsterTroop")
+                local ok_boss,is_boss=invoke(troop,"IsWorldBossTroop")
+                army.troopUuidMatches=ok_troop and ok_troop_id and
+                    exact_march_id(troop_id)==uuid or false
+                army.worldBoss=ok_boss and is_boss==true or false
+                army.monsterVerified=army.troopUuidMatches and
+                    ok_monster and is_monster==true and ok_boss and is_boss==false
+            end
+        end
+    end
+    if not sampled then
+        local current=member(input,"mousePosition")
+        if number(member(current,"x"))~=x or number(member(current,"y"))~=y then
+            return nil,failed("Unity mouse moved during native WorldArmy cursor observation")
+        end
+    end
     local server_check=native_account()
     if not server_check or server_check.uid~=account.uid or
        server_check.server~=account.server or
@@ -1090,7 +1177,7 @@ local function native_cursor_point(fields, uid)
         ownerUid=account.uid,readOnly=sampled,physicalCursorRead=not sampled,
         source="WorldScene.GetTouchPoint+WorldToTile+TilePosToIndex",
         nativeMainWorldTileProjected=true,targetTypeVerified=kind~=nil,
-        target=target,safeToDispatchFromPhysicalCursor=false,
+        target=target,worldArmy=army,safeToDispatchFromPhysicalCursor=false,
         requestDispatched=false},nil
 end
 
@@ -1098,50 +1185,56 @@ end
 -- raycasts WorldArmy and reads a March_<Int64> collider name. The xLua
 -- wrapper at 0x06008d32 returns the Int64 to Lua. Never use tonumber() on
 -- this value: a floating point conversion corrupts march UUIDs above 2^53.
-local function exact_march_id(value)
-    if value==nil or type(value)=="boolean" then return nil end
-    if type(value)=="number" and
-       (not math.type or math.type(value)~="integer") then return nil end
-    local decimal=tostring(value)
-    if not decimal:match("^[1-9]%d*$") or #decimal>19 then return nil end
-    return decimal
-end
 
 local cursor_open_pending
 local function native_hover_target(fields,uid)
     if fields.samplePixelX~=nil or fields.samplePixelY~=nil then
         return nil,failed("Native hover action requires the physical game cursor")
     end
-    local cursor,reason=native_cursor_point(fields,uid)
-    if not cursor then return nil,reason end
+    -- Moving WorldArmy troops have their own native pointer collider. The
+    -- ground raycast used for stationary resource points may MISS even when
+    -- the mouse is physically over a moving troop; it is not a prerequisite
+    -- to WorldScene.GetRaycastHitMarch(Vector3).
+    local account=native_account()
+    if not account or account.uid~=uid then
+        return nil,failed("Native world hover account changed")
+    end
     local scene=member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local unity=member(rawget(_G,"CS"),"UnityEngine")
     local create=member(rawget(_G,"Vector3"),"New") or
         member(member(unity,"Vector3"),"New")
+    local width=number(member(member(unity,"Screen"),"width"))
+    local height=number(member(member(unity,"Screen"),"height"))
+    local pointer=member(member(unity,"Input"),"mousePosition")
+    local x,y=number(member(pointer,"x")),number(member(pointer,"y"))
+    if not width or not height or width<1 or height<1 or not x or not y or
+       x<0 or y<0 or x>=width or y>=height then
+        return nil,failed("Physical hover cursor is outside the native Unity viewport")
+    end
     if type(create)~="function" or
        type(member(scene,"GetRaycastHitMarch"))~="function" then
         return nil,unsupported("Native WorldArmy march cursor raycast unavailable")
     end
-    local pointer=member(member(unity,"Input"),"mousePosition")
-    if number(member(pointer,"x"))~=cursor.pixelX or
-       number(member(pointer,"y"))~=cursor.pixelY then
-        return nil,failed("Physical mouse moved during hovered-target acquisition")
-    end
-    local ok_vec,screen=pcall(create,cursor.pixelX,cursor.pixelY,0)
+    local ok_vec,screen=pcall(create,x,y,0)
     if not ok_vec or screen==nil then
         return nil,unsupported("Native WorldArmy raycast screen vector unavailable")
     end
     local ok_hit,hit=invoke(scene,"GetRaycastHitMarch",screen)
     if not ok_hit then return nil,unsupported("Native WorldArmy march raycast failed") end
+    local latest_pointer=member(member(unity,"Input"),"mousePosition")
+    if number(member(latest_pointer,"x"))~=x or
+       number(member(latest_pointer,"y"))~=y then
+        return nil,failed("Physical mouse moved during native WorldArmy raycast")
+    end
     local hit_id=exact_march_id(hit)
     if hit~=nil and tostring(hit)~="0" and hit_id==nil then
         return nil,failed("Native WorldArmy raycast returned an invalid Int64 march identity")
     end
     local intent=fields.targetKind
     if intent==nil then intent=hit_id and "monster" or "resource" end
-    local account=native_account()
-    if not account or account.uid~=uid or
-       tostring(cursor.serverId)~=account.server or
+    local fresh_account=native_account()
+    if not fresh_account or fresh_account.uid~=uid or
+       fresh_account.server~=account.server or
        member(member(rawget(_G,"CS"),"SceneManager"),"World")~=scene then
         return nil,failed("Native world/account changed during hover acquisition")
     end
@@ -1182,6 +1275,8 @@ local function native_hover_target(fields,uid)
                 return nil,failed("Hovered monster is owned or on another server")
             end
         end
+        local alliance,alliance_error=target_alliance_guard(account,world_march,true,false)
+        if not alliance then return nil,alliance_error end
         local ok_pos,pos=invoke(troop,"GetPosition")
         local transform=member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
         local world_scene=member(rawget(_G,"ForceChangeScene"),"World")
@@ -1196,7 +1291,8 @@ local function native_hover_target(fields,uid)
         return {category="ordinary_monster",targetType="ATTACK_MONSTER",
             point=integer(point),uuid=hit,uuidText=hit_id,
             server=account.server,uid=account.uid,scene=scene,
-            pixelX=cursor.pixelX,pixelY=cursor.pixelY,
+            ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
+            pixelX=x,pixelY=y,
             source="WorldScene.GetRaycastHitMarch+WorldTroop.GetMarchUUID+GetMarch"},nil
     end
     if intent~="resource" then
@@ -1204,6 +1300,13 @@ local function native_hover_target(fields,uid)
     end
     if hit_id then
         return nil,failed("Physical cursor overlaps a troop; resource click target is ambiguous")
+    end
+    local cursor,reason=native_cursor_point(fields,uid)
+    if not cursor then return nil,reason end
+    if cursor.pixelX~=x or cursor.pixelY~=y or
+       tostring(cursor.serverId)~=account.server or
+       member(member(rawget(_G,"CS"),"SceneManager"),"World")~=scene then
+        return nil,failed("Native resource ground cursor changed after WorldArmy raycast")
     end
     -- Original UIUtil.OnClickWorld uses the clicked PointInfo.pointIndex,
     -- normalizing non-main occupied tiles through PointInfo.mainIndex.
@@ -1243,12 +1346,15 @@ local function native_hover_target(fields,uid)
         tostring(member(resource,"serverId"))~=account.server) then
         return nil,failed("Hovered resource belongs to another server")
     end
+    local alliance,alliance_error=target_alliance_guard(account,resource,false,true)
+    if not alliance then return nil,alliance_error end
     -- Original MarchUtil.OnGotoCollect -> TryStartMarch(COLLECT,nil,
     -- forcedPoint,pointIndex,resource.mainIndex,...) sends mainIndex as the
     -- correlated targetUid while the formation chooser targetUuid is nil.
     return {category="ordinary_resource",targetType="COLLECT",point=point_id,
         uuid=nil,uuidText=tostring(integer(member(resource,"mainIndex"))),
         server=account.server,uid=account.uid,
+        ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
         scene=scene,pixelX=cursor.pixelX,pixelY=cursor.pixelY,
         source="UIUtil.OnClickWorld+World.GetResourcePointInfoByIndex"},nil
 end
@@ -1277,6 +1383,15 @@ local function native_hover_open(fields,input_clear,uid)
            (member(form,"ownerUid")~=nil and ident(member(form,"ownerUid"))~=uid) then
             return failed("Native hover squad identity/owner unavailable")
         end
+        -- On the observed 2296 sub-account, slot 1 has two heroes but ZERO
+        -- soldiers. The original formation action is not dispatch-ready:
+        -- attack_selected requires both assigned heroes and soldiers. Reject
+        -- before requesting a transient chooser so the refusal is explicit,
+        -- rather than a generic deferred chooser failure with no native send.
+        local staffing=formation_staffing(form)
+        if not staffing.staffedForAttack then
+            return failed("Selected squad has no verified assigned soldiers and heroes; staff it in the original game before the attack hotkey")
+        end
         local account=native_account()
         local ok_idle,active=invoke(member(center,"WorldMarchDataManager"),
             "GetOwnerFormationMarch",member(account and account.player,"uid"),
@@ -1301,6 +1416,8 @@ local function native_hover_open(fields,input_clear,uid)
     if fresh.uid~=target.uid or fresh.server~=target.server or
        fresh.scene~=target.scene or fresh.category~=target.category or
        fresh.point~=target.point or fresh.uuidText~=target.uuidText or
+       fresh.ownerAllianceUid~=target.ownerAllianceUid or
+       fresh.targetAllianceUid~=target.targetAllianceUid or
        fresh.pixelX~=target.pixelX or fresh.pixelY~=target.pixelY or
        input_clear()~=true then
         return failed("Native hover target or text focus changed before original selector")
@@ -1789,7 +1906,9 @@ local function attack_selected(fields, input_clear, uid)
        fresh_target.point~=target.point or
        fresh_target.selectorServer~=target.selectorServer or
        fresh_target.targetOwnerUid~=target.targetOwnerUid or
-       fresh_target.targetServerId~=target.targetServerId then
+       fresh_target.targetServerId~=target.targetServerId or
+       fresh_target.ownerAllianceUid~=target.ownerAllianceUid or
+       fresh_target.targetAllianceUid~=target.targetAllianceUid then
         return failed("Native selector changed immediately before attack")
     end
     -- The original controller branches on GetOwnerFormationMarch. A separate
@@ -1811,6 +1930,16 @@ local function attack_selected(fields, input_clear, uid)
     local final_account=native_account()
     if not final_account or final_account.uid~=uid then
         return failed("Original attack owner changed before sender observation")
+    end
+    -- Final owner/march lookups may run native callbacks. Check membership
+    -- again at the send edge, including a changed own alliance.
+    local send_target,send_target_error=native_selector_target(ctrl,uid)
+    if not send_target then return send_target_error end
+    if send_target.kind~=kind or send_target.uuid~=target_uuid or
+       send_target.point~=target.point or
+       send_target.ownerAllianceUid~=target.ownerAllianceUid or
+       send_target.targetAllianceUid~=target.targetAllianceUid then
+        return failed("Target or alliance changed at native attack send edge")
     end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,

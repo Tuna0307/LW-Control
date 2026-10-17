@@ -23,7 +23,7 @@ internal sealed partial class LWBridgeWindow
         void Owned()
         {
             token.ThrowIfCancellationRequested();
-            if (!IsOwner()) throw new InvalidDataException("Staged proof lost its exact 2288 owner.");
+            if (!IsOwner()) throw new InvalidDataException("Staged proof lost its exact 2296 owner.");
         }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
@@ -58,7 +58,7 @@ internal sealed partial class LWBridgeWindow
                 {
                     missingOwnerSince ??= DateTimeOffset.UtcNow;
                     if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(15))
-                        throw new InvalidDataException("Staged proof lost its exact 2288 owner for 15 seconds.");
+                        throw new InvalidDataException("Staged proof lost its exact 2296 owner for 15 seconds.");
                     await Task.Delay(200, token);
                     continue;
                 }
@@ -82,6 +82,9 @@ internal sealed partial class LWBridgeWindow
                         if (kind == "command")
                         {
                             string command = root.GetProperty("command").GetString()!;
+                            if (command.StartsWith("mini_land_", StringComparison.Ordinal) ||
+                                command == "monopoly_cell_open")
+                                throw new InvalidDataException("R14 forbids all live Land Cell requests");
                             result = await game.InvokeAsync(command,
                                 root.TryGetProperty("payload", out var payload) ? payload : empty.RootElement,
                                 token);
@@ -131,6 +134,15 @@ internal sealed partial class LWBridgeWindow
                                 recognized = false,
                                 recognitionAttribution =
                                     "capture_observation_and_os_key_window_only_origin_and_native_ack_not_proven" };
+                        }
+                        else if (kind == "observedKeys")
+                        {
+                            // Read-only evidence for physical keys delivered by the
+                            // Windows computer-use tool, outside the harness sender.
+                            result = new { outcomes = feature018R2KeyOutcomes.ToArray(),
+                                capturedIntents = feature018Capture?.SnapshotCapturedIntents(),
+                                observedAtUtc = DateTimeOffset.UtcNow,
+                                inputOriginProvenByThisRead = false };
                         }
                         else if (kind == "tab")
                         {

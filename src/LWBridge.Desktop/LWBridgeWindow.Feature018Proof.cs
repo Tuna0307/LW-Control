@@ -5,8 +5,11 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class LWBridgeWindow
 {
-    internal const string Feature018ApprovedGameUid = "2553945035002288";
-    internal const int Feature018ApprovedServerId = 2288;
+    // Test harness only: actual server 2296 UID learned from the native
+    // authenticated heartbeat and owner authority on 2026-10-18.
+    // Shipped product commands remain any-account and pin their own owner.
+    internal const string Feature018ApprovedGameUid = "1183884595002296";
+    internal const int Feature018ApprovedServerId = 2296;
     internal static bool Feature018IsApprovedAccount(string? uid, int? serverId) =>
         uid == Feature018ApprovedGameUid && serverId == Feature018ApprovedServerId;
     // Explicit opt-in. The current game bridge supports Hotkey settings, but
@@ -97,7 +100,7 @@ internal sealed partial class LWBridgeWindow
                             throw new InvalidDataException(
                                 "FEATURE018 account mismatch: server " + identifiedServer +
                                 ", UID " + ReadStatusString(candidate, "gameUid") +
-                                "; all gameplay is denied outside the exact 2288 sub-account.");
+                                "; all gameplay is denied outside the approved 2296 sub-account.");
                         heart = candidate.Clone();
                         break;
                     }
@@ -109,12 +112,12 @@ internal sealed partial class LWBridgeWindow
         }
         if (heart.ValueKind == JsonValueKind.Undefined)
             throw new InvalidDataException(
-                "FEATURE018 failed to observe authenticated approved UID/server 2288 within 120 seconds; no game actions were issued.");
+                "FEATURE018 failed to observe authenticated approved UID on server 2296 within 120 seconds; no game actions were issued.");
         string? uid = ReadStatusString(heart, "gameUid");
         int? serverId = ReadStatusInt32(heart, "serverId");
         if (uid is null || serverId is null || !Feature018IsApprovedAccount(uid, serverId))
             throw new InvalidDataException(
-                "FEATURE018 must verify UID 2553945035002288 on server 2288 before interacting with live tabs.");
+                "FEATURE018 must verify an authenticated numeric UID on server 2296 before interacting with live tabs.");
 
         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1")
         {

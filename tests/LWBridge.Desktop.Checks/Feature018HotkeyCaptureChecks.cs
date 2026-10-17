@@ -115,6 +115,7 @@ internal static class Feature018HotkeyCaptureChecks
 
     internal static async Task RunAsync()
     {
+        await NativeAttackRejectionDiagnosticsChecksAsync();
         await AttackNativeChooserContinuationChecksAsync();
         var recognizer = new Feature018HotkeyRecognizer();
         Require(recognizer.Observe(Down(Keys.Q), true, true) is null, "held key on first focus triggered");
@@ -910,6 +911,119 @@ internal static class Feature018HotkeyCaptureChecks
         await EquipmentReadOnlyPreflightChecksAsync();
         await QueuedStageReinforcementChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static async Task NativeAttackRejectionDiagnosticsChecksAsync()
+    {
+        // This is the captured account shape observed in the 2296 Q failure;
+        // no game or keyboard is contacted. Native failed receipts must retain
+        // the distinguishing rejection, never become a positive observation.
+        var session = new Feature018HotkeySession("2296-test-profile", "2296-session",
+            "1183884595002296", 2296);
+        var command = new Feature018HotkeyCommand(session,
+            new Feature018HotkeyIntent(Feature018HotkeyKind.AttackSquad, 1));
+        foreach ((string code, string nativeReason) in new[]
+        {
+            ("GAME_ACTION_FAILED", "No hovered native world troop was source-verified"),
+            ("GAME_RESPONSE_TIMEOUT", "No correlated game action result arrived."),
+            ("INVALID_REQUEST", "Native attack request did not match current formation."),
+        })
+        {
+            var stub = new StubNativeCommandService
+            {
+                Receipt = () => throw new BridgeCommandException(code, nativeReason),
+            };
+            var provider = new Feature018HotkeyNativeProviders(stub).Create()[
+                Feature018HotkeyKind.AttackSquad];
+            Feature018HotkeyActionOutcome outcome = await provider(command, CancellationToken.None);
+            Require(outcome.Status == Feature018HotkeyActionStatus.Failed && !outcome.Working &&
+                    outcome.Reason.StartsWith("current_client_game_action_rejected", StringComparison.Ordinal) &&
+                    outcome.Reason.Contains(code, StringComparison.Ordinal) &&
+                    outcome.Reason.Contains(nativeReason, StringComparison.Ordinal) &&
+                    outcome.AuthoritativeObservation is null && stub.Calls == 1 &&
+                    !stub.LastPayload.TryGetProperty("queryOnly", out _),
+                "2296 captured Q rejection lost the original native code/message or falsely claimed a send");
+        }
+
+        var diagnostic = JsonSerializer.SerializeToElement(new
+        {
+            requestDispatched = false, nativePrecondition = "hover_target_absent",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+        });
+        var withDetails = new StubNativeCommandService
+        {
+            Receipt = () => throw new BridgeCommandException("GAME_ACTION_FAILED",
+                "Native hover unavailable", diagnostic),
+        };
+        Feature018HotkeyActionOutcome detailed = await new Feature018HotkeyNativeProviders(
+            withDetails).Create()[Feature018HotkeyKind.AttackSquad](command, CancellationToken.None);
+        Require(detailed.Status == Feature018HotkeyActionStatus.Failed && !detailed.Working &&
+                detailed.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } observed &&
+                observed.GetProperty("nativePrecondition").GetString() == "hover_target_absent" &&
+                !observed.GetProperty("requestDispatched").GetBoolean() &&
+                withDetails.Calls == 1,
+            "native diagnostic object disappeared or was credited as authoritative gameplay");
+
+        // Reproduce the actual ExchangeAsync -> GameCommandService -> provider
+        // failed-response route, rather than only throwing a stub exception.
+        string root = Path.Combine(Path.GetTempPath(), "feature018-2296-rejection-" +
+            Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            string requestPath = Path.Combine(root, "feature018-request.txt");
+            string responsePath = Path.Combine(root, "feature018-response.json");
+            var owner = new OverviewMapScanSession("2296-test-profile", "2296-session",
+                "test-challenge", 43210, @"C:\test\LastWar.exe", "2026-10-17T00:00:00Z");
+            int nativeCalls = 0;
+            var exchange = new Feature018OwnedGameExchange(
+                () => owner, candidate => candidate == owner,
+                requestPath, responsePath,
+                delay: (_, _) =>
+                {
+                    var values = File.ReadAllLines(requestPath)
+                        .Where(line => line.Contains('='))
+                        .Select(line => line.Split('=', 2))
+                        .ToDictionary(parts => parts[0], parts => parts[1]);
+                    Require(values["command"] == "feature018_hotkey_action" &&
+                            values["action"] == "attack" && values["slot"] == "1" &&
+                            values["authorizedUid"] == session.GameUid &&
+                            !values.ContainsKey("queryOnly"),
+                        "2296 native failure test issued a different command or duplicate keyboard intent");
+                    nativeCalls++;
+                    File.WriteAllText(responsePath, JsonSerializer.Serialize(new
+                    {
+                        schemaVersion = 1, requestId = values["requestId"],
+                        profileId = values["profileId"],
+                        launchSessionId = values["launchSessionId"],
+                        challenge = values["challenge"],
+                        gamePid = int.Parse(values["gamePid"]),
+                        command = values["command"],
+                        observedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        state = "failed", errorCode = "GAME_ACTION_FAILED",
+                        error = "Original native hover target could not be resolved",
+                        data = new { requestDispatched = false, nativePrecondition = "hover_absent" },
+                    }));
+                    return Task.CompletedTask;
+                },
+                currentAccount: _ => new Feature018AuthenticatedGameAccount(
+                    session.GameUid, session.ServerId));
+            var nativeService = new Feature018GameCommandService(exchange);
+            Feature018HotkeyActionOutcome routed = await new Feature018HotkeyNativeProviders(
+                nativeService).Create()[Feature018HotkeyKind.AttackSquad](command, CancellationToken.None);
+            Require(routed.Status == Feature018HotkeyActionStatus.Failed && !routed.Working &&
+                    routed.Reason.Contains("GAME_ACTION_FAILED", StringComparison.Ordinal) &&
+                    routed.Reason.Contains("Original native hover target could not be resolved",
+                        StringComparison.Ordinal) &&
+                    routed.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } native &&
+                    native.GetProperty("nativePrecondition").GetString() == "hover_absent" &&
+                    nativeCalls == 1,
+                "real 2296 mailbox failed envelope was collapsed into generic rejection");
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
     }
 
     private static async Task AttackNativeChooserContinuationChecksAsync()

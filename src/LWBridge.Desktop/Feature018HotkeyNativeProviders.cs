@@ -308,12 +308,36 @@ internal sealed class Feature018HotkeyNativeProviders
             return new(Feature018HotkeyActionStatus.Failed, error.Message,
                 error.Details is JsonElement data ? data.Clone() : null);
         }
-        catch (BridgeCommandException)
+        catch (BridgeCommandException error)
         {
+            // The game exchange preserves the native failure code/message
+            // (including state=failed Lua errors). Dropping both here left
+            // captured Q/W/E/R failures with one indistinguishable reason
+            // and no way to identify the blocked native method. This is
+            // diagnostic evidence only: failure must never become Confirmed.
             return new(Feature018HotkeyActionStatus.Failed,
-                "current_client_game_action_rejected");
+                NativeRejectionReason("current_client_game_action_rejected", error),
+                NativeRejectionDetails(error));
         }
     }
+
+    private static string NativeRejectionReason(string prefix, BridgeCommandException error)
+    {
+        // Retain the original code and game error for the desktop outcome,
+        // but bound and single-line untrusted native text in the UI/log.
+        static string OneLine(string? value, string fallback, int limit)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return fallback;
+            string clean = new(value.Select(c => char.IsControl(c) ? ' ' : c).ToArray());
+            return clean.Length <= limit ? clean : clean[..limit];
+        }
+        return prefix + " [" + OneLine(error.Code, "UNKNOWN", 128) + "]: " +
+            OneLine(error.Message, "No native failure message supplied", 1024);
+    }
+
+    private static JsonElement? NativeRejectionDetails(BridgeCommandException error) =>
+        error.Details is JsonElement { ValueKind: JsonValueKind.Object } details
+            ? details.Clone() : null;
 
     private static bool IsAttackChooserReceipt(
         Feature018HotkeyCommand command, JsonElement data, string? formationUuid)
@@ -412,10 +436,11 @@ internal sealed class Feature018HotkeyNativeProviders
                     // retransmit merely because the chooser is still open.
                     continue;
                 }
-                catch (BridgeCommandException)
+                catch (BridgeCommandException error)
                 {
                     return new(Feature018HotkeyActionStatus.Submitted,
-                        "native_attack_chooser_followup_unavailable");
+                        NativeRejectionReason("native_attack_chooser_followup_unavailable", error),
+                        NativeRejectionDetails(error));
                 }
 
                 if (!IsAttackChooserReceipt(command, response, formationUuid))
@@ -512,10 +537,11 @@ internal sealed class Feature018HotkeyNativeProviders
                     // The query may legitimately observe the pre-ACK march.
                     // An unconfirmed query is never a reason to send again.
                 }
-                catch (BridgeCommandException)
+                catch (BridgeCommandException error)
                 {
                     return new(Feature018HotkeyActionStatus.Submitted,
-                        "native_action_dispatched_followup_unavailable");
+                        NativeRejectionReason("native_action_dispatched_followup_unavailable", error),
+                        NativeRejectionDetails(error));
                 }
             }
         }

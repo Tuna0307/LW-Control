@@ -12,11 +12,19 @@ from pathlib import Path
 
 
 def submit(directory, operation, timeout=45):
+    if (str(operation.get("command", "")).startswith("mini_land_") or
+            operation.get("command") == "monopoly_cell_open"):
+        raise ValueError("R14 forbids all live Land Cell requests")
+    if operation.get("kind") == "key" and operation.get("binding") not in (
+            "Q", "W", "E", "R", "A", "S", "D", "F", "F9", "F10"):
+        raise ValueError("Key is outside the R14 live assignment")
     directory = Path(directory).resolve(strict=True)
     if not directory.name.startswith("native-ui-"):
         raise ValueError("Expected an existing task-owned native UI receipt directory")
     admission = json.loads((directory / "feature018-account-admission.json").read_text("utf-8-sig"))
-    if admission["uid"] != "2553945035002288" or admission["serverId"] != 2288:
+    if (admission.get("serverId") != 2296 or
+            admission.get("uid") != "1183884595002296" or
+            not admission.get("loggedIn") or not admission.get("connected")):
         raise ValueError("Wrong game account admission")
     if (directory / "owned-exit.json").exists():
         raise ValueError("Session already exited")

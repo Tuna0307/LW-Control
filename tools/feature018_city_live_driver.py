@@ -16,8 +16,8 @@ from pathlib import Path
 import time
 import uuid
 
-UID = '2553945035002288'
-SERVER = 2288
+UID = '1183884595002296'
+SERVER = 2296
 HISTORICAL_UNACKNOWLEDGED_CITY_UUID = '1392040865799139725'
 
 
@@ -41,10 +41,13 @@ class StageQueue:
             return None
         game = value.get('game', {})
         if str(game.get('uid')) != UID or game.get('serverId') != SERVER:
-            raise RuntimeError('Staged app does not report the exact authorized 2288 UID')
+            raise RuntimeError('Staged app does not report the exact authorized 2296 UID')
         return value
 
     def request(self, kind, *, timeout=40, **fields):
+        if (str(fields.get('command', '')).startswith('mini_land_') or
+                fields.get('command') == 'monopoly_cell_open'):
+            raise RuntimeError('R14 forbids all live Land Cell requests')
         state = self.state()
         if state is None or state.get('state') != 'running':
             raise RuntimeError('Owned staged proof is not currently running')
@@ -232,7 +235,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('directory', type=Path)
     parser.add_argument('--result-path', type=Path)
-    parser.add_argument('--stage', choices=('city', 'land'), required=True)
+    parser.add_argument('--stage', choices=('city',), required=True)
     parser.add_argument('--exclude-city-uuid', action='append', default=[HISTORICAL_UNACKNOWLEDGED_CITY_UUID])
     parser.add_argument('--exclude-land-id', action='append', type=int, default=[5])
     args = parser.parse_args()

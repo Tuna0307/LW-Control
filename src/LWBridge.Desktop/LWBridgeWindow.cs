@@ -1573,8 +1573,13 @@ internal sealed partial class LWBridgeWindow : Form
 
         bool intervalAcceptance = ownerFixNativeProof && !ownerFixRemoteProof &&
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_INTERVAL") == "1";
+        // The staged FEATURE018 queue intentionally permits 13 minutes after
+        // authentication; its outer lifecycle timeout must not cancel it at 8.
+        bool feature018StagedProof = ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1" &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") == "1";
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(
-            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : 8));
+            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : feature018StagedProof ? 16 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
