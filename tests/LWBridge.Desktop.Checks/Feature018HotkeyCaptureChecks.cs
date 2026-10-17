@@ -43,6 +43,7 @@ internal static class Feature018HotkeyCaptureChecks
         internal int ActivationCalls;
         internal int DiscoveryCalls;
         internal readonly List<(byte Key, bool Release)> SendAttempts = [];
+        internal readonly List<int> Delays = [];
         internal readonly HashSet<Keys> DownKeys = [];
         internal Action<int, CancellationToken>? OnDelay;
 
@@ -71,6 +72,7 @@ internal static class Feature018HotkeyCaptureChecks
         }
         public Task Delay(int milliseconds, CancellationToken token)
         {
+            Delays.Add(milliseconds);
             OnDelay?.Invoke(milliseconds, token);
             token.ThrowIfCancellationRequested();
             return Task.CompletedTask;
@@ -667,12 +669,17 @@ internal static class Feature018HotkeyCaptureChecks
         Feature018OwnedKeyReceipt result = await Press(owner, api);
         Require(result.Pressed && result.Hwnd == 101 &&
                 result.Observation == "win32_key_state_observed_for_owned_game_keyboard_focus" &&
+                result.InputBaselineObservedAtUtc <= result.InputInjectionStartedAtUtc &&
                 result.InputInjectionStartedAtUtc <= result.KeyDownObservedAtUtc &&
                 result.KeyDownObservedAtUtc is not null &&
+                result.KeyDownLastObservedAtUtc >= result.KeyDownObservedAtUtc &&
+                result.KeyDownStateSamples == 3 &&
+                result.KeyReleaseObservedAtUtc >= result.KeyDownLastObservedAtUtc &&
                 result.KeyReleaseObservedAtUtc >= result.KeyDownObservedAtUtc &&
                 api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
+                api.Delays.SequenceEqual(new[] { 420, 35, 35, 45, 45, 95, 70 }) &&
                 api.SendAttempts.SequenceEqual(new[] { ((byte)0x51, false), ((byte)0x51, true) }),
-            "already-foreground exact HWND did not receive one bounded Q key down/up");
+            "already-foreground exact HWND lacked temporally distinct Q down samples");
 
         // A second visible top-level window of the *same* verified game process
         // can legitimately have focus. Never seize an arbitrary first sibling.
@@ -681,6 +688,8 @@ internal static class Feature018HotkeyCaptureChecks
         result = await Press(owner, api, "Alt+2");
         Require(result.Pressed && result.Hwnd == 202 &&
                 result.InputInjectionStartedAtUtc <= result.KeyDownObservedAtUtc &&
+                result.KeyDownStateSamples == 3 &&
+                api.Delays.SequenceEqual(new[] { 420, 35, 35, 55, 45, 45, 95, 70 }) &&
                 result.KeyReleaseObservedAtUtc is not null &&
                 api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
                 api.SendAttempts.SequenceEqual(new[] {
@@ -728,6 +737,24 @@ internal static class Feature018HotkeyCaptureChecks
         Require(!result.Pressed && result.Observation == "game_text_input_focus_could_not_be_qualified" &&
                 api.SendAttempts.Count == 0,
             "stale native game-input focus was treated as capture readiness");
+
+        api = new FakeOwnedKeyPlatform();
+        int alternatingInputSamples = 0;
+        result = await Press(owner, api,
+            textInputClear: () => ++alternatingInputSamples % 2 == 1);
+        Require(!result.Pressed && result.Observation == "game_input_admission_not_stable" &&
+                api.SendAttempts.Count == 0 && alternatingInputSamples == 75 &&
+                api.Delays.Count(delay => delay == 35) == 74,
+            "one timely native EventSystem input-clear sample falsely armed capture");
+
+        api = new FakeOwnedKeyPlatform();
+        int delayedNativeAdmission = 0;
+        result = await Press(owner, api,
+            textInputClear: () => ++delayedNativeAdmission >= 3);
+        Require(result.Pressed && delayedNativeAdmission >= 5 &&
+                api.Delays.Take(5).SequenceEqual(new[] { 420, 35, 35, 35, 35 }) &&
+                result.InputBaselineObservedAtUtc is not null,
+            "late native EventSystem readiness skipped full recognizer arming interval");
         api = new FakeOwnedKeyPlatform();
         api.DownKeys.Add(Keys.Q);
         result = await Press(owner, api);
@@ -749,12 +776,24 @@ internal static class Feature018HotkeyCaptureChecks
                     ((byte)0x12, false), ((byte)0x12, true) }),
             "owned game foreground with focus switched away during Alt injected a number");
         api = new FakeOwnedKeyPlatform();
-        api.OnDelay = (ms, _) => { if (ms == 185) api.KeyboardFocusOwned = false; };
+        api.OnDelay = (ms, _) => { if (ms == 95) api.KeyboardFocusOwned = false; };
         result = await Press(owner, api, "Q");
         Require(!result.Pressed && result.Observation == "owned_window_changed_during_keypress" &&
                 api.SendAttempts.SequenceEqual(new[] {
                     ((byte)0x51, false), ((byte)0x51, true) }),
-            "owned game foreground with focus switched away during Q claimed key intent");
+            "owned game foreground with focus switched away during Q claimed key intent: " +
+            result.Observation + " (" + string.Join(",", api.Delays) + ")");
+
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 70) api.Foreground = (nint)999; };
+        result = await Press(owner, api, "Q");
+        Require(!result.Pressed &&
+                result.Observation == "owned_window_changed_during_key_release" &&
+                result.KeyDownStateSamples == 3 &&
+                result.KeyReleaseObservedAtUtc is null &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x51, false), ((byte)0x51, true) }),
+            "foreground loss after three down samples falsely claimed a completed key");
 
         api = new FakeOwnedKeyPlatform { SuppressKeyDownState = true };
         result = await Press(owner, api, "F6");
@@ -762,6 +801,19 @@ internal static class Feature018HotkeyCaptureChecks
                 api.SendAttempts.SequenceEqual(new[] {
                     ((byte)0x75, false), ((byte)0x75, true) }),
             "accepted Win32 F6 insertion without observed pressed state claimed a shortcut");
+
+        api = new FakeOwnedKeyPlatform();
+        int downObservations = 0;
+        api.OnDelay = (ms, _) =>
+        {
+            if (ms == 45 && ++downObservations == 2) api.DownKeys.Clear();
+        };
+        result = await Press(owner, api, "F6");
+        Require(!result.Pressed && result.Observation == "win32_keydown_state_not_observed" &&
+                downObservations == 2 &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x75, false), ((byte)0x75, true) }),
+            "missing second independent F6 down state incorrectly claimed an intent witness");
         api = new FakeOwnedKeyPlatform { SuppressKeyDownState = true };
         result = await Press(owner, api, "Alt+2");
         Require(!result.Pressed && result.Observation == "win32_modifier_state_not_observed" &&
@@ -796,7 +848,7 @@ internal static class Feature018HotkeyCaptureChecks
             "focus lost after Alt down still injected the primary action key");
 
         api = new FakeOwnedKeyPlatform();
-        api.OnDelay = (ms, _) => { if (ms == 185) api.Foreground = (nint)999; };
+        api.OnDelay = (ms, _) => { if (ms == 95) api.Foreground = (nint)999; };
         result = await Press(owner, api);
         Require(!result.Pressed && result.Observation == "owned_window_changed_during_keypress" &&
                 api.SendAttempts.SequenceEqual(new[] {
