@@ -187,30 +187,38 @@ internal sealed class Feature018OwnedGameExchange
                 "FEATURE018 requires the currently authenticated UID 2553945035002288 on server 2288.");
     }
 
-    internal static bool FreshApprovedSubaccount(string heartbeatPath, OverviewMapScanSession owner)
+    internal static bool FreshApprovedSubaccount(string heartbeatPath, OverviewMapScanSession owner,
+        Func<string, byte[]>? readAllBytes = null)
     {
-        try
+        // The game rewrites its heartbeat in place. Only an interrupted read
+        // may be retried; a parsed account/session/freshness mismatch is final.
+        for (int attempt = 0; attempt < 3; attempt++)
         {
-            using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(heartbeatPath));
-            JsonElement heartbeat = doc.RootElement;
-            return OverviewLifecycleService.HeartbeatMatches(heartbeat,
-                       owner.ProfileId, owner.SessionId, owner.Challenge, owner.GamePid,
-                       DateTimeOffset.UtcNow.ToUnixTimeSeconds()) &&
-                   heartbeat.TryGetProperty("gameStateObserved", out var observed) &&
-                   observed.ValueKind == JsonValueKind.True &&
-                   heartbeat.TryGetProperty("loggedIn", out var loggedIn) &&
-                   loggedIn.ValueKind == JsonValueKind.True &&
-                   heartbeat.TryGetProperty("connected", out var connected) &&
-                   connected.ValueKind == JsonValueKind.True &&
-                   heartbeat.TryGetProperty("gameUid", out var uid) &&
-                   uid.ValueKind == JsonValueKind.String &&
-                   uid.GetString() == "2553945035002288" &&
-                   heartbeat.TryGetProperty("serverId", out var server) &&
-                   server.TryGetInt32(out int serverId) && serverId == 2288;
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse((readAllBytes ?? File.ReadAllBytes)(heartbeatPath));
+                JsonElement heartbeat = doc.RootElement;
+                return OverviewLifecycleService.HeartbeatMatches(heartbeat,
+                           owner.ProfileId, owner.SessionId, owner.Challenge, owner.GamePid,
+                           DateTimeOffset.UtcNow.ToUnixTimeSeconds()) &&
+                       heartbeat.TryGetProperty("gameStateObserved", out var observed) &&
+                       observed.ValueKind == JsonValueKind.True &&
+                       heartbeat.TryGetProperty("loggedIn", out var loggedIn) &&
+                       loggedIn.ValueKind == JsonValueKind.True &&
+                       heartbeat.TryGetProperty("connected", out var connected) &&
+                       connected.ValueKind == JsonValueKind.True &&
+                       heartbeat.TryGetProperty("gameUid", out var uid) &&
+                       uid.ValueKind == JsonValueKind.String &&
+                       uid.GetString() == "2553945035002288" &&
+                       heartbeat.TryGetProperty("serverId", out var server) &&
+                       server.TryGetInt32(out int serverId) && serverId == 2288;
+            }
+            catch (IOException) { }
+            catch (JsonException) { }
+            catch (UnauthorizedAccessException) { return false; }
+            if (attempt < 2) Thread.Yield();
         }
-        catch (IOException) { return false; }
-        catch (JsonException) { return false; }
-        catch (UnauthorizedAccessException) { return false; }
+        return false;
     }
 
     private static bool ValidToken(string value) =>

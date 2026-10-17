@@ -15,9 +15,18 @@ internal sealed record HotkeyConfig(
     bool RandomRelocate = false,
     bool AllianceRelocate = false,
     bool FrontlineReinforce = true,
-    bool TreasureChestHint = false)
+    bool TreasureChestHint = false,
+    int FrontlineReinforceCount = 5)
 {
+    internal const int MinFrontlineReinforceCount = 1;
+    internal const int MaxFrontlineReinforceCount = 50;
     internal static HotkeyConfig Default { get; } = new();
+
+    // OWN_DESIGN (owner request 2026-10-17): soldiers added per G press; the
+    // original 0.3.17 used a fixed 5. Out-of-range stored values fall back to 5.
+    internal HotkeyConfig Normalized() =>
+        FrontlineReinforceCount is >= MinFrontlineReinforceCount and <= MaxFrontlineReinforceCount
+            ? this : this with { FrontlineReinforceCount = 5 };
 }
 
 internal sealed record VisualMetricsConfig(
@@ -375,7 +384,7 @@ internal sealed class ProfileRuntimeConfigStore
         try
         {
             HotkeyConfig? config = node.Deserialize<HotkeyConfig>(JsonOptions.Default);
-            return config ?? throw StateUnavailable();
+            return config?.Normalized() ?? throw StateUnavailable();
         }
         catch (JsonException)
         {
@@ -472,7 +481,19 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
             payload.GetProperty("randomRelocate").GetBoolean(),
             payload.GetProperty("allianceRelocate").GetBoolean(),
             payload.GetProperty("frontlineReinforce").GetBoolean(),
-            ReadTreasureChestHint(payload));
+            ReadTreasureChestHint(payload),
+            ReadFrontlineReinforceCount(payload));
+    }
+
+    private static int ReadFrontlineReinforceCount(JsonElement payload)
+    {
+        if (!payload.TryGetProperty("frontlineReinforceCount", out JsonElement value))
+            return 5;
+        if (!value.TryGetInt32(out int count) ||
+            count < HotkeyConfig.MinFrontlineReinforceCount ||
+            count > HotkeyConfig.MaxFrontlineReinforceCount)
+            throw InvalidHotkeyConfig();
+        return count;
     }
 
     // Added by the observed 0.3.17 Mini Games panel; older profile configs

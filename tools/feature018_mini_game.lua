@@ -662,9 +662,19 @@ local function frontline_reinforce_once(fields)
        fields.expectedStageRunId ~= context.stageRunId then
         return unsupported("The queued G press belongs to a previous stage run")
     end
+    -- OWN_DESIGN (owner request): soldiers per G press is configurable 1..50;
+    -- the original 0.3.17 fixed it at 5, which stays the default.
+    local requested = 5
+    if fields.count ~= nil then
+        requested = tonumber(fields.count)
+        if requested == nil or requested ~= math.floor(requested) or
+           requested < 1 or requested > 50 then
+            return blocked("Invalid soldiers-per-G count")
+        end
+    end
     local confirmed = 0
     local created, reserved = 0, 0
-    for _ = 1, 5 do
+    for _ = 1, requested do
         if frontline_reentry_seen then
             return blocked("Overlapping native Frontline G intent interrupted reinforcement", {
                 beforeCount = context.count, observedAdded = confirmed,
@@ -762,7 +772,7 @@ local function frontline_reinforce_once(fields)
         beforeCount = context.remainCount, afterCount = context.remainCount + confirmed,
         activeMemberCountBefore=context.count,activeMemberCountAfter=context.count+created,
         reserveMemberCountBefore=context.overflow,reserveMemberCountAfter=context.overflow+reserved,
-        addedMembers = confirmed, unitIdentityVerified = true,
+        addedMembers = confirmed, requestedCount = requested, unitIdentityVerified = true,
         observedCreatedUnits = created, reservedMembers=reserved,nativeReserveVerified=true,
         guidAllocatorBefore = context.lastGuid,
         guidAllocatorAfter = context.lastGuid + created,

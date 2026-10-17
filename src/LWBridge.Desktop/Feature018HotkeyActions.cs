@@ -13,7 +13,8 @@ internal sealed record Feature018HotkeyCommand(
     Feature018HotkeyIntent Intent,
     bool AllowMarchSpeedupItems = false,
     bool AllowMarchSpeedupDiamonds = false,
-    string? ExpectedStageRunId = null);
+    string? ExpectedStageRunId = null,
+    int ReinforceCount = 5);
 
 internal enum Feature018HotkeyActionStatus
 {
@@ -151,7 +152,8 @@ internal sealed class Feature018HotkeyActions
                 intent,
                 intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupItem,
                 intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupDiamond,
-                expectedStageRunId);
+                expectedStageRunId,
+                config.Normalized().FrontlineReinforceCount);
             Feature018HotkeyActionOutcome result = await producer(command, cancellationToken)
                 .ConfigureAwait(false) ??
                 new(Feature018HotkeyActionStatus.Failed, "game_action_returned_no_receipt");

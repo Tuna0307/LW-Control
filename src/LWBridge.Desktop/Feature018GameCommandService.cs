@@ -385,6 +385,14 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid game hotkey slot.");
                 fields["action"] = action;
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
+                if (action == "frontlineReinforce" && payload.TryGetProperty("count", out JsonElement countValue))
+                {
+                    if (!countValue.TryGetInt32(out int reinforce) ||
+                        reinforce < HotkeyConfig.MinFrontlineReinforceCount ||
+                        reinforce > HotkeyConfig.MaxFrontlineReinforceCount)
+                        throw new BridgeCommandException("INVALID_REQUEST", "Invalid soldiers-per-G count.");
+                    fields["count"] = reinforce.ToString(CultureInfo.InvariantCulture);
+                }
                 if (action == "frontlineReinforce" && payload.TryGetProperty("expectedStageRunId", out _))
                 {
                     string run = ReadValue(payload, "expectedStageRunId", 20);

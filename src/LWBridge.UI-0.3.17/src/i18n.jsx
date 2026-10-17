@@ -6,6 +6,7 @@ import { withGhostRewardTexts } from "./locales/map014-ghost-rewards.js";
 import { withZombieBossTexts } from "./locales/map014-zombie-boss.js";
 import { withHomeLaunchFeedback } from "./locales/home-launch-feedback.js";
 import { withMapScanControlTexts } from "./locales/map017-scan-controls.js";
+import { withFrontlineCountTexts } from "./locales/feature018-g-count.js";
 
 export const LANGUAGES = Object.freeze([
   { code: "en", name: "English" },
@@ -19,7 +20,7 @@ export const LANGUAGES = Object.freeze([
   { code: "pt", name: "Português" },
 ]);
 
-const withMapExtras = (language, catalog) => withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog))))));
+const withMapExtras = (language, catalog) => withFrontlineCountTexts(language, withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog)))))));
 const LOADERS = {
   en: () => Promise.resolve(withMapExtras("en", englishMessages)),
   "zh-CN": () => import("./locales/zh-CN.js").then((module) => withMapExtras("zh-CN", module.default)),

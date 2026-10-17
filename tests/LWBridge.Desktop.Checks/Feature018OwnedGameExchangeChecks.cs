@@ -17,8 +17,55 @@ internal static class Feature018OwnedGameExchangeChecks
         throw new InvalidDataException("FEATURE018_EXCHANGE: expected native error " + expected);
     }
 
+    private static void FreshHeartbeatReadRaceChecks()
+    {
+        var owner = new OverviewMapScanSession("heartbeat-profile", "heartbeat-session",
+            "heartbeat-challenge", 43210, @"C:\test\LastWar.exe", "2026-10-17T00:00:00Z");
+        byte[] Heartbeat(string uid = "2553945035002288", int server = 2288,
+            long? updatedAt = null, string? challenge = null) => JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+            profileId = owner.ProfileId, sessionId = owner.SessionId,
+            challenge = challenge ?? owner.Challenge, gamePid = owner.GamePid,
+            ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+            updatedAt = updatedAt ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            gameStateObserved = true, loggedIn = true, connected = true,
+            gameUid = uid, serverId = server,
+        });
+        int reads = 0;
+        Require(Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
+            _ => ++reads == 1 ? "{"u8.ToArray() : Heartbeat()) && reads == 2,
+            "truncated first heartbeat did not reread the fresh authenticated heartbeat");
+        reads = 0;
+        Require(Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
+            _ => ++reads == 1 ? throw new IOException("concurrent writer") : Heartbeat()) && reads == 2,
+            "transient heartbeat IO read did not reread successfully");
+        reads = 0;
+        Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
+            _ => { reads++; return "{"u8.ToArray(); }) && reads == 3,
+            "persistently truncated heartbeat escaped the three-read bound");
+        reads = 0;
+        Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
+            _ => { reads++; throw new IOException("persistent IO"); }) && reads == 3,
+            "persistent heartbeat IO escaped the three-read bound");
+        foreach (byte[] invalid in new[]
+        {
+            Heartbeat(uid: "3133546747002289"), Heartbeat(uid: "3133546747002212"),
+            Heartbeat(server: 2289), Heartbeat(server: 2212),
+            Heartbeat(updatedAt: DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds()),
+            Heartbeat(challenge: "different-challenge"),
+        })
+        {
+            reads = 0;
+            Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
+                _ => ++reads == 1 ? invalid : Heartbeat()) && reads == 1,
+                "parsed wrong/stale heartbeat retried into a later acceptable account");
+        }
+    }
+
     internal static async Task RunAsync()
     {
+        FreshHeartbeatReadRaceChecks();
         var city = Feature018GameCommandService.ReadFields("city_layout_apply_start",
             JsonSerializer.SerializeToElement(new
             {

@@ -24,6 +24,19 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
           <small>{t("hotkeys.attackSpeedupWarning")}</small>
         </div>
       ) : null}
+      {card.key === "frontlineReinforce" ? (
+        <label className="hotkey-attack-toggle">
+          {t("hotkeys.frontlineReinforce.countLabel")}
+          <input type="number" min={1} max={50} step={1} style={{ width: "4.5em", marginLeft: "0.5em" }}
+            value={Number.isInteger(config.frontlineReinforceCount) ? config.frontlineReinforceCount : 5}
+            disabled={pendingField !== null}
+            onChange={(event) => {
+              const count = Math.round(Number(event.target.value));
+              if (Number.isFinite(count) && count >= 1 && count <= 50 && count !== config.frontlineReinforceCount)
+                onSaveField({ ...config, frontlineReinforceCount: count }, "frontlineReinforceCount");
+            }} />
+        </label>
+      ) : null}
       <span className={`hotkey-state${enabled ? " enabled" : ""}`}>{t(enabled ? "common.enabled" : "common.disabled")}</span>
       {cardWarning ? <div className="hotkey-danger">{cardWarning}</div> : null}
     </article>

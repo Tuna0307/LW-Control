@@ -43,32 +43,12 @@ internal sealed partial class LWBridgeWindow
         OverviewLifecycleService lifecycle,
         OverviewMapScanSession session)
     {
-        if (!lifecycle.MatchesOwnedMapScanSession(session)) return null;
-        try
-        {
-            string heartbeatPath = Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json");
-            using JsonDocument heartbeat = JsonDocument.Parse(File.ReadAllText(heartbeatPath));
-            JsonElement root = heartbeat.RootElement;
-            if (!OverviewLifecycleService.HeartbeatMatches(root, session.ProfileId,
-                    session.SessionId, session.Challenge, session.GamePid,
-                    DateTimeOffset.UtcNow.ToUnixTimeSeconds()) ||
-                !root.TryGetProperty("gameStateObserved", out var observed) ||
-                observed.ValueKind != JsonValueKind.True ||
-                !root.TryGetProperty("loggedIn", out var loggedIn) ||
-                loggedIn.ValueKind != JsonValueKind.True ||
-                !root.TryGetProperty("connected", out var connected) ||
-                connected.ValueKind != JsonValueKind.True ||
-                !root.TryGetProperty("gameUid", out var uid) ||
-                uid.ValueKind != JsonValueKind.String ||
-                string.IsNullOrWhiteSpace(uid.GetString()) ||
-                !root.TryGetProperty("serverId", out var server) ||
-                !server.TryGetInt32(out int serverId) || serverId <= 0)
-                return null;
-            if (!Feature018IsApprovedAccount(uid.GetString(), serverId)) return null;
-            return new Feature018HotkeySession(session.ProfileId, session.SessionId,
-                uid.GetString()!, serverId);
-        }
-        catch { return null; }
+        if (!lifecycle.MatchesOwnedMapScanSession(session) ||
+            !Feature018OwnedGameExchange.FreshApprovedSubaccount(
+                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), session) ||
+            !lifecycle.MatchesOwnedMapScanSession(session)) return null;
+        return new Feature018HotkeySession(session.ProfileId, session.SessionId,
+            Feature018ApprovedGameUid, Feature018ApprovedServerId);
     }
 
     private void RetireFeature018Hotkeys()

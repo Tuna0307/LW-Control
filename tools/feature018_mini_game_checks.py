@@ -734,6 +734,24 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         self.assertEqual(runtime.globals().Sends, 5)
         self.assertEqual(len(runtime.globals().Team.teamUnits), 6)
 
+    def test_owner_configured_count_adds_exactly_that_many_soldiers(self):
+        runtime, mini = self.fixture()
+        result = mini.FrontlineReinforce(runtime.table_from(
+            {'action': 'frontlineReinforce', 'slot': '5', 'count': '3'}))
+        self.assertEqual(result['state'], 'confirmed')
+        self.assertEqual(result['data']['addedMembers'], 3)
+        self.assertEqual(result['data']['requestedCount'], 3)
+        self.assertEqual(result['data']['afterCount'], result['data']['beforeCount'] + 3)
+        self.assertEqual(runtime.globals().Sends, 3)
+
+    def test_invalid_configured_count_adds_nothing(self):
+        for bad in ('0', '51', '2.5', 'abc'):
+            runtime, mini = self.fixture()
+            result = mini.FrontlineReinforce(runtime.table_from(
+                {'action': 'frontlineReinforce', 'slot': '5', 'count': bad}))
+            self.assertNotEqual(result['state'], 'confirmed', bad)
+            self.assertEqual(runtime.globals().Sends, 0, bad)
+
     def test_reentrant_native_member_callback_cannot_create_ten_soldiers(self):
         runtime, mini = self.fixture()
         runtime.globals().Producer = mini

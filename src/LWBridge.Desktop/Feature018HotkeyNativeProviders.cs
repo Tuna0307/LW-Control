@@ -102,6 +102,13 @@ internal sealed class Feature018HotkeyNativeProviders
             {
                 action = ActionName(command.Intent.Kind), slot = command.Intent.Slot,
                 expectedStageRunId = command.ExpectedStageRunId,
+                count = command.ReinforceCount,
+            }, JsonOptions.Default)
+            : command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline
+            ? JsonSerializer.SerializeToElement(new
+            {
+                action = ActionName(command.Intent.Kind), slot = command.Intent.Slot,
+                count = command.ReinforceCount,
             }, JsonOptions.Default)
             : JsonSerializer.SerializeToElement(new
             {
@@ -138,7 +145,7 @@ internal sealed class Feature018HotkeyNativeProviders
             if (dispatchedNativeRequest &&
                 evidence.TryGetProperty("awaitingGameConfirmation", out var completed) &&
                 completed.ValueKind == JsonValueKind.False &&
-                ConfirmedReceiptMatches(command.Intent, evidence))
+                ConfirmedReceiptMatches(command.Intent, evidence, command.ReinforceCount))
                 return new(Feature018HotkeyActionStatus.Confirmed,
                     "verified_native_game_state_observation", evidence.Clone());
             if (dispatchedNativeRequest || nativeAcceptedOnly)
@@ -207,7 +214,7 @@ internal sealed class Feature018HotkeyNativeProviders
                 return new(Feature018HotkeyActionStatus.Failed,
                     "native_recall_back_home_state_lacks_attributed_send_and_reply");
             }
-            if (!ConfirmedReceiptMatches(command.Intent, evidence))
+            if (!ConfirmedReceiptMatches(command.Intent, evidence, command.ReinforceCount))
                 return new(Feature018HotkeyActionStatus.Failed,
                     "native_game_action_observation_unverified");
 
@@ -305,7 +312,7 @@ internal sealed class Feature018HotkeyNativeProviders
                         gameState.ValueKind == JsonValueKind.Object &&
                         !(gameState.TryGetProperty("awaitingGameConfirmation", out var stillPending) &&
                           stillPending.ValueKind == JsonValueKind.True) &&
-                        ConfirmedReceiptMatches(command.Intent, gameState))
+                        ConfirmedReceiptMatches(command.Intent, gameState, command.ReinforceCount))
                     {
                         if (gameState.GetProperty(uuidProperty).GetString() != sentUuid)
                             return new(Feature018HotkeyActionStatus.SessionChanged,
@@ -339,7 +346,7 @@ internal sealed class Feature018HotkeyNativeProviders
     }
 
     private static bool ConfirmedReceiptMatches(
-        Feature018HotkeyIntent intent, JsonElement evidence)
+        Feature018HotkeyIntent intent, JsonElement evidence, int reinforceCount = 5)
     {
         if (!evidence.TryGetProperty("observation", out JsonElement observed) ||
             observed.ValueKind != JsonValueKind.String)
@@ -458,16 +465,16 @@ internal sealed class Feature018HotkeyNativeProviders
                        before.TryGetInt32(out int beforeCount) && beforeCount >= 0 &&
                        evidence.TryGetProperty("afterCount", out JsonElement after) &&
                        after.TryGetInt32(out int afterCount) &&
-                       afterCount == beforeCount + 5 &&
+                       afterCount == beforeCount + reinforceCount &&
                        evidence.TryGetProperty("addedMembers", out JsonElement added) &&
-                       added.TryGetInt32(out int addedCount) && addedCount == 5 &&
+                       added.TryGetInt32(out int addedCount) && addedCount == reinforceCount &&
                        evidence.TryGetProperty("unitIdentityVerified", out JsonElement verified) &&
                        verified.ValueKind == JsonValueKind.True &&
                        evidence.TryGetProperty("observedCreatedUnits", out JsonElement created) &&
-                       created.TryGetInt32(out int createdCount) && createdCount is >= 0 and <= 5 &&
+                       created.TryGetInt32(out int createdCount) && createdCount >= 0 && createdCount <= reinforceCount &&
                        evidence.TryGetProperty("reservedMembers", out JsonElement reserve) &&
-                       reserve.TryGetInt32(out int reservedCount) && reservedCount is >= 0 and <= 5 &&
-                       createdCount + reservedCount == 5 &&
+                       reserve.TryGetInt32(out int reservedCount) && reservedCount >= 0 && reservedCount <= reinforceCount &&
+                       createdCount + reservedCount == reinforceCount &&
                        evidence.TryGetProperty("activeMemberCountBefore", out JsonElement activeBefore) &&
                        activeBefore.TryGetInt32(out int activeMembersBefore) && activeMembersBefore >= 0 &&
                        evidence.TryGetProperty("activeMemberCountAfter", out JsonElement activeAfter) &&
