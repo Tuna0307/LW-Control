@@ -246,6 +246,126 @@ local function sheep_board(view)
     } }
 end
 
+-- Frontline Breakthrough G: reproduce the existing Parkour game's *single*
+-- reinforcement producer five times, not AddMember(heroId, 5). Original v26:
+-- ParkourBattleLogic.AddMember (3769-3773) forwards four arguments to team;
+-- ParkourTeam.AddMember (396-417) passes its second argument to GenHeroCfg as
+-- the HERO LEVEL, and creates only ONE unit per invocation. The genuine
+-- StaticNumberDoorMonster.OnCollisionViewHandle (165-166) calls
+-- logic:AddMember(controlHeroId, heroLevel, true). Never derive IDs/levels from
+-- arbitrary caller input; take both from an already living native team hero.
+local function frontline_context()
+    local battle = member(rawget(_G, "DataCenter"), "LWBattleManager")
+    local pve = rawget(_G, "PVEType")
+    local ui = rawget(_G, "UIManager")
+    local window_name = member(rawget(_G, "UIWindowNames"), "UIParkourBattleMain")
+    if battle == nil or pve == nil or member(pve, "Parkour") == nil or
+       ui == nil or window_name == nil then
+        return nil, "Parkour battle manager, type or native window is unavailable"
+    end
+    local type_ok, battle_type = invoke(battle, "GetCurBattleType")
+    local logic_ok, logic = invoke(battle, "GetCurBattleLogic")
+    if not type_ok or battle_type ~= member(pve, "Parkour") or not logic_ok or
+       logic == nil or member(battle, "curLogic") ~= logic or
+       member(battle, "logic") ~= logic then
+        return nil, "The current native battle is not this Parkour logic"
+    end
+    local ui_ok, instance = invoke(ui, "GetInstance")
+    local open_ok, is_open = invoke(instance, "IsWindowOpen", window_name)
+    if not ui_ok or instance == nil or not open_ok or is_open ~= true then
+        return nil, "Parkour main battle window is not open"
+    end
+    local end_ok, ended = invoke(battle, "IsBattleFinish")
+    if not end_ok or ended ~= false or member(battle, "gameStart") ~= true or
+       member(battle, "gameOver") == true or member(battle, "gamePause") == true then
+        return nil, "Parkour has not started or battle already finished"
+    end
+    local team = member(logic, "team")
+    if team == nil or member(team, "logic") ~= logic or
+       type(member(logic, "AddMember")) ~= "function" or
+       type(member(logic, "GetMemberCount")) ~= "function" or
+       type(member(team, "GetMemberCount")) ~= "function" then
+        return nil, "The source-native Parkour team or reinforcement API is unavailable"
+    end
+    local defaults = member(team, "defaultHeroIds")
+    local slots = member(team, "teamUnits")
+    local primary_id = member(defaults, 1)
+    if not is_integer(primary_id) or type(slots) ~= "table" then
+        return nil, "No source-native primary hero identity is available"
+    end
+    local level = nil
+    local found = false
+    for _, unit in pairs(slots) do
+        local hero = member(unit, "hero")
+        if member(unit, "originalHeroId") == primary_id and
+           member(hero, "heroId") == primary_id then
+            local candidate_level = member(hero, "level")
+            if not is_integer(candidate_level) then
+                return nil, "Primary live hero level cannot be verified"
+            end
+            if level ~= nil and candidate_level ~= level then
+                return nil, "Primary hero levels disagree in the native team"
+            end
+            found = true
+            level = candidate_level
+        end
+    end
+    if not found then return nil, "The native primary hero is no longer alive" end
+    local count_ok, count = invoke(logic, "GetMemberCount")
+    local team_ok, team_count = invoke(team, "GetMemberCount")
+    if not count_ok or not team_ok or type(count) ~= "number" or
+       count % 1 ~= 0 or count < 1 or team_count ~= count then
+        return nil, "Native Parkour team count is not independently readable"
+    end
+    return { battle = battle, logic = logic, team = team, heroId = primary_id,
+             heroLevel = level, count = count }
+end
+
+local function frontline_reinforce(fields)
+    -- Source-native producer invoked solely through the authenticated owner
+    -- hotkey command. No stand-alone network sender or fabricated game state.
+    if type(fields) ~= "table" or fields.action ~= "frontlineReinforce" or
+       tostring(fields.slot) ~= "5" then
+        return blocked("Only the native G / Frontline reinforcement intent is admitted")
+    end
+    local context, reason = frontline_context()
+    if context == nil then return unsupported(reason) end
+    local confirmed = 0
+    for _ = 1, 5 do
+        -- Recheck the current battle, window and source player hero before
+        -- every irreversible unit creation. Any missing receipt stops further
+        -- additions and reports partial failure, never a claimed +5 success.
+        local current, changed = frontline_context()
+        if current == nil or current.logic ~= context.logic or
+           current.team ~= context.team or current.heroId ~= context.heroId or
+           current.heroLevel ~= context.heroLevel or current.count ~= context.count + confirmed then
+            return blocked(changed or "Native Parkour team changed during reinforcement", {
+                beforeCount = context.count, observedAdded = confirmed,
+                observation = "native_ParkourBattleLogic_GetMemberCount" })
+        end
+        -- Original StaticNumberDoorMonster's source UI-equivalent producer:
+        -- exactly one soldier, same hero and level as the live primary hero.
+        -- Call exactly once. invoke() has a fallback for mixed static/colon
+        -- accessors; retrying a mutating method after an exception could
+        -- duplicate a unit even though the first call already took effect.
+        local ok = pcall(member(context.logic, "AddMember"), context.logic,
+                         context.heroId, context.heroLevel, true)
+        local count_ok, after = invoke(context.logic, "GetMemberCount")
+        if not ok or not count_ok or after ~= context.count + confirmed + 1 then
+            return blocked("Native Parkour member addition was not confirmed", {
+                beforeCount = context.count, observedAdded = confirmed,
+                observedAfterCount = count_ok and after or nil,
+                observation = "native_ParkourBattleLogic_GetMemberCount" })
+        end
+        confirmed = confirmed + 1
+    end
+    return { state = "confirmed", data = {
+        action = "frontlineReinforce", slot = 5, heroId = context.heroId,
+        beforeCount = context.count, afterCount = context.count + confirmed,
+        addedMembers = confirmed, observation = "native_ParkourBattleLogic_GetMemberCount"
+    } }
+end
+
 local function chest_snapshot(view)
     if view == nil then return unsupported("No genuine active TreasureChest view was bound") end
     -- UITreasureChestView.OnClickBox (source lines 382-397) only accepts a
@@ -475,6 +595,7 @@ M.LandStatus = land_status
 M.LandUnlockOne = land_unlock_one
 M.SheepStatus = sheep_status
 M.ProbeSheepBoard = sheep_board
+M.FrontlineReinforce = frontline_reinforce
 
 function M.RegisterHandlers(bridge)
     if bridge == nil or type(bridge.RegisterHandler) ~= "function" then

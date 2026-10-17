@@ -94,7 +94,8 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "feature018_hotkey_action":
             {
                 string action = ReadValue(payload, "action", 32);
-                if (action is not ("attack" or "recall" or "shieldOverlay" or
+                if (action is not ("attack" or "speedupItem" or "speedupDiamond" or
+                    "recall" or "shieldOverlay" or
                     "shieldUse" or "equipment" or "randomRelocate" or "allianceRelocate" or "frontlineReinforce"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Unknown game hotkey action.");
                 if (!payload.TryGetProperty("slot", out JsonElement slotValue) ||
@@ -102,6 +103,47 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid game hotkey slot.");
                 fields["action"] = action;
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
+                if (action is "attack" or "speedupItem" or "speedupDiamond")
+                {
+                    // The game-side rapid/attack adapter independently checks
+                    // this UID against LuaEntry.Player.uid, the native owner
+                    // formation and fresh march. A generic request must not
+                    // invent a target or another account UID.
+                    string uid = ReadValue(payload, "authorizedUid", 20);
+                    if (!uid.All(char.IsAsciiDigit) || uid[0] == '0')
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Attack/rapid action requires authenticated numeric UID.");
+                    fields["authorizedUid"] = uid;
+                }
+                if (action == "speedupItem")
+                {
+                    bool onlyStatus = payload.TryGetProperty("queryOnly", out JsonElement statusOnly) &&
+                        statusOnly.ValueKind == JsonValueKind.True;
+                    if (!onlyStatus)
+                    {
+                        if (!payload.TryGetProperty("itemOptIn", out JsonElement itemOptIn) ||
+                            itemOptIn.ValueKind != JsonValueKind.True)
+                            throw new BridgeCommandException("INVALID_REQUEST",
+                                "Owned item-speedup requires explicit opt-in.");
+                        string item = ReadValue(payload, "itemId", 20);
+                        if (!item.All(char.IsAsciiDigit) || item[0] == '0')
+                            throw new BridgeCommandException("INVALID_REQUEST",
+                                "Speedup item must be an explicit native item ID.");
+                        fields["itemId"] = item;
+                        fields["itemOptIn"] = "1";
+                    }
+                }
+                // Read-only follow-ups observe only already dispatched,
+                // exact-owner native actions. The source-backed Recall
+                // and ShieldUse modules have one-in-flight pending fences.
+                if (payload.TryGetProperty("queryOnly", out JsonElement query))
+                {
+                    if (action is not ("recall" or "shieldUse" or "speedupItem") ||
+                        query.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Only native recall, shield-use and owned-item rapid support a true query-only status fence.");
+                    fields["queryOnly"] = "1";
+                }
                 break;
             }
             case "city_layout_snapshot_get":
@@ -122,7 +164,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
 
     private static bool ValidHotkeySlot(string action, int slot) => action switch
     {
-        "attack" or "recall" or "equipment" => slot is >= 1 and <= 4,
+        "attack" or "speedupItem" or "speedupDiamond" or "recall" or "equipment" => slot is >= 1 and <= 4,
         "shieldUse" => slot is 8 or 12 or 24,
         "frontlineReinforce" => slot == 5,
         _ => slot == 0,

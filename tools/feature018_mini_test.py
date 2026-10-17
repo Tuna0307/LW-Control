@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "map_009_offline"))
 import run_live_resource_probe as probe  # noqa: E402
 import compact_lua53 as lua  # noqa: E402
 import execute_selected as runtime  # noqa: E402
-from inspect_current import root_methods  # noqa: E402
+from inspect_current import root_methods, disassemble  # noqa: E402
 from feature018_mini_lua import ORIGINAL_ENTRY_SHA256  # noqa: E402
 
 
@@ -126,6 +126,52 @@ class MiniGameNativeTests(unittest.TestCase):
         self.assertEqual(changes, [("active", True), ("position", 10.25, 21.5, 32.75)])
         self.assertEqual(runtime.execute(hide, view), ())
         self.assertEqual(changes[-1], ("active", False))
+
+    def test_frontline_add_member_forwards_hero_level_not_unit_quantity(self):
+        logic = self.method("DataCenter/LWBattle/Logic/ParkourBattle/ParkourBattleLogic.luac",
+                            "AddMember")
+        self.assertEqual(logic["params"], 5)
+        calls = []
+        native_team = {"AddMember": lambda self, *args: calls.append(args)}
+        self.assertEqual(runtime.execute(logic, {"team": native_team}, 203, 12, True, None), ())
+        self.assertEqual(calls, [(203, 12, True, None)],
+                         "Parkour AddMember is a single-unit method with level as argument 2")
+        self.assertEqual(runtime.execute(logic, {"team": None}, 203, 12, True, None), ())
+        self.assertEqual(len(calls), 1, "Parkour without a team must not create a unit")
+
+    def test_frontline_real_parkour_team_uses_second_argument_as_level(self):
+        source = "Scene/LWBattle/ParkourBattle/Team/ParkourTeam.luac"
+        add = self.method(source, "AddMember")
+        create = self.method(source, "GenHeroCfg")
+        self.assertEqual(add["params"], 5)
+        instructions = list(disassemble(add))
+        # GenHeroCfg(heroId, heroLevel, true) is called exactly once in the
+        # original AddMember, before one RealAddMemberInner.
+        self.assertEqual(sum("='GenHeroCfg'" in x for x in instructions), 1)
+        self.assertEqual(sum("='RealAddMemberInner'" in x for x in instructions), 1)
+        self.assertTrue(any("sourceLine=410" in x and "TESTSET" in x and "B=2" in x
+                            for x in instructions), "hero level must be passed through")
+        self.assertTrue({"UpdateFromTemplate", "1"} <= {str(x) for x in create["constants"]})
+        count = self.method(source, "GetMemberCount")
+        self.assertEqual(runtime.execute(count, {"teamUnitCount": 11,
+            "teamWorkerCount": 1, "teamInvisiblePetCount": 2}), (8,))
+
+    def test_frontline_native_door_proves_one_unit_and_exact_source_args(self):
+        door = self.method("Scene/LWBattle/ParkourBattle/Monster/MonsterImpl/StaticNumberDoorMonster.luac",
+                           "OnCollisionViewHandle")
+        instructions = list(disassemble(door))
+        self.assertTrue(any("sourceLine=166" in x and "='AddMember'" in x for x in instructions))
+        self.assertTrue(any("sourceLine=166" in x and "='controlHeroId'" in x for x in instructions))
+        self.assertTrue(any("sourceLine=165" in x and "='trigger_para'" in x for x in instructions))
+        self.assertTrue(any("sourceLine=166" in x and "LOADBOOL" in x for x in instructions))
+        mini = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
+        self.assertIn('M.FrontlineReinforce = frontline_reinforce', mini)
+        self.assertIn('local ok = pcall(member(context.logic, "AddMember"), context.logic,', mini)
+        self.assertIn('context.heroId, context.heroLevel, true)', mini)
+        self.assertIn('after ~= context.count + confirmed + 1', mini)
+        self.assertIn('current.count ~= context.count + confirmed', mini)
+        self.assertNotIn('"frontlineReinforce", frontline_reinforce', mini,
+                         "G integration is owned by the shared authenticated hotkey dispatcher")
 
 
 if __name__ == "__main__":

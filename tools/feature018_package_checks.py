@@ -19,6 +19,8 @@ ENTRY_NAMES = (
     "DataCenter/Global/LWBridgeFeature018MiniGame.luac",
     "DataCenter/Global/LWBridgeFeature018HotkeyGame.luac",
     "DataCenter/Global/LWBridgeFeature018HotkeyActions.luac",
+    "DataCenter/Global/LWBridgeFeature018AttackActions.luac",
+    "DataCenter/Global/LWBridgeFeature018RelocationActions.luac",
     "DataCenter/Global/LWBridgeFeature018CityGame.luac",
     "DataCenter/Global/LWBridgeFeature018SheepSolver.luac",
 )

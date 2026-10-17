@@ -111,7 +111,7 @@ internal static class Feature018HotkeyCaptureChecks
                     actual.Length == 0, "unknown chord was eligible for task-owned injection: " + unsupported);
         }
 
-        var session = new Feature018HotkeySession("p", "i", "uid", 2212);
+        var session = new Feature018HotkeySession("p", "i", "123456789", 2212);
         Feature018HotkeySession? current = session;
         bool focused = true;
         HotkeyConfig config = new();
@@ -226,6 +226,131 @@ internal static class Feature018HotkeyCaptureChecks
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.AttackSquad, 2))).Status == Feature018HotkeyActionStatus.Failed,
             "recall observation falsely confirmed a current-client attack");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_ParkourBattleLogic_GetMemberCount",
+            action = "frontlineReinforce",
+            slot = 5,
+            heroId = 1301,
+            beforeCount = 7,
+            afterCount = 12,
+            addedMembers = 5,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Working,
+            "native five-member Frontline source observation was not admitted");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_ParkourBattleLogic_GetMemberCount",
+            action = "frontlineReinforce",
+            slot = 5,
+            heroId = 1301,
+            beforeCount = 7,
+            afterCount = 11,
+            addedMembers = 5,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
+            "four soldier additions falsely confirmed five-member Frontline action");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_owned_shield_consumption_and_MAIN_SHIELD",
+            slot = 8,
+            itemUuid = "101001",
+            itemId = "9",
+            statusId = 501,
+            durationMilliseconds = 28800000L,
+            consumedCount = 1,
+            remainingMilliseconds = 28799000,
+            serverTimeMilliseconds = 1000000,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.UseShield, 8))).Working,
+            "owned eight-hour inventory and shield status observation was not admitted");
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.UseShield, 12))).Status == Feature018HotkeyActionStatus.Failed,
+            "eight-hour shield observation falsely confirmed a twelve-hour action");
+
+        int beforePoll = stub.Calls;
+        stub.Receipt = () => stub.LastPayload.TryGetProperty("queryOnly", out JsonElement only) &&
+                              only.ValueKind == JsonValueKind.True
+            ? JsonSerializer.SerializeToElement(new
+            {
+                observation = "native_world_march_return_target",
+                slot = 2,
+                marchUuid = "803001",
+                formationUuid = "1001",
+                target = "BACK_HOME",
+                returning = true,
+            })
+            : JsonSerializer.SerializeToElement(new
+            {
+                requestDispatched = true,
+                awaitingGameConfirmation = true,
+                slot = 2,
+                marchUuid = "803001",
+            });
+        Feature018HotkeyActionOutcome polledRecall = await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 2));
+        Require(polledRecall.Working && stub.Calls == beforePoll + 2 &&
+                stub.LastPayload.GetProperty("queryOnly").GetBoolean(),
+            "recall did not query exactly once after a single native return-home send");
+
+        beforePoll = stub.Calls;
+        stub.Receipt = () => stub.LastPayload.TryGetProperty("queryOnly", out JsonElement only) &&
+                              only.ValueKind == JsonValueKind.True
+            ? JsonSerializer.SerializeToElement(new
+            {
+                observation = "native_owned_shield_consumption_and_MAIN_SHIELD",
+                slot = 24,
+                itemUuid = "101003",
+                itemId = "11",
+                statusId = 503,
+                durationMilliseconds = 86400000L,
+                consumedCount = 1,
+                remainingMilliseconds = 86399000,
+                serverTimeMilliseconds = 1000000,
+            })
+            : JsonSerializer.SerializeToElement(new
+            {
+                requestDispatched = true,
+                awaitingGameConfirmation = true,
+                slot = 24,
+                itemUuid = "101003",
+                itemId = "11",
+            });
+        Feature018HotkeyActionOutcome polledShield = await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.UseShield, 24));
+        Require(polledShield.Working && stub.Calls == beforePoll + 2 &&
+                stub.LastPayload.GetProperty("queryOnly").GetBoolean(),
+            "shield did not query exactly once after a single native ItemUse send");
+
+        foreach (string action in new[] { "recall", "shieldUse" })
+        {
+            var validQuery = JsonSerializer.SerializeToElement(new
+            {
+                action, slot = action == "recall" ? 2 : 24, queryOnly = true,
+            });
+            Require(Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+                validQuery).TryGetValue("queryOnly", out string? readOnly) &&
+                readOnly == "1", "native action queryOnly flag was dropped: " + action);
+        }
+        foreach (string action in new[] { "attack", "equipment" })
+        {
+            try
+            {
+                _ = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+                    JsonSerializer.SerializeToElement(new
+                    {
+                        action, slot = 1, queryOnly = true,
+                    }));
+                throw new InvalidOperationException("unverified queryOnly action accepted: " + action);
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { }
+        }
+
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
             accepted = true,
@@ -259,8 +384,46 @@ internal static class Feature018HotkeyCaptureChecks
         Require(notConfirmed.Status == Feature018HotkeyActionStatus.Submitted && !notConfirmed.Working,
             "native accepted-but-unconfirmed network send falsely marked working");
         Require(stub.LastPayload.GetProperty("action").GetString() == "attack" &&
-            stub.LastPayload.GetProperty("slot").GetInt32() == 2,
-            "attack game intent was not sent with original squad");
+            stub.LastPayload.GetProperty("slot").GetInt32() == 2 &&
+            stub.LastPayload.TryGetProperty("authorizedUid", out JsonElement sentUid) &&
+            sentUid.GetString() == session.GameUid,
+            "attack game intent lost its original squad or authenticated owner UID: " +
+            stub.LastPayload.GetRawText());
+
+        var validAttackFields = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "attack", slot = 2,
+                authorizedUid = session.GameUid }));
+        Require(validAttackFields["authorizedUid"] == session.GameUid &&
+                validAttackFields["slot"] == "2",
+            "native attack lost authenticated numeric owner UID");
+        var validRapid = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "speedupItem", slot = 2,
+                authorizedUid = session.GameUid, itemOptIn = true, itemId = "9001" }));
+        Require(validRapid["itemOptIn"] == "1" && validRapid["itemId"] == "9001" &&
+                validRapid["authorizedUid"] == session.GameUid,
+            "owned speedup item lost explicit opt-in and source ID");
+        var readOnlyRapid = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "speedupItem", slot = 2,
+                authorizedUid = session.GameUid, queryOnly = true }));
+        Require(readOnlyRapid["queryOnly"] == "1" && !readOnlyRapid.ContainsKey("itemOptIn"),
+            "read-only item-speedup status silently requested a new consumable");
+        foreach (var invalid in new[]
+        {
+            new { action = "attack", slot = 1, authorizedUid = "", itemOptIn = false, itemId = "", queryOnly = false },
+            new { action = "attack", slot = 1, authorizedUid = "bad-uid", itemOptIn = false, itemId = "", queryOnly = false },
+            new { action = "speedupItem", slot = 1, authorizedUid = session.GameUid, itemOptIn = false, itemId = "9001", queryOnly = false },
+            new { action = "speedupItem", slot = 1, authorizedUid = session.GameUid, itemOptIn = true, itemId = "bad-item", queryOnly = false },
+            new { action = "speedupDiamond", slot = 1, authorizedUid = session.GameUid, itemOptIn = false, itemId = "", queryOnly = true },
+        })
+        {
+            try
+            {
+                _ = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+                    JsonSerializer.SerializeToElement(invalid));
+                throw new InvalidOperationException("invalid native attack/rapid request admitted: " + invalid.action);
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { }
+        }
 
         // Native bridge now returns a correlated state=accepted data body
         // for a source-backed send. It intentionally has no observation yet.

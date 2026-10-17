@@ -17,7 +17,7 @@
              Link="LiveResourceProbe\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\..\tools\run_overview_bridge.py;..\..\tools\run_overview_bridge_current.py;..\..\tools\recover_overview_pending_current.py;..\..\tools\current_overview_bridge.lua;..\..\tools\run_live_resource_probe.py;..\..\tools\current_client_compat.py;..\..\tools\current_live_resource_probe.lua;..\..\tools\feature018_game_bridge.lua;..\..\tools\feature018_city_game.lua;..\..\tools\feature018_hotkey_game.lua;..\..\tools\feature018_hotkey_actions.lua;..\..\tools\feature018_mini_game.lua;..\..\tools\feature018_sheep_solver.lua"
+    <Content Include="..\..\tools\run_overview_bridge.py;..\..\tools\run_overview_bridge_current.py;..\..\tools\recover_overview_pending_current.py;..\..\tools\current_overview_bridge.lua;..\..\tools\run_live_resource_probe.py;..\..\tools\current_client_compat.py;..\..\tools\current_live_resource_probe.lua;..\..\tools\feature018_game_bridge.lua;..\..\tools\feature018_city_game.lua;..\..\tools\feature018_hotkey_game.lua;..\..\tools\feature018_hotkey_actions.lua;..\..\tools\feature018_attack_actions.lua;..\..\tools\feature018_relocation_actions.lua;..\..\tools\feature018_mini_game.lua;..\..\tools\feature018_sheep_solver.lua"
              Link="OverviewBridge\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />

@@ -28,7 +28,11 @@ GAME = r'''
 CityTileCount = 5
 BuildingStateType = {Normal = 1, FoldUp = 2}
 BuildingTypes = {FUN_BUILD_MAIN = 700, LW_BUILD_GATE = 701, LW_BUILD_FLAG = 777}
-CityPointType = {Empty = 0, Road = 42}
+CityPointType = {Empty = 0, Road = 42, Building = 43, Garbage = 44,
+    Monster = 45, MonsterReward = 46, Collect = 47, CollectRange = 48,
+    Other = 49}
+NativeCityPointKinds = {[25] = CityPointType.Road}
+NativeCityPointScans = 0
 GateLevel = 1
 local flagPositions = {[5049]=true, [5050]=true, [4950]=true, [4949]=true}
 BuildingUtils = {
@@ -46,8 +50,10 @@ BuildingUtils = {
     end,
 }
 SceneUtils = {GetIsInCity = function() return true end}
+-- Deliberately disagree with the placement manager: World is not the v26
+-- placement rule's authoritative CityPointManager tile classifier.
 CS = {SceneManager = {World = {GetPointType = function(self, pointId)
-    if pointId == 25 then return CityPointType.Road end
+    if pointId == 23 then return CityPointType.Road end
     return CityPointType.Empty
 end}}}
 local moves = {}
@@ -78,6 +84,28 @@ DataCenter = {
            return {{level=GateLevel}}
        end},
     BuildTemplateManager = {GetBuildingDesTemplate = function(self, id) return templates[id] end},
+    CityPointManager = {GetPointType = function(self, id)
+        NativeCityPointScans = NativeCityPointScans + 1
+        return NativeCityPointKinds[id] or CityPointType.Other
+    end},
+    BoardManager = {GetBoardDataByPointId = function(self, id)
+        if NativeCityPointKinds[id] == CityPointType.Road then return {} end
+        return nil
+    end},
+    CityPointDataManager = {GetPointDataByPointId = function(self, id)
+        local kind = NativeCityPointKinds[id]
+        if kind == CityPointType.Garbage or kind == CityPointType.Monster or
+            kind == CityPointType.MonsterReward then return {type=kind} end
+        return nil
+    end},
+    CollectResourceManager = {
+        GetResourcePointInfoByIndex = function(self, id)
+            if NativeCityPointKinds[id] == CityPointType.Collect then return {} end
+        end,
+        GetCollectRangeInfoByIndex = function(self, id)
+            if NativeCityPointKinds[id] == CityPointType.CollectRange then return {} end
+        end,
+    },
     CityZoneManager = {allZonePoint = {},
         CanPutBuildByPoint = function(self, pointId, zoneType)
             return self.allZonePoint[pointId] ~= nil and zoneType == 1
@@ -172,7 +200,8 @@ def check_original_game_wire() -> None:
     placement = native_method('Util/BuildingUtils.luac', 'IsCanPutDownByPoint')
     place_source = list(disassemble(placement))
     for expected in ('LW_BUILD_FLAG', 'IsInFlagPosition',
-                     'GetPointType', 'CityPointType', 'Road'):
+                     'CityPointManager', 'GetPointType', 'CityPointType', 'Road',
+                     'Garbage', 'Monster', 'MonsterReward', 'Collect', 'CollectRange'):
         check(any(expected in instruction for instruction in place_source),
               'native point-placement flag/road rule missing: ' + expected)
 
@@ -240,6 +269,24 @@ def main():
     road = get('city_layout_validate', lua.globals().Fields(revision, '101:25'))
     check(road['data']['issues'][1]['code'] == 'CITY_LAYOUT_ROAD',
           'road placement allowed')
+    check(get('city_layout_snapshot_get')['data']['cells'][23]['road'] is False,
+          'world-only road false positive leaked into city placement snapshot')
+    check(lua.globals().NativeCityPointScans == 0,
+          'full-grid snapshot triggered v26 O(cells x buildings) CityPointManager scans')
+    for point_type in ('Garbage', 'Monster', 'MonsterReward', 'Collect', 'CollectRange'):
+        lua.execute(f'NativeCityPointKinds[3] = CityPointType.{point_type}')
+        obstructed = get('city_layout_snapshot_get')['data']
+        check(obstructed['cells'][3]['obstructed'] is True and
+              obstructed['layoutRevision'] != revision,
+              f'native {point_type} restriction missing from snapshot/revision')
+        outcome = get('city_layout_validate', lua.globals().Fields(
+            obstructed['layoutRevision'], '101:3'))
+        check(outcome['data']['valid'] is False and
+              outcome['data']['issues'][1]['code'] == 'CITY_LAYOUT_OBSTRUCTED',
+              f'native {point_type} occupied tile was accepted')
+    lua.execute('NativeCityPointKinds[3] = nil')
+    check(get('city_layout_snapshot_get')['data']['layoutRevision'] == revision,
+          'cleared native obstacle did not restore original revision')
     invalid = get('city_layout_validate', lua.globals().Fields(revision, '101:3;101:4'))
     check(invalid['state'] == 'unsupported', 'duplicate UUID admitted')
 
@@ -275,6 +322,8 @@ def main():
     check(flag_snap_result['state'] == 'confirmed', '100-cell-wide source grid unavailable')
     flag_snap = flag_snap_result['data']
     check(len(flag_snap['cells']) == 10000, 'city grid wrongly constrained to 80 cells')
+    check(lua_flags.globals().NativeCityPointScans == 0,
+          '10,000-cell native snapshot used expensive per-cell building census')
     for pid in (5049, 5050, 4950, 4949):
         check(flag_snap['cells'][pid]['flagOnly'] is True and
               flag_snap['cells'][pid]['road'] is False,
@@ -300,6 +349,50 @@ def main():
         flag_snap['layoutRevision'], '200:8'))
     check(ordinary_flag['data']['valid'] is True,
           'military flag rejected from ordinary unlocked non-road cell')
+
+    # v26 BuildingDate.GetRangedPoints skips offsets outside the native grid.
+    # A 2x1 building at x=0 therefore yields only one occupied point; that
+    # *partial* native shape must never be accepted as a 1x1 movable building.
+    lua_footprint, _ = fake()
+    get_footprint = lambda name, fields=None: lua_footprint.globals().Act(name, fields)
+    lua_footprint.execute('''
+      local original = DataCenter.BuildTemplateManager.GetBuildingDesTemplate
+      DataCenter.BuildTemplateManager.GetBuildingDesTemplate = function(self, id)
+        if id == 11 then return {tileX=2, tileY=1, zoneType=1,
+          CanMove=function(self) return true end} end
+        return original(self, id)
+      end
+      local one = DataCenter.BuildManager.allBuilding[101]
+      one.pointId = 4
+      one.GetRangedPoints = function(self)
+        return {[self.pointId]=true, [self.pointId - 1]=true}
+      end
+    ''')
+    intact = get_footprint('city_layout_snapshot_get')
+    check(intact['state'] == 'confirmed' and
+          next(intact['data']['buildings'][i] for i in range(1, 4)
+               if intact['data']['buildings'][i]['uuid'] == '101')['tileX'] == 2,
+          'legal two-tile native source footprint was rejected')
+    lua_footprint.execute('''
+      local one = DataCenter.BuildManager.allBuilding[101]
+      one.pointId = 6 -- first column (x=0) has no left neighbour
+      one.GetRangedPoints = function(self) return {[self.pointId]=true} end
+    ''')
+    truncated = get_footprint('city_layout_snapshot_get')
+    check(truncated['state'] == 'unsupported' and
+          'footprint' in truncated['error'],
+          'clipped two-tile native footprint was accepted as a movable layout')
+    lua_footprint.execute('''
+      local one = DataCenter.BuildManager.allBuilding[101]
+      one.pointId = 4
+      one.GetRangedPoints = function(self)
+        return {[self.pointId]=true, [self.pointId - 2]=true}
+      end
+    ''')
+    malformed = get_footprint('city_layout_snapshot_get')
+    check(malformed['state'] == 'unsupported' and
+          'footprint' in malformed['error'],
+          'same-count but irregular native footprint passed template geometry')
 
     start = get('city_layout_apply_start', fields)
     check(start['state'] == 'accepted' and start['data']['requestDispatched'] is True,
@@ -369,6 +462,29 @@ def main():
           drift['completedMoves'] == 0 and len(lua.globals().ObservedMoves) == 1,
           'whole-layout completion ignored unrelated authoritative building drift')
 
+    # Original BuildingDate.GetRangedPoints is cached on both itemId and
+    # pointId. A point-only ACK can be a false success if an independent
+    # server update changed the item/footprint during the in-flight move.
+    for kind in ('item', 'footprint'):
+        lua, producer = fake()
+        get = lambda name, fields=None: lua.globals().Act(name, fields)
+        revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+        check(get('city_layout_apply_start', lua.globals().Fields(
+            revision, '101:3'))['state'] == 'accepted',
+              f'{kind} ACK-drift fixture failed to start')
+        lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+        if kind == 'item':
+            lua.execute('DataCenter.BuildManager.allBuilding[101].itemId=12')
+        else:
+            lua.execute('''DataCenter.BuildManager.allBuilding[101].GetRangedPoints =
+                function(self) return {[self.pointId]=true, [self.pointId+1]=true} end''')
+        producer.Pump()
+        stale = get('city_layout_apply_status',
+                    lua.globals().Fields(revision, ''))['data']
+        check(stale['state'] == 'failed' and stale['errorCode'] == 'CITY_LAYOUT_STALE' and
+              stale['completedMoves'] == 0 and len(lua.globals().ObservedMoves) == 1,
+              f'{kind} changed but pointId-only ACK was called completed')
+
     # The game pump must continue an owner-authorized move plan even when
     # the City panel is hidden and never issues another status request.
     lua, producer = fake()
@@ -388,6 +504,48 @@ def main():
     finished = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(finished['state'] == 'completed' and finished['completedMoves'] == 3,
           'game tick did not finish a multi-step job without UI polling')
+
+    # Cancellation cannot undo an already sent UI-equivalent packet. It must
+    # wait for that one ACK but *must not* dispatch steps 2 or 3, and must
+    # faithfully report the one authoritative partial move, not completion.
+    for cancel_after in (1, 2):
+        lua, producer = fake()
+        get = lambda name, fields=None: lua.globals().Act(name, fields)
+        revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+        started = get('city_layout_apply_start', lua.globals().Fields(
+            revision, '101:2;102:1'))
+        check(started['state'] == 'accepted', 'multistep cancel fixture failed to start')
+        if cancel_after == 2:
+            lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+            producer.Pump()
+            check(len(lua.globals().ObservedMoves) == 2,
+                  'second swap packet was not sent before controlled cancellation')
+        pending = get('city_layout_apply_cancel', lua.table_from({
+            'profileId': 'p1', 'launchSessionId': 'session1', 'challenge': 'nonce',
+            'jobId': started['data']['status']['jobId'],
+        }))
+        check(pending['data']['status']['state'] == 'cancelling',
+              'in-flight multistep cancel was incorrectly called completed')
+        pending_count = len(lua.globals().ObservedMoves)
+        producer.Pump()
+        check(len(lua.globals().ObservedMoves) == pending_count,
+              'cancel dispatched later swap step without receiving ACK')
+        if cancel_after == 1:
+            lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+        else:
+            lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=1')
+        producer.Pump()
+        stopped = get('city_layout_apply_status',
+                      lua.globals().Fields(revision, ''))['data']
+        check(stopped['state'] == 'cancelled' and
+              stopped['completedMoves'] == cancel_after and
+              stopped['totalMoves'] == 3 and
+              len(lua.globals().ObservedMoves) == pending_count,
+              f'cancel after ACK {cancel_after} dispatched a future move or hid partial poststate')
+        expected_state = {101: 3, 102: 2 if cancel_after == 1 else 1}
+        for uid, actual in expected_state.items():
+            check(lua.globals().DataCenter.BuildManager.allBuilding[uid]['pointId'] == actual,
+                  f'cancel after ACK {cancel_after} lost authoritative partial layout')
 
     # Each future send still re-reads the native placement conditions.
     lua, producer = fake()

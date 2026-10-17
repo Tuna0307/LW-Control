@@ -41,6 +41,10 @@ FEATURE018_HOTKEY_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyGame.luac"
 FEATURE018_HOTKEY_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyGame"
 FEATURE018_HOTKEY_ACTION_ENTRY = "DataCenter/Global/LWBridgeFeature018HotkeyActions.luac"
 FEATURE018_HOTKEY_ACTION_MODULE = "DataCenter.Global.LWBridgeFeature018HotkeyActions"
+FEATURE018_ATTACK_ENTRY = "DataCenter/Global/LWBridgeFeature018AttackActions.luac"
+FEATURE018_ATTACK_MODULE = "DataCenter.Global.LWBridgeFeature018AttackActions"
+FEATURE018_RELOCATION_ENTRY = "DataCenter/Global/LWBridgeFeature018RelocationActions.luac"
+FEATURE018_RELOCATION_MODULE = "DataCenter.Global.LWBridgeFeature018RelocationActions"
 FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
 FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
@@ -157,6 +161,20 @@ def feature018_hotkey_actions_source() -> bytes:
     return data
 
 
+def feature018_attack_source() -> bytes:
+    data = (HERE / "feature018_attack_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Attack module must not contain BOM")
+    return data
+
+
+def feature018_relocation_source() -> bytes:
+    data = (HERE / "feature018_relocation_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Relocation module must not contain BOM")
+    return data
+
+
 def feature018_city_source() -> bytes:
     data = (HERE / "feature018_city_game.lua").read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
@@ -235,7 +253,19 @@ if not ok_hotkey then error(hotkey) end
 if type(hotkey) ~= "table" then error("FEATURE018 Hotkeys module did not return a table") end
 '''
     between = between.replace(mini_marker, hotkey_load + mini_marker, 1)
-    hotkey_actions_load = b'''local ok_hotkey_actions, hotkey_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyActions")
+    hotkey_actions_load = b'''local ok_attack_actions, attack_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018AttackActions")
+if not ok_attack_actions or type(attack_actions) ~= "table" or type(attack_actions.Handle) ~= "function" then
+    error("FEATURE018 source-backed attack/rapid module unavailable")
+end
+rawset(_G, "LWBridgeFeature018AttackActions", attack_actions)
+local ok_relocation_actions, relocation_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018RelocationActions")
+if not ok_relocation_actions or type(relocation_actions) ~= "table" or
+   type(relocation_actions.RandomRelocate) ~= "function" or
+   type(relocation_actions.AllianceRelocate) ~= "function" then
+    error("FEATURE018 native relocation source module unavailable")
+end
+rawset(_G, "LWBridgeFeature018RelocationActions", relocation_actions)
+local ok_hotkey_actions, hotkey_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyActions")
 if not ok_hotkey_actions then error(hotkey_actions) end
 if type(hotkey_actions) ~= "table" or type(hotkey_actions.Wrap) ~= "function" then
     error("FEATURE018 Hotkeys actions module did not return the original handler adapter")
@@ -308,6 +338,10 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys module")
     if FEATURE018_HOTKEY_ACTION_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 Hotkeys actions module")
+    if FEATURE018_ATTACK_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Attack module")
+    if FEATURE018_RELOCATION_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Relocation module")
     if FEATURE018_CITY_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 City module")
     if FEATURE018_SHEEP_ENTRY in mapped:
@@ -339,6 +373,14 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     hotkey_actions_entry = lr.encode_lenc(hotkey_actions_plain)
     if len(hotkey_actions_entry) > 0xFFFF or lr.decode_lenc(hotkey_actions_entry) != hotkey_actions_plain:
         raise OverviewBridgeError("FEATURE018 Hotkeys actions module exceeds 64KiB or failed LENC round-trip")
+    attack_plain = feature018_attack_source()
+    attack_entry = lr.encode_lenc(attack_plain)
+    if len(attack_entry) > 0xFFFF or lr.decode_lenc(attack_entry) != attack_plain:
+        raise OverviewBridgeError("FEATURE018 Attack module exceeds 64KiB or failed LENC round-trip")
+    relocation_plain = feature018_relocation_source()
+    relocation_entry = lr.encode_lenc(relocation_plain)
+    if len(relocation_entry) > 0xFFFF or lr.decode_lenc(relocation_entry) != relocation_plain:
+        raise OverviewBridgeError("FEATURE018 Relocation module exceeds 64KiB or failed LENC round-trip")
     city_plain = feature018_city_source()
     city_entry = lr.encode_lenc(city_plain)
     if len(city_entry) > 0xFFFF or lr.decode_lenc(city_entry) != city_plain:
@@ -355,6 +397,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     output.append((FEATURE018_MINI_ENTRY, mini_entry))
     output.append((FEATURE018_HOTKEY_ENTRY, hotkey_entry))
     output.append((FEATURE018_HOTKEY_ACTION_ENTRY, hotkey_actions_entry))
+    output.append((FEATURE018_ATTACK_ENTRY, attack_entry))
+    output.append((FEATURE018_RELOCATION_ENTRY, relocation_entry))
     output.append((FEATURE018_CITY_ENTRY, city_entry))
     output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
     data = directory / "LWScripts.data"
@@ -377,6 +421,10 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_HOTKEY_ACTION_ENTRY]) != hotkey_actions_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 Hotkeys actions serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_ATTACK_ENTRY]) != attack_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Attack serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_RELOCATION_ENTRY]) != relocation_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Relocation serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_CITY_ENTRY]) != city_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_SHEEP_ENTRY]) != sheep_plain:
@@ -395,6 +443,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "feature018MiniSourceSha256": hashlib.sha256(mini_plain).hexdigest(),
         "feature018HotkeySourceSha256": hashlib.sha256(hotkey_plain).hexdigest(),
         "feature018HotkeyActionsSourceSha256": hashlib.sha256(hotkey_actions_plain).hexdigest(),
+        "feature018AttackSourceSha256": hashlib.sha256(attack_plain).hexdigest(),
+        "feature018RelocationSourceSha256": hashlib.sha256(relocation_plain).hexdigest(),
         "feature018CitySourceSha256": hashlib.sha256(city_plain).hexdigest(),
         "feature018SheepSourceSha256": hashlib.sha256(sheep_plain).hexdigest(),
         "resourceProbeLencSize": len(probe_entry),

@@ -550,7 +550,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
               onPointerUp={finishPointer}
               onPointerCancel={() => { setDragState(null); setCitySelectionState(null); }}
             >
-              {layout.cells.filter((cell) => cell.regionId === region.id).map((cell) => <span key={cell.pointId} className={`city-layout-cell${cell.unlocked ? "" : " locked"}${cell.road ? " road" : ""}${cell.flagOnly ? " flag-only" : ""}`} style={{ gridColumn: cell.x - region.bounds.minX + 1, gridRow: cityGridRow(region.bounds, cell.y) }} />)}
+              {layout.cells.filter((cell) => cell.regionId === region.id).map((cell) => <span key={cell.pointId} className={`city-layout-cell${cell.unlocked ? "" : " locked"}${cell.road ? " road" : ""}${cell.flagOnly ? " flag-only" : ""}${cell.obstructed ? " obstructed" : ""}`} style={{ gridColumn: cell.x - region.bounds.minX + 1, gridRow: cityGridRow(region.bounds, cell.y), backgroundImage: cell.obstructed ? "repeating-linear-gradient(45deg, transparent 0 4px, var(--warning-line) 4px 8px)" : undefined }} />)}
               {lassoStyle ? <span className="city-layout-lasso" style={lassoStyle} /> : null}
               {regionBuildings.map((building) => {
                 const previewTarget = dragState?.uuids.includes(building.uuid) ? (() => {

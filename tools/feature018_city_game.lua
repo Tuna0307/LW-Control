@@ -59,17 +59,20 @@ end
 
 local function context()
     local data = rawget(_G, 'DataCenter')
-    local cs = rawget(_G, 'CS')
     local scene_utils = rawget(_G, 'SceneUtils')
     local bm = data and data.BuildManager
     local zone = data and data.CityZoneManager
     local land = data and data.LandLockManager
     local templates = data and data.BuildTemplateManager
+    local city_points = data and data.CityPointManager
+    local board = data and data.BoardManager
+    local point_data = data and data.CityPointDataManager
+    local resources = data and data.CollectResourceManager
     local building_utils = rawget(_G, 'BuildingUtils')
     local building_types = rawget(_G, 'BuildingTypes')
     local point_types = rawget(_G, 'CityPointType')
-    local world = cs and cs.SceneManager and cs.SceneManager.World
-    if not (bm and zone and land and templates and scene_utils and world and
+    if not (bm and zone and land and templates and city_points and board and
+        point_data and resources and scene_utils and
         building_utils and building_types and point_types) then
         return nil, 'Current city managers are not loaded'
     end
@@ -81,7 +84,11 @@ local function context()
         type(building_utils.CanMoveBuild) ~= 'function' or
         type(building_utils.IsInFlagPosition) ~= 'function' or
         building_types.LW_BUILD_FLAG == nil or
-        type(world.GetPointType) ~= 'function' or point_types.Road == nil then
+        type(city_points.GetPointType) ~= 'function' or point_types.Road == nil or
+        type(board.GetBoardDataByPointId) ~= 'function' or
+        type(point_data.GetPointDataByPointId) ~= 'function' or
+        type(resources.GetResourcePointInfoByIndex) ~= 'function' or
+        type(resources.GetCollectRangeInfoByIndex) ~= 'function' then
         return nil, 'Current city snapshot source is not ready'
     end
     local width = tonumber(rawget(_G, 'CityTileCount'))
@@ -90,9 +97,10 @@ local function context()
     end
     return {
         bm = bm, zone = zone, land = land, templates = templates,
-        world = world, scene = scene_utils, width = width,
+        board = board, pointData = point_data, resources = resources,
+        scene = scene_utils, width = width,
         buildingUtils = building_utils, flagItemId = building_types.LW_BUILD_FLAG,
-        roadType = point_types.Road,
+        pointTypes = point_types, roadType = point_types.Road,
         isInCity = scene_utils.GetIsInCity() == true,
     }
 end
@@ -114,13 +122,36 @@ local function snapshot()
         local unlocked = ctx.land:CanBuildByPointId(pid) == true
         zone_signature[#zone_signature + 1] = template == nil and 'missing'
             or tostring(template.zone_type)
-        -- IsCanPutDownByPoint (513-520) uses GetPointType == CityPointType.Road.
+        -- v26 IsCanPutDownByPoint (513-542) uses CityPointManager.GetPointType.
+        -- Its implementation checks every building via a *linear* scan before
+        -- querying BoardManager, CityPointDataManager and CollectResourceManager.
+        -- Avoid 10,000 times that building scan: classify the static terrain
+        -- through those exact underlying managers, all keyed by point ID.
+        -- Building occupancy itself comes from the authoritative footprints
+        -- below and is verified by the planner, not by terrain classification.
         -- IsInFlagPosition's four special cells are exclusively for LW_BUILD_FLAG.
-        local road = ctx.world:GetPointType(pid) == ctx.roadType
+        local point_types = ctx.pointTypes
+        local road = ctx.board:GetBoardDataByPointId(pid) ~= nil
+        local other = not road and ctx.pointData:GetPointDataByPointId(pid) or nil
+        local point_type = other and other.type or nil
+        -- The native placement method also refuses garbage, monster and
+        -- collect/resource cells (v26 IsCanPutDownByPoint 521-542).
+        -- Keep these distinct from roads/land locks for accurate errors.
+        local obstructed = (point_types.Garbage ~= nil and point_type == point_types.Garbage)
+            or (point_types.Monster ~= nil and point_type == point_types.Monster)
+            or (point_types.MonsterReward ~= nil and point_type == point_types.MonsterReward)
+            or (point_types.Collect ~= nil and point_type == point_types.Collect)
+            or (point_types.CollectRange ~= nil and point_type == point_types.CollectRange)
+        if not road and not other then
+            obstructed = obstructed or
+                ctx.resources:GetResourcePointInfoByIndex(pid) ~= nil or
+                ctx.resources:GetCollectRangeInfoByIndex(pid) ~= nil
+        end
         local flag_only = ctx.buildingUtils.IsInFlagPosition(pid) == true
         local cell = {
             pointId = pid, x = x, y = y, regionId = CITY_REGION,
             unlocked = unlocked, road = road, flagOnly = flag_only,
+            obstructed = obstructed == true,
         }
         cells[#cells + 1] = cell
         by_id[pid] = cell
@@ -158,9 +189,27 @@ local function snapshot()
                     occupied[#occupied + 1] = p
                 end
             end
-            if #occupied == 0 then return nil, 'City building has no occupied points' end
-            sorted(occupied)
             local x, y = point_xy(point_id, width)
+            -- The source's BuildingDate.GetRangedPoints (487-492) enumerates
+            -- every (negative x, negative y) tile offset from the anchor,
+            -- skipping points that fall outside the city grid. Such a clipped
+            -- footprint cannot be moved as a complete building. Fail closed
+            -- rather than planning with only its surviving partial tiles.
+            local tile_x, tile_y = tonumber(template.tileX), tonumber(template.tileY)
+            if not tile_x or not tile_y or tile_x ~= math.floor(tile_x) or
+                tile_y ~= math.floor(tile_y) or tile_x < 1 or tile_y < 1 or
+                tile_x > width or tile_y > width or #occupied ~= tile_x * tile_y then
+                return nil, 'City building native footprint and template size differ'
+            end
+            for ox = 0, tile_x - 1 do
+                for oy = 0, tile_y - 1 do
+                    local expected = at_xy(x - ox, y - oy, width)
+                    if not expected or footprints[expected] ~= true then
+                        return nil, 'City building native footprint is truncated or irregular'
+                    end
+                end
+            end
+            sorted(occupied)
             -- Source CanMoveBuild rejects FUN_BUILD_MAIN, requires a built
             -- LW_BUILD_GATE (level >= 1), then uses template:CanMove().
             -- Call the game's complete rule so these conditions stay together.
@@ -175,8 +224,8 @@ local function snapshot()
                 uuid = uuid, pointId = point_id, x = x, y = y,
                 occupiedPoints = occupied, regionId = CITY_REGION,
                 movable = movable, isFlag = is_flag,
-                tileX = tonumber(template.tileX) or 1,
-                tileY = tonumber(template.tileY) or 1,
+                tileX = tile_x,
+                tileY = tile_y,
                 level = tonumber(building.level) or 0,
                 itemId = tonumber(building.itemId) or 0,
             }
@@ -201,6 +250,7 @@ local function snapshot()
     for _, cell in ipairs(cells) do
         signature[#signature + 1] = (cell.unlocked and '1' or '0') ..
             (cell.road and '1' or '0') .. (cell.flagOnly and '1' or '0') ..
+            (cell.obstructed and '1' or '0') ..
             ':' .. zone_signature[cell.pointId]
     end
     local point_ids = {}
@@ -286,6 +336,9 @@ local function validate_state(values)
                             break
                         elseif cell.road then
                             issue(placement.uuid, 'CITY_LAYOUT_ROAD', pid)
+                            break
+                        elseif cell.obstructed then
+                            issue(placement.uuid, 'CITY_LAYOUT_OBSTRUCTED', pid)
                             break
                         elseif cell.flagOnly and not source.public.isFlag then
                             issue(placement.uuid, 'CITY_LAYOUT_FLAG_ONLY', pid)
@@ -406,6 +459,7 @@ local function validate_state(values)
                             for _, pid in ipairs(target) do
                                 local cell = meta.by_id[pid]
                                 if final_occupied[pid] or not cell.unlocked or cell.road or
+                                    cell.obstructed or
                                     (cell.flagOnly and not job.source.public.isFlag) or
                                     not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) then
                                     allowed = false
@@ -457,7 +511,31 @@ local function check_positions(job)
     for uuid, point_id in pairs(job.expected) do
         local source = job.sources[uuid]
         local record = bm:GetBuildingDataByUuid(source.nativeUuid)
-        if not record or tonumber(record.pointId) ~= point_id then return false end
+        if not record or tonumber(record.pointId) ~= point_id or
+            tonumber(record.itemId) ~= source.public.itemId or
+            type(record.GetRangedPoints) ~= 'function' then return false end
+        -- v26 GetRangedPoints derives its tiles from pointId and itemId,
+        -- caching only while both match (BuildingDate 478-505). A pointId
+        -- match alone is not a complete game poststate: another update may
+        -- have replaced an item's shape while an ACK was pending. Compare
+        -- the entire source-equivalent translated footprint before any next
+        -- send and before the final 'completed' status.
+        local current_footprint = record:GetRangedPoints()
+        if type(current_footprint) ~= 'table' then return false end
+        local x, y = point_xy(point_id, job.width)
+        local expected_footprint = {}
+        for _, original_id in ipairs(source.public.occupiedPoints) do
+            local old_x, old_y = point_xy(original_id, job.width)
+            local next_id = at_xy(x + old_x - source.public.x,
+                y + old_y - source.public.y, job.width)
+            if not next_id or current_footprint[next_id] ~= true then return false end
+            expected_footprint[next_id] = true
+        end
+        for footprint_id, occupied in pairs(current_footprint) do
+            if occupied and not expected_footprint[tonumber(footprint_id)] then
+                return false
+            end
+        end
     end
     return true
 end
@@ -471,7 +549,7 @@ local function dispatch_step(job)
         job.error = meta_or_reason or 'The inner-city game scene is no longer active.'
         return false
     end
-    if not check_positions(job) then
+    if meta_or_reason.ctx.width ~= job.width or not check_positions(job) then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
         job.error = 'A game building changed independently of this layout job.'
         return false
@@ -490,7 +568,7 @@ local function dispatch_step(job)
     end
     for _, pid in ipairs(target) do
         local cell = meta.by_id[pid]
-        if not cell.unlocked or cell.road or
+        if not cell.unlocked or cell.road or cell.obstructed or
             (cell.flagOnly and not building.public.isFlag) or
             not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) then
             job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
@@ -616,6 +694,7 @@ function M.Register(feature)
             challenge = values.challenge,
             state = 'running', completed = 0, steps = steps,
             temporaryMoves = validation.temporaryMoves,
+            width = meta.ctx.width,
             expected = expected, sources = sources,
         }
         M.active = job

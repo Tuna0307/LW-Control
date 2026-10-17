@@ -88,12 +88,16 @@ def scenario():
     module = lua.execute(SOURCE.read_text(encoding="utf-8"))
     wrapped = module.Wrap(lua.globals().frozen)
     state = lua.globals().state
-    def call(action="recall", slot="1", profile="profile", challenge="challenge"):
-        return wrapped(lua.table_from({
+    def call(action="recall", slot="1", profile="profile", challenge="challenge",
+                 query_only=False):
+        fields = {
             "action": action, "slot": slot,
             "profileId": profile, "launchSessionId": "launch",
             "challenge": challenge, "gamePid": "7020",
-        }))
+        }
+        if query_only:
+            fields["queryOnly"] = "1"
+        return wrapped(lua.table_from(fields))
     return lua, module, wrapped, state, call
 
 
@@ -103,21 +107,25 @@ def main():
     require(first["state"] == "accepted" and first["data"]["requestDispatched"] is True,
             "source-verified owned return did not report send-only")
     require(state["dispatches"] == 1, "native UI-equivalent return not invoked exactly once")
-    repeat = call()
+    repeat = call(query_only=True)
     require(repeat["state"] == "accepted" and repeat["data"]["requestDispatched"] is False,
             "pending return was resent before receiving authoritative state")
     require(state["dispatches"] == 1, "duplicate return dispatch")
     state["target"] = 77
-    confirmed = call()
+    confirmed = call(query_only=True)
     require(confirmed["state"] == "confirmed" and
             confirmed["data"]["observation"] == "native_world_march_return_target",
             "server-updated native march target not recognized")
     require(state["dispatches"] == 1, "poststate polling created another request")
+    require(call(query_only=True)["state"] == "failed" and state["dispatches"] == 1,
+            "recall query-only started or confirmed without matching pending send")
     confirmed_again = call()
     require(confirmed_again["state"] == "confirmed" and state["dispatches"] == 1,
             "already returning march was resent")
 
     _, _, _, s, call = scenario()
+    require(call(query_only=True)["state"] == "failed" and s["dispatches"] == 0,
+            "query-only triggered a previously unsent native recall")
     s["candidateUid"] = "foreignUid"
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "foreign owner march admitted after misleading native GetOwnerFormationMarch")
@@ -146,7 +154,7 @@ def main():
     require(call(slot="2")["state"] == "unsupported" and s["dispatches"] == 0,
             "empty slot triggered return on another squad")
 
-    _, _, _, s, call = scenario()
+    lua_second, _, _, s, call = scenario()
     for slot in ("1","2","3","4"):
         outcome = call(action="attack",slot=slot)
         require(outcome["state"] == "unsupported" and s["dispatches"] == 0,
@@ -157,6 +165,24 @@ def main():
                 "shield item consumed without source-mapped duration: " + duration)
     require(call(action="shieldUse",slot="99")["state"] == "failed",
             "unexpected shield duration accepted")
+    require(call(action="frontlineReinforce",slot="5")["state"] == "unsupported"
+            and s["dispatches"] == 0,
+            "Frontline shortcut claimed unsupported native battle as working")
+    lua_second.execute('''LWBridgeFeature018MiniGame = { FrontlineReinforce = function(fields)
+        assert(fields.slot == '5' and fields.action == 'frontlineReinforce')
+        return {state='confirmed',data={
+          observation='native_ParkourBattleLogic_GetMemberCount',
+          beforeCount=20,afterCount=25,addedMembers=5,
+          slot=5,action='frontlineReinforce'}}
+    end }''')
+    require(call(action="frontlineReinforce",slot="5")["state"] == "confirmed"
+            and s["dispatches"] == 0,
+            "authenticated native +5 producer was not routed to the hotkey")
+    s["focusClear"] = False
+    require(call(action="frontlineReinforce",slot="5")["state"] == "failed"
+            and s["dispatches"] == 0,
+            "Frontline native action bypassed text-input gate")
+    s["focusClear"] = True
     require(call(action="equipment",slot="1")["errorCode"] == "FALLBACK_USED",
             "unrelated frozen Hotkeys handler overridden")
 

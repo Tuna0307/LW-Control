@@ -59,11 +59,21 @@ internal sealed class Feature018HotkeyNativeProviders
                 "attack_march_speedup_options_not_source_verified");
         }
 
-        JsonElement request = JsonSerializer.SerializeToElement(new
-        {
-            action = ActionName(command.Intent.Kind),
-            slot = command.Intent.Slot,
-        }, JsonOptions.Default);
+        // The game-side current-player UID comparison is a second identity
+        // fence for an attack. Other game actions keep their native two-field
+        // command contract; no unproven speedup is implied.
+        JsonElement request = command.Intent.Kind == Feature018HotkeyKind.AttackSquad
+            ? JsonSerializer.SerializeToElement(new
+            {
+                action = ActionName(command.Intent.Kind),
+                slot = command.Intent.Slot,
+                authorizedUid = command.Session.GameUid,
+            }, JsonOptions.Default)
+            : JsonSerializer.SerializeToElement(new
+            {
+                action = ActionName(command.Intent.Kind),
+                slot = command.Intent.Slot,
+            }, JsonOptions.Default);
         try
         {
             object? raw = await gameCommands.InvokeAsync(
@@ -83,6 +93,25 @@ internal sealed class Feature018HotkeyNativeProviders
                 (evidence.TryGetProperty("accepted", out var accepted) &&
                  accepted.ValueKind == JsonValueKind.True))
             {
+                // Only a single verified outbound send is allowed. Once sent,
+                // queryOnly follow-ups must be read-only and preserve the
+                // original native object UUID throughout confirmation.
+                if (evidence.TryGetProperty("awaitingGameConfirmation", out JsonElement waiting) &&
+                    waiting.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("slot", out JsonElement sentSlot) &&
+                    sentSlot.TryGetInt32(out int slot) && slot == command.Intent.Slot)
+                {
+                    string? uuidProperty = command.Intent.Kind switch
+                    {
+                        Feature018HotkeyKind.RecallSquad => "marchUuid",
+                        Feature018HotkeyKind.UseShield => "itemUuid",
+                        _ => null,
+                    };
+                    if (uuidProperty is not null && IsNativeUuid(evidence, uuidProperty))
+                        return await PollAfterSendAsync(command, uuidProperty,
+                            evidence.GetProperty(uuidProperty).GetString()!, cancellationToken)
+                            .ConfigureAwait(false);
+                }
                 return new(Feature018HotkeyActionStatus.Submitted,
                     "game_message_sent_without_independent_state_confirmation");
             }
@@ -121,6 +150,64 @@ internal sealed class Feature018HotkeyNativeProviders
         }
     }
 
+    private async Task<Feature018HotkeyActionOutcome> PollAfterSendAsync(
+        Feature018HotkeyCommand command, string uuidProperty, string sentUuid,
+        CancellationToken cancellationToken)
+    {
+        // A short one-way confirmation window; never send a second return-home
+        // request or indefinitely hold the hotkey action dispatch gate.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromSeconds(15));
+        JsonElement request = JsonSerializer.SerializeToElement(new
+        {
+            action = ActionName(command.Intent.Kind),
+            slot = command.Intent.Slot,
+            queryOnly = true,
+        }, JsonOptions.Default);
+        try
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), deadline.Token).ConfigureAwait(false);
+                try
+                {
+                    object? response = await gameCommands.InvokeAsync(
+                        CommandName, request, deadline.Token).ConfigureAwait(false);
+                    if (response is JsonElement gameState &&
+                        gameState.ValueKind == JsonValueKind.Object &&
+                        ConfirmedReceiptMatches(command.Intent, gameState))
+                    {
+                        if (gameState.GetProperty(uuidProperty).GetString() != sentUuid)
+                            return new(Feature018HotkeyActionStatus.SessionChanged,
+                                "native_action_target_changed_during_confirmation");
+                        return new(Feature018HotkeyActionStatus.Confirmed,
+                            "verified_native_game_state_observation", gameState.Clone());
+                    }
+                }
+                catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
+                {
+                    return new(Feature018HotkeyActionStatus.SessionChanged,
+                        "authenticated_game_route_unavailable");
+                }
+                catch (BridgeCommandException error) when (error.Code == "GAME_ACTION_UNCONFIRMED")
+                {
+                    // The query may legitimately observe the pre-ACK march.
+                    // An unconfirmed query is never a reason to send again.
+                }
+                catch (BridgeCommandException)
+                {
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        "native_action_dispatched_followup_unavailable");
+                }
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return new(Feature018HotkeyActionStatus.Submitted,
+                "native_action_dispatched_confirmation_pending");
+        }
+    }
+
     private static bool ConfirmedReceiptMatches(
         Feature018HotkeyIntent intent, JsonElement evidence)
     {
@@ -152,6 +239,44 @@ internal sealed class Feature018HotkeyNativeProviders
                        returning.ValueKind == JsonValueKind.True &&
                        IsNativeUuid(evidence, "marchUuid") &&
                        IsNativeUuid(evidence, "formationUuid");
+
+            case Feature018HotkeyKind.UseShield:
+                return observed.GetString() == "native_owned_shield_consumption_and_MAIN_SHIELD" &&
+                       evidence.TryGetProperty("slot", out JsonElement shieldSlot) &&
+                       shieldSlot.TryGetInt32(out int actualHours) && actualHours == intent.Slot &&
+                       IsNativeUuid(evidence, "itemUuid") &&
+                       IsNativeUuid(evidence, "itemId") &&
+                       evidence.TryGetProperty("statusId", out JsonElement statusId) &&
+                       statusId.TryGetInt32(out int shieldStatusId) && shieldStatusId > 0 &&
+                       evidence.TryGetProperty("durationMilliseconds", out JsonElement duration) &&
+                       duration.TryGetInt64(out long durationMs) &&
+                       durationMs == (long)intent.Slot * 60 * 60 * 1000 &&
+                       evidence.TryGetProperty("consumedCount", out JsonElement consumed) &&
+                       consumed.TryGetInt32(out int used) && used == 1 &&
+                       evidence.TryGetProperty("remainingMilliseconds", out JsonElement remaining) &&
+                       remaining.TryGetDouble(out double remainingMs) &&
+                       double.IsFinite(remainingMs) &&
+                       remainingMs > 0 && remainingMs <= durationMs + 15000 &&
+                       evidence.TryGetProperty("serverTimeMilliseconds", out JsonElement serverTime) &&
+                       serverTime.TryGetDouble(out double shieldClock) &&
+                       double.IsFinite(shieldClock) && shieldClock >= 0;
+
+            case Feature018HotkeyKind.ReinforceFrontline:
+                return observed.GetString() == "native_ParkourBattleLogic_GetMemberCount" &&
+                       evidence.TryGetProperty("action", out JsonElement action) &&
+                       action.ValueKind == JsonValueKind.String &&
+                       action.GetString() == "frontlineReinforce" &&
+                       evidence.TryGetProperty("slot", out JsonElement reinforceSlot) &&
+                       reinforceSlot.TryGetInt32(out int reinforcementSlot) && reinforcementSlot == 5 &&
+                       evidence.TryGetProperty("heroId", out JsonElement hero) &&
+                       hero.TryGetInt32(out int heroId) && heroId > 0 &&
+                       evidence.TryGetProperty("beforeCount", out JsonElement before) &&
+                       before.TryGetInt32(out int beforeCount) && beforeCount >= 0 &&
+                       evidence.TryGetProperty("afterCount", out JsonElement after) &&
+                       after.TryGetInt32(out int afterCount) &&
+                       afterCount == beforeCount + 5 &&
+                       evidence.TryGetProperty("addedMembers", out JsonElement added) &&
+                       added.TryGetInt32(out int addedCount) && addedCount == 5;
 
             default:
                 // No other kind has an audited current-client state receipt.

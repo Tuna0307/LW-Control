@@ -86,9 +86,32 @@ def bytecode_grid_tests(native):
     placement = native('Util/BuildingUtils.luac', 'IsCanPutDownByPoint')
     placement_source = list(disassemble(placement))
     for term in ('CanPutBuildByPoint', 'CanBuildByPointId', 'IsInFlagPosition',
-                 'LW_BUILD_FLAG', 'GetPointType', 'CityPointType', 'Road'):
+                 'LW_BUILD_FLAG', 'CityPointManager', 'GetPointType',
+                 'CityPointType', 'Road', 'Garbage', 'Monster', 'MonsterReward',
+                 'Collect', 'CollectRange'):
         expect(any(term in line for line in placement_source),
                'native placement restriction missing ' + term)
+
+    city_points = list(disassemble(native(
+        'DataCenter/CityPointManager/CityPointManager.luac', 'GetPointType')))
+    for term in ('GetBuildingDataByPointId', 'GetBoardDataByPointId',
+                 'GetPointDataByPointId', 'GetResourcePointInfoByIndex',
+                 'GetCollectRangeInfoByIndex'):
+        expect(any(term in line for line in city_points),
+               'native CityPointManager lost underlying terrain source ' + term)
+    board = list(disassemble(native('DataCenter/Board/BoardManager.luac',
+                                    'GetBoardDataByPointId')))
+    expect(any('posToBoard' in line for line in board),
+           'native BoardManager road lookup is no longer direct point indexed')
+    point_data = list(disassemble(native(
+        'DataCenter/CityPointData/CityPointDataManager.luac',
+        'GetPointDataByPointId')))
+    expect(any('uuidDict' in line for line in point_data),
+           'native city special-point lookup is no longer dictionary backed')
+    building_lookup = list(disassemble(native(
+        'DataCenter/BuildManager/BuildManager.luac', 'GetBuildingDataByPointId')))
+    expect(any('pairs' in line for line in building_lookup),
+           'native CityPointManager building discovery no longer uses linear scan')
 
     city_zone = native('DataCenter/CityZoneManager/CityZoneManager.luac',
                        'CanPutBuildByPoint')
@@ -175,9 +198,9 @@ def module_grid_tests():
            'restored game movement permission changed same-state revision')
 
     lua.execute('DataCenter.CityZoneManager.allZonePoint[3] = {zone_type=1}')
-    lua.execute('''CS.SceneManager.World.GetPointType = function(self, id)
-                 if id == 3 then return CityPointType.Road end
-                 return CityPointType.Empty end''')
+    lua.execute('''DataCenter.BoardManager.GetBoardDataByPointId = function(self, id)
+                 if id == 3 then return {} end
+                 return nil end''')
     road = snapshot()
     expect(road['cells'][3]['road'] is True and
            act('city_layout_validate', fields(road['layoutRevision'], '101:3'))
@@ -188,6 +211,12 @@ def module_grid_tests():
     # anchor, subtracting offsets. Test the bridge against a 2x1 real shape.
     lua, _ = fake()
     lua.execute('''
+        local original = DataCenter.BuildTemplateManager.GetBuildingDesTemplate
+        DataCenter.BuildTemplateManager.GetBuildingDesTemplate = function(self, id)
+            if id == 11 then return {tileX=2, tileY=1, zoneType=1,
+                CanMove=function(self) return true end} end
+            return original(self, id)
+        end
         DataCenter.BuildManager.allBuilding[101].pointId = 4
         DataCenter.BuildManager.allBuilding[101].GetRangedPoints = function(self)
             return {[self.pointId] = true, [self.pointId - 1] = true}

@@ -14,6 +14,13 @@
 -- lines 243-249 sends SFSNetwork.SendMessage(MsgDefines.ItemUse,
 -- {uuid=item.uuid,num=1}); BuyOrUse lines 202-240 performs additional
 -- meteorite-warning, inventory and diamond-purchase checks.
+-- Offline v26 3/26 original-entry SHA
+-- 50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137:
+-- CityShieldPage.CellsCallBack 153-200 resolves each template.para1 through
+-- StatusTab and explicitly compares status.time * 1000 with shield remaining;
+-- its confirmation formats status.time / 3600 hours. The adapter supports
+-- owned duration-matched items only when every UI warning/confirmation gate
+-- can be satisfied without a user dialog or paid purchase.
 --
 -- Only Feature018GameBridge.Pump may invoke this registered module after the
 -- exact game PID/profile/session/challenge/lease admission. Never register a
@@ -21,6 +28,8 @@
 
 local M = { VERSION = "feature018-hotkey-game-1" }
 local mark_array = nil
+local pending_shield = nil
+local SHIELD_PENDING_SECONDS = 45
 
 local function member(value, key)
     if value == nil then return nil end
@@ -33,7 +42,9 @@ local function invoke(value, key, ...)
     local method = member(value, key)
     if type(method) ~= "function" then return false, nil end
     local ok, result = pcall(method, value, ...)
-    return ok, ok and result or nil
+    -- A native eligibility gate can legitimately return false. Converting
+    -- that value to nil would make safe, negative checks unverifiable.
+    return ok, result
 end
 
 local function unavailable(reason)
@@ -209,6 +220,245 @@ function M.InputFocusSnapshot()
     }}
 end
 
+local function digit_id(value)
+    if value == nil or type(value) == "boolean" then return nil end
+    local str = tostring(value)
+    if #str < 1 or #str > 20 or str == "0" or
+       str:find("[^0-9]") then return nil end
+    return str
+end
+
+local function shield_owner(fields)
+    local tokens = {}
+    for _, key in ipairs({"profileId", "launchSessionId", "challenge", "gamePid"}) do
+        local value = fields[key]
+        if type(value) ~= "string" or #value == 0 or #value > 128 or
+           value:find("[^%w_-]") then return nil end
+        tokens[#tokens + 1] = value
+    end
+    return table.concat(tokens, "/")
+end
+
+local function owned_item_count(uuid, item_id)
+    local center = rawget(_G, "DataCenter")
+    local items = member(center, "ItemData")
+    local ok, list = invoke(items, "GetItemList", 4, 1)
+    if not ok or type(list) ~= "table" then return nil end
+    local count = 0
+    for _, item in pairs(list) do
+        if digit_id(member(item, "uuid")) == uuid then
+            if digit_id(member(item, "itemId")) ~= item_id then return nil end
+            local available = number(member(item, "count"))
+            if available == nil or available < 0 or available % 1 ~= 0 then
+                return nil
+            end
+            count = count + available
+        end
+    end
+    return count
+end
+
+local function shield_item_for_hours(hours)
+    local center = rawget(_G, "DataCenter")
+    local item_data = member(center, "ItemData")
+    local templates = member(center, "ItemTemplateManager")
+    local status = member(center, "StatusManager")
+    local controller = rawget(_G, "LocalController")
+    local tables = rawget(_G, "TableName")
+    local status_table = member(tables, "StatusTab")
+    local ok_owned, owned = invoke(item_data, "GetItemList", 4, 1)
+    local ok_templates, available = invoke(templates, "GetTypeListByTypes", 4, 1)
+    local ok_ids, ids = invoke(status, "GetShieldStatusIds")
+    local ok_controller, local_instance = invoke(controller, "instance")
+    if not ok_owned or type(owned) ~= "table" or
+       not ok_templates or type(available) ~= "table" or
+       not ok_ids or type(ids) ~= "table" or
+       not ok_controller or local_instance == nil or status_table == nil then
+        return nil, unavailable("Native owned items, status IDs, or Goods/Status templates unavailable")
+    end
+    local chosen = nil
+    for _, template in pairs(available) do
+        local status_id = digit_id(member(template, "para1"))
+        local template_id = digit_id(member(template, "id"))
+        if template_id ~= nil and status_id ~= nil and
+           (ids[tonumber(status_id)] == true or ids[status_id] == true) then
+            local ok_row, row = invoke(local_instance, "getLine",
+                status_table, member(template, "para1"))
+            if not ok_row or row == nil then
+                return nil, unavailable("Native StatusTab shield duration is unreadable")
+            end
+            local seconds = number(member(row, "time"))
+            if seconds == nil or seconds <= 0 or seconds % 1 ~= 0 then
+                return nil, unavailable("Native StatusTab shield duration is invalid")
+            end
+            if seconds == hours * 3600 then
+                for _, item in pairs(owned) do
+                    local count = number(member(item, "count"))
+                    local uuid = digit_id(member(item, "uuid"))
+                    if digit_id(member(item, "itemId")) == template_id and
+                       uuid ~= nil and count ~= nil and count >= 1 and count % 1 == 0 then
+                        if chosen ~= nil then
+                            return nil, unavailable("Multiple owned stacks map to this shield duration")
+                        end
+                        chosen = {uuid=uuid, itemId=template_id,
+                            statusId=tonumber(status_id), count=count, durationMs=seconds*1000}
+                    end
+                end
+            end
+        end
+    end
+    if chosen == nil then
+        return nil, unavailable("No uniquely owned 8/12/24h shield item with source-matched StatusTab duration")
+    end
+    return chosen
+end
+
+local function shield_safe_to_consume()
+    local center = rawget(_G, "DataCenter")
+    local status = member(center, "StatusManager")
+    local ok_cd, cooling = invoke(status, "IsUseShieldCD")
+    local ok_war, war_fever = invoke(status, "WarFeverStatu")
+    if not ok_cd or type(cooling) ~= "boolean" or not ok_war then
+        return unavailable("Native shield cooldown/war-fever eligibility cannot be verified")
+    end
+    if cooling then return invalid("Game shield-use cooldown remains active") end
+    -- CityShieldPage.CellsCallBack 159–161 explicitly warns and returns when
+    -- WarFeverStatu is NON-nil; nil is the game's safe state.
+    if war_fever ~= nil then
+        return invalid("Native war-fever shield warning blocks ItemUse")
+    end
+    local season = rawget(_G, "SeasonUtil")
+    local season_reader = member(season, "IsInSeason")
+    if type(season_reader) ~= "function" then
+        return unavailable("Current season source reader unavailable")
+    end
+    -- The original CityShieldPage invokes SeasonUtil.IsInSeason() statically.
+    -- Calling with an injected receiver can make a native C# static delegate
+    -- fail even if an inert Lua table ignores the extra argument.
+    local ok_season, seasonal = pcall(season_reader)
+    if not ok_season or type(seasonal) ~= "boolean" then
+        return unavailable("Current season and alliance-field shield eligibility unavailable")
+    end
+    -- The current UI needs seasonal alliance-field, danger-area and missile
+    -- checks (CellsCallBack 163-181). Do not infer these from city coordinates.
+    if seasonal then return invalid("Native seasonal shield-placement checks require game UI") end
+    local wall = member(center, "DefenceWallDataManager")
+    local ok_wall, defence = invoke(wall, "GetDefenceWallData")
+    local clock_type = rawget(_G, "UITimeManager")
+    local ok_clock, clock = invoke(clock_type, "GetInstance")
+    local ok_time, current_time = invoke(clock, "GetServerTime")
+    local now = number(current_time)
+    local ends = number(member(defence, "protectEndTime"))
+    if not ok_wall or not ok_clock or not ok_time or now == nil or ends == nil then
+        return unavailable("Current native wall protection or game server time unavailable")
+    end
+    if ends > now then
+        return invalid("Active shield replacement requires native user confirmation")
+    end
+    local meteorite = member(center, "ActMeteoriteBattleManager")
+    local ok_notice, warn = invoke(meteorite, "NeedNoticeShield")
+    if not ok_notice or type(warn) ~= "boolean" then
+        return unavailable("Native meteorite shield warning eligibility unavailable")
+    end
+    if warn then return invalid("Native meteorite-drop warning requires user confirmation") end
+    return nil
+end
+
+local function shield_use(fields)
+    local owner = shield_owner(fields)
+    local hours = tonumber(fields.slot)
+    if owner == nil then
+        return unavailable("Exact authenticated shield session identity unavailable")
+    end
+    if not (hours == 8 or hours == 12 or hours == 24) then
+        return invalid("Shield duration must be 8, 12 or 24 hours")
+    end
+    if pending_shield ~= nil and pending_shield.owner ~= owner then
+        pending_shield = nil
+    end
+    if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then
+        return invalid("Only an exact read-only shield query is accepted")
+    end
+    local pending = pending_shield
+    if fields.queryOnly == "1" then
+        if pending == nil or pending.hours ~= hours then
+            return invalid("No matching sent shield to verify")
+        end
+        if os.time() - pending.sentAt > SHIELD_PENDING_SECONDS then
+            return invalid("Shield ItemUse remains unconfirmed; manual state refresh required")
+        end
+        local snapshot = shield_snapshot()
+        if snapshot.state ~= "confirmed" then return snapshot end
+        local count = owned_item_count(pending.uuid, pending.itemId)
+        if count == nil then return unavailable("Owned shield count after ItemUse is unreadable") end
+        local match = false
+        for _, effect in pairs(snapshot.data.statuses) do
+            if effect.statusId == pending.statusId and
+               effect.remainingMilliseconds > 0 and
+               effect.remainingMilliseconds <= pending.durationMs + 15000 and
+               effect.remainingMilliseconds >= pending.durationMs - 120000 and
+               snapshot.data.serverTimeMilliseconds >= pending.beforeClock then
+                match = true
+            end
+        end
+        if count == pending.count - 1 and match and
+           snapshot.data.shieldStatusCount == 1 then
+            pending_shield = nil
+            return {state="confirmed",data={
+                observation="native_owned_shield_consumption_and_MAIN_SHIELD",
+                slot=hours, itemUuid=pending.uuid, itemId=pending.itemId,
+                statusId=pending.statusId, durationMilliseconds=pending.durationMs,
+                consumedCount=1, remainingMilliseconds=snapshot.data.remainingMilliseconds,
+                serverTimeMilliseconds=snapshot.data.serverTimeMilliseconds
+            }}
+        end
+        return {state="accepted",data={requestDispatched=false,
+            awaitingGameConfirmation=true,slot=hours,itemUuid=pending.uuid}}
+    end
+    if pending ~= nil then
+        return invalid("Prior ItemUse is unconfirmed; never consume again in this session")
+    end
+    local safety = shield_safe_to_consume()
+    if safety ~= nil then return safety end
+    local before = shield_snapshot()
+    if before.state ~= "confirmed" then return before end
+    if before.data.active then
+        return invalid("Active MAIN_SHIELD requires native replacement confirmation")
+    end
+    local item, reason = shield_item_for_hours(hours)
+    if item == nil then return reason end
+    local count = owned_item_count(item.uuid, item.itemId)
+    if count == nil or count ~= item.count then
+        return invalid("Owned shield stack changed during native eligibility check")
+    end
+    -- The original ConfirmUse sends ItemUse only after user-facing warning
+    -- routes have been passed. It sets the five-second cooldown before send.
+    local network = rawget(_G, "SFSNetwork")
+    local message = member(rawget(_G, "MsgDefines"), "ItemUse")
+    local status = member(rawget(_G, "DataCenter"), "StatusManager")
+    if type(member(network, "SendMessage")) ~= "function" or message == nil or
+       type(member(status, "SetUseShieldCD")) ~= "function" then
+        return unavailable("Native shield ItemUse sender/cooldown method unavailable")
+    end
+    -- Re-evaluate volatile warning and cooldown immediately before sending.
+    local final_safety = shield_safe_to_consume()
+    if final_safety ~= nil then return final_safety end
+    local ok_cd = invoke(status, "SetUseShieldCD")
+    if not ok_cd then return invalid("Native shield cooldown could not be set") end
+    local ok_send = pcall(member(network, "SendMessage"), message,
+        {uuid=item.uuid, num=1})
+    if not ok_send then return invalid("Native ItemUse sender failed") end
+    pending_shield = {
+        owner=owner, hours=hours, uuid=item.uuid, itemId=item.itemId,
+        statusId=item.statusId, durationMs=item.durationMs, count=item.count,
+        beforeClock=before.data.serverTimeMilliseconds, sentAt=os.time()
+    }
+    return {state="accepted",data={
+        requestDispatched=true,awaitingGameConfirmation=true,
+        slot=hours,itemUuid=item.uuid,itemId=item.itemId
+    }}
+end
+
 local slots = {
     attack = {"1", "2", "3", "4"},
     recall = {"1", "2", "3", "4"},
@@ -232,19 +482,24 @@ function M.Handle(fields)
     if not valid then return invalid("Hotkey slot is not bound to this game action") end
     -- Always revalidate game-side text focus when dispatch happens, even if
     -- the WinForms sampler saw a fresh earlier input-clear observation.
-    local clear, reason = M.TextInputClear()
-    if not clear then
-        return invalid("Game text input is active or unverifiable: " .. reason)
+    if not (fields.action == "shieldUse" and fields.queryOnly == "1") then
+        local clear, reason = M.TextInputClear()
+        if not clear then
+            return invalid("Game text input is active or unverifiable: " .. reason)
+        end
     end
     if fields.action == "shieldOverlay" then
         return shield_snapshot()
     end
     if fields.action == "shieldUse" then
-        -- Shield duration-to-owned UUID mapping and meteorite confirmation
-        -- requirements are not established for this exact installed build.
-        -- Sending MsgDefines.ItemUse without both would use an arbitrary item
-        -- or skip game UI preconditions; report the real limitation.
-        return unavailable("Shield duration item and warning checks are not source-verified")
+        return shield_use(fields)
+    end
+    if fields.action == "equipment" then
+        -- Original Alt+1–4 references per-profile saved *equipment* loadouts.
+        -- The v26 PVPFormationPresetManager.SendPresetApplyMsg uses game
+        -- formation preset UUIDs and is not an equivalent equipment-slot
+        -- mapping. A source-backed gear-owner/slot-ACK producer is required.
+        return unavailable("Saved equipment preset cannot be mapped to a native v26 equipped-gear apply action")
     end
     return unavailable("Current-client gameplay operation has no proven native action producer: " .. fields.action)
 end

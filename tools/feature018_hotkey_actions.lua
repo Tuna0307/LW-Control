@@ -153,7 +153,18 @@ local function recall(fields, game_input_clear)
         outstanding = {}
         owner_token = identity
     end
-    if type(game_input_clear) ~= "function" or game_input_clear() ~= true then
+    local query_only = fields.queryOnly == "1"
+    if fields.queryOnly ~= nil and not query_only then
+        return blocked("Unknown native recall status mode")
+    end
+    -- A query-only status observation cannot start or retry a march. It may
+    -- run after the physical hotkey was released and game focus left the
+    -- window, so it never creates a new game action or requires text focus.
+    if query_only and outstanding[slot] == nil then
+        return blocked("No previously dispatched owned recall to observe")
+    end
+    if not query_only and (type(game_input_clear) ~= "function" or
+       game_input_clear() ~= true) then
         return blocked("Current-game text input focus could not be cleared")
     end
     local selected, reason = resolve_squad(slot)
@@ -180,6 +191,9 @@ local function recall(fields, game_input_clear)
         end
         return {state="accepted",data={requestDispatched=false,
             awaitingGameConfirmation=true,slot=slot,marchUuid=selected.uuid}}
+    end
+    if query_only then
+        return blocked("No matching in-flight owned recall is available")
     end
     if selected.target == target_enum then
         return {state="confirmed", data={
@@ -265,14 +279,60 @@ function M.Wrap(frozen_hotkeys)
     return function(fields)
         if type(fields) ~= "table" then return blocked("Invalid Hotkeys request") end
         if fields.action == "recall" then return recall(fields, input) end
-        if fields.action == "attack" then
-            return unavailable("No source-verified cursor-selected target plus fixed-slot attack sender")
+        if fields.action == "frontlineReinforce" then
+            if fields.slot ~= "5" then
+                return blocked("Frontline shortcut requires original G slot")
+            end
+            if type(input) ~= "function" or input() ~= true then
+                return blocked("Native game text input is active or unverified")
+            end
+            local mini = rawget(_G, "LWBridgeFeature018MiniGame")
+            local fn = member(mini, "FrontlineReinforce")
+            if type(fn) ~= "function" then
+                return unavailable("Authenticated native Frontline battle producer is unavailable")
+            end
+            -- The game-side mini action performs its own *current* Parkour
+            -- battle identity/hero/level and exact five-step count fencing.
+            -- Never synthesize a client-only +5 receipt in this wrapper.
+            local ok, result = pcall(fn, fields)
+            if not ok or type(result) ~= "table" then
+                return blocked("Native Frontline action returned no reliable game receipt")
+            end
+            return result
+        end
+        if fields.action == "attack" or fields.action == "speedupItem" or
+           fields.action == "speedupDiamond" then
+            local action_module = rawget(_G, "LWBridgeFeature018AttackActions")
+            if type(member(action_module, "Handle")) ~= "function" then
+                return unavailable("Current v26 attack/rapid producer is unavailable")
+            end
+            local ok, result = pcall(action_module.Handle, fields, input)
+            if not ok or type(result) ~= "table" then
+                return blocked("Attack/rapid adapter did not provide native game evidence")
+            end
+            return result
         end
         if fields.action == "shieldUse" then
             if fields.slot ~= "8" and fields.slot ~= "12" and fields.slot ~= "24" then
                 return blocked("Unrecognized shield duration")
             end
-            return unavailable("Cannot source-verify shield duration to owned item UUID and native warning/confirmation")
+            -- The frozen Hotkey game module now joins owned inventory to the
+            -- native StatusTab duration and protects every ItemUse with UI
+            -- cooldown/warning and later independent shield+stock poststate.
+            return previous(fields)
+        end
+        if fields.action == "randomRelocate" or fields.action == "allianceRelocate" then
+            local relocation = rawget(_G, "LWBridgeFeature018RelocationActions")
+            local handler = member(relocation,
+                fields.action == "randomRelocate" and "RandomRelocate" or "AllianceRelocate")
+            if type(handler) ~= "function" then
+                return unavailable("Current relocation source preflight is unavailable")
+            end
+            local ok, result = pcall(handler, fields, input)
+            if not ok or type(result) ~= "table" then
+                return blocked("Relocation source-preflight did not return valid game evidence")
+            end
+            return result
         end
         return previous(fields)
     end
