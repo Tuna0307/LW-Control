@@ -257,8 +257,11 @@ function ShieldOwnedInventoryPanel({ online, previewEnabled }) {
           result?.requestDispatched !== false || !Array.isArray(result?.items))
         throw new Error("Current game's native shield source was not verified");
       const validated = result.items.map((item) => {
-        if (!/^\d+$/.test(String(item?.itemId || "")) ||
-            !/^\d+$/.test(String(item?.uuid || "")) ||
+        // Current v26 ItemUse serializes an opaque item-stack UUID via
+        // PutUtfString; only its *template itemId* must be numeric. This
+        // exact native contract was proven on the approved 2289 account.
+        if (!/^[1-9]\d{0,19}$/.test(String(item?.itemId || "")) ||
+            !/^(?!0$)[A-Za-z0-9_-]{1,128}$/.test(String(item?.uuid || "")) ||
             !Number.isSafeInteger(item?.count) || item.count <= 0 ||
             !Number.isFinite(item?.durationHours) || item.durationHours <= 0)
           throw new Error("Current game's shield stock has invalid native fields");
@@ -284,38 +287,49 @@ function ShieldOwnedInventoryPanel({ online, previewEnabled }) {
   </article>;
 }
 
-// Alt+1–4 retain their original intent, but the current v26 install reply
-// contains no per-equipment correlated server ACK. Never present a preview
-// as an applied preset, or accept a browser-supplied equipment UUID.
+// The v26 owner-persisted preset bridge has a sequential install/uninstall
+// transaction. User consent covers all its steps; each native queryOnly call
+// verifies the prior step's exact hero/slot before advancing. The browser
+// never chooses an equipment UUID or supplies preset contents.
 function EquipmentNativePreflightPanel({ online, previewEnabled }) {
   const { language } = useI18n();
   const chinese = language?.startsWith("zh");
   const words = chinese ? {
-    title: "装备预设原生检查（只读）", description: "查看已保存预设与游戏当前英雄装备的差异。不装备、不拆卸任何道具。",
+    title: "装备预设原生检查", description: "检查当前英雄装备；确认后可应用已保存的原生预设。",
     slot: "预设编号", inspect: "检查当前游戏装备", missing: "没有可用的游戏检查结果。",
-    ready: "已核对当前装备；尚未执行预设应用。", unsupported: "预设应用仍需可靠的服务器装备确认。",
+    ready: "已核对当前装备；尚未执行预设应用。", unsupported: "每步必须等待游戏装备槽位更新确认。",
     changed: "需要变更的位置", worn: "由其他英雄装备", uninstall: "需要卸下",
+    consent: "确认对当前账号应用此已保存预设（逐件安装和卸下）", apply: "应用已保存预设",
+    advance: "验证并继续下一步", pending: "正在等待游戏确认；不要重新提交预设",
+    success: "已核对所有英雄装备槽位，预设应用完成", uncertain: "状态未确认；请检查游戏，勿重复应用",
   } : {
-    title: "Native equipment preset inspection (read-only)",
-    description: "Compare a saved preset against current game hero slots without equipping or removing an item.",
+    title: "Native equipment preset", description: "Inspect current hero gear, then explicitly apply a saved preset through the authenticated game.",
     slot: "Preset number", inspect: "Inspect current game equipment",
     missing: "No verified native equipment result.",
     ready: "Current equipment inspected. The preset has not been applied.",
-    unsupported: "Preset application still requires correlated server equipment confirmation.",
+    unsupported: "Each step requires authoritative hero-slot state confirmation.",
     changed: "Slots to change", worn: "Worn by other heroes", uninstall: "Slots needing removal",
+    consent: "I approve applying all gear changes in this saved preset to the current account.",
+    apply: "Apply saved preset", advance: "Verify and advance next step",
+    pending: "Waiting for native equipment confirmation; do not submit again",
+    success: "Applied and verified all hero equipment slots", uncertain: "Unconfirmed. Check the game; do not submit again.",
   };
   const [slot, setSlot] = useState(1);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [pending, setPending] = useState(null);
+  const [confirmed, setConfirmed] = useState(false);
   const live = online && !previewEnabled;
   useEffect(() => {
-    setResult(null); setError(""); setBusy(false);
+    setResult(null); setError(""); setBusy(false); setConsent(false);
+    setPending(null); setConfirmed(false);
   }, [slot, live, backendBridge.profileGeneration]);
   async function inspect() {
-    if (!live || busy) return;
+    if (!live || busy || pending) return;
     const owner = backendBridge.currentProfileOwner();
-    setResult(null); setError(""); setBusy(true);
+    setResult(null); setError(""); setBusy(true); setConsent(false); setConfirmed(false);
     try {
       // Profile runtime derives these slots from its *persisted confirmed*
       // equipment_config_get. The browser sends neither UID nor preset data.
@@ -335,18 +349,71 @@ function EquipmentNativePreflightPanel({ online, previewEnabled }) {
       if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
     }
   }
+  function recordApplyReceipt(receipt, expectedId) {
+    if (receipt?.slot !== slot || receipt?.presetId !== expectedId ||
+        !Number.isInteger(receipt?.completedSteps) ||
+        !Number.isInteger(receipt?.plannedSteps) ||
+        receipt.completedSteps < 0 || receipt.completedSteps > receipt.plannedSteps)
+      throw new Error("Native equipment transaction identity or progress is unverified");
+    if (receipt.observation === "native_HeroEquip_preset_slots_applied" &&
+        receipt.equipmentApplied === true &&
+        receipt.completedSteps === receipt.plannedSteps &&
+        Array.isArray(receipt.slots) && receipt.slots.length > 0 &&
+        receipt.slots.every((entry) => typeof entry.currentEquipUuid === "string" &&
+          entry.currentEquipUuid === entry.targetEquipUuid)) {
+      setConfirmed(true); setPending(null); return;
+    }
+    if (receipt.observation === "native_HeroEquip_preset_pending" &&
+        receipt.awaitingGameConfirmation === true &&
+        receipt.equipmentApplied === false) {
+      setPending({ presetId: expectedId, completed: receipt.completedSteps, total: receipt.plannedSteps });
+      return;
+    }
+    throw new Error("Native equipment result has no confirmed poststate");
+  }
+  async function advancePreset(initial) {
+    if (!live || busy || (initial ? (!result || !consent || pending || confirmed ||
+        result.changedSlots <= 0) : !pending)) return;
+    const owner = backendBridge.currentProfileOwner();
+    const expectedId = initial ? result.presetId : pending.presetId;
+    setBusy(true); setError(""); setConsent(false);
+    // A native timeout can follow one dispatched HeroEquipInstall. Latch the
+    // chosen transaction before the first mutating call; do not resubmit it.
+    if (initial) setPending({ presetId: expectedId, completed: 0, total: result.changedSlots });
+    try {
+      const receipt = await backendBridge.invokeProfileScoped(
+        "feature018_hotkey_action", { action: "equipment", slot,
+          ...(initial ? {} : { queryOnly: true }) }, 10000);
+      if (backendBridge.isCurrentProfileOwner(owner)) recordApplyReceipt(receipt, expectedId);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError(`${cause.code || cause.message} — ${words.uncertain}`);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
   return <article className="hotkey-card" data-feature018-equipment-preflight>
     <h3>{words.title}</h3><p>{words.description}</p>
-    <label>{words.slot} <select aria-label={words.slot} value={slot} disabled={busy}
+    <label>{words.slot} <select aria-label={words.slot} value={slot} disabled={busy || !!pending}
       onChange={(event) => setSlot(Number(event.target.value))}>
       {[1, 2, 3, 4].map((value) => <option key={value} value={value}>{value}</option>)}
     </select></label>
-    <div className="mini-game-actions"><button type="button" disabled={!live || busy}
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy || !!pending}
       onClick={() => void inspect()}>{words.inspect}</button></div>
     {result ? <div role="status"><span className="hotkey-state">{words.ready}</span>
       <small>{words.changed}: {result.changedSlots} · {words.worn}: {result.wornByOtherHero ?? 0} · {words.uninstall}: {result.uninstallSlots ?? 0}</small>
       <small>{words.unsupported}</small>
     </div> : null}
+    {result && !pending && !confirmed && result.changedSlots > 0 ? <>
+      <label><input type="checkbox" checked={consent} disabled={busy || !live}
+        onChange={(event) => setConsent(event.target.checked)} /> {words.consent}</label>
+      <div className="mini-game-actions"><button type="button" className="primary" disabled={!consent || busy || !live}
+        onClick={() => void advancePreset(true)}>{words.apply}</button></div>
+    </> : null}
+    {pending ? <div role="status"><small>{words.pending} ({pending.completed}/{pending.total})</small>
+      <div className="mini-game-actions"><button type="button" disabled={busy || !live}
+        onClick={() => void advancePreset(false)}>{words.advance}</button></div></div> : null}
+    {confirmed ? <span className="hotkey-state enabled" role="status">{words.success}</span> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
 }
@@ -600,22 +667,34 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       if (!active || busy) return;
       busy = true;
       try {
-        const response = await backendBridge.invokeProfileScoped("mini_land_status", {}, 5000);
+        // Read the EXACT cell of the one previously sent packet. The default
+        // "next locked cell" changes after success and cannot identify the
+        // request/reply pair; an unrelated push can also unlock it.
+        const response = await backendBridge.invokeProfileScoped(
+          "mini_land_status", { expectedCellId: landPendingId }, 5000);
         if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
-        if (response?.cellId !== landPendingId) {
+        if (response?.cellId !== landPendingId || response?.exactCellLookup !== true) {
           setHotkeyError(`${t("miniGames.landCellFailed")} (Land cell identity changed)`);
-          setLandPendingId(null);
-        } else if (response?.state === "unlocked") {
+        } else if (response?.state === "unlocked" &&
+            response?.requestProof?.requestCausalityConfirmed === true &&
+            response.requestProof.replyLandId === landPendingId &&
+            response.requestProof.targetRequestCount === 1 &&
+            response.requestProof.replyCount === 1 &&
+            response.requestProof.accountFenceIntact === true) {
           setLandResult(`${t("miniGames.landCellSent", { id: landPendingId })} · ${t("common.completed")}`);
           setLandPendingId(null);
+        } else if (response?.state === "unlocked") {
+          // No second send: the change may be a push or an unrelated user
+          // action. Keep the pending latch and expose the missing proof.
+          setHotkeyError(`${t("miniGames.landCellFailed")} (Native reply correlation unconfirmed)`);
         } else if (response?.state !== "locked") {
           setHotkeyError(`${t("miniGames.landCellFailed")} (Unconfirmed native land state)`);
-          setLandPendingId(null);
         }
       } catch (error) {
         if (active && backendBridge.isCurrentProfileOwner(owner)) {
           setHotkeyError(`${t("miniGames.landCellFailed")} (${error.code || error.message})`);
-          setLandPendingId(null);
+          // A status timeout may follow a successful send. Never enable the
+          // action button to retransmit while this owner remains pending.
         }
       } finally {
         busy = false;
@@ -628,6 +707,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
 
   async function openLandCell() {
     if (!online || landBusy || landPendingId !== null) return;
+    const owner = backendBridge.currentProfileOwner();
     setLandBusy(true);
     setLandResult("");
     setHotkeyError("");
@@ -637,17 +717,31 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         if (previewState === "mini-games-land-error") throw new Error("preview land cell failure");
         setLandResult(t("miniGames.landCellSent", { id: 17 }));
       } else {
-        const result = await backendBridge.invokeProfileScoped("monopoly_cell_open");
-        if (!Number.isInteger(result?.cellId) || result.cellId <= 0 || result.requestDispatched !== true) {
-          throw new Error("monopoly_cell_open did not confirm a cell ID");
+        const current = await backendBridge.invokeProfileScoped("mini_land_status", {}, 5000);
+        if (!backendBridge.isCurrentProfileOwner(owner)) return;
+        if (!Number.isInteger(current?.cellId) || current.cellId <= 0 ||
+            current.cellId > 10000 || current.state !== "locked") {
+          throw new Error("No exact current locked native Land Cell to unlock");
+        }
+        const expectedCellId = current.cellId;
+        // Latch before dispatch: even an RPC timeout can follow a genuine
+        // UnlockUserLand send. Native and UI must never retry an uncertain
+        // action with an inferred next locked ID.
+        setLandPendingId(expectedCellId);
+        const result = await backendBridge.invokeProfileScoped(
+          "monopoly_cell_open", { expectedCellId }, 10000);
+        if (!backendBridge.isCurrentProfileOwner(owner)) return;
+        if (result?.cellId !== expectedCellId || result.requestDispatched !== true ||
+            result.awaitingGameConfirmation !== true) {
+          throw new Error("monopoly_cell_open did not confirm the exact one-shot packet submission");
         }
         setLandResult(t("miniGames.landCellSent", { id: result.cellId }));
-        setLandPendingId(result.cellId);
       }
     } catch (error) {
-      setHotkeyError(`${t("miniGames.landCellFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
+      if (previewEnabled || backendBridge.isCurrentProfileOwner(owner))
+        setHotkeyError(`${t("miniGames.landCellFailed")}${previewEnabled ? "" : ` (${error.code || error.message})`}`);
     } finally {
-      setLandBusy(false);
+      if (previewEnabled || backendBridge.isCurrentProfileOwner(owner)) setLandBusy(false);
     }
   }
 

@@ -36,6 +36,8 @@ let dispatches = 0;
 let statusReady = false;
 let forceInventoryFailure = false;
 let shieldReads = 0;
+let equipmentActions = 0;
+let equipmentQuerySteps = 0;
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "rapid-inert-session",
   profiles: { selectedProfileId: "rapid-approved-profile" },
@@ -86,7 +88,9 @@ window.chrome = { webview: {
       shieldReads++;
       response = { observation: "native_MAIN_SHIELD_StatusTab_owned_item_duration_join",
         durationMappingVerified: true, readOnly: true, requestDispatched: false,
-        items: [{ itemId: "81008", uuid: "882013", count: 2,
+        // Current v26 ItemUse PutUtfString UUID, independently observed on
+        // the 2289 account; it is not constrained to a 20-digit number.
+        items: [{ itemId: "81008", uuid: "e43623c3ec5e4cd78ae1b3f904094fd7", count: 2,
           statusId: "7801", durationHours: 8, uniqueDuration: true },
           { itemId: "81024", uuid: "882024", count: 1,
             statusId: "7803", durationHours: 24, uniqueDuration: false }] };
@@ -101,6 +105,31 @@ window.chrome = { webview: {
         wornByOtherHero: 0, uninstallSlots: 1,
         slots: [{ heroUuid: "12112", slot: 1, state: "replaceRequired" }],
       };
+    } else if (request.command === "feature018_hotkey_action") {
+      assert.equal(request.payload.action, "equipment");
+      assert.equal(request.payload.slot, 1);
+      assert.equal(request.payload.presetId, undefined,
+        "Equipment UI must never provide a forged persisted preset ID");
+      assert.equal(request.payload.authorizedUid, undefined,
+        "Equipment UI must never select the native game account");
+      assert.equal(request.payload.confirmedEquipmentPresets, undefined,
+        "Equipment UI must never supply equipment UUIDs");
+      if (request.payload.queryOnly === true) {
+        equipmentQuerySteps++;
+        response = equipmentQuerySteps >= 2 ? {
+          observation: "native_HeroEquip_preset_slots_applied", equipmentApplied: true,
+          action: "equipment", slot: 1, presetId: "confirmed-native-preset",
+          completedSteps: 2, plannedSteps: 2,
+          slots: [{ currentEquipUuid: "991", targetEquipUuid: "991" }],
+        } : { observation: "native_HeroEquip_preset_pending", equipmentApplied: false,
+          awaitingGameConfirmation: true, action: "equipment", slot: 1,
+          presetId: "confirmed-native-preset", completedSteps: 1, plannedSteps: 2 };
+      } else {
+        equipmentActions++;
+        response = { observation: "native_HeroEquip_preset_pending", equipmentApplied: false,
+          awaitingGameConfirmation: true, action: "equipment", slot: 1,
+          presetId: "confirmed-native-preset", completedSteps: 0, plannedSteps: 2 };
+      }
     } else throw Error("Unexpected native command: " + request.command);
     queueMicrotask(() => receiver?.({ data: {
       kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
@@ -168,6 +197,19 @@ assert.match(equipPanel().textContent, /已核对当前装备；尚未执行预�
   "Native equipment preflight was confused with applying the preset");
 assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 1,
   "Explicit equipment inspection did not invoke its separate read-only native command");
+const equipConsent = equipPanel().querySelector('input[type="checkbox"]');
+assert.ok(equipConsent, "Source-confirmed equipment preflight exposed no explicit apply consent");
+assert.equal(equipmentActions, 0, "Inspecting native equipment sent an install");
+await flush(() => equipConsent.click());
+await flush(() => [...equipPanel().querySelectorAll("button")].at(-1).click());
+assert.equal(equipmentActions, 1, "Explicit apply must begin exactly one native transaction");
+assert.match(equipPanel().textContent, /正在等待游戏确认/, "Pending equipment install falsely showed success");
+for (let i = 0; i < 2; i++) {
+  await flush(() => [...equipPanel().querySelectorAll("button")].at(-1).click());
+}
+assert.equal(equipmentActions, 1, "Native verification resent the initial install");
+assert.equal(equipmentQuerySteps, 2, "Native equipment sequence did not progress in exact status order");
+assert.match(equipPanel().textContent, /已核对所有英雄装备槽位/, "Fully confirmed gear state did not complete preset");
 assert.ok(!chooser(), "No item should be selectable before an authoritative inventory read");
 await flush(() => buttons()[0].click());
 assert.ok(chooser(), "Native owned items did not render in live Hotkeys");
