@@ -141,10 +141,10 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Native shield shop accepts only the selected action and its exact confirmation.");
                 }
-                if (payload.TryGetProperty("profileId", out JsonElement profile) &&
-                    (profile.ValueKind != JsonValueKind.String ||
-                     string.IsNullOrWhiteSpace(profile.GetString()) ||
-                     profile.GetString()!.Length > 128))
+                if (payload.TryGetProperty("profileId", out JsonElement shieldRoutingProfile) &&
+                    (shieldRoutingProfile.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(shieldRoutingProfile.GetString()) ||
+                     shieldRoutingProfile.GetString()!.Length > 128))
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Invalid native shield shop routing profile.");
                 fields["mode"] = mode;

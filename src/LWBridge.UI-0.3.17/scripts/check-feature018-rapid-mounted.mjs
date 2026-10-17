@@ -57,6 +57,19 @@ window.chrome = { webview: {
     let response;
     if (request.command === "hotkey_config_get") {
       response = { attack: true, attackMarchSpeedupItem: false };
+    } else if (request.command === "feature018_attack_prepare") {
+      assert.deepEqual(request.payload,
+        { mode: "inventory", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
+      response = { observation: "native_ordinary_monsters_and_owned_squads",
+        requestDispatched: false, staffingPreparationPerformed: false,
+        candidates: [], unassignedSoldiers: { observed: true, total: 120 },
+        squads: { "1": { unlocked: true, heroCount: 5, soldierCount: 0,
+          formationCapacity: 280, staffedForAttack: false,
+          canPrepareWithUnassignedSoldiers: true },
+          "2": { unlocked: true, heroCount: 5, soldierCount: 0, formationCapacity: 300,
+            staffedForAttack: false, canPrepareWithUnassignedSoldiers: true },
+          "3": { unlocked: false }, "4": { unlocked: false } },
+      };
     } else if (request.command === "feature018_rapid_action") {
       switch (request.payload.mode) {
         case "inventory":
@@ -121,6 +134,11 @@ window.chrome = { webview: {
         count: shieldCount, readOnly: true, requestDispatched: false,
         canAffordNativePrice: shieldGold >= price,
         additionalGoldNeeded: Math.max(0, price-shieldGold),
+        nativeGoldClaimRoutes: { readOnly: true, requestDispatched: false,
+          goldEarned: false, goldAmountVerified: false,
+          availability: "native_observed", claimableDailyTaskCount: 2,
+          goldTypeMatchedDailyTaskCount: 1,
+          signIn: { availability: "native_cached", claimableEventCount: 1 } },
       };
       if (request.payload.mode === "buy") {
         assert.equal(request.payload.gemOptIn, true);
@@ -212,6 +230,7 @@ const tick = (delay) => flush(() => {
 const panel = () => document.querySelector("[data-feature018-rapid]");
 const equipPanel = () => document.querySelector("[data-feature018-equipment-preflight]");
 const shieldPanel = () => document.querySelector("[data-feature018-shield-inventory]");
+const attackPanel = () => document.querySelector("[data-feature018-attack-readiness]");
 const shopPanel = () => document.querySelector("[data-feature018-shield-shop]");
 const buttons = () => [...panel().querySelectorAll("button")];
 const chooser = () => panel().querySelector('select[aria-label*="拥有的道具"]');
@@ -222,6 +241,15 @@ await flush(() => mounted.render(React.createElement(I18nProvider, {},
 assert.ok(panel(), "New rapid item workflow did not mount in Hotkeys");
 assert.ok(equipPanel(), "Read-only original equipment preset inspection did not mount");
 assert.ok(shieldPanel(), "Read-only native shield inventory control did not mount");
+assert.ok(attackPanel(), "Native QWER owner staffing panel missing");
+assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 0,
+  "Native attack readiness automatically ran or changed a formation on mount");
+await flush(() => attackPanel().querySelector("button").click());
+assert.match(attackPanel().textContent, /空闲士兵: 120/, "Native available soldier count not visible");
+assert.match(attackPanel().textContent, /已编入士兵: 0/, "Native zero-staffed slot not shown");
+assert.match(attackPanel().textContent, /还没有可核实的出征编队/, "Zero soldiers reported as attack-ready");
+assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 1,
+  "QWER read-only readiness initiated more than one source observation");
 assert.ok(shopPanel(), "Owner-gated shield purchase/use control did not mount");
 assert.equal(shieldReads, 0, "Mounting the Hotkeys page unexpectedly read native shield items");
 await flush(() => shieldPanel().querySelector("button").click());
@@ -244,6 +272,10 @@ await flush(() => selectDuration(12));
 await flush(() => shopButtons()[0].click());
 assert.match(shopPanel().textContent, /2324/,
   "Read-only 12h purchase did not report native gold deficit");
+assert.match(shopPanel().textContent, /奖励类型含金币的任务: 1/,
+  "Read-only native Gold reward class was hidden despite source eligibility");
+assert.match(shopPanel().textContent, /金币数量、实际领取及服务器入账均未核实/,
+  "Cached reward eligibility was promoted to a real gold amount or claim");
 assert.equal(shopPanel().querySelector('input[type="checkbox"]'), null,
   "Insufficient gold exposed a purchase consent action");
 assert.equal(shieldShopSends, 0);

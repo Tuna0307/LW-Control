@@ -30,6 +30,80 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
   );
 }
 
+// This native observation is deliberately NOT a virtual Q/W/E/R press. The
+// original current-main-world mouse raycast is still unproven. Formation
+// readiness is useful only as a current owner-scoped, read-only diagnosis.
+function NativeAttackReadinessPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const words = chinese ? {
+    title: "Q/W/E/R 原生出征条件", description: "只读取当前队伍兵力、空闲士兵与目标。不会编队或出征。",
+    inspect: "检查原生出征准备", total: "空闲士兵", target: "已核实普通怪物目标",
+    squad: "队伍", locked: "未解锁", soldier: "已编入士兵", hero: "英雄",
+    capacity: "队伍容量", canStaff: "可以在游戏中手动编入空闲士兵",
+    missing: "还没有可核实的出征编队", guard: "真实鼠标光标目标、服务器确认和游戏窗口按键仍须单独核验",
+  } : {
+    title: "Q/W/E/R native attack readiness",
+    description: "Inspect current squads, unassigned soldiers and game-owned targets. Does not assign troops or attack.",
+    inspect: "Inspect native attack readiness", total: "Unassigned soldiers",
+    target: "Verified ordinary monster candidates", squad: "Squad", locked: "Locked",
+    soldier: "Staffed soldiers", hero: "Heroes", capacity: "Squad capacity",
+    canStaff: "Troops may be manually assigned through the game's own formation UI",
+    missing: "No eligible native attack formation yet",
+    guard: "Physical cursor target, server ACK and game-window shortcut still require separate proof",
+  };
+  const [data, setData] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const live = online && !previewEnabled;
+  useEffect(() => { setData(null); setBusy(false); setError(""); },
+    [live, backendBridge.profileGeneration]);
+  async function inspect() {
+    if (!live || busy) return;
+    const owner = backendBridge.currentProfileOwner();
+    setData(null); setError(""); setBusy(true);
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        "feature018_attack_prepare", { mode: "inventory" }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.observation !== "native_ordinary_monsters_and_owned_squads" ||
+          result?.requestDispatched !== false ||
+          result?.staffingPreparationPerformed !== false ||
+          !Array.isArray(result?.candidates) || result?.squads == null ||
+          typeof result.squads !== "object" ||
+          ![1, 2, 3, 4].every((slot) => result.squads[String(slot)] &&
+            typeof result.squads[String(slot)].unlocked === "boolean"))
+        throw Error("Native attack preparation did not prove a read-only owner snapshot");
+      setData(result);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-attack-readiness>
+    <h3>{words.title}</h3><p>{words.description}</p>
+    <div className="mini-game-actions"><button type="button" disabled={busy || !live}
+      onClick={() => void inspect()}>{words.inspect}</button></div>
+    {data ? <div role="status">
+      <small>{words.total}: {data.unassignedSoldiers?.observed === true ?
+        data.unassignedSoldiers.total : "—"} · {words.target}: {data.candidates.length}</small>
+      {[1, 2, 3, 4].map((slot) => {
+        const squad = data.squads[String(slot)];
+        return <div key={slot}><small>{words.squad} {slot}: {squad.unlocked ?
+          `${words.soldier}: ${squad.soldierCount ?? "—"} · ${words.hero}: ${squad.heroCount ?? "—"} · ${words.capacity}: ${squad.formationCapacity ?? "—"}`
+          : words.locked}</small>
+          {squad.canPrepareWithUnassignedSoldiers === true ? <small>{words.canStaff}</small> : null}
+        </div>;
+      })}
+      {!Object.values(data.squads).some((row) => row.staffedForAttack === true) ?
+        <small>{words.missing}</small> : null}
+      <small>{words.guard}</small>
+    </div> : null}
+    {error ? <div className="automation-error" role="alert">{error}</div> : null}
+  </article>;
+}
+
 // Original speedup switches are only *preferences* for a target that has not
 // yet been source-verified. Keep their intent separate from this explicit,
 // owned ATTACK-march item action: never convert a preference into a purchase.
@@ -305,6 +379,8 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     purchased: "游戏库存+1及金币扣费确认；请重新读取库存后再使用",
     used: "道具减少及 MAIN_SHIELD 生效均已确认",
     unavailable: "当前没有可用库存或金币。此操作不会自动赚取或购买金币。",
+    daily: "当前任务可领取", goldTasks: "奖励类型含金币的任务", signIn: "可领取签到活动",
+    claimHint: "以上仅为游戏本地只读资格。金币数量、实际领取及服务器入账均未核实；请使用游戏原生领取界面。",
     error: "原生回复尚未获得所需确认；请在游戏中检查，不要重试",
   } : {
     title: "Native shield purchase and use",
@@ -319,6 +395,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     purchased: "Native item count +1 and gold debit confirmed; inspect inventory again before use.",
     used: "Owned item debit and MAIN_SHIELD effect both confirmed.",
     unavailable: "No eligible inventory or in-game gold. This does not earn or purchase gold automatically.",
+    daily: "Claimable daily tasks", goldTasks: "Tasks tagged with gold reward type",
+    signIn: "Claimable sign-in events",
+    claimHint: "Only read-only cached game eligibility. Reward amount, actual claim and server credit remain unverified. Claim through the game's own UI.",
     error: "Game receipt is unconfirmed. Check the game before any further action.",
   };
   const [duration, setDuration] = useState(8);
@@ -364,8 +443,8 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         /^(?!0$)[A-Za-z0-9_-]{1,128}$/.test(String(item.uuid || "")));
       // Native source can have ambiguous stacks. Never choose a stack or
       // authorize ItemUse without one unique identity for this duration.
-      const nativeOwned = price.count === 1 && sameDuration.length === 1 &&
-        sameDuration[0].count === 1;
+      const nativeOwned = price.count > 0 && sameDuration.length === 1 &&
+        sameDuration[0].count === price.count;
       setShop(price);
       setOwned(nativeOwned);
     } catch (cause) {
@@ -461,6 +540,17 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     {shop ? <div role="status">
       <small>{words.balance}: {shop.gold} · {words.price}: {shop.nativePrice} · {words.owned}: {shop.count}</small>
       {shop.additionalGoldNeeded > 0 ? <small>{words.missing}: {shop.additionalGoldNeeded}</small> : null}
+      {shop.nativeGoldClaimRoutes?.readOnly === true &&
+       shop.nativeGoldClaimRoutes?.requestDispatched === false ? <div>
+        {shop.nativeGoldClaimRoutes.availability === "native_observed" ? <small>
+          {words.daily}: {shop.nativeGoldClaimRoutes.claimableDailyTaskCount ?? "—"} ·
+          {words.goldTasks}: {shop.nativeGoldClaimRoutes.goldTypeMatchedDailyTaskCount ?? "—"}
+        </small> : null}
+        {shop.nativeGoldClaimRoutes.signIn?.availability === "native_cached" ? <small>
+          {words.signIn}: {shop.nativeGoldClaimRoutes.signIn.claimableEventCount ?? "—"}
+        </small> : null}
+        <small>{words.claimHint}</small>
+      </div> : null}
       {shop.count === 0 && shop.canAffordNativePrice ? <label>
         <input type="checkbox" checked={consent === "buy"} disabled={busy || !live}
           onChange={(event) => setConsent(event.target.checked ? "buy" : "")} /> {words.buyConsent}
@@ -980,6 +1070,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       {hotkeyConfig === null && !hotkeyError ? <div className="muted">{t("common.processing")}</div> : null}
       {(hotkeyConfig || isMiniGames) ? <div className="hotkey-grid">
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
+        {!isMiniGames && hotkeyConfig ? <NativeAttackReadinessPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <OwnedRapidItemPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldOwnedInventoryPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldNativeActionPanel online={online} previewEnabled={previewEnabled} /> : null}
