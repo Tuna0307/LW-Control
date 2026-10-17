@@ -18,12 +18,50 @@ internal sealed partial class LWBridgeWindow
             : new Feature018GameCommandService(lifecycle, equipmentConfigService);
         var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
         bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
+            lifecycle.OwnsExactProcess(owner.GamePid) &&
             lifecycle.MatchesOwnedMapScanSession(owner) &&
             ReadFeature018AuthenticatedAccount(lifecycle, owner) == approved;
+        async Task SaveOwnerLoss(string reason, DateTimeOffset? missingSince)
+        {
+            bool processOwned = lifecycle.OwnsExactProcess(owner.GamePid);
+            bool sessionMatches = lifecycle.MatchesOwnedMapScanSession(owner);
+            Feature018HotkeySession? account =
+                processOwned && sessionMatches
+                    ? ReadFeature018AuthenticatedAccount(lifecycle, owner)
+                    : null;
+            await File.WriteAllTextAsync(
+                Path.Combine(directory, "feature018-owner-loss.json"),
+                JsonSerializer.Serialize(new
+                {
+                    schemaVersion = 1,
+                    state = "failed",
+                    reason,
+                    observedAtUtc = DateTimeOffset.UtcNow,
+                    missingSinceUtc = missingSince,
+                    game = new
+                    {
+                        owner.ProfileId,
+                        owner.SessionId,
+                        owner.GamePid,
+                        owner.GamePath,
+                        owner.GameStartedAtUtc,
+                        uid,
+                        serverId,
+                    },
+                    approvedAccount = Feature018IsApprovedAccount(uid, serverId),
+                    exactOwnedProcess = processOwned,
+                    ownedSessionMatches = sessionMatches,
+                    authenticatedAccount = account,
+                }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }),
+                CancellationToken.None);
+        }
         void Owned()
         {
             token.ThrowIfCancellationRequested();
-            if (!IsOwner()) throw new InvalidDataException("Staged proof lost its exact 2296 owner.");
+            if (IsOwner()) return;
+            if (!lifecycle.OwnsExactProcess(owner.GamePid))
+                throw new InvalidDataException("Staged proof exact owned game process is unavailable.");
+            throw new InvalidDataException("Staged proof lost its authenticated 2296 account/session owner.");
         }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
@@ -57,8 +95,19 @@ internal sealed partial class LWBridgeWindow
                 if (!IsOwner())
                 {
                     missingOwnerSince ??= DateTimeOffset.UtcNow;
+                    if (!lifecycle.OwnsExactProcess(owner.GamePid))
+                    {
+                        await SaveOwnerLoss("exact_owned_game_process_unavailable", missingOwnerSince);
+                        throw new InvalidDataException(
+                            "Staged proof exact owned game process is unavailable.");
+                    }
                     if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(15))
-                        throw new InvalidDataException("Staged proof lost its exact 2296 owner for 15 seconds.");
+                    {
+                        await SaveOwnerLoss("authenticated_owner_unavailable_15_seconds",
+                            missingOwnerSince);
+                        throw new InvalidDataException(
+                            "Staged proof authenticated 2296 account/session owner was unavailable for 15 seconds while the exact game process remained owned.");
+                    }
                     await Task.Delay(200, token);
                     continue;
                 }
