@@ -18,7 +18,7 @@
 -- Only a later authoritative BuildManager update counts as completion. A
 -- dispatch response is always state='accepted', never a server ACK.
 
-local M = { VERSION = 'feature018-city-v26-1', active = nil }
+local M = { VERSION = 'feature018-city-v26-1', active = nil, nextJobSequence = 0 }
 local CITY_REGION = 'main-city'
 local MAX_BUILDINGS = 512
 local MAX_PLACEMENTS = 64
@@ -733,6 +733,9 @@ local function status_data(job)
         cancelRequestedWhileInFlight = job.cancelRequestedWhileInFlight,
         cancelRequestedAtCompletedMoves = job.cancelRequestedAtCompletedMoves,
         dispatchedMoves = job.dispatched or 0,
+        nativeMoveOutboundObserved = job.ownSendObserved == true,
+        nativeMoveOutboundCount = job.nativeMoveSendCount or 0,
+        outboundCollisionObserved = job.outboundContended == true,
         matchingNativeReplies = job.matchingNativeReplies or 0,
         pendingNativeReplyObserved = job.waiting ~= nil and
             job.replyForStep == job.waiting or false,
@@ -746,6 +749,71 @@ local function remove_reply_observer(job)
         job.replyManager.BuildWorldMoveNewHandle = job.originalReplyHandler
     end
     job.replyObserver = nil
+end
+
+local function remove_send_observer(job)
+    if not job or not job.sendObserver then return end
+    if job.sendNetwork and job.sendNetwork.SendMessage == job.sendObserver then
+        job.sendNetwork.SendMessage = job.originalSendMessage
+    end
+    job.sendObserver = nil
+end
+
+local function remove_move_observers(job)
+    remove_reply_observer(job)
+    remove_send_observer(job)
+end
+
+local function observe_native_move_sends(job, net, message)
+    -- UIPlaceBuildView v26 calls SFSNetwork.SendMessage(BuildWorldMoveNew,
+    -- {uuid, pointId, lastIndex}) directly. Its reply omits any request
+    -- nonce. Observe that this producer issued exactly one matching native
+    -- request; overlapping native Move/Replace sends make reply attribution
+    -- ambiguous even if a later buildInfo happens to match our destination.
+    -- Delegate every native invocation unchanged; never intercept gameplay.
+    if job.sendObserver then
+        return job.sendNetwork == net and net.SendMessage == job.sendObserver
+    end
+    local original = net.SendMessage
+    if type(original) ~= 'function' then return false end
+    local function observer(kind, args, ...)
+        if M.active == job and job.waiting and
+            (kind == message.BuildWorldMoveNew or
+             kind == message.FreeBuildingReplaceNew) then
+            if kind == message.BuildWorldMoveNew then
+                job.nativeMoveSendCount = (job.nativeMoveSendCount or 0) + 1
+                local step = job.waiting
+                if job.ownMoveSendActive and job.nativeMoveSendCount == 1 and
+                    type(args) == 'table' and tostring(args.uuid) == step.uuid and
+                    tonumber(args.pointId) == step.pointId and
+                    tonumber(args.lastIndex) == step.from then
+                    job.ownSendObserved = true
+                else
+                    job.outboundContended = true
+                end
+            else
+                -- Replace may apply another building, and its generic native
+                -- UI callback contains no exact request identity. Count any
+                -- overlapping Replace as ambiguous for this in-flight plan.
+                job.outboundContended = true
+            end
+        end
+        return original(kind, args, ...)
+    end
+    net.SendMessage = observer
+    if net.SendMessage ~= observer then return false end
+    job.sendNetwork, job.originalSendMessage, job.sendObserver =
+        net, original, observer
+    return true
+end
+
+local function move_observers_intact(job)
+    return type(job.replyObserver) == 'function' and
+        type(job.sendObserver) == 'function' and
+        job.replyManager ~= nil and
+        job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
+        job.sendNetwork ~= nil and
+        job.sendNetwork.SendMessage == job.sendObserver
 end
 
 local function observe_native_move_replies(job, bm)
@@ -764,6 +832,10 @@ local function observe_native_move_replies(job, bm)
         local step = job.waiting
         local info = type(response) == 'table' and response.buildInfo or nil
         local matching = M.active == job and step ~= nil and
+            move_observers_intact(job) and
+            job.ownSendObserved == true and
+            job.outboundContended ~= true and
+            job.nativeMoveSendCount == 1 and
             type(info) == 'table' and response.errorCode == nil and
             tostring(info.uuid) == step.uuid and
             tonumber(info.pointId) == step.pointId and
@@ -834,7 +906,7 @@ local function dispatch_step(job)
     local step = job.steps[job.completed + 1]
     if step == nil then
         job.state = 'completed'
-        remove_reply_observer(job)
+        remove_move_observers(job)
         return true
     end
     local observed, meta_or_reason = snapshot()
@@ -891,9 +963,12 @@ local function dispatch_step(job)
         job.error = 'The official existing-building move sender is unavailable.'
         return false
     end
-    if not observe_native_move_replies(job, meta.ctx.bm) then
+    if not observe_native_move_replies(job, meta.ctx.bm) or
+        not observe_native_move_sends(job, net, message) then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'The native Move reply handler cannot be observed safely.'
+        job.error = 'The native Move request and reply cannot both be observed safely.'
+        -- A partial observer installation did not send a packet. Release it.
+        remove_move_observers(job)
         return false
     end
     -- v26 UIPlaceBuildView.OnConfirmBtnClick:436-459, PlaceBuildType.Move.
@@ -905,10 +980,15 @@ local function dispatch_step(job)
     -- leave an already placed building unchanged even when SendMessage returns.
     job.waiting = step
     job.replyForStep = nil
+    job.ownSendObserved = false
+    job.nativeMoveSendCount = 0
+    job.outboundContended = false
     job.sentAt = os.time()
     job.dispatched = (job.dispatched or 0) + 1
+    job.ownMoveSendActive = true
     local sent, failure = pcall(net.SendMessage, message.BuildWorldMoveNew,
         { uuid = step.nativeUuid, pointId = step.pointId, lastIndex = step.from })
+    job.ownMoveSendActive = false
     if not sent or failure == false then
         -- The native sender is void-returning. A bridge exception/false value
         -- cannot prove the packet did not escape, so retain the pending fence.
@@ -926,7 +1006,8 @@ local function progress_job(job)
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local building = bm and bm:GetBuildingDataByUuid(current.nativeUuid)
     local observed = building and tonumber(building.pointId)
-    if observed == current.pointId and job.replyForStep == current then
+    if observed == current.pointId and job.replyForStep == current and
+        not job.outboundContended and move_observers_intact(job) then
         -- BuildWorldMoveNewHandle invokes AddBuilding on the server's
         -- buildInfo then broadcasts BuildingMove({uuid,old,new}); inspecting
         -- native BuildingDate plus full translated footprint avoids mistaking
@@ -939,7 +1020,7 @@ local function progress_job(job)
             job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
             job.error = 'Another building moved during this layout request.'
             job.waiting = nil -- Exact reply arrived; further state needs a new plan.
-            remove_reply_observer(job)
+            remove_move_observers(job)
             return
         end
         job.waiting = nil
@@ -948,11 +1029,14 @@ local function progress_job(job)
         elseif job.completed == #job.steps then job.state = 'completed'
         else dispatch_step(job) end
         if job.state ~= 'running' and not job.waiting then
-            remove_reply_observer(job)
+            remove_move_observers(job)
         end
     elseif observed == current.pointId then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
         job.error = 'The target position changed without a matching native Move reply; an unconfirmed packet remains outstanding.'
+    elseif job.outboundContended or not move_observers_intact(job) then
+        job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
+        job.error = 'An overlapping native building action or displaced request/reply observer prevents safe server result attribution.'
     elseif observed ~= current.from then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
         job.error = 'The game moved a building to a different position.'
@@ -979,7 +1063,8 @@ local function reconcile_timed_out(job)
     local pending = job.waiting
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local record = bm and bm:GetBuildingDataByUuid(pending.nativeUuid)
-    if job.replyForStep ~= pending or not record or
+    if job.outboundContended or not move_observers_intact(job) or
+        job.replyForStep ~= pending or not record or
         tonumber(record.pointId) ~= pending.pointId then return end
     job.expected[pending.uuid] = pending.pointId
     if check_positions(job) then
@@ -994,7 +1079,7 @@ local function reconcile_timed_out(job)
     end
     job.waiting = nil
     job.cancelRequested = true
-    remove_reply_observer(job)
+    remove_move_observers(job)
 end
 
 -- Advance server-confirmed moves on the owned game tick, including when the
@@ -1064,7 +1149,7 @@ function M.Register(feature)
             return failed('CITY_LAYOUT_RESULT_UNCERTAIN',
                 'A previous native building move may still receive a server result; no other move can be safely sent.')
         end
-        if M.active then remove_reply_observer(M.active) end
+        if M.active then remove_move_observers(M.active) end
         local validation, state, meta, steps = validate_state(values)
         if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', state) end
         if not state.isInCity then
@@ -1082,8 +1167,13 @@ function M.Register(feature)
             sources[uuid] = source
             expected[uuid] = source.public.pointId
         end
+        -- A caller may reuse requestId after an earlier job completed.
+        -- Prefixing only that value lets a delayed Cancel for an old job
+        -- cancel a different freshly accepted move under the same owner.
+        M.nextJobSequence = M.nextJobSequence + 1
         local job = {
-            jobId = 'f018city' .. values.requestId,
+            jobId = 'f018city' .. values.requestId .. '-' ..
+                tostring(M.nextJobSequence),
             profileId = values.profileId,
             launchSessionId = values.launchSessionId,
             challenge = values.challenge,
@@ -1115,6 +1205,11 @@ function M.Register(feature)
         if not job or not same_owner(job, values) or values.jobId ~= job.jobId then
             return failed('CITY_LAYOUT_JOB_MISSING', 'The requested layout job is unavailable.')
         end
+        if job.state ~= 'running' and job.waiting == nil then
+            -- The native result has already settled (or terminal failure was
+            -- observed). Retrospective Cancel cannot roll back that result.
+            return confirmed({ accepted = false, status = status_data(job) })
+        end
         job.cancelRequested = true
         -- This receipt describes the moment the actual Cancel command was
         -- consumed, before status polling or an ACK can advance the job.
@@ -1145,12 +1240,12 @@ function M.CleanupAfterLeaseLoss()
             M.active.state = 'failed'
             if M.active.errorCode ~= 'CITY_LAYOUT_OWNER_LOSS_RECONCILED' then
                 M.active.errorCode = 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN'
-                M.active.error = 'Native owner admission was interrupted after a building replacement was sent. Its server outcome is unknown; another move is blocked.'
+                M.active.error = 'Native owner admission was interrupted after a building move was sent. Its server outcome is unknown; another move is blocked.'
             end
             return
         end
         M.active.state = 'cancelled'
-        remove_reply_observer(M.active)
+        remove_move_observers(M.active)
     end
     M.active = nil
 end

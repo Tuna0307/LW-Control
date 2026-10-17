@@ -50,6 +50,7 @@ DataCenter.CityZoneManager.CanPutBuildByPoint = function(self,id,zone)
   return zone==1 and AllowedZones[id]==true
 end
 OriginalNativeMoveReply = DataCenter.BuildManager.BuildWorldMoveNewHandle
+OriginalNativeSend = SFSNetwork.SendMessage
 '''
 
 
@@ -170,8 +171,9 @@ def test_exact_native_swap():
     assert_that(complete['state'] == 'completed' and
                 complete['matchingNativeReplies'] == 3 and
                 complete['inFlight'] is False and
-                lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
-                '2x2 swap declared success without three native ACKs/cleanup')
+                lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                lua.eval('SFSNetwork.SendMessage == OriginalNativeSend'),
+                '2x2 swap declared success without three native ACKs/dual cleanup')
     assert_that(lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId'] == 4442
                 and lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId'] == 4242,
                 '2x2 final authoritative positions incorrect')
@@ -238,8 +240,10 @@ def test_cancel_partial_and_uncertain():
                     after['completedMoves']==cancel_step and
                     after['matchingNativeReplies']==cancel_step and
                     not after['inFlight'] and
+                    lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
+                    lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
                     len(lua.globals().ObservedMoves)==pending,
-                    'cancel misreported partial native 2x2 movement')
+                    'cancel misreported partial native 2x2 movement or leaked hooks')
     lua,producer=scene()
     lua.execute('Clock=100; os.time = function() return Clock end')
     revision=state(lua)['layoutRevision']
@@ -268,8 +272,188 @@ def test_cancel_partial_and_uncertain():
                 reconciled['completedMoves']==1 and
                 not reconciled['inFlight'] and
                 reconciled['matchingNativeReplies']==1 and
+                lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
+                lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
                 len(lua.globals().ObservedMoves)==1,
-                'late exact Move ACK resumed abandoned swap or lost partial poststate')
+                'late exact Move ACK resumed swap, lost poststate, or leaked hooks')
+
+
+def test_outbound_native_collision_fences():
+    # The native Move reply contains no nonce. Two requests in flight to any
+    # destinations, or an overlapping original Replace operation, mean the
+    # BuildManager response cannot be attributed solely by matching position.
+    for collision in ('same-move','other-move','old-replace','after-reply'):
+        lua, producer=scene()
+        revision=state(lua)['layoutRevision']
+        lua.execute('OriginalNativeSend = SFSNetwork.SendMessage')
+        started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        assert_that(started['state']=='accepted','outbound collision fixture not sent')
+        before=status(lua,revision)
+        assert_that(before['nativeMoveOutboundObserved'] is True and
+                    before['nativeMoveOutboundCount']==1 and
+                    before['outboundCollisionObserved'] is False,
+                    'producer did not register its one direct original Move send')
+        if collision == 'after-reply':
+            confirm(lua,ONE,4244)
+        if collision == 'old-replace':
+            lua.execute(f'''SFSNetwork.SendMessage(MsgDefines.FreeBuildingReplaceNew,
+                {{buildUuid={ONE}, pointId=4244}})''')
+        else:
+            target=4244 if collision != 'other-move' else 4444
+            who=ONE if collision != 'other-move' else TWO
+            original=4242 if collision != 'other-move' else 4442
+            lua.execute(f'''SFSNetwork.SendMessage(MsgDefines.BuildWorldMoveNew,
+                {{uuid={who},pointId={target},lastIndex={original}}})''')
+        if collision != 'after-reply':
+            confirm(lua,ONE,4244)
+        producer.Pump()
+        uncertain=status(lua,revision)
+        assert_that(uncertain['state']=='failed' and
+                    uncertain['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    uncertain['inFlight'] is True and
+                    uncertain['completedMoves']==0 and
+                    uncertain['outboundCollisionObserved'] is True and
+                    uncertain['matchingNativeReplies'] <= 1,
+                    f'{collision}: native overlapping send incorrectly completed move')
+        assert_that(lua.globals().Act('city_layout_apply_start',
+                    lua.globals().Fields(state(lua)['layoutRevision'],
+                      f'{TWO}:4444'))['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN',
+                    f'{collision}: native overlap unlocked risky new send')
+        pending_count=len(lua.globals().ObservedMoves)
+        producer.Pump()
+        assert_that(len(lua.globals().ObservedMoves)==pending_count,
+                    f'{collision}: uncertain multi-step plan sent a later move')
+
+
+def test_displaced_native_observers_and_sync_reply():
+    # Even a previously matching reply cannot confirm an in-flight packet if
+    # either observer was replaced before the owner pump revalidated its state.
+    for lost in ('send','reply'):
+        lua, producer=scene()
+        revision=state(lua)['layoutRevision']
+        lua.execute('OriginalNativeSend = SFSNetwork.SendMessage')
+        start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        assert_that(start['state']=='accepted','displaced observer start failed')
+        confirm(lua,ONE,4244)
+        if lost == 'send':
+            lua.execute('SFSNetwork.SendMessage = OriginalNativeSend')
+        else:
+            lua.execute('DataCenter.BuildManager.BuildWorldMoveNewHandle = OriginalNativeMoveReply')
+        producer.Pump()
+        observed=status(lua,revision)
+        assert_that(observed['state']=='failed' and
+                    observed['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    observed['completedMoves']==0 and
+                    observed['inFlight'] is True,
+                    f'{lost}: replaced observer still attributed native result')
+        assert_that(lua.globals().Act('city_layout_apply_start',
+                    lua.globals().Fields(state(lua)['layoutRevision'],
+                      f'{TWO}:4444'))['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN',
+                    f'{lost}: displaced observer unlocked duplicate move')
+
+    # An event-loop mock may deliver a successful game reply before the
+    # original void-return SendMessage finishes. Own request observation
+    # precedes delegate call and must not lose this valid matched result.
+    lua, producer=scene()
+    lua.execute('''
+      SFSNetwork.SendMessage=function(message,args)
+        ObservedMoves[#ObservedMoves+1]={
+          message=message,uuid=args.uuid,pointId=args.pointId,
+          lastIndex=args.lastIndex}
+        ConfirmNativeMove(args.uuid,args.pointId)
+      end
+    ''')
+    revision=state(lua)['layoutRevision']
+    started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    assert_that(started['state']=='accepted','synchronous native request/reply not accepted')
+    for _ in range(3):
+        producer.Pump()
+    outcome=status(lua,revision)
+    assert_that(outcome['state']=='completed' and
+                outcome['matchingNativeReplies']==3 and
+                outcome['completedMoves']==3 and
+                outcome['outboundCollisionObserved'] is False and
+                len(lua.globals().ObservedMoves)==3,
+                'synchronous original Move replies lost native request correlation')
+
+    # A native host may expose a readable but non-replaceable sender. A partial
+    # reply-hook installation must be undone before dispatching any packet.
+    lua,producer=scene()
+    lua.execute('''
+      local previous = SFSNetwork.SendMessage
+      SFSNetwork = setmetatable({}, {
+          __index = function(_, key)
+            if key == 'SendMessage' then return previous end
+          end,
+          __newindex = function() end,
+      })
+    ''')
+    revision=state(lua)['layoutRevision']
+    rejected=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    assert_that(rejected['state']=='failed' and
+                rejected['errorCode']=='GAME_METHOD_UNAVAILABLE' and
+                len(lua.globals().ObservedMoves)==0 and
+                lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
+                'non-hookable outgoing sender left reply override or sent native Move')
+
+
+def test_stale_cancel_does_not_hit_reused_request_id():
+    # The bridge's requestId is an input token, not a unique native job
+    # incarnation. A late Cancel for an already completed layout must not
+    # cancel a newly started layout that legitimately reuses that token.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    first_id=start['data']['status']['jobId']
+    for who,target in ((ONE,4244),(TWO,4242),(ONE,4442)):
+        confirm(lua,who,target)
+        producer.Pump()
+    settled=status(lua,revision)
+    assert_that(settled['state']=='completed' and
+                settled['jobId']==first_id and
+                settled['cancelRequested'] is False,
+                'first 2x2 job did not reach exact native terminal state')
+    cancel_fields={'profileId':'p1','launchSessionId':'session1',
+                   'challenge':'nonce','jobId':first_id}
+    late=lua.globals().Act('city_layout_apply_cancel',
+                           lua.table_from(cancel_fields))
+    assert_that(late['state']=='confirmed' and
+                late['data']['accepted'] is False and
+                late['data']['status']['state']=='completed' and
+                late['data']['status']['cancelRequested'] is False,
+                'retrospective cancel falsely rewrote confirmed completion')
+
+    new_revision=state(lua)['layoutRevision']
+    reverse=lua.globals().Fields(new_revision,
+                                  f'{ONE}:4242;{TWO}:4442')
+    second=lua.globals().Act('city_layout_apply_start',reverse)
+    assert_that(second['state']=='accepted' and
+                second['data']['status']['jobId'] != first_id and
+                second['data']['status']['inFlight'] is True,
+                'reused owner requestId produced the same native job ID')
+    old_cancel=lua.globals().Act('city_layout_apply_cancel',
+                                 lua.table_from(cancel_fields))
+    assert_that(old_cancel['state']=='failed' and
+                old_cancel['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                status(lua,new_revision)['state']=='running' and
+                status(lua,new_revision)['cancelRequested'] is False,
+                'delayed Cancel for prior request improperly stopped a newer job')
+    pending=status(lua,new_revision)
+    fresh_cancel_fields=dict(cancel_fields)
+    fresh_cancel_fields['jobId']=second['data']['status']['jobId']
+    accepted_cancel=lua.globals().Act('city_layout_apply_cancel',
+                                      lua.table_from(fresh_cancel_fields))
+    assert_that(accepted_cancel['data']['accepted'] is True and
+                accepted_cancel['data']['status']['state']=='cancelling',
+                'valid new-job Cancel did not preserve in-flight receipt')
+    packets_before=len(lua.globals().ObservedMoves)
+    confirm(lua,int(pending['pendingUuid']),pending['pendingPointId'])
+    producer.Pump()
+    after=status(lua,new_revision)
+    assert_that(after['state']=='cancelled' and
+                after['cancelRequestedWhileInFlight'] is True and
+                len(lua.globals().ObservedMoves)==packets_before,
+                'new-job Cancel dispatched remaining 2x2 steps')
 
 
 def main():
@@ -278,8 +462,11 @@ def main():
     test_exact_native_swap()
     test_negative_native_zones()
     test_cancel_partial_and_uncertain()
+    test_outbound_native_collision_fences()
+    test_displaced_native_observers_and_sync_reply()
+    test_stale_cancel_does_not_hit_reused_request_id()
     print('FEATURE018_CITY_SWAP: PASS v26 exact 2x2 native UUID '
-          'swap preflight/3x ACK/cancel/no-buffer/late uncertainty')
+          'swap preflight/3x ACK/cancel/no-buffer/late uncertainty/outbound collision')
 
 
 if __name__=='__main__':
