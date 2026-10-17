@@ -70,21 +70,32 @@ local function dictionary_size(obj, max)
     return count
 end
 
-local function approved_native_owner()
+local function native_account()
     -- The host authenticates its session, but a login/server transition can
     -- occur between an accepted Start and a later automated native UI click.
     local player = get(rawget(_G, 'LuaEntry'), 'Player')
-    if tostring(get(player, 'uid')) ~= '2553945035002288' then return false end
+    local uid=tostring(get(player,'uid') or '')
+    if not uid:match('^[1-9]%d*$') then return nil end
+    local server_id
     for _, getter in ipairs({'GetSourceServerId', 'GetSelfServerId', 'GetCurServerId'}) do
         local ok, server = call(player, getter)
-        if not ok or tostring(server) ~= '2288' then return false end
+        local id=tostring(server or '')
+        if not ok or not id:match('^[1-9]%d*$') or
+           (server_id and server_id ~= id) then return nil end
+        server_id=id
     end
-    return true
+    return {uid=uid,server=server_id,player=player}
+end
+local function approved_native_owner(account)
+    local current=native_account()
+    return current~=nil and (account==nil or
+        (current.uid==account.uid and current.server==account.server and
+         current.player==account.player))
 end
 
 local function context()
     if not approved_native_owner() then
-        return nil, 'Food House requires the authorized native UID/server 2288'
+        return nil, 'Food House requires an authenticated native UID/server'
     end
     local small = get(rawget(_G, 'SmallGameManager'), 'GSheep')
     local manager = get(rawget(_G, 'DataCenter'), 'LWSheepDataManager')
@@ -281,7 +292,8 @@ local function stop_internal(reason)
         -- Source LWUISheepGameView.Update may bind a *different* view before
         -- Stop or an asynchronous response. The send belongs to the click's
         -- ORIGINAL view, never whichever view was observed most recently.
-        unresolved_move = {view = run.pending.view, pending = run.pending}
+        unresolved_move = {view = run.pending.view, pending = run.pending,
+                           account = run.account}
     end
     run.pending = nil
     -- The planner is a coroutine. Releasing the actual field on Stop also
@@ -356,6 +368,9 @@ local function hook_loaded_view()
         return total
     end
     local update = function(view, ...)
+        if executing_or_preparing() and not approved_native_owner(run.account) then
+            stop_internal('Native Food House account changed during source UI update')
+        end
         if observed ~= view then
             if executing_or_preparing() and run.view ~= nil and run.view ~= view then
                 stop_internal('Food House native view was replaced during the current level')
@@ -369,6 +384,12 @@ local function hook_loaded_view()
         return prior_update(view, ...)
     end
     local response = function(view, packet, ...)
+        if executing_or_preparing() and not approved_native_owner(run.account) then
+            -- A late server callback can arrive before the next Pump. Retain
+            -- the outstanding click fence instead of accepting an ACK or
+            -- completing a different account's board.
+            stop_internal('Native Food House account changed before server reply')
+        end
         local pending = run and run.pending or nil
         local retired = unresolved_move ~= nil and unresolved_move.view == view and
                         unresolved_move.pending or nil
@@ -388,11 +409,17 @@ local function hook_loaded_view()
         local retired_before = is_retired_click and
                                queued_point_count(view, retired.point, true) or nil
         local ok, value = pcall(prior_result, view, packet, ...)
+        if pending ~= nil and executing_or_preparing() and
+           not approved_native_owner(run.account) then
+            -- The original reply handler itself may trigger a native login or
+            -- server transition. Do not promote its drained queue to our ACK.
+            stop_internal('Native Food House account changed during server reply')
+        end
         if is_retired_click and unresolved_move ~= nil and
            unresolved_move.pending == retired then
             local retired_after = queued_point_count(view, retired.point, false)
             if ok and retired_before == 1 and retired_after == 0 and
-               approved_native_owner() then
+               approved_native_owner(unresolved_move.account) then
                 unresolved_move = nil
             end
         end
@@ -420,6 +447,9 @@ local function hook_loaded_view()
         return value
     end
     local destroy = function(view, ...)
+        if executing_or_preparing() and not approved_native_owner(run.account) then
+            stop_internal('Native Food House account changed before view destruction')
+        end
         local owns_run = executing_or_preparing() and run.view == view
         if observed == view then
             observed = nil
@@ -447,6 +477,9 @@ local function hook_loaded_view()
         return prior_destroy(view, ...)
     end
     local click = function(view, ...)
+        if executing_or_preparing() and not approved_native_owner(run.account) then
+            stop_internal('Native Food House account changed before source UI click')
+        end
         if executing_or_preparing() and not run.acting then
             stop_internal('User or another controller clicked the Food House board')
         end
@@ -545,6 +578,10 @@ local function start(request)
     end
     local ctx, err = context()
     if ctx == nil then return result('unsupported', err) end
+    local account=native_account()
+    if account==nil or request.authorizedUid~=account.uid then
+        return result('failed','Food House request owner differs from native account')
+    end
     if request.expectedLevel ~= nil and tostring(ctx.level) ~= request.expectedLevel then
         return result('failed', 'Current Season 4 level changed before Start')
     end
@@ -561,6 +598,9 @@ local function start(request)
     local view, _, game = native_view()
     if unresolved_start ~= nil then
         local pending = unresolved_start
+        if not approved_native_owner(pending.account) then
+            return result('failed', 'Prior native Food House Start belongs to a different native account')
+        end
         local snapshot = view ~= nil and window_open and board_snapshot(view, game) or nil
         if pending.manager ~= ctx.manager or pending.small ~= ctx.small or
            pending.level ~= ctx.level or pending.blockId ~= ctx.blockId or
@@ -572,19 +612,20 @@ local function start(request)
         unresolved_start = nil
     end
     local first = {started = clock(), level = ctx.level, blockId = ctx.blockId,
-                   status = 'opening', confirmed = 0, nodes = 0}
+                   account=account,status = 'opening', confirmed = 0, nodes = 0}
     run = first
     hook_loaded_view()
     -- Source GSheep.Start may dispatch LWSheepStartGame before the native
     -- window exists, including when an old bound view has survived its close.
     -- Arm the single-attempt fence BEFORE entering that native producer.
     if not window_open then
-        if not approved_native_owner() then
+        if not approved_native_owner(account) then
             stop_internal('Food House native account changed before Start')
             return result('failed', run.error)
         end
         unresolved_start = {manager = ctx.manager, small = ctx.small,
-                            level = ctx.level, blockId = ctx.blockId}
+                            level = ctx.level, blockId = ctx.blockId,
+                            account = account}
         local call_ok = call(ctx.small, 'Start')
         if not call_ok then
             stop_internal('Native GSheep.Start may have submitted an uncertain start request')
@@ -617,6 +658,10 @@ end
 
 function M.Pump()
     if run == nil then return false end
+    if not approved_native_owner(run.account) then
+        stop_internal('Native Food House account changed since Start')
+        return false
+    end
     local status_now = run.status
     if status_now ~= 'opening' and status_now ~= 'solving' and status_now ~= 'executing' then return false end
     local observed_hooks_intact = hook_loaded_view()
@@ -667,7 +712,8 @@ function M.Pump()
         -- handler can be shared by two view instances whose tile point IDs
         -- happen to match; only this exact native board admits our next click.
         run.view, run.engine, run.game = view, engine, game
-        if unresolved_start ~= nil and unresolved_start.level == ctx.level and
+        if unresolved_start ~= nil and approved_native_owner(unresolved_start.account) and
+           unresolved_start.level == ctx.level and
            unresolved_start.blockId == ctx.blockId and
            unresolved_start.manager == ctx.manager and
            unresolved_start.small == ctx.small then
@@ -770,7 +816,7 @@ function M.Pump()
         stop_internal('Native Food House window closed before next tile click')
         return false
     end
-    if not approved_native_owner() then
+    if not approved_native_owner(run.account) then
         stop_internal('Food House native account changed before UI tile click')
         return false
     end
@@ -781,6 +827,10 @@ function M.Pump()
     run.acting = true
     local click_ok = call(item, 'OnClickCard')
     run.acting = false
+    if not approved_native_owner(run.account) then
+        stop_internal('Food House native account changed during UI tile click')
+        return false
+    end
     if not click_ok then stop_internal('Native UI tile click failed'); return false end
     if run.status == 'completed' then return true end
     local sync = get(view, 'syncOps')

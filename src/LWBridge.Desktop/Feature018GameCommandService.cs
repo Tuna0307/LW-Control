@@ -52,6 +52,26 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
+        Feature018AuthenticatedGameAccount? capturedHotkeyAccount = null;
+        if (command == "feature018_hotkey_action")
+        {
+            bool hasUid = payload.TryGetProperty("expectedGameUid", out JsonElement uid);
+            bool hasServer = payload.TryGetProperty("expectedServerId", out JsonElement server);
+            if (hasUid != hasServer)
+                throw new BridgeCommandException("INVALID_REQUEST",
+                    "A captured hotkey identity requires both UID and server.");
+            if (hasUid)
+            {
+                if (uid.ValueKind != JsonValueKind.String ||
+                    uid.GetString() is not { Length: > 0 and <= 20 } gameUid ||
+                    gameUid[0] == '0' || !gameUid.All(char.IsAsciiDigit) ||
+                    server.ValueKind != JsonValueKind.Number ||
+                    !server.TryGetInt32(out int serverId) || serverId <= 0)
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid captured hotkey UID/server.");
+                capturedHotkeyAccount = new Feature018AuthenticatedGameAccount(gameUid, serverId);
+            }
+        }
         if (command == "feature018_hotkey_action" && fields["action"] == "equipment")
         {
             JsonElement ordinal = JsonSerializer.SerializeToElement(new
@@ -96,7 +116,8 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             "feature018_rapid_action" ||
             (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
         return await exchange.ExchangeAsync(command, fields, timeout, cancellationToken,
-            allowAcceptedDispatch: acceptsSubmission).ConfigureAwait(false);
+            allowAcceptedDispatch: acceptsSubmission,
+            expectedAccount: capturedHotkeyAccount).ConfigureAwait(false);
     }
 
     internal static Dictionary<string, string> ReadFields(string command, JsonElement payload)
@@ -110,7 +131,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             {
                 string mode = ReadValue(payload,"mode",16);
                 if (mode is not ("inventory" or "open" or "staffingEditor" or
-                    "selectorTarget" or "attackReadiness"))
+                    "selectorTarget" or "attackReadiness" or "cursorPoint"))
                     throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
                 var attackPrepareKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (JsonProperty entry in payload.EnumerateObject())
@@ -118,12 +139,33 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     bool allowed = entry.Name is "mode" or "profileId" ||
                         (mode == "open" && entry.Name == "targetUuid") ||
                         (mode == "attackReadiness" && entry.Name == "slot") ||
+                        (mode == "cursorPoint" && entry.Name is "samplePixelX" or "samplePixelY") ||
                         (mode == "staffingEditor" && entry.Name is "slot" or "editorOptIn");
                     if (!allowed || !attackPrepareKeys.Add(entry.Name))
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Native attack readiness accepts only distinct fields for its selected mode.");
                 }
                 fields["mode"] = mode;
+                if (mode == "cursorPoint")
+                {
+                    bool hasX = payload.TryGetProperty("samplePixelX", out JsonElement pixelX);
+                    bool hasY = payload.TryGetProperty("samplePixelY", out JsonElement pixelY);
+                    if (hasX != hasY)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Native cursor diagnostic requires both sample pixel coordinates.");
+                    if (hasX)
+                    {
+                        if (pixelX.ValueKind != JsonValueKind.Number || pixelY.ValueKind != JsonValueKind.Number ||
+                            !pixelX.TryGetInt32(out int x) || !pixelY.TryGetInt32(out int y) ||
+                            x is < 0 or > 32767 || y is < 0 or > 32767)
+                            throw new BridgeCommandException("INVALID_REQUEST",
+                                "Native cursor diagnostic requires bounded integer screen pixels.");
+                        // Diagnostic only. Never use client pixels as an
+                        // authenticated attack target or mutating command.
+                        fields["samplePixelX"] = x.ToString(CultureInfo.InvariantCulture);
+                        fields["samplePixelY"] = y.ToString(CultureInfo.InvariantCulture);
+                    }
+                }
                 if (mode == "attackReadiness")
                 {
                     if (!payload.TryGetProperty("slot", out JsonElement readinessSlot) ||

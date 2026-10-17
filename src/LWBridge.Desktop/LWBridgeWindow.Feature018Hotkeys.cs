@@ -43,12 +43,13 @@ internal sealed partial class LWBridgeWindow
         OverviewLifecycleService lifecycle,
         OverviewMapScanSession session)
     {
-        if (!lifecycle.MatchesOwnedMapScanSession(session) ||
-            !Feature018OwnedGameExchange.FreshApprovedSubaccount(
-                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), session) ||
-            !lifecycle.MatchesOwnedMapScanSession(session)) return null;
+        if (!lifecycle.MatchesOwnedMapScanSession(session)) return null;
+        Feature018AuthenticatedGameAccount? account =
+            Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount(
+                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), session);
+        if (account is null || !lifecycle.MatchesOwnedMapScanSession(session)) return null;
         return new Feature018HotkeySession(session.ProfileId, session.SessionId,
-            Feature018ApprovedGameUid, Feature018ApprovedServerId);
+            account.GameUid, account.ServerId);
     }
 
     private void RetireFeature018Hotkeys()

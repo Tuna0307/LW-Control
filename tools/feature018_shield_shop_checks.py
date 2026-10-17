@@ -3,7 +3,15 @@ import feature018_hotkey_shield_checks as base
 import unittest
 
 
-def fixture():
+def native_account(lua, uid, server):
+    """Switch the inert game identity; no real session or game is accessed."""
+    player = lua.globals().LuaEntry.Player
+    player.uid = uid
+    for getter in ("GetSourceServerId", "GetSelfServerId", "GetCurServerId"):
+        player[getter] = lua.eval(f"function() return {server} end")
+
+
+def fixture(uid="2553945035002288", server=2288):
     lua, module, state = base.run()
     lua.execute('''
     LuaEntry={Player={uid='2553945035002288',gold=1000,
@@ -25,15 +33,20 @@ def fixture():
       state.lastPurchasedItemId=data.itemId
     end
     ''')
+    native_account(lua, uid, server)
     def call(mode='inspect', slot=8, **extra):
-        return module.ShieldShop(lua.table_from(dict(
+        values = dict(
             slot=str(slot),mode=mode,profileId='profile',launchSessionId='launch',
-            challenge='challenge',gamePid='7020',**extra)))
+            challenge='challenge',gamePid='7020',authorizedUid=uid)
+        values.update(extra)
+        return module.ShieldShop(lua.table_from(values))
     return lua, state, call
 
 
 def main():
     lua, state, call = fixture()
+    assert call(authorizedUid=None)['state'] == 'failed' and state.sent == 0
+    assert call(authorizedUid='3133546747002212')['state'] == 'failed' and state.sent == 0
     assert call()['data']['nativePrice'] == 500 and state.sent == 0
     assert call('buy')['state'] == 'failed' and state.sent == 0
     lua.globals().LuaEntry.Player.uid='3133546747002212'
@@ -51,7 +64,7 @@ def main():
     print('FEATURE018_SHIELD_SHOP_LUA53_OFFLINE_PASS')
 
 
-def replacement_fixture():
+def replacement_fixture(uid="2553945035002288", server=2288):
     lua, module, state = base.run()
     lua.execute('''
       LuaEntry={Player={uid='2553945035002288',gold=10000,
@@ -62,18 +75,42 @@ def replacement_fixture():
       state.protectEnd=state.serverTime+4*3600000
       state.effectEnd[501]=state.protectEnd
     ''')
+    native_account(lua, uid, server)
     def shop(hours=8, challenge='challenge', **extra):
-        return module.ShieldShop(lua.table_from(dict(
+        values = dict(
             slot=str(hours), mode='armUse', profileId='profile',
-            launchSessionId='launch', challenge=challenge, gamePid='7020', **extra)))
+            launchSessionId='launch', challenge=challenge, gamePid='7020',
+            authorizedUid=uid)
+        values.update(extra)
+        return module.ShieldShop(lua.table_from(values))
     def key(hours=8, challenge='challenge', **extra):
-        return module.Handle(lua.table_from(dict(
+        values = dict(
             action='shieldUse',slot=str(hours),profileId='profile',
-            launchSessionId='launch',challenge=challenge,gamePid='7020', **extra)))
+            launchSessionId='launch',challenge=challenge,gamePid='7020',
+            authorizedUid=uid)
+        values.update(extra)
+        return module.Handle(lua.table_from(values))
     return lua, module, state, shop, key
 
 
 class ArmedShieldChecks(unittest.TestCase):
+    def test_valid_native_account_can_arm_and_consume_replacement(self):
+        for uid, server in (('3133546747002212', 2212),
+                            ('3133546747002289', 2289)):
+            with self.subTest(server=server):
+                lua, module, state, shop, key = replacement_fixture(uid, server)
+                self.assertEqual(shop(authorizedUid=None, shieldReplaceOptIn='1')['state'], 'failed')
+                self.assertEqual(shop(authorizedUid='2553945035002288',
+                                      shieldReplaceOptIn='1')['state'], 'failed')
+                self.assertEqual(state.sent, 0)
+                self.assertEqual(shop(shieldReplaceOptIn='1')['state'], 'confirmed')
+                self.assertEqual(key()['state'], 'accepted')
+                self.assertEqual(state.sent, 1)
+                state['items'][1]['count'] = 1
+                state['effectEnd'][501] = state.serverTime + 8 * 3600000
+                self.assertEqual(key(queryOnly='1')['state'], 'confirmed')
+                self.assertEqual(state.sent, 1)
+
     def test_arm_requires_exact_explicit_consent_without_spending(self):
         lua, module, state, shop, key = replacement_fixture()
         self.assertEqual(shop()['state'], 'failed')
@@ -195,6 +232,23 @@ class ArmedShieldChecks(unittest.TestCase):
 
 
 class GemPurchaseChecks(unittest.TestCase):
+    def test_any_valid_native_account_can_inspect_buy_and_confirm(self):
+        for uid, server in (('3133546747002212', 2212),
+                            ('3133546747002289', 2289)):
+            with self.subTest(server=server):
+                lua, state, call = fixture(uid, server)
+                self.assertEqual(call(authorizedUid=None)['state'], 'failed')
+                self.assertEqual(call(authorizedUid='2553945035002288')['state'], 'failed')
+                self.assertEqual(state.sent, 0)
+                info = call()
+                self.assertEqual(info['state'], 'confirmed')
+                self.assertEqual(info['data']['nativePrice'], 500)
+                self.assertEqual(call('buy', gemOptIn='1')['state'], 'accepted')
+                self.assertEqual(state.sent, 1)
+                lua.execute('state.items={{itemId=9,uuid=123,count=1}}; LuaEntry.Player.gold=500')
+                self.assertEqual(call('status')['state'], 'confirmed')
+                self.assertEqual(state.sent, 1)
+
     def test_exact_native_price_stock_and_balance_rechecked_before_spend(self):
         for mutation in (
             'state.templates[1].price=600',
@@ -248,15 +302,21 @@ class GemPurchaseChecks(unittest.TestCase):
         lua.execute('LuaEntry.Player.gold=500')
         self.assertEqual(call('status')['state'], 'confirmed')
 
-    def test_main_account_never_makes_or_confirms_purchase(self):
+    def test_new_account_cannot_confirm_or_retry_old_accounts_purchase(self):
         lua, state, call = fixture()
         self.assertEqual(call('buy', gemOptIn='1')['state'], 'accepted')
-        lua.execute("LuaEntry.Player.uid='3133546747002212'")
+        native_account(lua, '3133546747002212', 2212)
         lua.execute('state.items={{itemId=9,uuid=123,count=1}}; LuaEntry.Player.gold=500')
         self.assertEqual(call('status')['state'], 'failed')
         self.assertEqual(call('buy', gemOptIn='1')['state'], 'failed')
+        # Even when the new logged-in account supplies its own valid UID,
+        # it may not take over an unresolved purchase dispatched by 2288.
+        self.assertEqual(call('status', authorizedUid='3133546747002212')['state'],
+                         'failed')
+        self.assertEqual(call('buy', gemOptIn='1',
+                              authorizedUid='3133546747002212')['state'], 'failed')
         self.assertEqual(state.sent, 1)
-        lua.execute("LuaEntry.Player.uid='2553945035002288'")
+        native_account(lua, '2553945035002288', 2288)
         self.assertEqual(call('status')['state'], 'confirmed')
 
 

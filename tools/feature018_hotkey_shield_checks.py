@@ -107,7 +107,8 @@ def run():
     return runtime, module, runtime.globals().state
 
 
-def command(runtime, module, hours, *, query=False, challenge="challenge"):
+def command(runtime, module, hours, *, query=False, challenge="challenge",
+            authorized_uid="2553945035002288"):
     values = {
         "action": "shieldUse",
         "slot": str(hours),
@@ -116,12 +117,46 @@ def command(runtime, module, hours, *, query=False, challenge="challenge"):
         "challenge": challenge,
         "gamePid": "7020",
     }
+    if authorized_uid is not None:
+        values["authorizedUid"] = authorized_uid
     if query:
         values["queryOnly"] = "1"
     return module.Handle(runtime.table_from(values))
 
 
 def main():
+    # No UI/game mailbox test can silently fill in an omitted request UID.
+    runtime, module, state = run()
+    for forged in (None, "3133546747002212", "bogus", "25539450350022880"):
+        denied = command(runtime, module, 8, authorized_uid=forged)
+        require(denied["state"] == "failed" and state["sent"] == 0 and
+                state["cooldownSets"] == 0,
+                "missing or forged request UID reached owned native ItemUse")
+
+    # The shipped producer admits *any* currently logged-in UID and server
+    # pair; the exact request UID must still equal the native account.
+    for uid, server in (("3133546747002212", 2212),
+                        ("3133546747002289", 2289)):
+        runtime, module, state = run()
+        runtime.execute(f"""
+            LuaEntry.Player.uid='{uid}'
+            LuaEntry.Player.GetSourceServerId=function() return {server} end
+            LuaEntry.Player.GetSelfServerId=function() return {server} end
+            LuaEntry.Player.GetCurServerId=function() return {server} end
+        """)
+        require(command(runtime, module, 8)["state"] == "failed" and
+                state["sent"] == 0,
+                "native account switch reused previous caller's UID")
+        sent = command(runtime, module, 8, authorized_uid=uid)
+        require(sent["state"] == "accepted" and state["sent"] == 1 and
+                state["cooldownSets"] == 1,
+                f"valid {server} account blocked from native shield sender")
+        state["items"][1]["count"] = 1
+        state["effectEnd"][501] = state["serverTime"] + 8 * 3600000
+        require(command(runtime, module, 8, query=True, authorized_uid=uid)["state"] ==
+                "confirmed" and state["sent"] == 1,
+                "valid account could not observe its own pending shield")
+
     # Current v26 ItemUseMessage.OnCreate PutUtfString("uuid") accepts a
     # game-issued opaque stack UUID: numeric itemId and stack UUID are separate.
     runtime, module, state = run()
@@ -208,7 +243,8 @@ def main():
             "ambiguous identical-duration owned item stacks consumed arbitrarily")
 
     # The game bridge admits a profile, but the mutating Lua producer must
-    # also independently bind exact native player identity and all servers.
+    # also independently bind the REQUEST UID to native player identity and
+    # require *matching* native server getters (not a fixed allowlisted server).
     for expression in (
         "LuaEntry.Player.uid='3133546747002212'",
         'LuaEntry.Player.GetSourceServerId=function() return 2212 end',
@@ -221,7 +257,7 @@ def main():
         runtime.execute(expression)
         require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 0
                 and state["cooldownSets"] == 0,
-                "foreign/missing native owner reached ItemUse: " + expression)
+                "mismatched/missing native owner reached ItemUse: " + expression)
 
     runtime, module, state = run()
     require(command(runtime, module, 8)["state"] == "accepted", "baseline owned ItemUse")

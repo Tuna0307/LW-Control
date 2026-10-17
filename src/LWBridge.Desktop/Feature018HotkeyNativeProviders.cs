@@ -48,18 +48,17 @@ internal sealed class Feature018HotkeyNativeProviders
     private async Task<Feature018HotkeyActionOutcome> ExecuteAsync(
         Feature018HotkeyCommand command, CancellationToken cancellationToken)
     {
-        // The broker normally authenticates the selected session. Validate the
-        // exact native mutation owner *again* at the provider boundary, before
-        // even probing the native mailbox. A synthetic key or stale coordinator
-        // cannot make a main-account (2212) item/gear/march/relocation action.
-        if (command.Intent.Kind != Feature018HotkeyKind.ShieldRemaining &&
-            (command.Session.GameUid != LWBridgeWindow.Feature018ApprovedGameUid ||
-             command.Session.ServerId != LWBridgeWindow.Feature018ApprovedServerId ||
-             string.IsNullOrWhiteSpace(command.Session.ProfileId) ||
-             string.IsNullOrWhiteSpace(command.Session.InstanceId)))
+        // The broker pins the authenticated account when a key is captured.
+        // Reject malformed snapshots at the provider boundary; the shared
+        // game exchange rereads the same UID/server throughout the native RPC.
+        if (string.IsNullOrWhiteSpace(command.Session.ProfileId) ||
+            string.IsNullOrWhiteSpace(command.Session.InstanceId) ||
+            command.Session.GameUid is not { Length: > 0 and <= 20 } uid ||
+            uid[0] == '0' || !uid.All(char.IsAsciiDigit) ||
+            command.Session.ServerId <= 0)
         {
             return new(Feature018HotkeyActionStatus.SessionChanged,
-                "native_hotkey_mutation_owner_not_approved");
+                "native_hotkey_account_snapshot_unavailable");
         }
         if (command.Intent.Kind == Feature018HotkeyKind.ShieldRemaining)
             return await ExecuteAdmittedAsync(command, cancellationToken).ConfigureAwait(false);
@@ -94,6 +93,8 @@ internal sealed class Feature018HotkeyNativeProviders
                 action = ActionName(command.Intent.Kind),
                 slot = command.Intent.Slot,
                 authorizedUid = command.Session.GameUid,
+                expectedGameUid = command.Session.GameUid,
+                expectedServerId = command.Session.ServerId,
                 allowRapidItem = command.AllowMarchSpeedupItems,
                 allowRapidDiamond = command.AllowMarchSpeedupDiamonds,
             }, JsonOptions.Default)
@@ -103,17 +104,23 @@ internal sealed class Feature018HotkeyNativeProviders
                 action = ActionName(command.Intent.Kind), slot = command.Intent.Slot,
                 expectedStageRunId = command.ExpectedStageRunId,
                 count = command.ReinforceCount,
+                expectedGameUid = command.Session.GameUid,
+                expectedServerId = command.Session.ServerId,
             }, JsonOptions.Default)
             : command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline
             ? JsonSerializer.SerializeToElement(new
             {
                 action = ActionName(command.Intent.Kind), slot = command.Intent.Slot,
                 count = command.ReinforceCount,
+                expectedGameUid = command.Session.GameUid,
+                expectedServerId = command.Session.ServerId,
             }, JsonOptions.Default)
             : JsonSerializer.SerializeToElement(new
             {
                 action = ActionName(command.Intent.Kind),
                 slot = command.Intent.Slot,
+                expectedGameUid = command.Session.GameUid,
+                expectedServerId = command.Session.ServerId,
             }, JsonOptions.Default);
         try
         {
@@ -145,7 +152,7 @@ internal sealed class Feature018HotkeyNativeProviders
             if (dispatchedNativeRequest &&
                 evidence.TryGetProperty("awaitingGameConfirmation", out var completed) &&
                 completed.ValueKind == JsonValueKind.False &&
-                ConfirmedReceiptMatches(command.Intent, evidence, command.ReinforceCount))
+                ConfirmedReceiptMatches(command.Intent, evidence, command.Session, command.ReinforceCount))
                 return new(Feature018HotkeyActionStatus.Confirmed,
                     "verified_native_game_state_observation", evidence.Clone());
             if (dispatchedNativeRequest || nativeAcceptedOnly)
@@ -214,7 +221,7 @@ internal sealed class Feature018HotkeyNativeProviders
                 return new(Feature018HotkeyActionStatus.Failed,
                     "native_recall_back_home_state_lacks_attributed_send_and_reply");
             }
-            if (!ConfirmedReceiptMatches(command.Intent, evidence, command.ReinforceCount))
+            if (!ConfirmedReceiptMatches(command.Intent, evidence, command.Session, command.ReinforceCount))
                 return new(Feature018HotkeyActionStatus.Failed,
                     "native_game_action_observation_unverified");
 
@@ -268,7 +275,8 @@ internal sealed class Feature018HotkeyNativeProviders
             return new(Feature018HotkeyActionStatus.Submitted,
                 "native_action_outcome_unconfirmed_dispatch_unknown");
         }
-        catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
+        catch (BridgeCommandException error) when (
+            error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED")
         {
             return new(Feature018HotkeyActionStatus.SessionChanged,
                 "authenticated_game_route_unavailable");
@@ -296,9 +304,13 @@ internal sealed class Feature018HotkeyNativeProviders
             ? TimeSpan.FromMinutes(3) : TimeSpan.FromSeconds(15));
         JsonElement request = command.Intent.Kind == Feature018HotkeyKind.AttackSquad
             ? JsonSerializer.SerializeToElement(new { action = "attack", slot = command.Intent.Slot,
-                queryOnly = true, authorizedUid = command.Session.GameUid }, JsonOptions.Default)
+                queryOnly = true, authorizedUid = command.Session.GameUid,
+                expectedGameUid = command.Session.GameUid,
+                expectedServerId = command.Session.ServerId }, JsonOptions.Default)
             : JsonSerializer.SerializeToElement(new
-            { action = ActionName(command.Intent.Kind), slot = command.Intent.Slot, queryOnly = true }, JsonOptions.Default);
+            { action = ActionName(command.Intent.Kind), slot = command.Intent.Slot, queryOnly = true,
+              expectedGameUid = command.Session.GameUid,
+              expectedServerId = command.Session.ServerId }, JsonOptions.Default);
         try
         {
             while (true)
@@ -312,7 +324,7 @@ internal sealed class Feature018HotkeyNativeProviders
                         gameState.ValueKind == JsonValueKind.Object &&
                         !(gameState.TryGetProperty("awaitingGameConfirmation", out var stillPending) &&
                           stillPending.ValueKind == JsonValueKind.True) &&
-                        ConfirmedReceiptMatches(command.Intent, gameState, command.ReinforceCount))
+                        ConfirmedReceiptMatches(command.Intent, gameState, command.Session, command.ReinforceCount))
                     {
                         if (gameState.GetProperty(uuidProperty).GetString() != sentUuid)
                             return new(Feature018HotkeyActionStatus.SessionChanged,
@@ -321,7 +333,8 @@ internal sealed class Feature018HotkeyNativeProviders
                             "verified_native_game_state_observation", gameState.Clone());
                     }
                 }
-                catch (BridgeCommandException error) when (error.Code == "GAME_CONNECTION_UNAVAILABLE")
+                catch (BridgeCommandException error) when (
+                    error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED")
                 {
                     return new(Feature018HotkeyActionStatus.SessionChanged,
                         "authenticated_game_route_unavailable");
@@ -346,7 +359,8 @@ internal sealed class Feature018HotkeyNativeProviders
     }
 
     private static bool ConfirmedReceiptMatches(
-        Feature018HotkeyIntent intent, JsonElement evidence, int reinforceCount = 5)
+        Feature018HotkeyIntent intent, JsonElement evidence,
+        Feature018HotkeySession session, int reinforceCount = 5)
     {
         if (!evidence.TryGetProperty("observation", out JsonElement observed) ||
             observed.ValueKind != JsonValueKind.String)
@@ -386,9 +400,10 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("replyUseOperationCompatible", out var normalUse) && normalUse.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var independentAfter) && independentAfter.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
-                    evidence.TryGetProperty("ownerUid", out var moveOwner) && moveOwner.GetString() == LWBridgeWindow.Feature018ApprovedGameUid &&
+                    evidence.TryGetProperty("ownerUid", out var moveOwner) &&
+                    moveOwner.ValueKind == JsonValueKind.String && moveOwner.GetString() == session.GameUid &&
                     evidence.TryGetProperty("sourceServerId", out var moveServer) && moveServer.TryGetInt32(out int moveServerId) &&
-                    moveServerId == LWBridgeWindow.Feature018ApprovedServerId &&
+                    moveServerId == session.ServerId &&
                     evidence.TryGetProperty("beforeWorldPointId", out var beforePoint) && beforePoint.TryGetInt64(out long oldPoint) &&
                     evidence.TryGetProperty("afterWorldPointId", out var afterPoint) && afterPoint.TryGetInt64(out long newPoint) &&
                     oldPoint is >= 0 and < 10000000 && newPoint is >= 0 and < 10000000 && oldPoint != newPoint &&

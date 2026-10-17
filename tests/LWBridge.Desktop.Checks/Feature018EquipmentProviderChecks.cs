@@ -21,7 +21,7 @@ internal static class Feature018EquipmentProviderChecks
     }
 
     private static readonly Feature018HotkeySession Owner =
-        new("owner", "launch", "2553945035002288", 2288);
+        new("owner", "launch", "3133546747002289", 2289);
     private static void Require(bool condition, string detail)
     {
         if (!condition) throw new InvalidOperationException("FEATURE018_EQUIPMENT_PROVIDER: " + detail);
@@ -113,7 +113,7 @@ internal static class Feature018EquipmentProviderChecks
                         state = transmitted.Count < 3 ? "accepted" : "confirmed", data,
                     }));
                     return Task.CompletedTask;
-                });
+                }, currentAccount: _ => new Feature018AuthenticatedGameAccount(Owner.GameUid, Owner.ServerId));
             var game = new Feature018GameCommandService(exchange, equipment);
             var coordinator = Coordinator(game);
             Feature018HotkeyActionOutcome outcome = await coordinator.TryDispatchAsync(
@@ -241,6 +241,8 @@ internal static class Feature018EquipmentProviderChecks
                 data => data["replyUseOperationCompatible"] = false,
                 data => data["independentWorldAndInventoryPoststateVerified"] = false,
                 data => data["worldPointChanged"] = false,
+                data => data["ownerUid"] = "2553945035002288",
+                data => data["sourceServerId"] = 2288,
                 data => data["afterCount"] = 2,
                 data => data["itemUuid"] = "not:a:native:stack:uuid",
             })

@@ -47,8 +47,6 @@ local M = {VERSION = "feature018-relocation-actions-10"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
-local HOME_SERVER = 2288 -- Authorized sub-account only. 2212 is the read-only main.
-local APPROVED_UID = "2553945035002288"
 
 local function member(object, name)
     if object == nil then return nil end
@@ -106,6 +104,10 @@ end
 local function key_identity(fields, expected_action)
     if type(fields) ~= "table" or fields.action ~= expected_action or
        fields.slot ~= "0" then return nil end
+    -- The authenticated bridge stamps this UID on each request. A different
+    -- logged-in native player cannot reuse the same profile/session token.
+    local request_uid = uid(fields.authorizedUid)
+    if request_uid == nil or type(fields.authorizedUid) ~= "string" then return nil end
     local result = {}
     for _, key in ipairs({"profileId", "launchSessionId", "challenge", "gamePid"}) do
         local value = fields[key]
@@ -113,6 +115,7 @@ local function key_identity(fields, expected_action)
            not value:match("^[%w_-]+$") then return nil end
         result[#result + 1] = value
     end
+    result[#result+1] = request_uid
     return table.concat(result, "/")
 end
 
@@ -125,11 +128,6 @@ local function world_snapshot()
     local ok_self, self_server = invoke(player, "GetSelfServerId")
     local ok_current, current_server = invoke(player, "GetCurServerId")
     local ok_pos, position = invoke(player, "GetMainWorldPos")
-    for _,raw_server in ipairs({source_server,self_server,current_server})do
-        if raw_server~=HOME_SERVER and raw_server~=tostring(HOME_SERVER) then
-            return nil,"Connected world is not the exact authorized server-2288 home world"
-        end
-    end
     source_server, self_server = integer(source_server, 1), integer(self_server, 1)
     current_server, position = integer(current_server, 1), integer(position, 0)
     if player_uid == nil or not ok_source or not ok_self or not ok_current or
@@ -137,12 +135,8 @@ local function world_snapshot()
        current_server == nil or position == nil then
         return nil, "Native owner, server and city position snapshot incomplete"
     end
-    if player_uid ~= APPROVED_UID then
-        return nil, "Connected UID does not match the exact authorized 2288 sub-account"
-    end
-    if source_server ~= HOME_SERVER or self_server ~= HOME_SERVER or
-       current_server ~= HOME_SERVER then
-        return nil, "Connected world is not the authorized server-2288 home world"
+    if source_server ~= self_server or self_server ~= current_server then
+        return nil, "Native player source/self/current server identity disagrees"
     end
 
     local item_data = member(rawget(_G, "DataCenter"), "ItemData")
@@ -186,12 +180,22 @@ local function world_snapshot()
         noActionDispatched=true}, nil
 end
 
+local function same_world_owner(first, second)
+    return second ~= nil and first.ownerUid==second.ownerUid and
+        first.sourceServerId==second.sourceServerId and
+        first.selfServerId==second.selfServerId and
+        first.currentServerId==second.currentServerId
+end
+
 -- The original F10 TryAllianceMoveCity first reads the OTHER-server rally.
 -- If one exists it opens a choice dialog, but WITHOUT one it immediately
 -- calls AllianceMoveCityToSourceRallyPoint, whose native path can SEND
 -- MsgDefines.AllianceMoveCity. Opening the handler as a "safe dialog" would
 -- therefore be unsafe. Only inspect getters proven read-only in original v26.
 local function alliance_rally_snapshot(player)
+    local ok_home,home_server=invoke(player,"GetCurServerId")
+    home_server=ok_home and integer(home_server,1) or nil
+    if not home_server then return nil,"Current native home server unavailable" end
     local owner_alliance_ok, owner_alliance = invoke(player, "GetAllianceUid")
     if not owner_alliance_ok then
         owner_alliance=member(player,"allianceId") -- original bag Ctrl 286 compares this native field
@@ -234,7 +238,7 @@ local function alliance_rally_snapshot(player)
             return nil, "Native F10 rally mark owner/type/server/point mismatch"
         end
         return {markType=mark_type, serverId=mark_server, worldPointId=point,
-                authorizedHomeServer=mark_server == HOME_SERVER,
+                authorizedHomeServer=mark_server == home_server,
                 sameOwnerAlliance=true}, nil
     end
 
@@ -288,6 +292,11 @@ local function preflight(fields, input_clear, action)
         baseline = {}
         last_owner = nil
         return unavailable(reason)
+    end
+    if snapshot.ownerUid ~= fields.authorizedUid then
+        baseline = {}
+        last_owner = nil
+        return failed("GAME_PRECONDITION_FAILED","Relocation request UID does not match native owner")
     end
     -- The three conventional move consumables in world_snapshot are not the
     -- original F9/F10 bag actions. Probe the exact action item/expiry now,
@@ -500,6 +509,9 @@ function M.Readiness(fields,input_clear,action)
     end
     local snapshot,why=world_snapshot()
     if not snapshot then return unavailable(why) end
+    if snapshot.ownerUid~=fields.authorizedUid then
+        return failed("GAME_PRECONDITION_FAILED","Relocation readiness request UID differs from native player")
+    end
     local focus_ok,focus_clear=false,false
     if type(input_clear)=="function" then
         focus_ok,focus_clear=pcall(input_clear)
@@ -568,6 +580,15 @@ function M.Readiness(fields,input_clear,action)
         blocker="Original F10 chooser UI not available"
     elseif action=="allianceRelocate" and chooser_already_open then
         blocker="Original F10 chooser already open; no attributed new request"
+    end
+    -- Focus and native inventory/rally/UI reads can change the account while
+    -- readiness is being computed. Never advertise the previous owner's
+    -- item/target as actionable for a new UID or server.
+    local final=world_snapshot()
+    if not same_world_owner(snapshot,final) or
+       final.worldPointId~=snapshot.worldPointId then
+        return failed("GAME_PRECONDITION_FAILED",
+            "Native relocation owner/server changed during readiness inspection")
     end
     return {state="confirmed",data={
         observation="original_v26_authenticated_relocation_readiness",
@@ -717,6 +738,9 @@ local function perform(fields,input_clear,action)
     if fields.queryOnly~=nil and fields.queryOnly~="1" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation query mode") end
     local snapshot,reason=world_snapshot()
     if not snapshot then return failed("GAME_PRECONDITION_FAILED",reason) end
+    if snapshot.ownerUid~=fields.authorizedUid then
+        return failed("GAME_PRECONDITION_FAILED","Relocation request UID differs from native owner")
+    end
     local token=session.."/"..snapshot.ownerUid.."/"..snapshot.sourceServerId
     if chooser_pending then
         if action~="allianceRelocate" then
@@ -801,8 +825,7 @@ local function perform(fields,input_clear,action)
     -- transition. Revalidate the exact owner, three servers and before
     -- position at the last no-send boundary, ahead of installing an observer.
     local final_owner,final_reason=world_snapshot()
-    if not final_owner or final_owner.ownerUid~=snapshot.ownerUid or
-       final_owner.sourceServerId~=snapshot.sourceServerId or
+    if not same_world_owner(snapshot,final_owner) or
        final_owner.worldPointId~=snapshot.worldPointId then
         return failed("GAME_PRECONDITION_FAILED",
             final_reason or "Native relocation owner or starting point changed before dispatch")
@@ -837,7 +860,13 @@ local function perform(fields,input_clear,action)
             return failed("GAME_PRECONDITION_FAILED",
                 "Original native alliance chooser mark changed before opening")
         end
-        return request_original_f10_chooser(final_owner,fresh,token)
+        local result=request_original_f10_chooser(final_owner,fresh,token)
+        local after=world_snapshot()
+        if not same_world_owner(snapshot,after) then
+            return failed("GAME_ACTION_UNCONFIRMED",
+                "Native relocation owner/server changed while opening F10 chooser; never reopen")
+        end
+        return result
     end
     if action~="randomRelocate" then
         return failed("GAME_PRECONDITION_FAILED",
@@ -890,6 +919,13 @@ local function perform(fields,input_clear,action)
     if not installed or member(manager,method)~=tx.hook then return unavailable("Native relocation reply observer could not be attached") end
     pending=tx -- before call, including uncertain exceptions: never retransmit
     local sent,send_result=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
+    local after=world_snapshot()
+    if not same_world_owner(snapshot,after) then
+        tx.observerDetached=true
+        clear_hook(tx)
+        return failed("GAME_ACTION_UNCONFIRMED",
+            "Native relocation owner/server changed during F9 item-use send; never retry")
+    end
     if not sent or send_result==false then
         tx.sendOutcomeUncertain=true
         return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",

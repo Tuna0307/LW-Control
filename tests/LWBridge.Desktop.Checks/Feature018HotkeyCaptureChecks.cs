@@ -255,9 +255,9 @@ internal static class Feature018HotkeyCaptureChecks
 
         var stub = new StubNativeCommandService();
         var wired = new Feature018HotkeyNativeProviders(stub).Create();
-        // The recognizer and broker each have their own focus/session gate,
-        // but the native provider must independently reject wrong-account
-        // mutation requests, including when invoked directly.
+        // The recognizer/broker and mailbox retain the authenticated account.
+        // Direct native provider calls reject missing/malformed account snapshots
+        // on every account, independent of the old proof-only 2288 identity.
         foreach (Feature018HotkeyKind mutation in new[]
         {
             Feature018HotkeyKind.AttackSquad, Feature018HotkeyKind.RecallSquad,
@@ -267,7 +267,7 @@ internal static class Feature018HotkeyCaptureChecks
         })
         {
             var forbidden = new Feature018HotkeyCommand(
-                new Feature018HotkeySession("main", "i", "3133546747002212", 2212),
+                new Feature018HotkeySession("main", "i", "", 2212),
                 new Feature018HotkeyIntent(mutation, mutation switch
                 {
                     Feature018HotkeyKind.UseShield => 8,
@@ -279,17 +279,25 @@ internal static class Feature018HotkeyCaptureChecks
             Feature018HotkeyActionOutcome denied =
                 await wired[mutation](forbidden, CancellationToken.None);
             Require(denied.Status == Feature018HotkeyActionStatus.SessionChanged &&
-                    denied.Reason == "native_hotkey_mutation_owner_not_approved" &&
+                    denied.Reason == "native_hotkey_account_snapshot_unavailable" &&
                     stub.Calls == beforeForbidden,
-                "main account reached mutating native action provider through " + mutation);
+                "missing game UID reached mutating native action provider through " + mutation);
         }
-        var wrongServer = new Feature018HotkeyCommand(
-            session with { ServerId = 2212 },
+        var missingServer = new Feature018HotkeyCommand(
+            session with { ServerId = 0 },
             new Feature018HotkeyIntent(Feature018HotkeyKind.UseShield, 8));
         Require((await wired[Feature018HotkeyKind.UseShield](
-                    wrongServer, CancellationToken.None)).Status ==
+                    missingServer, CancellationToken.None)).Status ==
                 Feature018HotkeyActionStatus.SessionChanged && stub.Calls == 0,
-            "approved UID on wrong server reached native shield ItemUse");
+            "missing game server reached native shield ItemUse");
+        var anyAccountProvider = new StubNativeCommandService();
+        var anyAccount = new Feature018HotkeyNativeProviders(anyAccountProvider).Create();
+        Feature018HotkeyActionOutcome admittedOtherAccount = await anyAccount[Feature018HotkeyKind.UseShield](
+            new Feature018HotkeyCommand(
+                new Feature018HotkeySession("other-profile", "other-session", "3133546747002212", 2212),
+                new Feature018HotkeyIntent(Feature018HotkeyKind.UseShield, 8)), CancellationToken.None);
+        Require(anyAccountProvider.Calls == 1 && admittedOtherAccount.Status != Feature018HotkeyActionStatus.SessionChanged,
+            "any-account native provider rejected valid UID/server before the authenticated exchange");
 
         // The real exchange returns accepted game data ONLY when there was a
         // source-classified native request/accepted response; an F10 chooser
@@ -722,7 +730,9 @@ internal static class Feature018HotkeyCaptureChecks
         Require(stub.LastPayload.GetProperty("action").GetString() == "attack" &&
             stub.LastPayload.GetProperty("slot").GetInt32() == 2 &&
             stub.LastPayload.TryGetProperty("authorizedUid", out JsonElement sentUid) &&
-            sentUid.GetString() == session.GameUid,
+            sentUid.GetString() == session.GameUid &&
+            stub.LastPayload.GetProperty("expectedGameUid").GetString() == session.GameUid &&
+            stub.LastPayload.GetProperty("expectedServerId").GetInt32() == session.ServerId,
             "attack game intent lost its original squad or authenticated owner UID: " +
             stub.LastPayload.GetRawText());
 

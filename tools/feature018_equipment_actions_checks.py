@@ -264,7 +264,7 @@ class EquipmentPreflight(unittest.TestCase):
         self.assertEqual(status(lua, module, presets)["state"], "failed")
         self.assertEqual(state["sent"], 0)
 
-    def test_readonly_preflight_owner_requires_exact_uid_and_all_native_servers(self):
+    def test_readonly_preflight_request_uid_must_match_and_native_servers_agree(self):
         for native_server in ("source","selfServer","current"):
             for rejected in (2212,2213,None):
                 lua, module, state, presets=setup()
@@ -276,6 +276,16 @@ class EquipmentPreflight(unittest.TestCase):
         lua.globals().LuaEntry.Player.uid='3133546747002212'
         result=status(lua,module,presets)
         self.assertEqual(result["state"],"failed")
+        self.assertEqual(state["sent"],0)
+        # Every authenticated UID/server is valid when the request and all
+        # three native server getters agree. No fixed proof-account allowlist.
+        lua,module,state,presets=setup()
+        lua.execute("""
+          LuaEntry.Player.uid='3133546747002212'
+          state.source=2212;state.selfServer=2212;state.current=2212
+        """)
+        fresh=status(lua,module,presets,authorizedUid='3133546747002212')
+        self.assertEqual(fresh["state"],"confirmed")
         self.assertEqual(state["sent"],0)
 
     def test_inventory_disagreement_duplicates_and_wrong_slot_fail_closed(self):
@@ -427,10 +437,79 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertIn('unexpected equipment UUID',response['error'])
         self.assertEqual(state['sent'],1)
 
-    def test_exact_2288_uid_and_all_three_native_servers_before_every_step(self):
+    def test_same_uid_and_native_server_required_before_every_step(self):
         lua,_,state,_,call=self.fixture();call();lua.globals().apply_push()
         lua.execute('function LuaEntry.Player:GetCurServerId()return 2212 end')
         self.assertEqual(call(True)['state'],'failed');self.assertEqual(state['sent'],1)
+
+    def test_full_server_hop_with_same_uid_blocks_pending_gear_transaction(self):
+        lua,_,state,_,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.globals().apply_push()
+        lua.execute("""
+          function LuaEntry.Player:GetSourceServerId()return 2212 end
+          function LuaEntry.Player:GetSelfServerId()return 2212 end
+          function LuaEntry.Player:GetCurServerId()return 2212 end
+        """)
+        observed=call(True)
+        self.assertEqual(observed['state'],'failed')
+        self.assertIn('another native server',observed['error'])
+        self.assertEqual(state['sent'],1)
+        # A fresh request on the new server must not start another series while
+        # the original transaction is unresolved, even with matching UID.
+        self.assertEqual(call()['state'],'failed')
+        self.assertEqual(state['sent'],1)
+
+    def test_native_sender_server_hop_marks_uncertain_without_second_rpc(self):
+        lua,_,state,_,call=self.fixture()
+        lua.execute("""
+          function LuaEntry.Player:GetSourceServerId()return state.source end
+          function LuaEntry.Player:GetSelfServerId()return state.selfServer end
+          function LuaEntry.Player:GetCurServerId()return state.current end
+          SFSNetwork.SendMessage=function(...)
+            state.sent=state.sent+1
+            state.source=2212;state.selfServer=2212;state.current=2212
+          end
+        """)
+        first=call()
+        self.assertEqual(first['state'],'failed')
+        self.assertEqual(first['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertIn('changed during send',first['error'])
+        self.assertTrue(first['data']['uncertainSendOutcome'])
+        self.assertEqual(state['sent'],1)
+        state['source']=2288;state['selfServer']=2288;state['current']=2288
+        self.assertEqual(call(query=True)['state'],'failed')
+        self.assertEqual(call()['state'],'failed')
+        self.assertEqual(state['sent'],1)
+
+    def test_preflight_native_focus_switch_to_another_coherent_server_is_rejected(self):
+        lua,module,state,presets=setup()
+        callback=lua.eval("""
+          function()
+            state.source=2212;state.selfServer=2212;state.current=2212
+            return true
+          end
+        """)
+        outcome=module.Preflight(fields(lua,2),presets,callback)
+        self.assertEqual(outcome['state'],'failed')
+        self.assertIn('changed during preflight',outcome['error'])
+        self.assertEqual(state['sent'],0)
+
+    def test_different_authenticated_account_can_apply_preset(self):
+        lua,module,state,presets,call=self.fixture()
+        lua.execute("""
+          LuaEntry.Player.uid='3133546747002212'
+          function LuaEntry.Player:GetSourceServerId()return 2212 end
+          function LuaEntry.Player:GetSelfServerId()return 2212 end
+          function LuaEntry.Player:GetCurServerId()return 2212 end
+        """)
+        approved=module.Handle(fields(lua,2,authorizedUid='3133546747002212'),
+            presets,lua.eval('function()return true end'))
+        self.assertEqual(approved['state'],'accepted')
+        self.assertEqual(state['sent'],1)
+        # The queued old UID cannot observe or advance the new owner's steps.
+        self.assertEqual(call(query=True)['state'],'failed')
+        self.assertEqual(state['sent'],1)
 
     def test_throw_after_send_never_retransmits(self):
         lua,_,state,_,call=self.fixture()

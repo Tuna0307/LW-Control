@@ -3340,9 +3340,15 @@ local function observe_game_connection()
     end
     local ok_uid, uid = call(player, "GetUid")
     local ok_server, server_id = call(player, "GetCurServerId")
+    -- A server/account switch may interleave these two native getters.
+    -- Never publish a mixed old-UID/new-server heartbeat as an owner.
+    local ok_uid_again, uid_again = call(player, "GetUid")
+    local ok_server_again, server_again = call(player, "GetCurServerId")
     local world_pos = safe_get(player, "PlayerWorldPointId")
     if type(logged_in) ~= "boolean" or type(connected) ~= "boolean" or
-       type(connecting) ~= "boolean" or not ok_uid or not ok_server then
+       type(connecting) ~= "boolean" or not ok_uid or not ok_server or
+       not ok_uid_again or not ok_server_again or
+       uid ~= uid_again or tostring(server_id) ~= tostring(server_again) then
         return { observed = false }
     end
     return {
@@ -3832,35 +3838,53 @@ function M.Register()
     return registration_method ~= nil
 end
 
--- FEATURE018 producer admission for a separately packaged game module. The
--- native app's request must match this very instance and its fresh host lease.
-local function feature018_approved_subaccount()
-    -- An Overview owner lease is a process identity, not permission to modify
-    -- whatever account subsequently logs into that process. Observe the live
-    -- native player again before each FEATURE018 command or asynchronous pump.
+-- FEATURE018 producer admission for a separately packaged game module. A
+-- fresh authenticated native UID/server, together with the host lease, forms
+-- the command's account identity. No particular player or server is privileged
+-- by the shipped app. Delayed responses must still match their START identity.
+local function feature018_current_account()
     local game = observe_game_connection()
-    return game.observed == true and game.loggedIn == true and
-        game.connected == true and game.gameUid == "2553945035002288" and
-        game.serverId == 2288
+    local uid = game.gameUid and tostring(game.gameUid) or nil
+    local server = tonumber(game.serverId)
+    if game.observed ~= true or game.loggedIn ~= true or
+       game.connected ~= true or game.connecting ~= false or
+       not uid or #uid > 20 or not uid:match("^[1-9]%d*$") or
+       not server or server < 1 or server % 1 ~= 0 then return nil end
+    return {uid=uid, server=server}
 end
-function M.IsAuthorizedFeature018Request(values)
+local function feature018_control_current()
+    if active == nil then return false end
+    -- A host control rotation can precede the next regular Overview Pump.
+    local control = read_control()
+    return control ~= nil and control.profileId == active.profileId and
+        control.sessionId == active.sessionId and control.challenge == active.challenge and
+        control.gamePid == active.gamePid
+end
+function M.IsAuthorizedFeature018Request(values, native_server)
     if active == nil or type(values) ~= "table" then return false end
     if active.profileId ~= values.profileId or active.sessionId ~= values.launchSessionId or
        active.challenge ~= values.challenge or active.gamePid ~= tonumber(values.gamePid) then
         return false
     end
-    return lease_is_fresh(active, tonumber(os.time()) or 0) == true and
-        feature018_approved_subaccount()
+    if not feature018_control_current() then return false end
+    if lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then return false end
+    local account = feature018_current_account()
+    return account ~= nil and type(values.authorizedUid) == "string" and
+        values.authorizedUid == account.uid and
+        (native_server == nil or tostring(native_server) == tostring(account.server))
 end
 
 -- Read-only owner-token gate for exact-session cleanup of transient feature
 -- UI wrappers and chest markers; unavailable on a stale or missing host lease.
 function M.Feature018OwnerToken()
-    if active == nil or lease_is_fresh(active, tonumber(os.time()) or 0) ~= true or
-       not feature018_approved_subaccount() then
+    local account = feature018_current_account()
+    if not feature018_control_current() or
+       lease_is_fresh(active, tonumber(os.time()) or 0) ~= true or
+       account == nil then
         return nil
     end
     return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
+        .. ':' .. account.uid .. ':' .. tostring(account.server)
 end
 
 -- Registration is deliberately lazy. LuaEntry is loaded before all current-client

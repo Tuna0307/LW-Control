@@ -5,6 +5,8 @@ using System.Text.Json;
 
 namespace LWBridge.Desktop;
 
+internal sealed record Feature018AuthenticatedGameAccount(string GameUid, int ServerId);
+
 /// <summary>
 /// FEATURE-018 implementation policy: a single outstanding command for the
 /// exact authenticated Overview game owner. This is transport and admission,
@@ -16,6 +18,7 @@ internal sealed class Feature018OwnedGameExchange
     private readonly Func<OverviewMapScanSession?> currentSession;
     private readonly Func<OverviewMapScanSession, bool> isSameSession;
     private readonly Func<OverviewMapScanSession, bool> approvedAccount;
+    private readonly Func<OverviewMapScanSession, Feature018AuthenticatedGameAccount?>? currentAccount;
     private readonly string requestPath;
     private readonly string responsePath;
     // The window, retained profile backend and foreground hotkey monitor may
@@ -32,7 +35,7 @@ internal sealed class Feature018OwnedGameExchange
             lifecycle.MatchesOwnedMapScanSession,
             Path.Combine(lifecycle.RuntimeRoot, "feature018-request.txt"),
             Path.Combine(lifecycle.RuntimeRoot, "feature018-response.json"),
-            approvedAccount: owner => FreshApprovedSubaccount(
+            currentAccount: owner => ReadFreshAuthenticatedAccount(
                 Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), owner)) { }
 
     internal Feature018OwnedGameExchange(
@@ -42,11 +45,13 @@ internal sealed class Feature018OwnedGameExchange
         string responsePath,
         Func<DateTimeOffset>? utcNow = null,
         Func<TimeSpan, CancellationToken, Task>? delay = null,
-        Func<OverviewMapScanSession, bool>? approvedAccount = null)
+        Func<OverviewMapScanSession, bool>? approvedAccount = null,
+        Func<OverviewMapScanSession, Feature018AuthenticatedGameAccount?>? currentAccount = null)
     {
         this.currentSession = currentSession;
         this.isSameSession = isSameSession;
         this.approvedAccount = approvedAccount ?? (_ => true);
+        this.currentAccount = currentAccount;
         this.requestPath = Path.GetFullPath(requestPath);
         this.responsePath = Path.GetFullPath(responsePath);
         operationGate = Gates.GetOrAdd(this.requestPath, _ => new SemaphoreSlim(1, 1));
@@ -66,7 +71,8 @@ internal sealed class Feature018OwnedGameExchange
         IReadOnlyDictionary<string, string>? fields,
         TimeSpan timeout,
         CancellationToken cancellationToken,
-        bool allowAcceptedDispatch = false)
+        bool allowAcceptedDispatch = false,
+        Feature018AuthenticatedGameAccount? expectedAccount = null)
     {
         if (!ValidToken(command) || timeout <= TimeSpan.Zero || timeout > TimeSpan.FromSeconds(60))
             throw new BridgeCommandException("INVALID_REQUEST", "Invalid FEATURE018 game command or timeout.");
@@ -75,7 +81,10 @@ internal sealed class Feature018OwnedGameExchange
         {
             OverviewMapScanSession owner = currentSession() ?? throw new BridgeCommandException(
                 "GAME_CONNECTION_UNAVAILABLE", "There is no authenticated owned game session.");
-            RequireSameOwner(owner);
+            Feature018AuthenticatedGameAccount? account = RequireSameOwner(owner);
+            if (expectedAccount is not null && account != expectedAccount)
+                throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE",
+                    "The game UID or server changed since FEATURE018 input admission.");
             DateTimeOffset issued = utcNow();
             string requestId = "f018" + Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
             var lines = new List<string>
@@ -89,6 +98,12 @@ internal sealed class Feature018OwnedGameExchange
                 $"command={command}",
                 $"issuedAt={issued.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture)}",
             };
+            // The native mailbox admits every FEATURE018 action against its
+            // current authenticated game UID. Stamp the account observed by
+            // the desktop host for ALL commands, including City, shield and
+            // Mini Games reads. A caller is never allowed to choose this UID.
+            if (account is not null)
+                lines.Add($"authorizedUid={account.GameUid}");
             foreach (var pair in (fields ?? new Dictionary<string, string>()).OrderBy(item => item.Key, StringComparer.Ordinal))
             {
                 if (!ValidToken(pair.Key) || pair.Key is "schema" or "requestId" or "profileId" or
@@ -96,6 +111,13 @@ internal sealed class Feature018OwnedGameExchange
                     pair.Value is null || pair.Value.Length > 16000 ||
                     pair.Value.IndexOfAny(['\r', '\n', '\0']) >= 0)
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid FEATURE018 action arguments.");
+                if (pair.Key == "authorizedUid" && account is not null)
+                {
+                    if (!string.Equals(pair.Value, account.GameUid, StringComparison.Ordinal))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "FEATURE018 game UID must come from the authenticated session.");
+                    continue; // Already written once from fresh authenticated heartbeat.
+                }
                 lines.Add($"{pair.Key}={pair.Value}");
             }
             // Atomic replacement is confined to this authenticated owner's
@@ -108,7 +130,7 @@ internal sealed class Feature018OwnedGameExchange
             {
                 await File.WriteAllTextAsync(temporary, string.Join('\n', lines) + "\n",
                     new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
-                RequireSameOwner(owner);
+                RequireSameOwner(owner, account);
                 File.Move(temporary, requestPath, overwrite: true);
             }
             finally
@@ -120,7 +142,7 @@ internal sealed class Feature018OwnedGameExchange
             while (utcNow() < deadline)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                RequireSameOwner(owner);
+                RequireSameOwner(owner, account);
                 try
                 {
                     using FileStream file = new(responsePath, FileMode.Open, FileAccess.Read,
@@ -144,7 +166,7 @@ internal sealed class Feature018OwnedGameExchange
                         observed < issued.AddSeconds(-2) || observed > utcNow().AddSeconds(5))
                         throw new BridgeCommandException("GAME_RESPONSE_UNTRUSTED", "A FEATURE018 game response did not match the owned request.");
 
-                    RequireSameOwner(owner);
+                    RequireSameOwner(owner, account);
                     string state = Text(result, "state");
                     if (state == "confirmed" && result.TryGetProperty("data", out JsonElement data))
                         return data.Clone();
@@ -178,16 +200,26 @@ internal sealed class Feature018OwnedGameExchange
         finally { operationGate.Release(); }
     }
 
-    private void RequireSameOwner(OverviewMapScanSession owner)
+    private Feature018AuthenticatedGameAccount? RequireSameOwner(
+        OverviewMapScanSession owner, Feature018AuthenticatedGameAccount? expected = null)
     {
         if (!isSameSession(owner) || currentSession() != owner)
             throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "Owned game session changed during FEATURE018 request.");
         if (!approvedAccount(owner))
             throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED",
-                "FEATURE018 requires the currently authenticated UID 2553945035002288 on server 2288.");
+                "The authenticated game account is unavailable for this FEATURE018 request.");
+        if (currentAccount is null) return null; // Inert test transport with an injected owner only.
+        Feature018AuthenticatedGameAccount account = currentAccount(owner) ??
+            throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED",
+                "A fresh logged-in game UID and server are required for FEATURE018.");
+        if (expected is not null && account != expected)
+            throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE",
+                "The authenticated game UID or server changed during FEATURE018 request.");
+        return account;
     }
 
-    internal static bool FreshApprovedSubaccount(string heartbeatPath, OverviewMapScanSession owner,
+    internal static Feature018AuthenticatedGameAccount? ReadFreshAuthenticatedAccount(
+        string heartbeatPath, OverviewMapScanSession owner,
         Func<string, byte[]>? readAllBytes = null)
     {
         // The game rewrites its heartbeat in place. Only an interrupted read
@@ -198,27 +230,33 @@ internal sealed class Feature018OwnedGameExchange
             {
                 using JsonDocument doc = JsonDocument.Parse((readAllBytes ?? File.ReadAllBytes)(heartbeatPath));
                 JsonElement heartbeat = doc.RootElement;
-                return OverviewLifecycleService.HeartbeatMatches(heartbeat,
+                if (!OverviewLifecycleService.HeartbeatMatches(heartbeat,
                            owner.ProfileId, owner.SessionId, owner.Challenge, owner.GamePid,
-                           DateTimeOffset.UtcNow.ToUnixTimeSeconds()) &&
-                       heartbeat.TryGetProperty("gameStateObserved", out var observed) &&
-                       observed.ValueKind == JsonValueKind.True &&
-                       heartbeat.TryGetProperty("loggedIn", out var loggedIn) &&
-                       loggedIn.ValueKind == JsonValueKind.True &&
-                       heartbeat.TryGetProperty("connected", out var connected) &&
-                       connected.ValueKind == JsonValueKind.True &&
-                       heartbeat.TryGetProperty("gameUid", out var uid) &&
-                       uid.ValueKind == JsonValueKind.String &&
-                       uid.GetString() == "2553945035002288" &&
-                       heartbeat.TryGetProperty("serverId", out var server) &&
-                       server.TryGetInt32(out int serverId) && serverId == 2288;
+                           DateTimeOffset.UtcNow.ToUnixTimeSeconds()) ||
+                    !heartbeat.TryGetProperty("gameStateObserved", out var observed) ||
+                    observed.ValueKind != JsonValueKind.True ||
+                    !heartbeat.TryGetProperty("loggedIn", out var loggedIn) ||
+                    loggedIn.ValueKind != JsonValueKind.True ||
+                    !heartbeat.TryGetProperty("connected", out var connected) ||
+                    connected.ValueKind != JsonValueKind.True ||
+                    !heartbeat.TryGetProperty("gameUid", out var uid) ||
+                    uid.ValueKind != JsonValueKind.String ||
+                    !heartbeat.TryGetProperty("serverId", out var server) ||
+                    server.ValueKind != JsonValueKind.Number ||
+                    !server.TryGetInt32(out int serverId) || serverId <= 0)
+                    return null;
+                string? gameUid = uid.GetString();
+                if (gameUid is null || gameUid.Length is < 1 or > 20 ||
+                    gameUid[0] == '0' || !gameUid.All(char.IsAsciiDigit))
+                    return null;
+                return new Feature018AuthenticatedGameAccount(gameUid, serverId);
             }
             catch (IOException) { }
             catch (JsonException) { }
-            catch (UnauthorizedAccessException) { return false; }
+            catch (UnauthorizedAccessException) { return null; }
             if (attempt < 2) Thread.Yield();
         }
-        return false;
+        return null;
     }
 
     private static bool ValidToken(string value) =>

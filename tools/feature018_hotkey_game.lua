@@ -256,19 +256,44 @@ local function shield_owner(fields)
     return table.concat(tokens, "/")
 end
 
--- The producer/desktop admission also verifies the owner, but an item or
--- currency mutation must independently recheck the current native player.
--- In particular server 2212 is the owner's read-only MAIN account.
-local function native_sub_account()
+-- Snapshot the currently authenticated native account. Shipped actions use
+-- this identity, not a hardcoded player/server. A pending operation retains
+-- its originating player and UID/server when later replies are processed.
+local function native_account()
     local player = member(rawget(_G, "LuaEntry"), "Player")
-    if digit_id(member(player, "uid")) ~= "2553945035002288" then
-        return false
-    end
+    local uid=digit_id(member(player, "uid"))
+    if not uid then return nil end
+    local expected_server
     for _, getter in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
         local ok, server = invoke(player, getter)
-        if not ok or tostring(server) ~= "2288" then return false end
+        local id=digit_id(server)
+        if not ok or not id or (expected_server and expected_server~=id) then return nil end
+        expected_server=id
     end
-    return true
+    if member(rawget(_G,"LuaEntry"),"Player")~=player or
+       digit_id(member(player,"uid"))~=uid then return nil end
+    return {uid=uid,server=expected_server,player=player}
+end
+local function native_sub_account()
+    return native_account()~=nil
+end
+
+-- A pending native RPC keeps the exact account seen before sending. The
+-- player object alone can survive a UID/server switch, so neither identity
+-- nor a later reply may be inferred from object equality.
+local function same_native_account(expected)
+    local current=native_account()
+    return expected~=nil and current~=nil and
+        expected.player==current.player and expected.uid==current.uid and
+        expected.server==current.server
+end
+
+local function request_native_account(fields)
+    local account=native_account()
+    if account==nil or type(fields)~="table" or
+       type(fields.authorizedUid)~="string" or
+       fields.authorizedUid~=account.uid then return nil end
+    return account
 end
 
 -- Original v26 DailyTaskManager.GetAllDailyTask (root/16) selects visible
@@ -607,6 +632,7 @@ local function install_purchase_observer(pending, center, player)
     local raw_original = rawget(manager, "ItemBuyHandle")
     local observer = {manager=manager, original=original, rawOriginal=raw_original}
     observer.wrapper = function(self, reply)
+        local account_before=same_native_account(pending.account)
         if pending_purchase == pending and type(pending.sentAt) == "number" and
            (os.time() - pending.sentAt > PURCHASE_OBSERVER_SECONDS or
             os.time() < pending.sentAt) then
@@ -643,7 +669,7 @@ local function install_purchase_observer(pending, center, player)
             local owned = ok_original and self == manager and
                 rawget(_G, "DataCenter") == center and
                 member(rawget(_G, "LuaEntry"), "Player") == player and
-                native_sub_account()
+                account_before and same_native_account(pending.account)
             if not conflicting_ids and not inconsistent_stack and
                response_id == pending.itemId and
                source_error == nil and
@@ -690,9 +716,11 @@ local function shield_shop(fields)
     if owner == nil or not (hours == 8 or hours == 12 or hours == 24) then
         return invalid("Exact owned shield purchase session/duration required")
     end
-    if not native_sub_account() then
+    local account=request_native_account(fields)
+    if account==nil then
         return invalid("Shield shop requires exact native authorized UID and server")
     end
+    owner=owner.."/"..account.uid.."/"..account.server
     local player = member(rawget(_G,"LuaEntry"),"Player")
     local center = rawget(_G,"DataCenter")
     local ok_templates, templates = invoke(member(center,"ItemTemplateManager"),"GetTypeListByTypes",4,1)
@@ -754,7 +782,7 @@ local function shield_shop(fields)
         data.purchaseRoute = "native_UIShopBuy_one_item_with_consent"
         data.nativeMatchedShieldStacks = observed_stacks
         local claim = M.GoldClaimableSnapshot(fields)
-        if claim.state ~= "confirmed" or not native_sub_account() or
+        if claim.state ~= "confirmed" or not same_native_account(account) or
            rawget(_G,"DataCenter") ~= center or
            member(rawget(_G,"LuaEntry"),"Player") ~= player or
            number(member(player,"gold")) ~= gold then
@@ -773,12 +801,12 @@ local function shield_shop(fields)
         if snapshot.data.remainingMilliseconds >= hours*3600000 then
             return invalid("Native shield cannot be replaced with a shorter duration")
         end
-        if not native_sub_account() or
+        if not same_native_account(account) or
            rawget(_G,"DataCenter") ~= center or
            member(rawget(_G,"LuaEntry"),"Player") ~= player then
             return invalid("Native shield replacement owner changed before arming")
         end
-        armed_shield_replace={owner=owner,hours=hours,expires=os.time()+60}
+        armed_shield_replace={owner=owner,account=account,hours=hours,expires=os.time()+60}
         data.observation="explicit_next_shield_replacement_confirmed"
         data.replacementArmed=true
         return {state="confirmed",data=data}
@@ -792,7 +820,7 @@ local function shield_shop(fields)
            pending.hours ~= hours or pending.statusId ~= chosen.statusId then
             return invalid("No matching shield purchase")
         end
-        if not native_sub_account() or
+        if not same_native_account(pending.account) or
            rawget(_G,"DataCenter") ~= center or
            member(rawget(_G,"LuaEntry"),"Player") ~= player or
            pending.player ~= player or pending.center ~= center or
@@ -903,14 +931,14 @@ local function shield_shop(fields)
     local message = member(rawget(_G,"MsgDefines"),"UIShopBuy")
     local send = member(rawget(_G,"SFSNetwork"),"SendMessage")
     if message == nil or type(send) ~= "function" then return unavailable("Native shop purchase sender unavailable") end
-    if not native_sub_account() then return invalid("Native shield shop owner changed before send") end
+    if not same_native_account(account) then return invalid("Native shield shop owner changed before send") end
     if not shield_shop_pre_send_unchanged(center,player,chosen,gold,count) or
        rawget(_G,"DataCenter") ~= center or
        member(rawget(_G,"LuaEntry"),"Player") ~= player or
-       not native_sub_account() then
+       not same_native_account(account) then
         return invalid("Native shield item price, stock, balance or owner changed before purchase")
     end
-    pending_purchase={owner=owner,itemId=chosen.itemId,hours=hours,
+    pending_purchase={owner=owner,account=account,itemId=chosen.itemId,hours=hours,
         statusId=chosen.statusId,count=count,gold=gold,price=chosen.price,
         center=center,player=player,manager=member(center,"ItemManager"),
         sentAt=os.time(),replyCount=0,replyMatched=false,replyAmbiguous=false}
@@ -918,9 +946,19 @@ local function shield_shop(fields)
         pending_purchase=nil  -- No packet has been sent; safe to decline.
         return unavailable("Original ItemBuyHandle reply observer cannot be safely installed")
     end
+    if not same_native_account(account) then
+        restore_purchase_observer()
+        pending_purchase=nil  -- No network attempt occurred.
+        return invalid("Shield shop native account changed before posting purchase")
+    end
     local sent, send_result = pcall(send,message,{itemId=chosen.itemId,num=1})
     if not sent or send_result == false then
         return invalid("Native shop sender result uncertain; state must be observed, no retry")
+    end
+    if not same_native_account(account) then
+        -- The original sender may have posted before switching accounts.
+        -- Retain the pending tombstone and refuse to credit this request.
+        return invalid("Native shield purchase account changed during send; outcome uncertain, no retry")
     end
     data.readOnly=false; data.requestDispatched=true; data.awaitingGameConfirmation=true
     return {state="accepted",data=data}
@@ -1008,6 +1046,7 @@ local function install_shield_use_observer(pending, center, player)
     local raw_original = rawget(manager, "ItemUseHandle")
     local observer = {manager=manager,original=original,rawOriginal=raw_original}
     observer.wrapper = function(self, reply)
+        local account_before=same_native_account(pending.account)
         local active = pending_shield
         if active == pending and (os.time() < pending.sentAt or
            os.time() - pending.sentAt > SHIELD_PENDING_SECONDS) then
@@ -1026,7 +1065,7 @@ local function install_shield_use_observer(pending, center, player)
                 rawget(_G, "DataCenter") == center and
                 member(center, "ItemManager") == manager and
                 member(rawget(_G, "LuaEntry"), "Player") == player and
-                native_sub_account()
+                account_before and same_native_account(pending.account)
             if same_owner and reply_error == nil and
                (op_type == nil or op_type == 0) and
                item_uuid == pending.uuid and item_id == pending.itemId and
@@ -1063,9 +1102,11 @@ local function shield_use(fields)
     if owner == nil then
         return unavailable("Exact authenticated shield session identity unavailable")
     end
-    if not native_sub_account() then
+    local account=request_native_account(fields)
+    if account==nil then
         return invalid("Shield ItemUse requires exact native authorized UID and server")
     end
+    owner=owner.."/"..account.uid.."/"..account.server
     local player = member(rawget(_G, "LuaEntry"), "Player")
     local center = rawget(_G, "DataCenter")
     if not (hours == 8 or hours == 12 or hours == 24) then
@@ -1088,7 +1129,8 @@ local function shield_use(fields)
             restore_shield_use_observer()
             return invalid("Shield ItemUse remains unconfirmed; manual state refresh required")
         end
-        if pending.player ~= player or pending.center ~= center then
+        if pending.player ~= player or pending.center ~= center or
+           not same_native_account(pending.account) then
             return invalid("Native shield pending ItemUse belongs to another native player/session")
         end
         if member(center, "ItemManager") ~= pending.manager then
@@ -1098,7 +1140,7 @@ local function shield_use(fields)
         if snapshot.state ~= "confirmed" then return snapshot end
         local count = owned_item_count(pending.uuid, pending.itemId)
         if count == nil then return unavailable("Owned shield count after ItemUse is unreadable") end
-        if not native_sub_account() or
+        if not same_native_account(pending.account) or
            member(rawget(_G,"LuaEntry"),"Player") ~= player or
            rawget(_G,"DataCenter") ~= center then
             return invalid("Native shield status owner changed during observation")
@@ -1170,7 +1212,8 @@ local function shield_use(fields)
     end
     local arm=armed_shield_replace
     local replace = fields.shieldReplaceOptIn == "1" or
-        (arm ~= nil and arm.owner == owner and arm.hours == hours and arm.expires >= os.time())
+        (arm ~= nil and arm.owner == owner and
+         same_native_account(arm.account) and arm.hours == hours and arm.expires >= os.time())
     local safety = shield_safe_to_consume(hours,replace)
     if safety ~= nil then return safety end
     local before = shield_snapshot()
@@ -1201,7 +1244,7 @@ local function shield_use(fields)
     -- Re-evaluate volatile warning and cooldown immediately before sending.
     local final_safety = shield_safe_to_consume(hours,replace)
     if final_safety ~= nil then return final_safety end
-    if not native_sub_account() or
+    if not same_native_account(account) or
        member(rawget(_G,"LuaEntry"),"Player") ~= player or
        rawget(_G,"DataCenter") ~= center then
         return invalid("Native shield owner/session changed before ItemUse")
@@ -1210,7 +1253,7 @@ local function shield_use(fields)
     if not ok_cd or cd_result == false then
         return invalid("Native shield cooldown could not be set")
     end
-    if not native_sub_account() or
+    if not same_native_account(account) or
        member(rawget(_G,"LuaEntry"),"Player") ~= player or
        rawget(_G,"DataCenter") ~= center then
         return invalid("Native shield owner/session changed before ItemUse")
@@ -1232,14 +1275,14 @@ local function shield_use(fields)
        fresh.data.active ~= before.data.active or
        fresh.data.endTime ~= before.data.endTime or
        fresh.data.serverTimeMilliseconds < before.data.serverTimeMilliseconds or
-       not native_sub_account() or
+       not same_native_account(account) or
        member(rawget(_G,"LuaEntry"),"Player") ~= player or
        rawget(_G,"DataCenter") ~= center then
         return invalid("Native shield state, inventory, duration or owner changed before ItemUse")
     end
     armed_shield_replace=nil
     pending_shield = {
-        owner=owner, player=player, center=center,
+        owner=owner, account=account, player=player, center=center,
         manager=item_manager,
         hours=hours, uuid=item.uuid, itemId=item.itemId,
         statusId=item.statusId, durationMs=item.durationMs, count=item.count,
@@ -1251,12 +1294,21 @@ local function shield_use(fields)
         pending_shield = nil -- The network request has not yet been sent.
         return unavailable("Original ItemUseHandle observer could not be installed")
     end
+    if not same_native_account(account) then
+        restore_shield_use_observer()
+        pending_shield=nil -- No packet sent; account changed while observer installed.
+        return invalid("Native shield account changed before posting ItemUse")
+    end
     -- A native exception/false return can follow a transmitted request.
     -- Install the tombstone before calling and retain it on uncertainty.
     local ok_send, send_result = pcall(member(network, "SendMessage"), message,
         {uuid=item.uuid, num=1})
     if not ok_send or send_result == false then
         return invalid("Native ItemUse result is uncertain; observe without resending")
+    end
+    if not same_native_account(account) then
+        -- Keep the no-resend record: an outbound RPC may already have escaped.
+        return invalid("Native ItemUse account changed during send; outcome uncertain, no retry")
     end
     return {state="accepted",data={
         requestDispatched=true,awaitingGameConfirmation=true,
@@ -1285,6 +1337,10 @@ function M.Handle(fields)
         if fields.slot == slot then valid = true; break end
     end
     if not valid then return invalid("Hotkey slot is not bound to this game action") end
+    local account=request_native_account(fields)
+    if not account then
+        return invalid("Hotkey request UID differs from current native game account")
+    end
     -- Always revalidate game-side text focus when dispatch happens, even if
     -- the WinForms sampler saw a fresh earlier input-clear observation.
     if not (fields.action == "shieldUse" and fields.queryOnly == "1") then
@@ -1294,7 +1350,11 @@ function M.Handle(fields)
         end
     end
     if fields.action == "shieldOverlay" then
-        return shield_snapshot()
+        local status=shield_snapshot()
+        if not same_native_account(account) then
+            return invalid("Native shield overlay account changed during observation")
+        end
+        return status
     end
     if fields.action == "shieldUse" then
         return shield_use(fields)

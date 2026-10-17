@@ -199,7 +199,7 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         self.assertIn("feature018_sheep_automation_status", source)
         self.assertIn("coroutine.yield('searching'", source)
         self.assertIn("get(packet, 'opPointId') == pending.point", source)
-        self.assertIn("if not approved_native_owner() then", source)
+        self.assertIn("if not approved_native_owner(run.account) then", source)
         self.assertIn("run.pending ~= nil and run.pending.ack", source)
         self.assertNotIn("SFSNetwork", source.replace("-- Source", "-- Source"))
         for forbidden in (r"call\([^\n]*'UseItem'", r"call\([^\n]*'NextLevel'",
@@ -213,8 +213,8 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         from lupa.lua53 import LuaRuntime
         lua = LuaRuntime(unpack_returned_tuples=True)
         lua.execute(r'''
-        Account={source=2288,selfServer=2288,current=2288}
-        LuaEntry={Player={uid='2553945035002288',
+        Account={source=4455,selfServer=4455,current=4455}
+        LuaEntry={Player={uid='7812345600004455',
           GetSourceServerId=function() return Account.source end,
           GetSelfServerId=function() return Account.selfServer end,
           GetCurServerId=function() return Account.current end}}
@@ -236,15 +236,38 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
             encoding='utf-8'))
         return lua, solver
 
+    @staticmethod
+    def request(lua):
+        return lua.table_from({'taskName': 'sheepGame',
+                               'authorizedUid': lua.globals().LuaEntry.Player.uid})
+
     def test_authorized_native_season_start(self):
         lua, solver = self.fixture()
-        result = solver.Start(lua.table_from({'taskName': 'sheepGame'}))
+        result = solver.Start(self.request(lua))
         self.assertEqual(result['state'], 'accepted')
         self.assertEqual(lua.globals().GameOpens, 1)
 
+    def test_any_consistent_logged_in_uid_server_may_start(self):
+        lua, solver = self.fixture()
+        lua.execute("""LuaEntry.Player.uid='7812345600005566'
+                       Account.source=5566
+                       Account.selfServer=5566
+                       Account.current=5566""")
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'accepted')
+        self.assertEqual(lua.globals().GameOpens, 1)
+
+    def test_missing_or_foreign_request_uid_never_opens_season_game(self):
+        for invalid in (None, '7812345600005566', 'not-a-uid', 7812345600004455):
+            lua, solver = self.fixture()
+            payload = {'taskName': 'sheepGame'}
+            if invalid is not None:
+                payload['authorizedUid'] = invalid
+            self.assertEqual(solver.Start(lua.table_from(payload))['state'], 'failed')
+            self.assertEqual(lua.globals().GameOpens, 0)
+
     def test_stop_and_lease_loss_cannot_duplicate_pending_native_start(self):
         lua, solver = self.fixture()
-        request = lua.table_from({'taskName': 'sheepGame'})
+        request = self.request(lua)
         self.assertEqual(solver.Start(request)['state'], 'accepted')
         self.assertTrue(solver.Stop(request)['data']['restartFenced'])
         self.assertTrue(solver.Stop(request)['data']['awaitingServer'])
@@ -263,7 +286,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
             if failing_start:
                 lua.execute('SmallGameManager.GSheep.Start=function() '
                             'GameOpens=GameOpens+1; error("sent then failed") end')
-            request = lua.table_from({'taskName': 'sheepGame'})
+            request = self.request(lua)
             state = solver.Start(request)['state']
             self.assertEqual(state, 'failed' if failing_start else 'accepted')
             if not failing_start:
@@ -274,23 +297,41 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
             self.assertEqual(solver.Start(request)['state'], 'failed')
             self.assertEqual(lua.globals().GameOpens, 1)
 
-    def test_main_account_or_other_server_never_opens_season_game(self):
-        for change in ("LuaEntry.Player.uid='3133546747002212'",
-                       'Account.source=2212', 'Account.selfServer=2212',
-                       'Account.current=2212'):
+    def test_unauthenticated_uid_or_inconsistent_server_never_opens_season_game(self):
+        for change in ("LuaEntry.Player.uid='invalid'",
+                       'Account.source=5566', 'Account.selfServer=5566',
+                       'Account.current=5566'):
             lua, solver = self.fixture()
             lua.execute(change)
-            self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+            self.assertEqual(solver.Start(self.request(lua))['state'],
                              'unsupported')
             self.assertEqual(lua.globals().GameOpens, 0)
 
     def test_change_after_challenge_before_game_open_does_not_send(self):
+        for switch in ("Account.current=5566",
+                       "LuaEntry.Player.uid='7812345600005566'"):
+            lua, solver = self.fixture()
+            lua.execute('DataCenter.LWSheepDataManager.CanChallenge=function() '
+                        + switch + '; return true end')
+            self.assertEqual(solver.Start(self.request(lua))['state'],
+                             'failed')
+            self.assertEqual(lua.globals().GameOpens, 0)
+
+    def test_pending_start_cannot_be_inherited_after_server_switch(self):
         lua, solver = self.fixture()
-        lua.execute('DataCenter.LWSheepDataManager.CanChallenge=function() '
-                    'Account.current=2212; return true end')
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
-                         'failed')
-        self.assertEqual(lua.globals().GameOpens, 0)
+        old_request = self.request(lua)
+        self.assertEqual(solver.Start(old_request)['state'], 'accepted')
+        lua.execute('Account.source=5566; Account.selfServer=5566; Account.current=5566')
+        self.assertFalse(solver.Pump())
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('account changed', status['error'])
+        self.assertTrue(status['restartFenced'])
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'failed')
+        self.assertEqual(lua.globals().GameOpens, 1)
+        solver.CleanupAfterLeaseLoss()
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'failed')
+        self.assertEqual(lua.globals().GameOpens, 1)
 
     def three_card_board(self, auto_reply):
         # Inert source-shaped current level, UI tile, sent syncOps queue,
@@ -307,6 +348,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         end
         ClickCount=0
         AutoReply=false
+        ReplySwitch=false
         Game={gameState=1,showCards={{}},visualList={},mapCards={},
           removeList={},temporaryList={}}
         function Game:CanClick(id) return self.visualList[id]~=nil end
@@ -350,6 +392,11 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           local empty=true
           for _ in pairs(Game.mapCards) do empty=false end
           if empty then Game.gameState=2;Game.rewardsInfo={1} end
+          if ReplySwitch then
+            Account.source=5566
+            Account.selfServer=5566
+            Account.current=5566
+          end
         end
         function AckFirst()
           local queued=View.syncOps[1]
@@ -359,7 +406,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         package.loaded['UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView']=cls
         ''')
         lua.globals().AutoReply = auto_reply
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'accepted')
         lua.globals().WindowOpen = True
         self.assertTrue(solver.BindView(lua.globals().View))
@@ -382,9 +429,52 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertIn('window closed', status['error'])
         self.assertEqual(lua.globals().ClickCount, 0)
 
+    def test_server_uid_or_native_player_switch_before_first_click_stops_run(self):
+        for change in (
+            'Account.current=5566',
+            'Account.source=5566;Account.selfServer=5566;Account.current=5566',
+            "LuaEntry.Player.uid='7812345600005566'",
+            'LuaEntry.Player=setmetatable({}, {__index=LuaEntry.Player})',
+        ):
+            lua, solver = self.three_card_board(auto_reply=False)
+            for _ in range(2):
+                solver.Pump()  # Capture board, then generate plan.
+            lua.execute(change)
+            self.assertFalse(solver.Pump())
+            status = solver.Status()['data']
+            self.assertEqual(status['status'], 'solve_failed')
+            self.assertIn('account changed', status['error'])
+            self.assertEqual(status['confirmedMoves'], 0)
+            self.assertEqual(lua.globals().ClickCount, 0)
+
+    def test_server_switch_inside_native_ui_click_fences_queued_send(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        lua.execute(r'''
+          for _,item in pairs(View.cardViews) do
+            local original=item.OnClickCard
+            item.OnClickCard=function(...)
+              original(...)
+              Account.source=5566
+              Account.selfServer=5566
+              Account.current=5566
+            end
+          end
+        ''')
+        for _ in range(8):
+            solver.Pump()
+            if solver.Status()['data']['terminal']:
+                break
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('account changed', status['error'])
+        self.assertEqual(lua.globals().ClickCount, 1)
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        self.assertTrue(status['restartFenced'])
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'failed')
+
     def test_ready_native_board_releases_start_without_resending_and_stale_closed_view_reopens(self):
         lua, solver = self.three_card_board(auto_reply=False)
-        request = lua.table_from({'taskName': 'sheepGame'})
+        request = self.request(lua)
         self.assertEqual(lua.globals().GameOpens, 1)
         self.assertTrue(solver.Stop(request)['data']['restartFenced'])
         self.assertEqual(solver.Start(request)['state'], 'accepted',
@@ -457,21 +547,87 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
                 break
         self.assertEqual(len(lua.globals().View.syncOps), 1)
         self.assertEqual(lua.globals().ClickCount, 1)
-        stopped = solver.Stop(lua.table_from({'taskName': 'sheepGame'}))['data']
+        stopped = solver.Stop(self.request(lua))['data']
         self.assertEqual(stopped['status'], 'stopped')
         self.assertTrue(stopped['restartFenced'])
         self.assertTrue(stopped['awaitingServer'])
-        attempt = solver.Start(lua.table_from({'taskName': 'sheepGame'}))
+        attempt = solver.Start(self.request(lua))
         self.assertEqual(attempt['state'], 'failed')
         lua.execute("View:SeasonSheepOpHandle({type=3,opPointId='999_0_1'})")
         lua.execute("View:SeasonSheepOpHandle({type=4,opPointId='10_0_1'})")
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'failed', 'wrong point and error event never retire old request')
         lua.globals().AckFirst()
         self.assertFalse(solver.Status()['data']['restartFenced'])
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'accepted', 'matching original SyncFinish may retire old fence')
         self.assertEqual(lua.globals().ClickCount, 1)
+
+    def test_server_switch_before_late_ack_cannot_retire_old_click(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.execute('Account.source=5566;Account.selfServer=5566;Account.current=5566')
+        lua.globals().AckFirst()  # Actual original callback runs before next Pump.
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('account changed', status['error'])
+        self.assertEqual(status['confirmedMoves'], 0)
+        self.assertTrue(status['restartFenced'])
+        self.assertEqual(lua.globals().ClickCount, 1)
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'failed')
+
+    def test_server_switch_inside_original_reply_prevents_ack_promotion(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        lua.globals().ReplySwitch = True
+        lua.globals().AckFirst()
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('account changed', status['error'])
+        self.assertEqual(status['confirmedMoves'], 0)
+        self.assertTrue(status['restartFenced'])
+
+    def test_stopped_old_account_click_ack_on_new_server_cannot_release_fence(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(lua.globals().ClickCount, 1)
+        self.assertTrue(solver.Stop(self.request(lua))['data']['restartFenced'])
+        lua.execute('Account.source=5566;Account.selfServer=5566;Account.current=5566')
+        lua.globals().AckFirst()
+        self.assertTrue(solver.Status()['data']['restartFenced'])
+        self.assertEqual(solver.Start(self.request(lua))['state'], 'failed')
+        self.assertEqual(lua.globals().ClickCount, 1)
+
+    def test_account_switch_before_final_reply_and_destroy_cannot_complete(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(32):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                if lua.globals().ClickCount < 3:
+                    lua.globals().AckFirst()
+                else:
+                    break
+        self.assertEqual(lua.globals().ClickCount, 3)
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        lua.execute('Account.source=5566;Account.selfServer=5566;Account.current=5566')
+        lua.globals().AckFirst()  # Native view receives its final Success/rewards.
+        lua.execute('View:OnDestroy()')
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertTrue(status['restartFenced'])
+        self.assertEqual(status['confirmedMoves'], 2)
+        self.assertNotEqual(status['status'], 'completed')
 
     def test_new_native_view_same_point_cannot_ack_old_in_flight_click(self):
         lua, solver = self.three_card_board(auto_reply=False)
@@ -501,7 +657,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertEqual(len(lua.globals().View.syncOps), 1)
         self.assertTrue(solver.Status()['data']['restartFenced'],
                         'A different view draining an identical point is not our ACK')
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'failed')
         self.assertEqual(lua.globals().ClickCount, 1)
         lua.globals().AckFirst()
@@ -515,7 +671,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
             if len(lua.globals().View.syncOps) == 1:
                 break
         self.assertEqual(lua.globals().ClickCount, 1)
-        self.assertTrue(solver.Stop(lua.table_from({'taskName': 'sheepGame'}))
+        self.assertTrue(solver.Stop(self.request(lua))
                         ['data']['restartFenced'])
         lua.execute(r'''
           local cls=getmetatable(View).__index
@@ -550,7 +706,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
                         'Unrelated view-engine state must never clear in-flight fence')
         self.assertEqual(result['confirmedMoves'], 0)
         self.assertEqual(lua.globals().ClickCount, 1)
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'failed')
 
     def test_original_view_destroy_after_new_view_binding_preserves_click_fence(self):
@@ -585,7 +741,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         solver.CleanupAfterLeaseLoss()
         self.assertTrue(solver.Status()['data']['restartFenced'])
         self.assertTrue(solver.Status()['data']['awaitingServer'])
-        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+        self.assertEqual(solver.Start(self.request(lua))['state'],
                          'failed')
         self.assertEqual(lua.globals().ClickCount, 1)
 

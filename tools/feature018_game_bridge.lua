@@ -8,8 +8,11 @@ if root == "" then root = (os.getenv("LOCALAPPDATA") or ".") .. [[\LWBridgeRebui
 root = root .. [[\overview-bridge]]
 local command_path = root .. [[\feature018-request.txt]]
 local result_path = root .. [[\feature018-response.json]]
-local last_request = nil
-local last_session = nil
+-- Retain every accepted request for its full admission window. Comparing
+-- only the most recent request admits A, then B, then a stale replay of A.
+local accepted_requests = {}
+local MAX_ACCEPTED_REQUESTS = 2048
+local REPLAY_WINDOW_MS = 40000
 
 local function encode_string(value)
     return '"' .. tostring(value):gsub('\\', '\\\\'):gsub('"', '\\"'):
@@ -57,14 +60,54 @@ local function valid_token(value)
     return type(value) == 'string' and #value > 0 and #value <= 128 and
         value:match('^[%w_-]+$') ~= nil
 end
-local function current_owner(values)
+local function current_owner(values, native_server)
     if type(values) ~= 'table' or values.schema ~= '1' or
         not valid_token(values.requestId) or not valid_token(values.command) or
         not valid_token(values.profileId) or not valid_token(values.launchSessionId) or
-        not valid_token(values.challenge) then return false end
+        not valid_token(values.challenge) or
+        type(values.gamePid) ~= 'string' or
+        not values.gamePid:match('^[1-9]%d*$') then return false end
     local bridge = rawget(_G, 'LWBridgeOverviewBridge')
     local gate = bridge and bridge.IsAuthorizedFeature018Request
-    return type(gate) == 'function' and gate(values) == true
+    return type(gate) == 'function' and gate(values, native_server) == true
+end
+local function account_signature()
+    local player=rawget(_G,'LuaEntry')
+    player=player and player.Player
+    local ok_uid,uid=pcall(function() return player and player.uid end)
+    uid=ok_uid and uid and tostring(uid) or nil
+    if not uid or not uid:match('^[1-9]%d*$') then return nil end
+    local server
+    for _,key in ipairs({'GetSourceServerId','GetSelfServerId','GetCurServerId'}) do
+        local ok,value=pcall(function() return player[key](player) end)
+        local id=ok and tostring(value or '') or ''
+        if not id:match('^[1-9]%d*$') or (server and server~=id) then return nil end
+        server=id
+    end
+    -- Sampling separate native getters can straddle an account/server switch.
+    -- Re-read both the UID and current server before allowing a game handler.
+    local ok_uid_again, uid_again=pcall(function() return player.uid end)
+    local ok_server_again, server_again=pcall(function() return player:GetCurServerId() end)
+    local current_entry=rawget(_G,'LuaEntry')
+    if not ok_uid_again or tostring(uid_again or '')~=uid or
+       not ok_server_again or tostring(server_again or '')~=server or
+       current_entry==nil or current_entry.Player~=player then return nil end
+    return uid..'/'..server, server
+end
+local function record_request(values, now)
+    local key = table.concat({values.profileId, values.launchSessionId,
+        values.challenge, values.gamePid, values.requestId}, '\0')
+    local count = 0
+    for old_key, accepted_at in pairs(accepted_requests) do
+        if now - accepted_at >= REPLAY_WINDOW_MS then
+            accepted_requests[old_key] = nil
+        else
+            count = count + 1
+        end
+    end
+    if accepted_requests[key] ~= nil or count >= MAX_ACCEPTED_REQUESTS then return false end
+    accepted_requests[key] = now
+    return true
 end
 local function respond(values, state, error_code, error, data)
     -- Observation time is recorded by the in-game runtime, never provided by
@@ -95,12 +138,15 @@ function M.Array(values)
 end
 function M.Pump()
     local values = read_request()
-    if not current_owner(values) then return false end
-    if values.launchSessionId == last_session and values.requestId == last_request then return false end
+    if type(values) ~= 'table' then return false end
+    local start_account, start_server = account_signature()
+    if not start_account or type(values.authorizedUid) ~= 'string' or
+       start_account ~= values.authorizedUid..'/'..start_server or
+       not current_owner(values, start_server) then return false end
     local issued = tonumber(values.issuedAt)
     local now = (tonumber(os.time()) or 0) * 1000
     if issued == nil or issued < now - 30000 or issued > now + 5000 then return false end
-    last_session, last_request = values.launchSessionId, values.requestId
+    if not record_request(values, now) then return false end
     local handler = M.handlers[values.command]
     if type(handler) ~= 'function' then
         respond(values, 'unsupported', 'GAME_METHOD_UNAVAILABLE',
@@ -108,6 +154,10 @@ function M.Pump()
         return true
     end
     local ok, result = pcall(handler, values)
+    if account_signature()~=start_account or not current_owner(values, start_server) then
+        respond(values,'failed','GAME_ACCOUNT_CHANGED','Native account/session changed during game action; earlier send outcome may be uncertain',nil)
+        return true
+    end
     if not ok then
         respond(values, 'failed', 'GAME_ACTION_FAILED', tostring(result), nil)
     elseif type(result) ~= 'table' or

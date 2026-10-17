@@ -41,7 +41,7 @@
 --       native persisted equipment_config_get, never frontend draft/client
 --       provided JSON. No mutation method is reachable from this function.
 --   M.Handle(fields, confirmedPresets, gameInputClear)
---       Exact 2288-only sequential original RPC plan; queryOnly resumes its
+--       Same authenticated UID/server sequential original RPC plan; queryOnly resumes its
 --       authorized next step after native state confirms the prior step.
 -- Nothing is registered, sent, mutated or executed when this file loads.
 --
@@ -91,26 +91,31 @@ local function exact_id(value)
     return result
 end
 
-local function exact_session(fields)
-    if type(fields) ~= "table" then return false end
+local function native_session(fields)
+    if type(fields) ~= "table" then return nil end
     for _, key in ipairs({"profileId","launchSessionId","challenge","gamePid"}) do
         local value = fields[key]
         if type(value) ~= "string" or #value == 0 or #value > 128 or
-           value:find("[^%w_-]") then return false end
+           value:find("[^%w_-]") then return nil end
     end
     local player = member(rawget(_G, "LuaEntry"), "Player")
     local native_uid = exact_id(member(player,"uid"))
-    if native_uid ~= "2553945035002288" or
-       type(fields.authorizedUid) ~= "string" or
-       fields.authorizedUid ~= native_uid then return false end
+    if native_uid == nil or type(fields.authorizedUid) ~= "string" or
+       fields.authorizedUid ~= native_uid then return nil end
     -- The public read-only Preflight also runs with native Lua authority:
     -- it cannot depend solely on the C# owner check preceding a mailbox
-    -- request. Every original native server getter must agree on home 2288.
+    -- request. Every original native server getter must agree on one server.
+    local server_id
     for _,getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
         local ok,server=invoke(player,getter)
-        if not ok or (server~=2288 and server~="2288") then return false end
+        local id=exact_id(server)
+        if not ok or not id or (server_id and id~=server_id) then return nil end
+        server_id=id
     end
-    return true
+    return native_uid,server_id
+end
+local function exact_session(fields)
+    return native_session(fields) ~= nil
 end
 
 local function number_in_range(value, low, high)
@@ -277,7 +282,8 @@ end
 function M.Preflight(fields, confirmed_presets, game_input_clear)
     local preset, error_receipt = selected_preset(fields,confirmed_presets)
     if preset == nil then return error_receipt end
-    if not exact_session(fields) then
+    local start_uid,start_server=native_session(fields)
+    if not start_uid then
         return blocked("Game UID is not the authenticated owner of this profile session")
     end
     local focus_ok,focus_clear=false,false
@@ -359,6 +365,10 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
             end
         end
     end
+    local final_uid,final_server=native_session(fields)
+    if final_uid~=start_uid or final_server~=start_server then
+        return blocked("Native equipment owner/server changed during preflight")
+    end
     return {state="confirmed",data={
         observation="native_HeroEquip_slot_inventory_preflight",
         readOnly=true, action="equipment", slot=tonumber(fields.slot),
@@ -374,14 +384,7 @@ end
 -- PushHeroEquipChange -> EquipDataManager and hero slot readers advance a step.
 local transaction = nil
 local function action_owner(fields)
-    if not exact_session(fields) then return false end
-    local player = member(rawget(_G,"LuaEntry"),"Player")
-    if exact_id(member(player,"uid")) ~= "2553945035002288" then return false end
-    for _, getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
-        local ok, server = invoke(player,getter)
-        if not ok or (server ~= 2288 and server ~= "2288") then return false end
-    end
-    return true
+    return exact_session(fields)
 end
 local function owner_key(fields)
     return table.concat({fields.profileId,fields.launchSessionId,fields.challenge,
@@ -455,7 +458,8 @@ end
 -- Source read-only owner snapshot for saving ordinary app equipment presets.
 -- Returned gear identifiers are native UUID strings, never template IDs.
 function M.Snapshot(fields)
-    if not action_owner(fields) then return blocked("Equipment snapshot requires the exact authorized 2288 session") end
+    local start_uid,start_server=native_session(fields)
+    if not start_uid then return blocked("Equipment snapshot requires an authenticated native account") end
     local squads, candidates={},{}
     local center=rawget(_G,"DataCenter")
     local manager=member(center,"ArmyFormationDataManager")
@@ -502,17 +506,34 @@ function M.Snapshot(fields)
         end
     end
     table.sort(candidates,function(a,b)return a.equipUuid<b.equipUuid end)
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local ok_server,server=invoke(player,"GetCurServerId")
+    local final_uid,final_server=native_session(fields)
+    if not ok_server or final_uid~=start_uid or final_server~=start_server or
+       exact_id(server)~=start_server then
+        return blocked("Native account changed during equipment snapshot")
+    end
     return {state="confirmed",data={observation="native_HeroEquip_owner_snapshot",
         readOnly=true,requestDispatched=false,ownerUid=fields.authorizedUid,
-        serverId=2288,squads=squads,items=candidates}}
+        serverId=tonumber(server),squads=squads,items=candidates}}
 end
 
 function M.Handle(fields, confirmed_presets, game_input_clear)
-    if not action_owner(fields) then return blocked("Equipment actions require exact authorized UID on server 2288") end
+    local initial_uid,initial_server=native_session(fields)
+    if not initial_uid then return blocked("Equipment action account differs from admitted native game") end
+    -- Stable UID alone is insufficient: the same account may switch worlds
+    -- while a saved multi-step equipment transaction is awaiting game pushes.
+    if transaction and transaction.serverId~=initial_server then
+        return blocked("Previous equipment transaction belongs to another native server")
+    end
     if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then return blocked("Unknown equipment query mode") end
     local audit = M.Preflight(fields,confirmed_presets,
         fields.queryOnly == "1" and function() return true end or game_input_clear)
     if audit.state ~= "confirmed" then return audit end
+    local fresh_uid,fresh_server=native_session(fields)
+    if fresh_uid~=initial_uid or fresh_server~=initial_server then
+        return blocked("Native equipment owner/server changed during action preflight")
+    end
     local slots = audit.data.slots
     local key, revision = owner_key(fields),fingerprint(slots)
     if transaction and transaction.key ~= key then
@@ -559,7 +580,7 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
                     heroUuid=slot.heroUuid,slot=slot.slot,before="",after=slot.targetEquipUuid}
             end
         end
-        transaction={key=key,fingerprint=revision,steps=steps,index=1,completed=0,
+        transaction={key=key,serverId=initial_server,fingerprint=revision,steps=steps,index=1,completed=0,
             sent=0,before=slots,latest=slots,slot=fields.slot,presetId=fields.presetId}
     end
     local tx=transaction
@@ -619,7 +640,8 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
         pending.data.nextStepNotDispatched=true
         return pending
     end
-    if not action_owner(fields) then
+    local dispatch_uid,dispatch_server=native_session(fields)
+    if dispatch_uid~=initial_uid or dispatch_server~=tx.serverId then
         return blocked("Native equipment owner/server changed before next step dispatch")
     end
     -- A confirmed owner preset may be edited/replaced between the initial
@@ -677,6 +699,17 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     else
         ok,returned=pcall(send,message,member(fresh_hero.object,"uuid"),
             {[step.slot]=member(next_item,"uuid")})
+    end
+    local after_uid,after_server=native_session(fields)
+    if after_uid~=initial_uid or after_server~=tx.serverId then
+        tx.uncertainSend=true
+        local result=receipt(tx,false)
+        result.state="failed"
+        result.errorCode="GAME_ACTION_UNCONFIRMED"
+        result.error="Equipment native account/server changed during send; never retransmit or advance"
+        result.data.uncertainSendOutcome=true
+        result.data.nextStepNotDispatched=true
+        return result
     end
     if not ok or returned==false then
         tx.uncertainSend=true

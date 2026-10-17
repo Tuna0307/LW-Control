@@ -34,8 +34,6 @@ local M = {VERSION = "feature018-hotkey-actions-1"}
 local outstanding = {}
 local owner_token = nil
 local MAX_PENDING_SECONDS = 45
-local AUTHORIZED_SUBACCOUNT_UID = "2553945035002288"
-local AUTHORIZED_SUBACCOUNT_SERVER = 2288
 
 local function member(object, key)
     if object == nil then return nil end
@@ -81,28 +79,35 @@ local function current_account()
     return player, id_string(member(player, "uid"))
 end
 
--- Only the owner's R3 sub-account can read spending preflights or dispatch
--- speedup/equipment work. Every command rechecks the live game Player, not a
--- claimed browser UID or a cached connection/session identity. All three
--- native server getters must agree: the 2212 main account is read-only.
+-- Any logged-in account may act, provided its three native server getters
+-- agree and the request's admitted UID matches it at the action boundary.
 local function authorized_subaccount()
     local player, uid = current_account()
-    if uid ~= AUTHORIZED_SUBACCOUNT_UID then
-        return nil, blocked("Native game UID is not the authorized server-2288 sub-account")
-    end
+    if not uid then return nil,blocked("Native game UID is unavailable") end
+    local expected_server
     for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
         local ok, server = invoke(player, source)
-        -- Reject decimal-looking or padded server aliases such as "02288"
-        -- and "2288.0": admission must reflect the exact native server.
-        local valid_server =
-            (type(server) == "number" and server == AUTHORIZED_SUBACCOUNT_SERVER)
-            or (type(server) == "string" and
-                server == tostring(AUTHORIZED_SUBACCOUNT_SERVER))
-        if not ok or not valid_server then
-            return nil, blocked("Native game server is not the authorized server-2288 sub-account")
+        local id=id_string(server)
+        if not ok or not id or (expected_server and expected_server~=id) then
+            return nil, blocked("Native game server identity disagrees")
         end
+        expected_server=id
     end
-    return uid, nil
+    if member(rawget(_G,"LuaEntry"),"Player")~=player or
+       id_string(member(player,"uid"))~=uid then
+        return nil, blocked("Native game account changed during server identity observation")
+    end
+    return uid, nil, expected_server
+end
+
+local function request_account(fields)
+    local uid, denial, server = authorized_subaccount()
+    if not uid then return nil, denial end
+    if type(fields)~="table" or type(fields.authorizedUid)~="string" or
+       fields.authorizedUid~=uid then
+        return nil, blocked("Hotkey request UID differs from authenticated native account")
+    end
+    return uid, nil, server
 end
 
 local function same_march(march, uid, formation_id, uuid)
@@ -177,8 +182,11 @@ local function read_return_state(selected)
 end
 
 local function recall(fields, game_input_clear)
-    local admitted, denial = authorized_subaccount()
+    local admitted, denial, server = request_account(fields)
     if not admitted then return denial end
+    if type(fields.authorizedUid)~="string" or fields.authorizedUid~=admitted then
+        return blocked("Recall request UID differs from authenticated native account")
+    end
     local slot = tonumber(fields.slot)
     if type(fields.slot) ~= "string" or
        slot == nil or slot % 1 ~= 0 or slot < 1 or slot > 4 then
@@ -186,6 +194,7 @@ local function recall(fields, game_input_clear)
     end
     local identity = session_id(fields)
     if identity == nil then return blocked("Exact authenticated game identity absent") end
+    identity=identity.."/"..admitted.."/"..server
     if owner_token ~= identity then
         -- A bridge challenge/launch token can rotate while the original
         -- native march is still processing OnBackHome. Keep one-send fences
@@ -216,7 +225,8 @@ local function recall(fields, game_input_clear)
         return blocked("Squad changed while its earlier return was pending")
     end
     if pending then
-        if pending.player ~= member(rawget(_G,"LuaEntry"),"Player") or
+        if pending.uid~=admitted or pending.server~=server or
+           pending.player ~= member(rawget(_G,"LuaEntry"),"Player") or
            pending.marches ~= selected.marches then
             return blocked("Native march player/manager changed after recall; earlier return remains unresolved")
         end
@@ -278,8 +288,8 @@ local function recall(fields, game_input_clear)
     -- Focus readers and original formation lookups execute native methods.
     -- Recheck the current owner and exact producer objects immediately before
     -- the one native OnBackHome action, including all three server getters.
-    local still_owned = authorized_subaccount()
-    if still_owned ~= selected.uid or
+    local still_owned, _, still_server = authorized_subaccount()
+    if still_owned ~= selected.uid or still_server~=server or
        member(rawget(_G,"LuaEntry"),"Player") ~= selected.player or
        rawget(_G,"DataCenter") ~= selected.center or
        member(selected.center,"WorldMarchDataManager") ~= selected.marches then
@@ -299,6 +309,7 @@ local function recall(fields, game_input_clear)
     -- network ACK because the original RPC does not echo this hotkey token.
     local tx = {uuid=selected.uuid,formation=selected.formation,
                 beforeTarget=selected.target,sentAt=os.time(),
+                uid=admitted,server=server,
                 player=member(rawget(_G,"LuaEntry"),"Player"),
                 marches=selected.marches,dispatchOutcomeUncertain=true}
     outstanding[slot] = tx
@@ -410,13 +421,17 @@ end
 
 -- Read-only native inventory endpoint for the Hotkeys panel. The FEATURE018
 -- bridge authenticates the profile/lease and this producer independently
--- verifies the current game's exact UID and all three 2288 server getters.
+-- verifies the current game's exact UID and all three native server getters.
 -- No client-supplied item identity, duration or spend instruction is used.
 function M.RegisterShieldInventory(feature)
     if type(feature) ~= "table" or
        type(feature.RegisterHandler) ~= "function" or
        type(feature.Array) ~= "function" then return false end
     return feature.RegisterHandler("feature018_shield_inventory_get", function(fields)
+        local uid, denial = request_account(fields)
+        if not uid then
+            return denial
+        end
         if type(fields) ~= "table" then
             return blocked("Native shield inventory requires an authenticated read request")
         end
@@ -454,9 +469,9 @@ function M.Wrap(frozen_hotkeys)
     local input = frozen_hotkeys.TextInputClear
     return function(fields)
         if type(fields) ~= "table" then return blocked("Invalid Hotkeys request") end
+        local uid, denial, server = request_account(fields)
+        if not uid then return denial end
         if fields.action == "equipment" then
-            local uid, denial = authorized_subaccount()
-            if not uid then return denial end
             local serialized=fields.confirmedEquipmentPresets
             if type(serialized)~="string" or #serialized<2 or #serialized>60000 then
                 return blocked("Confirmed profile equipment presets were not supplied")
@@ -503,8 +518,6 @@ function M.Wrap(frozen_hotkeys)
         if fields.action == "attack" or fields.action == "speedupItem" or
            fields.action == "speedupDiamond" then
             if fields.action == "speedupItem" or fields.action == "speedupDiamond" then
-                local uid, denial = authorized_subaccount()
-                if not uid then return denial end
                 local authenticated = {}
                 for key, value in pairs(fields) do authenticated[key] = value end
                 authenticated.authorizedUid = uid
@@ -526,9 +539,8 @@ function M.Wrap(frozen_hotkeys)
             end
             -- Unlike a browser/session token, these values are read from the
             -- game owner on every use AND read-only pending-status query.
-            -- The frozen shield sender does not itself check the 2288 server.
-            local uid, denial = authorized_subaccount()
-            if not uid then return denial end
+            -- The frozen shield sender checks this exact UID/server at each
+            -- pending-state transition and native ItemUse callback as well.
             -- The frozen Hotkey game module now joins owned inventory to the
             -- native StatusTab duration and protects every ItemUse with UI
             -- cooldown/warning and later independent shield+stock poststate.

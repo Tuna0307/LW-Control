@@ -33,32 +33,56 @@ internal static class Feature018OwnedGameExchangeChecks
             gameUid = uid, serverId = server,
         });
         int reads = 0;
-        Require(Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
-            _ => ++reads == 1 ? "{"u8.ToArray() : Heartbeat()) && reads == 2,
+        Require(Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+            _ => ++reads == 1 ? "{"u8.ToArray() : Heartbeat()) is
+                { GameUid: "2553945035002288", ServerId: 2288 } && reads == 2,
             "truncated first heartbeat did not reread the fresh authenticated heartbeat");
         reads = 0;
-        Require(Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
-            _ => ++reads == 1 ? throw new IOException("concurrent writer") : Heartbeat()) && reads == 2,
+        Require(Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+            _ => ++reads == 1 ? throw new IOException("concurrent writer") : Heartbeat()) is
+                { GameUid: "2553945035002288", ServerId: 2288 } && reads == 2,
             "transient heartbeat IO read did not reread successfully");
         reads = 0;
-        Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
-            _ => { reads++; return "{"u8.ToArray(); }) && reads == 3,
+        Require(Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+            _ => { reads++; return "{"u8.ToArray(); }) is null && reads == 3,
             "persistently truncated heartbeat escaped the three-read bound");
         reads = 0;
-        Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
-            _ => { reads++; throw new IOException("persistent IO"); }) && reads == 3,
+        Require(Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+            _ => { reads++; throw new IOException("persistent IO"); }) is null && reads == 3,
             "persistent heartbeat IO escaped the three-read bound");
+        foreach (var (uid, server) in new[]
+        {
+            ("3133546747002289", 2289), ("3133546747002212", 2212),
+            ("2553945035002288", 2289), ("2553945035002288", 2212),
+        })
+        {
+            Feature018AuthenticatedGameAccount? admitted =
+                Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+                    _ => Heartbeat(uid: uid, server: server));
+            Require(admitted == new Feature018AuthenticatedGameAccount(uid, server),
+                "product account admission rejected valid arbitrary UID/server pair");
+        }
         foreach (byte[] invalid in new[]
         {
-            Heartbeat(uid: "3133546747002289"), Heartbeat(uid: "3133546747002212"),
-            Heartbeat(server: 2289), Heartbeat(server: 2212),
+            Heartbeat(uid: ""), Heartbeat(uid: "not-a-uid"),
+            Heartbeat(uid: "0001234"), Heartbeat(server: 0), Heartbeat(server: -1),
+            JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                schemaVersion = 1, bridgeVersion = OverviewLifecycleService.BridgeVersion,
+                profileId = owner.ProfileId, sessionId = owner.SessionId,
+                challenge = owner.Challenge, gamePid = owner.GamePid,
+                ready = true, messageVisible = true, messageText = OverviewLifecycleService.ReadyMessage,
+                updatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                gameStateObserved = true, loggedIn = true, connected = true,
+                gameUid = "3133546747002289", serverId = "2289",
+            }),
             Heartbeat(updatedAt: DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds()),
             Heartbeat(challenge: "different-challenge"),
         })
         {
             reads = 0;
-            Require(!Feature018OwnedGameExchange.FreshApprovedSubaccount("unused", owner,
-                _ => ++reads == 1 ? invalid : Heartbeat()) && reads == 1,
+            Require(Feature018OwnedGameExchange.ReadFreshAuthenticatedAccount("unused", owner,
+                _ => ++reads == 1 ? invalid : Heartbeat()) is null && reads == 1,
                 "parsed wrong/stale heartbeat retried into a later acceptable account");
         }
     }
@@ -225,6 +249,16 @@ internal static class Feature018OwnedGameExchangeChecks
             verifiedAttackReadiness["mode"] == "attackReadiness" &&
             verifiedAttackReadiness["slot"] == "2",
             "read-only original attack prerequisites lost native squad slot");
+        var cursorNative = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "cursorPoint" }));
+        Require(cursorNative.Count == 1 && cursorNative["mode"] == "cursorPoint",
+            "read-only authenticated cursor point diagnostic rejected");
+        var pixelNative = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "cursorPoint", samplePixelX = 1432,
+                samplePixelY = 706 }));
+        Require(pixelNative.Count == 3 && pixelNative["samplePixelX"] == "1432" &&
+                pixelNative["samplePixelY"] == "706",
+            "read-only cursor pixel coordinate validation lost both sampled inputs");
         foreach (string relocation in new[] { "randomRelocate", "allianceRelocate" })
         {
             Dictionary<string, string> readiness = Feature018GameCommandService.ReadFields(
@@ -256,6 +290,12 @@ internal static class Feature018OwnedGameExchangeChecks
             new { mode = "inventory", slot = 1 },
             new { mode = "selectorTarget", targetUuid = "123" },
             new { mode = "selectorTarget", pointIndex = 1723 },
+            new { mode = "cursorPoint", samplePixelX = 14 },
+            new { mode = "cursorPoint", samplePixelY = 14 },
+            new { mode = "cursorPoint", samplePixelX = -1, samplePixelY = 12 },
+            new { mode = "cursorPoint", samplePixelX = 12, samplePixelY = 32768 },
+            new { mode = "cursorPoint", samplePixelX = 4.5, samplePixelY = 5 },
+            new { mode = "cursorPoint", samplePixelX = 12, samplePixelY = 15, targetUuid = "123" },
             new { mode = "attackReadiness" },
             new { mode = "attackReadiness", slot = 0 },
             new { mode = "attackReadiness", slot = 5 },
@@ -336,6 +376,36 @@ internal static class Feature018OwnedGameExchangeChecks
                 accountGated.ExchangeAsync("monopoly_cell_open", null,
                     TimeSpan.FromSeconds(1), CancellationToken.None));
             Require(!File.Exists(request), "rejected account wrote a live action request");
+            var boundAccount = new Feature018AuthenticatedGameAccount("3133546747002289", 2289);
+            var accountAtExchange = new Feature018AuthenticatedGameAccount("3133546747002212", 2212);
+            var expectedAccountExchange = new Feature018OwnedGameExchange(
+                () => current, expected => current == expected, request, reply,
+                currentAccount: _ => accountAtExchange);
+            await RequireErrorAsync("GAME_CONNECTION_UNAVAILABLE", () =>
+                expectedAccountExchange.ExchangeAsync("feature018_hotkey_action", null,
+                    TimeSpan.FromSeconds(1), CancellationToken.None,
+                    expectedAccount: boundAccount));
+            Require(!File.Exists(request), "captured hotkey account changed before dispatch yet wrote request");
+            var hotkeyService = new Feature018GameCommandService(expectedAccountExchange);
+            await RequireErrorAsync("GAME_CONNECTION_UNAVAILABLE", () =>
+                hotkeyService.InvokeAsync("feature018_hotkey_action",
+                    JsonSerializer.SerializeToElement(new
+                    {
+                        action = "recall", slot = 1,
+                        expectedGameUid = boundAccount.GameUid,
+                        expectedServerId = boundAccount.ServerId,
+                    }), CancellationToken.None));
+            Require(!File.Exists(request), "hotkey identity fence was not carried through managed command service");
+            await RequireErrorAsync("INVALID_REQUEST", () =>
+                hotkeyService.InvokeAsync("feature018_hotkey_action",
+                    JsonSerializer.SerializeToElement(new
+                    { action = "recall", slot = 1, expectedGameUid = boundAccount.GameUid }),
+                    CancellationToken.None));
+            await RequireErrorAsync("INVALID_REQUEST", () =>
+                hotkeyService.InvokeAsync("feature018_hotkey_action",
+                    JsonSerializer.SerializeToElement(new
+                    { action = "recall", slot = 1, expectedGameUid = "forged", expectedServerId = 2289 }),
+                    CancellationToken.None));
             string responseState = "confirmed";
             bool badChallenge = false;
             bool retireOwner = false;
@@ -364,11 +434,78 @@ internal static class Feature018OwnedGameExchangeChecks
                     return Task.CompletedTask;
                 });
 
+            // The shipping bridge requires this field on every command. Verify
+            // it is stamped by the native-authenticated exchange, even when
+            // a command has no payload and no Hotkey-specific UID reader.
+            var observedStamps = new List<(string Command, string Uid)>();
+            var stampedExchange = new Feature018OwnedGameExchange(
+                () => current, expected => current == expected, request, reply,
+                currentAccount: _ => accountAtExchange,
+                delay: (_, _) =>
+                {
+                    var source = File.ReadAllLines(request).Select(line => line.Split('=', 2))
+                        .Where(parts => parts.Length == 2)
+                        .ToDictionary(parts => parts[0], parts => parts[1]);
+                    Require(source.ContainsKey("authorizedUid") &&
+                            File.ReadAllLines(request).Count(line =>
+                                line.StartsWith("authorizedUid=", StringComparison.Ordinal)) == 1,
+                        "outbound mailbox missing or duplicated native authenticated UID");
+                    observedStamps.Add((source["command"], source["authorizedUid"]));
+                    File.WriteAllText(reply, JsonSerializer.Serialize(new
+                    {
+                        schemaVersion = 1, requestId = source["requestId"],
+                        profileId = source["profileId"], launchSessionId = source["launchSessionId"],
+                        challenge = source["challenge"], gamePid = owner.GamePid,
+                        command = source["command"],
+                        observedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        state = "confirmed", data = new { observed = true },
+                    }));
+                    return Task.CompletedTask;
+                });
+            foreach (string command in new[] { "city_layout_snapshot_get", "mini_land_status",
+                "feature018_shield_inventory_get", "feature018_hotkey_action" })
+            {
+                await stampedExchange.ExchangeAsync(command, null,
+                    TimeSpan.FromSeconds(2), CancellationToken.None);
+            }
+            Require(observedStamps.Count == 4 && observedStamps.All(row =>
+                    row.Uid == accountAtExchange.GameUid),
+                "ordinary FEATURE018 requests did not bind authenticated arbitrary-account UID");
+            await RequireErrorAsync("INVALID_REQUEST", () =>
+                stampedExchange.ExchangeAsync("mini_land_status",
+                    new Dictionary<string, string> { ["authorizedUid"] = "2553945035002288" },
+                    TimeSpan.FromSeconds(2), CancellationToken.None));
+            Require(observedStamps.Count == 4,
+                "forged command UID reached the game mailbox");
+
             JsonElement result = await exchange.ExchangeAsync("monopoly_cell_open",
                 new Dictionary<string, string> { ["cellKind"] = "next" },
                 TimeSpan.FromSeconds(2), CancellationToken.None);
             Require(result.GetProperty("cellId").GetInt32() == 12345,
                 "correlated confirmed response not delivered");
+            foreach (var (first, second) in new[]
+            {
+                (new Feature018AuthenticatedGameAccount("3133546747002289", 2289),
+                 new Feature018AuthenticatedGameAccount("2553945035002288", 2289)),
+                (new Feature018AuthenticatedGameAccount("2553945035002288", 2288),
+                 new Feature018AuthenticatedGameAccount("2553945035002288", 2212)),
+            })
+            {
+                Feature018AuthenticatedGameAccount? active = first;
+                var changingAccount = new Feature018OwnedGameExchange(
+                    () => current, expected => current == expected, request, reply,
+                    delay: (_, _) => { active = second; return Task.CompletedTask; },
+                    currentAccount: _ => active);
+                await RequireErrorAsync("GAME_CONNECTION_UNAVAILABLE", () =>
+                    changingAccount.ExchangeAsync("monopoly_cell_open", null,
+                        TimeSpan.FromSeconds(1), CancellationToken.None));
+            }
+            var missingAccount = new Feature018OwnedGameExchange(
+                () => current, expected => current == expected, request, reply,
+                currentAccount: _ => null);
+            await RequireErrorAsync("GAME_ACCOUNT_NOT_AUTHORIZED", () =>
+                missingAccount.ExchangeAsync("monopoly_cell_open", null,
+                    TimeSpan.FromSeconds(1), CancellationToken.None));
             approved = true;
             var changedDuringResponse = new Feature018OwnedGameExchange(
                 () => current, expected => current == expected, request, reply,

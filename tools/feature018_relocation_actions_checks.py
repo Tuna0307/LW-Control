@@ -77,7 +77,8 @@ def scenario():
     world = runtime.globals().world
     def call(action, query=False, profile="owner", focus=None):
         values = {"action": action, "slot": "0", "profileId": profile,
-                  "launchSessionId": "launch", "challenge": "challenge", "gamePid": "8123", "preflightOnly":"1"}
+                  "launchSessionId": "launch", "challenge": "challenge", "gamePid": "8123",
+                  "authorizedUid": "2553945035002288", "preflightOnly":"1"}
         if query:
             values["queryOnly"] = "1"
         allow_focus = runtime.eval("function() return world.focusClear end")
@@ -220,7 +221,8 @@ class InertRelocationChecks(unittest.TestCase):
         runtime, actions, state, _ = scenario()
         data = runtime.table_from({"action":"randomRelocate", "slot":"0",
             "profileId":"owner", "launchSessionId":"launch",
-            "challenge":"challenge", "gamePid":"8123"})
+            "challenge":"challenge", "gamePid":"8123",
+            "authorizedUid":"2553945035002288"})
         exploding = runtime.eval("function() error('focus query failed') end")
         result = actions.RandomRelocate(data, exploding)
         self.assertEqual(result["state"], "failed")
@@ -251,14 +253,14 @@ class InertRelocationChecks(unittest.TestCase):
         state["current"] = 2212
         reject = call("allianceRelocate")
         self.assertEqual(reject["state"], "unsupported")
-        self.assertIn("server-2288", reject["error"])
+        self.assertIn("server identity disagrees", reject["error"])
         self.assertEqual(actions.Snapshot()["state"], "unsupported")
         state["current"] = 2288
         state["source"] = 2212
         self.assertEqual(call("allianceRelocate")["state"], "unsupported")
         state["source"] = 2288
         runtime.globals().LuaEntry.Player.uid = "3133546747002212"
-        self.assertIn("exact authorized 2288", call("allianceRelocate")["error"])
+        self.assertIn("request UID does not match native owner", call("allianceRelocate")["error"])
         runtime.globals().LuaEntry.Player.uid = "2553945035002288"
         # An unparseable native UID is rejected; the fixture's native Player
         # property must change, not just the backing state used by methods.
@@ -545,7 +547,8 @@ class RelocationActionChecks(unittest.TestCase):
         """)
         def call(action='randomRelocate',query=False):
             fields={'action':action,'slot':'0','profileId':'owner','launchSessionId':'launch',
-                    'challenge':'challenge','gamePid':'8123'}
+                    'challenge':'challenge','gamePid':'8123',
+                    'authorizedUid':'2553945035002288'}
             if query: fields['queryOnly']='1'
             func=actions.RandomRelocate if action=='randomRelocate' else actions.AllianceRelocate
             return func(lua.table_from(fields),lua.eval('function()return world.focusClear end'))
@@ -555,7 +558,7 @@ class RelocationActionChecks(unittest.TestCase):
         lua,module,state,_=self.fixture()
         fields=lua.table_from({'action':'randomRelocate','slot':'0',
             'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
-            'gamePid':'8123'})
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
         result=module.Readiness(fields,lua.eval('function()return true end'))
         self.assertEqual(result['state'],'confirmed')
         data=result['data']
@@ -580,7 +583,7 @@ class RelocationActionChecks(unittest.TestCase):
         lua,module,state,_=self.fixture()
         fields=lua.table_from({'action':'allianceRelocate','slot':'0',
             'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
-            'gamePid':'8123'})
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
         def query():
             return module.Readiness(fields,lua.eval('function()return true end'),
                                     'allianceRelocate')
@@ -636,7 +639,8 @@ class RelocationActionChecks(unittest.TestCase):
                 lua.execute(change)
                 fields=lua.table_from({'action':'randomRelocate','slot':'0',
                     'profileId':'owner','launchSessionId':'launch',
-                    'challenge':'challenge','gamePid':'8123'})
+                    'challenge':'challenge','gamePid':'8123',
+                    'authorizedUid':'2553945035002288'})
                 result=module.Readiness(fields,
                     lua.eval('function()return world.focusClear end'))
                 self.assertEqual(result['state'],'confirmed')
@@ -647,19 +651,80 @@ class RelocationActionChecks(unittest.TestCase):
         lua,module,state,_=self.fixture()
         fields=lua.table_from({'action':'randomRelocate','slot':'0',
             'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
-            'gamePid':'8123'})
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
         lua.execute('world.current=2212')
         self.assertEqual(module.Readiness(
             fields,lua.eval('function()return true end'))['state'],'unsupported')
         lua.execute('world.current=2288;LuaEntry.Player.uid="3133546747002212"')
         self.assertEqual(module.Readiness(
-            fields,lua.eval('function()return true end'))['state'],'unsupported')
+            fields,lua.eval('function()return true end'))['state'],'failed')
         self.assertEqual(state['sends'],0)
+
+    def test_any_authenticated_uid_and_server_can_request_f9_with_matching_identity(self):
+        lua,module,state,_=self.fixture()
+        lua.execute("""
+          LuaEntry.Player.uid='3133546747002212'
+          world.source=2212;world.selfServer=2212;world.current=2212
+        """)
+        request=lua.table_from({'action':'randomRelocate','slot':'0',
+            'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
+            'gamePid':'8123','authorizedUid':'3133546747002212'})
+        readiness=module.Readiness(request,lua.eval('function()return true end'))
+        self.assertEqual(readiness['state'],'confirmed')
+        self.assertTrue(readiness['data']['actionable'])
+        self.assertEqual(readiness['data']['sourceServerId'],2212)
+        self.assertEqual(module.RandomRelocate(request,lua.eval('function()return true end'))['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_mismatched_request_uid_never_uses_another_players_item_or_chooser(self):
+        for action in ('randomRelocate','allianceRelocate'):
+            lua,module,state,_=self.fixture()
+            forged=lua.table_from({'action':action,'slot':'0',
+                'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
+                'gamePid':'8123','authorizedUid':'3133546747002212'})
+            method=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
+            self.assertEqual(method(forged,lua.eval('function()return true end'))['state'],'failed')
+            self.assertEqual(module.Readiness(forged,lua.eval('function()return true end'))['state'],'failed')
+            self.assertEqual(state['sends'],0)
+            self.assertEqual(state['dialogs'],0)
+
+    def test_readiness_during_coherent_server_transition_never_reports_actionable(self):
+        lua,module,state,_=self.fixture()
+        request=lua.table_from({'action':'randomRelocate','slot':'0',
+            'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
+        changed=lua.eval("""
+          function()
+            world.source=2212;world.selfServer=2212;world.current=2212
+            return true
+          end
+        """)
+        result=module.Readiness(request,changed)
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('changed during readiness',result['error'])
+        self.assertEqual(state['sends'],0)
+
+    def test_f9_send_return_after_server_transition_keeps_no_retry_tombstone(self):
+        lua,module,state,call=self.fixture()
+        lua.execute("""
+          SFSNetwork.SendMessage=function(...)
+            world.sends=world.sends+1
+            world.source=2212;world.selfServer=2212;world.current=2212
+          end
+        """)
+        first=call()
+        self.assertEqual(first['state'],'failed')
+        self.assertIn('changed during F9',first['error'])
+        self.assertEqual(state['sends'],1)
+        lua.execute('world.source=2288;world.selfServer=2288;world.current=2288')
+        self.assertEqual(call()['state'],'accepted')
+        self.assertEqual(state['sends'],1)
 
     def test_r8_readiness_rejects_forged_action_and_session_without_side_effects(self):
         lua,module,state,_=self.fixture()
         base={'action':'randomRelocate','slot':'0','profileId':'owner',
-              'launchSessionId':'launch','challenge':'challenge','gamePid':'8123'}
+              'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
+              'authorizedUid':'2553945035002288'}
         for name,override in (
             ('wrong action',{'action':'allianceRelocate'}),
             ('bad slot',{'slot':'9'}),
@@ -919,7 +984,8 @@ class RelocationActionChecks(unittest.TestCase):
                 lua.execute('world.otherRally={allianceId=world.allianceUid,type=702,server=2213,pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}')
             fn=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
             values={'action':action,'slot':'0','profileId':'owner',
-                    'launchSessionId':'launch','challenge':'challenge','gamePid':'8123'}
+                    'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
+                    'authorizedUid':'2553945035002288'}
             focus=lua.eval("""
                 function()
                   world.current=2212
@@ -992,7 +1058,8 @@ class RelocationActionChecks(unittest.TestCase):
         lua,module,state,call=self.fixture()
         values={'action':'randomRelocate','slot':'0',
                 'profileId':'owner','launchSessionId':'launch',
-                'challenge':'challenge','gamePid':'8123'}
+                'challenge':'challenge','gamePid':'8123',
+                'authorizedUid':'2553945035002288'}
         identity=lua.table_from(values)
         pre=module.Readiness(identity,lua.eval('function()return true end'))
         self.assertTrue(pre['data']['actionable'])
@@ -1030,7 +1097,8 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(call('allianceRelocate')['state'],'accepted')
         values={'action':'allianceRelocate','slot':'0',
                 'profileId':'owner','launchSessionId':'launch',
-                'challenge':'challenge','gamePid':'8123'}
+                'challenge':'challenge','gamePid':'8123',
+                'authorizedUid':'2553945035002288'}
         result=module.Readiness(lua.table_from(values),lua.eval('function()return true end'))
         self.assertEqual(result['state'],'confirmed')
         self.assertTrue(result['data']['oneSendFenceActive'])
@@ -1045,7 +1113,8 @@ class RelocationActionChecks(unittest.TestCase):
         lua,module,state,_=self.fixture()
         def probe(action):
             vals={'action':action,'slot':'0','profileId':'owner','launchSessionId':'launch',
-                  'challenge':'challenge','gamePid':'8123','preflightOnly':'1'}
+                  'challenge':'challenge','gamePid':'8123',
+                  'authorizedUid':'2553945035002288','preflightOnly':'1'}
             func=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
             return func(lua.table_from(vals),lua.eval('function()return true end'))
         random=probe('randomRelocate')
@@ -1077,7 +1146,7 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute('world.randomCount=0')
         vals={'action':'randomRelocate','slot':'0','profileId':'owner',
               'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
-              'preflightOnly':'1'}
+              'authorizedUid':'2553945035002288','preflightOnly':'1'}
         result=module.RandomRelocate(lua.table_from(vals),
                                      lua.eval('function()return true end'))
         self.assertEqual(result['state'],'unsupported')
@@ -1091,7 +1160,7 @@ class RelocationActionChecks(unittest.TestCase):
         for action in ('randomRelocate','allianceRelocate'):
             vals={'action':action,'slot':'0','profileId':'owner',
                   'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
-                  'preflightOnly':'0'}
+                  'authorizedUid':'2553945035002288','preflightOnly':'0'}
             fn=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
             response=fn(lua.table_from(vals),lua.eval('function()return true end'))
             self.assertEqual(response['state'],'failed')
