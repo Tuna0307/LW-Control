@@ -306,7 +306,8 @@ class EquipmentApplyChecks(unittest.TestCase):
         def call(query=False,slot=2):
             extra={'authorizedUid':'3133546747002289'}
             if query: extra['queryOnly']='1'
-            return module.Handle(fields(lua,slot,**extra),presets,lua.eval('function()return true end'))
+            return module.Handle(fields(lua,slot,**extra),presets,
+                                 lua.eval('function()return state.focus end'))
         return lua,module,state,presets,call
 
     def test_native_snapshot_supplies_legitimate_persistable_loadout_and_inventory(self):
@@ -353,6 +354,47 @@ class EquipmentApplyChecks(unittest.TestCase):
         lua,_,state,presets,call=self.fixture();call()
         presets[2]['squads'][1]['positions'][1]['equips'][1]['equipUuid']='504'
         self.assertEqual(call(True)['state'],'failed');self.assertEqual(state['sent'],1)
+
+    def test_query_only_observes_gear_push_but_does_not_dispatch_next_step_in_text_focus(self):
+        lua,_,state,_,call=self.fixture()
+        first=call()
+        self.assertEqual(first['state'],'accepted')
+        self.assertEqual(state['sent'],1)
+        lua.globals().apply_push()
+        state['focus']=False
+        paused=call(True)
+        self.assertEqual(paused['state'],'accepted')
+        self.assertEqual(paused['data']['completedSteps'],1)
+        self.assertTrue(paused['data']['awaitingInputClear'])
+        self.assertTrue(paused['data']['nextStepNotDispatched'])
+        self.assertEqual(state['sent'],1)
+        again=call(True)
+        self.assertEqual(again['state'],'accepted')
+        self.assertEqual(state['sent'],1)
+        state['focus']=True
+        resumed=call(True)
+        self.assertEqual(resumed['state'],'accepted')
+        self.assertEqual(resumed['data']['dispatchedSteps'],2)
+        self.assertEqual(state['sent'],2)
+        for _ in range(6):
+            lua.globals().apply_push()
+            result=call(True)
+            if result['state']=='confirmed':
+                break
+        self.assertEqual(result['state'],'confirmed')
+        self.assertEqual(state['sent'],4)
+
+    def test_query_only_final_state_completes_without_focus_and_no_fresh_send(self):
+        lua,_,state,_,call=self.fixture()
+        self.assertEqual(call(slot=2)['state'],'accepted')
+        for index in range(4):
+            lua.globals().apply_push()
+            if index==3:
+                state['focus']=False
+            response=call(query=True)
+        self.assertEqual(response['state'],'confirmed')
+        self.assertEqual(state['sent'],4)
+        self.assertFalse(response['data']['awaitingGameConfirmation'])
 
 
 if __name__ == "__main__":

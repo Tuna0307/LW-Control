@@ -531,6 +531,21 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
             step.after,hero,step.slot)
         if not item or item.wearer then return blocked(why or "Equipment has not been released by its previous hero") end
     end
+    -- queryOnly polls are allowed to observe a prior native push even while
+    -- the user types. However, when polling advances to the NEXT install or
+    -- uninstall, that is a fresh send and must pass live input focus again.
+    -- Preserve the transaction at this step so a later safe poll can resume
+    -- without retransmitting any already-observed operation.
+    local focus_ok,focus_clear=false,false
+    if type(game_input_clear)=="function" then
+        focus_ok,focus_clear=pcall(game_input_clear)
+    end
+    if not focus_ok or focus_clear~=true then
+        local pending=receipt(tx,false)
+        pending.data.awaitingInputClear=true
+        pending.data.nextStepNotDispatched=true
+        return pending
+    end
     local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
     if message==nil or type(send)~="function" then return unavailable("Original HeroEquip message unavailable") end

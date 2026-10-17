@@ -464,11 +464,100 @@ class RelocationActionChecks(unittest.TestCase):
         lua,_,state,call=self.fixture()
         self.assertEqual(call('allianceRelocate')['state'],'accepted')
         self.assertEqual(state['sends'],1)
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998},240)')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,result=1,worldMainPoint=514998},240)')
         result=call('allianceRelocate',True)
         self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['worldMvAcknowledged'])
         self.assertEqual(result['data']['afterWorldPointId'],514998)
+        self.assertEqual(result['data']['acknowledgedWorldPointId'],514998)
         self.assertTrue(lua.eval('DataCenter.BuildManager.WorldMvHandle==world.moveOriginal'))
+
+    def test_readonly_readiness_exposes_exact_f9_and_f10_bag_items(self):
+        lua,module,state,_=self.fixture()
+        def probe(action):
+            vals={'action':action,'slot':'0','profileId':'owner','launchSessionId':'launch',
+                  'challenge':'challenge','gamePid':'8123','preflightOnly':'1'}
+            func=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
+            return func(lua.table_from(vals),lua.eval('function()return true end'))
+        random=probe('randomRelocate')
+        self.assertEqual(random['state'],'unsupported')
+        own=random['data']['actionReadiness']
+        self.assertEqual(own['itemType'],'ITEM_MOVE_RANDOM')
+        self.assertEqual(own['itemUuid'],'100004')
+        self.assertEqual(own['itemId'],'5004')
+        self.assertEqual(own['itemCount'],2)
+        self.assertTrue(own['ownerItemPresent'])
+        self.assertTrue(own['warningsClear'])
+        self.assertFalse(own['requestDispatched'])
+        ally=probe('allianceRelocate')
+        self.assertEqual(ally['state'],'unsupported')
+        data=ally['data']['actionReadiness']
+        self.assertEqual(data['itemType'],'LW_ITEM_ALLY_MOVE_CITY')
+        self.assertEqual(data['itemUuid'],'100005')
+        self.assertTrue(data['worldSceneReady'])
+        self.assertTrue(data['sourceServerLogin'])
+        self.assertTrue(data['ownerItemPresent'])
+        self.assertFalse(data['destinationVerified'])
+        self.assertEqual(state['sends'],0)
+
+    def test_readonly_readiness_reports_missing_owned_item_without_send(self):
+        lua,module,state,_=self.fixture()
+        lua.execute('world.randomCount=0')
+        vals={'action':'randomRelocate','slot':'0','profileId':'owner',
+              'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
+              'preflightOnly':'1'}
+        result=module.RandomRelocate(lua.table_from(vals),
+                                     lua.eval('function()return true end'))
+        self.assertEqual(result['state'],'unsupported')
+        self.assertFalse(result['data']['actionReadiness']['ownerItemPresent'])
+        self.assertIn('No owned native relocation item',
+                      result['data']['actionReadiness']['itemBlocker'])
+        self.assertEqual(state['sends'],0)
+
+    def test_invalid_preflight_mode_does_not_dispatch_f9_or_f10(self):
+        lua,module,state,_=self.fixture()
+        for action in ('randomRelocate','allianceRelocate'):
+            vals={'action':action,'slot':'0','profileId':'owner',
+                  'launchSessionId':'launch','challenge':'challenge','gamePid':'8123',
+                  'preflightOnly':'0'}
+            fn=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
+            response=fn(lua.table_from(vals),lua.eval('function()return true end'))
+            self.assertEqual(response['state'],'failed')
+            self.assertIn('preflight mode',response['error'])
+        self.assertEqual(state['sends'],0)
+
+    def test_item_stack_replacement_cannot_confirm_same_item_id_count_delta(self):
+        lua,_,state,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("""
+        local old=DataCenter.ItemData.GetItemById
+        function DataCenter.ItemData:GetItemById(id)
+          if id==5004 then return {uuid=999994,itemId=5004,count=1} end
+          return old(self,id)
+        end
+        world.position=600123
+        DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004})
+        """)
+        reply=call(query=True)
+        self.assertEqual(reply['state'],'failed')
+        self.assertIn('stack identity changed',reply['error'])
+        self.assertEqual(state['sends'],1)
+
+    def test_f10_reason_240_requires_matching_server_reply_point_and_success(self):
+        for reply in ('{serverId=2289,result=2,worldMainPoint=514998}',
+                      '{serverId=2289,result=1,worldMainPoint=514998,buildInfo={pId=514999}}',
+                      '{serverId=2289,result=1,worldMainPoint=514998}'):
+            lua,_,state,call=self.fixture()
+            # Independent position after does not match one/both reply fields
+            # in the final case; still no ACK despite the owned item debit.
+            if reply.endswith('worldMainPoint=514998}'):
+                lua.execute('DataCenter.BuildManager.WorldMvHandle=function(self,r) world.allyCount=world.allyCount-1 end')
+            self.assertEqual(call('allianceRelocate')['state'],'accepted')
+            lua.execute('DataCenter.BuildManager:WorldMvHandle('+reply+',240)')
+            observed=call('allianceRelocate',True)
+            self.assertEqual(observed['state'],'accepted',reply)
+            self.assertFalse(observed['data']['replyObserved'],reply)
+            self.assertFalse(observed['data']['worldMvAcknowledged'],reply)
+            self.assertEqual(state['sends'],1,reply)
 
     def test_missing_warning_or_item_never_dispatches(self):
         lua,_,state,call=self.fixture()

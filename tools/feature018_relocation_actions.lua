@@ -43,9 +43,10 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-4"}
+local M = {VERSION = "feature018-relocation-actions-5"}
 local baseline = {}
 local last_owner = nil
+local inspect_relocation_readiness
 local HOME_SERVER = 2289 -- Authorized sub-account only. 2212 is the read-only main.
 local APPROVED_UID = "3133546747002289"
 
@@ -261,6 +262,10 @@ local function preflight(fields, input_clear, action)
         last_owner = nil
         return unavailable(reason)
     end
+    -- The three conventional move consumables in world_snapshot are not the
+    -- original F9/F10 bag actions. Probe the exact action item/expiry now,
+    -- even when subsequent F10 rally inspection cannot resolve an owner.
+    snapshot.actionReadiness = inspect_relocation_readiness(action)
     if action == "allianceRelocate" then
         if not snapshot.inAlliance then
             baseline = {}
@@ -398,12 +403,40 @@ local function owned_item(action)
     -- Preserve exact 64-bit game UUID digits as a Lua string, not a number.
     return {itemId=tostring(item_id),itemUuid=item_uid,nativeUuid=item_uid,count=count,nativeItemId=item_id}
 end
+-- No mutation: exact v26 bag item + original native warning and scene
+-- prerequisites. The random destination is server-chosen, not derivable
+-- from this read-only observation; the home rally mark is not sent as pointId.
+inspect_relocation_readiness=function(action)
+    local item,why=owned_item(action)
+    local clear,warning=warning_clear(action)
+    local readiness={
+        observation="original_v26_relocation_owned_item_and_warning_preflight",
+        action=action,ownerItemPresent=item~=nil,
+        itemType=action=="randomRelocate" and "ITEM_MOVE_RANDOM" or "LW_ITEM_ALLY_MOVE_CITY",
+        itemId=item and item.itemId or nil,
+        itemUuid=item and item.itemUuid or nil,
+        itemCount=item and item.count or 0,
+        itemBlocker=item and nil or why,
+        warningsClear=clear==true,
+        warningBlocker=clear and nil or warning,
+        readOnly=true,requestDispatched=false,
+        destinationVerified=false,serverReplyObserved=false,
+    }
+    if action=="allianceRelocate" then
+        local scene=static_bool(rawget(_G,"SceneUtils"),"GetIsInCity")
+        local ok,source_login=invoke(member(rawget(_G,"LuaEntry"),"Player"),"IsLoginSourceServer")
+        readiness.worldSceneReady=scene==false
+        readiness.sourceServerLogin=ok and source_login==true
+    end
+    return readiness
+end
 local function action_receipt(tx,snapshot,confirmed)
     return {state=confirmed and "confirmed" or "accepted",data={
         observation=confirmed and "native_relocation_reply_item_and_world_position" or "native_relocation_pending",
         action=tx.action,slot=0,ownerUid=snapshot.ownerUid,sourceServerId=snapshot.sourceServerId,
         itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,beforeCount=tx.item.count,
         afterCount=tx.afterCount,beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
+        acknowledgedWorldPointId=tx.replyPoint,
         worldPointChanged=snapshot.worldPointId~=tx.before,requestDispatched=not confirmed,
         awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
         replyObserved=tx.reply==true,worldMvAcknowledged=confirmed and tx.action=="allianceRelocate",
@@ -411,6 +444,9 @@ local function action_receipt(tx,snapshot,confirmed)
 end
 local function perform(fields,input_clear,action)
     if type(fields)~="table" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation fields") end
+    if fields.preflightOnly~=nil and fields.preflightOnly~="1" then
+        return failed("GAME_PRECONDITION_FAILED","Unknown relocation preflight mode")
+    end
     if fields.preflightOnly=="1" then return preflight(fields,input_clear,action) end
     local session=key_identity(fields,action)
     if not session then return failed("GAME_PRECONDITION_FAILED","Invalid owned relocation session") end
@@ -433,6 +469,9 @@ local function perform(fields,input_clear,action)
         local ok,item=invoke(itemdata,"GetItemById",pending.item.nativeItemId)
         local count=item and integer(member(item,"count"),0) or 0
         if not ok or count==nil then return failed("GAME_ACTION_UNCONFIRMED","Native relocation inventory unavailable after dispatch") end
+        if item~=nil and uid(member(item,"uuid"))~=pending.item.itemUuid then
+            return failed("GAME_ACTION_UNCONFIRMED","Native relocation item stack identity changed after dispatch")
+        end
         pending.afterCount=count
         if pending.rejected then
             clear_hook(pending)
@@ -499,10 +538,24 @@ local function perform(fields,input_clear,action)
                     tx.reply=member(response,"errorCode")==nil
                     tx.rejected=not tx.reply
                 end
-            elseif select(1,...)==240 and integer(member(response,"serverId"),1)==HOME_SERVER and
-                (member(response,"worldMainPoint")~=nil or member(member(response,"buildInfo"),"pId")~=nil) then
-                tx.reply=member(response,"errorCode")==nil
-                tx.rejected=not tx.reply
+            elseif select(1,...)==240 and integer(member(response,"result"),1)==1 and
+                   integer(member(response,"serverId"),1)==HOME_SERVER then
+                -- AllianceMoveCityMessage forwards only result=1 to this
+                -- native handler with reason=240. Its authoritative server
+                -- point must agree with the independent native position
+                -- AFTER the original WorldMvHandle updates that position.
+                local point=member(response,"worldMainPoint")
+                local embedded=member(member(response,"buildInfo"),"pId")
+                local server_point=point and integer(point,0) or
+                    embedded and integer(embedded,0)
+                if server_point and server_point<10000000 and
+                   (point==nil or integer(point,0)==server_point) and
+                   (embedded==nil or integer(embedded,0)==server_point) and
+                   server_point==current.worldPointId then
+                    tx.replyPoint=server_point
+                    tx.reply=member(response,"errorCode")==nil
+                    tx.rejected=not tx.reply
+                end
             end
         end
         return table.unpack(returns,1,returns.n)
