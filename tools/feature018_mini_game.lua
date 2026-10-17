@@ -692,8 +692,24 @@ local function frontline_reinforce(fields)
     } }
 end
 
+-- Original UITreasureChestCtrl.CloseSelf (v26 9-11) destroys the exact
+-- UIWindowNames.UITreasureChest window. A bound Lua view can outlive the
+-- visible window; only the original UIManager.IsWindowOpen can admit a mark.
+local function native_chest_window_open()
+    local name = member(rawget(_G, "UIWindowNames"), "UITreasureChest")
+    local ui = rawget(_G, "UIManager")
+    if name == nil or ui == nil then return false end
+    local ok, instance = invoke(ui, "GetInstance")
+    if not ok or instance == nil then return false end
+    local open_ok, opened = invoke(instance, "IsWindowOpen", name)
+    return open_ok and opened == true
+end
+
 local function chest_snapshot(view)
     if view == nil then return unsupported("No genuine active TreasureChest view was bound") end
+    if not native_chest_window_open() then
+        return unsupported("The original TreasureChest UI window is not currently open")
+    end
     -- UITreasureChestView.OnClickBox (source lines 382-397) only accepts a
     -- reward selection during the literal SwitchEnd phase, before received.
     if member(view, "switchState") ~= "SwitchEnd" or member(view, "received") == true then
@@ -799,6 +815,22 @@ local function mark_chest()
         return blocked("Black Market marker requires authorized UID/server 2289")
     end
     M.TryObserveUiClasses()
+    local watched = watched_ui_classes["UI.LWTreasureChest.UITreasureChestView"]
+    if watched == nil or package == nil or package.loaded == nil or
+       package.loaded["UI.LWTreasureChest.UITreasureChestView"] ~= watched.class or
+       member(watched.class, "OnCreate") ~= watched.createWrapper or
+       member(watched.class, "Update") ~= watched.updateWrapper or
+       member(watched.class, "OnDestroy") ~= watched.destroyWrapper or
+       member(watched.class, "ChangeSwitchState") ~= watched.stateWrapper or
+       member(watched.class, "OnClickBox") ~= watched.clickWrapper or
+       member(watched.class, "OnTreasureChestEndResult") ~= watched.resultWrapper or
+       member(watched.class, "OnBtnCloseClick") ~= watched.closeWrapper or
+       member(watched.class, "OnBtnBlackClick") ~= watched.blackWrapper then
+        -- A different hook owner may have replaced our lifecycle observer.
+        -- Do not leave an already-owned highlight stranded on the old view.
+        if marker_owned_view ~= nil then clear_owned_chest_marker() end
+        return blocked("Native TreasureChest lifecycle observer changed; marker cannot be maintained")
+    end
     local game_state = chest_snapshot(bound_chest_view)
     if game_state.state ~= "confirmed" then return game_state end
     local view = bound_chest_view
@@ -832,7 +864,7 @@ local function mark_chest()
     local ok = pcall(show, view, data.x, data.y, data.z)
     marker_initializing_view = nil
     local still_eligible = chest_snapshot(view)
-    if not ok or still_eligible.state ~= "confirmed" or
+    if not ok or not native_owner_verified() or still_eligible.state ~= "confirmed" or
        still_eligible.data.bestRewardBoxIndex ~= data.bestRewardBoxIndex or
        not chest_effect_at(view, data.x, data.y, data.z) or
        not chest_effect_at(view, still_eligible.data.x,

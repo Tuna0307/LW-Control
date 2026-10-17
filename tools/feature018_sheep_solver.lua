@@ -310,7 +310,19 @@ local function hook_loaded_view()
     local module = 'UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView'
     local cls = type(loaded) == 'table' and loaded[module] or nil
     if type(cls) ~= 'table' then return false end
-    if owner_class ~= nil then return owner_class.class == cls end
+    if owner_class ~= nil then
+        -- A changed or replaced native callback cannot observe the original
+        -- response's exact SyncFinish. Never send a UI click without the
+        -- watcher that fences one sent syncOps item to one server reply.
+        return owner_class.class == cls and
+               get(cls, 'Update') == owner_class.update and
+               get(cls, 'SeasonSheepOpHandle') == owner_class.response and
+               get(cls, 'OnDestroy') == owner_class.destroy and
+               get(cls, 'OnClickCard') == owner_class.click and
+               get(cls, 'OnUseItem') == owner_class.item and
+               get(cls, 'NextLevel') == owner_class.nextLevel and
+               get(cls, 'Again') == owner_class.again
+    end
     local prior_update = get(cls, 'Update')
     local prior_result = get(cls, 'SeasonSheepOpHandle')
     local prior_destroy = get(cls, 'OnDestroy')
@@ -572,7 +584,7 @@ function M.Pump()
     if run == nil then return false end
     local status_now = run.status
     if status_now ~= 'opening' and status_now ~= 'solving' and status_now ~= 'executing' then return false end
-    hook_loaded_view()
+    local observed_hooks_intact = hook_loaded_view()
     local view, engine, game = native_view()
     local ctx, err = ensure_same_stage()
     if ctx == nil then
@@ -628,6 +640,10 @@ function M.Pump()
         end
         run.status = 'executing'
         return true
+    end
+    if not observed_hooks_intact then
+        stop_internal('Native Food House callback observer was replaced or unavailable')
+        return false
     end
     if run.pending ~= nil then
         local pending = run.pending
@@ -687,6 +703,13 @@ function M.Pump()
     if not clickable_ok or clickable ~= true or get(visible, next_card.id) ~= card or
        get(item, 'card') ~= card or type(get(item, 'OnClickCard')) ~= 'function' then
         stop_internal('Planned tile is not the current native clickable UI card')
+        return false
+    end
+    -- Source GSheep.Enter (v26 125,148) opens UILUISheepCloud. An old native
+    -- view may remain bound after this window closes and before OnDestroy is
+    -- observed. No new UI click is valid without the currently open window.
+    if is_sheep_window_open() ~= true then
+        stop_internal('Native Food House window closed before next tile click')
         return false
     end
     if not approved_native_owner() then

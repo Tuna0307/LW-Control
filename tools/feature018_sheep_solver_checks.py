@@ -51,6 +51,12 @@ class NativeSeasonFourBytecode(unittest.TestCase):
                     "DataCenter": {"LWSheepDataManager": season}}
         self.assertEqual(vm.execute(method, context, globals_=globals_), (4,))
 
+    def test_food_house_native_enter_owns_exact_window_name(self):
+        original = self.method("DataCenter/SmallGameManager/GSheep.luac", "Enter")
+        constants = {str(value) for value in original["constants"]}
+        self.assertTrue({"UIManager", "OpenWindow", "UIWindowNames",
+                         "UILUISheepCloud"} <= constants)
+
     def test_native_can_click_requires_visible_and_tray_room(self):
         method = self.method("DataCenter/LWSheep/LWSheep.luac", "CanClick")
         game = {"visualList": defaultdict(lambda: None, {11: "present"}),
@@ -188,6 +194,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           GetCurServerId=function() return Account.current end}}
         MiniGameSource={Season=4}
         GameOpens=0
+        WindowOpen=false
         SmallGameManager={GSheep={source=4,
           Start=function() GameOpens=GameOpens+1 end}}
         DataCenter={LWSheepDataManager={sheepData={blockId=42},
@@ -197,7 +204,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           CanChallenge=function() return true end}}
         UIWindowNames={UILUISheepCloud='FoodHouse'}
         UIManager={GetInstance=function() return
-          {IsWindowOpen=function(self, name) return false end} end}
+          {IsWindowOpen=function(self, name) return name=='FoodHouse' and WindowOpen end} end}
         ''')
         solver = lua.execute((ROOT / 'feature018_sheep_solver.lua').read_text(
             encoding='utf-8'))
@@ -288,8 +295,34 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         lua.globals().AutoReply = auto_reply
         self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
                          'accepted')
+        lua.globals().WindowOpen = True
         self.assertTrue(solver.BindView(lua.globals().View))
         return lua, solver
+
+    def test_closed_current_native_window_refuses_card_click(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        lua.globals().WindowOpen = False
+        for _ in range(12):
+            solver.Pump()
+            if solver.Status()['data']['terminal']:
+                break
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('window closed', status['error'])
+        self.assertEqual(lua.globals().ClickCount, 0)
+
+    def test_lost_native_response_watcher_refuses_any_tile_click(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        lua.execute('''local cls=package.loaded['UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView']
+                       cls.SeasonSheepOpHandle = function() end''')
+        for _ in range(12):
+            solver.Pump()
+            if solver.Status()['data']['terminal']:
+                break
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'solve_failed')
+        self.assertIn('callback observer', status['error'])
+        self.assertEqual(lua.globals().ClickCount, 0)
 
     def test_synchronous_exact_native_click_ack_drains_queue_without_false_failure(self):
         # Original native callback can synchronously drain the exactly sent

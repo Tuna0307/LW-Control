@@ -229,6 +229,12 @@ class NativeLandAckChecks(unittest.TestCase):
             self.assertTrue({"ctrl", "CloseSelf"} <=
                             {str(value) for value in method["constants"]})
 
+    def test_original_chest_close_destroys_exact_named_native_window(self):
+        native = self.method("UI/LWTreasureChest/UITreasureChestCtrl.luac", "CloseSelf")
+        self.assertTrue({"UIManager", "GetInstance", "DestroyWindow",
+                         "UIWindowNames", "UITreasureChest"} <=
+                        {str(value) for value in native["constants"]})
+
     def test_original_chest_construction_populates_box_state_before_view_binding(self):
         native = self.method("UI/LWTreasureChest/UITreasureChestView.luac", "OnCreate")
         self.assertTrue({"ComponentDefine", "DataDefine"} <=
@@ -269,6 +275,10 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         runtime = LuaRuntime(unpack_returned_tuples=True)
         runtime.execute(r'''
         Account={source=2289,selfServer=2289,current=2289}
+        WindowOpen=true
+        UIWindowNames={UITreasureChest='NativeTreasureChest'}
+        UIManager={GetInstance=function() return {IsWindowOpen=function(_,name)
+          return name=='NativeTreasureChest' and WindowOpen end} end}
         LuaEntry={Player={uid='3133546747002289',
           GetSourceServerId=function() return Account.source end,
           GetSelfServerId=function() return Account.selfServer end,
@@ -343,6 +353,50 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         self.assertEqual(runtime.globals().Effect.transform.position.x, 12)
         self.assertEqual(runtime.globals().Effect.transform.position.y, 24)
         self.assertEqual(runtime.globals().Effect.transform.position.z, 36)
+
+    def test_closed_or_missing_original_native_window_cannot_be_marked(self):
+        runtime, mini = self.fixture()
+        runtime.execute('WindowOpen=false')
+        self.assertEqual(mini.MarkChest()['state'], 'unsupported')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        runtime.execute('WindowOpen=true; UIWindowNames.UITreasureChest=nil')
+        self.assertEqual(mini.MarkChest()['state'], 'unsupported')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_external_destroyed_window_retires_owned_marker_on_next_native_update(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('WindowOpen=false; Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        self.assertEqual(mini.UnmarkChest()['state'], 'unsupported')
+
+    def test_modified_native_lifecycle_hook_cannot_admit_new_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.TryObserveUiClasses(), 1)
+        runtime.execute('ChestClass.Update=function() end')
+        self.assertEqual(mini.MarkChest()['state'], 'failed')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+
+    def test_replaced_lifecycle_hook_retires_existing_owned_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+        runtime.execute('ChangedUpdate=function() end; ChestClass.Update=ChangedUpdate')
+        self.assertEqual(mini.MarkChest()['state'], 'failed')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        mini.CleanupAfterLeaseLoss()
+        self.assertTrue(runtime.eval('ChestClass.Update == ChangedUpdate'),
+                        'Our observer must not overwrite a successor hook')
+
+    def test_switch_effect_reentry_with_owner_transition_is_rolled_back(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local old=Chest.ShowSwitchEffect
+            Chest.ShowSwitchEffect=function(self,...)
+              old(self,...)
+              Account.current=2212
+            end''')
+        self.assertEqual(mini.MarkChest()['state'], 'failed')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
 
     def test_partial_marker_stale_coordinates_are_rolled_back(self):
         runtime, mini = self.fixture()
