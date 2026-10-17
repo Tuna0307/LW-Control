@@ -51,6 +51,33 @@ internal static class Feature018OwnedGameExchangeChecks
                     new { uuid = "15", targetPointId = 1 },
                     new { uuid = "15", targetPointId = 2 },
                 } }))));
+        var targetedLand = Feature018GameCommandService.ReadFields("mini_land_status",
+            JsonSerializer.SerializeToElement(new { expectedCellId = 6 }));
+        Require(targetedLand.Count == 1 && targetedLand["expectedCellId"] == "6",
+            "read-only exact previously dispatched land-cell status field lost");
+        var scopedLand = Feature018GameCommandService.ReadFields("mini_land_status",
+            JsonSerializer.SerializeToElement(new { profileId = "approved-runtime", expectedCellId = 6 }));
+        Require(scopedLand.Count == 1 && scopedLand["expectedCellId"] == "6",
+            "profile-scoped exact land read rejected or forwarded untrusted routing metadata");
+        Require(Feature018GameCommandService.ReadFields("mini_land_status",
+            JsonSerializer.SerializeToElement(new { })).Count == 0,
+            "ordinary next unopened cell status changed schema");
+        Require(Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
+            JsonSerializer.SerializeToElement(new { })).Count == 0,
+            "native shield read-only query changed transport schema");
+        Require(Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
+            JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
+            "read-only shield must discard profile-scoped UI routing metadata");
+        await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+            Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
+                JsonSerializer.SerializeToElement(new { itemId = "10001", itemOptIn = true }))));
+        foreach (var invalid in new object[]
+                 { new { expectedCellId = -1 }, new { expectedCellId = 0 },
+                   new { expectedCellId = 10001 }, new { expectedCellId = "6" },
+                   new { expectedCellId = 6, itemOptIn = true } })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("mini_land_status",
+                    JsonSerializer.SerializeToElement(invalid))));
         string root = Path.Combine(Path.GetTempPath(), "feature018-exchange-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try

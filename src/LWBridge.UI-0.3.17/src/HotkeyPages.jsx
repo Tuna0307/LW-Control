@@ -222,6 +222,68 @@ function OwnedRapidItemPanel({ online, previewEnabled }) {
   );
 }
 
+// Inspect the exact game's shield items and their original 8/12/24-hour
+// StatusTab durations before deciding whether F6/F7/F8 can legitimately act.
+// This card has no item sender, no diamond fallback, and no browser UID input.
+function ShieldOwnedInventoryPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const words = chinese ? {
+    title: "保护罩道具库存（只读）", description: "读取当前账号已拥有的保护罩及原生持续时间，不消耗道具。",
+    inspect: "检查当前保护罩道具", empty: "暂无已核实的保护罩道具",
+    duration: "小时", count: "数量", ambiguous: "有多个同持续时间道具，不能自动选择",
+  } : {
+    title: "Owned shields (read-only)",
+    description: "Inspect this account's actual shield items and their native duration without consuming anything.",
+    inspect: "Inspect native shield inventory", empty: "No verified owned shields",
+    duration: "hours", count: "Count", ambiguous: "Multiple items share the same duration; do not auto-select",
+  };
+  const live = online && !previewEnabled;
+  const [busy, setBusy] = useState(false);
+  const [items, setItems] = useState(null);
+  const [error, setError] = useState("");
+  useEffect(() => { setBusy(false); setItems(null); setError(""); },
+    [live, backendBridge.profileGeneration]);
+  async function inspect() {
+    if (!live || busy) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setItems(null); setError("");
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        "feature018_shield_inventory_get", {}, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.observation !== "native_MAIN_SHIELD_StatusTab_owned_item_duration_join" ||
+          result?.durationMappingVerified !== true || result?.readOnly !== true ||
+          result?.requestDispatched !== false || !Array.isArray(result?.items))
+        throw new Error("Current game's native shield source was not verified");
+      const validated = result.items.map((item) => {
+        if (!/^\d+$/.test(String(item?.itemId || "")) ||
+            !/^\d+$/.test(String(item?.uuid || "")) ||
+            !Number.isSafeInteger(item?.count) || item.count <= 0 ||
+            !Number.isFinite(item?.durationHours) || item.durationHours <= 0)
+          throw new Error("Current game's shield stock has invalid native fields");
+        return item;
+      });
+      setItems(validated);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-shield-inventory>
+    <h3>{words.title}</h3><p>{words.description}</p>
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy}
+      onClick={() => void inspect()}>{words.inspect}</button></div>
+    {items !== null ? <div role="status">{items.length === 0 ? <small>{words.empty}</small> :
+      items.map((item) => <div key={item.uuid}>
+        <small>#{item.itemId} · {item.durationHours} {words.duration} · {words.count}: {item.count}</small>
+        {item.uniqueDuration !== true ? <small>{words.ambiguous}</small> : null}
+      </div>)}</div> : null}
+    {error ? <div className="automation-error" role="alert">{error}</div> : null}
+  </article>;
+}
+
 // Alt+1–4 retain their original intent, but the current v26 install reply
 // contains no per-equipment correlated server ACK. Never present a preview
 // as an applied preset, or accept a browser-supplied equipment UUID.
@@ -626,6 +688,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       {(hotkeyConfig || isMiniGames) ? <div className="hotkey-grid">
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
         {!isMiniGames && hotkeyConfig ? <OwnedRapidItemPanel online={online} previewEnabled={previewEnabled} /> : null}
+        {!isMiniGames && hotkeyConfig ? <ShieldOwnedInventoryPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <EquipmentNativePreflightPanel online={online} previewEnabled={previewEnabled} /> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.treasureChest.title")}</h3>

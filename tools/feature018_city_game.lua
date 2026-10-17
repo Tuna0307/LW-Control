@@ -10,17 +10,21 @@
 --   DataCenter/LandLock/LandLockManager.luac: CanBuildByPointId
 --   Util/SceneUtils.luac: GetIsInCity, IndexToTilePos, TileXYToIndex
 --   UI/UIPlaceBuild/View/UIPlaceBuildView.luac: OnConfirmBtnClick, 425-435
---   Net/Msgs/FreeBuildingReplaceNewMessage.luac: OnCreate, HandleMessage
+--   Net/Msgs/BuildWorldMoveNewMessage.luac: OnCreate, HandleMessage
+--   DataCenter/BuildManager/BuildManager.luac: BuildWorldMoveNewHandle
 --
--- A move is dispatched via precisely the same SFSNetwork/MsgDefines request as
--- the official placement UI. Only a later authoritative BuildManager update
--- counts as completion. A dispatch response is always state='accepted'.
+-- An EXISTING building move uses the placement UI's PlaceBuildType.Move,
+-- NOT PlaceBuildType.Replace (which is used for inventory/rolled-up buildings).
+-- Only a later authoritative BuildManager update counts as completion. A
+-- dispatch response is always state='accepted', never a server ACK.
 
 local M = { VERSION = 'feature018-city-v26-1', active = nil }
 local CITY_REGION = 'main-city'
 local MAX_BUILDINGS = 512
 local MAX_PLACEMENTS = 64
 local MAX_STEPS = 192
+local MAX_CANDIDATE_BUILDINGS = 16
+local MAX_CANDIDATES_PER_BUILDING = 3
 local MOVE_RESPONSE_TIMEOUT_SECONDS = 15
 
 local function unsupported(code, message)
@@ -248,6 +252,13 @@ local function snapshot()
             tostring(template.zoneType) .. ':' .. tostring(template.build_type) .. ':' ..
             tostring(template.sup_main_build_id)
     end
+    -- Original IsCanPutDownByPoint -> GetBuildMaxRadius -> DataConfig and
+    -- ADD_CAN_BUILD_NUM effect; radius can change while all building anchors
+    -- and city zone points remain fixed. A pre-change client revision must
+    -- not silently authorize a now-unreachable destination.
+    local radius_ok, radius = pcall(ctx.board.GetBuildMaxRadius, ctx.board)
+    signature[#signature + 1] = 'placement-radius:' ..
+        (radius_ok and tostring(radius) or 'unavailable')
     -- Preserve a revision on *placement permissions*, not only building
     -- coordinates: newly allowed/restricted zones and the military gate's
     -- CanMoveBuild result can change without moving a single building.
@@ -322,6 +333,114 @@ local function second_range_ok(ctx, source, pid)
     return ok and admitted == true
 end
 
+local function native_radius_ok(ctx, pid)
+    -- IsCanPutDownByPoint (496-498) applies this extra original-game gate
+    -- to ordinary city buildings. Checking it conservatively for all moved
+    -- buildings may exclude special exceptions, but cannot permit an unsafe
+    -- placement. Absence of either source method never means "allowed".
+    if type(ctx.buildingUtils.IsInMyBaseCircleRange) ~= 'function' or
+        type(ctx.board.GetBuildMaxRadius) ~= 'function' then return false end
+    local radius_ok, radius = pcall(ctx.board.GetBuildMaxRadius, ctx.board)
+    if not radius_ok or type(radius) ~= 'number' then return false end
+    local admitted, result = pcall(
+        ctx.buildingUtils.IsInMyBaseCircleRange, pid, radius)
+    return admitted and result == true
+end
+
+local function snapshot_move_candidates(state, meta)
+    -- The visible city grid is not a placement-permission map. In v26,
+    -- CityZoneManager.CanPutBuildByPoint (70-75) delegates to each point's
+    -- CityZoneTemplate.CanPutByZoneType (49-60); a geometrically free tile can
+    -- still be prohibited. Locate a few *current* legal empty destinations
+    -- using the game's real zone and main-range predicates. This is read-only,
+    -- and a later validate/apply must independently revalidate every point.
+    local ctx = meta.ctx
+    local candidates, occupancy = {}, {}
+    local movable_count, searched = 0, 0
+    for _, building in ipairs(state.buildings) do
+        if building.movable then movable_count = movable_count + 1 end
+        for _, pid in ipairs(building.occupiedPoints) do
+            -- An inconsistent native occupancy is not a trustworthy planner.
+            if occupancy[pid] ~= nil then
+                return {}, { movableBuildings = movable_count,
+                    searchedBuildings = 0, inconsistentOccupancy = true }
+            end
+            occupancy[pid] = building.uuid
+        end
+    end
+    -- IsCanPutDownByPoint (496-498) additionally gates ordinary inner-city
+    -- placements via IsInMyBaseCircleRange(pointId, GetBuildMaxRadius()).
+    -- Missing native helpers must never produce a supposedly legal target.
+    local can_range = type(ctx.buildingUtils.IsInMyBaseCircleRange) == 'function'
+        and type(ctx.board.GetBuildMaxRadius) == 'function'
+    if can_range then
+        local ok, value = pcall(ctx.board.GetBuildMaxRadius, ctx.board)
+        can_range = ok and type(value) == 'number'
+    end
+    for _, building in ipairs(state.buildings) do
+        if building.movable and searched < MAX_CANDIDATE_BUILDINGS then
+            searched = searched + 1
+            local source = meta.by_uuid[building.uuid]
+            local zone_type = source.template.zoneType
+            if zone_type ~= nil and can_range then
+                local count = 0
+                -- Search by Manhattan distance from the current anchor;
+                -- unlike an arbitrary 35-point probe, each result is checked
+                -- against the native zone policy for its *entire* footprint.
+                for distance = 1, 2 * (ctx.width - 1) do
+                    if count >= MAX_CANDIDATES_PER_BUILDING then break end
+                    for dx = -distance, distance do
+                        if count >= MAX_CANDIDATES_PER_BUILDING then break end
+                        local delta_y = distance - math.abs(dx)
+                        for sign = -1, 1, 2 do
+                            local dy = delta_y * sign
+                            if delta_y ~= 0 or sign == -1 then
+                                local x, y = building.x + dx, building.y + dy
+                                local anchor = at_xy(x, y, ctx.width)
+                                local target = anchor and translate_footprint(
+                                    source, anchor, meta.by_id, ctx.width)
+                                if target then
+                                    local legal = true
+                                    for _, pid in ipairs(target) do
+                                        local cell = meta.by_id[pid]
+                                        if not cell.unlocked or cell.road or
+                                            cell.obstructed or occupancy[pid] ~= nil or
+                                            (cell.flagOnly and not building.isFlag) or
+                                            not ctx.zone:CanPutBuildByPoint(pid, zone_type) or
+                                            not second_range_ok(ctx, source, pid) then
+                                            legal = false
+                                            break
+                                        end
+                                        if not native_radius_ok(ctx, pid) then
+                                            legal = false
+                                            break
+                                        end
+                                    end
+                                    if legal then
+                                        candidates[#candidates + 1] = {
+                                            uuid = building.uuid,
+                                            fromPointId = building.pointId,
+                                            targetPointId = anchor,
+                                            distance = distance,
+                                        }
+                                        count = count + 1
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return candidates, {
+        movableBuildings = movable_count,
+        searchedBuildings = searched,
+        truncated = searched < movable_count,
+        nativeRangeAvailable = can_range == true,
+    }
+end
+
 local function validate_state(values)
     local state, meta_or_err = snapshot()
     if not state then return nil, meta_or_err end
@@ -369,6 +488,9 @@ local function validate_state(values)
                             break
                         elseif not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) then
                             issue(placement.uuid, 'CITY_LAYOUT_ZONE', pid)
+                            break
+                        elseif not native_radius_ok(meta.ctx, pid) then
+                            issue(placement.uuid, 'CITY_LAYOUT_RANGE', pid)
                             break
                         elseif not second_range_ok(meta.ctx, source, pid) then
                             issue(placement.uuid, 'CITY_LAYOUT_ZONE', pid)
@@ -489,6 +611,7 @@ local function validate_state(values)
                                     cell.obstructed or
                                     (cell.flagOnly and not job.source.public.isFlag) or
                                     not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) or
+                                    not native_radius_ok(meta.ctx, pid) or
                                     not second_range_ok(meta.ctx, job.source, pid) then
                                     allowed = false
                                     break
@@ -599,6 +722,7 @@ local function dispatch_step(job)
         if not cell.unlocked or cell.road or cell.obstructed or
             (cell.flagOnly and not building.public.isFlag) or
             not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) or
+            not native_radius_ok(meta.ctx, pid) or
             not second_range_ok(meta.ctx, building, pid) then
             job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
             job.error = 'The next building destination is no longer available.'
@@ -618,18 +742,24 @@ local function dispatch_step(job)
     end
     local net = rawget(_G, 'SFSNetwork')
     local message = rawget(_G, 'MsgDefines')
-    if not net or not message or not message.FreeBuildingReplaceNew or
+    if not net or not message or not message.BuildWorldMoveNew or
         type(net.SendMessage) ~= 'function' then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'The official building replacement sender is unavailable.'
+        job.error = 'The official existing-building move sender is unavailable.'
         return false
     end
-    -- Exactly UIPlaceBuildView.OnConfirmBtnClick:430, replacement branch.
-    local sent, failure = pcall(net.SendMessage, message.FreeBuildingReplaceNew,
-        { buildUuid = step.nativeUuid, pointId = step.pointId })
+    -- v26 UIPlaceBuildView.OnConfirmBtnClick:436-459, PlaceBuildType.Move.
+    -- OnCreate encodes uuid as PutLong and pointId as PutInt; lastIndex is
+    -- NOT transmitted, but is required by the original reply handler to
+    -- restore a rejected movement's previous visual location. Preserve the
+    -- original server-owned building.uuid object (never parse it via double).
+    -- Replace (line 430) is a different action and packet: it may legitimately
+    -- leave an already placed building unchanged even when SendMessage returns.
+    local sent, failure = pcall(net.SendMessage, message.BuildWorldMoveNew,
+        { uuid = step.nativeUuid, pointId = step.pointId, lastIndex = step.from })
     if not sent or failure == false then
         job.state, job.errorCode = 'failed', 'GAME_MOVE_DISPATCH_FAILED'
-        job.error = sent and 'The native building replacement sender declined the move.'
+        job.error = sent and 'The native existing-building move sender declined the move.'
             or tostring(failure)
         return false
     end
@@ -645,8 +775,10 @@ local function progress_job(job)
     local building = bm and bm:GetBuildingDataByUuid(current.nativeUuid)
     local observed = building and tonumber(building.pointId)
     if observed == current.pointId then
-        -- BuildingDate is changed by the *server reply* handler, not the
-        -- visual UIChangeBuilding call. This is an observed game result.
+        -- BuildWorldMoveNewHandle invokes AddBuilding on the server's
+        -- buildInfo then broadcasts BuildingMove({uuid,old,new}); inspecting
+        -- native BuildingDate plus full translated footprint avoids mistaking
+        -- the sender's local visual UIChangeBuilding for a server ACK.
         job.expected[current.uuid] = current.pointId
         -- Confirm the complete city snapshot before reporting completion, even
         -- on the last step. A manual/foreign relocation during the ACK wait
@@ -671,13 +803,17 @@ local function progress_job(job)
 end
 
 local function reconcile_timed_out(job)
-    -- The original FreeBuildingReplaceNew sender has no synchronous result.
+    -- The original BuildWorldMoveNew sender has no synchronous result.
     -- A timeout is not server rejection: its in-flight packet can still be
     -- applied later. Keep that job fenced until the *exact* official game
     -- BuildManager destination and all other expected footprints are seen.
-    -- Do not resume unexecuted steps from a timed-out job.
-    if job.state ~= 'failed' or job.errorCode ~= 'GAME_MOVE_RESULT_TIMEOUT' or
+    -- The same rule applies if the periodic owner token vanishes after the
+    -- packet was sent. Do not resume the rest of an abandoned layout plan.
+    if job.state ~= 'failed' or
+        (job.errorCode ~= 'GAME_MOVE_RESULT_TIMEOUT' and
+         job.errorCode ~= 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN') or
         not job.waiting then return end
+    local owner_lost = job.errorCode == 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN'
     local pending = job.waiting
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local record = bm and bm:GetBuildingDataByUuid(pending.nativeUuid)
@@ -685,6 +821,10 @@ local function reconcile_timed_out(job)
     job.expected[pending.uuid] = pending.pointId
     if check_positions(job) then
         job.completed = job.completed + 1
+        if owner_lost then
+            job.errorCode = 'CITY_LAYOUT_OWNER_LOSS_RECONCILED'
+            job.error = 'The late native building result was observed after ownership was interrupted. Remaining layout moves were cancelled.'
+        end
     else
         job.errorCode = 'CITY_LAYOUT_STALE'
         job.error = 'The late server result changed other city building state.'
@@ -705,7 +845,9 @@ function M.Pump()
         progress_job(job)
         return true
     end
-    if job.state == 'failed' and job.errorCode == 'GAME_MOVE_RESULT_TIMEOUT' and
+    if job.state == 'failed' and
+        (job.errorCode == 'GAME_MOVE_RESULT_TIMEOUT' or
+         job.errorCode == 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN') and
         job.waiting then
         reconcile_timed_out(job)
         return true
@@ -716,13 +858,20 @@ end
 function M.Register(feature)
     if not feature or type(feature.RegisterHandler) ~= 'function' then return false end
     local ok = feature.RegisterHandler('city_layout_snapshot_get', function()
-        local current, reason = snapshot()
-        if not current then return unsupported('CITY_LAYOUT_UNAVAILABLE', reason) end
+        local current, meta_or_reason = snapshot()
+        if not current then return unsupported('CITY_LAYOUT_UNAVAILABLE', meta_or_reason) end
+        local candidates, search = snapshot_move_candidates(current, meta_or_reason)
+        current.moveCandidates = feature.Array(candidates)
+        current.moveCandidateSearch = search
         return confirmed(current)
     end)
     ok = feature.RegisterHandler('city_layout_validate', function(values)
-        local validation, reason = validate_state(values)
-        if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', reason) end
+        local validation, state_or_reason = validate_state(values)
+        if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', state_or_reason) end
+        -- The client must refresh its snapshot before retrying a stale layout;
+        -- exposing the observed revision diagnoses legitimate async city drift
+        -- without treating an old draft as safe to apply.
+        validation.currentRevision = state_or_reason.layoutRevision
         validation.issues = feature.Array(validation.issues)
         return confirmed(validation)
     end) and ok
@@ -794,13 +943,24 @@ function M.Register(feature)
     return ok
 end
 
--- Once the exact Overview owner or its lease disappears, no successor may
--- inherit a pending city relocation job. An in-flight server message cannot
--- be revoked, but subsequent planned moves must never be sent under a new
--- game session. Preserve no editable job state across that ownership change.
+-- A transient Feature018OwnerToken() nil can occur while the native host
+-- lease/account observer is briefly unavailable. The previously dispatched
+-- message cannot be revoked, so wiping its in-memory job would lose the only
+-- duplicate-send fence. Retain a terminal, cancelled, owner-bound tombstone
+-- until the exact native BuildManager result can be reconciled. A successor
+-- cannot read the prior owner's status or resume its pending layout steps,
+-- and cannot send a new move while this message remains uncertain.
 function M.CleanupAfterLeaseLoss()
     if M.active ~= nil then
         M.active.cancelRequested = true
+        if M.active.waiting then
+            M.active.state = 'failed'
+            if M.active.errorCode ~= 'CITY_LAYOUT_OWNER_LOSS_RECONCILED' then
+                M.active.errorCode = 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN'
+                M.active.error = 'Native owner admission was interrupted after a building replacement was sent. Its server outcome is unknown; another move is blocked.'
+            end
+            return
+        end
         M.active.state = 'cancelled'
     end
     M.active = nil

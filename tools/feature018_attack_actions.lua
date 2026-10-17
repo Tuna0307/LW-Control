@@ -27,6 +27,11 @@
 --     enforces stamina/CheckFormation, then forwards to SendCreateMarchMessage
 --     or StartMarch. No safe way to reconstruct the full UI selection
 --     and subsequent authoritative attack march ACK from a hotkey is proven.
+--   Net/Msgs/WorldMarchFormationNewMessage.luac SHA256
+--     69dec0f3e14286770c728a2b42d8542f8f3b9e0f493bc2bcb75c9cf4f69a8dd9
+--     HandleMessage root/1 lines 92-128 forwards a successful response to
+--     CS.SceneManager.World:HandleFormationMarch(response). The handler alone
+--     does not correlate a hotkey, target, owned formation and poststate.
 --   UI/UILWRapid/View/UILWRapidView.luac SHA256
 --     19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3
 --     ReInit root/11 lines 307-331 reads WorldMarchDataManager.GetMarch(uuid)
@@ -290,13 +295,24 @@ local function attack_preflight(fields, input_clear, uid)
     local existing_march_id = nil
     local march_broken = nil
     if existing ~= nil then
-        existing_march_id = ident(member(existing, "uuid"))
+        local native_march_number
+        existing_march_id, native_march_number = ident(member(existing, "uuid"))
         if existing_march_id == nil or
            ident(member(existing, "ownerUid")) ~= uid or
            ident(member(existing, "ownerFormationUuid")) ~= formation_id then
             return failed("Existing native squad march belongs to another owner/formation")
         end
-        local ok_broken, is_broken = invoke(existing, "GetIsBroken")
+        -- A selected-march lookup may be stale. Independently obtain the
+        -- authoritative UUID and reject drift before advertising ANY owned
+        -- march in the read-only target diagnostic. This is not an attack ACK.
+        local ok_fresh, fresh = invoke(marches, "GetMarch", native_march_number)
+        if not ok_fresh or fresh == nil or
+           ident(member(fresh, "uuid")) ~= existing_march_id or
+           ident(member(fresh, "ownerUid")) ~= uid or
+           ident(member(fresh, "ownerFormationUuid")) ~= formation_id then
+            return unsupported("Existing squad march fails fresh native UUID/owner/formation lookup")
+        end
+        local ok_broken, is_broken = invoke(fresh, "GetIsBroken")
         if ok_broken and type(is_broken) == "boolean" then
             march_broken = is_broken
         end
@@ -362,6 +378,7 @@ local function attack_preflight(fields, input_clear, uid)
         observation="native_world_last_touch_and_formation_preflight",
         slot=slot, formationUuid=formation_id, ownerUid=uid,
         existingOwnedMarchUuid=existing_march_id,
+        existingOwnedMarchFreshlyVerified=existing_march_id ~= nil,
         existingOwnedMarchBroken=march_broken,
         currentServerId=server_id, touchedTileIndex=touched_id,
         worldPointUuid=point_uuid, worldPointMainIndex=point_main,

@@ -25,6 +25,8 @@ import feature018_mini_lua as original  # noqa: E402
 GAME = """
 state={
  uid=222, expectedUid="222", formation=1001, owner=222, formOwner=1001,
+ freshOwner=222, freshFormOwner=1001, freshUuid=555110, freshPresent=true,
+ existingAbsent=false, freshLookups=0,
  targetType=17, serverId=2212, formationOwner=222, touchedTile=35723,
  formationMarchBroken=false,
  touchedX=12, touchedZ=37, worldUuid=990123, worldOwner=999,
@@ -72,16 +74,19 @@ DataCenter={
  WorldMarchDataManager={
   GetOwnerFormationMarch=function(self,uid,form,extra)
    assert(extra==700)
+   if state.existingAbsent then return nil end
    if uid~=tostring(state.uid) or form~=state.formation then return nil end
    return {uuid=state.uuid,ownerUid=state.owner,
            ownerFormationUuid=state.formOwner,
            GetIsBroken=function(self) return state.formationMarchBroken end}
   end,
   GetMarch=function(self,uuid)
-   if uuid~=state.uuid then return nil end
-   return {uuid=state.uuid,ownerUid=state.owner,
-           ownerFormationUuid=state.formOwner,
+   state.freshLookups=state.freshLookups+1
+   if uuid~=state.uuid or not state.freshPresent then return nil end
+   return {uuid=state.freshUuid,ownerUid=state.freshOwner,
+           ownerFormationUuid=state.freshFormOwner,
            endTime=state.endTime,
+           GetIsBroken=function(self) return state.formationMarchBroken end,
            GetMarchTargetType=function(self) return state.targetType end}
   end
  },
@@ -197,6 +202,10 @@ def check_original() -> None:
         "Net/Msgs/WorldMarchRapidMessage.luac": (
             "1ba6497b62d041729d2e7b5a7dd907e5067fec8b92893e5e63ecd9cc2e00a8f5",
             {"HandleMessage": ["errorCode", "remainGold"]}),
+        "Net/Msgs/WorldMarchFormationNewMessage.luac": (
+            "69dec0f3e14286770c728a2b42d8542f8f3b9e0f493bc2bcb75c9cf4f69a8dd9",
+            {"HandleMessage": ["errorCode", None, "SceneManager", "World",
+                               "HandleFormationMarch", "FetchFormationSoldier"]}),
     }
     for name, (digest, methods) in expectations.items():
         require(hashlib.sha256(entries[name]).hexdigest() == digest,
@@ -211,6 +220,18 @@ def check_original() -> None:
                     f"source method {name}.{name_} missing critical delegate {constants}")
             require(len(disassemble(proto)) > 0,
                     f"source method {name}.{name_} has no instructions")
+            if name.endswith("WorldMarchFormationNewMessage.luac") and name_ == "HandleMessage":
+                # A successful native response goes to World.HandleFormationMarch,
+                # but that callback does not, by itself, prove an exact
+                # cursor-target, formation/owner or resulting march poststate.
+                instructions = disassemble(proto)
+                source_guard = next(i for i, line in enumerate(instructions)
+                                    if "sourceLine=94 " in line and " EQ " in line)
+                source_apply = next(i for i, line in enumerate(instructions)
+                                    if "HandleFormationMarch" in line)
+                require(source_guard < source_apply and
+                        "sourceLine=126 " in instructions[source_apply],
+                        "native march response success guard/apply route changed")
 
 
 def main():
@@ -304,9 +325,22 @@ def main():
             valid["data"]["worldObjectReverseLookupVerified"] is True and
             valid["data"]["worldPointUuid"] == "990123" and
             valid["data"]["existingOwnedMarchUuid"] == "555110" and
+            valid["data"]["existingOwnedMarchFreshlyVerified"] is True and
             valid["data"]["existingOwnedMarchBroken"] is False and
             valid["data"]["safeToDispatch"] is False,
             "read-only native clicked-world point provenance missing")
+    require(prestate["freshLookups"] == 1,
+            "existing march must be independently re-fetched once")
+    prestate["existingAbsent"] = True
+    lookups_before = prestate["freshLookups"]
+    idle = preflight()
+    require(idle["state"] == "confirmed" and
+            idle["data"]["existingOwnedMarchUuid"] is None and
+            idle["data"]["existingOwnedMarchFreshlyVerified"] is False and
+            idle["data"]["safeToDispatch"] is False and
+            prestate["freshLookups"] == lookups_before,
+            "idle formation must allow read-only diagnosis without pretending a march exists")
+    prestate["existingAbsent"] = False
     prestate["inputClear"] = False
     require(preflight()["state"] == "confirmed", "read-only attack snapshot requires keyboard focus")
     prestate["inputClear"] = True
@@ -330,6 +364,16 @@ def main():
         prestate[key] = wrong
         require(preflight()["state"] == expected,
                 "native attack last-touch preflight accepted corrupted " + key)
+        prestate[key] = original_value
+    for key, wrong in (("freshOwner", 777), ("freshFormOwner", 778),
+                       ("freshUuid", 900011), ("freshPresent", False)):
+        original_value = prestate[key]
+        prestate[key] = wrong
+        rejected = preflight()
+        require(rejected["state"] == "unsupported" and
+                prestate["rpcCount"] == 0 and
+                prestate["attackDelegateCount"] == 0,
+                "stale independent march lookup was trusted: " + key)
         prestate[key] = original_value
     prestate["formationMarchBroken"] = True
     require(preflight()["state"] == "confirmed" and

@@ -36,6 +36,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_input_focus" or
         "feature018_rapid_action" or
+        "feature018_shield_inventory_get" or
         "feature018_equipment_preflight" or
         "feature018_hotkey_action";
 
@@ -234,7 +235,6 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "city_layout_snapshot_get":
             case "city_layout_apply_status":
             case "monopoly_cell_open":
-            case "mini_land_status":
             case "mini_sheep_status":
             case "mini_sheep_board":
             case "mini_chest_position":
@@ -242,6 +242,46 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "mini_chest_unmark":
             case "feature018_input_focus":
             case "feature018_sheep_automation_status":
+                break;
+            case "feature018_shield_inventory_get":
+                // Exact native owner, duration and inventory status only.
+                // No client UID, shield hours, item UUID or consent fields
+                // may enter this read. ShieldUse remains a separate original
+                // F6/F7/F8 action with its own server/poststate fence.
+                // The profile-scoped UI adapter adds profileId as routing
+                // metadata. The command exchange uses its own independently
+                // verified session/UID from the runtime; never forward or
+                // trust this caller-provided routing identifier as authority.
+                if (payload.EnumerateObject().Any(p => p.Name != "profileId") ||
+                    (payload.TryGetProperty("profileId", out var profile) &&
+                     (profile.ValueKind != JsonValueKind.String ||
+                      string.IsNullOrWhiteSpace(profile.GetString()) ||
+                      profile.GetString()!.Length > 128)))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Shield inventory inspection accepts no spend arguments.");
+                break;
+            case "mini_land_status":
+                // An accepted UnlockUserLand packet is not a successful
+                // land transition. The native producer can inspect the exact
+                // previously targeted cell, even after the current-next cell
+                // changes. No second UnlockUserLand is ever sent by polling.
+                if (payload.EnumerateObject().Count() > 2 ||
+                    payload.EnumerateObject().Any(property =>
+                        property.Name is not ("expectedCellId" or "profileId")) ||
+                    (payload.TryGetProperty("profileId", out var landProfile) &&
+                     (landProfile.ValueKind != JsonValueKind.String ||
+                      string.IsNullOrWhiteSpace(landProfile.GetString()) ||
+                      landProfile.GetString()!.Length > 128)))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Land status accepts only its routing profile and native target cell ID.");
+                if (payload.TryGetProperty("expectedCellId", out JsonElement cell))
+                {
+                    if (cell.ValueKind != JsonValueKind.Number ||
+                        !cell.TryGetInt32(out int cellId) || cellId is < 1 or > 10000)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Expected land cell ID must be 1–10000.");
+                    fields["expectedCellId"] = cellId.ToString(CultureInfo.InvariantCulture);
+                }
                 break;
         }
         return fields;

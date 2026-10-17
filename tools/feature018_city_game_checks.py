@@ -37,6 +37,9 @@ GateLevel = 1
 local flagPositions = {[5049]=true, [5050]=true, [4950]=true, [4949]=true}
 BuildingUtils = {
     IsInFlagPosition = function(id) return flagPositions[id] == true end,
+    IsInMyBaseCircleRange = function(pointId, radius)
+        return radius == 50
+    end,
     CanMoveBuild = function(itemId)
         if itemId == BuildingTypes.FUN_BUILD_MAIN then return false end
         local gates = DataCenter.BuildManager:GetBuildingDatasByBuildingId(BuildingTypes.LW_BUILD_GATE)
@@ -59,9 +62,11 @@ end}}}
 local moves = {}
 ObservedMoves = moves
 SFSNetwork = {SendMessage = function(message, args)
-    moves[#moves+1] = {message = message, uuid = args.buildUuid, pointId = args.pointId}
+    moves[#moves+1] = {message = message, uuid = args.uuid,
+                      pointId = args.pointId, lastIndex = args.lastIndex}
 end}
-MsgDefines = {FreeBuildingReplaceNew = 'native_free_building_replace_new'}
+MsgDefines = {FreeBuildingReplaceNew = 'native_free_building_replace_new',
+              BuildWorldMoveNew = 'native_build_world_move_new'}
 local templates = {
   [11] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
   [12] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
@@ -88,7 +93,8 @@ DataCenter = {
         NativeCityPointScans = NativeCityPointScans + 1
         return NativeCityPointKinds[id] or CityPointType.Other
     end},
-    BoardManager = {GetBoardDataByPointId = function(self, id)
+    BoardManager = {GetBuildMaxRadius = function(self) return 50 end,
+       GetBoardDataByPointId = function(self, id)
         if NativeCityPointKinds[id] == CityPointType.Road then return {} end
         return nil
     end},
@@ -172,12 +178,106 @@ def check_original_game_wire() -> None:
     captured = []
     sfs = {'PutLong': lambda _, key, value: captured.append(('long', key, value)),
            'PutInt': lambda _, key, value: captured.append(('int', key, value))}
+    # The real R3 building UUID is above IEEE-754's exact double range. Feed
+    # it as the native game integer; no decimal-text-to-float round trip may
+    # occur between the original BuildManager and PutLong serializer.
+    native_uuid = 1392040865799139725
     selected.execute(message, {'sfsObj': sfs},
-                     {'buildUuid': 9007199254740991, 'pointId': 15},
+                     {'buildUuid': native_uuid, 'pointId': 4144},
                      globals_={'OnCreate': lambda _: None})
-    check(captured == [('long', 'buildUuid', 9007199254740991),
-                       ('int', 'pointId', 15)],
+    check(captured == [('long', 'buildUuid', native_uuid),
+                       ('int', 'pointId', 4144)],
           'native current-client move serializer differs from adapter request')
+
+    # Critical R3 correction: the original UI selects two different message
+    # classes. PlaceBuildType.Replace places an inventory/rolled-up building;
+    # PlaceBuildType.Move relocates an existing in-city UUID. The successful
+    # local FreeBuildingReplaceNew call in receipts 062112/063021 did NOT
+    # exercise the original existing-building move path.
+    check(any('sourceLine=424' in line and "'Replace'" in line for line in source) and
+          any('sourceLine=436' in line and "'Move'" in line for line in source) and
+          any('sourceLine=455' in line and "'uuid'" in line for line in source) and
+          any('sourceLine=456' in line and "'pointId'" in line for line in source) and
+          any('sourceLine=457' in line and "'lastIndex'" in line for line in source) and
+          any('sourceLine=458' in line and "'BuildWorldMoveNew'" in line for line in source),
+          'v26 existing-building Move path no longer has its distinct message')
+    select_native = list(disassemble(native_method(
+        'UI/UIMoveCity/View/UIMoveCityView.luac', 'ChangeSelectBuild')))
+    check(any('sourceLine=1785' in line and "'Move'" in line for line in select_native) and
+          any('sourceLine=1786' in line and "'buildUuid'" in line for line in select_native) and
+          any('sourceLine=1787' in line and "'Replace'" in line for line in select_native) and
+          any('sourceLine=1788' in line and "'FakeBuildUuid'" in line
+              for line in select_native),
+          'v26 City move no longer distinguishes real existing UUID from fake inventory placeholder')
+    native_move = native_method('Net/Msgs/BuildWorldMoveNewMessage.luac', 'OnCreate')
+    native_wire = []
+    native_data = {'BuildManager': {
+        'AddOneChangeMoveBuild': lambda _, point: native_wire.append(('rollback', point)),
+        'SetCurrentBuildMoveState': lambda _, state: native_wire.append(('state', state)),
+    }}
+    native_send = {'PutLong': lambda _, key, value: native_wire.append(('long', key, value)),
+                   'PutInt': lambda _, key, value: native_wire.append(('int', key, value))}
+    selected.execute(native_move, {'sfsObj': native_send},
+                     {'uuid': native_uuid, 'pointId': 4144, 'lastIndex': 4242},
+                     globals_={'OnCreate': lambda _: None},
+                     upvalues={1: {'DataCenter': native_data,
+                                   'BuildMoveState': {'None': 'reset'}}})
+    check(native_wire == [('long', 'uuid', native_uuid),
+                          ('int', 'pointId', 4144), ('rollback', 4242),
+                          ('state', 'reset')],
+          'original Move serializer and rollback anchor differ from producer')
+    reply = list(disassemble(native_method(
+        'Net/Msgs/BuildWorldMoveNewMessage.luac', 'HandleMessage')))
+    check(any('sourceLine=22' in line and 'errorCode' in line for line in reply) and
+          any('sourceLine=23' in line and "'Success'" in line for line in reply) and
+          any('sourceLine=23' in line and "'Fail'" in line for line in reply) and
+          any('sourceLine=24' in line and 'BuildWorldMoveNewHandle' in line for line in reply),
+          'original Move ACK/error handler changed')
+    move_poststate = list(disassemble(native_method(
+        'DataCenter/BuildManager/BuildManager.luac', 'BuildWorldMoveNewHandle')))
+    check(any('sourceLine=4113' in line and 'errorCode' in line for line in move_poststate) and
+          any('sourceLine=4120' in line and 'AddBuilding' in line for line in move_poststate) and
+          any('sourceLine=4123' in line and "'uuid'" in line for line in move_poststate) and
+          any('sourceLine=4124' in line and 'BuildingMove' in line for line in move_poststate),
+          'original Move authoritative UUID-bound poststate changed')
+
+    # R3 native 2289 receipt 063021: accepting a SendMessage invocation and
+    # subsequently timing out does not establish server acceptance or a
+    # uniquely attributable rejection. The v26 sender returns no result;
+    # its message-specific handler forwards the reply to BuildManager, where
+    # both success and error paths broadcast the same payload-free UI event.
+    send_native = list(disassemble(native_method(
+        'Net/SFSNetwork.luac', 'SendMessage')))
+    check(any('sourceLine=28' in line and 'SendLuaMessage' in line
+              for line in send_native) and
+          any('sourceLine=34 RETURN' in line and 'B=1' in line
+              for line in send_native),
+          'original v26 SendMessage no longer has unconfirmed void-return contract')
+    handle_native = list(disassemble(native_method(
+        'Net/Msgs/FreeBuildingReplaceNewMessage.luac', 'HandleMessage')))
+    check(any('sourceLine=18' in line and 'FreeBuildingReplaceNewHandle' in line
+              for line in handle_native),
+          'v26 replacement message reply no longer delegates to BuildManager')
+    build_reply = list(disassemble(native_method(
+        'DataCenter/BuildManager/BuildManager.luac', 'FreeBuildingReplaceNewHandle')))
+    check(any('sourceLine=4062' in line and 'UIPlaceBuildSendMessageBack' in line
+              for line in build_reply) and
+          any('sourceLine=4063' in line and 'errorCode' in line
+              for line in build_reply) and
+          any('sourceLine=4071' in line and 'AddBuilding' in line
+              for line in build_reply) and
+          any('sourceLine=4080' in line and 'AddBuilding' in line
+              for line in build_reply) and
+          any('sourceLine=4089' in line and 'ShowBuildErrorCode' in line
+              for line in build_reply),
+          'v26 response event, server error and authoritative update paths changed')
+    event_pc = next(i for i, line in enumerate(build_reply)
+                    if 'sourceLine=4062' in line and 'UIPlaceBuildSendMessageBack' in line)
+    error_pc = next(i for i, line in enumerate(build_reply)
+                    if 'sourceLine=4063' in line and 'errorCode' in line)
+    check(event_pc < error_pc and
+          not any('buildUuid' in line or 'pointId' in line for line in build_reply),
+          'native generic UI callback acquired an exact per-request reply identifier')
 
     native_can_move = native_method('Util/BuildingUtils.luac', 'CanMoveBuild')
     can_move_source = list(disassemble(native_can_move))
@@ -417,9 +517,10 @@ def main():
     check(start['state'] == 'accepted' and start['data']['requestDispatched'] is True,
           'dispatch was falsely reported as completed')
     dispatched = lua.globals().ObservedMoves
-    check(len(dispatched) == 1 and dispatched[1]['message'] == 'native_free_building_replace_new' and
-          dispatched[1]['uuid'] == 101 and dispatched[1]['pointId'] == 3,
-          'official FreeBuildingReplaceNew message/args incorrect')
+    check(len(dispatched) == 1 and dispatched[1]['message'] == 'native_build_world_move_new' and
+          dispatched[1]['uuid'] == 101 and dispatched[1]['pointId'] == 3 and
+          dispatched[1]['lastIndex'] == 1,
+          'official existing-building Move message/args incorrect')
     pending = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(pending['state'] == 'running' and pending['completedMoves'] == 0,
           'unconfirmed native move reported complete')
@@ -427,6 +528,41 @@ def main():
     complete = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(complete['state'] == 'completed' and complete['completedMoves'] == 1,
           'server-observed building update did not complete job')
+
+    # A real 2289 building UUID is > 2^53. Preserve the exact source-native
+    # integer through the public decimal ID lookup and original Move packet;
+    # converting its decimal ID through a Lua double would silently retarget.
+    lua_large, _ = fake()
+    get_large = lambda name, fields=None: lua_large.globals().Act(name, fields)
+    native_uuid = 1392040865799139725
+    lua_large.execute('''
+      local building = DataCenter.BuildManager.allBuilding[101]
+      DataCenter.BuildManager.allBuilding[101] = nil
+      building.uuid = 1392040865799139725
+      DataCenter.BuildManager.allBuilding[1392040865799139725] = building
+    ''')
+    large_revision = get_large('city_layout_snapshot_get')['data']['layoutRevision']
+    large_start = get_large('city_layout_apply_start',
+                           lua_large.globals().Fields(large_revision,
+                                                       str(native_uuid) + ':3'))
+    large_packet = lua_large.globals().ObservedMoves
+    check(large_start['state'] == 'accepted' and len(large_packet) == 1 and
+          large_packet[1]['message'] == 'native_build_world_move_new' and
+          large_packet[1]['uuid'] == native_uuid and
+          large_packet[1]['pointId'] == 3 and
+          large_packet[1]['lastIndex'] == 1,
+          'real high owner UUID lost precision or wrong Move command was sent')
+
+    lua_no_move, _ = fake()
+    get_no_move = lambda name, fields=None: lua_no_move.globals().Act(name, fields)
+    no_move_revision = get_no_move('city_layout_snapshot_get')['data']['layoutRevision']
+    lua_no_move.execute('MsgDefines.BuildWorldMoveNew = nil')
+    missing_move = get_no_move('city_layout_apply_start',
+                               lua_no_move.globals().Fields(no_move_revision, '101:3'))
+    check(missing_move['state'] == 'failed' and
+          missing_move['errorCode'] == 'GAME_METHOD_UNAVAILABLE' and
+          len(lua_no_move.globals().ObservedMoves) == 0,
+          'missing original Move wire silently fell back to unsafe Replace')
 
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
@@ -437,11 +573,14 @@ def main():
           plan['temporaryMoves'] == 1, 'occupied swap lacked a real empty buffer')
     accepted = get('city_layout_apply_start', swap)
     check(accepted['state'] == 'accepted', 'safe swap job not dispatched')
-    expected = [(101, 3), (102, 1), (101, 2)]
-    for i, (uid, to_point) in enumerate(expected, start=1):
+    expected = [(101, 3, 1), (102, 1, 2), (101, 2, 3)]
+    for i, (uid, to_point, old_point) in enumerate(expected, start=1):
         observed = lua.globals().ObservedMoves[i]
         check(observed['uuid'] == uid and observed['pointId'] == to_point,
               'swap order did not preserve occupied cells')
+        check(observed['lastIndex'] == old_point and
+              observed['message'] == 'native_build_world_move_new',
+              'swap Move sender/rollback anchor mismatched original City action')
         check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['completedMoves'] == i-1,
               'step confirmed without authoritative update')
         lua.execute(f'DataCenter.BuildManager.allBuilding[{uid}].pointId={to_point}')
@@ -651,7 +790,7 @@ def main():
     check(outcome['state'] == 'cancelled', 'cancel did not stop additional dispatch')
     check(len(lua.globals().ObservedMoves) == 1, 'cancel dispatched an extra move')
 
-    # v26 FreeBuildingReplaceNew OnConfirm sends an asynchronous packet and the
+    # v26 BuildWorldMoveNew OnConfirm sends an asynchronous packet and the
     # only authoritative reply is the later BuildManager handler. A 15-second
     # timeout does not mean the server rejected it: without a retry fence, a
     # user can dispatch another replacement against a still-in-flight packet.
@@ -738,19 +877,71 @@ def main():
     check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['state'] == 'failed',
           'declined native send left a false-positive running job')
 
-    # A foreign/successor game owner must never inherit a pending multi-step
-    # plan. An already sent message stays sent, but the old job cannot advance.
+    # R3 live 2289 receipt 062112: start accepted/requestDispatched, but a
+    # subsequent status was idle with no BuildManager point change. The
+    # periodic host gate can briefly return nil, causing CleanupAfterLeaseLoss.
+    # A missing owner token does NOT prove that the in-flight server packet
+    # was rejected; preserve its uncertainty fence and never send step two.
     lua, producer = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
     revision = get('city_layout_snapshot_get')['data']['layoutRevision']
-    started = get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
+    plan = lua.globals().Fields(revision, '101:2;102:1')
+    started = get('city_layout_apply_start', plan)
     check(started['state'] == 'accepted', 'owner-loss fixture never sent first native move')
+    check(len(lua.globals().ObservedMoves) == 1 and
+          lua.globals().ObservedMoves[1]['pointId'] == 3,
+          'fixture did not actually have a sent first swap packet')
     producer.CleanupAfterLeaseLoss()
-    check(get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']['state'] == 'idle',
-          'retired owner kept a running City job')
-    successor = get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
-    check(successor['state'] == 'accepted',
-          'successor was blocked by another game session City plan')
+    tombstone = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
+    check(tombstone['state'] == 'failed' and
+          tombstone['errorCode'] == 'CITY_LAYOUT_OWNER_LOSS_UNCERTAIN' and
+          tombstone['completedMoves'] == 0 and
+          tombstone['totalMoves'] == 3,
+          'transient owner loss erased pending native packet or falsely confirmed it')
+    reject = get('city_layout_apply_start', plan)
+    check(reject['state'] == 'failed' and
+          reject['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          len(lua.globals().ObservedMoves) == 1,
+          'missing owner token allowed a second potentially conflicting send')
+    # A newly admitted owner may not read the old job's private details, but
+    # cannot send while the old packet has an unknown server outcome.
+    different_owner = lua.globals().Fields(revision, '101:4')
+    different_owner['profileId'] = 'another-owner'
+    check(get('city_layout_apply_status', different_owner)['data']['state'] == 'idle',
+          'successor read private job details from previous owner')
+    check(get('city_layout_apply_start', different_owner)['errorCode'] ==
+          'CITY_LAYOUT_RESULT_UNCERTAIN',
+          'successor sent while prior owner had unresolved native packet')
+    producer.CleanupAfterLeaseLoss()
+    producer.Pump()
+    check(len(lua.globals().ObservedMoves) == 1,
+          'second transient nil owner token advanced an abandoned swap')
+    # Native point confirmation can release the fence without resuming stale
+    # steps 2 and 3. It remains a partial failed result for the old owner.
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    producer.Pump()
+    recovered = get('city_layout_apply_status',
+                    lua.globals().Fields(revision, ''))['data']
+    check(recovered['state'] == 'failed' and
+          recovered['errorCode'] == 'CITY_LAYOUT_OWNER_LOSS_RECONCILED' and
+          recovered['completedMoves'] == 1 and
+          len(lua.globals().ObservedMoves) == 1,
+          'late ACK after owner loss was lost or sent remainder of stale swap')
+    fresh_revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    new_plan = lua.globals().Fields(fresh_revision, '101:4')
+    allowed = get('city_layout_apply_start', new_plan)
+    check(allowed['state'] == 'accepted' and
+          len(lua.globals().ObservedMoves) == 2 and
+          lua.globals().ObservedMoves[2]['pointId'] == 4,
+          'confirmed late ACK never permitted a separately revalidated move')
+
+    # Owner loss without any outstanding network packet may fully retire
+    # the completed job; there is no ambiguity to preserve.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    producer.CleanupAfterLeaseLoss()
+    check(get('city_layout_apply_status', lua.globals().Fields('', ''))['data']['state'] ==
+          'idle', 'cleanup of idle module created an erroneous job tombstone')
     print('FEATURE018_CITY_GAME_LUA53_OFFLINE_PASS')
 
 

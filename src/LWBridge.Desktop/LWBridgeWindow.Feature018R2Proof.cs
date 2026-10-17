@@ -99,6 +99,86 @@ internal sealed partial class LWBridgeWindow
             await Nav(4, ".city-layout-panel, .city-layout-empty", "City Layout");
             JsonElement? before = await Command("city_layout_snapshot_get", receiptKey: "citySnapshotBefore");
             await Command("city_layout_apply_status", receiptKey: "cityApplyBefore");
+            // Exercise the actual mounted React City workbench against its
+            // asynchronously loaded native data. Keep visual/UI observations
+            // distinct from the native validation and building ACK receipts.
+            for (int i = 0; i < 50; i++)
+            {
+                Owned();
+                if (await core.ExecuteScriptAsync(
+                        "document.querySelectorAll('.city-layout-grid .city-layout-cell').length")
+                    == "10000") break;
+                await Task.Delay(100, token);
+            }
+            const string CityMountedMetrics = "(()=>{const p=document.querySelector('.city-layout-panel');const g=p?.querySelector('.city-layout-grid');const z=p?.querySelector('.city-layout-zoom output');return {livePanel:!!p&&!p.hasAttribute('data-preview-fixture'),cellCount:g?.querySelectorAll('.city-layout-cell').length??0,buildingCount:g?.querySelectorAll('[data-city-building-id]').length??0,zoom:z?.textContent??null,selectedCount:g?.querySelectorAll('.city-layout-building.selected').length??0};})()";
+            evidence["cityMountedBefore"] = JsonDocument.Parse(
+                await core.ExecuteScriptAsync(CityMountedMetrics)).RootElement.Clone();
+            if (before is { } uiCity &&
+                uiCity.TryGetProperty("cells", out var uiCells) &&
+                uiCells.ValueKind == JsonValueKind.Array &&
+                uiCity.TryGetProperty("buildings", out var uiBuildings) &&
+                uiBuildings.ValueKind == JsonValueKind.Array &&
+                evidence["cityMountedBefore"] is JsonElement mountedCity)
+            {
+                evidence["cityMountedCountsMatchNative"] =
+                    mountedCity.GetProperty("livePanel").GetBoolean() &&
+                    mountedCity.GetProperty("cellCount").GetInt32() == uiCells.GetArrayLength() &&
+                    mountedCity.GetProperty("buildingCount").GetInt32() == uiBuildings.GetArrayLength();
+                if (mountedCity.GetProperty("livePanel").GetBoolean())
+                {
+                    bool zoomed = await core.ExecuteScriptAsync(
+                        "(()=>{const b=document.querySelector('.city-layout-zoom button:nth-child(3)');if(!b||b.disabled)return false;b.click();return true;})()") == "true";
+                    if (zoomed) await Task.Delay(100, token);
+                    evidence["cityMountedZoomIn"] = new
+                    {
+                        clicked = zoomed,
+                        before = mountedCity.GetProperty("zoom").GetString(),
+                        after = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                            "document.querySelector('.city-layout-zoom output')?.textContent??null"))
+                            .RootElement.GetString(),
+                    };
+                    // Test original mounted selection and keyboard clear on
+                    // current native buildings, without dragging, saving or
+                    // submitting any city change to the account.
+                    bool selected = await core.ExecuteScriptAsync(
+                        "(()=>{const b=document.querySelector('.city-layout-grid [data-city-building-id]');if(!b)return false;b.click();return true;})()") == "true";
+                    if (selected) await Task.Delay(100, token);
+                    var selectedMetrics = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                        CityMountedMetrics)).RootElement.Clone();
+                    evidence["cityMountedSelect"] = new
+                    {
+                        clicked = selected,
+                        selectedCount = selectedMetrics.GetProperty("selectedCount").GetInt32(),
+                        nativeBuildingCount = uiBuildings.GetArrayLength(),
+                    };
+                    if (selected && selectedMetrics.GetProperty("selectedCount").GetInt32() > 0)
+                        await Capture("feature018-r2-city-selected.png");
+                    await core.ExecuteScriptAsync(
+                        "window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
+                    await Task.Delay(60, token);
+                    evidence["cityMountedEscapeClearsSelection"] =
+                        JsonDocument.Parse(await core.ExecuteScriptAsync(
+                            CityMountedMetrics)).RootElement.GetProperty("selectedCount").GetInt32() == 0;
+                    bool zoomedOut = await core.ExecuteScriptAsync(
+                        "(()=>{const b=document.querySelector('.city-layout-zoom button:first-child');if(!b||b.disabled)return false;b.click();return true;})()") == "true";
+                    evidence["cityMountedZoomOut"] = new
+                    {
+                        clicked = zoomedOut,
+                        after = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                            "document.querySelector('.city-layout-zoom output')?.textContent??null"))
+                            .RootElement.GetString(),
+                    };
+                    bool fitted = await core.ExecuteScriptAsync(
+                        "(()=>{const b=document.querySelector('.city-layout-zoom button:nth-child(4)');if(!b||b.disabled)return false;b.click();return true;})()") == "true";
+                    evidence["cityMountedFitCanvas"] = new
+                    {
+                        clicked = fitted,
+                        after = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                            "document.querySelector('.city-layout-zoom output')?.textContent??null"))
+                            .RootElement.GetString(),
+                    };
+                }
+            }
             await Capture("feature018-r2-city-before.png");
             if (cityLayoutDraftService is not null)
             {
@@ -125,28 +205,110 @@ internal sealed partial class LWBridgeWindow
                         clearedToOriginal = cleared?.Revision == 0 && cleared?.Value is null };
                 }
             }
-            if (before is { } city)
+            if (before is { } baselineCity)
             {
                 bool candidateObserved = false;
                 bool candidateValidated = false;
+                int staleRevisions = 0;
+                JsonElement city = baselineCity;
                 // A vacant geometric neighbor is not necessarily inside the
                 // game's secondary-building zone. Ask the genuine v26 native
-                // validator for up to 36 different targets, never send an
-                // unvalidated move. This is finite even on a large city grid.
-                for (int candidateOrdinal = 0; candidateOrdinal < 36; candidateOrdinal++)
+                // validator for up to 96 different targets, never send an
+                // unvalidated move. Abort if game revisions keep changing.
+                for (int candidateOrdinal = 0; candidateOrdinal < 96; candidateOrdinal++)
                 {
-                    if (!TryFindCityMove(city, candidateOrdinal, out string? uuid,
-                            out int oldPoint, out int newPoint)) break;
+                    int nativeCandidates = city.TryGetProperty("moveCandidates", out var native) &&
+                        native.ValueKind == JsonValueKind.Array ? native.GetArrayLength() : 0;
+                    string? uuid;
+                    int oldPoint, newPoint;
+                    bool suggestedNative = candidateOrdinal < nativeCandidates;
+                    if (suggestedNative)
+                    {
+                        JsonElement proposal = native[candidateOrdinal];
+                        if (!proposal.TryGetProperty("uuid", out var proposedUuid) ||
+                            proposedUuid.ValueKind != JsonValueKind.String ||
+                            !proposal.TryGetProperty("fromPointId", out var from) ||
+                            !from.TryGetInt32(out oldPoint) ||
+                            !proposal.TryGetProperty("targetPointId", out var target) ||
+                            !target.TryGetInt32(out newPoint) ||
+                            oldPoint < 1 || newPoint < 1 ||
+                            (uuid = proposedUuid.GetString()) is null ||
+                            FindCityBuildingPoint(city, uuid) != oldPoint)
+                        {
+                            evidence["cityMoveCandidate"] = "Native proposed move was missing a current building identity or point";
+                            break;
+                        }
+                    }
+                    else if (!TryFindCityMove(city, candidateOrdinal - nativeCandidates,
+                        out uuid, out oldPoint, out newPoint)) break;
+                    // Two R3 sessions sent an unacknowledged legacy Replace
+                    // packet for this exact native building. Even though the
+                    // v26 Move sender has now been recovered, never transmit
+                    // another command for that building while its earlier
+                    // server result is unresolved. A distinct current-game
+                    // building can be used for a separately admitted Move.
+                    if (Environment.GetEnvironmentVariable(
+                            "LWBRIDGE_FEATURE018_R3_CITY_ACTION_OPT_IN") == "1" &&
+                        uuid == "1392040865799139725")
+                    {
+                        evidence["cityPreviousUnacknowledgedBuildingExcluded"] = uuid;
+                        continue;
+                    }
                     candidateObserved = true;
+                if (suggestedNative) evidence["cityNativeCandidateValidated"] =
+                    new { uuid, oldPoint, newPoint };
                 var outbound = new { baseRevision = city.GetProperty("layoutRevision").GetString(),
                     placements = new[] { new { uuid, targetPointId = newPoint } } };
                 JsonElement? validation = await Command("city_layout_validate", outbound,
                     "cityMoveValidation");
                 evidence["cityMoveCandidatesValidated"] = candidateOrdinal + 1;
+                // A valid placement must come from the same *current* native
+                // building/zone revision that was sampled. One R3 packaged
+                // session changed city revisions during a long candidate
+                // search, creating mixed STALE/ZONE replies. Reacquire the
+                // current source and retry only a fresh candidate index.
+                if (validation is { } checkedValidation &&
+                    checkedValidation.TryGetProperty("issues", out var issues) &&
+                    issues.ValueKind == JsonValueKind.Array &&
+                    issues.EnumerateArray().Any(issue =>
+                        issue.TryGetProperty("code", out var issueCode) &&
+                        issueCode.GetString() == "CITY_LAYOUT_STALE"))
+                {
+                    if (++staleRevisions > 3)
+                    {
+                        evidence["cityMoveCandidate"] = "Native City changed revisions repeatedly during validation";
+                        break;
+                    }
+                    JsonElement? current = await Command("city_layout_snapshot_get",
+                        receiptKey: "citySnapshotRevalidated");
+                    if (current is not { } verified ||
+                        !verified.TryGetProperty("isInCity", out var inCity) ||
+                        inCity.ValueKind != JsonValueKind.True)
+                    {
+                        evidence["cityMoveCandidate"] = "Authoritative refreshed City snapshot unavailable";
+                        break;
+                    }
+                    city = verified;
+                    evidence["cityMoveStaleSnapshotsRefreshed"] = staleRevisions;
+                    continue;
+                }
                 if (validation is { } valid && valid.TryGetProperty("valid", out var yes) &&
                     yes.ValueKind == JsonValueKind.True)
                 {
                     candidateValidated = true;
+                    // The two previously accepted live v26 packets for this
+                    // owner had NO independently confirmed BuildManager ACK.
+                    // The native sender returns void, so repeated submission
+                    // could race a late server result even after restarting
+                    // the game. Continue native validation and mounted UI
+                    // proof without submitting another uncertain packet.
+                    if (Environment.GetEnvironmentVariable(
+                            "LWBRIDGE_FEATURE018_R3_CITY_ACTION_OPT_IN") != "1")
+                    {
+                        evidence["cityMoveSendWithheld"] =
+                            "Earlier native building replacement has no correlated server ACK; manual fresh one-shot admission required";
+                        break;
+                    }
                     JsonElement? start = await Command("city_layout_apply_start", outbound,
                         "cityMoveStart");
                     if (start is { } request && request.TryGetProperty("accepted", out var accepted) &&
@@ -217,6 +379,7 @@ internal sealed partial class LWBridgeWindow
             evidence["hotkeySettingsRestored"] = (HotkeyConfig)(await prefs.InvokeAsync(
                 "hotkey_config_get", empty.RootElement.Clone(), token) ?? original) == original;
             await Command("feature018_input_focus", receiptKey: "gameInputFocus");
+            await Command("feature018_shield_inventory_get", receiptKey: "r4NativeShieldInventory");
             // The R2 predecessor invoked the action API directly: that proves
             // nothing about the original Q/W/E/R etc game-window key bindings.
             // Exercise the *real foreground recognizer*, with the precise
@@ -281,8 +444,11 @@ internal sealed partial class LWBridgeWindow
                     // Alt in finally; retarget the exact owned HWND for the
                     // next independent test, retaining this binding as a
                     // negative. Never continue after an account/PID mismatch.
-                    if (delivered.Observation is "owned_window_changed_before_chord" or
-                        "owned_window_changed_before_keydown" && ApprovedOwner())
+                    if (ApprovedOwner() && delivered.Observation is
+                        "owned_window_changed_before_chord" or
+                        "owned_window_changed_before_keydown" or
+                        "game_foreground_activation_denied" or
+                        "game_text_input_focus_could_not_be_qualified")
                     {
                         evidence["hotkeyFocusSkipped_" + binding] = delivered.Observation;
                         continue;
@@ -319,7 +485,27 @@ internal sealed partial class LWBridgeWindow
 
             await Nav(6, ".hotkey-panel[data-hotkey-category=miniGames] .mini-game-actions", "Mini Games");
             await Capture("feature018-r2-mini-before.png");
-            await Command("mini_land_status", receiptKey: "miniLandBefore");
+            JsonElement? landBefore = await Command("mini_land_status",
+                receiptKey: "miniLandBefore");
+            // The very first R3 one-shot UnlockUserLand was sent while native
+            // next-cell inspection pointed at cell 5. Subsequent snapshots
+            // exposed cell 6 but never proved cell 5's actual server state.
+            // Query that *specific historical* cell read-only: a different
+            // current next-cell never counts as an ACK on its own.
+            await Command("mini_land_status", new { expectedCellId = 5 },
+                "miniLandOriginalDispatchedCell5");
+            int? exactLandCellId = null;
+            if (landBefore is { } observedLand &&
+                observedLand.TryGetProperty("cellId", out var observedCellId) &&
+                observedCellId.TryGetInt32(out int cellId) && cellId is > 0 and <= 10000)
+            {
+                exactLandCellId = cellId;
+                // Distinguish current-next-cell movement from the actual
+                // previously submitted row. LandLockManager can advance
+                // current-next before this status reply arrives.
+                await Command("mini_land_status", new { expectedCellId = cellId },
+                    "miniLandExactCellBefore");
+            }
             // One uncertain accepted land dispatch was already observed in R3.
             // Future packaged verification runs are read-only until the
             // operator explicitly opts into a new one-shot land send.
@@ -329,12 +515,17 @@ internal sealed partial class LWBridgeWindow
                 : null;
             if (unlock is null)
                 evidence["miniLandUnlockSkipped"] = "prior_dispatched_land_ack_unconfirmed_no_auto_retry";
+            if (exactLandCellId is { } pendingCellId)
+                await Command("mini_land_status", new { expectedCellId = pendingCellId },
+                    "miniLandExactCellAfter");
             if (unlock is { } u && u.TryGetProperty("requestDispatched", out var sent) &&
                 sent.ValueKind == JsonValueKind.True)
             {
                 for (int i = 0; i < 50; i++)
                 {
-                    JsonElement? state = await Command("mini_land_status", receiptKey: "miniLandAfter");
+                    JsonElement? state = await Command("mini_land_status",
+                        exactLandCellId is { } sentCellId ? new { expectedCellId = sentCellId } : null,
+                        receiptKey: "miniLandAfter");
                     if (state is { } land && land.TryGetProperty("state", out var current) &&
                         current.GetString() == "unlocked") break;
                     await Task.Delay(400, token);

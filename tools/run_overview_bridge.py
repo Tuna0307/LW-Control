@@ -305,6 +305,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
         b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
         b'if type(hotkey_actions.RegisterRapid) == "function" then hotkey_actions.RegisterRapid(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterShieldInventory) == "function" then hotkey_actions.RegisterShieldInventory(feature) end\n' +
         b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
@@ -320,11 +321,34 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     if between.count(original_pump) != 1:
         raise OverviewBridgeError("FEATURE018 session-bound game pump seam not unique")
     bound_pump = b'''    local current_feature_owner = type(bridge.Feature018OwnerToken) == "function" and bridge.Feature018OwnerToken() or nil
-    if feature018_previous_owner ~= current_feature_owner then
-        if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
-        if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
-        if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+    if current_feature_owner ~= nil then
+        -- An explicitly different owner always retires the prior work before
+        -- this owner's handlers execute. Every later command and async pump
+        -- also verifies the current exact sub-account in the native bridge.
+        if feature018_previous_owner ~= nil and feature018_previous_owner ~= current_feature_owner then
+            if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
+            if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+        end
         feature018_previous_owner = current_feature_owner
+        feature018_owner_missing_since = nil
+    elseif feature018_previous_owner ~= nil then
+        -- The game's native account inspectors may temporarily report an
+        -- unknown identity during a scene transition or network frame.
+        -- DISPATCH IS HALTED immediately while authorization is absent.
+        -- Do not erase a separately ACK-fenced City job on a single missing
+        -- observation. A sustained 3s absence retires the session; City
+        -- separately preserves any previously sent uncertain move tombstone.
+        local observed_second = tonumber(os.time()) or 0
+        if feature018_owner_missing_since == nil then
+            feature018_owner_missing_since = observed_second
+        elseif observed_second - feature018_owner_missing_since >= 3 then
+            if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
+            if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+            feature018_previous_owner = nil
+            feature018_owner_missing_since = nil
+        end
     end
     if current_feature_owner ~= nil then
         if type(city.Pump) == "function" then pcall(city.Pump) end
@@ -339,6 +363,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     # and Sheep completion without requiring the app to poll a tab.
     periodic = (
         b'local feature018_previous_owner = nil\n'
+        b'local feature018_owner_missing_since = nil\n'
         b'local function feature018_periodic()\n' + bound_pump +
         b'end\n'
         b'if type(bridge.SetFeature018PeriodicTick) ~= "function" or\n'
@@ -346,9 +371,14 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         b'    error("FEATURE018 authenticated periodic pump registration failed")\n'
         b'end\n'
     )
-    between = between.replace(setup, periodic + setup, 1)
+    # Replace the ORIGINAL pump_runtime statement first. If the periodic
+    # callback is inserted before this replacement, original_pump also occurs
+    # inside bound_pump and the first-match replacement makes
+    # feature018_periodic call ITSELF recursively, silently losing City ACK
+    # progression and leaving the independent game mailbox unserviced.
     between = between.replace(original_pump,
         b'    pcall(feature018_periodic)\n', 1)
+    between = between.replace(setup, periodic + setup, 1)
     return prefix + bridge_source() + between
 
 

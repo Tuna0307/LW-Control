@@ -35,6 +35,7 @@ const commands = [];
 let dispatches = 0;
 let statusReady = false;
 let forceInventoryFailure = false;
+let shieldReads = 0;
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "rapid-inert-session",
   profiles: { selectedProfileId: "rapid-approved-profile" },
@@ -79,6 +80,16 @@ window.chrome = { webview: {
           break;
         default: throw Error("Unexpected rapid mode: " + request.payload.mode);
       }
+    } else if (request.command === "feature018_shield_inventory_get") {
+      assert.deepEqual(request.payload, { profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId },
+        "Read-only shield inventory may carry only the profile-scoped routing field");
+      shieldReads++;
+      response = { observation: "native_MAIN_SHIELD_StatusTab_owned_item_duration_join",
+        durationMappingVerified: true, readOnly: true, requestDispatched: false,
+        items: [{ itemId: "81008", uuid: "882013", count: 2,
+          statusId: "7801", durationHours: 8, uniqueDuration: true },
+          { itemId: "81024", uuid: "882024", count: 1,
+            statusId: "7803", durationHours: 24, uniqueDuration: false }] };
     } else if (request.command === "feature018_equipment_preflight") {
       assert.equal(request.payload.slot, 1);
       assert.equal(request.payload.presetId, undefined);
@@ -128,6 +139,7 @@ const tick = (delay) => flush(() => {
 });
 const panel = () => document.querySelector("[data-feature018-rapid]");
 const equipPanel = () => document.querySelector("[data-feature018-equipment-preflight]");
+const shieldPanel = () => document.querySelector("[data-feature018-shield-inventory]");
 const buttons = () => [...panel().querySelectorAll("button")];
 const chooser = () => panel().querySelector('select[aria-label*="拥有的道具"]');
 const consent = () => panel().querySelector('input[type="checkbox"]');
@@ -136,6 +148,17 @@ await flush(() => mounted.render(React.createElement(I18nProvider, {},
   React.createElement(HotkeysPage, { online: true }))));
 assert.ok(panel(), "New rapid item workflow did not mount in Hotkeys");
 assert.ok(equipPanel(), "Read-only original equipment preset inspection did not mount");
+assert.ok(shieldPanel(), "Read-only native shield inventory control did not mount");
+assert.equal(shieldReads, 0, "Mounting the Hotkeys page unexpectedly read native shield items");
+await flush(() => shieldPanel().querySelector("button").click());
+assert.equal(shieldReads, 1, "Explicit shield inventory inspect did not query game exactly once");
+assert.match(shieldPanel().textContent, /8 小时/,
+  "Native shield 8-hour duration missing from Chinese live panel");
+assert.match(shieldPanel().textContent, /24 小时/,
+  "Native shield 24-hour duration missing from Chinese live panel");
+assert.match(shieldPanel().textContent, /有多个同持续时间道具/,
+  "Ambiguous item duration was silently represented as safe to use");
+assert.equal(dispatches, 0, "Inspecting a shield item spent another consumable");
 assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
   "Hotkeys mounting automatically used or inspected consumables");
 assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 0,
@@ -170,6 +193,8 @@ assert.equal(dispatches, 1, "Confirmation polling dispatched a second item");
 backendBridge.setSelectedProfile("rapid-unapproved-second-profile");
 await flush(() => mounted.render(React.createElement(I18nProvider, {},
   React.createElement(HotkeysPage, { online: true }))));
+assert.doesNotMatch(shieldPanel().textContent, /8 小时/,
+  "Other profile inherited previously inspected native shield inventory");
 assert.ok(!chooser(), "Old owner's owned rapid item survived profile retirement");
 assert.equal(dispatches, 1, "Profile retirement sent an item");
 forceInventoryFailure = true;

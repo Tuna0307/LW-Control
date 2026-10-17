@@ -84,7 +84,13 @@ local function authorized_subaccount()
     end
     for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
         local ok, server = invoke(player, source)
-        if not ok or tonumber(server) ~= AUTHORIZED_SUBACCOUNT_SERVER then
+        -- Reject decimal-looking or padded server aliases such as "02289"
+        -- and "2289.0": admission must reflect the exact native server.
+        local valid_server =
+            (type(server) == "number" and server == AUTHORIZED_SUBACCOUNT_SERVER)
+            or (type(server) == "string" and
+                server == tostring(AUTHORIZED_SUBACCOUNT_SERVER))
+        if not ok or not valid_server then
             return nil, blocked("Native game server is not the authorized server-2289 sub-account")
         end
     end
@@ -254,39 +260,134 @@ local function recall(fields, game_input_clear)
     }}
 end
 
--- Read-only original Shield UI inventory source; never guess a duration from
--- a localized name or an unrelated item template field.
+-- Read-only original CityShieldPage inventory/status join. Its CellsCallBack
+-- resolves item template.para1 through StatusTab.time (seconds), and the
+-- StatusManager independently identifies MAIN_SHIELD status IDs. Never infer
+-- duration from a localized name, item ID, or inventory ordering.
 function M.ShieldOwnedInventory()
+    local uid, denial = authorized_subaccount()
+    if not uid then return denial end
     local center = rawget(_G,"DataCenter")
     local items = member(center,"ItemData")
     local templates = member(center,"ItemTemplateManager")
+    local status = member(center,"StatusManager")
+    local controller = rawget(_G,"LocalController")
+    local table_name = member(rawget(_G,"TableName"),"StatusTab")
     local ok_items, owned = invoke(items,"GetItemList",4,1)
     local ok_templates, options = invoke(templates,"GetTypeListByTypes",4,1)
+    local ok_ids, status_ids = invoke(status,"GetShieldStatusIds")
+    local ok_controller, native_tables = invoke(controller,"instance")
     if not ok_items or not ok_templates or type(owned) ~= "table" or
-       type(options) ~= "table" then
-        return unavailable("Authoritative owned shield inventory or item templates unavailable")
+       type(options) ~= "table" or not ok_ids or type(status_ids) ~= "table" or
+       not ok_controller or native_tables == nil or table_name == nil then
+        return unavailable("Authoritative shield inventory, MAIN_SHIELD status IDs or StatusTab unavailable")
+    end
+    local classified_ids = 0
+    for _, match in pairs(status_ids) do
+        if match == true then classified_ids = classified_ids + 1 end
+    end
+    if classified_ids == 0 then
+        return unavailable("Native MAIN_SHIELD status classification contains no verified IDs")
+    end
+    local mapped = {}
+    local used_hours = {}
+    for _, template in pairs(options) do
+        local item_id = id_string(member(template,"id"))
+        local status_id = id_string(member(template,"para1"))
+        if item_id ~= nil and status_id ~= nil and
+           (status_ids[tonumber(status_id)] == true or status_ids[status_id] == true) then
+            local ok_row, row = invoke(native_tables,"getLine",table_name,member(template,"para1"))
+            local seconds = ok_row and tonumber(member(row,"time")) or nil
+            if row == nil or seconds == nil or seconds <= 0 or
+               seconds % 1 ~= 0 then
+                return unavailable("Source-classified MAIN_SHIELD StatusTab duration is unreadable")
+            end
+            if mapped[item_id] ~= nil then
+                return unavailable("Original shield item template identity is duplicated")
+            end
+            local hours = seconds / 3600
+            mapped[item_id] = {statusId=status_id,durationHours=hours}
+            if hours == 8 or hours == 12 or hours == 24 then
+                used_hours[hours] = (used_hours[hours] or 0) + 1
+            end
+        end
     end
     local available = {}
+    local seen_uuids = {}
+    local stock_by_hours = {}
     for _, item in pairs(owned) do
         local item_id = id_string(member(item,"itemId"))
         local count = tonumber(member(item,"count"))
         local uuid = id_string(member(item,"uuid"))
-        if item_id ~= nil and uuid ~= nil and count and count > 0
-            and count % 1 == 0 then
-            for _, template in pairs(options) do
-                if id_string(member(template,"id")) == item_id then
-                    available[#available+1] = {
-                        itemId=item_id, uuid=uuid, count=count
-                    }
-                    break
-                end
+        local entry = item_id and mapped[item_id] or nil
+        if entry ~= nil then
+            if uuid == nil or count == nil or count < 0 or count % 1 ~= 0 or
+               seen_uuids[uuid] then
+                return unavailable("Owned shield stack count or identity is inconsistent")
+            end
+            seen_uuids[uuid] = true
+            if count > 0 then
+                stock_by_hours[entry.durationHours] =
+                    (stock_by_hours[entry.durationHours] or 0) + 1
+                available[#available+1] = {
+                    itemId=item_id, uuid=uuid, count=count,
+                    statusId=entry.statusId, durationHours=entry.durationHours
+                }
             end
         end
     end
+    for _, entry in ipairs(available) do
+        entry.uniqueDuration=(used_hours[entry.durationHours] == 1 and
+                              stock_by_hours[entry.durationHours] == 1)
+    end
+    table.sort(available,function(a,b)
+        if a.durationHours ~= b.durationHours then
+            return a.durationHours < b.durationHours
+        end
+        return a.uuid < b.uuid
+    end)
     return {state="confirmed",data={
-        observation="native_type4_subtype1_owned_shield_items",
-        items=available,durationMappingVerified=false
+        observation="native_MAIN_SHIELD_StatusTab_owned_item_duration_join",
+        items=available,durationMappingVerified=true,
+        readOnly=true,requestDispatched=false
     }}
+end
+
+-- Read-only native inventory endpoint for the Hotkeys panel. The FEATURE018
+-- bridge authenticates the profile/lease and this producer independently
+-- verifies the current game's exact UID and all three 2289 server getters.
+-- No client-supplied item identity, duration or spend instruction is used.
+function M.RegisterShieldInventory(feature)
+    if type(feature) ~= "table" or
+       type(feature.RegisterHandler) ~= "function" or
+       type(feature.Array) ~= "function" then return false end
+    return feature.RegisterHandler("feature018_shield_inventory_get", function(fields)
+        if type(fields) ~= "table" then
+            return blocked("Native shield inventory requires an authenticated read request")
+        end
+        local result = M.ShieldOwnedInventory()
+        if type(result) ~= "table" or result.state ~= "confirmed" then
+            return result
+        end
+        local data = result.data
+        if type(data) ~= "table" or data.readOnly ~= true or
+           data.requestDispatched ~= false or type(data.items) ~= "table" then
+            return blocked("Shield inventory did not provide a read-only native observation")
+        end
+        if #data.items == 0 then
+            -- The real FEATURE018 JSON encoder otherwise serializes {}.
+            -- Array applies the __feature018_array marker to an empty table.
+            local ok_array, marked = pcall(feature.Array, data.items)
+            local marker = ok_array and type(marked) == "table" and
+                           getmetatable(marked) or nil
+            if not ok_array or type(marked) ~= "table" or
+               type(marker) ~= "table" or marker.__feature018_array ~= true then
+                return unavailable("Native shield inventory JSON array tagging failed")
+            end
+            data.items = marked
+        end
+        return result
+    end)
 end
 
 function M.Wrap(frozen_hotkeys)
@@ -344,6 +445,11 @@ function M.Wrap(frozen_hotkeys)
             if fields.slot ~= "8" and fields.slot ~= "12" and fields.slot ~= "24" then
                 return blocked("Unrecognized shield duration")
             end
+            -- Unlike a browser/session token, these values are read from the
+            -- game owner on every use AND read-only pending-status query.
+            -- The frozen shield sender does not itself check the 2289 server.
+            local uid, denial = authorized_subaccount()
+            if not uid then return denial end
             -- The frozen Hotkey game module now joins owned inventory to the
             -- native StatusTab duration and protects every ItemUse with UI
             -- cooldown/warning and later independent shield+stock poststate.

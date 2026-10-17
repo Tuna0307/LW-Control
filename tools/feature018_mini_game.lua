@@ -13,6 +13,7 @@
 
 local M = { VERSION = "feature018-mini-game-1" }
 local last_land_request_id = nil
+local last_observed_unlocked_id = nil
 local bound_chest_view = nil
 local bound_sheep_view = nil
 local watched_ui_classes = {}
@@ -51,14 +52,22 @@ local function is_integer(value)
     return type(value) == "number" and value > 0 and value % 1 == 0
 end
 
-local function land_context()
+local function land_state_context()
     local dc = rawget(_G, "DataCenter")
     local land = member(dc, "LandLockManager")
     local states = rawget(_G, "LandLockState")
-    local conditions = rawget(_G, "LandLockCondition")
-    if land == nil or states == nil or conditions == nil then return nil end
+    if land == nil or states == nil then return nil end
     if member(states, "Locked") == nil or member(states, "Unlocked") == nil or
-       member(states, "Finished") == nil or member(conditions, "Unknown") == nil then
+       member(states, "Finished") == nil then
+        return nil
+    end
+    return land, states
+end
+
+local function land_context()
+    local land, states = land_state_context()
+    local conditions = rawget(_G, "LandLockCondition")
+    if land == nil or conditions == nil or member(conditions, "Unknown") == nil then
         return nil
     end
     return land, states, conditions
@@ -80,16 +89,88 @@ local function next_locked_land()
     return { manager = land, states = states, conditions = conditions, id = id, row = row }
 end
 
-local function land_status()
-    local land, states = land_context()
+local function land_status(fields)
+    -- Read-only exact-state observation depends only on the original manager
+    -- and state enum. LandLockCondition is required for a send preflight, not
+    -- for reading a previously addressed server-updated land row.
+    local land, states = land_state_context()
     if land == nil then return unsupported("LandLockManager is unavailable") end
+    -- A successful v26 UnlockUserLandMessage passes its response to
+    -- LandLockManager.UnlockHandle, whose RefreshDataByServer updates this
+    -- *specific* land ID. GetCurrentToBeUnlockedId instead iterates pairs
+    -- over Locked rows; a later next-locked ID cannot prove the prior ACK.
+    -- Permit a read-only exact-ID query even after the pending latch cleared
+    -- or the bridge module was reloaded. Never re-dispatch from status.
+    if type(fields) == "table" and fields.expectedCellId ~= nil then
+        local raw_id = fields.expectedCellId
+        if type(raw_id) ~= "string" or #raw_id > 10 or
+           not raw_id:match("^[1-9]%d*$") then
+            return blocked("Exact land status requires a positive integer cell ID")
+        end
+        local id = tonumber(raw_id)
+        if not is_integer(id) or id > 10000 then
+            return blocked("Exact land status cell ID is out of native range")
+        end
+        local ok, row = invoke(land, "GetLandLockDataById", id)
+        if not ok or row == nil then
+            return unsupported("Specified native land cell does not exist", { cellId = id })
+        end
+        local now = member(row, "state")
+        local resolved = now == member(states, "Unlocked") or
+                         now == member(states, "Finished")
+        if not resolved and now ~= member(states, "Locked") then
+            return unsupported("Specified native land cell has no supported lock state",
+                               { cellId = id })
+        end
+        local matching_pending = id == last_land_request_id
+        if resolved and matching_pending then
+            last_land_request_id = nil
+            last_observed_unlocked_id = id
+        end
+        return { state = "confirmed", data = {
+            cellId = id, cellType = "city_land_lock", kind = "city_land_lock",
+            state = resolved and "unlocked" or "locked",
+            nativeLandState = now == member(states, "Finished") and "finished" or
+                              (resolved and "unlocked" or "locked"),
+            exactCellLookup = true,
+            observation = "native_land_lock_state",
+            awaitingGameConfirmation = not resolved and matching_pending or nil
+        } }
+    end
     if not is_integer(last_land_request_id) then
+        -- Preserve a prior accepted request's verified transition on later
+        -- polls after the unlocked cell has ceased being the first Locked
+        -- row. Re-read the exact ID each time; never replay a stale receipt
+        -- after the native row disappears or returns to Locked.
+        local observed = nil
+        if is_integer(last_observed_unlocked_id) then
+            local previous_ok, previous = invoke(land, "GetLandLockDataById",
+                                                 last_observed_unlocked_id)
+            local previous_state = previous_ok and member(previous, "state") or nil
+            if previous_state == member(states, "Unlocked") or
+               previous_state == member(states, "Finished") then
+                observed = last_observed_unlocked_id
+            else
+                last_observed_unlocked_id = nil
+            end
+        end
         local next_land, reason = next_locked_land()
-        if next_land == nil then return unsupported(reason) end
+        if next_land == nil then
+            if observed ~= nil then
+                return { state = "confirmed", data = {
+                    cellId = observed, cellType = "city_land_lock",
+                    state = "unlocked", kind = "city_land_lock",
+                    observation = "native_land_lock_state",
+                    lastObservedUnlockedCellId = observed
+                } }
+            end
+            return unsupported(reason)
+        end
         return { state = "confirmed", data = {
             cellId = next_land.id, cellType = "city_land_lock",
             state = "locked", kind = "city_land_lock",
-            observation = "native_land_lock_state"
+            observation = "native_land_lock_state",
+            lastObservedUnlockedCellId = observed
         } }
     end
     local ok, row = invoke(land, "GetLandLockDataById", last_land_request_id)
@@ -98,6 +179,7 @@ local function land_status()
     local current_id = last_land_request_id
     if now == member(states, "Unlocked") or now == member(states, "Finished") then
         last_land_request_id = nil
+        last_observed_unlocked_id = current_id
         return { state = "confirmed", data = {
             cellId = current_id, cellType = "city_land_lock",
             state = "unlocked", kind = "city_land_lock",
@@ -511,19 +593,26 @@ local function mark_chest()
     end
     -- Preserve an effect that the original game currently owns (e.g. while
     -- the shuffle animation is finishing). Only restore our own addition.
-    if marker_owned_view ~= view and member(effect, "activeSelf") == true then
-        return blocked("The game's own chest switch effect is already active")
+    if marker_owned_view ~= view and member(effect, "activeSelf") ~= false then
+        return blocked("The native chest switch effect is not confirmed inactive")
     end
     local data = game_state.data
     -- UITreasureChestView.ShowSwitchEffect (v26 lines 373-376) activates the
     -- already present effect and sets its position via Set_position(x,y,z).
     -- Reuse that native effect to mark the source-identified prize chest.
-    local ok = invoke(view, "ShowSwitchEffect", data.x, data.y, data.z)
-    if not ok then return blocked("Could not position native prize marker") end
-    if member(effect, "activeSelf") ~= true then
-        return blocked("Native prize marker activation was not observed")
-    end
+    -- Original v26 ShowSwitchEffect first calls SetActive(true), then
+    -- transform:Set_position(x,y,z) (lines 374-375). A late positioning error
+    -- can therefore leave an active marker behind. Own the previously
+    -- verified inactive effect before the *single* native call and undo any
+    -- partial activation. Retain ownership if cleanup itself is unsuccessful.
     marker_owned_view = view
+    local ok = pcall(show, view, data.x, data.y, data.z)
+    if not ok or member(effect, "activeSelf") ~= true then
+        if not clear_owned_chest_marker() then
+            return blocked("Native prize marker failed and owned effect cleanup is incomplete")
+        end
+        return blocked("Native prize marker position or activation was not observed")
+    end
     data.markerVisible = true
     data.markerSource = "UITreasureChestView.ShowSwitchEffect"
     return { state = "confirmed", data = data }
@@ -709,6 +798,7 @@ function M.CleanupAfterLeaseLoss()
     -- our previous UI effect and restore our exact in-memory UI wrappers.
     M.RemoveUiObservation()
     last_land_request_id = nil
+    last_observed_unlocked_id = nil
 end
 
 M.ProbeChest = chest_snapshot

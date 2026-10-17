@@ -4,22 +4,41 @@ No installed game, account, launcher, updater, UI session, network or journal
 is started or modified. State objects below are isolated fake game managers.
 """
 
+import hashlib
 import sys
 from pathlib import Path
 
+import feature018_hotkey_shield_checks as shield_checks
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "artifacts/map-013-lua-site"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent / "map_009_offline"))
 from lupa.lua53 import LuaRuntime
+import run_live_resource_probe as original_probe
+import compact_lua53 as original_bytecode
+from inspect_current import root_methods
 
 SOURCE = Path(__file__).with_name("feature018_hotkey_actions.lua")
+ARCHIVED_V26 = SOURCE.parents[1] / "artifacts/feature018/offline-candidate-continuation/LWScripts.data"
+ORIGINAL_V26_LUA_ENTRY_SHA = (
+    "50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137"
+)
 
 GAME = """
 state = {
     playerUid='222', focusClear=true, canReturn=true,
     ownerUid='222', formationId=1001, candidateFormationId=1001,
     squadUuid=803001, candidateUid='222', target=17, dispatches=0,
-    slot=1, numberOfOwnedShield=2,
+    slot=1, numberOfOwnedShield=2, numberOfOwnedShield12=1,
+    numberOfOwnedShield24=1, fallbackCalls=0, inventoryReads=0,
+    itemUseCalls=0,
+    sourceServer=2289, selfServer=2289, currentServer=2289,
 }
-LuaEntry = { Player={uid=state.playerUid}, DataConfig={
+LuaEntry = { Player={uid=state.playerUid,
+    GetSourceServerId=function() return state.sourceServer end,
+    GetSelfServerId=function() return state.selfServer end,
+    GetCurServerId=function() return state.currentServer end,
+}, DataConfig={
     CheckSwitch=function(self, name)
         assert(name=='slide_left_return')
         return state.canReturn
@@ -53,9 +72,11 @@ DataCenter = {
     ItemData={
         GetItemList=function(self,t,sub)
             assert(t==4 and sub==1)
+            state.inventoryReads=state.inventoryReads+1
             return {
                 {itemId=8,uuid=555001,count=state.numberOfOwnedShield},
-                {itemId=12,uuid=555002,count=0},
+                {itemId=12,uuid=555002,count=state.numberOfOwnedShield12},
+                {itemId=24,uuid=555004,count=state.numberOfOwnedShield24},
                 {itemId=99,uuid=555003,count=4},
             }
         end
@@ -63,15 +84,29 @@ DataCenter = {
     ItemTemplateManager={
         GetTypeListByTypes=function(self,t,sub)
             assert(t==4 and sub==1)
-            return {{id=8,type=4,type2=1},{id=12,type=4,type2=1}}
+            return {{id=8,para1=801,type=4,type2=1},
+                    {id=12,para1=802,type=4,type2=1},
+                    {id=24,para1=803,type=4,type2=1}}
         end
     },
+    StatusManager={GetShieldStatusIds=function(self)
+        return {[801]=true,[802]=true,[803]=true}
+    end},
 }
+TableName={StatusTab='StatusTab'}
+LocalController={instance=function()
+  return {getLine=function(self,name,id)
+    assert(name=='StatusTab')
+    local seconds={[801]=28800,[802]=43200,[803]=86400}
+    return {time=seconds[id]}
+  end}
+end}
 MarchUtil={OnBackHome=function(uuid)
     assert(uuid==state.squadUuid)
     state.dispatches=state.dispatches+1
 end}
 frozen={Handle=function(fields)
+    state.fallbackCalls=state.fallbackCalls+1
     return {state='unsupported',errorCode='FALLBACK_USED',
             error='frozen handler',action=fields.action}
 end, TextInputClear=function() return state.focusClear end}
@@ -101,7 +136,196 @@ def scenario():
     return lua, module, wrapped, state, call
 
 
+def test_registered_shield_inventory():
+    lua, actions, _, state, _ = scenario()
+    lua.execute('''
+    SFSNetwork={SendMessage=function()
+      state.itemUseCalls=state.itemUseCalls+1
+      error('read-only shield inventory sent ItemUse')
+    end}
+    feature={handlers={}, RegisterHandler=function(command, handler)
+      assert(command=='feature018_shield_inventory_get')
+      if feature.handlers[command]~=nil then return false end
+      feature.handlers[command]=handler
+      return true
+    end, Array=function(values)
+      assert(type(values)=='table' and #values==0)
+      return setmetatable(values,{__feature018_array=true})
+    end}
+    ''')
+    feature = lua.globals().feature
+    require(actions.RegisterShieldInventory(feature) is True,
+            "read-only shield inventory native handler did not register")
+    require(actions.RegisterShieldInventory(feature) is False,
+            "duplicate shield inventory registration overwrote handler")
+    handler = feature.handlers["feature018_shield_inventory_get"]
+    require(handler is not None, "registered native shield handler missing")
+
+    def call(**fields):
+        return handler(lua.table_from(fields))
+
+    require(handler(None)["state"] == "failed" and state["inventoryReads"] == 0,
+            "malformed native inventory request accessed game state")
+    for malformed_uid in (None, "invalid", "3133546747002212", "31335467470022890"):
+        lua.globals().LuaEntry.Player.uid = malformed_uid
+        bad = call(authorizedUid="3133546747002289")
+        require(bad["state"] == "failed" and state["inventoryReads"] == 0 and
+                state["itemUseCalls"] == 0,
+                "wrong/malformed native UID reached shield stock reader")
+    lua.globals().LuaEntry.Player.uid = "3133546747002289"
+    for getter in ("sourceServer", "selfServer", "currentServer"):
+        for invalid in (2212, 2213, None, "not-a-server", "02289", "2289.0", 2289.5):
+            state[getter] = invalid
+            denied = call(authorizedUid="3133546747002289")
+            require(denied["state"] == "failed" and
+                    state["inventoryReads"] == 0 and state["itemUseCalls"] == 0,
+                    "invalid native server getter accessed owned shield stock: " + getter)
+        state[getter] = 2289
+
+    # Client fields cannot select an item or authorize a spend. Data comes
+    # exclusively from v26 native ItemData, Goods templates and StatusTab.
+    good = call(authorizedUid="3133546747002212", slot="999", itemId="99999",
+                itemOptIn="1", action="ItemUse")
+    require(good["state"] == "confirmed" and
+            good["data"]["readOnly"] is True and
+            good["data"]["requestDispatched"] is False and
+            good["data"]["durationMappingVerified"] is True and
+            state["itemUseCalls"] == 0 and state["dispatches"] == 0 and
+            state["fallbackCalls"] == 0,
+            "registered read-only inventory accepted an action or forged owner")
+    shield_items = good["data"]["items"]
+    require(len(shield_items) == 3 and
+            [shield_items[i]["durationHours"] for i in (1,2,3)] == [8,12,24] and
+            [shield_items[i]["statusId"] for i in (1,2,3)] == ["801","802","803"] and
+            [shield_items[i]["itemId"] for i in (1,2,3)] == ["8","12","24"] and
+            [shield_items[i]["uuid"] for i in (1,2,3)] == ["555001","555002","555004"] and
+            [shield_items[i]["count"] for i in (1,2,3)] == [2,1,1] and
+            all(shield_items[i]["uniqueDuration"] is True for i in (1,2,3)),
+            "registered native inventory did not classify exact 8/12/24h owned shields")
+
+    state["numberOfOwnedShield"] = 0
+    state["numberOfOwnedShield12"] = 0
+    state["numberOfOwnedShield24"] = 0
+    empty = call()
+    require(empty["state"] == "confirmed" and len(empty["data"]["items"]) == 0 and
+            lua.eval("function(t) return getmetatable(t).__feature018_array end")(
+                empty["data"]["items"]) is True and
+            state["itemUseCalls"] == 0,
+            "no-stock native shield inventory was not marked as JSON []")
+    original_marker = feature.Array
+    feature.Array = lua.eval("function(values) return values end")
+    require(call()["state"] == "unsupported",
+            "unmarked empty item table could be serialized as JSON object")
+    feature.Array = lua.eval("function(values) error('tagging failed') end")
+    require(call()["state"] == "unsupported",
+            "array encoder failure escaped native handler instead of failing closed")
+    feature.Array = original_marker
+    lua.execute("DataCenter.StatusManager.GetShieldStatusIds=function() return {} end")
+    require(call()["state"] == "unsupported" and state["itemUseCalls"] == 0,
+            "missing source status IDs were represented as confirmed empty inventory")
+    require(actions.RegisterShieldInventory(lua.table_from({})) is False,
+            "missing native register and array methods accepted")
+    require(actions.RegisterShieldInventory(lua.table_from({
+        "RegisterHandler": feature.RegisterHandler,
+    })) is False, "missing JSON array marker accepted")
+
+
+def test_original_v26_item_use_ack_limits():
+    """The native success response updates inventory/status but has no client request nonce."""
+    fv, cv, records = original_probe.read_lwlf(ARCHIVED_V26)
+    require((fv, cv) == (3, 26), "archived item-use source was not current v26")
+    entries = dict(records)
+    require(hashlib.sha256(entries[original_probe.ORIGINAL_LUA_ENTRY]).hexdigest() ==
+            ORIGINAL_V26_LUA_ENTRY_SHA, "v26 bytecode identity changed")
+
+    def method(module, function):
+        root = original_bytecode.parse_chunk(original_probe.decode_lenc(entries[module]))
+        path = root_methods(root)[function]
+        for child in path.split("/")[1:]:
+            root = root["children"][int(child)]
+        return root
+
+    on_create = method("Net/Msgs/ItemUseMessage.luac", "OnCreate")
+    require({"uuid", "num", "PutUtfString", "PutInt"}.issubset(
+                set(on_create["constants"])),
+            "original ItemUse sender lost item UUID / quantity serialization")
+    response = method("Net/Msgs/ItemUseMessage.luac", "HandleMessage")
+    require({"ItemUseHandle", "errorCode"}.issubset(set(response["constants"])),
+            "original ItemUse response no longer delegates to inventory update")
+    require("requestId" not in response["constants"] and
+            "challenge" not in response["constants"],
+            "ItemUse response gained a request correlation that must be reviewed")
+    item_manager = method("DataCenter/ItemManager/ItemManager.luac", "ItemUseHandle")
+    require({"errorCode", "itemId", "uuid", "UpdateOneItem", "OnUseRet"}.issubset(
+                set(item_manager["constants"])),
+            "original ItemUse inventory/status observer contract changed")
+    observed_status = method("DataCenter/ItemData/ItemData.luac", "OnUseRet")
+    require({"itemEffectObj", "status", "effectState", "AddStatus"}.issubset(
+                set(observed_status["constants"])),
+            "original ItemUse response stopped applying native status effects")
+    # An uncorrelated generic response must never become an invented per-request
+    # ACK. The already implemented frozen shieldUse only reports confirmed on
+    # independently observed stock decrement plus matching MAIN_SHIELD effect.
+
+
+def test_wrapped_original_shield_sender():
+    """Integrate this owner gate with the actual v26-shape ItemUse producer."""
+    lua, frozen, state = shield_checks.run()
+    lua.execute('''
+    liveAccount={uid='3133546747002212',source=2212,selfServer=2212,cur=2212}
+    LuaEntry={Player={
+      uid=liveAccount.uid,
+      GetSourceServerId=function(self) return liveAccount.source end,
+      GetSelfServerId=function(self) return liveAccount.selfServer end,
+      GetCurServerId=function(self) return liveAccount.cur end,
+    }}
+    ''')
+    actions = lua.execute(SOURCE.read_text(encoding="utf-8"))
+    wrapped = actions.Wrap(frozen)
+    account = lua.globals().liveAccount
+
+    def call(*, status=False):
+        fields = {
+            "action": "shieldUse", "slot": "8", "profileId": "profile",
+            "launchSessionId": "launch", "challenge": "challenge", "gamePid": "7020",
+        }
+        if status:
+            fields["queryOnly"] = "1"
+        return wrapped(lua.table_from(fields))
+
+    require(call()["state"] == "failed" and state["sent"] == 0 and
+            state["cooldownSets"] == 0,
+            "main 2212 account reached a real ItemUse sender")
+    account["uid"] = "3133546747002289"
+    lua.globals().LuaEntry.Player.uid = account["uid"]
+    for key in ("source", "selfServer", "cur"):
+        require(call()["state"] == "failed" and state["sent"] == 0,
+                "2289 UID with stale main-account server was admitted")
+        account[key] = 2289
+    sent = call()
+    require(sent["state"] == "accepted" and
+            sent["data"]["requestDispatched"] is True and
+            state["sent"] == 1 and state["cooldownSets"] == 1,
+            "proper 2289 owner was blocked from the original source-proven ItemUse")
+    account["cur"] = 2212
+    require(call(status=True)["state"] == "failed" and state["sent"] == 1,
+            "server switched before pending shield observation")
+    account["cur"] = 2289
+    require(call(status=True)["state"] == "accepted" and state["sent"] == 1,
+            "unconfirmed ItemUse query initiated a duplicate send")
+    state["items"][1]["count"] = 1
+    state["effectEnd"][501] = state["serverTime"] + 8 * 3600 * 1000
+    confirmed = call(status=True)
+    require(confirmed["state"] == "confirmed" and
+            confirmed["data"]["observation"] ==
+            "native_owned_shield_consumption_and_MAIN_SHIELD" and state["sent"] == 1,
+            "exact game-owned consumption/effect poststate could not confirm")
+
+
 def main():
+    test_original_v26_item_use_ack_limits()
+    test_registered_shield_inventory()
+    test_wrapped_original_shield_sender()
     lua, actions, _, state, call = scenario()
     first = call()
     require(first["state"] == "accepted" and first["data"]["requestDispatched"] is True,
@@ -161,7 +385,21 @@ def main():
                 "cursor attack dispatched without typed game cursor target: " + slot)
     for duration in ("8", "12", "24"):
         outcome = call(action="shieldUse",slot=duration)
-        require(outcome["state"] == "unsupported" and s["dispatches"] == 0,
+        require(outcome["state"] == "failed" and "UID" in outcome["error"] and
+                s["dispatches"] == 0,
+                "main/unknown game owner reached mutable shield handler: " + duration)
+    s["playerUid"] = "3133546747002289"
+    lua_second.globals().LuaEntry.Player.uid = s["playerUid"]
+    s["sourceServer"] = 2212
+    require(call(action="shieldUse",slot="8")["state"] == "failed" and
+            call(action="shieldUse",slot="8",query_only=True)["state"] == "failed" and
+            s["dispatches"] == 0 and s["fallbackCalls"] == 0,
+            "wrong-server owner reached shield sender")
+    s["sourceServer"] = 2289
+    for duration in ("8", "12", "24"):
+        outcome = call(action="shieldUse",slot=duration)
+        require(outcome["state"] == "unsupported" and s["dispatches"] == 0 and
+                s["fallbackCalls"] == {"8":1,"12":2,"24":3}[duration],
                 "shield item consumed without source-mapped duration: " + duration)
     require(call(action="shieldUse",slot="99")["state"] == "failed",
             "unexpected shield duration accepted")
@@ -186,20 +424,55 @@ def main():
     require(call(action="equipment",slot="1")["errorCode"] == "FALLBACK_USED",
             "unrelated frozen Hotkeys handler overridden")
 
+    state["playerUid"] = "3133546747002289"
+    lua.globals().LuaEntry.Player.uid = state["playerUid"]
     shield = actions.ShieldOwnedInventory()
     require(shield["state"] == "confirmed", "owned shield inventory unavailable")
-    require(shield["data"]["durationMappingVerified"] is False,
-            "shield duration mapping falsely claimed")
+    require(shield["data"]["durationMappingVerified"] is True and
+            shield["data"]["readOnly"] is True and
+            shield["data"]["requestDispatched"] is False,
+            "read-only source duration provenance missing")
     items = shield["data"]["items"]
-    require(len(items) == 1 and items[1]["itemId"] == "8" and
-            items[1]["uuid"] == "555001" and items[1]["count"] == 2,
-            "shield inventory leaked unowned/zero/non-type4 item")
+    require(len(items) == 3 and
+            [items[i]["durationHours"] for i in (1,2,3)] == [8,12,24] and
+            items[1]["itemId"] == "8" and items[1]["statusId"] == "801" and
+            items[1]["uuid"] == "555001" and items[1]["count"] == 2 and
+            items[3]["uuid"] == "555004" and
+            all(items[i]["uniqueDuration"] is True for i in (1,2,3)),
+            "native owned shields did not join exact StatusTab hours and status IDs")
     state["numberOfOwnedShield"] = 0
-    require(len(actions.ShieldOwnedInventory()["data"]["items"]) == 0,
-            "out-of-stock shield item listed")
+    require(len(actions.ShieldOwnedInventory()["data"]["items"]) == 2,
+            "out-of-stock shield item listed or other owned durations lost")
     lua.globals().DataCenter.ItemTemplateManager = None
     require(actions.ShieldOwnedInventory()["state"] == "unsupported",
             "missing native shield template source admitted")
+    lua, actions, _, state, call = scenario()
+    state["playerUid"] = "3133546747002289"
+    lua.globals().LuaEntry.Player.uid = state["playerUid"]
+    lua.execute("DataCenter.ItemTemplateManager.GetTypeListByTypes=function() "
+                "return {{id=8,para1=801},{id=12,para1=801},{id=24,para1=803}} end")
+    duplicate = actions.ShieldOwnedInventory()
+    require(duplicate["state"] == "unsupported" or
+            (duplicate["state"] == "confirmed" and
+             duplicate["data"]["items"][1]["uniqueDuration"] is False),
+            "duplicate matching duration was incorrectly called a unique usable item")
+    lua.execute("LocalController.instance=function() "
+                "return {getLine=function() return {time=-1} end} end")
+    require(actions.ShieldOwnedInventory()["state"] == "unsupported",
+            "invalid original StatusTab hours were accepted")
+    lua, actions, _, state, call = scenario()
+    require(actions.ShieldOwnedInventory()["state"] == "failed",
+            "main-account shield inventory disclosed without native UID admission")
+    state["playerUid"] = "3133546747002289"
+    lua.globals().LuaEntry.Player.uid = state["playerUid"]
+    for server in ("sourceServer", "selfServer", "currentServer"):
+        state[server] = 2212
+        require(actions.ShieldOwnedInventory()["state"] == "failed",
+                "shield inventory read through unapproved native server: " + server)
+        state[server] = 2289
+    lua.execute("DataCenter.StatusManager.GetShieldStatusIds=function() return {} end")
+    require(actions.ShieldOwnedInventory()["state"] == "unsupported",
+            "missing MAIN_SHIELD status classification was accepted")
     print("FEATURE018_HOTKEY_ACTIONS_LUA53_OFFLINE_PASS")
 
 
