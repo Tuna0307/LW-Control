@@ -38,3 +38,17 @@ the exact 2289 UID+server gate; keep 2212 read-only. For each inventoried featur
 NOT_POSSIBLE only with a live-tested reason. Resolve SOURCE_GAP items (Q/W/E/R cursor target, F6/F7/F8 shield
 items, Alt+1-4 equipment, diamond speedups) by live experiments on the sub-account rather than static analysis.
 Final ZIP, report, status READY_FOR_LEAD_AUDIT or PARTIAL.
+
+## Lead status check — 2026-10-17 evening (source 81b4f13f, owner stopped the worker)
+- Live-accepted so far (2289 sub-account only): City single-building move + restore (`...9726`), Land Cell 6 unlock,
+  equipment preset apply + restore, 8-hour shield bought with in-game gold and used. Main 2212 untouched.
+- Last live session: `native-ui-20261017-083453` (16:34 local) failed before game start with `WinError 5` renaming
+  `recovery.json.tmp-*` inside the OneDrive-hosted artifacts folder. After that, rounds R5–R11 (62 pushes total)
+  were offline hardening only; no new live proof.
+- LEAD018-02: a one-off OS/filesystem error is **not** an owner or tool denial. Retry it; if it repeats, run the
+  owned isolated test roots outside OneDrive (e.g. `%LOCALAPPDATA%\LWControl-runs\`). The lead authorizes that
+  location change; it does not modify ACLs or bypass any security control. Use `npm.cmd`, not `npm.ps1`.
+- LEAD018-03 (owner): commit locally as often as needed but **push only at checkpoints** (one finished feature or
+  round), not every commit.
+- LEAD018-04: stop adding further offline "fence/guard" layers without a live test. Next round is live-first: each
+  remaining feature gets a real 2289 attempt before any more code hardening.
