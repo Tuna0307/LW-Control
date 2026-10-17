@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using LWBridge.Desktop;
 
@@ -236,6 +237,9 @@ internal static class Feature018HotkeyCaptureChecks
             beforeCount = 7,
             afterCount = 12,
             addedMembers = 5,
+            unitIdentityVerified = true,
+            observedCreatedUnits = 5,
+            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
         });
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.ReinforceFrontline, 5))).Working,
@@ -249,10 +253,24 @@ internal static class Feature018HotkeyCaptureChecks
             beforeCount = 7,
             afterCount = 11,
             addedMembers = 5,
+            unitIdentityVerified = true,
+            observedCreatedUnits = 5,
+            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
         });
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
             "four soldier additions falsely confirmed five-member Frontline action");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_ParkourBattleLogic_GetMemberCount",
+            action = "frontlineReinforce", slot = 5, heroId = 1301,
+            beforeCount = 7, afterCount = 12, addedMembers = 5,
+            unitIdentityVerified = false, observedCreatedUnits = 5,
+            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
+            "count-only Frontline afterstate falsely admitted without independently verified unit GUIDs");
 
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
@@ -407,6 +425,46 @@ internal static class Feature018HotkeyCaptureChecks
                 authorizedUid = session.GameUid, queryOnly = true }));
         Require(readOnlyRapid["queryOnly"] == "1" && !readOnlyRapid.ContainsKey("itemOptIn"),
             "read-only item-speedup status silently requested a new consumable");
+        var readInventory = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new { mode = "inventory", slot = 1 }));
+        Require(readInventory.Count == 2 && readInventory["mode"] == "inventory" &&
+                readInventory["slot"] == "1",
+            "explicit owned-march rapid inventory added spending or an untrusted UID");
+        var itemUse = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new
+            {
+                mode = "itemUse", slot = 4, itemOptIn = true, itemId = "331008",
+            }));
+        Require(itemUse["mode"] == "itemUse" && itemUse["slot"] == "4" &&
+                itemUse["itemOptIn"] == "1" && itemUse["itemId"] == "331008" &&
+                !itemUse.ContainsKey("authorizedUid"),
+            "new explicit rapid request must select one item and resolve game UID natively");
+        var rapidStatus = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new { mode = "status", slot = 4 }));
+        Require(rapidStatus.Count == 2 && !rapidStatus.ContainsKey("itemOptIn") &&
+                !rapidStatus.ContainsKey("itemId"),
+            "rapid status polling must be read-only");
+        foreach (string raw in new[]
+        {
+            """{"mode":"itemUse","slot":1,"itemId":"331008","itemOptIn":false}""",
+            """{"mode":"itemUse","slot":1,"itemId":"331008"}""",
+            """{"mode":"itemUse","slot":1,"itemId":"-1","itemOptIn":true}""",
+            """{"mode":"inventory","slot":1,"itemOptIn":true}""",
+            """{"mode":"status","slot":2,"itemId":"331008"}""",
+            """{"mode":"itemUse","slot":0,"itemId":"331008","itemOptIn":true}""",
+            """{"mode":"itemUse","slot":5,"itemId":"331008","itemOptIn":true}""",
+            """{"mode":"buyDiamond","slot":1}""",
+        })
+        {
+            try
+            {
+                using JsonDocument invalidRapid = JsonDocument.Parse(raw);
+                _ = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+                    invalidRapid.RootElement);
+                throw new InvalidOperationException("Unsafe item rapid action admitted: " + raw);
+            }
+            catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { }
+        }
         foreach (var invalid in new[]
         {
             new { action = "attack", slot = 1, authorizedUid = "", itemOptIn = false, itemId = "", queryOnly = false },
@@ -495,6 +553,224 @@ internal static class Feature018HotkeyCaptureChecks
                 "unknown or contradictory shield timer displayed");
         }
 
+        await EquipmentReadOnlyPreflightChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static async Task EquipmentReadOnlyPreflightChecksAsync()
+    {
+        const string savedPreset = """
+            {"equipmentPresets":[
+              {"id":"gear-owner-1","name":"Owned loadout",
+               "squads":[{"squadIndex":1,"positions":[
+                 {"position":1,"equips":[{"slot":1,"equipUuid":"9007199254740993"}]}
+               ]}]},
+              {"id":"gear-owner-2","name":"Alternate",
+               "squads":[{"squadIndex":2,"positions":[
+                 {"position":1,"equips":[]}
+               ]}]}
+            ]}
+            """;
+        string root = Path.Combine(Path.GetTempPath(),
+            "feature018-equipment-owner-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            var store = new ProfileRuntimeConfigStore(Path.Combine(root, "config.json"));
+            var equipment = new EquipmentConfigCommandService(store);
+            string request = Path.Combine(root, "native-request.txt");
+            string response = Path.Combine(root, "native-response.json");
+            var owner = new OverviewMapScanSession("owner-profile", "launch-session",
+                "owner-challenge", 43210, @"C:\\fake\\LastWar.exe", "2026-10-17T00:00:00Z");
+            OverviewMapScanSession? current = owner;
+            string responseState = "confirmed";
+            bool staleConfigDuringReply = false;
+            bool forgedApplied = false;
+            Dictionary<string, string>? transmitted = null;
+            var fakeGame = new Feature018OwnedGameExchange(
+                () => current, session => current == session, request, response,
+                delay: (_, _) =>
+                {
+                    transmitted = File.ReadAllLines(request)
+                        .Where(line => line.Contains('='))
+                        .Select(line => line.Split('=', 2))
+                        .ToDictionary(parts => parts[0], parts => parts[1]);
+                    if (staleConfigDuringReply)
+                    {
+                        JsonObject newer = JsonNode.Parse(savedPreset)!.AsObject();
+                        newer["equipmentPresets"]![0]!["id"] = "gear-newer";
+                        store.SaveEquipmentConfig(newer);
+                    }
+                    object receipt = forgedApplied
+                        ? new
+                        {
+                            observation = "native_HeroEquip_slot_inventory_preflight",
+                            readOnly = true, readyToApply = false,
+                            requestDispatched = true, action = "equipment",
+                            slot = int.Parse(transmitted["slot"]),
+                            presetId = transmitted["presetId"],
+                            applied = 1, slots = new[] { new { slot = 1 } },
+                        }
+                        : new
+                        {
+                            observation = "native_HeroEquip_slot_inventory_preflight",
+                            readOnly = true, readyToApply = false,
+                            requestDispatched = false, action = "equipment",
+                            slot = int.Parse(transmitted["slot"]),
+                            presetId = transmitted["presetId"],
+                            slots = new[] { new
+                            {
+                                squadIndex = 1, position = 1, heroUuid = "5001", slot = 1,
+                                currentEquipUuid = "9007199254740993",
+                                targetEquipUuid = "9007199254740993", state = "alreadyEquipped",
+                            }},
+                        };
+                    File.WriteAllText(response, JsonSerializer.Serialize(new
+                    {
+                        schemaVersion = 1,
+                        requestId = transmitted["requestId"],
+                        profileId = transmitted["profileId"],
+                        launchSessionId = transmitted["launchSessionId"],
+                        challenge = transmitted["challenge"],
+                        gamePid = int.Parse(transmitted["gamePid"]),
+                        command = transmitted["command"],
+                        observedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                        state = responseState,
+                        data = receipt,
+                    }));
+                    return Task.CompletedTask;
+                });
+            var game = new Feature018GameCommandService(fakeGame, equipment);
+            var absent = new Feature018GameCommandService(fakeGame,
+                new EquipmentConfigCommandService(new ProfileRuntimeConfigStore(
+                    Path.Combine(root, "missing.json"))));
+            JsonElement first = JsonSerializer.SerializeToElement(new { slot = 1 });
+            JsonElement second = JsonSerializer.SerializeToElement(new { slot = 2 });
+
+            Require(game.CanHandle("feature018_equipment_preflight") &&
+                    !game.CanHandle("feature018_equipment_apply"),
+                "only read-only native equipment command must be registered");
+            await ExpectEquipmentErrorAsync("GAME_METHOD_UNAVAILABLE", () =>
+                new Feature018GameCommandService(fakeGame).InvokeAsync(
+                    "feature018_equipment_preflight", first, CancellationToken.None));
+            await ExpectEquipmentErrorAsync("GAME_PRECONDITION_FAILED", () =>
+                absent.InvokeAsync("feature018_equipment_preflight", first,
+                    CancellationToken.None));
+            Require(!File.Exists(request),
+                "missing owner storage reached the native game exchange");
+
+            foreach (string invalid in new[]
+            {
+                """{"slot":0}""", """{"slot":5}""",
+                """{"slot":1.5}""", """{"slot":"1"}""",
+                """{"slot":true}""", """{}""",
+                """{"slot":1,"equipmentPresets":[]}""",
+                """{"slot":1,"confirmedEquipmentPresets":"fake"}""",
+                """{"slot":1,"authorizedUid":"forged"}""",
+                """{"slot":1,"presetId":"other"}""",
+                """{"slot":1,"itemOptIn":true}""",
+                """{"slot":1,"itemId":"5001"}""",
+                """{"slot":1,"queryOnly":false}""",
+                """{"slot":1,"slot":2}""",
+            })
+            {
+                using JsonDocument parsed = JsonDocument.Parse(invalid);
+                await ExpectEquipmentErrorAsync("INVALID_REQUEST", () =>
+                    game.InvokeAsync("feature018_equipment_preflight",
+                        parsed.RootElement, CancellationToken.None));
+            }
+            Require(!File.Exists(request),
+                "forged or invalid equipment parameters reached the game mailbox");
+
+            store.SaveEquipmentConfig(JsonNode.Parse(savedPreset)!.AsObject());
+            Dictionary<string, string> fields =
+                await game.ReadConfirmedEquipmentPreflightFieldsAsync(first,
+                    CancellationToken.None);
+            Require(fields.Count == 4 && fields["slot"] == "1" &&
+                    fields["action"] == "equipment" &&
+                    fields["presetId"] == "gear-owner-1" &&
+                    fields["confirmedEquipmentPresets"].Length <= 14000 &&
+                    !fields.ContainsKey("authorizedUid") &&
+                    !fields.ContainsKey("equipUuid") && !fields.ContainsKey("itemId") &&
+                    !fields.ContainsKey("itemOptIn"),
+                "owner-confirmed source was lost or an untrusted UID/spend leaked");
+            using (JsonDocument parsed = JsonDocument.Parse(fields["confirmedEquipmentPresets"]))
+            {
+                Require(parsed.RootElement.GetArrayLength() == 2 &&
+                        parsed.RootElement[0].GetProperty("id").GetString() == "gear-owner-1" &&
+                        parsed.RootElement[0].GetProperty("squads")[0]
+                            .GetProperty("positions")[0].GetProperty("equips")[0]
+                            .GetProperty("equipUuid").GetString() == "9007199254740993",
+                    "saved gear UUID or ordered confirmed profile preset lost in native JSON");
+            }
+
+            JsonElement observation = (JsonElement)(await game.InvokeAsync(
+                "feature018_equipment_preflight", first, CancellationToken.None))!;
+            Require(observation.GetProperty("readOnly").GetBoolean() &&
+                    !observation.GetProperty("requestDispatched").GetBoolean() &&
+                    transmitted is not null &&
+                    transmitted["confirmedEquipmentPresets"] == fields["confirmedEquipmentPresets"] &&
+                    transmitted["presetId"] == "gear-owner-1" &&
+                    transmitted["slot"] == "1" &&
+                    transmitted["command"] == "feature018_equipment_preflight" &&
+                    transmitted["profileId"] == owner.ProfileId &&
+                    !transmitted.ContainsKey("authorizedUid") &&
+                    !transmitted.ContainsKey("equipmentApplied") &&
+                    !transmitted.ContainsKey("itemOptIn"),
+                "read-only owner-confirmed preflight was not emitted verbatim");
+
+            fields = await game.ReadConfirmedEquipmentPreflightFieldsAsync(second,
+                CancellationToken.None);
+            Require(fields["presetId"] == "gear-owner-2",
+                "Alt+2 did not map to the second owner-confirmed preset");
+            await game.InvokeAsync("feature018_equipment_preflight", second,
+                CancellationToken.None);
+            await ExpectEquipmentErrorAsync("GAME_PRECONDITION_FAILED", () =>
+                game.InvokeAsync("feature018_equipment_preflight",
+                    JsonSerializer.SerializeToElement(new { slot = 3 }),
+                    CancellationToken.None));
+
+            forgedApplied = true;
+            await ExpectEquipmentErrorAsync("GAME_ACTION_UNCONFIRMED", () =>
+                game.InvokeAsync("feature018_equipment_preflight", first,
+                    CancellationToken.None));
+            forgedApplied = false;
+            responseState = "accepted";
+            await ExpectEquipmentErrorAsync("GAME_ACTION_UNCONFIRMED", () =>
+                game.InvokeAsync("feature018_equipment_preflight", first,
+                    CancellationToken.None));
+            responseState = "confirmed";
+
+            staleConfigDuringReply = true;
+            await ExpectEquipmentErrorAsync("GAME_ACTION_UNCONFIRMED", () =>
+                game.InvokeAsync("feature018_equipment_preflight", first,
+                    CancellationToken.None));
+            staleConfigDuringReply = false;
+            fields = await game.ReadConfirmedEquipmentPreflightFieldsAsync(
+                first, CancellationToken.None);
+            Require(fields["presetId"] == "gear-newer",
+                "native preflight reused stale cached saved preset identity");
+
+            JsonObject oversized = JsonNode.Parse(savedPreset)!.AsObject();
+            oversized["equipmentPresets"]![0]!["name"] = new string('X', 14050);
+            store.SaveEquipmentConfig(oversized);
+            await ExpectEquipmentErrorAsync("GAME_PRECONDITION_FAILED", () =>
+                game.InvokeAsync("feature018_equipment_preflight", first,
+                    CancellationToken.None));
+            Console.WriteLine("FEATURE018_EQUIPMENT_OWNER_PREFLIGHT_PASS");
+        }
+        finally
+        {
+            if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        }
+    }
+
+    private static async Task ExpectEquipmentErrorAsync(string expected,
+        Func<Task<object?>> action)
+    {
+        try { _ = await action(); }
+        catch (BridgeCommandException error) when (error.Code == expected) { return; }
+        throw new InvalidOperationException(
+            "FEATURE018_EQUIPMENT_PREFLIGHT: expected guarded " + expected);
     }
 }

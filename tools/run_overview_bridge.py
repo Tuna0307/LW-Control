@@ -45,6 +45,8 @@ FEATURE018_ATTACK_ENTRY = "DataCenter/Global/LWBridgeFeature018AttackActions.lua
 FEATURE018_ATTACK_MODULE = "DataCenter.Global.LWBridgeFeature018AttackActions"
 FEATURE018_RELOCATION_ENTRY = "DataCenter/Global/LWBridgeFeature018RelocationActions.luac"
 FEATURE018_RELOCATION_MODULE = "DataCenter.Global.LWBridgeFeature018RelocationActions"
+FEATURE018_EQUIPMENT_ENTRY = "DataCenter/Global/LWBridgeFeature018EquipmentActions.luac"
+FEATURE018_EQUIPMENT_MODULE = "DataCenter.Global.LWBridgeFeature018EquipmentActions"
 FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
 FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
@@ -175,6 +177,13 @@ def feature018_relocation_source() -> bytes:
     return data
 
 
+def feature018_equipment_source() -> bytes:
+    data = (HERE / "feature018_equipment_actions.lua").read_bytes()
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise OverviewBridgeError("FEATURE018 Equipment module must not contain BOM")
+    return data
+
+
 def feature018_city_source() -> bytes:
     data = (HERE / "feature018_city_game.lua").read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
@@ -265,6 +274,12 @@ if not ok_relocation_actions or type(relocation_actions) ~= "table" or
     error("FEATURE018 native relocation source module unavailable")
 end
 rawset(_G, "LWBridgeFeature018RelocationActions", relocation_actions)
+local ok_equipment_actions, equipment_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018EquipmentActions")
+if not ok_equipment_actions or type(equipment_actions) ~= "table" or
+   type(equipment_actions.Preflight) ~= "function" then
+    error("FEATURE018 native equipment source module unavailable")
+end
+rawset(_G, "LWBridgeFeature018EquipmentActions", equipment_actions)
 local ok_hotkey_actions, hotkey_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018HotkeyActions")
 if not ok_hotkey_actions then error(hotkey_actions) end
 if type(hotkey_actions) ~= "table" or type(hotkey_actions.Wrap) ~= "function" then
@@ -289,6 +304,8 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     between = between.replace(register_marker, register_marker +
         b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
         b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
+        b'if type(hotkey_actions.RegisterRapid) == "function" then hotkey_actions.RegisterRapid(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
@@ -342,6 +359,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the FEATURE018 Attack module")
     if FEATURE018_RELOCATION_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 Relocation module")
+    if FEATURE018_EQUIPMENT_ENTRY in mapped:
+        raise OverviewBridgeError("current package already contains the FEATURE018 Equipment module")
     if FEATURE018_CITY_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 City module")
     if FEATURE018_SHEEP_ENTRY in mapped:
@@ -381,6 +400,10 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     relocation_entry = lr.encode_lenc(relocation_plain)
     if len(relocation_entry) > 0xFFFF or lr.decode_lenc(relocation_entry) != relocation_plain:
         raise OverviewBridgeError("FEATURE018 Relocation module exceeds 64KiB or failed LENC round-trip")
+    equipment_plain = feature018_equipment_source()
+    equipment_entry = lr.encode_lenc(equipment_plain)
+    if len(equipment_entry) > 0xFFFF or lr.decode_lenc(equipment_entry) != equipment_plain:
+        raise OverviewBridgeError("FEATURE018 Equipment module exceeds 64KiB or failed LENC round-trip")
     city_plain = feature018_city_source()
     city_entry = lr.encode_lenc(city_plain)
     if len(city_entry) > 0xFFFF or lr.decode_lenc(city_entry) != city_plain:
@@ -399,6 +422,7 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     output.append((FEATURE018_HOTKEY_ACTION_ENTRY, hotkey_actions_entry))
     output.append((FEATURE018_ATTACK_ENTRY, attack_entry))
     output.append((FEATURE018_RELOCATION_ENTRY, relocation_entry))
+    output.append((FEATURE018_EQUIPMENT_ENTRY, equipment_entry))
     output.append((FEATURE018_CITY_ENTRY, city_entry))
     output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
     data = directory / "LWScripts.data"
@@ -425,6 +449,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate FEATURE018 Attack serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_RELOCATION_ENTRY]) != relocation_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 Relocation serialization verification failed")
+    if lr.decode_lenc(verify_map[FEATURE018_EQUIPMENT_ENTRY]) != equipment_plain:
+        raise OverviewBridgeError("Overview candidate FEATURE018 Equipment serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_CITY_ENTRY]) != city_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_SHEEP_ENTRY]) != sheep_plain:
@@ -445,6 +471,7 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         "feature018HotkeyActionsSourceSha256": hashlib.sha256(hotkey_actions_plain).hexdigest(),
         "feature018AttackSourceSha256": hashlib.sha256(attack_plain).hexdigest(),
         "feature018RelocationSourceSha256": hashlib.sha256(relocation_plain).hexdigest(),
+        "feature018EquipmentSourceSha256": hashlib.sha256(equipment_plain).hexdigest(),
         "feature018CitySourceSha256": hashlib.sha256(city_plain).hexdigest(),
         "feature018SheepSourceSha256": hashlib.sha256(sheep_plain).hexdigest(),
         "resourceProbeLencSize": len(probe_entry),

@@ -27,8 +27,17 @@ world = {
     uid='3133546747000001', source=2212, selfServer=2212, current=2212,
     position=501234, alliance=true, focusClear=true, itemCalls=0,
     sends=0, dialogs=0, relocations=0,
-    standard=2, season=0, allianceItem=1,
+    standard=2, season=0, allianceItem=1, allianceUid='7070000123456789',
+    rallyReads=0, recommendType=701,
 }
+MarkType={Alliance_rally=701, Alliance_OtherServerRally=702}
+local function fake_mark(kind,server,point)
+    return {allianceId=world.allianceUid, type=kind, server=server,
+            pos=point*10+3,
+            GetPointIndex=function(self) return math.floor(self.pos / 10) end}
+end
+world.homeRally=fake_mark(MarkType.Alliance_rally,2212,514999)
+world.otherRally=nil
 LuaEntry = {Player={
     uid=world.uid,
     GetSourceServerId=function() return world.source end,
@@ -36,6 +45,7 @@ LuaEntry = {Player={
     GetCurServerId=function() return world.current end,
     GetMainWorldPos=function() return world.position end,
     IsInAlliance=function() return world.alliance end,
+    GetAllianceUid=function() return world.allianceUid end,
 }}
 SpecialItemId={ITEM_MOVE_CITY=5001, SEASON_LIMIT_MOVE_CITY=5002,
                ITEM_ALLIANCE_CITY_MOVE=5003}
@@ -45,7 +55,14 @@ DataCenter={ItemData={GetItemById=function(self,id)
     if id==5002 and world.season>0 then return {count=world.season,uuid=100002} end
     if id==5003 and world.allianceItem>0 then return {count=world.allianceItem,uuid=100003} end
     return nil
-end}}
+end}, AllianceRallyPointDataManager={
+    GetMyAllianceRallyPoint=function(self,kind)
+        world.rallyReads=world.rallyReads+1
+        if kind==MarkType.Alliance_rally then return world.homeRally end
+        if kind==MarkType.Alliance_OtherServerRally then return world.otherRally end
+    end,
+    GetRecommendType=function(self) return world.recommendType end,
+}}
 SFSNetwork={SendMessage=function(...) world.sends=world.sends+1 end}
 UIManager={OpenWindow=function(...) world.dialogs=world.dialogs+1 end}
 MoveCityUtil={TryMoveCity=function(...) world.relocations=world.relocations+1 end,
@@ -103,6 +120,99 @@ class InertRelocationChecks(unittest.TestCase):
             self.assertEqual(result["data"]["beforeWorldPointId"], 501234)
             self.assertEqual(result["data"]["afterWorldPointId"], 501234)
             self.assertTrue(result["data"]["requiredUserStep"])
+            self.assertFalse(result["data"]["worldMvAcknowledged"])
+            self.assertFalse(result["data"]["serverAckAttributable"])
+        self.assert_no_side_effects(state)
+
+    def test_f10_native_local_rally_owner_bound_with_direct_send_warning(self):
+        _, _, state, call = scenario()
+        self.assertEqual(state["rallyReads"], 0)
+        result = call("allianceRelocate")
+        self.assertEqual(result["state"], "unsupported")
+        rally = result["data"]["allianceRally"]
+        self.assertEqual(rally["nativePath"], "direct_alliance_move_send_risk")
+        self.assertTrue(rally["nativeDirectSendRisk"])
+        self.assertFalse(rally["nativeChooserWouldOpen"])
+        self.assertFalse(rally["selectedTargetValidated"])
+        self.assertFalse(rally["worldMvAcknowledged"])
+        self.assertEqual(rally["homeRally"]["worldPointId"], 514999)
+        self.assertEqual(rally["homeRally"]["serverId"], 2212)
+        self.assertTrue(rally["homeRally"]["authorizedHomeServer"])
+        self.assertIsNone(rally["otherServerRally"])
+        self.assertEqual(state["rallyReads"], 2)
+        self.assert_no_side_effects(state)
+
+    def test_f10_other_server_rally_ui_path_unsafe_without_selected_target(self):
+        runtime, _, state, call = scenario()
+        runtime.execute("""world.otherRally={allianceId=world.allianceUid,
+            type=MarkType.Alliance_OtherServerRally,server=2289,pos=300021,
+            GetPointIndex=function(self) return math.floor(self.pos/10) end}""")
+        result = call("allianceRelocate")
+        rally = result["data"]["allianceRally"]
+        self.assertEqual(result["state"], "unsupported")
+        self.assertEqual(rally["nativePath"], "choose_rally_point_ui")
+        self.assertTrue(rally["nativeChooserWouldOpen"])
+        self.assertFalse(rally["nativeDirectSendRisk"])
+        self.assertFalse(rally["otherServerRally"]["authorizedHomeServer"])
+        self.assertFalse(rally["selectedTargetValidated"])
+        self.assert_no_side_effects(state)
+
+    def test_f10_native_rally_change_observed_unattributed_and_owner_mismatch_rejected(self):
+        _, _, state, call = scenario()
+        self.assertEqual(call("allianceRelocate")["state"], "unsupported")
+        state["homeRally"]["pos"] = 888881
+        later = call("allianceRelocate", query=True)
+        self.assertTrue(later["data"]["rallyObservationChanged"])
+        self.assertEqual(later["data"]["beforeWorldPointId"], 501234)
+        self.assertEqual(later["data"]["afterWorldPointId"], 501234)
+        self.assertFalse(later["data"]["changeAttributedToHotkey"])
+        self.assertEqual(later["data"]["allianceRally"]["homeRally"]["worldPointId"], 88888)
+        state["homeRally"]["allianceId"] = "999999"
+        bad = call("allianceRelocate", query=True)
+        self.assertEqual(bad["state"], "unsupported")
+        self.assertIn("owner/type/server/point mismatch", bad["error"])
+        self.assertEqual(call("allianceRelocate", query=True)["state"], "unsupported")
+        self.assert_no_side_effects(state)
+
+    def test_f10_invalid_marks_must_not_claim_target_or_ack(self):
+        runtime, _, state, call = scenario()
+        state["alliance"] = False
+        self.assertIn("membership required", call("allianceRelocate")["error"])
+        state["alliance"] = True
+        state["homeRally"]["server"] = None
+        self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
+        state["homeRally"]["server"] = 2212
+        state["homeRally"]["type"] = 702
+        self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
+        state["homeRally"]["type"] = 701
+        state["homeRally"]["GetPointIndex"] = runtime.eval("function() return 42 end")
+        self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
+        self.assert_no_side_effects(state)
+
+    def test_alliance_owner_switch_invalidates_target_baseline_even_same_point(self):
+        _, _, state, call = scenario()
+        self.assertEqual(call("allianceRelocate")["state"], "unsupported")
+        state["allianceUid"] = "8080000123456789"
+        state["homeRally"]["allianceId"] = state["allianceUid"]
+        result = call("allianceRelocate", query=True)
+        self.assertEqual(result["state"], "failed")
+        self.assertIn("alliance owner changed", result["error"])
+        self.assertEqual(call("allianceRelocate", query=True)["state"], "failed")
+        new = call("allianceRelocate")
+        self.assertEqual(new["state"], "unsupported")
+        self.assertEqual(new["data"]["allianceRally"]["ownerAllianceUid"], state["allianceUid"])
+        self.assertFalse(new["data"]["rallyObservationChanged"])
+        self.assert_no_side_effects(state)
+
+    def test_f9_focus_callback_error_fails_closed(self):
+        runtime, actions, state, _ = scenario()
+        data = runtime.table_from({"action":"randomRelocate", "slot":"0",
+            "profileId":"owner", "launchSessionId":"launch",
+            "challenge":"challenge", "gamePid":"8123"})
+        exploding = runtime.eval("function() error('focus query failed') end")
+        result = actions.RandomRelocate(data, exploding)
+        self.assertEqual(result["state"], "failed")
+        self.assertEqual(result["errorCode"], "GAME_PRECONDITION_FAILED")
         self.assert_no_side_effects(state)
 
     def test_poststate_is_unattributed_and_ownership_change_invalidates_before(self):
@@ -207,6 +317,23 @@ class OriginalV26Sources(unittest.TestCase):
         self.check_method("Net/Msgs/MoveCityToWorldMessage.luac", "HandleMessage",
                           "d82c7095c19d7de503a17115ee82647a015ede6ac230336bdb9c29673d973594",
                           ("MoveCityToWorldHandle", "GetMainWorldPos"))
+
+    def test_source_verified_rally_readers_mark_fields_and_choice_dispatch(self):
+        manager = "DataCenter/AllianceData/AllianceRallyPointDataManager.luac"
+        digest = "8d970b439bfb0acf3033b4375da1731607a3879b063f24b652010ef5652d73f6"
+        self.check_method(manager, "GetMyAllianceRallyPoint", digest,
+                          ("MarkType", "Alliance_rally", "markDataDic"))
+        self.check_method(manager, "GetRecommendType", digest,
+                          ("recommendType", "MarkType", "Alliance_rally"))
+        self.check_method("DataCenter/WorldFavoData/AllianceMarkData.luac", "ParseData",
+                          "b08cc1e15a9fd57d3cc7132000cd081e2ac5ea4473e6243c0ff8d36f63b00578",
+                          ("allianceId", "markType", "type", "point", "pos", "serverId", "server"))
+        self.check_method("DataCenter/WorldFavoData/AllianceMarkData.luac", "GetPointIndex",
+                          "b08cc1e15a9fd57d3cc7132000cd081e2ac5ea4473e6243c0ff8d36f63b00578",
+                          ("pos",))
+        self.check_method("UI/UILWAlliance/UIChooseRallyPoint/UIChooseRallyPointView.luac",
+                          "OnBtnMoveClick", "2c66d46152e1843245b9f45db3b3f028437134fb186da34395ee53dfe0bce8c5",
+                          ("AllianceMoveCityToSelectedRallyPoint", "curType", "costType", "pinMsgUUid"))
 
 
 if __name__ == "__main__":

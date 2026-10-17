@@ -276,7 +276,14 @@ internal sealed class Feature018HotkeyNativeProviders
                        after.TryGetInt32(out int afterCount) &&
                        afterCount == beforeCount + 5 &&
                        evidence.TryGetProperty("addedMembers", out JsonElement added) &&
-                       added.TryGetInt32(out int addedCount) && addedCount == 5;
+                       added.TryGetInt32(out int addedCount) && addedCount == 5 &&
+                       evidence.TryGetProperty("unitIdentityVerified", out JsonElement verified) &&
+                       verified.ValueKind == JsonValueKind.True &&
+                       evidence.TryGetProperty("observedCreatedUnits", out JsonElement created) &&
+                       created.TryGetInt32(out int createdCount) && createdCount == 5 &&
+                       evidence.TryGetProperty("unitIdentitySource", out JsonElement source) &&
+                       source.ValueKind == JsonValueKind.String &&
+                       source.GetString() == "native_ParkourTeam_teamUnits_guid";
 
             default:
                 // No other kind has an audited current-client state receipt.

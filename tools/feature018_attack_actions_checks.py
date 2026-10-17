@@ -25,13 +25,39 @@ import feature018_mini_lua as original  # noqa: E402
 GAME = """
 state={
  uid=222, expectedUid="222", formation=1001, owner=222, formOwner=1001,
- targetType=17,
+ targetType=17, serverId=2212, formationOwner=222, touchedTile=35723,
+ formationMarchBroken=false,
+ touchedX=12, touchedZ=37, worldUuid=990123, worldOwner=999,
+ worldServer=2212, worldMain=35723, reverseValid=true,
+ reverseMain=35723, worldPresent=true,
  uuid=555110, slot=1, endTime=3000, now=2000, count=2,
  inputClear=true, itemOptIn="1", rpcCount=0, rpcArgs={}, failRpc=false,
+ attackDelegateCount=0,
  category=108, stale=false, ownsItem=true,
 }
 LuaEntry={Player={uid=state.uid,allianceId=700}}
+LuaEntry.Player.GetCurServerId=function(self) return state.serverId end
 MarchTargetType={ATTACK_CITY=17,ATTACK_ARMY=18}
+CS={SceneManager={World={
+ curTouchPoint={x=state.touchedX,y=0,z=state.touchedZ},
+ GetPointInfo=function(self,pointId)
+   if not state.worldPresent or pointId~=state.touchedTile then return nil end
+   return {uuid=state.worldUuid,mainIndex=state.worldMain,
+           ownerUid=state.worldOwner,serverId=state.worldServer}
+ end,
+ GetPointInfoByUuid=function(self,uuid)
+   if uuid~=state.worldUuid then return nil end
+   if not state.reverseValid then return {uuid=17} end
+   return {uuid=state.worldUuid, mainIndex=state.reverseMain,
+           serverId=state.worldServer, ownerUid=state.worldOwner}
+ end
+}}}
+ForceChangeScene={World=3}
+SceneUtils={WorldToTileIndex=function(worldPos, scene)
+ assert(scene==3)
+ if worldPos.x~=state.touchedX or worldPos.z~=state.touchedZ then return nil end
+ return state.touchedTile
+end}
 UITimeManager={GetInstance=function(self) return {
  GetServerTime=function(self) return state.now end
 } end}
@@ -40,7 +66,7 @@ DataCenter={
  ArmyFormationDataManager={
   GetOneArmyInfoByIndex=function(self,s)
    if s~=state.slot then return nil end
-   return {uuid=state.formation}
+   return {uuid=state.formation,ownerUid=state.formationOwner}
   end
  },
  WorldMarchDataManager={
@@ -48,7 +74,8 @@ DataCenter={
    assert(extra==700)
    if uid~=tostring(state.uid) or form~=state.formation then return nil end
    return {uuid=state.uuid,ownerUid=state.owner,
-           ownerFormationUuid=state.formOwner}
+           ownerFormationUuid=state.formOwner,
+           GetIsBroken=function(self) return state.formationMarchBroken end}
   end,
   GetMarch=function(self,uuid)
    if uuid~=state.uuid then return nil end
@@ -87,6 +114,12 @@ SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
  state.rpcArgs={route,uuid,itemid,buy}
  if state.failRpc then error("simulated_rpc_reject") end
 end}
+MarchUtil={
+ TryStartMarch=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
+ StartMarch=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
+ OnAttackOtherCity=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
+ OnAttackArmy=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
+}
 input_clear=function() return state.inputClear end
 """
 
@@ -138,7 +171,22 @@ def check_original() -> None:
         "Util/MarchUtil.luac": (
             "d3c3bb47b11e555ccd646510628c2e428000436ffa8bc8bac290a1320094e245",
             {"OnAttackOtherCity": ["GetPointInfo", "TryStartMarch"],
-             "OnAttackArmy": ["GetTroop", "TryStartMarch"]}),
+             "OnAttackArmy": ["GetTroop", "TryStartMarch"],
+             "TryStartMarch": ["GetCostStaminaByTargetType", "CheckFormation",
+                               "SendCreateMarchMessage", "StartMarch"]}),
+        "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac": (
+            "25db92ba9a39791ff8fb500e2b00034f894dc5cf1d98200454e582bb24daa84c",
+            {"InitData": ["targetType", "targetPoint", "targetUuid"],
+             "OnAtkClick": ["GetOwnerFormationMarch", "ChangeMarchByType"],
+             "ChangeMarchByType": ["GetOwnerFormationMarch", "OnAttackArmy",
+                                   "OnAttackOtherCity"]}),
+        "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": (
+            "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
+            {"InitData": ["curTouchPoint", "GetPointInfoByUuid",
+                          "GetCurServerId", "pointId"]}),
+        "UI/UIWorldPoint/View/UIWorldPointView.luac": (
+            "e49f0a80b37ae2ecc3abf808c4fa2d2ed5eb146f4224cdf1cf348a1f461636ff",
+            {"ReInit": ["GetPointData", "pointId", "ctrl"]}),
         "UI/UILWRapid/View/UILWRapidView.luac": (
             "19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3",
             {"GetAllItems": ["GOODS_TYPE_108", "GetItemsByType", "GetTypeListByType"],
@@ -175,6 +223,33 @@ def main():
             inv["data"]["items"][1]["itemId"] == "3108",
             "native inventory must exclude absent templates and unowned items")
     require(state["rpcCount"] == 0, "inventory introspection dispatched an RPC")
+    preflight = call(action="attack")
+    require(preflight["state"] == "unsupported" and
+            preflight["data"]["preflight"]["state"] == "confirmed" and
+            preflight["data"]["preflight"]["data"]["safeToDispatch"] is False and
+            preflight["data"]["preflight"]["data"]["currentCursorVerified"] is False and
+            preflight["data"]["preflight"]["data"]["touchedTileIndex"] == "35723" and
+            preflight["data"]["preflight"]["data"]["formationUuid"] == "1001" and
+            state["rpcCount"] == 0, "attack source snapshot claimed a keyboard cursor attack")
+    untrusted_pointer = call(action="attack", pointIndex="35723",
+                             cursorPoint="35723", targetUuid="990123",
+                             targetType="ATTACK_CITY", expectedFormationUuid="1001",
+                             cursorTargetFresh="1", userConfirmed="1")
+    require(untrusted_pointer["state"] == "unsupported" and
+            untrusted_pointer["data"]["preflight"]["data"]["safeToDispatch"] is False and
+            state["rpcCount"] == 0 and state["attackDelegateCount"] == 0,
+            "untrusted cursor/consent fields triggered native attack sender")
+    readonly_target = inspect()
+    require(readonly_target["state"] == "confirmed",
+            "owned speedup inventory regressed after target preflight")
+    diamond = call(action="speedupDiamond", diamondOptIn="1",
+                   userConfirmed="1", itemId="9999", price="10")
+    require(diamond["state"] == "unsupported" and
+            diamond["data"]["preflight"]["state"] == "confirmed" and
+            diamond["data"]["preflight"]["data"]["safeToDispatch"] is False and
+            diamond["data"]["preflight"]["data"]["options"][1]["itemId"] == "9999" and
+            state["rpcCount"] == 0 and state["attackDelegateCount"] == 0,
+            "diamond native template preflight treated as purchase/consent")
     dispatched = call()
     require(dispatched["state"] == "accepted" and
             dispatched["data"]["requestDispatched"] is True and
@@ -212,6 +287,58 @@ def main():
             confirm["data"]["currentCount"] == 1,
             "both independent native observations required for confirmation")
     require(state["rpcCount"] == 1, "querying confirmation resent RPC")
+
+    state, call, inspect = mock()
+    vm = LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    preflight_module = vm.execute(SOURCE.read_text(encoding="utf-8"))
+    prestate = vm.globals().state
+    def preflight(**overrides):
+        fields = {"slot": "1", "profileId": "profile", "launchSessionId": "launch",
+                  "challenge": "request", "gamePid": "7020", "authorizedUid": "222"}
+        fields.update(overrides)
+        return preflight_module.AttackTargetPreflight(
+            vm.table_from(fields), vm.globals().input_clear)
+    valid = preflight()
+    require(valid["state"] == "confirmed" and
+            valid["data"]["worldObjectReverseLookupVerified"] is True and
+            valid["data"]["worldPointUuid"] == "990123" and
+            valid["data"]["existingOwnedMarchUuid"] == "555110" and
+            valid["data"]["existingOwnedMarchBroken"] is False and
+            valid["data"]["safeToDispatch"] is False,
+            "read-only native clicked-world point provenance missing")
+    prestate["inputClear"] = False
+    require(preflight()["state"] == "confirmed", "read-only attack snapshot requires keyboard focus")
+    prestate["inputClear"] = True
+    for kwargs in ({"authorizedUid": "999"}, {"slot": "5"},
+                   {"pointIndex": "99999"}):
+        require(preflight(**kwargs)["state"] == "failed",
+                "unsafe attack preflight request accepted")
+    require(preflight(pointIndex="35723")["state"] == "confirmed",
+            "matching game-derived last touch was rejected")
+    for key, wrong, expected in (
+        ("formationOwner", 777, "failed"),
+        ("owner", 777, "failed"),
+        ("formOwner", 777, "failed"),
+        ("worldOwner", 222, "failed"),
+        ("worldServer", 777, "failed"),
+        ("reverseValid", False, "unsupported"),
+        ("reverseMain", 44000, "unsupported"),
+        ("worldPresent", False, "unsupported"),
+    ):
+        original_value = prestate[key]
+        prestate[key] = wrong
+        require(preflight()["state"] == expected,
+                "native attack last-touch preflight accepted corrupted " + key)
+        prestate[key] = original_value
+    prestate["formationMarchBroken"] = True
+    require(preflight()["state"] == "confirmed" and
+            preflight()["data"]["existingOwnedMarchBroken"] is True and
+            preflight()["data"]["safeToDispatch"] is False,
+            "broken formation march misreported as ready to launch")
+    prestate["formationMarchBroken"] = False
+    require(prestate["rpcCount"] == 0 and prestate["attackDelegateCount"] == 0,
+            "read-only target preflight emitted any native attack or RPC")
 
     state, call, inspect = mock()
     cases = [

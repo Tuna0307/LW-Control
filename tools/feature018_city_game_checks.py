@@ -204,6 +204,25 @@ def check_original_game_wire() -> None:
                      'Garbage', 'Monster', 'MonsterReward', 'Collect', 'CollectRange'):
         check(any(expected in instruction for instruction in place_source),
               'native point-placement flag/road rule missing: ' + expected)
+    check(any('sourceLine=477' in line and "'Second'" in line for line in place_source) and
+          any('sourceLine=479' in line and 'IsInMainSubRange' in line for line in place_source) and
+          any('sourceLine=479' in line and 'sup_main_build_id' in line for line in place_source),
+          'v26 Second-building main-range restriction is not source-proven')
+    main_range = list(disassemble(native_method(
+        'Util/BuildingUtils.luac', 'IsInMainSubRange')))
+    for term in ('GetAllBuildingByItemIdWithoutPickUp', 'GetBuildingLevelTemplate',
+                 'offer_range', 'IsInRangeBySquare', 'destroyStartTime'):
+        check(any(term in line for line in main_range),
+              'native main-sub range proof lost ' + term)
+    # v26 does have a typed CollectRange exception, but only in the resource
+    # placement branch carrying a ResourceType and template para4. Generic
+    # FreeBuildingReplaceNew city rearrangement supplies no such positive
+    # resource-placement evidence; keep this path read-only/fail-closed.
+    check(any('sourceLine=530' in line and "'None'" in line for line in place_source) and
+          any('sourceLine=532' in line and "'CollectRange'" in line for line in place_source) and
+          any('sourceLine=538' in line and "'IsResourceByType'" in line for line in place_source) and
+          any('sourceLine=537' in line and "'para4'" in line for line in place_source),
+          'native CollectRange denied/typed resource exception no longer source-grounded')
 
     def permitted(item_id, gate_level, template_can_move):
         gate = defaultdict(lambda: None,
@@ -430,6 +449,61 @@ def main():
         check(updated['completedMoves'] == i, 'game step ACK not observed')
     check(updated['state'] == 'completed', 'server-observed swap not completed')
 
+    # Current v26 IsCanPutDownByPoint only permits BuildType.Second placements
+    # within a *live main building's* IsInMainSubRange(pointId, sup_main_build_id)
+    # offer_range. A valid region/zone alone cannot bypass this restriction.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    lua.execute('''
+      BuildType = {Second=2}
+      local second = DataCenter.BuildTemplateManager:GetBuildingDesTemplate(11)
+      second.build_type = BuildType.Second
+      second.sup_main_build_id = 700
+      AllowedMainSub = {[1]=true,[2]=true,[4]=true}
+      BuildingUtils.IsInMainSubRange = function(pointId, mainId)
+        assert(mainId == 700)
+        return AllowedMainSub[pointId] == true
+      end
+    ''')
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    source_ok = get('city_layout_validate', lua.globals().Fields(revision,'101:4'))['data']
+    check(source_ok['valid'] is True, 'valid native Second main-range placement rejected')
+    outside = get('city_layout_validate', lua.globals().Fields(revision,'101:3'))['data']
+    check(outside['valid'] is False and outside['issues'][1]['code'] == 'CITY_LAYOUT_ZONE',
+          'Second building incorrectly accepted outside source main-building range')
+    denied = get('city_layout_apply_start', lua.globals().Fields(revision,'101:3'))
+    check(denied['state'] == 'confirmed' and denied['data']['accepted'] is False and
+          len(lua.globals().ObservedMoves) == 0,
+          'Second range denied placement dispatched official move')
+    # During a swap, the first candidate buffer is 3; only the main-supported
+    # buffer 4 may be used, and every ACK must gate the next source-checked send.
+    plan = get('city_layout_validate',lua.globals().Fields(revision,'101:2;102:1'))['data']
+    check(plan['valid'] is True and plan['totalMoves'] == 3,
+          'main-supported alternate swap buffer was not found')
+    swap = get('city_layout_apply_start',lua.globals().Fields(revision,'101:2;102:1'))
+    check(swap['state'] == 'accepted' and lua.globals().ObservedMoves[1]['pointId'] == 4,
+          'buffer planner selected prohibited secondary buffer instead of 4')
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=4')
+    producer.Pump()
+    check(lua.globals().ObservedMoves[2]['uuid'] == 102 and
+          lua.globals().ObservedMoves[2]['pointId'] == 1,
+          'secondary range swap did not advance after original native ACK')
+    lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=1')
+    lua.execute('AllowedMainSub[2] = nil')
+    producer.Pump()
+    stopped = get('city_layout_apply_status',lua.globals().Fields(revision,''))['data']
+    check(stopped['state'] == 'failed' and stopped['errorCode'] == 'CITY_LAYOUT_STALE' and
+          len(lua.globals().ObservedMoves) == 2,
+          'secondary main range changed but last swap packet was still sent')
+    lua.execute('AllowedMainSub[2] = true')
+    snap_recovered = get('city_layout_snapshot_get')['data']
+    check(snap_recovered['layoutRevision'] != revision,
+          'authoritative revision did not update after an acknowledged secondary move')
+    lua.execute('DataCenter.BuildManager.allBuilding[103].level = 7')
+    check(get('city_layout_snapshot_get')['data']['layoutRevision'] !=
+          snap_recovered['layoutRevision'],
+          'native building level/range dependency changed without City revision')
+
     # A destination occupied by a stationary building is a final-layout
     # collision. The planner must reject it as OVERLAP before considering any
     # temporary buffer, and must never dispatch an official replacement.
@@ -576,6 +650,82 @@ def main():
     outcome = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(outcome['state'] == 'cancelled', 'cancel did not stop additional dispatch')
     check(len(lua.globals().ObservedMoves) == 1, 'cancel dispatched an extra move')
+
+    # v26 FreeBuildingReplaceNew OnConfirm sends an asynchronous packet and the
+    # only authoritative reply is the later BuildManager handler. A 15-second
+    # timeout does not mean the server rejected it: without a retry fence, a
+    # user can dispatch another replacement against a still-in-flight packet.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    lua.execute('Clock = 100; os.time = function() return Clock end')
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    plan = lua.globals().Fields(revision, '101:2;102:1')
+    started = get('city_layout_apply_start', plan)
+    check(started['state'] == 'accepted' and len(lua.globals().ObservedMoves) == 1,
+          'ambiguous timeout fixture did not dispatch its original packet')
+    lua.execute('Clock = 116')
+    timed_out = get('city_layout_apply_status',
+                    lua.globals().Fields(revision, ''))['data']
+    check(timed_out['state'] == 'failed' and
+          timed_out['errorCode'] == 'GAME_MOVE_RESULT_TIMEOUT' and
+          timed_out['completedMoves'] == 0,
+          'unconfirmed native packet was not classified as timed out')
+    rejected_retry = get('city_layout_apply_start', plan)
+    check(rejected_retry['state'] == 'failed' and
+          rejected_retry['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          len(lua.globals().ObservedMoves) == 1,
+          'timed-out but unresolved native packet allowed a conflicting retry')
+    producer.Pump()
+    check(len(lua.globals().ObservedMoves) == 1,
+          'timed-out job dispatched a future swap packet without proof')
+    # Even a terminal-status cancellation must not unlock uncertain sends.
+    cancelled = get('city_layout_apply_cancel', lua.table_from({
+        'profileId':'p1','launchSessionId':'session1','challenge':'nonce',
+        'jobId':started['data']['status']['jobId'],
+    }))
+    check(cancelled['state'] == 'confirmed' and
+          get('city_layout_apply_start', plan)['errorCode'] ==
+          'CITY_LAYOUT_RESULT_UNCERTAIN',
+          'cancellation of timed-out native packet wrongly unlocked retry')
+    # A late official BuildManager result releases only the ambiguity fence.
+    # It is partial completion, never permission to continue the old swap.
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId = 3')
+    producer.Pump()
+    recovered = get('city_layout_apply_status',
+                    lua.globals().Fields(revision, ''))['data']
+    check(recovered['state'] == 'failed' and
+          recovered['completedMoves'] == 1 and
+          len(lua.globals().ObservedMoves) == 1,
+          'late server ACK either vanished or resumed an expired swap')
+    new_revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    safe_retry = get('city_layout_apply_start',
+                     lua.globals().Fields(new_revision, '101:4'))
+    check(safe_retry['state'] == 'accepted' and
+          len(lua.globals().ObservedMoves) == 2 and
+          lua.globals().ObservedMoves[2]['pointId'] == 4,
+          'reconciled late ACK never released the retry fence')
+
+    # A third-party/manual destination while our request is unresolved is
+    # also ambiguous: do not treat the observed foreign point as proof that
+    # this original pending server packet was rejected/cannot arrive later.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get('city_layout_apply_start', lua.globals().Fields(
+        revision, '101:3'))['state'] == 'accepted',
+        'foreign-position timeout fixture could not start')
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId = 4')
+    producer.Pump()
+    stale = get('city_layout_apply_status',
+                lua.globals().Fields(revision, ''))['data']
+    check(stale['state'] == 'failed' and stale['errorCode'] == 'CITY_LAYOUT_STALE',
+          'third-party move was not diagnosed as stale')
+    fresh = get('city_layout_snapshot_get')['data']['layoutRevision']
+    retry = get('city_layout_apply_start',lua.globals().Fields(fresh,'101:5'))
+    check(retry['state'] == 'failed' and
+          retry['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          len(lua.globals().ObservedMoves) == 1,
+          'foreign-position state allowed a new move while old packet remains uncertain')
 
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)

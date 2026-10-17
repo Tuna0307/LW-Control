@@ -338,4 +338,150 @@ function M.Wrap(frozen_hotkeys)
     end
 end
 
+-- An explicit item-only march-speedup command for the mounted Hotkeys panel.
+-- The real UID is obtained inside the already owner-admitted game, never from
+-- a browser-provided identifier. The current FEATURE-018 acceptance account
+-- is server 2212: refuse all other servers for this new spending workflow.
+-- The existing Q/W/E/R path remains independent and cannot implicitly spend.
+function M.RegisterRapid(feature, frozen_hotkeys)
+    if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
+       type(frozen_hotkeys) ~= "table" then return false end
+    local input = frozen_hotkeys.TextInputClear
+    return feature.RegisterHandler("feature018_rapid_action", function(fields)
+        if type(fields) ~= "table" or
+           (fields.mode ~= "inventory" and fields.mode ~= "itemUse" and fields.mode ~= "status") or
+           type(fields.slot) ~= "string" or not fields.slot:match("^[1-4]$") then
+            return blocked("Invalid owned march rapid mode or squad slot")
+        end
+        local player = member(rawget(_G, "LuaEntry"), "Player")
+        local uid = id_string(member(player, "uid"))
+        if not uid then return blocked("Authenticated native game UID unavailable") end
+        for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
+            local ok, server = invoke(player, source)
+            if not ok or tonumber(server) ~= 2212 then
+                return blocked("FEATURE-018 item rapid is limited to the authorized server-2212 home account")
+            end
+        end
+        local adapter = rawget(_G, "LWBridgeFeature018AttackActions")
+        if type(member(adapter, "Handle")) ~= "function" or
+           type(member(adapter, "OwnedSpeedupInventory")) ~= "function" then
+            return unavailable("Current v26 owned march speedup adapter missing")
+        end
+        local copy = {
+            action = "speedupItem", slot = fields.slot, authorizedUid = uid,
+            profileId = fields.profileId, launchSessionId = fields.launchSessionId,
+            challenge = fields.challenge, gamePid = fields.gamePid,
+        }
+        if fields.mode == "itemUse" then
+            if fields.itemOptIn ~= "1" or type(fields.itemId) ~= "string" or
+               not fields.itemId:match("^[1-9]%d*$") then
+                return blocked("No explicit owned-item speedup consent and valid item ID")
+            end
+            copy.itemOptIn, copy.itemId = "1", fields.itemId
+        elseif fields.mode == "status" then
+            copy.queryOnly = "1"
+        elseif fields.itemId ~= nil or fields.itemOptIn ~= nil then
+            return blocked("Read-only rapid inventory may not specify an item spend")
+        end
+        local ok, result
+        if fields.mode == "inventory" then
+            ok, result = pcall(adapter.OwnedSpeedupInventory, copy, input)
+            if ok and type(result) == "table" and result.state == "confirmed" and
+               type(member(result, "data")) == "table" and
+               type(result.data.items) == "table" and #result.data.items == 0 and
+               type(feature.Array) == "function" then
+                feature.Array(result.data.items)
+            end
+        else
+            ok, result = pcall(adapter.Handle, copy, input)
+        end
+        if not ok or type(result) ~= "table" then
+            return blocked("Original march rapid producer gave no verifiable result")
+        end
+        if fields.mode == "status" and result.state == "accepted" then
+            -- This confirms only the *observation of an unconfirmed pending
+            -- request*, not that item use succeeded.
+            return {state = "confirmed", data = {
+                state = "pending", requestDispatched = false,
+                observation = "native_rapid_item_request_unconfirmed",
+                marchUuid = member(result.data, "marchUuid"),
+                slot = tonumber(fields.slot),
+            }}
+        end
+        if fields.mode == "status" and result.state == "confirmed" then
+            result.data.state = "confirmed"
+        end
+        return result
+    end)
+end
+
+-- Only the persisted equipment configuration from the currently admitted
+-- profile may be examined. This is intentionally NOT an Alt+1..4 apply
+-- producer: current v26 replies cannot correlate per-slot equipment changes.
+-- No caller-provided preset/hero/equipment UUIDs may enter the game sender.
+function M.RegisterEquipment(feature, frozen_hotkeys)
+    if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
+       type(frozen_hotkeys) ~= "table" then return false end
+    local input = frozen_hotkeys.TextInputClear
+    return feature.RegisterHandler("feature018_equipment_preflight", function(fields)
+        if type(fields) ~= "table" or type(fields.slot) ~= "string" or
+           not fields.slot:match("^[1-4]$") then
+            return blocked("Native equipment preflight requires preset ordinal 1–4")
+        end
+        local player = member(rawget(_G,"LuaEntry"),"Player")
+        local uid = id_string(member(player,"uid"))
+        if uid == nil then return blocked("Authenticated native equipment owner UID unavailable") end
+        for _, name in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+            local ok, home = invoke(player,name)
+            if not ok or tonumber(home) ~= 2212 then
+                return blocked("Native equipment inspection requires the approved server-2212 owner")
+            end
+        end
+        local serialized = fields.confirmedEquipmentPresets
+        if type(serialized) ~= "string" or #serialized == 0 or #serialized > 14000 then
+            return blocked("Verified profile equipment preset payload unavailable")
+        end
+        local ok_module, json = pcall(require,"rapidjson")
+        if not ok_module or type(member(json,"decode")) ~= "function" then
+            return unavailable("Original rapidjson equipment preset decoder unavailable")
+        end
+        local decoded_ok, presets = pcall(json.decode,serialized)
+        if not decoded_ok or type(presets) ~= "table" or #presets > 4 then
+            return blocked("Native persisted equipment preset data could not be decoded safely")
+        end
+        local selected = presets[tonumber(fields.slot)]
+        if type(selected) ~= "table" or type(selected.id) ~= "string" then
+            return unavailable("Requested equipment slot has no confirmed saved preset")
+        end
+        local module = rawget(_G,"LWBridgeFeature018EquipmentActions")
+        if type(member(module,"Preflight")) ~= "function" then
+            return unavailable("Original v26 hero equipment preflight module unavailable")
+        end
+        local native = {
+            action="equipment", slot=fields.slot, presetId=selected.id,
+            authorizedUid=uid, profileId=fields.profileId,
+            launchSessionId=fields.launchSessionId, challenge=fields.challenge,
+            gamePid=fields.gamePid,
+        }
+        local ok, result = pcall(module.Preflight,native,presets,input)
+        if not ok or type(result) ~= "table" then
+            return blocked("Native equipment preflight returned no valid observation")
+        end
+        if result.state == "confirmed" then
+            local data = result.data
+            if type(data) ~= "table" or
+               data.observation ~= "native_HeroEquip_slot_inventory_preflight" or
+               data.readOnly ~= true or data.readyToApply ~= false or
+               data.requestDispatched ~= false then
+                return blocked("Native equipment preflight may not report an apply or send")
+            end
+            if type(data.slots) == "table" and #data.slots == 0 and
+               type(feature.Array) == "function" then
+                feature.Array(data.slots)
+            end
+        end
+        return result
+    end)
+end
+
 return M

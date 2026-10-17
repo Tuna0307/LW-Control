@@ -238,11 +238,15 @@ local function snapshot()
     table.sort(buildings, function(a, b) return a.uuid < b.uuid end)
     local signature = {}
     for _, building in ipairs(buildings) do
+        local template = by_uuid[building.uuid].template
         signature[#signature + 1] = building.uuid .. ':' .. building.pointId .. ':' ..
             table.concat(building.occupiedPoints, ',') .. ':' ..
             tostring(building.itemId) .. ':' .. tostring(building.tileX) .. ':' ..
-            tostring(building.tileY) .. ':' .. (building.movable and '1' or '0') .. ':' ..
-            (building.isFlag and '1' or '0')
+            tostring(building.tileY) .. ':' .. tostring(building.level) .. ':' ..
+            (building.movable and '1' or '0') .. ':' ..
+            (building.isFlag and '1' or '0') .. ':' ..
+            tostring(template.zoneType) .. ':' .. tostring(template.build_type) .. ':' ..
+            tostring(template.sup_main_build_id)
     end
     -- Preserve a revision on *placement permissions*, not only building
     -- coordinates: newly allowed/restricted zones and the military gate's
@@ -298,6 +302,26 @@ local function translate_footprint(src, point_id, map, width)
     return sorted(result)
 end
 
+local function second_range_ok(ctx, source, pid)
+    -- v26 BuildingUtils.IsCanPutDownByPoint 477-480: a Second building
+    -- must fit an actual placed main building's current offer_range. The
+    -- corresponding IsInMainSubRange (1103-1119) checks current main
+    -- buildings and GetBuildingLevelTemplate, so hard-coded radii or zones
+    -- would bypass the game's real placement restriction.
+    local template = source.template
+    if template.build_type == nil then return true end
+    local build_type = rawget(_G, 'BuildType')
+    if not build_type or build_type.Second == nil then return false end
+    if template.build_type ~= build_type.Second then return true end
+    if template.sup_main_build_id == nil or
+        type(ctx.buildingUtils.IsInMainSubRange) ~= 'function' then
+        return false
+    end
+    local ok, admitted = pcall(ctx.buildingUtils.IsInMainSubRange,
+        pid, template.sup_main_build_id)
+    return ok and admitted == true
+end
+
 local function validate_state(values)
     local state, meta_or_err = snapshot()
     if not state then return nil, meta_or_err end
@@ -344,6 +368,9 @@ local function validate_state(values)
                             issue(placement.uuid, 'CITY_LAYOUT_FLAG_ONLY', pid)
                             break
                         elseif not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) then
+                            issue(placement.uuid, 'CITY_LAYOUT_ZONE', pid)
+                            break
+                        elseif not second_range_ok(meta.ctx, source, pid) then
                             issue(placement.uuid, 'CITY_LAYOUT_ZONE', pid)
                             break
                         end
@@ -461,7 +488,8 @@ local function validate_state(values)
                                 if final_occupied[pid] or not cell.unlocked or cell.road or
                                     cell.obstructed or
                                     (cell.flagOnly and not job.source.public.isFlag) or
-                                    not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) then
+                                    not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) or
+                                    not second_range_ok(meta.ctx, job.source, pid) then
                                     allowed = false
                                     break
                                 end
@@ -570,7 +598,8 @@ local function dispatch_step(job)
         local cell = meta.by_id[pid]
         if not cell.unlocked or cell.road or cell.obstructed or
             (cell.flagOnly and not building.public.isFlag) or
-            not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) then
+            not meta.ctx.zone:CanPutBuildByPoint(pid, zone_type) or
+            not second_range_ok(meta.ctx, building, pid) then
             job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
             job.error = 'The next building destination is no longer available.'
             return false
@@ -641,6 +670,29 @@ local function progress_job(job)
     end
 end
 
+local function reconcile_timed_out(job)
+    -- The original FreeBuildingReplaceNew sender has no synchronous result.
+    -- A timeout is not server rejection: its in-flight packet can still be
+    -- applied later. Keep that job fenced until the *exact* official game
+    -- BuildManager destination and all other expected footprints are seen.
+    -- Do not resume unexecuted steps from a timed-out job.
+    if job.state ~= 'failed' or job.errorCode ~= 'GAME_MOVE_RESULT_TIMEOUT' or
+        not job.waiting then return end
+    local pending = job.waiting
+    local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
+    local record = bm and bm:GetBuildingDataByUuid(pending.nativeUuid)
+    if not record or tonumber(record.pointId) ~= pending.pointId then return end
+    job.expected[pending.uuid] = pending.pointId
+    if check_positions(job) then
+        job.completed = job.completed + 1
+    else
+        job.errorCode = 'CITY_LAYOUT_STALE'
+        job.error = 'The late server result changed other city building state.'
+    end
+    job.waiting = nil
+    job.cancelRequested = true
+end
+
 -- Advance server-confirmed moves on the owned game tick, including when the
 -- City UI is hidden and its React status poll is suspended. The caller must
 -- invoke Pump only while the original authenticated game owner is lease-fresh.
@@ -648,9 +700,17 @@ end
 -- server response; CleanupAfterLeaseLoss prevents successor-owner sends.
 function M.Pump()
     local job = M.active
-    if job == nil or job.state ~= 'running' then return false end
-    progress_job(job)
-    return true
+    if job == nil then return false end
+    if job.state == 'running' then
+        progress_job(job)
+        return true
+    end
+    if job.state == 'failed' and job.errorCode == 'GAME_MOVE_RESULT_TIMEOUT' and
+        job.waiting then
+        reconcile_timed_out(job)
+        return true
+    end
+    return false
 end
 
 function M.Register(feature)
@@ -667,8 +727,13 @@ function M.Register(feature)
         return confirmed(validation)
     end) and ok
     ok = feature.RegisterHandler('city_layout_apply_start', function(values)
+        if M.active then reconcile_timed_out(M.active) end
         if M.active and M.active.state == 'running' then
             return failed('CITY_LAYOUT_BUSY', 'Another city layout job is running.')
+        end
+        if M.active and M.active.waiting then
+            return failed('CITY_LAYOUT_RESULT_UNCERTAIN',
+                'A previous native building replacement may still receive a server result; no other move can be safely sent.')
         end
         local validation, state, meta, steps = validate_state(values)
         if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', state) end
@@ -712,6 +777,7 @@ function M.Register(feature)
         local job = M.active
         if not job or not same_owner(job, values) then return confirmed({ state = 'idle' }) end
         progress_job(job)
+        reconcile_timed_out(job)
         return confirmed(status_data(job))
     end) and ok
     ok = feature.RegisterHandler('city_layout_apply_cancel', function(values)

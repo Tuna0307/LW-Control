@@ -10,7 +10,23 @@
 --     OnAtkClick root/22 lines 715-779 consumes the controller's targetType
 --     and targetPoint and performs special target-specific checks; SetTargetPoint
 --     root/33 lines 1860-1862 simply stores an already selected target.
---     These do not prove where the game cursor points or which target is there.
+--     InitData root/2 lines 31-46 receives targetType, targetPoint,
+--     targetUuid as arguments; ChangeMarchByType root/26 lines 1199-1355
+--     dispatches target-specific MarchUtil.OnAttackArmy/OnAttackOtherCity etc.
+--     These do not prove where the CURRENT keyboard cursor points.
+--   UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac SHA256
+--     7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d
+--     InitData root/2 lines 30-145 receives clicked uuid, pointId, type,
+--     and uses SceneManager.World.curTouchPoint in a special fallback.
+--     UI/UIWorldPoint/View/UIWorldPointView.luac SHA256
+--     e49f0a80b37ae2ecc3abf808c4fa2d2ed5eb146f4224cdf1cf348a1f461636ff
+--     ReInit root/17 lines 874-1332 reads ctrl.GetPointData/ctrl.pointId.
+--     World.curTouchPoint is therefore LAST WORLD TOUCH, not a fresh
+--     desktop mouse raycast, and cannot authorise an attack shortcut.
+--   Util/MarchUtil.luac TryStartMarch root/12 lines 574-593
+--     enforces stamina/CheckFormation, then forwards to SendCreateMarchMessage
+--     or StartMarch. No safe way to reconstruct the full UI selection
+--     and subsequent authoritative attack march ACK from a hotkey is proven.
 --   UI/UILWRapid/View/UILWRapidView.luac SHA256
 --     19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3
 --     ReInit root/11 lines 307-331 reads WorldMarchDataManager.GetMarch(uuid)
@@ -230,6 +246,173 @@ function M.OwnedSpeedupInventory(fields, input_clear)
         marchUuid=march.uuid,slot=march.slot,items=view,dispatchPerformed=false}}
 end
 
+-- Native read-only attack preflight. This intentionally observes an existing
+-- game world last TOUCH and one owned formation, without treating an earlier
+-- touch as the current physical cursor or resolving target-specific battle
+-- permissions. It never sends or opens windows. The preflight can be used to
+-- diagnose the unresolved Q/W/E/R target contract.
+local function attack_preflight(fields, input_clear, uid)
+    local slot = fields.slot
+    if type(slot) ~= "string" or not slot:match("^[1-4]$") then
+        return failed("Attack requires fixed formation slot 1 to 4")
+    end
+    local player = member(rawget(_G, "LuaEntry"), "Player")
+    local ok_server, current_server = invoke(player, "GetCurServerId")
+    local server_id = ident(current_server)
+    if not ok_server or server_id == nil then
+        return unsupported("Current native player server identity unavailable")
+    end
+    local center = rawget(_G, "DataCenter")
+    local formation_manager = member(center, "ArmyFormationDataManager")
+    local ok_formation, formation = invoke(formation_manager,
+        "GetOneArmyInfoByIndex", tonumber(slot))
+    local formation_id = ident(member(formation, "uuid"))
+    if not ok_formation or not formation_id then
+        return unsupported("Current formation slot has no native UUID")
+    end
+    local formation_owner = member(formation, "ownerUid")
+    if formation_owner ~= nil and ident(formation_owner) ~= uid then
+        return failed("Native formation reports a different owner")
+    end
+    -- FormationSelectListV2Ctrl.OnAtkClick/ChangeMarchByType explicitly check
+    -- the existing march for this owner/formation with the player's allianceId.
+    -- Record that status; it cannot imply the formation is launch-ready.
+    local marches = member(center, "WorldMarchDataManager")
+    local alliance_id = member(player, "allianceId")
+    if marches == nil or alliance_id == nil then
+        return unsupported("Native owner/alliance formation march reader unavailable")
+    end
+    local ok_existing, existing = invoke(marches, "GetOwnerFormationMarch",
+        uid, tonumber(formation_id), alliance_id)
+    if not ok_existing then
+        return unsupported("Native fixed-formation current march lookup failed")
+    end
+    local existing_march_id = nil
+    local march_broken = nil
+    if existing ~= nil then
+        existing_march_id = ident(member(existing, "uuid"))
+        if existing_march_id == nil or
+           ident(member(existing, "ownerUid")) ~= uid or
+           ident(member(existing, "ownerFormationUuid")) ~= formation_id then
+            return failed("Existing native squad march belongs to another owner/formation")
+        end
+        local ok_broken, is_broken = invoke(existing, "GetIsBroken")
+        if ok_broken and type(is_broken) == "boolean" then
+            march_broken = is_broken
+        end
+    end
+    local cs = rawget(_G, "CS")
+    local scene_manager = member(cs, "SceneManager")
+    local world = member(scene_manager, "World")
+    local last_touch = member(world, "curTouchPoint")
+    local x, z = number(member(last_touch, "x")), number(member(last_touch, "z"))
+    if not world or not x or not z then
+        return unsupported("No original native world last-touch location available")
+    end
+    local scene_utils = rawget(_G, "SceneUtils")
+    local tile_from_world = member(scene_utils, "WorldToTileIndex")
+    local world_kind = member(rawget(_G, "ForceChangeScene"), "World")
+    if type(tile_from_world) ~= "function" or world_kind == nil then
+        return unsupported("Original world position-to-tile transform unavailable")
+    end
+    local ok_tile, tile_value = pcall(tile_from_world, last_touch, world_kind)
+    local touched_id = ok_tile and ident(tile_value) or nil
+    if not touched_id then
+        return unsupported("Native world last-touch location has no valid tile index")
+    end
+    if fields.pointIndex ~= nil then
+        if type(fields.pointIndex) ~= "string" or
+           fields.pointIndex ~= touched_id then
+            return failed("Requested world point disagrees with native last-touch tile")
+        end
+    end
+    local ok_point, point = invoke(world, "GetPointInfo", tonumber(touched_id))
+    if not ok_point or point == nil then
+        return unsupported("Last-touched world tile has no authoritative point object")
+    end
+    local point_uuid = ident(member(point, "uuid"))
+    local point_main = ident(member(point, "mainIndex"))
+    local point_server = ident(member(point, "serverId"))
+    if point_server ~= nil and point_server ~= server_id then
+        return failed("Native last-touched point belongs to another server")
+    end
+    local point_owner = ident(member(point, "ownerUid"))
+    if point_owner ~= nil and point_owner == uid then
+        return failed("Native last-touched point belongs to own account")
+    end
+    local verified_lookup = false
+    if point_uuid then
+        local ok_by_uuid, by_uuid = invoke(world, "GetPointInfoByUuid",
+            tonumber(point_uuid))
+        if not ok_by_uuid or by_uuid == nil or
+           ident(member(by_uuid, "uuid")) ~= point_uuid then
+            return unsupported("Last-touched object UUID fails native reverse lookup")
+        end
+        local reverse_main = ident(member(by_uuid, "mainIndex"))
+        local reverse_owner = ident(member(by_uuid, "ownerUid"))
+        local reverse_server = ident(member(by_uuid, "serverId"))
+        if (point_main and reverse_main and point_main ~= reverse_main) or
+           (point_owner and reverse_owner and point_owner ~= reverse_owner) or
+           (point_server and reverse_server and point_server ~= reverse_server) then
+            return unsupported("Last-touched point disagrees with fresh UUID reverse lookup")
+        end
+        verified_lookup = true
+    end
+    return {state="confirmed", data={
+        observation="native_world_last_touch_and_formation_preflight",
+        slot=slot, formationUuid=formation_id, ownerUid=uid,
+        existingOwnedMarchUuid=existing_march_id,
+        existingOwnedMarchBroken=march_broken,
+        currentServerId=server_id, touchedTileIndex=touched_id,
+        worldPointUuid=point_uuid, worldPointMainIndex=point_main,
+        worldPointOwnerUid=point_owner, worldPointServerId=point_server,
+        worldObjectReverseLookupVerified=verified_lookup,
+        targetSource="SceneManager.World.curTouchPoint_last_touch",
+        currentCursorVerified=false, freshTouchVerified=false,
+        attackTargetKindVerified=false, attackAllowedVerified=false,
+        safeToDispatch=false, requestDispatched=false
+    }}
+end
+
+function M.AttackTargetPreflight(fields, input_clear)
+    local uid, error = owner_and_focus(fields, input_clear, true)
+    if not uid then return error end
+    return attack_preflight(fields, input_clear, uid)
+end
+
+-- Diamond template metadata is also read-only: the original CellsCallBack
+-- uses GetTokenIdAndType, CurrencyUtil.GetCurrencyCount and the native
+-- ShowUseDiamondConfirm dialog. A persisted diamond preference or typed
+-- opt-in cannot replace the game's interactive confirmation callback.
+function M.DiamondSpeedupPreflight(fields, input_clear)
+    local uid, error = owner_and_focus(fields, input_clear, true)
+    if not uid then return error end
+    local march, march_error = slot_march(fields.slot, uid)
+    if not march then return march_error end
+    local center = rawget(_G, "DataCenter")
+    local template_manager = member(center, "ItemTemplateManager")
+    local category = member(rawget(_G, "GOODS_TYPE"), "GOODS_TYPE_108")
+    local ok_templates, templates = invoke(template_manager, "GetTypeListByType", category)
+    if category == nil or not ok_templates or type(templates) ~= "table" then
+        return unsupported("Native rapid-speedup purchase templates unavailable")
+    end
+    local options = {}
+    for _, template in pairs(templates) do
+        local key = ident(member(template, "id"))
+        local price = number(member(template, "price"))
+        if key and price and price > 0 then
+            options[#options+1] = {itemId=key, listedPrice=price}
+        end
+    end
+    table.sort(options, function(a,b) return tonumber(a.itemId) < tonumber(b.itemId) end)
+    return {state="confirmed", data={
+        observation="native_rapid_purchase_template_metadata",
+        marchUuid=march.uuid, slot=march.slot, options=options,
+        priceCurrencyVerified=false, nativeDiamondDialogCompleted=false,
+        safeToDispatch=false, requestDispatched=false
+    }}
+end
+
 local function speedup_item(fields, input_clear, uid)
     local march, march_error = slot_march(fields.slot,uid)
     if not march then return march_error end
@@ -322,10 +505,16 @@ function M.Handle(fields, input_clear)
            not fields.slot:match("^[1-4]$") then
             return failed("Attack requires fixed formation slot 1 to 4")
         end
-        return unsupported("v26 has target-specific attack delegates, but no proven game cursor target-to-world object and fixed-slot UI selection contract")
+        local preflight = attack_preflight(fields, input_clear, uid)
+        return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",
+            error="No verified current mouse cursor target, UI attack confirmation and native ACK contract",
+            data={preflight=preflight}}
     end
     if fields.action == "speedupDiamond" then
-        return unsupported("Native rapid diamond purchase requires its own price/currency and ShowUseDiamondConfirm transaction; no safe direct shortcut")
+        local preflight = M.DiamondSpeedupPreflight(fields, input_clear)
+        return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",
+            error="Native rapid purchase requires ShowUseDiamondConfirm, token currency and actual game consent",
+            data={preflight=preflight}}
     end
     return speedup_item(fields,input_clear,uid)
 end

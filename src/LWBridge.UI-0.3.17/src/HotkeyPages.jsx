@@ -30,6 +30,265 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
   );
 }
 
+// Original speedup switches are only *preferences* for a target that has not
+// yet been source-verified. Keep their intent separate from this explicit,
+// owned ATTACK-march item action: never convert a preference into a purchase.
+// Native item-use returns a submission; two independent game data changes
+// must be observed before reporting completion.
+function OwnedRapidItemPanel({ online, previewEnabled }) {
+  const { t, language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const words = chinese ? {
+    title: "当前行军道具加速", inspect: "读取当前编队与拥有的加速道具",
+    slot: "编队", item: "拥有的道具", empty: "该编队没有已核实的可用加速道具",
+    consent: "仅同意消耗所选的一件库存道具，不使用钻石",
+    send: "使用一件道具", pending: "已提交，等待游戏行军时间和库存确认",
+    confirmed: "已由游戏行军时间及道具库存共同确认",
+    notConfirmed: "未获得权威确认；请在游戏中检查，不要重复使用",
+    check: "只读取前一次请求的状态",
+    hint: "只处理当前账号已拥有的攻击行军和库存道具。不会创建攻击，也不会购买钻石。",
+  } : {
+    title: "Current-march item speedup", inspect: "Inspect owned attack march and items",
+    slot: "Squad", item: "Owned item", empty: "No verified owned speedup item for this squad",
+    consent: "I approve consuming exactly one selected owned item. Never spend diamonds.",
+    send: "Use one owned item", pending: "Request sent; waiting for both march time and inventory confirmation",
+    confirmed: "Confirmed by game march time and owned inventory",
+    notConfirmed: "Unconfirmed. Inspect the game state before attempting any other item use.",
+    check: "Read previous request status only",
+    hint: "Requires an existing owned ATTACK march. This does not start attacks or buy diamonds.",
+  };
+  const [slot, setSlot] = useState(1);
+  const [items, setItems] = useState([]);
+  const [itemId, setItemId] = useState("");
+  const [marchUuid, setMarchUuid] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+  const live = online && !previewEnabled;
+
+  useEffect(() => {
+    // Never reuse a selected consumable, old consent or pending appearance
+    // after the profile owner, slot or authenticated connection changes.
+    setItems([]); setItemId(""); setMarchUuid(""); setConsent(false);
+    setPending(false); setStatus(""); setError(""); setBusy(false);
+  }, [slot, live, backendBridge.profileGeneration]);
+
+  async function inspect() {
+    if (!live || busy || pending) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setError(""); setStatus(""); setItems([]); setItemId(""); setConsent(false);
+    try {
+      const response = await backendBridge.invokeProfileScoped(
+        "feature018_rapid_action", { mode: "inventory", slot }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (response?.observation !== "native_owned_rapid_item_candidates" ||
+          Number(response?.slot) !== slot || typeof response?.marchUuid !== "string" ||
+          !Array.isArray(response?.items)) {
+        throw new Error("Native rapid inventory provenance is unverified");
+      }
+      const options = response.items.filter((entry) =>
+        /^\d+$/.test(String(entry?.itemId || "")) &&
+        Number.isSafeInteger(entry?.count) && entry.count > 0);
+      setMarchUuid(response.marchUuid);
+      setItems(options);
+      setItemId(options.length ? String(options[0].itemId) : "");
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+
+  async function useOne() {
+    if (!live || busy || pending || !consent || !marchUuid ||
+        !items.some((entry) => String(entry.itemId) === itemId && entry.count > 0)) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setConsent(false); setError(""); setStatus("");
+    try {
+      const response = await backendBridge.invokeProfileScoped(
+        "feature018_rapid_action",
+        { mode: "itemUse", slot, itemId, itemOptIn: true }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (response?.requestDispatched !== true ||
+          response?.awaitingGameConfirmation !== true ||
+          Number(response?.slot) !== slot ||
+          response?.marchUuid !== marchUuid ||
+          String(response?.itemId) !== itemId) {
+        throw new Error("Original march rapid sender gave no correlated dispatch receipt");
+      }
+      setPending(true);
+      setStatus("pending");
+      setItems([]); setItemId("");
+    } catch (cause) {
+      // A timeout or dropped response could still follow a server send.
+      // Never auto-retry or claim the selected item was not used.
+      if (backendBridge.isCurrentProfileOwner(owner)) {
+        setError((cause.code || cause.message) + " — " + words.notConfirmed);
+        setItems([]); setItemId("");
+      }
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+
+  async function readPrevious() {
+    if (!live || busy) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setError("");
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        "feature018_rapid_action", { mode: "status", slot }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.state === "confirmed" &&
+          result.observation === "native_march_endTime_and_item_count_transition" &&
+          result.marchUuid === marchUuid) {
+        setStatus("confirmed"); setPending(false);
+      } else if (result?.state === "pending" && result.requestDispatched === false) {
+        setStatus("pending");
+      } else {
+        throw new Error("Native march/item status has no authoritative completion receipt");
+      }
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError((cause.code || cause.message) + " — " + words.notConfirmed);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!live || !pending) return undefined;
+    let active = true;
+    let checking = false;
+    let tries = 0;
+    const owner = backendBridge.currentProfileOwner();
+    const timer = window.setInterval(async () => {
+      if (!active || checking) return;
+      checking = true;
+      tries++;
+      try {
+        const result = await backendBridge.invokeProfileScoped(
+          "feature018_rapid_action", { mode: "status", slot }, 10000);
+        if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+        if (result?.state === "confirmed" &&
+            result.observation === "native_march_endTime_and_item_count_transition" &&
+            result.marchUuid === marchUuid) {
+          setStatus("confirmed"); setPending(false);
+        } else if (result?.state !== "pending" || result.requestDispatched !== false) {
+          setStatus("unconfirmed"); setPending(false);
+        }
+      } catch {
+        if (active && backendBridge.isCurrentProfileOwner(owner)) {
+          setStatus("unconfirmed"); setPending(false);
+        }
+      } finally {
+        checking = false;
+        if (active && tries >= 12 && backendBridge.isCurrentProfileOwner(owner)) {
+          setStatus((old) => old === "confirmed" ? old : "unconfirmed");
+          setPending(false);
+        }
+      }
+    }, 1500);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [live, pending, slot, marchUuid, backendBridge.profileGeneration]);
+
+  return (
+    <article className="hotkey-card hotkey-rapid-card" data-feature018-rapid>
+      <h3>{words.title}</h3>
+      <p>{words.hint}</p>
+      <label>{words.slot} <select aria-label={words.slot} value={slot} disabled={busy || pending} onChange={(event) => setSlot(Number(event.target.value))}>
+        {[1, 2, 3, 4].map((number) => <option key={number} value={number}>{t("automation.squad", { index: number })}</option>)}
+      </select></label>
+      <div className="mini-game-actions"><button type="button" disabled={!live || busy || pending} onClick={() => void inspect()}>{words.inspect}</button></div>
+      {marchUuid && items.length === 0 && status !== "pending" ? <small>{words.empty}</small> : null}
+      {items.length > 0 ? <>
+        <label>{words.item} <select aria-label={words.item} value={itemId} disabled={busy || pending}
+          onChange={(event) => { setItemId(event.target.value); setConsent(false); }}>
+          {items.map((item) => <option key={item.itemId} value={String(item.itemId)}>#{item.itemId} × {item.count}</option>)}
+        </select></label>
+        <label><input type="checkbox" checked={consent} disabled={busy || pending || !live}
+          onChange={(event) => setConsent(event.target.checked)} /> {words.consent}</label>
+        <div className="mini-game-actions"><button type="button" className="primary" disabled={!live || busy || pending || !consent || !itemId}
+          onClick={() => void useOne()}>{words.send}</button></div>
+      </> : null}
+      <div className="mini-game-actions"><button type="button" disabled={!live || busy} onClick={() => void readPrevious()}>{words.check}</button></div>
+      {status ? <span role="status" className={status === "confirmed" ? "hotkey-state enabled" : "hotkey-state"}>
+        {status === "confirmed" ? words.confirmed : status === "pending" ? words.pending : words.notConfirmed}
+      </span> : null}
+      {error ? <div className="automation-error" role="alert">{error}</div> : null}
+    </article>
+  );
+}
+
+// Alt+1–4 retain their original intent, but the current v26 install reply
+// contains no per-equipment correlated server ACK. Never present a preview
+// as an applied preset, or accept a browser-supplied equipment UUID.
+function EquipmentNativePreflightPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const words = chinese ? {
+    title: "装备预设原生检查（只读）", description: "查看已保存预设与游戏当前英雄装备的差异。不装备、不拆卸任何道具。",
+    slot: "预设编号", inspect: "检查当前游戏装备", missing: "没有可用的游戏检查结果。",
+    ready: "已核对当前装备；尚未执行预设应用。", unsupported: "预设应用仍需可靠的服务器装备确认。",
+    changed: "需要变更的位置", worn: "由其他英雄装备", uninstall: "需要卸下",
+  } : {
+    title: "Native equipment preset inspection (read-only)",
+    description: "Compare a saved preset against current game hero slots without equipping or removing an item.",
+    slot: "Preset number", inspect: "Inspect current game equipment",
+    missing: "No verified native equipment result.",
+    ready: "Current equipment inspected. The preset has not been applied.",
+    unsupported: "Preset application still requires correlated server equipment confirmation.",
+    changed: "Slots to change", worn: "Worn by other heroes", uninstall: "Slots needing removal",
+  };
+  const [slot, setSlot] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+  const live = online && !previewEnabled;
+  useEffect(() => {
+    setResult(null); setError(""); setBusy(false);
+  }, [slot, live, backendBridge.profileGeneration]);
+  async function inspect() {
+    if (!live || busy) return;
+    const owner = backendBridge.currentProfileOwner();
+    setResult(null); setError(""); setBusy(true);
+    try {
+      // Profile runtime derives these slots from its *persisted confirmed*
+      // equipment_config_get. The browser sends neither UID nor preset data.
+      const data = await backendBridge.invokeProfileScoped(
+        "feature018_equipment_preflight", { slot }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (data?.observation !== "native_HeroEquip_slot_inventory_preflight" ||
+          data?.readOnly !== true || data?.readyToApply !== false ||
+          data?.requestDispatched !== false || Number(data?.slot) !== slot ||
+          !Array.isArray(data?.slots) || !Number.isInteger(data?.changedSlots)) {
+        throw new Error("Native equipment source did not provide a read-only owner-confirmed observation");
+      }
+      setResult(data);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-equipment-preflight>
+    <h3>{words.title}</h3><p>{words.description}</p>
+    <label>{words.slot} <select aria-label={words.slot} value={slot} disabled={busy}
+      onChange={(event) => setSlot(Number(event.target.value))}>
+      {[1, 2, 3, 4].map((value) => <option key={value} value={value}>{value}</option>)}
+    </select></label>
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy}
+      onClick={() => void inspect()}>{words.inspect}</button></div>
+    {result ? <div role="status"><span className="hotkey-state">{words.ready}</span>
+      <small>{words.changed}: {result.changedSlots} · {words.worn}: {result.wornByOtherHero ?? 0} · {words.uninstall}: {result.uninstallSlots ?? 0}</small>
+      <small>{words.unsupported}</small>
+    </div> : null}
+    {error ? <div className="automation-error" role="alert">{error}</div> : null}
+  </article>;
+}
+
 const MINI_GAMES_PREVIEW_STATES = new Set([
   "mini-games-active",
   "mini-games-solving",
@@ -366,6 +625,8 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       {hotkeyConfig === null && !hotkeyError ? <div className="muted">{t("common.processing")}</div> : null}
       {(hotkeyConfig || isMiniGames) ? <div className="hotkey-grid">
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
+        {!isMiniGames && hotkeyConfig ? <OwnedRapidItemPanel online={online} previewEnabled={previewEnabled} /> : null}
+        {!isMiniGames && hotkeyConfig ? <EquipmentNativePreflightPanel online={online} previewEnabled={previewEnabled} /> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.treasureChest.title")}</h3>
           <p>{t("miniGames.treasureChest.description")}</p>

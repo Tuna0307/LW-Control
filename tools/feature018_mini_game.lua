@@ -321,6 +321,31 @@ local function frontline_context()
              heroLevel = level, count = count }
 end
 
+local function frontline_units(team)
+    -- Original ParkourTeam.AddUnitToTeam stores each member in teamUnits;
+    -- MemberUnit.Init (v26 lines 28-44) assigns a per-unit guid from
+    -- ParkourBattleLogic.AllotUnitGuid. A +1 counter by itself is ambiguous
+    -- if another gameplay event adds/removes a unit in the same frame.
+    local slots = member(team, "teamUnits")
+    if type(slots) ~= "table" then return nil end
+    local refs, ids = {}, {}
+    local count = 0
+    for _, unit in pairs(slots) do
+        if unit ~= nil then
+            local guid = member(unit, "guid")
+            if not is_integer(guid) and
+               not (type(guid) == "string" and guid ~= "") then return nil end
+            local id = type(guid) .. ":" .. tostring(guid)
+            if ids[id] then return nil end
+            ids[id] = true
+            refs[unit] = id
+            count = count + 1
+            if count > 2000 then return nil end
+        end
+    end
+    return refs, ids, count
+end
+
 local function frontline_reinforce(fields)
     -- Source-native producer invoked solely through the authenticated owner
     -- hotkey command. No stand-alone network sender or fabricated game state.
@@ -343,6 +368,11 @@ local function frontline_reinforce(fields)
                 beforeCount = context.count, observedAdded = confirmed,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
         end
+        local prior_units, prior_ids, prior_count = frontline_units(context.team)
+        if prior_units == nil then
+            return blocked("Parkour unit identities are unavailable before reinforcement", {
+                beforeCount = context.count, observedAdded = confirmed })
+        end
         -- Original StaticNumberDoorMonster's source UI-equivalent producer:
         -- exactly one soldier, same hero and level as the live primary hero.
         -- Call exactly once. invoke() has a fallback for mixed static/colon
@@ -351,10 +381,34 @@ local function frontline_reinforce(fields)
         local ok = pcall(member(context.logic, "AddMember"), context.logic,
                          context.heroId, context.heroLevel, true)
         local count_ok, after = invoke(context.logic, "GetMemberCount")
-        if not ok or not count_ok or after ~= context.count + confirmed + 1 then
+        local after_units, _, after_count = frontline_units(context.team)
+        local new_units = 0
+        local identities_match = after_units ~= nil and after_count == prior_count + 1
+        if identities_match then
+            for unit, guid in pairs(after_units) do
+                if prior_units[unit] ~= nil then
+                    if prior_units[unit] ~= guid then identities_match = false end
+                else
+                    local hero = member(unit, "hero")
+                    new_units = new_units + 1
+                    if prior_ids[guid] or
+                       member(unit, "originalHeroId") ~= context.heroId or
+                       member(hero, "heroId") ~= context.heroId or
+                       member(hero, "level") ~= context.heroLevel then
+                        identities_match = false
+                    end
+                end
+            end
+            for unit in pairs(prior_units) do
+                if after_units[unit] == nil then identities_match = false end
+            end
+        end
+        if not ok or not count_ok or after ~= context.count + confirmed + 1 or
+           not identities_match or new_units ~= 1 then
             return blocked("Native Parkour member addition was not confirmed", {
                 beforeCount = context.count, observedAdded = confirmed,
                 observedAfterCount = count_ok and after or nil,
+                unitIdentityVerified = identities_match and new_units == 1 or false,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
         end
         confirmed = confirmed + 1
@@ -362,7 +416,10 @@ local function frontline_reinforce(fields)
     return { state = "confirmed", data = {
         action = "frontlineReinforce", slot = 5, heroId = context.heroId,
         beforeCount = context.count, afterCount = context.count + confirmed,
-        addedMembers = confirmed, observation = "native_ParkourBattleLogic_GetMemberCount"
+        addedMembers = confirmed, unitIdentityVerified = true,
+        observedCreatedUnits = confirmed,
+        unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
+        observation = "native_ParkourBattleLogic_GetMemberCount"
     } }
 end
 
@@ -372,6 +429,9 @@ local function chest_snapshot(view)
     -- reward selection during the literal SwitchEnd phase, before received.
     if member(view, "switchState") ~= "SwitchEnd" or member(view, "received") == true then
         return unsupported("Chest shuffle has not completed or reward was received")
+    end
+    if member(view, "curSelectIndex") ~= nil then
+        return unsupported("A treasure chest has already been selected in this shuffle")
     end
     local index = member(view, "bestRewardIndex")
     if not is_integer(index) or index > 3 then
@@ -420,6 +480,19 @@ local function clear_owned_chest_marker()
     end
     marker_owned_view = nil
     return true
+end
+
+local function retire_chest_marker_if_ineligible(view)
+    if marker_owned_view ~= view then return true end
+    -- Same-view state transitions are not view teardown. The source game can
+    -- change SwitchEnd -> ShowBigReward, set curSelectIndex on OnClickBox, or
+    -- set received on OnTreasureChestEndResult without hiding switchEffect.
+    if member(view, "switchState") == "SwitchEnd" and
+       member(view, "received") ~= true and
+       member(view, "curSelectIndex") == nil then
+        return true
+    end
+    return clear_owned_chest_marker()
 end
 
 local function mark_chest()
@@ -520,11 +593,42 @@ function M.TryObserveUiClasses()
             local cls = loaded[entry.path]
             local original_update = member(cls, "Update")
             local original_destroy = member(cls, "OnDestroy")
+            local original_state = member(cls, "ChangeSwitchState")
+            local original_click = member(cls, "OnClickBox")
+            local original_result = member(cls, "OnTreasureChestEndResult")
             if type(cls) == "table" and type(original_update) == "function" and
-               type(original_destroy) == "function" then
+               type(original_destroy) == "function" and
+               type(original_state) == "function" and
+               type(original_click) == "function" and
+               type(original_result) == "function" then
                 local update = function(view, ...)
                     if bound_chest_view ~= view then M.BindTreasureChestView(view) end
-                    return original_update(view, ...)
+                    retire_chest_marker_if_ineligible(view)
+                    local value = original_update(view, ...)
+                    retire_chest_marker_if_ineligible(view)
+                    return value
+                end
+                local state = function(view, next_state, ...)
+                    if marker_owned_view == view and next_state ~= "SwitchEnd" then
+                        clear_owned_chest_marker()
+                    end
+                    return original_state(view, next_state, ...)
+                end
+                local click = function(view, index, ...)
+                    -- Clicking any box while SwitchEnd is a real selection,
+                    -- not a reason to leave a winning-box hint visible.
+                    if marker_owned_view == view and
+                       member(view, "switchState") == "SwitchEnd" and
+                       member(view, "received") ~= true and
+                       is_integer(index) and index <= 3 then
+                        clear_owned_chest_marker()
+                    end
+                    return original_click(view, index, ...)
+                end
+                local chest_result = function(view, ...)
+                    local value = original_result(view, ...)
+                    retire_chest_marker_if_ineligible(view)
+                    return value
                 end
                 local destroy = function(view, ...)
                     if marker_owned_view == view then
@@ -539,12 +643,19 @@ function M.TryObserveUiClasses()
                 local ok = pcall(function()
                     cls.Update = update
                     cls.OnDestroy = destroy
+                    cls.ChangeSwitchState = state
+                    cls.OnClickBox = click
+                    cls.OnTreasureChestEndResult = chest_result
                 end)
                 if ok then
                     watched_ui_classes[entry.path] = {
                         class = cls, originalUpdate = original_update,
                         originalDestroy = original_destroy,
+                        originalState = original_state, originalClick = original_click,
+                        originalResult = original_result,
                         updateWrapper = update, destroyWrapper = destroy,
+                        stateWrapper = state, clickWrapper = click,
+                        resultWrapper = chest_result,
                     }
                     attached = attached + 1
                 else
@@ -553,6 +664,9 @@ function M.TryObserveUiClasses()
                     pcall(function()
                         if member(cls, "Update") == update then cls.Update = original_update end
                         if member(cls, "OnDestroy") == destroy then cls.OnDestroy = original_destroy end
+                        if member(cls, "ChangeSwitchState") == state then cls.ChangeSwitchState = original_state end
+                        if member(cls, "OnClickBox") == click then cls.OnClickBox = original_click end
+                        if member(cls, "OnTreasureChestEndResult") == chest_result then cls.OnTreasureChestEndResult = original_result end
                     end)
                 end
             end
@@ -572,6 +686,15 @@ function M.RemoveUiObservation()
             end
             if member(saved.class, "OnDestroy") == saved.destroyWrapper then
                 saved.class.OnDestroy = saved.originalDestroy
+            end
+            if member(saved.class, "ChangeSwitchState") == saved.stateWrapper then
+                saved.class.ChangeSwitchState = saved.originalState
+            end
+            if member(saved.class, "OnClickBox") == saved.clickWrapper then
+                saved.class.OnClickBox = saved.originalClick
+            end
+            if member(saved.class, "OnTreasureChestEndResult") == saved.resultWrapper then
+                saved.class.OnTreasureChestEndResult = saved.originalResult
             end
         end)
         watched_ui_classes[path] = nil

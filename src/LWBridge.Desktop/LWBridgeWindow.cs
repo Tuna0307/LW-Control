@@ -478,7 +478,10 @@ internal sealed partial class LWBridgeWindow : Form
             if (profileRegistryService is not null) services.Add(profileRegistryService);
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
-            if (overviewLifecycleService is not null) services.Add(new Feature018GameCommandService(overviewLifecycleService));
+            if (overviewLifecycleService is not null)
+                services.Add(equipmentConfigService is null
+                    ? new Feature018GameCommandService(overviewLifecycleService)
+                    : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService));
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);

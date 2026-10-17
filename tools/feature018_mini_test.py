@@ -173,6 +173,78 @@ class MiniGameNativeTests(unittest.TestCase):
         self.assertNotIn('"frontlineReinforce", frontline_reinforce', mini,
                          "G integration is owned by the shared authenticated hotkey dispatcher")
 
+    def test_frontline_member_identity_is_separate_from_local_count(self):
+        team = self.method("Scene/LWBattle/ParkourBattle/Team/ParkourTeam.luac", "AddUnitToTeam")
+        soldier = self.method("Scene/LWBattle/ParkourBattle/Team/MemberUnit.luac", "Init")
+        allot = self.method("DataCenter/LWBattle/Logic/ParkourBattle/ParkourBattleLogic.luac",
+                            "AllotUnitGuid")
+        team_ops = list(disassemble(team))
+        soldier_ops = list(disassemble(soldier))
+        self.assertTrue(any("sourceLine=1542" in op and "='teamUnits'" in op
+                            for op in team_ops))
+        self.assertTrue(any("sourceLine=1543" in op and "='teamUnitCount'" in op
+                            for op in team_ops))
+        self.assertTrue(any("sourceLine=32" in op and "='AllotUnitGuid'" in op
+                            for op in soldier_ops))
+        self.assertTrue(any("sourceLine=32" in op and "='guid'" in op
+                            for op in soldier_ops))
+        identity = {"unitGuid": 0}
+        self.assertEqual(runtime.execute(allot, identity), (1,))
+        self.assertEqual(runtime.execute(allot, identity), (2,))
+        self.assertEqual(identity["unitGuid"], 2,
+                         "source game must allocate different unit IDs for distinct members")
+        mini = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
+        for guard in ("frontline_units(context.team)",
+                      "after_count == prior_count + 1",
+                      "new_units ~= 1", "if after_units[unit] == nil then identities_match = false end",
+                      'member(unit, "originalHeroId") ~= context.heroId',
+                      'member(hero, "heroId") ~= context.heroId',
+                      'member(hero, "level") ~= context.heroLevel',
+                      "unitIdentityVerified = true", "observedCreatedUnits = confirmed"):
+            self.assertIn(guard, mini)
+
+    def test_land_unlock_ack_routes_through_native_original_server_state(self):
+        message = self.method("Net/Msgs/UnlockUserLandMessage.luac", "HandleMessage")
+        push = self.method("Net/Msgs/PushUnlockLandMessage.luac", "HandleMessage")
+        local_ack = self.method("DataCenter/LandLock/LandLockManager.luac", "UnlockHandle")
+        broadcast = self.method("DataCenter/LandLock/LandLockManager.luac", "PushUnlockHandle")
+        def names(method):
+            return {str(constant) for constant in method["constants"]}
+        self.assertTrue({"errorCode", "UnlockHandle"} <= names(message))
+        self.assertTrue({"errorCode", "PushUnlockHandle"} <= names(push))
+        self.assertTrue({"landId", "RefreshDataByServer", "GF_land_unlock_done"} <= names(local_ack))
+        self.assertTrue({"lands", "RefreshDataByServer"} <= names(broadcast))
+        mini = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
+        self.assertIn('invoke(land, "GetLandLockDataById", last_land_request_id)', mini)
+        self.assertIn('now == member(states, "Unlocked") or now == member(states, "Finished")', mini)
+
+    def test_chest_owned_marker_retires_on_same_view_native_transitions(self):
+        module = "UI/LWTreasureChest/UITreasureChestView.luac"
+        state = self.method(module, "ChangeSwitchState")
+        selected = self.method(module, "OnClickBox")
+        received = self.method(module, "OnTreasureChestEndResult")
+        state_ops = list(disassemble(state))
+        select_ops = list(disassemble(selected))
+        result_ops = list(disassemble(received))
+        self.assertTrue(any("sourceLine=189" in op and "='switchState'" in op
+                            for op in state_ops))
+        self.assertTrue(any("sourceLine=393" in op and "='curSelectIndex'" in op
+                            for op in select_ops))
+        self.assertTrue(any("sourceLine=261" in op and "='received'" in op
+                            for op in result_ops))
+        self.assertNotIn("HideSwitchEffect", {str(v) for v in state["constants"]},
+                         "Native transition does not remove an added prize marker itself")
+        mini = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
+        self.assertIn('if member(view, "curSelectIndex") ~= nil then', mini)
+        self.assertIn('cls.ChangeSwitchState = state', mini)
+        self.assertIn('cls.OnClickBox = click', mini)
+        self.assertIn('cls.OnTreasureChestEndResult = chest_result', mini)
+        self.assertIn('retire_chest_marker_if_ineligible(view)', mini)
+        self.assertIn('clear_owned_chest_marker()', mini)
+        self.assertIn('saved.class.OnClickBox = saved.originalClick', mini)
+        self.assertIn('saved.class.ChangeSwitchState = saved.originalState', mini)
+        self.assertIn('saved.class.OnTreasureChestEndResult = saved.originalResult', mini)
+
 
 if __name__ == "__main__":
     unittest.main()
