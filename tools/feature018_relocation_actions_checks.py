@@ -365,6 +365,30 @@ class OriginalV26Sources(unittest.TestCase):
                               (17,'NeedNoticeAllianceMoveCityPosition')):
             self.assertIn(warning,body['children'][index]['constants'])
 
+    def test_original_f10_alliance_message_not_world_mv_and_success_reason_240(self):
+        # The selected-rally call is a costType=4 AllianceMoveCity RPC on this
+        # owner home world. Its result=1 forwards to WorldMvHandle(response,240).
+        # A different WorldMvHandle invocation cannot confirm this request.
+        move=self.check_method('Util/MoveCityUtil.luac','AllianceMoveCityToSourceRallyPoint',
+            'd53c624e4dcc87b6228f8ac650704868e321332614d36321b88800b5f8562de4',
+            ('AllianceMoveCity','SendMessage','GetSourceServerId','GetSelfServerId',
+             'GetIsInCity','ChangeToWorld'))
+        self.assertTrue(any("sourceLine=136" in row and "AllianceMoveCity" in row
+                            for row in disassemble(move)))
+        reply=self.check_method('Net/Msgs/Alliance/AllianceMoveCityMessage.luac',
+            'HandleMessage','dfed59efaad7ec93cb0b89be67ff5d5e6720443b7ac3332f1ef5f86bb5a84579',
+            ('WorldMvHandle','result','errorCode'))
+        lines=disassemble(reply)
+        self.assertTrue(any('sourceLine=42' in line and 'WorldMvHandle' in line
+                            for line in lines))
+        self.assertTrue(any('sourceLine=42' in line and '240' in line
+                            for line in lines))
+        serializer=self.check_method('Net/Msgs/ItemUseMessage.luac','OnCreate',
+            '9313f37b8183fd7338fcfc82cfd3a0d211db1d9cc5ac67fc5d0692de78262a1c',
+            ('PutUtfString','uuid','num','useItemFromType'))
+        self.assertTrue(any('sourceLine=16' in line and 'PutUtfString' in line
+                            for line in disassemble(serializer)))
+
 
 
 class RelocationActionChecks(unittest.TestCase):
@@ -396,6 +420,8 @@ class RelocationActionChecks(unittest.TestCase):
           NeedNoticeAllianceMoveCityPosition=function()return false end}
         EffectDefine={SEASON_VIRUS_MAX_EXPLODE=15};SELF_EXPLOSION_STATUS_ID=16
         LuaEntry.Effect={GetGameEffect=function()return 0 end,HasStatus=function()return false end}
+        SceneUtils={GetIsInCity=function()return false end}
+        function LuaEntry.Player:IsLoginSourceServer()return true end
         DataCenter.ItemManager={ItemUseHandle=function(self,response)
           if not response.errorCode and response.itemId==5004 then world.randomCount=world.randomCount-1 end
         end}
@@ -404,9 +430,9 @@ class RelocationActionChecks(unittest.TestCase):
         end}
         world.itemOriginal=DataCenter.ItemManager.ItemUseHandle
         world.moveOriginal=DataCenter.BuildManager.WorldMvHandle
-        MsgDefines={ItemUse='itemuse'}
+        MsgDefines={ItemUse='itemuse',AllianceMoveCity='allianceMoveCity'}
         SFSNetwork.SendMessage=function(msg,args)
-          assert(msg=='itemuse' and args.uuid==100004 and args.num==1)
+          assert(msg=='itemuse' and args.uuid=='100004' and args.num==1)
           world.sends=world.sends+1
         end
         MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
@@ -438,7 +464,7 @@ class RelocationActionChecks(unittest.TestCase):
         lua,_,state,call=self.fixture()
         self.assertEqual(call('allianceRelocate')['state'],'accepted')
         self.assertEqual(state['sends'],1)
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998})')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998},240)')
         result=call('allianceRelocate',True)
         self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['worldMvAcknowledged'])
         self.assertEqual(result['data']['afterWorldPointId'],514998)
@@ -450,6 +476,47 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(call()['state'],'failed');self.assertEqual(state['sends'],0)
         lua.execute('DataCenter.ActMeteoriteBattleManager.NeedNoticeRandomMoveCity=function()return false end;world.randomCount=0')
         self.assertEqual(call()['state'],'unsupported');self.assertEqual(state['sends'],0)
+
+    def test_f10_wrong_reply_reason_cannot_confirm_even_with_real_position_and_debit(self):
+        lua,_,state,call=self.fixture()
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998})')
+        result=call('allianceRelocate',True)
+        self.assertEqual(result['state'],'accepted')
+        self.assertFalse(result['data']['worldMvAcknowledged'])
+        self.assertFalse(result['data']['replyObserved'])
+        self.assertEqual(state['sends'],1)
+
+    def test_f10_deferred_city_or_missing_source_sender_rejected_without_dispatch(self):
+        lua,_,state,call=self.fixture()
+        lua.execute('SceneUtils.GetIsInCity=function()return true end')
+        self.assertEqual(call('allianceRelocate')['state'],'unsupported')
+        lua.execute('SceneUtils.GetIsInCity=function()return false end')
+        lua.execute('function LuaEntry.Player:IsLoginSourceServer()return false end')
+        self.assertEqual(call('allianceRelocate')['state'],'unsupported')
+        lua.execute('function LuaEntry.Player:IsLoginSourceServer()return true end')
+        lua.execute('MsgDefines.AllianceMoveCity=nil')
+        self.assertEqual(call('allianceRelocate')['state'],'unsupported')
+        self.assertEqual(state['sends'],0)
+
+    def test_f9_item_uuid_preserves_exact_64_bit_digits_as_utf_string(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local prev=DataCenter.ItemData.GetItemById
+        function DataCenter.ItemData:GetItemById(id)
+          if id==5004 then return {uuid=1392040870727446886,itemId=5004,count=2} end
+          return prev(self,id)
+        end
+        SFSNetwork.SendMessage=function(msg,args)
+          assert(msg=='itemuse' and type(args.uuid)=='string')
+          assert(args.uuid=='1392040870727446886' and args.num==1)
+          world.sends=world.sends+1
+        end
+        """)
+        result=call()
+        self.assertEqual(result['state'],'accepted')
+        self.assertEqual(result['data']['itemUuid'],'1392040870727446886')
+        self.assertEqual(state['sends'],1)
 
     def test_wrong_account_or_server_after_send_never_confirms_or_resends(self):
         lua,_,state,call=self.fixture();call()

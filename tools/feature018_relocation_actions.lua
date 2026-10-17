@@ -17,6 +17,13 @@
 -- Net/Msgs/MoveCityToWorldMessage.luac sha256 d82c7095c19d7de503a17115ee82647a015ede6ac230336bdb9c29673d973594:
 --   HandleMessage root/1 lines 21-29 handles tutorial/city-to-world only;
 --   NOT a replacement for a WorldMv confirmation.
+-- Net/Msgs/Alliance/AllianceMoveCityMessage.luac sha256
+--   dfed59efaad7ec93cb0b89be67ff5d5e6720443b7ac3332f1ef5f86bb5a84579:
+--   OnCreate lines 14-23 serializes costType/byInvite and optional pin UUID;
+--   HandleMessage lines 39-42 forwards only result=1 to WorldMvHandle(reply,240).
+-- Net/Msgs/ItemUseMessage.luac sha256
+--   9313f37b8183fd7338fcfc82cfd3a0d211db1d9cc5ac67fc5d0692de78262a1c:
+--   OnCreate line 16 serializes item UUID with PutUtfString.
 -- DataCenter/AllianceData/AllianceRallyPointDataManager.luac sha256
 --   8d970b439bfb0acf3033b4375da1731607a3879b063f24b652010ef5652d73f6:
 --   GetMyAllianceRallyPoint root/25 lines 274-277 only reads markDataDic[type];
@@ -36,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-3"}
+local M = {VERSION = "feature018-relocation-actions-4"}
 local baseline = {}
 local last_owner = nil
 local HOME_SERVER = 2289 -- Authorized sub-account only. 2212 is the read-only main.
@@ -66,6 +73,10 @@ end
 
 local function uid(value)
     if type(value) == "boolean" or value == nil then return nil end
+    if type(value) == "number" and
+       (value ~= value or value < 1 or value % 1 ~= 0 or
+        (math.type and math.type(value) == "float" and
+         value > 9007199254740991)) then return nil end
     local id = tostring(value)
     if id:match("^[1-9]%d*$") and #id <= 20 then return id end
     return nil
@@ -328,6 +339,9 @@ end
 -- Thus a sent request has traversed the same no-warning native conditions.
 -- Reply observation wraps only existing original handlers during the outstanding
 -- transaction, calls them unchanged, and restores them before reporting success.
+-- F10 DOES NOT send WorldMv: original AllianceMoveCityMessage.HandleMessage
+-- result=1 invokes BuildManager:WorldMvHandle(reply, 240). A plain WorldMv
+-- reply to that manager must never count as this alliance action's ACK.
 local pending=nil
 local function clear_hook(tx)
     if tx.hook and member(tx.manager,tx.method)==tx.hook then
@@ -380,7 +394,9 @@ local function owned_item(action)
     if tostring(member(item,"itemId"))~=tostring(item_id) then return nil,"Owned relocation item identity mismatch" end
     local expired=static_bool(rawget(_G,"UIUtil"),"CheckItemIsExpiredByUuid",member(item,"uuid"))
     if expired~=false then return nil,"Native relocation item expired or expiry is unknown" end
-    return {itemId=tostring(item_id),itemUuid=item_uid,nativeUuid=member(item,"uuid"),count=count,nativeItemId=item_id}
+    -- Original ItemUseMessage.OnCreate line 16 uses PutUtfString("uuid").
+    -- Preserve exact 64-bit game UUID digits as a Lua string, not a number.
+    return {itemId=tostring(item_id),itemUuid=item_uid,nativeUuid=item_uid,count=count,nativeItemId=item_id}
 end
 local function action_receipt(tx,snapshot,confirmed)
     return {state=confirmed and "confirmed" or "accepted",data={
@@ -446,6 +462,17 @@ local function perform(fields,input_clear,action)
         if type(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"))~="function" then
             return unavailable("Original chosen home-rally relocation method unavailable")
         end
+        -- Original ToSourceRallyPoint on the home world defers the send
+        -- through ChangeToWorld while the player is inside the City scene.
+        -- F10 can only claim a synchronous dispatch from the world scene.
+        if static_bool(rawget(_G,"SceneUtils"),"GetIsInCity")~=false then
+            return unavailable("Native F10 requires current world scene; City transition would defer the send")
+        end
+        local owner_player=member(rawget(_G,"LuaEntry"),"Player")
+        local ok_login,source_login=invoke(owner_player,"IsLoginSourceServer")
+        if not ok_login or source_login~=true then
+            return unavailable("Native F10 source-server login status unverified")
+        end
     end
     local center=rawget(_G,"DataCenter")
     local manager=member(center,action=="randomRelocate" and "ItemManager" or "BuildManager")
@@ -455,6 +482,10 @@ local function perform(fields,input_clear,action)
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
     local message=member(rawget(_G,"MsgDefines"),"ItemUse")
     if action=="randomRelocate" and (type(send)~="function" or message==nil) then return unavailable("Original random relocation ItemUse sender unavailable") end
+    if action=="allianceRelocate" and
+       (type(send)~="function" or member(rawget(_G,"MsgDefines"),"AllianceMoveCity")==nil) then
+        return unavailable("Original native AllianceMoveCity sender unavailable")
+    end
     local tx={token=token,action=action,item=item,before=snapshot.worldPointId,
         manager=manager,method=method,original=original,reply=false,
         allianceUid=alliance_uid,rallyPoint=rally and rally.worldPointId or nil}
@@ -468,7 +499,7 @@ local function perform(fields,input_clear,action)
                     tx.reply=member(response,"errorCode")==nil
                     tx.rejected=not tx.reply
                 end
-            elseif integer(member(response,"serverId"),1)==HOME_SERVER and
+            elseif select(1,...)==240 and integer(member(response,"serverId"),1)==HOME_SERVER and
                 (member(response,"worldMainPoint")~=nil or member(member(response,"buildInfo"),"pId")~=nil) then
                 tx.reply=member(response,"errorCode")==nil
                 tx.rejected=not tx.reply

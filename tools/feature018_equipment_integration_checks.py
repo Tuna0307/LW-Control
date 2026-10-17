@@ -44,10 +44,11 @@ json_decoder={decode=function(text)
          {id="preset-two",name="Second",squads={}}}
 end}
 package.loaded["rapidjson"]=json_decoder
-bridge={handler=nil,RegisterHandler=function(name,func)
- assert(name=="feature018_equipment_preflight" and type(func)=="function")
- if bridge.handler~=nil then return false end
- bridge.handler=func
+bridge={handlers={},RegisterHandler=function(name,func)
+ assert((name=="feature018_equipment_snapshot" or
+         name=="feature018_equipment_preflight") and type(func)=="function")
+ if bridge.handlers[name]~=nil then return false end
+ bridge.handlers[name]=func
  return true
 end,Array=function(value)return value end}
 """
@@ -72,9 +73,15 @@ def main():
             "confirmedEquipmentPresets":config,
         }
         fields.update(override)
-        return bridge.handler(vm.table_from(fields))
+        return bridge.handlers["feature018_equipment_preflight"](vm.table_from(fields))
 
     state = vm.globals().state
+    ensure(bridge.handlers["feature018_equipment_snapshot"] is not None and
+           bridge.handlers["feature018_equipment_preflight"] is not None,
+           "equipment snapshot and preflight must each have a native handler")
+    snapshot = bridge.handlers["feature018_equipment_snapshot"](vm.table_from({}))
+    ensure(snapshot["state"]=="unsupported" and state["sends"]==0,
+           "unavailable native snapshot must not fall back to equipment installation")
     good = call(authorizedUid="spoofed-uid",presetId="forged")
     ensure(good["state"]=="confirmed" and
            good["data"]["observation"]=="native_HeroEquip_slot_inventory_preflight" and
