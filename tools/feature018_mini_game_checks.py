@@ -484,6 +484,43 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         self.assertEqual(mini.MarkChest()['state'], 'failed')
         self.assertFalse(runtime.globals().Effect.activeSelf)
 
+    def test_mark_chest_cannot_confirm_another_valid_account_after_native_callback(self):
+        for change in (
+            'Account.source=5566;Account.selfServer=5566;Account.current=5566',
+            "LuaEntry.Player.uid='7812345600005566'",
+            'LuaEntry.Player=setmetatable({}, {__index=LuaEntry.Player})',
+        ):
+            runtime, mini = self.fixture()
+            runtime.execute('''local old=Chest.ShowSwitchEffect
+                Chest.ShowSwitchEffect=function(self,...)
+                  old(self,...)
+                ''' + change + '''
+                end''')
+            result = mini.MarkChest()
+            self.assertEqual(result['state'], 'failed', change)
+            self.assertFalse(runtime.globals().Effect.activeSelf, change)
+            self.assertEqual(mini.UnmarkChest()['state'], 'unsupported', change)
+
+    def test_marker_update_retires_display_after_server_switch_without_chest_drift(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+        runtime.execute('Account.source=5566;Account.selfServer=5566;Account.current=5566')
+        runtime.execute('Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        self.assertEqual(mini.UnmarkChest()['state'], 'unsupported')
+
+    def test_mark_on_new_account_clears_previous_account_effect_first(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute("LuaEntry.Player.uid='7812345600005566'")
+        # Keep the same stale bound chest view to catch accidental reuse of
+        # the old account's already-active native effect.
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+        runtime.execute('Chest:Update()')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+
     def test_partial_marker_stale_coordinates_are_rolled_back(self):
         runtime, mini = self.fixture()
         runtime.execute('Chest.ShowSwitchEffect=function(self) '
@@ -502,14 +539,11 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         self.assertEqual(mini.MarkChest()['state'], 'failed')
         self.assertFalse(runtime.globals().Effect.activeSelf)
 
-    def test_black_market_mark_does_not_activate_on_other_account(self):
+    def test_black_market_mark_accepts_another_stable_authenticated_account(self):
         runtime, mini = self.fixture()
         runtime.execute('LuaEntry.Player.uid="3133546747002212"')
-        self.assertEqual(mini.MarkChest()['state'], 'failed')
-        self.assertFalse(runtime.globals().Effect.activeSelf)
-        runtime.execute('LuaEntry.Player.uid="2553945035002288"; Account.current=2212')
-        self.assertEqual(mini.MarkChest()['state'], 'failed')
-        self.assertFalse(runtime.globals().Effect.activeSelf)
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
 
     def test_source_reward_change_or_box_swap_blocks_marker(self):
         runtime, mini = self.fixture()
@@ -576,7 +610,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
     @staticmethod
     def call(runtime, mini):
         return mini.FrontlineReinforce(runtime.table_from({'action': 'frontlineReinforce',
-                                                         'slot': '5'}))
+                                                         'slot': '5',
+                                                         'authorizedUid': '2553945035002288'}))
 
     def test_frontline_readonly_prestate_and_poststate_are_independent_of_addmember(self):
         runtime, mini = self.fixture()
@@ -636,12 +671,15 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
                            "DataCenter.LWBattleManager.gameOver=true",
                            "DataCenter.LWBattleManager.GetCurBattleType=function() return 5 end",
                            "UIManager.GetInstance=function() return {IsWindowOpen=function() return false end} end",
-                           "LuaEntry.Player.uid='3133546747002212'",
-                           "Account.current=2212", "Account.current=2289"):
+                           "Account.current=0"):
             runtime, mini = self.fixture()
             runtime.execute(expression)
             self.assertEqual(self.call(runtime, mini)['state'], 'unsupported')
             self.assertEqual(runtime.globals().Sends, 0)
+        runtime, mini = self.fixture()
+        runtime.execute("LuaEntry.Player.uid='3133546747002212'")
+        self.assertEqual(self.call(runtime,mini)['state'],'failed')
+        self.assertEqual(runtime.globals().Sends,0)
 
     def test_normal_numbered_stage_accepts_repeated_g_without_sunday_params(self):
         runtime, mini = self.fixture()
@@ -673,7 +711,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         token = first['data']['stageRunId']
         runtime.execute('local new={} for k,v in pairs(Logic) do new[k]=v end;Logic=new;Team.logic=new;DataCenter.LWBattleManager.logic=new;DataCenter.LWBattleManager.curLogic=new')
         result = mini.FrontlineReinforce(runtime.table_from({
-            'action':'frontlineReinforce','slot':'5','expectedStageRunId':token}))
+            'action':'frontlineReinforce','slot':'5',
+            'authorizedUid':'2553945035002288','expectedStageRunId':token}))
         self.assertEqual(result['state'], 'unsupported')
         self.assertEqual(runtime.globals().Sends, 5)
 
@@ -737,7 +776,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
     def test_owner_configured_count_adds_exactly_that_many_soldiers(self):
         runtime, mini = self.fixture()
         result = mini.FrontlineReinforce(runtime.table_from(
-            {'action': 'frontlineReinforce', 'slot': '5', 'count': '3'}))
+            {'action': 'frontlineReinforce', 'slot': '5',
+             'authorizedUid':'2553945035002288', 'count': '3'}))
         self.assertEqual(result['state'], 'confirmed')
         self.assertEqual(result['data']['addedMembers'], 3)
         self.assertEqual(result['data']['requestedCount'], 3)
@@ -748,7 +788,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         for bad in ('0', '51', '2.5', 'abc'):
             runtime, mini = self.fixture()
             result = mini.FrontlineReinforce(runtime.table_from(
-                {'action': 'frontlineReinforce', 'slot': '5', 'count': bad}))
+                {'action': 'frontlineReinforce', 'slot': '5',
+                 'authorizedUid':'2553945035002288', 'count': bad}))
             self.assertNotEqual(result['state'], 'confirmed', bad)
             self.assertEqual(runtime.globals().Sends, 0, bad)
 
@@ -760,7 +801,7 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
             Logic.AddMember=function(self,...)
               original(self,...)
               if Sends == 1 then
-                local outcome=Producer.FrontlineReinforce({action='frontlineReinforce',slot='5'})
+                local outcome=Producer.FrontlineReinforce({action='frontlineReinforce',slot='5',authorizedUid='2553945035002288'})
                 NestedState=outcome.state
               end
             end''')
@@ -812,8 +853,58 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
             end''')
         result = self.call(runtime, mini)
         self.assertEqual(result['state'], 'failed')
-        self.assertEqual(result['data']['observedAdded'], 2)
+        self.assertEqual(result['data']['observedAdded'], 1)
+        self.assertTrue(result['data']['partialResultUncertain'])
         self.assertEqual(runtime.globals().Sends, 2)
+        self.assertEqual(self.call(runtime, mini)['state'], 'failed')
+        self.assertEqual(runtime.globals().Sends, 2)
+
+    def test_valid_server_switch_inside_final_native_g_does_not_claim_success(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local old=Logic.AddMember
+            Logic.AddMember=function(...)
+              old(...)
+              if Sends==5 then
+                Account.source=5566;Account.selfServer=5566;Account.current=5566
+              end
+            end''')
+        result = self.call(runtime, mini)
+        self.assertEqual(result['state'], 'failed')
+        self.assertEqual(result['data']['observedAdded'], 4)
+        self.assertTrue(result['data']['partialResultUncertain'])
+        self.assertEqual(runtime.globals().Sends, 5)
+        runtime.execute('Account.source=2288;Account.selfServer=2288;Account.current=2288')
+        attempt = self.call(runtime, mini)
+        self.assertEqual(attempt['state'], 'failed')
+        self.assertTrue(attempt['data']['priorActionUncertain'])
+        self.assertEqual(runtime.globals().Sends, 5)
+
+    def test_uid_or_player_replacement_during_addmember_refuses_result_without_retry(self):
+        for change in ("LuaEntry.Player.uid='7812345600005566'",
+                       "LuaEntry.Player=setmetatable({}, {__index=LuaEntry.Player})"):
+            runtime, mini = self.fixture()
+            runtime.execute('''local old=Logic.AddMember
+                Logic.AddMember=function(...)
+                  old(...)
+                  if Sends==1 then ''' + change + ''' end
+                end''')
+            result = self.call(runtime, mini)
+            self.assertEqual(result['state'], 'failed', change)
+            self.assertEqual(result['data']['observedAdded'], 0)
+            self.assertEqual(runtime.globals().Sends, 1)
+            self.assertEqual(self.call(runtime, mini)['state'], 'failed')
+            self.assertEqual(runtime.globals().Sends, 1)
+
+    def test_readonly_frontline_status_does_not_mix_player_after_callback(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local old=Team.GetMemberCount
+            Team.GetMemberCount=function(...)
+              local count=old(...)
+              Account.source=5566;Account.selfServer=5566;Account.current=5566
+              return count
+            end''')
+        self.assertEqual(mini.FrontlineStatus()['state'], 'failed')
+        self.assertEqual(runtime.globals().Sends, 0)
 
 
 if __name__ == "__main__":

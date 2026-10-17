@@ -201,13 +201,17 @@ def owner_readme(commit: str) -> str:
         "press physical G to add that many members. No confirmation per press.\n"
         "Outside an active stage G does nothing. Native stage capacity, reserve\n"
         "and battle-end behavior still apply.\n\n"
-        "Q/W/E/R ATTACK (R13 LIVE VALIDATION PENDING): The intended shortcut\n"
-        "hovers an eligible world-map target and uses Q/W/E/R for squads\n"
-        "1/2/3/4. Targets are ordinary monsters, resources, cities (including\n"
-        "allied reinforcement where allowed), and ruins. World bosses and\n"
-        "rally monsters are excluded. An open native target popup may supply\n"
-        "the selected target. Hover mapping and march proof must be confirmed\n"
-        "in the owner's real game before relying on this shortcut.\n"
+        "Q/W/E/R ATTACK (R13 LIVE MARCH VALIDATION PENDING): Q/W/E/R select\n"
+        "formation slots 1/2/3/4. The original native hover path currently\n"
+        "admits only an ordinary non-boss monster's WorldArmy collision or an\n"
+        "unoccupied ordinary resource world point. The game opens its original\n"
+        "formation chooser and attempts the original one-shot send only when\n"
+        "a typed chooser and exact native squad remain verified. It never\n"
+        "bypasses boss/special-target exclusions or retries an uncertain send.\n"
+        "Cities, allied reinforcement and ruins are NOT yet verified as\n"
+        "one-press native hover actions; a pre-opened genuine eligible native\n"
+        "selector retains the pre-existing attack path. The owner must still\n"
+        "verify the real target, resulting march and server reply in-game.\n"
         "A/S/D/F RECALL (R13 LIVE VALIDATION PENDING): The intended matching\n"
         "squad recall shortcuts are A/S/D/F for squads 1/2/3/4. The owner\n"
         "must independently verify native return and server result.\n\n"
@@ -252,7 +256,9 @@ def main() -> None:
         "features": {
             "frontlineG": {"configurableSoldiersPerPress": [1, 50], "default": 5},
             "hoverAttack": {"keys": "Q/W/E/R", "slots": [1, 2, 3, 4],
-                            "releaseEvidence": "PENDING_R13_LIVE_VALIDATION"},
+                            "nativeHoveredKinds": ["ordinary_monster", "ordinary_resource"],
+                            "cityAlliedAndRuinHoverImplemented": False,
+                            "releaseEvidence": "PENDING_R13_LIVE_MARCH_VALIDATION"},
             "recall": {"keys": "A/S/D/F", "slots": [1, 2, 3, 4],
                        "releaseEvidence": "PENDING_R13_LIVE_VALIDATION"},
         },

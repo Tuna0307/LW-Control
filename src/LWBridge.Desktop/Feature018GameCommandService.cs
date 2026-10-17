@@ -114,6 +114,10 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         bool acceptsSubmission = command is "city_layout_apply_start" or "city_layout_restore_start" or "monopoly_cell_open" or
             "automation_start" or "automation_stop" or "feature018_hotkey_action" or
             "feature018_rapid_action" ||
+            // cursorOpen only enters the source-native formation chooser;
+            // the Lua receipt explicitly reports accepted:true and
+            // requestDispatched:false. Never construe it as a march send.
+            (command == "feature018_attack_prepare" && fields["mode"] == "cursorOpen") ||
             (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
         return await exchange.ExchangeAsync(command, fields, timeout, cancellationToken,
             allowAcceptedDispatch: acceptsSubmission,
@@ -131,7 +135,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             {
                 string mode = ReadValue(payload,"mode",16);
                 if (mode is not ("inventory" or "open" or "staffingEditor" or
-                    "selectorTarget" or "attackReadiness" or "cursorPoint"))
+                    "selectorTarget" or "attackReadiness" or "cursorPoint" or "cursorOpen"))
                     throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
                 var attackPrepareKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (JsonProperty entry in payload.EnumerateObject())
@@ -140,12 +144,25 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                         (mode == "open" && entry.Name == "targetUuid") ||
                         (mode == "attackReadiness" && entry.Name == "slot") ||
                         (mode == "cursorPoint" && entry.Name is "samplePixelX" or "samplePixelY") ||
+                        (mode == "cursorOpen" && entry.Name == "targetKind") ||
                         (mode == "staffingEditor" && entry.Name is "slot" or "editorOptIn");
                     if (!allowed || !attackPrepareKeys.Add(entry.Name))
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Native attack readiness accepts only distinct fields for its selected mode.");
                 }
                 fields["mode"] = mode;
+                if (mode == "cursorOpen" && payload.TryGetProperty("targetKind", out JsonElement cursorKind))
+                {
+                    // The named kind is only an eligibility constraint. The
+                    // game resolves the actual fresh Unity cursor, target
+                    // identity and current server itself; no target UUID,
+                    // point or screen coordinate may be supplied for a send.
+                    if (cursorKind.ValueKind != JsonValueKind.String ||
+                        cursorKind.GetString() is not ("monster" or "resource" or "city" or "ruin"))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Cursor selection requires a recognized native target kind.");
+                    fields["targetKind"] = cursorKind.GetString()!;
+                }
                 if (mode == "cursorPoint")
                 {
                     bool hasX = payload.TryGetProperty("samplePixelX", out JsonElement pixelX);

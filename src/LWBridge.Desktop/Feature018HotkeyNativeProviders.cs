@@ -142,6 +142,27 @@ internal sealed class Feature018HotkeyNativeProviders
             bool nativeAcceptedOnly =
                 evidence.TryGetProperty("accepted", out var accepted) &&
                 accepted.ValueKind == JsonValueKind.True;
+            // MarchUtil.OnClickStartMarch can open the game's original
+            // formation chooser asynchronously without posting an RPC.
+            // Continue ONLY this exact captured Q/W/E/R intent with bounded,
+            // read-only status requests; the original hover/click must never
+            // be issued again by the provider.
+            if (command.Intent.Kind == Feature018HotkeyKind.AttackSquad &&
+                nativeAcceptedOnly && !dispatchedNativeRequest &&
+                evidence.TryGetProperty("awaitingNativeChooser", out var awaitingChooser) &&
+                awaitingChooser.ValueKind == JsonValueKind.True)
+            {
+                if (!IsAttackChooserReceipt(command, evidence, null) ||
+                    !evidence.TryGetProperty("chooserRequestMade", out var chooserMade) ||
+                    chooserMade.ValueKind != JsonValueKind.True ||
+                    !evidence.TryGetProperty("requestDispatched", out var notSent) ||
+                    notSent.ValueKind != JsonValueKind.False)
+                    return new(Feature018HotkeyActionStatus.Failed,
+                        "native_attack_chooser_identity_unverified");
+                return await PollNativeAttackChooserAsync(command,
+                    evidence.GetProperty("formationUuid").GetString()!, cancellationToken)
+                    .ConfigureAwait(false);
+            }
             // The original native action receipt preserves requestDispatched
             // after its reply and independent after-state have settled. Do
             // not demote a *completed* action to pending merely because it
@@ -276,7 +297,8 @@ internal sealed class Feature018HotkeyNativeProviders
                 "native_action_outcome_unconfirmed_dispatch_unknown");
         }
         catch (BridgeCommandException error) when (
-            error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED")
+            error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED" or
+                "GAME_ACCOUNT_CHANGED")
         {
             return new(Feature018HotkeyActionStatus.SessionChanged,
                 "authenticated_game_route_unavailable");
@@ -291,6 +313,149 @@ internal sealed class Feature018HotkeyNativeProviders
             return new(Feature018HotkeyActionStatus.Failed,
                 "current_client_game_action_rejected");
         }
+    }
+
+    private static bool IsAttackChooserReceipt(
+        Feature018HotkeyCommand command, JsonElement data, string? formationUuid)
+    {
+        if (command.Intent.Kind != Feature018HotkeyKind.AttackSquad ||
+            command.Intent.Slot is < 1 or > 4 ||
+            !data.TryGetProperty("slot", out var slot) ||
+            !slot.TryGetInt32(out int actualSlot) || actualSlot != command.Intent.Slot ||
+            !IsNativeUuid(data, "formationUuid") ||
+            (formationUuid is not null &&
+             data.GetProperty("formationUuid").GetString() != formationUuid) ||
+            (data.TryGetProperty("action", out var action) &&
+             (action.ValueKind != JsonValueKind.String || action.GetString() != "attack")) ||
+            !data.TryGetProperty("ownerUid", out var owner) ||
+            owner.ValueKind != JsonValueKind.String ||
+            owner.GetString() != command.Session.GameUid ||
+            !data.TryGetProperty("sourceServerId", out var server) ||
+            !server.TryGetInt32(out int serverId) ||
+            serverId != command.Session.ServerId)
+            return false;
+        return true;
+    }
+
+    private static bool AttackHasExactlyOneNativeRpc(JsonElement data, string formationUuid)
+    {
+        if (!data.TryGetProperty("nativeTransaction", out var transaction) ||
+            transaction.ValueKind != JsonValueKind.Object ||
+            !transaction.TryGetProperty("sendCount", out var count) ||
+            !count.TryGetInt32(out int sends) || sends != 1 ||
+            !transaction.TryGetProperty("outboundRoute", out var route) ||
+            route.ValueKind != JsonValueKind.String ||
+            route.GetString() != "WorldMarchFormationNew" ||
+            !transaction.TryGetProperty("senderReturned", out var senderReturned) ||
+            senderReturned.ValueKind != JsonValueKind.True ||
+            (transaction.TryGetProperty("senderReturnedFalse", out var returnedFalse) &&
+             returnedFalse.ValueKind != JsonValueKind.False) ||
+            (transaction.TryGetProperty("senderError", out var senderError) &&
+             senderError.ValueKind != JsonValueKind.Null) ||
+            (transaction.TryGetProperty("unattributedMatchingSendObserved", out var unattributed) &&
+             unattributed.ValueKind != JsonValueKind.False) ||
+            (transaction.TryGetProperty("unattributedSendCount", out var extra) &&
+             (!extra.TryGetInt32(out int extras) || extras != 0)) ||
+            !transaction.TryGetProperty("formation", out var formation) ||
+            formation.ValueKind != JsonValueKind.String ||
+            formation.GetString() != formationUuid ||
+            (transaction.TryGetProperty("outboundFormationOrMarch", out var transmittedFormation) &&
+             (transmittedFormation.ValueKind != JsonValueKind.String ||
+              transmittedFormation.GetString() != formationUuid)))
+            return false;
+        return true;
+    }
+
+    private async Task<Feature018HotkeyActionOutcome> PollNativeAttackChooserAsync(
+        Feature018HotkeyCommand command, string formationUuid,
+        CancellationToken cancellationToken)
+    {
+        // This method does not capture or synthesize a physical key press.
+        // The parent action broker admitted that original key and pins its
+        // session. Each query is separately fenced by the game exchange
+        // against the same native UID/server; never include speedup consent.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromSeconds(3));
+        JsonElement query = JsonSerializer.SerializeToElement(new
+        {
+            action = "attack", slot = command.Intent.Slot, queryOnly = true,
+            authorizedUid = command.Session.GameUid,
+            expectedGameUid = command.Session.GameUid,
+            expectedServerId = command.Session.ServerId,
+        }, JsonOptions.Default);
+        try
+        {
+            for (int poll = 0; poll < 10; poll++)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(250), deadline.Token)
+                    .ConfigureAwait(false);
+                JsonElement response;
+                try
+                {
+                    object? raw = await gameCommands.InvokeAsync(
+                        CommandName, query, deadline.Token).ConfigureAwait(false);
+                    if (raw is not JsonElement payload || payload.ValueKind != JsonValueKind.Object)
+                        return new(Feature018HotkeyActionStatus.Failed,
+                            "native_attack_chooser_followup_receipt_missing");
+                    response = payload;
+                }
+                catch (BridgeCommandException error) when (
+                    error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED" or
+                    "GAME_ACCOUNT_CHANGED")
+                {
+                    return new(Feature018HotkeyActionStatus.SessionChanged,
+                        "native_attack_chooser_authenticated_session_changed");
+                }
+                catch (BridgeCommandException error) when (error.Code == "GAME_ACTION_UNCONFIRMED")
+                {
+                    // A status query cannot authorize another click or
+                    // retransmit merely because the chooser is still open.
+                    continue;
+                }
+                catch (BridgeCommandException)
+                {
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        "native_attack_chooser_followup_unavailable");
+                }
+
+                if (!IsAttackChooserReceipt(command, response, formationUuid))
+                    return new(Feature018HotkeyActionStatus.SessionChanged,
+                        "native_attack_chooser_identity_changed");
+                bool sent = response.TryGetProperty("requestDispatched", out var dispatched) &&
+                            dispatched.ValueKind == JsonValueKind.True;
+                bool exactRpc = AttackHasExactlyOneNativeRpc(response, formationUuid);
+                if (sent && !exactRpc)
+                    return new(Feature018HotkeyActionStatus.Failed,
+                        "native_attack_chooser_rpc_count_unverified");
+                if (exactRpc)
+                {
+                    // Native Lua may report a poststate receipt with
+                    // requestDispatched=false because *this poll* is read-only.
+                    // Exact original transaction evidence is required before
+                    // interpreting either a completed or pending march.
+                    bool awaiting = response.TryGetProperty("awaitingGameConfirmation", out var waiting) &&
+                                     waiting.ValueKind == JsonValueKind.True;
+                    if (!awaiting &&
+                        ConfirmedReceiptMatches(command.Intent, response,
+                            command.Session, command.ReinforceCount))
+                        return new(Feature018HotkeyActionStatus.Confirmed,
+                            "verified_native_game_state_observation", response.Clone());
+                    return await PollAfterSendAsync(command, "formationUuid",
+                        formationUuid, cancellationToken).ConfigureAwait(false);
+                }
+                if (response.TryGetProperty("chooserRequestMade", out var chooserMade) &&
+                    chooserMade.ValueKind == JsonValueKind.False)
+                    return new(Feature018HotkeyActionStatus.Failed,
+                        "native_attack_chooser_closed_without_verified_send");
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return new(Feature018HotkeyActionStatus.Submitted,
+                "native_attack_chooser_pending_no_verified_game_rpc");
+        }
+        return new(Feature018HotkeyActionStatus.Submitted,
+            "native_attack_chooser_pending_no_verified_game_rpc");
     }
 
     private async Task<Feature018HotkeyActionOutcome> PollAfterSendAsync(
@@ -322,6 +487,8 @@ internal sealed class Feature018HotkeyNativeProviders
                         CommandName, request, deadline.Token).ConfigureAwait(false);
                     if (response is JsonElement gameState &&
                         gameState.ValueKind == JsonValueKind.Object &&
+                        (command.Intent.Kind != Feature018HotkeyKind.AttackSquad ||
+                         IsAttackChooserReceipt(command, gameState, sentUuid)) &&
                         !(gameState.TryGetProperty("awaitingGameConfirmation", out var stillPending) &&
                           stillPending.ValueKind == JsonValueKind.True) &&
                         ConfirmedReceiptMatches(command.Intent, gameState, command.Session, command.ReinforceCount))
@@ -334,7 +501,8 @@ internal sealed class Feature018HotkeyNativeProviders
                     }
                 }
                 catch (BridgeCommandException error) when (
-                    error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED")
+                    error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED" or
+                        "GAME_ACCOUNT_CHANGED")
                 {
                     return new(Feature018HotkeyActionStatus.SessionChanged,
                         "authenticated_game_route_unavailable");
@@ -421,7 +589,25 @@ internal sealed class Feature018HotkeyNativeProviders
                        evidence.TryGetProperty("targetType", out JsonElement attackKind) &&
                        attackKind.TryGetInt32(out int nativeAttackKind) && nativeAttackKind > 0 &&
                        evidence.TryGetProperty("targetSource", out JsonElement targetSource) &&
-                       targetSource.GetString() == "open_native_formation_selector";
+                       targetSource.ValueKind == JsonValueKind.String &&
+                       (targetSource.GetString() == "open_native_formation_selector" ||
+                        (targetSource.GetString() == "native_physical_hover_original_selector" &&
+                         evidence.TryGetProperty("currentCursorVerified", out var hoverVerified) &&
+                         hoverVerified.ValueKind == JsonValueKind.True &&
+                         evidence.TryGetProperty("nativeMarchGuidMatchesRequest", out var nativeGuid) &&
+                         nativeGuid.ValueKind == JsonValueKind.True &&
+                         evidence.TryGetProperty("serverAcknowledgementCorrelated", out var serverAck) &&
+                         serverAck.ValueKind == JsonValueKind.True &&
+                         evidence.TryGetProperty("nativeMarchPostStateVerified", out var hoverPoststate) &&
+                         hoverPoststate.ValueKind == JsonValueKind.True &&
+                         evidence.TryGetProperty("ownerUid", out var attackOwner) &&
+                         attackOwner.ValueKind == JsonValueKind.String &&
+                         attackOwner.GetString() == session.GameUid &&
+                         evidence.TryGetProperty("sourceServerId", out var attackServer) &&
+                         attackServer.TryGetInt32(out int actualAttackServer) &&
+                         actualAttackServer == session.ServerId &&
+                         AttackHasExactlyOneNativeRpc(evidence,
+                             evidence.GetProperty("formationUuid").GetString()!)));
             case Feature018HotkeyKind.ShieldRemaining:
                 if (observed.GetString() != "native_MAIN_SHIELD_effect_status_map" ||
                     !evidence.TryGetProperty("active", out JsonElement active) ||

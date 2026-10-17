@@ -85,3 +85,38 @@ Owner tested G in a normal 關卡 stage: WORKS. Lead added owner-configurable so
    hover + Q on a monster and on a resource node → march sent, then A recalls it.
 3. Rebuild the owner-test ZIP (README must describe the configurable G count and any-account use). Push only at
    checkpoints. Report back for owner test before continuing other hotkeys.
+
+## R13 implementation and native cursor evidence (in progress, 2026-10-17 UTC)
+
+Checkpoint `2fc682c1f79772431074f2837ffb447bf4859cf0` was pushed on the existing draft PR #14 branch,
+with matching `origin/codex/feature-recovery-018`. The shipped C# Hotkey/Exchange providers, Overview producer
+admission and Feature018 bridge, native Hotkey/shield, equipment, relocation and Food House Lua now accept an
+authenticated numeric UID and current agreeing native source/self/current server, pin the originating account
+across native callbacks and server replies, and reject request UID drift. The C# exchange stamps the observed
+authenticated UID into every native mailbox request, even City and Mini Game requests, avoiding an unbound
+command path. Fixed 2288 eligibility remains in the dedicated worker proof harness ONLY. Standalone C# Desktop
+checks, feature-specific Lua53 source and inverse checks, front-end production build/fingerprint and mounted UI
+checks all passed. Remaining City, Mini and attack-source changes are being reviewed separately.
+
+Installed v26 managed `Assembly-CSharp.rdl` SHA `bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e`
+exposes `WorldScene.GetRaycastHitMarch(Vector3)` token `0x06003ad1`, whose `WorldInputManager.GetRaycastHitMarch`
+token `0x0600305f` raycasts a `WorldArmy` collider from the supplied screen point and decodes `March_<i64>`;
+the xLua wrapper token is `0x06008d32`. Source `WorldTroop.GetMarchUUID` token `0x060027cf`,
+`WorldTroop.IsMonsterTroop` `0x06002793`, `IsWorldBossTroop` `0x06002797`, and native manager
+GetMarch/GetTroop independently resolve exact IDs. This is the first located current-screen world-troop hit
+identity, beyond the historical `curTouchPoint` last-click field. Ground point uses original
+`WorldScene.GetTouchPoint(Vector3)` and `WorldToTile`/`TilePosToIndex`. Original v26
+`UIUtil.OnClickWorldTroop(marchUuid)` and `UIWorldPointBtn` `MarchUtil.OnClickStartMarch(ATTACK_MONSTER,...)`
+are the normal monster path; resource `OnClickWorld` and `MarchTargetType.COLLECT` use
+`World.GetResourcePointInfoByIndex`. These are method/IL/source observations, not yet live attack proof.
+
+A genuine isolated v26 staged session at `artifacts/map014-takeover/native-ui-20261017-150524` authenticated
+UID `2553945035002288`, server `2288`, and returned a **read-only** native `cursorPoint` receipt:
+screen pixel `(600,400)` projected through `WorldScene.GetTouchPoint+WorldToTile+TilePosToIndex` to tile `5069`,
+native world position `(136.509765625, 0, 100.52708435059)`, empty world-point classification,
+`requestDispatched=false`. The single sampled point has **not** been visually compared with a displayed tile,
+nor is it physical hover, target hit, squad send or server ACK. The session exited with
+`TaskCanceledException` in staged-proof queue; `run_ui.py` exitCode `2` accurately reports a proof error,
+while its independently audited `restorationAudit.state=proven` found all original game scripts identical,
+no recovery journal, and zero surviving task-owned processes. The historical failed proof is preserved;
+none of Q/W/E/R or A/S/D/F are yet classified as working live. The R13 owner-test ZIP must say so.

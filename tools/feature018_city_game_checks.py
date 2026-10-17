@@ -25,6 +25,21 @@ from feature018_mini_lua import ORIGINAL_ENTRY_SHA256  # noqa: E402
 MODULE = Path(__file__).with_name('feature018_city_game.lua')
 
 GAME = r'''
+NativeUid = '3133546747002212'
+NativeServer = 2212
+NativeLoggedIn = true
+LuaEntry = {Player={
+    GetSourceServerId=function() return NativeServer end,
+    GetSelfServerId=function() return NativeServer end,
+    GetCurServerId=function() return NativeServer end,
+}}
+setmetatable(LuaEntry.Player,{__index=function(_,key)
+    if key=='uid' then return NativeUid end
+end})
+GameEntry = {Network={}}
+setmetatable(GameEntry.Network,{__index=function(_,key)
+    if key=='Logined' then return NativeLoggedIn end
+end})
 CityTileCount = 5
 BuildingStateType = {Normal = 1, FoldUp = 2}
 BuildingTypes = {FUN_BUILD_MAIN = 700, LW_BUILD_GATE = 701, LW_BUILD_FLAG = 777}
@@ -151,10 +166,16 @@ Feature = {RegisterHandler = function(command, fn)
     handlers[command] = fn
     return true
 end, Array = function(value) return setmetatable(value,{__feature018_array=true}) end}
-function Act(name, props) return handlers[name](props or {}) end
+function RawAct(name,props) return handlers[name](props or {}) end
+function Act(name, props)
+    props=props or {}
+    if props.authorizedUid == nil then props.authorizedUid=NativeUid end
+    return RawAct(name,props)
+end
 function Fields(baseRevision, placements)
     return {baseRevision=baseRevision, placements=placements or '',
-       requestId='abc', profileId='p1',launchSessionId='session1',challenge='nonce'}
+       requestId='abc', profileId='p1',launchSessionId='session1',
+       challenge='nonce',authorizedUid=NativeUid}
 end
 '''
 
@@ -170,6 +191,102 @@ def fake():
 def check(condition: bool, message: str) -> None:
     if not condition:
         raise AssertionError('FEATURE018_CITY_GAME: ' + message)
+
+
+def check_account_ownership() -> None:
+    for uid, server in (('3133546747002212', 2212),
+                        ('3133546747002289', 2289)):
+        lua, producer = fake()
+        lua.globals().NativeUid = uid
+        lua.globals().NativeServer = server
+        commands = (
+            'city_layout_snapshot_get', 'city_layout_validate',
+            'city_layout_apply_start', 'city_layout_apply_status',
+            'city_layout_apply_cancel', 'city_layout_restore_preflight',
+            'city_layout_restore_start',
+        )
+        for command in commands:
+            no_uid = lua.globals().RawAct(command, lua.table_from({}))
+            forged = lua.globals().RawAct(command, lua.table_from({
+                'authorizedUid': '3133546747009999',
+            }))
+            check(no_uid['state'] == 'failed' and
+                  no_uid['errorCode'] == 'CITY_LAYOUT_ACCOUNT_UNAUTHORIZED' and
+                  forged['state'] == 'failed' and
+                  forged['errorCode'] == 'CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+                  f'{server}: {command} accepted missing/forged game UID')
+        legit = lua.globals().Act('city_layout_snapshot_get')
+        check(legit['state'] == 'confirmed', f'{server}: native City read rejected')
+        revision = legit['data']['layoutRevision']
+        valid = lua.globals().Act('city_layout_validate',
+                                  lua.globals().Fields(revision, '101:3'))
+        check(valid['state'] == 'confirmed' and valid['data']['valid'] is True,
+              f'{server}: source-valid City plan rejected')
+        start = lua.globals().Act('city_layout_apply_start',
+                                  lua.globals().Fields(revision, '101:2;102:1'))
+        check(start['state'] == 'accepted' and len(lua.globals().ObservedMoves) == 1,
+              f'{server}: native Move not admitted on current account')
+
+        # A different account logs in *before* the original Move reply.
+        # The native original handler may run, but it must never license the
+        # old account's remaining swap steps or a new conflicting packet.
+        other_uid, other_server = (
+            ('3133546747002289', 2289) if server == 2212
+            else ('3133546747002212', 2212))
+        job_id = start['data']['status']['jobId']
+        lua.globals().NativeUid = other_uid
+        lua.globals().NativeServer = other_server
+        lua.execute('ConfirmNativeMove(101,3)')
+        producer.Pump()
+        check(producer.active['errorCode'] ==
+              'CITY_LAYOUT_ACCOUNT_CHANGED_UNCERTAIN' and
+              producer.active['accountChanged'] is True and
+              producer.active['waiting'] is not None and
+              producer.active['completed'] == 0 and
+              len(lua.globals().ObservedMoves) == 1,
+              f'{server}: switched-account late ACK escaped uncertain tombstone')
+        old_fields = lua.globals().Fields(revision, '101:4')
+        old_fields['authorizedUid'] = uid
+        check(lua.globals().RawAct('city_layout_apply_status', old_fields)
+              ['errorCode'] == 'CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+              f'{server}: old UID read accepted under successor account')
+        new_fields = lua.globals().Fields(revision, '101:4')
+        new_fields['jobId'] = job_id
+        check(lua.globals().Act('city_layout_apply_status',
+                                new_fields)['data']['state'] == 'idle',
+              f'{server}: successor could inspect prior City job')
+        for action in ('city_layout_apply_cancel',
+                       'city_layout_restore_preflight',
+                       'city_layout_restore_start'):
+            new_fields['restoreOptIn'] = '1'
+            check(lua.globals().Act(action, new_fields)['state'] == 'failed',
+                  f'{server}: successor accessed prior job {action}')
+        check(lua.globals().Act('city_layout_apply_start', new_fields)
+              ['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+              len(lua.globals().ObservedMoves) == 1,
+              f'{server}: successor retried old account uncertain native packet')
+        lua.globals().NativeUid = uid
+        lua.globals().NativeServer = server
+        producer.Pump()
+        check(producer.active['accountChanged'] is True and
+              producer.active['waiting'] is not None and
+              len(lua.globals().ObservedMoves) == 1,
+              f'{server}: account switch-back revived an old unnonced ACK')
+        check(lua.globals().Act('city_layout_apply_start',
+              lua.globals().Fields(revision, '101:4'))['errorCode'] ==
+              'CITY_LAYOUT_RESULT_UNCERTAIN',
+              f'{server}: old uncertain Move accepted after switching back')
+
+    lua, _ = fake()
+    lua.globals().NativeLoggedIn = False
+    check(lua.globals().Act('city_layout_snapshot_get')['errorCode'] ==
+          'CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+          'logged-out City read admitted')
+    lua.globals().NativeLoggedIn = True
+    lua.execute('LuaEntry.Player.GetSelfServerId=function() return 2289 end')
+    check(lua.globals().Act('city_layout_snapshot_get')['errorCode'] ==
+          'CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+          'disagreeing source/self/current server admitted')
 
 
 def check_original_game_wire() -> None:
@@ -375,6 +492,7 @@ def check_original_game_wire() -> None:
 
 def main():
     check_original_game_wire()
+    check_account_ownership()
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
     snap = get('city_layout_snapshot_get')

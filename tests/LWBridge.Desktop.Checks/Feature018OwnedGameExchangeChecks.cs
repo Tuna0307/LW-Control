@@ -259,6 +259,21 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(pixelNative.Count == 3 && pixelNative["samplePixelX"] == "1432" &&
                 pixelNative["samplePixelY"] == "706",
             "read-only cursor pixel coordinate validation lost both sampled inputs");
+        var hoverOpen = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "cursorOpen", targetKind = "monster" }));
+        Require(hoverOpen.Count == 2 && hoverOpen["mode"] == "cursorOpen" &&
+            hoverOpen["targetKind"] == "monster",
+            "native cursor UI selector admission lost verified hover-target kind");
+        foreach (object invalidHover in new object[]
+        {
+            new { mode = "cursorOpen", targetKind = "worldBoss" },
+            new { mode = "cursorOpen", targetKind = "monster", targetUuid = "9922" },
+            new { mode = "cursorOpen", targetKind = "resource", samplePixelX = 400 },
+            new { mode = "cursorOpen", targetKind = "city", samplePixelY = 100 },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+                    JsonSerializer.SerializeToElement(invalidHover))));
         foreach (string relocation in new[] { "randomRelocate", "allianceRelocate" })
         {
             Dictionary<string, string> readiness = Feature018GameCommandService.ReadFields(

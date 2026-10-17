@@ -222,40 +222,73 @@ end
 -- SEPARATE fields. It does not obtain the CURRENT physical mouse position.
 -- Keep a source-native typed-target witness; never convert a remembered
 -- World.curTouchPoint or caller-supplied cursor coordinates into an attack.
+local function native_account()
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local uid=ident(member(player,"uid"))
+    if not uid then return nil end
+    local server
+    for _,method in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok,value=invoke(player,method)
+        local id=ident(value)
+        if not ok or not id or (server and server~=id) then return nil end
+        server=id
+    end
+    return {uid=uid,server=server,player=player}
+end
+
 local function native_selector_target(ctrl,uid)
     local kind=member(ctrl,"targetType")
     local kinds=rawget(_G,"MarchTargetType")
     local is_city=kind~=nil and kind==member(kinds,"ATTACK_CITY")
     local is_army=kind~=nil and kind==member(kinds,"ATTACK_ARMY")
     local is_monster=kind~=nil and kind==member(kinds,"ATTACK_MONSTER")
+    local is_resource=kind~=nil and kind==member(kinds,"COLLECT")
+    local is_ruin=kind~=nil and kind==member(kinds,"ATTACK_PLAYER_RUIN_BUILDING")
     local uuid,native_uuid=ident(member(ctrl,"targetUuid"))
-    if not uuid or not (is_city or is_army or is_monster) then
-        return nil, failed("Open a native formation selector on a typed city/army/monster target")
+    if (not uuid and not is_resource) or
+       not (is_city or is_army or is_monster or is_resource or is_ruin) then
+        return nil, failed("Open a native formation selector on a typed city/army/monster/resource/ruin target")
     end
     local point=member(ctrl,"targetPoint")
     local point_id=ident(point)
-    if is_city and not point_id then
-        return nil, failed("Native city selector has no original targetPoint")
+    if (is_city or is_resource or is_ruin) and not point_id then
+        return nil, failed("Native point selector has no original targetPoint")
+    end
+    local account=native_account()
+    if not account or account.uid~=uid then
+        return nil,failed("Native selector account changed")
     end
     local selector_server=member(ctrl,"targetServerId")
     local server=number(selector_server)
     if selector_server~=nil and (server==nil or
-       (server>0 and server~=2288)) then
+       (server>0 and tostring(server)~=account.server)) then
         return nil, failed("Native target selector server differs from admitted owner server")
     end
     local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok,target
-    if is_city then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
+    if is_resource then ok,target=invoke(world,"GetResourcePointInfoByIndex",tonumber(point_id))
+    elseif is_city or is_ruin then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
     else ok,target=invoke(world,"GetMarch",native_uuid) end
-    if not ok or ident(member(target,"uuid"))~=uuid then
+    if not ok or target==nil or (not is_resource and ident(member(target,"uuid"))~=uuid) then
         return nil, failed("Native typed selector target is absent or changed")
     end
+    if is_resource and (not integer(member(target,"id")) or
+        not integer(member(target,"mainIndex")) or
+        (member(target,"gatherMarchUuid")~=nil and
+         tostring(member(target,"gatherMarchUuid"))~="0")) then
+        return nil,failed("Native resource selector is occupied or lacks resource identity")
+    end
+    if is_resource and member(ctrl,"targetUuid")~=nil and
+       tostring(member(ctrl,"targetUuid"))~="0" then
+        return nil,failed("Original COLLECT selector unexpectedly contains a UUID")
+    end
+    if is_resource then uuid=ident(member(target,"mainIndex")) end
     local owner=ident(member(target,"ownerUid"))
     if owner==uid then
         return nil, failed("Native typed selector target belongs to approved own account")
     end
     local target_server=member(target,"serverId")
-    if target_server~=nil and number(target_server)~=2288 then
+    if target_server~=nil and tostring(target_server)~=account.server then
         return nil, failed("Native typed selector target belongs to another server")
     end
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
@@ -497,20 +530,10 @@ end
 local function owner_and_focus(fields, input_clear, read_only)
     local session = exact_session(fields)
     if not session then return nil, failed("Exact bridge game-session identity absent") end
-    local player = member(rawget(_G,"LuaEntry"),"Player")
-    local uid = ident(member(player,"uid"))
-    if not uid or type(fields.authorizedUid) ~= "string" or
-       fields.authorizedUid ~= uid then
+    local account=native_account()
+    local uid=account and account.uid
+    if not uid or type(fields.authorizedUid) ~= "string" or fields.authorizedUid ~= uid then
         return nil, failed("Fresh game UID must match admitted owner-session UID")
-    end
-    if uid ~= "2553945035002288" then
-        return nil, failed("Only the authorized server-2288 sub-account may act")
-    end
-    for _, method in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
-        local ok, server = invoke(player, method)
-        if not ok or not (server == 2288 or server == "2288") then
-            return nil, failed("Only the authorized server-2288 sub-account may act")
-        end
     end
     if not read_only and
        (type(input_clear) ~= "function" or input_clear() ~= true) then
@@ -519,7 +542,7 @@ local function owner_and_focus(fields, input_clear, read_only)
     -- A reconnect must not silently discard an unacknowledged spend. A new
     -- session can observe its previous poststate, but cannot immediately
     -- double-send the same slot while that outcome remains uncertain.
-    current_session = session
+    current_session = session .. "/" .. uid .. "/" .. account.server
     return uid, nil
 end
 
@@ -940,12 +963,392 @@ local function attack_readiness(fields,uid)
     }}
 end
 
+-- Actual main-world source: installed Assembly-CSharp.rdl WorldScene
+-- GetTouchPoint() token 0x060039e6 reads WorldCamera.GetRaycastGroundPoint(
+-- UnityEngine.Input.mousePosition); GetTouchPoint(Vector3) token 0x060039e7
+-- uses a supplied screen position; WorldToTile + TilePosToIndex are the
+-- original world-tile projection. WorldPointObject.OnClickWorldPointObject
+-- token 0x060035e2 calls Lua UIUtil.OnClickWorld(pointIndex,1), whose
+-- category-specific target resolution still needs independent evidence.
+-- This only observes the native world tile; it never clicks/sends.
+local function native_cursor_point(fields, uid)
+    local account=native_account()
+    if not account or account.uid~=uid then
+        return nil,failed("Native world cursor owner changed")
+    end
+    local scene=member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    if not scene or type(member(scene,"GetTouchPoint"))~="function" or
+       type(member(scene,"WorldToTile"))~="function" or
+       type(member(scene,"TilePosToIndex"))~="function" then
+        return nil,unsupported("Native world scene is not available for cursor projection")
+    end
+    local unity=member(rawget(_G,"CS"),"UnityEngine")
+    local screen=member(unity,"Screen")
+    local input=member(unity,"Input")
+    local width=number(member(screen,"width"))
+    local height=number(member(screen,"height"))
+    if not width or not height or width<1 or height<1 then
+        return nil,unsupported("Native Unity viewport dimensions unavailable")
+    end
+    local sampled=fields.samplePixelX~=nil or fields.samplePixelY~=nil
+    local pos
+    if sampled then
+        local x,y=number(fields.samplePixelX),number(fields.samplePixelY)
+        if not x or not y then return nil,failed("Both finite cursor sample coordinates are required") end
+        pos={x=x,y=y}
+    else
+        pos=member(input,"mousePosition")
+    end
+    local x,y=number(member(pos,"x")),number(member(pos,"y"))
+    if not x or not y or x<0 or y<0 or x>=width or y>=height then
+        return nil,failed("Current cursor is outside the native Unity game viewport")
+    end
+    local intersection,ok_hit
+    if sampled then
+        local vector=rawget(_G,"Vector3") or member(unity,"Vector3")
+        local create=member(vector,"New")
+        if type(create)~="function" then
+            return nil,unsupported("Native Unity vector constructor unavailable")
+        end
+        local ok_v,point=pcall(create,x,y,0)
+        if not ok_v or not point then return nil,unsupported("Native sampled cursor position invalid") end
+        ok_hit,intersection=invoke(scene,"GetTouchPoint",point)
+    else
+        -- The installed v26 WorldScene.GetTouchPoint overload takes a
+        -- UnityEngine.Vector3 screen point (managed token 0x060039e7).
+        -- Input.mousePosition is already that precise native Vector3;
+        -- calling the method with no argument would never project a real
+        -- physical cursor, even if sampled diagnostics happened to pass.
+        ok_hit,intersection=invoke(scene,"GetTouchPoint",pos)
+    end
+    if not ok_hit or intersection==nil then
+        return nil,unsupported("Native WorldScene.GetTouchPoint raycast unavailable")
+    end
+    local ok_tile_pos,tile_pos=invoke(scene,"WorldToTile",intersection)
+    if not ok_tile_pos or tile_pos==nil then
+        return nil,unsupported("Native WorldScene.WorldToTile failed")
+    end
+    local ok_tile,raw_tile=invoke(scene,"TilePosToIndex",tile_pos)
+    local tile=ok_tile and ident(raw_tile) or nil
+    if not tile then return nil,unsupported("Cursor world intersection has no native world tile") end
+    local point_class={
+        [1]="collect_resource",[4]="ordinary_monster",[5]="world_boss_excluded",
+        [6]="player_city",[7]="resource_node",[9]="sample_point",
+        [11]="alliance_city",[13]="new_sample_point",
+        [15]="alliance_build",[25]="city_stronghold",
+        [26]="alliance_collect_resource",
+        [38]="destroyed_city_ruin",[1003]="ordinary_simple_monster"}
+    -- UIUtil.OnClickWorld first reads World:GetPointInfo(tileIndex). For
+    -- secondary/occupied tiles, it resolves the authoritative mainIndex.
+    -- The pointType values are source-pinned managed WorldPointType constants.
+    local ok_point,point=invoke(scene,"GetPointInfo",tonumber(tile))
+    local main=ok_point and ident(member(point,"mainIndex")) or nil
+    local is_main=member(point,"isMainPoint")
+    if is_main==false and main then
+        local ok_canonical,canonical=invoke(scene,"GetPointInfo",tonumber(main))
+        if not ok_canonical or canonical==nil then
+            return nil,unsupported("Native world object's main tile is unavailable")
+        end
+        point=canonical
+    end
+    local point_type=number(member(point,"PointType"))
+        or number(member(point,"pointType"))
+    local kind=point_type and point_class[point_type] or nil
+    local target={
+        pointIndex=tile,mainIndex=main,worldPointType=point_type,
+        category=kind or (point==nil and "empty_world_tile" or "unknown_world_point_type"),
+        uuid=ident(member(point,"uuid")),
+        ownerUid=ident(member(point,"ownerUid")),
+        source="UIUtil.OnClickWorld:GetPointInfo and original managed WorldPointType",
+        targetMethodSelected=false,nativeMarchTargetValidated=false,
+        safeToDispatchFromPhysicalCursor=false}
+    local last_touch=member(scene,"curTouchPoint")
+    local last_tile=nil
+    if last_touch~=nil then
+        local ok_last,old_pos=invoke(scene,"WorldToTile",last_touch)
+        if ok_last and old_pos~=nil then
+            local ok_old,old=invoke(scene,"TilePosToIndex",old_pos)
+            if ok_old then last_tile=ident(old) end
+        end
+    end
+    if not sampled then
+        local current=member(input,"mousePosition")
+        if number(member(current,"x"))~=x or number(member(current,"y"))~=y then
+            return nil,failed("Unity mouse moved during native world cursor projection")
+        end
+    end
+    local server_check=native_account()
+    if not server_check or server_check.uid~=account.uid or
+       server_check.server~=account.server or
+       member(member(rawget(_G,"CS"),"SceneManager"),"World")~=scene then
+        return nil,failed("Native account or world scene changed during cursor projection")
+    end
+    return {pixelX=x,pixelY=y,screenWidth=width,screenHeight=height,
+        worldX=number(member(intersection,"x")),worldY=number(member(intersection,"y")),
+        worldZ=number(member(intersection,"z")),pointIndex=tile,
+        lastTouchTileIndex=last_tile,serverId=tonumber(account.server),
+        ownerUid=account.uid,readOnly=sampled,physicalCursorRead=not sampled,
+        source="WorldScene.GetTouchPoint+WorldToTile+TilePosToIndex",
+        nativeMainWorldTileProjected=true,targetTypeVerified=kind~=nil,
+        target=target,safeToDispatchFromPhysicalCursor=false,
+        requestDispatched=false},nil
+end
+
+-- Managed v26 WorldScene.GetRaycastHitMarch(Vector3), token 0x06003ad1,
+-- raycasts WorldArmy and reads a March_<Int64> collider name. The xLua
+-- wrapper at 0x06008d32 returns the Int64 to Lua. Never use tonumber() on
+-- this value: a floating point conversion corrupts march UUIDs above 2^53.
+local function exact_march_id(value)
+    if value==nil or type(value)=="boolean" then return nil end
+    if type(value)=="number" and
+       (not math.type or math.type(value)~="integer") then return nil end
+    local decimal=tostring(value)
+    if not decimal:match("^[1-9]%d*$") or #decimal>19 then return nil end
+    return decimal
+end
+
+local cursor_open_pending
+local function native_hover_target(fields,uid)
+    if fields.samplePixelX~=nil or fields.samplePixelY~=nil then
+        return nil,failed("Native hover action requires the physical game cursor")
+    end
+    local cursor,reason=native_cursor_point(fields,uid)
+    if not cursor then return nil,reason end
+    local scene=member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    local unity=member(rawget(_G,"CS"),"UnityEngine")
+    local create=member(rawget(_G,"Vector3"),"New") or
+        member(member(unity,"Vector3"),"New")
+    if type(create)~="function" or
+       type(member(scene,"GetRaycastHitMarch"))~="function" then
+        return nil,unsupported("Native WorldArmy march cursor raycast unavailable")
+    end
+    local pointer=member(member(unity,"Input"),"mousePosition")
+    if number(member(pointer,"x"))~=cursor.pixelX or
+       number(member(pointer,"y"))~=cursor.pixelY then
+        return nil,failed("Physical mouse moved during hovered-target acquisition")
+    end
+    local ok_vec,screen=pcall(create,cursor.pixelX,cursor.pixelY,0)
+    if not ok_vec or screen==nil then
+        return nil,unsupported("Native WorldArmy raycast screen vector unavailable")
+    end
+    local ok_hit,hit=invoke(scene,"GetRaycastHitMarch",screen)
+    if not ok_hit then return nil,unsupported("Native WorldArmy march raycast failed") end
+    local hit_id=exact_march_id(hit)
+    if hit~=nil and tostring(hit)~="0" and hit_id==nil then
+        return nil,failed("Native WorldArmy raycast returned an invalid Int64 march identity")
+    end
+    local intent=fields.targetKind
+    if intent==nil then intent=hit_id and "monster" or "resource" end
+    local account=native_account()
+    if not account or account.uid~=uid or
+       tostring(cursor.serverId)~=account.server or
+       member(member(rawget(_G,"CS"),"SceneManager"),"World")~=scene then
+        return nil,failed("Native world/account changed during hover acquisition")
+    end
+    if intent=="monster" then
+        if not hit_id then
+            return nil,failed("Physical cursor is not over a native WorldArmy monster march")
+        end
+        local center=rawget(_G,"DataCenter")
+        local manager=member(center,"WorldMarchDataManager")
+        local ok_march,march=invoke(manager,"GetMarch",hit)
+        local ok_scene_march,world_march=invoke(scene,"GetMarch",hit)
+        local ok_troop,troop=invoke(scene,"GetTroop",hit)
+        local ok_troop_id,troop_uuid=invoke(troop,"GetMarchUUID")
+        local ok_monster,is_monster=invoke(troop,"IsMonsterTroop")
+        local ok_boss,is_boss=invoke(troop,"IsWorldBossTroop")
+        if not ok_march or not ok_scene_march or not ok_troop or
+           not ok_troop_id or not ok_monster or not ok_boss or
+           exact_march_id(member(march,"uuid"))~=hit_id or
+           exact_march_id(member(world_march,"uuid"))~=hit_id or
+           exact_march_id(troop_uuid)~=hit_id or
+           is_monster~=true or is_boss~=false then
+            return nil,failed("Hovered march identity/type is absent, changed, or a world boss")
+        end
+        local ok_type,march_type=invoke(march,"GetMarchType")
+        local ordinary_type=member(rawget(_G,"NewMarchType"),"MONSTER")
+        local monster_id=integer(member(march,"monsterId"))
+        local ok_template,template=invoke(member(center,"MonsterTemplateManager"),
+            "GetMonsterTemplate",monster_id)
+        if not ok_type or ordinary_type==nil or march_type~=ordinary_type or
+           not monster_id or not ok_template or
+           number(member(template,"special"))~=0 then
+            return nil,failed("Hovered monster is special, unsupported, or lacks ordinary template proof")
+        end
+        for _,source in ipairs({march,world_march}) do
+            if exact_march_id(member(source,"ownerUid"))==uid or
+               (member(source,"serverId")~=nil and
+                tostring(member(source,"serverId"))~=account.server) then
+                return nil,failed("Hovered monster is owned or on another server")
+            end
+        end
+        local ok_pos,pos=invoke(troop,"GetPosition")
+        local transform=member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
+        local world_scene=member(rawget(_G,"ForceChangeScene"),"World")
+        if not ok_pos or pos==nil or type(transform)~="function" or
+           world_scene==nil then
+            return nil,unsupported("Original hovered monster WorldToTileIndex unavailable")
+        end
+        local ok_tile,point=pcall(transform,pos,world_scene)
+        if not ok_tile or not integer(point) then
+            return nil,failed("Hovered monster has no fresh native troop point")
+        end
+        return {category="ordinary_monster",targetType="ATTACK_MONSTER",
+            point=integer(point),uuid=hit,uuidText=hit_id,
+            server=account.server,uid=account.uid,scene=scene,
+            pixelX=cursor.pixelX,pixelY=cursor.pixelY,
+            source="WorldScene.GetRaycastHitMarch+WorldTroop.GetMarchUUID+GetMarch"},nil
+    end
+    if intent~="resource" then
+        return nil,failed("Unsupported native hover intent")
+    end
+    if hit_id then
+        return nil,failed("Physical cursor overlaps a troop; resource click target is ambiguous")
+    end
+    -- Original UIUtil.OnClickWorld uses the clicked PointInfo.pointIndex,
+    -- normalizing non-main occupied tiles through PointInfo.mainIndex.
+    local tile=integer(cursor.pointIndex)
+    local ok_point,point=invoke(scene,"GetPointInfo",tile)
+    if not ok_point or point==nil then
+        return nil,failed("Cursor has no native resource world point")
+    end
+    if member(point,"isMainPoint")==false then
+        local main=integer(member(point,"mainIndex"))
+        local ok_main,canonical=invoke(scene,"GetPointInfo",main)
+        if not main or not ok_main or canonical==nil then
+            return nil,failed("Cursor resource has no original main point")
+        end
+        point=canonical
+    end
+    if number(member(point,"PointType"))~=7 then
+        return nil,failed("Native hovered point is not an ordinary WorldResource")
+    end
+    local point_id=integer(member(point,"pointIndex"))
+    if not point_id then
+        return nil,failed("Native resource pointIndex is missing")
+    end
+    local ok_resource,resource=invoke(scene,"GetResourcePointInfoByIndex",point_id)
+    if not ok_resource or resource==nil or
+       not integer(member(resource,"id")) or
+       not integer(member(resource,"mainIndex")) then
+        return nil,failed("Native hovered resource record is missing")
+    end
+    local gathering=member(resource,"gatherMarchUuid")
+    if gathering~=nil and tostring(gathering)~="0" then
+        return nil,failed("Native hovered resource has an existing gathering march")
+    end
+    if (member(point,"serverId")~=nil and
+        tostring(member(point,"serverId"))~=account.server) or
+       (member(resource,"serverId")~=nil and
+        tostring(member(resource,"serverId"))~=account.server) then
+        return nil,failed("Hovered resource belongs to another server")
+    end
+    -- Original MarchUtil.OnGotoCollect -> TryStartMarch(COLLECT,nil,
+    -- forcedPoint,pointIndex,resource.mainIndex,...) sends mainIndex as the
+    -- correlated targetUid while the formation chooser targetUuid is nil.
+    return {category="ordinary_resource",targetType="COLLECT",point=point_id,
+        uuid=nil,uuidText=tostring(integer(member(resource,"mainIndex"))),
+        server=account.server,uid=account.uid,
+        scene=scene,pixelX=cursor.pixelX,pixelY=cursor.pixelY,
+        source="UIUtil.OnClickWorld+World.GetResourcePointInfoByIndex"},nil
+end
+
+local function native_hover_open(fields,input_clear,uid)
+    if fields.targetKind~=nil and fields.targetKind~="monster" and
+       fields.targetKind~="resource" then
+        return failed("Original hover targetKind must be monster or resource")
+    end
+    if cursor_open_pending and cursor_open_pending.session==current_session then
+        return failed("Earlier original cursor formation opening may still be pending")
+    end
+    local target,reason=native_hover_target(fields,uid)
+    if not target then return reason end
+    local slot=fields.slot
+    local formation
+    if slot~=nil then
+        if type(slot)~="string" or not slot:match("^[1-4]$") then
+            return failed("Hover shortcut requires original squad slot 1 to 4")
+        end
+        local center=rawget(_G,"DataCenter")
+        local ok_form,form=invoke(member(center,"ArmyFormationDataManager"),
+            "GetOneArmyInfoByIndex",tonumber(slot))
+        formation=ident(member(form,"uuid"))
+        if not ok_form or not formation or
+           (member(form,"ownerUid")~=nil and ident(member(form,"ownerUid"))~=uid) then
+            return failed("Native hover squad identity/owner unavailable")
+        end
+        local account=native_account()
+        local ok_idle,active=invoke(member(center,"WorldMarchDataManager"),
+            "GetOwnerFormationMarch",member(account and account.player,"uid"),
+            integer(member(form,"uuid")),member(account and account.player,"allianceId"))
+        if not ok_idle or active~=nil then
+            return failed("Native hover squad is occupied or cannot prove idle")
+        end
+    end
+    local opener=member(rawget(_G,"MarchUtil"),"OnClickStartMarch")
+    local kind=member(rawget(_G,"MarchTargetType"),target.targetType)
+    if type(opener)~="function" or kind==nil then
+        return unsupported("Original MarchUtil.OnClickStartMarch route unavailable")
+    end
+    if selected_window() then
+        return failed("An original formation selector is already open")
+    end
+    -- Raycast a SECOND time directly before the original UI entrypoint.
+    -- Neither a caller supplied position nor a remembered touch point is
+    -- allowed to substitute for the physical cursor's typed native object.
+    local fresh,changed=native_hover_target(fields,uid)
+    if not fresh then return changed end
+    if fresh.uid~=target.uid or fresh.server~=target.server or
+       fresh.scene~=target.scene or fresh.category~=target.category or
+       fresh.point~=target.point or fresh.uuidText~=target.uuidText or
+       fresh.pixelX~=target.pixelX or fresh.pixelY~=target.pixelY or
+       input_clear()~=true then
+        return failed("Native hover target or text focus changed before original selector")
+    end
+    local account=native_account()
+    if not account or account.uid~=uid or account.server~=target.server then
+        return failed("Original hover selector account changed before dispatch")
+    end
+    cursor_open_pending={session=current_session,uid=uid,server=account.server,
+        kind=fresh.targetType,point=fresh.point,uuid=fresh.uuidText,
+        slot=slot,formation=formation,consumed=false,sentAt=os.time()}
+    local ok,result
+    if fresh.targetType=="ATTACK_MONSTER" then
+        -- UIWorldPointBtn root/13 line1491 uses (kind,point,uuid,-1,1).
+        ok,result=pcall(opener,kind,fresh.point,fresh.uuid,-1,1)
+    else
+        -- UIWorldPointBtn root/13/43 line2265 passes the server in arg7.
+        ok,result=pcall(opener,kind,fresh.point,nil,nil,nil,nil,
+            tonumber(account.server))
+    end
+    if not ok or result==false then
+        return failed("Original hover selector invocation outcome uncertain; do not retry")
+    end
+    return {state="accepted",data={observation="original_native_hover_formation_entrypoint",
+        accepted=true,
+        targetCategory=fresh.category,targetPoint=tostring(fresh.point),
+        targetUuid=fresh.uuidText,targetServerId=tonumber(account.server),
+        ownerUid=uid,sourceServerId=tonumber(account.server),slot=slot and tonumber(slot) or nil,
+        formationUuid=formation,awaitingNativeChooser=true,chooserRequestMade=true,
+        nativeCursorRaycastVerified=true,originalUIInvoked=true,
+        nativeSelectorConfirmed=false,awaitingOriginalUI=true,
+        requestDispatched=false,worldMarchSent=false}}
+end
+
 function M.Prepare(fields, input_clear)
     local uid, denial = owner_and_focus(fields,input_clear,
-        fields.mode == "inventory" or fields.mode=="attackReadiness")
+        fields.mode == "inventory" or fields.mode=="attackReadiness" or
+        fields.mode=="cursorPoint")
     if not uid then return denial end
     if fields.mode=="staffingEditor" then return open_manual_staffing_editor(fields,uid) end
     if fields.mode=="attackReadiness" then return attack_readiness(fields,uid) end
+    if fields.mode=="cursorOpen" then return native_hover_open(fields,input_clear,uid) end
+    if fields.mode=="cursorPoint" then
+        local point,reason=native_cursor_point(fields,uid)
+        if not point then return reason end
+        return {state="confirmed",data={observation="native_world_cursor_tile_projection",
+            cursor=point,requestDispatched=false,readOnly=true}}
+    end
     if fields.mode=="selectorTarget" then
         local selection=selected_window()
         if not selection then return failed("Original formation selector not uniquely open") end
@@ -1050,10 +1453,12 @@ function M.Prepare(fields, input_clear)
         local open=member(rawget(_G,"UIUtil"),"OpenFormationSelectUI")
         local kind=member(rawget(_G,"MarchTargetType"),"ATTACK_MONSTER")
         if type(open)~="function" or not kind then return unsupported("Native formation selector helper unavailable") end
-        local ok_open=pcall(open,1,kind,selected.pointIndex,tonumber(selected.uuid),nil,nil,nil,2288,0)
+        local account=native_account()
+        if not account or account.uid~=uid then return failed("Native account changed before selector") end
+        local ok_open=pcall(open,1,kind,selected.pointIndex,tonumber(selected.uuid),nil,nil,nil,tonumber(account.server),0)
         if not ok_open then return failed("Native selector opening failed") end
         return {state="confirmed",data={observation="native_attack_selector_open_invoked",
-            targetUuid=selected.uuid,targetPoint=selected.pointIndex,targetServerId=2288,
+            targetUuid=selected.uuid,targetPoint=selected.pointIndex,targetServerId=tonumber(account.server),
             source="UIUtil.OpenFormationSelectUI",marchDispatched=false}}
     end
     return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",
@@ -1245,7 +1650,8 @@ local function attack_selected(fields, input_clear, uid)
             if result.state == "accepted" then
                 prior.rapidSent=true
                 return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
-                    awaitingGameConfirmation=true,requestDispatched=false}}
+                    awaitingGameConfirmation=true,requestDispatched=false,
+                    ownerUid=uid,sourceServerId=tonumber(prior.server)}}
             end
             -- The attack happened, but requested speedup did not confirm.
             -- Retain the fence so another key edge cannot double-spend.
@@ -1284,12 +1690,16 @@ local function attack_selected(fields, input_clear, uid)
                 observation="native_owned_formation_attack_target_transition",
                 slot=tonumber(fields.slot),marchUuid=uuid,formationUuid=formation,
                 targetUuid=prior.targetUuid,targetType=kind,
-                targetSource="open_native_formation_selector",currentCursorVerified=false,
+                targetSource=prior.hoverOrigin and "native_physical_hover_original_selector" or
+                    "open_native_formation_selector",
+                currentCursorVerified=prior.hoverOrigin==true,
+                ownerUid=uid,sourceServerId=tonumber(prior.server),
                 priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
                 currentStartTime=start_time,requestDispatched=false,
                 nativeMarchGuidMatchesRequest=true,
                 serverAcknowledgementCorrelated=true,nativeMarchPostStateVerified=true,
-                transaction=transaction_view(prior)}
+                transaction=transaction_view(prior),
+                nativeTransaction=transaction_view(prior)}
             if prior.allowItem or prior.allowDiamond then
                 local options=owned_speedup_items()
                 local chosen
@@ -1308,6 +1718,7 @@ local function attack_selected(fields, input_clear, uid)
         end
         return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
             awaitingGameConfirmation=true,requestDispatched=false,
+            ownerUid=uid,sourceServerId=tonumber(prior.server),
             nativeMarchPostStateVerified=fresh~=nil and kind==prior.kind and
                 ident(member(fresh,"targetUuid"))==prior.targetUuid and
                 native_guid_match==true,
@@ -1397,10 +1808,18 @@ local function attack_selected(fields, input_clear, uid)
     -- server since the beginning of this command; recheck at the send edge.
     local final_uid,final_owner_error=owner_and_focus(fields,input_clear,false)
     if final_uid~=uid then return final_owner_error end
+    local final_account=native_account()
+    if not final_account or final_account.uid~=uid then
+        return failed("Original attack owner changed before sender observation")
+    end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
-        allowDiamond=fields.allowRapidDiamond=="1",sendCount=0}
+        allowDiamond=fields.allowRapidDiamond=="1",sendCount=0,
+        hoverOrigin=cursor_open_pending~=nil and
+            cursor_open_pending.session==current_session and
+            cursor_open_pending.consumed==true and cursor_open_pending.slot==fields.slot,
+        server=final_account.server}
     local previous_invocation=active_attack_invocation
     active_attack_invocation=attacks[fields.slot]
     local ok, invocation_result = invoke(ctrl,method,form_number)
@@ -1424,11 +1843,95 @@ local function attack_selected(fields, input_clear, uid)
         transaction.senderReturned==true and transaction.senderReturnedFalse~=true
     return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
         targetUuid=target_uuid,targetType=kind,requestDispatched=dispatched,
+        ownerUid=uid,sourceServerId=tonumber(attacks[fields.slot].server),
         accepted=true,
         nativeControllerInvoked=true,
         nativeTransaction=transaction_view(attacks[fields.slot]),
         awaitingGameConfirmation=true,targetSource="open_native_formation_selector",
         currentCursorVerified=false}}
+end
+
+-- One physical Q/W edge may open a native formation chooser asynchronously.
+-- Persist its *original raycast* identity in this VM until the exact native
+-- chooser is available. A queryOnly poll may consume that intent ONCE; it
+-- must never raycast again, launch a second chooser, or retry a prior send.
+local function attack_from_native_hover(fields,input_clear,uid)
+    local prior=cursor_open_pending
+    if prior and prior.session==current_session then
+        if fields.slot~=prior.slot or prior.uid~=uid then
+            return failed("Pending hovered chooser belongs to another squad or account")
+        end
+        local account=native_account()
+        if not account or account.uid~=prior.uid or account.server~=prior.server then
+            return failed("Native hover chooser changed account or server")
+        end
+        if prior.consumed then
+            if fields.queryOnly=="1" and attacks[fields.slot] then
+                return attack_selected(fields,input_clear,uid)
+            end
+            return failed("Native hover chooser was already consumed once")
+        end
+        if os.time()-prior.sentAt>20 then
+            return failed("Original hover chooser expired; no automatic retry")
+        end
+        local center=rawget(_G,"DataCenter")
+        local ok_form,form=invoke(member(center,"ArmyFormationDataManager"),
+            "GetOneArmyInfoByIndex",tonumber(fields.slot))
+        if not ok_form or ident(member(form,"uuid"))~=prior.formation or
+           (member(form,"ownerUid")~=nil and ident(member(form,"ownerUid"))~=uid) then
+            return failed("Pending hover chooser's original squad changed")
+        end
+        local selector=selected_window()
+        if not selector then
+            return {state="accepted",data={
+                observation="original_hover_waiting_for_native_chooser",
+                accepted=true,
+                awaitingNativeChooser=true,awaitingGameConfirmation=false,
+                slot=tonumber(fields.slot),formationUuid=prior.formation,
+                targetPoint=tostring(prior.point),targetUuid=prior.uuid,
+                ownerUid=uid,sourceServerId=tonumber(account.server),
+                chooserRequestMade=true,
+                requestDispatched=false,nativeSelectorConfirmed=false}}
+        end
+        local target,reason=native_selector_target(selector.ctrl,uid)
+        if not target or target.kind~=member(rawget(_G,"MarchTargetType"),prior.kind) or
+           target.uuid~=prior.uuid or
+           not target.point or tonumber(target.point)~=prior.point or
+           (target.selectorServer~=nil and
+            tonumber(target.selectorServer)~=tonumber(account.server)) then
+            return reason or failed("Original hovered chooser target changed")
+        end
+        -- A second fresh owned formation check occurs inside attack_selected.
+        -- Set the one-shot latch BEFORE calling any original native callback.
+        prior.consumed=true
+        if input_clear()~=true then
+            return failed("Native game input focus changed before pending hovered attack")
+        end
+        local direct={}
+        for key,value in pairs(fields) do direct[key]=value end
+        direct.queryOnly=nil
+        local result=attack_selected(direct,input_clear,uid)
+        if type(result)=="table" and type(result.data)=="table" then
+            result.data.ownerUid=uid
+            result.data.sourceServerId=tonumber(account.server)
+            result.data.nativeCursorRaycastVerified=true
+            result.data.hoverSource="original_native_WorldArmy_or_WorldResource"
+            result.data.awaitingNativeChooser=false
+        end
+        return result
+    end
+    if fields.queryOnly=="1" then
+        return attack_selected(fields,input_clear,uid)
+    end
+    if selected_window() then return attack_selected(fields,input_clear,uid) end
+    local opened=native_hover_open(fields,input_clear,uid)
+    if opened.state~="accepted" then return opened end
+    local immediate=attack_from_native_hover(fields,input_clear,uid)
+    if immediate.state=="accepted" and immediate.data and
+       immediate.data.awaitingNativeChooser then
+        return immediate
+    end
+    return immediate
 end
 
 function M.Handle(fields, input_clear)
@@ -1437,12 +1940,23 @@ function M.Handle(fields, input_clear)
        fields.action ~= "speedupDiamond" then
         return unsupported("Unknown attack/rapid action")
     end
-    -- A status query is observation only. Never let Unity text editing hide
-    -- a legitimate poststate receipt or force a second spend to retrieve it.
+    -- Never accept caller-derived hovered IDs/tiles/pixels for a mutating
+    -- action, even if a native chooser is already open. Only the native
+    -- cursor and actual original selector may provide those target fields.
+    if fields.action=="attack" and
+       (fields.targetUuid~=nil or fields.targetType~=nil or
+        fields.targetPoint~=nil or fields.samplePixelX~=nil or
+        fields.samplePixelY~=nil) then
+        return failed("Physical attack target must come from native world hover")
+    end
+    -- queryOnly normally reads the prior send receipt. Exception: an exact
+    -- pending, one-shot original physical-key chooser intent may consume its
+    -- matching native Ctrl ONCE after a deferred opening. No new raycast/UI
+    -- opening or automatic second send is possible from a bare queryOnly.
     local uid, error = owner_and_focus(fields,input_clear,fields.queryOnly == "1")
     if not uid then return error end
     if fields.action == "attack" then
-        return attack_selected(fields,input_clear,uid)
+        return attack_from_native_hover(fields,input_clear,uid)
     end
     if fields.action == "speedupDiamond" then
         return speedup_diamond(fields,input_clear,uid)

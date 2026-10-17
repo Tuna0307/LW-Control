@@ -51,6 +51,7 @@ CS={SceneManager={World={
  GetPointInfo=function(self,pointId)
    if not state.worldPresent or pointId~=state.touchedTile then return nil end
    return {uuid=state.worldUuid,mainIndex=state.worldMain,
+           pointIndex=pointId,isMainPoint=true,PointType=state.worldPointType or 4,
            ownerUid=state.worldOwner,serverId=state.worldServer}
  end,
  GetPointInfoByUuid=function(self,uuid)
@@ -974,8 +975,12 @@ def test_manual_native_formation_editor_no_automatic_march():
             'second editor launch occurred while native editor already open')
     state.editorOpen=False
     state.serverId=2212
-    require(edit()['state']=='failed' and state.editOpens==1,
-            'main server account entered native formation editor')
+    require(edit()['state']=='confirmed' and state.editOpens==2,
+            'another authenticated native server was incorrectly denied by shipped product')
+    state.editorOpen=False
+    state.serverId=0
+    require(edit()['state']=='failed' and state.editOpens==2,
+            'unknown server identity entered native formation editor')
 
 
 def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
@@ -1227,10 +1232,218 @@ def test_readonly_end_to_end_source_prerequisites():
             'readiness ignored fixed slot or approved account identity')
 
 
+def test_original_world_scene_cursor_projection_is_read_only():
+    vm=LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    vm.execute("""
+      -- The original managed WorldScene.GetTouchPoint requires an explicit
+      -- Vector3 screen point. Physical Input.mousePosition is passed intact.
+      CS.UnityEngine={Screen={width=1280,height=1134},
+        Input={mousePosition={x=700,y=400}},
+        Vector3={New=function(x,y,z) return {x=x,y=y,z=z} end}}
+      Vector3=CS.UnityEngine.Vector3
+      state.touchPointCalls=0
+      state.worldTileCalls=0
+      CS.SceneManager.World.GetTouchPoint=function(self,p)
+        state.touchPointCalls=state.touchPointCalls+1
+        local screen=p
+        if not screen or screen.x~=700 or screen.y~=400 then return nil end
+        return {x=state.touchedX,y=0,z=state.touchedZ}
+      end
+      CS.SceneManager.World.WorldToTile=function(self,p)
+        state.worldTileCalls=state.worldTileCalls+1
+        return {x=p.x,z=p.z}
+      end
+      CS.SceneManager.World.TilePosToIndex=function(self,tile)
+        return tile.x==state.touchedX and tile.z==state.touchedZ
+            and state.touchedTile or nil
+      end
+    """)
+    state=vm.globals().state
+    mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+    base=dict(mode='cursorPoint',authorizedUid='2553945035002288',
+              profileId='profile',launchSessionId='launch',
+              challenge='request',gamePid='7020')
+    def probe(**changes):
+        return mod.Prepare(vm.table_from(dict(base,**changes)),vm.globals().input_clear)
+    sampled=probe(samplePixelX='700',samplePixelY='400')
+    require(sampled['state']=='confirmed' and
+            sampled['data']['cursor']['pointIndex']=='35723' and
+            sampled['data']['cursor']['target']['category']=='ordinary_monster' and
+            sampled['data']['cursor']['target']['safeToDispatchFromPhysicalCursor'] is False and
+            sampled['data']['cursor']['readOnly'] is True and
+            sampled['data']['cursor']['physicalCursorRead'] is False and
+            sampled['data']['requestDispatched'] is False and
+            state.touchPointCalls==1 and state.worldTileCalls>=1 and
+            state.attackDelegateCount==0 and state.rpcCount==0,
+            'sampled screen-to-world projection did not match native tile without sending')
+    state.worldPointType=5
+    boss=probe(samplePixelX='700',samplePixelY='400')
+    require(boss['state']=='confirmed' and
+            boss['data']['cursor']['target']['category']=='world_boss_excluded' and
+            boss['data']['cursor']['target']['safeToDispatchFromPhysicalCursor'] is False,
+            'hovered world boss was treated as actionable target')
+    state.worldPointType=7
+    resource=probe(samplePixelX='700',samplePixelY='400')
+    require(resource['state']=='confirmed' and
+            resource['data']['cursor']['target']['category']=='resource_node' and
+            state.attackDelegateCount==0 and state.rpcCount==0,
+            'resource observation incorrectly sent a march')
+    state.worldPointType=4
+    state.inputClear=False
+    physical=probe()
+    require(physical['state']=='confirmed' and
+            physical['data']['cursor']['pixelX']==700 and
+            physical['data']['cursor']['physicalCursorRead'] is True and
+            state.touchPointCalls==4 and
+            state.attackDelegateCount==0 and state.rpcCount==0,
+            'read-only native cursor projection incorrectly required focus or sent gameplay')
+    require(probe(samplePixelX='-1',samplePixelY='400')['state']=='failed' and
+            probe(samplePixelX='800')['state']=='failed',
+            'invalid viewport sample was accepted')
+    vm.execute("""
+      CS.SceneManager.World.GetTouchPoint=function(self,p)
+        state.serverId=2212
+        return {x=state.touchedX,y=0,z=state.touchedZ}
+      end
+    """)
+    require(probe(samplePixelX='700',samplePixelY='400')['state']=='failed' and
+            state.attackDelegateCount==0 and state.rpcCount==0,
+            'server transition during native WorldScene cursor projection was accepted')
+
+
+def test_original_hover_monster_and_resource_one_shot_chooser():
+    # Inert Lua53 fixture uses exact Int64 above the binary64 integer limit.
+    # Native raycast, native world march, troop and manager must all agree.
+    for target in ('monster', 'resource', 'boss', 'occupied_resource'):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.existingAbsent=true
+          state.hover=9007199254740993
+          state.openCalls=0
+          state.hoverType=7
+          state.resourceGather=0
+          state.worldPointType=7
+          state.worldMain=35723
+          MarchTargetType.ATTACK_MONSTER=19
+          MarchTargetType.COLLECT=20
+          NewMarchType={MONSTER=7}
+          CS.UnityEngine={Screen={width=1280,height=1134},
+            Input={mousePosition={x=700,y=400}},
+            Vector3={New=function(x,y,z) return {x=x,y=y,z=z} end}}
+          Vector3=CS.UnityEngine.Vector3
+          CS.SceneManager.World.GetTouchPoint=function(self,p)
+            assert(p~=nil and p.x==700 and p.y==400)
+            return {x=state.touchedX,y=0,z=state.touchedZ}
+          end
+          CS.SceneManager.World.WorldToTile=function(self,p)
+            return {x=p.x,z=p.z}
+          end
+          CS.SceneManager.World.TilePosToIndex=function(self,p)
+            return state.touchedTile
+          end
+          CS.SceneManager.World.GetRaycastHitMarch=function(self,p)
+            assert(p.x==700 and p.y==400)
+            return state.hover
+          end
+          CS.SceneManager.World.GetResourcePointInfoByIndex=function(self,id)
+            assert(id==35723)
+            return {id=301,pointIndex=35723,mainIndex=35723,
+              gatherMarchUuid=state.resourceGather,serverId=state.serverId}
+          end
+          CS.SceneManager.World.GetMarch=function(self,id)
+            if id~=state.hover or id==0 then return nil end
+            return {uuid=state.hover,monsterId=100,ownerUid=999,serverId=state.serverId}
+          end
+          CS.SceneManager.World.GetTroop=function(self,id)
+            if id~=state.hover or id==0 then return nil end
+            return {GetMarchUUID=function() return state.hover end,
+              IsMonsterTroop=function() return true end,
+              IsWorldBossTroop=function() return state.boss==true end,
+              GetPosition=function() return CS.SceneManager.World.curTouchPoint end}
+          end
+          local oldGetMarch=DataCenter.WorldMarchDataManager.GetMarch
+          DataCenter.WorldMarchDataManager.GetMarch=function(self,id)
+            if id==state.hover and id~=0 then
+              return {uuid=state.hover,monsterId=100,ownerUid=999,
+                serverId=state.serverId,GetMarchType=function()return 7 end}
+            end
+            return oldGetMarch(self,id)
+          end
+          DataCenter.MonsterTemplateManager={GetMonsterTemplate=function(self,id)
+            assert(id==100)
+            return {special=0,level=1}
+          end}
+          MarchUtil.OnClickStartMarch=function(...)
+            state.openCalls=state.openCalls+1
+            state.openArgs=table.pack(...)
+          end
+        """)
+        state=vm.globals().state
+        if target in ('resource','occupied_resource'):
+            vm.execute('state.hover=0')
+        if target=='boss':
+            vm.execute('state.boss=true')
+        if target=='occupied_resource':
+            vm.execute('state.resourceGather=555110')
+        mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        payload=dict(action='attack',slot='1',authorizedUid='2553945035002288',
+                     profileId='profile',launchSessionId='launch',
+                     challenge='request',gamePid='7020')
+        def execute(**changes):
+            return mod.Handle(vm.table_from(dict(payload,**changes)),
+                              vm.globals().input_clear)
+        first=execute()
+        if target in ('boss','occupied_resource'):
+            require(first['state']=='failed' and state.openCalls==0 and
+                    state.rpcCount==0,
+                    'world boss or occupied resource entered original march UI')
+            continue
+        require(first['state']=='accepted' and
+                first['data']['awaitingNativeChooser'] is True and
+                first['data']['requestDispatched'] is False and
+                first['data']['ownerUid']=='2553945035002288' and
+                first['data']['sourceServerId']==2288 and
+                first['data']['chooserRequestMade'] is True and
+                first['data']['formationUuid']=='1001' and
+                state.openCalls==1 and state.rpcCount==0,
+                'physical hover did not invoke one source-native chooser without sending')
+        args=state.openArgs
+        if target=='monster':
+            require(args[1]==19 and args[2]==35723 and
+                    str(args[3])=='9007199254740993' and
+                    args[4]==-1 and args[5]==1 and args['n']==5 and
+                    first['data']['targetUuid']=='9007199254740993',
+                    'native WorldArmy Int64 march UUID was rounded or wrong formation args')
+        else:
+            require(args[1]==20 and args[2]==35723 and args[3] is None and
+                    args[7]==2288 and args['n']==7 and
+                    first['data']['targetUuid']=='35723',
+                    'original resource gather selector/mainIndex/send namespace was lost')
+        pending=execute(queryOnly='1')
+        require(pending['state']=='accepted' and
+                pending['data']['awaitingNativeChooser'] is True and
+                pending['data']['requestDispatched'] is False and
+                state.openCalls==1 and state.rpcCount==0,
+                'queryOnly chooser poll repeated a physical hover or sent a march')
+        repeat=execute()
+        require(repeat['state']=='accepted' and state.openCalls==1 and
+                state.rpcCount==0,
+                'repeated physical hotkey reopened already pending native chooser')
+        state.serverId=2212
+        changed=execute(queryOnly='1')
+        require(changed['state']=='failed' and state.openCalls==1 and
+                state.rpcCount==0,
+                'account/server switch continued frozen hover intent')
+
+
 def main():
     check_original()
     check_installed_managed_nonce_source()
     test_selected_attack_and_diamond()
+    test_original_world_scene_cursor_projection_is_read_only()
+    test_original_hover_monster_and_resource_one_shot_chooser()
     test_attack_final_action_boundary_and_sender_truth()
     test_attack_sender_correlation_negatives()
     test_native_prepare_helper()
@@ -1247,10 +1460,11 @@ def main():
             "native inventory must exclude absent templates and unowned items")
     require(state["rpcCount"] == 0, "inventory introspection dispatched an RPC")
     preflight = call(action="attack")
-    require(preflight["state"] == "failed" and state["rpcCount"] == 0,
-            "attack without native selector must fail without dispatch")
-    require(call(action="attack", targetUuid="990123", targetType="ATTACK_CITY")["state"] == "failed",
-            "caller target fields may not substitute a native selector")
+    require(preflight["state"] in ("failed", "unsupported") and state["rpcCount"] == 0,
+            "attack without a verifiable live native hovered target must not dispatch")
+    require(call(action="attack", targetUuid="990123", targetType="ATTACK_CITY")["state"] in
+            ("failed", "unsupported") and state["rpcCount"] == 0,
+            "caller target fields may not substitute a physical native hovered target")
     readonly_target = inspect()
     require(readonly_target["state"] == "confirmed",
             "owned speedup inventory regressed after target preflight")
@@ -1409,7 +1623,7 @@ def main():
         ({"authorizedUid": "300"}, "failed", "wrong admitted account"),
         ({"profileId": "unsafe session"}, "failed", "forged bridge identity"),
         ({"slot": "5"}, "failed", "unknown formation"),
-        ({"action": "attack"}, "failed", "cursor-selected target unresolved"),
+        ({"action": "attack"}, "unsupported", "cursor-selected target unresolved"),
         ({"action": "speedupDiamond"}, "unsupported", "diamond confirmation UI unresolved"),
     ]
     for fields, expected, label in cases:

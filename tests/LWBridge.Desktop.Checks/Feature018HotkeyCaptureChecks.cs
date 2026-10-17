@@ -115,6 +115,7 @@ internal static class Feature018HotkeyCaptureChecks
 
     internal static async Task RunAsync()
     {
+        await AttackNativeChooserContinuationChecksAsync();
         var recognizer = new Feature018HotkeyRecognizer();
         Require(recognizer.Observe(Down(Keys.Q), true, true) is null, "held key on first focus triggered");
         Require(recognizer.Observe(Down(Keys.Q), true, true) is null, "repeat after focus triggered");
@@ -909,6 +910,218 @@ internal static class Feature018HotkeyCaptureChecks
         await EquipmentReadOnlyPreflightChecksAsync();
         await QueuedStageReinforcementChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static async Task AttackNativeChooserContinuationChecksAsync()
+    {
+        var session = new Feature018HotkeySession("other-profile", "other-session",
+            "3133546747002212", 2212);
+        var captured = new Feature018HotkeyCommand(session,
+            new(Feature018HotkeyKind.AttackSquad, 3), AllowMarchSpeedupItems: true);
+        JsonElement chooser = JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+            chooserRequestMade = true, action = "attack", slot = 3,
+            formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+        });
+        JsonElement waiting = JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+            chooserRequestMade = true, action = "attack", slot = 3,
+            formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+        });
+        JsonElement sent = JsonSerializer.SerializeToElement(new
+        {
+            accepted = true, requestDispatched = true, awaitingGameConfirmation = true,
+            action = "attack", slot = 3, formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+            nativeTransaction = new
+            {
+                formation = "9007199254740993", sendCount = 1,
+                outboundRoute = "WorldMarchFormationNew", senderReturned = true,
+                senderReturnedFalse = false,
+                outboundFormationOrMarch = "9007199254740993",
+                unattributedMatchingSendObserved = false, unattributedSendCount = 0,
+            },
+        });
+        JsonElement verified = JsonSerializer.SerializeToElement(new
+        {
+            action = "attack", slot = 3, formationUuid = "9007199254740993",
+            ownerUid = session.GameUid, sourceServerId = session.ServerId,
+            observation = "native_owned_formation_attack_target_transition",
+            marchUuid = "9007199254741999", targetUuid = "22334455",
+            targetType = 9, targetSource = "native_physical_hover_original_selector",
+            currentCursorVerified = true, nativeMarchPostStateVerified = true,
+            nativeMarchGuidMatchesRequest = true,
+            serverAcknowledgementCorrelated = true,
+            nativeTransaction = new
+            {
+                formation = "9007199254740993", sendCount = 1,
+                outboundRoute = "WorldMarchFormationNew", senderReturned = true,
+                senderReturnedFalse = false,
+                outboundFormationOrMarch = "9007199254740993",
+                unattributedMatchingSendObserved = false, unattributedSendCount = 0,
+            },
+        });
+        var happy = new StubNativeCommandService();
+        happy.Receipt = () => happy.Calls switch
+        {
+            1 => chooser, 2 => waiting, 3 => sent, _ => verified,
+        };
+        var provider = new Feature018HotkeyNativeProviders(happy).Create()[
+            Feature018HotkeyKind.AttackSquad];
+        Feature018HotkeyActionOutcome success = await provider(captured, CancellationToken.None);
+        Require(success.Working && happy.Calls == 4 &&
+                happy.LastPayload.GetProperty("queryOnly").GetBoolean() &&
+                happy.LastPayload.GetProperty("expectedGameUid").GetString() == session.GameUid &&
+                happy.LastPayload.GetProperty("expectedServerId").GetInt32() == session.ServerId,
+            "native attack chooser was not observed through a single initial request and three read-only polls");
+
+        // Query-only continuation never inherits speedup item/diamond consent
+        // or treats the next poll as a second captured keyboard press.
+        var calls = new List<JsonElement>();
+        var single = new StubNativeCommandService();
+        single.Receipt = () =>
+        {
+            calls.Add(single.LastPayload.Clone());
+            // A chooser-only native sequence must never fabricate the one
+            // WorldMarchFormationNew transaction required for confirmation.
+            return single.Calls == 1 ? chooser : waiting;
+        };
+        var noRpc = await new Feature018HotkeyNativeProviders(single).Create()[
+            Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+        Require(noRpc.Status == Feature018HotkeyActionStatus.Submitted &&
+                !noRpc.Working && single.Calls == 11 &&
+                !calls[0].TryGetProperty("queryOnly", out _) &&
+                calls[0].GetProperty("allowRapidItem").GetBoolean() &&
+                calls.Skip(1).All(item =>
+                    item.GetProperty("queryOnly").GetBoolean() &&
+                    item.GetProperty("authorizedUid").GetString() == session.GameUid &&
+                    item.GetProperty("expectedGameUid").GetString() == session.GameUid &&
+                    item.GetProperty("expectedServerId").GetInt32() == session.ServerId &&
+                    !item.TryGetProperty("allowRapidItem", out _) &&
+                    !item.TryGetProperty("allowRapidDiamond", out _)),
+            "chooser-only state was credited as sent, looped beyond ten polls or repeated initial attack");
+
+        // Malformed chooser evidence cannot arm a continuation at all.
+        foreach (var malformed in new[]
+        {
+            new { accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+                chooserRequestMade = false, slot = 3, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId },
+            new { accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+                chooserRequestMade = true, slot = 2, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId },
+            new { accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+                chooserRequestMade = true, slot = 3, formationUuid = "invalid-uuid",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId },
+            new { accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+                chooserRequestMade = true, slot = 3, formationUuid = "9007199254740993",
+                ownerUid = "3133546747002289", sourceServerId = session.ServerId },
+            new { accepted = true, requestDispatched = false, awaitingNativeChooser = true,
+                chooserRequestMade = true, slot = 3, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = 2289 },
+        })
+        {
+            var invalid = new StubNativeCommandService
+            {
+                Receipt = () => JsonSerializer.SerializeToElement(malformed),
+            };
+            Feature018HotkeyActionOutcome refused =
+                await new Feature018HotkeyNativeProviders(invalid).Create()[
+                    Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+            Require(refused.Status == Feature018HotkeyActionStatus.Failed && invalid.Calls == 1,
+                "malformed native formation chooser advanced to status query");
+        }
+
+        // A query response cannot silently substitute another slot, march
+        // formation, account, or server, even if it claims a valid send.
+        foreach (var malicious in new[]
+        {
+            JsonSerializer.SerializeToElement(new
+            { accepted = true, requestDispatched = false, slot = 2,
+              formationUuid = "9007199254740993" }),
+            JsonSerializer.SerializeToElement(new
+            { accepted = true, requestDispatched = false, slot = 3,
+              formationUuid = "9007199254740994" }),
+            JsonSerializer.SerializeToElement(new
+            { accepted = true, requestDispatched = false, slot = 3,
+              formationUuid = "9007199254740993", ownerUid = "3133546747002289" }),
+            JsonSerializer.SerializeToElement(new
+            { accepted = true, requestDispatched = false, slot = 3,
+              formationUuid = "9007199254740993", sourceServerId = 2289 }),
+        })
+        {
+            var wrong = new StubNativeCommandService();
+            wrong.Receipt = () => wrong.Calls == 1 ? chooser : malicious;
+            Feature018HotkeyActionOutcome refused =
+                await new Feature018HotkeyNativeProviders(wrong).Create()[
+                    Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+            Require(refused.Status == Feature018HotkeyActionStatus.SessionChanged &&
+                    wrong.Calls == 2 && wrong.LastPayload.GetProperty("queryOnly").GetBoolean(),
+                "chooser poll accepted another owner/slot/formation or retried original hover/click");
+        }
+        // Claims of a network send must prove exactly one native original
+        // create-march route; missing, duplicate, or wrong-route evidence
+        // cannot authorize poststate confirmation.
+        foreach (var invalidRpc in new[]
+        {
+            JsonSerializer.SerializeToElement(new { accepted = true, requestDispatched = true,
+                slot = 3, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId }),
+            JsonSerializer.SerializeToElement(new { accepted = true, requestDispatched = true,
+                slot = 3, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId,
+                nativeTransaction = new { formation = "9007199254740993",
+                    sendCount = 2, outboundRoute = "WorldMarchFormationNew",
+                    senderReturned = true } }),
+            JsonSerializer.SerializeToElement(new { accepted = true, requestDispatched = true,
+                slot = 3, formationUuid = "9007199254740993",
+                ownerUid = session.GameUid, sourceServerId = session.ServerId,
+                nativeTransaction = new { formation = "9007199254740993",
+                    sendCount = 1, outboundRoute = "WorldMarchChange",
+                    senderReturned = true } }),
+        })
+        {
+            var wrong = new StubNativeCommandService();
+            wrong.Receipt = () => wrong.Calls == 1 ? chooser : invalidRpc;
+            Feature018HotkeyActionOutcome refused =
+                await new Feature018HotkeyNativeProviders(wrong).Create()[
+                    Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+            Require(refused.Status == Feature018HotkeyActionStatus.Failed && wrong.Calls == 2,
+                "unproven or duplicate native attack RPC reached post-send confirmation");
+        }
+        var rejectedAccount = new StubNativeCommandService();
+        rejectedAccount.Receipt = () => rejectedAccount.Calls == 1 ? chooser :
+            throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "native identity switched");
+        Feature018HotkeyActionOutcome switched = await new Feature018HotkeyNativeProviders(
+            rejectedAccount).Create()[Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+        Require(switched.Status == Feature018HotkeyActionStatus.SessionChanged &&
+                rejectedAccount.Calls == 2,
+            "chooser identity switch was not detected at the authenticated game exchange");
+
+        // Admission is from a captured key handled by the broker, not a new
+        // synthetic press on each chooser query. The broker must also refuse
+        // any success if its live native session changes during the await.
+        Feature018HotkeySession? liveSession = session;
+        var race = new StubNativeCommandService();
+        race.Receipt = () =>
+        {
+            if (race.Calls == 1) return chooser;
+            liveSession = session with { GameUid = "3133546747002289", ServerId = 2289 };
+            return verified;
+        };
+        var raceBroker = new Feature018HotkeyActions(session,
+            () => liveSession, () => true, () => new HotkeyConfig(),
+            new Feature018HotkeyNativeProviders(race).Create());
+        Feature018HotkeyActionOutcome raceResult = await raceBroker.TryDispatchAsync(
+            new Feature018HotkeyIntent(Feature018HotkeyKind.AttackSquad, 3));
+        Require(raceResult.Status == Feature018HotkeyActionStatus.SessionChanged &&
+                !raceResult.Working && race.Calls >= 2 &&
+                race.LastPayload.GetProperty("queryOnly").GetBoolean(),
+            "captured attack continuation credited a different session after chooser await");
     }
 
     private static async Task QueuedStageReinforcementChecksAsync()

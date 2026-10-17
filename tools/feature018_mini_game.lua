@@ -60,14 +60,25 @@ end
 -- an asynchronous packet is in flight. Re-read the original Player identity
 -- and every native server getter at dispatch, serialization, reply and proof.
 -- Never trust a request-supplied UID or the currently selected UI profile.
-local function native_owner_verified()
+local function native_account()
     local player = member(rawget(_G, "LuaEntry"), "Player")
-    if tostring(member(player, "uid")) ~= "2553945035002288" then return false end
+    local uid=tostring(member(player,"uid") or "")
+    if not uid:match("^[1-9]%d*$") then return nil end
+    local server_id
     for _, getter in ipairs({ "GetSourceServerId", "GetSelfServerId", "GetCurServerId" }) do
         local ok, server = invoke(player, getter)
-        if not ok or tostring(server) ~= "2288" then return false end
+        local id=tostring(server or "")
+        if not ok or not id:match("^[1-9]%d*$") or
+           (server_id and server_id~=id) then return nil end
+        server_id=id
     end
-    return true
+    return {uid=uid,server=server_id,player=player}
+end
+local function native_owner_verified(identity)
+    local current=native_account()
+    return current~=nil and (identity==nil or
+        (identity.uid==current.uid and identity.server==current.server and
+         identity.player==current.player))
 end
 
 -- v26 SFSNetwork creates a NEW EMPTY message for incoming replies, so the
@@ -95,7 +106,7 @@ local function install_land_observer()
         if proof ~= nil and tonumber(id) == proof.cellId then
             proof.targetRequestCount = proof.targetRequestCount + 1
             if proof.dispatching then proof.ownRequestObserved = true end
-            if not native_owner_verified() then proof.ownerMismatchSeen = true end
+            if not native_owner_verified(proof.account) then proof.ownerMismatchSeen = true end
         end
         return original_create(self, id, ...)
     end
@@ -111,7 +122,7 @@ local function install_land_observer()
             if proof.targetRequestCount ~= 1 or not proof.ownRequestObserved then
                 proof.replyBeforeSoleRequest = true
             end
-            if not native_owner_verified() then proof.ownerMismatchSeen = true end
+            if not native_owner_verified(proof.account) then proof.ownerMismatchSeen = true end
             proof.replyLandId = id
             proof.replyErrorCode = member(packet, "errorCode")
             proof.replyNativeState = member(packet, "state")
@@ -139,7 +150,7 @@ local function land_receipt(id, fresh_unlocked)
         package.loaded["Net.Msgs.UnlockUserLandMessage"] == land_observer.class and
         land_observer.class.OnCreate == land_observer.create and
         land_observer.class.HandleMessage == land_observer.reply
-    local owner_intact = native_owner_verified() and not proof.ownerMismatchSeen
+    local owner_intact = native_owner_verified(proof.account) and not proof.ownerMismatchSeen
     return {
         requestId = proof.requestId, beforeState = "locked",
         targetRequestCount = proof.targetRequestCount,
@@ -324,8 +335,9 @@ local function land_unlock_one(fields)
         return blocked("Earlier land unlock is awaiting a native state transition",
                        { cellId = last_land_request_id })
     end
-    if not native_owner_verified() then
-        return blocked("Land unlock requires UID 2553945035002288 on native server 2288")
+    local account=native_account()
+    if not account or type(fields)~="table" or fields.authorizedUid~=account.uid then
+        return blocked("Land unlock requires its authenticated native UID/server")
     end
     if type(fields) ~= "table" then
         return blocked("Land unlock requires a valid native request")
@@ -368,11 +380,11 @@ local function land_unlock_one(fields)
        member(check_row, "state") ~= member(next_land.states, "Locked") then
         return blocked("Land changed before the native request could be sent", { cellId = id })
     end
-    if not native_owner_verified() then
+    if not native_owner_verified(account) then
         return blocked("Native land owner changed before send", { cellId = id })
     end
     land_proof = { cellId = id, requestId = fields.requestId,
-        targetRequestCount = 0, replyCount = 0, dispatching = true }
+        account=account,targetRequestCount = 0, replyCount = 0, dispatching = true }
     -- Latch BEFORE native code: a throw can follow a packet being sent.
     -- No exception or timeout permits an automatic second unlock request.
     last_land_request_id = id
@@ -384,7 +396,7 @@ local function land_unlock_one(fields)
     land_proof.dispatched = ok and send_result ~= false and
         land_proof.ownRequestObserved == true and
         land_proof.targetRequestCount == 1 and not land_proof.ownerMismatchSeen and
-        native_owner_verified() and install_land_observer()
+        native_owner_verified(account) and install_land_observer()
     if not ok or send_result == false then
         return blocked("Native UnlockUserLand dispatch failed", { cellId = id })
     end
@@ -499,8 +511,9 @@ end
 local frontline_run_logic = nil
 local frontline_run_sequence = 0
 local function frontline_context()
-    if not native_owner_verified() then
-        return nil, "Native stage reinforcement requires authorized UID/server 2288"
+    local account=native_account()
+    if not account then
+        return nil, "Native stage reinforcement requires authenticated UID/server"
     end
     local battle = member(rawget(_G, "DataCenter"), "LWBattleManager")
     local pve = rawget(_G, "PVEType")
@@ -576,6 +589,7 @@ local function frontline_context()
         frontline_run_sequence = frontline_run_sequence + 1
     end
     return { battle = battle, logic = logic, team = team, heroId = primary_id,
+             account = account,
              stageRunId = tostring(frontline_run_sequence),
              heroLevel = level, configHeroId = config_id, count = count,
              overflow=overflow,remainCount=remain_count,
@@ -629,9 +643,13 @@ local function frontline_status()
     if units == nil or count < context.count then
         return blocked("Original Parkour battle units changed during inspection")
     end
+    if not native_owner_verified(context.account) then
+        return blocked("Native Parkour account changed during inspection")
+    end
     return {state="confirmed",data={
         observation="native_parkour_battle_readonly",
-        ownerUid="2553945035002288", sourceServerId=2288,
+        ownerUid=context.account.uid,
+        sourceServerId=tonumber(context.account.server),
         frontBreakSundayActId=context.eventId,
         levelId=context.levelId,stageMode=context.stageMode,
         stageRunId=context.stageRunId,
@@ -649,15 +667,22 @@ local function frontline_status()
     }}
 end
 
-local function frontline_reinforce_once(fields)
+local function frontline_reinforce_once(fields, action_account)
     -- Source-native producer invoked solely through the authenticated owner
     -- hotkey command. No stand-alone network sender or fabricated game state.
     if type(fields) ~= "table" or fields.action ~= "frontlineReinforce" or
        tostring(fields.slot) ~= "5" then
         return blocked("Only the native G / Frontline reinforcement intent is admitted")
     end
+    -- A source callback can switch accounts while context's native getters
+    -- execute. Bind the *entering* action owner, not a later valid login.
     local context, reason = frontline_context()
     if context == nil then return unsupported(reason) end
+    local account=action_account
+    if account==nil or not native_owner_verified(account) or
+       fields.authorizedUid~=account.uid then
+        return blocked("G reinforcement request differs from authenticated native account")
+    end
     if fields.expectedStageRunId ~= nil and
        fields.expectedStageRunId ~= context.stageRunId then
         return unsupported("The queued G press belongs to a previous stage run")
@@ -685,7 +710,7 @@ local function frontline_reinforce_once(fields)
         -- every irreversible unit creation. Any missing receipt stops further
         -- additions and reports partial failure, never a claimed +5 success.
         local current, changed = frontline_context()
-        if current == nil or current.logic ~= context.logic or
+        if not native_owner_verified(account) or current == nil or current.logic ~= context.logic or
            current.team ~= context.team or current.heroId ~= context.heroId or
            current.configHeroId ~= context.configHeroId or
            current.heroLevel ~= context.heroLevel or
@@ -711,6 +736,12 @@ local function frontline_reinforce_once(fields)
         frontline_attempted_logic = context.logic
         local ok = pcall(member(context.logic, "AddMember"), context.logic,
                          context.heroId, context.heroLevel, true)
+        if not native_owner_verified(account) then
+            return blocked("Native G reinforcement account changed during AddMember; no retry", {
+                beforeCount=context.count, observedAdded=confirmed,
+                attemptedNativeCalls=confirmed+1, partialResultUncertain=true,
+                serverAckObserved=false,observationScope="native_local_battle" })
+        end
         local count_ok, after = invoke(context.logic, "GetMemberCount")
         local remain_ok, remain_after = invoke(context.team,"GetRemainUnitCount")
         local overflow_after = member(context.team,"overflowUnitCount")
@@ -751,6 +782,12 @@ local function frontline_reinforce_once(fields)
         local new_reserve = count_ok and after == context.count + created and
             overflow_after == context.overflow + reserved + 1 and new_units == 0 and
             member(context.logic,"unitGuid") == context.lastGuid + created
+        if not native_owner_verified(account) then
+            return blocked("Native G reinforcement account changed during poststate; no retry", {
+                beforeCount=context.count,observedAdded=confirmed,
+                attemptedNativeCalls=confirmed+1,partialResultUncertain=true,
+                serverAckObserved=false,observationScope="native_local_battle" })
+        end
         if not ok or not remain_ok or remain_after ~= context.remainCount + confirmed + 1 or
            not identities_match or not (new_member or new_reserve) then
             return blocked("Native Parkour member addition was not confirmed", {
@@ -763,6 +800,12 @@ local function frontline_reinforce_once(fields)
         end
         if new_member then created = created + 1 else reserved = reserved + 1 end
         confirmed = confirmed + 1
+    end
+    if not native_owner_verified(account) then
+        return blocked("Native G reinforcement account changed before confirmation; no retry", {
+            beforeCount=context.count,observedAdded=confirmed,
+            partialResultUncertain=true,serverAckObserved=false,
+            observationScope="native_local_battle" })
     end
     return { state = "confirmed", data = {
         action = "frontlineReinforce", slot = 5, heroId = context.heroId,
@@ -799,6 +842,7 @@ local function frontline_reinforce(fields)
     -- pressing G again would add an unplanned second set to that same battle.
     -- Only a distinct original Parkour logic instance may start a new run.
     local current_logic = member(member(rawget(_G,"DataCenter"),"LWBattleManager"),"curLogic")
+    local action_account = native_account()
     if frontline_uncertain_battle ~= nil and
        frontline_uncertain_battle == current_logic then
         return blocked("An earlier Frontline G action on this battle is ambiguous; no retry",{
@@ -809,7 +853,7 @@ local function frontline_reinforce(fields)
     frontline_active = true
     frontline_reentry_seen = false
     frontline_attempted_logic = nil
-    local ok, outcome = pcall(frontline_reinforce_once, fields)
+    local ok, outcome = pcall(frontline_reinforce_once, fields, action_account)
     frontline_active = false
     if not ok then
         frontline_uncertain_battle = current_logic
@@ -818,6 +862,16 @@ local function frontline_reinforce(fields)
         return blocked("Native Frontline G producer aborted; no automatic retry", {
             serverAckObserved = false,
             observationScope = "native_local_battle" })
+    end
+    if action_account ~= nil and not native_owner_verified(action_account) then
+        if frontline_attempted_logic == current_logic then
+            frontline_uncertain_battle = current_logic
+        end
+        return blocked("Native G reinforcement owner changed before action result; no retry",{
+            beforeCount=type(outcome.data)=="table" and outcome.data.beforeCount or nil,
+            observedAdded=type(outcome.data)=="table" and outcome.data.observedAdded or 0,
+            partialResultUncertain=frontline_attempted_logic == current_logic,
+            serverAckObserved=false,observationScope="native_local_battle" })
     end
     if frontline_reentry_seen and outcome.state == "confirmed" then
         frontline_uncertain_battle = current_logic
@@ -966,8 +1020,12 @@ local function retire_chest_marker_if_ineligible(view)
     -- SwitchEnd view: a previously valid marker must never point elsewhere.
     local target = marker_owned_target
     if target ~= nil then
+        if not native_owner_verified(target.account) then
+            return clear_owned_chest_marker()
+        end
         local current = chest_snapshot(view)
         if current.state == "confirmed" and
+           native_owner_verified(target.account) and
            current.data.bestRewardBoxIndex == target.index and
            member(view, "treasureChestId") == target.chestId and
            member(view, "rewardDatas") == target.rewards and
@@ -983,8 +1041,14 @@ local function retire_chest_marker_if_ineligible(view)
 end
 
 local function mark_chest()
-    if not native_owner_verified() then
-        return blocked("Black Market marker requires authorized UID/server 2288")
+    local account=native_account()
+    if account == nil then
+        return blocked("Black Market marker requires authenticated UID/server")
+    end
+    if marker_owned_target ~= nil and
+       not native_owner_verified(marker_owned_target.account) and
+       not clear_owned_chest_marker() then
+        return blocked("Prior account's Black Market marker could not be cleared")
     end
     M.TryObserveUiClasses()
     local watched = watched_ui_classes["UI.LWTreasureChest.UITreasureChestView"]
@@ -1021,6 +1085,9 @@ local function mark_chest()
         return blocked("The native chest switch effect is not confirmed inactive")
     end
     local data = game_state.data
+    if not native_owner_verified(account) then
+        return blocked("Native Black Market account changed before marker activation")
+    end
     -- UITreasureChestView.ShowSwitchEffect (v26 lines 373-376) activates the
     -- already present effect and sets its position via Set_position(x,y,z).
     -- Reuse that native effect to mark the source-identified prize chest.
@@ -1030,7 +1097,7 @@ local function mark_chest()
     -- verified inactive effect before the *single* native call and undo any
     -- partial activation. Retain ownership if cleanup itself is unsuccessful.
     marker_owned_view = view
-    marker_owned_target = {index = data.bestRewardBoxIndex,
+    marker_owned_target = {index = data.bestRewardBoxIndex, account=account,
                            x = data.x, y = data.y, z = data.z,
                            chestId = member(view, "treasureChestId"),
                            rewards = member(view, "rewardDatas"),
@@ -1042,7 +1109,7 @@ local function mark_chest()
     marker_initializing_view = nil
     local still_eligible = chest_snapshot(view)
     local target = marker_owned_target
-    if not ok or not native_owner_verified() or still_eligible.state ~= "confirmed" or
+    if not ok or not native_owner_verified(account) or still_eligible.state ~= "confirmed" or
        still_eligible.data.bestRewardBoxIndex ~= data.bestRewardBoxIndex or
        target == nil or member(view, "treasureChestId") ~= target.chestId or
        member(view, "rewardDatas") ~= target.rewards or

@@ -52,11 +52,17 @@ def fixture():
 
 
 class LandPacketChecks(unittest.TestCase):
+    @staticmethod
+    def request(lua, **fields):
+        payload = {'authorizedUid': lua.globals().LuaEntry.Player.uid}
+        payload.update(fields)
+        return lua.table_from(payload)
+
     def start(self):
         lua, mod = fixture()
         before = mod.LandStatus(lua.table_from({'expectedCellId': '6'}))
         self.assertEqual(before['data']['state'], 'locked')
-        sent = mod.LandUnlockOne(lua.table_from({'expectedCellId': '6', 'requestId': 'fresh1'}))
+        sent = mod.LandUnlockOne(self.request(lua, expectedCellId='6', requestId='fresh1'))
         self.assertEqual(sent['state'], 'accepted')
         self.assertEqual(sent['data']['requestProof']['targetRequestCount'], 1)
         self.assertTrue(sent['data']['requestProof']['ownRequestObserved'])
@@ -79,7 +85,7 @@ class LandPacketChecks(unittest.TestCase):
         self.assertEqual(lua.globals().SendCount, 1)
         # The next native action can only start after a matching reply and
         # fresh exact-row proof retired the latch.
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'unsupported')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'unsupported')
 
     def test_unrelated_reply_and_external_poststate_never_prove_causality(self):
         lua, mod = self.start()
@@ -88,7 +94,7 @@ class LandPacketChecks(unittest.TestCase):
         proof = self.proof(lua, mod)
         self.assertFalse(proof['replyObserved'])
         self.assertFalse(proof['requestCausalityConfirmed'])
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
         self.assertTrue(mod.LandStatus(lua.table())['data']['awaitingCorrelatedReply'])
 
@@ -99,26 +105,50 @@ class LandPacketChecks(unittest.TestCase):
         self.assertEqual(status['data']['state'], 'unlocked')
         self.assertTrue(status['data']['awaitingCorrelatedReply'])
         self.assertFalse(status['data']['requestProof']['requestCausalityConfirmed'])
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
 
     def test_native_account_fence_rejects_uid_and_every_server_getter(self):
         lua, mod = fixture()
-        lua.execute("LuaEntry.Player.uid='3133546747002212'")
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        lua.execute("LuaEntry.Player.uid='7812345600002288'")
+        self.assertEqual(mod.LandUnlockOne(self.request(lua, authorizedUid='2553945035002288'))['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'accepted',
+                         'A different valid native UID is supported when request UID matches')
+        self.assertEqual(lua.globals().SendCount, 1)
+        lua, mod = fixture()
         lua.execute("LuaEntry.Player.uid='2553945035002288'")
         for getter in ('source', 'selfServer', 'current'):
             lua.globals().Account[getter] = 2212
-            self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+            self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
             lua.globals().Account[getter] = 2288
         self.assertEqual(lua.globals().SendCount, 0)
+
+    def test_any_consistent_logged_in_server_and_matching_uid_can_unlock(self):
+        lua, mod = fixture()
+        lua.execute("""LuaEntry.Player.uid='7812345600005566'
+                       Account.source=5566
+                       Account.selfServer=5566
+                       Account.current=5566""")
+        result = mod.LandUnlockOne(self.request(lua, expectedCellId='6'))
+        self.assertEqual(result['state'], 'accepted')
+        self.assertEqual(lua.globals().SendCount, 1)
+
+    def test_missing_or_forged_authorized_uid_never_dispatches_land_unlock(self):
+        for forged in (None, '7812345600005566', 2553945035002288, ''):
+            lua, mod = fixture()
+            payload = {'expectedCellId': '6'}
+            if forged is not None:
+                payload['authorizedUid'] = forged
+            result = mod.LandUnlockOne(lua.table_from(payload))
+            self.assertEqual(result['state'], 'failed')
+            self.assertEqual(lua.globals().SendCount, 0)
 
     def test_owner_changes_during_preflight_before_dispatch(self):
         lua, mod = fixture()
         lua.execute("local old=DataCenter.LandLockManager.GetLandLockDataById; "
                     "DataCenter.LandLockManager.GetLandLockDataById=function(...) "
                     "Account.current=2212; return old(...) end")
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 0)
 
     def test_reply_arriving_on_other_account_never_credits_owner(self):
@@ -130,7 +160,7 @@ class LandPacketChecks(unittest.TestCase):
         self.assertFalse(proof['accountFenceIntact'])
         self.assertFalse(proof['requestCausalityConfirmed'])
         self.assertTrue(mod.LandStatus(lua.table())['data']['awaitingCorrelatedReply'])
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
 
     def test_owner_changes_at_serialization_latches_uncertain_send(self):
@@ -138,18 +168,18 @@ class LandPacketChecks(unittest.TestCase):
         lua.execute("SFSNetwork.SendMessage=function(command,id) "
                     "SendCount=SendCount+1; Account.selfServer=2212; "
                     "NativeClass.OnCreate({},id); Account.selfServer=2288 end")
-        result = mod.LandUnlockOne(lua.table())
+        result = mod.LandUnlockOne(self.request(lua))
         self.assertEqual(result['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         lua.globals().Reply(6, 2, None)
         self.assertFalse(self.proof(lua, mod)['requestCausalityConfirmed'])
 
     def test_missing_serializer_observation_is_uncertain_not_accepted(self):
         lua, mod = fixture()
         lua.execute("SFSNetwork.SendMessage=function() SendCount=SendCount+1 end")
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
 
     def test_reloaded_native_packet_class_invalidates_observer_proof(self):
@@ -159,12 +189,12 @@ class LandPacketChecks(unittest.TestCase):
                     "HandleMessage=OriginalReply}")
         self.assertFalse(self.proof(lua, mod)['observerIntact'])
         self.assertFalse(self.proof(lua, mod)['requestCausalityConfirmed'])
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
 
     def test_stale_or_nonmatching_explicit_target_never_sends(self):
         lua, mod = fixture()
         for invalid in ('5', '06', 6, '', '-1', '10001'):
-            result = mod.LandUnlockOne(lua.table_from({'expectedCellId': invalid}))
+            result = mod.LandUnlockOne(self.request(lua, expectedCellId=invalid))
             self.assertEqual(result['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 0)
 
@@ -193,15 +223,15 @@ class LandPacketChecks(unittest.TestCase):
     def test_no_serializer_and_handler_means_no_send(self):
         lua, mod = fixture()
         lua.execute("package.loaded['Net.Msgs.UnlockUserLandMessage']=nil")
-        result = mod.LandUnlockOne(lua.table())
+        result = mod.LandUnlockOne(self.request(lua))
         self.assertEqual(result['state'], 'unsupported')
         self.assertEqual(lua.globals().SendCount, 0)
 
     def test_throw_after_send_retains_duplicate_fence(self):
         lua, mod = fixture()
         lua.execute('local old=SFSNetwork.SendMessage; SFSNetwork.SendMessage=function(...) old(...); error("late") end')
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
 
     def test_cleanup_restores_only_own_methods(self):
@@ -224,7 +254,7 @@ class LandPacketChecks(unittest.TestCase):
     def test_cleanup_of_uncertain_send_does_not_allow_retry(self):
         lua, mod = self.start()
         mod.CleanupAfterLeaseLoss()
-        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(self.request(lua))['state'], 'failed')
         self.assertEqual(lua.globals().SendCount, 1)
 
     def test_food_event_unavailable_is_native_activity_observation(self):

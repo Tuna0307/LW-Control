@@ -63,6 +63,62 @@ local function confirmed(value)
     return { state = 'confirmed', data = value }
 end
 
+-- A bridge lease establishes transport ownership; each City request and each
+-- native Move step must also retain the *current game player* identity.
+-- Never infer account ownership from a profile, a saved job ID or a building.
+local function native_account()
+    local entry = rawget(_G, 'LuaEntry')
+    local player = entry and entry.Player
+    if player == nil then return nil end
+    local ok_uid, uid = pcall(function() return player.uid end)
+    uid = ok_uid and uid ~= nil and tostring(uid) or nil
+    if not uid or #uid > 20 or not uid:match('^[1-9]%d*$') then return nil end
+    local server
+    for _, getter in ipairs({'GetSourceServerId', 'GetSelfServerId', 'GetCurServerId'}) do
+        local ok, value = pcall(function() return player[getter](player) end)
+        local id = ok and value ~= nil and tostring(value) or ''
+        if #id > 10 or not id:match('^[1-9]%d*$') or
+            (server and server ~= id) then return nil end
+        server = id
+    end
+    local ok_uid_again, uid_again = pcall(function() return player.uid end)
+    local ok_server_again, server_again =
+        pcall(function() return player:GetCurServerId() end)
+    if not ok_uid_again or tostring(uid_again or '') ~= uid or
+        not ok_server_again or tostring(server_again or '') ~= server or
+        rawget(_G, 'LuaEntry') ~= entry or entry.Player ~= player then
+        return nil
+    end
+    local game = rawget(_G, 'GameEntry')
+    local network = game and game.Network
+    if network ~= nil then
+        local ok_logged_in, logged_in = pcall(function() return network.Logined end)
+        if not ok_logged_in or logged_in ~= true then return nil end
+    end
+    return {uid=uid, server=server, player=player}
+end
+
+local function same_account(owner)
+    if owner == nil then return false end
+    local current = native_account()
+    return current ~= nil and current.uid == owner.uid and
+        current.server == owner.server and current.player == owner.player
+end
+
+local function request_account(values)
+    if type(values) ~= 'table' or type(values.authorizedUid) ~= 'string' or
+        not values.authorizedUid:match('^[1-9]%d*$') then
+        return nil, failed('CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+            'City request must carry the authenticated native account UID.')
+    end
+    local owner = native_account()
+    if owner == nil or owner.uid ~= values.authorizedUid then
+        return nil, failed('CITY_LAYOUT_ACCOUNT_UNAUTHORIZED',
+            'City request UID/server differs from the logged-in native game account.')
+    end
+    return owner
+end
+
 local function sorted(list)
     table.sort(list)
     return list
@@ -849,6 +905,21 @@ local function remove_move_observers(job)
     remove_send_observer(job)
 end
 
+local function account_changed(job)
+    if job.accountChanged then return true end
+    if same_account(job.account) then return false end
+    -- An old native packet cannot be revoked, and a late un-nonced reply
+    -- after an account switch must not confirm or unlock the old job.
+    job.accountChanged = true
+    job.cancelRequested = true
+    job.state = 'failed'
+    job.errorCode = job.waiting and 'CITY_LAYOUT_ACCOUNT_CHANGED_UNCERTAIN'
+        or 'CITY_LAYOUT_ACCOUNT_CHANGED'
+    job.error = 'Native City UID/server changed; any outstanding Move remains unconfirmed and cannot be retried.'
+    if not job.waiting then remove_move_observers(job) end
+    return true
+end
+
 local function observe_native_replace_replies(job, bm)
     -- v26 FreeBuildingReplaceNewMessage.HandleMessage:18 forwards to
     -- BuildManager:FreeBuildingReplaceNewHandle, whose success can AddBuilding
@@ -864,6 +935,7 @@ local function observe_native_replace_replies(job, bm)
     local original = bm.FreeBuildingReplaceNewHandle
     if type(original) ~= 'function' then return false end
     local function observer(self, response, ...)
+        if M.active == job then account_changed(job) end
         if M.active == job and job.waiting then
             job.nativeReplaceReplyCount = (job.nativeReplaceReplyCount or 0) + 1
             job.inboundContended = true
@@ -889,6 +961,11 @@ local function observe_native_move_sends(job, net, message)
     local original = net.SendMessage
     if type(original) ~= 'function' then return false end
     local function observer(kind, args, ...)
+        -- Only suppress this producer's own unsafe send; all other native
+        -- game calls must still reach their original sender unchanged.
+        if M.active == job and job.ownMoveSendActive and account_changed(job) then
+            return false
+        end
         if M.active == job and job.waiting and
             (kind == message.BuildWorldMoveNew or
              kind == message.FreeBuildingReplaceNew) then
@@ -952,9 +1029,11 @@ local function observe_native_move_replies(job, bm)
     local previous = bm.BuildWorldMoveNewHandle
     if type(previous) ~= 'function' then return false end
     local function observer(self, response, ...)
+        if M.active == job then account_changed(job) end
         local step = job.waiting
         local info = type(response) == 'table' and response.buildInfo or nil
-        local matching = M.active == job and step ~= nil and
+        local matching = M.active == job and not job.accountChanged and
+            same_account(job.account) and step ~= nil and
             move_observers_intact(job) and
             job.ownSendObserved == true and
             not move_result_ambiguous(job) and
@@ -968,7 +1047,10 @@ local function observe_native_move_replies(job, bm)
         -- Always invoke the original handler once with its original receiver
         -- and arguments, preserving the game-owned reply and error handling.
         previous(self, response, ...)
-        if matching and from == step.from and job.replyForStep ~= step then
+        if M.active == job then account_changed(job) end
+        if matching and not job.accountChanged and
+            same_account(job.account) and from == step.from and
+            job.replyForStep ~= step then
             local after = self:GetBuildingDataByUuid(step.nativeUuid)
             if after and tonumber(after.pointId) == step.pointId and
                 tonumber(after.itemId) == job.sources[step.uuid].public.itemId then
@@ -987,7 +1069,9 @@ end
 local function same_owner(job, values)
     return job.profileId == values.profileId and
         job.launchSessionId == values.launchSessionId and
-        job.challenge == values.challenge
+        job.challenge == values.challenge and
+        job.account ~= nil and job.account.uid == values.authorizedUid and
+        not job.accountChanged and same_account(job.account)
 end
 
 local function check_positions(job)
@@ -1045,6 +1129,7 @@ local function dispatch_step(job)
     -- Native placement rules can invoke game callbacks while a later step is
     -- being prepared. Cancel/lease loss may be delivered during those calls.
     -- Never issue another packet once the owner has cancelled the sequence.
+    if account_changed(job) then return false end
     if job.cancelRequested or job.state ~= 'running' or M.active ~= job then
         return true
     end
@@ -1120,6 +1205,10 @@ local function dispatch_step(job)
     -- A native game callback during zone/terrain checks or observer setup can
     -- consume Cancel before the next move is sent. No packet escaped, so the
     -- terminal cancellation must release these observers immediately.
+    if account_changed(job) then
+        remove_move_observers(job)
+        return false
+    end
     if job.cancelRequested or job.state ~= 'running' or M.active ~= job then
         remove_move_observers(job)
         return true
@@ -1156,6 +1245,7 @@ local function dispatch_step(job)
 end
 
 local function progress_job(job)
+    if account_changed(job) then return end
     if job.state ~= 'running' or not job.waiting then return end
     local current = job.waiting
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
@@ -1171,7 +1261,9 @@ local function progress_job(job)
         -- Confirm the complete city snapshot before reporting completion, even
         -- on the last step. A manual/foreign relocation during the ACK wait
         -- invalidates the plan regardless of whether this one move succeeded.
-        if not check_positions(job) then
+        local positions_match = check_positions(job)
+        if account_changed(job) then return end
+        if not positions_match then
             job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
             job.error = 'Another building moved during this layout request.'
             job.waiting = nil -- Exact reply arrived; further state needs a new plan.
@@ -1202,6 +1294,7 @@ local function progress_job(job)
 end
 
 local function reconcile_timed_out(job)
+    if account_changed(job) then return end
     -- The original BuildWorldMoveNew sender has no synchronous result.
     -- A timeout is not server rejection: its in-flight packet can still be
     -- applied later. Keep that job fenced until the *exact* official game
@@ -1222,7 +1315,9 @@ local function reconcile_timed_out(job)
         job.replyForStep ~= pending or not record or
         tonumber(record.pointId) ~= pending.pointId then return end
     job.expected[pending.uuid] = pending.pointId
-    if check_positions(job) then
+    local positions_match = check_positions(job)
+    if account_changed(job) then return end
+    if positions_match then
         job.completed = job.completed + 1
         if owner_lost then
             job.errorCode = 'CITY_LAYOUT_OWNER_LOSS_RECONCILED'
@@ -1245,6 +1340,7 @@ end
 function M.Pump()
     local job = M.active
     if job == nil then return false end
+    if account_changed(job) then return true end
     if job.state == 'running' then
         progress_job(job)
         return true
@@ -1363,7 +1459,20 @@ function M.Register(feature)
     -- returns false in that owner. Existing live closures remain valid: avoid
     -- misreporting a benign same-registry module rebinding as failed setup.
     if M.registeredFeature == feature then return true end
-    local ok = feature.RegisterHandler('city_layout_snapshot_get', function()
+    local function register_city(command, handler)
+        return feature.RegisterHandler(command, function(values)
+            local account, rejection = request_account(values)
+            if not account then return rejection end
+            local result = handler(values, account)
+            if not same_account(account) then
+                if M.active and M.active.account == account then account_changed(M.active) end
+                return failed('CITY_LAYOUT_ACCOUNT_CHANGED',
+                    'Native City account changed before the request finished.')
+            end
+            return result
+        end)
+    end
+    local ok = register_city('city_layout_snapshot_get', function()
         local current, meta_or_reason = snapshot()
         if not current then return unsupported('CITY_LAYOUT_UNAVAILABLE', meta_or_reason) end
         local candidates, search = snapshot_move_candidates(current, meta_or_reason)
@@ -1378,7 +1487,7 @@ function M.Register(feature)
         current.swapPreflightSearch = swap_search
         return confirmed(current)
     end)
-    ok = feature.RegisterHandler('city_layout_validate', function(values)
+    ok = register_city('city_layout_validate', function(values)
         local validation, state_or_reason, _, steps = validate_state(values)
         if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', state_or_reason) end
         -- The client must refresh its snapshot before retrying a stale layout;
@@ -1395,7 +1504,7 @@ function M.Register(feature)
         validation.plannedMoves = feature.Array(public_steps)
         return confirmed(validation)
     end) and ok
-    ok = feature.RegisterHandler('city_layout_apply_start', function(values)
+    ok = register_city('city_layout_apply_start', function(values, account)
         if M.active then reconcile_timed_out(M.active) end
         if M.active and M.active.state == 'running' then
             return failed('CITY_LAYOUT_BUSY', 'Another city layout job is running.')
@@ -1442,6 +1551,7 @@ function M.Register(feature)
             profileId = values.profileId,
             launchSessionId = values.launchSessionId,
             challenge = values.challenge,
+            account = account,
             state = 'running', completed = 0, steps = steps,
             temporaryMoves = validation.temporaryMoves,
             width = meta.ctx.width,
@@ -1464,14 +1574,14 @@ function M.Register(feature)
             accepted = true, requestDispatched = true, status = status_data(job),
         }}
     end) and ok
-    ok = feature.RegisterHandler('city_layout_apply_status', function(values)
+    ok = register_city('city_layout_apply_status', function(values)
         local job = M.active
         if not job or not same_owner(job, values) then return confirmed({ state = 'idle' }) end
         progress_job(job)
         reconcile_timed_out(job)
         return confirmed(status_data(job))
     end) and ok
-    ok = feature.RegisterHandler('city_layout_restore_preflight', function(values)
+    ok = register_city('city_layout_restore_preflight', function(values)
         local job = M.active
         if not job or not same_owner(job, values) or values.jobId ~= job.jobId then
             return failed('CITY_LAYOUT_JOB_MISSING',
@@ -1483,7 +1593,7 @@ function M.Register(feature)
         reconcile_timed_out(job)
         return confirmed(read_original_restore_preflight(job, feature))
     end) and ok
-    ok = feature.RegisterHandler('city_layout_restore_start', function(values)
+    ok = register_city('city_layout_restore_start', function(values, account)
         -- This action is deliberately separate from the read-only preflight.
         -- A caller must name the exact settled original job and opt into a
         -- native Move. The original destinations are immutable server-side
@@ -1555,6 +1665,7 @@ function M.Register(feature)
             profileId = parent.profileId,
             launchSessionId = parent.launchSessionId,
             challenge = parent.challenge,
+            account = account,
             state = 'running', completed = 0, steps = steps,
             temporaryMoves = validation.temporaryMoves,
             width = meta.ctx.width,
@@ -1577,7 +1688,7 @@ function M.Register(feature)
             status = status_data(child),
         }}
     end) and ok
-    ok = feature.RegisterHandler('city_layout_apply_cancel', function(values)
+    ok = register_city('city_layout_apply_cancel', function(values)
         local job = M.active
         if not job or not same_owner(job, values) or values.jobId ~= job.jobId then
             return failed('CITY_LAYOUT_JOB_MISSING', 'The requested layout job is unavailable.')
@@ -1614,6 +1725,7 @@ end
 function M.CleanupAfterLeaseLoss()
     if M.active ~= nil then
         local job = M.active
+        if job.accountChanged then return end
         if job.waiting then
             job.cancelRequested = true
             job.state = 'failed'
