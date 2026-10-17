@@ -1009,19 +1009,19 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
     title: "前线突破：原生 G 五名士兵",
     description: "开启 G 后，在普通关卡或周日前线的战斗中，每次按 G 增加五名士兵。离开战斗后无效。",
     inspect: "检查正在进行的原生战斗", ready: "原生前线可操作",
-    count: "当前士兵", event: "活动", hero: "英雄",
+    count: "当前士兵（含预备）", event: "活动", hero: "英雄",
     consent: "确认当前这一场战斗只增加五名原生士兵；若等待超时，我会在游戏中核对，不重复发送",
     execute: "原生增援五名士兵（G）", pending: "本次动作已锁定；无法重新派遣，请在游戏中核对。",
-    result: "本地战斗增加五名士兵；未收到独立服务器计分回复。",
+    result: "本地战斗士兵总数增加五名（包含预备士兵）；未收到独立服务器计分回复。",
     changed: "前线战斗已变化；本次动作不能按原计划确认",
   } : {
     title: "Frontline: original G adds five units",
     description: "With G enabled, press G in a running normal stage or Sunday challenge to add five soldiers. G does nothing outside a run.",
     inspect: "Inspect active original battle", ready: "Native Frontline ready",
-    count: "Current members", event: "Event", hero: "Hero",
+    count: "Current members (including reserves)", event: "Event", hero: "Hero",
     consent: "I approve adding five native units in this battle once. If the outcome times out, I will inspect the game without retrying.",
     execute: "Add five original units (G)", pending: "This intent is locked against replay; inspect the game.",
-    result: "Five local battle units added. No independent server scoring reply.",
+    result: "Battle total increased by five soldiers, including reserves. No independent server scoring reply.",
     changed: "Original battle changed; this action cannot be confirmed from this snapshot",
   };
   const live = online && !previewEnabled;
@@ -1045,7 +1045,11 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
     data?.observationScope === "native_local_battle" &&
     data?.serverAckObserved === false &&
     (data?.stageMode === "normal" || data?.stageMode === "sunday") &&
+    typeof data?.stageRunId === "string" && /^[1-9]\d{0,19}$/.test(data.stageRunId) &&
     Number.isInteger(data?.memberCount) && data.memberCount > 0 &&
+    Number.isInteger(data?.activeMemberCount) && data.activeMemberCount >= 0 &&
+    Number.isInteger(data?.reserveMemberCount) && data.reserveMemberCount >= 0 &&
+    data.memberCount === data.activeMemberCount + data.reserveMemberCount &&
     Number.isInteger(data?.guidAllocator) && data.guidAllocator > 0 &&
     Number.isInteger(data?.heroId) && data.heroId > 0;
   async function inspect() {
@@ -1080,17 +1084,31 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
       const action = await backendBridge.invokeProfileScoped(
         "feature018_frontline_action", { frontlineOptIn: true }, 10000);
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
-      if (action?.observation !== "native_ParkourBattleLogic_GetMemberCount" ||
+      if (action?.observation !== "native_ParkourTeam_GetRemainUnitCount" ||
           action?.action !== "frontlineReinforce" || action?.slot !== 5 ||
           action?.frontBreakSundayActId !== before.frontBreakSundayActId ||
           action?.stageMode !== before.stageMode || action?.levelId !== before.levelId ||
+          action?.stageRunId !== before.stageRunId ||
           action?.heroId !== before.heroId ||
           action?.beforeCount !== before.memberCount ||
           action?.guidAllocatorBefore !== before.guidAllocator ||
-          action?.addedMembers !== 5 || action?.observedCreatedUnits !== 5 ||
+          action?.addedMembers !== 5 ||
+          !Number.isInteger(action?.observedCreatedUnits) ||
+          action.observedCreatedUnits < 0 || action.observedCreatedUnits > 5 ||
+          !Number.isInteger(action?.reservedMembers) ||
+          action.reservedMembers < 0 || action.reservedMembers > 5 ||
+          action.observedCreatedUnits + action.reservedMembers !== 5 ||
+          action?.activeMemberCountBefore !== before.activeMemberCount ||
+          action?.reserveMemberCountBefore !== before.reserveMemberCount ||
+          action?.activeMemberCountAfter !== before.activeMemberCount + action.observedCreatedUnits ||
+          action?.reserveMemberCountAfter !== before.reserveMemberCount + action.reservedMembers ||
+          action?.afterCount !== action.activeMemberCountAfter + action.reserveMemberCountAfter ||
+          action?.nativeReserveVerified !== true ||
+          action?.reserveIdentitySource !== "native_ParkourTeam_overflowUnitCount" ||
+          action?.unitIdentitySource !== "native_ParkourTeam_teamUnits_guid" ||
           action?.unitIdentityVerified !== true ||
           action?.afterCount !== before.memberCount + 5 ||
-          action?.guidAllocatorAfter !== before.guidAllocator + 5 ||
+          action?.guidAllocatorAfter !== before.guidAllocator + action.observedCreatedUnits ||
           action?.serverAckObserved !== false ||
           action?.observationScope !== "native_local_battle")
         throw Error(words.changed);
@@ -1099,7 +1117,10 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
       const after = await backendBridge.invokeProfileScoped("mini_frontline_status", {}, 8000);
       if (!backendBridge.isCurrentProfileOwner(owner)) return;
       if (!validRead(after) || after.frontBreakSundayActId !== before.frontBreakSundayActId ||
-          after.heroId !== before.heroId || after.memberCount !== action.afterCount ||
+          after.heroId !== before.heroId || after.stageRunId !== before.stageRunId ||
+          after.memberCount !== action.afterCount ||
+          after.activeMemberCount !== action.activeMemberCountAfter ||
+          after.reserveMemberCount !== action.reserveMemberCountAfter ||
           after.guidAllocator !== action.guidAllocatorAfter)
         throw Error(words.changed);
       setOutcome(action); setReady(after);

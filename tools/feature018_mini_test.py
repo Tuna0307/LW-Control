@@ -168,8 +168,8 @@ class MiniGameNativeTests(unittest.TestCase):
         self.assertIn('M.FrontlineReinforce = frontline_reinforce', mini)
         self.assertIn('local ok = pcall(member(context.logic, "AddMember"), context.logic,', mini)
         self.assertIn('context.heroId, context.heroLevel, true)', mini)
-        self.assertIn('after ~= context.count + confirmed + 1', mini)
-        self.assertIn('current.count ~= context.count + confirmed', mini)
+        self.assertIn('after == context.count + created + 1', mini)
+        self.assertIn('current.count ~= context.count + created', mini)
         self.assertNotIn('"frontlineReinforce", frontline_reinforce', mini,
                          "G integration is owned by the shared authenticated hotkey dispatcher")
 
@@ -196,11 +196,11 @@ class MiniGameNativeTests(unittest.TestCase):
         mini = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
         for guard in ("frontline_units(context.team)",
                       "after_count == prior_count + 1",
-                      "new_units ~= 1", "if after_units[unit] == nil then identities_match = false end",
+                      "new_units == 1", "if after_units[unit] == nil then identities_match = false end",
                       'member(unit, "originalHeroId") ~= context.heroId',
                       'member(hero, "heroId") ~= context.configHeroId',
                       'not is_integer(member(hero, "level"))',
-                      "unitIdentityVerified = true", "observedCreatedUnits = confirmed"):
+                      "unitIdentityVerified = true", "observedCreatedUnits = created"):
             self.assertIn(guard, mini)
 
     def test_land_unlock_ack_routes_through_native_original_server_state(self):

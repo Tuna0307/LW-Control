@@ -549,13 +549,14 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         UIWindowNames = {UIParkourBattleMain='Parkour'}
         UIManager = {GetInstance=function() return
           {IsWindowOpen=function(self,name) return name=='Parkour' end} end}
-        Team = {defaultHeroIds={203},teamUnits={{guid=1,originalHeroId=203,
+        Team = {overflowUnitCount=0,defaultHeroIds={203},teamUnits={{guid=1,originalHeroId=203,
           hero={heroId=203,level=12}}}}
         Logic = {team=Team,unitGuid=1,param={fromActFrontBreakSunday=true,
           frontBreakSundayActId=114}, GetMemberCount=function(self)
           return #self.team.teamUnits end}
         Team.logic = Logic
         Team.GetMemberCount = function(self) return #self.teamUnits end
+        Team.GetRemainUnitCount = function(self) return self:GetMemberCount()+self.overflowUnitCount end
         Sends = 0
         Logic.AddMember = function(self,heroId,level,fromNative)
           Sends = Sends + 1
@@ -614,13 +615,13 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         self.assertTrue(retry['data']['priorActionUncertain'])
         self.assertEqual(runtime.globals().Sends, 1,
                          'Ambiguous original AddMember retried same battle')
-        runtime.execute('''NewTeam={defaultHeroIds={203},
+        runtime.execute('''NewTeam={overflowUnitCount=0,defaultHeroIds={203},
           teamUnits={{guid=1,originalHeroId=203,hero={heroId=203,level=12}}}}
           NewLogic={team=NewTeam,unitGuid=1,param={
           fromActFrontBreakSunday=true,frontBreakSundayActId=115},
           GetMemberCount=function(self) return #self.team.teamUnits end,
           AddMember=OldAddMember}
-          NewTeam.logic=NewLogic
+          NewTeam.GetRemainUnitCount=Team.GetRemainUnitCount; NewTeam.logic=NewLogic
           NewTeam.GetMemberCount=function(self) return #self.teamUnits end
           DataCenter.LWBattleManager.curLogic=NewLogic
           DataCenter.LWBattleManager.logic=NewLogic''')
@@ -688,6 +689,35 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
           end''')
         for _ in range(3):
             self.assertEqual(self.call(runtime, mini)['state'], 'confirmed')
+        self.assertEqual(runtime.globals().Sends, 15)
+
+    def test_native_capacity_creates_reserves_and_does_not_latch_later_presses(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''local original=Logic.AddMember
+          Logic.AddMember=function(self,...)
+            if #self.team.teamUnits>=3 then
+              Sends=Sends+1;self.team.overflowUnitCount=self.team.overflowUnitCount+1;return
+            end
+            original(self,...)
+          end''')
+        first = self.call(runtime, mini)
+        self.assertEqual(first['state'], 'confirmed')
+        self.assertEqual(first['data']['observedCreatedUnits'], 2)
+        self.assertEqual(first['data']['reservedMembers'], 3)
+        self.assertEqual(first['data']['beforeCount'], 1)
+        self.assertEqual(first['data']['afterCount'], 6)
+        self.assertEqual(first['data']['guidAllocatorAfter'], 3)
+        second = self.call(runtime, mini)
+        self.assertEqual(second['state'], 'confirmed')
+        self.assertEqual(second['data']['observedCreatedUnits'], 0)
+        self.assertEqual(second['data']['reservedMembers'], 5)
+        self.assertEqual(second['data']['afterCount'], 11)
+        self.assertTrue(mini.FrontlineStatus()['data']['actionEligible'])
+        runtime.execute('Team.overflowUnitCount=0;table.remove(Team.teamUnits)')
+        third = self.call(runtime, mini)
+        self.assertEqual(third['state'], 'confirmed')
+        self.assertEqual(third['data']['observedCreatedUnits'], 1)
+        self.assertEqual(third['data']['reservedMembers'], 4)
         self.assertEqual(runtime.globals().Sends, 15)
 
     def test_real_sunday_context_adds_exactly_five_distinct_native_guids(self):

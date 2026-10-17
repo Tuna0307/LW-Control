@@ -446,7 +446,7 @@ internal sealed class Feature018HotkeyNativeProviders
                        double.IsFinite(shieldClock) && shieldClock >= 0;
 
             case Feature018HotkeyKind.ReinforceFrontline:
-                return observed.GetString() == "native_ParkourBattleLogic_GetMemberCount" &&
+                return observed.GetString() == "native_ParkourTeam_GetRemainUnitCount" &&
                        evidence.TryGetProperty("action", out JsonElement action) &&
                        action.ValueKind == JsonValueKind.String &&
                        action.GetString() == "frontlineReinforce" &&
@@ -464,7 +464,32 @@ internal sealed class Feature018HotkeyNativeProviders
                        evidence.TryGetProperty("unitIdentityVerified", out JsonElement verified) &&
                        verified.ValueKind == JsonValueKind.True &&
                        evidence.TryGetProperty("observedCreatedUnits", out JsonElement created) &&
-                       created.TryGetInt32(out int createdCount) && createdCount == 5 &&
+                       created.TryGetInt32(out int createdCount) && createdCount is >= 0 and <= 5 &&
+                       evidence.TryGetProperty("reservedMembers", out JsonElement reserve) &&
+                       reserve.TryGetInt32(out int reservedCount) && reservedCount is >= 0 and <= 5 &&
+                       createdCount + reservedCount == 5 &&
+                       evidence.TryGetProperty("activeMemberCountBefore", out JsonElement activeBefore) &&
+                       activeBefore.TryGetInt32(out int activeMembersBefore) && activeMembersBefore >= 0 &&
+                       evidence.TryGetProperty("activeMemberCountAfter", out JsonElement activeAfter) &&
+                       activeAfter.TryGetInt32(out int activeMembersAfter) &&
+                       (long)activeMembersAfter == (long)activeMembersBefore + createdCount &&
+                       evidence.TryGetProperty("reserveMemberCountBefore", out JsonElement reserveBefore) &&
+                       reserveBefore.TryGetInt32(out int reservedMembersBefore) && reservedMembersBefore >= 0 &&
+                       evidence.TryGetProperty("reserveMemberCountAfter", out JsonElement reserveAfter) &&
+                       reserveAfter.TryGetInt32(out int reservedMembersAfter) &&
+                       (long)reservedMembersAfter == (long)reservedMembersBefore + reservedCount &&
+                       (long)beforeCount == (long)activeMembersBefore + reservedMembersBefore &&
+                       (long)afterCount == (long)activeMembersAfter + reservedMembersAfter &&
+                       evidence.TryGetProperty("nativeReserveVerified", out JsonElement reserveVerified) &&
+                       reserveVerified.ValueKind == JsonValueKind.True &&
+                       evidence.TryGetProperty("reserveIdentitySource", out JsonElement reserveSource) &&
+                       reserveSource.ValueKind == JsonValueKind.String &&
+                       reserveSource.GetString() == "native_ParkourTeam_overflowUnitCount" &&
+                       evidence.TryGetProperty("guidAllocatorBefore", out JsonElement guidBefore) &&
+                       guidBefore.TryGetInt64(out long allocatorBefore) && allocatorBefore > 0 &&
+                       evidence.TryGetProperty("guidAllocatorAfter", out JsonElement guidAfter) &&
+                       guidAfter.TryGetInt64(out long allocatorAfter) &&
+                       allocatorAfter == allocatorBefore + createdCount &&
                        evidence.TryGetProperty("unitIdentitySource", out JsonElement source) &&
                        source.ValueKind == JsonValueKind.String &&
                        source.GetString() == "native_ParkourTeam_teamUnits_guid";

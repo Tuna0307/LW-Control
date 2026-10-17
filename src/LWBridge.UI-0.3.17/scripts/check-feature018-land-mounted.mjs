@@ -34,8 +34,10 @@ window.clearInterval = (id) => intervals.delete(id);
 let receiver;
 let landReply = "locked";
 let sendingFailure = false;
-let frontlineMembers = 1;
-let frontlineGuid = 1;
+let frontlineMembers = 50;
+let frontlineActiveMembers = 50;
+let frontlineReserves = 0;
+let frontlineGuid = 50;
 let frontlineActions = 0;
 let frontlineUncertain = false;
 const requests = [];
@@ -79,7 +81,9 @@ window.chrome = { webview: {
       response = { observation: "native_parkour_battle_readonly",
         ownerUid: "2553945035002288", sourceServerId: 2288,
         stageMode: "normal", frontBreakSundayActId: 0, heroId: 203, heroLevel: 12,
-        memberCount: frontlineMembers, guidAllocator: frontlineGuid,
+        stageRunId: "101", memberCount: frontlineMembers,
+        activeMemberCount: frontlineActiveMembers, reserveMemberCount: frontlineReserves,
+        guidAllocator: frontlineGuid,
         actionEligible: true, uncertainPriorAction: false,
         readOnly: true, requestDispatched: false,
         serverAckObserved: false, observationScope: "native_local_battle" };
@@ -90,15 +94,25 @@ window.chrome = { webview: {
       });
       const before = frontlineMembers;
       const previousGuid = frontlineGuid;
+      const activeBefore = frontlineActiveMembers;
+      const reserveBefore = frontlineReserves;
+      const created = Math.min(5, Math.max(0, 50 - frontlineActiveMembers));
+      const reserved = 5 - created;
       frontlineActions++;
       frontlineMembers += 5;
-      frontlineGuid += 5;
-      response = { observation: "native_ParkourBattleLogic_GetMemberCount",
+      frontlineActiveMembers += created;
+      frontlineReserves += reserved;
+      frontlineGuid += created;
+      response = { observation: "native_ParkourTeam_GetRemainUnitCount",
         action: "frontlineReinforce", slot: 5,
         stageMode: "normal", frontBreakSundayActId: 0, heroId: 203,
-        beforeCount: before, afterCount: frontlineMembers,
+        stageRunId: "101", beforeCount: before, afterCount: frontlineMembers,
+        activeMemberCountBefore: activeBefore, activeMemberCountAfter: frontlineActiveMembers,
+        reserveMemberCountBefore: reserveBefore, reserveMemberCountAfter: frontlineReserves,
         guidAllocatorBefore: previousGuid, guidAllocatorAfter: frontlineGuid,
-        addedMembers: 5, observedCreatedUnits: 5,
+        addedMembers: 5, observedCreatedUnits: created, reservedMembers: reserved,
+        nativeReserveVerified: true, reserveIdentitySource: "native_ParkourTeam_overflowUnitCount",
+        unitIdentitySource: "native_ParkourTeam_teamUnits_guid",
         unitIdentityVerified: true, serverAckObserved: false,
         observationScope: "native_local_battle" };
     } else if (request.command === "mini_sheep_status") {
@@ -148,7 +162,7 @@ assert.equal(frontlineActions, 0, "Mini Games mount automatically created native
 assert.equal(requests.filter((r) => r.command === "mini_frontline_status").length, 0,
   "Frontline automatically inspected or sent while user had not opted in");
 await flush(() => frontline().querySelector(".mini-game-actions button").click());
-assert.match(frontline().textContent, /当前士兵.*1/,
+assert.match(frontline().textContent, /当前士兵.*50/,
   "Read-only original Frontline battle readiness missing");
 assert.equal(frontlineActions, 0, "Frontline readiness unexpectedly dispatched AddMember");
 let nativeG = [...frontline().querySelectorAll("button")].find((button) =>
@@ -160,6 +174,10 @@ nativeG = [...frontline().querySelectorAll("button")].find((button) =>
 assert.equal(nativeG.disabled, false, "Explicitly confirmed original Frontline action cannot be invoked");
 await flush(() => nativeG.click());
 assert.equal(frontlineActions, 1, "Original Frontline did not invoke exactly one G action");
+assert.equal(frontlineMembers, 55, "Capped native total did not include five reserves");
+assert.equal(frontlineActiveMembers, 50, "Capped native fixture fabricated active soldiers");
+assert.equal(frontlineReserves, 5, "Capped native reserve receipt lost exact five");
+assert.equal(frontlineGuid, 50, "All-reserve action fabricated five new GUIDs");
 assert.match(frontline().textContent, /五名士兵/, "Local Frontline poststate not shown");
 assert.match(frontline().textContent, /未收到独立服务器计分回复/,
   "Frontline local units were misrepresented as server scoring");

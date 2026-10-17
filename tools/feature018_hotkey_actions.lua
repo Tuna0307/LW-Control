@@ -732,9 +732,12 @@ function M.RegisterFrontline(feature, frozen_hotkeys)
         if result.state == "confirmed" then
             local data = result.data
             if type(data) ~= "table" or
-               data.observation ~= "native_ParkourBattleLogic_GetMemberCount" or
+               data.observation ~= "native_ParkourTeam_GetRemainUnitCount" or
                data.action ~= "frontlineReinforce" or data.slot ~= 5 or
-               data.addedMembers ~= 5 or data.observedCreatedUnits ~= 5 or
+               data.addedMembers ~= 5 or type(data.observedCreatedUnits)~="number" or
+               type(data.reservedMembers)~="number" or data.observedCreatedUnits<0 or
+               data.reservedMembers<0 or data.observedCreatedUnits+data.reservedMembers~=5 or
+               data.nativeReserveVerified~=true or
                data.unitIdentityVerified ~= true or
                data.afterCount ~= data.beforeCount + 5 or
                data.observationScope ~= "native_local_battle" or

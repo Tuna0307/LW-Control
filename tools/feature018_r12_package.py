@@ -55,6 +55,7 @@ def main():
             "Enable G on Mini Games, then press G in the game window during a normal numbered\n"
             "stage or Sunday Parkour challenge. Each press adds five native soldiers.\n"
             "No per-press confirmation. Outside an active run G does nothing.\n"
+            "At formation capacity, additions enter the game's native reserve troop count.\n"
             "The game's native stage capacity and end/pause rules still apply.\n"
             "R12 is for owner testing; the remaining FEATURE-018 work is not accepted.\n")
     result = {"zip": str(target.resolve()), "sha256": sha(target),

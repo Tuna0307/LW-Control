@@ -384,9 +384,9 @@ def test_consent_bound_source_frontline_action():
           state.frontlineCalls=state.frontlineCalls+1
           assert(fields.action=='frontlineReinforce' and fields.slot=='5')
           return {state='confirmed',data={
-            observation='native_ParkourBattleLogic_GetMemberCount',
+            observation='native_ParkourTeam_GetRemainUnitCount',
             action='frontlineReinforce',slot=5,beforeCount=7,afterCount=12,
-            addedMembers=5,observedCreatedUnits=5,unitIdentityVerified=true,
+            addedMembers=5,observedCreatedUnits=5,reservedMembers=0,nativeReserveVerified=true,unitIdentityVerified=true,
             observationScope='native_local_battle',serverAckObserved=false
           }}
         end
@@ -431,9 +431,9 @@ def test_consent_bound_source_frontline_action():
             "Native UI remount/another fresh consent repeated an earlier original five-unit action")
     lua.execute('''LWBridgeFeature018MiniGame.FrontlineReinforce=function(fields)
       state.frontlineCalls=state.frontlineCalls+1
-      return {state='confirmed',data={observation='native_ParkourBattleLogic_GetMemberCount',
+      return {state='confirmed',data={observation='native_ParkourTeam_GetRemainUnitCount',
         action='frontlineReinforce',slot=5,beforeCount=7,afterCount=12,
-        addedMembers=5,observedCreatedUnits=5,unitIdentityVerified=true,
+        addedMembers=5,observedCreatedUnits=5,reservedMembers=0,nativeReserveVerified=true,unitIdentityVerified=true,
         observationScope='native_local_battle',serverAckObserved=true}}
     end''')
     require(request(frontlineOptIn="1",launchSessionId="newlaunch")["state"]=="failed" and
@@ -627,7 +627,7 @@ def main():
     lua_second.execute('''LWBridgeFeature018MiniGame = { FrontlineReinforce = function(fields)
         assert(fields.slot == '5' and fields.action == 'frontlineReinforce')
         return {state='confirmed',data={
-          observation='native_ParkourBattleLogic_GetMemberCount',
+          observation='native_ParkourTeam_GetRemainUnitCount',
           beforeCount=20,afterCount=25,addedMembers=5,
           slot=5,action='frontlineReinforce'}}
     end }''')

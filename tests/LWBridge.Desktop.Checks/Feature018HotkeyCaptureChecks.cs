@@ -545,49 +545,48 @@ internal static class Feature018HotkeyCaptureChecks
             new(Feature018HotkeyKind.AttackSquad, 2))).Status == Feature018HotkeyActionStatus.Failed,
             "recall observation falsely confirmed a current-client attack");
 
-        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        JsonObject ReinforcementReceipt(int created, int reserved) => new()
         {
-            observation = "native_ParkourBattleLogic_GetMemberCount",
-            action = "frontlineReinforce",
-            slot = 5,
-            heroId = 1301,
-            beforeCount = 7,
-            afterCount = 12,
-            addedMembers = 5,
-            unitIdentityVerified = true,
-            observedCreatedUnits = 5,
-            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
-        });
-        Require((await nativeCoordinator.TryDispatchAsync(
-            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Working,
-            "native five-member Frontline source observation was not admitted");
-        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+            ["observation"] = "native_ParkourTeam_GetRemainUnitCount",
+            ["action"] = "frontlineReinforce", ["slot"] = 5, ["heroId"] = 1301,
+            ["stageRunId"] = "101", ["beforeCount"] = 50, ["afterCount"] = 55,
+            ["activeMemberCountBefore"] = 50, ["activeMemberCountAfter"] = 50 + created,
+            ["reserveMemberCountBefore"] = 0, ["reserveMemberCountAfter"] = reserved,
+            ["addedMembers"] = 5, ["observedCreatedUnits"] = created, ["reservedMembers"] = reserved,
+            ["unitIdentityVerified"] = true, ["nativeReserveVerified"] = true,
+            ["unitIdentitySource"] = "native_ParkourTeam_teamUnits_guid",
+            ["reserveIdentitySource"] = "native_ParkourTeam_overflowUnitCount",
+            ["guidAllocatorBefore"] = 100, ["guidAllocatorAfter"] = 100 + created,
+        };
+        foreach ((int created, int reserved) in new[] { (5, 0), (2, 3), (0, 5) })
         {
-            observation = "native_ParkourBattleLogic_GetMemberCount",
-            action = "frontlineReinforce",
-            slot = 5,
-            heroId = 1301,
-            beforeCount = 7,
-            afterCount = 11,
-            addedMembers = 5,
-            unitIdentityVerified = true,
-            observedCreatedUnits = 5,
-            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
-        });
-        Require((await nativeCoordinator.TryDispatchAsync(
-            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
-            "four soldier additions falsely confirmed five-member Frontline action");
-        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+            stub.Receipt = () => JsonSerializer.SerializeToElement(ReinforcementReceipt(created, reserved));
+            Require((await nativeCoordinator.TryDispatchAsync(
+                new(Feature018HotkeyKind.ReinforceFrontline, 5))).Working,
+                "native active/reserve five-soldier split was not admitted: " + created + "/" + reserved);
+        }
+        foreach (Action<JsonObject> corrupt in new Action<JsonObject>[]
         {
-            observation = "native_ParkourBattleLogic_GetMemberCount",
-            action = "frontlineReinforce", slot = 5, heroId = 1301,
-            beforeCount = 7, afterCount = 12, addedMembers = 5,
-            unitIdentityVerified = false, observedCreatedUnits = 5,
-            unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
-        });
-        Require((await nativeCoordinator.TryDispatchAsync(
-            new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
-            "count-only Frontline afterstate falsely admitted without independently verified unit GUIDs");
+            row => row["afterCount"] = 54,
+            row => row["observedCreatedUnits"] = 5, // All-reserve cannot claim five created GUIDs.
+            row => row["reservedMembers"] = 4,
+            row => row["nativeReserveVerified"] = false,
+            row => row["unitIdentityVerified"] = false,
+            row => row["guidAllocatorAfter"] = 105,
+            row => row["reserveMemberCountAfter"] = 4,
+            row => row["activeMemberCountAfter"] = 51,
+            row => row["reserveIdentitySource"] = "unverified_counter",
+            row => row["observation"] = "native_ParkourBattleLogic_GetMemberCount",
+        })
+        {
+            JsonObject invalid = ReinforcementReceipt(0, 5);
+            corrupt(invalid);
+            stub.Receipt = () => JsonSerializer.SerializeToElement(invalid);
+            Require((await nativeCoordinator.TryDispatchAsync(
+                new(Feature018HotkeyKind.ReinforceFrontline, 5))).Status == Feature018HotkeyActionStatus.Failed,
+                "contradictory native reserve/GUID/count receipt falsely confirmed five soldiers");
+        }
+        Console.WriteLine("FEATURE018_G_NATIVE_RESERVE_RECEIPT_PASS");
 
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {

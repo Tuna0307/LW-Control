@@ -561,10 +561,14 @@ local function frontline_context()
     end
     local count_ok, count = invoke(logic, "GetMemberCount")
     local team_ok, team_count = invoke(team, "GetMemberCount")
+    local remain_ok, remain_count = invoke(team, "GetRemainUnitCount")
+    local overflow = member(team,"overflowUnitCount")
     local allocated = member(logic, "unitGuid")
     if not count_ok or not team_ok or type(count) ~= "number" or
        count % 1 ~= 0 or count < 1 or team_count ~= count or
-       not is_integer(allocated) then
+       not is_integer(allocated) or not remain_ok or
+       type(overflow)~="number" or overflow<0 or overflow%1~=0 or
+       remain_count~=count+overflow then
         return nil, "Native Parkour team count or GUID allocator is unreadable"
     end
     if frontline_run_logic ~= logic then
@@ -574,6 +578,7 @@ local function frontline_context()
     return { battle = battle, logic = logic, team = team, heroId = primary_id,
              stageRunId = tostring(frontline_run_sequence),
              heroLevel = level, configHeroId = config_id, count = count,
+             overflow=overflow,remainCount=remain_count,
              eventId = member(event, "frontBreakSundayActId"),
              levelId = member(event, "levelId"),
              stageMode = member(event, "fromActFrontBreakSunday") == true and
@@ -633,7 +638,8 @@ local function frontline_status()
         sundayAvailabilityObserved=sunday_ok and type(sunday_open)=="boolean",
         sundayChallengeOpen=sunday_ok and sunday_open or false,
         heroId=context.heroId, heroLevel=context.heroLevel,
-        memberCount=context.count, nativeUnitCount=count, guidAllocator=context.lastGuid,
+        memberCount=context.remainCount, activeMemberCount=context.count,
+        reserveMemberCount=context.overflow,nativeUnitCount=count, guidAllocator=context.lastGuid,
         actionEligible=not frontline_active and
                        frontline_uncertain_battle ~= context.logic,
         actionInProgress=frontline_active,
@@ -657,6 +663,7 @@ local function frontline_reinforce_once(fields)
         return unsupported("The queued G press belongs to a previous stage run")
     end
     local confirmed = 0
+    local created, reserved = 0, 0
     for _ = 1, 5 do
         if frontline_reentry_seen then
             return blocked("Overlapping native Frontline G intent interrupted reinforcement", {
@@ -673,8 +680,10 @@ local function frontline_reinforce_once(fields)
            current.configHeroId ~= context.configHeroId or
            current.heroLevel ~= context.heroLevel or
            current.eventId ~= context.eventId or
-           current.lastGuid ~= context.lastGuid + confirmed or
-           current.count ~= context.count + confirmed then
+           current.lastGuid ~= context.lastGuid + created or
+           current.count ~= context.count + created or
+           current.overflow ~= context.overflow + reserved or
+           current.remainCount ~= context.remainCount + confirmed then
             return blocked(changed or "Native Parkour team changed during reinforcement", {
                 beforeCount = context.count, observedAdded = confirmed,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
@@ -693,10 +702,13 @@ local function frontline_reinforce_once(fields)
         local ok = pcall(member(context.logic, "AddMember"), context.logic,
                          context.heroId, context.heroLevel, true)
         local count_ok, after = invoke(context.logic, "GetMemberCount")
+        local remain_ok, remain_after = invoke(context.team,"GetRemainUnitCount")
+        local overflow_after = member(context.team,"overflowUnitCount")
         local after_units, _, after_count = frontline_units(context.team)
         local new_units = 0
         local created_unit = nil
-        local identities_match = after_units ~= nil and after_count == prior_count + 1
+        local identities_match = after_units ~= nil and
+            (after_count == prior_count + 1 or after_count == prior_count)
         if identities_match then
             for unit, guid in pairs(after_units) do
                 if prior_units[unit] ~= nil then
@@ -720,9 +732,17 @@ local function frontline_reinforce_once(fields)
                 if after_units[unit] == nil then identities_match = false end
             end
         end
-        if not ok or not count_ok or after ~= context.count + confirmed + 1 or
-           member(context.logic, "unitGuid") ~= context.lastGuid + confirmed + 1 or
-           not identities_match or new_units ~= 1 then
+        local new_member = count_ok and after == context.count + created + 1 and
+            overflow_after == context.overflow + reserved and new_units == 1 and
+            member(context.logic,"unitGuid") == context.lastGuid + created + 1
+        -- Native TryAddUnitToTeam(true) reserves a soldier in overflowUnitCount
+        -- when formation capacity prevents a new model/GUID. GetRemainUnitCount
+        -- is the game's active+reserve total. Never resize/patch the formation.
+        local new_reserve = count_ok and after == context.count + created and
+            overflow_after == context.overflow + reserved + 1 and new_units == 0 and
+            member(context.logic,"unitGuid") == context.lastGuid + created
+        if not ok or not remain_ok or remain_after ~= context.remainCount + confirmed + 1 or
+           not identities_match or not (new_member or new_reserve) then
             return blocked("Native Parkour member addition was not confirmed", {
                 beforeCount = context.count, observedAdded = confirmed,
                 observedAfterCount = count_ok and after or nil,
@@ -731,6 +751,7 @@ local function frontline_reinforce_once(fields)
                 unitIdentityVerified = identities_match and new_units == 1 or false,
                 observation = "native_ParkourBattleLogic_GetMemberCount" })
         end
+        if new_member then created = created + 1 else reserved = reserved + 1 end
         confirmed = confirmed + 1
     end
     return { state = "confirmed", data = {
@@ -738,16 +759,19 @@ local function frontline_reinforce_once(fields)
         frontBreakSundayActId = context.eventId,
         levelId = context.levelId, stageMode = context.stageMode,
         stageRunId = context.stageRunId,
-        beforeCount = context.count, afterCount = context.count + confirmed,
+        beforeCount = context.remainCount, afterCount = context.remainCount + confirmed,
+        activeMemberCountBefore=context.count,activeMemberCountAfter=context.count+created,
+        reserveMemberCountBefore=context.overflow,reserveMemberCountAfter=context.overflow+reserved,
         addedMembers = confirmed, unitIdentityVerified = true,
-        observedCreatedUnits = confirmed,
+        observedCreatedUnits = created, reservedMembers=reserved,nativeReserveVerified=true,
         guidAllocatorBefore = context.lastGuid,
-        guidAllocatorAfter = context.lastGuid + confirmed,
+        guidAllocatorAfter = context.lastGuid + created,
         -- Original AddMember has no per-key server request or response. This
-        -- confirms five distinct client battle units, not a server score ACK.
+        -- confirms five native soldiers (active and reserve), not a score ACK.
         serverAckObserved = false, observationScope = "native_local_battle",
         unitIdentitySource = "native_ParkourTeam_teamUnits_guid",
-        observation = "native_ParkourBattleLogic_GetMemberCount"
+        reserveIdentitySource = "native_ParkourTeam_overflowUnitCount",
+        observation = "native_ParkourTeam_GetRemainUnitCount"
     } }
 end
 
