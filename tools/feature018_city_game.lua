@@ -585,6 +585,23 @@ local function validate_state(values, known_state, known_meta)
         job.currentPointId, job.footprints = destination, positions
         if is_temporary then temporary = temporary + 1 end
     end
+    local function empty_buffer_footprint(job, point_id)
+        local target = point_id and translate_footprint(
+            job.source, point_id, meta.by_id, meta.ctx.width)
+        if not target or point_id == job.currentPointId then return nil end
+        for _, pid in ipairs(target) do
+            local cell = meta.by_id[pid]
+            if occupancy[pid] ~= nil or final_occupied[pid] or
+                not cell.unlocked or cell.road or cell.obstructed or
+                (cell.flagOnly and not job.source.public.isFlag) or
+                not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) or
+                not native_radius_ok(meta.ctx, pid) or
+                not second_range_ok(meta.ctx, job.source, pid) then
+                return nil
+            end
+        end
+        return target
+    end
     local finished = {}
     while #steps < MAX_STEPS do
         local left = 0
@@ -605,28 +622,41 @@ local function validate_state(values, known_state, known_meta)
             local found = false
             for _, job in ipairs(jobs) do
                 if not finished[job.uuid] then
-                    for point_id = 1, #state.cells do
-                        local target = translate_footprint(job.source, point_id,
-                            meta.by_id, meta.ctx.width)
-                        local allowed = target and point_id ~= job.currentPointId
-                        if allowed then
-                            for _, pid in ipairs(target) do
-                                local cell = meta.by_id[pid]
-                                if final_occupied[pid] or not cell.unlocked or cell.road or
-                                    cell.obstructed or
-                                    (cell.flagOnly and not job.source.public.isFlag) or
-                                    not meta.ctx.zone:CanPutBuildByPoint(pid, job.zoneType) or
-                                    not native_radius_ok(meta.ctx, pid) or
-                                    not second_range_ok(meta.ctx, job.source, pid) then
-                                    allowed = false
-                                    break
+                    -- A large building needs a disjoint *full* footprint as
+                    -- its buffer; prefer the closest eligible 2x2 location
+                    -- instead of a distant low-numbered grid index. Preserve
+                    -- the established deterministic index order for 1x1
+                    -- movements and unrelated legacy placement fixtures.
+                    if job.source.public.tileX > 1 or
+                        job.source.public.tileY > 1 then
+                        local x, y = point_xy(job.currentPointId, meta.ctx.width)
+                        for distance = 1, 2 * (meta.ctx.width - 1) do
+                            if found then break end
+                            for dx = -distance, distance do
+                                if found then break end
+                                local dy_abs = distance - math.abs(dx)
+                                for sign = -1, 1, 2 do
+                                    if dy_abs ~= 0 or sign == -1 then
+                                        local point_id = at_xy(x + dx, y + dy_abs * sign,
+                                            meta.ctx.width)
+                                        local target = empty_buffer_footprint(job, point_id)
+                                        if target then
+                                            append_step(job, point_id, target, true)
+                                            found = true
+                                            break
+                                        end
+                                    end
                                 end
                             end
                         end
-                        if allowed and free_for(job, target) then
-                            append_step(job, point_id, target, true)
-                            found = true
-                            break
+                    else
+                        for point_id = 1, #state.cells do
+                            local target = empty_buffer_footprint(job, point_id)
+                            if target then
+                                append_step(job, point_id, target, true)
+                                found = true
+                                break
+                            end
                         end
                     end
                 end
@@ -1171,6 +1201,95 @@ function M.Pump()
     return false
 end
 
+local function read_original_restore_preflight(job, feature)
+    -- A Cancel, late ACK or completed 2x2 pair can leave the user's buildings
+    -- in a valid but non-original arrangement. This method is READ-ONLY: it
+    -- derives original positions only from the owner-bound immutable native
+    -- snapshot saved at first send. It never reuses an old revision or sends
+    -- a packet. The owner must independently revalidate before any future
+    -- explicitly requested action through the normal authenticated route.
+    local result = {
+        jobId = job.jobId, jobState = job.state,
+        preflightOnly = true, requestDispatched = false,
+        historicalRequestsReconciled = false,
+        dispatchAuthorized = false,
+        historicalUncertaintyInPlan = false,
+        pendingNativeMove = job.waiting ~= nil,
+        ready = false, restorationRequired = false,
+        issueCode = nil,
+        plannedMoves = feature.Array({}),
+        issues = feature.Array({}),
+    }
+    if job.waiting then
+        result.issueCode = 'CITY_LAYOUT_RESULT_UNCERTAIN'
+        return result
+    end
+    if job.state == 'running' then
+        result.issueCode = 'CITY_LAYOUT_BUSY'
+        return result
+    end
+    local current, meta_or_reason = snapshot()
+    if not current or not current.isInCity then
+        result.issueCode = 'CITY_LAYOUT_NOT_IN_CITY'
+        result.error = meta_or_reason or 'The native city snapshot is unavailable.'
+        return result
+    end
+    result.currentRevision = current.layoutRevision
+    if meta_or_reason.ctx.width ~= job.width or not check_positions(job) then
+        result.issueCode = 'CITY_LAYOUT_STALE'
+        return result
+    end
+    local original_placements = {}
+    for uuid, source in pairs(job.sources) do
+        local before = source.public.pointId
+        if job.expected[uuid] ~= before then
+            original_placements[#original_placements + 1] =
+                uuid .. ':' .. tostring(before)
+        end
+    end
+    sorted(original_placements)
+    result.restorationRequired = #original_placements ~= 0
+    if not result.restorationRequired then
+        result.ready = true
+        result.originalLayoutConfirmed = true
+        return result
+    end
+    local validation, _, _, steps = validate_state({
+        placements = table.concat(original_placements, ';'),
+        baseRevision = current.layoutRevision,
+    }, current, meta_or_reason)
+    if not validation or not validation.valid then
+        result.issueCode = 'CITY_LAYOUT_RESTORE_NOT_VALID'
+        result.issues = feature.Array(validation and validation.issues or {})
+        return result
+    end
+    local planned_moves = {}
+    for index, step in ipairs(steps) do
+        planned_moves[#planned_moves + 1] = {
+            index = index, uuid = step.uuid,
+            fromPointId = step.from, pointId = step.pointId,
+            temporary = step.temporary == true,
+        }
+    end
+    result.ready = true
+    result.originalLayoutConfirmed = false
+    result.totalMoves = #steps
+    result.temporaryMoves = validation.temporaryMoves
+    result.originalPlacements = table.concat(original_placements, ';')
+    result.plannedMoves = feature.Array(planned_moves)
+    -- The historical owner-2289 UUID had an uncorrelated Replace send in a
+    -- previous session; no fresh native snapshot can prove its old ACK. A
+    -- source-valid inverse plan is NOT clearance to send that same UUID.
+    local historical_uuid = '1392040865799139725'
+    local historical_building = job.sources[historical_uuid]
+    result.historicalUncertaintyInPlan = historical_building ~= nil and
+        job.expected[historical_uuid] ~= historical_building.public.pointId
+    if result.historicalUncertaintyInPlan then
+        result.dispatchBlockReason = 'CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN'
+    end
+    return result
+end
+
 function M.Register(feature)
     if not feature or type(feature.RegisterHandler) ~= 'function' then return false end
     local ok = feature.RegisterHandler('city_layout_snapshot_get', function()
@@ -1266,6 +1385,18 @@ function M.Register(feature)
         progress_job(job)
         reconcile_timed_out(job)
         return confirmed(status_data(job))
+    end) and ok
+    ok = feature.RegisterHandler('city_layout_restore_preflight', function(values)
+        local job = M.active
+        if not job or not same_owner(job, values) or values.jobId ~= job.jobId then
+            return failed('CITY_LAYOUT_JOB_MISSING',
+                'The owner-bound city layout job is unavailable.')
+        end
+        -- Unlike ApplyStatus/Pump, restoration inspection must never advance
+        -- the running swap or dispatch the next step after an observed ACK.
+        -- A failed timeout may settle internally without another send.
+        reconcile_timed_out(job)
+        return confirmed(read_original_restore_preflight(job, feature))
     end) and ok
     ok = feature.RegisterHandler('city_layout_apply_cancel', function(values)
         local job = M.active

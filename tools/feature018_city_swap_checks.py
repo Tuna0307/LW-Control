@@ -118,6 +118,13 @@ def confirm(lua, uuid, point):
     lua.execute(f'ConfirmNativeMove({uuid},{point})')
 
 
+def restore(lua, job_id):
+    return lua.globals().Act('city_layout_restore_preflight', lua.table_from({
+        'jobId': job_id, 'profileId': 'p1',
+        'launchSessionId': 'session1', 'challenge': 'nonce',
+    }))
+
+
 def planned_steps(preflight):
     return [(preflight['plannedMoves'][i]['uuid'],
              preflight['plannedMoves'][i]['fromPointId'],
@@ -207,6 +214,198 @@ def test_negative_native_zones():
                 lua.globals().Act('city_layout_validate',
                     values(lua,observed['layoutRevision']))['data']['valid'] is False,
                 'invalid final destination advertised as a safe swap')
+
+
+def test_nearest_full_2x2_buffer():
+    # Both 4144 (Manhattan 3) and 4244 (Manhattan 2) are source-zone-valid
+    # empty buffers. Row-index scanning previously chose distant 4144.
+    lua, _ = scene()
+    lua.execute('''
+       for _, pid in ipairs({4144, 4143, 4044, 4043}) do
+           AllowedZones[pid] = true
+       end
+    ''')
+    before=state(lua)
+    assert_that(planned_steps(before['swapPreflights'][1])[0] ==
+                (str(ONE),4242,4244,True),
+                'buffer planner preferred lower pointId over closer legal 2x2 anchor')
+
+    # A partial self-overlapping 4242->4243 is not a freed 2x2 buffer, even
+    # if every native zone cell in that overlapping footprint is admitted.
+    lua, _ = scene()
+    lua.execute('''
+       for _, pid in ipairs({4143,4243}) do AllowedZones[pid] = true end
+       for _, pid in ipairs({4144,4244,4344,4444,4544}) do AllowedZones[pid] = nil end
+    ''')
+    blocked=state(lua)
+    assert_that(len(blocked['swapPreflights'])==0 and
+                blocked['swapPreflightIssues'][1]['issueCode']=='CITY_LAYOUT_NO_BUFFER' and
+                len(lua.globals().ObservedMoves)==0,
+                'partial self-overlap was misreported as valid native swap buffer')
+
+
+def test_read_only_original_restoration():
+    # Terminal and partial 2x2 outcomes expose a fresh native inverse plan
+    # without ever sending a packet. No user-supplied building UUID/anchor is
+    # accepted for this owner/job-bound read-only method.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    job_id=started['data']['status']['jobId']
+    confirm(lua,ONE,4244)
+    # The first successful source handler has updated native state; the next
+    # Move has NOT yet been dispatched by the authorized owner Pump. Merely
+    # querying restore readiness must not take that mutating next step.
+    pending=restore(lua,job_id)['data']
+    assert_that(pending['ready'] is False and
+                pending['pendingNativeMove'] is True and
+                len(lua.globals().ObservedMoves)==1 and
+                lua.globals().ObservedMoves[1]['uuid']==ONE,
+                'read-only restore preflight progressed ACK into a second send')
+
+    for confirmed_moves, final_state, expected_steps in (
+        (1, 'cancelled', [(str(ONE),4244,4242,False)]),
+        (2, 'cancelled', [
+            (str(TWO),4242,4442,False),
+            (str(ONE),4244,4242,False),
+        ]),
+        (3, 'completed', [
+            (str(ONE),4442,4444,True),
+            (str(TWO),4242,4442,False),
+            (str(ONE),4444,4242,False),
+        ]),
+    ):
+        lua,producer=scene()
+        revision=state(lua)['layoutRevision']
+        start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        job_id=start['data']['status']['jobId']
+        denied=restore(lua,job_id)['data']
+        assert_that(denied['ready'] is False and
+                    denied['issueCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    denied['pendingNativeMove'] is True and
+                    len(denied['plannedMoves'])==0,
+                    'restore preflight claimed in-flight 2x2 original state')
+        for index,(uuid,destination) in enumerate(((ONE,4244),(TWO,4242),(ONE,4442)),1):
+            if confirmed_moves<3 and confirmed_moves==index:
+                receipt=lua.globals().Act('city_layout_apply_cancel', lua.table_from({
+                    'jobId':job_id,'profileId':'p1','launchSessionId':'session1',
+                    'challenge':'nonce',
+                }))
+                assert_that(receipt['data']['status']['state']=='cancelling',
+                            'cancel test failed to record pending original restore')
+            confirm(lua,uuid,destination)
+            producer.Pump()
+            if confirmed_moves==index: break
+        terminal=status(lua,revision)
+        assert_that(terminal['state']==final_state and
+                    terminal['completedMoves']==confirmed_moves and
+                    terminal['inFlight'] is False,
+                    'controlled 2x2 fixture did not terminally settle')
+        sent_count=len(lua.globals().ObservedMoves)
+        preflight=restore(lua,job_id)
+        assert_that(preflight['state']=='confirmed','native restore preflight unavailable')
+        info=preflight['data']
+        assert_that(info['ready'] is True and
+                    info['restorationRequired'] is True and
+                    info['originalLayoutConfirmed'] is False and
+                    info['historicalRequestsReconciled'] is False and
+                    info['historicalUncertaintyInPlan'] is True and
+                    info['dispatchAuthorized'] is False and
+                    info['dispatchBlockReason']=='CITY_LAYOUT_HISTORICAL_RESULT_UNCERTAIN' and
+                    info['preflightOnly'] is True and
+                    info['requestDispatched'] is False and
+                    info['pendingNativeMove'] is False and
+                    info['currentRevision']==state(lua)['layoutRevision'] and
+                    planned_steps(info)==expected_steps and
+                    len(lua.globals().ObservedMoves)==sent_count,
+                    f'partial/complete {confirmed_moves}-step original restore plan unsafe or sent')
+        independently_revalidated=lua.globals().Act('city_layout_validate',
+            lua.globals().Fields(info['currentRevision'],
+                                 info['originalPlacements']))['data']
+        assert_that(independently_revalidated['valid'] is True and
+                    planned_steps(independently_revalidated)==planned_steps(info) and
+                    len(lua.globals().ObservedMoves)==sent_count,
+                    'source native restoration preflight differed from fresh standard City validator')
+        wrong_owner=lua.globals().Act('city_layout_restore_preflight',
+                                      lua.table_from({
+                                      'jobId':job_id,'profileId':'other-owner',
+                                      'launchSessionId':'session1','challenge':'nonce'}))
+        wrong_job=restore(lua,job_id+'-stale')
+        assert_that(wrong_owner['errorCode']=='CITY_LAYOUT_JOB_MISSING' and
+                    wrong_job['errorCode']=='CITY_LAYOUT_JOB_MISSING',
+                    'restore preflight leaked original anchors to foreign owner/job')
+
+    # A timeout is not a negative server ACK: even a read-only restore plan
+    # must remain unavailable until a matching native reply and all footprints.
+    lua,producer=scene()
+    lua.execute('Clock=100; os.time=function() return Clock end')
+    revision=state(lua)['layoutRevision']
+    start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    job_id=start['data']['status']['jobId']
+    lua.execute('Clock=116')
+    assert_that(status(lua,revision)['errorCode']=='GAME_MOVE_RESULT_TIMEOUT',
+                'late restore fixture did not time out')
+    blocked=restore(lua,job_id)['data']
+    assert_that(blocked['ready'] is False and
+                blocked['pendingNativeMove'] is True and
+                blocked['issueCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                len(lua.globals().ObservedMoves)==1,
+                'unconfirmed late packet exposed an original-layout restore send')
+    confirm(lua,ONE,4244)
+    producer.Pump()
+    after=restore(lua,job_id)['data']
+    assert_that(after['ready'] is True and
+                after['restorationRequired'] is True and
+                after['historicalUncertaintyInPlan'] is True and
+                planned_steps(after)==[(str(ONE),4244,4242,False)] and
+                len(lua.globals().ObservedMoves)==1,
+                'late exact native Move ACK did not permit fresh read-only restore plan')
+
+    # Moving a building independently after cancellation invalidates the
+    # planned restore even when the original draft revision is re-read.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    start=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+    job_id=start['data']['status']['jobId']
+    lua.globals().Act('city_layout_apply_cancel',lua.table_from({
+        'jobId':job_id,'profileId':'p1','launchSessionId':'session1','challenge':'nonce',
+    }))
+    confirm(lua,ONE,4244)
+    producer.Pump()
+    lua.execute(f'DataCenter.BuildManager.allBuilding[{TWO}].pointId=4544')
+    stale=restore(lua,job_id)['data']
+    assert_that(stale['ready'] is False and
+                stale['issueCode']=='CITY_LAYOUT_STALE' and
+                stale['plannedMoves'] is not None and
+                len(stale['plannedMoves'])==0,
+                'foreign native move was hidden by auto-restoration planning')
+
+    # A separate known-working second building (.9726) can be restored to its
+    # own pre-job point without claiming that unrelated historical .9725's
+    # unACKed Replace has been reconciled. This remains preflight-only.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    only_second=lua.globals().Fields(revision,f'{TWO}:4444')
+    start=lua.globals().Act('city_layout_apply_start',only_second)
+    assert_that(start['state']=='accepted','safe 9726-only fixture not dispatched')
+    job_id=start['data']['status']['jobId']
+    confirm(lua,TWO,4444)
+    producer.Pump()
+    safe=restore(lua,job_id)['data']
+    assert_that(safe['ready'] is True and
+                safe['historicalRequestsReconciled'] is False and
+                safe['historicalUncertaintyInPlan'] is False and
+                safe['dispatchAuthorized'] is False and
+                planned_steps(safe)==[(str(TWO),4444,4442,False)] and
+                len(lua.globals().ObservedMoves)==1,
+                '9726-only source restore mistakenly included unresolved 9725')
+    lua.execute('AllowedZones[4442]=nil')
+    blocked=restore(lua,job_id)['data']
+    assert_that(blocked['ready'] is False and
+                blocked['issueCode']=='CITY_LAYOUT_RESTORE_NOT_VALID' and
+                blocked['issues'][1]['code']=='CITY_LAYOUT_ZONE' and
+                len(lua.globals().ObservedMoves)==1,
+                'native zoning change failed to invalidate read-only restore plan')
 
 
 def test_cancel_partial_and_uncertain():
@@ -592,6 +791,8 @@ def main():
     check_historical_wrong_type_source()
     test_exact_native_swap()
     test_negative_native_zones()
+    test_nearest_full_2x2_buffer()
+    test_read_only_original_restoration()
     test_cancel_partial_and_uncertain()
     test_outbound_native_collision_fences()
     test_historical_inbound_replace_collision()
