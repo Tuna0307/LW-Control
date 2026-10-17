@@ -1,4 +1,4 @@
-"""Build one source-pinned, unpublished FEATURE-RECOVERY-018 R3 Windows ZIP.
+"""Build one source-pinned, unpublished FEATURE-RECOVERY-018 R4 Windows ZIP.
 
 This must run AFTER the final source commit is pushed and a fresh Windows
 publish has been compiled from that commit. All game receipts are read-only
@@ -60,6 +60,8 @@ def main() -> None:
     parser.add_argument("--publish", type=Path, default=ROOT / "artifacts/map014-takeover/publish")
     parser.add_argument("--session", action="append", required=True,
                         help="Exact native-ui-YYYYMMDD-HHMMSS proof directory name; repeat for each session")
+    parser.add_argument("--failed-session", action="append", default=[],
+                        help="Existing pre-game-start failure receipt (never counted as live proof)")
     args = parser.parse_args()
     if git("branch", "--show-current") != "codex/feature-recovery-018":
         raise RuntimeError("Wrong release branch")
@@ -92,9 +94,27 @@ def main() -> None:
         validate_receipt(directory)
         if name not in sessions:
             sessions.append(name)
-    destination = ROOT / "artifacts/feature018" / ("delivery-r3-" + commit[:8])
+    failed_sessions = []
+    for name in args.failed_session:
+        if not name.startswith("native-ui-20261017-") or "/" in name or "\\" in name or name in sessions:
+            raise RuntimeError("Invalid or already accepted failed proof session")
+        directory = ROOT / "artifacts/map014-takeover" / name
+        outcome = json.loads((directory / "owned-exit.json").read_text("utf-8"))
+        if outcome.get("exitCode") != 1 or outcome.get("proof") is not False or \
+            outcome.get("recoveryJournalPresent") is not False or \
+            outcome.get("originalScriptsRestored") != {name: True for name in ORIGINAL_SHA} or \
+            (directory / "feature018-account-admission.json").exists():
+            raise RuntimeError("Failed receipt must be pre-admission and restoration reported")
+        errors = list((directory / "overview-evidence").glob("*/helper-start-error.json"))
+        if len(errors) != 1:
+            raise RuntimeError("Failed session has no unique helper-start error")
+        error = json.loads(errors[0].read_text("utf-8"))
+        if error.get("errorType") != "PermissionError" or "WinError 5" not in error.get("error", ""):
+            raise RuntimeError("Failed session does not match recorded OS denial")
+        failed_sessions.append((name, directory, errors[0]))
+    destination = ROOT / "artifacts/feature018" / ("delivery-r4-" + commit[:8])
     destination.mkdir(parents=True, exist_ok=True)
-    target = destination / ("LW-Control-FEATURE-RECOVERY-018-R3-PARTIAL-" + commit[:12] + ".zip")
+    target = destination / ("LW-Control-FEATURE-RECOVERY-018-R4-PARTIAL-" + commit[:12] + ".zip")
     if target.exists():
         raise RuntimeError("Refuse to overwrite an existing release package")
     files: dict[str, Path] = {}
@@ -113,6 +133,15 @@ def main() -> None:
                     path.name.startswith("feature018-city-driver-") and path.suffix == ".json" or
                     path.name.startswith("feature018-r2-") and path.suffix == ".png"):
                 files[(Path("Proof-R3") / name / path.name).as_posix()] = path
+    for name, directory, error in failed_sessions:
+        # The R4 launch did not reach the game and cannot masquerade as a
+        # successful admitted account/session. Keep denial and cleanup proof
+        # separate from the positive R3 game observations.
+        files[(Path("Proof-R4-Launch-Denied") / name / "owned-exit.json").as_posix()] = directory / "owned-exit.json"
+        files[(Path("Proof-R4-Launch-Denied") / name / "helper-start-error.json").as_posix()] = error
+        cleanup = error.with_name("helper-start-cleanup.json")
+        if cleanup.is_file():
+            files[(Path("Proof-R4-Launch-Denied") / name / "helper-start-cleanup.json").as_posix()] = cleanup
     for dest, source in {
         "WORKER-REPORT.md": "docs/FEATURE_RECOVERY_018_WORKER_REPORT.md",
         "ORIGINAL-INVENTORY.md": "docs/FEATURE_RECOVERY_018_INVENTORY.md",
@@ -124,7 +153,8 @@ def main() -> None:
     manifest = {
         "task": "FEATURE-RECOVERY-018", "status": "PARTIAL", "commit": commit,
         "branch": "codex/feature-recovery-018", "pr": "https://github.com/Tuna0307/LW-Control/pull/14",
-        "liveProofSessionIds": sessions, "verifiedUid": EXPECTED_UID,
+        "liveProofSessionIds": sessions, "failedPreAdmissionSessions": [name for name, _, _ in failed_sessions],
+        "verifiedUid": EXPECTED_UID,
         "verifiedServer": EXPECTED_SERVER, "originalScriptsRestored": True,
         "files": {},
     }
@@ -134,10 +164,11 @@ def main() -> None:
             manifest["files"][arc] = {"sha256": sha(data), "size": len(data)}
             archive.writestr(arc, data)
         notice = (
-            "FEATURE-RECOVERY-018 R3 source-pinned Windows review build.\n"
+            "FEATURE-RECOVERY-018 R4 source-pinned Windows review build.\n"
             f"Commit: {commit}\nStatus: PARTIAL, NOT fully recovered.\n"
             "No real-money purchases; original scripts restored in all included game sessions.\n"
             "No inferred server ACK from a local send, native read or UI event.\n"
+            "R4 failed startup receipt is pre-admission, not an additional game proof.\n"
             "READ WORKER-REPORT.md and LEAD-AUDIT.md before interpreting proof.\n"
             "No source is merged, published or installed by this ZIP.\n"
         ).encode()
@@ -156,7 +187,7 @@ def main() -> None:
         "entries": len(manifest["files"]) + 1, "commit": commit,
         "liveProofSessionIds": sessions,
     }, indent=2), encoding="utf-8")
-    print(f"FEATURE018_R3_RELEASE_OK {target}\nSHA256={digest} "
+    print(f"FEATURE018_R4_RELEASE_OK {target}\nSHA256={digest} "
           f"BYTES={target.stat().st_size} ENTRIES={len(manifest['files'])+1} COMMIT={commit}")
 
 
