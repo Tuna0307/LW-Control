@@ -43,6 +43,8 @@ MODULES = {
         "4a0fb530b6bf99d7f987bbef543eebe5a649cb705999ad48a2c721856419341e",
     "DataCenter/LWActSignInManager/LWActSignInInfo.luac":
         "016c286eaa75109c47253fdcbe3ff900de1c019a85408d57a81174fd67dac72e",
+    "DataCenter/ItemManager/StatusManager.luac":
+        "8546a11d87b66719c3f05917312d353119701cd78bbe55b2b87123df3722631c",
 }
 
 
@@ -86,6 +88,16 @@ def check() -> None:
     # separately proven inventory-only UIShopBuy followed by ItemUse.
     has(shield, "ConfirmBuy", "ItemBuyAndUse", "itemId", "num", "SetUseShieldCD")
     has(shield, "ConfirmUse", "ItemUse", "uuid", "num")
+    # R6 pre-send fence is grounded in original v26's paired Goods.para1
+    # -> StatusTab.time duration and cached StatusManager MAIN_SHIELD IDs.
+    has(shield, "CellsCallBack", "StatusTab", "para1", "time", "WarFeverStatu",
+        "IsUseShieldCD", "BuyOrUse", "GetServerTime")
+    has("DataCenter/ItemManager/StatusManager.luac", "GetShieldStatusIds",
+        "shieldStatusIds", "visitTable", "StatusTab")
+    has("DataCenter/ItemManager/StatusManager.luac", "root/3/0",
+        "effect", "EffectDefine", "MAIN_SHIELD", "shieldStatusIds", "tonumber")
+    has("DataCenter/ItemManager/StatusManager.luac", "SetUseShieldCD",
+        "UITimeManager", "GetInstance")
     has(shield, "BuyOrUse", "ShowUseDiamondConfirm", "BuyUseDialog", "gold",
         "price", "CONFIRM", "CANCEL", "GotoPayTips")
     has(shield, "root/11/1", "NeedNoticeShield", "ConfirmBuy")

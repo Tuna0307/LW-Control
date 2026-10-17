@@ -22,6 +22,7 @@ state = {
   },
   templates = {{id=9,para1=501},{id=10,para1=502},{id=11,para1=503}},
   seconds = {[501]=28800,[502]=43200,[503]=86400},
+  statusEffects = {[501]=7,[502]=7,[503]=7},
   effectEnd = {},
   sent = 0, cooldownSets = 0, cd = false, war = nil,
   season = false, meteorite = false, protectEnd = 0,
@@ -63,10 +64,11 @@ DataCenter = {
   end},
 }
 TableName = {StatusTab='StatusTab'}
+EffectDefine = {MAIN_SHIELD=7}
 LocalController = {instance=function(self)
   return {getLine=function(self, tableName, id)
     assert(tableName=='StatusTab')
-    if state.seconds[id] then return {time=state.seconds[id]} end
+    if state.seconds[id] then return {time=state.seconds[id],effect=state.statusEffects[id]} end
     return nil
   end}
 end}

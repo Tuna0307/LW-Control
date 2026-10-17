@@ -400,8 +400,25 @@ function M.GoldClaimableSnapshot(fields)
        not native_sub_account() then
         return invalid("Current authorized native player/session required for reward inspection")
     end
+    -- The bridge owns the authenticated launch token. Within that launch,
+    -- reject a native Player or claim manager/cache swap during observation:
+    -- a different session can have the same UID but different cached claims.
+    local player = member(rawget(_G, "LuaEntry"), "Player")
+    local center = rawget(_G, "DataCenter")
+    local daily = member(center, "DailyTaskManager")
+    local sign_in = member(center, "LWActSignInManager")
+    local tasks = member(daily, "dailyQuestTasks")
+    local events = member(sign_in, "infos")
     local observation = daily_gold_claim_observation()
-    if observation == nil then return invalid("Native reward inspector owner changed") end
+    if observation == nil or not native_sub_account() or
+       member(rawget(_G, "LuaEntry"), "Player") ~= player or
+       rawget(_G, "DataCenter") ~= center or
+       member(center, "DailyTaskManager") ~= daily or
+       member(center, "LWActSignInManager") ~= sign_in or
+       member(daily, "dailyQuestTasks") ~= tasks or
+       member(sign_in, "infos") ~= events then
+        return invalid("Native reward inspector owner/session/cache changed")
+    end
     return {state="confirmed", data=observation}
 end
 
@@ -422,6 +439,17 @@ local function owned_item_count(uuid, item_id)
         end
     end
     return count
+end
+
+local function source_matched_shield_row(row, hours)
+    -- In v26 StatusManager.GetShieldStatusIds root/3/0 uses
+    -- tonumber(StatusTab.effect) == EffectDefine.MAIN_SHIELD. Its result is
+    -- cached in shieldStatusIds; a re-read of that cache alone cannot detect
+    -- a changed StatusTab classification. Verify the actual row as well.
+    local required_effect = number(member(rawget(_G,"EffectDefine"),"MAIN_SHIELD"))
+    return required_effect ~= nil and
+           number(member(row,"effect")) == required_effect and
+           number(member(row,"time")) == hours * 3600
 end
 
 local function shield_item_for_hours(hours)
@@ -457,6 +485,10 @@ local function shield_item_for_hours(hours)
             if seconds == nil or seconds <= 0 or seconds % 1 ~= 0 then
                 return nil, unavailable("Native StatusTab shield duration is invalid")
             end
+            if seconds == hours * 3600 and
+               not source_matched_shield_row(row, hours) then
+                return nil, unavailable("Native StatusTab MAIN_SHIELD classification changed")
+            end
             if seconds == hours * 3600 then
                 for _, item in pairs(owned) do
                     local count = number(member(item, "count"))
@@ -482,9 +514,20 @@ end
 local function shield_shop_pre_send_unchanged(center, player, chosen, before_gold, before_count)
     local ok_items, items = invoke(member(center, "ItemData"), "GetItemList", 4, 1)
     local ok_templates, templates = invoke(member(center, "ItemTemplateManager"), "GetTypeListByTypes", 4, 1)
+    local ok_ids, ids = invoke(member(center, "StatusManager"), "GetShieldStatusIds")
+    local ok_controller, controller = invoke(rawget(_G, "LocalController"), "instance")
+    local status_tab = member(rawget(_G, "TableName"), "StatusTab")
     local gold = number(member(player, "gold"))
     if not ok_items or type(items) ~= "table" or not ok_templates or
-       type(templates) ~= "table" or gold ~= before_gold then return false end
+       type(templates) ~= "table" or not ok_ids or type(ids) ~= "table" or
+       not ok_controller or controller == nil or status_tab == nil or
+       gold ~= before_gold then return false end
+    -- Original v26 CityShieldPage.CellsCallBack maps Goods.para1 to the
+    -- classified MAIN_SHIELD StatusTab.time. A changed row/classification
+    -- makes the formerly approved F6/F7/F8 duration a different purchase.
+    if ids[chosen.statusId] ~= true and ids[tostring(chosen.statusId)] ~= true then
+        return false
+    end
     local count = 0
     for _, item in pairs(items) do
         if digit_id(member(item, "itemId")) == chosen.itemId then
@@ -500,6 +543,10 @@ local function shield_shop_pre_send_unchanged(center, player, chosen, before_gol
             matching = matching + 1
             if digit_id(member(template, "para1")) ~= tostring(chosen.statusId) or
                number(member(template, "price")) ~= chosen.price then return false end
+            local ok_row, row = invoke(controller, "getLine", status_tab, member(template, "para1"))
+            if not ok_row or not source_matched_shield_row(row, chosen.durationHours) then
+                return false
+            end
         end
     end
     return matching == 1
@@ -532,7 +579,7 @@ local function shield_shop(fields)
         local status_id = member(template,"para1")
         if ids[status_id] == true or ids[tonumber(status_id)] == true then
             local ok_row, row = invoke(tables,"getLine",member(rawget(_G,"TableName"),"StatusTab"),status_id)
-            if ok_row and number(member(row,"time")) == hours * 3600 then
+            if ok_row and source_matched_shield_row(row, hours) then
                 if chosen ~= nil then return invalid("Ambiguous native shield template duration") end
                 chosen = {itemId=digit_id(member(template,"id")),statusId=tonumber(status_id),
                     price=number(member(template,"price")),durationHours=hours}
@@ -578,7 +625,10 @@ local function shield_shop(fields)
         data.purchaseRoute = "native_UIShopBuy_one_item_with_consent"
         data.nativeMatchedShieldStacks = observed_stacks
         local claim = M.GoldClaimableSnapshot(fields)
-        if claim.state ~= "confirmed" or not native_sub_account() then
+        if claim.state ~= "confirmed" or not native_sub_account() or
+           rawget(_G,"DataCenter") ~= center or
+           member(rawget(_G,"LuaEntry"),"Player") ~= player or
+           number(member(player,"gold")) ~= gold then
             return invalid("Native shield/gold inspection owner changed")
         end
         data.nativeGoldClaimRoutes = claim.data
@@ -594,6 +644,11 @@ local function shield_shop(fields)
         if snapshot.data.remainingMilliseconds >= hours*3600000 then
             return invalid("Native shield cannot be replaced with a shorter duration")
         end
+        if not native_sub_account() or
+           rawget(_G,"DataCenter") ~= center or
+           member(rawget(_G,"LuaEntry"),"Player") ~= player then
+            return invalid("Native shield replacement owner changed before arming")
+        end
         armed_shield_replace={owner=owner,hours=hours,expires=os.time()+60}
         data.observation="explicit_next_shield_replacement_confirmed"
         data.replacementArmed=true
@@ -605,6 +660,11 @@ local function shield_shop(fields)
     if fields.mode == "status" then
         local pending = pending_purchase
         if pending == nil or pending.itemId ~= chosen.itemId then return invalid("No matching shield purchase") end
+        if not native_sub_account() or
+           rawget(_G,"DataCenter") ~= center or
+           member(rawget(_G,"LuaEntry"),"Player") ~= player then
+            return invalid("Native shield purchase owner changed during observation")
+        end
         if count == pending.count + 1 and gold == pending.gold - pending.price then
             pending_purchase = nil
             data.observation="native_shield_purchase_inventory_and_gold"
@@ -628,6 +688,8 @@ local function shield_shop(fields)
     if message == nil or type(send) ~= "function" then return unavailable("Native shop purchase sender unavailable") end
     if not native_sub_account() then return invalid("Native shield shop owner changed before send") end
     if not shield_shop_pre_send_unchanged(center,player,chosen,gold,count) or
+       rawget(_G,"DataCenter") ~= center or
+       member(rawget(_G,"LuaEntry"),"Player") ~= player or
        not native_sub_account() then
         return invalid("Native shield item price, stock, balance or owner changed before purchase")
     end
@@ -703,6 +765,8 @@ local function shield_use(fields)
     if not native_sub_account() then
         return invalid("Shield ItemUse requires exact native authorized UID and server")
     end
+    local player = member(rawget(_G, "LuaEntry"), "Player")
+    local center = rawget(_G, "DataCenter")
     if not (hours == 8 or hours == 12 or hours == 24) then
         return invalid("Shield duration must be 8, 12 or 24 hours")
     end
@@ -724,6 +788,11 @@ local function shield_use(fields)
         if snapshot.state ~= "confirmed" then return snapshot end
         local count = owned_item_count(pending.uuid, pending.itemId)
         if count == nil then return unavailable("Owned shield count after ItemUse is unreadable") end
+        if not native_sub_account() or
+           member(rawget(_G,"LuaEntry"),"Player") ~= player or
+           rawget(_G,"DataCenter") ~= center then
+            return invalid("Native shield status owner changed during observation")
+        end
         local match = false
         for _, effect in pairs(snapshot.data.statuses) do
             if effect.statusId == pending.statusId and
@@ -784,10 +853,42 @@ local function shield_use(fields)
     -- Re-evaluate volatile warning and cooldown immediately before sending.
     local final_safety = shield_safe_to_consume(hours,replace)
     if final_safety ~= nil then return final_safety end
-    if not native_sub_account() then return invalid("Native shield owner changed before ItemUse") end
-    local ok_cd = invoke(status, "SetUseShieldCD")
-    if not ok_cd then return invalid("Native shield cooldown could not be set") end
-    if not native_sub_account() then return invalid("Native shield owner changed before ItemUse") end
+    if not native_sub_account() or
+       member(rawget(_G,"LuaEntry"),"Player") ~= player or
+       rawget(_G,"DataCenter") ~= center then
+        return invalid("Native shield owner/session changed before ItemUse")
+    end
+    local ok_cd, cd_result = invoke(status, "SetUseShieldCD")
+    if not ok_cd or cd_result == false then
+        return invalid("Native shield cooldown could not be set")
+    end
+    if not native_sub_account() or
+       member(rawget(_G,"LuaEntry"),"Player") ~= player or
+       rawget(_G,"DataCenter") ~= center then
+        return invalid("Native shield owner/session changed before ItemUse")
+    end
+    -- SetUseShieldCD executes game code and may synchronously process a
+    -- changed inventory/effect/template. Before committing the one-shot
+    -- ItemUse tombstone and network call, require the exact same source-owned
+    -- stack, duration and MAIN_SHIELD endTime as the original preflight.
+    local current_item = shield_item_for_hours(hours)
+    local fresh = shield_snapshot()
+    if current_item == nil or current_item.uuid ~= item.uuid or
+       current_item.itemId ~= item.itemId or
+       current_item.statusId ~= item.statusId or
+       current_item.durationMs ~= item.durationMs or
+       current_item.count ~= item.count or
+       owned_item_count(item.uuid, item.itemId) ~= item.count or
+       fresh.state ~= "confirmed" or
+       fresh.data.shieldStatusCount ~= before.data.shieldStatusCount or
+       fresh.data.active ~= before.data.active or
+       fresh.data.endTime ~= before.data.endTime or
+       fresh.data.serverTimeMilliseconds < before.data.serverTimeMilliseconds or
+       not native_sub_account() or
+       member(rawget(_G,"LuaEntry"),"Player") ~= player or
+       rawget(_G,"DataCenter") ~= center then
+        return invalid("Native shield state, inventory, duration or owner changed before ItemUse")
+    end
     armed_shield_replace=nil
     pending_shield = {
         owner=owner, hours=hours, uuid=item.uuid, itemId=item.itemId,

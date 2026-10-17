@@ -198,6 +198,41 @@ class GoldClaimReadOnlyChecks(unittest.TestCase):
         self.assertEqual(inspect()['state'], 'failed')
         self.assertEqual(state['sent'], 0)
 
+    def test_same_uid_session_or_native_reward_cache_swap_fails_closed(self):
+        # The user-facing session tokens are identical, and each mock still
+        # presents UID2289: only the native Player/manager/cache identity fence
+        # distinguishes an in-flight native session/claim transition.
+        mutations = (
+            "LuaEntry.Player={uid='3133546747002289',gold=1000,GetSourceServerId=function()return 2289 end,GetSelfServerId=function()return 2289 end,GetCurServerId=function()return 2289 end}",
+            'DataCenter.DailyTaskManager.dailyQuestTasks={}',
+            'DataCenter.DailyTaskManager={dailyQuestTasks={},GetAllDailyTask=function()return {} end}',
+        )
+        for change in mutations:
+            with self.subTest(change=change):
+                lua, state, inspect = fixture()
+                lua.execute('''
+                  local orig=DataCenter.DailyTaskManager.GetAllDailyTask
+                  DataCenter.DailyTaskManager.GetAllDailyTask=function(self)
+                    local tasks=orig(self)
+                    MUTATE()
+                    return tasks
+                  end
+                '''.replace('MUTATE()',change))
+                self.assertEqual(inspect()['state'], 'failed')
+                self.assertEqual(state['sent'], 0)
+
+        lua, state, inspect = fixture()
+        lua.execute('''
+          local previous=state.signInEvents[401].GetCanClaimRewardDay
+          state.signInEvents[401].GetCanClaimRewardDay=function(self)
+            local result=previous(self)
+            DataCenter.LWActSignInManager.infos={}
+            return result
+          end
+        ''')
+        self.assertEqual(inspect()['state'], 'failed')
+        self.assertEqual(state['sent'], 0)
+
     def test_bounded_claims_no_autosend_or_fake_all_clear(self):
         lua, state, inspect = fixture()
         lua.execute('''
