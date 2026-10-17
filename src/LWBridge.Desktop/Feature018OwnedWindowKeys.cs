@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace LWBridge.Desktop;
 
@@ -9,7 +10,7 @@ internal sealed record Feature018OwnedKeyReceipt(
 
 /// <summary>
 /// Opt-in R2 acceptance input. GetAsyncKeyState does not observe posted WM_KEYDOWN
-/// messages, so use standard Win32 keyboard input while the *exact task-owned*
+/// messages, so use SendInput keyboard events while the *exact task-owned*
 /// game window is proven foreground. Unknown/replaced HWND/PID/account fails closed.
 /// Nothing is registered as a global hotkey and no owner's window is activated.
 /// </summary>
@@ -19,6 +20,48 @@ internal static class Feature018OwnedWindowKeys
     private const uint KeyUp = 0x0002;
     private const byte Alt = 0x12;
     private delegate bool EnumerateWindow(nint hwnd, nint value);
+
+    // Makes OS focus denial, input-stream rejection, and asynchronous admission
+    // independently testable without sending a key to any real process.
+    internal interface IPlatform
+    {
+        bool SameProcess(OverviewMapScanSession session);
+        nint ForegroundWindow();
+        nint FindOwnedWindow(int pid);
+        bool IsOwnedRootWindow(nint hwnd, int pid);
+        bool ActivateWindow(nint hwnd);
+        bool AllHotkeysReleased();
+        bool SendKey(byte key, bool release);
+        Task Delay(int milliseconds, CancellationToken token);
+    }
+
+    private sealed class WindowsPlatform : IPlatform
+    {
+        internal static readonly WindowsPlatform Instance = new();
+        public bool SameProcess(OverviewMapScanSession session) =>
+            Feature018OwnedWindowKeys.SameProcess(session);
+        public nint ForegroundWindow() => GetForegroundWindow();
+        public nint FindOwnedWindow(int pid) => FindExactWindow(pid);
+        public bool IsOwnedRootWindow(nint hwnd, int pid) => hwnd != 0 &&
+            IsWindowVisible(hwnd) && GetAncestor(hwnd, GaRoot) == hwnd &&
+            WindowBelongsTo(hwnd, pid);
+        public bool ActivateWindow(nint hwnd) => SetForegroundWindow(hwnd);
+        public bool AllHotkeysReleased() =>
+            Feature018HotkeyRecognizer.Watched.All(key =>
+                (GetAsyncKeyState((int)key) & 0x8000) == 0);
+        public bool SendKey(byte key, bool release) =>
+            SendInput(1, [new Input
+            {
+                Type = 1, Data = new InputUnion
+                {
+                    Keyboard = new KeyboardInput { Vk = key, Flags = release ? KeyUp : 0 }
+                }
+            }], Marshal.SizeOf<Input>()) == 1;
+        public Task Delay(int milliseconds, CancellationToken token) =>
+            Task.Delay(milliseconds, token);
+    }
+
+    internal static int NativeInputSize => Marshal.SizeOf<Input>();
 
     internal static bool TryKeyPlan(string binding, out byte[] keys)
     {
@@ -63,38 +106,58 @@ internal static class Feature018OwnedWindowKeys
     internal static async Task<Feature018OwnedKeyReceipt> PressAsync(
         OverviewMapScanSession session, string binding,
         Func<bool> authenticatedApprovedOwner, Func<bool> gameInputClear,
-        CancellationToken token)
+        CancellationToken token) =>
+        await PressWithPlatformAsync(session, binding, authenticatedApprovedOwner,
+            gameInputClear, WindowsPlatform.Instance, token);
+
+    internal static async Task<Feature018OwnedKeyReceipt> PressWithPlatformAsync(
+        OverviewMapScanSession session, string binding,
+        Func<bool> authenticatedApprovedOwner, Func<bool> gameInputClear,
+        IPlatform platform, CancellationToken token)
     {
         if (!TryKeyPlan(binding, out byte[] keys))
             return new(binding, session.GamePid, 0, false, "unsupported_key_binding");
         // Validate all identifying process fields before even selecting an HWND.
-        if (!authenticatedApprovedOwner() || !SameProcess(session))
+        if (!authenticatedApprovedOwner() || !platform.SameProcess(session))
             return new(binding, session.GamePid, 0, false, "approved_game_identity_unavailable");
-        nint hwnd = FindExactWindow(session.GamePid);
+        // A game process may own multiple visible top-level HWNDs. Prefer its
+        // *already foreground* root instead of activating an arbitrary sibling.
+        nint foreground = platform.ForegroundWindow();
+        nint hwnd = platform.IsOwnedRootWindow(foreground, session.GamePid)
+            ? foreground : platform.FindOwnedWindow(session.GamePid);
         if (hwnd == 0)
             return new(binding, session.GamePid, 0, false, "owned_game_window_unavailable");
-        if (!SetForegroundWindow(hwnd))
+        if (!platform.IsOwnedRootWindow(hwnd, session.GamePid))
+            return new(binding, session.GamePid, hwnd.ToInt64(), false, "owned_game_window_unavailable");
+        // Windows may deny activating a different process's HWND. An already
+        // foreground, verified owned HWND requires no new activation privilege.
+        if (platform.ForegroundWindow() != hwnd && !platform.ActivateWindow(hwnd))
             return new(binding, session.GamePid, hwnd.ToInt64(), false, "game_foreground_activation_denied");
         // First allow the capture recognizer to observe all keys released;
         // first-focus held keys are deliberately disarmed.
-        await Task.Delay(420, token);
+        await platform.Delay(420, token);
         if (!AllowedNow()) return new(binding, session.GamePid, hwnd.ToInt64(),
             false, "owned_game_window_or_account_changed");
         // The native focus monitor is intentionally fail-closed until it gets a
         // fresh game EventSystem reply. Synchronize the test press to that real
         // gate; otherwise timer scheduling can yield a false keyboard negative.
         bool ready = false;
+        bool textInputClear = false;
+        bool keyboardClear = false;
         for (int i = 0; i < 75; i++)
         {
             if (!AllowedNow())
                 return new(binding, session.GamePid, hwnd.ToInt64(),
                     false, "owned_game_window_changed_during_input_admission");
-            if (gameInputClear()) { ready = true; break; }
-            await Task.Delay(25, token);
+            textInputClear = gameInputClear();
+            keyboardClear = platform.AllHotkeysReleased();
+            if (textInputClear && keyboardClear) { ready = true; break; }
+            await platform.Delay(25, token);
         }
         if (!ready)
             return new(binding, session.GamePid, hwnd.ToInt64(),
-                false, "game_text_input_focus_could_not_be_qualified");
+                false, textInputClear ? "game_keyboard_baseline_could_not_be_qualified" :
+                "game_text_input_focus_could_not_be_qualified");
 
         bool keyDown = false;
         bool modifierDown = false;
@@ -102,34 +165,50 @@ internal static class Feature018OwnedWindowKeys
         {
             if (keys.Length == 2)
             {
-                KeyEvent(keys[0], 0, 0, 0);
+                if (!AllowedNow() || !gameInputClear() || !platform.AllHotkeysReleased())
+                    return new(binding, session.GamePid, hwnd.ToInt64(), false,
+                        "owned_window_changed_before_modifier");
+                if (!platform.SendKey(keys[0], false))
+                    return new(binding, session.GamePid, hwnd.ToInt64(), false,
+                        "win32_sendinput_modifier_rejected");
                 modifierDown = true;
-                await Task.Delay(55, token);
+                await platform.Delay(55, token);
                 if (!AllowedNow() || !gameInputClear()) return new(binding, session.GamePid, hwnd.ToInt64(),
                     false, "owned_window_changed_before_chord");
             }
             if (!AllowedNow() || !gameInputClear()) return new(binding, session.GamePid, hwnd.ToInt64(),
                 false, "owned_window_changed_before_keydown");
             byte primary = keys[^1];
-            KeyEvent(primary, 0, 0, 0);
+            if (!platform.SendKey(primary, false))
+                return new(binding, session.GamePid, hwnd.ToInt64(), false,
+                    "win32_sendinput_keydown_rejected");
             keyDown = true;
-            await Task.Delay(185, token);
+            await platform.Delay(185, token);
+            if (!AllowedNow() || !gameInputClear())
+                return new(binding, session.GamePid, hwnd.ToInt64(), false,
+                    "owned_window_changed_during_keypress");
+            // Accepted into the Win32 input stream; actual game recognition and
+            // command acknowledgement are observed separately by the caller.
             return new(binding, session.GamePid, hwnd.ToInt64(), true,
-                "keys_injected_while_exact_task_game_hwnd_foreground");
+                "keys_accepted_by_win32_input_stream_for_owned_game_hwnd");
         }
         finally
         {
             // Release every injected key even on cancellation or focus loss;
-            // never leave Alt or a game action hotkey physically held.
-            if (keyDown) KeyEvent(keys[^1], 0, KeyUp, 0);
-            if (modifierDown) KeyEvent(keys[0], 0, KeyUp, 0);
-            await Task.Delay(70, CancellationToken.None);
+            // surface an OS release failure rather than claiming a completed
+            // key press with a possibly still-held modifier/action key.
+            bool released = true;
+            if (keyDown) released = platform.SendKey(keys[^1], true) && released;
+            if (modifierDown) released = platform.SendKey(keys[0], true) && released;
+            if (keyDown || modifierDown)
+                await platform.Delay(70, CancellationToken.None);
+            if (!released)
+                throw new InvalidOperationException("win32_sendinput_keyup_rejected");
         }
 
         bool AllowedNow() => authenticatedApprovedOwner() &&
-            SameProcess(session) && GetForegroundWindow() == hwnd &&
-            GetAncestor(hwnd, GaRoot) == hwnd && IsWindowVisible(hwnd) &&
-            WindowBelongsTo(hwnd, session.GamePid);
+            platform.SameProcess(session) && platform.ForegroundWindow() == hwnd &&
+            platform.IsOwnedRootWindow(hwnd, session.GamePid);
     }
 
     private static bool SameProcess(OverviewMapScanSession session)
@@ -175,6 +254,29 @@ internal static class Feature018OwnedWindowKeys
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool SetForegroundWindow(nint window);
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(nint window, out uint pid);
-    [DllImport("user32.dll", EntryPoint = "keybd_event")]
-    private static extern void KeyEvent(byte key, byte scan, uint flags, nuint extra);
+    [StructLayout(LayoutKind.Sequential)]
+    private struct Input { public uint Type; public InputUnion Data; }
+    [StructLayout(LayoutKind.Explicit)]
+    private struct InputUnion
+    {
+        [FieldOffset(0)] public KeyboardInput Keyboard;
+        [FieldOffset(0)] public MouseInput Mouse;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct KeyboardInput
+    {
+        public ushort Vk, Scan;
+        public uint Flags, Time;
+        public nuint ExtraInfo;
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MouseInput
+    {
+        public int Dx, Dy;
+        public uint MouseData, Flags, Time;
+        public nuint ExtraInfo;
+    }
+    [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint SendInput(uint count, Input[] inputs, int size);
 }

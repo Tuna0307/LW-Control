@@ -26,6 +26,47 @@ internal static class Feature018HotkeyCaptureChecks
         }
     }
 
+    // Exercises the real key admission path with inert HWNDs and a fake Win32
+    // stream. No foreground window or physical keyboard state is ever changed.
+    private sealed class FakeOwnedKeyPlatform : Feature018OwnedWindowKeys.IPlatform
+    {
+        internal bool ProcessMatches = true;
+        internal nint Foreground = (nint)101;
+        internal nint DiscoveredWindow = (nint)101;
+        internal readonly HashSet<nint> OwnedRoots = [(nint)101];
+        internal bool CanActivate;
+        internal bool KeyboardReleased = true;
+        internal byte? RejectDownKey;
+        internal byte? RejectUpKey;
+        internal int ActivationCalls;
+        internal int DiscoveryCalls;
+        internal readonly List<(byte Key, bool Release)> SendAttempts = [];
+        internal Action<int, CancellationToken>? OnDelay;
+
+        public bool SameProcess(OverviewMapScanSession _) => ProcessMatches;
+        public nint ForegroundWindow() => Foreground;
+        public nint FindOwnedWindow(int _) { DiscoveryCalls++; return DiscoveredWindow; }
+        public bool IsOwnedRootWindow(nint hwnd, int _) => OwnedRoots.Contains(hwnd);
+        public bool ActivateWindow(nint hwnd)
+        {
+            ActivationCalls++;
+            if (CanActivate) Foreground = hwnd;
+            return CanActivate;
+        }
+        public bool AllHotkeysReleased() => KeyboardReleased;
+        public bool SendKey(byte key, bool release)
+        {
+            SendAttempts.Add((key, release));
+            return release ? RejectUpKey != key : RejectDownKey != key;
+        }
+        public Task Delay(int milliseconds, CancellationToken token)
+        {
+            OnDelay?.Invoke(milliseconds, token);
+            token.ThrowIfCancellationRequested();
+            return Task.CompletedTask;
+        }
+    }
+
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("FEATURE018_HOTKEY_CAPTURE: " + message);
@@ -111,6 +152,7 @@ internal static class Feature018HotkeyCaptureChecks
             Require(!Feature018OwnedWindowKeys.TryKeyPlan(unsupported, out byte[] actual) &&
                     actual.Length == 0, "unknown chord was eligible for task-owned injection: " + unsupported);
         }
+        await OwnedWindowAdmissionChecksAsync();
 
         var session = new Feature018HotkeySession("p", "i", "123456789", 2212);
         Feature018HotkeySession? current = session;
@@ -573,6 +615,141 @@ internal static class Feature018HotkeyCaptureChecks
 
         await EquipmentReadOnlyPreflightChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static async Task OwnedWindowAdmissionChecksAsync()
+    {
+        Require(Feature018OwnedWindowKeys.NativeInputSize == (IntPtr.Size == 8 ? 40 : 28),
+            "Win32 INPUT union has the wrong native SendInput marshaling size");
+        var owner = new OverviewMapScanSession("owner-profile", "launch-session",
+            "owner-challenge", 43210, @"C:\fake\LastWar.exe", "2026-10-17T00:00:00Z");
+        static async Task<Feature018OwnedKeyReceipt> Press(
+            OverviewMapScanSession session, FakeOwnedKeyPlatform platform,
+            string binding = "Q", Func<bool>? approved = null,
+            Func<bool>? textInputClear = null, CancellationToken token = default) =>
+            await Feature018OwnedWindowKeys.PressWithPlatformAsync(
+                session, binding, approved ?? (() => true),
+                textInputClear ?? (() => true), platform, token);
+
+        var api = new FakeOwnedKeyPlatform();
+        Feature018OwnedKeyReceipt result = await Press(owner, api);
+        Require(result.Pressed && result.Hwnd == 101 &&
+                result.Observation == "keys_accepted_by_win32_input_stream_for_owned_game_hwnd" &&
+                api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
+                api.SendAttempts.SequenceEqual(new[] { ((byte)0x51, false), ((byte)0x51, true) }),
+            "already-foreground exact HWND did not receive one bounded Q key down/up");
+
+        // A second visible top-level window of the *same* verified game process
+        // can legitimately have focus. Never seize an arbitrary first sibling.
+        api = new FakeOwnedKeyPlatform { Foreground = (nint)202 };
+        api.OwnedRoots.Add((nint)202);
+        result = await Press(owner, api, "Alt+2");
+        Require(result.Pressed && result.Hwnd == 202 &&
+                api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x32, false),
+                    ((byte)0x32, true), ((byte)0x12, true) }),
+            "focused owned sibling HWND must be preferred with bounded Alt chord cleanup");
+
+        api = new FakeOwnedKeyPlatform { Foreground = (nint)999 };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "game_foreground_activation_denied" &&
+                api.ActivationCalls == 1 && api.SendAttempts.Count == 0,
+            "Windows foreground denial was bypassed by keyboard injection");
+
+        api = new FakeOwnedKeyPlatform { Foreground = (nint)999, CanActivate = true };
+        result = await Press(owner, api);
+        Require(result.Pressed && api.ActivationCalls == 1 && api.Foreground == (nint)101,
+            "legitimately activated owned game HWND was rejected");
+
+        api = new FakeOwnedKeyPlatform();
+        result = await Press(owner, api, approved: () => false);
+        Require(!result.Pressed && result.Observation == "approved_game_identity_unavailable" &&
+                api.DiscoveryCalls == 0 && api.SendAttempts.Count == 0,
+            "unauthenticated account reached any owned game input");
+        api = new FakeOwnedKeyPlatform { ProcessMatches = false };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "approved_game_identity_unavailable" &&
+                api.DiscoveryCalls == 0 && api.SendAttempts.Count == 0,
+            "replaced or unverified game PID reached input");
+
+        api = new FakeOwnedKeyPlatform { Foreground = (nint)999, DiscoveredWindow = (nint)222 };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "owned_game_window_unavailable" &&
+                api.ActivationCalls == 0 && api.SendAttempts.Count == 0,
+            "unowned/hidden/non-root HWND was eligible for activation");
+
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 420) api.Foreground = (nint)999; };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "owned_game_window_or_account_changed" &&
+                api.SendAttempts.Count == 0,
+            "focus loss before capture arming reached a key send");
+
+        api = new FakeOwnedKeyPlatform();
+        result = await Press(owner, api, textInputClear: () => false);
+        Require(!result.Pressed && result.Observation == "game_text_input_focus_could_not_be_qualified" &&
+                api.SendAttempts.Count == 0,
+            "stale native game-input focus was treated as capture readiness");
+        api = new FakeOwnedKeyPlatform { KeyboardReleased = false };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "game_keyboard_baseline_could_not_be_qualified" &&
+                api.SendAttempts.Count == 0,
+            "held pre-existing hotkey could be injected over without recognizer arming");
+
+        api = new FakeOwnedKeyPlatform { RejectDownKey = 0x51 };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "win32_sendinput_keydown_rejected" &&
+                api.SendAttempts.SequenceEqual(new[] { ((byte)0x51, false) }),
+            "SendInput rejection was falsely reported as a physical press");
+        api = new FakeOwnedKeyPlatform { RejectDownKey = 0x12 };
+        result = await Press(owner, api, "Alt+1");
+        Require(!result.Pressed && result.Observation == "win32_sendinput_modifier_rejected" &&
+                api.SendAttempts.SequenceEqual(new[] { ((byte)0x12, false) }),
+            "modifier SendInput rejection still injected the chord");
+
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 55) api.Foreground = (nint)999; };
+        result = await Press(owner, api, "Alt+1");
+        Require(!result.Pressed && result.Observation == "owned_window_changed_before_chord" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x12, true) }),
+            "focus lost after Alt down still injected the primary action key");
+
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 185) api.Foreground = (nint)999; };
+        result = await Press(owner, api);
+        Require(!result.Pressed && result.Observation == "owned_window_changed_during_keypress" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x51, false), ((byte)0x51, true) }),
+            "lost focus during keydown was reported as eligible completed input");
+
+        api = new FakeOwnedKeyPlatform();
+        using var cancelled = new CancellationTokenSource();
+        api.OnDelay = (ms, _) => { if (ms == 55) cancelled.Cancel(); };
+        try
+        {
+            await Press(owner, api, "Alt+1", token: cancelled.Token);
+            throw new InvalidOperationException("cancelled chord input did not throw");
+        }
+        catch (OperationCanceledException) { }
+        Require(api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x12, true) }),
+            "cancellation after Alt down left an injected modifier held");
+
+        api = new FakeOwnedKeyPlatform { RejectUpKey = 0x12 };
+        try
+        {
+            await Press(owner, api, "Alt+1");
+            throw new InvalidOperationException("rejected Win32 Alt release falsely reported success");
+        }
+        catch (InvalidOperationException error) when (
+            error.Message == "win32_sendinput_keyup_rejected") { }
+        Require(api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x31, false),
+                    ((byte)0x31, true), ((byte)0x12, true) }),
+            "failed release hid or skipped the primary/Alt cleanup attempts");
+        Console.WriteLine("FEATURE018_OWNED_WINDOW_ADMISSION_PASS");
     }
 
     private static async Task EquipmentReadOnlyPreflightChecksAsync()
