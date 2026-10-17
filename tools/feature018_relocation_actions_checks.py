@@ -107,6 +107,18 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertEqual(data["itemCounts"]["SEASON_LIMIT_MOVE_CITY"]["count"], 0)
         self.assertEqual(data["itemCounts"]["ITEM_ALLIANCE_CITY_MOVE"]["count"], 1)
         self.assertTrue(data["noActionDispatched"])
+        self.assertTrue(data["standardItemInventoryComplete"])
+        self.assert_no_side_effects(state)
+
+    def test_unrelated_city_item_id_missing_does_not_hide_owner_snapshot(self):
+        runtime, actions, state, call = scenario()
+        runtime.execute("SpecialItemId.SEASON_LIMIT_MOVE_CITY=nil")
+        result = actions.Snapshot()
+        self.assertEqual(result["state"], "confirmed")
+        self.assertFalse(result["data"]["standardItemInventoryComplete"])
+        self.assertFalse(result["data"]["itemCounts"]["SEASON_LIMIT_MOVE_CITY"]["available"])
+        self.assertEqual(result["data"]["worldPointId"], 501234)
+        self.assertEqual(call("randomRelocate")["state"], "unsupported")
         self.assert_no_side_effects(state)
 
     def test_f9_and_f10_fail_explicitly_even_with_owned_items_and_alliance(self):
@@ -258,11 +270,20 @@ class InertRelocationChecks(unittest.TestCase):
         runtime, actions, state, call = scenario()
         self.assertEqual(call("randomRelocate", profile="bad profile")["state"], "failed")
         self.assertEqual(call("allianceRelocate", focus=False)["state"], "failed")
+        runtime.execute("SpecialItemId.ITEM_MOVE_RANDOM=5004")
         runtime.globals().DataCenter.ItemData.GetItemById = runtime.eval(
             "function(self,id) return {count=-1,uuid=30001} end")
-        self.assertIn("item count unreadable", call("randomRelocate")["error"])
+        bad = call("randomRelocate")
+        self.assertEqual(bad["state"], "unsupported")
+        self.assertFalse(bad["data"]["standardItemInventoryComplete"])
+        self.assertIn("No owned native relocation item",
+                      bad["data"]["actionReadiness"]["itemBlocker"])
         runtime.globals().DataCenter.ItemData.GetItemById = None
-        self.assertIn("inventory unavailable", call("randomRelocate")["error"])
+        missing = call("randomRelocate")
+        self.assertEqual(missing["state"], "unsupported")
+        self.assertFalse(missing["data"]["standardItemInventoryComplete"])
+        self.assertIn("No owned native relocation item",
+                      missing["data"]["actionReadiness"]["itemBlocker"])
         self.assert_no_side_effects(state)
 
 
@@ -469,6 +490,85 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertTrue(final['data']['relocationConfirmed']);self.assertTrue(final['data']['replyObserved'])
         self.assertEqual(state['randomCount'],1)
         self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
+
+    def test_f9_original_item_action_not_blocked_by_unrelated_city_item_types(self):
+        lua,_,state,call=self.fixture()
+        lua.execute('SpecialItemId.ITEM_MOVE_CITY=nil;SpecialItemId.SEASON_LIMIT_MOVE_CITY=nil')
+        result=call()
+        self.assertEqual(result['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_f10_original_alliance_action_not_blocked_by_unrelated_city_items(self):
+        lua,_,state,call=self.fixture()
+        lua.execute('SpecialItemId.ITEM_ALLIANCE_CITY_MOVE=nil')
+        result=call('allianceRelocate')
+        self.assertEqual(result['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_f9_exact_item_stack_changed_during_preflight_never_dispatches(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local original=DataCenter.ItemData.GetItemById
+        local seen=0
+        function DataCenter.ItemData:GetItemById(id)
+          local item=original(self,id)
+          if id==5004 then
+            seen=seen+1
+            if seen==2 then return {uuid=100006,itemId=5004,count=2} end
+          end
+          return item
+        end
+        """)
+        result=call()
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('consumable changed',result['error'])
+        self.assertEqual(state['sends'],0)
+
+    def test_f9_native_warning_becomes_active_after_initial_item_check(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local calls=0
+        DataCenter.SeasonHunterManager.IsInBattle=function()
+          calls=calls+1
+          return calls>1
+        end
+        """)
+        result=call()
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('native relocation warning',result['error'].lower())
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_rally_move_between_first_check_and_send_never_dispatches(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local original=DataCenter.AllianceRallyPointDataManager.GetMyAllianceRallyPoint
+        local homeReads=0
+        function DataCenter.AllianceRallyPointDataManager:GetMyAllianceRallyPoint(kind)
+          if kind==701 then
+            homeReads=homeReads+1
+            if homeReads==2 then world.homeRally.pos=5310023 end
+          end
+          return original(self,kind)
+        end
+        """)
+        result=call('allianceRelocate')
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('rally target changed',result['error'])
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_native_scene_changes_after_initial_world_check_no_send(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local sceneReads=0
+        SceneUtils.GetIsInCity=function()
+          sceneReads=sceneReads+1
+          return sceneReads>1
+        end
+        """)
+        result=call('allianceRelocate')
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('world scene changed',result['error'])
+        self.assertEqual(state['sends'],0)
 
     def test_f10_exact_home_alliance_native_cost4_and_reply_poststate(self):
         lua,_,state,call=self.fixture()

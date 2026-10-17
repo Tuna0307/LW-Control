@@ -426,7 +426,7 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(call()['state'],'accepted')
         lua.globals().apply_push()
         lua.execute('function LuaEntry.Player:GetCurServerId()return state.current end')
-        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289'),
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
             presets,lua.eval("""
               function()
                 state.current=2212
@@ -436,6 +436,51 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(result['state'],'failed')
         self.assertIn('owner/server changed',result['error'])
         self.assertEqual(state['sent'],1)
+
+    def test_uninstall_requires_old_native_gear_to_be_unworn_before_next_step(self):
+        lua,_,state,_,call=self.fixture()
+        self.assertEqual(call(slot=3)['state'],'accepted')
+        self.assertEqual(state['sent'],1)
+        lua.globals().apply_push()
+        state['items'][501]['heroUuid']=202
+        result=call(query=True,slot=3)
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('reassigned to another hero',result['error'])
+        self.assertEqual(state['sent'],1)
+
+    def test_focus_callback_changed_next_native_slot_blocks_automatic_send(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.globals().apply_push()
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+            presets,lua.eval('''
+              function()
+                state.hero202.equips[1]=nil
+                return true
+              end
+            '''))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('slot changed immediately before dispatch',result['error'])
+        self.assertEqual(state['sent'],1)
+
+    def test_focus_callback_changed_next_gear_uuid_blocks_original_install(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        for _ in range(2):
+            lua.globals().apply_push()
+            self.assertEqual(call(query=True)['state'],'accepted')
+        self.assertEqual(state['sent'],3)
+        lua.globals().apply_push()
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+            presets,lua.eval('''
+              function()
+                state.items[501].uuid=999
+                return true
+              end
+            '''))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('target changed immediately before dispatch',result['error'])
+        self.assertEqual(state['sent'],3)
 
 
 if __name__ == "__main__":

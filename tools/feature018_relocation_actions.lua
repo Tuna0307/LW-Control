@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-6"}
+local M = {VERSION = "feature018-relocation-actions-7"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -137,15 +137,30 @@ local function world_snapshot()
     local item_data = member(rawget(_G, "DataCenter"), "ItemData")
     local ids = rawget(_G, "SpecialItemId")
     local inventory = {}
+    local inventory_complete = true
+    -- These are the ordinary City move and season consumables. The ORIGINAL
+    -- F9/F10 bag OnItemUse route instead uses ITEM_MOVE_RANDOM and
+    -- LW_ITEM_ALLY_MOVE_CITY. An absent/temporarily unreadable unrelated
+    -- class must not suppress exact-owner world state or a valid bag action.
+    -- Retain explicit incompleteness rather than fabricating zero stock.
     for _, item_type in ipairs({"ITEM_MOVE_CITY", "SEASON_LIMIT_MOVE_CITY",
                                "ITEM_ALLIANCE_CITY_MOVE"}) do
         local id = integer(member(ids, item_type), 1)
-        if id == nil then return nil, "Unknown source-defined relocation item ID: " .. item_type end
-        local ok_item, item = invoke(item_data, "GetItemById", id)
-        if not ok_item then return nil, "Relocation inventory unavailable: " .. item_type end
-        local count = item == nil and 0 or integer(member(item, "count"), 0)
-        if count == nil then return nil, "Relocation item count unreadable: " .. item_type end
-        inventory[item_type] = {id=id, count=count}
+        if id == nil then
+            inventory[item_type] = {available=false, reason="source item ID unknown"}
+            inventory_complete = false
+        else
+            local ok_item, item = invoke(item_data, "GetItemById", id)
+            local count = ok_item and (item == nil and 0 or
+                integer(member(item, "count"), 0)) or nil
+            if count == nil then
+                inventory[item_type] = {id=id, available=false,
+                    reason=ok_item and "count unreadable" or "reader unavailable"}
+                inventory_complete = false
+            else
+                inventory[item_type] = {id=id, count=count, available=true}
+            end
+        end
     end
     local ok_alliance, in_alliance = invoke(player, "IsInAlliance")
     if not ok_alliance or type(in_alliance) ~= "boolean" then
@@ -156,7 +171,8 @@ local function world_snapshot()
         ownerUid=player_uid, sourceServerId=source_server,
         selfServerId=self_server, currentServerId=current_server,
         worldPointId=position, inAlliance=in_alliance,
-        itemCounts=inventory, noActionDispatched=true}, nil
+        itemCounts=inventory, standardItemInventoryComplete=inventory_complete,
+        noActionDispatched=true}, nil
 end
 
 -- The original F10 TryAllianceMoveCity first reads the OTHER-server rally.
@@ -529,6 +545,42 @@ local function perform(fields,input_clear,action)
        final_owner.worldPointId~=snapshot.worldPointId then
         return failed("GAME_PRECONDITION_FAILED",
             final_reason or "Native relocation owner or starting point changed before dispatch")
+    end
+    -- Reconfirm the same bag consumable stack and native rally after the
+    -- last focus/scene observations; it must be the original v26 path we
+    -- checked, not a new item/mark appearing mid-command.
+    local final_item=owned_item(action)
+    if not final_item or final_item.nativeItemId~=item.nativeItemId or
+       final_item.itemUuid~=item.itemUuid or final_item.count~=item.count then
+        return failed("GAME_PRECONDITION_FAILED",
+            "Original relocation consumable changed before native dispatch")
+    end
+    local final_warning,final_warning_reason=warning_clear(action)
+    if not final_warning then
+        return failed("GAME_PRECONDITION_FAILED",
+            final_warning_reason or "Native relocation warning changed before dispatch")
+    end
+    if action=="allianceRelocate" then
+        if not final_owner.inAlliance or
+           static_bool(rawget(_G,"SceneUtils"),"GetIsInCity")~=false then
+            return failed("GAME_PRECONDITION_FAILED",
+                "Native F10 alliance membership/world scene changed before dispatch")
+        end
+        local login_ok,source_login=invoke(
+            member(rawget(_G,"LuaEntry"),"Player"),"IsLoginSourceServer")
+        if not login_ok or source_login~=true then
+            return failed("GAME_PRECONDITION_FAILED",
+                "Native F10 source-server login changed before dispatch")
+        end
+        local fresh=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
+        if not fresh or fresh.ownerAllianceUid~=alliance_uid or
+           fresh.nativeChooserWouldOpen or not fresh.homeRally or
+           not fresh.homeRally.authorizedHomeServer or
+           fresh.homeRally.markType~=rally.markType or
+           fresh.homeRally.worldPointId~=rally.worldPointId then
+            return failed("GAME_PRECONDITION_FAILED",
+                "Original native alliance rally target changed before dispatch")
+        end
     end
     local center=rawget(_G,"DataCenter")
     local manager=member(center,action=="randomRelocate" and "ItemManager" or "BuildManager")

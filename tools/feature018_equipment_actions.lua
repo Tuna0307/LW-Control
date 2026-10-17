@@ -408,7 +408,19 @@ local function observe_step(step)
         local ok_item, old = invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),
             "GetEquipByUuid",tonumber(step.before))
         if not ok_item or not old then return false,"Removed equipment inventory missing" end
-        if exact_id(member(old,"heroUuid")) == step.heroUuid then return nil end
+        local wearer=member(old,"heroUuid")
+        local wearer_id=exact_id(wearer)
+        if wearer_id == step.heroUuid then return nil end
+        -- The original Uninstall step must free this inventory UUID. Another
+        -- hero acquiring it concurrently is not proof that our uninstall
+        -- completed; do not advance the preset to the next native RPC.
+        if wearer_id~=nil then
+            return false,"Removed equipment was reassigned to another hero"
+        end
+        if wearer~=nil and not (type(wearer)=="number" and
+           wearer<=0 and wearer%1==0) then
+            return false,"Removed equipment wearer state is unverified"
+        end
     end
     return true
 end
@@ -564,16 +576,39 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     if not action_owner(fields) then
         return blocked("Native equipment owner/server changed before next step dispatch")
     end
+    -- The focus callback and prior reads are not a lock. Rebind the exact
+    -- saved hero, current slot and intended gear *after* focus evaluation,
+    -- using the native instance actually passed to the v26 serializer.
+    local fresh_hero,fresh_reason=read_hero(step.squadIndex,step.position)
+    if not fresh_hero or fresh_hero.uuid~=step.heroUuid then
+        return blocked(fresh_reason or "Native equipment hero changed immediately before dispatch")
+    end
+    local fresh_ok,fresh_current=invoke(fresh_hero.object,"GetEquipBySlotType",step.slot)
+    local fresh_uuid=fresh_current and exact_id(member(fresh_current,"uuid")) or ""
+    if not fresh_ok or fresh_uuid~=step.before then
+        return blocked("Native equipment slot changed immediately before dispatch")
+    end
+    local next_item
+    if step.after~="" then
+        local checked,why=inventory_for_target(
+            member(rawget(_G,"DataCenter"),"EquipDataManager"),step.after,
+            fresh_hero,step.slot)
+        if not checked or checked.wearer then
+            return blocked("Native equipment target changed immediately before dispatch: " ..
+                (why or "gear already has a wearer"))
+        end
+        next_item=checked.item
+    end
     local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
     if message==nil or type(send)~="function" then return unavailable("Original HeroEquip message unavailable") end
     -- Tombstone before the call; an exception can occur after a native send.
     tx.waiting=true;tx.sent=tx.sent+1
     local ok
-    if step.after=="" then ok=pcall(send,message,member(hero.object,"uuid"),{step.slot})
+    if step.after=="" then ok=pcall(send,message,member(fresh_hero.object,"uuid"),{step.slot})
     else
-        local _, native_item=invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),"GetEquipByUuid",tonumber(step.after))
-        ok=pcall(send,message,member(hero.object,"uuid"),{[step.slot]=member(native_item,"uuid")})
+        ok=pcall(send,message,member(fresh_hero.object,"uuid"),
+            {[step.slot]=member(next_item,"uuid")})
     end
     if not ok then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
         error="Equipment send outcome unknown; never retransmit this step",data=receipt(tx,false).data} end
