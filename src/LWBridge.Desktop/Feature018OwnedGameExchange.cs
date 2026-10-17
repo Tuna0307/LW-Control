@@ -15,6 +15,7 @@ internal sealed class Feature018OwnedGameExchange
     private static readonly TimeSpan PollPeriod = TimeSpan.FromMilliseconds(50);
     private readonly Func<OverviewMapScanSession?> currentSession;
     private readonly Func<OverviewMapScanSession, bool> isSameSession;
+    private readonly Func<OverviewMapScanSession, bool> approvedAccount;
     private readonly string requestPath;
     private readonly string responsePath;
     // The window, retained profile backend and foreground hotkey monitor may
@@ -30,7 +31,9 @@ internal sealed class Feature018OwnedGameExchange
         : this(lifecycle.GetReadyMapScanSession,
             lifecycle.MatchesOwnedMapScanSession,
             Path.Combine(lifecycle.RuntimeRoot, "feature018-request.txt"),
-            Path.Combine(lifecycle.RuntimeRoot, "feature018-response.json")) { }
+            Path.Combine(lifecycle.RuntimeRoot, "feature018-response.json"),
+            approvedAccount: owner => FreshApprovedSubaccount(
+                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), owner)) { }
 
     internal Feature018OwnedGameExchange(
         Func<OverviewMapScanSession?> currentSession,
@@ -38,10 +41,12 @@ internal sealed class Feature018OwnedGameExchange
         string requestPath,
         string responsePath,
         Func<DateTimeOffset>? utcNow = null,
-        Func<TimeSpan, CancellationToken, Task>? delay = null)
+        Func<TimeSpan, CancellationToken, Task>? delay = null,
+        Func<OverviewMapScanSession, bool>? approvedAccount = null)
     {
         this.currentSession = currentSession;
         this.isSameSession = isSameSession;
+        this.approvedAccount = approvedAccount ?? (_ => true);
         this.requestPath = Path.GetFullPath(requestPath);
         this.responsePath = Path.GetFullPath(responsePath);
         operationGate = Gates.GetOrAdd(this.requestPath, _ => new SemaphoreSlim(1, 1));
@@ -175,6 +180,35 @@ internal sealed class Feature018OwnedGameExchange
     {
         if (!isSameSession(owner) || currentSession() != owner)
             throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "Owned game session changed during FEATURE018 request.");
+        if (!approvedAccount(owner))
+            throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED",
+                "FEATURE018 requires the currently authenticated UID 3133546747002289 on server 2289.");
+    }
+
+    internal static bool FreshApprovedSubaccount(string heartbeatPath, OverviewMapScanSession owner)
+    {
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(heartbeatPath));
+            JsonElement heartbeat = doc.RootElement;
+            return OverviewLifecycleService.HeartbeatMatches(heartbeat,
+                       owner.ProfileId, owner.SessionId, owner.Challenge, owner.GamePid,
+                       DateTimeOffset.UtcNow.ToUnixTimeSeconds()) &&
+                   heartbeat.TryGetProperty("gameStateObserved", out var observed) &&
+                   observed.ValueKind == JsonValueKind.True &&
+                   heartbeat.TryGetProperty("loggedIn", out var loggedIn) &&
+                   loggedIn.ValueKind == JsonValueKind.True &&
+                   heartbeat.TryGetProperty("connected", out var connected) &&
+                   connected.ValueKind == JsonValueKind.True &&
+                   heartbeat.TryGetProperty("gameUid", out var uid) &&
+                   uid.ValueKind == JsonValueKind.String &&
+                   uid.GetString() == "3133546747002289" &&
+                   heartbeat.TryGetProperty("serverId", out var server) &&
+                   server.TryGetInt32(out int serverId) && serverId == 2289;
+        }
+        catch (IOException) { return false; }
+        catch (JsonException) { return false; }
+        catch (UnauthorizedAccessException) { return false; }
     }
 
     private static bool ValidToken(string value) =>

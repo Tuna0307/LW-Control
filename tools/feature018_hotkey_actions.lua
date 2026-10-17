@@ -34,6 +34,8 @@ local M = {VERSION = "feature018-hotkey-actions-1"}
 local outstanding = {}
 local owner_token = nil
 local MAX_PENDING_SECONDS = 45
+local AUTHORIZED_SUBACCOUNT_UID = "3133546747002289"
+local AUTHORIZED_SUBACCOUNT_SERVER = 2289
 
 local function member(object, key)
     if object == nil then return nil end
@@ -69,6 +71,24 @@ end
 local function current_account()
     local player = member(rawget(_G, "LuaEntry"), "Player")
     return player, id_string(member(player, "uid"))
+end
+
+-- Only the owner's R3 sub-account can read spending preflights or dispatch
+-- speedup/equipment work. Every command rechecks the live game Player, not a
+-- claimed browser UID or a cached connection/session identity. All three
+-- native server getters must agree: the 2212 main account is read-only.
+local function authorized_subaccount()
+    local player, uid = current_account()
+    if uid ~= AUTHORIZED_SUBACCOUNT_UID then
+        return nil, blocked("Native game UID is not the authorized server-2289 sub-account")
+    end
+    for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
+        local ok, server = invoke(player, source)
+        if not ok or tonumber(server) ~= AUTHORIZED_SUBACCOUNT_SERVER then
+            return nil, blocked("Native game server is not the authorized server-2289 sub-account")
+        end
+    end
+    return uid, nil
 end
 
 local function same_march(march, uid, formation_id, uuid)
@@ -302,6 +322,14 @@ function M.Wrap(frozen_hotkeys)
         end
         if fields.action == "attack" or fields.action == "speedupItem" or
            fields.action == "speedupDiamond" then
+            if fields.action == "speedupItem" or fields.action == "speedupDiamond" then
+                local uid, denial = authorized_subaccount()
+                if not uid then return denial end
+                local authenticated = {}
+                for key, value in pairs(fields) do authenticated[key] = value end
+                authenticated.authorizedUid = uid
+                fields = authenticated
+            end
             local action_module = rawget(_G, "LWBridgeFeature018AttackActions")
             if type(member(action_module, "Handle")) ~= "function" then
                 return unavailable("Current v26 attack/rapid producer is unavailable")
@@ -340,8 +368,7 @@ end
 
 -- An explicit item-only march-speedup command for the mounted Hotkeys panel.
 -- The real UID is obtained inside the already owner-admitted game, never from
--- a browser-provided identifier. The current FEATURE-018 acceptance account
--- is server 2212: refuse all other servers for this new spending workflow.
+-- a browser-provided identifier. Only exact R3 sub-account UID+server passes.
 -- The existing Q/W/E/R path remains independent and cannot implicitly spend.
 function M.RegisterRapid(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
@@ -353,15 +380,8 @@ function M.RegisterRapid(feature, frozen_hotkeys)
            type(fields.slot) ~= "string" or not fields.slot:match("^[1-4]$") then
             return blocked("Invalid owned march rapid mode or squad slot")
         end
-        local player = member(rawget(_G, "LuaEntry"), "Player")
-        local uid = id_string(member(player, "uid"))
-        if not uid then return blocked("Authenticated native game UID unavailable") end
-        for _, source in ipairs({"GetSourceServerId", "GetSelfServerId", "GetCurServerId"}) do
-            local ok, server = invoke(player, source)
-            if not ok or tonumber(server) ~= 2212 then
-                return blocked("FEATURE-018 item rapid is limited to the authorized server-2212 home account")
-            end
-        end
+        local uid, denial = authorized_subaccount()
+        if not uid then return denial end
         local adapter = rawget(_G, "LWBridgeFeature018AttackActions")
         if type(member(adapter, "Handle")) ~= "function" or
            type(member(adapter, "OwnedSpeedupInventory")) ~= "function" then
@@ -428,15 +448,8 @@ function M.RegisterEquipment(feature, frozen_hotkeys)
            not fields.slot:match("^[1-4]$") then
             return blocked("Native equipment preflight requires preset ordinal 1–4")
         end
-        local player = member(rawget(_G,"LuaEntry"),"Player")
-        local uid = id_string(member(player,"uid"))
-        if uid == nil then return blocked("Authenticated native equipment owner UID unavailable") end
-        for _, name in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
-            local ok, home = invoke(player,name)
-            if not ok or tonumber(home) ~= 2212 then
-                return blocked("Native equipment inspection requires the approved server-2212 owner")
-            end
-        end
+        local uid, denial = authorized_subaccount()
+        if not uid then return denial end
         local serialized = fields.confirmedEquipmentPresets
         if type(serialized) ~= "string" or #serialized == 0 or #serialized > 14000 then
             return blocked("Verified profile equipment preset payload unavailable")

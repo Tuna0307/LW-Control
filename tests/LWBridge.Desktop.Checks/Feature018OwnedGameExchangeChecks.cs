@@ -68,6 +68,14 @@ internal static class Feature018OwnedGameExchangeChecks
             Require(!File.Exists(request), "request written without authenticated owner");
 
             current = owner;
+            bool approved = false;
+            var accountGated = new Feature018OwnedGameExchange(
+                () => current, expected => current == expected, request, reply,
+                approvedAccount: _ => approved);
+            await RequireErrorAsync("GAME_ACCOUNT_NOT_AUTHORIZED", () =>
+                accountGated.ExchangeAsync("monopoly_cell_open", null,
+                    TimeSpan.FromSeconds(1), CancellationToken.None));
+            Require(!File.Exists(request), "rejected account wrote a live action request");
             string responseState = "confirmed";
             bool badChallenge = false;
             bool retireOwner = false;
@@ -101,6 +109,18 @@ internal static class Feature018OwnedGameExchangeChecks
                 TimeSpan.FromSeconds(2), CancellationToken.None);
             Require(result.GetProperty("cellId").GetInt32() == 12345,
                 "correlated confirmed response not delivered");
+            approved = true;
+            var changedDuringResponse = new Feature018OwnedGameExchange(
+                () => current, expected => current == expected, request, reply,
+                delay: (_, _) =>
+                {
+                    approved = false;
+                    return Task.CompletedTask;
+                }, approvedAccount: _ => approved);
+            await RequireErrorAsync("GAME_ACCOUNT_NOT_AUTHORIZED", () =>
+                changedDuringResponse.ExchangeAsync("monopoly_cell_open", null,
+                    TimeSpan.FromSeconds(1), CancellationToken.None,
+                    allowAcceptedDispatch: true));
 
             responseState = "accepted";
             await RequireErrorAsync("GAME_ACTION_UNCONFIRMED", () =>

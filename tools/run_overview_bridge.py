@@ -316,7 +316,6 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     setup = b'local function pump_runtime()'
     if between.count(setup) != 1:
         raise OverviewBridgeError("FEATURE018 owner cleanup declaration seam missing")
-    between = between.replace(setup, b'local feature018_previous_owner = nil\n' + setup, 1)
     original_pump = b'    if type(feature.Pump) == "function" then pcall(feature.Pump) end\n'
     if between.count(original_pump) != 1:
         raise OverviewBridgeError("FEATURE018 session-bound game pump seam not unique")
@@ -333,7 +332,23 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         if type(feature.Pump) == "function" then pcall(feature.Pump) end
     end
 '''
-    between = between.replace(original_pump, bound_pump, 1)
+    # One original LuaEntry lifecycle call is not sufficient to service later
+    # feature commands. The Overview bridge has a proven update/timer callback
+    # that continues to refresh the authenticated game heartbeat. Register the
+    # same owner-scoped command pump there. This also advances async City moves
+    # and Sheep completion without requiring the app to poll a tab.
+    periodic = (
+        b'local feature018_previous_owner = nil\n'
+        b'local function feature018_periodic()\n' + bound_pump +
+        b'end\n'
+        b'if type(bridge.SetFeature018PeriodicTick) ~= "function" or\n'
+        b'   bridge.SetFeature018PeriodicTick(feature018_periodic) ~= true then\n'
+        b'    error("FEATURE018 authenticated periodic pump registration failed")\n'
+        b'end\n'
+    )
+    between = between.replace(setup, periodic + setup, 1)
+    between = between.replace(original_pump,
+        b'    pcall(feature018_periodic)\n', 1)
     return prefix + bridge_source() + between
 
 

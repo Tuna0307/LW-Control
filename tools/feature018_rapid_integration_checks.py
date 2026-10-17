@@ -13,7 +13,7 @@ SOURCE = (HERE / "feature018_hotkey_actions.lua").read_text(encoding="utf-8")
 
 GAME = r"""
 state = {
-  uid="3133546747002212", source=2212, selfServer=2212, current=2212,
+  uid="3133546747002289", source=2289, selfServer=2289, current=2289,
   focused=true, sends=0, probes=0, status=0, items=2, pending=false,
 }
 LuaEntry={Player={
@@ -97,11 +97,11 @@ def mock():
         fields.update(kwargs)
         return bridge.handler(runtime.table_from(fields))
 
-    return runtime, state, call
+    return runtime, state, call, module
 
 
 def main():
-    lua, state, call = mock()
+    lua, state, call, module = mock()
     inventory = call()
     check(inventory["state"] == "confirmed" and
           inventory["data"]["observation"] == "native_owned_rapid_item_candidates" and
@@ -125,16 +125,35 @@ def main():
     ):
         check(call(**fields)["state"] == "failed" and state["sends"] == 0,
               "invalid or nonconsensual rapid action reached sender")
+    # Every inventory/read and spending command must re-fetch all three
+    # authenticated server signals; server 2212 remains the owner's main.
     for key in ("source", "selfServer", "current"):
-        state[key] = 2289
-        rejected = call(mode="itemUse", itemOptIn="1", itemId="30108")
-        check(rejected["state"] == "failed" and state["sends"] == 0,
-              "unapproved game server reached native item sender: " + key)
-        state[key] = 2212
-    state["uid"] = "not-an-authenticated-uid"
-    check(call(mode="itemUse", itemOptIn="1", itemId="30108")["state"] == "failed"
-          and state["sends"] == 0, "unverified player UID reached sender")
-    state["uid"] = "3133546747002212"
+        for incorrect in (2212, 2213, None):
+            state[key] = incorrect
+            for params in ({}, {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108"},
+                           {"mode": "status"}):
+                before = (state["probes"], state["sends"], state["status"])
+                rejected = call(**params)
+                check(rejected["state"] == "failed" and "server-2289" in rejected["error"]
+                      and before == (state["probes"], state["sends"], state["status"]),
+                      "unauthorized server reached rapid preflight: " + key)
+            state[key] = 2289
+
+    def change_native_uid(uid):
+        state["uid"] = uid
+        lua.globals().LuaEntry.Player.uid = uid
+
+    for incorrect in ("3133546747002212", "3133546747002299",
+                      "not-an-authenticated-uid", None):
+        change_native_uid(incorrect)
+        for params in ({}, {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108"},
+                       {"mode": "status"}):
+            before = (state["probes"], state["sends"], state["status"])
+            rejected = call(**params)
+            check(rejected["state"] == "failed" and "UID" in rejected["error"]
+                  and before == (state["probes"], state["sends"], state["status"]),
+                  "different/missing native UID reached rapid preflight")
+    change_native_uid("3133546747002289")
     state["focused"] = False
     check(call(mode="itemUse", itemOptIn="1", itemId="30108")["state"] == "failed"
           and state["sends"] == 0, "sender ignored game text input")
@@ -143,6 +162,20 @@ def main():
     check(sent["state"] == "accepted" and
           sent["data"]["requestDispatched"] is True and state["sends"] == 1,
           "item sender did not distinguish accepted submission")
+    # A previously accepted spend must not let subsequent read/status calls
+    # cross into the main account or another native UID.
+    change_native_uid("3133546747002212")
+    denied = call(mode="status")
+    check(denied["state"] == "failed" and "UID" in denied["error"] and
+          state["sends"] == 1 and state["status"] == 1,
+          "post-dispatch status observed a different account")
+    change_native_uid("3133546747002289")
+    state["current"] = 2212
+    denied = call(mode="status")
+    check(denied["state"] == "failed" and "server-2289" in denied["error"] and
+          state["sends"] == 1 and state["status"] == 1,
+          "post-dispatch status observed the protected main server")
+    state["current"] = 2289
     waiting = call(mode="status")
     check(waiting["state"] == "confirmed" and
           waiting["data"]["state"] == "pending" and
@@ -155,6 +188,33 @@ def main():
           observed["data"]["observation"] ==
           "native_march_endTime_and_item_count_transition" and
           state["sends"] == 1, "native item/march poststate not independently verified")
+
+    # The older wrapped hotkey route also exposes speedupItem/speedupDiamond:
+    # it must enforce the same identity gate and replace forged UI UID fields.
+    lua.execute('''
+      state.wrapCalls=0
+      LWBridgeFeature018AttackActions.Handle=function(fields)
+        state.wrapCalls=state.wrapCalls+1
+        assert(fields.authorizedUid==state.uid)
+        return {state="confirmed",data={observation="inert_wrap_test"}}
+      end
+    ''')
+    wrapped = module.Wrap(lua.globals().frozen)
+    for action in ("speedupItem", "speedupDiamond"):
+        reply = wrapped(lua.table_from({"action": action, "authorizedUid": "forged-main-uid"}))
+        check(reply["state"] == "confirmed", "wrapped speedup did not derive native UID")
+    check(state["wrapCalls"] == 2, "wrapped test producer invocation missing")
+    for action in ("speedupItem", "speedupDiamond"):
+        change_native_uid("3133546747002212")
+        denied = wrapped(lua.table_from({"action": action}))
+        check(denied["state"] == "failed" and state["wrapCalls"] == 2,
+              "wrapped speedup admitted main-account UID")
+        change_native_uid("3133546747002289")
+        state["current"] = 2212
+        denied = wrapped(lua.table_from({"action": action}))
+        check(denied["state"] == "failed" and state["wrapCalls"] == 2,
+              "wrapped speedup admitted main-account server")
+        state["current"] = 2289
     print("FEATURE018_RAPID_NATIVE_BRIDGE_LUA53_OFFLINE_PASS")
 
 

@@ -3768,12 +3768,37 @@ function M.Pump()
     -- five-second heartbeat; the host expires after 30 seconds of no frames.
     write_pipe_heartbeat(active)
     write_pipe_transport_diagnostic()
+    -- Native UpdateManager may accept AddUpdate without subsequently invoking
+    -- its callback on this client build. The LuaEntry lifecycle *does* drive
+    -- this authenticated heartbeat in real v26. Poll the independent FEATURE018
+    -- mailbox from this proven path. The producer rechecks exact UID/server,
+    -- live lease and session/challenge before dispatching any command.
+    local feature018_producer = rawget(_G, "LWBridgeFeature018GameBridge")
+    if type(feature018_producer) == "table" and
+       type(feature018_producer.Pump) == "function" then
+        pcall(feature018_producer.Pump)
+    end
+    return true
+end
+
+local feature018_periodic_tick = nil
+function M.SetFeature018PeriodicTick(callback)
+    if type(callback) ~= "function" or feature018_periodic_tick ~= nil then return false end
+    feature018_periodic_tick = callback
     return true
 end
 
 function M.Register()
     if registration_method ~= nil then return true end
-    update_callback = function() M.Pump() end
+    -- The normal Overview heartbeat continues during game play after the
+    -- one-shot LuaEntry lifecycle methods stop firing. Poll FEATURE018's
+    -- mailbox and asynchronous City/Sheep jobs on that same owned callback.
+    update_callback = function()
+        M.Pump()
+        if feature018_periodic_tick ~= nil then
+            pcall(feature018_periodic_tick)
+        end
+    end
     local manager = rawget(_G, "UpdateManager")
     local instance = manager
     if manager ~= nil and type(safe_get(manager, "GetInstance")) == "function" then
@@ -3809,19 +3834,30 @@ end
 
 -- FEATURE018 producer admission for a separately packaged game module. The
 -- native app's request must match this very instance and its fresh host lease.
+local function feature018_approved_subaccount()
+    -- An Overview owner lease is a process identity, not permission to modify
+    -- whatever account subsequently logs into that process. Observe the live
+    -- native player again before each FEATURE018 command or asynchronous pump.
+    local game = observe_game_connection()
+    return game.observed == true and game.loggedIn == true and
+        game.connected == true and game.gameUid == "3133546747002289" and
+        game.serverId == 2289
+end
 function M.IsAuthorizedFeature018Request(values)
     if active == nil or type(values) ~= "table" then return false end
     if active.profileId ~= values.profileId or active.sessionId ~= values.launchSessionId or
        active.challenge ~= values.challenge or active.gamePid ~= tonumber(values.gamePid) then
         return false
     end
-    return lease_is_fresh(active, tonumber(os.time()) or 0) == true
+    return lease_is_fresh(active, tonumber(os.time()) or 0) == true and
+        feature018_approved_subaccount()
 end
 
 -- Read-only owner-token gate for exact-session cleanup of transient feature
 -- UI wrappers and chest markers; unavailable on a stale or missing host lease.
 function M.Feature018OwnerToken()
-    if active == nil or lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then
+    if active == nil or lease_is_fresh(active, tonumber(os.time()) or 0) ~= true or
+       not feature018_approved_subaccount() then
         return nil
     end
     return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)

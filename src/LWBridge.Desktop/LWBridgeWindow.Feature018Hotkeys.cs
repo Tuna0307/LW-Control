@@ -63,6 +63,7 @@ internal sealed partial class LWBridgeWindow
                 !root.TryGetProperty("serverId", out var server) ||
                 !server.TryGetInt32(out int serverId) || serverId <= 0)
                 return null;
+            if (!Feature018IsApprovedAccount(uid.GetString(), serverId)) return null;
             return new Feature018HotkeySession(session.ProfileId, session.SessionId,
                 uid.GetString()!, serverId);
         }

@@ -16,7 +16,9 @@ internal sealed partial class LWBridgeWindow
             ?? throw new InvalidOperationException("FEATURE018 lifecycle missing");
         HotkeyConfigCommandService prefs = hotkeyConfigService
             ?? throw new InvalidOperationException("FEATURE018 hotkey settings missing");
-        var game = new Feature018GameCommandService(lifecycle);
+        var game = equipmentConfigService is null
+            ? new Feature018GameCommandService(lifecycle)
+            : new Feature018GameCommandService(lifecycle, equipmentConfigService);
         var approvedAccount = new Feature018HotkeySession(owner.ProfileId,
             owner.SessionId, uid, serverId);
         var evidence = new Dictionary<string, object?>(StringComparer.Ordinal)
@@ -30,6 +32,7 @@ internal sealed partial class LWBridgeWindow
         using JsonDocument empty = JsonDocument.Parse("{}");
         HotkeyConfig? originalHotkeys = null;
         bool ApprovedOwner() =>
+            Feature018IsApprovedAccount(uid, serverId) &&
             lifecycle.MatchesOwnedMapScanSession(owner) &&
             ReadFeature018AuthenticatedAccount(lifecycle, owner) == approvedAccount;
         void Owned()
@@ -122,16 +125,28 @@ internal sealed partial class LWBridgeWindow
                         clearedToOriginal = cleared?.Revision == 0 && cleared?.Value is null };
                 }
             }
-            if (before is { } city && TryFindCityMove(city, out string? uuid,
-                    out int oldPoint, out int newPoint))
+            if (before is { } city)
             {
+                bool candidateObserved = false;
+                bool candidateValidated = false;
+                // A vacant geometric neighbor is not necessarily inside the
+                // game's secondary-building zone. Ask the genuine v26 native
+                // validator for up to 36 different targets, never send an
+                // unvalidated move. This is finite even on a large city grid.
+                for (int candidateOrdinal = 0; candidateOrdinal < 36; candidateOrdinal++)
+                {
+                    if (!TryFindCityMove(city, candidateOrdinal, out string? uuid,
+                            out int oldPoint, out int newPoint)) break;
+                    candidateObserved = true;
                 var outbound = new { baseRevision = city.GetProperty("layoutRevision").GetString(),
                     placements = new[] { new { uuid, targetPointId = newPoint } } };
                 JsonElement? validation = await Command("city_layout_validate", outbound,
                     "cityMoveValidation");
+                evidence["cityMoveCandidatesValidated"] = candidateOrdinal + 1;
                 if (validation is { } valid && valid.TryGetProperty("valid", out var yes) &&
                     yes.ValueKind == JsonValueKind.True)
                 {
+                    candidateValidated = true;
                     JsonElement? start = await Command("city_layout_apply_start", outbound,
                         "cityMoveStart");
                     if (start is { } request && request.TryGetProperty("accepted", out var accepted) &&
@@ -165,7 +180,13 @@ internal sealed partial class LWBridgeWindow
                             }
                         }
                     }
+                    break;
                 }
+                }
+                if (!candidateValidated)
+                    evidence["cityMoveCandidate"] = candidateObserved
+                        ? "Each bounded geometrically valid candidate was rejected by the current native validator"
+                        : "No source-valid vacant target or current city scene";
             }
             else evidence["cityMoveCandidate"] = "No source-valid vacant target or current city scene";
             await Save();
@@ -255,16 +276,59 @@ internal sealed partial class LWBridgeWindow
                 await Save();
                 if (!delivered.Pressed)
                 {
+                    // Holding Alt can transiently transfer foreground focus
+                    // before the second key. The native sender always releases
+                    // Alt in finally; retarget the exact owned HWND for the
+                    // next independent test, retaining this binding as a
+                    // negative. Never continue after an account/PID mismatch.
+                    if (delivered.Observation is "owned_window_changed_before_chord" or
+                        "owned_window_changed_before_keydown" && ApprovedOwner())
+                    {
+                        evidence["hotkeyFocusSkipped_" + binding] = delivered.Observation;
+                        continue;
+                    }
                     evidence["hotkeyWindowTestStopped"] = delivered.Observation;
                     break;
                 }
             }
             await Capture("feature018-r2-hotkeys-after.png");
 
+            // Current-v26 SOURCE_GAP experiments: use the authenticated
+            // native read-only inspection doors even when a physical shortcut
+            // could not be recognized. Never forge equipment UUIDs, a world
+            // cursor target, rapid item consent, or a diamond-confirm click.
+            for (int slot = 1; slot <= 4; slot++)
+            {
+                Owned();
+                await Command("feature018_hotkey_action", new
+                { action = "attack", slot, authorizedUid = uid },
+                    "r3AttackTargetPreflightSlot" + slot);
+                await Command("feature018_hotkey_action", new
+                { action = "speedupDiamond", slot, authorizedUid = uid },
+                    "r3DiamondPreflightSlot" + slot);
+                await Command("feature018_rapid_action", new
+                { mode = "inventory", slot },
+                    "r3RapidInventorySlot" + slot);
+                await Command("feature018_equipment_preflight", new { slot },
+                    "r3EquipmentOwnerPreflightSlot" + slot);
+            }
+            await Command("feature018_hotkey_action", new
+            { action = "randomRelocate", slot = 0 }, "r3RandomRelocationPreflight");
+            await Command("feature018_hotkey_action", new
+            { action = "allianceRelocate", slot = 0 }, "r3AllianceRelocationPreflight");
+
             await Nav(6, ".hotkey-panel[data-hotkey-category=miniGames] .mini-game-actions", "Mini Games");
             await Capture("feature018-r2-mini-before.png");
             await Command("mini_land_status", receiptKey: "miniLandBefore");
-            JsonElement? unlock = await Command("monopoly_cell_open", receiptKey: "miniLandUnlock");
+            // One uncertain accepted land dispatch was already observed in R3.
+            // Future packaged verification runs are read-only until the
+            // operator explicitly opts into a new one-shot land send.
+            JsonElement? unlock = Environment.GetEnvironmentVariable(
+                "LWBRIDGE_FEATURE018_R3_LAND_ACTION_OPT_IN") == "1"
+                ? await Command("monopoly_cell_open", receiptKey: "miniLandUnlock")
+                : null;
+            if (unlock is null)
+                evidence["miniLandUnlockSkipped"] = "prior_dispatched_land_ack_unconfirmed_no_auto_retry";
             if (unlock is { } u && u.TryGetProperty("requestDispatched", out var sent) &&
                 sent.ValueKind == JsonValueKind.True)
             {
@@ -341,7 +405,7 @@ internal sealed partial class LWBridgeWindow
         return null;
     }
 
-    private static bool TryFindCityMove(JsonElement snapshot, out string? uuid,
+    private static bool TryFindCityMove(JsonElement snapshot, int candidateOrdinal, out string? uuid,
         out int oldPoint, out int newPoint)
     {
         uuid = null; oldPoint = newPoint = 0;
@@ -366,8 +430,10 @@ internal sealed partial class LWBridgeWindow
                 .Select(p => cells[p.GetInt32()]).Select(c =>
                     (x: c.GetProperty("x").GetInt32() - ax,
                      y: c.GetProperty("y").GetInt32() - ay)).ToArray();
-            foreach ((int dx,int dy) in new[] { (1,0),(-1,0),(0,1),(0,-1),
-                (2,0),(-2,0),(0,2),(0,-2),(3,0),(-3,0),(0,3),(0,-3) })
+            foreach ((int dx,int dy) in Enumerable.Range(1, 12).SelectMany(distance =>
+                new[] { (distance,0),(-distance,0),(0,distance),(0,-distance),
+                    (distance,distance),(-distance,-distance),
+                    (distance,-distance),(-distance,distance) }))
             {
                 if (!xy.TryGetValue((ax + dx, ay + dy), out int candidate)) continue;
                 bool okay = true;
@@ -376,12 +442,14 @@ internal sealed partial class LWBridgeWindow
                     if (!xy.TryGetValue((ax + dx + offset.x, ay + dy + offset.y), out int target) ||
                         occupied.Contains(target) || !cells.TryGetValue(target, out JsonElement cell) ||
                         cell.GetProperty("unlocked").ValueKind != JsonValueKind.True ||
+                        cell.GetProperty("obstructed").ValueKind == JsonValueKind.True ||
                         cell.GetProperty("road").ValueKind == JsonValueKind.True ||
                         (cell.GetProperty("flagOnly").ValueKind == JsonValueKind.True &&
                          building.GetProperty("isFlag").ValueKind != JsonValueKind.True))
                     { okay = false; break; }
                 }
                 if (!okay) continue;
+                if (candidateOrdinal-- > 0) continue;
                 uuid = building.GetProperty("uuid").GetString();
                 oldPoint = old; newPoint = candidate;
                 return true;

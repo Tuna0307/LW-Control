@@ -1,7 +1,7 @@
 """Inert game-bridge registration of trusted persisted equipment preflight.
 
 No installed game/client/account is touched; spoofed UI fields cannot create
-equipment item installs and server-2289 remains forbidden.
+equipment item installs. Only the exact 2289 sub-account may be inspected.
 """
 import sys
 from pathlib import Path
@@ -11,7 +11,7 @@ from lupa.lua53 import LuaRuntime
 
 SOURCE = Path(__file__).with_name("feature018_hotkey_actions.lua")
 GAME = r"""
-state={uid="3133546747002212",source=2212,selfServer=2212,current=2212,
+state={uid="3133546747002289",source=2289,selfServer=2289,current=2289,
 focus=true,inspections=0,sends=0}
 LuaEntry={Player={uid=state.uid,
 GetSourceServerId=function(self)return state.source end,
@@ -83,13 +83,23 @@ def main():
            state["inspections"]==1 and state["sends"]==0,
            "owner-derived persisted preset preflight mutated game state")
     for server in ("source","selfServer","current"):
+        for incorrect in (2212,2213,None):
+            state[server]=incorrect
+            denied=call()
+            ensure(denied["state"]=="failed" and
+                   "server-2289" in denied["error"] and state["inspections"]==1,
+                   "unapproved server was admitted for equipment: "+server)
         state[server]=2289
-        ensure(call()["state"]=="failed" and state["inspections"]==1,
-               "unapproved server was admitted for equipment: "+server)
-        state[server]=2212
-    state["uid"]="invalid"
-    ensure(call()["state"]=="failed","invalid native UID passed equipment")
-    state["uid"]="3133546747002212"
+
+    for incorrect in ("3133546747002212","3133546747002299","invalid",None):
+        state["uid"]=incorrect
+        vm.globals().LuaEntry.Player.uid=incorrect
+        denied=call()
+        ensure(denied["state"]=="failed" and "UID" in denied["error"] and
+               state["inspections"]==1,
+               "main-account, other-account or invalid native UID passed equipment")
+    state["uid"]="3133546747002289"
+    vm.globals().LuaEntry.Player.uid=state["uid"]
     ensure(call(slot="5")["state"]=="failed", "invalid ordinal passed equipment")
     ensure(call(confirmedEquipmentPresets="not-json")["state"]=="failed",
            "malformed persisted config admitted")

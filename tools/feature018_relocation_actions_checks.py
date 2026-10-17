@@ -24,7 +24,7 @@ SCRIPT = ROOT / "feature018_relocation_actions.lua"
 
 FIXTURE = r"""
 world = {
-    uid='3133546747000001', source=2212, selfServer=2212, current=2212,
+    uid='3133546747002289', source=2289, selfServer=2289, current=2289,
     position=501234, alliance=true, focusClear=true, itemCalls=0,
     sends=0, dialogs=0, relocations=0,
     standard=2, season=0, allianceItem=1, allianceUid='7070000123456789',
@@ -36,7 +36,7 @@ local function fake_mark(kind,server,point)
             pos=point*10+3,
             GetPointIndex=function(self) return math.floor(self.pos / 10) end}
 end
-world.homeRally=fake_mark(MarkType.Alliance_rally,2212,514999)
+world.homeRally=fake_mark(MarkType.Alliance_rally,2289,514999)
 world.otherRally=nil
 LuaEntry = {Player={
     uid=world.uid,
@@ -101,7 +101,7 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertEqual(snapshot["state"], "confirmed")
         data = snapshot["data"]
         self.assertEqual(data["observation"], "native_player_world_position_and_owned_move_items")
-        self.assertEqual(data["sourceServerId"], 2212)
+        self.assertEqual(data["sourceServerId"], 2289)
         self.assertEqual(data["worldPointId"], 501234)
         self.assertEqual(data["itemCounts"]["ITEM_MOVE_CITY"]["count"], 2)
         self.assertEqual(data["itemCounts"]["SEASON_LIMIT_MOVE_CITY"]["count"], 0)
@@ -136,7 +136,7 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertFalse(rally["selectedTargetValidated"])
         self.assertFalse(rally["worldMvAcknowledged"])
         self.assertEqual(rally["homeRally"]["worldPointId"], 514999)
-        self.assertEqual(rally["homeRally"]["serverId"], 2212)
+        self.assertEqual(rally["homeRally"]["serverId"], 2289)
         self.assertTrue(rally["homeRally"]["authorizedHomeServer"])
         self.assertIsNone(rally["otherServerRally"])
         self.assertEqual(state["rallyReads"], 2)
@@ -145,7 +145,7 @@ class InertRelocationChecks(unittest.TestCase):
     def test_f10_other_server_rally_ui_path_unsafe_without_selected_target(self):
         runtime, _, state, call = scenario()
         runtime.execute("""world.otherRally={allianceId=world.allianceUid,
-            type=MarkType.Alliance_OtherServerRally,server=2289,pos=300021,
+            type=MarkType.Alliance_OtherServerRally,server=2212,pos=300021,
             GetPointIndex=function(self) return math.floor(self.pos/10) end}""")
         result = call("allianceRelocate")
         rally = result["data"]["allianceRally"]
@@ -181,7 +181,7 @@ class InertRelocationChecks(unittest.TestCase):
         state["alliance"] = True
         state["homeRally"]["server"] = None
         self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
-        state["homeRally"]["server"] = 2212
+        state["homeRally"]["server"] = 2289
         state["homeRally"]["type"] = 702
         self.assertIn("rally mark owner/type/server/point mismatch", call("allianceRelocate")["error"])
         state["homeRally"]["type"] = 701
@@ -236,15 +236,18 @@ class InertRelocationChecks(unittest.TestCase):
         self.assertEqual(call("randomRelocate")["state"], "failed")
         self.assert_no_side_effects(state)
         state["focusClear"] = True
-        state["current"] = 2289
+        state["current"] = 2212
         reject = call("allianceRelocate")
         self.assertEqual(reject["state"], "unsupported")
-        self.assertIn("server-2212", reject["error"])
+        self.assertIn("server-2289", reject["error"])
         self.assertEqual(actions.Snapshot()["state"], "unsupported")
-        state["current"] = 2212
-        state["source"] = 2289
-        self.assertEqual(call("allianceRelocate")["state"], "unsupported")
+        state["current"] = 2289
         state["source"] = 2212
+        self.assertEqual(call("allianceRelocate")["state"], "unsupported")
+        state["source"] = 2289
+        runtime.globals().LuaEntry.Player.uid = "3133546747002212"
+        self.assertIn("exact authorized 2289", call("allianceRelocate")["error"])
+        runtime.globals().LuaEntry.Player.uid = "3133546747002289"
         # An unparseable native UID is rejected; the fixture's native Player
         # property must change, not just the backing state used by methods.
         runtime.globals().LuaEntry.Player.uid = "not-an-uid"

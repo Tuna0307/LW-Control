@@ -41,7 +41,8 @@
 local M = {VERSION = "feature018-relocation-actions-2"}
 local baseline = {}
 local last_owner = nil
-local HOME_SERVER = 2212 -- ONLY the authorized owner sub-account's home server.
+local HOME_SERVER = 2289 -- Authorized sub-account only. 2212 is the read-only main.
+local APPROVED_UID = "3133546747002289"
 
 local function member(object, name)
     if object == nil then return nil end
@@ -110,9 +111,12 @@ local function world_snapshot()
        current_server == nil or position == nil then
         return nil, "Native owner, server and city position snapshot incomplete"
     end
+    if player_uid ~= APPROVED_UID then
+        return nil, "Connected UID does not match the exact authorized 2289 sub-account"
+    end
     if source_server ~= HOME_SERVER or self_server ~= HOME_SERVER or
        current_server ~= HOME_SERVER then
-        return nil, "Connected world is not the authorized server-2212 home world"
+        return nil, "Connected world is not the authorized server-2289 home world"
     end
 
     local item_data = member(rawget(_G, "DataCenter"), "ItemData")

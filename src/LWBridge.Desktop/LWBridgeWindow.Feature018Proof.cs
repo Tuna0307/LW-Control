@@ -5,6 +5,10 @@ namespace LWBridge.Desktop;
 
 internal sealed partial class LWBridgeWindow
 {
+    internal const string Feature018ApprovedGameUid = "3133546747002289";
+    internal const int Feature018ApprovedServerId = 2289;
+    internal static bool Feature018IsApprovedAccount(string? uid, int? serverId) =>
+        uid == Feature018ApprovedGameUid && serverId == Feature018ApprovedServerId;
     // Explicit opt-in. The current game bridge supports Hotkey settings, but
     // not the original game-action operations. Capture actual packed WebView
     // behavior and genuine authenticated sub-account identity without inventing
@@ -89,10 +93,11 @@ internal sealed partial class LWBridgeWindow
                                 serverId = identifiedServer, loggedIn, connected,
                                 verifiedAtUtc = DateTimeOffset.UtcNow,
                             }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
-                        if (identifiedServer != 2212)
+                        if (!Feature018IsApprovedAccount(ReadStatusString(candidate, "gameUid"), identifiedServer))
                             throw new InvalidDataException(
-                                "FEATURE018 logged-in owner is on server " + identifiedServer +
-                                " instead of 2212; gameplay is denied.");
+                                "FEATURE018 account mismatch: server " + identifiedServer +
+                                ", UID " + ReadStatusString(candidate, "gameUid") +
+                                "; all gameplay is denied outside the exact 2289 sub-account.");
                         heart = candidate.Clone();
                         break;
                     }
@@ -104,12 +109,12 @@ internal sealed partial class LWBridgeWindow
         }
         if (heart.ValueKind == JsonValueKind.Undefined)
             throw new InvalidDataException(
-                "FEATURE018 failed to observe authenticated UID and server 2212 within 120 seconds; no game actions were issued.");
+                "FEATURE018 failed to observe authenticated approved UID/server 2289 within 120 seconds; no game actions were issued.");
         string? uid = ReadStatusString(heart, "gameUid");
         int? serverId = ReadStatusInt32(heart, "serverId");
-        if (string.IsNullOrWhiteSpace(uid) || serverId != 2212)
+        if (uid is null || serverId is null || !Feature018IsApprovedAccount(uid, serverId))
             throw new InvalidDataException(
-                "FEATURE018 must verify the approved sub-account UID on server 2212 before interacting with live tabs.");
+                "FEATURE018 must verify UID 3133546747002289 on server 2289 before interacting with live tabs.");
 
         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1")
         {
