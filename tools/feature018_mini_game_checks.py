@@ -577,6 +577,58 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         return mini.FrontlineReinforce(runtime.table_from({'action': 'frontlineReinforce',
                                                          'slot': '5'}))
 
+    def test_frontline_readonly_prestate_and_poststate_are_independent_of_addmember(self):
+        runtime, mini = self.fixture()
+        pre = mini.FrontlineStatus()
+        self.assertEqual(pre['state'], 'confirmed')
+        self.assertEqual(pre['data']['observation'], 'native_frontline_sunday_battle_readonly')
+        self.assertEqual(pre['data']['memberCount'], 1)
+        self.assertEqual(pre['data']['guidAllocator'], 1)
+        self.assertEqual(pre['data']['sourceServerId'], 2289)
+        self.assertFalse(pre['data']['requestDispatched'])
+        self.assertFalse(pre['data']['serverAckObserved'])
+        self.assertTrue(pre['data']['actionEligible'])
+        self.assertEqual(runtime.globals().Sends, 0,
+                         'Read-only battle inspection added native soldiers')
+        self.assertEqual(self.call(runtime, mini)['state'], 'confirmed')
+        post = mini.FrontlineStatus()
+        self.assertEqual(post['data']['memberCount'], 6)
+        self.assertEqual(post['data']['guidAllocator'], 6)
+        self.assertEqual(runtime.globals().Sends, 5,
+                         'Read-only poststate inspection repeated the G producer')
+
+    def test_ambiguous_partial_frontline_creation_fences_same_battle_and_only_new_battle_rearms(self):
+        runtime, mini = self.fixture()
+        runtime.execute('''OldAddMember=Logic.AddMember
+          Logic.AddMember=function(self,...) OldAddMember(self,...)
+            error('native callback failed after one AddMember')
+          end''')
+        self.assertEqual(self.call(runtime, mini)['state'], 'failed')
+        self.assertEqual(runtime.globals().Sends, 1)
+        status = mini.FrontlineStatus()
+        self.assertEqual(status['state'], 'confirmed')
+        self.assertFalse(status['data']['actionEligible'])
+        self.assertTrue(status['data']['uncertainPriorAction'])
+        retry = self.call(runtime, mini)
+        self.assertEqual(retry['state'], 'failed')
+        self.assertTrue(retry['data']['priorActionUncertain'])
+        self.assertEqual(runtime.globals().Sends, 1,
+                         'Ambiguous original AddMember retried same battle')
+        runtime.execute('''NewTeam={defaultHeroIds={203},
+          teamUnits={{guid=1,originalHeroId=203,hero={heroId=203,level=12}}}}
+          NewLogic={team=NewTeam,unitGuid=1,param={
+          fromActFrontBreakSunday=true,frontBreakSundayActId=115},
+          GetMemberCount=function(self) return #self.team.teamUnits end,
+          AddMember=OldAddMember}
+          NewTeam.logic=NewLogic
+          NewTeam.GetMemberCount=function(self) return #self.teamUnits end
+          DataCenter.LWBattleManager.curLogic=NewLogic
+          DataCenter.LWBattleManager.logic=NewLogic''')
+        self.assertTrue(mini.FrontlineStatus()['data']['actionEligible'])
+        self.assertEqual(self.call(runtime, mini)['state'], 'confirmed')
+        self.assertEqual(runtime.globals().Sends, 6,
+                         'New source-native battle could not add exactly five')
+
     def test_non_sunday_parkour_and_other_owner_do_not_add_members(self):
         for expression in ("Logic.param.fromActFrontBreakSunday=false",
                            "Logic.param.frontBreakSundayActId=nil",

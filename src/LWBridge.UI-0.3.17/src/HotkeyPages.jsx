@@ -998,6 +998,138 @@ function RelocationNativeReadinessPanel({ online, previewEnabled }) {
   </article>;
 }
 
+// Original Sunday Frontline G adds five local Parkour units. The original
+// per-G operation does not send a battle-score RPC. Inspect the independent
+// current battle before allowing one deliberate UI action per owner lifetime.
+// A timeout may happen after units were created: NEVER retry that UI intent.
+function FrontlineNativeActionPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const zh = language?.startsWith("zh");
+  const words = zh ? {
+    title: "前线突破：原生 G 五名士兵",
+    description: "只可在游戏真正进行的周日前线战斗中增援。五名士兵只代表游戏本地战斗状态，非服务器战斗结算。",
+    inspect: "检查正在进行的原生战斗", ready: "原生前线可操作",
+    count: "当前士兵", event: "活动", hero: "英雄",
+    consent: "确认当前这一场战斗只增加五名原生士兵；若等待超时，我会在游戏中核对，不重复发送",
+    execute: "原生增援五名士兵（G）", pending: "本次动作已锁定；无法重新派遣，请在游戏中核对。",
+    result: "本地战斗增加五名士兵；未收到独立服务器计分回复。",
+    changed: "前线战斗已变化；本次动作不能按原计划确认",
+  } : {
+    title: "Frontline: original G adds five units",
+    description: "Requires the original active Sunday Frontline battle. Five locally created soldiers do not prove server battle scoring.",
+    inspect: "Inspect active original battle", ready: "Native Frontline ready",
+    count: "Current members", event: "Event", hero: "Hero",
+    consent: "I approve adding five native units in this battle once. If the outcome times out, I will inspect the game without retrying.",
+    execute: "Add five original units (G)", pending: "This intent is locked against replay; inspect the game.",
+    result: "Five local battle units added. No independent server scoring reply.",
+    changed: "Original battle changed; this action cannot be confirmed from this snapshot",
+  };
+  const live = online && !previewEnabled;
+  const [ready, setReady] = useState(null);
+  const [consent, setConsent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [latched, setLatched] = useState(false);
+  const [outcome, setOutcome] = useState(null);
+  const [error, setError] = useState("");
+  const inflight = useRef(false);
+  const actionLatch = useRef(false);
+  useEffect(() => {
+    setReady(null); setConsent(false); setBusy(false); setLatched(false);
+    setOutcome(null); setError("");
+    inflight.current = false; actionLatch.current = false;
+  }, [live, backendBridge.profileGeneration]);
+  const validRead = (data) =>
+    data?.observation === "native_frontline_sunday_battle_readonly" &&
+    data?.readOnly === true && data?.requestDispatched === false &&
+    data?.ownerUid === "3133546747002289" && data?.sourceServerId === 2289 &&
+    data?.observationScope === "native_local_battle" &&
+    data?.serverAckObserved === false &&
+    Number.isInteger(data?.frontBreakSundayActId) && data.frontBreakSundayActId > 0 &&
+    Number.isInteger(data?.memberCount) && data.memberCount > 0 &&
+    Number.isInteger(data?.guidAllocator) && data.guidAllocator > 0 &&
+    Number.isInteger(data?.heroId) && data.heroId > 0;
+  async function inspect() {
+    if (!live || inflight.current) return;
+    inflight.current = true;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setReady(null); setConsent(false); setError("");
+    try {
+      const result = await backendBridge.invokeProfileScoped("mini_frontline_status", {}, 8000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (!validRead(result)) throw Error(words.changed);
+      setReady(result);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      inflight.current = false;
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  async function reinforce() {
+    if (!live || inflight.current || actionLatch.current || busy || !consent ||
+        !ready || ready.actionEligible !== true || ready.uncertainPriorAction !== false) return;
+    // An error or a timed-out reply may follow some original AddMember calls.
+    // Latch synchronously BEFORE invoking the bridge, including across focus
+    // changes, server timeouts and later read-only refreshes.
+    actionLatch.current = true;
+    inflight.current = true;
+    const before = ready;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setLatched(true); setConsent(false); setOutcome(null); setError("");
+    try {
+      const action = await backendBridge.invokeProfileScoped(
+        "feature018_frontline_action", { frontlineOptIn: true }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (action?.observation !== "native_ParkourBattleLogic_GetMemberCount" ||
+          action?.action !== "frontlineReinforce" || action?.slot !== 5 ||
+          action?.frontBreakSundayActId !== before.frontBreakSundayActId ||
+          action?.heroId !== before.heroId ||
+          action?.beforeCount !== before.memberCount ||
+          action?.guidAllocatorBefore !== before.guidAllocator ||
+          action?.addedMembers !== 5 || action?.observedCreatedUnits !== 5 ||
+          action?.unitIdentityVerified !== true ||
+          action?.afterCount !== before.memberCount + 5 ||
+          action?.guidAllocatorAfter !== before.guidAllocator + 5 ||
+          action?.serverAckObserved !== false ||
+          action?.observationScope !== "native_local_battle")
+        throw Error(words.changed);
+      // This is a SECOND independent read of the same original battle.
+      // No second AddMember call occurs on this path.
+      const after = await backendBridge.invokeProfileScoped("mini_frontline_status", {}, 8000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (!validRead(after) || after.frontBreakSundayActId !== before.frontBreakSundayActId ||
+          after.heroId !== before.heroId || after.memberCount !== action.afterCount ||
+          after.guidAllocator !== action.guidAllocatorAfter)
+        throw Error(words.changed);
+      setOutcome(action); setReady(after);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      inflight.current = false;
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-frontline-native>
+    <h3>{words.title}</h3><p>{words.description}</p>
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy}
+      onClick={() => void inspect()}>{words.inspect}</button></div>
+    {ready ? <div role="status"><span className="hotkey-state">{words.ready}</span>
+      <small>{words.event}: {ready.frontBreakSundayActId} · {words.hero}: {ready.heroId} · {words.count}: {ready.memberCount}</small>
+    </div> : null}
+    {ready?.actionEligible === true && !latched ? <>
+      <label><input type="checkbox" checked={consent} disabled={!live || busy}
+        onChange={(event) => setConsent(event.target.checked)} /> {words.consent}</label>
+      <div className="mini-game-actions"><button className="primary" type="button"
+        disabled={!live || busy || !consent} onClick={() => void reinforce()}>{words.execute}</button></div>
+    </> : null}
+    {latched ? <small role="status">{words.pending}</small> : null}
+    {outcome ? <div role="status" className="hotkey-state enabled">{words.result}
+      {" "}{words.count}: {outcome.beforeCount} → {outcome.afterCount}</div> : null}
+    {ready?.uncertainPriorAction ? <small role="alert">{words.pending}</small> : null}
+    {error ? <div role="alert" className="automation-error">{error}</div> : null}
+  </article>;
+}
+
 const MINI_GAMES_PREVIEW_STATES = new Set([
   "mini-games-active",
   "mini-games-solving",
@@ -1380,6 +1512,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           <div className="mini-game-actions"><button className="primary" type="button" disabled={!online || landBusy || landPendingId !== null} onClick={() => void openLandCell()}>{t(landBusy || landPendingId !== null ? "miniGames.landCellOpening" : "miniGames.landCellAction")}</button></div>
           {landResult ? <span className="hotkey-state enabled">{landResult}</span> : null}
         </article> : null}
+        {isMiniGames ? <FrontlineNativeActionPanel online={online} previewEnabled={previewEnabled} /> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.sheep.title")}</h3>
           <p>{t("miniGames.sheep.description")}</p>

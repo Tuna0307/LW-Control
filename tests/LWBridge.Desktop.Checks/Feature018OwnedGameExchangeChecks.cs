@@ -133,6 +133,24 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
             JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
             "read-only shield must discard profile-scoped UI routing metadata");
+        Require(Feature018GameCommandService.ReadFields("mini_frontline_status",
+            JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
+            "original Frontline status forwarded untrusted client owner identity");
+        Require(Feature018GameCommandService.ReadFields("mini_frontline_status",
+            JsonSerializer.SerializeToElement(new { })).Count == 0,
+            "original Frontline status stopped accepting empty read-only payload");
+        foreach (object forbiddenFrontlineStatus in new object[]
+        {
+            new { slot = 5 },
+            new { heroId = 203 },
+            new { action = "frontlineReinforce" },
+            new { frontlineOptIn = true },
+            new { profileId = "" },
+            new { profileId = "approved-runtime", ownerUid = "3133546747002212" },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("mini_frontline_status",
+                    JsonSerializer.SerializeToElement(forbiddenFrontlineStatus))));
         var shopRead = Feature018GameCommandService.ReadFields("feature018_shield_shop",
             JsonSerializer.SerializeToElement(new { mode = "inspect", slot = 12, profileId = "approved-runtime" }));
         Require(shopRead.Count == 2 && shopRead["mode"] == "inspect" &&

@@ -34,6 +34,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "city_layout_restore_preflight" or "city_layout_restore_start" or
         "monopoly_cell_open" or "mini_land_status" or "mini_sheep_status" or "mini_sheep_board" or
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
+        "mini_frontline_status" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_input_focus" or
         "feature018_rapid_action" or
@@ -448,11 +449,20 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "city_layout_apply_status":
             case "mini_sheep_status":
             case "mini_sheep_board":
+            case "mini_frontline_status":
             case "mini_chest_position":
             case "mini_chest_mark":
             case "mini_chest_unmark":
             case "feature018_input_focus":
             case "feature018_sheep_automation_status":
+                if (command == "mini_frontline_status" &&
+                    (payload.EnumerateObject().Any(entry => entry.Name != "profileId") ||
+                     (payload.TryGetProperty("profileId", out JsonElement frontlineProfile) &&
+                      (frontlineProfile.ValueKind != JsonValueKind.String ||
+                       string.IsNullOrWhiteSpace(frontlineProfile.GetString()) ||
+                       frontlineProfile.GetString()!.Length > 128))))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Native Frontline status is read-only and accepts routing profile only.");
                 break;
             case "feature018_shield_inventory_get":
                 // Exact native owner, duration and inventory status only.

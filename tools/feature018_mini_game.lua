@@ -606,6 +606,32 @@ end
 
 local frontline_active = false
 local frontline_reentry_seen = false
+local frontline_uncertain_battle = nil
+local frontline_attempted_logic = nil
+
+-- This status is a native read, independent of the action. It never creates
+-- soldiers, sends a battle result, or certifies a server score.
+local function frontline_status()
+    local context, reason = frontline_context()
+    if context == nil then return unsupported(reason) end
+    local units, _, count = frontline_units(context.team)
+    if units == nil or count ~= context.count then
+        return blocked("Original Parkour battle units changed during inspection")
+    end
+    return {state="confirmed",data={
+        observation="native_frontline_sunday_battle_readonly",
+        ownerUid="3133546747002289", sourceServerId=2289,
+        frontBreakSundayActId=context.eventId,
+        heroId=context.heroId, heroLevel=context.heroLevel,
+        memberCount=count, guidAllocator=context.lastGuid,
+        actionEligible=not frontline_active and
+                       frontline_uncertain_battle ~= context.logic,
+        actionInProgress=frontline_active,
+        uncertainPriorAction=frontline_uncertain_battle == context.logic,
+        readOnly=true,requestDispatched=false,
+        observationScope="native_local_battle",serverAckObserved=false
+    }}
+end
 
 local function frontline_reinforce_once(fields)
     -- Source-native producer invoked solely through the authenticated owner
@@ -648,6 +674,7 @@ local function frontline_reinforce_once(fields)
         -- Call exactly once. invoke() has a fallback for mixed static/colon
         -- accessors; retrying a mutating method after an exception could
         -- duplicate a unit even though the first call already took effect.
+        frontline_attempted_logic = context.logic
         local ok = pcall(member(context.logic, "AddMember"), context.logic,
                          context.heroId, context.heroLevel, true)
         local count_ok, after = invoke(context.logic, "GetMemberCount")
@@ -711,11 +738,24 @@ local function frontline_reinforce(fields)
             serverAckObserved = false,
             observationScope = "native_local_battle" })
     end
+    -- After a producer adds a partial set then throws/loses native context,
+    -- pressing G again would add an unplanned second set to that same battle.
+    -- Only a distinct original Parkour logic instance may start a new run.
+    local current_logic = member(member(rawget(_G,"DataCenter"),"LWBattleManager"),"curLogic")
+    if frontline_uncertain_battle ~= nil and
+       frontline_uncertain_battle == current_logic then
+        return blocked("An earlier Frontline G action on this battle is ambiguous; no retry",{
+            serverAckObserved=false,observationScope="native_local_battle",
+            priorActionUncertain=true
+        })
+    end
     frontline_active = true
     frontline_reentry_seen = false
+    frontline_attempted_logic = nil
     local ok, outcome = pcall(frontline_reinforce_once, fields)
     frontline_active = false
     if not ok then
+        frontline_uncertain_battle = current_logic
         -- Do not retry a native producer after an exception; AddMember may
         -- have inserted a soldier before the source method failed.
         return blocked("Native Frontline G producer aborted; no automatic retry", {
@@ -723,12 +763,20 @@ local function frontline_reinforce(fields)
             observationScope = "native_local_battle" })
     end
     if frontline_reentry_seen and outcome.state == "confirmed" then
+        frontline_uncertain_battle = current_logic
         return blocked("Overlapping Frontline G intent was observed", {
             beforeCount = outcome.data.beforeCount,
             observedAdded = outcome.data.addedMembers,
             serverAckObserved = false,
             observationScope = "native_local_battle" })
     end
+    if outcome.state ~= "confirmed" and
+       (frontline_attempted_logic == current_logic or
+        (type(outcome.data)=="table" and
+         type(outcome.data.observedAdded)=="number" and outcome.data.observedAdded>0)) then
+        frontline_uncertain_battle=current_logic
+    end
+    frontline_attempted_logic=nil
     return outcome
 end
 
@@ -1202,6 +1250,7 @@ M.LandUnlockOne = land_unlock_one
 M.SheepStatus = sheep_status
 M.ProbeSheepBoard = sheep_board
 M.FrontlineReinforce = frontline_reinforce
+M.FrontlineStatus = frontline_status
 
 function M.RegisterHandlers(bridge)
     if bridge == nil or type(bridge.RegisterHandler) ~= "function" then
@@ -1221,6 +1270,7 @@ function M.RegisterHandlers(bridge)
     end) and success
     success = bridge.RegisterHandler("mini_chest_mark", mark_chest) and success
     success = bridge.RegisterHandler("mini_chest_unmark", unmark_chest) and success
+    success = bridge.RegisterHandler("mini_frontline_status", frontline_status) and success
     return success
 end
 

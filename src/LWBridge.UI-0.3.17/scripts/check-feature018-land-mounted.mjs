@@ -34,6 +34,10 @@ window.clearInterval = (id) => intervals.delete(id);
 let receiver;
 let landReply = "locked";
 let sendingFailure = false;
+let frontlineMembers = 1;
+let frontlineGuid = 1;
+let frontlineActions = 0;
+let frontlineUncertain = false;
 const requests = [];
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "approved-inert-session",
@@ -68,6 +72,35 @@ window.chrome = { webview: {
       };
     } else if (request.command === "mini_chest_unmark") {
       response = { markerVisible: false };
+    } else if (request.command === "mini_frontline_status") {
+      assert.deepEqual(request.payload, {
+        profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId,
+      });
+      response = { observation: "native_frontline_sunday_battle_readonly",
+        ownerUid: "3133546747002289", sourceServerId: 2289,
+        frontBreakSundayActId: 114, heroId: 203, heroLevel: 12,
+        memberCount: frontlineMembers, guidAllocator: frontlineGuid,
+        actionEligible: true, uncertainPriorAction: false,
+        readOnly: true, requestDispatched: false,
+        serverAckObserved: false, observationScope: "native_local_battle" };
+    } else if (request.command === "feature018_frontline_action") {
+      assert.deepEqual(request.payload, {
+        frontlineOptIn: true,
+        profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId,
+      });
+      const before = frontlineMembers;
+      const previousGuid = frontlineGuid;
+      frontlineActions++;
+      frontlineMembers += 5;
+      frontlineGuid += 5;
+      response = { observation: "native_ParkourBattleLogic_GetMemberCount",
+        action: "frontlineReinforce", slot: 5,
+        frontBreakSundayActId: 114, heroId: 203,
+        beforeCount: before, afterCount: frontlineMembers,
+        guidAllocatorBefore: previousGuid, guidAllocatorAfter: frontlineGuid,
+        addedMembers: 5, observedCreatedUnits: 5,
+        unitIdentityVerified: true, serverAckObserved: false,
+        observationScope: "native_local_battle" };
     } else if (request.command === "mini_sheep_status") {
       response = { game: "LWSheep", level: 1 };
     } else if (request.command === "feature018_sheep_automation_status") {
@@ -75,7 +108,8 @@ window.chrome = { webview: {
     } else throw Error("Unexpected Mini command " + request.command);
     queueMicrotask(() => receiver?.({ data: {
       kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
-      id: request.id, ok: !sendingFailure || request.command !== "monopoly_cell_open",
+      id: request.id, ok: (!sendingFailure || request.command !== "monopoly_cell_open") &&
+        (!frontlineUncertain || request.command !== "feature018_frontline_action"),
       result: response, error: { code: "GAME_ACTION_UNCONFIRMED", message: "Uncertain send" },
     } }));
   },
@@ -108,6 +142,32 @@ const landAction = () => document.querySelector(
 
 await flush(() => mounted.render(React.createElement(I18nProvider, {},
   React.createElement(MiniGamesPage, { online: true }))));
+const frontline = () => document.querySelector("[data-feature018-frontline-native]");
+assert.ok(frontline(), "Original Frontline local action was not mounted in Mini Games");
+assert.equal(frontlineActions, 0, "Mini Games mount automatically created native soldiers");
+assert.equal(requests.filter((r) => r.command === "mini_frontline_status").length, 0,
+  "Frontline automatically inspected or sent while user had not opted in");
+await flush(() => frontline().querySelector(".mini-game-actions button").click());
+assert.match(frontline().textContent, /当前士兵.*1/,
+  "Read-only original Frontline battle readiness missing");
+assert.equal(frontlineActions, 0, "Frontline readiness unexpectedly dispatched AddMember");
+let nativeG = [...frontline().querySelectorAll("button")].find((button) =>
+  button.textContent.includes("原生增援"));
+assert.ok(nativeG && nativeG.disabled, "Five-unit action admitted before owner consent");
+await flush(() => frontline().querySelector("input[type=checkbox]").click());
+nativeG = [...frontline().querySelectorAll("button")].find((button) =>
+  button.textContent.includes("原生增援"));
+assert.equal(nativeG.disabled, false, "Explicitly confirmed original Frontline action cannot be invoked");
+await flush(() => nativeG.click());
+assert.equal(frontlineActions, 1, "Original Frontline did not invoke exactly one G action");
+assert.match(frontline().textContent, /五名士兵/, "Local Frontline poststate not shown");
+assert.match(frontline().textContent, /未收到独立服务器计分回复/,
+  "Frontline local units were misrepresented as server scoring");
+assert.equal(frontline().querySelector("input[type=checkbox]"), null,
+  "Previously dispatched original Frontline action became replayable");
+await flush(() => frontline().querySelector(".mini-game-actions button").click());
+assert.equal(frontlineActions, 1,
+  "Read-only follow-up rearmed or retried the same native Frontline action");
 assert.ok(landAction(), "Native one-cell Mini Games control failed to mount");
 await flush(() => landAction().click());
 const sends = () => requests.filter((r) => r.command === "monopoly_cell_open");
@@ -127,9 +187,23 @@ assert.ok(requests.some((r) => r.command === "mini_land_status" &&
   r.payload.expectedCellId === 6), "Land status polled next cell instead of exactly ID 6");
 
 backendBridge.setSelectedProfile("different-read-only-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "different-read-only-profile";
 landReply = "locked";
 await flush(() => mounted.render(React.createElement(I18nProvider, {},
   React.createElement(MiniGamesPage, { online: true }))));
+await flush(() => frontline().querySelector(".mini-game-actions button").click());
+await flush(() => frontline().querySelector("input[type=checkbox]").click());
+frontlineUncertain = true;
+nativeG = [...frontline().querySelectorAll("button")].find((button) =>
+  button.textContent.includes("原生增援"));
+await flush(() => nativeG.click());
+assert.equal(frontlineActions, 2,
+  "Second owner original Frontline intent was not sent once before timeout");
+assert.equal(frontline().querySelector("input[type=checkbox]"), null,
+  "Native Frontline uncertain timeout rearmed a second mutating send");
+await flush(() => frontline().querySelector(".mini-game-actions button").click());
+assert.equal(frontlineActions, 2,
+  "Frontline read-only verification resent a timeout-uncertain five-unit mutation");
 sendingFailure = true;
 await flush(() => landAction().click());
 const attempted = sends().length;
