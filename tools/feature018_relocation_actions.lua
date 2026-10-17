@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-9"}
+local M = {VERSION = "feature018-relocation-actions-10"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -385,7 +385,13 @@ local function clear_hook(tx)
     end
 end
 function M.Dispose()
-    if pending then clear_hook(pending) end
+    if pending then
+        clear_hook(pending)
+        -- Disposal can race a reply already sent by the server. Preserve
+        -- the one-send tombstone, but never imply its detached observer can
+        -- still correlate a future ItemUseHandle invocation.
+        pending.observerDetached=true
+    end
     chooser_pending=nil
 end
 local function static_bool(object,name,...)
@@ -520,12 +526,24 @@ function M.Readiness(fields,input_clear,action)
             "ItemUseHandle"))=="function"
     local f9_ready=action=="randomRelocate" and input_ready and
         item.ownerItemPresent and item.warningsClear and sender_ready
+    -- An owner-confirmed stock/focus snapshot is NOT fresh action readiness
+    -- while an earlier send (including an uncertain send) or chooser request
+    -- is outstanding. No new local send may be attempted until that lifetime
+    -- is explicitly disposed; do not advertise another actionable F9 key.
+    local outstanding=pending~=nil or chooser_pending~=nil
+    if outstanding then
+        f9_ready=false
+        chooser_eligible=false
+    end
     local route=action=="randomRelocate" and "ItemUse" or
         (not snapshot.inAlliance and "AllianceMembershipRequired" or
         (rally and rally.nativeChooserWouldOpen and "UIChooseRallyPoint" or
          "MoveCrossServer_BackToSrcServer"))
     local blocker
-    if not input_ready then blocker="Native game text input is active or unverifiable"
+    if outstanding then
+        blocker=pending and "Previous original F9 item-use is unresolved; never resend" or
+            "Previous original F10 chooser request is unresolved; never reopen or send"
+    elseif not input_ready then blocker="Native game text input is active or unverifiable"
     elseif not item.ownerItemPresent then blocker=item.itemBlocker
     elseif not item.warningsClear then blocker=item.warningBlocker
     elseif action=="randomRelocate" and not sender_ready then
@@ -556,6 +574,9 @@ function M.Readiness(fields,input_clear,action)
         serverAckAttributable=false,relocationConfirmed=false,
         destinationVerified=false,actionable=f9_ready==true,
         nativeItemUseRequestReady=f9_ready==true,
+        oneSendFenceActive=outstanding,
+        originalItemUseOutstanding=pending~=nil,
+        nativeChooserRequestOutstanding=chooser_pending~=nil,
         chooserRequestEligible=chooser_eligible==true,
         chooserVisibleVerified=chooser_already_open,
         chooserAlreadyOpen=chooser_already_open,
@@ -570,9 +591,15 @@ local function action_receipt(tx,snapshot,confirmed)
         itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,beforeCount=tx.item.count,
         afterCount=tx.afterCount,beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
         acknowledgedWorldPointId=tx.replyPoint,
-        worldPointChanged=snapshot.worldPointId~=tx.before,requestDispatched=not confirmed,
+        worldPointChanged=snapshot.worldPointId~=tx.before,
+        requestDispatched=true,oneSendNoRetry=true,
         awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
-        replyObserved=tx.reply==true,worldMvAcknowledged=confirmed and tx.action=="allianceRelocate",
+        replyObserved=tx.reply==true,worldMvAcknowledged=false,
+        replyExactItemUuidObserved=tx.reply==true,
+        replyUseOperationCompatible=tx.replyUseOperationCompatible==true,
+        independentWorldAndInventoryPoststateVerified=confirmed,
+        clientRequestNonceAvailable=false,serverAckAttributable=false,
+        observerDetached=tx.observerDetached==true,
         warningsClear=true,readOnly=false}}
 end
 -- Original TryAllianceMoveCity lines 40-47: when a genuine same-alliance
@@ -657,9 +684,9 @@ local function request_original_f10_chooser(snapshot,marks,token)
     -- Tombstone BEFORE the GUI request. If native OpenWindow throws after
     -- partially opening, repeating would spuriously reset its user selection.
     chooser_pending=tx
-    local ok_open=pcall(member(observed.manager,"OpenWindow"),observed.manager,
+    local ok_open,open_result=pcall(member(observed.manager,"OpenWindow"),observed.manager,
         observed.window,{anim=true},{costType=4,isInviteMove=false})
-    if not ok_open then
+    if not ok_open or open_result==false then
         return failed("GAME_ACTION_UNCONFIRMED",
             "Native F10 chooser open outcome unknown; no relocation ACK or automatic reopen")
     end
@@ -700,7 +727,9 @@ local function perform(fields,input_clear,action)
             clear_hook(pending)
             return failed("GAME_ACTION_UNCONFIRMED","Original relocation reply rejected the request; no automatic retry")
         end
-        local confirmed=pending.reply==true and snapshot.worldPointId~=pending.before and count==pending.item.count-1
+        local confirmed=pending.observerDetached~=true and
+            pending.reply==true and pending.replyUseOperationCompatible==true and
+            snapshot.worldPointId~=pending.before and count==pending.item.count-1
         local result=action_receipt(pending,snapshot,confirmed)
         if confirmed then clear_hook(pending);pending=nil end
         return result
@@ -804,8 +833,19 @@ local function perform(fields,input_clear,action)
                uid(member(response,"uuid"))==item.itemUuid then
                 -- ItemUseHandle can handle itemId-only responses; those
                 -- cannot independently acknowledge our exact owned stack.
-                tx.reply=member(response,"errorCode")==nil
-                tx.rejected=not tx.reply
+                -- Original v26 ItemManager.ItemUseHandle lines 49-52 marks
+                -- opType=1 as a non-normal-use operation. Never credit that
+                -- event (or an unrecognized opType) as a sent ItemUse reply
+                -- even if some separate world movement+stock debit occurs.
+                local op=member(response,"opType")
+                local use_operation=(op==nil or op==0)
+                if use_operation then
+                    tx.reply=member(response,"errorCode")==nil
+                    tx.replyUseOperationCompatible=tx.reply
+                    tx.rejected=not tx.reply
+                else
+                    tx.incompatibleOperationObserved=true
+                end
             end
         end
         return table.unpack(returns,1,returns.n)
@@ -813,8 +853,8 @@ local function perform(fields,input_clear,action)
     local installed=pcall(function()manager[method]=tx.hook end)
     if not installed or member(manager,method)~=tx.hook then return unavailable("Native relocation reply observer could not be attached") end
     pending=tx -- before call, including uncertain exceptions: never retransmit
-    local sent=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
-    if not sent then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
+    local sent,send_result=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
+    if not sent or send_result==false then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
         error="Relocation outcome unknown; observe only and never repeat",data=action_receipt(tx,snapshot,false).data} end
     return action_receipt(tx,snapshot,false)
 end

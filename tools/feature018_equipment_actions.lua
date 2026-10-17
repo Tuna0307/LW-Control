@@ -400,10 +400,14 @@ local function receipt(tx, confirmed)
         observation=confirmed and "native_HeroEquip_preset_slots_applied" or
             "native_HeroEquip_preset_pending",
         action="equipment",slot=tonumber(tx.slot),presetId=tx.presetId,
-        requestDispatched=not confirmed and tx.sent>0,
+        -- This describes the historical native send, not whether a reply
+        -- remains pending. A fully verified 4-step apply/restore still sent
+        -- four original HeroEquip RPCs; never rewrite it as "no send".
+        requestDispatched=tx.sent>0,
         awaitingGameConfirmation=not confirmed,equipmentApplied=confirmed,
         nativeSlotPoststateVerified=confirmed,
-        perSlotReplyCorrelated=false,
+        perSlotReplyCorrelated=false,clientStepNonceAvailable=false,
+        perSlotServerAckAttributable=false,
         readOnly=false,sourceVersion=26,completedSteps=tx.completed,
         dispatchedSteps=tx.sent,plannedSteps=#tx.steps,
         beforeSlots=tx.before,slots=tx.latest,
@@ -560,6 +564,24 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     end
     local tx=transaction
     tx.latest=slots
+    if tx.uncertainSend then
+        -- An original HeroEquipInstall/Uninstall SendMessage may raise or
+        -- explicitly report false AFTER its payload was emitted. The
+        -- per-hero reply lacks a slot/gear/request nonce and a separate
+        -- PushHeroEquipChange can arrive late. Even a matching native slot
+        -- is not permission to dispatch the NEXT saved-preset step here.
+        local verified,reason=observe_step(tx.steps[tx.index])
+        local result=receipt(tx,false)
+        result.state="failed"
+        result.errorCode="GAME_ACTION_UNCONFIRMED"
+        result.error="Equipment send outcome unknown; automatic preset continuation disabled"
+        result.data.uncertainSendOutcome=true
+        result.data.uncertainStepPoststateVerified=verified==true
+        result.data.uncertainStepObservationError=verified==false and reason or nil
+        result.data.nextStepNotDispatched=true
+        result.data.awaitingOwnerReview=true
+        return result
+    end
     if tx.waiting then
         local observed, reason=observe_step(tx.steps[tx.index])
         if observed==false then return blocked(reason) end
@@ -650,14 +672,23 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     if message==nil or type(send)~="function" then return unavailable("Original HeroEquip message unavailable") end
     -- Tombstone before the call; an exception can occur after a native send.
     tx.waiting=true;tx.sent=tx.sent+1
-    local ok
-    if step.after=="" then ok=pcall(send,message,member(fresh_hero.object,"uuid"),{step.slot})
+    local ok,returned
+    if step.after=="" then ok,returned=pcall(send,message,member(fresh_hero.object,"uuid"),{step.slot})
     else
-        ok=pcall(send,message,member(fresh_hero.object,"uuid"),
+        ok,returned=pcall(send,message,member(fresh_hero.object,"uuid"),
             {[step.slot]=member(next_item,"uuid")})
     end
-    if not ok then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
-        error="Equipment send outcome unknown; never retransmit this step",data=receipt(tx,false).data} end
+    if not ok or returned==false then
+        tx.uncertainSend=true
+        local result=receipt(tx,false)
+        result.state="failed"
+        result.errorCode="GAME_ACTION_UNCONFIRMED"
+        result.error="Equipment send outcome unknown; never retransmit or advance preset"
+        result.data.uncertainSendOutcome=true
+        result.data.nextStepNotDispatched=true
+        result.data.awaitingOwnerReview=true
+        return result
+    end
     return receipt(tx,false)
 end
 

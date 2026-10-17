@@ -373,6 +373,9 @@ class EquipmentApplyChecks(unittest.TestCase):
             if result['state']=='confirmed':break
         self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['equipmentApplied'])
         self.assertTrue(result['data']['nativeSlotPoststateVerified'])
+        self.assertTrue(result['data']['requestDispatched'])
+        self.assertFalse(result['data']['clientStepNonceAvailable'])
+        self.assertFalse(result['data']['perSlotServerAckAttributable'])
         self.assertFalse(result['data']['perSlotReplyCorrelated'])
         self.assertEqual(result['data']['completedSteps'],4)
         self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
@@ -393,6 +396,7 @@ class EquipmentApplyChecks(unittest.TestCase):
                     break
             self.assertEqual(next_state['state'],'confirmed')
             self.assertTrue(next_state['data']['nativeSlotPoststateVerified'])
+            self.assertTrue(next_state['data']['requestDispatched'])
             self.assertFalse(next_state['data']['perSlotReplyCorrelated'])
             self.assertEqual(next_state['data']['completedSteps'],4)
             self.assertEqual(next_state['data']['dispatchedSteps'],4)
@@ -432,11 +436,42 @@ class EquipmentApplyChecks(unittest.TestCase):
         lua,_,state,_,call=self.fixture()
         lua.execute("SFSNetwork.SendMessage=function(...)state.sent=state.sent+1;error('uncertain')end")
         self.assertEqual(call()['errorCode'],'GAME_ACTION_UNCONFIRMED')
-        self.assertEqual(call(True)['state'],'accepted');self.assertEqual(state['sent'],1)
+        observed=call(True)
+        self.assertEqual(observed['state'],'failed')
+        self.assertEqual(observed['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertTrue(observed['data']['uncertainSendOutcome'])
+        self.assertFalse(observed['data']['uncertainStepPoststateVerified'])
+        self.assertTrue(observed['data']['nextStepNotDispatched'])
+        self.assertEqual(state['sent'],1)
+        # The native gear change may have succeeded after an exception.
+        # The original reply cannot uniquely ACK this saved slot operation;
+        # observing it must NEVER automatically advance to gear step two.
+        lua.execute("state.hero101.equips[1]=nil;state.items[501].heroUuid=0")
+        later=call(True)
+        self.assertEqual(later['state'],'failed')
+        self.assertTrue(later['data']['uncertainStepPoststateVerified'])
+        self.assertTrue(later['data']['awaitingOwnerReview'])
+        self.assertEqual(state['sent'],1)
+        self.assertEqual(call()['state'],'failed')
+        self.assertEqual(state['sent'],1)
+
+    def test_original_equipment_sender_returning_false_is_uncertain_not_retryable(self):
+        lua,_,state,_,call=self.fixture()
+        lua.execute("SFSNetwork.SendMessage=function(...)state.sent=state.sent+1;return false end")
+        first=call()
+        self.assertEqual(first['state'],'failed')
+        self.assertEqual(first['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertTrue(first['data']['uncertainSendOutcome'])
+        lua.execute("state.hero101.equips[1]=nil;state.items[501].heroUuid=0")
+        later=call(True)
+        self.assertEqual(later['state'],'failed')
+        self.assertTrue(later['data']['uncertainStepPoststateVerified'])
+        self.assertEqual(state['sent'],1)
 
     def test_preexisting_matching_preset_is_observed_without_send(self):
         _,_,state,_,call=self.fixture()
         result=call(slot=1);self.assertEqual(result['state'],'confirmed')
+        self.assertFalse(result['data']['requestDispatched'])
         self.assertEqual(result['data']['dispatchedSteps'],0);self.assertEqual(state['sent'],0)
 
     def test_changed_preset_or_hero_rejects_pending_transaction(self):

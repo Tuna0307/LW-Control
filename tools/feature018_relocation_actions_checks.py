@@ -392,6 +392,13 @@ class OriginalV26Sources(unittest.TestCase):
         trace=disassemble(body)
         self.assertTrue(any('sourceLine=58' in line and 'GetItemByUuid' in line for line in trace))
         self.assertTrue(any('sourceLine=63' in line and 'GetItemById' in line for line in trace))
+        # An item-change response can name the very same stack UUID without
+        # representing our normal F9 ItemUse. The original distinguishes
+        # opType=1 from the normal-use path before UpdateOneItem/OnUseRet.
+        self.assertTrue(any('sourceLine=51' in line and "'opType'" in line
+                            for line in trace))
+        self.assertTrue(any('sourceLine=51' in line and '=1' in line
+                            for line in trace))
 
     def test_original_random_and_alliance_owned_item_senders_and_warning_conditions(self):
         # Full original artifact identity plus exact source closures; no guessed item IDs.
@@ -675,6 +682,13 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute('DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004})')
         final=call(query=True);self.assertEqual(final['state'],'confirmed')
         self.assertTrue(final['data']['relocationConfirmed']);self.assertTrue(final['data']['replyObserved'])
+        self.assertTrue(final['data']['requestDispatched'])
+        self.assertTrue(final['data']['replyExactItemUuidObserved'])
+        self.assertTrue(final['data']['replyUseOperationCompatible'])
+        self.assertTrue(final['data']['independentWorldAndInventoryPoststateVerified'])
+        self.assertTrue(final['data']['oneSendNoRetry'])
+        self.assertFalse(final['data']['clientRequestNonceAvailable'])
+        self.assertFalse(final['data']['serverAckAttributable'])
         self.assertEqual(state['randomCount'],1)
         self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
 
@@ -942,6 +956,91 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(final['state'],'confirmed')
         self.assertEqual(state['sends'],1)
 
+    def test_f9_same_uuid_but_nonuse_optype_cannot_confirm_or_trigger_second_send(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+          DataCenter.ItemManager.ItemUseHandle=function(self,response)
+            if response.itemId==5004 and response.opType==0 and
+               world.randomCount==2 then
+              world.randomCount=1
+            end
+          end
+        """)
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("""
+          world.position=600123
+          DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004,opType=1})
+        """)
+        denied=call(query=True)
+        self.assertEqual(denied['state'],'accepted')
+        self.assertFalse(denied['data']['replyObserved'])
+        self.assertFalse(denied['data']['relocationConfirmed'])
+        self.assertFalse(denied['data']['replyUseOperationCompatible'])
+        self.assertEqual(state['sends'],1)
+        for request_op in ("'1'",'2'):
+            lua.execute("DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004,opType="+request_op+"})")
+            pending=call(query=True)
+            self.assertEqual(pending['state'],'accepted')
+            self.assertFalse(pending['data']['replyObserved'])
+            self.assertEqual(state['sends'],1)
+        lua.execute("DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004,opType=0})")
+        final=call(query=True)
+        self.assertEqual(final['state'],'confirmed')
+        self.assertEqual(state['sends'],1)
+
+    def test_r10_readiness_during_unresolved_F9_never_offers_second_item_use(self):
+        lua,module,state,call=self.fixture()
+        values={'action':'randomRelocate','slot':'0',
+                'profileId':'owner','launchSessionId':'launch',
+                'challenge':'challenge','gamePid':'8123'}
+        identity=lua.table_from(values)
+        pre=module.Readiness(identity,lua.eval('function()return true end'))
+        self.assertTrue(pre['data']['actionable'])
+        self.assertEqual(call()['state'],'accepted')
+        during=module.Readiness(identity,lua.eval('function()return true end'))
+        self.assertEqual(during['state'],'confirmed')
+        self.assertFalse(during['data']['actionable'])
+        self.assertTrue(during['data']['oneSendFenceActive'])
+        self.assertTrue(during['data']['originalItemUseOutstanding'])
+        self.assertFalse(during['data']['nativeItemUseRequestReady'])
+        self.assertIn('never resend',during['data']['currentBlocker'])
+        self.assertEqual(call()['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_r10_dispose_during_outstanding_F9_preserves_no_retry_tombstone(self):
+        lua,module,state,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        module.Dispose()
+        self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
+        lua.execute('world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004,opType=0})')
+        result=call(query=True)
+        self.assertEqual(result['state'],'accepted')
+        self.assertTrue(result['data']['observerDetached'])
+        self.assertFalse(result['data']['replyObserved'])
+        self.assertFalse(result['data']['relocationConfirmed'])
+        self.assertEqual(call()['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_r10_readiness_during_native_F10_chooser_is_always_nonactionable(self):
+        lua,module,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        """)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        values={'action':'allianceRelocate','slot':'0',
+                'profileId':'owner','launchSessionId':'launch',
+                'challenge':'challenge','gamePid':'8123'}
+        result=module.Readiness(lua.table_from(values),lua.eval('function()return true end'))
+        self.assertEqual(result['state'],'confirmed')
+        self.assertTrue(result['data']['oneSendFenceActive'])
+        self.assertTrue(result['data']['nativeChooserRequestOutstanding'])
+        self.assertFalse(result['data']['chooserRequestEligible'])
+        self.assertFalse(result['data']['actionable'])
+        self.assertIn('never reopen',result['data']['currentBlocker'])
+        self.assertEqual(state['sends'],0)
+        self.assertEqual(state['dialogs'],1)
+
     def test_readonly_readiness_exposes_exact_f9_and_f10_bag_items(self):
         lua,module,state,_=self.fixture()
         def probe(action):
@@ -1084,6 +1183,39 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute("SFSNetwork.SendMessage=function()world.sends=world.sends+1;error('uncertain')end")
         self.assertEqual(call()['errorCode'],'GAME_ACTION_UNCONFIRMED')
         self.assertEqual(call(query=True)['state'],'accepted');self.assertEqual(state['sends'],1)
+
+    def test_sender_returned_false_preserves_f9_one_send_and_pending_observer(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("SFSNetwork.SendMessage=function()world.sends=world.sends+1;return false end")
+        first=call()
+        self.assertEqual(first['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertEqual(state['sends'],1)
+        again=call()
+        self.assertEqual(again['state'],'accepted')
+        self.assertTrue(again['data']['oneSendNoRetry'])
+        self.assertTrue(again['data']['requestDispatched'])
+        self.assertFalse(again['data']['serverAckAttributable'])
+        self.assertEqual(state['sends'],1)
+
+    def test_f10_open_window_returning_false_cannot_reopen_or_dispatch_game_rpc(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        UIManager.GetInstance=function()return {
+          IsWindowOpen=function(self) return world.chooserOpen==true end,
+          OpenWindow=function(self) world.dialogs=world.dialogs+1;return false end,
+        }end
+        """)
+        first=call('allianceRelocate')
+        self.assertEqual(first['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertEqual(state['dialogs'],1)
+        again=call('allianceRelocate')
+        self.assertEqual(again['state'],'accepted')
+        self.assertFalse(again['data']['chooserWindowRegistered'])
+        self.assertFalse(again['data']['requestDispatched'])
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
 
     def test_reply_for_unrelated_item_cannot_confirm_external_position_change(self):
         lua,_,_,call=self.fixture();call()
