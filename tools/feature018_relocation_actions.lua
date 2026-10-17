@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-5"}
+local M = {VERSION = "feature018-relocation-actions-6"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -497,6 +497,13 @@ local function perform(fields,input_clear,action)
         if not marks or not marks.homeRally or not marks.homeRally.authorizedHomeServer then
             return failed("GAME_PRECONDITION_FAILED",why or "Exact same-alliance home rally missing")
         end
+        -- Original TryAllianceMoveCity first checks OtherServerRally. If it
+        -- exists, the original F10 route opens UIChooseRallyPoint, leaving the
+        -- actual choice to the owner. Directly invoking home-rally here would
+        -- silently bypass that native chooser and select another outcome.
+        if marks.nativeChooserWouldOpen then
+            return unavailable("Original F10 requires native rally chooser; selected other-server/home target not confirmed")
+        end
         rally=marks.homeRally;alliance_uid=marks.ownerAllianceUid
         if type(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"))~="function" then
             return unavailable("Original chosen home-rally relocation method unavailable")
@@ -512,6 +519,16 @@ local function perform(fields,input_clear,action)
         if not ok_login or source_login~=true then
             return unavailable("Native F10 source-server login status unverified")
         end
+    end
+    -- Native focus checks and item/rally readers can cross a game-session
+    -- transition. Revalidate the exact owner, three servers and before
+    -- position at the last no-send boundary, ahead of installing an observer.
+    local final_owner,final_reason=world_snapshot()
+    if not final_owner or final_owner.ownerUid~=snapshot.ownerUid or
+       final_owner.sourceServerId~=snapshot.sourceServerId or
+       final_owner.worldPointId~=snapshot.worldPointId then
+        return failed("GAME_PRECONDITION_FAILED",
+            final_reason or "Native relocation owner or starting point changed before dispatch")
     end
     local center=rawget(_G,"DataCenter")
     local manager=member(center,action=="randomRelocate" and "ItemManager" or "BuildManager")
@@ -534,7 +551,10 @@ local function perform(fields,input_clear,action)
         if pending==tx and current and token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
             if action=="randomRelocate" then
                 if tostring(member(response,"itemId"))==item.itemId and
-                   (member(response,"uuid")==nil or tostring(member(response,"uuid"))==item.itemUuid) then
+                   uid(member(response,"uuid"))==item.itemUuid then
+                    -- ItemUseHandle supports responses with only itemId and
+                    -- updates inventory via GetItemById. That is not a unique
+                    -- acknowledgement of our original owned stack UUID.
                     tx.reply=member(response,"errorCode")==nil
                     tx.rejected=not tx.reply
                 end

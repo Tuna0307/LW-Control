@@ -346,6 +346,16 @@ class OriginalV26Sources(unittest.TestCase):
             '537c896000bc29d07758dcc7e6f75255fb7c06fce5a6e01afdb20773fbcc37c3',
             ('errorCode','itemCostArr','UpdateOneItem','worldMainPoint','SetMainWorldPointId','buildInfo','pId'))
 
+    def test_original_f9_item_reply_may_omit_stack_uuid_and_fallback_to_item_id(self):
+        # Original ItemUseHandle may update an inventory stack from itemId
+        # alone; such a reply is not an identifiable ACK for our owned UUID.
+        body=self.check_method('DataCenter/ItemManager/ItemManager.luac','ItemUseHandle',
+            'febee83973a019ce47dc154190a7bae182b6ea5d5546b63c7f412ec60222847c',
+            ('GetItemByUuid','GetItemById','itemId','uuid','UpdateOneItem'))
+        trace=disassemble(body)
+        self.assertTrue(any('sourceLine=58' in line and 'GetItemByUuid' in line for line in trace))
+        self.assertTrue(any('sourceLine=63' in line and 'GetItemById' in line for line in trace))
+
     def test_original_random_and_alliance_owned_item_senders_and_warning_conditions(self):
         # Full original artifact identity plus exact source closures; no guessed item IDs.
         name='UI/UILWBag/UILWBagMain/Controller/UILWBagMainCtrl.luac'
@@ -470,6 +480,60 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(result['data']['afterWorldPointId'],514998)
         self.assertEqual(result['data']['acknowledgedWorldPointId'],514998)
         self.assertTrue(lua.eval('DataCenter.BuildManager.WorldMvHandle==world.moveOriginal'))
+
+    def test_f10_other_server_native_choice_is_not_silently_bypassed(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={
+          allianceId=world.allianceUid,type=702,server=2213,pos=6610023,
+          GetPointIndex=function(self)return math.floor(self.pos/10)end,
+        }
+        """)
+        response=call('allianceRelocate')
+        self.assertEqual(response['state'],'unsupported')
+        self.assertIn('native rally chooser',response['error'])
+        self.assertEqual(state['sends'],0)
+
+    def test_final_native_owner_revalidation_after_focus_blocks_both_sends(self):
+        for action in ('randomRelocate','allianceRelocate'):
+            lua,module,state,_=self.fixture()
+            fn=module.RandomRelocate if action=='randomRelocate' else module.AllianceRelocate
+            values={'action':action,'slot':'0','profileId':'owner',
+                    'launchSessionId':'launch','challenge':'challenge','gamePid':'8123'}
+            focus=lua.eval("""
+                function()
+                  world.current=2212
+                  return true
+                end
+            """)
+            result=fn(lua.table_from(values),focus)
+            self.assertEqual(result['state'],'failed')
+            self.assertIn('server',result['error'])
+            self.assertEqual(state['sends'],0)
+
+    def test_f9_item_reply_without_exact_uuid_never_acknowledges(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        DataCenter.ItemManager.ItemUseHandle=function(self,response)
+          if response.itemId==5004 and world.randomCount==2 then
+            world.randomCount=1
+          end
+        end
+        """)
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004})")
+        pending=call(query=True)
+        self.assertEqual(pending['state'],'accepted')
+        self.assertFalse(pending['data']['replyObserved'])
+        self.assertFalse(pending['data']['relocationConfirmed'])
+        self.assertEqual(state['sends'],1)
+        lua.execute('DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004})')
+        # Missing UUID must not have burned the observer; a subsequent exact
+        # matching response and observed poststate may be confirmed without
+        # dispatching a second ItemUse.
+        final=call(query=True)
+        self.assertEqual(final['state'],'confirmed')
+        self.assertEqual(state['sends'],1)
 
     def test_readonly_readiness_exposes_exact_f9_and_f10_bag_items(self):
         lua,module,state,_=self.fixture()

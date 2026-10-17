@@ -29,7 +29,7 @@ ADAPTER = ROOT / "feature018_equipment_actions.lua"
 FAKE_GAME = """
 state = {
   sent=0,focus=true,
-  uid=12345678,
+  uid='3133546747002289',source=2289,selfServer=2289,current=2289,
   hero101={uuid=101,heroType=7,equips={}},
   hero202={uuid=202,heroType=7,equips={}},
   formation1={uuid=3001,localIndexToHeroDic={[1]=101}},
@@ -53,7 +53,12 @@ end
 function state.formation2:GetLocalHeroAtSlotIndex(position)
   return self.localIndexToHeroDic[position]
 end
-LuaEntry={Player={uid=state.uid}}
+LuaEntry={Player={
+  uid=state.uid,
+  GetSourceServerId=function(self)return state.source end,
+  GetSelfServerId=function(self)return state.selfServer end,
+  GetCurServerId=function(self)return state.current end,
+}}
 HeroType={All=0}
 DataCenter={
   ArmyFormationDataManager={GetOneArmyInfoByIndex=function(_,slot)
@@ -103,7 +108,7 @@ def fields(lua, slot=1, **kwargs):
         "launchSessionId": "session",
         "challenge": "challenge",
         "gamePid": "9245",
-        "authorizedUid": "12345678",
+        "authorizedUid": "3133546747002289",
         "presetId": f"preset{slot}",
     }
     values.update(kwargs)
@@ -199,7 +204,8 @@ class EquipmentPreflight(unittest.TestCase):
         self.assertEqual(data["slots"][1]["state"], "alreadyEquipped")
         self.assertEqual(state["sent"], 0)
         action = module.Handle(
-            fields(lua), confirmed, lua.eval("function() return true end"))
+            fields(lua,authorizedUid="12345678"), confirmed,
+            lua.eval("function() return true end"))
         self.assertEqual(action["state"], "failed")
         self.assertEqual(state["sent"], 0)
 
@@ -243,11 +249,28 @@ class EquipmentPreflight(unittest.TestCase):
             fields(lua), presets, lua.eval("function() return false end"))["state"],
                          "failed")
         self.assertEqual(module.Preflight(
+            fields(lua), presets, lua.eval("function() error('focus unavailable') end"))["state"],
+                         "failed")
+        self.assertEqual(module.Preflight(
             fields(lua), None, lua.eval("function() return true end"))["state"],
                          "unsupported")
         presets[1]["id"] = "modified-unconfirmed"
         self.assertEqual(status(lua, module, presets)["state"], "failed")
         self.assertEqual(state["sent"], 0)
+
+    def test_readonly_preflight_owner_requires_exact_uid_and_all_native_servers(self):
+        for native_server in ("source","selfServer","current"):
+            for rejected in (2212,2213,None):
+                lua, module, state, presets=setup()
+                state[native_server]=rejected
+                result=status(lua,module,presets)
+                self.assertEqual(result["state"],"failed",(native_server,rejected))
+                self.assertEqual(state["sent"],0)
+        lua,module,state,presets=setup()
+        lua.globals().LuaEntry.Player.uid='3133546747002212'
+        result=status(lua,module,presets)
+        self.assertEqual(result["state"],"failed")
+        self.assertEqual(state["sent"],0)
 
     def test_inventory_disagreement_duplicates_and_wrong_slot_fail_closed(self):
         def check_failure(transform, expected="failed", slot=1):
@@ -330,6 +353,8 @@ class EquipmentApplyChecks(unittest.TestCase):
             result=call(True)
             if result['state']=='confirmed':break
         self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['equipmentApplied'])
+        self.assertTrue(result['data']['nativeSlotPoststateVerified'])
+        self.assertFalse(result['data']['perSlotReplyCorrelated'])
         self.assertEqual(result['data']['completedSteps'],4)
         self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
         self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
@@ -395,6 +420,22 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(response['state'],'confirmed')
         self.assertEqual(state['sent'],4)
         self.assertFalse(response['data']['awaitingGameConfirmation'])
+
+    def test_query_only_owner_transition_during_focus_check_blocks_next_step(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.globals().apply_push()
+        lua.execute('function LuaEntry.Player:GetCurServerId()return state.current end')
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289'),
+            presets,lua.eval("""
+              function()
+                state.current=2212
+                return true
+              end
+            """))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('owner/server changed',result['error'])
+        self.assertEqual(state['sent'],1)
 
 
 if __name__ == "__main__":

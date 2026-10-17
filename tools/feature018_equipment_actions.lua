@@ -100,8 +100,17 @@ local function exact_session(fields)
     end
     local player = member(rawget(_G, "LuaEntry"), "Player")
     local native_uid = exact_id(member(player,"uid"))
-    return native_uid ~= nil and type(fields.authorizedUid) == "string" and
-           fields.authorizedUid == native_uid
+    if native_uid ~= "3133546747002289" or
+       type(fields.authorizedUid) ~= "string" or
+       fields.authorizedUid ~= native_uid then return false end
+    -- The public read-only Preflight also runs with native Lua authority:
+    -- it cannot depend solely on the C# owner check preceding a mailbox
+    -- request. Every original native server getter must agree on home 2289.
+    for _,getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok,server=invoke(player,getter)
+        if not ok or (server~=2289 and server~="2289") then return false end
+    end
+    return true
 end
 
 local function number_in_range(value, low, high)
@@ -259,7 +268,11 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
     if not exact_session(fields) then
         return blocked("Game UID is not the authenticated owner of this profile session")
     end
-    if type(game_input_clear) ~= "function" or game_input_clear() ~= true then
+    local focus_ok,focus_clear=false,false
+    if type(game_input_clear)=="function" then
+        focus_ok,focus_clear=pcall(game_input_clear)
+    end
+    if not focus_ok or focus_clear~=true then
         return blocked("Game text-input focus is selected or unverifiable")
     end
     local wanted, first, second = validate_selected_loadout(preset)
@@ -373,6 +386,8 @@ local function receipt(tx, confirmed)
         action="equipment",slot=tonumber(tx.slot),presetId=tx.presetId,
         requestDispatched=not confirmed and tx.sent>0,
         awaitingGameConfirmation=not confirmed,equipmentApplied=confirmed,
+        nativeSlotPoststateVerified=confirmed,
+        perSlotReplyCorrelated=false,
         readOnly=false,sourceVersion=26,completedSteps=tx.completed,
         dispatchedSteps=tx.sent,plannedSteps=#tx.steps,
         beforeSlots=tx.before,slots=tx.latest,
@@ -545,6 +560,9 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
         pending.data.awaitingInputClear=true
         pending.data.nextStepNotDispatched=true
         return pending
+    end
+    if not action_owner(fields) then
+        return blocked("Native equipment owner/server changed before next step dispatch")
     end
     local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
