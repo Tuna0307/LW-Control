@@ -219,7 +219,17 @@ local function recall(fields, game_input_clear)
             return {state="confirmed", data={
                 observation="native_world_march_return_target", slot=slot,
                 marchUuid=selected.uuid, formationUuid=selected.formation,
-                target="BACK_HOME", returning=true
+                target="BACK_HOME", returning=true,
+                nativePostStateObserved=true,
+                observedAfterPreviousDispatch=true,
+                priorTarget=pending.beforeTarget,
+                -- WorldMarchChange has no verified per-request echoed nonce;
+                -- a cached BACK_HOME transition after our send can coincide
+                -- with an original game UI/manually initiated recall.
+                originalResponseObserved=false,
+                nativeReplyCausalityConfirmed=false,
+                serverAcknowledgementCorrelated=false,
+                requestDispatched=false
             }}
         end
         if os.time() - pending.sentAt >= MAX_PENDING_SECONDS then
@@ -233,10 +243,16 @@ local function recall(fields, game_input_clear)
     end
     if selected.target == target_enum then
         return {state="confirmed", data={
-            observation="native_world_march_return_target",
+            observation="native_world_march_already_returning_readonly",
             slot=slot,marchUuid=selected.uuid,
             formationUuid=selected.formation,
-            target="BACK_HOME", returning=true
+            target="BACK_HOME", returning=true,
+            nativePostStateObserved=true,
+            observedAfterPreviousDispatch=false,
+            originalResponseObserved=false,
+            nativeReplyCausalityConfirmed=false,
+            serverAcknowledgementCorrelated=false,
+            requestDispatched=false,actionPerformed=false
         }}
     end
     local entry = rawget(_G,"LuaEntry")
@@ -261,7 +277,7 @@ local function recall(fields, game_input_clear)
     local sent = pcall(member(util, "OnBackHome"), selected.uuid_number)
     if not sent then return blocked("Native return-home method rejected request") end
     outstanding[slot] = {uuid=selected.uuid,formation=selected.formation,
-                          sentAt=os.time()}
+                          beforeTarget=selected.target,sentAt=os.time()}
     -- Native method sends an RPC; only a later game-owned WorldMarch target
     -- of BACK_HOME confirms its effective state transition.
     return {state="accepted",data={
@@ -622,6 +638,55 @@ function M.RegisterRelocation(feature, frozen_hotkeys)
                data.requestDispatched~=false or
                data.relocationConfirmed~=false then
                 return blocked("Native relocation preflight returned an untrusted action claim")
+            end
+        end
+        return result
+    end)
+end
+
+-- Explicitly owner-confirmed Frontline UI action. This is the same original
+-- ParkourBattleLogic five-AddMember producer as G, not a server-scored reward.
+-- The original Sunday battle must already exist; never manufacture one.
+function M.RegisterFrontline(feature, frozen_hotkeys)
+    if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
+       type(frozen_hotkeys) ~= "table" then return false end
+    return feature.RegisterHandler("feature018_frontline_action", function(fields)
+        if type(fields) ~= "table" or fields.frontlineOptIn ~= "1" or
+           fields.action ~= "frontlineReinforce" or fields.slot ~= "5" then
+            return blocked("Five Frontline units require fresh explicit owner consent")
+        end
+        local uid, denial = authorized_subaccount()
+        if not uid then return denial end
+        local input = frozen_hotkeys.TextInputClear
+        if type(input) ~= "function" then
+            return blocked("Original native text-input focus gate unavailable")
+        end
+        local ok_focus, clear = pcall(input)
+        if not ok_focus or clear ~= true then
+            return blocked("Native game text input is active or unverified")
+        end
+        local mini = rawget(_G,"LWBridgeFeature018MiniGame")
+        if type(member(mini,"FrontlineReinforce")) ~= "function" then
+            return unavailable("Original Sunday Frontline battle producer unavailable")
+        end
+        -- Source-native action independently revalidates UID2289, all three
+        -- servers, Sunday event, exact live UI, hero, five GUIDs and count.
+        -- It is not safe to retry if it throws after some AddMember calls.
+        local ok, result = pcall(mini.FrontlineReinforce, fields)
+        if not ok or type(result) ~= "table" then
+            return blocked("Native reinforcement outcome is uncertain: never auto-retry")
+        end
+        if result.state == "confirmed" then
+            local data = result.data
+            if type(data) ~= "table" or
+               data.observation ~= "native_ParkourBattleLogic_GetMemberCount" or
+               data.action ~= "frontlineReinforce" or data.slot ~= 5 or
+               data.addedMembers ~= 5 or data.observedCreatedUnits ~= 5 or
+               data.unitIdentityVerified ~= true or
+               data.afterCount ~= data.beforeCount + 5 or
+               data.observationScope ~= "native_local_battle" or
+               data.serverAckObserved ~= false then
+                return blocked("Original five-soldier local battle proof is incomplete")
             end
         end
         return result

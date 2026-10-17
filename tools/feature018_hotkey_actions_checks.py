@@ -369,8 +369,69 @@ def test_registered_relocation_readonly():
     require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed",
             "native preflight forged a relocation dispatch or confirmation")
 
+def test_consent_bound_source_frontline_action():
+    lua, actions, _, state, _ = scenario()
+    lua.execute('''
+      state.frontlineCalls=0
+      LWBridgeFeature018MiniGame={
+        FrontlineReinforce=function(fields)
+          state.frontlineCalls=state.frontlineCalls+1
+          assert(fields.action=='frontlineReinforce' and fields.slot=='5')
+          return {state='confirmed',data={
+            observation='native_ParkourBattleLogic_GetMemberCount',
+            action='frontlineReinforce',slot=5,beforeCount=7,afterCount=12,
+            addedMembers=5,observedCreatedUnits=5,unitIdentityVerified=true,
+            observationScope='native_local_battle',serverAckObserved=false
+          }}
+        end
+      }
+      frontlineFeature={handlers={},RegisterHandler=function(name,callback)
+        if frontlineFeature.handlers[name]~=nil then return false end
+        frontlineFeature.handlers[name]=callback
+        return true
+      end}
+    ''')
+    feature=lua.globals().frontlineFeature
+    require(actions.RegisterFrontline(feature,lua.globals().frozen) is True and
+            actions.RegisterFrontline(feature,lua.globals().frozen) is False,
+            "Original Frontline native local producer not registered uniquely")
+    call=feature.handlers["feature018_frontline_action"]
+    def request(**changes):
+        return call(lua.table_from({"action":"frontlineReinforce","slot":"5",**changes}))
+    for opt in (None,"0",True):
+        require(request(frontlineOptIn=opt)["state"]=="failed" and
+                state["frontlineCalls"]==0,
+                "Frontline local game creation was admitted without fresh consent")
+    state["sourceServer"]=2212
+    require(request(frontlineOptIn="1")["state"]=="failed" and
+            state["frontlineCalls"]==0,
+            "Main server2212 was admitted to mutate a Frontline battle")
+    state["sourceServer"]=2289
+    state["focusClear"]=False
+    require(request(frontlineOptIn="1")["state"]=="failed" and
+            state["frontlineCalls"]==0,
+            "Active game editor admitted original Parkour soldier production")
+    state["focusClear"]=True
+    result=request(frontlineOptIn="1")
+    require(result["state"]=="confirmed" and
+            result["data"]["observationScope"]=="native_local_battle" and
+            result["data"]["serverAckObserved"] is False and
+            state["frontlineCalls"]==1 and state["dispatches"]==0,
+            "Original local Frontline five distinct soldiers were mislabeled as server scoring")
+    lua.execute('''LWBridgeFeature018MiniGame.FrontlineReinforce=function(fields)
+      state.frontlineCalls=state.frontlineCalls+1
+      return {state='confirmed',data={observation='native_ParkourBattleLogic_GetMemberCount',
+        action='frontlineReinforce',slot=5,beforeCount=7,afterCount=12,
+        addedMembers=5,observedCreatedUnits=5,unitIdentityVerified=true,
+        observationScope='native_local_battle',serverAckObserved=true}}
+    end''')
+    require(request(frontlineOptIn="1")["state"]=="failed" and
+            state["frontlineCalls"]==2,
+            "Forged local soldier response was promoted to invented server acknowledgement")
+
 
 def main():
+    test_consent_bound_source_frontline_action()
     test_registered_relocation_readonly()
     test_original_v26_item_use_ack_limits()
     test_registered_shield_inventory()
@@ -387,14 +448,27 @@ def main():
     state["target"] = 77
     confirmed = call(query_only=True)
     require(confirmed["state"] == "confirmed" and
-            confirmed["data"]["observation"] == "native_world_march_return_target",
-            "server-updated native march target not recognized")
+            confirmed["data"]["observation"] == "native_world_march_return_target" and
+            confirmed["data"]["nativePostStateObserved"] is True and
+            confirmed["data"]["observedAfterPreviousDispatch"] is True and
+            confirmed["data"]["priorTarget"] == 17 and
+            confirmed["data"]["originalResponseObserved"] is False and
+            confirmed["data"]["nativeReplyCausalityConfirmed"] is False and
+            confirmed["data"]["serverAcknowledgementCorrelated"] is False and
+            confirmed["data"]["requestDispatched"] is False,
+            "cached post-send native return was promoted to uniquely correlated server ACK")
     require(state["dispatches"] == 1, "poststate polling created another request")
     require(call(query_only=True)["state"] == "failed" and state["dispatches"] == 1,
             "recall query-only started or confirmed without matching pending send")
     confirmed_again = call()
-    require(confirmed_again["state"] == "confirmed" and state["dispatches"] == 1,
-            "already returning march was resent")
+    require(confirmed_again["state"] == "confirmed" and
+            confirmed_again["data"]["observation"] ==
+            "native_world_march_already_returning_readonly" and
+            confirmed_again["data"]["observedAfterPreviousDispatch"] is False and
+            confirmed_again["data"]["requestDispatched"] is False and
+            confirmed_again["data"]["actionPerformed"] is False and
+            state["dispatches"] == 1,
+            "already-returning march was resent or counted as this hotkey's causal action")
 
     _, _, _, s, call = scenario()
     require(call(query_only=True)["state"] == "failed" and s["dispatches"] == 0,

@@ -308,6 +308,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         b'if type(hotkey_actions.RegisterShieldInventory) == "function" then hotkey_actions.RegisterShieldInventory(feature) end\n' +
         b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
         b'if type(hotkey_actions.RegisterRelocation) == "function" then hotkey_actions.RegisterRelocation(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterFrontline) == "function" then hotkey_actions.RegisterFrontline(feature, hotkey) end\n' +
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)

@@ -31,7 +31,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     public bool CanHandle(string command) => command is
         "city_layout_snapshot_get" or "city_layout_validate" or "city_layout_apply_start" or
         "city_layout_apply_status" or "city_layout_apply_cancel" or
-        "city_layout_restore_preflight" or
+        "city_layout_restore_preflight" or "city_layout_restore_start" or
         "monopoly_cell_open" or "mini_land_status" or "mini_sheep_status" or "mini_sheep_board" or
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
@@ -41,6 +41,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_attack_prepare" or
         "feature018_shield_inventory_get" or
         "feature018_shield_shop" or
+        "feature018_frontline_action" or
         "feature018_equipment_preflight" or
         "feature018_equipment_snapshot" or
         "feature018_hotkey_action";
@@ -84,12 +85,12 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         }
         TimeSpan timeout = command switch
         {
-            "city_layout_apply_start" => TimeSpan.FromSeconds(30),
+            "city_layout_apply_start" or "city_layout_restore_start" => TimeSpan.FromSeconds(30),
             "city_layout_validate" => TimeSpan.FromSeconds(10),
             "city_layout_snapshot_get" => TimeSpan.FromSeconds(10),
             _ => TimeSpan.FromSeconds(8),
         };
-        bool acceptsSubmission = command is "city_layout_apply_start" or "monopoly_cell_open" or
+        bool acceptsSubmission = command is "city_layout_apply_start" or "city_layout_restore_start" or "monopoly_cell_open" or
             "automation_start" or "automation_stop" or "feature018_hotkey_action" or
             "feature018_rapid_action" ||
             (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
@@ -262,6 +263,35 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 fields["jobId"] = job;
                 break;
             }
+            case "city_layout_restore_start":
+            {
+                var unique = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty entry in payload.EnumerateObject())
+                {
+                    if (entry.Name is not ("jobId" or "restoreOptIn" or "profileId") ||
+                        !unique.Add(entry.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Original City restore accepts only unique owner job and fresh consent.");
+                }
+                string job = ReadValue(payload, "jobId", 128);
+                if (!job.All(c => char.IsAsciiLetterOrDigit(c) || c is '_' or '-'))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid original City restoration job identifier.");
+                if (!payload.TryGetProperty("restoreOptIn", out JsonElement optIn) ||
+                    optIn.ValueKind != JsonValueKind.True)
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "A fresh explicit confirmation of original City restoration is required.");
+                if (payload.TryGetProperty("profileId", out JsonElement route) &&
+                    (route.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(route.GetString()) || route.GetString()!.Length > 128))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid authenticated restoration routing profile.");
+                fields["jobId"] = job;
+                fields["restoreOptIn"] = "1";
+                // The game exchange owns and generates a unique native requestId;
+                // browser-supplied UUIDs, coordinates and request IDs are banned.
+                break;
+            }
             case "automation_start":
             case "automation_stop":
                 if (ReadValue(payload, "taskName", 32) != "sheepGame")
@@ -313,6 +343,33 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Equipment preflight accepts only the preset slot number 1–4.");
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
+                break;
+            }
+            case "feature018_frontline_action":
+            {
+                // A deliberate UI tap differs from the already admitted
+                // game-owned physical G event. No client-supplied soldier
+                // identity, battle ID, UID, or server can enter the producer.
+                var unique = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty field in payload.EnumerateObject())
+                {
+                    if (field.Name is not ("frontlineOptIn" or "profileId") ||
+                        !unique.Add(field.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Original Frontline G requires unique UI opt-in and routing fields only.");
+                }
+                if (!payload.TryGetProperty("frontlineOptIn", out JsonElement consent) ||
+                    consent.ValueKind != JsonValueKind.True)
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "The owner must explicitly confirm this five-soldier native battle action.");
+                if (payload.TryGetProperty("profileId", out JsonElement route) &&
+                    (route.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(route.GetString()) || route.GetString()!.Length > 128))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid Frontline owner routing profile.");
+                fields["action"] = "frontlineReinforce";
+                fields["slot"] = "5";
+                fields["frontlineOptIn"] = "1";
                 break;
             }
             case "feature018_hotkey_action":

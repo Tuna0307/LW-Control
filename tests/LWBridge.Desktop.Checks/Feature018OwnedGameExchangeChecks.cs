@@ -36,6 +36,31 @@ internal static class Feature018OwnedGameExchangeChecks
             JsonSerializer.SerializeToElement(new { jobId = "own-city-job-42" }));
         Require(restore.Count == 1 && restore["jobId"] == "own-city-job-42",
             "read-only original City restoration did not require exact owner job ID");
+        var liveRestore = Feature018GameCommandService.ReadFields("city_layout_restore_start",
+            JsonSerializer.SerializeToElement(new {
+                jobId = "own-city-job-42", restoreOptIn = true, profileId = "approved-runtime" }));
+        Require(liveRestore.Count == 2 && liveRestore["jobId"] == "own-city-job-42" &&
+            liveRestore["restoreOptIn"] == "1" && !liveRestore.ContainsKey("requestId"),
+            "original City restore must use game-owned destinations and exchange-owned unique request ID");
+        foreach (object invalidRestore in new object[]
+        {
+            new { jobId = "own-city-job-42", restoreOptIn = false },
+            new { jobId = "own-city-job-42" },
+            new { jobId = "own-city-job-42", restoreOptIn = true, pointId = 4411 },
+            new { jobId = "own-city-job-42", restoreOptIn = true,
+                placements = new[] { new { uuid = "1392040865799139725", pointId = 4442 } } },
+            new { jobId = "own-city-job-42", restoreOptIn = true, requestId = "forged" },
+            new { jobId = "bad job", restoreOptIn = true },
+            new { jobId = "own-city-job-42", restoreOptIn = true, profileId = "" },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("city_layout_restore_start",
+                    JsonSerializer.SerializeToElement(invalidRestore))));
+        using (JsonDocument duplicateRestore = JsonDocument.Parse(
+            "{\"jobId\":\"one\",\"jobId\":\"two\",\"restoreOptIn\":true}"))
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("city_layout_restore_start",
+                    duplicateRestore.RootElement)));
         await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
             Feature018GameCommandService.ReadFields("city_layout_restore_preflight",
                 JsonSerializer.SerializeToElement(new { jobId = "wrong job" }))));
@@ -45,6 +70,35 @@ internal static class Feature018OwnedGameExchangeChecks
         var frontline = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "frontlineReinforce", slot = 5 }));
         Require(frontline["slot"] == "5", "original G five-soldier binding rejected");
+        var confirmedFrontlineTap = Feature018GameCommandService.ReadFields(
+            "feature018_frontline_action",
+            JsonSerializer.SerializeToElement(new { frontlineOptIn = true, profileId = "approved-runtime" }));
+        Require(confirmedFrontlineTap.Count == 3 &&
+            confirmedFrontlineTap["action"] == "frontlineReinforce" &&
+            confirmedFrontlineTap["slot"] == "5" &&
+            confirmedFrontlineTap["frontlineOptIn"] == "1",
+            "source-native five-soldier tap lost its fresh owner confirmation");
+        foreach (object forgedFrontline in new object[]
+        {
+            new { frontlineOptIn = false },
+            new { action = "frontlineReinforce", frontlineOptIn = true },
+            new { slot = 5, frontlineOptIn = true },
+            new { frontlineOptIn = true, authorizedUid = "3133546747002212" },
+            new { frontlineOptIn = true, heroId = 22 },
+            new { frontlineOptIn = true, profileId = "" },
+            new { frontlineOptIn = true, profileId = 5 },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_frontline_action",
+                    JsonSerializer.SerializeToElement(forgedFrontline))));
+        await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+            Feature018GameCommandService.ReadFields("feature018_frontline_action",
+                JsonSerializer.SerializeToElement(new { }))));
+        using (JsonDocument repeatedFrontline = JsonDocument.Parse(
+            "{\"frontlineOptIn\":true,\"frontlineOptIn\":true}"))
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_frontline_action",
+                    repeatedFrontline.RootElement)));
         await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
             Feature018GameCommandService.ReadFields("feature018_hotkey_action",
                 JsonSerializer.SerializeToElement(new { action = "shieldUse", slot = 5 }))));
