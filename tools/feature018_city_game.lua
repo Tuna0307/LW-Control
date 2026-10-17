@@ -25,6 +25,7 @@ local MAX_PLACEMENTS = 64
 local MAX_STEPS = 192
 local MAX_CANDIDATE_BUILDINGS = 16
 local MAX_CANDIDATES_PER_BUILDING = 3
+local MAX_SWAP_PREFLIGHT_PAIRS = 8
 local MOVE_RESPONSE_TIMEOUT_SECONDS = 15
 
 local function unsupported(code, message)
@@ -441,8 +442,12 @@ local function snapshot_move_candidates(state, meta)
     }
 end
 
-local function validate_state(values)
-    local state, meta_or_err = snapshot()
+local function validate_state(values, known_state, known_meta)
+    -- Snapshot-based diagnostics may validate several disjoint two-building
+    -- swaps against one pinned native state. Actual apply always calls this
+    -- without cached arguments and then dispatch_step rechecks fresh managers.
+    local state, meta_or_err = known_state, known_meta
+    if state == nil then state, meta_or_err = snapshot() end
     if not state then return nil, meta_or_err end
     local meta = meta_or_err
     local placements = parse_placements(values.placements or '')
@@ -637,6 +642,79 @@ local function validate_state(values)
     end
     return { valid = true, issues = {}, totalMoves = #steps,
         temporaryMoves = temporary }, state, meta, steps
+end
+
+local function snapshot_swap_preflights(state, meta)
+    -- The R4 native 2289 snapshot has exactly two movable 2x2 buildings:
+    -- UUIDs ending 9725 and 9726. Their separate free destinations cannot
+    -- establish a swap: each exchanged *final* footprint and a currently
+    -- unoccupied intermediate footprint must satisfy native v26 zone, land,
+    -- radius, Second-range and obstruction restrictions. Use the production
+    -- planner against the same read-only snapshot for this narrower purpose.
+    -- This never sends a packet and cannot adjudicate historical unobserved
+    -- FreeBuildingReplaceNew/Replace replies for either building.
+    local movable, matches, rejected = {}, {}, {}
+    for _, building in ipairs(state.buildings) do
+        if building.movable then movable[#movable + 1] = building end
+    end
+    local inspected, valid_count, truncated = 0, 0, false
+    for i = 1, #movable do
+        for j = i + 1, #movable do
+            local a, b = movable[i], movable[j]
+            if a.tileX == b.tileX and a.tileY == b.tileY and
+                a.regionId == b.regionId then
+                if inspected >= MAX_SWAP_PREFLIGHT_PAIRS then
+                    truncated = true
+                    break
+                end
+                inspected = inspected + 1
+                local validation, _, _, steps = validate_state({
+                    baseRevision = state.layoutRevision,
+                    placements = a.uuid .. ':' .. b.pointId .. ';' ..
+                        b.uuid .. ':' .. a.pointId,
+                }, state, meta)
+                if validation and validation.valid and #steps > 0 then
+                    local sequence = {}
+                    for index, step in ipairs(steps) do
+                        sequence[#sequence + 1] = {
+                            index = index, uuid = step.uuid,
+                            fromPointId = step.from,
+                            pointId = step.pointId,
+                            temporary = step.temporary == true,
+                        }
+                    end
+                    matches[#matches + 1] = {
+                        firstUuid = a.uuid, firstPointId = a.pointId,
+                        secondUuid = b.uuid, secondPointId = b.pointId,
+                        bufferCount = validation.temporaryMoves,
+                        plannedMoves = sequence,
+                        -- Geometric/source permission only. Server ACK and
+                        -- independent earlier-send settlement are unproven.
+                        preflightOnly = true,
+                    }
+                    valid_count = valid_count + 1
+                else
+                    local first_issue = validation and validation.issues and
+                        validation.issues[1] or nil
+                    rejected[#rejected + 1] = {
+                        firstUuid = a.uuid, secondUuid = b.uuid,
+                        firstPointId = a.pointId,
+                        secondPointId = b.pointId,
+                        issueCode = first_issue and first_issue.code or
+                            'CITY_LAYOUT_NO_BUFFER',
+                        issuePointId = first_issue and first_issue.pointId or nil,
+                        preflightOnly = true,
+                    }
+                end
+            end
+        end
+        if truncated then break end
+    end
+    return matches, rejected, {
+        examinedPairs = inspected, validPairs = valid_count,
+        truncated = truncated, preflightOnly = true,
+        historicalRequestsReconciled = false,
+    }
 end
 
 local function status_data(job)
@@ -951,6 +1029,13 @@ function M.Register(feature)
         local candidates, search = snapshot_move_candidates(current, meta_or_reason)
         current.moveCandidates = feature.Array(candidates)
         current.moveCandidateSearch = search
+        local swaps, rejected, swap_search = snapshot_swap_preflights(current, meta_or_reason)
+        for _, swap in ipairs(swaps) do
+            swap.plannedMoves = feature.Array(swap.plannedMoves)
+        end
+        current.swapPreflights = feature.Array(swaps)
+        current.swapPreflightIssues = feature.Array(rejected)
+        current.swapPreflightSearch = swap_search
         return confirmed(current)
     end)
     ok = feature.RegisterHandler('city_layout_validate', function(values)
@@ -977,7 +1062,7 @@ function M.Register(feature)
         end
         if M.active and M.active.waiting then
             return failed('CITY_LAYOUT_RESULT_UNCERTAIN',
-                'A previous native building replacement may still receive a server result; no other move can be safely sent.')
+                'A previous native building move may still receive a server result; no other move can be safely sent.')
         end
         if M.active then remove_reply_observer(M.active) end
         local validation, state, meta, steps = validate_state(values)
