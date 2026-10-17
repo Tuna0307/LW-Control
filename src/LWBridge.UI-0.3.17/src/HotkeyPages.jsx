@@ -287,6 +287,205 @@ function ShieldOwnedInventoryPanel({ online, previewEnabled }) {
   </article>;
 }
 
+// A purchase only provisions a game-owned shield in inventory. An ItemUse is
+// deliberately separate, with its own native cooldown/status/inventory proof.
+// Never infer ownership or affordability from the browser, and never retry a
+// purchase or consumption whose network outcome is uncertain.
+function ShieldNativeActionPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const words = chinese ? {
+    title: "保护罩原生购买及使用", hint: "仅当前账号原生商店、库存和保护罩状态；购买不会自动使用。确认后只发送一次。",
+    duration: "时长", inspect: "读取游戏价格与库存", balance: "当前游戏金币",
+    price: "原生价格", owned: "拥有数量", missing: "还需金币",
+    buyConsent: "确认花费上方显示的游戏金币，购买一件此时长保护罩，不使用真钱",
+    useConsent: "确认消耗一件已核实拥有的保护罩，不花费金币",
+    buy: "购买一件至库存", use: "使用一件保护罩", check: "只读核对前次请求",
+    awaiting: "请求可能已发送；等待原生库存和状态核对，不得重复发送",
+    purchased: "游戏库存+1及金币扣费确认；请重新读取库存后再使用",
+    used: "道具减少及 MAIN_SHIELD 生效均已确认",
+    unavailable: "当前没有可用库存或金币。此操作不会自动赚取或购买金币。",
+    error: "原生回复尚未获得所需确认；请在游戏中检查，不要重试",
+  } : {
+    title: "Native shield purchase and use",
+    hint: "Authenticated game shop, inventory and shield effect only. Buying does not auto-use an item. Each confirmed action sends once.",
+    duration: "Duration", inspect: "Inspect native price and inventory",
+    balance: "Current in-game gold", price: "Native price", owned: "Owned count",
+    missing: "Additional gold needed",
+    buyConsent: "I approve spending the displayed amount of in-game gold to buy exactly one shield. No real-money purchase.",
+    useConsent: "I approve consuming exactly one verified owned shield, with no gold spending.",
+    buy: "Buy one owned shield", use: "Use one owned shield", check: "Read previous action status",
+    awaiting: "The request may have been sent. Await native inventory/effect confirmation; do not send again.",
+    purchased: "Native item count +1 and gold debit confirmed; inspect inventory again before use.",
+    used: "Owned item debit and MAIN_SHIELD effect both confirmed.",
+    unavailable: "No eligible inventory or in-game gold. This does not earn or purchase gold automatically.",
+    error: "Game receipt is unconfirmed. Check the game before any further action.",
+  };
+  const [duration, setDuration] = useState(8);
+  const [shop, setShop] = useState(null);
+  const [owned, setOwned] = useState(false);
+  const [consent, setConsent] = useState("");
+  const [pending, setPending] = useState(null);
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const live = online && !previewEnabled;
+  useEffect(() => {
+    setShop(null); setOwned(false); setConsent(""); setPending(null);
+    setStatus(""); setError(""); setBusy(false);
+  }, [duration, live, backendBridge.profileGeneration]);
+
+  async function inspect() {
+    if (!live || busy || pending) return;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setError(""); setStatus(""); setShop(null); setOwned(false); setConsent("");
+    try {
+      const [price, inventory] = await Promise.all([
+        backendBridge.invokeProfileScoped("feature018_shield_shop",
+          { mode: "inspect", slot: duration }, 10000),
+        backendBridge.invokeProfileScoped("feature018_shield_inventory_get", {}, 10000),
+      ]);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (price?.observation !== "native_shield_shop_inventory" ||
+          price.readOnly !== true || price.requestDispatched !== false ||
+          price.durationHours !== duration || !/^[1-9]\d{0,19}$/.test(String(price.itemId || "")) ||
+          !Number.isSafeInteger(price.nativePrice) || price.nativePrice <= 0 ||
+          !Number.isSafeInteger(price.gold) || price.gold < 0 ||
+          !Number.isSafeInteger(price.count) || price.count < 0 ||
+          price.additionalGoldNeeded !== Math.max(0, price.nativePrice - price.gold) ||
+          price.canAffordNativePrice !== (price.gold >= price.nativePrice) ||
+          inventory?.observation !== "native_MAIN_SHIELD_StatusTab_owned_item_duration_join" ||
+          inventory.readOnly !== true || inventory.requestDispatched !== false ||
+          inventory.durationMappingVerified !== true || !Array.isArray(inventory.items))
+        throw Error("Exact game shield shop/owned duration evidence unavailable");
+      const sameDuration = inventory.items.filter((item) =>
+        item.durationHours === duration && String(item.itemId) === String(price.itemId) &&
+        item.uniqueDuration === true && item.count > 0 &&
+        /^(?!0$)[A-Za-z0-9_-]{1,128}$/.test(String(item.uuid || "")));
+      // Native source can have ambiguous stacks. Never choose a stack or
+      // authorize ItemUse without one unique identity for this duration.
+      const nativeOwned = price.count === 1 && sameDuration.length === 1 &&
+        sameDuration[0].count === 1;
+      setShop(price);
+      setOwned(nativeOwned);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  async function act(kind) {
+    if (!live || busy || pending || !shop || consent !== kind ||
+        (kind === "buy" ? shop.count !== 0 || !shop.canAffordNativePrice : !owned)) return;
+    const owner = backendBridge.currentProfileOwner();
+    const baseline = { kind, duration, itemId: String(shop.itemId),
+      count: shop.count, gold: shop.gold, price: shop.nativePrice };
+    // Tombstone before any mutating mailbox call. A timeout can follow a send.
+    setPending(baseline); setBusy(true); setConsent(""); setError(""); setStatus("pending");
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        kind === "buy" ? "feature018_shield_shop" : "feature018_hotkey_action",
+        kind === "buy"
+          ? { mode: "buy", slot: duration, gemOptIn: true }
+          : { action: "shieldUse", slot: duration }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.slot !== duration || (kind === "buy" &&
+          (result.itemId !== baseline.itemId ||
+            result.requestDispatched !== true ||
+            result.awaitingGameConfirmation !== true)) ||
+          (kind === "use" &&
+            (result.requestDispatched !== true ||
+              result.awaitingGameConfirmation !== true)))
+        throw Error("Native shield sender did not produce an attributable submission");
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError((cause.code || cause.message) + " — " + words.error);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  async function check() {
+    if (!live || busy || !pending) return;
+    const owner = backendBridge.currentProfileOwner();
+    const baseline = pending;
+    setBusy(true); setError("");
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        baseline.kind === "buy" ? "feature018_shield_shop" : "feature018_hotkey_action",
+        baseline.kind === "buy"
+          ? { mode: "status", slot: baseline.duration }
+          : { action: "shieldUse", slot: baseline.duration, queryOnly: true }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      const bought = baseline.kind === "buy" &&
+        result?.observation === "native_shield_purchase_inventory_and_gold" &&
+        result?.itemId === baseline.itemId &&
+        result.durationHours === baseline.duration &&
+        result.spentGems === baseline.price &&
+        result.beforeGold === baseline.gold &&
+        result.beforeCount === baseline.count &&
+        result.count === baseline.count + 1 &&
+        result.gold === baseline.gold - baseline.price &&
+        result.purchasedCount === 1;
+      const used = baseline.kind === "use" &&
+        result?.observation === "native_owned_shield_consumption_and_MAIN_SHIELD" &&
+        result.slot === baseline.duration && result.itemId === baseline.itemId &&
+        result.consumedCount === 1 &&
+        result.durationMilliseconds === baseline.duration * 3600000 &&
+        result.remainingMilliseconds > 0 &&
+        result.remainingMilliseconds <= result.durationMilliseconds + 15000;
+      if (bought || used) {
+        setPending(null); setShop(null); setOwned(false);
+        setStatus(bought ? "purchased" : "used");
+      } else if (result?.awaitingGameConfirmation === true &&
+          result?.requestDispatched === false &&
+          (baseline.kind !== "buy" || result.itemId === baseline.itemId)) {
+        setStatus("pending");
+      } else {
+        throw Error("Native receipt has no correlated inventory and effect transition");
+      }
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError((cause.code || cause.message) + " — " + words.error);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-shield-shop>
+    <h3>{words.title}</h3><p>{words.hint}</p>
+    <label>{words.duration} <select value={duration} disabled={busy || !!pending}
+      onChange={(event) => setDuration(Number(event.target.value))}>
+      {[8, 12, 24].map((hours) => <option key={hours} value={hours}>{hours} h</option>)}
+    </select></label>
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy || !!pending}
+      onClick={() => void inspect()}>{words.inspect}</button></div>
+    {shop ? <div role="status">
+      <small>{words.balance}: {shop.gold} · {words.price}: {shop.nativePrice} · {words.owned}: {shop.count}</small>
+      {shop.additionalGoldNeeded > 0 ? <small>{words.missing}: {shop.additionalGoldNeeded}</small> : null}
+      {shop.count === 0 && shop.canAffordNativePrice ? <label>
+        <input type="checkbox" checked={consent === "buy"} disabled={busy || !live}
+          onChange={(event) => setConsent(event.target.checked ? "buy" : "")} /> {words.buyConsent}
+      </label> : null}
+      {owned ? <label><input type="checkbox" checked={consent === "use"}
+        disabled={busy || !live}
+        onChange={(event) => setConsent(event.target.checked ? "use" : "")} /> {words.useConsent}</label> : null}
+      <div className="mini-game-actions">
+        {shop.count === 0 && shop.canAffordNativePrice ? <button type="button" className="primary"
+          disabled={busy || !live || consent !== "buy"} onClick={() => void act("buy")}>{words.buy}</button> : null}
+        {owned ? <button type="button" className="primary" disabled={busy || !live || consent !== "use"}
+          onClick={() => void act("use")}>{words.use}</button> : null}
+      </div>
+      {!(owned || (shop.count === 0 && shop.canAffordNativePrice)) ? <small>{words.unavailable}</small> : null}
+    </div> : null}
+    {pending ? <div role="status"><small>{words.awaiting}</small><div className="mini-game-actions">
+      <button type="button" disabled={!live || busy} onClick={() => void check()}>{words.check}</button>
+    </div></div> : null}
+    {status === "purchased" || status === "used" ?
+      <span role="status" className="hotkey-state enabled">
+        {status === "purchased" ? words.purchased : words.used}</span> : null}
+    {error ? <div className="automation-error" role="alert">{error}</div> : null}
+  </article>;
+}
+
 // The v26 owner-persisted preset bridge has a sequential install/uninstall
 // transaction. User consent covers all its steps; each native queryOnly call
 // verifies the prior step's exact hero/slot before advancing. The browser
@@ -783,6 +982,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
         {!isMiniGames && hotkeyConfig ? <OwnedRapidItemPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldOwnedInventoryPanel online={online} previewEnabled={previewEnabled} /> : null}
+        {!isMiniGames && hotkeyConfig ? <ShieldNativeActionPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <EquipmentNativePreflightPanel online={online} previewEnabled={previewEnabled} /> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.treasureChest.title")}</h3>

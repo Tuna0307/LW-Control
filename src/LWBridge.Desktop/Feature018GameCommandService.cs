@@ -125,8 +125,28 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 string mode = ReadValue(payload, "mode", 16);
                 if (mode is not ("inspect" or "buy" or "status" or "armUse") ||
                     !payload.TryGetProperty("slot", out JsonElement shieldSlot) ||
+                    shieldSlot.ValueKind != JsonValueKind.Number ||
                     !shieldSlot.TryGetInt32(out int hours) || hours is not (8 or 12 or 24))
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid native shield shop mode or duration.");
+                // The profile ID is routing metadata and is never authority.
+                // The only spend arguments are mode-specific *true* consent.
+                // Unused/forged fields must not be silently accepted on a
+                // read-only shop inspection or a different spending mode.
+                foreach (JsonProperty property in payload.EnumerateObject())
+                {
+                    bool known = property.Name is "mode" or "slot" or "profileId" ||
+                        (mode == "buy" && property.Name == "gemOptIn") ||
+                        (mode == "armUse" && property.Name == "shieldReplaceOptIn");
+                    if (!known)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Native shield shop accepts only the selected action and its exact confirmation.");
+                }
+                if (payload.TryGetProperty("profileId", out JsonElement profile) &&
+                    (profile.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(profile.GetString()) ||
+                     profile.GetString()!.Length > 128))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid native shield shop routing profile.");
                 fields["mode"] = mode;
                 fields["slot"] = hours.ToString(CultureInfo.InvariantCulture);
                 if (mode == "buy")

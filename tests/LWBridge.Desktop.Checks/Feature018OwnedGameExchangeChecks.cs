@@ -72,6 +72,32 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
             JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
             "read-only shield must discard profile-scoped UI routing metadata");
+        var shopRead = Feature018GameCommandService.ReadFields("feature018_shield_shop",
+            JsonSerializer.SerializeToElement(new { mode = "inspect", slot = 12, profileId = "approved-runtime" }));
+        Require(shopRead.Count == 2 && shopRead["mode"] == "inspect" &&
+                shopRead["slot"] == "12", "shop read-only inspection forwarded untrusted profile identity");
+        var shopBuy = Feature018GameCommandService.ReadFields("feature018_shield_shop",
+            JsonSerializer.SerializeToElement(new { mode = "buy", slot = 24, gemOptIn = true }));
+        Require(shopBuy.Count == 3 && shopBuy["slot"] == "24" && shopBuy["gemOptIn"] == "1",
+            "exact user-approved native 24-hour shop operation rejected");
+        var armReplacement = Feature018GameCommandService.ReadFields("feature018_shield_shop",
+            JsonSerializer.SerializeToElement(new { mode = "armUse", slot = 8,
+                shieldReplaceOptIn = true }));
+        Require(armReplacement["shieldReplaceOptIn"] == "1", "source-native shield replacement explicit consent lost");
+        foreach (object forged in new object[]
+        {
+            new { mode = "inspect", slot = 12, gemOptIn = true },
+            new { mode = "status", slot = 12, shieldReplaceOptIn = true },
+            new { mode = "buy", slot = 12, gemOptIn = true, itemUuid = "forged" },
+            new { mode = "buy", slot = 12, gemOptIn = true, authorizedUid = "3133546747002212" },
+            new { mode = "buy", slot = 12, gemOptIn = false },
+            new { mode = "armUse", slot = 12, shieldReplaceOptIn = false },
+            new { mode = "inspect", slot = "12" },
+            new { mode = "inspect", slot = 8, profileId = "" },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_shield_shop",
+                    JsonSerializer.SerializeToElement(forged))));
         await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
             Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
                 JsonSerializer.SerializeToElement(new { itemId = "10001", itemOptIn = true }))));

@@ -38,6 +38,12 @@ let forceInventoryFailure = false;
 let shieldReads = 0;
 let equipmentActions = 0;
 let equipmentQuerySteps = 0;
+let shieldGold = 176;
+let shieldCount = 0;
+let shieldShopSends = 0;
+let shieldUseSends = 0;
+let shieldShopConfirmed = false;
+let shieldUseConfirmed = false;
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "rapid-inert-session",
   profiles: { selectedProfileId: "rapid-approved-profile" },
@@ -90,7 +96,7 @@ window.chrome = { webview: {
         durationMappingVerified: true, readOnly: true, requestDispatched: false,
         // Current v26 ItemUse PutUtfString UUID, independently observed on
         // the 2289 account; it is not constrained to a 20-digit number.
-        items: [{ itemId: "81008", uuid: "e43623c3ec5e4cd78ae1b3f904094fd7", count: 2,
+        items: [{ itemId: "81008", uuid: "e43623c3ec5e4cd78ae1b3f904094fd7", count: shieldCount || 2,
           statusId: "7801", durationHours: 8, uniqueDuration: true },
           { itemId: "81024", uuid: "882024", count: 1,
             statusId: "7803", durationHours: 24, uniqueDuration: false }] };
@@ -105,6 +111,43 @@ window.chrome = { webview: {
         wornByOtherHero: 0, uninstallSlots: 1,
         slots: [{ heroUuid: "12112", slot: 1, state: "replaceRequired" }],
       };
+    } else if (request.command === "feature018_shield_shop") {
+      assert.equal(request.payload.slot === 8 || request.payload.slot === 12, true);
+      const duration = request.payload.slot;
+      const price = duration === 8 ? 1500 : 2500;
+      const itemId = duration === 8 ? "81008" : "81012";
+      response = { observation: "native_shield_shop_inventory",
+        itemId, durationHours: duration, nativePrice: price, gold: shieldGold,
+        count: shieldCount, readOnly: true, requestDispatched: false,
+        canAffordNativePrice: shieldGold >= price,
+        additionalGoldNeeded: Math.max(0, price-shieldGold),
+      };
+      if (request.payload.mode === "buy") {
+        assert.equal(request.payload.gemOptIn, true);
+        assert.equal(duration, 8);
+        shieldShopSends++;
+        response = { ...response, readOnly: false, requestDispatched: true,
+          awaitingGameConfirmation: true };
+      } else if (request.payload.mode === "status") {
+        assert.equal(request.payload.gemOptIn, undefined);
+        response = shieldShopConfirmed ? {
+          ...response, observation: "native_shield_purchase_inventory_and_gold",
+          beforeCount: 0, beforeGold: 3000, spentGems: 1500, purchasedCount: 1,
+        } : { ...response, awaitingGameConfirmation: true };
+      } else assert.equal(request.payload.mode, "inspect");
+    } else if (request.command === "feature018_hotkey_action" &&
+        request.payload.action === "shieldUse") {
+      assert.equal(request.payload.slot, 8);
+      if (request.payload.queryOnly === true) {
+        response = shieldUseConfirmed ? {
+          observation: "native_owned_shield_consumption_and_MAIN_SHIELD",
+          slot: 8, itemId: "81008", consumedCount: 1,
+          durationMilliseconds: 28800000, remainingMilliseconds: 28799000,
+        } : { awaitingGameConfirmation: true, requestDispatched: false, slot: 8 };
+      } else {
+        shieldUseSends++;
+        response = { requestDispatched: true, awaitingGameConfirmation: true, slot: 8 };
+      }
     } else if (request.command === "feature018_hotkey_action") {
       assert.equal(request.payload.action, "equipment");
       assert.equal(request.payload.slot, 1);
@@ -169,6 +212,7 @@ const tick = (delay) => flush(() => {
 const panel = () => document.querySelector("[data-feature018-rapid]");
 const equipPanel = () => document.querySelector("[data-feature018-equipment-preflight]");
 const shieldPanel = () => document.querySelector("[data-feature018-shield-inventory]");
+const shopPanel = () => document.querySelector("[data-feature018-shield-shop]");
 const buttons = () => [...panel().querySelectorAll("button")];
 const chooser = () => panel().querySelector('select[aria-label*="拥有的道具"]');
 const consent = () => panel().querySelector('input[type="checkbox"]');
@@ -178,6 +222,7 @@ await flush(() => mounted.render(React.createElement(I18nProvider, {},
 assert.ok(panel(), "New rapid item workflow did not mount in Hotkeys");
 assert.ok(equipPanel(), "Read-only original equipment preset inspection did not mount");
 assert.ok(shieldPanel(), "Read-only native shield inventory control did not mount");
+assert.ok(shopPanel(), "Owner-gated shield purchase/use control did not mount");
 assert.equal(shieldReads, 0, "Mounting the Hotkeys page unexpectedly read native shield items");
 await flush(() => shieldPanel().querySelector("button").click());
 assert.equal(shieldReads, 1, "Explicit shield inventory inspect did not query game exactly once");
@@ -188,6 +233,49 @@ assert.match(shieldPanel().textContent, /24 小时/,
 assert.match(shieldPanel().textContent, /有多个同持续时间道具/,
   "Ambiguous item duration was silently represented as safe to use");
 assert.equal(dispatches, 0, "Inspecting a shield item spent another consumable");
+assert.equal(shieldShopSends, 0, "Native shield shop auto-purchased on mount/inventory");
+const shopButtons = () => [...shopPanel().querySelectorAll("button")];
+const selectDuration = (value) => {
+  const combo = shopPanel().querySelector("select");
+  combo.value = String(value);
+  combo.dispatchEvent(new window.Event("change", { bubbles: true }));
+};
+await flush(() => selectDuration(12));
+await flush(() => shopButtons()[0].click());
+assert.match(shopPanel().textContent, /2324/,
+  "Read-only 12h purchase did not report native gold deficit");
+assert.equal(shopPanel().querySelector('input[type="checkbox"]'), null,
+  "Insufficient gold exposed a purchase consent action");
+assert.equal(shieldShopSends, 0);
+shieldGold = 3000;
+await flush(() => selectDuration(8));
+await flush(() => shopButtons()[0].click());
+const shopConsent = shopPanel().querySelector('input[type="checkbox"]');
+assert.ok(shopConsent, "Affordable shield inventory preflight had no explicit consent");
+assert.equal(shopButtons()[1].disabled, true, "Gold spend opened without consent");
+await flush(() => shopConsent.click());
+await flush(() => shopButtons()[1].click());
+assert.equal(shieldShopSends, 1, "Native purchase did not send exactly once");
+assert.ok(shopPanel().textContent.includes("不得重复发送"),
+  "Pending native purchase did not display no-retry warning");
+shieldShopConfirmed = true;
+shieldCount = 1; shieldGold = 1500;
+await flush(() => shopButtons().at(-1).click());
+assert.equal(shieldShopSends, 1, "Read-only purchase status retriggered shop");
+assert.match(shopPanel().textContent, /游戏库存\+1及金币扣费确认/,
+  "Gold and item count native poststate did not confirm purchase");
+await flush(() => shopButtons()[0].click());
+assert.ok(shopPanel().querySelector('input[type="checkbox"]'),
+  "Owned shield missing separate consumption consent");
+assert.equal(shopButtons()[1].disabled, true, "ItemUse enabled without separate consent");
+await flush(() => shopPanel().querySelector('input[type="checkbox"]').click());
+await flush(() => shopButtons()[1].click());
+assert.equal(shieldUseSends, 1, "Owned shield ItemUse must dispatch only once");
+shieldUseConfirmed = true; shieldCount = 0;
+await flush(() => shopButtons().at(-1).click());
+assert.equal(shieldUseSends, 1, "Owned shield poststate check repeated item use");
+assert.match(shopPanel().textContent, /道具减少及 MAIN_SHIELD 生效均已确认/,
+  "Native ItemUse did not require item and MAIN_SHIELD proof");
 assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
   "Hotkeys mounting automatically used or inspected consumables");
 assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 0,
