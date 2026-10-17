@@ -30,6 +30,8 @@ local M = { VERSION = "feature018-hotkey-game-1" }
 local mark_array = nil
 local pending_shield = nil
 local SHIELD_PENDING_SECONDS = 45
+local pending_purchase = nil
+local armed_shield_replace = nil
 
 local function member(value, key)
     if value == nil then return nil end
@@ -313,7 +315,109 @@ local function shield_item_for_hours(hours)
     return chosen
 end
 
-local function shield_safe_to_consume()
+-- Original v26 UIShopBuyMessage (f7bcd809...) serializes itemId as UtfString
+-- and num as Int; CityShieldPage.Refresh/BuyOrUse sources Goods.price and
+-- Player.gold. This explicit provisioning operation buys inventory only.
+local function shield_shop(fields)
+    local owner = shield_owner(fields)
+    local hours = tonumber(fields.slot)
+    if owner == nil or not (hours == 8 or hours == 12 or hours == 24) then
+        return invalid("Exact owned shield purchase session/duration required")
+    end
+    local player = member(rawget(_G,"LuaEntry"),"Player")
+    if digit_id(member(player,"uid")) ~= "3133546747002289" then
+        return invalid("Shield shop is restricted to the authorized sub-account")
+    end
+    for _, getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok, server = invoke(player,getter)
+        if not ok or tostring(server) ~= "2289" then
+            return invalid("Shield shop native server mismatch")
+        end
+    end
+    local center = rawget(_G,"DataCenter")
+    local ok_templates, templates = invoke(member(center,"ItemTemplateManager"),"GetTypeListByTypes",4,1)
+    local ok_ids, ids = invoke(member(center,"StatusManager"),"GetShieldStatusIds")
+    local ok_tables, tables = invoke(rawget(_G,"LocalController"),"instance")
+    local ok_owned, owned = invoke(member(center,"ItemData"),"GetItemList",4,1)
+    if not ok_templates or not ok_ids or not ok_tables or not ok_owned or
+       type(templates) ~= "table" or type(ids) ~= "table" or type(owned) ~= "table" then
+        return unavailable("Native shield Goods/status/inventory unavailable")
+    end
+    local chosen, count = nil, 0
+    for _, template in pairs(templates) do
+        local status_id = member(template,"para1")
+        if ids[status_id] == true or ids[tonumber(status_id)] == true then
+            local ok_row, row = invoke(tables,"getLine",member(rawget(_G,"TableName"),"StatusTab"),status_id)
+            if ok_row and number(member(row,"time")) == hours * 3600 then
+                if chosen ~= nil then return invalid("Ambiguous native shield template duration") end
+                chosen = {itemId=digit_id(member(template,"id")),statusId=tonumber(status_id),
+                    price=number(member(template,"price")),durationHours=hours}
+            end
+        end
+    end
+    if chosen == nil or chosen.itemId == nil then return unavailable("Native shield duration template absent") end
+    for _, item in pairs(owned) do
+        if digit_id(member(item,"itemId")) == chosen.itemId then
+            local amount = number(member(item,"count"))
+            if amount == nil or amount < 0 or amount % 1 ~= 0 then return invalid("Invalid owned shield count") end
+            count = count + amount
+        end
+    end
+    local gold = number(member(player,"gold"))
+    if gold == nil or gold < 0 then return unavailable("Native gem balance unavailable") end
+    local data = {observation="native_shield_shop_inventory",readOnly=true,
+        itemId=chosen.itemId,statusId=chosen.statusId,durationHours=hours,
+        nativePrice=chosen.price,gold=gold,count=count,requestDispatched=false}
+    if fields.mode == "inspect" then return {state="confirmed",data=data} end
+    if fields.mode == "armUse" then
+        if fields.shieldReplaceOptIn ~= "1" then return invalid("Shield replacement confirmation required") end
+        local snapshot=shield_snapshot()
+        if snapshot.state ~= "confirmed" then return snapshot end
+        if snapshot.data.remainingMilliseconds >= hours*3600000 then
+            return invalid("Native shield cannot be replaced with a shorter duration")
+        end
+        armed_shield_replace={owner=owner,hours=hours,expires=os.time()+60}
+        data.observation="explicit_next_shield_replacement_confirmed"
+        data.replacementArmed=true
+        return {state="confirmed",data=data}
+    end
+    if pending_purchase ~= nil and pending_purchase.owner ~= owner then
+        return invalid("Unresolved purchase belongs to a previous owner; no resend")
+    end
+    if fields.mode == "status" then
+        local pending = pending_purchase
+        if pending == nil or pending.itemId ~= chosen.itemId then return invalid("No matching shield purchase") end
+        if count == pending.count + 1 and gold == pending.gold - pending.price then
+            pending_purchase = nil
+            data.observation="native_shield_purchase_inventory_and_gold"
+            data.beforeCount=pending.count; data.beforeGold=pending.gold
+            data.spentGems=pending.price; data.purchasedCount=1
+            return {state="confirmed",data=data}
+        end
+        data.awaitingGameConfirmation=true
+        return {state="accepted",data=data}
+    end
+    if fields.mode ~= "buy" or fields.gemOptIn ~= "1" then return invalid("Explicit gem purchase consent required") end
+    if pending_purchase ~= nil then return invalid("Earlier shield purchase unresolved; never resend") end
+    if count ~= 0 then return invalid("Owned duration shield already available; use inventory") end
+    if chosen.price == nil or chosen.price <= 0 or chosen.price % 1 ~= 0 or gold < chosen.price then
+        return invalid("Native shield price invalid or insufficient gems")
+    end
+    local clear, reason = M.TextInputClear()
+    if not clear then return invalid("Game input not clear: " .. reason) end
+    local message = member(rawget(_G,"MsgDefines"),"UIShopBuy")
+    local send = member(rawget(_G,"SFSNetwork"),"SendMessage")
+    if message == nil or type(send) ~= "function" then return unavailable("Native shop purchase sender unavailable") end
+    pending_purchase={owner=owner,itemId=chosen.itemId,count=count,gold=gold,price=chosen.price}
+    local sent = pcall(send,message,{itemId=chosen.itemId,num=1})
+    if not sent then return invalid("Native shop sender failed; state uncertain, no retry") end
+    data.readOnly=false; data.requestDispatched=true; data.awaitingGameConfirmation=true
+    return {state="accepted",data=data}
+end
+
+function M.ShieldShop(fields) return shield_shop(fields) end
+
+local function shield_safe_to_consume(hours, replacement_confirmed)
     local center = rawget(_G, "DataCenter")
     local status = member(center, "StatusManager")
     local ok_cd, cooling = invoke(status, "IsUseShieldCD")
@@ -352,7 +456,8 @@ local function shield_safe_to_consume()
     if not ok_wall or not ok_clock or not ok_time or now == nil or ends == nil then
         return unavailable("Current native wall protection or game server time unavailable")
     end
-    if ends > now then
+    if ends > now and not (replacement_confirmed and hours ~= nil and
+       ends-now < hours*3600000) then
         return invalid("Active shield replacement requires native user confirmation")
     end
     local meteorite = member(center, "ActMeteoriteBattleManager")
@@ -418,11 +523,14 @@ local function shield_use(fields)
     if pending ~= nil then
         return invalid("Prior ItemUse is unconfirmed; never consume again in this session")
     end
-    local safety = shield_safe_to_consume()
+    local arm=armed_shield_replace
+    local replace = fields.shieldReplaceOptIn == "1" or
+        (arm ~= nil and arm.owner == owner and arm.hours == hours and arm.expires >= os.time())
+    local safety = shield_safe_to_consume(hours,replace)
     if safety ~= nil then return safety end
     local before = shield_snapshot()
     if before.state ~= "confirmed" then return before end
-    if before.data.active then
+    if before.data.active and not (replace and before.data.remainingMilliseconds < hours*3600000) then
         return invalid("Active MAIN_SHIELD requires native replacement confirmation")
     end
     local item, reason = shield_item_for_hours(hours)
@@ -441,10 +549,11 @@ local function shield_use(fields)
         return unavailable("Native shield ItemUse sender/cooldown method unavailable")
     end
     -- Re-evaluate volatile warning and cooldown immediately before sending.
-    local final_safety = shield_safe_to_consume()
+    local final_safety = shield_safe_to_consume(hours,replace)
     if final_safety ~= nil then return final_safety end
     local ok_cd = invoke(status, "SetUseShieldCD")
     if not ok_cd then return invalid("Native shield cooldown could not be set") end
+    armed_shield_replace=nil
     local ok_send = pcall(member(network, "SendMessage"), message,
         {uuid=item.uuid, num=1})
     if not ok_send then return invalid("Native ItemUse sender failed") end
@@ -511,6 +620,7 @@ function M.Register(feature)
         return M.InputFocusSnapshot()
     end)
     if actions ~= true or input ~= true then return false end
+    feature.RegisterHandler("feature018_shield_shop", shield_shop)
     mark_array = type(feature.Array) == "function" and feature.Array or nil
     return true
 end

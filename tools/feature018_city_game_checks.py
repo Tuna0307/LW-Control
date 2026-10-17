@@ -571,6 +571,12 @@ def main():
     plan = get('city_layout_validate', swap)['data']
     check(plan['valid'] is True and plan['totalMoves'] == 3 and
           plan['temporaryMoves'] == 1, 'occupied swap lacked a real empty buffer')
+    check(len(plan['plannedMoves']) == 3 and
+          plan['plannedMoves'][1]['uuid'] == '101' and
+          plan['plannedMoves'][1]['fromPointId'] == 1 and
+          plan['plannedMoves'][1]['pointId'] == 3 and
+          plan['plannedMoves'][1]['temporary'] is True,
+          'native validation omitted the safe swap/buffer sequence')
     accepted = get('city_layout_apply_start', swap)
     check(accepted['state'] == 'accepted', 'safe swap job not dispatched')
     expected = [(101, 3, 1), (102, 1, 2), (101, 2, 3)]
@@ -739,6 +745,12 @@ def main():
         }))
         check(pending['data']['status']['state'] == 'cancelling',
               'in-flight multistep cancel was incorrectly called completed')
+        receipt = pending['data']['status']
+        check(receipt['inFlight'] is True and
+              receipt['cancelRequestedWhileInFlight'] is True and
+              receipt['cancelRequestedAtCompletedMoves'] == cancel_after - 1 and
+              receipt['dispatchedMoves'] == cancel_after,
+              'Cancel lost the actual pending-step/dispatch observation')
         pending_count = len(lua.globals().ObservedMoves)
         producer.Pump()
         check(len(lua.globals().ObservedMoves) == pending_count,
@@ -755,6 +767,10 @@ def main():
               stopped['totalMoves'] == 3 and
               len(lua.globals().ObservedMoves) == pending_count,
               f'cancel after ACK {cancel_after} dispatched a future move or hid partial poststate')
+        check(stopped['inFlight'] is False and
+              stopped['cancelRequestedWhileInFlight'] is True and
+              stopped['dispatchedMoves'] == pending_count,
+              'terminal Cancel hid its prior in-flight observation or extra send')
         expected_state = {101: 3, 102: 2 if cancel_after == 1 else 1}
         for uid, actual in expected_state.items():
             check(lua.globals().DataCenter.BuildManager.allBuilding[uid]['pointId'] == actual,

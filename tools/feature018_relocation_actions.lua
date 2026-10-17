@@ -31,14 +31,12 @@
 --   DataDefine root/4 lines 65-68 reads GetAllAllianceRallyPoints;
 --   OnBtnMoveClick root/9 lines 106-110 calls AllianceMoveCityToSelectedRallyPoint.
 --
--- There is NO proven mapping from F9 to an original random relocation item
--- and no selected, validated F10 alliance destination. This module NEVER
--- dispatches WorldMv, AllianceMoveCity, ItemUse or opens native UI windows.
--- It exposes a source-derived read-only before/after observation and explicit
--- unsupported result. The prime wraps authenticated Hotkey.Handle with
--- M.RandomRelocate(fields, TextInputClear) and M.AllianceRelocate(...).
+-- Public RandomRelocate/AllianceRelocate perform one original client action
+-- after exact-owner and current native warning/item/rally checks. queryOnly=1
+-- observes that request without retransmission; preflightOnly=1 preserves the
+-- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-2"}
+local M = {VERSION = "feature018-relocation-actions-3"}
 local baseline = {}
 local last_owner = nil
 local HOME_SERVER = 2289 -- Authorized sub-account only. 2212 is the read-only main.
@@ -104,6 +102,11 @@ local function world_snapshot()
     local ok_self, self_server = invoke(player, "GetSelfServerId")
     local ok_current, current_server = invoke(player, "GetCurServerId")
     local ok_pos, position = invoke(player, "GetMainWorldPos")
+    for _,raw_server in ipairs({source_server,self_server,current_server})do
+        if raw_server~=HOME_SERVER and raw_server~=tostring(HOME_SERVER) then
+            return nil,"Connected world is not the exact authorized server-2289 home world"
+        end
+    end
     source_server, self_server = integer(source_server, 1), integer(self_server, 1)
     current_server, position = integer(current_server, 1), integer(position, 0)
     if player_uid == nil or not ok_source or not ok_self or not ok_current or
@@ -151,6 +154,10 @@ end
 -- therefore be unsafe. Only inspect getters proven read-only in original v26.
 local function alliance_rally_snapshot(player)
     local owner_alliance_ok, owner_alliance = invoke(player, "GetAllianceUid")
+    if not owner_alliance_ok then
+        owner_alliance=member(player,"allianceId") -- original bag Ctrl 286 compares this native field
+        owner_alliance_ok=owner_alliance~=nil
+    end
     owner_alliance = uid(owner_alliance)
     if not owner_alliance_ok or not owner_alliance then
         return nil, "Native owner alliance UID not verifiable"
@@ -310,12 +317,182 @@ local function preflight(fields, input_clear, action)
         or "No source-verified F10 chosen alliance rally target and validated UI confirmation", snapshot)
 end
 
-function M.RandomRelocate(fields, input_clear)
-    return preflight(fields, input_clear, "randomRelocate")
+-- Recovery of the actual random/alliance item branch:
+-- ORIGINAL UI/UILWBag/UILWBagMain/Controller/UILWBagMainCtrl.luac
+-- sha256 aa7f2ebbc31ed8c0ef600ecc55659183d125368d3f572b3ad6f3414c0a91a48a
+-- OnItemUse root/6 lines 906-1041 selects ITEM_MOVE_RANDOM / LW_ITEM_ALLY_MOVE_CITY.
+-- root/6/12 924-930 sends ItemUse({uuid,num,useItemFromType=0});
+-- root/6/11 920 calls MoveCityUtil.TryAllianceMoveCity(4,false).
+-- We reject every currently active native warning rather than silently accepting
+-- its callback: battlefield, season hunter, meteorite, zombie challenge, virus.
+-- Thus a sent request has traversed the same no-warning native conditions.
+-- Reply observation wraps only existing original handlers during the outstanding
+-- transaction, calls them unchanged, and restores them before reporting success.
+local pending=nil
+local function clear_hook(tx)
+    if tx.hook and member(tx.manager,tx.method)==tx.hook then
+        tx.manager[tx.method]=tx.original
+    end
 end
-
-function M.AllianceRelocate(fields, input_clear)
-    return preflight(fields, input_clear, "allianceRelocate")
+function M.Dispose()
+    if pending then clear_hook(pending) end
 end
-
+local function static_bool(object,name,...)
+    local fn=member(object,name)
+    if type(fn)~="function" then return nil end
+    local ok,value=pcall(fn,...)
+    if not ok or type(value)~="boolean" then return nil end
+    return value
+end
+local function warning_clear(action)
+    if static_bool(rawget(_G,"BattleFieldUtil"),"InBattleField")~=false then
+        return nil,"Relocation is unavailable in a battlefield or native battlefield state is unknown"
+    end
+    local center=rawget(_G,"DataCenter")
+    local checks={{"SeasonHunterManager","IsInBattle"},{"LWZombieRushManager","IsChallenging"},
+        {"ActMeteoriteBattleManager",action=="randomRelocate" and "NeedNoticeRandomMoveCity" or "NeedNoticeAllianceMoveCityDropMine"}}
+    if action=="allianceRelocate" then checks[#checks+1]={"ActMeteoriteBattleManager","NeedNoticeAllianceMoveCityPosition"} end
+    for _,check in ipairs(checks)do
+        local ok,value=invoke(member(center,check[1]),check[2])
+        if not ok or value~=false then return nil,"Native relocation warning requires game confirmation: "..check[2] end
+    end
+    local entry=rawget(_G,"LuaEntry")
+    local effect=member(entry,"Effect")
+    local effect_id=member(rawget(_G,"EffectDefine"),"SEASON_VIRUS_MAX_EXPLODE")
+    local status_id=rawget(_G,"SELF_EXPLOSION_STATUS_ID")
+    if effect_id==nil or status_id==nil then return nil,"Native relocation virus warning classification unavailable" end
+    local ok_effect,value=invoke(effect,"GetGameEffect",effect_id)
+    local ok_status,status=invoke(effect,"HasStatus",status_id)
+    if not ok_effect or value~=0 or not ok_status or status~=false then
+        return nil,"Native relocation virus/explosion warning requires game confirmation"
+    end
+    return true
+end
+local function owned_item(action)
+    local name=action=="randomRelocate" and "ITEM_MOVE_RANDOM" or "LW_ITEM_ALLY_MOVE_CITY"
+    local item_id=member(rawget(_G,"SpecialItemId"),name)
+    if item_id==nil then return nil,"Original relocation item classification unavailable: "..name end
+    local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
+    local ok,item=invoke(itemdata,"GetItemById",item_id)
+    local count=item and integer(member(item,"count"),0) or 0
+    local item_uid=item and uid(member(item,"uuid"))
+    if not ok or not item_uid or not count or count<1 then return nil,"No owned native relocation item: "..name end
+    if tostring(member(item,"itemId"))~=tostring(item_id) then return nil,"Owned relocation item identity mismatch" end
+    local expired=static_bool(rawget(_G,"UIUtil"),"CheckItemIsExpiredByUuid",member(item,"uuid"))
+    if expired~=false then return nil,"Native relocation item expired or expiry is unknown" end
+    return {itemId=tostring(item_id),itemUuid=item_uid,nativeUuid=member(item,"uuid"),count=count,nativeItemId=item_id}
+end
+local function action_receipt(tx,snapshot,confirmed)
+    return {state=confirmed and "confirmed" or "accepted",data={
+        observation=confirmed and "native_relocation_reply_item_and_world_position" or "native_relocation_pending",
+        action=tx.action,slot=0,ownerUid=snapshot.ownerUid,sourceServerId=snapshot.sourceServerId,
+        itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,beforeCount=tx.item.count,
+        afterCount=tx.afterCount,beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
+        worldPointChanged=snapshot.worldPointId~=tx.before,requestDispatched=not confirmed,
+        awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
+        replyObserved=tx.reply==true,worldMvAcknowledged=confirmed and tx.action=="allianceRelocate",
+        warningsClear=true,readOnly=false}}
+end
+local function perform(fields,input_clear,action)
+    if type(fields)~="table" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation fields") end
+    if fields.preflightOnly=="1" then return preflight(fields,input_clear,action) end
+    local session=key_identity(fields,action)
+    if not session then return failed("GAME_PRECONDITION_FAILED","Invalid owned relocation session") end
+    if fields.queryOnly~=nil and fields.queryOnly~="1" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation query mode") end
+    local snapshot,reason=world_snapshot()
+    if not snapshot then return failed("GAME_PRECONDITION_FAILED",reason) end
+    local token=session.."/"..snapshot.ownerUid.."/"..snapshot.sourceServerId
+    if pending then
+        if pending.token~=token or pending.action~=action then
+            return failed("GAME_PRECONDITION_FAILED","An owned relocation is unresolved; never repeat or replace it")
+        end
+        if action=="allianceRelocate" then
+            local current_rally=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
+            if not current_rally or current_rally.ownerAllianceUid~=pending.allianceUid or
+               not current_rally.homeRally or current_rally.homeRally.worldPointId~=pending.rallyPoint then
+                return failed("GAME_ACTION_UNCONFIRMED","Native alliance owner/rally changed during relocation")
+            end
+        end
+        local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
+        local ok,item=invoke(itemdata,"GetItemById",pending.item.nativeItemId)
+        local count=item and integer(member(item,"count"),0) or 0
+        if not ok or count==nil then return failed("GAME_ACTION_UNCONFIRMED","Native relocation inventory unavailable after dispatch") end
+        pending.afterCount=count
+        if pending.rejected then
+            clear_hook(pending)
+            return failed("GAME_ACTION_UNCONFIRMED","Original relocation reply rejected the request; no automatic retry")
+        end
+        local confirmed=pending.reply==true and snapshot.worldPointId~=pending.before and count==pending.item.count-1
+        local result=action_receipt(pending,snapshot,confirmed)
+        if confirmed then clear_hook(pending);pending=nil end
+        return result
+    end
+    if fields.queryOnly=="1" then return failed("GAME_PRECONDITION_FAILED","No dispatched relocation to observe") end
+    local focus_ok,focus=false,false
+    if type(input_clear)=="function" then focus_ok,focus=pcall(input_clear) end
+    if not focus_ok or focus~=true then return failed("GAME_PRECONDITION_FAILED","Game input focus is active or unverified") end
+    local clear,why=warning_clear(action)
+    if not clear then return failed("GAME_PRECONDITION_FAILED",why) end
+    local item,item_reason=owned_item(action)
+    if not item then return unavailable(item_reason,snapshot) end
+    local rally,alliance_uid
+    if action=="allianceRelocate" then
+        if not snapshot.inAlliance then return failed("GAME_PRECONDITION_FAILED","Native alliance membership required") end
+        local marks,why=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
+        if not marks or not marks.homeRally or not marks.homeRally.authorizedHomeServer then
+            return failed("GAME_PRECONDITION_FAILED",why or "Exact same-alliance home rally missing")
+        end
+        rally=marks.homeRally;alliance_uid=marks.ownerAllianceUid
+        if type(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"))~="function" then
+            return unavailable("Original chosen home-rally relocation method unavailable")
+        end
+    end
+    local center=rawget(_G,"DataCenter")
+    local manager=member(center,action=="randomRelocate" and "ItemManager" or "BuildManager")
+    local method=action=="randomRelocate" and "ItemUseHandle" or "WorldMvHandle"
+    local original=member(manager,method)
+    if type(original)~="function" then return unavailable("Original relocation reply handler unavailable") end
+    local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
+    local message=member(rawget(_G,"MsgDefines"),"ItemUse")
+    if action=="randomRelocate" and (type(send)~="function" or message==nil) then return unavailable("Original random relocation ItemUse sender unavailable") end
+    local tx={token=token,action=action,item=item,before=snapshot.worldPointId,
+        manager=manager,method=method,original=original,reply=false,
+        allianceUid=alliance_uid,rallyPoint=rally and rally.worldPointId or nil}
+    tx.hook=function(self,response,...)
+        local returns=table.pack(original(self,response,...))
+        local current=world_snapshot()
+        if pending==tx and current and token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
+            if action=="randomRelocate" then
+                if tostring(member(response,"itemId"))==item.itemId and
+                   (member(response,"uuid")==nil or tostring(member(response,"uuid"))==item.itemUuid) then
+                    tx.reply=member(response,"errorCode")==nil
+                    tx.rejected=not tx.reply
+                end
+            elseif integer(member(response,"serverId"),1)==HOME_SERVER and
+                (member(response,"worldMainPoint")~=nil or member(member(response,"buildInfo"),"pId")~=nil) then
+                tx.reply=member(response,"errorCode")==nil
+                tx.rejected=not tx.reply
+            end
+        end
+        return table.unpack(returns,1,returns.n)
+    end
+    local installed=pcall(function()manager[method]=tx.hook end)
+    if not installed or member(manager,method)~=tx.hook then return unavailable("Native relocation reply observer could not be attached") end
+    pending=tx -- before call, including uncertain exceptions: never retransmit
+    local sent
+    if action=="randomRelocate" then
+        sent=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
+    else
+        sent=pcall(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"),rally.markType,4,false,nil)
+    end
+    if not sent then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
+        error="Relocation outcome unknown; observe only and never repeat",data=action_receipt(tx,snapshot,false).data} end
+    return action_receipt(tx,snapshot,false)
+end
+function M.RandomRelocate(fields,input_clear)
+    return perform(fields,input_clear,"randomRelocate")
+end
+function M.AllianceRelocate(fields,input_clear)
+    return perform(fields,input_clear,"allianceRelocate")
+end
 return M

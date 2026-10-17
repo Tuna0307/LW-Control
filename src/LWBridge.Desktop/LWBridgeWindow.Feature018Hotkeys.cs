@@ -124,7 +124,9 @@ internal sealed partial class LWBridgeWindow
                     launched.UtcDateTime,
                     () => Feature018InputAdmission(lifecycle!, owner, account),
                     intent => _ = DispatchFeature018HotkeyAsync(intent));
-                var gameCommands = new Feature018GameCommandService(lifecycle!);
+                var gameCommands = equipmentConfigService is null
+                    ? new Feature018GameCommandService(lifecycle!)
+                    : new Feature018GameCommandService(lifecycle!, equipmentConfigService);
                 feature018Actions = new Feature018HotkeyActions(account,
                     () => ReadFeature018AuthenticatedAccount(lifecycle, owner),
                     () => capture.IsExactForegroundOwner() &&

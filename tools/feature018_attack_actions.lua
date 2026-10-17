@@ -56,6 +56,7 @@
 
 local M = { VERSION = "feature018-attack-actions-1" }
 local pending, current_session = {}, nil
+local attacks = {}
 local PENDING_LIMIT = 45
 
 local function member(object, key)
@@ -125,6 +126,15 @@ local function owner_and_focus(fields, input_clear, read_only)
        fields.authorizedUid ~= uid then
         return nil, failed("Fresh game UID must match admitted owner-session UID")
     end
+    if uid ~= "3133546747002289" then
+        return nil, failed("Only the authorized server-2289 sub-account may act")
+    end
+    for _, method in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok, server = invoke(player, method)
+        if not ok or not (server == 2289 or server == "2289") then
+            return nil, failed("Only the authorized server-2289 sub-account may act")
+        end
+    end
     if not read_only and
        (type(input_clear) ~= "function" or input_clear() ~= true) then
         return nil, failed("Current-game text-input focus unavailable or selected")
@@ -159,7 +169,7 @@ local function slot_march(slot, uid)
         return nil, unsupported("Native current-account alliance identity unavailable")
     end
     local ok_match, candidate = invoke(marches,"GetOwnerFormationMarch",
-        uid,form_number,alliance_id)
+        member(player,"uid"),form_number,alliance_id)
     local march_id, march_number = ident(member(candidate,"uuid"))
     if not ok_match or not march_id or
        ident(member(candidate,"ownerUid")) ~= uid or
@@ -178,9 +188,11 @@ local function slot_march(slot, uid)
     local kinds = rawget(_G,"MarchTargetType")
     local city_attack = member(kinds,"ATTACK_CITY")
     local army_attack = member(kinds,"ATTACK_ARMY")
+    local monster_attack = member(kinds,"ATTACK_MONSTER")
     if not ok_target or target == nil or
        not ((city_attack ~= nil and target == city_attack) or
-            (army_attack ~= nil and target == army_attack)) then
+            (army_attack ~= nil and target == army_attack) or
+            (monster_attack ~= nil and target == monster_attack)) then
         return nil, unsupported("Fresh owned march is not a source-classified city/army attack")
     end
     local clock_type = rawget(_G,"UITimeManager")
@@ -193,7 +205,7 @@ local function slot_march(slot, uid)
     end
     return {uuid=march_id,uuidNumber=march_number,formation=form_id,
             uid=uid,slot=slot,endTime=end_time,now=now,
-            targetType=target}, nil
+            targetType=target,native=fresh}, nil
 end
 
 -- Only original rapid-screen inventory/template producers. No guessed item
@@ -288,7 +300,7 @@ local function attack_preflight(fields, input_clear, uid)
         return unsupported("Native owner/alliance formation march reader unavailable")
     end
     local ok_existing, existing = invoke(marches, "GetOwnerFormationMarch",
-        uid, tonumber(formation_id), alliance_id)
+        member(player,"uid"), tonumber(formation_id), alliance_id)
     if not ok_existing then
         return unsupported("Native fixed-formation current march lookup failed")
     end
@@ -395,6 +407,73 @@ function M.AttackTargetPreflight(fields, input_clear)
     local uid, error = owner_and_focus(fields, input_clear, true)
     if not uid then return error end
     return attack_preflight(fields, input_clear, uid)
+end
+
+function M.Prepare(fields, input_clear)
+    local uid, denial = owner_and_focus(fields,input_clear,fields.mode == "inventory")
+    if not uid then return denial end
+    if fields.mode ~= "inventory" and fields.mode ~= "open" then return failed("Invalid native attack prepare mode") end
+    local center = rawget(_G,"DataCenter")
+    local manager = member(center,"WorldMarchDataManager")
+    local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    local ok_all, all = invoke(manager,"GetAllMarches")
+    local candidates, squads = {}, {}
+    local function candidate(raw)
+        local value = member(raw,"Value") or raw
+        local uuid, n = ident(member(value,"uuid"))
+        local monster_id = integer(member(value,"monsterId"))
+        if not uuid or not monster_id then return end
+        local ok_template, template = invoke(member(center,"MonsterTemplateManager"),"GetMonsterTemplate",monster_id)
+        local level,special = number(member(template,"level")),number(member(template,"special"))
+        if not ok_template or not level or special ~= 0 then return end
+        local ok_fresh,fresh = invoke(world,"GetMarch",n)
+        local ok_troop,troop = invoke(world,"GetTroop",n)
+        local ok_pos,pos = invoke(troop,"GetPosition")
+        local transform = member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
+        local ok_tile,tile = false,nil
+        if ok_pos and type(transform) == "function" then ok_tile,tile=pcall(transform,pos) end
+        if not ok_fresh or not ok_troop or ident(member(fresh,"uuid")) ~= uuid or
+           not ok_tile or not integer(tile) then return end
+        candidates[#candidates+1]={uuid=uuid,monsterId=monster_id,level=level,
+            pointIndex=tile,ownerUid=ident(member(fresh,"ownerUid"))}
+    end
+    if ok_all and type(all) == "table" then
+        for _,value in pairs(all) do if #candidates < 100 then candidate(value) end end
+    elseif ok_all and all ~= nil then
+        local ok_enum,enumerator=invoke(all,"GetEnumerator")
+        if ok_enum then
+            for _=1,10000 do
+                local ok_next,next_=invoke(enumerator,"MoveNext")
+                if not ok_next or next_ ~= true or #candidates >= 100 then break end
+                candidate(member(enumerator,"Current"))
+            end
+        end
+    end
+    for slot=1,4 do
+        local ok_form,form=invoke(member(center,"ArmyFormationDataManager"),"GetOneArmyInfoByIndex",slot)
+        local uuid,n=ident(member(form,"uuid"))
+        local _,march=invoke(manager,"GetOwnerFormationMarch",member(member(rawget(_G,"LuaEntry"),"Player"),"uid"),n,
+            member(member(rawget(_G,"LuaEntry"),"Player"),"allianceId"))
+        squads[tostring(slot)]={unlocked=ok_form and uuid ~= nil,formationUuid=uuid,
+            marchUuid=ident(member(march,"uuid")),targetType=member(march,"target"),
+            endTime=number(member(march,"endTime"))}
+    end
+    table.sort(candidates,function(a,b) if a.level~=b.level then return a.level<b.level end return a.uuid<b.uuid end)
+    if fields.mode == "open" then
+        local selected
+        for _,item in ipairs(candidates) do if item.uuid == fields.targetUuid then selected=item end end
+        if not selected then return failed("Requested monster is absent from fresh native ordinary-monster candidates") end
+        local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
+        local name=member(rawget(_G,"UIWindowNames"),"UIFormationSelectListV2")
+        local kind=member(rawget(_G,"MarchTargetType"),"ATTACK_MONSTER")
+        if not ok_ui or not name or not kind then return unsupported("Native formation selector unavailable") end
+        local ok_open=invoke(ui,"OpenWindow",name,1,kind,selected.pointIndex,tonumber(selected.uuid))
+        if not ok_open then return failed("Native selector opening failed") end
+        return {state="confirmed",data={observation="native_attack_selector_open_invoked",
+            targetUuid=selected.uuid,targetPoint=selected.pointIndex,marchDispatched=false}}
+    end
+    return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",
+        candidates=candidates,squads=squads,requestDispatched=false}}
 end
 
 -- Diamond template metadata is also read-only: the original CellsCallBack
@@ -505,6 +584,221 @@ local function speedup_item(fields, input_clear, uid)
         itemId=fields.itemId}}
 end
 
+-- Native ordinary-world rapid purchase: UILWRapidView.GetTokenIdAndType
+-- returns token=0 outside battlefields; CellsCallBack uses template.price and
+-- Player.gold, ConfirmBuy sends WorldMarchRapid(uuid,template.id,true).
+-- App consent replaces the native purchase prompt, but never its currency
+-- or balance checks. Unlike native ConfirmBuy this does NOT UpdateGold or
+-- ReduceTime optimistically: BOTH independent game fields must change.
+local diamond_pending = {}
+local function speedup_diamond(fields, input_clear, uid)
+    local march, reason = slot_march(fields.slot,uid)
+    if not march then return reason end
+    local ok_world, world_type = invoke(march.native,"GetWorldType")
+    if not ok_world or world_type ~= 0 then return failed("Diamond rapid supports ordinary world marches only") end
+    local gold = number(member(member(rawget(_G,"LuaEntry"),"Player"),"gold"))
+    if not gold or gold < 0 then return failed("Current native gem balance unavailable") end
+    local old = diamond_pending[fields.slot]
+    if old then
+        if old.uid ~= uid or old.uuid ~= march.uuid or old.formation ~= march.formation then
+            return failed("Pending diamond rapid march identity changed")
+        end
+        if march.endTime < old.endTime and gold == old.gold-old.price then
+            diamond_pending[fields.slot] = nil
+            return {state="confirmed",data={observation="native_march_endTime_and_gem_balance_transition",
+                slot=tonumber(fields.slot),marchUuid=march.uuid,itemId=old.itemId,
+                priorEndTime=old.endTime,currentEndTime=march.endTime,
+                priorGold=old.gold,currentGold=gold,price=old.price}}
+        end
+        return {state="accepted",data={slot=tonumber(fields.slot),marchUuid=march.uuid,
+            requestDispatched=false,awaitingGameConfirmation=true}}
+    end
+    if fields.queryOnly == "1" then return failed("No pending diamond rapid purchase to observe") end
+    if fields.diamondOptIn ~= "1" then return failed("Explicit gem purchase consent absent") end
+    local template_manager = member(rawget(_G,"DataCenter"),"ItemTemplateManager")
+    local category = member(rawget(_G,"GOODS_TYPE"),"GOODS_TYPE_108")
+    local ok_templates, templates = invoke(template_manager,"GetTypeListByType",category)
+    local selected
+    if ok_templates and type(templates) == "table" and type(fields.itemId) == "string" then
+        for _,template in pairs(templates) do
+            if ident(member(template,"id")) == fields.itemId then selected=template end
+        end
+    end
+    local price = number(member(selected,"price"))
+    if not price or price <= 0 or price % 1 ~= 0 or gold < price then
+        return failed("Exact native category-108 purchase template/price or sufficient gems absent")
+    end
+    local route = member(rawget(_G,"MsgDefines"),"WorldMarchRapid")
+    local send = member(rawget(_G,"SFSNetwork"),"SendMessage")
+    if not route or type(send) ~= "function" then return unsupported("Original WorldMarchRapid sender unavailable") end
+    if input_clear() ~= true then return failed("Text focus changed before gem purchase") end
+    diamond_pending[fields.slot] = {uid=uid,uuid=march.uuid,formation=march.formation,
+        itemId=fields.itemId,price=price,gold=gold,endTime=march.endTime}
+    local ok,result = pcall(send,route,march.uuidNumber,tonumber(fields.itemId),true)
+    if not ok or result == false then return failed("Native gem rapid sender rejected request; observe before retry") end
+    return {state="accepted",data={slot=tonumber(fields.slot),marchUuid=march.uuid,
+        itemId=fields.itemId,price=price,priorGold=gold,requestDispatched=true,
+        awaitingGameConfirmation=true}}
+end
+
+-- Adaptation: the CURRENT open native formation selector owns the typed
+-- target. This is deliberately distinct from the original physical-pointer
+-- shortcut. No last-touch or caller-supplied target can dispatch a march.
+-- v26 UIManager.GetWindow -> UIWindow.Ctrl; OnCreateClick(root/24) and
+-- OnAtkClick(root/22) preserve all original battle/warning/formation checks.
+local function attack_selected(fields, input_clear, uid)
+    if type(fields.slot) ~= "string" or not fields.slot:match("^[1-4]$") then
+        return failed("Attack requires fixed formation slot 1 to 4")
+    end
+    local player = member(rawget(_G,"LuaEntry"),"Player")
+    local center = rawget(_G,"DataCenter")
+    local forms = member(center,"ArmyFormationDataManager")
+    local marches = member(center,"WorldMarchDataManager")
+    local ok_form, form = invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local formation, form_number = ident(member(form,"uuid"))
+    if not ok_form or not formation then return failed("Selected squad is not unlocked") end
+    local ok_existing, existing = invoke(marches,"GetOwnerFormationMarch",
+        member(player,"uid"),form_number,member(player,"allianceId"))
+    if not ok_existing then return failed("Native formation march lookup failed") end
+    local function fresh_owned(candidate)
+        local uuid, uuid_number = ident(member(candidate,"uuid"))
+        if not uuid then return nil end
+        local ok, fresh = invoke(marches,"GetMarch",uuid_number)
+        if not ok or ident(member(fresh,"uuid")) ~= uuid or
+           ident(member(fresh,"ownerUid")) ~= uid or
+           ident(member(fresh,"ownerFormationUuid")) ~= formation then return nil end
+        return fresh, uuid
+    end
+    local prior = attacks[fields.slot]
+    if prior then
+        if prior.uid ~= uid or prior.formation ~= formation or
+           prior.session ~= current_session then return failed("Pending attack session/formation changed") end
+        if prior.receipt then
+            local copy={}
+            for k,v in pairs(fields) do copy[k]=v end
+            copy.action,copy.itemId=prior.rapidAction,prior.rapidItem
+            copy.itemOptIn,copy.diamondOptIn="1","1"
+            copy.queryOnly=prior.rapidSent and "1" or nil
+            local result
+            if prior.rapidAction == "speedupItem" then result=speedup_item(copy,input_clear,uid)
+            else result=speedup_diamond(copy,input_clear,uid) end
+            if result.state == "confirmed" then
+                prior.receipt.speedup=result.data
+                attacks[fields.slot]=nil
+                return {state="confirmed",data=prior.receipt}
+            end
+            if result.state == "accepted" then
+                prior.rapidSent=true
+                return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
+                    awaitingGameConfirmation=true,requestDispatched=false}}
+            end
+            -- The attack happened, but requested speedup did not confirm.
+            -- Retain the fence so another key edge cannot double-spend.
+            return failed("Attack confirmed; requested rapid remains unconfirmed: "..tostring(result.error))
+        end
+        local fresh, uuid = fresh_owned(existing)
+        local ok_type, kind = invoke(fresh,"GetMarchTargetType")
+        local start_time = number(member(fresh,"startTime"))
+        if fresh and ok_type and kind == prior.kind and
+           ident(member(fresh,"targetUuid")) == prior.targetUuid and
+           (not prior.oldUuid or uuid ~= prior.oldUuid or
+            start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
+            local receipt={
+                observation="native_owned_formation_attack_target_transition",
+                slot=tonumber(fields.slot),marchUuid=uuid,formationUuid=formation,
+                targetUuid=prior.targetUuid,targetType=kind,
+                targetSource="open_native_formation_selector",currentCursorVerified=false,
+                priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
+                currentStartTime=start_time,requestDispatched=false}
+            if prior.allowItem or prior.allowDiamond then
+                local options=owned_speedup_items()
+                local chosen
+                if prior.allowItem and options then
+                    for id in pairs(options) do
+                        if not chosen or tonumber(id)<tonumber(chosen) then chosen=id end
+                    end
+                end
+                if chosen then prior.rapidAction,prior.rapidItem="speedupItem",chosen
+                elseif prior.allowDiamond then
+                    local _,templates=invoke(member(center,"ItemTemplateManager"),"GetTypeListByType",
+                        member(rawget(_G,"GOODS_TYPE"),"GOODS_TYPE_108"))
+                    local price
+                    if type(templates)=="table" then
+                        for _,template in pairs(templates) do
+                            local id=ident(member(template,"id"))
+                            local cost=number(member(template,"price"))
+                            if id and cost and cost>0 and (not price or cost<price) then
+                                chosen,price=id,cost
+                            end
+                        end
+                    end
+                    if chosen then prior.rapidAction,prior.rapidItem="speedupDiamond",chosen end
+                end
+                if not prior.rapidAction then return failed("Attack confirmed; no permitted native rapid item or purchase template") end
+                prior.receipt=receipt
+                return attack_selected(fields,input_clear,uid)
+            end
+            attacks[fields.slot] = nil
+            return {state="confirmed",data=receipt}
+        end
+        return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
+            awaitingGameConfirmation=true,requestDispatched=false}}
+    end
+    if fields.queryOnly == "1" then return failed("No pending native attack to observe") end
+    local ui_type = rawget(_G,"UIManager")
+    local ok_ui, ui = invoke(ui_type,"GetInstance")
+    local name = member(rawget(_G,"UIWindowNames"),"UIFormationSelectListV2")
+    local ok_open, opened = invoke(ui,"IsWindowOpen",name)
+    local ok_window, window = invoke(ui,"GetWindow",name)
+    local ctrl = member(window,"Ctrl")
+    local target_uuid, target_number = ident(member(ctrl,"targetUuid"))
+    local kind = member(ctrl,"targetType")
+    local kinds = rawget(_G,"MarchTargetType")
+    local is_city = kind ~= nil and kind == member(kinds,"ATTACK_CITY")
+    local is_army = kind ~= nil and kind == member(kinds,"ATTACK_ARMY")
+    local is_monster = kind ~= nil and kind == member(kinds,"ATTACK_MONSTER")
+    if not ok_ui or not name or not ok_open or opened ~= true or
+       not ok_window or not ctrl or not target_uuid or
+       not (is_city or is_army or is_monster) then
+        return failed("Open the native attack formation selector on a current city/army/monster target first")
+    end
+    local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    local ok_target, target
+    if is_city then
+        ok_target,target = invoke(world,"GetPointInfo",tonumber(member(ctrl,"targetPoint")))
+    else
+        ok_target,target = invoke(world,"GetMarch",target_number)
+    end
+    if not ok_target or ident(member(target,"uuid")) ~= target_uuid or
+       ident(member(target,"ownerUid")) == uid then
+        return failed("Current selector target is absent, changed or owned by this account")
+    end
+    local old, old_uuid
+    if existing ~= nil then
+        old,old_uuid = fresh_owned(existing)
+        if not old then return failed("Existing squad march owner/formation changed") end
+    end
+    local _,old_kind = invoke(old,"GetMarchTargetType")
+    local old_start = number(member(old,"startTime"))
+    local method = existing ~= nil and "OnAtkClick" or "OnCheckTime"
+    if type(member(ctrl,method)) ~= "function" then return unsupported("Original native attack controller missing") end
+    if input_clear() ~= true or member(window,"Ctrl") ~= ctrl or
+       member(ctrl,"targetType") ~= kind or ident(member(ctrl,"targetUuid")) ~= target_uuid then
+        return failed("Native selector changed immediately before attack")
+    end
+    attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
+        kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
+        oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
+        allowDiamond=fields.allowRapidDiamond=="1"}
+    local ok = invoke(ctrl,method,form_number)
+    if not ok then return failed("Original native attack controller rejected invocation; do not retry until observed") end
+    return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
+        targetUuid=target_uuid,targetType=kind,requestDispatched=false,accepted=true,
+        nativeControllerInvoked=true,
+        awaitingGameConfirmation=true,targetSource="open_native_formation_selector",
+        currentCursorVerified=false}}
+end
+
 function M.Handle(fields, input_clear)
     if type(fields) ~= "table" then return failed("Invalid rapid/attack command") end
     if fields.action ~= "attack" and fields.action ~= "speedupItem" and
@@ -516,22 +810,10 @@ function M.Handle(fields, input_clear)
     local uid, error = owner_and_focus(fields,input_clear,fields.queryOnly == "1")
     if not uid then return error end
     if fields.action == "attack" then
-        -- An idle formation may have no world march, which is normal when
-        -- attempting a first attack. Never use march absence as a target.
-        if type(fields.slot) ~= "string" or
-           not fields.slot:match("^[1-4]$") then
-            return failed("Attack requires fixed formation slot 1 to 4")
-        end
-        local preflight = attack_preflight(fields, input_clear, uid)
-        return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",
-            error="No verified current mouse cursor target, UI attack confirmation and native ACK contract",
-            data={preflight=preflight}}
+        return attack_selected(fields,input_clear,uid)
     end
     if fields.action == "speedupDiamond" then
-        local preflight = M.DiamondSpeedupPreflight(fields, input_clear)
-        return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",
-            error="Native rapid purchase requires ShowUseDiamondConfirm, token currency and actual game consent",
-            data={preflight=preflight}}
+        return speedup_diamond(fields,input_clear,uid)
     end
     return speedup_item(fields,input_clear,uid)
 end

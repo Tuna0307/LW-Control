@@ -647,6 +647,14 @@ local function status_data(job)
         totalMoves = #job.steps, completedMoves = job.completed,
         temporaryMoves = job.temporaryMoves,
         errorCode = job.errorCode, error = job.error,
+        inFlight = job.waiting ~= nil,
+        pendingUuid = job.waiting and job.waiting.uuid or nil,
+        pendingFromPointId = job.waiting and job.waiting.from or nil,
+        pendingPointId = job.waiting and job.waiting.pointId or nil,
+        cancelRequested = job.cancelRequested == true,
+        cancelRequestedWhileInFlight = job.cancelRequestedWhileInFlight,
+        cancelRequestedAtCompletedMoves = job.cancelRequestedAtCompletedMoves,
+        dispatchedMoves = job.dispatched or 0,
     }
 end
 
@@ -765,6 +773,7 @@ local function dispatch_step(job)
     end
     job.waiting = step
     job.sentAt = os.time()
+    job.dispatched = (job.dispatched or 0) + 1
     return true
 end
 
@@ -866,13 +875,20 @@ function M.Register(feature)
         return confirmed(current)
     end)
     ok = feature.RegisterHandler('city_layout_validate', function(values)
-        local validation, state_or_reason = validate_state(values)
+        local validation, state_or_reason, _, steps = validate_state(values)
         if not validation then return unsupported('CITY_LAYOUT_UNAVAILABLE', state_or_reason) end
         -- The client must refresh its snapshot before retrying a stale layout;
         -- exposing the observed revision diagnoses legitimate async city drift
         -- without treating an old draft as safe to apply.
         validation.currentRevision = state_or_reason.layoutRevision
         validation.issues = feature.Array(validation.issues)
+        local public_steps = {}
+        for index, step in ipairs(steps or {}) do
+            public_steps[#public_steps + 1] = { index = index, uuid = step.uuid,
+                fromPointId = step.from, pointId = step.pointId,
+                temporary = step.temporary == true }
+        end
+        validation.plannedMoves = feature.Array(public_steps)
         return confirmed(validation)
     end) and ok
     ok = feature.RegisterHandler('city_layout_apply_start', function(values)
@@ -935,6 +951,13 @@ function M.Register(feature)
             return failed('CITY_LAYOUT_JOB_MISSING', 'The requested layout job is unavailable.')
         end
         job.cancelRequested = true
+        -- This receipt describes the moment the actual Cancel command was
+        -- consumed, before status polling or an ACK can advance the job.
+        -- Repeated Cancel must not overwrite an earlier in-flight observation.
+        if job.cancelRequestedWhileInFlight == nil then
+            job.cancelRequestedWhileInFlight = job.waiting ~= nil
+            job.cancelRequestedAtCompletedMoves = job.completed
+        end
         if job.state == 'running' and not job.waiting then job.state = 'cancelled' end
         -- An already sent network move cannot be revoked; cancellation stops
         -- subsequent move dispatch after the in-flight result is observed.

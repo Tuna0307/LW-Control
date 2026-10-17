@@ -105,7 +105,7 @@ local function same_march(march, uid, formation_id, uuid)
 end
 
 local function resolve_squad(slot)
-    local _, uid = current_account()
+    local player, uid = current_account()
     local center = rawget(_G, "DataCenter")
     local formations = member(center, "ArmyFormationDataManager")
     local marches = member(center, "WorldMarchDataManager")
@@ -124,7 +124,7 @@ local function resolve_squad(slot)
         return nil, "Formation UUID is not a native integer"
     end
     local ok_lookup, candidate = invoke(marches, "GetOwnerFormationMarch",
-        uid, native_id, "")
+        member(player, "uid"), native_id, member(player, "allianceId"))
     local march_uuid = id_string(member(candidate, "uuid"))
     if not ok_lookup or march_uuid == nil or
        not same_march(candidate, uid, formation_id, march_uuid) then
@@ -168,6 +168,8 @@ local function read_return_state(selected)
 end
 
 local function recall(fields, game_input_clear)
+    local admitted, denial = authorized_subaccount()
+    if not admitted then return denial end
     local slot = tonumber(fields.slot)
     if type(fields.slot) ~= "string" or
        slot == nil or slot % 1 ~= 0 or slot < 1 or slot > 4 then
@@ -399,6 +401,30 @@ function M.Wrap(frozen_hotkeys)
     local input = frozen_hotkeys.TextInputClear
     return function(fields)
         if type(fields) ~= "table" then return blocked("Invalid Hotkeys request") end
+        if fields.action == "equipment" then
+            local uid, denial = authorized_subaccount()
+            if not uid then return denial end
+            local serialized=fields.confirmedEquipmentPresets
+            if type(serialized)~="string" or #serialized<2 or #serialized>60000 then
+                return blocked("Confirmed profile equipment presets were not supplied")
+            end
+            local ok_json,json=pcall(require,"rapidjson")
+            if not ok_json or type(member(json,"decode"))~="function" then
+                return unavailable("Original equipment preset decoder unavailable")
+            end
+            local ok_presets,presets=pcall(json.decode,serialized)
+            local slot=type(fields.slot)=="string" and tonumber(fields.slot) or nil
+            if not ok_presets or type(presets)~="table" or not slot or slot<1 or slot>4 or slot%1~=0 or
+               type(presets[slot])~="table" then return blocked("Confirmed equipment ordinal is unavailable") end
+            local native={}
+            for key,value in pairs(fields)do native[key]=value end
+            native.authorizedUid=uid;native.presetId=presets[slot].id
+            local adapter=rawget(_G,"LWBridgeFeature018EquipmentActions")
+            if type(member(adapter,"Handle"))~="function" then return unavailable("Native equipment adapter unavailable") end
+            local ok,result=pcall(adapter.Handle,native,presets,input)
+            if not ok or type(result)~="table" then return blocked("Equipment adapter returned no native receipt") end
+            return result
+        end
         if fields.action == "recall" then return recall(fields, input) end
         if fields.action == "frontlineReinforce" then
             if fields.slot ~= "5" then
@@ -480,6 +506,20 @@ function M.RegisterRapid(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end
     local input = frozen_hotkeys.TextInputClear
+    feature.RegisterHandler("feature018_attack_prepare",function(fields)
+        local uid,denial=authorized_subaccount()
+        if not uid then return denial end
+        local adapter=rawget(_G,"LWBridgeFeature018AttackActions")
+        if type(member(adapter,"Prepare")) ~= "function" then return unavailable("Native attack preparation unavailable") end
+        local copy={}
+        for k,v in pairs(fields) do copy[k]=v end
+        copy.authorizedUid=uid
+        local result=adapter.Prepare(copy,input)
+        if result.state == "confirmed" and type(member(result.data,"candidates")) == "table" then
+            feature.Array(result.data.candidates)
+        end
+        return result
+    end)
     return feature.RegisterHandler("feature018_rapid_action", function(fields)
         if type(fields) ~= "table" or
            (fields.mode ~= "inventory" and fields.mode ~= "itemUse" and fields.mode ~= "status") or
@@ -549,6 +589,26 @@ function M.RegisterEquipment(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end
     local input = frozen_hotkeys.TextInputClear
+    feature.RegisterHandler("feature018_equipment_snapshot",function(fields)
+        local uid, denial=authorized_subaccount()
+        if not uid then return denial end
+        local module=rawget(_G,"LWBridgeFeature018EquipmentActions")
+        if type(member(module,"Snapshot"))~="function" then return unavailable("Native equipment snapshot unavailable") end
+        local native={}
+        for key,value in pairs(fields) do native[key]=value end
+        native.authorizedUid=uid
+        local result=module.Snapshot(native)
+        if result.state=="confirmed" and type(result.data)=="table" then
+            for _,key in ipairs({"squads","items"}) do
+                if type(result.data[key])=="table" then feature.Array(result.data[key]) end
+            end
+            for _,squad in ipairs(result.data.squads or {}) do
+                feature.Array(squad.positions)
+                for _,position in ipairs(squad.positions or {}) do feature.Array(position.equips) end
+            end
+        end
+        return result
+    end)
     return feature.RegisterHandler("feature018_equipment_preflight", function(fields)
         if type(fields) ~= "table" or type(fields.slot) ~= "string" or
            not fields.slot:match("^[1-4]$") then

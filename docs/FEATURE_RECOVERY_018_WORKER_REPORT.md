@@ -4,6 +4,38 @@
 
 ## R3 native existing-building Move breakthrough and current acceptance ledger — 2026-10-17
 
+### R3 resumed worker checkpoint — 2026-10-17, 07:44 UTC
+
+`artifacts/map014-takeover/native-ui-20261017-074101/` independently admitted UID
+`3133546747002289`, server `2289`, game PID `17856`. Native formation inventory
+showed squads **1 and 2 unlocked; 3 and 4 locked**. A genuine Q key reached only
+the task HWND and invoked the native selected-target attack controller, but no
+matching owned march appeared; the result remains **SUBMITTED/UNCONFIRMED**.
+This session bundled the earlier `OnCreateClick` entry; source now uses the
+original View's `OnCheckTime` gate and requires a fresh build before retesting.
+
+Genuine equipment snapshot found two unused native items, UUIDs
+`1392040870727446886` (slot 1) and `1392040870618395047` (slot 4). An actual
+profile-persisted test preset, using those observed UUIDs and actual hero
+`1392040865979494752`, completed two original `HeroEquipInstall` operations.
+Independent native slot/inventory after-state reported both items equipped,
+`equipmentApplied=true, completedSteps=plannedSteps=2`. A separate baseline
+preset then completed both original uninstalls; the final native snapshot again
+showed all original empty slots and both items unused. **Real equipment action
+and restoration PROVEN through the production command; physical Alt shortcut
+acceptance remains pending.** Alt+2 exposed that the window monitor constructed
+its game service without the profile equipment store. That wiring is corrected
+in source, together with equipment/relocation receipt matching and polling.
+
+The session exited normally: `owned-exit.json` has exit code 0, exact original
+v26 hashes restored, `restorationAudit.state=proven`, no journal. No account
+switch or main-account action occurred. The isolated staged proof queue records
+one operation ID before each call and never automatically replays a mutation.
+Additional source-backed work awaiting live qualification includes typed native
+attack preparation, item/gem rapid poststate, original random/alliance relocation,
+explicit inventory-only gem shield provisioning, native Land reply correlation,
+and City multi-step/cancel receipts. These are **not** passed from inert checks.
+
 **New positive genuine packaged proof, preserving the checkpoint:** `artifacts/map014-takeover/native-ui-20261017-065812/native-ui-map.json`, exact account `feature018-account-admission.json` UID `3133546747002289`, server `2289`, session `6b503460974e45e18bdf37eb6ba4eabc`, game PID `38480`. The original **v26** placement UI contains **two different** operations: `PlaceBuildType.Replace` emits `MsgDefines.FreeBuildingReplaceNew({buildUuid,pointId})` for an inventory/replacement building, whereas `PlaceBuildType.Move` emits `MsgDefines.BuildWorldMoveNew({uuid,pointId,lastIndex})` for an **already placed building**. The latter is proven by `UIPlaceBuildView.OnConfirmBtnClick` original branch 436–459, `UIMoveCityView.ChangeSelectBuild` 1785–1788 (real `buildUuid` for Move, fake build UUID for Replace), `BuildWorldMoveNewMessage.OnCreate/HandleMessage` (native PutLong UUID, PutInt target, move Success/Fail state), and `BuildManager.BuildWorldMoveNewHandle` (server-data `AddBuilding` and `BuildingMove` event with UUID and old/new positions). Prior 062112/063021 `FreeBuildingReplaceNew` sends were the **wrong type for existing-building movement** and remain independently **unacknowledged**; neither packet was resent nor converted into a claimed ACK.
 
 The corrected producer uses exactly the original v26 Move request, preserving the native >2^53 building UUID without JS floating-point loss, `lastIndex` from its validated prior anchor, owner/scene and native zone/radius/revision checks, one outstanding send, no retransmission after timeout, authoritative BuildManager poststate and conservative lease-loss cleanup. Native snapshot candidate search now uses source-proven zone, footprint, base circle radius and current building revision instead of blind geometric guesses. In the real 065812 run the harness **excluded old unacknowledged building `1392040865799139725`**, selected *different* building `1392040865799139726`, validated its **4442→4444** move (`valid=true`, no issues), received `cityMoveStart.accepted=true` (not considered success), then `cityMoveStatus.state=completed, completedMoves=1` and independently fetched `cityMoveAuthoritativePoint.observed=4444,moved=true`. It next independently validated the **4444→4442** restoration, received `cityRestoreStatus.state=completed,completedMoves=1`, and `citySnapshotRestored` showed authoritative original point `4442`. This is **WORKING** for a genuine single-building City move and game-confirmed restoration; it is *not* evidence of arbitrary multi-building swaps, cancel-in-flight or an unrelated stale packet's ACK.

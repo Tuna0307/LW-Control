@@ -26,15 +26,15 @@ ORIGINAL_V26_LUA_ENTRY_SHA = (
 
 GAME = """
 state = {
-    playerUid='222', focusClear=true, canReturn=true,
-    ownerUid='222', formationId=1001, candidateFormationId=1001,
-    squadUuid=803001, candidateUid='222', target=17, dispatches=0,
+    playerUid='3133546747002289', focusClear=true, canReturn=true,
+    ownerUid='3133546747002289', formationId=1001, candidateFormationId=1001,
+    squadUuid=803001, candidateUid='3133546747002289', target=17, dispatches=0,
     slot=1, numberOfOwnedShield=2, numberOfOwnedShield12=1,
     numberOfOwnedShield24=1, fallbackCalls=0, inventoryReads=0,
     itemUseCalls=0,
     sourceServer=2289, selfServer=2289, currentServer=2289,
 }
-LuaEntry = { Player={uid=state.playerUid,
+LuaEntry = { Player={uid=state.playerUid,allianceId=700,
     GetSourceServerId=function() return state.sourceServer end,
     GetSelfServerId=function() return state.selfServer end,
     GetCurServerId=function() return state.currentServer end,
@@ -54,7 +54,7 @@ DataCenter = {
     },
     WorldMarchDataManager={
         GetOwnerFormationMarch=function(self, uid,formation,extra)
-            assert(type(uid)=='string' and extra=='')
+            assert(type(uid)=='string' and extra==700)
             if uid ~= state.playerUid or formation~=state.formationId then
                 return nil
             end
@@ -353,7 +353,7 @@ def main():
     s["candidateUid"] = "foreignUid"
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "foreign owner march admitted after misleading native GetOwnerFormationMarch")
-    s["candidateUid"] = "222"
+    s["candidateUid"] = "3133546747002289"
     s["candidateFormationId"] = 1111
     require(call()["state"] == "unsupported" and s["dispatches"] == 0,
             "wrong formation march admitted")
@@ -383,6 +383,7 @@ def main():
         outcome = call(action="attack",slot=slot)
         require(outcome["state"] == "unsupported" and s["dispatches"] == 0,
                 "cursor attack dispatched without typed game cursor target: " + slot)
+    lua_second.globals().LuaEntry.Player.uid = "222"
     for duration in ("8", "12", "24"):
         outcome = call(action="shieldUse",slot=duration)
         require(outcome["state"] == "failed" and "UID" in outcome["error"] and
@@ -421,8 +422,8 @@ def main():
             and s["dispatches"] == 0,
             "Frontline native action bypassed text-input gate")
     s["focusClear"] = True
-    require(call(action="equipment",slot="1")["errorCode"] == "FALLBACK_USED",
-            "unrelated frozen Hotkeys handler overridden")
+    require(call(action="equipment",slot="1")["state"] == "failed",
+            "equipment without trusted persisted presets reached a mutable sender")
 
     state["playerUid"] = "3133546747002289"
     lua.globals().LuaEntry.Player.uid = state["playerUid"]
@@ -461,6 +462,7 @@ def main():
     require(actions.ShieldOwnedInventory()["state"] == "unsupported",
             "invalid original StatusTab hours were accepted")
     lua, actions, _, state, call = scenario()
+    lua.globals().LuaEntry.Player.uid = "222"
     require(actions.ShieldOwnedInventory()["state"] == "failed",
             "main-account shield inventory disclosed without native UID admission")
     state["playerUid"] = "3133546747002289"

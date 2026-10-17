@@ -36,8 +36,11 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_input_focus" or
         "feature018_rapid_action" or
+        "feature018_attack_prepare" or
         "feature018_shield_inventory_get" or
+        "feature018_shield_shop" or
         "feature018_equipment_preflight" or
+        "feature018_equipment_snapshot" or
         "feature018_hotkey_action";
 
     public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
@@ -45,6 +48,15 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
+        if (command == "feature018_hotkey_action" && fields["action"] == "equipment")
+        {
+            JsonElement ordinal = JsonSerializer.SerializeToElement(new
+            { slot = int.Parse(fields["slot"], CultureInfo.InvariantCulture) });
+            Dictionary<string, string> trusted = await ReadConfirmedEquipmentPreflightFieldsAsync(
+                ordinal, cancellationToken).ConfigureAwait(false);
+            fields["confirmedEquipmentPresets"] = trusted["confirmedEquipmentPresets"];
+            fields["presetId"] = trusted["presetId"];
+        }
         if (command == "feature018_equipment_preflight")
         {
             // Owner-scoped confirmed config comes from the profile runtime's
@@ -77,7 +89,8 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         };
         bool acceptsSubmission = command is "city_layout_apply_start" or "monopoly_cell_open" or
             "automation_start" or "automation_stop" or "feature018_hotkey_action" or
-            "feature018_rapid_action";
+            "feature018_rapid_action" ||
+            (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
         return await exchange.ExchangeAsync(command, fields, timeout, cancellationToken,
             allowAcceptedDispatch: acceptsSubmission).ConfigureAwait(false);
     }
@@ -89,6 +102,48 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         var fields = new Dictionary<string, string>(StringComparer.Ordinal);
         switch (command)
         {
+            case "feature018_attack_prepare":
+            {
+                string mode = ReadValue(payload,"mode",16);
+                if (mode is not ("inventory" or "open"))
+                    throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
+                fields["mode"] = mode;
+                if (mode == "open")
+                {
+                    string uuid = ReadValue(payload,"targetUuid",20);
+                    if (!ValidGameUuid(uuid)) throw new BridgeCommandException("INVALID_REQUEST","Invalid native monster UUID.");
+                    fields["targetUuid"] = uuid;
+                }
+                break;
+            }
+            case "feature018_equipment_snapshot":
+                if (payload.EnumerateObject().Any())
+                    throw new BridgeCommandException("INVALID_REQUEST", "Equipment snapshot accepts an empty authenticated request only.");
+                break;
+            case "feature018_shield_shop":
+            {
+                string mode = ReadValue(payload, "mode", 16);
+                if (mode is not ("inspect" or "buy" or "status" or "armUse") ||
+                    !payload.TryGetProperty("slot", out JsonElement shieldSlot) ||
+                    !shieldSlot.TryGetInt32(out int hours) || hours is not (8 or 12 or 24))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Invalid native shield shop mode or duration.");
+                fields["mode"] = mode;
+                fields["slot"] = hours.ToString(CultureInfo.InvariantCulture);
+                if (mode == "buy")
+                {
+                    if (!payload.TryGetProperty("gemOptIn", out JsonElement optIn) || optIn.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST", "Shield purchase requires explicit gem consent.");
+                    fields["gemOptIn"] = "1";
+                }
+                if (mode == "armUse")
+                {
+                    if (!payload.TryGetProperty("shieldReplaceOptIn", out JsonElement replace) ||
+                        replace.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST", "Next shield replacement requires explicit consent.");
+                    fields["shieldReplaceOptIn"] = "1";
+                }
+                break;
+            }
             case "city_layout_validate":
             case "city_layout_apply_start":
             {
@@ -189,6 +244,16 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid game hotkey slot.");
                 fields["action"] = action;
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
+                if (action == "attack")
+                {
+                    foreach (string option in new[] { "allowRapidItem", "allowRapidDiamond" })
+                        if (payload.TryGetProperty(option, out JsonElement allowed))
+                        {
+                            if (allowed.ValueKind is not (JsonValueKind.True or JsonValueKind.False))
+                                throw new BridgeCommandException("INVALID_REQUEST", "Attack rapid preference must be boolean.");
+                            if (allowed.GetBoolean()) fields[option] = "1";
+                        }
+                }
                 if (action is "attack" or "speedupItem" or "speedupDiamond")
                 {
                     // The game-side rapid/attack adapter independently checks
@@ -201,13 +266,14 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                             "Attack/rapid action requires authenticated numeric UID.");
                     fields["authorizedUid"] = uid;
                 }
-                if (action == "speedupItem")
+                if (action is "speedupItem" or "speedupDiamond")
                 {
                     bool onlyStatus = payload.TryGetProperty("queryOnly", out JsonElement statusOnly) &&
                         statusOnly.ValueKind == JsonValueKind.True;
                     if (!onlyStatus)
                     {
-                        if (!payload.TryGetProperty("itemOptIn", out JsonElement itemOptIn) ||
+                        string consentName = action == "speedupItem" ? "itemOptIn" : "diamondOptIn";
+                        if (!payload.TryGetProperty(consentName, out JsonElement itemOptIn) ||
                             itemOptIn.ValueKind != JsonValueKind.True)
                             throw new BridgeCommandException("INVALID_REQUEST",
                                 "Owned item-speedup requires explicit opt-in.");
@@ -216,15 +282,21 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                             throw new BridgeCommandException("INVALID_REQUEST",
                                 "Speedup item must be an explicit native item ID.");
                         fields["itemId"] = item;
-                        fields["itemOptIn"] = "1";
+                        fields[consentName] = "1";
                     }
+                }
+                if (action == "shieldUse" && payload.TryGetProperty("shieldReplaceOptIn", out JsonElement replacement))
+                {
+                    if (replacement.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST", "Shield replacement consent must be true.");
+                    fields["shieldReplaceOptIn"] = "1";
                 }
                 // Read-only follow-ups observe only already dispatched,
                 // exact-owner native actions. The source-backed Recall
                 // and ShieldUse modules have one-in-flight pending fences.
                 if (payload.TryGetProperty("queryOnly", out JsonElement query))
                 {
-                    if (action is not ("recall" or "shieldUse" or "speedupItem") ||
+                    if (action is not ("attack" or "recall" or "shieldUse" or "speedupItem" or "speedupDiamond" or "equipment" or "randomRelocate" or "allianceRelocate") ||
                         query.ValueKind != JsonValueKind.True)
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Only native recall, shield-use and owned-item rapid support a true query-only status fence.");

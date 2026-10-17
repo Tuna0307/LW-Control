@@ -77,7 +77,7 @@ def scenario():
     world = runtime.globals().world
     def call(action, query=False, profile="owner", focus=None):
         values = {"action": action, "slot": "0", "profileId": profile,
-                  "launchSessionId": "launch", "challenge": "challenge", "gamePid": "8123"}
+                  "launchSessionId": "launch", "challenge": "challenge", "gamePid": "8123", "preflightOnly":"1"}
         if query:
             values["queryOnly"] = "1"
         allow_focus = runtime.eval("function() return world.focusClear end")
@@ -337,6 +337,140 @@ class OriginalV26Sources(unittest.TestCase):
         self.check_method("UI/UILWAlliance/UIChooseRallyPoint/UIChooseRallyPointView.luac",
                           "OnBtnMoveClick", "2c66d46152e1843245b9f45db3b3f028437134fb186da34395ee53dfe0bce8c5",
                           ("AllianceMoveCityToSelectedRallyPoint", "curType", "costType", "pinMsgUUid"))
+
+    def test_original_reply_handlers_update_inventory_and_city_from_server_data(self):
+        self.check_method('DataCenter/ItemManager/ItemManager.luac','ItemUseHandle',
+            'febee83973a019ce47dc154190a7bae182b6ea5d5546b63c7f412ec60222847c',
+            ('errorCode','itemId','uuid','count','UpdateOneItem','OnUseRet'))
+        self.check_method('DataCenter/BuildManager/BuildManager.luac','WorldMvHandle',
+            '537c896000bc29d07758dcc7e6f75255fb7c06fce5a6e01afdb20773fbcc37c3',
+            ('errorCode','itemCostArr','UpdateOneItem','worldMainPoint','SetMainWorldPointId','buildInfo','pId'))
+
+    def test_original_random_and_alliance_owned_item_senders_and_warning_conditions(self):
+        # Full original artifact identity plus exact source closures; no guessed item IDs.
+        name='UI/UILWBag/UILWBagMain/Controller/UILWBagMainCtrl.luac'
+        self.assertEqual(hashlib.sha256(self.members[name]).hexdigest(),
+                         'aa7f2ebbc31ed8c0ef600ecc55659183d125368d3f572b3ad6f3414c0a91a48a')
+        root=lua53.parse_chunk(probe.decode_lenc(self.members[name]))
+        body=root['children'][6]
+        for token in ('ITEM_MOVE_RANDOM','LW_ITEM_ALLY_MOVE_CITY','SeasonHunterManager',
+                      'LWZombieRushManager','SEASON_VIRUS_MAX_EXPLODE','SELF_EXPLOSION_STATUS_ID'):
+            self.assertIn(token,body['constants'])
+        random=body['children'][12]
+        self.assertIn('ItemUse',random['constants']);self.assertIn('uuid',random['constants'])
+        self.assertIn('num',random['constants']);self.assertIn('useItemFromType',random['constants'])
+        alliance=body['children'][11]
+        self.assertIn('TryAllianceMoveCity',alliance['constants']);self.assertIn(4,alliance['constants'])
+        for index,warning in ((13,'NeedNoticeRandomMoveCity'),(15,'NeedNoticeAllianceMoveCityDropMine'),
+                              (17,'NeedNoticeAllianceMoveCityPosition')):
+            self.assertIn(warning,body['children'][index]['constants'])
+
+
+
+class RelocationActionChecks(unittest.TestCase):
+    def fixture(self):
+        lua,actions,state,_=scenario()
+        lua.execute("""
+        SpecialItemId.ITEM_MOVE_RANDOM=5004
+        SpecialItemId.LW_ITEM_ALLY_MOVE_CITY=5005
+        world.randomCount=2;world.allyCount=2
+        local oldGet=DataCenter.ItemData.GetItemById
+        function DataCenter.ItemData:GetItemById(id)
+          if id==5004 then
+            if world.randomCount>0 then return {uuid=100004,itemId=5004,count=world.randomCount} end
+            return nil
+          end
+          if id==5005 then
+            if world.allyCount>0 then return {uuid=100005,itemId=5005,count=world.allyCount} end
+            return nil
+          end
+          return oldGet(self,id)
+        end
+        BattleFieldUtil={InBattleField=function()return false end}
+        UIUtil={CheckItemIsExpiredByUuid=function()return false end}
+        DataCenter.SeasonHunterManager={IsInBattle=function()return false end}
+        DataCenter.LWZombieRushManager={IsChallenging=function()return false end}
+        DataCenter.ActMeteoriteBattleManager={
+          NeedNoticeRandomMoveCity=function()return false end,
+          NeedNoticeAllianceMoveCityDropMine=function()return false end,
+          NeedNoticeAllianceMoveCityPosition=function()return false end}
+        EffectDefine={SEASON_VIRUS_MAX_EXPLODE=15};SELF_EXPLOSION_STATUS_ID=16
+        LuaEntry.Effect={GetGameEffect=function()return 0 end,HasStatus=function()return false end}
+        DataCenter.ItemManager={ItemUseHandle=function(self,response)
+          if not response.errorCode and response.itemId==5004 then world.randomCount=world.randomCount-1 end
+        end}
+        DataCenter.BuildManager={WorldMvHandle=function(self,response)
+          if not response.errorCode then world.allyCount=world.allyCount-1;world.position=response.worldMainPoint end
+        end}
+        world.itemOriginal=DataCenter.ItemManager.ItemUseHandle
+        world.moveOriginal=DataCenter.BuildManager.WorldMvHandle
+        MsgDefines={ItemUse='itemuse'}
+        SFSNetwork.SendMessage=function(msg,args)
+          assert(msg=='itemuse' and args.uuid==100004 and args.num==1)
+          world.sends=world.sends+1
+        end
+        MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
+          assert(kind==701 and cost==4 and invite==false and pin==nil)
+          world.sends=world.sends+1
+        end
+        """)
+        def call(action='randomRelocate',query=False):
+            fields={'action':action,'slot':'0','profileId':'owner','launchSessionId':'launch',
+                    'challenge':'challenge','gamePid':'8123'}
+            if query: fields['queryOnly']='1'
+            func=actions.RandomRelocate if action=='randomRelocate' else actions.AllianceRelocate
+            return func(lua.table_from(fields),lua.eval('function()return world.focusClear end'))
+        return lua,actions,state,call
+
+    def test_f9_owned_random_item_single_send_reply_and_fresh_position(self):
+        lua,_,state,call=self.fixture()
+        result=call();self.assertEqual(result['state'],'accepted');self.assertEqual(state['sends'],1)
+        self.assertEqual(call(query=True)['state'],'accepted');self.assertEqual(state['sends'],1)
+        lua.execute('world.position=600123')
+        self.assertEqual(call(query=True)['state'],'accepted')
+        lua.execute('DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004})')
+        final=call(query=True);self.assertEqual(final['state'],'confirmed')
+        self.assertTrue(final['data']['relocationConfirmed']);self.assertTrue(final['data']['replyObserved'])
+        self.assertEqual(state['randomCount'],1)
+        self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
+
+    def test_f10_exact_home_alliance_native_cost4_and_reply_poststate(self):
+        lua,_,state,call=self.fixture()
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2289,worldMainPoint=514998})')
+        result=call('allianceRelocate',True)
+        self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['worldMvAcknowledged'])
+        self.assertEqual(result['data']['afterWorldPointId'],514998)
+        self.assertTrue(lua.eval('DataCenter.BuildManager.WorldMvHandle==world.moveOriginal'))
+
+    def test_missing_warning_or_item_never_dispatches(self):
+        lua,_,state,call=self.fixture()
+        lua.execute('DataCenter.ActMeteoriteBattleManager.NeedNoticeRandomMoveCity=function()return true end')
+        self.assertEqual(call()['state'],'failed');self.assertEqual(state['sends'],0)
+        lua.execute('DataCenter.ActMeteoriteBattleManager.NeedNoticeRandomMoveCity=function()return false end;world.randomCount=0')
+        self.assertEqual(call()['state'],'unsupported');self.assertEqual(state['sends'],0)
+
+    def test_wrong_account_or_server_after_send_never_confirms_or_resends(self):
+        lua,_,state,call=self.fixture();call()
+        lua.execute("LuaEntry.Player.uid='different'")
+        self.assertEqual(call(query=True)['state'],'failed');self.assertEqual(state['sends'],1)
+        self.assertEqual(call()['state'],'failed');self.assertEqual(state['sends'],1)
+
+    def test_unknown_send_exception_preserves_tombstone(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("SFSNetwork.SendMessage=function()world.sends=world.sends+1;error('uncertain')end")
+        self.assertEqual(call()['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertEqual(call(query=True)['state'],'accepted');self.assertEqual(state['sends'],1)
+
+    def test_reply_for_unrelated_item_cannot_confirm_external_position_change(self):
+        lua,_,_,call=self.fixture();call()
+        lua.execute('world.randomCount=1;world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=999,uuid=999})')
+        self.assertEqual(call(query=True)['state'],'accepted')
+
+    def test_dispose_restores_only_own_reply_wrapper(self):
+        lua,module,_,call=self.fixture();call();module.Dispose()
+        self.assertTrue(lua.eval('DataCenter.ItemManager.ItemUseHandle==world.itemOriginal'))
 
 
 if __name__ == "__main__":

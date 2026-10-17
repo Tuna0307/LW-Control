@@ -1,4 +1,4 @@
--- FEATURE-RECOVERY-018: read-only, exact-owner native hero equipment preflight.
+-- FEATURE-RECOVERY-018: exact-owner native equipment snapshot and sequential apply.
 --
 -- Inspected archived ORIGINAL current v26 LWLF 3/26, LuaEntry SHA256
 -- 50f3ae906a8e9898549c4ea740eedc772a88eb2979e165eb35733192d100a137.
@@ -41,7 +41,8 @@
 --       native persisted equipment_config_get, never frontend draft/client
 --       provided JSON. No mutation method is reachable from this function.
 --   M.Handle(fields, confirmedPresets, gameInputClear)
---       Action path always unsupported, optionally including preflight hint.
+--       Exact 2289-only sequential original RPC plan; queryOnly resumes its
+--       authorized next step after native state confirms the prior step.
 -- Nothing is registered, sent, mutated or executed when this file loads.
 --
 -- C# bridge must pass action="equipment", slot=1..4 (ordinal of confirmed
@@ -51,7 +52,7 @@
 -- confirmed-preset provenance; the prime must provide an owner-bound
 -- retrieval/marshalling seam before even read-only integration.
 
-local M = { VERSION = "feature018-equipment-actions-1" }
+local M = { VERSION = "feature018-equipment-actions-2" }
 
 local function member(object, key)
     if object == nil then return nil end
@@ -246,7 +247,7 @@ local function inventory_for_target(manager, uuid, hero, slot)
     end
     local wearer = member(item,"heroUuid")
     local wearer_id = exact_id(wearer)
-    if wearer ~= nil and wearer ~= 0 and wearer_id == nil then
+    if wearer ~= nil and not (type(wearer)=="number" and wearer<=0 and wearer%1==0) and wearer_id == nil then
         return nil, "Native equipment wearer identity cannot be verified"
     end
     return {item=item,wearer=wearer_id,alreadyWorn=wearer_id == hero.uuid}
@@ -339,19 +340,211 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
     }}
 end
 
-function M.Handle(fields, confirmed_presets, game_input_clear)
-    if type(fields) ~= "table" or fields.action ~= "equipment" then
-        return blocked("Only original equipment hotkeys are supported by this adapter")
+-- A single sequential transaction. Network return is never proof of a slot change.
+-- HeroEquipInstall/Uninstall replies carry no slot payload; only the original
+-- PushHeroEquipChange -> EquipDataManager and hero slot readers advance a step.
+local transaction = nil
+local function action_owner(fields)
+    if not exact_session(fields) then return false end
+    local player = member(rawget(_G,"LuaEntry"),"Player")
+    if exact_id(member(player,"uid")) ~= "3133546747002289" then return false end
+    for _, getter in ipairs({"GetSourceServerId","GetSelfServerId","GetCurServerId"}) do
+        local ok, server = invoke(player,getter)
+        if not ok or (server ~= 2289 and server ~= "2289") then return false end
     end
-    -- The original install reply only sends an uncorrelated heroUid/event,
-    -- while later inventory pushes can arrive independently. Multi-hero
-    -- swap, removal and busy-formation safety/ACK are not verified, so no
-    -- network/mutation call is reachable even for a fully matching snapshot.
-    local audit = M.Preflight(fields,confirmed_presets,game_input_clear)
+    return true
+end
+local function owner_key(fields)
+    return table.concat({fields.profileId,fields.launchSessionId,fields.challenge,
+        fields.gamePid,fields.authorizedUid,fields.slot,fields.presetId},"/")
+end
+local function fingerprint(slots)
+    local parts = {}
+    for _, slot in ipairs(slots) do
+        parts[#parts+1] = table.concat({slot.squadIndex,slot.position,slot.heroUuid,
+            slot.slot,slot.targetEquipUuid},":")
+    end
+    return table.concat(parts,"/")
+end
+local function receipt(tx, confirmed)
+    return {state=confirmed and "confirmed" or "accepted",data={
+        observation=confirmed and "native_HeroEquip_preset_slots_applied" or
+            "native_HeroEquip_preset_pending",
+        action="equipment",slot=tonumber(tx.slot),presetId=tx.presetId,
+        requestDispatched=not confirmed and tx.sent>0,
+        awaitingGameConfirmation=not confirmed,equipmentApplied=confirmed,
+        readOnly=false,sourceVersion=26,completedSteps=tx.completed,
+        dispatchedSteps=tx.sent,plannedSteps=#tx.steps,
+        beforeSlots=tx.before,slots=tx.latest,
+    }}
+end
+local function observe_step(step)
+    local hero, why = read_hero(step.squadIndex,step.position)
+    if not hero or hero.uuid ~= step.heroUuid then return false,why or "Native hero identity changed" end
+    local ok, item = invoke(hero.object,"GetEquipBySlotType",step.slot)
+    if not ok then return false,"Native slot reader failed" end
+    local current = item and exact_id(member(item,"uuid")) or ""
+    if current ~= step.after then return nil end
+    if step.after ~= "" then
+        local inv, reason = inventory_for_target(
+            member(rawget(_G,"DataCenter"),"EquipDataManager"),step.after,hero,step.slot)
+        if not inv or not inv.alreadyWorn then return false,reason or "Equipment wearer push pending" end
+    elseif step.before ~= "" then
+        local ok_item, old = invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),
+            "GetEquipByUuid",tonumber(step.before))
+        if not ok_item or not old then return false,"Removed equipment inventory missing" end
+        if exact_id(member(old,"heroUuid")) == step.heroUuid then return nil end
+    end
+    return true
+end
+-- Source read-only owner snapshot for saving ordinary app equipment presets.
+-- Returned gear identifiers are native UUID strings, never template IDs.
+function M.Snapshot(fields)
+    if not action_owner(fields) then return blocked("Equipment snapshot requires the exact authorized 2289 session") end
+    local squads, candidates={},{}
+    local center=rawget(_G,"DataCenter")
+    local manager=member(center,"ArmyFormationDataManager")
+    for index=1,4 do
+        local ok,formation=invoke(manager,"GetOneArmyInfoByIndex",index)
+        if not ok then return unavailable("Native squad lookup unavailable") end
+        if formation then
+            local group={squadIndex=index,positions={}}
+            for position=1,5 do
+                local ok_slot,hero_uuid=invoke(formation,"GetLocalHeroAtSlotIndex",position)
+                if not ok_slot then return unavailable("Native formation hero lookup unavailable") end
+                if exact_id(hero_uuid) then
+                    local hero,reason=read_hero(index,position)
+                    if not hero then return unavailable(reason) end
+                    local entry={position=position,heroUuid=hero.uuid,equips={}}
+                    for slot=1,4 do
+                        local ok_item,item=invoke(hero.object,"GetEquipBySlotType",slot)
+                        if not ok_item then return unavailable("Native gear slot lookup unavailable") end
+                        if item then
+                            local id=exact_id(member(item,"uuid"))
+                            local stock,reason=id and inventory_for_target(
+                                member(center,"EquipDataManager"),id,hero,slot)
+                            if not stock or not stock.alreadyWorn then return blocked(reason or "Native slot inventory mismatch") end
+                            entry.equips[#entry.equips+1]={slot=slot,equipUuid=id}
+                        end
+                    end
+                    group.positions[#group.positions+1]=entry
+                end
+            end
+            if #group.positions>0 then squads[#squads+1]=group end
+        end
+    end
+    local ok,inventory=invoke(member(center,"EquipDataManager"),"GetAllEquipList")
+    if not ok or type(inventory)~="table" then return unavailable("Native equipment inventory unavailable") end
+    for _,item in pairs(inventory)do
+        local id=exact_id(member(item,"uuid"))
+        local slot=number_in_range(member(item,"slot"),1,4)
+        if id and slot then
+            candidates[#candidates+1]={equipUuid=id,slot=slot,
+                itemId=tostring(member(item,"itemId") or ""),
+                heroType=member(member(item,"config"),"heroType"),
+                heroUuid=exact_id(member(item,"heroUuid")) or "",
+                unused=exact_id(member(item,"heroUuid"))==nil}
+        end
+    end
+    table.sort(candidates,function(a,b)return a.equipUuid<b.equipUuid end)
+    return {state="confirmed",data={observation="native_HeroEquip_owner_snapshot",
+        readOnly=true,requestDispatched=false,ownerUid=fields.authorizedUid,
+        serverId=2289,squads=squads,items=candidates}}
+end
+
+function M.Handle(fields, confirmed_presets, game_input_clear)
+    if not action_owner(fields) then return blocked("Equipment actions require exact authorized UID on server 2289") end
+    if fields.queryOnly ~= nil and fields.queryOnly ~= "1" then return blocked("Unknown equipment query mode") end
+    local audit = M.Preflight(fields,confirmed_presets,
+        fields.queryOnly == "1" and function() return true end or game_input_clear)
     if audit.state ~= "confirmed" then return audit end
-    return {state="unsupported",errorCode="GAME_METHOD_UNAVAILABLE",
-        error="Native HeroEquipInstall has no request-correlated per-hero slot ACK or safe cross-hero preset transaction; no equipment changed",
-        data=audit.data}
+    local slots = audit.data.slots
+    local key, revision = owner_key(fields),fingerprint(slots)
+    if transaction and transaction.key ~= key then
+        return blocked("Previous equipment transaction is unresolved; owner or preset changed")
+    end
+    if transaction and transaction.fingerprint ~= revision then
+        return blocked("Confirmed preset or native hero assignment changed during equipment transaction")
+    end
+    if fields.queryOnly == "1" and not transaction then return blocked("No pending equipment transaction") end
+    if not transaction then
+        local steps, heroes = {},{}
+        local hero_positions={}
+        for _, slot in ipairs(slots) do
+            local position_key=tostring(slot.squadIndex)..":"..tostring(slot.position)
+            if hero_positions[slot.heroUuid] and hero_positions[slot.heroUuid]~=position_key then
+                return blocked("One native hero is present in multiple saved formation positions")
+            end
+            hero_positions[slot.heroUuid]=position_key
+            heroes[slot.heroUuid]=true
+        end
+        -- Remove changed equipped slots before installing. This resolves cycles
+        -- without silently taking gear from heroes outside this saved preset.
+        if audit.data.wornByOtherHero > 0 then
+            local manager = member(rawget(_G,"DataCenter"),"EquipDataManager")
+            for _, slot in ipairs(slots) do
+                if slot.targetEquipUuid ~= "" then
+                    local _, gear = invoke(manager,"GetEquipByUuid",tonumber(slot.targetEquipUuid))
+                    local wearer = exact_id(member(gear,"heroUuid"))
+                    if wearer and not heroes[wearer] then
+                        return blocked("Saved equipment is worn by a hero outside this preset")
+                    end
+                end
+            end
+        end
+        for _, slot in ipairs(slots) do
+            if slot.currentEquipUuid ~= slot.targetEquipUuid and slot.currentEquipUuid ~= "" then
+                steps[#steps+1]={squadIndex=slot.squadIndex,position=slot.position,
+                    heroUuid=slot.heroUuid,slot=slot.slot,before=slot.currentEquipUuid,after=""}
+            end
+        end
+        for _, slot in ipairs(slots) do
+            if slot.currentEquipUuid ~= slot.targetEquipUuid and slot.targetEquipUuid ~= "" then
+                steps[#steps+1]={squadIndex=slot.squadIndex,position=slot.position,
+                    heroUuid=slot.heroUuid,slot=slot.slot,before="",after=slot.targetEquipUuid}
+            end
+        end
+        transaction={key=key,fingerprint=revision,steps=steps,index=1,completed=0,
+            sent=0,before=slots,latest=slots,slot=fields.slot,presetId=fields.presetId}
+    end
+    local tx=transaction
+    tx.latest=slots
+    if tx.waiting then
+        local observed, reason=observe_step(tx.steps[tx.index])
+        if observed==false then return blocked(reason) end
+        if observed==nil then return receipt(tx,false) end
+        tx.waiting=false;tx.completed=tx.completed+1;tx.index=tx.index+1
+    end
+    local step=tx.steps[tx.index]
+    if not step then
+        if audit.data.changedSlots ~= 0 then return blocked("Final equipment slots disagree with saved preset") end
+        local result=receipt(tx,true);transaction=nil;return result
+    end
+    local hero, reason=read_hero(step.squadIndex,step.position)
+    if not hero or hero.uuid ~= step.heroUuid then return blocked(reason or "Native hero changed") end
+    local ok_current,current=invoke(hero.object,"GetEquipBySlotType",step.slot)
+    if not ok_current or (current and exact_id(member(current,"uuid")) or "") ~= step.before then
+        return blocked("Native equipment slot changed before dispatch")
+    end
+    if step.after ~= "" then
+        local item, why=inventory_for_target(member(rawget(_G,"DataCenter"),"EquipDataManager"),
+            step.after,hero,step.slot)
+        if not item or item.wearer then return blocked(why or "Equipment has not been released by its previous hero") end
+    end
+    local message=member(rawget(_G,"MsgDefines"),step.after=="" and "HeroEquipUninstall" or "HeroEquipInstall")
+    local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
+    if message==nil or type(send)~="function" then return unavailable("Original HeroEquip message unavailable") end
+    -- Tombstone before the call; an exception can occur after a native send.
+    tx.waiting=true;tx.sent=tx.sent+1
+    local ok
+    if step.after=="" then ok=pcall(send,message,member(hero.object,"uuid"),{step.slot})
+    else
+        local _, native_item=invoke(member(rawget(_G,"DataCenter"),"EquipDataManager"),"GetEquipByUuid",tonumber(step.after))
+        ok=pcall(send,message,member(hero.object,"uuid"),{[step.slot]=member(native_item,"uuid")})
+    end
+    if not ok then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
+        error="Equipment send outcome unknown; never retransmit this step",data=receipt(tx,false).data} end
+    return receipt(tx,false)
 end
 
 return M

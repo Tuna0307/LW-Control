@@ -66,6 +66,7 @@ frozen={TextInputClear=function()return state.focused end,
 bridge={
  handler=nil,
  RegisterHandler=function(name, fn)
+  if name=="feature018_attack_prepare" then return true end
   assert(name=="feature018_rapid_action" and type(fn)=="function")
   assert(bridge.handler==nil)
   bridge.handler=fn

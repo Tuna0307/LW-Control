@@ -355,7 +355,7 @@ internal static class Feature018HotkeyCaptureChecks
                 validQuery).TryGetValue("queryOnly", out string? readOnly) &&
                 readOnly == "1", "native action queryOnly flag was dropped: " + action);
         }
-        foreach (string action in new[] { "attack", "equipment" })
+        foreach (string action in new[] { "shieldOverlay", "frontlineReinforce" })
         {
             try
             {
@@ -410,10 +410,27 @@ internal static class Feature018HotkeyCaptureChecks
 
         var validAttackFields = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "attack", slot = 2,
-                authorizedUid = session.GameUid }));
+                authorizedUid = session.GameUid, allowRapidItem = true,
+                allowRapidDiamond = false }));
         Require(validAttackFields["authorizedUid"] == session.GameUid &&
                 validAttackFields["slot"] == "2",
             "native attack lost authenticated numeric owner UID");
+        Require(validAttackFields["allowRapidItem"] == "1" &&
+            !validAttackFields.ContainsKey("allowRapidDiamond"),
+            "attack speedup preference consent was lost or false preference became a spend");
+        var attackStatus = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "attack", slot = 2,
+                authorizedUid = session.GameUid, queryOnly = true }));
+        Require(attackStatus["queryOnly"] == "1" && !attackStatus.ContainsKey("allowRapidItem"),
+            "attack confirmation query added new spending consent");
+        var equipmentStatus = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "equipment", slot = 2, queryOnly = true }));
+        Require(equipmentStatus["queryOnly"] == "1", "equipment native poststate polling was rejected");
+        var diamondUse = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
+            JsonSerializer.SerializeToElement(new { action = "speedupDiamond", slot = 2,
+                authorizedUid = session.GameUid, itemId = "9999", diamondOptIn = true }));
+        Require(diamondUse["diamondOptIn"] == "1" && diamondUse["itemId"] == "9999",
+            "gem speedup lost explicit native template or consent");
         var validRapid = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "speedupItem", slot = 2,
                 authorizedUid = session.GameUid, itemOptIn = true, itemId = "9001" }));
@@ -471,7 +488,7 @@ internal static class Feature018HotkeyCaptureChecks
             new { action = "attack", slot = 1, authorizedUid = "bad-uid", itemOptIn = false, itemId = "", queryOnly = false },
             new { action = "speedupItem", slot = 1, authorizedUid = session.GameUid, itemOptIn = false, itemId = "9001", queryOnly = false },
             new { action = "speedupItem", slot = 1, authorizedUid = session.GameUid, itemOptIn = true, itemId = "bad-item", queryOnly = false },
-            new { action = "speedupDiamond", slot = 1, authorizedUid = session.GameUid, itemOptIn = false, itemId = "", queryOnly = true },
+            new { action = "speedupDiamond", slot = 1, authorizedUid = session.GameUid, itemOptIn = false, itemId = "", queryOnly = false },
         })
         {
             try
@@ -503,9 +520,10 @@ internal static class Feature018HotkeyCaptureChecks
         int beforeSpend = stub.Calls;
         config = config with { AttackMarchSpeedupDiamond = true };
         Require((await nativeCoordinator.TryDispatchAsync(
-            new(Feature018HotkeyKind.AttackSquad, 3))).Status == Feature018HotkeyActionStatus.Unsupported &&
-            stub.Calls == beforeSpend,
-            "speedup diamond opt-in silently ignored during native dispatch");
+            new(Feature018HotkeyKind.AttackSquad, 3))).Status == Feature018HotkeyActionStatus.Submitted &&
+            stub.Calls == beforeSpend + 1 &&
+            stub.LastPayload.GetProperty("allowRapidDiamond").GetBoolean(),
+            "speedup gem consent was dropped or native send falsely confirmed");
         stub.Available = false;
         Require((await nativeCoordinator.TryDispatchAsync(
             new(Feature018HotkeyKind.RecallSquad, 1))).Status == Feature018HotkeyActionStatus.Unsupported,

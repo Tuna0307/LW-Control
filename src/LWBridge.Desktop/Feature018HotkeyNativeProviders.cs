@@ -49,16 +49,6 @@ internal sealed class Feature018HotkeyNativeProviders
                 "authenticated_game_hotkey_transport_unavailable");
         }
 
-        // The original opt-in speedup toggles are separate settings; until the
-        // current game request supports them explicitly, fail closed rather
-        // than silently ignoring the player's spend preferences.
-        if (command.Intent.Kind == Feature018HotkeyKind.AttackSquad &&
-            (command.AllowMarchSpeedupItems || command.AllowMarchSpeedupDiamonds))
-        {
-            return new(Feature018HotkeyActionStatus.Unsupported,
-                "attack_march_speedup_options_not_source_verified");
-        }
-
         // The game-side current-player UID comparison is a second identity
         // fence for an attack. Other game actions keep their native two-field
         // command contract; no unproven speedup is implied.
@@ -68,6 +58,8 @@ internal sealed class Feature018HotkeyNativeProviders
                 action = ActionName(command.Intent.Kind),
                 slot = command.Intent.Slot,
                 authorizedUid = command.Session.GameUid,
+                allowRapidItem = command.AllowMarchSpeedupItems,
+                allowRapidDiamond = command.AllowMarchSpeedupDiamonds,
             }, JsonOptions.Default)
             : JsonSerializer.SerializeToElement(new
             {
@@ -104,10 +96,16 @@ internal sealed class Feature018HotkeyNativeProviders
                     string? uuidProperty = command.Intent.Kind switch
                     {
                         Feature018HotkeyKind.RecallSquad => "marchUuid",
+                        Feature018HotkeyKind.AttackSquad => "formationUuid",
                         Feature018HotkeyKind.UseShield => "itemUuid",
+                        Feature018HotkeyKind.ApplyEquipmentPreset => "presetId",
+                        Feature018HotkeyKind.RandomRelocate or Feature018HotkeyKind.AllianceRelocate => "itemUuid",
                         _ => null,
                     };
-                    if (uuidProperty is not null && IsNativeUuid(evidence, uuidProperty))
+                    if (uuidProperty is not null &&
+                        (IsNativeUuid(evidence, uuidProperty) ||
+                         (uuidProperty == "presetId" && evidence.TryGetProperty("presetId", out var preset) &&
+                          preset.ValueKind == JsonValueKind.String && preset.GetString() is { Length: > 0 and <= 128 })))
                         return await PollAfterSendAsync(command, uuidProperty,
                             evidence.GetProperty(uuidProperty).GetString()!, cancellationToken)
                             .ConfigureAwait(false);
@@ -157,13 +155,13 @@ internal sealed class Feature018HotkeyNativeProviders
         // A short one-way confirmation window; never send a second return-home
         // request or indefinitely hold the hotkey action dispatch gate.
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(TimeSpan.FromSeconds(15));
-        JsonElement request = JsonSerializer.SerializeToElement(new
-        {
-            action = ActionName(command.Intent.Kind),
-            slot = command.Intent.Slot,
-            queryOnly = true,
-        }, JsonOptions.Default);
+        deadline.CancelAfter(command.Intent.Kind == Feature018HotkeyKind.ApplyEquipmentPreset
+            ? TimeSpan.FromMinutes(3) : TimeSpan.FromSeconds(15));
+        JsonElement request = command.Intent.Kind == Feature018HotkeyKind.AttackSquad
+            ? JsonSerializer.SerializeToElement(new { action = "attack", slot = command.Intent.Slot,
+                queryOnly = true, authorizedUid = command.Session.GameUid }, JsonOptions.Default)
+            : JsonSerializer.SerializeToElement(new
+            { action = ActionName(command.Intent.Kind), slot = command.Intent.Slot, queryOnly = true }, JsonOptions.Default);
         try
         {
             while (true)
@@ -217,6 +215,46 @@ internal sealed class Feature018HotkeyNativeProviders
 
         switch (intent.Kind)
         {
+            case Feature018HotkeyKind.ApplyEquipmentPreset:
+                return observed.GetString() == "native_HeroEquip_preset_slots_applied" &&
+                    evidence.TryGetProperty("equipmentApplied", out var applied) && applied.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("slot", out var equipmentSlot) && equipmentSlot.TryGetInt32(out int ordinal) &&
+                    ordinal == intent.Slot &&
+                    evidence.TryGetProperty("presetId", out var presetId) && presetId.ValueKind == JsonValueKind.String &&
+                    !string.IsNullOrWhiteSpace(presetId.GetString()) &&
+                    evidence.TryGetProperty("completedSteps", out var done) && done.TryGetInt32(out int completed) &&
+                    evidence.TryGetProperty("plannedSteps", out var planned) && planned.TryGetInt32(out int total) &&
+                    completed >= 0 && completed == total &&
+                    evidence.TryGetProperty("slots", out var slots) && slots.ValueKind == JsonValueKind.Array &&
+                    slots.GetArrayLength() > 0 && slots.EnumerateArray().All(item =>
+                        item.TryGetProperty("currentEquipUuid", out var current) &&
+                        item.TryGetProperty("targetEquipUuid", out var target) &&
+                        current.ValueKind == JsonValueKind.String && target.ValueKind == JsonValueKind.String &&
+                        current.GetString() == target.GetString());
+
+            case Feature018HotkeyKind.RandomRelocate:
+            case Feature018HotkeyKind.AllianceRelocate:
+                return observed.GetString() == "native_relocation_reply_item_and_world_position" &&
+                    evidence.TryGetProperty("action", out var movedAction) &&
+                    movedAction.GetString() == ActionName(intent.Kind) &&
+                    evidence.TryGetProperty("relocationConfirmed", out var relocated) && relocated.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("replyObserved", out var reply) && reply.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
+                    IsNativeUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
+                    evidence.TryGetProperty("beforeCount", out var beforeItem) && beforeItem.TryGetInt32(out int beforeMoveCount) &&
+                    evidence.TryGetProperty("afterCount", out var afterItem) && afterItem.TryGetInt32(out int afterMoveCount) &&
+                    beforeMoveCount > 0 && afterMoveCount == beforeMoveCount - 1;
+
+            case Feature018HotkeyKind.AttackSquad:
+                return observed.GetString() == "native_owned_formation_attack_target_transition" &&
+                       evidence.TryGetProperty("slot", out JsonElement attackSlot) &&
+                       attackSlot.TryGetInt32(out int actualAttackSlot) && actualAttackSlot == intent.Slot &&
+                       IsNativeUuid(evidence, "marchUuid") && IsNativeUuid(evidence, "formationUuid") &&
+                       IsNativeUuid(evidence, "targetUuid") &&
+                       evidence.TryGetProperty("targetType", out JsonElement attackKind) &&
+                       attackKind.TryGetInt32(out int nativeAttackKind) && nativeAttackKind > 0 &&
+                       evidence.TryGetProperty("targetSource", out JsonElement targetSource) &&
+                       targetSource.GetString() == "open_native_formation_selector";
             case Feature018HotkeyKind.ShieldRemaining:
                 if (observed.GetString() != "native_MAIN_SHIELD_effect_status_map" ||
                     !evidence.TryGetProperty("active", out JsonElement active) ||

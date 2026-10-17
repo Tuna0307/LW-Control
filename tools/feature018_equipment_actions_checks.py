@@ -200,7 +200,7 @@ class EquipmentPreflight(unittest.TestCase):
         self.assertEqual(state["sent"], 0)
         action = module.Handle(
             fields(lua), confirmed, lua.eval("function() return true end"))
-        self.assertEqual(action["state"], "unsupported")
+        self.assertEqual(action["state"], "failed")
         self.assertEqual(state["sent"], 0)
 
     def test_free_item_and_cross_hero_swap_identified_without_sending(self):
@@ -270,6 +270,89 @@ class EquipmentPreflight(unittest.TestCase):
         check_failure(lambda s, p: p[1]["squads"][1].__setitem__("squadIndex", 2))
         check_failure(lambda s, p: p[1]["squads"][1]["positions"][1].__setitem__("position", 6))
         check_failure(lambda s, p: s["formation1"].__setitem__("localIndexToHeroDic", {}), "unsupported")
+
+
+class EquipmentApplyChecks(unittest.TestCase):
+    def fixture(self):
+        lua,module,state,presets=setup()
+        lua.execute("""
+        LuaEntry.Player.uid='3133546747002289'
+        function LuaEntry.Player:GetSourceServerId()return 2289 end
+        function LuaEntry.Player:GetSelfServerId()return 2289 end
+        function LuaEntry.Player:GetCurServerId()return 2289 end
+        MsgDefines={HeroEquipInstall='install',HeroEquipUninstall='remove'}
+        state.requests={}
+        SFSNetwork.SendMessage=function(message,hero,slots)
+          state.sent=state.sent+1
+          state.requests[state.sent]={message=message,hero=hero,slots=slots}
+        end
+        function apply_push()
+          local req=state.requests[state.sent]
+          local hero=req.hero==101 and state.hero101 or state.hero202
+          if req.message=='remove' then
+            for _,slot in ipairs(req.slots)do
+              local old=hero.equips[slot]
+              if old then old.heroUuid=0 end
+              hero.equips[slot]=nil
+            end
+          else
+            for slot,id in pairs(req.slots)do
+              hero.equips[slot]=state.items[id]
+              state.items[id].heroUuid=hero.uuid
+            end
+          end
+        end
+        """)
+        def call(query=False,slot=2):
+            extra={'authorizedUid':'3133546747002289'}
+            if query: extra['queryOnly']='1'
+            return module.Handle(fields(lua,slot,**extra),presets,lua.eval('function()return true end'))
+        return lua,module,state,presets,call
+
+    def test_native_snapshot_supplies_legitimate_persistable_loadout_and_inventory(self):
+        lua,module,state,_,_=self.fixture()
+        lua.execute('function DataCenter.EquipDataManager:GetAllEquipList()return state.items end')
+        result=module.Snapshot(fields(lua,authorizedUid='3133546747002289'))
+        self.assertEqual(result['state'],'confirmed');data=result['data']
+        self.assertEqual(data['squads'][1]['positions'][1]['equips'][1]['equipUuid'],'501')
+        self.assertEqual(data['squads'][2]['positions'][1]['heroUuid'],'202')
+        self.assertEqual(len(data['items']),4);self.assertEqual(state['sent'],0)
+        self.assertTrue(data['readOnly']);self.assertFalse(data['requestDispatched'])
+
+    def test_sequential_real_install_uninstall_waits_for_native_push(self):
+        lua,_,state,_,call=self.fixture()
+        first=call();self.assertEqual(first['state'],'accepted');self.assertEqual(state['sent'],1)
+        self.assertEqual(state['requests'][1]['message'],'remove')
+        waiting=call(True);self.assertEqual(waiting['state'],'accepted');self.assertEqual(state['sent'],1)
+        for _ in range(8):
+            lua.globals().apply_push()
+            result=call(True)
+            if result['state']=='confirmed':break
+        self.assertEqual(result['state'],'confirmed');self.assertTrue(result['data']['equipmentApplied'])
+        self.assertEqual(result['data']['completedSteps'],4)
+        self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
+        self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
+
+    def test_exact_2289_uid_and_all_three_native_servers_before_every_step(self):
+        lua,_,state,_,call=self.fixture();call();lua.globals().apply_push()
+        lua.execute('function LuaEntry.Player:GetCurServerId()return 2212 end')
+        self.assertEqual(call(True)['state'],'failed');self.assertEqual(state['sent'],1)
+
+    def test_throw_after_send_never_retransmits(self):
+        lua,_,state,_,call=self.fixture()
+        lua.execute("SFSNetwork.SendMessage=function(...)state.sent=state.sent+1;error('uncertain')end")
+        self.assertEqual(call()['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertEqual(call(True)['state'],'accepted');self.assertEqual(state['sent'],1)
+
+    def test_preexisting_matching_preset_is_observed_without_send(self):
+        _,_,state,_,call=self.fixture()
+        result=call(slot=1);self.assertEqual(result['state'],'confirmed')
+        self.assertEqual(result['data']['dispatchedSteps'],0);self.assertEqual(state['sent'],0)
+
+    def test_changed_preset_or_hero_rejects_pending_transaction(self):
+        lua,_,state,presets,call=self.fixture();call()
+        presets[2]['squads'][1]['positions'][1]['equips'][1]['equipUuid']='504'
+        self.assertEqual(call(True)['state'],'failed');self.assertEqual(state['sent'],1)
 
 
 if __name__ == "__main__":
