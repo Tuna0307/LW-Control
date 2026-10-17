@@ -67,16 +67,7 @@ internal static class Feature018OwnedWindowKeys
             IsWindowVisible(hwnd) && GetAncestor(hwnd, GaRoot) == hwnd &&
             WindowBelongsTo(hwnd, pid);
         public bool IsKeyboardFocusInOwnedWindow(nint hwnd, int pid)
-        {
-            uint thread = GetWindowThreadProcessId(hwnd, out uint windowPid);
-            if (thread == 0 || windowPid != (uint)pid) return false;
-            var info = new GuiThreadInfo { Size = (uint)Marshal.SizeOf<GuiThreadInfo>() };
-            // Ask the foreground game GUI thread directly; an activated root
-            // can remain in front while keyboard focus moves to a popup.
-            return GetGUIThreadInfo(thread, ref info) &&
-                info.Focus != 0 && GetAncestor(info.Focus, GaRoot) == hwnd &&
-                WindowBelongsTo(info.Focus, pid);
-        }
+            => Feature018OwnedWindowKeys.HasOwnedKeyboardFocus(hwnd, pid);
         public bool ActivateWindow(nint hwnd) => SetForegroundWindow(hwnd);
         public IReadOnlySet<Keys> WatchedKeysDown() =>
             Feature018HotkeyRecognizer.Watched.Where(key =>
@@ -95,6 +86,19 @@ internal static class Feature018OwnedWindowKeys
 
     internal static int NativeInputSize => Marshal.SizeOf<Input>();
     internal static int NativeGuiThreadInfoSize => Marshal.SizeOf<GuiThreadInfo>();
+
+    // Shared by the real SendInput witness and the independent timer capture:
+    // a foreground root alone does not establish which HWND owns keyboard focus.
+    internal static bool HasOwnedKeyboardFocus(nint hwnd, int pid)
+    {
+        if (!OperatingSystem.IsWindows() || hwnd == 0 || pid <= 0) return false;
+        uint thread = GetWindowThreadProcessId(hwnd, out uint windowPid);
+        if (thread == 0 || windowPid != (uint)pid) return false;
+        var info = new GuiThreadInfo { Size = (uint)Marshal.SizeOf<GuiThreadInfo>() };
+        return GetGUIThreadInfo(thread, ref info) &&
+            info.Focus != 0 && GetAncestor(info.Focus, GaRoot) == hwnd &&
+            WindowBelongsTo(info.Focus, pid);
+    }
 
     // Matches exactly what the real capture recognizer polls, allowing
     // Windows' generic VK_MENU and left/right Alt aliases to overlap.

@@ -134,6 +134,45 @@ internal sealed class Feature018HotkeyRecognizer
 /// </summary>
 internal sealed class Feature018HotkeyCapture : IDisposable
 {
+    // The real Win32 APIs are behind this narrow seam so a changing foreground
+    // root or keyboard focus can be reproduced without an OS key or game launch.
+    internal interface IPlatform
+    {
+        nint ForegroundWindow();
+        bool IsExactOwnedRoot(nint hwnd, int pid, string path, DateTime startedUtc);
+        bool HasOwnedKeyboardFocus(nint hwnd, int pid);
+        IReadOnlySet<Keys> WatchedKeysDown();
+    }
+
+    private sealed class WindowsPlatform : IPlatform
+    {
+        internal static readonly WindowsPlatform Instance = new();
+        public nint ForegroundWindow() => GetForegroundWindow();
+        public bool IsExactOwnedRoot(nint hwnd, int pid, string path, DateTime startedUtc)
+        {
+            if (!OperatingSystem.IsWindows() || hwnd == 0 ||
+                !IsWindowVisible(hwnd) || GetAncestor(hwnd, 2) != hwnd)
+                return false;
+            _ = GetWindowThreadProcessId(hwnd, out uint windowPid);
+            if (windowPid != (uint)pid) return false;
+            try
+            {
+                using Process owner = Process.GetProcessById(pid);
+                if (owner.HasExited || owner.StartTime.ToUniversalTime() != startedUtc)
+                    return false;
+                string? actual = owner.MainModule?.FileName;
+                return actual is not null && string.Equals(
+                    Path.GetFullPath(actual), path, StringComparison.OrdinalIgnoreCase);
+            }
+            catch { return false; }
+        }
+        public bool HasOwnedKeyboardFocus(nint hwnd, int pid) =>
+            Feature018OwnedWindowKeys.HasOwnedKeyboardFocus(hwnd, pid);
+        public IReadOnlySet<Keys> WatchedKeysDown() =>
+            Feature018HotkeyRecognizer.Watched.Where(key =>
+                (GetAsyncKeyState((int)key) & 0x8000) != 0).ToHashSet();
+    }
+
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 30 };
     private readonly Feature018HotkeyRecognizer recognizer = new();
     private readonly int gamePid;
@@ -141,6 +180,7 @@ internal sealed class Feature018HotkeyCapture : IDisposable
     private readonly DateTime startTimeUtc;
     private readonly Func<bool> authenticatedOwnerAndTextInputClear;
     private readonly Action<Feature018HotkeyIntent> onIntent;
+    private readonly IPlatform platform;
     private readonly string captureId = Guid.NewGuid().ToString("N");
     private readonly ConcurrentQueue<Feature018CapturedIntent> observed = new();
     private long observedSequence;
@@ -156,6 +196,15 @@ internal sealed class Feature018HotkeyCapture : IDisposable
         DateTime startTimeUtc,
         Func<bool> authenticatedOwnerAndTextInputClear,
         Action<Feature018HotkeyIntent> onIntent)
+        : this(gamePid, gamePath, startTimeUtc, authenticatedOwnerAndTextInputClear,
+            onIntent, WindowsPlatform.Instance) { }
+
+    internal Feature018HotkeyCapture(
+        int gamePid,
+        string gamePath,
+        DateTime startTimeUtc,
+        Func<bool> authenticatedOwnerAndTextInputClear,
+        Action<Feature018HotkeyIntent> onIntent, IPlatform platform)
     {
         if (gamePid <= 0) throw new ArgumentOutOfRangeException(nameof(gamePid));
         if (string.IsNullOrWhiteSpace(gamePath)) throw new ArgumentException("Game path required", nameof(gamePath));
@@ -165,6 +214,7 @@ internal sealed class Feature018HotkeyCapture : IDisposable
         this.authenticatedOwnerAndTextInputClear = authenticatedOwnerAndTextInputClear ??
             throw new ArgumentNullException(nameof(authenticatedOwnerAndTextInputClear));
         this.onIntent = onIntent ?? throw new ArgumentNullException(nameof(onIntent));
+        this.platform = platform ?? throw new ArgumentNullException(nameof(platform));
         timer.Tick += Tick;
     }
 
@@ -182,59 +232,51 @@ internal sealed class Feature018HotkeyCapture : IDisposable
 
     private void Tick(object? sender, EventArgs args)
     {
-        bool ownedForeground = IsExactForegroundOwner();
-        bool admitted = false;
-        if (ownedForeground)
-        {
-            try { admitted = authenticatedOwnerAndTextInputClear(); }
-            catch { admitted = false; }
-        }
-        if (!ownedForeground || !admitted)
+        nint exactRoot = platform.ForegroundWindow();
+        if (!OwnerAndInputAdmitted(exactRoot))
         {
             recognizer.Disarm();
             return;
         }
-
-        HashSet<Keys> down = [];
-        foreach (Keys key in Feature018HotkeyRecognizer.Watched)
+        IReadOnlySet<Keys> down = platform.WatchedKeysDown();
+        // Native text-input focus may switch during the key-state query,
+        // and a game process can foreground a different owned sibling HWND.
+        // Neither is proof that these keys came from this exact original root.
+        if (!OwnerAndInputAdmitted(exactRoot))
         {
-            if ((GetAsyncKeyState((int)key) & 0x8000) != 0) down.Add(key);
+            recognizer.Disarm();
+            return;
         }
         Feature018HotkeyIntent? intent = recognizer.Observe(down, true, true);
         if (intent is not null)
         {
-            // Double-check that this remains the exact authenticated owner's
-            // foreground root, including after the Win32 key-state reads.
-            // The app's separate game-side input-clear admission still applies.
-            if (!IsExactForegroundOwner()) { recognizer.Disarm(); return; }
-            nint hwnd = GetForegroundWindow();
+            // Record the previously verified *same* root, not a new unchecked
+            // GetForegroundWindow result. This is an observed capture callback
+            // only; it does not prove input device origin or Unity-game ACK.
             long sequence = Interlocked.Increment(ref observedSequence);
             observed.Enqueue(new(captureId, sequence, intent.Value.Kind, intent.Value.Slot,
-                gamePid, hwnd.ToInt64(), DateTimeOffset.UtcNow));
+                gamePid, exactRoot.ToInt64(), DateTimeOffset.UtcNow));
             while (observed.Count > 128) observed.TryDequeue(out _);
             onIntent(intent.Value);
         }
     }
 
+    internal void PollOnceForChecks() => Tick(null, EventArgs.Empty);
+
+    private bool OwnerAndInputAdmitted(nint expectedRoot)
+    {
+        if (expectedRoot == 0 || platform.ForegroundWindow() != expectedRoot ||
+            !platform.IsExactOwnedRoot(expectedRoot, gamePid, gamePath, startTimeUtc) ||
+            !platform.HasOwnedKeyboardFocus(expectedRoot, gamePid))
+            return false;
+        try { return authenticatedOwnerAndTextInputClear(); }
+        catch { return false; }
+    }
+
     internal bool IsExactForegroundOwner()
     {
-        if (!OperatingSystem.IsWindows()) return false;
-        nint window = GetForegroundWindow();
-        if (window == 0 || !IsWindowVisible(window) || GetAncestor(window, 2) != window)
-            return false;
-        _ = GetWindowThreadProcessId(window, out uint pid);
-        if (pid != (uint)gamePid) return false;
-        try
-        {
-            using Process owner = Process.GetProcessById(gamePid);
-            if (owner.HasExited || owner.StartTime.ToUniversalTime() != startTimeUtc)
-                return false;
-            string? actual = owner.MainModule?.FileName;
-            return actual is not null && string.Equals(
-                Path.GetFullPath(actual), gamePath,
-                StringComparison.OrdinalIgnoreCase);
-        }
-        catch { return false; }
+        nint hwnd = platform.ForegroundWindow();
+        return platform.IsExactOwnedRoot(hwnd, gamePid, gamePath, startTimeUtc);
     }
 
     public void Dispose()

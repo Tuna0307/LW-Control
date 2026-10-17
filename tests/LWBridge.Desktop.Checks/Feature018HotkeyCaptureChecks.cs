@@ -80,6 +80,31 @@ internal static class Feature018HotkeyCaptureChecks
         }
     }
 
+    private sealed class FakeCapturePlatform : Feature018HotkeyCapture.IPlatform
+    {
+        internal nint Foreground = (nint)101;
+        internal readonly HashSet<nint> OwnedRoots = [(nint)101, (nint)202];
+        internal bool ExactOwner = true;
+        internal bool KeyboardFocusOwned = true;
+        internal readonly HashSet<Keys> DownKeys = [];
+        internal Action? OnKeyRead;
+        internal int KeyReads;
+        public nint ForegroundWindow() => Foreground;
+        public bool IsExactOwnedRoot(nint hwnd, int pid, string path, DateTime startedUtc) =>
+            ExactOwner && pid == 43210 && hwnd != 0 && OwnedRoots.Contains(hwnd) &&
+            path.EndsWith("LastWar.exe", StringComparison.OrdinalIgnoreCase) &&
+            startedUtc.Kind == DateTimeKind.Utc;
+        public bool HasOwnedKeyboardFocus(nint hwnd, int pid) =>
+            KeyboardFocusOwned && pid == 43210 && hwnd == Foreground;
+        public IReadOnlySet<Keys> WatchedKeysDown()
+        {
+            KeyReads++;
+            IReadOnlySet<Keys> snapshot = DownKeys.ToHashSet();
+            OnKeyRead?.Invoke();
+            return snapshot;
+        }
+    }
+
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("FEATURE018_HOTKEY_CAPTURE: " + message);
@@ -165,6 +190,7 @@ internal static class Feature018HotkeyCaptureChecks
             Require(!Feature018OwnedWindowKeys.TryKeyPlan(unsupported, out byte[] actual) &&
                     actual.Length == 0, "unknown chord was eligible for task-owned injection: " + unsupported);
         }
+        CaptureExactRootRaceChecks();
         await OwnedWindowAdmissionChecksAsync();
 
         var session = new Feature018HotkeySession("p", "i", "123456789", 2212);
@@ -628,6 +654,98 @@ internal static class Feature018HotkeyCaptureChecks
 
         await EquipmentReadOnlyPreflightChecksAsync();
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");
+    }
+
+    private static void CaptureExactRootRaceChecks()
+    {
+        var os = new FakeCapturePlatform();
+        var dispatched = new List<Feature018HotkeyIntent>();
+        bool inputClear = true;
+        int nativeFocusChecks = 0;
+        using var capture = new Feature018HotkeyCapture(
+            43210, @"C:\fake\LastWar.exe", new DateTime(2026, 10, 17, 0, 0, 0, DateTimeKind.Utc),
+            () => { nativeFocusChecks++; return inputClear; }, dispatched.Add, os);
+
+        capture.PollOnceForChecks(); // Exact owned root, no pressed keys: arm.
+        os.DownKeys.Add(Keys.Q);
+        capture.PollOnceForChecks();
+        Require(dispatched.SequenceEqual(new[] {
+                    new Feature018HotkeyIntent(Feature018HotkeyKind.AttackSquad, 1) }) &&
+                capture.LastObservedSequence == 1 &&
+                capture.SnapshotCapturedIntents() is { Length: 1 } first &&
+                first[0].CaptureId == capture.CaptureId &&
+                first[0].ForegroundHwnd == 101 &&
+                first[0].GamePid == 43210 && nativeFocusChecks == 4,
+            "real capture timer seam did not retain one authenticated native intent observation");
+        capture.PollOnceForChecks(); // Still held; no repeated key edge.
+        Require(dispatched.Count == 1 && capture.LastObservedSequence == 1,
+            "held Q generated a second recognizer callback");
+
+        // Two different foreground roots can belong to the *same* game PID.
+        // Never label an edge read from root 101 as if it came from root 202.
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.F6);
+        os.OnKeyRead = () => os.Foreground = (nint)202;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 1 && capture.LastObservedSequence == 1 &&
+                capture.SnapshotCapturedIntents().Length == 1,
+            "foreground sibling swap during GetAsyncKeyState fabricated a shield key intent");
+        os.OnKeyRead = null;
+        capture.PollOnceForChecks(); // Held F6 after unsafe sample: must remain disarmed.
+        Require(dispatched.Count == 1, "held F6 on new owned HWND rearmed without release");
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.F6);
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2 &&
+                capture.SnapshotCapturedIntents() is { Length: 2 } afterSibling &&
+                afterSibling[1].ForegroundHwnd == 202 &&
+                afterSibling[1].Sequence == 2 &&
+                afterSibling[1].Kind == Feature018HotkeyKind.UseShield &&
+                afterSibling[1].Slot == 8,
+            "new exact root did not require a release and then capture the next independent F6");
+
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.Q);
+        os.OnKeyRead = () => inputClear = false;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2, "game-native text-input focus changed after sample and still dispatched Q");
+        os.OnKeyRead = null;
+        inputClear = true;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2, "Q held through chat focus transition unexpectedly triggered");
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.Q);
+        os.OnKeyRead = () => os.KeyboardFocusOwned = false;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2, "keyboard focus left owned root while keys were read");
+        os.OnKeyRead = null;
+        os.KeyboardFocusOwned = true;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2, "held key after keyboard-focus return bypassed rearming");
+
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.Q);
+        os.OnKeyRead = () => os.ExactOwner = false;
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 2, "replaced owner/PID during key read dispatched an action");
+        os.OnKeyRead = null;
+        os.ExactOwner = true;
+        os.DownKeys.Clear();
+        capture.PollOnceForChecks();
+        os.DownKeys.Add(Keys.D2);
+        os.DownKeys.Add(Keys.Menu);
+        capture.PollOnceForChecks();
+        Require(dispatched.Count == 3 &&
+                dispatched[^1] == new Feature018HotkeyIntent(
+                    Feature018HotkeyKind.ApplyEquipmentPreset, 2) &&
+                capture.SnapshotCapturedIntents()[^1].ForegroundHwnd == 202,
+            "verified Alt+2 callback failed after an untrusted owner transition");
+        Console.WriteLine("FEATURE018_CAPTURE_EXACT_ROOT_RACE_PASS nativeGameAck=false");
     }
 
     private static async Task OwnedWindowAdmissionChecksAsync()
