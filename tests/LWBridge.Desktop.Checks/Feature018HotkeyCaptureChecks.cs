@@ -35,29 +35,39 @@ internal static class Feature018HotkeyCaptureChecks
         internal nint DiscoveredWindow = (nint)101;
         internal readonly HashSet<nint> OwnedRoots = [(nint)101];
         internal bool CanActivate;
-        internal bool KeyboardReleased = true;
+        internal bool KeyboardFocusOwned = true;
         internal byte? RejectDownKey;
         internal byte? RejectUpKey;
+        internal bool SuppressKeyDownState;
+        internal bool SuppressKeyUpState;
         internal int ActivationCalls;
         internal int DiscoveryCalls;
         internal readonly List<(byte Key, bool Release)> SendAttempts = [];
+        internal readonly HashSet<Keys> DownKeys = [];
         internal Action<int, CancellationToken>? OnDelay;
 
         public bool SameProcess(OverviewMapScanSession _) => ProcessMatches;
         public nint ForegroundWindow() => Foreground;
         public nint FindOwnedWindow(int _) { DiscoveryCalls++; return DiscoveredWindow; }
         public bool IsOwnedRootWindow(nint hwnd, int _) => OwnedRoots.Contains(hwnd);
+        public bool IsKeyboardFocusInOwnedWindow(nint _, int __) => KeyboardFocusOwned;
         public bool ActivateWindow(nint hwnd)
         {
             ActivationCalls++;
             if (CanActivate) Foreground = hwnd;
             return CanActivate;
         }
-        public bool AllHotkeysReleased() => KeyboardReleased;
+        public IReadOnlySet<Keys> WatchedKeysDown() => DownKeys.ToHashSet();
         public bool SendKey(byte key, bool release)
         {
             SendAttempts.Add((key, release));
-            return release ? RejectUpKey != key : RejectDownKey != key;
+            bool accepted = release ? RejectUpKey != key : RejectDownKey != key;
+            if (accepted && !(release ? SuppressKeyUpState : SuppressKeyDownState))
+            {
+                if (release) DownKeys.Remove((Keys)key);
+                else DownKeys.Add((Keys)key);
+            }
+            return accepted;
         }
         public Task Delay(int milliseconds, CancellationToken token)
         {
@@ -621,6 +631,28 @@ internal static class Feature018HotkeyCaptureChecks
     {
         Require(Feature018OwnedWindowKeys.NativeInputSize == (IntPtr.Size == 8 ? 40 : 28),
             "Win32 INPUT union has the wrong native SendInput marshaling size");
+        Require(Feature018OwnedWindowKeys.NativeGuiThreadInfoSize == (IntPtr.Size == 8 ? 72 : 48),
+            "Win32 GUITHREADINFO focus guard has the wrong native size");
+        static bool KeysMatch(string binding, int phase, params Keys[] held)
+        {
+            Require(Feature018OwnedWindowKeys.TryKeyPlan(binding, out byte[] keys),
+                "test phase uses invalid hotkey binding");
+            return Feature018OwnedWindowKeys.MatchesWatchedKeyState(Down(held), keys, phase);
+        }
+        Require(KeysMatch("Q", 0) && KeysMatch("Q", 1, Keys.Q) &&
+                KeysMatch("F6", 1, Keys.F6) &&
+                !KeysMatch("Q", 1, Keys.Q, Keys.F) &&
+                !KeysMatch("F6", 1, Keys.F7) &&
+                !KeysMatch("Q", 1, Keys.Q, Keys.ShiftKey) &&
+                !KeysMatch("Q", 1) &&
+                KeysMatch("Alt+1", 1, Keys.LMenu, Keys.Menu) &&
+                KeysMatch("Alt+1", 2, Keys.Menu, Keys.D1) &&
+                KeysMatch("Alt+1", 2, Keys.LMenu, Keys.Menu, Keys.D1) &&
+                !KeysMatch("Alt+1", 1, Keys.D1) &&
+                !KeysMatch("Alt+1", 2, Keys.Menu) &&
+                !KeysMatch("Alt+1", 2, Keys.Menu, Keys.D2) &&
+                !KeysMatch("Alt+1", 2, Keys.Menu, Keys.D1, Keys.ControlKey),
+            "native GetAsyncKeyState plan matcher admitted a false shortcut chord");
         var owner = new OverviewMapScanSession("owner-profile", "launch-session",
             "owner-challenge", 43210, @"C:\fake\LastWar.exe", "2026-10-17T00:00:00Z");
         static async Task<Feature018OwnedKeyReceipt> Press(
@@ -634,7 +666,10 @@ internal static class Feature018HotkeyCaptureChecks
         var api = new FakeOwnedKeyPlatform();
         Feature018OwnedKeyReceipt result = await Press(owner, api);
         Require(result.Pressed && result.Hwnd == 101 &&
-                result.Observation == "keys_accepted_by_win32_input_stream_for_owned_game_hwnd" &&
+                result.Observation == "win32_key_state_observed_for_owned_game_keyboard_focus" &&
+                result.InputInjectionStartedAtUtc <= result.KeyDownObservedAtUtc &&
+                result.KeyDownObservedAtUtc is not null &&
+                result.KeyReleaseObservedAtUtc >= result.KeyDownObservedAtUtc &&
                 api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
                 api.SendAttempts.SequenceEqual(new[] { ((byte)0x51, false), ((byte)0x51, true) }),
             "already-foreground exact HWND did not receive one bounded Q key down/up");
@@ -645,6 +680,8 @@ internal static class Feature018HotkeyCaptureChecks
         api.OwnedRoots.Add((nint)202);
         result = await Press(owner, api, "Alt+2");
         Require(result.Pressed && result.Hwnd == 202 &&
+                result.InputInjectionStartedAtUtc <= result.KeyDownObservedAtUtc &&
+                result.KeyReleaseObservedAtUtc is not null &&
                 api.ActivationCalls == 0 && api.DiscoveryCalls == 0 &&
                 api.SendAttempts.SequenceEqual(new[] {
                     ((byte)0x12, false), ((byte)0x32, false),
@@ -691,11 +728,53 @@ internal static class Feature018HotkeyCaptureChecks
         Require(!result.Pressed && result.Observation == "game_text_input_focus_could_not_be_qualified" &&
                 api.SendAttempts.Count == 0,
             "stale native game-input focus was treated as capture readiness");
-        api = new FakeOwnedKeyPlatform { KeyboardReleased = false };
+        api = new FakeOwnedKeyPlatform();
+        api.DownKeys.Add(Keys.Q);
         result = await Press(owner, api);
         Require(!result.Pressed && result.Observation == "game_keyboard_baseline_could_not_be_qualified" &&
                 api.SendAttempts.Count == 0,
             "held pre-existing hotkey could be injected over without recognizer arming");
+
+        api = new FakeOwnedKeyPlatform { KeyboardFocusOwned = false };
+        result = await Press(owner, api);
+        Require(!result.Pressed &&
+                result.Observation == "game_keyboard_focus_could_not_be_qualified" &&
+                api.SendAttempts.Count == 0,
+            "game HWND foreground while keyboard focus belongs elsewhere was admitted");
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 55) api.KeyboardFocusOwned = false; };
+        result = await Press(owner, api, "Alt+1");
+        Require(!result.Pressed && result.Observation == "owned_window_changed_before_chord" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x12, true) }),
+            "owned game foreground with focus switched away during Alt injected a number");
+        api = new FakeOwnedKeyPlatform();
+        api.OnDelay = (ms, _) => { if (ms == 185) api.KeyboardFocusOwned = false; };
+        result = await Press(owner, api, "Q");
+        Require(!result.Pressed && result.Observation == "owned_window_changed_during_keypress" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x51, false), ((byte)0x51, true) }),
+            "owned game foreground with focus switched away during Q claimed key intent");
+
+        api = new FakeOwnedKeyPlatform { SuppressKeyDownState = true };
+        result = await Press(owner, api, "F6");
+        Require(!result.Pressed && result.Observation == "win32_keydown_state_not_observed" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x75, false), ((byte)0x75, true) }),
+            "accepted Win32 F6 insertion without observed pressed state claimed a shortcut");
+        api = new FakeOwnedKeyPlatform { SuppressKeyDownState = true };
+        result = await Press(owner, api, "Alt+2");
+        Require(!result.Pressed && result.Observation == "win32_modifier_state_not_observed" &&
+                api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x12, true) }),
+            "accepted Win32 Alt insertion without modifier state claimed a chord");
+
+        api = new FakeOwnedKeyPlatform { SuppressKeyUpState = true };
+        result = await Press(owner, api, "Q");
+        Require(!result.Pressed && result.Observation == "win32_keyup_state_not_observed" &&
+                result.KeyDownObservedAtUtc is not null &&
+                result.KeyReleaseObservedAtUtc is null,
+            "completed Win32 keyup without observed release falsely claimed completed press");
 
         api = new FakeOwnedKeyPlatform { RejectDownKey = 0x51 };
         result = await Press(owner, api);
