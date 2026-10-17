@@ -429,6 +429,16 @@ local function shield_shop(fields)
         itemId=chosen.itemId,statusId=chosen.statusId,durationHours=hours,
         nativePrice=chosen.price,gold=gold,count=count,requestDispatched=false}
     if fields.mode == "inspect" then
+        -- v26 CityShieldPage.ConfirmBuy uses UIShopBuy's Goods.price and
+        -- LuaEntry.Player.gold. Affordability is an observation only; the
+        -- user must separately consent to the exact native item purchase.
+        if chosen.price ~= nil and chosen.price > 0 and
+           chosen.price % 1 == 0 and gold % 1 == 0 then
+            data.canAffordNativePrice = gold >= chosen.price
+            data.additionalGoldNeeded = math.max(0, chosen.price - gold)
+        end
+        data.currencySource = "native_Player_gold"
+        data.purchaseRoute = "native_UIShopBuy_one_item_with_consent"
         data.nativeMatchedShieldStacks = observed_stacks
         return {state="confirmed",data=data}
     end

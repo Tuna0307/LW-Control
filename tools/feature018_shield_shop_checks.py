@@ -12,15 +12,18 @@ def fixture():
       GetCurServerId=function() return 2289 end}}
     state.items={}
     state.templates[1].price=500
+    state.templates[2].price=2500
+    state.templates[3].price=5000
     MsgDefines.UIShopBuy='UIShopBuy'
     SFSNetwork.SendMessage=function(name,data)
-      assert(name=='UIShopBuy' and data.itemId=='9' and data.num==1)
+      assert(name=='UIShopBuy' and (data.itemId=='9' or data.itemId=='10' or data.itemId=='11') and data.num==1)
       state.sent=state.sent+1
+      state.lastPurchasedItemId=data.itemId
     end
     ''')
-    def call(mode='inspect', **extra):
+    def call(mode='inspect', slot=8, **extra):
         return module.ShieldShop(lua.table_from(dict(
-            slot='8',mode=mode,profileId='profile',launchSessionId='launch',
+            slot=str(slot),mode=mode,profileId='profile',launchSessionId='launch',
             challenge='challenge',gamePid='7020',**extra)))
     return lua, state, call
 
@@ -251,6 +254,65 @@ class GemPurchaseChecks(unittest.TestCase):
         self.assertEqual(state.sent, 1)
         lua.execute("LuaEntry.Player.uid='3133546747002289'")
         self.assertEqual(call('status')['state'], 'confirmed')
+
+
+class LongerShieldPurchaseChecks(unittest.TestCase):
+    def test_12_and_24_hour_native_prices_are_read_only_until_exact_opt_in(self):
+        for duration, item, price in ((12, '10', 2500), (24, '11', 5000)):
+            with self.subTest(duration=duration):
+                lua, state, call = fixture()
+                state['items'] = lua.table_from({})
+                state['sent'] = 0
+                lua.globals().LuaEntry.Player.gold = 176
+                info = call(slot=duration)
+                self.assertEqual(info['state'], 'confirmed')
+                data = info['data']
+                self.assertEqual(data['itemId'], item)
+                self.assertEqual(data['nativePrice'], price)
+                self.assertEqual(data['gold'], 176)
+                self.assertEqual(data['canAffordNativePrice'], False)
+                self.assertEqual(data['additionalGoldNeeded'], price - 176)
+                self.assertEqual(data['currencySource'], 'native_Player_gold')
+                self.assertEqual(data['purchaseRoute'], 'native_UIShopBuy_one_item_with_consent')
+                self.assertEqual(data['requestDispatched'], False)
+                self.assertEqual(call('buy', slot=duration, gemOptIn='1')['state'], 'failed')
+                self.assertEqual(state['sent'], 0)
+
+                # The increased balance is a fake Lua fixture only. Live
+                # native balance/earning eligibility must be reobserved.
+                lua.globals().LuaEntry.Player.gold = price
+                info = call(slot=duration)
+                self.assertEqual(info['data']['canAffordNativePrice'], True)
+                self.assertEqual(info['data']['additionalGoldNeeded'], 0)
+                self.assertEqual(call('buy', slot=duration)['state'], 'failed')
+                self.assertEqual(state['sent'], 0)
+                self.assertEqual(call('buy', slot=duration, gemOptIn='1')['state'], 'accepted')
+                self.assertEqual(state['lastPurchasedItemId'], item)
+                self.assertEqual(state['sent'], 1)
+                self.assertEqual(call('buy', slot=duration, gemOptIn='1')['state'], 'failed')
+                self.assertEqual(call('status', slot=duration)['state'], 'accepted')
+                state['items'] = lua.table_from([lua.table_from(
+                    {'itemId': int(item), 'uuid': 'native-owned-stack', 'count': 1})])
+                self.assertEqual(call('status', slot=duration)['state'], 'accepted')
+                lua.globals().LuaEntry.Player.gold = 0
+                result = call('status', slot=duration)
+                self.assertEqual(result['state'], 'confirmed')
+                self.assertEqual(result['data']['spentGems'], price)
+                self.assertEqual(result['data']['purchasedCount'], 1)
+                self.assertEqual(state['sent'], 1)
+
+    def test_invalid_native_prices_never_allow_f7_f8_spending(self):
+        for value in (-1, 0, 2.5, 'bogus', None):
+            for slot, index in ((12, 2), (24, 3)):
+                with self.subTest(value=value, slot=slot):
+                    lua, state, call = fixture()
+                    state['templates'][index]['price'] = value
+                    info = call(slot=slot)
+                    self.assertEqual(info['state'], 'confirmed')
+                    self.assertIsNone(info['data']['canAffordNativePrice'])
+                    self.assertIsNone(info['data']['additionalGoldNeeded'])
+                    self.assertEqual(call('buy', slot=slot, gemOptIn='1')['state'], 'failed')
+                    self.assertEqual(state['sent'], 0)
 
 
 if __name__=='__main__':

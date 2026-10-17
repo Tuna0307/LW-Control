@@ -33,6 +33,7 @@ state={
  worldServer=2289, worldMain=35723, reverseValid=true,
  reverseMain=35723, worldPresent=true,
  uuid=555110, slot=1, endTime=3000, now=2000, count=2,
+ soldierCount=110, heroCount=1, createCounter=0,
  inputClear=true, itemOptIn="1", rpcCount=0, rpcArgs={}, failRpc=false,
  attackDelegateCount=0,
  category=108, stale=false, ownsItem=true,
@@ -70,7 +71,9 @@ DataCenter={
  ArmyFormationDataManager={
   GetOneArmyInfoByIndex=function(self,s)
    if s~=state.slot then return nil end
-   return {uuid=state.formation,ownerUid=state.formationOwner}
+   return {uuid=state.formation,ownerUid=state.formationOwner,
+           soldiers={[101]=state.soldierCount},
+           heroes=state.heroCount>0 and {[1]=777} or {}}
   end
  },
  WorldMarchDataManager={
@@ -121,12 +124,14 @@ SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
  if route==99 then
   assert(uuid==state.formation and itemid==17 and buy==990123)
   state.attackSends=(state.attackSends or 0)+1
+  require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate({},uuid,itemid,buy)
   return
  end
  assert(route==173 and uuid==state.uuid and ((itemid==3108 and buy==false) or (itemid==9999 and buy==true)))
  state.rpcCount=state.rpcCount+1
  state.rpcArgs={route,uuid,itemid,buy}
  if state.failRpc then error("simulated_rpc_reject") end
+ if state.failRpcFalse then return false end
 end}
 MarchUtil={
  TryStartMarch=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
@@ -186,6 +191,7 @@ def check_original() -> None:
             "d3c3bb47b11e555ccd646510628c2e428000436ffa8bc8bac290a1320094e245",
             {"OnAttackOtherCity": ["GetPointInfo", "TryStartMarch"],
              "OnAttackArmy": ["GetTroop", "TryStartMarch"],
+             "CheckFormation": ["GetOneArmyInfoByUuid", "heroes", "GetCanAddHeroNum"],
              "SendCreateMarchToServer": ["WorldMarchFormationNew", "SendMessage"],
              "SendChangeMarchToServer": ["WorldMarchChange", "SendMessage"],
              "TryStartMarch": ["GetCostStaminaByTargetType", "CheckFormation",
@@ -198,10 +204,16 @@ def check_original() -> None:
         "DataCenter/MonsterManager/MonsterTemplateManager.luac": (
             "2b6d67baea00cf54e99df638e2f175cf4504ebc08e27a1e9150fbfbe5fa54f96",
             {"GetMonsterTemplate": [], "TryGetMonsterTemplate": []}),
+        "DataCenter/ArmyFormationData/ArmyFormationDataManager.luac": (
+            "0df480a74c338b9830f16b7b455ae0f1a77877a78896f0fedde381c28d7cbce7",
+            {"GetOneArmyInfoByIndex": [],
+             "AutoAddSoldierByForm": ["soldiers", "AutoAddSoldier"]}),
         "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac": (
             "25db92ba9a39791ff8fb500e2b00034f894dc5cf1d98200454e582bb24daa84c",
             {"InitData": ["targetType", "targetPoint", "targetUuid"],
              "OnAtkClick": ["GetOwnerFormationMarch", "ChangeMarchByType"],
+             "GetCurSoldierNum": ["GetOneArmyInfoByUuid", "soldiers", "walk"],
+             "CheckCanBattle": ["GetOneArmyInfoByUuid", "GetCurStaminaByUuid"],
              "ChangeMarchByType": ["GetOwnerFormationMarch", "OnAttackArmy",
                                    "OnAttackOtherCity"]}),
         "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": (
@@ -223,11 +235,14 @@ def check_original() -> None:
             {"HandleMessage": ["errorCode", "remainGold"]}),
         "Net/Msgs/WorldMarchFormationNewMessage.luac": (
             "69dec0f3e14286770c728a2b42d8542f8f3b9e0f493bc2bcb75c9cf4f69a8dd9",
-            {"HandleMessage": ["errorCode", None, "SceneManager", "World",
+            {"OnCreate": ["SaveCreateMarchRecordTime", "PutUtfString", "clientCreateUuid"],
+             "GetTestData": ["clientCreateUuid", "ownerUid", "uuid"],
+             "HandleMessage": ["errorCode", None, "SceneManager", "World",
                                "HandleFormationMarch", "FetchFormationSoldier"]}),
         "Net/Msgs/WorldMarchChangeMessage.luac": (
             "71453f2d7287ddb1f012e05cea71755f6bc704971a59425b6c54834c96fe8160",
-            {"HandleMessage": ["errorCode", None, "HandleFormationMarchChange"]}),
+            {"OnCreate": ["uuid", "target", "targetUid", "PutLong"],
+             "HandleMessage": ["errorCode", None, "HandleFormationMarchChange"]}),
     }
     for name, (digest, methods) in expectations.items():
         require(hashlib.sha256(entries[name]).hexdigest() == digest,
@@ -254,6 +269,13 @@ def check_original() -> None:
                 require(source_guard < source_apply and
                         "sourceLine=126 " in instructions[source_apply],
                         "native march response success guard/apply route changed")
+            if name.endswith("WorldMarchFormationNewMessage.luac") and name_ == "OnCreate":
+                instructions=disassemble(proto)
+                saved=next(i for i,x in enumerate(instructions)
+                           if "sourceLine=46 " in x and "'SaveCreateMarchRecordTime'" in x)
+                written=next(i for i,x in enumerate(instructions)
+                             if "sourceLine=47 " in x and "'clientCreateUuid'" in x)
+                require(saved<written, "original source create nonce generator/serializer drifted")
             if name.endswith("MarchUtil.luac") and name_ in (
                     "SendCreateMarchToServer", "SendChangeMarchToServer"):
                 route = ("WorldMarchFormationNew" if name_ == "SendCreateMarchToServer"
@@ -282,6 +304,15 @@ def test_selected_attack_and_diamond():
       nativeCtrl.OnAtkClick=nativeCtrl.OnCreateClick
       nativeCtrl.OnCheckTime=nativeCtrl.OnCreateClick
       MsgDefines.WorldMarchFormationNew=99
+      package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+        return {OnCreate=function(self,formation,kind,target)
+          state.createCounter=state.createCounter+1
+          local token='nativeCreate-'..state.createCounter
+          self.sfsObj={GetUtfString=function(obj,key)
+            assert(key=='clientCreateUuid');return token
+          end}
+        end,HandleMessage=function(self,response) end}
+      end
       nativeWindow={Ctrl=nativeCtrl}
       UIManager={GetInstance=function() return {
         IsWindowOpen=function() return true end,
@@ -305,41 +336,52 @@ def test_selected_attack_and_diamond():
     state['targetUuid']=990124
     require(call(queryOnly='1')['state']=='accepted','different target march falsely confirmed')
     state['targetUuid']=990123
+    require(call(queryOnly='1')['state']=='accepted',
+            'local-only native march was misreported as a server ACK')
+    vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+        {}, {clientCreateUuid='nativeCreate-1',ownerUid=state.uid,uuid=state.uuid})""")
     ack=call(queryOnly='1')
-    require(ack['state']=='confirmed' and ack['data']['targetUuid']=='990123' and
+    require(ack['state']=='confirmed' and ack['data']['serverAcknowledgementCorrelated'] is True and
+            ack['data']['nativeMarchPostStateVerified'] is True and
+            ack['data']['targetUuid']=='990123' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
-    require(call(action='speedupDiamond',itemId='9999')['state']=='failed' and state['rpcCount']==0,
-            'diamond purchase bypassed explicit app consent')
-    sent=call(action='speedupDiamond',itemId='9999',diamondOptIn='1')
-    require(sent['state']=='accepted' and state['rpcArgs'][4] is True and state['rpcCount']==1,
-            'native gem rapid send arguments or one-shot result wrong')
-    state['endTime']=2900
-    require(call(action='speedupDiamond',queryOnly='1')['state']=='accepted',
-            'time-only gem rapid change falsely confirmed')
-    vm.globals().LuaEntry.Player.gold=91
-    require(call(action='speedupDiamond',queryOnly='1')['state']=='accepted',
-            'unrelated gem debit falsely matched the exact native price')
-    vm.globals().LuaEntry.Player.gold=90
-    ack=call(action='speedupDiamond',queryOnly='1')
-    require(ack['state']=='confirmed' and ack['data']['price']==10 and state['rpcCount']==1,
-            'source-native gem debit plus earlier march arrival did not confirm')
+    require(call()['state']=='unsupported' and state['attackSends']==1,
+            'an existing active march was retargeted without a correlatable native change ACK')
+    for opts in ({}, {'diamondOptIn':'1'}, {'diamondOptIn':'1','userConfirmed':'1'},
+                 {'diamondOptIn':'1','queryOnly':'1'}):
+        require(call(action='speedupDiamond',itemId='9999',**opts)['state']=='unsupported' and
+                state['rpcCount']==0,
+                'direct diamond purchase bypassed original native confirmation callback')
     state['existingAbsent']=True
+    state['soldierCount']=0
+    require(call()['state']=='failed' and state['attackSends']==1,
+            'unassigned original squad soldiers dispatched an attack')
+    state['soldierCount']=110
+    state['heroCount']=0
+    require(call()['state']=='failed' and state['attackSends']==1,
+            'unassigned original squad heroes dispatched an attack')
+    state['heroCount']=1
+    require(call(allowRapidDiamond='1')['state']=='unsupported' and
+            state['attackSends']==1 and state['rpcCount']==0,
+            'attack-linked automatic diamond buy bypassed native modal confirmation')
     require(call(allowRapidItem='1')['state']=='accepted',
             'opt-in rapid attack failed to start native selection')
     state['existingAbsent']=False
     state['startTime']=1100
+    vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+        {}, {clientCreateUuid='nativeCreate-2',ownerUid=state.uid,uuid=state.uuid})""")
     chain=call(queryOnly='1')
-    require(chain['state']=='accepted' and state['rpcCount']==2 and
+    require(chain['state']=='accepted' and state['rpcCount']==1 and
             state['rpcArgs'][4] is False,
             'confirmed attack did not apply exactly one opted-in owned rapid item')
-    require(call(queryOnly='1')['state']=='accepted' and state['rpcCount']==2,
+    require(call(queryOnly='1')['state']=='accepted' and state['rpcCount']==1,
             'rapid followup resubmitted an item or accepted absent inventory/time change')
     state['count']=1
     state['endTime']=2800
     finished=call(queryOnly='1')
     require(finished['state']=='confirmed' and finished['data']['speedup']['currentCount']==1 and
-            state['rpcCount']==2,
+            state['rpcCount']==1,
             'composed attack rapid did not require independent owned-item and march-time poststate')
     state['serverId']=2212
     require(call()['state']=='failed' and state['attackDelegateCount']==2,
@@ -357,6 +399,10 @@ def test_attack_sender_correlation_negatives():
             ('sender_false', 'failed', 'failed', 1),
             ('sender_throw', 'failed', 'failed', 1),
             ('reply_error', 'accepted', 'failed', 1),
+            ('nonce_missing', 'accepted', 'accepted', 1),
+            ('reply_wrong_nonce', 'accepted', 'accepted', 1),
+            ('reply_wrong_owner', 'accepted', 'accepted', 1),
+            ('reply_wrong_march', 'accepted', 'accepted', 1),
             # A negative controller return can still follow a real send. A
             # subsequent independent matching native march can settle it.
             ('controller_false', 'failed', 'confirmed', 1)):
@@ -366,7 +412,10 @@ def test_attack_sender_correlation_negatives():
           state.existingAbsent=true; state.startTime=1000; state.targetUuid=990123
           state.sendMode='""" + mode + """'
           package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
-            return {HandleMessage=function(self,response) end}
+            return {OnCreate=function(self,formation,kind,target)
+              self.sfsObj=state.sendMode=='nonce_missing' and {} or
+                {GetUtfString=function(self,key) return 'mock-create-nonce' end}
+            end,HandleMessage=function(self,response) end}
           end
           package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
             return {HandleMessage=function(self,response) end}
@@ -377,6 +426,7 @@ def test_attack_sender_correlation_negatives():
           SFSNetwork.SendMessage=function(route,form,kind,target,path)
             assert(route==99 and form==state.formation and kind==17)
             state.attackSends=(state.attackSends or 0)+1
+            require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate({},form,kind,target)
             if state.sendMode=='sender_false' then return false end
             if state.sendMode=='sender_throw' then error('simulated native sender failure') end
           end
@@ -417,7 +467,24 @@ def test_attack_sender_correlation_negatives():
             require(unrelated['state']=='accepted' and
                     unrelated['data']['nativeTransaction']['replyObserved'] is None,
                     'unrelated recall/change ACK was attributed to a create attack')
-            vm.execute("require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage({}, {errorCode='native_reject'})")
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,
+                   uuid=state.uuid,errorCode='native_reject'})""")
+        if mode=='controller_false':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})""")
+        if mode=='nonce_missing':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})""")
+        if mode=='reply_wrong_nonce':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='unrelated-create-id',ownerUid=state.uid,uuid=state.uuid})""")
+        if mode=='reply_wrong_owner':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='mock-create-nonce',ownerUid=123,uuid=state.uuid})""")
+        if mode=='reply_wrong_march':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=123})""")
         vm.globals().state.existingAbsent=False
         polled=call(queryOnly='1')
         require(polled['state']==later and
@@ -453,8 +520,17 @@ def test_native_prepare_helper():
                 launchSessionId='launch',challenge='request',gamePid='7020')
     observed=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
     require(observed['state']=='confirmed' and observed['data']['candidates'][1]['uuid']=='990123' and
-            observed['data']['ownedMarches']['555110']['formationUuid']=='1001',
+            observed['data']['ownedMarches']['555110']['formationUuid']=='1001' and
+            observed['data']['squads']['1']['soldierCount']==110 and
+            observed['data']['squads']['1']['staffedForAttack'] is True,
             'native prepare lost current ordinary-monster or independently owned march identity')
+    vm.globals().state.soldierCount=0
+    no_soldiers=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(no_soldiers['state']=='confirmed' and
+            no_soldiers['data']['squads']['1']['soldierCount']==0 and
+            no_soldiers['data']['squads']['1']['staffedForAttack'] is False,
+            'missing soldier staffing was advertised as dispatch-ready')
+    vm.globals().state.soldierCount=110
     fields.update(mode='open',targetUuid='990123')
     opened=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
     require(opened['state']=='confirmed' and vm.globals().state.prepared is True and
@@ -485,8 +561,8 @@ def main():
             "owned speedup inventory regressed after target preflight")
     diamond = call(action="speedupDiamond", diamondOptIn="1",
                    userConfirmed="1", itemId="9999", price="10")
-    require(diamond["state"] == "failed" and state["rpcCount"] == 0,
-            "diamond rapid requires source-native world type and real balance")
+    require(diamond["state"] == "unsupported" and state["rpcCount"] == 0,
+            "diamond rapid requires source-native modal confirmation callback")
     dispatched = call()
     require(dispatched["state"] == "accepted" and
             dispatched["data"]["requestDispatched"] is True and
@@ -525,6 +601,23 @@ def main():
             "both independent native observations required for confirmation")
     require(state["rpcCount"] == 1, "querying confirmation resent RPC")
 
+    for failure in ('failRpc','failRpcFalse'):
+        state,call,inspect=mock()
+        state[failure]=True
+        uncertain=call()
+        require(uncertain['state']=='failed' and state['rpcCount']==1,
+                'native sender failure not reported after one attempted spend: '+failure)
+        state[failure]=False
+        blocked=call()
+        require(blocked['state']=='accepted' and state['rpcCount']==1 and
+                blocked['data']['requestDispatched'] is False,
+                'native sender failure permitted second item spend: '+failure)
+        state['endTime']=2700
+        state['count']=1
+        receipt=call(queryOnly='1')
+        require(receipt['state']=='confirmed' and state['rpcCount']==1,
+                'failed/uncertain native sender lost eventual independent poststate: '+failure)
+
     state, call, inspect = mock()
     vm = LuaRuntime(unpack_returned_tuples=True)
     vm.execute(GAME)
@@ -543,7 +636,8 @@ def main():
             valid["data"]["existingOwnedMarchUuid"] == "555110" and
             valid["data"]["existingOwnedMarchFreshlyVerified"] is True and
             valid["data"]["existingOwnedMarchBroken"] is False and
-            valid["data"]["safeToDispatch"] is False,
+            valid["data"]["safeToDispatch"] is False and
+            valid["data"]["formationStaffing"]["staffedForAttack"] is True,
             "read-only native clicked-world point provenance missing")
     require(prestate["freshLookups"] == 1,
             "existing march must be independently re-fetched once")
@@ -610,7 +704,7 @@ def main():
         ({"profileId": "unsafe session"}, "failed", "forged bridge identity"),
         ({"slot": "5"}, "failed", "unknown formation"),
         ({"action": "attack"}, "failed", "cursor-selected target unresolved"),
-        ({"action": "speedupDiamond"}, "failed", "diamond confirmation UI unresolved"),
+        ({"action": "speedupDiamond"}, "unsupported", "diamond confirmation UI unresolved"),
     ]
     for fields, expected, label in cases:
         require(call(**fields)["state"] == expected, label)

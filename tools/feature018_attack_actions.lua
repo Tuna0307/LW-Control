@@ -32,6 +32,17 @@
 --     HandleMessage root/1 lines 92-128 forwards a successful response to
 --     CS.SceneManager.World:HandleFormationMarch(response). The handler alone
 --     does not correlate a hotkey, target, owned formation and poststate.
+--     OnCreate root/0 lines 46-47 serializes the generated
+--     World.SaveCreateMarchRecordTime() clientCreateUuid with PutUtfString.
+--     GetTestData root/2 contains clientCreateUuid, ownerUid, uuid. The
+--     native correlation gate below needs this exact reply token AND fresh
+--     formation-target march state; a test fixture is not a live ACK.
+--   Net/Msgs/WorldMarchChangeMessage.luac SHA256
+--     71453f2d7287ddb1f012e05cea71755f6bc704971a59425b6c54834c96fe8160
+--     OnCreate root/0 sends uuid/target/targetUid, no request nonce.
+--     HandleMessage root/1 line 90 applies HandleFormationMarchChange.
+--     No safe exact same-march request/reply correlation for retargeting
+--     or A/S/D/F recall is proved inside this attack adapter.
 --   UI/UILWRapid/View/UILWRapidView.luac SHA256
 --     19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3
 --     ReInit root/11 lines 307-331 reads WorldMarchDataManager.GetMarch(uuid)
@@ -105,6 +116,37 @@ local function number(value)
     return nil
 end
 
+-- Mirrors v26 UIFormationSelectListV2Ctrl.GetCurSoldierNum (root/41,
+-- lines 1949-1960): sum positive values in the authoritative formation's
+-- soldiers table. MarchUtil.CheckFormation separately consumes heroes.
+-- This is observation only; native AutoAddSoldier* mutates the formation.
+local function formation_staffing(form)
+    local result={soldierCount=nil,heroCount=nil,staffedForAttack=false}
+    local soldiers=member(form,"soldiers")
+    if type(soldiers)=="table" then
+        local total,valid=0,true
+        for _,count in pairs(soldiers) do
+            local n=number(count)
+            if n==nil or n<0 or n%1~=0 then valid=false; break end
+            if n>0 then total=total+n end
+        end
+        if valid then result.soldierCount=total end
+    end
+    local heroes=member(form,"heroes")
+    if type(heroes)=="table" then
+        local count=0
+        for _,hero in pairs(heroes) do
+            if hero~=nil and hero~=false and tostring(hero)~="0" then
+                count=count+1
+            end
+        end
+        result.heroCount=count
+    end
+    result.staffedForAttack=result.soldierCount~=nil and
+        result.soldierCount>0 and result.heroCount~=nil and result.heroCount>0
+    return result
+end
+
 local function selected_window()
     local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
     if not ok_ui then return nil end
@@ -124,7 +166,7 @@ end
 -- Observation only. Preserve the original static sender, exact arguments,
 -- return values and exceptions. Track ONLY exact pending formation/march,
 -- target kind and target UUID on the two source-native attack routes.
-local observed_send
+local observed_send, active_create_send
 local function observe_attack_sender()
     local net=rawget(_G,"SFSNetwork")
     local original=member(net,"SendMessage")
@@ -151,7 +193,13 @@ local function observe_attack_sender()
                 end
             end
         end
+        -- OnCreate serializes the source-generated clientCreateUuid while
+        -- SendMessage handles this exact native request. An unrelated packet
+        -- serializer must never donate its nonce to a pending attack.
+        local previous_active=active_create_send
+        active_create_send=created and #matched==1 and matched[1] or nil
         local returned=table.pack(pcall(original,route,table.unpack(args,1,args.n)))
+        active_create_send=previous_active
         for _,transaction in ipairs(matched) do
             transaction.senderReturned=returned[1]
             transaction.senderReturnedFalse=returned[1] and returned[2]==false
@@ -164,6 +212,39 @@ local function observe_attack_sender()
     return net.SendMessage==observed_send
 end
 
+-- v26 WorldMarchFormationNewMessage.OnCreate lines 46-47 serializes a
+-- clientCreateUuid returned by World.SaveCreateMarchRecordTime. The original
+-- response fixture also carries clientCreateUuid, ownerUid and march uuid.
+-- Inspect the serialized SFSObject after its original OnCreate, without
+-- generating, replacing, altering or replaying the native request token.
+local observed_create_serializer
+local function observe_create_serializer()
+    local ok,class=pcall(require,"Net.Msgs.WorldMarchFormationNewMessage")
+    local original=ok and member(class,"OnCreate") or nil
+    if original==observed_create_serializer then return true end
+    if type(original)~="function" then return false end
+    local wrapper=function(self,formation,kind,target,...)
+        local returned=table.pack(pcall(original,self,formation,kind,target,...))
+        local transaction=active_create_send
+        if returned[1] and transaction and
+           ident(formation)==transaction.formation and
+           kind==transaction.kind and ident(target)==transaction.targetUuid then
+            local packet=member(self,"sfsObj")
+            local ok_token,token=invoke(packet,"GetUtfString","clientCreateUuid")
+            transaction.serializerObserved=true
+            if ok_token and type(token)=="string" and
+               #token>=8 and #token<=128 and token:match("^[%w_-]+$") then
+                transaction.clientCreateUuid=token
+            end
+        end
+        if not returned[1] then error(returned[2],0) end
+        return table.unpack(returned,2,returned.n)
+    end
+    class.OnCreate=wrapper
+    observed_create_serializer=wrapper
+    return member(class,"OnCreate")==wrapper
+end
+
 local observed_replies={}
 local function observe_attack_replies()
     for _,name in ipairs({"WorldMarchFormationNewMessage","WorldMarchChangeMessage"}) do
@@ -174,22 +255,42 @@ local function observe_attack_replies()
                 local source_route=name=="WorldMarchFormationNewMessage" and
                     "WorldMarchFormationNew" or "WorldMarchChange"
                 local wrapper=function(self,response,...)
+                    local create_token=member(response,"clientCreateUuid")
+                    local owner=ident(member(response,"ownerUid"))
+                    local response_uuid=ident(member(response,"uuid"))
+                    local response_error=member(response,"errorCode")
+                    local matches={}
                     for _,transaction in pairs(attacks) do
                         -- The same session may contain a separate squad recall
                         -- or another attack. A change ACK is not a create ACK.
                         if (transaction.sendCount or 0)>0 and
                            transaction.outboundRoute==source_route then
-                            transaction.replyObserved=true
-                            transaction.replyMessage=name
-                            transaction.replyErrorCode=member(response,"errorCode") and tostring(member(response,"errorCode")) or nil
-                            transaction.replyUuid=ident(member(response,"uuid"))
-                            transaction.replyOwnerUid=ident(member(response,"ownerUid"))
-                            -- Errors may omit owner/formation IDs. Route-only
-                            -- observations are diagnostic, never success ACKs.
-                            transaction.replyCorrelation="message_route_only"
+                            transaction.routeReplyCount=(transaction.routeReplyCount or 0)+1
+                            if source_route=="WorldMarchFormationNew" and
+                               type(create_token)=="string" and
+                               transaction.clientCreateUuid==create_token then
+                                matches[#matches+1]=transaction
+                            end
                         end
                     end
-                    return original(self,response,...)
+                    local returned=table.pack(pcall(original,self,response,...))
+                    if #matches==1 then
+                        local transaction=matches[1]
+                        transaction.replyObserved=true
+                        transaction.replyMessage=name
+                        transaction.replyErrorCode=response_error and tostring(response_error) or nil
+                        transaction.replyUuid=response_uuid
+                        transaction.replyOwnerUid=owner
+                        transaction.replyClientCreateUuid=create_token
+                        transaction.replyCount=(transaction.replyCount or 0)+1
+                        transaction.replyApplied=returned[1]
+                        transaction.replyCorrelation=(returned[1] and response_error==nil and
+                            owner==transaction.uid and response_uuid~=nil and
+                            transaction.replyCount==1) and
+                            "native_clientCreateUuid_owner_march_reply" or "incomplete_native_reply"
+                    end
+                    if not returned[1] then error(returned[2],0) end
+                    return table.unpack(returned,2,returned.n)
                 end
                 class.HandleMessage=wrapper
                 observed_replies[name]=wrapper
@@ -203,8 +304,10 @@ local function transaction_view(transaction)
     local view={}
     for _,key in ipairs({"formation","kind","targetUuid","sendCount","outboundRoute",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
-        "senderReturned","senderReturnedFalse","senderError","replyObserved","replyMessage",
-        "replyErrorCode","replyUuid","replyOwnerUid","replyCorrelation"}) do view[key]=transaction[key] end
+        "senderReturned","senderReturnedFalse","senderError","serializerObserved",
+        "clientCreateUuid","routeReplyCount","replyObserved","replyMessage","replyCount",
+        "replyErrorCode","replyUuid","replyOwnerUid","replyClientCreateUuid",
+        "replyApplied","replyCorrelation"}) do view[key]=transaction[key] end
     return view
 end
 
@@ -394,6 +497,7 @@ local function attack_preflight(fields, input_clear, uid)
     if formation_owner ~= nil and ident(formation_owner) ~= uid then
         return failed("Native formation reports a different owner")
     end
+    local staffing=formation_staffing(formation)
     -- FormationSelectListV2Ctrl.OnAtkClick/ChangeMarchByType explicitly check
     -- the existing march for this owner/formation with the player's allianceId.
     -- Record that status; it cannot imply the formation is launch-ready.
@@ -492,6 +596,7 @@ local function attack_preflight(fields, input_clear, uid)
     return {state="confirmed", data={
         observation="native_world_last_touch_and_formation_preflight",
         slot=slot, formationUuid=formation_id, ownerUid=uid,
+        formationStaffing=staffing,
         existingOwnedMarchUuid=existing_march_id,
         existingOwnedMarchFreshlyVerified=existing_march_id ~= nil,
         existingOwnedMarchBroken=march_broken,
@@ -569,22 +674,15 @@ function M.Prepare(fields, input_clear)
         local uuid,n=ident(member(form,"uuid"))
         local lookup_ok,march=invoke(manager,"GetOwnerFormationMarch",member(member(rawget(_G,"LuaEntry"),"Player"),"uid"),n,
             member(member(rawget(_G,"LuaEntry"),"Player"),"allianceId"))
-        local heroes=member(form,"heroes")
-        local hero_count=type(heroes)=="table" and 0 or nil
-        if hero_count then for _ in pairs(heroes) do hero_count=hero_count+1 end end
-        local soldiers=member(form,"soldiers")
-        local soldier_count=type(soldiers)=="table" and 0 or nil
-        if soldier_count then for _,value in pairs(soldiers) do
-            local amount=number(value)
-            if amount and amount>0 then soldier_count=soldier_count+amount end
-        end end
+        local staffing=formation_staffing(form)
         local _,local_heroes=invoke(form,"GetLocalHeroesCount")
         local _,stamina=invoke(member(center,"ArmyFormationDataManager"),"GetCurStaminaByUuid",n)
         squads[tostring(slot)]={unlocked=ok_form and uuid ~= nil,formationUuid=uuid,
             marchUuid=ident(member(march,"uuid")),targetType=member(march,"target"),
             endTime=number(member(march,"endTime")),lookupSucceeded=lookup_ok,
             formationState=number(member(form,"state")),formationIndex=number(member(form,"index")),
-            heroCount=hero_count,localHeroCount=number(local_heroes),soldierCount=soldier_count,
+            heroCount=staffing.heroCount,localHeroCount=number(local_heroes),
+            soldierCount=staffing.soldierCount,staffedForAttack=staffing.staffedForAttack,
             stamina=number(stamina),maxNum=number(member(form,"maxNum")),
             pendingTransaction=transaction_view(attacks[tostring(slot)])}
     end
@@ -713,74 +811,27 @@ local function speedup_item(fields, input_clear, uid)
         return failed("Owned march/item changed immediately before speedup dispatch")
     end
     -- The v26 method is a static function, NOT a colon call.
-    local ok, result = pcall(send,route,final.uuidNumber,fresh_item.itemIdNumber,false)
-    if not ok or result == false then
-        return failed("Original WorldMarchRapid sender rejected item request")
-    end
     pending[fields.slot] = {uid=uid,formation=final.formation,uuid=final.uuid,
         targetType=final.targetType,
         itemId=fields.itemId,count=fresh_item.count,endTime=final.endTime,
         sentAt=os.time()}
+    -- A send may reach the server before returning false/raising locally.
+    -- Install the one-shot tombstone before calling the actual native sender.
+    local ok, result = pcall(send,route,final.uuidNumber,fresh_item.itemIdNumber,false)
+    if not ok or result == false then
+        return failed("Native rapid item send outcome uncertain; no retry until authoritative poststate")
+    end
     return {state="accepted",data={requestDispatched=true,
         awaitingGameConfirmation=true,slot=fields.slot,marchUuid=final.uuid,
         itemId=fields.itemId}}
 end
 
--- Native ordinary-world rapid purchase: UILWRapidView.GetTokenIdAndType
--- returns token=0 outside battlefields; CellsCallBack uses template.price and
--- Player.gold, ConfirmBuy sends WorldMarchRapid(uuid,template.id,true).
--- App consent replaces the native purchase prompt, but never its currency
--- or balance checks. Unlike native ConfirmBuy this does NOT UpdateGold or
--- ReduceTime optimistically: BOTH independent game fields must change.
-local diamond_pending = {}
+-- UILWRapidView.CellsCallBack must show the original
+-- ShowUseDiamondConfirm(BuyUseDialog) and run its confirmation callback
+-- before ConfirmBuy. A caller-supplied opt-in is not that native callback.
+-- No direct WorldMarchRapid(..., true) route is exposed in this module.
 local function speedup_diamond(fields, input_clear, uid)
-    local march, reason = slot_march(fields.slot,uid)
-    if not march then return reason end
-    local ok_world, world_type = invoke(march.native,"GetWorldType")
-    if not ok_world or world_type ~= 0 then return failed("Diamond rapid supports ordinary world marches only") end
-    local gold = number(member(member(rawget(_G,"LuaEntry"),"Player"),"gold"))
-    if not gold or gold < 0 then return failed("Current native gem balance unavailable") end
-    local old = diamond_pending[fields.slot]
-    if old then
-        if old.uid ~= uid or old.uuid ~= march.uuid or old.formation ~= march.formation then
-            return failed("Pending diamond rapid march identity changed")
-        end
-        if march.endTime < old.endTime and gold == old.gold-old.price then
-            diamond_pending[fields.slot] = nil
-            return {state="confirmed",data={observation="native_march_endTime_and_gem_balance_transition",
-                slot=tonumber(fields.slot),marchUuid=march.uuid,itemId=old.itemId,
-                priorEndTime=old.endTime,currentEndTime=march.endTime,
-                priorGold=old.gold,currentGold=gold,price=old.price}}
-        end
-        return {state="accepted",data={slot=tonumber(fields.slot),marchUuid=march.uuid,
-            requestDispatched=false,awaitingGameConfirmation=true}}
-    end
-    if fields.queryOnly == "1" then return failed("No pending diamond rapid purchase to observe") end
-    if fields.diamondOptIn ~= "1" then return failed("Explicit gem purchase consent absent") end
-    local template_manager = member(rawget(_G,"DataCenter"),"ItemTemplateManager")
-    local category = member(rawget(_G,"GOODS_TYPE"),"GOODS_TYPE_108")
-    local ok_templates, templates = invoke(template_manager,"GetTypeListByType",category)
-    local selected
-    if ok_templates and type(templates) == "table" and type(fields.itemId) == "string" then
-        for _,template in pairs(templates) do
-            if ident(member(template,"id")) == fields.itemId then selected=template end
-        end
-    end
-    local price = number(member(selected,"price"))
-    if not price or price <= 0 or price % 1 ~= 0 or gold < price then
-        return failed("Exact native category-108 purchase template/price or sufficient gems absent")
-    end
-    local route = member(rawget(_G,"MsgDefines"),"WorldMarchRapid")
-    local send = member(rawget(_G,"SFSNetwork"),"SendMessage")
-    if not route or type(send) ~= "function" then return unsupported("Original WorldMarchRapid sender unavailable") end
-    if input_clear() ~= true then return failed("Text focus changed before gem purchase") end
-    diamond_pending[fields.slot] = {uid=uid,uuid=march.uuid,formation=march.formation,
-        itemId=fields.itemId,price=price,gold=gold,endTime=march.endTime}
-    local ok,result = pcall(send,route,march.uuidNumber,tonumber(fields.itemId),true)
-    if not ok or result == false then return failed("Native gem rapid sender rejected request; observe before retry") end
-    return {state="accepted",data={slot=tonumber(fields.slot),marchUuid=march.uuid,
-        itemId=fields.itemId,price=price,priorGold=gold,requestDispatched=true,
-        awaitingGameConfirmation=true}}
+    return unsupported("Native ShowUseDiamondConfirm callback and purchase ACK not verified; diamond rapid disabled")
 end
 
 -- Adaptation: the CURRENT open native formation selector owns the typed
@@ -847,8 +898,11 @@ local function attack_selected(fields, input_clear, uid)
         local fresh, uuid = fresh_owned(existing)
         local ok_type, kind = invoke(fresh,"GetMarchTargetType")
         local start_time = number(member(fresh,"startTime"))
+        local ack_correlated=prior.replyCorrelation=="native_clientCreateUuid_owner_march_reply" and
+            prior.replyUuid==uuid and prior.replyOwnerUid==uid and prior.replyCount==1
         if fresh and ok_type and kind == prior.kind and prior.sendCount==1 and
            prior.senderReturned==true and prior.senderReturnedFalse~=true and
+           ack_correlated and
            ident(member(fresh,"targetUuid")) == prior.targetUuid and
            (not prior.oldUuid or uuid ~= prior.oldUuid or
             start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
@@ -859,6 +913,7 @@ local function attack_selected(fields, input_clear, uid)
                 targetSource="open_native_formation_selector",currentCursorVerified=false,
                 priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
                 currentStartTime=start_time,requestDispatched=false,
+                serverAcknowledgementCorrelated=true,nativeMarchPostStateVerified=true,
                 transaction=transaction_view(prior)}
             if prior.allowItem or prior.allowDiamond then
                 local options=owned_speedup_items()
@@ -868,22 +923,7 @@ local function attack_selected(fields, input_clear, uid)
                         if not chosen or tonumber(id)<tonumber(chosen) then chosen=id end
                     end
                 end
-                if chosen then prior.rapidAction,prior.rapidItem="speedupItem",chosen
-                elseif prior.allowDiamond then
-                    local _,templates=invoke(member(center,"ItemTemplateManager"),"GetTypeListByType",
-                        member(rawget(_G,"GOODS_TYPE"),"GOODS_TYPE_108"))
-                    local price
-                    if type(templates)=="table" then
-                        for _,template in pairs(templates) do
-                            local id=ident(member(template,"id"))
-                            local cost=number(member(template,"price"))
-                            if id and cost and cost>0 and (not price or cost<price) then
-                                chosen,price=id,cost
-                            end
-                        end
-                    end
-                    if chosen then prior.rapidAction,prior.rapidItem="speedupDiamond",chosen end
-                end
+                if chosen then prior.rapidAction,prior.rapidItem="speedupItem",chosen end
                 if not prior.rapidAction then return failed("Attack confirmed; no permitted native rapid item or purchase template") end
                 prior.receipt=receipt
                 return attack_selected(fields,input_clear,uid)
@@ -893,9 +933,15 @@ local function attack_selected(fields, input_clear, uid)
         end
         return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
             awaitingGameConfirmation=true,requestDispatched=false,
+            nativeMarchPostStateVerified=fresh~=nil and kind==prior.kind and
+                ident(member(fresh,"targetUuid"))==prior.targetUuid,
+            serverAcknowledgementCorrelated=ack_correlated,
             nativeTransaction=transaction_view(prior)}}
     end
     if fields.queryOnly == "1" then return failed("No pending native attack to observe") end
+    if fields.allowRapidDiamond=="1" then
+        return unsupported("Attack-linked diamond rapid requires original native purchase confirmation")
+    end
     local selector=selected_window()
     local window=selector and selector.window
     local ctrl=selector and selector.ctrl
@@ -908,6 +954,13 @@ local function attack_selected(fields, input_clear, uid)
     if not selector or not ctrl or not target_uuid or
        not (is_city or is_army or is_monster) then
         return failed("Open the native attack formation selector on a current city/army/monster target first")
+    end
+    local staffing=formation_staffing(form)
+    if staffing.soldierCount==nil or staffing.heroCount==nil then
+        return unsupported("Native formation soldier/hero staffing cannot be verified")
+    end
+    if not staffing.staffedForAttack then
+        return failed("Selected native formation must contain soldiers and assigned heroes before attack")
     end
     local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok_target, target
@@ -924,6 +977,10 @@ local function attack_selected(fields, input_clear, uid)
     if existing ~= nil then
         old,old_uuid = fresh_owned(existing)
         if not old then return failed("Existing squad march owner/formation changed") end
+        -- WorldMarchChange carries no source-verifiable request nonce.
+        -- This shortcut must not replace an active march when its own ACK
+        -- cannot be distinguished from another change of the same march.
+        return unsupported("Existing squad march requires a separately correlated native retarget ACK")
     end
     local _,old_kind = invoke(old,"GetMarchTargetType")
     local old_start = number(member(old,"startTime"))
@@ -932,6 +989,17 @@ local function attack_selected(fields, input_clear, uid)
     if input_clear() ~= true or member(window,"Ctrl") ~= ctrl or
        member(ctrl,"targetType") ~= kind or ident(member(ctrl,"targetUuid")) ~= target_uuid then
         return failed("Native selector changed immediately before attack")
+    end
+    local ok_fresh_form,fresh_form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local fresh_staffing=formation_staffing(fresh_form)
+    if not ok_fresh_form or ident(member(fresh_form,"uuid"))~=formation or
+       not fresh_staffing.staffedForAttack or
+       fresh_staffing.soldierCount~=staffing.soldierCount or
+       fresh_staffing.heroCount~=staffing.heroCount then
+        return failed("Native formation staffing or identity changed before attack")
+    end
+    if not observe_create_serializer() then
+        return unsupported("Original create-march request nonce observer unavailable")
     end
     if not observe_attack_sender() then return unsupported("Native attack sender observation unavailable") end
     observe_attack_replies()
