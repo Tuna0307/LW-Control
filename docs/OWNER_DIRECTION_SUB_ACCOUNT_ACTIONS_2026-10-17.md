@@ -19,3 +19,10 @@ Scope recorded by the lead (CORRECTED 2026-10-17 by owner: the lead's first vers
 - Background-only operation of owner windows, Chinese game language, exact own-session stop/restore and respect
   for tool denials are unchanged.
 This supersedes older "no claims/plunder/sharing/attacks/marches/spending/relocation" limits for this account only.
+
+## Owner addendum (2026-10-17 evening)
+- On the 2289 sub-account the worker may buy **anything with in-game currency** (gold, gems, other in-game
+  resources) when a feature or test needs it. **Never any purchase that costs real money**, never payment details.
+- Reverse engineering the game client and its protocol for these features is allowed.
+- The owner also offered to allow tampering with the anti-cheat. The lead declined to direct that: anti-cheat
+  (ACE) must not be disabled, patched, hooked, spoofed or evaded. Work with it as-is, as all accepted features do.
