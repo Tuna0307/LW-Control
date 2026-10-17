@@ -393,6 +393,18 @@ def test_selected_attack_and_diamond():
             'unresolved attack or rapid transaction' in editor_attempt['error'] and
             state['attackDelegateCount']==1,
             'native staffing editor shortcut bypassed a pending attack fence')
+    pending_view=module.Prepare(vm.table_from(dict(
+        mode='attackReadiness',slot='1',
+        authorizedUid='3133546747002289',
+        profileId='profile',launchSessionId='launch',
+        challenge='request',gamePid='7020')),vm.globals().input_clear)
+    require(pending_view['state']=='confirmed' and
+            pending_view['data']['sourcePrerequisitesObserved'] is False and
+            'native_attack_or_speedup_transaction_pending' in
+              list(pending_view['data']['outstandingReasons'].values()) and
+            pending_view['data']['requestDispatched'] is False and
+            state['attackDelegateCount']==1 and state['attackSends']==1,
+            'read-only R8 readiness missed in-flight one-shot attack fence')
     require(call(queryOnly='1')['state']=='accepted' and state['attackDelegateCount']==1,
             'pending attack was resent or falsely confirmed without native march')
     state['existingAbsent']=False
@@ -855,7 +867,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
 
 
 def test_original_reply_observer_required_before_native_controller():
-    for mode in ('missing','displaced'):
+    for mode in ('missing','displaced','serializerDisplaced','senderDisplaced','netReplaced'):
         vm=LuaRuntime(unpack_returned_tuples=True)
         vm.execute(GAME)
         vm.execute("""
@@ -897,15 +909,23 @@ def test_original_reply_observer_required_before_native_controller():
             fields=dict(action='attack',slot=str(slot),authorizedUid='3133546747002289',
                         profileId='profile',launchSessionId='launch',challenge='request',gamePid='7020')
             return mod.Handle(vm.table_from(fields),vm.globals().input_clear)
-        if mode=='displaced':
+        if mode!='missing':
             first=attack(1)
             require(first['state']=='accepted' and state.attackDelegateCount==1,
-                    'mock did not install the original create reply observer')
-            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage=
-                function(self,response)end""")
+                    'mock did not install all original march observers')
+            if mode=='displaced':
+                vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage=
+                    function(self,response)end""")
+            elif mode=='serializerDisplaced':
+                vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate=
+                    function(self,...)end""")
+            elif mode=='senderDisplaced':
+                vm.execute("SFSNetwork.SendMessage=function(...)end")
+            else:
+                vm.execute("SFSNetwork={SendMessage=function(...)end}")
             second=attack(2)
             require(second['state']=='unsupported' and state.attackDelegateCount==1,
-                    'displaced server reply observer permitted another attack controller')
+                    'missing/replaced original sender/nonce/reply observer allowed attack: '+mode)
         else:
             denied=attack(1)
             require(denied['state']=='unsupported' and state.attackDelegateCount==0,
@@ -913,6 +933,93 @@ def test_original_reply_observer_required_before_native_controller():
         require(state.rpcCount==0 and
                 (state.attackSends is None or state.attackSends==0),
                 'unobservable attack reply admission emitted network RPC: '+mode)
+
+
+def test_readonly_end_to_end_source_prerequisites():
+    vm=LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    vm.execute("""
+      state.existingAbsent=true
+      UIWindowNames={UIFormationSelectListV2='formation'}
+      nativeCtrl={targetType=17,targetUuid=state.worldUuid,
+                  targetPoint=state.touchedTile,targetServerId=2289}
+      nativeWindow={Ctrl=nativeCtrl}
+      UIManager={GetInstance=function()return {
+        IsWindowOpen=function(self,name)
+          return name=='formation' and state.selectorOpen~=false
+        end,
+        GetWindow=function(self,name)
+          if name=='formation' then return nativeWindow end
+        end
+      }end}
+      DataCenter.ArmyFormationDataManager.GetArmyUnFormationList=function()
+        return {[101]=state.freeTroops or 50}
+      end
+      local savedGetForm=DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex
+      DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+        local form=savedGetForm(self,slot)
+        if form then form.index=slot end
+        return form
+      end
+      MarchUtil.GetMaxCanAddSoldierNum=function(heroes,index)
+        return 150
+      end
+      state.noReadinessSend=true
+      MarchUtil.TryStartMarch=function(...)error('readiness invoked action')end
+      SFSNetwork.SendMessage=function(...)error('readiness sent network request')end
+    """)
+    state=vm.globals().state
+    mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+    fields=dict(mode='attackReadiness',slot='1',
+                authorizedUid='3133546747002289',profileId='profile',
+                launchSessionId='launch',challenge='request',gamePid='7020')
+    def read(**overrides):
+        return mod.Prepare(vm.table_from(dict(fields,**overrides)),vm.globals().input_clear)
+    ready=read()
+    data=ready['data']
+    require(ready['state']=='confirmed' and
+            data['sourcePrerequisitesObserved'] is True and
+            len(data['outstandingReasons'])==0 and
+            data['target']['uuid']=='990123' and
+            data['formationStaffing']['soldierCount']==110 and
+            data['nativeMarchLookupSucceeded'] is True and
+            data['physicalCursorTargetVerified'] is False and
+            data['keyboardInputFocusAtActionVerified'] is False and
+            data['serverAcknowledgementCorrelated'] is False and
+            data['safeToDispatchFromPhysicalCursor'] is False and
+            data['attackDispatched'] is False and
+            state['attackDelegateCount']==0 and state['rpcCount']==0,
+            'source readiness fabricated a cursor, attack, nonce, or server receipt')
+    state.inputClear=False
+    require(read()['data']['keyboardInputFocusAtActionVerified'] is False,
+            'read-only readiness pretended native text focus was checked at send time')
+    state.inputClear=True
+    for flag,value,reason in (
+        ('existingAbsent',False,'native_formation_has_existing_march'),
+        ('soldierCount',0,'native_formation_soldiers_or_heroes_unstaffed'),
+        ('heroCount',0,'native_formation_soldiers_or_heroes_unstaffed'),
+        ('formationOwner',123,'native_formation_owner_mismatch'),
+        ('worldPresent',False,'native_typed_selector_target_invalid'),
+        ('worldServer',2212,'native_typed_selector_target_invalid'),
+        ('selectorOpen',False,'native_typed_selector_not_open')):
+        old=state[flag]
+        state[flag]=value
+        rejected=read()
+        reasons=list(rejected['data']['outstandingReasons'].values())
+        require(rejected['state']=='confirmed' and
+                rejected['data']['sourcePrerequisitesObserved'] is False and
+                reason in reasons and state.attackDelegateCount==0,
+                'source readiness missed real native blocker '+flag)
+        state[flag]=old
+    state.soldierCount=0
+    shortage=read()
+    require(shortage['data']['originalManualEditorMayHelp'] is True and
+            shortage['data']['staffingMutationPerformed'] is False,
+            'unstaffed slot failed to report original manual editor possibility')
+    state.soldierCount=110
+    require(read(slot='5')['state']=='failed' and
+            read(authorizedUid='999')['state']=='failed',
+            'readiness ignored fixed slot or approved account identity')
 
 
 def main():
@@ -923,6 +1030,7 @@ def main():
     test_manual_native_formation_editor_no_automatic_march()
     test_original_selector_typed_target_preflight_and_dispatch_revalidation()
     test_original_reply_observer_required_before_native_controller()
+    test_readonly_end_to_end_source_prerequisites()
     state, call, inspect = mock()
     inv = inspect()
     require(inv["state"] == "confirmed" and

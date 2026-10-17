@@ -268,11 +268,16 @@ end
 -- Observation only. Preserve the original static sender, exact arguments,
 -- return values and exceptions. Track ONLY exact pending formation/march,
 -- target kind and target UUID on the two source-native attack routes.
-local observed_send, active_create_send
+local observed_send, observed_send_owner, active_create_send
 local function observe_attack_sender()
     local net=rawget(_G,"SFSNetwork")
     local original=member(net,"SendMessage")
-    if original==observed_send then return true end
+    if observed_send then
+        -- A new/replaced native sender could bypass the observation fence.
+        -- Never wrap a different sender as though it were the exact original
+        -- previously captured for an outstanding nonce transaction.
+        return net==observed_send_owner and original==observed_send
+    end
     if type(original)~="function" then return false end
     observed_send=function(route,...)
         local args=table.pack(...)
@@ -311,7 +316,8 @@ local function observe_attack_sender()
         return table.unpack(returned,2,returned.n)
     end
     net.SendMessage=observed_send
-    return net.SendMessage==observed_send
+    observed_send_owner=net
+    return member(net,"SendMessage")==observed_send
 end
 
 -- v26 WorldMarchFormationNewMessage.OnCreate lines 46-47 serializes a
@@ -319,11 +325,14 @@ end
 -- response fixture also carries clientCreateUuid, ownerUid and march uuid.
 -- Inspect the serialized SFSObject after its original OnCreate, without
 -- generating, replacing, altering or replaying the native request token.
-local observed_create_serializer
+local observed_create_serializer, observed_serializer_owner
 local function observe_create_serializer()
     local ok,class=pcall(require,"Net.Msgs.WorldMarchFormationNewMessage")
     local original=ok and member(class,"OnCreate") or nil
-    if original==observed_create_serializer then return true end
+    if observed_create_serializer then
+        return class==observed_serializer_owner and
+            original==observed_create_serializer
+    end
     if type(original)~="function" then return false end
     local wrapper=function(self,formation,kind,target,...)
         local returned=table.pack(pcall(original,self,formation,kind,target,...))
@@ -344,6 +353,7 @@ local function observe_create_serializer()
     end
     class.OnCreate=wrapper
     observed_create_serializer=wrapper
+    observed_serializer_owner=class
     return member(class,"OnCreate")==wrapper
 end
 
@@ -824,10 +834,89 @@ local function open_manual_staffing_editor(fields,uid)
         operatorMustSaveInOriginalGame=true}}
 end
 
+-- R8: one consolidated, strictly read-only game-native prerequisite view.
+-- v26 selector InitData owns the typed target, ArmyFormationDataManager
+-- owns the saved squad, and GetOwnerFormationMarch owns current availability.
+-- This deliberately does not call MarchUtil/OnCheckTime, install packet
+-- observers, synthesize pointer hits, allocate soldiers, or assert an ACK.
+local function attack_readiness(fields,uid)
+    if type(fields.slot)~="string" or not fields.slot:match("^[1-4]$") then
+        return failed("Read-only attack readiness requires slot 1 to 4")
+    end
+    local center=rawget(_G,"DataCenter")
+    local forms=member(center,"ArmyFormationDataManager")
+    local marches=member(center,"WorldMarchDataManager")
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local ok_form,form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local formation,formation_number=ident(member(form,"uuid"))
+    local form_owner=member(form,"ownerUid")
+    local owner_ok=form_owner==nil or ident(form_owner)==uid
+    local staffing=formation_staffing(form)
+    local ok_march,existing=false,nil
+    if formation and owner_ok then
+        ok_march,existing=invoke(marches,"GetOwnerFormationMarch",
+            member(player,"uid"),formation_number,member(player,"allianceId"))
+    end
+    local selection=selected_window()
+    local target,denial=nil,nil
+    if selection then target,denial=native_selector_target(selection.ctrl,uid) end
+    local unassigned=unassigned_soldier_inventory(center)
+    local capacity=formation_capacity(form)
+    local reasons={}
+    if not ok_form or not formation then
+        reasons[#reasons+1]="native_formation_locked_or_unavailable"
+    elseif not owner_ok then
+        reasons[#reasons+1]="native_formation_owner_mismatch"
+    end
+    if not staffing.staffedForAttack then
+        reasons[#reasons+1]="native_formation_soldiers_or_heroes_unstaffed"
+    end
+    if not ok_march then
+        reasons[#reasons+1]="native_formation_march_lookup_unavailable"
+    elseif existing~=nil then
+        reasons[#reasons+1]="native_formation_has_existing_march"
+    end
+    if attacks[fields.slot] or pending[fields.slot] then
+        reasons[#reasons+1]="native_attack_or_speedup_transaction_pending"
+    end
+    if not target then
+        reasons[#reasons+1]=selection and "native_typed_selector_target_invalid"
+            or "native_typed_selector_not_open"
+    end
+    local can_editor_help=not staffing.staffedForAttack and
+        unassigned.observed and unassigned.total>0 and capacity~=nil and
+        staffing.soldierCount~=nil and capacity>staffing.soldierCount
+    return {state="confirmed",data={
+        observation="native_attack_readonly_prerequisite_inventory",
+        slot=tonumber(fields.slot),formationUuid=formation,
+        nativeFormationOwnerVerified=owner_ok and formation~=nil,
+        nativeMarchLookupSucceeded=ok_march,
+        nativeExistingMarchUuid=ident(member(existing,"uuid")),
+        formationStaffing=staffing,
+        nativeFormationCapacity=capacity,
+        unassignedSoldiers=unassigned,
+        originalManualEditorMayHelp=can_editor_help==true,
+        target=target,
+        targetDenial=denial and denial.error or nil,
+        sourcePrerequisitesObserved=#reasons==0,
+        outstandingReasons=reasons,
+        physicalCursorTargetVerified=false,
+        keyboardInputFocusAtActionVerified=false,
+        serverRequestTokenEchoVerified=false,
+        serverAcknowledgementCorrelated=false,
+        nativeMarchPostStateVerified=false,
+        safeToDispatchFromPhysicalCursor=false,
+        attackDispatched=false,requestDispatched=false,
+        staffingMutationPerformed=false
+    }}
+end
+
 function M.Prepare(fields, input_clear)
-    local uid, denial = owner_and_focus(fields,input_clear,fields.mode == "inventory")
+    local uid, denial = owner_and_focus(fields,input_clear,
+        fields.mode == "inventory" or fields.mode=="attackReadiness")
     if not uid then return denial end
     if fields.mode=="staffingEditor" then return open_manual_staffing_editor(fields,uid) end
+    if fields.mode=="attackReadiness" then return attack_readiness(fields,uid) end
     if fields.mode=="selectorTarget" then
         local selection=selected_window()
         if not selection then return failed("Original formation selector not uniquely open") end
