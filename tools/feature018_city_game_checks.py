@@ -337,6 +337,41 @@ def main():
         check(updated['completedMoves'] == i, 'game step ACK not observed')
     check(updated['state'] == 'completed', 'server-observed swap not completed')
 
+    # The game pump must continue an owner-authorized move plan even when
+    # the City panel is hidden and never issues another status request.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    pending_swap = get('city_layout_apply_start',
+                       lua.globals().Fields(revision, '101:2;102:1'))
+    check(pending_swap['state'] == 'accepted', 'tick-only swap did not begin')
+    for index, (uid, target) in enumerate([(101, 3), (102, 1), (101, 2)], start=1):
+        check(len(lua.globals().ObservedMoves) == index,
+              'game tick dispatched a future move before server confirmation')
+        producer.Pump()
+        check(len(lua.globals().ObservedMoves) == index,
+              'game tick treated an unconfirmed request as a completed move')
+        lua.execute(f'DataCenter.BuildManager.allBuilding[{uid}].pointId={target}')
+        producer.Pump()
+    finished = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
+    check(finished['state'] == 'completed' and finished['completedMoves'] == 3,
+          'game tick did not finish a multi-step job without UI polling')
+
+    # Each future send still re-reads the native placement conditions.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    start = get('city_layout_apply_start',
+                lua.globals().Fields(revision, '101:2;102:1'))
+    check(start['state'] == 'accepted', 'zone-drift swap did not begin')
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('DataCenter.CityZoneManager.allZonePoint[1] = nil')
+    producer.Pump()
+    stale = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
+    check(stale['state'] == 'failed' and stale['errorCode'] == 'CITY_LAYOUT_STALE' and
+          len(lua.globals().ObservedMoves) == 1,
+          'game tick dispatched move despite changed native zone permission')
+
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
     revision = get('city_layout_snapshot_get')['data']['layoutRevision']

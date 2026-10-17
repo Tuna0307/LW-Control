@@ -284,11 +284,33 @@ local function chest_snapshot(view)
     } }
 end
 
+-- Only the effect activated by this module may be hidden. A new view can
+-- become active while the previous chest is still alive; retaining that
+-- effect would leave a stale winning-chest marker on the previous shuffle.
+local function clear_owned_chest_marker()
+    local view = marker_owned_view
+    if view == nil then return true end
+    local effect = member(view, "switchEffect")
+    if effect == nil or type(member(view, "HideSwitchEffect")) ~= "function" then
+        return false
+    end
+    if member(effect, "activeSelf") ~= false then
+        local ok = invoke(view, "HideSwitchEffect")
+        if not ok or member(effect, "activeSelf") ~= false then return false end
+    end
+    marker_owned_view = nil
+    return true
+end
+
 local function mark_chest()
     M.TryObserveUiClasses()
     local game_state = chest_snapshot(bound_chest_view)
     if game_state.state ~= "confirmed" then return game_state end
     local view = bound_chest_view
+    if marker_owned_view ~= nil and marker_owned_view ~= view and
+       not clear_owned_chest_marker() then
+        return blocked("Previous owned chest marker could not be cleared")
+    end
     local effect = member(view, "switchEffect")
     local show = member(view, "ShowSwitchEffect")
     if effect == nil or type(show) ~= "function" then
@@ -316,20 +338,14 @@ end
 
 local function unmark_chest()
     M.TryObserveUiClasses()
-    local view = bound_chest_view
-    if view == nil then return unsupported("No genuine active TreasureChest view was bound") end
-    if marker_owned_view ~= view then
+    if marker_owned_view == nil then
         return unsupported("No owned chest marker is currently active")
     end
-    local effect = member(view, "switchEffect")
-    if effect == nil or type(member(view, "HideSwitchEffect")) ~= "function" then
-        return unsupported("Native prize marker cleanup is unavailable")
-    end
-    local ok = invoke(view, "HideSwitchEffect")
-    if not ok or member(effect, "activeSelf") ~= false then
+    -- Clean up the actual owned effect, even if another chest view has since
+    -- been bound. Never hide the new view's native effect by mistake.
+    if not clear_owned_chest_marker() then
         return blocked("Native prize marker cleanup was not observed")
     end
-    marker_owned_view = nil
     return { state = "confirmed", data = { markerVisible = false,
         observation = "native_treasure_chest_switch_effect" } }
 end
@@ -337,11 +353,18 @@ end
 -- Only an actual view object from UI/LWTreasureChest/UITreasureChestView may
 -- be passed by the host's validated UI hook. No speculative scene traversal.
 function M.BindTreasureChestView(view)
-    if view == nil then bound_chest_view = nil; return true end
+    if view == nil then
+        if not clear_owned_chest_marker() then return false end
+        bound_chest_view = nil
+        return true
+    end
     local ok = type(member(view, "GetBigRewardBoxIndex")) == "function" and
                type(member(view, "GetBoxItem")) == "function" and
                member(view, "boxItems") ~= nil
     if not ok then return false end
+    if bound_chest_view ~= view and not clear_owned_chest_marker() then
+        return false
+    end
     bound_chest_view = view
     return true
 end
@@ -384,7 +407,12 @@ function M.TryObserveUiClasses()
                     return original_update(view, ...)
                 end
                 local destroy = function(view, ...)
-                    if marker_owned_view == view then marker_owned_view = nil end
+                    if marker_owned_view == view then
+                        -- The original view is being destroyed. Release the
+                        -- effect before its native objects become invalid.
+                        clear_owned_chest_marker()
+                        marker_owned_view = nil
+                    end
                     if bound_chest_view == view then bound_chest_view = nil end
                     return original_destroy(view, ...)
                 end
@@ -414,6 +442,8 @@ function M.TryObserveUiClasses()
 end
 
 function M.RemoveUiObservation()
+    clear_owned_chest_marker()
+    marker_owned_view = nil
     for path, saved in pairs(watched_ui_classes) do
         -- Never overwrite a different mod's subsequently installed method.
         pcall(function()
@@ -434,11 +464,6 @@ function M.CleanupAfterLeaseLoss()
     -- Owner's Overview Pump should call this on stale/absent lease AND on
     -- owner session transitions. Once the owner lease is gone, only undo
     -- our previous UI effect and restore our exact in-memory UI wrappers.
-    local view = marker_owned_view
-    marker_owned_view = nil
-    if view ~= nil and type(member(view, "HideSwitchEffect")) == "function" then
-        invoke(view, "HideSwitchEffect")
-    end
     M.RemoveUiObservation()
     last_land_request_id = nil
 end

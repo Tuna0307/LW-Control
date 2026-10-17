@@ -281,6 +281,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         feature018_previous_owner = current_feature_owner
     end
     if current_feature_owner ~= nil then
+        if type(city.Pump) == "function" then pcall(city.Pump) end
         if type(sheep.Pump) == "function" then pcall(sheep.Pump) end
         if type(feature.Pump) == "function" then pcall(feature.Pump) end
     end

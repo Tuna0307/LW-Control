@@ -51,18 +51,74 @@ internal sealed partial class LWBridgeWindow
 
         // Record account identity before any live tab action. The heartbeat is
         // bound to the exact authenticated game PID, profile, session, challenge.
-        string heartbeatPath = Path.Combine(overviewLifecycleService.LiveResourceRuntimeRoot, "heartbeat.json");
-        using JsonDocument heartbeat = JsonDocument.Parse(await File.ReadAllTextAsync(heartbeatPath, token));
-        JsonElement heart = heartbeat.RootElement;
-        if (!OverviewLifecycleService.HeartbeatMatches(heart, session.ProfileId,
-                session.SessionId, session.Challenge, session.GamePid,
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
-            throw new InvalidDataException("FEATURE018 heartbeat lacks the current authenticated game identity.");
+        // Game-side session heartbeat is written by Overview, not Map's
+        // independent live-resource observer. This must be read while the
+        // authenticated owner is running, before its Stop removes lease files.
+        string heartbeatPath = Path.Combine(overviewLifecycleService.RuntimeRoot, "heartbeat.json");
+        // The Overview bridge becomes ready before the account's player
+        // manager has finished logging in. Never treat an early null UID as
+        // authorization, or abort before the genuine account state can settle.
+        JsonElement heart = default;
+        for (int attempt = 0; attempt < 240; attempt++)
+        {
+            Owner();
+            if (File.Exists(heartbeatPath))
+            {
+                try
+                {
+                    using JsonDocument heartbeat = JsonDocument.Parse(
+                        await File.ReadAllTextAsync(heartbeatPath, token));
+                    JsonElement candidate = heartbeat.RootElement;
+                    bool loggedIn = candidate.TryGetProperty("loggedIn", out var login) &&
+                        login.ValueKind == JsonValueKind.True;
+                    bool connected = candidate.TryGetProperty("connected", out var connection) &&
+                        connection.ValueKind == JsonValueKind.True;
+                    if (OverviewLifecycleService.HeartbeatMatches(candidate, session.ProfileId,
+                            session.SessionId, session.Challenge, session.GamePid,
+                            DateTimeOffset.UtcNow.ToUnixTimeSeconds()) &&
+                        loggedIn && connected &&
+                        !string.IsNullOrWhiteSpace(ReadStatusString(candidate, "gameUid")) &&
+                        ReadStatusInt32(candidate, "serverId") is int identifiedServer)
+                    {
+                        await File.WriteAllTextAsync(Path.Combine(directory,
+                                "feature018-account-admission.json"),
+                            JsonSerializer.Serialize(new
+                            {
+                                session.ProfileId, session.SessionId, session.GamePid,
+                                uid = ReadStatusString(candidate, "gameUid"),
+                                serverId = identifiedServer, loggedIn, connected,
+                                verifiedAtUtc = DateTimeOffset.UtcNow,
+                            }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
+                        if (identifiedServer != 2212)
+                            throw new InvalidDataException(
+                                "FEATURE018 logged-in owner is on server " + identifiedServer +
+                                " instead of 2212; gameplay is denied.");
+                        heart = candidate.Clone();
+                        break;
+                    }
+                }
+                catch (IOException) { }
+                catch (JsonException) { }
+            }
+            await Task.Delay(500, token);
+        }
+        if (heart.ValueKind == JsonValueKind.Undefined)
+            throw new InvalidDataException(
+                "FEATURE018 failed to observe authenticated UID and server 2212 within 120 seconds; no game actions were issued.");
         string? uid = ReadStatusString(heart, "gameUid");
         int? serverId = ReadStatusInt32(heart, "serverId");
         if (string.IsNullOrWhiteSpace(uid) || serverId != 2212)
             throw new InvalidDataException(
                 "FEATURE018 must verify the approved sub-account UID on server 2212 before interacting with live tabs.");
+
+        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1")
+        {
+            feature018R2AccountVerified = true;
+            StartFeature018HotkeyMonitoring();
+            await RunFeature018R2PackagedUiProofAsync(core, outputPath, directory,
+                session, uid, serverId.Value, token);
+            return;
+        }
 
         using JsonDocument empty = JsonDocument.Parse("{}");
         HotkeyConfig first = (HotkeyConfig)(await hotkeyConfigService.InvokeAsync(

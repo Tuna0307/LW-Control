@@ -531,6 +531,18 @@ local function progress_job(job)
     end
 end
 
+-- Advance server-confirmed moves on the owned game tick, including when the
+-- City UI is hidden and its React status poll is suspended. The caller must
+-- invoke Pump only while the original authenticated game owner is lease-fresh.
+-- No new send occurs until the official BuildManager observes the previous
+-- server response; CleanupAfterLeaseLoss prevents successor-owner sends.
+function M.Pump()
+    local job = M.active
+    if job == nil or job.state ~= 'running' then return false end
+    progress_job(job)
+    return true
+end
+
 function M.Register(feature)
     if not feature or type(feature.RegisterHandler) ~= 'function' then return false end
     local ok = feature.RegisterHandler('city_layout_snapshot_get', function()

@@ -243,7 +243,10 @@ local function stop_internal(reason)
     run.error = reason
     if run.status ~= 'completed' then run.status = reason == 'stopped' and 'stopped' or 'solve_failed' end
     run.pending = nil
-    run.search = nil
+    -- The planner is a coroutine. Releasing the actual field on Stop also
+    -- releases its captured source-native board while the game stays open.
+    run.coroutine = nil
+    run.initial = nil
 end
 
 local function executing_or_preparing()

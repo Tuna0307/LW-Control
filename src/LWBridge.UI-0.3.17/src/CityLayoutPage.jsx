@@ -15,6 +15,11 @@ const CITY_LAYOUT_PREVIEW_STATES = new Set([
   "city-layout-loading",
   "city-layout-error",
 ]);
+const CITY_LAYOUT_LOCALIZED_ISSUES = new Set([
+  "CITY_LAYOUT_ROAD", "CITY_LAYOUT_FLAG_ONLY", "CITY_LAYOUT_LOCKED", "CITY_LAYOUT_OUTSIDE",
+  "CITY_LAYOUT_OVERLAP", "CITY_LAYOUT_IMMOVABLE", "CITY_LAYOUT_ZONE",
+  "CITY_LAYOUT_BUILDING_MISSING", "CITY_LAYOUT_NO_BUFFER",
+]);
 
 export function CityLayoutPage({ previewState = "", online = false }) {
   const { t } = useI18n();
@@ -64,8 +69,16 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const region = layout?.regions[0] ?? null;
   const regionBuildings = useMemo(() => !layout || !region ? [] : layout.buildings.filter((building) => cityRegionForPoint(layout, placementMap.get(building.uuid) ?? building.pointId) === region.id), [layout, placementMap, region]);
   const issues = useMemo(() => layout ? cityLayoutIssues(layout, placements) : [], [layout, placements]);
+  const validationIssue = issues[0] ?? (serverValidation?.valid === false ? serverValidation.issues?.[0] : null);
+  const validationInvalid = issues.length > 0 || serverValidation?.valid === false;
+  const validationIssueText = validationIssue?.code === "CITY_LAYOUT_STALE" ? t("cityLayout.stale")
+    : CITY_LAYOUT_LOCALIZED_ISSUES.has(validationIssue?.code) ? t(`cityLayout.issue.${validationIssue.code}`)
+      : t("common.actionFailed");
   const changedIds = useMemo(() => new Set(placements.map((placement) => placement.uuid)), [placements]);
-  const displayName = (building) => building?.name || building?.nameKey || "";
+  // Current v26 snapshot exposes an authoritative itemId even when localized
+  // building names/assets cannot be read. Never leave every live building
+  // visually anonymous when the preview-only names are absent.
+  const displayName = (building) => building?.name || building?.nameKey || (building?.itemId != null ? `#${building.itemId}` : building?.uuid || "");
 
   const commitPlacements = (next) => {
     if (cityPlacementSignature(next) === cityPlacementSignature(placements)) return;
@@ -75,6 +88,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
 
   const undo = () => {
     if (busy) return;
+    setServerValidation(null);
     setHistory((current) => {
     const previous = current.past[current.past.length - 1];
     return previous ? { past: current.past.slice(0, -1), present: previous, future: [current.present, ...current.future] } : current;
@@ -82,6 +96,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   };
   const redo = () => {
     if (busy) return;
+    setServerValidation(null);
     setHistory((current) => {
     const next = current.future[0];
     return next ? { past: [...current.past, current.present], present: next, future: current.future.slice(1) } : current;
@@ -199,10 +214,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       if (next) {
         const nextIssues = cityLayoutIssues(layout, next);
         if (nextIssues.length) setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
-        else {
-          commitPlacements(next);
-          setServerValidation({ valid: true, issues: [], totalMoves: next.length, temporaryMoves: 0 });
-        }
+        else commitPlacements(next);
       }
       setDragState(null);
       return;
@@ -343,6 +355,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     if (!layout || stale || busy || !placements.length) return;
     setApplyConfirmOpen(false);
     setApplyPreparing(true);
+    setErrorText("");
     try {
       if (!previewEnabled) await draftQueueRef.current;
       const nextIssues = cityLayoutIssues(layout, placements);
@@ -568,7 +581,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         <aside className="city-layout-inspector">
           <strong>{t("cityLayout.properties")}</strong>
           {selected ? <><div className="city-layout-selected"><GameAssetImage assetPath={selected.iconPath} alt={displayName(selected)} className="city-layout-selected-icon" /><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
-          <div className={`city-layout-validation ${issues.length === 0 ? "valid" : "invalid"}`}>{issues.length === 0 ? t("cityLayout.validation.valid") : t(`cityLayout.issue.${issues[0].code}`)}</div>
+          <div className={`city-layout-validation ${validationInvalid ? "invalid" : "valid"}`} role={validationInvalid ? "alert" : undefined}>{validationInvalid ? validationIssueText : t("cityLayout.validation.valid")}</div>
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
           <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>

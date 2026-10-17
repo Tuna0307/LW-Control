@@ -13,12 +13,18 @@ internal sealed partial class LWBridgeWindow
     private DateTimeOffset feature018InputObservedAt;
     private bool feature018InputClear;
     private bool feature018FocusPolling;
+    // Live R2 proof must verify its explicitly authorized UID/server before
+    // installing any game-window key capture. Normal interactive launches use
+    // the existing per-owner account and text-focus checks below.
+    private bool feature018R2AccountVerified;
     private HotkeyConfig feature018Preferences = new();
 
     private void StartFeature018HotkeyMonitoring()
     {
         if (capturePath is not null || liveProbePath is not null ||
-            hostProbePath is not null || normalUiLiveMapProofPath is not null ||
+            hostProbePath is not null || (normalUiLiveMapProofPath is not null &&
+                (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") != "1" ||
+                 !feature018R2AccountVerified)) ||
             normalUiLiveResourceProofPath is not null || mapUiIntegrationProofPath is not null ||
             homeMapCampaignProofPath is not null || map010NamesProofPath is not null)
             return;

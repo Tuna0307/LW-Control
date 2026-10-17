@@ -339,6 +339,7 @@ def main():
                        LWBRIDGE_MAP016_AUTO_INTERVAL="1" if mode == "auto-interval-20m" else "0",
                        LWBRIDGE_MAP017_UI_MODE=mode if mode in ("boss-first", "boss-after-resource", "picker-empty", "once-two-server") else "",
                        LWBRIDGE_FEATURE018_UI_PROOF="1" if mode == "feature018-tabs" else "0",
+                       LWBRIDGE_FEATURE018_R2_PROOF="1" if mode == "feature018-tabs" else "0",
                        LWBRIDGE_MAP016_NO_OFFICIAL_UPDATER_PROOF="1" if mode in NO_UPDATER_MODES else "0",
                        LWBRIDGE_MAP014_TRACKING_UI="1" if mode == "track" else "0",
                        LWBRIDGE_MAP014_EXPIRY_UI="1" if mode == "expiry" else "0")
