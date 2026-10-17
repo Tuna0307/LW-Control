@@ -460,6 +460,32 @@ end
 -- return values and exceptions. Track ONLY exact pending formation/march,
 -- target kind and target UUID on the two source-native attack routes.
 local observed_send, observed_send_owner, active_create_send, active_attack_invocation
+local function native_create_send_matches(transaction,args,created)
+    if not created or not transaction or ident(args[1])~=transaction.formation or
+       args[2]~=transaction.kind then
+        return false
+    end
+    local collect=transaction.kind==member(rawget(_G,"MarchTargetType"),"COLLECT")
+    if not collect then
+        return ident(args[3])==transaction.targetUuid
+    end
+    -- v26 UIFormationSelectListV2Ctrl.OnCreateClick line 1103 calls
+    -- SendCreateMarchMessage(formation,targetType,targetPoint,targetUuid,...).
+    -- Ordinary COLLECT initializes the selector UUID as numeric 0 when no
+    -- source UUID exists. MarchUtil SendCreateMarchToServer line 2012 therefore
+    -- sends 0 as argument 3 and encodes the source-validated destination in
+    -- "startPoint;targetPoint".
+    -- transaction.targetUuid remains the resource mainIndex for authoritative
+    -- poststate matching; it is not the outbound packet's targetUuid field.
+    if number(args[3])~=0 or type(args[4])~="string" or not transaction.targetPoint then
+        return false
+    end
+    local start_text,target_text=args[4]:match("^([^;]+);([^;]+)$")
+    local start_id=ident(start_text)
+    local path_target=ident(target_text)
+    local transaction_point=ident(transaction.targetPoint)
+    return start_id~=nil and path_target==transaction_point
+end
 local function observe_attack_sender()
     local net=rawget(_G,"SFSNetwork")
     local original=member(net,"SendMessage")
@@ -479,8 +505,14 @@ local function observe_attack_sender()
         if created or changed then
             for _,transaction in pairs(attacks) do
                 local identity=created and transaction.formation or transaction.oldUuid
-                if identity and ident(args[1])==identity and args[2]==transaction.kind and
-                   ident(args[3])==transaction.targetUuid then
+                local matches
+                if created then
+                    matches=native_create_send_matches(transaction,args,true)
+                else
+                    matches=identity and ident(args[1])==identity and
+                        args[2]==transaction.kind and ident(args[3])==transaction.targetUuid
+                end
+                if matches then
                     if active_attack_invocation==transaction then
                         transaction.sendCount=(transaction.sendCount or 0)+1
                         transaction.outboundRoute=created and "WorldMarchFormationNew" or "WorldMarchChange"
@@ -550,11 +582,13 @@ local function observe_create_serializer()
     end
     if type(original)~="function" then return false end
     local wrapper=function(self,formation,kind,target,...)
-        local returned=table.pack(pcall(original,self,formation,kind,target,...))
+        local extra=table.pack(...)
+        local create_args=table.pack(formation,kind,target,table.unpack(extra,1,extra.n))
+        local returned=table.pack(pcall(original,self,formation,kind,target,
+            table.unpack(extra,1,extra.n)))
         local transaction=active_create_send
         if returned[1] and transaction and
-           ident(formation)==transaction.formation and
-           kind==transaction.kind and ident(target)==transaction.targetUuid then
+           native_create_send_matches(transaction,create_args,true) then
             local packet=member(self,"sfsObj")
             local ok_token,token=invoke(packet,"GetUtfString","clientCreateUuid")
             transaction.serializerObserved=true
@@ -639,7 +673,7 @@ end
 local function transaction_view(transaction)
     if not transaction then return nil end
     local view={}
-    for _,key in ipairs({"formation","kind","targetUuid","sendCount","outboundRoute",
+    for _,key in ipairs({"formation","kind","targetPoint","targetUuid","sendCount","outboundRoute",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
         "senderReturned","senderReturnedFalse","senderError","serializerObserved",
         "unattributedMatchingSendObserved","unattributedSendCount",
@@ -673,6 +707,16 @@ local function transaction_view(transaction)
     -- A transport/serializer observation alone never licenses a duplicate
     -- request, proves a physical pointer, or substitutes for march poststate.
     return view
+end
+
+local function native_attack_target_matches(transaction,march)
+    if not transaction or not march then return false end
+    if transaction.kind==member(rawget(_G,"MarchTargetType"),"COLLECT") then
+        local observed=ident(member(march,"targetPos"))
+        local expected=ident(transaction.targetPoint)
+        return observed~=nil and expected~=nil and observed==expected
+    end
+    return ident(member(march,"targetUuid"))==transaction.targetUuid
 end
 
 local function exact_session(fields)
@@ -1522,9 +1566,10 @@ local function native_hover_target(fields,uid)
     end
     local alliance,alliance_error=target_alliance_guard(account,resource,false,false)
     if not alliance then return nil,alliance_error end
-    -- Original MarchUtil.OnGotoCollect -> TryStartMarch(COLLECT,nil,
-    -- forcedPoint,pointIndex,resource.mainIndex,...) sends mainIndex as the
-    -- correlated targetUid while the formation chooser targetUuid is nil.
+    -- Original V2 selector normalizes an absent COLLECT targetUuid to numeric
+    -- zero. MarchUtil sends that zero targetUid and carries this physical
+    -- resource point in the final path endpoint; retain mainIndex here as the
+    -- independently validated resource identity for poststate.
     return {category="ordinary_resource",targetType="COLLECT",point=point_id,
         uuid=nil,uuidText=tostring(integer(member(resource,"mainIndex"))),
         server=account.server,uid=account.uid,
@@ -1599,12 +1644,21 @@ local function native_hover_open(fields,input_clear,uid)
     if not account or account.uid~=uid or account.server~=target.server then
         return failed("Original hover selector account changed before dispatch")
     end
-    cursor_open_pending={session=current_session,uid=uid,server=account.server,
+    local pending={session=current_session,uid=uid,server=account.server,
         kind=fresh.targetType,point=fresh.point,uuid=fresh.uuidText,
         slot=slot,formation=formation,consumed=false,sentAt=os.time(),
         source=fresh.source,
         nativeCursorRaycastVerified=fresh.nativeCursorRaycastVerified==true,
         nativePopupTargetVerified=fresh.nativePopupTargetVerified==true}
+    -- Prepare(mode=cursorOpen) is a no-send proof helper and intentionally has
+    -- no fixed squad. It may open the original chooser for inspection, but it
+    -- must not leave an unconsumable slot=nil latch that rejects the next real
+    -- physical Q/W edge after that diagnostic chooser is closed.
+    if fields.mode=="cursorOpen" then
+        cursor_open_pending=nil
+    else
+        cursor_open_pending=pending
+    end
     local ok,result
     if fresh.targetType=="ATTACK_MONSTER" then
         -- UIWorldPointBtn root/13 line1491 uses (kind,point,uuid,-1,1).
@@ -1989,7 +2043,7 @@ local function attack_selected(fields, input_clear, uid)
         if fresh and ok_type and kind == prior.kind and prior.sendCount==1 and
            prior.senderReturned==true and prior.senderReturnedFalse~=true and
            response_guid_correlated and
-           ident(member(fresh,"targetUuid")) == prior.targetUuid and
+           native_attack_target_matches(prior,fresh) and
            (not prior.oldUuid or uuid ~= prior.oldUuid or
             start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
             local receipt={
@@ -2028,10 +2082,10 @@ local function attack_selected(fields, input_clear, uid)
             awaitingGameConfirmation=true,requestDispatched=false,
             ownerUid=uid,sourceServerId=tonumber(prior.server),
             nativeMarchPostStateVerified=fresh~=nil and kind==prior.kind and
-                ident(member(fresh,"targetUuid"))==prior.targetUuid and
+                native_attack_target_matches(prior,fresh) and
                 native_guid_match==true,
             serverAcknowledgementCorrelated=response_guid_correlated and fresh~=nil and
-                kind==prior.kind and ident(member(fresh,"targetUuid"))==prior.targetUuid,
+                kind==prior.kind and native_attack_target_matches(prior,fresh),
             directReplyObserverCorrelated=direct_reply_correlated,
             nativeTransaction=transaction_view(prior)}}
     end
@@ -2135,7 +2189,8 @@ local function attack_selected(fields, input_clear, uid)
         return failed("Target or alliance changed at native attack send edge")
     end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
-        kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
+        kind=kind,targetPoint=target.point,targetUuid=target_uuid,
+        oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
         allowDiamond=fields.allowRapidDiamond=="1",sendCount=0,
         hoverOrigin=cursor_open_pending~=nil and

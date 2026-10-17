@@ -102,6 +102,7 @@ DataCenter={
            ownerFormationUuid=state.freshFormOwner,
            clientCreateGuid=state.marchClientCreateGuid,
            endTime=state.endTime,startTime=state.startTime,targetUuid=state.targetUuid,
+           targetPos=state.targetPos,
            GetWorldType=function() return state.worldType end,
            GetIsBroken=function(self) return state.formationMarchBroken end,
            GetMarchTargetType=function(self) return state.targetType end}
@@ -558,6 +559,98 @@ def test_selected_attack_and_diamond():
     state['serverId']=2212
     require(call()['state']=='failed' and state['attackDelegateCount']==2,
             'main-account server entered mutable attack controller')
+
+
+def test_resource_create_sender_correlation():
+    def fixture(non_nil_target=False, wrong_path=False):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.existingAbsent=true
+          state.targetType=20
+          state.targetUuid=0
+          state.targetPos=35723
+          state.resourceSendTarget=%s
+          state.resourcePath='%s'
+          MarchTargetType.COLLECT=20
+          CS.SceneManager.World.GetResourcePointInfoByIndex=function(self,point)
+            if point~=35723 then return nil end
+            return {id=301,pointIndex=35723,mainIndex=35723,
+              gatherMarchUuid=0,serverId=state.serverId}
+          end
+          UIWindowNames={UIFormationSelectListV2='formation'}
+          nativeCtrl={targetType=20,targetUuid=nil,targetPoint=35723,targetServerId=state.serverId}
+          MsgDefines.WorldMarchFormationNew=99
+          package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+            return {OnCreate=function(self,formation,kind,target)
+              state.sentClientCreateGuid='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff'
+              self.sfsObj={GetUtfString=function(obj,key)
+                assert(key=='clientCreateUuid')
+                return state.sentClientCreateGuid
+              end}
+            end,HandleMessage=function(self,response)end}
+          end
+          SFSNetwork.SendMessage=function(route,formation,kind,target,path)
+            assert(route==99 and formation==state.formation and kind==20)
+            state.attackSends=(state.attackSends or 0)+1
+            require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate(
+              {},formation,kind,target,path)
+          end
+          nativeCtrl.OnCheckTime=function(self,formation)
+            state.attackDelegateCount=state.attackDelegateCount+1
+            SFSNetwork.SendMessage(99,formation,20,state.resourceSendTarget,state.resourcePath)
+          end
+          nativeWindow={Ctrl=nativeCtrl}
+          UIManager={GetInstance=function()return {
+            IsWindowOpen=function(self,name)return name=='formation' end,
+            GetWindow=function(self,name)return name=='formation' and nativeWindow end
+          }end}
+        """ % ('35723' if non_nil_target else '0',
+                 '12345;35724' if wrong_path else '12345;35723'))
+        mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        fields=dict(action='attack',slot='1',authorizedUid='1183884595002296',
+                    profileId='profile',launchSessionId='launch',
+                    challenge='request',gamePid='7020')
+        def call(**extra):
+            payload=dict(fields)
+            payload.update(extra)
+            return mod.Handle(vm.table_from(payload),vm.globals().input_clear)
+        return vm,call
+
+    vm,call=fixture()
+    sent=call()
+    require(sent['state']=='accepted' and sent['data']['requestDispatched'] is True and
+            sent['data']['nativeTransaction']['sendCount']==1 and
+            sent['data']['nativeTransaction']['targetPoint']==35723 and
+            sent['data']['nativeTransaction']['outboundTargetUuid'] is None and
+            sent['data']['nativeTransaction']['outboundPath']=='12345;35723',
+            'source COLLECT nil targetUuid/exact targetPoint path was not correlated: '+
+            str(sent['state'])+' / '+str(sent['error'])+' / '+
+            str(dict(sent['data']['nativeTransaction']) if sent['data'] and
+                    sent['data']['nativeTransaction'] else None))
+    vm.globals().state.existingAbsent=False
+    vm.globals().state.marchClientCreateGuid='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff'
+    confirmed=call(queryOnly='1')
+    require(confirmed['state']=='confirmed' and
+            confirmed['data']['targetUuid']=='35723' and
+            confirmed['data']['nativeMarchGuidMatchesRequest'] is True and
+            confirmed['data']['serverAcknowledgementCorrelated'] is True,
+            'resource create did not confirm from exact source tuple and response GUID: '+
+            str(confirmed['state'])+' / '+str(confirmed['error'])+' / '+
+            str(dict(confirmed['data']['nativeTransaction'])
+                if confirmed['data'] and confirmed['data']['nativeTransaction'] else None)+
+            ' / marchGuid='+str(vm.globals().state.marchClientCreateGuid)+
+            ' target='+str(vm.globals().state.targetUuid)+
+            ' type='+str(vm.globals().state.targetType))
+
+    for bad_kwargs,label in (({'non_nil_target':True},'non-nil targetUuid'),
+                             ({'wrong_path':True},'wrong target path')):
+        bad_vm,bad_call=fixture(**bad_kwargs)
+        bad=bad_call()
+        require(bad['state']=='accepted' and bad['data']['requestDispatched'] is False and
+                bad['data']['nativeTransaction']['sendCount']==0 and
+                bad_vm.globals().state.attackSends==1,
+                'unsafe COLLECT '+label+' was attributed to physical hotkey send')
 
 
 def test_attack_final_action_boundary_and_sender_truth():
@@ -1722,6 +1815,7 @@ def main():
     check_original()
     check_installed_managed_nonce_source()
     test_selected_attack_and_diamond()
+    test_resource_create_sender_correlation()
     test_current_nested_staffing_and_native_membership()
     test_original_world_scene_cursor_projection_is_read_only()
     test_original_hover_monster_and_resource_one_shot_chooser()

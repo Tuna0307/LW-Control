@@ -157,7 +157,7 @@ internal sealed class Feature018HotkeyActions
             Feature018HotkeyActionOutcome result = await producer(command, cancellationToken)
                 .ConfigureAwait(false) ??
                 new(Feature018HotkeyActionStatus.Failed, "game_action_returned_no_receipt");
-            if (!SameAdmittedSession())
+            if (!await SameAdmittedSessionAfterNativeCallAsync(cancellationToken).ConfigureAwait(false))
                 return Reject(Feature018HotkeyActionStatus.SessionChanged, "game_session_changed_after_native_call");
             if (reinforcement && result.Status == Feature018HotkeyActionStatus.Confirmed &&
                 result.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } receipt &&
@@ -203,6 +203,28 @@ internal sealed class Feature018HotkeyActions
     {
         try { return currentSession() is { } actual && actual == expected; }
         catch { return false; }
+    }
+
+    private async Task<bool> SameAdmittedSessionAfterNativeCallAsync(
+        CancellationToken cancellationToken)
+    {
+        // The native exchange already rechecks exact process/session plus
+        // authenticated UID/server immediately before returning its response.
+        // A heartbeat rewrite can nevertheless make the window-level reader
+        // temporarily return null at this second, independent broker check.
+        // Distinguish that short unavailable sample from an explicit different
+        // account/session: any concrete mismatch fails immediately.
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            Feature018HotkeySession? actual;
+            try { actual = currentSession(); }
+            catch { actual = null; }
+            if (actual == expected) return true;
+            if (actual is not null) return false;
+            if (attempt == 9) return false;
+            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
+        }
+        return false;
     }
 
     internal static bool Enabled(HotkeyConfig config, Feature018HotkeyKind kind) => kind switch

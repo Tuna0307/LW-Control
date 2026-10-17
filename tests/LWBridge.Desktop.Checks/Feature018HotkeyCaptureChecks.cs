@@ -236,6 +236,32 @@ internal static class Feature018HotkeyCaptureChecks
         Require(seen.Count == 1 && !seen[0].AllowMarchSpeedupItems &&
             !seen[0].AllowMarchSpeedupDiamonds, "original spend-off defaults bypassed");
 
+        bool nativeReturned = false;
+        int unavailableAfterReturn = 0;
+        var transientProviders = new Dictionary<Feature018HotkeyKind,
+            Func<Feature018HotkeyCommand, CancellationToken, Task<Feature018HotkeyActionOutcome>>>
+        {
+            [Feature018HotkeyKind.AttackSquad] = (command, _) =>
+            {
+                nativeReturned = true;
+                return Task.FromResult(new Feature018HotkeyActionOutcome(
+                    Feature018HotkeyActionStatus.Submitted, "native_send_observed"));
+            },
+        };
+        var transientBroker = new Feature018HotkeyActions(session,
+            () =>
+            {
+                if (nativeReturned && unavailableAfterReturn++ < 2) return null;
+                return session;
+            },
+            () => true, () => new HotkeyConfig(), transientProviders);
+        Feature018HotkeyActionOutcome transientResult =
+            await transientBroker.TryDispatchAsync(attack);
+        Require(transientResult.Status == Feature018HotkeyActionStatus.Submitted &&
+                transientResult.Reason == "native_send_observed" &&
+                unavailableAfterReturn >= 3,
+            "transient post-native heartbeat gap erased an admitted native result");
+
         config = config with { AttackMarchSpeedupItem = true, AttackMarchSpeedupDiamond = true };
         _ = await coordinator.TryDispatchAsync(attack);
         Require(seen.Count == 2 && seen[1].AllowMarchSpeedupItems &&
@@ -505,7 +531,7 @@ internal static class Feature018HotkeyCaptureChecks
 
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
-            observation = "native_world_march_return_target",
+            observation = "native_world_march_return_reply_and_target",
             slot = 2,
             marchUuid = "803001",
             formationUuid = "1001",
@@ -520,7 +546,7 @@ internal static class Feature018HotkeyCaptureChecks
             "cached BACK_HOME before native send falsely confirmed keyed recall");
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
-            observation = "native_world_march_return_target",
+            observation = "native_world_march_return_reply_and_target",
             slot = 2, marchUuid = "803001", formationUuid = "1001",
             target = "BACK_HOME", returning = true,
             requestPreviouslyDispatched = true, nativeReturnReplyMatched = false,
@@ -530,7 +556,7 @@ internal static class Feature018HotkeyCaptureChecks
             "native send without original matching reply falsely confirmed keyed recall");
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
-            observation = "native_world_march_return_target",
+            observation = "native_world_march_return_reply_and_target",
             slot = 2, marchUuid = "803001", formationUuid = "1001",
             target = "BACK_HOME", returning = true,
             requestPreviouslyDispatched = true, nativeReturnReplyMatched = true,
@@ -544,7 +570,7 @@ internal static class Feature018HotkeyCaptureChecks
 
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
-            observation = "native_world_march_return_target",
+            observation = "native_world_march_return_reply_and_target",
             slot = 2,
             marchUuid = "803001",
             formationUuid = "1001",
@@ -622,7 +648,7 @@ internal static class Feature018HotkeyCaptureChecks
                               only.ValueKind == JsonValueKind.True
             ? JsonSerializer.SerializeToElement(new
             {
-                observation = "native_world_march_return_target",
+                observation = "native_world_march_return_reply_and_target",
                 slot = 2,
                 marchUuid = "803001",
                 formationUuid = "1001",

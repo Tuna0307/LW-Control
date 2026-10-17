@@ -233,7 +233,7 @@ internal sealed class Feature018HotkeyNativeProviders
             if (command.Intent.Kind == Feature018HotkeyKind.RecallSquad &&
                 evidence.TryGetProperty("observation", out JsonElement recallObservation) &&
                 recallObservation.ValueKind == JsonValueKind.String &&
-                recallObservation.GetString() == "native_world_march_return_target" &&
+                recallObservation.GetString() == "native_world_march_return_reply_and_target" &&
                 !RecallCausalityMatches(evidence))
             {
                 // The previous native client returned this same target when
@@ -646,7 +646,7 @@ internal sealed class Feature018HotkeyNativeProviders
                 return active.GetBoolean() == (shields > 0);
 
             case Feature018HotkeyKind.RecallSquad:
-                return observed.GetString() == "native_world_march_return_target" &&
+                return observed.GetString() == "native_world_march_return_reply_and_target" &&
                        RecallCausalityMatches(evidence) &&
                        evidence.TryGetProperty("slot", out JsonElement slot) &&
                        slot.TryGetInt32(out int actualSlot) && actualSlot == intent.Slot &&
