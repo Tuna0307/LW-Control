@@ -359,6 +359,22 @@ class OriginalV26Sources(unittest.TestCase):
                           "OnBtnMoveClick", "2c66d46152e1843245b9f45db3b3f028437134fb186da34395ee53dfe0bce8c5",
                           ("AllianceMoveCityToSelectedRallyPoint", "curType", "costType", "pinMsgUUid"))
 
+    def test_original_ui_manager_open_window_can_silently_skip_and_native_visibility_is_separate(self):
+        digest="0161c2f07e6d6da3abdeb224e6b8d95139791b55fb32f6d57f6a516043927c5d"
+        opener=self.check_method('Framework/UI/UIManager.luac','OpenWindow',digest,
+            ('IsCanOpenUI','windows','OpenWindow, GuideManager can not open : '))
+        self.assertTrue(any('sourceLine=892' in line and 'RETURN' in line
+                            for line in disassemble(opener)))
+        visibility=self.check_method('Framework/UI/UIManager.luac','IsWindowOpen',
+            digest,('windows','State'))
+        lines=disassemble(visibility)
+        self.assertTrue(any('sourceLine=1488' in line for line in lines))
+        view=self.check_method('UI/UILWAlliance/UIChooseRallyPoint/UIChooseRallyPointView.luac',
+            'OnChangeSelectRallyPoint',
+            '2c66d46152e1843245b9f45db3b3f028437134fb186da34395ee53dfe0bce8c5',
+            ('curType',))
+        self.assertIn('curType',view['constants'])
+
     def test_original_reply_handlers_update_inventory_and_city_from_server_data(self):
         self.check_method('DataCenter/ItemManager/ItemManager.luac','ItemUseHandle',
             'febee83973a019ce47dc154190a7bae182b6ea5d5546b63c7f412ec60222847c',
@@ -418,6 +434,23 @@ class OriginalV26Sources(unittest.TestCase):
             self.assertIn(token,cross['constants'])
         self.assertTrue(any('sourceLine=16' in row and 'MoveCrossServer' in row
                             for row in disassemble(cross)))
+        other=root['children'][5]
+        for token in ('AllianceMoveCity','GetSelfServerId',
+                      'Alliance_OtherServerRally'):
+            self.assertIn(token,other['constants'])
+        self.assertEqual(other['upvalueNames'][1],'MoveCityFromOtherToRally')
+        self.assertTrue(any('sourceLine=99' in row and 'AllianceMoveCity' in row
+                            for row in disassemble(other)))
+        # The selected foreign rally route has a *conditional* native
+        # MoveCrossServer path when its mark server == owner self server,
+        # but otherwise sends AllianceMoveCity (still a potentially
+        # cross-server gameplay action). Neither branch is authorized here.
+        cross_foreign=root['children'][1]
+        for token in ('MoveCrossServer','OtherAllianceRallyPoint','dstPoint',
+                      'useCrossItem','CanFreeAllianceMove'):
+            self.assertIn(token,cross_foreign['constants'])
+        self.assertTrue(any('sourceLine=30' in row and 'MoveCrossServer' in row
+                            for row in disassemble(cross_foreign)))
         chooser=root['children'][2]
         for token in ('UIChooseRallyPoint','OpenWindow','costType','isInviteMove',
                       'pinMsgUUid','Alliance_OtherServerRally'):
@@ -490,11 +523,16 @@ class RelocationActionChecks(unittest.TestCase):
         end
         UIWindowNames={UIChooseRallyPoint='native-choose-rally'}
         UIManager={GetInstance=function()return {
+          IsWindowOpen=function(self,window)
+            assert(window=='native-choose-rally')
+            return world.chooserOpen==true
+          end,
           OpenWindow=function(self,window,animation,parameters)
             assert(window=='native-choose-rally')
             assert(animation.anim==true and parameters.costType==4)
             assert(parameters.isInviteMove==false and parameters.pinMsgUUid==nil)
             world.dialogs=world.dialogs+1
+            world.chooserOpen=true
           end
         }end}
         """)
@@ -565,6 +603,13 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertFalse(view['chooserVisibleVerified'])
         self.assertEqual(state['sends'],0)
         self.assertEqual(state['dialogs'],0)
+        state['chooserOpen']=True
+        preexisting=query()
+        self.assertEqual(preexisting['state'],'confirmed')
+        self.assertFalse(preexisting['data']['chooserRequestEligible'])
+        self.assertTrue(preexisting['data']['chooserVisibleVerified'])
+        self.assertIn('already open',preexisting['data']['currentBlocker'])
+        state['chooserOpen']=False
         state['allyCount']=0
         no_stock=query()
         self.assertEqual(no_stock['state'],'confirmed')
@@ -742,8 +787,82 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(response['state'],'accepted')
         self.assertTrue(response['data']['chooserRequestMade'])
         self.assertFalse(response['data']['chooserVisibleVerified'])
+        self.assertTrue(response['data']['chooserWindowRegistered'])
+        self.assertTrue(response['data']['chooserStillOpen'])
         self.assertFalse(response['data']['requestDispatched'])
         self.assertFalse(response['data']['relocationConfirmed'])
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
+        observed=call('allianceRelocate',query=True)
+        self.assertEqual(observed['state'],'accepted')
+        self.assertFalse(observed['data']['chooserVisibleVerified'])
+        self.assertTrue(observed['data']['chooserWindowRegistered'])
+        self.assertTrue(observed['data']['readOnly'])
+        self.assertFalse(observed['data']['originalPacketSend'])
+        self.assertFalse(observed['data']['ownerSelectedRallyObserved'])
+        again=call('allianceRelocate')
+        self.assertEqual(again['state'],'accepted')
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_chooser_open_accepted_without_actual_window_remains_unverified(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        UIManager.GetInstance=function()return {
+          IsWindowOpen=function(self,name)return world.chooserOpen==true end,
+          OpenWindow=function(self)world.dialogs=world.dialogs+1 end
+        }end
+        """)
+        first=call('allianceRelocate')
+        self.assertEqual(first['state'],'accepted')
+        self.assertFalse(first['data']['chooserVisibleVerified'])
+        self.assertFalse(first['data']['chooserWindowRegistered'])
+        self.assertFalse(first['data']['requestDispatched'])
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(call('allianceRelocate',query=True)['state'],'accepted')
+        self.assertEqual(state['dialogs'],1)
+        state['chooserOpen']=True
+        later=call('allianceRelocate',query=True)
+        self.assertTrue(later['data']['chooserWindowRegistered'])
+        self.assertFalse(later['data']['chooserVisibleVerified'])
+        self.assertFalse(later['data']['relocationConfirmed'])
+        state['chooserOpen']=False
+        closed=call('allianceRelocate',query=True)
+        self.assertFalse(closed['data']['chooserStillOpen'])
+        self.assertFalse(closed['data']['ownerSelectedRallyObserved'])
+        self.assertFalse(closed['data']['relocationConfirmed'])
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_chooser_pending_blocks_new_F9_action_and_foreign_owner_observation(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        """)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        wrong=call('randomRelocate')
+        self.assertEqual(wrong['state'],'failed')
+        self.assertIn('chooser request unresolved',wrong['error'])
+        state['current']=2212
+        denied=call('allianceRelocate',query=True)
+        self.assertEqual(denied['state'],'failed')
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_chooser_pending_detects_native_rally_change_without_game_send(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        """)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        state['otherRally']['pos']=7788993
+        changed=call('allianceRelocate',query=True)
+        self.assertEqual(changed['state'],'failed')
+        self.assertIn('rally/owner changed',changed['error'])
         self.assertEqual(state['dialogs'],1)
         self.assertEqual(state['sends'],0)
 
@@ -756,7 +875,7 @@ class RelocationActionChecks(unittest.TestCase):
         """)
         response=call('allianceRelocate')
         self.assertEqual(response['state'],'unsupported')
-        self.assertIn('chooser UI not available',response['error'])
+        self.assertIn('visibility reader unavailable',response['error'])
         self.assertEqual(state['sends'],0)
         self.assertEqual(state['dialogs'],0)
 
@@ -765,7 +884,9 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute("""
         world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
           pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
-        UIManager.GetInstance=function()return {OpenWindow=function()
+        UIManager.GetInstance=function()return {
+          IsWindowOpen=function()return world.chooserOpen==true end,
+          OpenWindow=function()
           world.dialogs=world.dialogs+1
           error('Window presentation uncertain')
         end} end

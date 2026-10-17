@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-8"}
+local M = {VERSION = "feature018-relocation-actions-9"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -378,6 +378,7 @@ end
 -- direct F10 packet. Never invoke this mismatched direct path or claim its
 -- WorldMvHandle(reason=240) could acknowledge the attempted request.
 local pending=nil
+local chooser_pending=nil
 local function clear_hook(tx)
     if tx.hook and member(tx.manager,tx.method)==tx.hook then
         tx.manager[tx.method]=tx.original
@@ -385,6 +386,7 @@ local function clear_hook(tx)
 end
 function M.Dispose()
     if pending then clear_hook(pending) end
+    chooser_pending=nil
 end
 local function static_bool(object,name,...)
     local fn=member(object,name)
@@ -493,14 +495,25 @@ function M.Readiness(fields,input_clear,action)
             member(rawget(_G,"LuaEntry"),"Player"))
     end
     local ui=rawget(_G,"UIManager")
-    local chooser_components_present=
-        type(member(ui,"GetInstance"))=="function" and
-        member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")~=nil
+    local chooser_components_present,chooser_already_open=false,false
+    if action=="allianceRelocate" then
+        local window=member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")
+        local ok,manager=invoke(ui,"GetInstance")
+        if ok and manager and window~=nil and
+           type(member(manager,"OpenWindow"))=="function" and
+           type(member(manager,"IsWindowOpen"))=="function" then
+            local observed,visible=invoke(manager,"IsWindowOpen",window)
+            if observed and type(visible)=="boolean" then
+                chooser_components_present=true
+                chooser_already_open=visible
+            end
+        end
+    end
     local chooser_eligible=action=="allianceRelocate" and
         snapshot.inAlliance and rally~=nil and
         rally.nativeChooserWouldOpen and rally.otherServerRally~=nil and
         chooser_components_present and input_ready and item.ownerItemPresent and
-        item.warningsClear
+        item.warningsClear and not chooser_already_open
     local sender_ready=type(member(rawget(_G,"SFSNetwork"),"SendMessage"))=="function" and
         member(rawget(_G,"MsgDefines"),"ItemUse")~=nil and
         type(member(member(rawget(_G,"DataCenter"),"ItemManager"),
@@ -524,6 +537,8 @@ function M.Readiness(fields,input_clear,action)
         blocker="Original source-home F10 would send MoveCrossServer, not AllianceMoveCity"
     elseif action=="allianceRelocate" and not chooser_components_present then
         blocker="Original F10 chooser UI not available"
+    elseif action=="allianceRelocate" and chooser_already_open then
+        blocker="Original F10 chooser already open; no attributed new request"
     end
     return {state="confirmed",data={
         observation="original_v26_authenticated_relocation_readiness",
@@ -542,7 +557,9 @@ function M.Readiness(fields,input_clear,action)
         destinationVerified=false,actionable=f9_ready==true,
         nativeItemUseRequestReady=f9_ready==true,
         chooserRequestEligible=chooser_eligible==true,
-        chooserVisibleVerified=false,ownerSelectionRequired=chooser_eligible==true,
+        chooserVisibleVerified=chooser_already_open,
+        chooserAlreadyOpen=chooser_already_open,
+        ownerSelectionRequired=(rally~=nil and rally.nativeChooserWouldOpen)==true,
         homeDirectRelocationEnabled=false,
         currentBlocker=blocker}}
 end
@@ -562,30 +579,91 @@ end
 -- OtherServerRally exists, open the original chooser UI only. The owner must
 -- make a separate native destination/confirmation choice. Opening the dialog
 -- is not a MoveCrossServer/AllianceMoveCity request or evidence of relocation.
-local function request_original_f10_chooser(snapshot,marks)
+-- V26 Framework/UI/UIManager:IsWindowOpen(name) accepts window states
+-- Create/Loading/Open, not necessarily a visually rendered screen. A
+-- protected OpenWindow call can return normally without opening anything
+-- (guide/PVE guards); inspect this native registered-window lifecycle but
+-- NEVER infer visual visibility or owner selection from it.
+local function native_chooser_state()
     local ui=rawget(_G,"UIManager")
     local ok_manager,manager=invoke(ui,"GetInstance")
     local window=member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")
     if not ok_manager or manager==nil or
-       type(member(manager,"OpenWindow"))~="function" or window==nil then
-        return unavailable("Original F10 rally chooser UI not available",snapshot)
+       window==nil or type(member(manager,"IsWindowOpen"))~="function" then
+        return nil,"Native F10 chooser visibility reader unavailable"
     end
-    local ok_open=pcall(member(manager,"OpenWindow"),manager,
-        window,{anim=true},{costType=4,isInviteMove=false})
-    if not ok_open then
-        return failed("GAME_ACTION_UNCONFIRMED",
-            "Native F10 chooser open outcome unknown; no relocation ACK")
+    local ok_open,is_open=invoke(manager,"IsWindowOpen",window)
+    if not ok_open or type(is_open)~="boolean" then
+        return nil,"Native F10 chooser visibility could not be established"
     end
+    return {manager=manager,window=window,visible=is_open},nil
+end
+local function chooser_receipt(snapshot,tx,visible)
     return {state="accepted",data={
-        observation="original_v26_F10_rally_chooser_open_requested",
+        observation="original_v26_F10_rally_chooser_native_window_lifecycle",
         action="allianceRelocate",ownerUid=snapshot.ownerUid,
         sourceServerId=snapshot.sourceServerId,
-        otherServerRally=marks.otherServerRally,homeRally=marks.homeRally,
+        beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
+        otherServerRally=tx.remote,homeRally=tx.home,
         chooserRequestMade=true,chooserVisibleVerified=false,
-        ownerSelectionRequired=true,destinationAuthorized=false,
-        requestDispatched=false,gameRequestAcknowledged=false,
+        chooserWindowRegistered=visible,
+        chooserWindowStateObserved=true,
+        chooserWindowStateScope="create_loading_or_open",
+        chooserStillOpen=visible,
+        ownerSelectionRequired=true,ownerSelectedRallyObserved=false,
+        destinationAuthorized=false,requestDispatched=false,
+        gameRequestAcknowledged=false,serverAckAttributable=false,
         relocationConfirmed=false,itemDebitedVerified=false,
-        sourceVersion=26,readOnly=false}}
+        originalPacketSend=false,readOnly=tx.observationOnly,sourceVersion=26}}
+end
+local function observe_original_f10_chooser(snapshot,token,query)
+    local tx=chooser_pending
+    if not tx or tx.token~=token then
+        return failed("GAME_PRECONDITION_FAILED",
+            "No exact owner/session native F10 chooser request to observe")
+    end
+    if snapshot.worldPointId~=tx.before or not snapshot.inAlliance then
+        return failed("GAME_ACTION_UNCONFIRMED",
+            "Native owner alliance or city position changed after chooser request; no attributed relocation")
+    end
+    local current,why=alliance_rally_snapshot(
+        member(rawget(_G,"LuaEntry"),"Player"))
+    local remote=current and current.otherServerRally
+    if not current or current.ownerAllianceUid~=tx.allianceUid or
+       not remote or remote.serverId~=tx.remote.serverId or
+       remote.markType~=tx.remote.markType or
+       remote.worldPointId~=tx.remote.worldPointId then
+        return failed("GAME_ACTION_UNCONFIRMED",
+            why or "Native F10 chooser rally/owner changed after open request")
+    end
+    local observed,err=native_chooser_state()
+    if not observed then return unavailable(err) end
+    tx.observationOnly=query
+    return chooser_receipt(snapshot,tx,observed.visible)
+end
+local function request_original_f10_chooser(snapshot,marks,token)
+    local observed,err=native_chooser_state()
+    if not observed then return unavailable(err,snapshot) end
+    if type(member(observed.manager,"OpenWindow"))~="function" then
+        return unavailable("Original F10 rally chooser open method unavailable",snapshot)
+    end
+    if observed.visible then
+        return unavailable("Original native rally chooser was already open; cannot attribute it to this F10 request",snapshot)
+    end
+    local tx={token=token,before=snapshot.worldPointId,
+        allianceUid=marks.ownerAllianceUid,
+        remote=marks.otherServerRally,home=marks.homeRally,
+        observationOnly=false}
+    -- Tombstone BEFORE the GUI request. If native OpenWindow throws after
+    -- partially opening, repeating would spuriously reset its user selection.
+    chooser_pending=tx
+    local ok_open=pcall(member(observed.manager,"OpenWindow"),observed.manager,
+        observed.window,{anim=true},{costType=4,isInviteMove=false})
+    if not ok_open then
+        return failed("GAME_ACTION_UNCONFIRMED",
+            "Native F10 chooser open outcome unknown; no relocation ACK or automatic reopen")
+    end
+    return observe_original_f10_chooser(snapshot,token,false)
 end
 local function perform(fields,input_clear,action)
     if type(fields)~="table" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation fields") end
@@ -599,6 +677,13 @@ local function perform(fields,input_clear,action)
     local snapshot,reason=world_snapshot()
     if not snapshot then return failed("GAME_PRECONDITION_FAILED",reason) end
     local token=session.."/"..snapshot.ownerUid.."/"..snapshot.sourceServerId
+    if chooser_pending then
+        if action~="allianceRelocate" then
+            return failed("GAME_PRECONDITION_FAILED",
+                "Original F10 chooser request unresolved; cannot dispatch another relocation")
+        end
+        return observe_original_f10_chooser(snapshot,token,true)
+    end
     if pending then
         if pending.token~=token or pending.action~=action then
             return failed("GAME_PRECONDITION_FAILED","An owned relocation is unresolved; never repeat or replace it")
@@ -693,7 +778,7 @@ local function perform(fields,input_clear,action)
             return failed("GAME_PRECONDITION_FAILED",
                 "Original native alliance chooser mark changed before opening")
         end
-        return request_original_f10_chooser(final_owner,fresh)
+        return request_original_f10_chooser(final_owner,fresh,token)
     end
     if action~="randomRelocate" then
         return failed("GAME_PRECONDITION_FAILED",

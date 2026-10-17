@@ -203,7 +203,7 @@ local function validate_selected_loadout(preset)
     end
     local wanted = {}
     local position_count, item_count = 0, 0
-    local claimed_equip = {}
+    local claimed_equip,expected_heroes = {},{}
     for _, saved_squad in ipairs(preset.squads) do
         local index = type(saved_squad) == "table" and
                       number_in_range(saved_squad.squadIndex,1,4)
@@ -213,6 +213,7 @@ local function validate_selected_loadout(preset)
             return nil, "Saved preset squad identity/positions are malformed"
         end
         wanted[index] = {}
+        expected_heroes[index] = {}
         for _, entry in ipairs(saved_squad.positions) do
             local position = type(entry) == "table" and
                              number_in_range(entry.position,1,5)
@@ -221,6 +222,17 @@ local function validate_selected_loadout(preset)
             end
             local mapping, reason = validate_slot(entry.equips)
             if not mapping then return nil, reason end
+            -- Native v26 M.Snapshot persists the actual hero UUID alongside
+            -- each squad/position. Older UI-created presets are position-only;
+            -- honor those, but NEVER ignore a saved native hero identity
+            -- when it is supplied by the authenticated owner profile.
+            if entry.heroUuid ~= nil then
+                local saved_hero=exact_id(entry.heroUuid)
+                if not saved_hero then
+                    return nil,"Saved equipment hero UUID is malformed"
+                end
+                expected_heroes[index][position]=saved_hero
+            end
             wanted[index][position] = mapping
             position_count = position_count + 1
             for _, uuid in pairs(mapping) do
@@ -233,7 +245,7 @@ local function validate_selected_loadout(preset)
         end
     end
     if position_count == 0 then return nil, "Saved equipment preset has no hero positions" end
-    return wanted, position_count, item_count
+    return wanted, position_count, item_count, expected_heroes
 end
 
 local function inventory_for_target(manager, uuid, hero, slot)
@@ -275,7 +287,7 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
     if not focus_ok or focus_clear~=true then
         return blocked("Game text-input focus is selected or unverifiable")
     end
-    local wanted, first, second = validate_selected_loadout(preset)
+    local wanted, first, second, expected_heroes = validate_selected_loadout(preset)
     if wanted == nil then return blocked(first) end
     local center = rawget(_G,"DataCenter")
     local equips = member(center,"EquipDataManager")
@@ -292,6 +304,10 @@ function M.Preflight(fields, confirmed_presets, game_input_clear)
                     local hero, reason = read_hero(squad_index,position)
                     if hero == nil then return unavailable(
                         "Squad " .. squad_index .. " position " .. position .. ": " .. reason)
+                    end
+                    local saved_hero=expected_heroes[squad_index][position]
+                    if saved_hero and hero.uuid~=saved_hero then
+                        return blocked("Saved equipment hero UUID no longer matches its native formation position")
                     end
                     for slot = 1, 4 do
                         local target = requested[slot]
@@ -583,6 +599,28 @@ function M.Handle(fields, confirmed_presets, game_input_clear)
     end
     if not action_owner(fields) then
         return blocked("Native equipment owner/server changed before next step dispatch")
+    end
+    -- A confirmed owner preset may be edited/replaced between the initial
+    -- preflight and the native focus callback. Revalidate the *saved* complete
+    -- target for every planned hero/slot before sending this next step, not
+    -- just the already-read gear UUID in an old audit table.
+    local fresh_preset,preset_error=selected_preset(fields,confirmed_presets)
+    if not fresh_preset then return preset_error end
+    local refreshed,count,_,saved_heroes=validate_selected_loadout(fresh_preset)
+    if not refreshed or count~=#tx.before/4 then
+        return blocked("Confirmed equipment preset shape changed before dispatch")
+    end
+    for _,wanted_slot in ipairs(tx.before) do
+        local group=refreshed[wanted_slot.squadIndex]
+        local target=group and group[wanted_slot.position]
+        local desired=target and (target[wanted_slot.slot] or "") or nil
+        if desired~=wanted_slot.targetEquipUuid then
+            return blocked("Confirmed equipment preset targets changed before dispatch")
+        end
+        local native_hero=saved_heroes[wanted_slot.squadIndex][wanted_slot.position]
+        if native_hero and native_hero~=wanted_slot.heroUuid then
+            return blocked("Confirmed equipment saved hero changed before dispatch")
+        end
     end
     -- The focus callback and prior reads are not a lock. Rebind the exact
     -- saved hero, current slot and intended gear *after* focus evaluation,

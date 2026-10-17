@@ -162,6 +162,12 @@ class OriginalV26Evidence(unittest.TestCase):
         self.assertIn("HeroEquipUninstall", reply["constants"])
         self.assertNotIn("slot2Uid", reply["constants"])
         self.assertNotIn("equipUuid", reply["constants"])
+        uninstall_reply=self.body("Net/Msgs/HeroEquipUninstallMessage.luac",
+                                  "HandleMessage")
+        self.assertIn("errorCode",uninstall_reply["constants"])
+        self.assertIn("heroUid",uninstall_reply["constants"])
+        self.assertNotIn("slot2Uid",uninstall_reply["constants"])
+        self.assertNotIn("requestId",uninstall_reply["constants"])
         push = self.body("Net/Msgs/PushHeroEquipChangeMessage.luac", "HandleMessage")
         self.assertIn("UpdateManyEquip", push["constants"])
         self.assertIn("list", push["constants"])
@@ -293,6 +299,19 @@ class EquipmentPreflight(unittest.TestCase):
         check_failure(lambda s, p: p[1]["squads"][1].__setitem__("squadIndex", 2))
         check_failure(lambda s, p: p[1]["squads"][1]["positions"][1].__setitem__("position", 6))
         check_failure(lambda s, p: s["formation1"].__setitem__("localIndexToHeroDic", {}), "unsupported")
+        check_failure(lambda s,p: p[2]["squads"][1]["positions"][1].__setitem__("heroUuid","202"),slot=2)
+        check_failure(lambda s,p: p[2]["squads"][1]["positions"][1].__setitem__("heroUuid","not-native"),slot=2)
+
+    def test_persisted_native_snapshot_hero_identity_fails_closed_after_formation_rearrangement(self):
+        lua,module,state,presets=setup()
+        presets[2]["squads"][1]["positions"][1]["heroUuid"]="101"
+        presets[2]["squads"][2]["positions"][1]["heroUuid"]="202"
+        self.assertEqual(status(lua,module,presets,2)["state"],"confirmed")
+        state["formation1"]["localIndexToHeroDic"][1]=202
+        result=status(lua,module,presets,2)
+        self.assertEqual(result["state"],"failed")
+        self.assertIn("hero UUID no longer matches",result["error"])
+        self.assertEqual(state["sent"],0)
 
 
 class EquipmentApplyChecks(unittest.TestCase):
@@ -526,6 +545,38 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(result['state'],'failed')
         self.assertIn('target changed immediately before dispatch',result['error'])
         self.assertEqual(state['sent'],3)
+
+    def test_native_focus_check_mutating_saved_owner_preset_blocks_next_equipment_rpc(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.globals().apply_push()
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+            presets,lua.eval('''
+              function()
+                presets[2].squads[1].positions[1].equips[1].equipUuid="503"
+                return true
+              end
+            '''))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('preset targets changed before dispatch',result['error'])
+        self.assertEqual(state['sent'],1)
+
+    def test_native_focus_check_editing_saved_hero_binding_blocks_preset_rpc(self):
+        lua,module,state,presets,call=self.fixture()
+        presets[2]['squads'][1]['positions'][1]['heroUuid']='101'
+        presets[2]['squads'][2]['positions'][1]['heroUuid']='202'
+        self.assertEqual(call()['state'],'accepted')
+        lua.globals().apply_push()
+        result=module.Handle(fields(lua,2,authorizedUid='3133546747002289',queryOnly='1'),
+            presets,lua.eval('''
+              function()
+                presets[2].squads[2].positions[1].heroUuid="101"
+                return true
+              end
+            '''))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('saved hero changed before dispatch',result['error'])
+        self.assertEqual(state['sent'],1)
 
 
 if __name__ == "__main__":
