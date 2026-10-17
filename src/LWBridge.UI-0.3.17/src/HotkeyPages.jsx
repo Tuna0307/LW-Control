@@ -522,6 +522,7 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     awaiting: "请求可能已发送；等待原生库存和状态核对，不得重复发送",
     purchased: "游戏库存+1及金币扣费确认；请重新读取库存后再使用",
     shopReply: "观察到一次原生商店回复，但协议没有请求 nonce，无法唯一证明这次购买的服务器归属。",
+    shopStackReply: "已核对原生商店回复的准确道具 UUID、数量与库存及金币变化；协议仍无请求 nonce。",
     shopCache: "只核实游戏本地库存和金币变化；没有唯一匹配的服务器回复。请在游戏中确认。",
     shopAmbiguous: "原生商店回复观察不确定；禁止重复发送。请核对游戏后手动处理。",
     itemReply: "观察到一次原生道具使用回复，但没有请求 nonce；服务器归属不能唯一确认。",
@@ -544,6 +545,7 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     awaiting: "The request may have been sent. Await native inventory/effect confirmation; do not send again.",
     purchased: "Native item count +1 and gold debit confirmed; inspect inventory again before use.",
     shopReply: "One matching original shop reply was observed. The protocol has no request nonce, so server causality is unproven.",
+    shopStackReply: "The original shop reply's exact stack UUID/count, inventory and gold changes match, but there is still no request nonce.",
     shopCache: "Only cached game inventory/gold changes verified. No uniquely correlated server reply; inspect in the game.",
     shopAmbiguous: "Original shop reply observer became ambiguous. No retry; reconcile in the game.",
     itemReply: "One matching original ItemUse reply was observed, but the protocol has no request nonce.",
@@ -679,9 +681,14 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         result.gold === baseline.gold - baseline.price &&
         result.purchasedCount === 1 &&
         result.nativeReplyCausalityConfirmed === false &&
-        (result.purchaseProofKind === "matching_original_reply_and_cached_poststate_no_nonce"
+        (result.purchaseProofKind === "matching_original_reply_owned_stack_and_cached_poststate_no_nonce"
           ? result.nativeShopReplyObserved === true &&
-            result.nativeShopReplyMatched === true && result.nativeShopReplyCount === 1
+            result.nativeShopReplyMatched === true && result.nativeShopReplyCount === 1 &&
+            result.nativeShopReplyStackMatched === true
+          : result.purchaseProofKind === "matching_original_reply_and_cached_poststate_no_nonce"
+          ? result.nativeShopReplyObserved === true &&
+            result.nativeShopReplyMatched === true && result.nativeShopReplyCount === 1 &&
+            result.nativeShopReplyStackMatched !== true
           : result.purchaseProofKind === "native_cached_inventory_and_gold_only" &&
             result.nativeShopReplyMatched !== true);
       const used = baseline.kind === "use" &&
@@ -765,8 +772,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
       <span role="status" className="hotkey-state enabled">
         {status === "purchased" ? words.purchased : words.used}</span> : null}
     {status === "purchased" && purchaseProof ? <small role="status">
-      {purchaseProof === "matching_original_reply_and_cached_poststate_no_nonce"
-        ? words.shopReply : words.shopCache}
+      {purchaseProof === "matching_original_reply_owned_stack_and_cached_poststate_no_nonce"
+        ? words.shopStackReply : purchaseProof === "matching_original_reply_and_cached_poststate_no_nonce"
+          ? words.shopReply : words.shopCache}
     </small> : null}
     {status === "used" && purchaseProof ? <small role="status">
       {purchaseProof === "matching_original_itemuse_reply_and_shield_poststate_no_nonce"

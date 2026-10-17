@@ -206,7 +206,8 @@ window.chrome = { webview: {
           beforeCount: 0, beforeGold: 3000, spentGems: 1500, purchasedCount: 1,
           nativeShopReplyObserved: true, nativeShopReplyMatched: true,
           nativeShopReplyCount: 1, nativeReplyCausalityConfirmed: false,
-          purchaseProofKind: "matching_original_reply_and_cached_poststate_no_nonce",
+          nativeShopReplyStackMatched: true,
+          purchaseProofKind: "matching_original_reply_owned_stack_and_cached_poststate_no_nonce",
         } : { ...response, awaitingGameConfirmation: true };
       } else assert.equal(request.payload.mode, "inspect");
     } else if (request.command === "feature018_hotkey_action" &&
@@ -410,8 +411,10 @@ await flush(() => shopButtons().at(-1).click());
 assert.equal(shieldShopSends, 1, "Read-only purchase status retriggered shop");
 assert.match(shopPanel().textContent, /游戏库存\+1及金币扣费确认/,
   "Gold and item count native poststate did not confirm purchase");
-assert.match(shopPanel().textContent, /协议没有请求 nonce/,
-  "A matching original shop reply was misreported as a unique network acknowledgement");
+assert.match(shopPanel().textContent, /准确道具 UUID、数量与库存及金币变化/,
+  "R9 native exact shop reply stack proof was rejected by mounted shield UI");
+assert.match(shopPanel().textContent, /仍无请求 nonce/,
+  "A matching original shop stack was misreported as a unique network acknowledgement");
 await flush(() => shopButtons()[0].click());
 assert.ok(shopPanel().querySelector('input[type="checkbox"]'),
   "Owned shield missing separate consumption consent");
