@@ -268,7 +268,7 @@ end
 -- Observation only. Preserve the original static sender, exact arguments,
 -- return values and exceptions. Track ONLY exact pending formation/march,
 -- target kind and target UUID on the two source-native attack routes.
-local observed_send, observed_send_owner, active_create_send
+local observed_send, observed_send_owner, active_create_send, active_attack_invocation
 local function observe_attack_sender()
     local net=rawget(_G,"SFSNetwork")
     local original=member(net,"SendMessage")
@@ -290,13 +290,25 @@ local function observe_attack_sender()
                 local identity=created and transaction.formation or transaction.oldUuid
                 if identity and ident(args[1])==identity and args[2]==transaction.kind and
                    ident(args[3])==transaction.targetUuid then
-                    transaction.sendCount=(transaction.sendCount or 0)+1
-                    transaction.outboundRoute=created and "WorldMarchFormationNew" or "WorldMarchChange"
-                    transaction.outboundFormationOrMarch=ident(args[1])
-                    transaction.outboundTargetType=args[2]
-                    transaction.outboundTargetUuid=ident(args[3])
-                    transaction.outboundPath=type(args[4])=="string" and args[4] or nil
-                    matched[#matched+1]=transaction
+                    if active_attack_invocation==transaction then
+                        transaction.sendCount=(transaction.sendCount or 0)+1
+                        transaction.outboundRoute=created and "WorldMarchFormationNew" or "WorldMarchChange"
+                        transaction.outboundFormationOrMarch=ident(args[1])
+                        transaction.outboundTargetType=args[2]
+                        transaction.outboundTargetUuid=ident(args[3])
+                        transaction.outboundPath=type(args[4])=="string" and args[4] or nil
+                        matched[#matched+1]=transaction
+                    else
+                        -- The original OnCheckTime may show a confirmation
+                        -- dialog and RETURN before the user accepts it. A
+                        -- later same-target native send could originate from
+                        -- that dialog OR an unrelated manual game action.
+                        -- Without an exact native callback/intent token we
+                        -- must never attribute its nonce to this shortcut.
+                        transaction.unattributedMatchingSendObserved=true
+                        transaction.unattributedSendCount=
+                            (transaction.unattributedSendCount or 0)+1
+                    end
                 end
             end
         end
@@ -325,6 +337,18 @@ end
 -- response fixture also carries clientCreateUuid, ownerUid and march uuid.
 -- Inspect the serialized SFSObject after its original OnCreate, without
 -- generating, replacing, altering or replaying the native request token.
+-- Installed Assembly-CSharp.rdl WorldMarchDataManager.SaveCreateMarchRecordTime
+-- (0x060032de) uses System.Guid.NewGuid().ToString() and records the GUID
+-- against server time. Both shipped SmartFox2X.rdl and Smartfox2xLw.rdl
+-- expose SFSObject.GetUtfString(string), but Lua/native runtime interop and
+-- LIVE server echo remain unverified. Never treat a synthetic arbitrary
+-- string as a witnessed original request nonce.
+local function original_create_guid(token)
+    if type(token)~="string" or #token~=36 then return false end
+    local a,b,c,d,e=token:match("^(%x+)%-(%x+)%-(%x+)%-(%x+)%-(%x+)$")
+    return a~=nil and #a==8 and #b==4 and #c==4 and #d==4 and #e==12
+end
+
 local observed_create_serializer, observed_serializer_owner
 local function observe_create_serializer()
     local ok,class=pcall(require,"Net.Msgs.WorldMarchFormationNewMessage")
@@ -343,8 +367,7 @@ local function observe_create_serializer()
             local packet=member(self,"sfsObj")
             local ok_token,token=invoke(packet,"GetUtfString","clientCreateUuid")
             transaction.serializerObserved=true
-            if ok_token and type(token)=="string" and
-               #token>=8 and #token<=128 and token:match("^[%w_-]+$") then
+            if ok_token and original_create_guid(token) then
                 transaction.clientCreateUuid=token
             end
         end
@@ -428,10 +451,16 @@ local function transaction_view(transaction)
     for _,key in ipairs({"formation","kind","targetUuid","sendCount","outboundRoute",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
         "senderReturned","senderReturnedFalse","senderError","serializerObserved",
+        "unattributedMatchingSendObserved","unattributedSendCount",
         "clientCreateUuid","routeReplyCount","replyObserved","replyMessage","replyCount",
         "replyErrorCode","replyUuid","replyOwnerUid","replyClientCreateUuid",
-        "replyApplied","replyCorrelation"}) do view[key]=transaction[key] end
-    if (transaction.sendCount or 0)~=1 then
+        "replyApplied","replyCorrelation",
+        "nativeMarchGuidObserved","nativeMarchGuidMatchesRequest"}) do
+        view[key]=transaction[key]
+    end
+    if transaction.unattributedMatchingSendObserved then
+        view.nonceStatus="matching_send_outside_original_controller_causal_scope"
+    elseif (transaction.sendCount or 0)~=1 then
         view.nonceStatus="no_unique_observed_create_send"
     elseif transaction.senderError or transaction.senderReturnedFalse then
         view.nonceStatus="sender_outcome_uncertain"
@@ -1185,6 +1214,7 @@ local function attack_selected(fields, input_clear, uid)
         if prior.uid ~= uid or prior.formation ~= formation or
            prior.session ~= current_session then return failed("Pending attack session/formation changed") end
         if prior.senderReturnedFalse or prior.senderError or
+           prior.unattributedMatchingSendObserved or
            prior.replyErrorCode or (prior.sendCount or 0)>1 then
             local result=failed("Native attack sender or route may have failed; observe retained transaction before retry")
             result.data={nativeTransaction=transaction_view(prior)}
@@ -1216,11 +1246,29 @@ local function attack_selected(fields, input_clear, uid)
         local fresh, uuid = fresh_owned(existing)
         local ok_type, kind = invoke(fresh,"GetMarchTargetType")
         local start_time = number(member(fresh,"startTime"))
+        -- Installed WorldMarch::get_clientCreateGuid 0x060031bc and
+        -- XLua.CSObjectWrap.WorldMarchWrap::_g_get_clientCreateGuid 0x06008a4b
+        -- expose the native typed march's OWN request GUID. Original
+        -- WorldMarch::UpdateFromSFS 0x060031e6 sources it directly from
+        -- response key clientCreateUuid via MessageExtension.TryGetString.
+        -- The original
+        -- WorldMarchDataManager::RemoveCreateMarchRecordTime 0x060032df
+        -- reconciles this property with the GUID saved before the send.
+        -- A matching reply field and target alone could otherwise come
+        -- from an unrelated already-cached march, so require this
+        -- independent original native field on the fresh owner march too.
+        local native_guid=member(fresh,"clientCreateGuid")
+        local native_guid_match=original_create_guid(native_guid) and
+            original_create_guid(prior.clientCreateUuid) and
+            native_guid:lower()==prior.clientCreateUuid:lower()
+        prior.nativeMarchGuidObserved=type(native_guid)=="string" and
+            original_create_guid(native_guid) or false
+        prior.nativeMarchGuidMatchesRequest=native_guid_match==true
         local ack_correlated=prior.replyCorrelation=="native_clientCreateUuid_owner_march_reply" and
             prior.replyUuid==uuid and prior.replyOwnerUid==uid and prior.replyCount==1
         if fresh and ok_type and kind == prior.kind and prior.sendCount==1 and
            prior.senderReturned==true and prior.senderReturnedFalse~=true and
-           ack_correlated and
+           ack_correlated and native_guid_match and
            ident(member(fresh,"targetUuid")) == prior.targetUuid and
            (not prior.oldUuid or uuid ~= prior.oldUuid or
             start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
@@ -1231,6 +1279,7 @@ local function attack_selected(fields, input_clear, uid)
                 targetSource="open_native_formation_selector",currentCursorVerified=false,
                 priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
                 currentStartTime=start_time,requestDispatched=false,
+                nativeMarchGuidMatchesRequest=true,
                 serverAcknowledgementCorrelated=true,nativeMarchPostStateVerified=true,
                 transaction=transaction_view(prior)}
             if prior.allowItem or prior.allowDiamond then
@@ -1252,7 +1301,8 @@ local function attack_selected(fields, input_clear, uid)
         return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
             awaitingGameConfirmation=true,requestDispatched=false,
             nativeMarchPostStateVerified=fresh~=nil and kind==prior.kind and
-                ident(member(fresh,"targetUuid"))==prior.targetUuid,
+                ident(member(fresh,"targetUuid"))==prior.targetUuid and
+                native_guid_match==true,
             serverAcknowledgementCorrelated=ack_correlated,
             nativeTransaction=transaction_view(prior)}}
     end
@@ -1323,7 +1373,10 @@ local function attack_selected(fields, input_clear, uid)
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
         allowDiamond=fields.allowRapidDiamond=="1",sendCount=0}
+    local previous_invocation=active_attack_invocation
+    active_attack_invocation=attacks[fields.slot]
     local ok, invocation_result = invoke(ctrl,method,form_number)
+    active_attack_invocation=previous_invocation
     local transaction=attacks[fields.slot]
     if not ok or invocation_result==false or transaction.senderError or
        transaction.senderReturnedFalse or transaction.sendCount>1 then

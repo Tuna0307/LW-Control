@@ -13,6 +13,7 @@ from pathlib import Path
 SOURCE = Path(__file__).with_name("feature018_attack_actions.lua")
 TOOLS = SOURCE.parent
 sys.path.insert(0, str(TOOLS / "map_009_offline"))
+sys.path.insert(0, str(TOOLS / "map_014_il_decode"))
 sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(TOOLS.parent / "artifacts/map-013-lua-site"))
 
@@ -20,6 +21,8 @@ import compact_lua53 as lua53  # noqa: E402
 from inspect_current import root_methods, disassemble  # noqa: E402
 from lupa.lua53 import LuaRuntime  # noqa: E402
 import feature018_mini_lua as original  # noqa: E402
+from rgmd_il import MetadataImage  # noqa: E402
+from rgmd_disasm import Resolver, disasm as managed_disasm  # noqa: E402
 
 
 GAME = """
@@ -91,6 +94,7 @@ DataCenter={
    if uuid~=state.uuid or not state.freshPresent then return nil end
    return {uuid=state.freshUuid,ownerUid=state.freshOwner,
            ownerFormationUuid=state.freshFormOwner,
+           clientCreateGuid=state.marchClientCreateGuid,
            endTime=state.endTime,startTime=state.startTime,targetUuid=state.targetUuid,
            GetWorldType=function() return state.worldType end,
            GetIsBroken=function(self) return state.formationMarchBroken end,
@@ -146,6 +150,74 @@ input_clear=function() return state.inputClear end
 def require(condition: bool, explanation: str) -> None:
     if not condition:
         raise AssertionError("FEATURE018_ATTACK_ACTIONS: " + explanation)
+
+
+def check_installed_managed_nonce_source() -> None:
+    """Static SHA-pinned installed C# contract, never a claim of a live reply."""
+    root = Path.home() / ("AppData/Local/FunFly/Last War-Survival Game/Game/"
+                          "LastWar_Data/Assemblies")
+    assemblies = {
+        "Assembly-CSharp.rdl": "bfb740b4570c58bd2bcc7fb83f9b83d8121ce10fb1bf49040e9fb8b08e958b3e",
+        "SmartFox2X.rdl": "bdb893b29cd5c1ffe4e2ebecf504209c47d775de5dd08e34d09ad5fb6107a96b",
+        "Smartfox2xLw.rdl": "126d1f34c0f13b91ae1a7d37a9f4a7b523441671e421c7e2cdad78edc28f692a",
+    }
+    for name, expected in assemblies.items():
+        path = root / name
+        with path.open("rb") as stream:
+            digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        require(digest == expected, "installed managed nonce source changed: " + name)
+        if name != "Assembly-CSharp.rdl":
+            img = MetadataImage.load(path)
+            typ = ("Sfs2X" if name == "SmartFox2X.rdl" else "Sfs2XLw")
+            for typename in (f"{typ}.Entities.Data.SFSObject",
+                             f"{typ}.Entities.Data.ISFSObject"):
+                matching = [
+                    row for i, row in enumerate(img.tables.TypeDef.rows, 1)
+                    if img.type_name("TypeDef", i) == typename
+                ]
+                require(len(matching) == 1, "managed SFS object type missing: " + typename)
+                methods = [ref.row for ref in matching[0].MethodList
+                           if str(ref.row.Name) == "GetUtfString"]
+                require(len(methods) == 1 and
+                        img.decode_method_signature(bytes(methods[0].Signature.value)) ==
+                            ("string", ["string"]),
+                        "installed SmartFox GetUtfString(string) signature unavailable")
+            continue
+        img = MetadataImage.load(path)
+        def verify(token: int, label: str, fragments: tuple[str, ...]) -> None:
+            row = token & 0xFFFFFF
+            lines = managed_disasm(img, Resolver(img), row)
+            require(img.method_label(row) == label and
+                    all(any(part in ins for ins in lines) for part in fragments),
+                    "original managed token or IL contract changed: " + label)
+
+        verify(0x060032de, "WorldMarchDataManager::SaveCreateMarchRecordTime",
+               ("System.Guid::NewGuid", "System.Object::ToString",
+                "GetServerTime", "_cacheClientCreateGuidAndTimeDict"))
+        verify(0x060031bc, "WorldMarch::get_clientCreateGuid",
+               ("WorldMarch::_clientCreateGuid",))
+        verify(0x060031e6, "WorldMarch::UpdateFromSFS",
+               ("'clientCreateUuid'", "MessageExtension::TryGetString",
+                "WorldMarch::_clientCreateGuid"))
+        verify(0x060032df, "WorldMarchDataManager::RemoveCreateMarchRecordTime",
+               ("WorldMarch::get_clientCreateGuid",
+                "_cacheClientCreateGuidAndTimeDict", "ContainsKey",
+                "CreateMarchDeltaTime"))
+        verify(0x06003285, "WorldMarchDataManager::HandleFormationMarch",
+               ("StepProcessQueue", "Push", "UpdateLastMarchMessage"))
+        verify(0x06003286, "WorldMarchDataManager::HandleFormationMarchImpl",
+               ("ParseFormationUpdate",))
+        verify(0x06003289, "WorldMarchDataManager::ParseFormationUpdate",
+               ("'uuid'", "GetLong", "ParsePushWorldMarchAdd"))
+        # This method is a registered Lua property getter; the native GUID
+        # can be used as an independent poststate witness IF actually visible
+        # on a fresh owner march. Source membership alone is not live proof.
+        wrapped = img.tables.MethodDef.rows[(0x06008a4b & 0xFFFFFF) - 1]
+        require(img.method_label(0x06008a4b & 0xFFFFFF) ==
+                "XLua.CSObjectWrap.WorldMarchWrap::_g_get_clientCreateGuid" and
+                img.decode_method_signature(bytes(wrapped.Signature.value)) ==
+                    ("int32", ["native int"]),
+                "original XLua WorldMarch clientCreateGuid getter is missing")
 
 
 def mock():
@@ -359,7 +431,8 @@ def test_selected_attack_and_diamond():
       package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
         return {OnCreate=function(self,formation,kind,target)
           state.createCounter=state.createCounter+1
-          local token='nativeCreate-'..state.createCounter
+          local token=string.format('12345678-1234-4abc-8def-%012d',state.createCounter)
+          state.marchClientCreateGuid=token
           self.sfsObj={GetUtfString=function(obj,key)
             assert(key=='clientCreateUuid');return token
           end}
@@ -414,12 +487,26 @@ def test_selected_attack_and_diamond():
     require(call(queryOnly='1')['state']=='accepted',
             'local-only native march was misreported as a server ACK')
     vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-        {}, {clientCreateUuid='nativeCreate-1',ownerUid=state.uid,uuid=state.uuid})""")
+        {}, {clientCreateUuid='12345678-1234-4abc-8def-000000000001',ownerUid=state.uid,uuid=state.uuid})""")
+    state['marchClientCreateGuid']=None
+    absent_guid=call(queryOnly='1')
+    require(absent_guid['state']=='accepted' and
+            absent_guid['data']['nativeMarchPostStateVerified'] is False and
+            absent_guid['data']['nativeTransaction']['nativeMarchGuidObserved'] is False,
+            'matching reply/target without native march create GUID claimed success')
+    state['marchClientCreateGuid']='abcdef01-1234-4abc-8def-000000000001'
+    bad_native_guid=call(queryOnly='1')
+    require(bad_native_guid['state']=='accepted' and
+            bad_native_guid['data']['nativeMarchPostStateVerified'] is False and
+            bad_native_guid['data']['nativeTransaction']['nativeMarchGuidMatchesRequest'] is False,
+            'matching reply and target falsely confirmed a native march with another original create GUID')
+    state['marchClientCreateGuid']= '12345678-1234-4abc-8def-000000000001'
     ack=call(queryOnly='1')
     require(ack['state']=='confirmed' and ack['data']['serverAcknowledgementCorrelated'] is True and
             ack['data']['nativeMarchPostStateVerified'] is True and
             ack['data']['transaction']['nonceStatus']==
                 'same_nonce_owner_march_reply_observed_requires_fresh_poststate' and
+            ack['data']['nativeMarchGuidMatchesRequest'] is True and
             ack['data']['targetUuid']=='990123' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
@@ -447,7 +534,7 @@ def test_selected_attack_and_diamond():
     state['existingAbsent']=False
     state['startTime']=1100
     vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-        {}, {clientCreateUuid='nativeCreate-2',ownerUid=state.uid,uuid=state.uuid})""")
+        {}, {clientCreateUuid='12345678-1234-4abc-8def-000000000002',ownerUid=state.uid,uuid=state.uuid})""")
     chain=call(queryOnly='1')
     require(chain['state']=='accepted' and state['rpcCount']==1 and
             state['rpcArgs'][4] is False,
@@ -477,6 +564,8 @@ def test_attack_sender_correlation_negatives():
             ('sender_throw', 'failed', 'failed', 1),
             ('reply_error', 'accepted', 'failed', 1),
             ('nonce_missing', 'accepted', 'accepted', 1),
+            ('nonce_malformed', 'accepted', 'accepted', 1),
+            ('late_manual', 'accepted', 'failed', 0),
             ('reply_wrong_nonce', 'accepted', 'accepted', 1),
             ('reply_wrong_owner', 'accepted', 'accepted', 1),
             ('reply_wrong_march', 'accepted', 'accepted', 1),
@@ -491,8 +580,12 @@ def test_attack_sender_correlation_negatives():
           state.sendMode='""" + mode + """'
           package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
             return {OnCreate=function(self,formation,kind,target)
+              state.marchClientCreateGuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
               self.sfsObj=state.sendMode=='nonce_missing' and {} or
-                {GetUtfString=function(self,key) return 'mock-create-nonce' end}
+                {GetUtfString=function(self,key)
+                  if state.sendMode=='nonce_malformed' then return 'not-a-guid' end
+                  return 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+                end}
             end,HandleMessage=function(self,response) end}
           end
           package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
@@ -510,7 +603,7 @@ def test_attack_sender_correlation_negatives():
           end
           nativeCtrl.OnCheckTime=function(self,formation)
             state.attackDelegateCount=state.attackDelegateCount+1
-            if state.sendMode=='no_send' then return end
+            if state.sendMode=='no_send' or state.sendMode=='late_manual' then return end
             local target=state.sendMode=='wrong_target' and 990124 or 990123
             SFSNetwork.SendMessage(99,formation,17,target,'path')
             if state.sendMode=='double' then
@@ -546,34 +639,49 @@ def test_attack_sender_correlation_negatives():
                     unrelated['data']['nativeTransaction']['replyObserved'] is None,
                     'unrelated recall/change ACK was attributed to a create attack')
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,
                    uuid=state.uuid,errorCode='native_reject'})""")
         if mode=='controller_false':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})""")
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})""")
         if mode=='nonce_missing':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})""")
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})""")
+        if mode=='nonce_malformed':
+            vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+              {}, {clientCreateUuid='not-a-guid',ownerUid=state.uid,uuid=state.uuid})""")
+        if mode=='late_manual':
+            vm.execute("""SFSNetwork.SendMessage(99,state.formation,17,990123,'path')
+              require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+                {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+                     ownerUid=state.uid,uuid=state.uuid})""")
         if mode=='reply_wrong_nonce':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
               {}, {clientCreateUuid='unrelated-create-id',ownerUid=state.uid,uuid=state.uuid})""")
         if mode=='reply_wrong_owner':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='mock-create-nonce',ownerUid=123,uuid=state.uuid})""")
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=123,uuid=state.uuid})""")
         if mode=='reply_wrong_march':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=123})""")
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=123})""")
         if mode=='reply_duplicate':
             vm.execute("""for i=1,2 do
               require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-                {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})
+                {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})
               end""")
         vm.globals().state.existingAbsent=False
         polled=call(queryOnly='1')
         require(polled['state']==later and
                 vm.globals().state.attackDelegateCount==1 and
-                (vm.globals().state.attackSends or 0)==sends,
+                (vm.globals().state.attackSends or 0)==
+                    sends+(1 if mode=='late_manual' else 0),
                 'unproven native attack was confirmed or resent: '+mode)
+        if mode=='late_manual':
+            require(polled['data']['nativeTransaction']['sendCount']==0 and
+                    polled['data']['nativeTransaction']['unattributedSendCount']==1 and
+                    polled['data']['nativeTransaction']['nonceStatus']==
+                      'matching_send_outside_original_controller_causal_scope',
+                    'late native user/dialog send acquired attack-origin nonce or ACK')
 
 
 def test_native_prepare_helper():
@@ -1024,6 +1132,7 @@ def test_readonly_end_to_end_source_prerequisites():
 
 def main():
     check_original()
+    check_installed_managed_nonce_source()
     test_selected_attack_and_diamond()
     test_attack_sender_correlation_negatives()
     test_native_prepare_helper()
