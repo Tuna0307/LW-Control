@@ -112,8 +112,16 @@ local function board_snapshot(view, game)
     local show = get(game, 'showCards')
     local visible = get(game, 'visualList')
     local tray = get(game, 'removeList')
+    local temporary = get(game, 'temporaryList')
     if type(show) ~= 'table' or type(visible) ~= 'table' or type(tray) ~= 'table' then
         return nil, 'Missing native sheep board, visible list or remove arena'
+    end
+    -- Original LWSheep.BuildTemporaryList (v26 lines 383-399) holds additional
+    -- playable tiles outside showCards/removeList. An item-free plan that omits
+    -- these tiles would be incomplete, even when its ordinary card count is
+    -- divisible by three. Do not send any move for this unsupported state.
+    if dictionary_size(temporary, MAX_CARDS) ~= 0 then
+        return nil, 'Native temporary sheep cards are outside the item-free planner'
     end
     local cards, seen, tray_counts, tray_len = {}, {}, {}, 0
     for _, card in ipairs(tray) do
@@ -285,6 +293,18 @@ local function hook_loaded_view()
        type(prior_destroy) ~= 'function' or type(prior_click) ~= 'function' or
        type(prior_item) ~= 'function' or type(prior_next) ~= 'function' or
        type(prior_again) ~= 'function' then return false end
+    local function queued_point_count(view, point, require_sent)
+        local ops = get(view, 'syncOps')
+        if type(ops) ~= 'table' then return nil end
+        local total = 0
+        for _, op in ipairs(ops) do
+            if get(op, 'serverPos') == point then
+                if require_sent and get(op, 'isSend') ~= true then return nil end
+                total = total + 1
+            end
+        end
+        return total
+    end
     local update = function(view, ...)
         if observed ~= view then observed = view end
         local mini = rawget(_G, 'LWBridgeFeature018MiniGame')
@@ -294,13 +314,26 @@ local function hook_loaded_view()
         return prior_update(view, ...)
     end
     local response = function(view, packet, ...)
+        local pending = run and run.pending or nil
+        local event = rawget(_G, 'SheepGameOpType')
+        local is_click = pending ~= nil and observed == view and event ~= nil and
+                         get(packet, 'type') == get(event, 'Click')
+        local queued_before = is_click and queued_point_count(view, pending.point, true) or nil
         local ok, value = pcall(prior_result, view, packet, ...)
-        if run ~= nil and run.pending ~= nil and observed == view then
-            local event = rawget(_G, 'SheepGameOpType')
-            if event ~= nil and get(packet, 'type') == get(event, 'Click') then
-                if get(packet, 'opPointId') == run.pending.point then
-                    if ok then run.pending.ack = true
-                    else stop_internal('Original server response handler failed') end
+        if run ~= nil and run.pending == pending and observed == view then
+            if is_click then
+                if get(packet, 'opPointId') == pending.point then
+                    -- SeasonSheepOpHandle can ignore a Click packet when the
+                    -- game's OpCheck returns nil (v26 lines 180-182). Its
+                    -- source SyncFinish removes the exact queued serverPos
+                    -- only after the accepted Click (lines 200, 853-866).
+                    -- Matching packet text alone is not server confirmation.
+                    local queued_after = queued_point_count(view, pending.point, false)
+                    if ok and queued_before == 1 and queued_after == 0 then
+                        pending.ack = true
+                    else
+                        stop_internal('Native server Click was not reconciled with its sent move')
+                    end
                 else
                     stop_internal('Unrecognized manual or competing sheep move')
                 end

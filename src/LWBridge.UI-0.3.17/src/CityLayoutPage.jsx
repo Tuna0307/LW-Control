@@ -56,6 +56,12 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const gridRef = useRef(null);
   const draftTimerRef = useRef(0);
   const savedSignatureRef = useRef(cityPlacementSignature(fixture?.placements ?? []));
+  const requireCityOwner = (owner) => {
+    if (backendBridge.isCurrentProfileOwner(owner)) return;
+    const error = new Error("City Layout profile changed while an action was pending.");
+    error.code = "PROFILE_GENERATION_RETIRED";
+    throw error;
+  };
   const placements = history.present;
   const applyStatus = previewEnabled ? (previewState === "city-layout-applying" ? { state: "running", totalMoves: 4, completedMoves: 2, jobId: "preview-city-layout" } : null) : liveApplyStatus;
   const applyRunning = applyStatus?.state === "running" || applyStatus?.state === "cancelling";
@@ -257,16 +263,23 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   };
 
   const enqueueDraftSave = (nextPlacements, baseRevision) => {
+    const owner = backendBridge.currentProfileOwner();
     const value = { version: 1, baseRevision, placements: nextPlacements, updatedAt: Date.now() };
     const signature = cityPlacementSignature(nextPlacements);
-    const save = () => backendBridge.invokeProfileScoped("city_layout_draft_save", {
+    const save = () => {
+      // A deferred write must retain its originating profile. The shared
+      // bridge selects a profile when invoked, which might now be different.
+      requireCityOwner(owner);
+      return backendBridge.invokeProfileScoped("city_layout_draft_save", {
       revision: draftRevisionRef.current, value,
     }).then((record) => {
+      requireCityOwner(owner);
       draftRevisionRef.current = record.revision;
       setDraftRevision(record.revision);
       savedSignatureRef.current = signature;
       return record;
     });
+    };
     const queued = draftQueueRef.current.then(save);
     draftQueueRef.current = queued.catch(() => {});
     return queued;
@@ -284,12 +297,15 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     const load = async () => {
       try {
         await draftQueueRef.current;
+        requireCityOwner(owner);
         const snapshot = await backendBridge.invokeProfileScoped("city_layout_snapshot_get");
         if (!snapshot || !Array.isArray(snapshot.cells) || !Array.isArray(snapshot.buildings) ||
           !Array.isArray(snapshot.regions) || snapshot.layoutRevision == null) {
           throw new Error("CITY_LAYOUT_INVALID: game did not return a valid city snapshot");
         }
+        requireCityOwner(owner);
         const draft = await backendBridge.invokeProfileScoped("city_layout_draft_get");
+        requireCityOwner(owner);
         const status = await backendBridge.invokeProfileScoped("city_layout_apply_status");
         if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
         const saved = draft?.value?.version === 1 ? draft.value : null;
@@ -303,6 +319,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         setStale(mismatch);
         setLiveApplyStatus(status);
         setServerValidation(null);
+        // A completed/failed native job may trigger a snapshot refresh. Keep
+        // the game-produced failure visible after that refresh replaces the
+        // local status; otherwise the screen quietly returns to edit mode.
+        setErrorText(status?.state === "failed" ? status.error || status.errorCode || t("common.actionFailed") : "");
       } catch (error) {
         if (active) {
           setLiveLayout(null);
@@ -340,9 +360,12 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       setHistory({ past: [], present: [], future: [] }); setDraftRevision(0);
       savedSignatureRef.current = ""; setStale(false); return;
     }
+    const owner = backendBridge.currentProfileOwner();
     try {
       await draftQueueRef.current;
+      requireCityOwner(owner);
       await backendBridge.invokeProfileScoped("city_layout_draft_clear", { revision: draftRevisionRef.current });
+      requireCityOwner(owner);
       draftRevisionRef.current = 0;
       setDraftRevision(0);
       setHistory({ past: [], present: [], future: [] });
@@ -356,8 +379,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     setApplyConfirmOpen(false);
     setApplyPreparing(true);
     setErrorText("");
+    const owner = backendBridge.currentProfileOwner();
     try {
       if (!previewEnabled) await draftQueueRef.current;
+      requireCityOwner(owner);
       const nextIssues = cityLayoutIssues(layout, placements);
       if (nextIssues.length) {
         setServerValidation({ valid: false, issues: nextIssues, totalMoves: 0, temporaryMoves: 0 });
@@ -366,6 +391,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       const validation = previewEnabled
         ? { valid: true, issues: [], totalMoves: placements.length, temporaryMoves: 0 }
         : await backendBridge.invokeProfileScoped("city_layout_validate", { baseRevision: layout.layoutRevision, placements });
+      requireCityOwner(owner);
       setServerValidation(validation);
       if (!validation.valid) return;
       setApplyConfirmOpen(true);
@@ -401,14 +427,18 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     setApplyConfirmOpen(false);
     if (previewEnabled) { setErrorText(t("common.actionFailed")); return; }
     setApplyPreparing(true);
+    const owner = backendBridge.currentProfileOwner();
     try {
       await draftQueueRef.current;
+      requireCityOwner(owner);
       if (savedSignatureRef.current !== cityPlacementSignature(placements)) {
         await enqueueDraftSave(placements, layout.layoutRevision);
       }
+      requireCityOwner(owner);
       const result = await backendBridge.invokeProfileScoped("city_layout_apply_start", {
         baseRevision: layout.layoutRevision, placements,
       });
+      requireCityOwner(owner);
       if (!result?.accepted) {
         setServerValidation({ valid: false, issues: result?.issues || [], totalMoves: 0, temporaryMoves: 0 });
         setErrorText(t("common.actionFailed"));
@@ -501,7 +531,10 @@ export function CityLayoutPage({ previewState = "", online = false }) {
               className={`city-layout-grid${dragState ? " dragging" : ""}`}
               style={{ gridTemplateColumns: `repeat(${region.bounds.maxX - region.bounds.minX + 1}, ${zoom}px)`, gridTemplateRows: `repeat(${region.bounds.maxY - region.bounds.minY + 1}, ${zoom}px)` }}
               onPointerDown={(event) => {
-                if (event.target !== event.currentTarget || busy) return;
+                // Each empty grid cell is a child span. Accept that surface
+                // for box selection while leaving building buttons untouched.
+                if (busy || (event.target !== event.currentTarget &&
+                  !event.target.classList?.contains("city-layout-cell"))) return;
                 const pointId = pointFromClient(event.clientX, event.clientY);
                 if (!pointId) return;
                 event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -585,7 +618,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
           <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>
-          {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => void cancelApply()} disabled={previewEnabled}>{t("cityLayout.cancelApply")}</button></div> : null}
+          {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => void cancelApply()} disabled={previewEnabled || applyStatus.state === "cancelling"}>{t("cityLayout.cancelApply")}</button></div> : null}
         </aside>
       </div>
       <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: draftRevision })}</span><span>{t("cityLayout.conflicts", { count: issues.length })}</span></footer>

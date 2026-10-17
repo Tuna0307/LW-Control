@@ -78,11 +78,23 @@ def main():
     require(mismatch.ShieldStatusSnapshot()["state"] == "unsupported",
             "different status manager and Effect status values falsely succeeded")
 
-    _, none = create_runtime(BASE.replace("[1001] = 130000", "[1001] = 100000"))
+    no_shield_runtime, none = create_runtime(BASE.replace("[1001] = 130000", "[1001] = 100000"))
+    no_shield_bridge = no_shield_runtime.eval("""
+        { RegisterHandler=function(name, handler) return type(handler)=='function' end,
+          Array=function(values)
+              return setmetatable(values, {__feature018_array=true})
+          end }
+    """)
+    require(none.Register(no_shield_bridge) is True,
+            "shield status array encoder was not registered")
     status = none.ShieldStatusSnapshot()
     require(status["state"] == "confirmed" and status["data"]["active"] is False and
             status["data"]["remainingMilliseconds"] == 0,
             "expired shield did not report inactive")
+    status_array = status["data"]["statuses"]
+    require(len(status_array) == 0 and
+            no_shield_runtime.eval("function(values) return getmetatable(values).__feature018_array end")(status_array),
+            "inactive shield statuses would serialize as an object rather than []")
 
     _, multiple = create_runtime(BASE.replace("[1002] = 100000", "[1002] = 120000")
                                   .replace("endTime = 100000", "endTime = 120000"))

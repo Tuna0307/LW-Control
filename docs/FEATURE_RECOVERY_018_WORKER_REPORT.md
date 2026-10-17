@@ -34,6 +34,53 @@ Each `owned-exit.json` recorded `restorationAudit.state=proven`, `originalScript
 
 **Next independent prerequisite:** the authorized owner must make the original **server 2212 sub-account** the already logged-in account before another live feature run. A worker must verify UID/name and server from the game *before* any action; account switching/login modifications are out of scope. Once that precondition is met, execute the game-action branch with current native before/after receipts and each original inventoried command; until then **READY_FOR_LEAD_AUDIT must not be asserted**.
 
+## R2 continuation — source integration and future packaged proof (2026-10-17)
+
+**Final status: PARTIAL; not READY_FOR_LEAD_AUDIT.** This continuation preserves the four genuine R2 game-exit restoration receipts and its original partial ZIP as historical evidence. Its source branch started clean at commit 0982279ed0d1bdfc39acad1c1c4f8e6ce1bc7c1d, matching origin. Current read-only preflight found no LastWar, launcher or LWBridge process, no global recovery journal and the same three unmodified original v26 script SHA-256 hashes shown above. There is no currently running, authorized task-owned server-2212 session. The last genuine logged-in identity remains UID 3133546747002289, server 2289, from the previous R2 receipt. We did not launch that account again, switch identity, control windows, press a key, use inventory or perform any gameplay. A sub-account with server 2212 still needs to be independently verified before testing any game action.
+
+The integrated R2 continuation adds real behavior that was missing from the previous source checkpoint:
+
+- **City:** final relocation occupancy now detects collisions with stationary buildings before any send; ACK progression verifies every expected building location before declaring success; in-flight cancellation remains visibly cancelling. Actual mounted City UI fixes include selecting empty grid child cells for box selection, exposing terminal native job failure, disabling duplicate Cancel and fencing deferred draft saves/validation/apply across profile changes. Source-backed Lua, v26 grid and mounted React regressions pass.
+- **Hotkeys:** the prior R2 proof called the action command directly and could not prove a keyboard shortcut. The new opt-in owned-window key harness supports all 19 original keys/chords, checks exact PID, executable, process creation time, own HWND and foreground, waits for game-side clear text input, releases every key and correlates the actual recognizer event with the native response. It does not use global hotkey registration or owner windows. The proof rechecks the verified account before every command; the capture and background chest monitor reject a successor account. Native providers now validate the exact ShieldRemaining and Recall poststate schema before saying Confirmed. Send-only results stay Submitted. MAIN_SHIELD with no active timer encodes an empty JSON array. A read-only Chinese shield countdown is displayed over the exact owned game window only when a coherent source-backed shield expiry is returned; the display auto-closes on focus loss. These are offline source/readiness validations; **no key or shield was exercised in the game**.
+- **Mini Games:** Season 4 Sheep moves now require proof that the exact native syncOps Click was queued and later consumed before treating a message callback as acknowledged; the solver rejects native temporary tray contents that it cannot model. The mounted Mini panel now shows genuine terminal completion and source errors rather than indefinite progress and prevents duplicate Land unlock after a pending-state remount. The existing one-cell and Black Market owned-marker safeguards are preserved. Inert game-source and actual mounted UI regressions pass.
+- **Packaged application:** future R2 sessions are admitted only on a freshly logged-in/connected, heartbeat-bound UID/server 2212. Commands verify the same account continuously. The proof now records all original game-window key intents, their native status and separately whether server poststate was confirmed; temporary hotkey preferences are restored even on partial failure. A failed foreground or account check halts input with an explicit receipt.
+
+### R2 continuation per-feature acceptance ledger
+
+None of the entries below is classified WORKING or NOT_POSSIBLE: all require authorized server-2212 packaged-game observations. SOURCE_READY means the relevant native path and offline behavior have been implemented; SOURCE_GAP identifies an additional unproven game interface, independent of the inaccessible account.
+
+| City Layout original feature | Current state and remaining game proof |
+|---|---|
+| Main city grid, unlocked/road/flag cells, buildings, levels, movement rules | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need an authoritative populated v26 scene/snapshot, UID and visual screenshot. Localized building names/icons remain unproven; numeric IDs are shown. |
+| Refresh and real error/connection state | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need live refreshed snapshot and actual disconnected/stale UI feedback. |
+| Zoom/fit, selection, lasso, multi-selection, group drag/footprint | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need genuine mounted cell interaction screenshots and state. |
+| Undo/redo, restore initial layout, changed-item inspector | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need actual game-cell baseline and saved local history before Apply. |
+| Valid/invalid locations, road, flag, locked cells, overlap, buffers/zones | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need accepted/rejected game-side validation for known native positions. |
+| Profile drafts, optimistic revisions and clear/reload | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need actual packaged selected-profile save/reopen/conflict receipts. |
+| Apply and confirmed multi-step moves/swaps | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need server-acknowledged building positions before/after every native movement. |
+| Cancel during in-flight step, stale/owner loss | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Need server state before/after cancellation and unchanged later positions. |
+
+| Hotkeys original feature | Current state and remaining game proof |
+|---|---|
+| Seven switches, march speedup options, native per-profile persistence | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Packaged UI toggle/reopen/restore evidence still required. |
+| Q/W/E/R attack and item/diamond march speedups | SOURCE_GAP; LIVE_BLOCKED_ACCOUNT. Real keyboard test infrastructure exists, but cursor-target attack and transaction/ack mapping are not source-verified. Spend opt-ins fail closed. |
+| A/S/D/F recall | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Native MarchUtil send and fresh BACK_HOME response implemented; require own four squad/march transitions. |
+| Space MAIN_SHIELD countdown | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Read-only native status and exact-window overlay now wired; need screenshot and actual expiry. |
+| F6/F7/F8 8/12/24-hour shield items | SOURCE_GAP; LIVE_BLOCKED_ACCOUNT. Duration, owned UUID, warnings, eligibility and consumed-item confirmation lack source proof, so disabled. |
+| Alt+1–4 equipment presets | SOURCE_GAP; LIVE_BLOCKED_ACCOUNT. Exact game preset slot/formation mapping and applied equipment state are missing. |
+| F9/F10 relocation | SOURCE_GAP; LIVE_BLOCKED_ACCOUNT. Item, eligible target, warning and verified city relocation remain unproven. |
+
+| Mini Games original feature | Current state and remaining game proof |
+|---|---|
+| G +5 Frontline soldiers | SOURCE_GAP; LIVE_BLOCKED_ACCOUNT. Source has no verified AddMember argument model or native plus-five confirmation. |
+| Black Market prize chest mark/unmark | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Requires authentic post-shuffle winning box before/after visible effect, cleanup and rebind. |
+| Unlock the next one unopened Land Cell | SOURCE_READY; LIVE_BLOCKED_ACCOUNT. Requires one-cell Locked to Unlocked/Finished native server proof, without duplicate sends. |
+| Season 4 Food House current-level solver, Start/Stop, progress, terminal states | SOURCE_READY; LIVE_BLOCKED_ACCOUNT and live-season availability. Requires native current-level board, server-acknowledged moves/rewards, stopped run and no next-level/paid-prop actions. |
+
+**Remaining independent gate:** A new task-owned login must show the authorized server-2212 sub-account's actual UID/name and connected session before touching any game state. The still missing attack/item/equipment/relocation/G source producers are separate gaps, even if that account becomes available. Original gameplay before/after receipts, packaged visual proof, all item decisions and exact game-stop script restoration for a new session remain unperformed in this continuation. Earlier R2 exit/restoration proof has not been invalidated. Keep PR #14 draft and retain PARTIAL.
+
+**Continuation validation (offline and packaged release build, without a game session):** Full .NET desktop checks passed including the exact-owner Stop/restore regression, feature hotkey capture and native-result schema tests. Release win-x64 framework-dependent publish succeeded with the canonical frontend, actual bundled OverviewBridge modules and zero build errors. The canonical frontend UI suite passed, as did mounted City and Mini R2 regression scripts. The native v26 City, Hotkey Game, Hotkey Actions, Mini and Sheep source-admitted checks passed; Mini tests were 7/7 and Sheep 10/10. The candidate package round-trip against the original installed v26 scripts passed and independently verified all original bytes unchanged. Git diff whitespace checks passed. These qualify a test-ready package and observable error handling only; they do **not** establish gameplay actions or the live target account.
+
 ## Original inventory and chronological checkpoints
 
 | Stage | Source commit, pushed and verified against origin | Result |

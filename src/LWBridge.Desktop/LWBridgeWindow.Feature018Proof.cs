@@ -114,6 +114,8 @@ internal sealed partial class LWBridgeWindow
         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1")
         {
             feature018R2AccountVerified = true;
+            feature018R2ApprovedAccount = new Feature018HotkeySession(
+                session.ProfileId, session.SessionId, uid!, serverId.Value);
             StartFeature018HotkeyMonitoring();
             await RunFeature018R2PackagedUiProofAsync(core, outputPath, directory,
                 session, uid, serverId.Value, token);

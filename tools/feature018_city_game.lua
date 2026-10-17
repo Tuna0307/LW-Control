@@ -332,6 +332,29 @@ local function validate_state(values)
             totalMoves = 0, temporaryMoves = 0 }, state, meta, {}
     end
 
+    -- Validate the whole *resulting* occupancy, including buildings the user
+    -- did not move. A requested destination overlapping a stationary building
+    -- cannot be solved by a temporary buffer, and must report the actual
+    -- conflict instead of searching until CITY_LAYOUT_NO_BUFFER.
+    local job_by_uuid, eventual_occupancy = {}, {}
+    for _, job in ipairs(jobs) do job_by_uuid[job.uuid] = job end
+    for _, building in ipairs(state.buildings) do
+        local job = job_by_uuid[building.uuid]
+        local eventual = job and job.desiredFootprints or building.occupiedPoints
+        for _, pid in ipairs(eventual) do
+            local previous = eventual_occupancy[pid]
+            if previous and previous ~= building.uuid then
+                issue(building.uuid, 'CITY_LAYOUT_OVERLAP', pid)
+            else
+                eventual_occupancy[pid] = building.uuid
+            end
+        end
+    end
+    if #issues > 0 then
+        return { valid = false, issues = issues,
+            totalMoves = 0, temporaryMoves = 0 }, state, meta, {}
+    end
+
     -- Source-backed per-building moves. Plan a safe sequential order. In a
     -- cycle, choose a *currently free* valid buffer footprint, then replan.
     -- The server confirms each step before the next is ever dispatched.
@@ -414,7 +437,8 @@ end
 local function status_data(job)
     if job == nil then return { state = 'idle' } end
     return {
-        jobId = job.jobId, state = job.state,
+        jobId = job.jobId,
+        state = job.state == 'running' and job.cancelRequested and 'cancelling' or job.state,
         totalMoves = #job.steps, completedMoves = job.completed,
         temporaryMoves = job.temporaryMoves,
         errorCode = job.errorCode, error = job.error,
@@ -517,6 +541,14 @@ local function progress_job(job)
         -- BuildingDate is changed by the *server reply* handler, not the
         -- visual UIChangeBuilding call. This is an observed game result.
         job.expected[current.uuid] = current.pointId
+        -- Confirm the complete city snapshot before reporting completion, even
+        -- on the last step. A manual/foreign relocation during the ACK wait
+        -- invalidates the plan regardless of whether this one move succeeded.
+        if not check_positions(job) then
+            job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
+            job.error = 'Another building moved during this layout request.'
+            return
+        end
         job.waiting = nil
         job.completed = job.completed + 1
         if job.cancelRequested then job.state = 'cancelled'

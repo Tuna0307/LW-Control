@@ -337,6 +337,38 @@ def main():
         check(updated['completedMoves'] == i, 'game step ACK not observed')
     check(updated['state'] == 'completed', 'server-observed swap not completed')
 
+    # A destination occupied by a stationary building is a final-layout
+    # collision. The planner must reject it as OVERLAP before considering any
+    # temporary buffer, and must never dispatch an official replacement.
+    lua, _ = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    stationary_overlap = lua.globals().Fields(revision, '101:6')
+    collision = get('city_layout_validate', stationary_overlap)
+    check(collision['data']['valid'] is False and
+          any(collision['data']['issues'][i]['code'] == 'CITY_LAYOUT_OVERLAP'
+              for i in range(1, len(collision['data']['issues']) + 1)),
+          'moving onto unchanged building did not return final-layout OVERLAP')
+    denied = get('city_layout_apply_start', stationary_overlap)
+    check(denied['state'] == 'confirmed' and denied['data']['accepted'] is False and
+          len(lua.globals().ObservedMoves) == 0,
+          'stationary occupancy conflict triggered a native move')
+
+    # One acknowledged point change is insufficient to claim a successful
+    # whole-layout result when another building moved during that ACK wait.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get('city_layout_apply_start', lua.globals().Fields(revision, '101:3'))
+          ['state'] == 'accepted', 'third-party drift scenario was not dispatched')
+    lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    lua.execute('DataCenter.BuildManager.allBuilding[102].pointId=4')
+    producer.Pump()
+    drift = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
+    check(drift['state'] == 'failed' and drift['errorCode'] == 'CITY_LAYOUT_STALE' and
+          drift['completedMoves'] == 0 and len(lua.globals().ObservedMoves) == 1,
+          'whole-layout completion ignored unrelated authoritative building drift')
+
     # The game pump must continue an owner-authorized move plan even when
     # the City panel is hidden and never issues another status request.
     lua, producer = fake()
@@ -379,7 +411,9 @@ def main():
     cancelled = get('city_layout_apply_cancel', lua.table_from({
         'profileId':'p1','launchSessionId':'session1','challenge':'nonce',
         'jobId':start['data']['status']['jobId']}))
-    check(cancelled['state'] == 'confirmed', 'inflight cancel was rejected')
+    check(cancelled['state'] == 'confirmed' and
+          cancelled['data']['status']['state'] == 'cancelling',
+          'inflight cancel did not visibly acknowledge pending server result')
     lua.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
     outcome = get('city_layout_apply_status', lua.globals().Fields(revision, ''))['data']
     check(outcome['state'] == 'cancelled', 'cancel did not stop additional dispatch')

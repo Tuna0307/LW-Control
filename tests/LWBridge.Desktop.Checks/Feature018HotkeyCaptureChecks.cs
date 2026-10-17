@@ -88,6 +88,29 @@ internal static class Feature018HotkeyCaptureChecks
                 $"missed mapping {item.Key} / {item.Modifier}");
         }
 
+        // R2 uses SendInput-style key edges through an exact task-owned game
+        // window. These key plans must agree with the actual native recognizer
+        // for every original binding before any live game focus is considered.
+        var ownedKeyPlans = new (string Binding, byte[] Expected)[] {
+            ("Q", [0x51]), ("W", [0x57]), ("E", [0x45]), ("R", [0x52]),
+            ("A", [0x41]), ("S", [0x53]), ("D", [0x44]), ("F", [0x46]),
+            ("Space", [0x20]), ("F6", [0x75]), ("F7", [0x76]), ("F8", [0x77]),
+            ("Alt+1", [0x12, 0x31]), ("Alt+2", [0x12, 0x32]),
+            ("Alt+3", [0x12, 0x33]), ("Alt+4", [0x12, 0x34]),
+            ("F9", [0x78]), ("F10", [0x79]), ("G", [0x47]),
+        };
+        Require(ownedKeyPlans.Length == 19, "original key plan catalogue lost an expected binding");
+        foreach ((string binding, byte[] expected) in ownedKeyPlans)
+        {
+            Require(Feature018OwnedWindowKeys.TryKeyPlan(binding, out byte[] actual) &&
+                    actual.SequenceEqual(expected), "task-owned game key plan differs from original mapping: " + binding);
+        }
+        foreach (string unsupported in new[] { "", "Ctrl+F", "Shift+Q", "Alt+F6", "Alt+5", "G+F", "Space+Q" })
+        {
+            Require(!Feature018OwnedWindowKeys.TryKeyPlan(unsupported, out byte[] actual) &&
+                    actual.Length == 0, "unknown chord was eligible for task-owned injection: " + unsupported);
+        }
+
         var session = new Feature018HotkeySession("p", "i", "uid", 2212);
         Feature018HotkeySession? current = session;
         bool focused = true;
@@ -156,6 +179,65 @@ internal static class Feature018HotkeyCaptureChecks
 
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
+            observation = "unrelated_native_observation",
+            active = true,
+            serverTimeMilliseconds = 1000,
+            shieldStatusCount = 1,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.ShieldRemaining))).Status == Feature018HotkeyActionStatus.Failed,
+            "unrelated observation was accepted as an authenticated shield status");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_MAIN_SHIELD_effect_status_map",
+            active = false,
+            serverTimeMilliseconds = 1000,
+            shieldStatusCount = 1,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.ShieldRemaining))).Status == Feature018HotkeyActionStatus.Failed,
+            "contradictory shield count and active flag accepted");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_target",
+            slot = 2,
+            marchUuid = "803001",
+            formationUuid = "1001",
+            target = "BACK_HOME",
+            returning = true,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 2))).Working,
+            "source-observed owner squad return-home state rejected");
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 3))).Status == Feature018HotkeyActionStatus.Failed,
+            "another squad slot's return-home receipt falsely confirmed shortcut");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_world_march_return_target",
+            slot = 2,
+            marchUuid = "803001",
+            formationUuid = "1001",
+            target = "BACK_HOME",
+            returning = true,
+        });
+        Require((await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.AttackSquad, 2))).Status == Feature018HotkeyActionStatus.Failed,
+            "recall observation falsely confirmed a current-client attack");
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
+            accepted = true,
+            awaitingGameConfirmation = true,
+        });
+        Feature018HotkeyActionOutcome accepted = await nativeCoordinator.TryDispatchAsync(
+            new(Feature018HotkeyKind.RecallSquad, 2));
+        Require(accepted.Status == Feature018HotkeyActionStatus.Submitted && !accepted.Working,
+            "game-native accepted receipt was falsely promoted to confirmed gameplay");
+
+        stub.Receipt = () => JsonSerializer.SerializeToElement(new
+        {
             observation = "native_MAIN_SHIELD_effect_status_map",
         });
         Require((await nativeCoordinator.TryDispatchAsync(
@@ -219,6 +301,35 @@ internal static class Feature018HotkeyCaptureChecks
         {
             Require(Feature018HotkeyNativeProviders.ActionName(key) == nativeAction,
                 "native action mapping differs from game bridge schema: " + key);
+        }
+
+        // The visible Space overlay requires the *actual* returned MAIN_SHIELD
+        // timing fields, including absence of a shield. An arbitrary confirmed
+        // observation or multiple contradictory shield timers is insufficient.
+        JsonElement timed = JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_MAIN_SHIELD_effect_status_map",
+            active = true, shieldStatusCount = 1, remainingMilliseconds = 3500000
+        });
+        Require(Feature018ShieldStatusOverlay.TryRead(timed, out bool active, out double remaining) &&
+            active && remaining == 3500000, "native shield timer was not renderable");
+        JsonElement absent = JsonSerializer.SerializeToElement(new
+        {
+            observation = "native_MAIN_SHIELD_effect_status_map",
+            active = false, shieldStatusCount = 0, remainingMilliseconds = 0
+        });
+        Require(Feature018ShieldStatusOverlay.TryRead(absent, out active, out remaining) &&
+            !active && remaining == 0, "shield-free native status misrepresented");
+        foreach (var negative in new[]
+        {
+            new { observation = "unverified", active = true, shieldStatusCount = 1, remainingMilliseconds = 3500000.0 },
+            new { observation = "native_MAIN_SHIELD_effect_status_map", active = true, shieldStatusCount = 2, remainingMilliseconds = 3500000.0 },
+            new { observation = "native_MAIN_SHIELD_effect_status_map", active = true, shieldStatusCount = 1, remainingMilliseconds = -1.0 },
+        })
+        {
+            Require(!Feature018ShieldStatusOverlay.TryRead(
+                JsonSerializer.SerializeToElement(negative), out _, out _),
+                "unknown or contradictory shield timer displayed");
         }
 
         Console.WriteLine("FEATURE018_HOTKEY_CAPTURE_PASS");

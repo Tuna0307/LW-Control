@@ -20,6 +20,7 @@
 -- global keyboard hook, modify a game file or claim a network send succeeded.
 
 local M = { VERSION = "feature018-hotkey-game-1" }
+local mark_array = nil
 
 local function member(value, key)
     if value == nil then return nil end
@@ -107,6 +108,11 @@ local function shield_snapshot()
     end
     if #statuses > 1 then
         table.sort(statuses, function(a, b) return a.endTime < b.endTime end)
+    end
+    -- FEATURE018's JSON encoder treats an empty Lua table as an object.
+    -- A shield-free game must still return statuses=[] to the frontend.
+    if type(mark_array) == "function" then
+        statuses = mark_array(statuses)
     end
     local result = {
         active = #statuses > 0,
@@ -249,7 +255,9 @@ function M.Register(feature)
     local input = feature.RegisterHandler("feature018_input_focus", function(_)
         return M.InputFocusSnapshot()
     end)
-    return actions == true and input == true
+    if actions ~= true or input ~= true then return false end
+    mark_array = type(feature.Array) == "function" and feature.Array or nil
+    return true
 end
 
 return M

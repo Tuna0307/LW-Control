@@ -152,6 +152,16 @@ internal sealed partial class LWBridgeWindow
                 RetireFeature018ChestMonitor();
                 return;
             }
+            if (normalUiLiveMapProofPath is not null &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1" &&
+                account != feature018R2ApprovedAccount)
+            {
+                // The packaged proof approved one exact logged-in account.
+                // A server/account switch must never let this background
+                // marker start mutating the new account's game view.
+                RetireFeature018ChestMonitor();
+                return;
+            }
             if (feature018ChestOwner != owner || feature018ChestAccount != account)
             {
                 RetireFeature018ChestMonitor();

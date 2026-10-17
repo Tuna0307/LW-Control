@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Collections.Concurrent;
 
 namespace LWBridge.Desktop;
 
@@ -17,6 +18,10 @@ internal sealed partial class LWBridgeWindow
     // installing any game-window key capture. Normal interactive launches use
     // the existing per-owner account and text-focus checks below.
     private bool feature018R2AccountVerified;
+    private Feature018HotkeySession? feature018R2ApprovedAccount;
+    private readonly ConcurrentQueue<Feature018R2KeyOutcome> feature018R2KeyOutcomes = new();
+    private sealed record Feature018R2KeyOutcome(string Kind, int Slot,
+        string Status, string Reason, DateTimeOffset ObservedAtUtc);
     private HotkeyConfig feature018Preferences = new();
 
     private void StartFeature018HotkeyMonitoring()
@@ -100,6 +105,13 @@ internal sealed partial class LWBridgeWindow
                 RetireFeature018Hotkeys();
                 return;
             }
+            if (normalUiLiveMapProofPath is not null &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") == "1" &&
+                account != feature018R2ApprovedAccount)
+            {
+                RetireFeature018Hotkeys();
+                return;
+            }
             if (feature018Owner != owner || feature018Account != account ||
                 feature018Capture is null)
             {
@@ -168,17 +180,39 @@ internal sealed partial class LWBridgeWindow
         try
         {
             Feature018HotkeyActionOutcome result = await actions.TryDispatchAsync(intent);
+            if (intent.Kind == Feature018HotkeyKind.ShieldRemaining &&
+                result.Status == Feature018HotkeyActionStatus.Confirmed &&
+                result.AuthoritativeObservation is { } shield &&
+                feature018Capture?.IsExactForegroundOwner() == true)
+            {
+                // Source-backed read-only MAIN_SHIELD countdown, displayed
+                // without activating LWBridge or a different window.
+                _ = Feature018ShieldStatusOverlay.ShowIfCurrentOwner(
+                    feature018Capture, shield);
+            }
+            if (feature018R2ApprovedAccount is not null &&
+                feature018R2ApprovedAccount == feature018Account)
+                feature018R2KeyOutcomes.Enqueue(new(intent.Kind.ToString(), intent.Slot,
+                    result.Status.ToString(), result.Reason, DateTimeOffset.UtcNow));
             // A native request being sent does not prove gameplay succeeded;
             // leave outcomes in their actual statuses for diagnostics.
             if (result.Status is Feature018HotkeyActionStatus.Failed or
                 Feature018HotkeyActionStatus.Submitted)
                 System.Diagnostics.Debug.WriteLine("FEATURE018 hotkey: " + result.Status + ": " + result.Reason);
         }
-        catch (Exception) { }
+        catch (Exception error)
+        {
+            if (feature018R2ApprovedAccount is not null &&
+                feature018R2ApprovedAccount == feature018Account)
+                feature018R2KeyOutcomes.Enqueue(new(intent.Kind.ToString(), intent.Slot,
+                    "Exception", error.GetType().Name, DateTimeOffset.UtcNow));
+        }
     }
 
     private void StopFeature018HotkeyMonitoring()
     {
+        feature018R2AccountVerified = false;
+        feature018R2ApprovedAccount = null;
         feature018HotkeyMonitor.Stop();
         feature018HotkeyMonitor.Tick -= Feature018HotkeyTick;
         RetireFeature018Hotkeys();

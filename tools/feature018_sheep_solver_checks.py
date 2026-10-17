@@ -21,7 +21,7 @@ import compact_lua53 as lua  # noqa: E402
 import execute_selected as vm  # noqa: E402
 import run_live_resource_probe as probe  # noqa: E402
 from feature018_mini_lua import ORIGINAL_ENTRY_SHA256  # noqa: E402
-from inspect_current import root_methods, walk  # noqa: E402
+from inspect_current import root_methods, walk, disassemble  # noqa: E402
 
 
 class NativeSeasonFourBytecode(unittest.TestCase):
@@ -121,6 +121,39 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         game = self.method("DataCenter/LWSheep/LWSheep.luac", "CheckGameState")
         self.assertTrue({"removeList", "Fair", "Success", "rewardsInfo"} <= constants(game))
 
+    def test_invalid_native_click_reply_does_not_run_sync_finish(self):
+        # Real v26 SeasonSheepOpHandle returns early when OpCheck rejects the
+        # reply. A matching opPointId alone must not acknowledge our move.
+        handler = self.method("UI/LWSeason4/LWUISheepGame/View/LWUISheepGameView.luac",
+                              "SeasonSheepOpHandle")
+        calls = []
+        view = {"engine": {"OpCheck": lambda *_: None},
+                "GeSyncCheckData": lambda *_: None,
+                "SyncFinish": lambda *_: calls.append("sync_finished")}
+        enum = {"Error": 1, "Refresh": 2, "Click": 3}
+        self.assertEqual(vm.execute(handler, view, {"type": 3, "opPointId": "3_9_2"},
+                                    globals_={"SheepGameOpType": enum}), ())
+        self.assertEqual(calls, [])
+
+    def test_source_sync_finish_removes_only_confirmed_point(self):
+        sync = self.method("UI/LWSeason4/LWUISheepGame/View/LWUISheepGameView.luac",
+                           "SyncFinish")
+        # Interpreter does not support TFORCALL/TFORLOOP/LEN, so inspect the
+        # exact admitted opcodes for the source-native matching/removal path.
+        instructions = list(disassemble(sync))
+        self.assertTrue(any("sourceLine=859" in s and "='serverPos'" in s for s in instructions))
+        self.assertTrue(any("sourceLine=864" in s and "='remove'" in s for s in instructions))
+        self.assertTrue(any("sourceLine=864" in s and " CALL " in s for s in instructions))
+        self.assertTrue(any("sourceLine=863" in s and " EQ " in s for s in instructions))
+
+    def test_reconciliation_and_temporary_cards_guards_match_original_source(self):
+        temporary = self.method("DataCenter/LWSheep/LWSheep.luac", "BuildTemporaryList")
+        self.assertIn("temporaryList", {str(value) for value in temporary["constants"]})
+        source = (ROOT / "feature018_sheep_solver.lua").read_text(encoding="utf-8")
+        self.assertIn("dictionary_size(temporary, MAX_CARDS) ~= 0", source)
+        self.assertIn("queued_before == 1 and queued_after == 0", source)
+        self.assertIn("get(op, 'isSend') ~= true", source)
+
     def test_bounded_plan_only_through_source_native_card_ui(self):
         source = (ROOT / "feature018_sheep_solver.lua").read_text(encoding="utf-8")
         from luaparser import ast
@@ -132,7 +165,7 @@ class NativeSeasonFourBytecode(unittest.TestCase):
         self.assertIn("M.CleanupAfterLeaseLoss", source)
         self.assertIn("feature018_sheep_automation_status", source)
         self.assertIn("coroutine.yield('searching'", source)
-        self.assertIn("get(packet, 'opPointId') == run.pending.point", source)
+        self.assertIn("get(packet, 'opPointId') == pending.point", source)
         self.assertNotIn("SFSNetwork", source.replace("-- Source", "-- Source"))
         for forbidden in (r"call\([^\n]*'UseItem'", r"call\([^\n]*'NextLevel'",
                           r"call\([^\n]*'Again'", r"SendMessage\("):

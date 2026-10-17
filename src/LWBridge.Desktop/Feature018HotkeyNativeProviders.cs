@@ -78,37 +78,26 @@ internal sealed class Feature018HotkeyNativeProviders
                     "native_game_state_receipt_missing");
             }
 
-            if (evidence.TryGetProperty("requestDispatched", out var dispatched) &&
-                dispatched.ValueKind == JsonValueKind.True)
+            if ((evidence.TryGetProperty("requestDispatched", out var dispatched) &&
+                 dispatched.ValueKind == JsonValueKind.True) ||
+                (evidence.TryGetProperty("accepted", out var accepted) &&
+                 accepted.ValueKind == JsonValueKind.True))
             {
                 return new(Feature018HotkeyActionStatus.Submitted,
                     "game_message_sent_without_independent_state_confirmation");
             }
 
-            // The remaining path may claim success only for a native
-            // response containing an independently observed game state.
-            if (!evidence.TryGetProperty("observation", out var origin) ||
-                origin.ValueKind != JsonValueKind.String ||
-                string.IsNullOrWhiteSpace(origin.GetString()))
-            {
+            // A nonempty `observation` string alone does not establish which
+            // game state was checked. Match the exact source-backed receipt
+            // for the requested kind before calling it Confirmed; new action
+            // kinds need their own independently verified poststate schema.
+            if (!ConfirmedReceiptMatches(command.Intent, evidence))
                 return new(Feature018HotkeyActionStatus.Failed,
-                    "native_game_state_receipt_missing");
-            }
-
-            if (command.Intent.Kind == Feature018HotkeyKind.ShieldRemaining &&
-                (!evidence.TryGetProperty("active", out var active) ||
-                 active.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
-                 !evidence.TryGetProperty("serverTimeMilliseconds", out var clock) ||
-                 !clock.TryGetDouble(out var serverTime) || serverTime < 0 ||
-                 !evidence.TryGetProperty("shieldStatusCount", out var count) ||
-                 !count.TryGetInt32(out var numberOfShields) || numberOfShields < 0))
-            {
-                return new(Feature018HotkeyActionStatus.Failed,
-                    "native_game_shield_status_receipt_invalid");
-            }
+                    "native_game_action_observation_unverified");
 
             return new(Feature018HotkeyActionStatus.Confirmed,
-                "verified_native_game_state_observation");
+                "verified_native_game_state_observation",
+                evidence.Clone());
         }
         catch (BridgeCommandException error) when (error.Code == "GAME_METHOD_UNAVAILABLE")
         {
@@ -131,4 +120,48 @@ internal sealed class Feature018HotkeyNativeProviders
                 "current_client_game_action_rejected");
         }
     }
+
+    private static bool ConfirmedReceiptMatches(
+        Feature018HotkeyIntent intent, JsonElement evidence)
+    {
+        if (!evidence.TryGetProperty("observation", out JsonElement observed) ||
+            observed.ValueKind != JsonValueKind.String)
+            return false;
+
+        switch (intent.Kind)
+        {
+            case Feature018HotkeyKind.ShieldRemaining:
+                if (observed.GetString() != "native_MAIN_SHIELD_effect_status_map" ||
+                    !evidence.TryGetProperty("active", out JsonElement active) ||
+                    active.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
+                    !evidence.TryGetProperty("serverTimeMilliseconds", out JsonElement clock) ||
+                    !clock.TryGetDouble(out double time) || !double.IsFinite(time) || time < 0 ||
+                    !evidence.TryGetProperty("shieldStatusCount", out JsonElement count) ||
+                    !count.TryGetInt32(out int shields) || shields < 0)
+                    return false;
+                return active.GetBoolean() == (shields > 0);
+
+            case Feature018HotkeyKind.RecallSquad:
+                return observed.GetString() == "native_world_march_return_target" &&
+                       evidence.TryGetProperty("slot", out JsonElement slot) &&
+                       slot.TryGetInt32(out int actualSlot) && actualSlot == intent.Slot &&
+                       evidence.TryGetProperty("target", out JsonElement target) &&
+                       target.ValueKind == JsonValueKind.String &&
+                       target.GetString() == "BACK_HOME" &&
+                       evidence.TryGetProperty("returning", out JsonElement returning) &&
+                       returning.ValueKind == JsonValueKind.True &&
+                       IsNativeUuid(evidence, "marchUuid") &&
+                       IsNativeUuid(evidence, "formationUuid");
+
+            default:
+                // No other kind has an audited current-client state receipt.
+                return false;
+        }
+    }
+
+    private static bool IsNativeUuid(JsonElement evidence, string name) =>
+        evidence.TryGetProperty(name, out JsonElement field) &&
+        field.ValueKind == JsonValueKind.String &&
+        field.GetString() is { Length: > 0 and <= 20 } value &&
+        value[0] != '0' && value.All(char.IsAsciiDigit);
 }

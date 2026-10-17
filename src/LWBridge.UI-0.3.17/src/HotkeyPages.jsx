@@ -153,23 +153,43 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       return undefined;
     }
     let active = true;
+    let busy = false;
+    const owner = backendBridge.currentProfileOwner();
     const refresh = async () => {
+      if (!active || busy) return;
+      busy = true;
       try {
-        const [response, solver] = await Promise.all([
+        const [managerResult, solverResult] = await Promise.allSettled([
           backendBridge.invokeProfileScoped("mini_sheep_status", {}, 5000),
           backendBridge.invokeProfileScoped("feature018_sheep_automation_status", {}, 5000),
         ]);
-        if (!active) return;
-        // Level is always the current game's manager, while solver progress is
-        // returned by the exact owned Season4 game-side state machine. Native
-        // send-only acknowledgements cannot set completed or confirmedMoves.
-        if (response?.game === "LWSheep" && Number.isInteger(response?.level) && response.level >= 0) {
+        if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+        // Manager may return unsupported after the event closes. The owned
+        // solver's terminal receipt is independently authoritative; keep it.
+        const response = managerResult.status === "fulfilled" ? managerResult.value : null;
+        const solver = solverResult.status === "fulfilled" ? solverResult.value : null;
+        if (!solver) {
+          setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
+          return;
+        }
+        // The live manager gives the currently available level; the solver
+        // owns the original level of a terminal run. Native send-only
+        // acknowledgements cannot set completed or confirmedMoves.
+        const managerLevelValid = response?.game === "LWSheep" && Number.isInteger(response?.level) && response.level >= 0;
+        // A completed or failed run may outlive Season 4 manager availability;
+        // retain its authoritative server-confirmed terminal status and the
+        // run's original level instead of calling completion unsupported.
+        const terminal = solver?.running === false && ["completed", "solve_failed", "stopped"].includes(solver?.status);
+        const runLevelValid = Number.isInteger(solver?.currentLevel) && solver.currentLevel >= 1;
+        const level = terminal && runLevelValid ? solver.currentLevel : managerLevelValid ? response.level
+          : runLevelValid ? solver.currentLevel : null;
+        if (managerLevelValid || (terminal && level !== null)) {
           const stage = typeof solver?.status === "string" ? solver.status : "idle";
           const running = solver?.running === true;
           const elapsed = Number(solver?.elapsedSeconds);
           setLiveSheepStatus({
             running, state: stage === "solve_failed" ? "error" : running ? "running" : "idle",
-            step: stage, currentLevel: response.level,
+            step: stage, currentLevel: level,
             confirmedMoves: Number.isInteger(solver?.confirmedMoves) ? solver.confirmedMoves : 0,
             plannedMoves: Number.isInteger(solver?.totalMoves) && solver.totalMoves > 0 ? solver.totalMoves : 0,
             startedAt: running && Number.isFinite(elapsed) && elapsed >= 0 ? Date.now() - elapsed * 1000 : null,
@@ -180,7 +200,11 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
         }
       } catch {
-        if (active) setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
+        if (active && backendBridge.isCurrentProfileOwner(owner)) {
+          setLiveSheepStatus({ state: "error", step: "unsupported_client", running: false });
+        }
+      } finally {
+        busy = false;
       }
     };
     void refresh();
@@ -222,10 +246,38 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
   }, [isMiniGames, previewEnabled, online, hotkeyConfig?.treasureChestHint, backendBridge.profileGeneration]);
 
   useEffect(() => {
-    if (previewEnabled || !isMiniGames || !online || landPendingId === null) return undefined;
+    if (!isMiniGames || previewEnabled) return;
+    // Native requests are owner-scoped. A previous profile's local pending
+    // cell ID and confirmation text must never carry over to the new owner.
+    setLandPendingId(null);
+    setLandResult("");
+  }, [isMiniGames, previewEnabled, backendBridge.profileGeneration]);
+
+  useEffect(() => {
+    if (previewEnabled || !isMiniGames || !online) return undefined;
     let active = true;
     const owner = backendBridge.currentProfileOwner();
+    // The game-side one-cell request stays pending when this tab unmounts.
+    // Restore that pending indicator from the native state after a remount.
+    void backendBridge.invokeProfileScoped("mini_land_status", {}, 5000).then((response) => {
+      if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
+      if (response?.state === "locked" && response?.awaitingGameConfirmation === true &&
+          Number.isInteger(response.cellId) && response.cellId > 0) {
+        setLandPendingId(response.cellId);
+        setLandResult(t("miniGames.landCellSent", { id: response.cellId }));
+      }
+    }).catch(() => { /* An unavailable land feature has no pending request to restore. */ });
+    return () => { active = false; };
+  }, [previewEnabled, isMiniGames, online, backendBridge.profileGeneration]);
+
+  useEffect(() => {
+    if (previewEnabled || !isMiniGames || !online || landPendingId === null) return undefined;
+    let active = true;
+    let busy = false;
+    const owner = backendBridge.currentProfileOwner();
     const refreshLand = async () => {
+      if (!active || busy) return;
+      busy = true;
       try {
         const response = await backendBridge.invokeProfileScoped("mini_land_status", {}, 5000);
         if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
@@ -244,6 +296,8 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
           setHotkeyError(`${t("miniGames.landCellFailed")} (${error.code || error.message})`);
           setLandPendingId(null);
         }
+      } finally {
+        busy = false;
       }
     };
     void refreshLand();
@@ -300,7 +354,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
   const sheepStartedAt = Number(sheepStatus?.startedAt) || 0;
   const sheepDurationMs = sheepStatus?.durationMs ?? (sheepRunning && sheepStartedAt > 0 ? Math.max(0, now - sheepStartedAt) : 0);
   const showSheepElapsed = (sheepRunning && sheepStartedAt > 0) || (sheepStatus?.step === "completed" && sheepStatus?.durationMs != null);
-  const sheepStatusText = sheepStatus?.plannedMoves
+  const sheepStatusText = sheepRunning && sheepStatus?.step === "executing" && sheepStatus?.plannedMoves > 0
     ? t("miniGames.sheep.progress", { confirmed: sheepStatus.confirmedMoves ?? 0, total: sheepStatus.plannedMoves })
     : t(sheepStatusKey(sheepStatus));
   const cards = isMiniGames ? MINI_GAME_HOTKEY_CARDS : HOTKEY_CARDS;

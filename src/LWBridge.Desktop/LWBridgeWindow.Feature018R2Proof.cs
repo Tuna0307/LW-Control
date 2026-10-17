@@ -17,6 +17,8 @@ internal sealed partial class LWBridgeWindow
         HotkeyConfigCommandService prefs = hotkeyConfigService
             ?? throw new InvalidOperationException("FEATURE018 hotkey settings missing");
         var game = new Feature018GameCommandService(lifecycle);
+        var approvedAccount = new Feature018HotkeySession(owner.ProfileId,
+            owner.SessionId, uid, serverId);
         var evidence = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["schemaVersion"] = 2,
@@ -26,11 +28,16 @@ internal sealed partial class LWBridgeWindow
             ["startedAtUtc"] = DateTimeOffset.UtcNow,
         };
         using JsonDocument empty = JsonDocument.Parse("{}");
+        HotkeyConfig? originalHotkeys = null;
+        bool ApprovedOwner() =>
+            lifecycle.MatchesOwnedMapScanSession(owner) &&
+            ReadFeature018AuthenticatedAccount(lifecycle, owner) == approvedAccount;
         void Owned()
         {
             token.ThrowIfCancellationRequested();
-            if (!lifecycle.MatchesOwnedMapScanSession(owner))
-                throw new InvalidDataException("FEATURE018 R2 game owner changed");
+            if (!ApprovedOwner())
+                throw new InvalidDataException(
+                    "FEATURE018 R2 game session, UID or server left the approved sub-account.");
         }
         async Task Save()
         {
@@ -167,6 +174,7 @@ internal sealed partial class LWBridgeWindow
             await Nav(5, ".hotkey-panel[data-hotkey-category=hotkeys] .hotkey-switch", "Hotkeys");
             HotkeyConfig original = (HotkeyConfig)(await prefs.InvokeAsync("hotkey_config_get",
                 empty.RootElement.Clone(), token) ?? throw new InvalidDataException("Hotkey config missing"));
+            originalHotkeys = original;
             evidence["hotkeySettingsBefore"] = original;
             await Capture("feature018-r2-hotkeys.png");
             // Exercise a real UI switch and verify the native per-profile store.
@@ -188,12 +196,69 @@ internal sealed partial class LWBridgeWindow
             evidence["hotkeySettingsRestored"] = (HotkeyConfig)(await prefs.InvokeAsync(
                 "hotkey_config_get", empty.RootElement.Clone(), token) ?? original) == original;
             await Command("feature018_input_focus", receiptKey: "gameInputFocus");
-            foreach ((string action, int slot) in new[] {
-                ("attack",1),("recall",1),("shieldOverlay",0),("shieldUse",8),
-                ("equipment",1),("randomRelocate",0),("allianceRelocate",0),
-                ("frontlineReinforce",5) })
-                await Command("feature018_hotkey_action", new { action, slot },
-                    $"gameHotkey_{action}_{slot}");
+            // The R2 predecessor invoked the action API directly: that proves
+            // nothing about the original Q/W/E/R etc game-window key bindings.
+            // Exercise the *real foreground recognizer*, with the precise
+            // approved game HWND, and distinguish physical key delivery,
+            // recognized intent, native request and confirmed poststate.
+            HotkeyConfig enabled = original with
+            {
+                Attack = true, Recall = true, ShieldOverlay = true,
+                ShieldUse = true, Equipment = true, RandomRelocate = true,
+                AllianceRelocate = true, FrontlineReinforce = true,
+            };
+            await prefs.InvokeAsync("hotkey_config_save",
+                JsonSerializer.SerializeToElement(enabled, JsonOptions.Default), token);
+            foreach (string binding in new[] {
+                "Q","W","E","R","A","S","D","F","Space",
+                "F6","F7","F8","Alt+1","Alt+2","Alt+3","Alt+4",
+                "F9","F10","G" })
+            {
+                Owned();
+                int previouslySeen = feature018R2KeyOutcomes.Count;
+                Feature018HotkeyIntent expected =
+                    Feature018OwnedWindowKeys.ExpectedIntent(binding) ??
+                    throw new InvalidDataException("Unmapped R2 binding " + binding);
+                Feature018OwnedKeyReceipt delivered =
+                    await Feature018OwnedWindowKeys.PressAsync(owner, binding,
+                        ApprovedOwner, () => feature018InputClear &&
+                            feature018Capture?.IsExactForegroundOwner() == true &&
+                            DateTimeOffset.UtcNow - feature018InputObservedAt <
+                                TimeSpan.FromMilliseconds(280), token);
+                if (delivered.Pressed)
+                {
+                    // Native dispatch may legitimately take the full 8 s
+                    // mailbox timeout; wait for this exact key's outcome
+                    // before sending another physical game action. A late
+                    // receipt from a prior key cannot count for this one.
+                    for (int poll = 0; poll < 46; poll++)
+                    {
+                        Owned();
+                        if (feature018R2KeyOutcomes.ToArray()
+                            .Skip(previouslySeen).Any(result =>
+                                result.Kind == expected.Kind.ToString() &&
+                                result.Slot == expected.Slot)) break;
+                        await Task.Delay(250, token);
+                    }
+                }
+                Owned();
+                var outcomes = feature018R2KeyOutcomes.ToArray()
+                    .Skip(previouslySeen)
+                    .Where(result => result.Kind == expected.Kind.ToString() &&
+                        result.Slot == expected.Slot).ToArray();
+                evidence["hotkeyRealKey_" + binding] = new
+                {
+                    delivered, outcomes,
+                    recognized = outcomes.Length > 0,
+                    confirmedByNativeProvider = outcomes.Any(item => item.Status == "Confirmed"),
+                };
+                await Save();
+                if (!delivered.Pressed)
+                {
+                    evidence["hotkeyWindowTestStopped"] = delivered.Observation;
+                    break;
+                }
+            }
             await Capture("feature018-r2-hotkeys-after.png");
 
             await Nav(6, ".hotkey-panel[data-hotkey-category=miniGames] .mini-game-actions", "Mini Games");
@@ -242,8 +307,28 @@ internal sealed partial class LWBridgeWindow
         }
         finally
         {
+            if (originalHotkeys is not null)
+            {
+                try
+                {
+                    await prefs.InvokeAsync("hotkey_config_save",
+                        JsonSerializer.SerializeToElement(originalHotkeys, JsonOptions.Default),
+                        CancellationToken.None);
+                    evidence["hotkeyFinalPreferencesRestored"] =
+                        (HotkeyConfig?)await prefs.InvokeAsync("hotkey_config_get",
+                            empty.RootElement.Clone(), CancellationToken.None) == originalHotkeys;
+                }
+                catch (Exception error)
+                {
+                    evidence["hotkeyFinalPreferencesRestoreError"] = error.Message;
+                }
+            }
             evidence["finishedAtUtc"] = DateTimeOffset.UtcNow;
-            await Save();
+            // A canceled admission must still leave a durable partial receipt.
+            await File.WriteAllTextAsync(outputPath,
+                JsonSerializer.Serialize(evidence,
+                    new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }),
+                CancellationToken.None);
         }
     }
 

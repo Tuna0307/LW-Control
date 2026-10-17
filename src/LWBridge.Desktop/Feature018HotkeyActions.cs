@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace LWBridge.Desktop;
 
 internal sealed record Feature018HotkeySession(
@@ -26,7 +28,8 @@ internal enum Feature018HotkeyActionStatus
 
 internal sealed record Feature018HotkeyActionOutcome(
     Feature018HotkeyActionStatus Status,
-    string Reason)
+    string Reason,
+    JsonElement? AuthoritativeObservation = null)
 {
     // Only a source-verified game-side result may claim an actual state change.
     internal bool Working => Status == Feature018HotkeyActionStatus.Confirmed;
