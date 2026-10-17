@@ -1092,6 +1092,70 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
                 'rejected target drift created a phantom pending attack: '+case)
 
 
+def test_native_alliance_field_selection_for_typed_targets():
+    # Target identities come from different native classes. An allianceId
+    # field on a march may not substitute for WorldMarch.allianceUid.
+    for category, kind in (('city',17),('army',18),('monster',19),('resource',20)):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.targetAlliance=701
+          state.resourceGather=0
+          MarchTargetType.ATTACK_MONSTER=19
+          MarchTargetType.COLLECT=20
+          CS.SceneManager.World.GetMarch=function(self,id)
+            return {uuid=id,ownerUid=999,serverId=state.serverId,
+              allianceUid=state.targetAlliance,allianceId=701}
+          end
+          CS.SceneManager.World.GetResourcePointInfoByIndex=function(self,id)
+            return {id=301,mainIndex=id,serverId=state.serverId,
+              gatherMarchUuid=state.resourceGather}
+          end
+          UIWindowNames={UIFormationSelectListV2='formation'}
+          nativeCtrl={targetType=17,targetPoint=state.touchedTile,
+            targetUuid=state.worldUuid,targetServerId=state.serverId}
+          nativeWindow={Ctrl=nativeCtrl}
+          UIManager={GetInstance=function() return {
+            IsWindowOpen=function(self,name)return name=='formation' end,
+            GetWindow=function(self,name)return name=='formation' and nativeWindow end,
+          } end}
+        """)
+        state=vm.globals().state
+        vm.globals().nativeCtrl.targetType=kind
+        if category=='resource':
+            vm.globals().nativeCtrl.targetUuid=None
+        mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        fields=vm.table_from(dict(mode='selectorTarget',authorizedUid='1183884595002296',
+            profileId='profile',launchSessionId='launch',challenge='request',gamePid='7020'))
+        def observe():
+            return mod.Prepare(fields,vm.globals().input_clear)
+        require(observe()['state']=='confirmed',
+                'source-backed native target alliance did not resolve: '+category)
+        for own in (None, -1, True, 'unreadable', ''):
+            vm.globals().LuaEntry.Player.allianceId=own
+            require(observe()['state']=='failed',
+                    'unknown owner alliance accepted for '+category+': '+repr(own))
+        vm.globals().LuaEntry.Player.allianceId=700
+        if category=='resource':
+            for occupied in (None, -1, True, 555110, 'invalid'):
+                state.resourceGather=occupied
+                require(observe()['state']=='failed',
+                        'unknown/occupied typed resource accepted: '+repr(occupied))
+        else:
+            for alliance in (700, None, -1, True, 'invalid', ''):
+                state.worldAlliance=alliance
+                state.targetAlliance=alliance
+                require(observe()['state']=='failed',
+                        'same/unknown native alliance accepted for '+category+': '+repr(alliance))
+            state.worldAlliance=0
+            state.targetAlliance=0
+            require(observe()['state']=='confirmed' and
+                    observe()['data']['target']['targetAllianceUid']=='0',
+                    'explicit zero native alliance rejected for '+category)
+        require(state.attackDelegateCount==0 and state.rpcCount==0,
+                'alliance preflight issued gameplay: '+category)
+
+
 def test_original_reply_observer_required_before_native_controller():
     for mode in ('missing','displaced','serializerDisplaced','senderDisplaced','netReplaced'):
         vm=LuaRuntime(unpack_returned_tuples=True)
@@ -1534,6 +1598,7 @@ def main():
     test_native_prepare_helper()
     test_manual_native_formation_editor_no_automatic_march()
     test_original_selector_typed_target_preflight_and_dispatch_revalidation()
+    test_native_alliance_field_selection_for_typed_targets()
     test_original_reply_observer_required_before_native_controller()
     test_readonly_end_to_end_source_prerequisites()
     state, call, inspect = mock()
