@@ -20,6 +20,7 @@ internal sealed partial class LWBridgeWindow
     private bool feature018R2AccountVerified;
     private Feature018HotkeySession? feature018R2ApprovedAccount;
     private readonly ConcurrentQueue<Feature018R2KeyOutcome> feature018R2KeyOutcomes = new();
+    private readonly object feature018R2KeyEvidenceGate = new();
     private sealed record Feature018R2KeyOutcome(string Kind, int Slot,
         string Status, string Reason, DateTimeOffset ObservedAtUtc,
         JsonElement? NativeObservation = null);
@@ -182,7 +183,7 @@ internal sealed partial class LWBridgeWindow
             }
             if (feature018R2ApprovedAccount is not null &&
                 feature018R2ApprovedAccount == feature018Account)
-                feature018R2KeyOutcomes.Enqueue(new(intent.Kind.ToString(), intent.Slot,
+                RecordFeature018R2KeyOutcome(new(intent.Kind.ToString(), intent.Slot,
                     result.Status.ToString(), result.Reason, DateTimeOffset.UtcNow,
                     result.AuthoritativeObservation));
             // A native request being sent does not prove gameplay succeeded;
@@ -195,9 +196,43 @@ internal sealed partial class LWBridgeWindow
         {
             if (feature018R2ApprovedAccount is not null &&
                 feature018R2ApprovedAccount == feature018Account)
-                feature018R2KeyOutcomes.Enqueue(new(intent.Kind.ToString(), intent.Slot,
+                RecordFeature018R2KeyOutcome(new(intent.Kind.ToString(), intent.Slot,
                     "Exception", error.GetType().Name, DateTimeOffset.UtcNow));
         }
+    }
+
+    private void RecordFeature018R2KeyOutcome(Feature018R2KeyOutcome outcome)
+    {
+        feature018R2KeyOutcomes.Enqueue(outcome);
+        if (normalUiLiveMapProofPath is null ||
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") != "1" ||
+            feature018R2ApprovedAccount is null ||
+            feature018R2ApprovedAccount != feature018Account ||
+            feature018Owner is not { } owner)
+            return;
+        try
+        {
+            string evidence = JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                game = new
+                {
+                    owner.ProfileId,
+                    owner.SessionId,
+                    owner.GamePid,
+                    account = feature018Account,
+                },
+                captureId = feature018Capture?.CaptureId,
+                capturedIntents = feature018Capture?.SnapshotCapturedIntents() ??
+                    Array.Empty<Feature018CapturedIntent>(),
+                outcomes = feature018R2KeyOutcomes.ToArray(),
+                observedAtUtc = DateTimeOffset.UtcNow,
+            }, new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true });
+            lock (feature018R2KeyEvidenceGate)
+                File.WriteAllText(normalUiLiveMapProofPath + ".hotkeys.json", evidence);
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     private void StopFeature018HotkeyMonitoring()
