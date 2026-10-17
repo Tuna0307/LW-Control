@@ -91,6 +91,16 @@ DataCenter = {
                if building then building.pointId=data.pointId end
            end
        end,
+       FreeBuildingReplaceNewHandle=function(self, reply)
+           -- Source v26 success may apply buildInfo/changeBuildInfos. The
+           -- callback does not echo a request nonce or prior target.
+           NativeReplaceReplyInvocations = (NativeReplaceReplyInvocations or 0)+1
+           if reply.errorCode == nil and reply.buildInfo then
+               local data = reply.buildInfo
+               local building = self:GetBuildingDataByUuid(data.uuid)
+               if building then building.pointId=data.pointId end
+           end
+       end,
        GetBuildingDatasByBuildingId=function(self, itemId)
            if itemId ~= BuildingTypes.LW_BUILD_GATE or GateLevel < 0 then return {} end
            return {{level=GateLevel}}

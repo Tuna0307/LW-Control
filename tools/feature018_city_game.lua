@@ -717,6 +717,10 @@ local function snapshot_swap_preflights(state, meta)
     }
 end
 
+local function move_result_ambiguous(job)
+    return job.outboundContended == true or job.inboundContended == true
+end
+
 local function status_data(job)
     if job == nil then return { state = 'idle' } end
     return {
@@ -736,6 +740,9 @@ local function status_data(job)
         nativeMoveOutboundObserved = job.ownSendObserved == true,
         nativeMoveOutboundCount = job.nativeMoveSendCount or 0,
         outboundCollisionObserved = job.outboundContended == true,
+        inboundReplaceCollisionObserved = job.inboundContended == true,
+        nativeMoveCollisionObserved = move_result_ambiguous(job),
+        nativeReplaceReplyCount = job.nativeReplaceReplyCount or 0,
         matchingNativeReplies = job.matchingNativeReplies or 0,
         pendingNativeReplyObserved = job.waiting ~= nil and
             job.replyForStep == job.waiting or false,
@@ -751,6 +758,15 @@ local function remove_reply_observer(job)
     job.replyObserver = nil
 end
 
+local function remove_replace_observer(job)
+    if not job or not job.replaceObserver then return end
+    if job.replyManager and
+        job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver then
+        job.replyManager.FreeBuildingReplaceNewHandle = job.originalReplaceHandler
+    end
+    job.replaceObserver = nil
+end
+
 local function remove_send_observer(job)
     if not job or not job.sendObserver then return end
     if job.sendNetwork and job.sendNetwork.SendMessage == job.sendObserver then
@@ -761,7 +777,35 @@ end
 
 local function remove_move_observers(job)
     remove_reply_observer(job)
+    remove_replace_observer(job)
     remove_send_observer(job)
+end
+
+local function observe_native_replace_replies(job, bm)
+    -- v26 FreeBuildingReplaceNewMessage.HandleMessage:18 forwards to
+    -- BuildManager:FreeBuildingReplaceNewHandle, whose success can AddBuilding
+    -- from buildInfo and changeBuildInfos. It has no per-request nonce. A
+    -- reply for an earlier Replace packet (notably old 9725) can arrive with
+    -- no *new* outbound Replace call while our existing-building Move waits.
+    -- Never claim that we can settle that historical packet: instead fence
+    -- the pending Move and let the original handler run exactly once.
+    if job.replaceObserver then
+        return job.replyManager == bm and
+            bm.FreeBuildingReplaceNewHandle == job.replaceObserver
+    end
+    local original = bm.FreeBuildingReplaceNewHandle
+    if type(original) ~= 'function' then return false end
+    local function observer(self, response, ...)
+        if M.active == job and job.waiting then
+            job.nativeReplaceReplyCount = (job.nativeReplaceReplyCount or 0) + 1
+            job.inboundContended = true
+        end
+        return original(self, response, ...)
+    end
+    bm.FreeBuildingReplaceNewHandle = observer
+    if bm.FreeBuildingReplaceNewHandle ~= observer then return false end
+    job.originalReplaceHandler, job.replaceObserver = original, observer
+    return true
 end
 
 local function observe_native_move_sends(job, net, message)
@@ -809,9 +853,11 @@ end
 
 local function move_observers_intact(job)
     return type(job.replyObserver) == 'function' and
+        type(job.replaceObserver) == 'function' and
         type(job.sendObserver) == 'function' and
         job.replyManager ~= nil and
         job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
+        job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver and
         job.sendNetwork ~= nil and
         job.sendNetwork.SendMessage == job.sendObserver
 end
@@ -834,7 +880,7 @@ local function observe_native_move_replies(job, bm)
         local matching = M.active == job and step ~= nil and
             move_observers_intact(job) and
             job.ownSendObserved == true and
-            job.outboundContended ~= true and
+            not move_result_ambiguous(job) and
             job.nativeMoveSendCount == 1 and
             type(info) == 'table' and response.errorCode == nil and
             tostring(info.uuid) == step.uuid and
@@ -869,7 +915,23 @@ end
 
 local function check_positions(job)
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
-    if not bm then return false end
+    if not bm or type(bm.allBuilding) ~= 'table' then return false end
+    -- The post-ACK witness must include all currently placed City buildings,
+    -- not merely the UUIDs already in the plan. A newly created 2x2 building
+    -- on a buffer/final tile (or a vanished original) must invalidate the
+    -- sequence before the next Move is dispatched. This mirrors snapshot's
+    -- world/FoldUp exclusions without a second 10,000-cell terrain scan.
+    local present = 0
+    for key, building in pairs(bm.allBuilding) do
+        if building and building.isWorldBuild ~= true and
+            (rawget(_G, 'BuildingStateType') == nil or
+             building.state ~= _G.BuildingStateType.FoldUp) then
+            local uuid = tostring(building.uuid or key)
+            if job.expected[uuid] == nil then return false end
+            present = present + 1
+        end
+    end
+    if present ~= job.sourceCount then return false end
     for uuid, point_id in pairs(job.expected) do
         local source = job.sources[uuid]
         local record = bm:GetBuildingDataByUuid(source.nativeUuid)
@@ -964,9 +1026,10 @@ local function dispatch_step(job)
         return false
     end
     if not observe_native_move_replies(job, meta.ctx.bm) or
+        not observe_native_replace_replies(job, meta.ctx.bm) or
         not observe_native_move_sends(job, net, message) then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'The native Move request and reply cannot both be observed safely.'
+        job.error = 'Native building Move and Replace reply/source hooks cannot be observed safely.'
         -- A partial observer installation did not send a packet. Release it.
         remove_move_observers(job)
         return false
@@ -982,7 +1045,9 @@ local function dispatch_step(job)
     job.replyForStep = nil
     job.ownSendObserved = false
     job.nativeMoveSendCount = 0
+    job.nativeReplaceReplyCount = 0
     job.outboundContended = false
+    job.inboundContended = false
     job.sentAt = os.time()
     job.dispatched = (job.dispatched or 0) + 1
     job.ownMoveSendActive = true
@@ -1007,7 +1072,7 @@ local function progress_job(job)
     local building = bm and bm:GetBuildingDataByUuid(current.nativeUuid)
     local observed = building and tonumber(building.pointId)
     if observed == current.pointId and job.replyForStep == current and
-        not job.outboundContended and move_observers_intact(job) then
+        not move_result_ambiguous(job) and move_observers_intact(job) then
         -- BuildWorldMoveNewHandle invokes AddBuilding on the server's
         -- buildInfo then broadcasts BuildingMove({uuid,old,new}); inspecting
         -- native BuildingDate plus full translated footprint avoids mistaking
@@ -1034,7 +1099,7 @@ local function progress_job(job)
     elseif observed == current.pointId then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
         job.error = 'The target position changed without a matching native Move reply; an unconfirmed packet remains outstanding.'
-    elseif job.outboundContended or not move_observers_intact(job) then
+    elseif move_result_ambiguous(job) or not move_observers_intact(job) then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
         job.error = 'An overlapping native building action or displaced request/reply observer prevents safe server result attribution.'
     elseif observed ~= current.from then
@@ -1063,7 +1128,7 @@ local function reconcile_timed_out(job)
     local pending = job.waiting
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local record = bm and bm:GetBuildingDataByUuid(pending.nativeUuid)
-    if job.outboundContended or not move_observers_intact(job) or
+    if move_result_ambiguous(job) or not move_observers_intact(job) or
         job.replyForStep ~= pending or not record or
         tonumber(record.pointId) ~= pending.pointId then return end
     job.expected[pending.uuid] = pending.pointId
@@ -1162,10 +1227,11 @@ function M.Register(feature)
         if #steps == 0 then
             return confirmed({ accepted = false, issues = {{ code = 'CITY_LAYOUT_NO_CHANGES', uuid = '' }} })
         end
-        local sources, expected = {}, {}
+        local sources, expected, source_count = {}, {}, 0
         for uuid, source in pairs(meta.by_uuid) do
             sources[uuid] = source
             expected[uuid] = source.public.pointId
+            source_count = source_count + 1
         end
         -- A caller may reuse requestId after an earlier job completed.
         -- Prefixing only that value lets a delayed Cancel for an old job
@@ -1181,6 +1247,7 @@ function M.Register(feature)
             temporaryMoves = validation.temporaryMoves,
             width = meta.ctx.width,
             expected = expected, sources = sources,
+            sourceCount = source_count,
         }
         M.active = job
         if not dispatch_step(job) then

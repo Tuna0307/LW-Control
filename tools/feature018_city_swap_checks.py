@@ -50,6 +50,7 @@ DataCenter.CityZoneManager.CanPutBuildByPoint = function(self,id,zone)
   return zone==1 and AllowedZones[id]==true
 end
 OriginalNativeMoveReply = DataCenter.BuildManager.BuildWorldMoveNewHandle
+OriginalNativeReplaceReply = DataCenter.BuildManager.FreeBuildingReplaceNewHandle
 OriginalNativeSend = SFSNetwork.SendMessage
 '''
 
@@ -172,8 +173,9 @@ def test_exact_native_swap():
                 complete['matchingNativeReplies'] == 3 and
                 complete['inFlight'] is False and
                 lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply') and
                 lua.eval('SFSNetwork.SendMessage == OriginalNativeSend'),
-                '2x2 swap declared success without three native ACKs/dual cleanup')
+                '2x2 swap declared success without three native ACKs/full hook cleanup')
     assert_that(lua.globals().DataCenter.BuildManager.allBuilding[ONE]['pointId'] == 4442
                 and lua.globals().DataCenter.BuildManager.allBuilding[TWO]['pointId'] == 4242,
                 '2x2 final authoritative positions incorrect')
@@ -242,6 +244,7 @@ def test_cancel_partial_and_uncertain():
                     not after['inFlight'] and
                     lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
                     lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                    lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply') and
                     len(lua.globals().ObservedMoves)==pending,
                     'cancel misreported partial native 2x2 movement or leaked hooks')
     lua,producer=scene()
@@ -274,6 +277,7 @@ def test_cancel_partial_and_uncertain():
                 reconciled['matchingNativeReplies']==1 and
                 lua.eval('SFSNetwork.SendMessage == OriginalNativeSend') and
                 lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply') and
                 len(lua.globals().ObservedMoves)==1,
                 'late exact Move ACK resumed swap, lost poststate, or leaked hooks')
 
@@ -323,6 +327,133 @@ def test_outbound_native_collision_fences():
         producer.Pump()
         assert_that(len(lua.globals().ObservedMoves)==pending_count,
                     f'{collision}: uncertain multi-step plan sent a later move')
+
+
+def test_historical_inbound_replace_collision():
+    # Key R7 inverse: a v26 Replace reply can arrive without any fresh
+    # FreeBuildingReplaceNew SendMessage being observed by this job. This
+    # includes the historical unconfirmed 9725 4242->4144 request; neither a
+    # generic UI callback nor an original building position can attribute it.
+    # The original handler must still run once, including its error path.
+    for phase, reply in (
+        ('error_before_move_ack', '{errorCode=80001}'),
+        ('old_9725_success', f'{{buildInfo={{uuid={ONE},pointId=4144,bId=10210000}}}}'),
+        ('foreign_building_success', f'{{buildInfo={{uuid={TWO},pointId=4444,bId=10210000}}}}'),
+        ('after_move_ack_before_pump', '{errorCode=81000}'),
+        ('after_timeout', '{errorCode=82000}'),
+        ('cancel_in_flight', '{errorCode=83000}'),
+    ):
+        lua, producer = scene()
+        revision = state(lua)['layoutRevision']
+        started = lua.globals().Act('city_layout_apply_start', values(lua, revision))
+        assert_that(started['state']=='accepted',f'{phase}: first native packet not sent')
+        if phase == 'after_move_ack_before_pump':
+            confirm(lua, ONE, 4244)
+        elif phase == 'after_timeout':
+            lua.execute('Clock=9999999999; os.time=function() return Clock end')
+            producer.Pump()
+            assert_that(status(lua,revision)['errorCode']=='GAME_MOVE_RESULT_TIMEOUT',
+                        'late old Replace reply test did not first time out Move')
+        elif phase == 'cancel_in_flight':
+            cancel=lua.globals().Act('city_layout_apply_cancel',lua.table_from({
+                'profileId':'p1','launchSessionId':'session1',
+                'challenge':'nonce','jobId':started['data']['status']['jobId']}))
+            assert_that(cancel['data']['status']['state']=='cancelling' and
+                        cancel['data']['status']['cancelRequestedWhileInFlight'] is True,
+                        'fixture failed to request in-flight cancellation')
+        lua.execute(f'DataCenter.BuildManager:FreeBuildingReplaceNewHandle({reply})')
+        assert_that(lua.eval('NativeReplaceReplyInvocations')==1,
+                    f'{phase}: original v26 Replace handler not called exactly once')
+        if phase not in ('after_move_ack_before_pump', 'after_timeout'):
+            confirm(lua, ONE, 4244)
+        producer.Pump()
+        observed = status(lua, revision)
+        assert_that(observed['state']=='failed' and
+                    observed['inFlight'] is True and
+                    observed['completedMoves']==0 and
+                    observed['outboundCollisionObserved'] is False and
+                    observed['inboundReplaceCollisionObserved'] is True and
+                    observed['nativeMoveCollisionObserved'] is True and
+                    observed['nativeReplaceReplyCount']==1 and
+                    observed['nativeMoveOutboundCount']==1 and
+                    observed['matchingNativeReplies']<=1,
+                    f'{phase}: old non-attributable Replace reply advanced 2x2 Move')
+        if phase == 'cancel_in_flight':
+            assert_that(observed['cancelRequested'] is True and
+                        observed['cancelRequestedWhileInFlight'] is True,
+                        'old Replace reply made a pending Cancel look settled')
+        new_revision=state(lua)['layoutRevision']
+        retry=lua.globals().Act('city_layout_apply_start',
+                                lua.globals().Fields(new_revision,f'{TWO}:4444'))
+        assert_that(retry['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN' and
+                    len(lua.globals().ObservedMoves)==1,
+                    f'{phase}: original old Replace reply unlocked unsafe re-send')
+
+    # A replaced native Replace handler is as dangerous as losing the Move
+    # response handler or outgoing observer: it hides late historical replies.
+    lua, producer = scene()
+    revision=state(lua)['layoutRevision']
+    assert_that(lua.globals().Act('city_layout_apply_start', values(lua,revision))
+                ['state']=='accepted', 'displacement fixture dispatch failed')
+    confirm(lua, ONE, 4244)
+    lua.execute('DataCenter.BuildManager.FreeBuildingReplaceNewHandle = OriginalNativeReplaceReply')
+    producer.Pump()
+    lost=status(lua,revision)
+    assert_that(lost['state']=='failed' and lost['inFlight'] is True and
+                lost['completedMoves']==0 and
+                lost['errorCode']=='CITY_LAYOUT_RESULT_UNCERTAIN',
+                'displaced native Replace observer allowed fake Move completion')
+
+    # A missing handler is not evidence that no old Replace response can be
+    # processed; no request must escape with a partially installed hook.
+    lua,producer=scene()
+    revision=state(lua)['layoutRevision']
+    lua.execute('DataCenter.BuildManager.FreeBuildingReplaceNewHandle=nil')
+    refused=lua.globals().Act('city_layout_apply_start', values(lua,revision))
+    assert_that(refused['state']=='failed' and
+                refused['errorCode']=='GAME_METHOD_UNAVAILABLE' and
+                len(lua.globals().ObservedMoves)==0 and
+                lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
+                'missing Replace reply handler allowed uncorrelatable Move send')
+
+
+def test_unexpected_native_occupancy_during_swap():
+    # A game-created building not in the initial 35-building layout must
+    # invalidate the ACK->NEXT transition even if no old UUID or point moved.
+    # The original 2x2 fixtures model an independent real native addition;
+    # no other action or game session is used here.
+    new_uuid=1392040865799139727
+    for drift in ('new_building','missing_building'):
+        lua,producer=scene()
+        revision=state(lua)['layoutRevision']
+        started=lua.globals().Act('city_layout_apply_start',values(lua,revision))
+        assert_that(started['state']=='accepted',f'{drift}: no first Move send')
+        confirm(lua,ONE,4244)
+        if drift=='new_building':
+            lua.execute(f'''
+              local p=4646
+              DataCenter.BuildManager.allBuilding[{new_uuid}]={{
+                uuid={new_uuid},itemId=10210000,pointId=p,
+                level=1,state=BuildingStateType.Normal,isWorldBuild=false,
+                GetRangedPoints=function(self)
+                  local q=self.pointId
+                  return {{[q]=true,[q-1]=true,[q-100]=true,[q-101]=true}}
+                end}}
+            ''')
+        else:
+            lua.execute(f'DataCenter.BuildManager.allBuilding[{TWO}]=nil')
+        producer.Pump()
+        observed=status(lua,revision)
+        assert_that(observed['state']=='failed' and
+                    observed['errorCode']=='CITY_LAYOUT_STALE' and
+                    observed['completedMoves']==0 and
+                    observed['matchingNativeReplies']==1 and
+                    observed['inFlight'] is False and
+                    len(lua.globals().ObservedMoves)==1 and
+                    lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+                    lua.eval('DataCenter.BuildManager.FreeBuildingReplaceNewHandle == OriginalNativeReplaceReply') and
+                    lua.eval('SFSNetwork.SendMessage == OriginalNativeSend'),
+                    f'{drift}: native occupancy drift sent the next buffered 2x2 Move')
 
 
 def test_displaced_native_observers_and_sync_reply():
@@ -463,10 +594,13 @@ def main():
     test_negative_native_zones()
     test_cancel_partial_and_uncertain()
     test_outbound_native_collision_fences()
+    test_historical_inbound_replace_collision()
+    test_unexpected_native_occupancy_during_swap()
     test_displaced_native_observers_and_sync_reply()
     test_stale_cancel_does_not_hit_reused_request_id()
     print('FEATURE018_CITY_SWAP: PASS v26 exact 2x2 native UUID '
-          'swap preflight/3x ACK/cancel/no-buffer/late uncertainty/outbound collision')
+          'swap preflight/3x ACK/cancel/no-buffer/late uncertainty/'
+          'outbound collision/old Replace inbound reply/native occupancy')
 
 
 if __name__=='__main__':
