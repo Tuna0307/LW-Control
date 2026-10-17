@@ -1136,16 +1136,35 @@ def test_native_alliance_field_selection_for_typed_targets():
             return mod.Prepare(fields,vm.globals().input_clear)
         require(observe()['state']=='confirmed',
                 'source-backed native target alliance did not resolve: '+category)
-        for own in (None, -1, True, 'unreadable', ''):
-            vm.globals().LuaEntry.Player.allianceId=own
-            require(observe()['state']=='failed',
-                    'unknown owner alliance accepted for '+category+': '+repr(own))
+        if category in ('monster','resource'):
+            for own in (None, -1, True, 'unreadable', ''):
+                vm.globals().LuaEntry.Player.allianceId=own
+                require(observe()['state']=='confirmed',
+                        'non-player target incorrectly required owner alliance for '+
+                        category+': '+repr(own))
+        else:
+            for own in (None, -1, True, 'unreadable', ''):
+                vm.globals().LuaEntry.Player.allianceId=own
+                require(observe()['state']=='failed',
+                        'unknown owner alliance accepted for '+category+': '+repr(own))
+            state.forceNoAlliance=True
+            vm.globals().LuaEntry.Player.allianceId=''
+            require(observe()['state']=='confirmed',
+                    'source-proven unaffiliated owner did not treat player target as non-alliance: '+
+                    category)
+            state.forceNoAlliance=False
         vm.globals().LuaEntry.Player.allianceId=700
         if category=='resource':
             for occupied in (None, -1, True, 555110, 'invalid'):
                 state.resourceGather=occupied
                 require(observe()['state']=='failed',
                         'unknown/occupied typed resource accepted: '+repr(occupied))
+        elif category=='monster':
+            for alliance in (700, None, -1, True, 'invalid', ''):
+                state.worldAlliance=alliance
+                state.targetAlliance=alliance
+                require(observe()['state']=='confirmed',
+                        'monster target incorrectly required alliance identity: '+repr(alliance))
         else:
             for alliance in (700, None, -1, True, 'invalid', ''):
                 state.worldAlliance=alliance
@@ -1423,6 +1442,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
     # Inert Lua53 fixture uses exact Int64 above the binary64 integer limit.
     # Native raycast, native world march, troop and manager must all agree.
     for target in ('monster', 'monster_no_ground', 'monster_no_soldiers',
+                   'monster_popup_raycast_miss', 'monster_popup_cursor_mismatch',
                    'monster_same_alliance', 'monster_unknown_alliance',
                    'monster_alliance_drift', 'owner_alliance_unknown',
                    'resource', 'resource_unknown_occupancy', 'resource_occupancy_drift',
@@ -1431,7 +1451,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         vm.execute(GAME)
         vm.execute("""
           state.existingAbsent=true
-          state.hover=9007199254740993
+          state.marchId=9007199254740993
+          state.hover=state.marchId
           state.openCalls=0
           state.hoverType=7
           state.resourceGather=0
@@ -1476,21 +1497,21 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
               gatherMarchUuid=state.resourceGather,serverId=state.serverId}
           end
           CS.SceneManager.World.GetMarch=function(self,id)
-            if id~=state.hover or id==0 then return nil end
-            return {uuid=state.hover,monsterId=100,ownerUid=999,serverId=state.serverId,
+            if id~=state.marchId then return nil end
+            return {uuid=state.marchId,monsterId=100,ownerUid=999,serverId=state.serverId,
               allianceUid=state.hoverAlliance}
           end
           CS.SceneManager.World.GetTroop=function(self,id)
-            if id~=state.hover or id==0 then return nil end
-            return {GetMarchUUID=function() return state.hover end,
+            if id~=state.marchId then return nil end
+            return {GetMarchUUID=function() return state.marchId end,
               IsMonsterTroop=function() return true end,
               IsWorldBossTroop=function() return state.boss==true end,
               GetPosition=function() return CS.SceneManager.World.curTouchPoint end}
           end
           local oldGetMarch=DataCenter.WorldMarchDataManager.GetMarch
           DataCenter.WorldMarchDataManager.GetMarch=function(self,id)
-            if id==state.hover and id~=0 then
-              return {uuid=state.hover,monsterId=100,ownerUid=999,
+            if id==state.marchId then
+              return {uuid=state.marchId,monsterId=100,ownerUid=999,
                 allianceUid=state.hoverAlliance,
                 serverId=state.serverId,GetMarchType=function()return 7 end}
             end
@@ -1509,6 +1530,19 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         if target in ('resource','occupied_resource','unknown_ground_point',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             vm.execute('state.hover=0')
+        if target in ('monster_popup_raycast_miss','monster_popup_cursor_mismatch'):
+            vm.execute("""
+              state.hover=0
+              UIWindowNames={UIFormationSelectListV2='formation',UIWorldPoint='worldpoint'}
+              popupCtrl={uuid=state.marchId,pointId=state.touchedTile,serverId=state.serverId}
+              popupWindow={Ctrl=popupCtrl}
+              UIManager={GetInstance=function()return {
+                IsWindowOpen=function(self,name)return name=='worldpoint' end,
+                GetWindow=function(self,name)return name=='worldpoint' and popupWindow end
+              }end}
+            """)
+        if target=='monster_popup_cursor_mismatch':
+            vm.execute('popupCtrl.pointId=state.touchedTile+1;state.worldPointType=17')
         if target=='monster_same_alliance':
             vm.execute('state.hoverAlliance=700')
         if target=='monster_unknown_alliance':
@@ -1547,12 +1581,13 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         require(state.vectorNewCalls==0,
                 'physical native hover reconstructed Unity Input.mousePosition')
         if target in ('boss','occupied_resource',
-                      'unknown_ground_point','monster_same_alliance','monster_unknown_alliance',
-                      'monster_alliance_drift','owner_alliance_unknown',
+                      'unknown_ground_point','monster_popup_cursor_mismatch',
+                      'owner_alliance_unknown',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             require(first['state']=='failed' and state.openCalls==0 and
                     state.rpcCount==0,
-                    'unsafe or unstaffed native hover entered original march UI')
+                    'unsafe or unstaffed native hover entered original march UI: '+target+
+                    ' / '+str(first['error']))
             continue
         require(first['state']=='accepted' and
                 first['data']['awaitingNativeChooser'] is True and
@@ -1562,9 +1597,13 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                 first['data']['chooserRequestMade'] is True and
                 first['data']['formationUuid']=='1001' and
                 state.openCalls==1 and state.rpcCount==0,
-                'physical hover did not invoke one source-native chooser without sending')
+                'physical hover did not invoke one source-native chooser without sending: '+
+                target+' / '+str(first['error']))
         args=state.openArgs
-        if target in ('monster','monster_no_ground','monster_no_soldiers'):
+        if target in ('monster','monster_no_ground','monster_no_soldiers',
+                      'monster_popup_raycast_miss',
+                      'monster_same_alliance','monster_unknown_alliance',
+                      'monster_alliance_drift'):
             require(args[1]==19 and args[2]==35723 and
                     str(args[3])=='9007199254740993' and
                     args[4]==-1 and args[5]==1 and args['n']==5 and
@@ -1573,6 +1612,12 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             if target=='monster_no_ground':
                 require(state.touchCalls==0 and state.rpcCount==0,
                         'moving monster mistakenly required a successful terrain raycast')
+            if target=='monster_popup_raycast_miss':
+                require(first['data']['nativeCursorRaycastVerified'] is False and
+                        first['data']['nativePopupTargetVerified'] is True and
+                        'UIWorldPoint.Ctrl' in first['data']['hoverSource'] and
+                        state.touchCalls>=2,
+                        'native popup fallback did not require a fresh matching physical cursor tile')
         else:
             require(args[1]==20 and args[2]==35723 and args[3] is None and
                     args[7]==2296 and args['n']==7 and
@@ -1661,9 +1706,9 @@ def test_current_nested_staffing_and_native_membership():
                 'current native troop diagnostics were reduced to legacy ArmyManager inventory')
         state.formReads=0
         sent=mod.Handle(vm.table_from(dict(fields,action='attack')),vm.globals().input_clear)
-        if case=='ready':
+        if case in ('ready','target_unknown'):
             require(sent['state']=='accepted' and state.attackDelegateCount==1 and state.attackSends==1,
-                    'source-backed nested170/170 ready formation or explicit unaffiliated owner was rejected')
+                    'source-backed nested170/170 ready formation or non-player alliance target was rejected: '+case)
         else:
             require(sent['state'] in ('failed','unsupported') and state.attackDelegateCount==0 and
                     state.attackSends is None,

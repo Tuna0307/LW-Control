@@ -283,6 +283,19 @@ local function selected_window()
     return found
 end
 
+local function selected_world_point()
+    local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
+    if not ok_ui then return nil end
+    local name=member(rawget(_G,"UIWindowNames"),"UIWorldPoint")
+    if not name then return nil end
+    local ok_open,opened=invoke(ui,"IsWindowOpen",name)
+    if not ok_open or opened~=true then return nil end
+    local ok_window,window=invoke(ui,"GetWindow",name)
+    local ctrl=ok_window and member(window,"Ctrl") or nil
+    if not ctrl then return nil end
+    return {ui=ui,window=window,ctrl=ctrl,name=name}
+end
+
 -- R7: the v26 V2 formation controller's InitData (root/2 lines 31-46)
 -- receives targetType, targetPoint, targetUuid and targetServerId as
 -- SEPARATE fields. It does not obtain the CURRENT physical mouse position.
@@ -326,7 +339,15 @@ local function player_alliance_observation(player)
     return data,ok_in,in_alliance,ok_uid,native_uid,raw
 end
 
-local function target_alliance_guard(account,target,is_march,is_resource)
+local function target_alliance_guard(account,target,requires_player_alliance,is_march)
+    -- Ordinary monsters/resources are not player-alliance targets in the
+    -- original flow. Their own native type/occupancy/server checks decide
+    -- eligibility; do not turn a missing alliance field into a false denial.
+    if requires_player_alliance~=true then
+        return {ownerAllianceUid=nil,targetAllianceUid=nil,
+            targetAllianceVerified=true,sameAlliance=false,
+            allianceCheckRequired=false}
+    end
     local _,ok_in,in_alliance,ok_uid,native_uid,raw=
         player_alliance_observation(account and account.player)
     local field=alliance_identity(raw)
@@ -344,15 +365,13 @@ local function target_alliance_guard(account,target,is_march,is_resource)
         if own=="0" or (field and field~=own) then own=nil end
     end
     if not own then return nil,failed("Own alliance identity unknown; attack suppressed") end
-    local target_alliance
-    if is_resource then
-        local gather=member(target,"gatherMarchUuid")
-        if gather~=0 and gather~="0" then
-            return nil,failed("Resource occupancy/alliance unknown or occupied; attack suppressed")
-        end
-        target_alliance="0"
-    else
-        target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
+    local target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
+    -- If the current player is source-proven unaffiliated, no other player
+    -- can be in the same alliance. Target alliance identity need not exist.
+    if own=="0" then
+        return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
+            targetAllianceVerified=target_alliance~=nil,sameAlliance=false,
+            allianceCheckRequired=true}
     end
     if not target_alliance then
         return nil,failed("Target alliance identity unknown; attack suppressed")
@@ -361,7 +380,8 @@ local function target_alliance_guard(account,target,is_march,is_resource)
         return nil,failed("Target belongs to own alliance; attack suppressed")
     end
     return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
-        targetAllianceVerified=true,sameAlliance=false}
+        targetAllianceVerified=true,sameAlliance=false,
+        allianceCheckRequired=true}
 end
 
 local function native_selector_target(ctrl,uid)
@@ -402,8 +422,8 @@ local function native_selector_target(ctrl,uid)
     end
     if is_resource and (not integer(member(target,"id")) or
         not integer(member(target,"mainIndex")) or
-        (member(target,"gatherMarchUuid")~=nil and
-         tostring(member(target,"gatherMarchUuid"))~="0")) then
+        member(target,"gatherMarchUuid")==nil or
+        tostring(member(target,"gatherMarchUuid"))~="0") then
         return nil,failed("Native resource selector is occupied or lacks resource identity")
     end
     if is_resource and member(ctrl,"targetUuid")~=nil and
@@ -419,7 +439,8 @@ local function native_selector_target(ctrl,uid)
     if target_server~=nil and tostring(target_server)~=account.server then
         return nil, failed("Native typed selector target belongs to another server")
     end
-    local alliance,alliance_error=target_alliance_guard(account,target,is_army or is_monster,is_resource)
+    local alliance,alliance_error=target_alliance_guard(
+        account,target,is_city or is_army or is_ruin,is_army)
     if not alliance then return nil,alliance_error end
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
         targetOwnerUid=owner,targetServerId=target_server,
@@ -1249,7 +1270,7 @@ local function native_cursor_point(fields, uid)
                 local managed_alliance=member(managed_march,"allianceUid")
                 army.nativeAllianceUidRaw=native_alliance~=nil and tostring(native_alliance) or nil
                 army.managerAllianceUidRaw=managed_alliance~=nil and tostring(managed_alliance) or nil
-                local guard,denial=target_alliance_guard(account,native_march,true,false)
+                local guard,denial=target_alliance_guard(account,native_march,false,true)
                 army.targetAllianceVerified=guard~=nil
                 army.targetAllianceUid=guard and guard.targetAllianceUid or nil
                 army.allianceDenial=denial and denial.error or nil
@@ -1336,6 +1357,41 @@ local function native_hover_target(fields,uid)
     if hit~=nil and tostring(hit)~="0" and hit_id==nil then
         return nil,failed("Native WorldArmy raycast returned an invalid Int64 march identity")
     end
+    local hover_source="WorldScene.GetRaycastHitMarch+WorldTroop.GetMarchUUID+GetMarch"
+    local popup_point,popup_cursor_point
+    -- v26 UIUtil.OnClickWorldTroop resolves the clicked march first, then
+    -- opens/refreshes UIWorldPoint with that exact marchUuid and target tile.
+    -- Some rendered monsters do not expose their WorldArmy collider to the
+    -- subsequent xLua raycast. In that case only reuse the game's *currently
+    -- open* native monster popup when the same physical cursor freshly
+    -- projects onto the popup's native target tile. A stale/moved popup cannot
+    -- provide a target, and the live march/troop is fully revalidated below.
+    if not hit_id and (fields.targetKind==nil or fields.targetKind=="monster") then
+        local selected=selected_world_point()
+        local ctrl=selected and selected.ctrl or nil
+        local popup_uuid=ctrl and member(ctrl,"uuid") or nil
+        local popup_id=exact_march_id(popup_uuid)
+        local point=ctrl and integer(member(ctrl,"pointId")) or nil
+        local popup_server=ctrl and member(ctrl,"serverId") or nil
+        if popup_id and point and
+           (popup_server==nil or number(popup_server)==0 or
+            tostring(popup_server)==account.server) then
+            local ok_world,popup_world=invoke(scene,"GetMarch",popup_uuid)
+            local ok_troop,popup_troop=invoke(scene,"GetTroop",popup_uuid)
+            local ok_monster,is_monster=invoke(popup_troop,"IsMonsterTroop")
+            local ok_boss,is_boss=invoke(popup_troop,"IsWorldBossTroop")
+            if ok_world and popup_world~=nil and ok_troop and popup_troop~=nil and
+               ok_monster and is_monster==true and ok_boss and is_boss==false then
+                local cursor=select(1,native_cursor_point(fields,uid))
+                local cursor_tile=cursor and integer(tonumber(cursor.pointIndex)) or nil
+                if cursor_tile and cursor_tile==point then
+                    hit,hit_id=popup_uuid,popup_id
+                    popup_point,popup_cursor_point=point,cursor_tile
+                    hover_source="UIUtil.OnClickWorldTroop+UIWorldPoint.Ctrl+physical_cursor_tile"
+                end
+            end
+        end
+    end
     local intent=fields.targetKind
     if intent==nil then intent=hit_id and "monster" or "resource" end
     local fresh_account=native_account()
@@ -1381,7 +1437,7 @@ local function native_hover_target(fields,uid)
                 return nil,failed("Hovered monster is owned or on another server")
             end
         end
-        local alliance,alliance_error=target_alliance_guard(account,world_march,true,false)
+        local alliance,alliance_error=target_alliance_guard(account,world_march,false,true)
         if not alliance then return nil,alliance_error end
         local ok_pos,pos=invoke(troop,"GetPosition")
         local transform=member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
@@ -1394,12 +1450,17 @@ local function native_hover_target(fields,uid)
         if not ok_tile or not integer(point) then
             return nil,failed("Hovered monster has no fresh native troop point")
         end
+        if popup_point and
+           (integer(point)~=popup_point or popup_cursor_point~=popup_point) then
+            return nil,failed("Native popup monster no longer matches the physical cursor tile")
+        end
         return {category="ordinary_monster",targetType="ATTACK_MONSTER",
             point=integer(point),uuid=hit,uuidText=hit_id,
             server=account.server,uid=account.uid,scene=scene,
             ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
             pixelX=x,pixelY=y,
-            source="WorldScene.GetRaycastHitMarch+WorldTroop.GetMarchUUID+GetMarch"},nil
+            source=hover_source,nativeCursorRaycastVerified=popup_point==nil,
+            nativePopupTargetVerified=popup_point~=nil},nil
     end
     if intent~="resource" then
         return nil,failed("Unsupported native hover intent")
@@ -1443,8 +1504,8 @@ local function native_hover_target(fields,uid)
         return nil,failed("Native hovered resource record is missing")
     end
     local gathering=member(resource,"gatherMarchUuid")
-    if gathering~=nil and tostring(gathering)~="0" then
-        return nil,failed("Native hovered resource has an existing gathering march")
+    if gathering==nil or tostring(gathering)~="0" then
+        return nil,failed("Native hovered resource occupancy is unknown or occupied")
     end
     if (member(point,"serverId")~=nil and
         tostring(member(point,"serverId"))~=account.server) or
@@ -1452,7 +1513,7 @@ local function native_hover_target(fields,uid)
         tostring(member(resource,"serverId"))~=account.server) then
         return nil,failed("Hovered resource belongs to another server")
     end
-    local alliance,alliance_error=target_alliance_guard(account,resource,false,true)
+    local alliance,alliance_error=target_alliance_guard(account,resource,false,false)
     if not alliance then return nil,alliance_error end
     -- Original MarchUtil.OnGotoCollect -> TryStartMarch(COLLECT,nil,
     -- forcedPoint,pointIndex,resource.mainIndex,...) sends mainIndex as the
@@ -1520,6 +1581,7 @@ local function native_hover_open(fields,input_clear,uid)
     if fresh.uid~=target.uid or fresh.server~=target.server or
        fresh.scene~=target.scene or fresh.category~=target.category or
        fresh.point~=target.point or fresh.uuidText~=target.uuidText or
+       fresh.source~=target.source or
        fresh.ownerAllianceUid~=target.ownerAllianceUid or
        fresh.targetAllianceUid~=target.targetAllianceUid or
        fresh.pixelX~=target.pixelX or fresh.pixelY~=target.pixelY or
@@ -1532,7 +1594,10 @@ local function native_hover_open(fields,input_clear,uid)
     end
     cursor_open_pending={session=current_session,uid=uid,server=account.server,
         kind=fresh.targetType,point=fresh.point,uuid=fresh.uuidText,
-        slot=slot,formation=formation,consumed=false,sentAt=os.time()}
+        slot=slot,formation=formation,consumed=false,sentAt=os.time(),
+        source=fresh.source,
+        nativeCursorRaycastVerified=fresh.nativeCursorRaycastVerified==true,
+        nativePopupTargetVerified=fresh.nativePopupTargetVerified==true}
     local ok,result
     if fresh.targetType=="ATTACK_MONSTER" then
         -- UIWorldPointBtn root/13 line1491 uses (kind,point,uuid,-1,1).
@@ -2125,6 +2190,9 @@ local function attack_from_native_hover(fields,input_clear,uid)
                 slot=tonumber(fields.slot),formationUuid=prior.formation,
                 targetPoint=tostring(prior.point),targetUuid=prior.uuid,
                 ownerUid=uid,sourceServerId=tonumber(account.server),
+                hoverSource=prior.source,
+                nativeCursorRaycastVerified=prior.nativeCursorRaycastVerified,
+                nativePopupTargetVerified=prior.nativePopupTargetVerified,
                 chooserRequestMade=true,
                 requestDispatched=false,nativeSelectorConfirmed=false}}
         end
@@ -2149,8 +2217,9 @@ local function attack_from_native_hover(fields,input_clear,uid)
         if type(result)=="table" and type(result.data)=="table" then
             result.data.ownerUid=uid
             result.data.sourceServerId=tonumber(account.server)
-            result.data.nativeCursorRaycastVerified=true
-            result.data.hoverSource="original_native_WorldArmy_or_WorldResource"
+            result.data.nativeCursorRaycastVerified=prior.nativeCursorRaycastVerified
+            result.data.nativePopupTargetVerified=prior.nativePopupTargetVerified
+            result.data.hoverSource=prior.source
             result.data.awaitingNativeChooser=false
         end
         return result
