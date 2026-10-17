@@ -105,14 +105,36 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "feature018_attack_prepare":
             {
                 string mode = ReadValue(payload,"mode",16);
-                if (mode is not ("inventory" or "open"))
+                if (mode is not ("inventory" or "open" or "staffingEditor"))
                     throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
+                var attackPrepareKeys = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty entry in payload.EnumerateObject())
+                {
+                    bool allowed = entry.Name is "mode" or "profileId" ||
+                        (mode == "open" && entry.Name == "targetUuid") ||
+                        (mode == "staffingEditor" && entry.Name is "slot" or "editorOptIn");
+                    if (!allowed || !attackPrepareKeys.Add(entry.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Native attack readiness accepts only distinct fields for its selected mode.");
+                }
                 fields["mode"] = mode;
                 if (mode == "open")
                 {
                     string uuid = ReadValue(payload,"targetUuid",20);
                     if (!ValidGameUuid(uuid)) throw new BridgeCommandException("INVALID_REQUEST","Invalid native monster UUID.");
                     fields["targetUuid"] = uuid;
+                }
+                if (mode == "staffingEditor")
+                {
+                    if (!payload.TryGetProperty("slot", out JsonElement editorSlot) ||
+                        editorSlot.ValueKind != JsonValueKind.Number ||
+                        !editorSlot.TryGetInt32(out int requested) || requested is < 1 or > 4 ||
+                        !payload.TryGetProperty("editorOptIn", out JsonElement editorConsent) ||
+                        editorConsent.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Current approved formation editor requires squad 1–4 and explicit manual-editor consent.");
+                    fields["slot"] = requested.ToString(CultureInfo.InvariantCulture);
+                    fields["editorOptIn"] = "1";
                 }
                 break;
             }

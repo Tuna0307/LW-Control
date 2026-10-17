@@ -38,6 +38,7 @@ let forceInventoryFailure = false;
 let shieldReads = 0;
 let equipmentActions = 0;
 let equipmentQuerySteps = 0;
+let nativeStaffingEditorOpens = 0;
 let shieldGold = 176;
 let shieldCount = 0;
 let shieldShopSends = 0;
@@ -58,18 +59,30 @@ window.chrome = { webview: {
     if (request.command === "hotkey_config_get") {
       response = { attack: true, attackMarchSpeedupItem: false };
     } else if (request.command === "feature018_attack_prepare") {
-      assert.deepEqual(request.payload,
-        { mode: "inventory", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
-      response = { observation: "native_ordinary_monsters_and_owned_squads",
+      if (request.payload.mode === "staffingEditor") {
+        assert.equal(request.payload.slot, 1);
+        assert.equal(request.payload.editorOptIn, true);
+        assert.equal(request.payload.authorizedUid, undefined);
+        nativeStaffingEditorOpens++;
+        response = { observation: "native_manual_formation_editor_open",
+          slot: 1, formationUuid: "1001", operatorMustSaveInOriginalGame: true,
+          formationSaveSent: false, attackDispatched: false,
+          requestDispatched: false, staffingPreparationPerformed: false };
+      } else {
+        assert.deepEqual(request.payload,
+          { mode: "inventory", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
+        response = { observation: "native_ordinary_monsters_and_owned_squads",
         requestDispatched: false, staffingPreparationPerformed: false,
-        candidates: [], unassignedSoldiers: { observed: true, total: 120 },
-        squads: { "1": { unlocked: true, heroCount: 5, soldierCount: 0,
+        candidates: [], currentSelector: { name: "UIFormationSelectListV2" },
+        unassignedSoldiers: { observed: true, total: 120 },
+        squads: { "1": { unlocked: true, formationUuid: "1001", heroCount: 5, soldierCount: 0,
           formationCapacity: 280, staffedForAttack: false,
           canPrepareWithUnassignedSoldiers: true },
           "2": { unlocked: true, heroCount: 5, soldierCount: 0, formationCapacity: 300,
             staffedForAttack: false, canPrepareWithUnassignedSoldiers: true },
           "3": { unlocked: false }, "4": { unlocked: false } },
-      };
+        };
+      }
     } else if (request.command === "feature018_rapid_action") {
       switch (request.payload.mode) {
         case "inventory":
@@ -250,6 +263,16 @@ assert.match(attackPanel().textContent, /已编入士兵: 0/, "Native zero-staff
 assert.match(attackPanel().textContent, /还没有可核实的出征编队/, "Zero soldiers reported as attack-ready");
 assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 1,
   "QWER read-only readiness initiated more than one source observation");
+assert.equal(nativeStaffingEditorOpens, 0, "Read-only attack inventory opened formation editor");
+const editorConsent = attackPanel().querySelector('input[type="checkbox"]');
+assert.ok(editorConsent, "Confirmed original formation selector had no explicit manual editor consent");
+const editorButton = () => [...attackPanel().querySelectorAll("button")].at(-1);
+assert.equal(editorButton().disabled, true, "Formation editor opened without opt-in");
+await flush(() => editorConsent.click());
+await flush(() => { const button = editorButton(); button.click(); button.click(); });
+assert.equal(nativeStaffingEditorOpens, 1, "Double click opened original native editor twice");
+assert.match(attackPanel().textContent, /未保存编队、未派遣攻击/,
+  "Read-only editor open was falsely classified as saved formation or attack");
 assert.ok(shopPanel(), "Owner-gated shield purchase/use control did not mount");
 assert.equal(shieldReads, 0, "Mounting the Hotkeys page unexpectedly read native shield items");
 await flush(() => shieldPanel().querySelector("button").click());

@@ -690,9 +690,85 @@ function M.AttackTargetPreflight(fields, input_clear)
     return attack_preflight(fields, input_clear, uid)
 end
 
+-- v26 both UIFormationSelectListV2Ctrl.OnEditClick (root/20, 595-621)
+-- and UIFormationSelectListNewCtrl.OnEditClick (root/20, 600-626) open
+-- UIHeroPVPFormation with EnterHeroSquadPanelWay.ToMarch and the native
+-- formation UUID. WARNING: the ORIGINAL OnEditClick passes a completion
+-- callback that invokes OnCheckTime, which can automatically SEND a march.
+-- This explicit, owner-gated UI-only route replaces that dangerous callback
+-- with an inert one. Only the PERSON in the original editor can subsequently
+-- choose to save troops/heroes; no automatic formation assignment or attack.
+local function open_manual_staffing_editor(fields,uid)
+    if fields.editorOptIn~="1" or type(fields.slot)~="string" or
+       not fields.slot:match("^[1-4]$") then
+        return failed("Explicit native formation editor consent and slot 1 to 4 required")
+    end
+    if attacks[fields.slot] or pending[fields.slot] then
+        return failed("Native slot has an unresolved attack or rapid transaction; editor shortcut fenced")
+    end
+    local selector=selected_window()
+    if not selector then
+        return failed("A single original formation selector must already be open")
+    end
+    local ui=selector.ui
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local center=rawget(_G,"DataCenter")
+    local forms=member(center,"ArmyFormationDataManager")
+    local marches=member(center,"WorldMarchDataManager")
+    local ok_form,form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local uuid,native_uuid=ident(member(form,"uuid"))
+    if not ok_form or not uuid then return failed("Native formation slot is locked") end
+    local owner=member(form,"ownerUid")
+    if owner~=nil and ident(owner)~=uid then
+        return failed("Native formation owner mismatch")
+    end
+    local ok_march,march=invoke(marches,"GetOwnerFormationMarch",
+        member(player,"uid"),native_uuid,member(player,"allianceId"))
+    if not ok_march or march~=nil then
+        return failed("Native squad has an existing or unreadable march; no manual editor shortcut")
+    end
+    local name=member(rawget(_G,"UIWindowNames"),"UIHeroPVPFormation")
+    local way=member(rawget(_G,"EnterHeroSquadPanelWay"),"ToMarch")
+    local open=member(ui,"OpenWindow")
+    if not name or way==nil or type(open)~="function" then
+        return unsupported("Original formation editor window/mode unavailable")
+    end
+    local ok_before,already_open=invoke(ui,"IsWindowOpen",name)
+    if not ok_before or already_open~=false then
+        return failed("Native formation editor is already open or cannot be checked")
+    end
+    local again=selected_window()
+    if not again or again.window~=selector.window or again.ctrl~=selector.ctrl then
+        return failed("Original formation selector changed before editing")
+    end
+    local refreshed,refreshed_form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    if not refreshed or ident(member(refreshed_form,"uuid"))~=uuid or
+       (member(refreshed_form,"ownerUid")~=nil and
+        ident(member(refreshed_form,"ownerUid"))~=uid) then
+        return failed("Native formation identity changed before editor open")
+    end
+    local ok_open=pcall(open,ui,name,{anim=true},way,native_uuid,function() end)
+    if not ok_open then
+        return failed("Original native formation editor opening failed")
+    end
+    local ok_after,is_open=invoke(ui,"IsWindowOpen",name)
+    if not ok_after or is_open~=true then
+        return failed("Native formation editor opening not independently observed")
+    end
+    return {state="confirmed",data={
+        observation="native_manual_formation_editor_open",
+        slot=tonumber(fields.slot),formationUuid=uuid,
+        windowName=name,editWay="ToMarch",
+        completionCallback="no_op_prevents_automatic_OnCheckTime_attack",
+        staffingPreparationPerformed=false,formationSaveSent=false,
+        attackDispatched=false,requestDispatched=false,
+        operatorMustSaveInOriginalGame=true}}
+end
+
 function M.Prepare(fields, input_clear)
     local uid, denial = owner_and_focus(fields,input_clear,fields.mode == "inventory")
     if not uid then return denial end
+    if fields.mode=="staffingEditor" then return open_manual_staffing_editor(fields,uid) end
     if fields.mode ~= "inventory" and fields.mode ~= "open" then return failed("Invalid native attack prepare mode") end
     local center = rawget(_G,"DataCenter")
     local manager = member(center,"WorldMarchDataManager")

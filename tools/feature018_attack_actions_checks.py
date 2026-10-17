@@ -218,11 +218,20 @@ def check_original() -> None:
         "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac": (
             "25db92ba9a39791ff8fb500e2b00034f894dc5cf1d98200454e582bb24daa84c",
             {"InitData": ["targetType", "targetPoint", "targetUuid"],
+             "OnEditClick": ["UIHeroPVPFormation", "OpenWindow",
+                             "EnterHeroSquadPanelWay", "ToMarch"],
              "OnAtkClick": ["GetOwnerFormationMarch", "ChangeMarchByType"],
              "GetCurSoldierNum": ["GetOneArmyInfoByUuid", "soldiers", "walk"],
              "CheckCanBattle": ["GetOneArmyInfoByUuid", "GetCurStaminaByUuid"],
              "ChangeMarchByType": ["GetOwnerFormationMarch", "OnAttackArmy",
                                    "OnAttackOtherCity"]}),
+        "UI/UIFormation/UIFormationSelectListNew/Controller/UIFormationSelectListNewCtrl.luac": (
+            "c7081eed53c9d2cc34707b580efcf17287316988dfa5d5696fbb93db2d737fc9",
+            {"OnEditClick": ["UIHeroPVPFormation", "OpenWindow",
+                             "EnterHeroSquadPanelWay", "ToMarch"]}),
+        "UI/UILWHero/UIHeroPVPFormationPanel/Controller/UIHeroPVPFormationPanelCtrl.luac": (
+            "de23c994f10914de2f8a268d27f085aa2d61993efcb48d3253cd851d230b4c35",
+            {"SaveSquad": ["FormationSave", "NormalFormationInfoSave", "SendMessage"]}),
         "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": (
             "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
             {"InitData": ["curTouchPoint", "GetPointInfoByUuid",
@@ -294,6 +303,12 @@ def check_original() -> None:
                 require(any("sourceLine=920 " in x and "'soldiers'" in x for x in instr) and
                         any("sourceLine=956 " in x and "'AutoAddSoldier'" in x for x in instr),
                         "native formation auto-assignment stopped mutating the formation")
+            if name.endswith("UIFormationSelectListV2Ctrl.luac") and name_ == "OnEditClick" or (
+                name.endswith("UIFormationSelectListNewCtrl.luac") and name_ == "OnEditClick"
+            ):
+                require(len(proto["children"]) == 1 and
+                        "OnCheckTime" in proto["children"][0]["constants"],
+                        "native editor completion callback no longer starts a march")
             if name.endswith("UIWorldPointCtrl.luac") and name_ == "InitData":
                 require("ScreenPointToRay" not in constants_seen and
                         "mousePosition" not in constants_seen,
@@ -354,6 +369,15 @@ def test_selected_attack_and_diamond():
             first['data']['nativeTransaction']['nonceStatus']=='awaiting_same_nonce_reply' and
             state['attackSends']==1,
             'native selector did not dispatch fixed own squad exactly once')
+    editor_attempt=module.Prepare(vm.table_from(dict(
+        mode='staffingEditor',slot='1',editorOptIn='1',
+        authorizedUid='3133546747002289',
+        profileId='profile',launchSessionId='launch',
+        challenge='request',gamePid='7020')),vm.globals().input_clear)
+    require(editor_attempt['state']=='failed' and
+            'unresolved attack or rapid transaction' in editor_attempt['error'] and
+            state['attackDelegateCount']==1,
+            'native staffing editor shortcut bypassed a pending attack fence')
     require(call(queryOnly='1')['state']=='accepted' and state['attackDelegateCount']==1,
             'pending attack was resent or falsely confirmed without native march')
     state['existingAbsent']=False
@@ -638,11 +662,96 @@ def test_native_prepare_helper():
             'native configured formation helper was not used or prepare sent gameplay RPC')
 
 
+def test_manual_native_formation_editor_no_automatic_march():
+    # BOTH native V2/New OnEditClick callbacks call OnCheckTime after editor
+    # confirmation. Opening the exact original editor with an inert callback
+    # is the only bounded way to offer owner-driven staffing without turning
+    # editor completion into an unconfirmed attack send.
+    vm=LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    vm.execute("""
+      state.existingAbsent=true
+      state.editOpens=0
+      UIWindowNames={UIFormationSelectListV2='native-selector',
+                     UIFormationSelectListNew='native-selector-new',
+                     UIHeroPVPFormation='native-editor'}
+      EnterHeroSquadPanelWay={ToMarch=9}
+      nativeCtrl={OnEditClick=function()error('unsafe original callback')end,
+                  OnCheckTime=function()
+                    state.attackSends=(state.attackSends or 0)+1
+                  end}
+      nativeWindow={Ctrl=nativeCtrl}
+      manager={
+        IsWindowOpen=function(self,name)
+          if name=='native-selector' then return not state.selectorClosed end
+          if name=='native-editor' then return state.editorOpen or false end
+          return false
+        end,
+        GetWindow=function(self,name)
+          if name=='native-selector' then return nativeWindow end
+          return nil
+        end,
+        OpenWindow=function(self,name,options,way,uuid,callback)
+          assert(name=='native-editor' and options.anim==true
+            and way==9 and uuid==state.formation and type(callback)=='function')
+          state.editOpens=state.editOpens+1
+          state.editorCallback=callback
+          state.editorOpen=true
+        end
+      }
+      UIManager={GetInstance=function()return manager end}
+    """)
+    mod=vm.execute(SOURCE.read_text(encoding="utf-8"))
+    def edit(**extra):
+        fields=dict(mode='staffingEditor',slot='1',editorOptIn='1',
+                    authorizedUid='3133546747002289',profileId='profile',
+                    launchSessionId='launch',challenge='request',gamePid='7020')
+        fields.update(extra)
+        return mod.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    state=vm.globals().state
+    for overrides,expected in (({'editorOptIn':'0'},'failed'),
+                               ({'slot':'4'},'failed'),
+                               ({'authorizedUid':'1000'},'failed')):
+        require(edit(**overrides)['state']==expected and state.editOpens==0,
+                'unadmitted native editor request opened a window')
+    state.existingAbsent=False
+    require(edit()['state']=='failed' and state.editOpens==0,
+            'currently active squad allowed manual editor with unknown subsequent march')
+    state.existingAbsent=True
+    state.selectorClosed=True
+    require(edit()['state']=='failed' and state.editOpens==0,
+            'no original native selector allowed editor launch')
+    state.selectorClosed=False
+    state.inputClear=False
+    require(edit()['state']=='failed' and state.editOpens==0,
+            'native formation editor bypassed game text input guard')
+    state.inputClear=True
+    success=edit()
+    require(success['state']=='confirmed' and
+            success['data']['observation']=='native_manual_formation_editor_open' and
+            success['data']['formationSaveSent'] is False and
+            success['data']['attackDispatched'] is False and
+            success['data']['operatorMustSaveInOriginalGame'] is True and
+            state.editOpens==1 and state['attackSends'] is None and
+            state.rpcCount==0,
+            'native editor not opened once with safe manual-only source contract')
+    vm.execute("state.editorCallback()")
+    require(state['attackSends'] is None and state.rpcCount==0,
+            'original OnEditClick automatic OnCheckTime march callback was reused')
+    require(edit()['state']=='failed' and state.editOpens==1,
+            'second editor launch occurred while native editor already open')
+    state.editorOpen=False
+    state.serverId=2212
+    require(edit()['state']=='failed' and state.editOpens==1,
+            'main server account entered native formation editor')
+
+
 def main():
     check_original()
     test_selected_attack_and_diamond()
     test_attack_sender_correlation_negatives()
     test_native_prepare_helper()
+    test_manual_native_formation_editor_no_automatic_march()
     state, call, inspect = mock()
     inv = inspect()
     require(inv["state"] == "confirmed" and

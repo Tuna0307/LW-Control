@@ -42,6 +42,9 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     squad: "队伍", locked: "未解锁", soldier: "已编入士兵", hero: "英雄",
     capacity: "队伍容量", canStaff: "可以在游戏中手动编入空闲士兵",
     missing: "还没有可核实的出征编队", guard: "真实鼠标光标目标、服务器确认和游戏窗口按键仍须单独核验",
+    editorConsent: "确认仅打开游戏原生编队编辑器；我会在游戏中手动保存，不自动出征",
+    editor: "打开原生编队编辑器", editorOpened: "原生编辑器已打开；未保存编队、未派遣攻击，请在游戏中操作",
+    needSelector: "请先在游戏中打开原生出征队伍选择界面，再重新检查",
   } : {
     title: "Q/W/E/R native attack readiness",
     description: "Inspect current squads, unassigned soldiers and game-owned targets. Does not assign troops or attack.",
@@ -51,17 +54,25 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     canStaff: "Troops may be manually assigned through the game's own formation UI",
     missing: "No eligible native attack formation yet",
     guard: "Physical cursor target, server ACK and game-window shortcut still require separate proof",
+    editorConsent: "Open only the original game formation editor; I will save there myself. Never auto-attack.",
+    editor: "Open native formation editor", editorOpened: "Original editor opened. No troop save or attack dispatched; continue in the game.",
+    needSelector: "First open the game's original march selector, then inspect again.",
   };
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [editorSlot, setEditorSlot] = useState(1);
+  const [editorConsent, setEditorConsent] = useState(false);
+  const [editorOpened, setEditorOpened] = useState(false);
+  const editorInFlight = useRef(false);
   const live = online && !previewEnabled;
-  useEffect(() => { setData(null); setBusy(false); setError(""); },
+  useEffect(() => { setData(null); setBusy(false); setError("");
+    setEditorConsent(false); setEditorOpened(false); editorInFlight.current = false; },
     [live, backendBridge.profileGeneration]);
   async function inspect() {
     if (!live || busy) return;
     const owner = backendBridge.currentProfileOwner();
-    setData(null); setError(""); setBusy(true);
+    setData(null); setError(""); setBusy(true); setEditorOpened(false); setEditorConsent(false);
     try {
       const result = await backendBridge.invokeProfileScoped(
         "feature018_attack_prepare", { mode: "inventory" }, 10000);
@@ -78,6 +89,40 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     } catch (cause) {
       if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
     } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  const editable = data?.currentSelector &&
+    data?.squads?.[String(editorSlot)]?.unlocked === true &&
+    data.squads[String(editorSlot)].canPrepareWithUnassignedSoldiers === true &&
+    !data.squads[String(editorSlot)].marchUuid &&
+    /^[1-9]\d{0,19}$/.test(String(data.squads[String(editorSlot)].formationUuid || ""));
+  async function openEditor() {
+    if (!live || busy || editorInFlight.current || !editable || !editorConsent || editorOpened) return;
+    editorInFlight.current = true;
+    setBusy(true); setError(""); setEditorConsent(false);
+    const owner = backendBridge.currentProfileOwner();
+    const expectedUuid = String(data.squads[String(editorSlot)].formationUuid);
+    try {
+      const opened = await backendBridge.invokeProfileScoped(
+        "feature018_attack_prepare", { mode: "staffingEditor", slot: editorSlot,
+          editorOptIn: true }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (opened?.observation !== "native_manual_formation_editor_open" ||
+          opened.slot !== editorSlot || opened.formationUuid !== expectedUuid ||
+          opened.operatorMustSaveInOriginalGame !== true ||
+          opened.formationSaveSent !== false || opened.attackDispatched !== false ||
+          opened.requestDispatched !== false || opened.staffingPreparationPerformed !== false)
+        throw Error("Native formation editor did not return an exact no-attack receipt");
+      setEditorOpened(true);
+      setData(null);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError(cause.code || cause.message);
+      // A timed-out open may have succeeded. Re-observe the game; do not resend.
+      setData(null);
+    } finally {
+      editorInFlight.current = false;
       if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
     }
   }
@@ -99,7 +144,18 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
       {!Object.values(data.squads).some((row) => row.staffedForAttack === true) ?
         <small>{words.missing}</small> : null}
       <small>{words.guard}</small>
+      {data.currentSelector ? <div>
+        <label>{words.squad} <select value={editorSlot} disabled={busy || editorOpened}
+          onChange={(event) => { setEditorSlot(Number(event.target.value)); setEditorConsent(false); }}>
+          {[1, 2, 3, 4].map((slot) => <option key={slot} value={slot}>{slot}</option>)}
+        </select></label>
+        <label><input type="checkbox" checked={editorConsent} disabled={!editable || busy || editorOpened}
+          onChange={(event) => setEditorConsent(event.target.checked)} /> {words.editorConsent}</label>
+        <div className="mini-game-actions"><button type="button" disabled={!editable || !editorConsent || busy || editorOpened}
+          onClick={() => void openEditor()}>{words.editor}</button></div>
+      </div> : <small>{words.needSelector}</small>}
     </div> : null}
+    {editorOpened ? <span className="hotkey-state enabled" role="status">{words.editorOpened}</span> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
 }

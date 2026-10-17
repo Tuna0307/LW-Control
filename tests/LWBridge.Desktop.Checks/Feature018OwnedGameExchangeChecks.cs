@@ -84,6 +84,24 @@ internal static class Feature018OwnedGameExchangeChecks
             JsonSerializer.SerializeToElement(new { mode = "armUse", slot = 8,
                 shieldReplaceOptIn = true }));
         Require(armReplacement["shieldReplaceOptIn"] == "1", "source-native shield replacement explicit consent lost");
+        var nativeFormationEditor = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "staffingEditor", slot = 2, editorOptIn = true }));
+        Require(nativeFormationEditor.Count == 3 && nativeFormationEditor["slot"] == "2" &&
+            nativeFormationEditor["editorOptIn"] == "1",
+            "original manual formation staffing editor consent/slot not marshalled");
+        foreach (object invalidEditor in new object[]
+        {
+            new { mode = "inventory", slot = 1 },
+            new { mode = "staffingEditor", slot = 2 },
+            new { mode = "staffingEditor", slot = 2, editorOptIn = false },
+            new { mode = "staffingEditor", slot = 0, editorOptIn = true },
+            new { mode = "staffingEditor", slot = 4, editorOptIn = true, targetUuid = "12" },
+            new { mode = "staffingEditor", slot = 1, editorOptIn = true,
+                authorizedUid = "3133546747002212" },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+                    JsonSerializer.SerializeToElement(invalidEditor))));
         foreach (object forged in new object[]
         {
             new { mode = "inspect", slot = 12, gemOptIn = true },
