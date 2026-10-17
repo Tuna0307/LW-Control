@@ -22,7 +22,8 @@ const CITY_LAYOUT_LOCALIZED_ISSUES = new Set([
 ]);
 
 export function CityLayoutPage({ previewState = "", online = false }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const chinese = language?.startsWith("zh");
   const previewEnabled = CITY_LAYOUT_PREVIEW_STATES.has(previewState);
   const fixture = useMemo(() => previewEnabled && previewState !== "city-layout-loading" && previewState !== "city-layout-error" ? previewCityLayoutFixture(previewState) : null, [previewEnabled, previewState]);
   const [liveLayout, setLiveLayout] = useState(null);
@@ -43,6 +44,9 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const [applyConfirmOpen, setApplyConfirmOpen] = useState(false);
   const [applyPreparing, setApplyPreparing] = useState(false);
   const [liveApplyStatus, setLiveApplyStatus] = useState(null);
+  const [restoreReview, setRestoreReview] = useState(null);
+  const [restoreReviewBusy, setRestoreReviewBusy] = useState(false);
+  const restoreReviewInFlight = useRef(false);
   const [reloadRevision, setReloadRevision] = useState(0);
   const draftQueueRef = useRef(Promise.resolve());
   const draftRevisionRef = useRef(fixture?.draftRevision ?? 0);
@@ -445,6 +449,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         return;
       }
       setLiveApplyStatus(result.status);
+      setRestoreReview(null);
     } catch (error) {
       setErrorText(error.message || t("common.actionFailed"));
     } finally { setApplyPreparing(false); }
@@ -456,7 +461,41 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       const result = await backendBridge.invokeProfileScoped("city_layout_apply_cancel", { jobId: applyStatus.jobId });
       if (!result?.accepted || !result?.status) throw new Error("Game did not acknowledge this layout cancellation");
       setLiveApplyStatus(result.status);
+      setRestoreReview(null);
     } catch (error) { setErrorText(error.message || t("common.actionFailed")); }
+  };
+  const inspectOriginalRestoration = async () => {
+    if (previewEnabled || !online || !applyStatus?.jobId ||
+        applyRunning || restoreReviewInFlight.current) return;
+    const jobId = applyStatus.jobId;
+    const owner = backendBridge.currentProfileOwner();
+    restoreReviewInFlight.current = true;
+    setRestoreReviewBusy(true);
+    setRestoreReview(null);
+    setErrorText("");
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        "city_layout_restore_preflight", { jobId }, 10000);
+      requireCityOwner(owner);
+      if (result?.jobId !== jobId || result.preflightOnly !== true ||
+          result.requestDispatched !== false ||
+          result.historicalRequestsReconciled !== false ||
+          typeof result.ready !== "boolean" ||
+          typeof result.restorationRequired !== "boolean" ||
+          typeof result.pendingNativeMove !== "boolean" ||
+          !Array.isArray(result.plannedMoves) ||
+          result.plannedMoves.some((step) =>
+            !/^[1-9]\d{0,19}$/.test(String(step.uuid || "")) ||
+            !Number.isInteger(step.pointId) || step.pointId <= 0))
+        throw new Error("Original City restoration source returned no trustworthy read-only receipt");
+      setRestoreReview(result);
+    } catch (error) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setErrorText(error.message || t("common.actionFailed"));
+    } finally {
+      restoreReviewInFlight.current = false;
+      if (backendBridge.isCurrentProfileOwner(owner)) setRestoreReviewBusy(false);
+    }
   };
 
   useEffect(() => {
@@ -619,6 +658,28 @@ export function CityLayoutPage({ previewState = "", online = false }) {
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>
           <div className="city-layout-changes">{placements.length === 0 ? <span>{t("cityLayout.noChanges")}</span> : placements.map((placement) => { const building = buildingsByUuid.get(placement.uuid); return building ? <div key={placement.uuid}><span>{displayName(building)}</span><small>{t("cityLayout.level", { level: building.level })}</small></div> : null; })}</div>
           {applyRunning ? <div className="city-layout-progress"><span>{t("cityLayout.applyProgress", { current: applyStatus.completedMoves, total: applyStatus.totalMoves })}</span><progress max={applyStatus.totalMoves || 1} value={applyStatus.completedMoves} /><button type="button" onClick={() => void cancelApply()} disabled={previewEnabled || applyStatus.state === "cancelling"}>{t("cityLayout.cancelApply")}</button></div> : null}
+          {applyStatus?.jobId && !applyRunning ? <div className="city-layout-progress" data-feature018-restore-review>
+            <button type="button" disabled={restoreReviewBusy || previewEnabled || !online}
+              onClick={() => void inspectOriginalRestoration()}>
+              {chinese ? "只读核对原始内城布局及复原方案" : "Inspect original-layout restoration (read-only)"}
+            </button>
+            {restoreReview ? <div role="status">
+              <small>{restoreReview.ready
+                ? restoreReview.originalLayoutConfirmed === true
+                  ? chinese ? "原始布局已核实" : "Original layout verified"
+                  : chinese ? "仅生成复原预览，未派遣移动" : "Restoration plan only; no move sent"
+                : chinese ? "复原方案尚不能安全执行" : "Restoration cannot be safely planned"}</small>
+              {restoreReview.issueCode ? <small>{restoreReview.issueCode}</small> : null}
+              {restoreReview.restorationRequired && restoreReview.ready ?
+                <small>{chinese ? "原生规划步骤" : "Source-valid planned steps"}:
+                  {" "}{restoreReview.plannedMoves.length}</small> : null}
+              {restoreReview.historicalUncertaintyInPlan === true ?
+                <small>{chinese ? "含历史回复不明的建筑，禁止推断可安全重发" :
+                  "Historical unresolved building reply: never infer safe resend"}</small> : null}
+              <small>{chinese ? "历史发送无唯一确认，本功能不执行任何移动" :
+                "Historical requests remain uncorrelated; this control never sends a move"}</small>
+            </div> : null}
+          </div> : null}
         </aside>
       </div>
       <footer className="city-layout-footer"><span>{t("cityLayout.draftRevision", { revision: draftRevision })}</span><span>{t("cityLayout.conflicts", { count: issues.length })}</span></footer>

@@ -31,11 +31,13 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     public bool CanHandle(string command) => command is
         "city_layout_snapshot_get" or "city_layout_validate" or "city_layout_apply_start" or
         "city_layout_apply_status" or "city_layout_apply_cancel" or
+        "city_layout_restore_preflight" or
         "monopoly_cell_open" or "mini_land_status" or "mini_sheep_status" or "mini_sheep_board" or
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_input_focus" or
         "feature018_rapid_action" or
+        "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
         "feature018_shield_inventory_get" or
         "feature018_shield_shop" or
@@ -105,19 +107,30 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "feature018_attack_prepare":
             {
                 string mode = ReadValue(payload,"mode",16);
-                if (mode is not ("inventory" or "open" or "staffingEditor" or "selectorTarget"))
+                if (mode is not ("inventory" or "open" or "staffingEditor" or
+                    "selectorTarget" or "attackReadiness"))
                     throw new BridgeCommandException("INVALID_REQUEST","Invalid attack prepare mode.");
                 var attackPrepareKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (JsonProperty entry in payload.EnumerateObject())
                 {
                     bool allowed = entry.Name is "mode" or "profileId" ||
                         (mode == "open" && entry.Name == "targetUuid") ||
+                        (mode == "attackReadiness" && entry.Name == "slot") ||
                         (mode == "staffingEditor" && entry.Name is "slot" or "editorOptIn");
                     if (!allowed || !attackPrepareKeys.Add(entry.Name))
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Native attack readiness accepts only distinct fields for its selected mode.");
                 }
                 fields["mode"] = mode;
+                if (mode == "attackReadiness")
+                {
+                    if (!payload.TryGetProperty("slot", out JsonElement readinessSlot) ||
+                        readinessSlot.ValueKind != JsonValueKind.Number ||
+                        !readinessSlot.TryGetInt32(out int chosen) || chosen is < 1 or > 4)
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Read-only native attack prerequisites require squad slot 1–4.");
+                    fields["slot"] = chosen.ToString(CultureInfo.InvariantCulture);
+                }
                 if (mode == "open")
                 {
                     string uuid = ReadValue(payload,"targetUuid",20);
@@ -136,6 +149,32 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     fields["slot"] = requested.ToString(CultureInfo.InvariantCulture);
                     fields["editorOptIn"] = "1";
                 }
+                break;
+            }
+            case "feature018_relocation_preflight":
+            {
+                // Exactly one currently admitted native F9/F10 action name.
+                // A browser cannot supply a destination, UID, item UUID,
+                // rally target, spending authorization or game identity.
+                var unique = new HashSet<string>(StringComparer.Ordinal);
+                foreach (JsonProperty field in payload.EnumerateObject())
+                {
+                    if (field.Name is not ("action" or "profileId") ||
+                        !unique.Add(field.Name))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Relocation preflight accepts only unique action and routing fields.");
+                }
+                string action = ReadValue(payload, "action", 32);
+                if (action is not ("randomRelocate" or "allianceRelocate"))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Relocation preflight requires original F9 or F10.");
+                if (payload.TryGetProperty("profileId", out JsonElement route) &&
+                    (route.ValueKind != JsonValueKind.String ||
+                     string.IsNullOrWhiteSpace(route.GetString()) ||
+                     route.GetString()!.Length > 128))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Invalid relocation observation profile.");
+                fields["action"] = action;
                 break;
             }
             case "feature018_equipment_snapshot":
@@ -215,6 +254,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 break;
             }
             case "city_layout_apply_cancel":
+            case "city_layout_restore_preflight":
             {
                 string job = ReadValue(payload, "jobId", 128);
                 if (!job.All(c => char.IsAsciiLetterOrDigit(c) || c is '_' or '-'))

@@ -590,6 +590,45 @@ function M.RegisterRapid(feature, frozen_hotkeys)
 end
 
 -- Only the persisted equipment configuration from the currently admitted
+-- Read-only original F9/F10 prerequisite join. A source home-world rally is
+-- not proof of any F10 packet. This handler accepts no item selection, mark,
+-- confirmation or destination from the browser and can NEVER send a move.
+function M.RegisterRelocation(feature, frozen_hotkeys)
+    if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
+       type(frozen_hotkeys) ~= "table" then return false end
+    return feature.RegisterHandler("feature018_relocation_preflight", function(fields)
+        if type(fields) ~= "table" or
+           (fields.action ~= "randomRelocate" and fields.action ~= "allianceRelocate") then
+            return blocked("Original F9/F10 native readonly action required")
+        end
+        local uid,denial=authorized_subaccount()
+        if not uid then return denial end
+        local adapter=rawget(_G,"LWBridgeFeature018RelocationActions")
+        if type(member(adapter,"Readiness"))~="function" then
+            return unavailable("Original native relocation readiness source unavailable")
+        end
+        local native={}
+        for k,v in pairs(fields) do native[k]=v end
+        native.authorizedUid=uid
+        native.slot="0"
+        local ok,result=pcall(adapter.Readiness,native,frozen_hotkeys.TextInputClear,fields.action)
+        if not ok or type(result)~="table" then
+            return blocked("Original native relocation readiness failed closed")
+        end
+        if result.state=="confirmed" then
+            local data=result.data
+            if type(data)~="table" or data.action~=fields.action or
+               data.ownerUid~=uid or data.readOnly~=true or
+               data.requestDispatched~=false or
+               data.relocationConfirmed~=false then
+                return blocked("Native relocation preflight returned an untrusted action claim")
+            end
+        end
+        return result
+    end)
+end
+
+-- Only the persisted equipment configuration from the currently admitted
 -- profile may be examined. This is intentionally NOT an Alt+1..4 apply
 -- producer: current v26 replies cannot correlate per-slot equipment changes.
 -- No caller-provided preset/hero/equipment UUIDs may enter the game sender.

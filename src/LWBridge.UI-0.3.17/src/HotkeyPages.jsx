@@ -48,6 +48,10 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     inspectSelector: "只读核对游戏当前已选择的目标",
     selectedTarget: "原生已选择的目标",
     selectorGuard: "该结果不能证明当前物理鼠标指向此目标；未出征，未调用攻击。",
+    inspectReadiness: "核对选定队伍及目标的全部原生出征条件（只读）",
+    sourceReadiness: "原生编队和已选择目标的来源条件",
+    remainingReasons: "仍缺少的原生条件",
+    cursorUnverified: "即使来源条件全部满足，当前物理鼠标目标、原生服务器回复及行军后状态仍未核实，不能声称已出征。",
   } : {
     title: "Q/W/E/R native attack readiness",
     description: "Inspect current squads, unassigned soldiers and game-owned targets. Does not assign troops or attack.",
@@ -63,6 +67,10 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     inspectSelector: "Read currently selected native target",
     selectedTarget: "Game-selected native target",
     selectorGuard: "This does not prove the current physical mouse target. No attack was dispatched.",
+    inspectReadiness: "Inspect all original selected squad/target prerequisites (read-only)",
+    sourceReadiness: "Original selected squad and target source prerequisites",
+    remainingReasons: "Remaining native prerequisites",
+    cursorUnverified: "Even when source conditions pass, physical cursor target, server reply and fresh owned march still lack proof. No attack was dispatched.",
   };
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -71,17 +79,19 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
   const [editorConsent, setEditorConsent] = useState(false);
   const [editorOpened, setEditorOpened] = useState(false);
   const [nativeTarget, setNativeTarget] = useState(null);
+  const [sourceReadiness, setSourceReadiness] = useState(null);
   const editorInFlight = useRef(false);
   const live = online && !previewEnabled;
   useEffect(() => { setData(null); setBusy(false); setError("");
     setEditorConsent(false); setEditorOpened(false); setNativeTarget(null);
+    setSourceReadiness(null);
     editorInFlight.current = false; },
     [live, backendBridge.profileGeneration]);
   async function inspect() {
     if (!live || busy) return;
     const owner = backendBridge.currentProfileOwner();
     setData(null); setError(""); setBusy(true); setEditorOpened(false);
-    setEditorConsent(false); setNativeTarget(null);
+    setEditorConsent(false); setNativeTarget(null); setSourceReadiness(null);
     try {
       const result = await backendBridge.invokeProfileScoped(
         "feature018_attack_prepare", { mode: "inventory" }, 10000);
@@ -118,6 +128,37 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
           !/^[1-9]\d{0,19}$/.test(String(result.target.uuid || "")))
         throw Error("Original game selector target could not be read independently");
       setNativeTarget(result.target);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
+    } finally {
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  async function inspectAttackReadiness() {
+    if (!live || busy || !data || editorInFlight.current) return;
+    const owner = backendBridge.currentProfileOwner();
+    const selectedSlot = editorSlot;
+    setBusy(true); setError(""); setSourceReadiness(null);
+    try {
+      const result = await backendBridge.invokeProfileScoped(
+        "feature018_attack_prepare",
+        { mode: "attackReadiness", slot: selectedSlot }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (result?.observation !== "native_attack_readonly_prerequisite_inventory" ||
+          result.slot !== selectedSlot || !Array.isArray(result.outstandingReasons) ||
+          result.outstandingReasons.some((reason) => typeof reason !== "string" ||
+            !/^[a-z_]+$/.test(reason)) ||
+          result.sourcePrerequisitesObserved !== (result.outstandingReasons.length === 0) ||
+          result.physicalCursorTargetVerified !== false ||
+          result.safeToDispatchFromPhysicalCursor !== false ||
+          result.serverAcknowledgementCorrelated !== false ||
+          result.serverRequestTokenEchoVerified !== false ||
+          result.nativeMarchPostStateVerified !== false ||
+          result.attackDispatched !== false ||
+          result.requestDispatched !== false ||
+          result.staffingMutationPerformed !== false)
+        throw Error("Source-native attack readiness cannot establish a safe no-send observation");
+      setSourceReadiness(result);
     } catch (cause) {
       if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
     } finally {
@@ -178,13 +219,22 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
       <small>{words.guard}</small>
       {data.currentSelector ? <div>
         <div className="mini-game-actions"><button type="button" disabled={busy || editorOpened}
+          onClick={() => void inspectAttackReadiness()}>{words.inspectReadiness}</button></div>
+        {sourceReadiness ? <div role="status">
+          <small>{words.sourceReadiness}: {sourceReadiness.sourcePrerequisitesObserved ? "✓" : "—"}</small>
+          {sourceReadiness.outstandingReasons.length > 0 ?
+            <small>{words.remainingReasons}: {sourceReadiness.outstandingReasons.join(", ")}</small> : null}
+          <small>{words.cursorUnverified}</small>
+        </div> : null}
+        <div className="mini-game-actions"><button type="button" disabled={busy || editorOpened}
           onClick={() => void inspectSelectedTarget()}>{words.inspectSelector}</button></div>
         {nativeTarget ? <div role="status">
           <small>{words.selectedTarget}: {String(nativeTarget.uuid)} · {String(nativeTarget.point ?? "—")}</small>
           <small>{words.selectorGuard}</small>
         </div> : null}
         <label>{words.squad} <select value={editorSlot} disabled={busy || editorOpened}
-          onChange={(event) => { setEditorSlot(Number(event.target.value)); setEditorConsent(false); }}>
+          onChange={(event) => { setEditorSlot(Number(event.target.value));
+            setEditorConsent(false); setSourceReadiness(null); }}>
           {[1, 2, 3, 4].map((slot) => <option key={slot} value={slot}>{slot}</option>)}
         </select></label>
         <label><input type="checkbox" checked={editorConsent} disabled={!editable || busy || editorOpened}
@@ -474,6 +524,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     shopReply: "观察到一次原生商店回复，但协议没有请求 nonce，无法唯一证明这次购买的服务器归属。",
     shopCache: "只核实游戏本地库存和金币变化；没有唯一匹配的服务器回复。请在游戏中确认。",
     shopAmbiguous: "原生商店回复观察不确定；禁止重复发送。请核对游戏后手动处理。",
+    itemReply: "观察到一次原生道具使用回复，但没有请求 nonce；服务器归属不能唯一确认。",
+    itemCache: "仅核实原生库存减少及保护罩生效；没有唯一匹配的道具使用服务器回复。",
+    itemAmbiguous: "道具使用原生回复归属不明，请勿再次消耗。",
     used: "道具减少及 MAIN_SHIELD 生效均已确认",
     unavailable: "当前没有可用库存或金币。此操作不会自动赚取或购买金币。",
     daily: "当前任务可领取", goldTasks: "奖励类型含金币的任务", signIn: "可领取签到活动",
@@ -493,6 +546,9 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     shopReply: "One matching original shop reply was observed. The protocol has no request nonce, so server causality is unproven.",
     shopCache: "Only cached game inventory/gold changes verified. No uniquely correlated server reply; inspect in the game.",
     shopAmbiguous: "Original shop reply observer became ambiguous. No retry; reconcile in the game.",
+    itemReply: "One matching original ItemUse reply was observed, but the protocol has no request nonce.",
+    itemCache: "Native owned-item debit and shield effect were verified, but no uniquely matched ItemUse reply exists.",
+    itemAmbiguous: "The original ItemUse reply observer is ambiguous. Do not consume another item.",
     used: "Owned item debit and MAIN_SHIELD effect both confirmed.",
     unavailable: "No eligible inventory or in-game gold. This does not earn or purchase gold automatically.",
     daily: "Claimable daily tasks", goldTasks: "Tasks tagged with gold reward type",
@@ -634,16 +690,22 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         result.consumedCount === 1 &&
         result.durationMilliseconds === baseline.duration * 3600000 &&
         result.remainingMilliseconds > 0 &&
-        result.remainingMilliseconds <= result.durationMilliseconds + 15000;
-      if (bought && result.nativeReplyAmbiguous === true) {
+        result.remainingMilliseconds <= result.durationMilliseconds + 15000 &&
+        result.nativeReplyCausalityConfirmed === false &&
+        (result.itemUseProofKind === "matching_original_itemuse_reply_and_shield_poststate_no_nonce"
+          ? result.nativeItemUseReplyObserved === true &&
+            result.nativeItemUseReplyMatched === true && result.nativeItemUseReplyCount === 1
+          : result.itemUseProofKind === "native_cached_shield_inventory_and_MAIN_SHIELD_only" &&
+            result.nativeItemUseReplyMatched !== true);
+      if ((bought || used) && result.nativeReplyAmbiguous === true) {
         // Exact cache differences cannot overcome an interrupted/foreign
         // native handler. Retain the one-shot browser tombstone.
-        setStatus("shopAmbiguous");
+        setStatus(bought ? "shopAmbiguous" : "itemAmbiguous");
       } else if (bought || used) {
         nativePending.current = null;
         setPending(null); setShop(null); setOwned(false);
         setStatus(bought ? "purchased" : "used");
-        setPurchaseProof(bought ? result.purchaseProofKind : "");
+        setPurchaseProof(bought ? result.purchaseProofKind : result.itemUseProofKind);
       } else if (result?.awaitingGameConfirmation === true &&
           result?.requestDispatched === false &&
           (baseline.kind !== "buy" || result.itemId === baseline.itemId)) {
@@ -706,7 +768,12 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
       {purchaseProof === "matching_original_reply_and_cached_poststate_no_nonce"
         ? words.shopReply : words.shopCache}
     </small> : null}
+    {status === "used" && purchaseProof ? <small role="status">
+      {purchaseProof === "matching_original_itemuse_reply_and_shield_poststate_no_nonce"
+        ? words.itemReply : words.itemCache}
+    </small> : null}
     {status === "shopAmbiguous" ? <small role="alert">{words.shopAmbiguous}</small> : null}
+    {status === "itemAmbiguous" ? <small role="alert">{words.itemAmbiguous}</small> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
 }
@@ -838,6 +905,87 @@ function EquipmentNativePreflightPanel({ online, previewEnabled }) {
       <div className="mini-game-actions"><button type="button" disabled={busy || !live}
         onClick={() => void advancePreset(false)}>{words.advance}</button></div></div> : null}
     {confirmed ? <span className="hotkey-state enabled" role="status">{words.success}</span> : null}
+    {error ? <div className="automation-error" role="alert">{error}</div> : null}
+  </article>;
+}
+
+// F9/F10 item and destination eligibility are verified by the original
+// installed game, not browser-supplied bag IDs or world coordinates. This
+// control only reads that provenance; source-home F10 currently routes via
+// MoveCrossServer and must not be represented as a successful relocation.
+function RelocationNativeReadinessPanel({ online, previewEnabled }) {
+  const { language } = useI18n();
+  const chinese = language?.startsWith("zh");
+  const [action, setAction] = useState("randomRelocate");
+  const [receipt, setReceipt] = useState(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const inflight = useRef(false);
+  const live = online && !previewEnabled;
+  useEffect(() => {
+    inflight.current = false;
+    setReceipt(null); setError(""); setBusy(false);
+  }, [live, backendBridge.profileGeneration]);
+  async function inspect() {
+    if (!live || busy || inflight.current) return;
+    inflight.current = true;
+    const owner = backendBridge.currentProfileOwner();
+    setBusy(true); setReceipt(null); setError("");
+    try {
+      const native = await backendBridge.invokeProfileScoped(
+        "feature018_relocation_preflight", { action }, 10000);
+      if (!backendBridge.isCurrentProfileOwner(owner)) return;
+      if (native?.observation !== "original_v26_authenticated_relocation_readiness" ||
+          native.action !== action || native.readOnly !== true ||
+          native.requestDispatched !== false ||
+          native.originalPacketSend !== false ||
+          native.serverReplyObserved !== false ||
+          native.relocationConfirmed !== false ||
+          native.destinationVerified !== false ||
+          native.serverAckAttributable !== false ||
+          native.sourceServerId !== 2289 ||
+          native.selfServerId !== 2289 || native.currentServerId !== 2289 ||
+          String(native.ownerUid) !== "3133546747002289" ||
+          (action === "allianceRelocate" &&
+            (native.actionable !== false ||
+             native.homeDirectRelocationEnabled !== false)))
+        throw Error("Current original F9/F10 source did not provide a read-only verified owner receipt");
+      setReceipt(native);
+    } catch (cause) {
+      if (backendBridge.isCurrentProfileOwner(owner))
+        setError(cause.code || cause.message);
+    } finally {
+      inflight.current = false;
+      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
+    }
+  }
+  return <article className="hotkey-card" data-feature018-relocation-readiness>
+    <h3>{chinese ? "F9/F10 原生迁城条件" : "F9/F10 native relocation prerequisites"}</h3>
+    <p>{chinese ? "读取账号、原生背包道具、游戏提醒和迁城目标来源；不会使用道具或发起迁城。" :
+      "Inspect account, original bag item, game warnings and destination source. Never spends an item or relocates."}</p>
+    <label>{chinese ? "原生快捷键" : "Original shortcut"}
+      <select value={action} disabled={busy}
+        onChange={(event) => { setAction(event.target.value); setReceipt(null); setError(""); }}>
+        <option value="randomRelocate">F9</option>
+        <option value="allianceRelocate">F10</option>
+      </select>
+    </label>
+    <div className="mini-game-actions"><button type="button" disabled={!live || busy}
+      onClick={() => void inspect()}>{chinese ? "只读核对原生迁城条件" :
+      "Inspect native relocation readiness"}</button></div>
+    {receipt ? <div role="status">
+      <small>{chinese ? "已核实道具" : "Owned native item"}:
+        {" "}{receipt.ownerItemPresent === true ? String(receipt.itemId) : "—"}</small>
+      <small>{chinese ? "原始游戏路径" : "Original game route"}:
+        {" "}{receipt.originalNativeRoute || "—"}</small>
+      {receipt.currentBlocker ? <small>{chinese ? "阻碍" : "Blocker"}:
+        {" "}{receipt.currentBlocker}</small> : null}
+      {receipt.chooserRequestEligible === true ?
+        <small>{chinese ? "原生集结点选择器可能可用，但尚未打开、选择或迁城。" :
+          "Original rally chooser may be eligible. It has not been opened, selected or dispatched."}</small> : null}
+      <small>{chinese ? "只完成来源核对；目标、服务器回复和迁城后位置尚未证明。" :
+        "Source prerequisites only. Destination, server acknowledgement and city poststate are unproven."}</small>
+    </div> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
 }
@@ -1210,6 +1358,7 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
         {!isMiniGames && hotkeyConfig ? <ShieldOwnedInventoryPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldNativeActionPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <EquipmentNativePreflightPanel online={online} previewEnabled={previewEnabled} /> : null}
+        {!isMiniGames && hotkeyConfig ? <RelocationNativeReadinessPanel online={online} previewEnabled={previewEnabled} /> : null}
         {isMiniGames ? <article className="hotkey-card">
           <h3>{t("miniGames.treasureChest.title")}</h3>
           <p>{t("miniGames.treasureChest.description")}</p>

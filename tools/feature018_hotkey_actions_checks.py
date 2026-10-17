@@ -322,7 +322,56 @@ def test_wrapped_original_shield_sender():
             "exact game-owned consumption/effect poststate could not confirm")
 
 
+def test_registered_relocation_readonly():
+    lua, actions, _, state, _ = scenario()
+    lua.execute('''
+      state.relocationReads=0
+      LWBridgeFeature018RelocationActions={
+        Readiness=function(fields,clear,action)
+          state.relocationReads=state.relocationReads+1
+          assert(fields.authorizedUid=='3133546747002289')
+          assert(action=='randomRelocate' or action=='allianceRelocate')
+          return {state='confirmed',data={
+            action=action,ownerUid=fields.authorizedUid,readOnly=true,
+            requestDispatched=false,relocationConfirmed=false,
+            observation='native_relocation_readonly_preflight',
+          }}
+        end}
+      feature={handlers={}, RegisterHandler=function(command, handler)
+        if feature.handlers[command]~=nil then return false end
+        feature.handlers[command]=handler
+        return true
+      end}
+    ''')
+    feature=lua.globals().feature
+    require(actions.RegisterRelocation(feature,lua.globals().frozen) is True,
+            "original F9/F10 safe preflight handler missing")
+    require(actions.RegisterRelocation(feature,lua.globals().frozen) is False,
+            "duplicate relocation preflight registration replaced owner handler")
+    handler=feature.handlers["feature018_relocation_preflight"]
+    require(handler(lua.table_from({"action":"unknown"}))["state"]=="failed",
+            "untrusted browser action reached relocation readiness")
+    for expected_count,action in enumerate(("randomRelocate","allianceRelocate"),start=1):
+        result=handler(lua.table_from({"action":action,"authorizedUid":"3133546747002212"}))
+        require(result["state"]=="confirmed" and
+                result["data"]["requestDispatched"] is False and
+                result["data"]["relocationConfirmed"] is False and
+                state["dispatches"]==0 and state["relocationReads"]==expected_count,
+                "read-only relocation handler allowed spoofed owner or an actual move")
+    state["sourceServer"]=2212
+    require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed" and
+            state["relocationReads"]==2,
+            "main server reached original relocation preflight")
+    state["sourceServer"]=2289
+    lua.execute("LWBridgeFeature018RelocationActions.Readiness=function() return "
+                "{state='confirmed',data={action='randomRelocate',ownerUid='3133546747002289',"
+                "readOnly=true,requestDispatched=true,relocationConfirmed=true}} end")
+    require(handler(lua.table_from({"action":"randomRelocate"}))["state"]=="failed",
+            "native preflight forged a relocation dispatch or confirmation")
+
+
 def main():
+    test_registered_relocation_readonly()
     test_original_v26_item_use_ack_limits()
     test_registered_shield_inventory()
     test_wrapped_original_shield_sender()

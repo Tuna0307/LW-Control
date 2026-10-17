@@ -32,6 +32,13 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(city["baseRevision"] == "city-v26-42" &&
                 city["placements"] == "9007199254740993:456;9007199254740994:457",
             "city long identity lost precision across native transport");
+        var restore = Feature018GameCommandService.ReadFields("city_layout_restore_preflight",
+            JsonSerializer.SerializeToElement(new { jobId = "own-city-job-42" }));
+        Require(restore.Count == 1 && restore["jobId"] == "own-city-job-42",
+            "read-only original City restoration did not require exact owner job ID");
+        await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+            Feature018GameCommandService.ReadFields("city_layout_restore_preflight",
+                JsonSerializer.SerializeToElement(new { jobId = "wrong job" }))));
         var shield = Feature018GameCommandService.ReadFields("feature018_hotkey_action",
             JsonSerializer.SerializeToElement(new { action = "shieldUse", slot = 24 }));
         Require(shield["slot"] == "24", "original F8 24-hour binding rejected");
@@ -93,11 +100,48 @@ internal static class Feature018OwnedGameExchangeChecks
             JsonSerializer.SerializeToElement(new { mode = "selectorTarget" }));
         Require(selectedNativeTarget.Count == 1 && selectedNativeTarget["mode"] == "selectorTarget",
             "original selected-target observation forwarded client-supplied targeting fields");
+        var verifiedAttackReadiness = Feature018GameCommandService.ReadFields("feature018_attack_prepare",
+            JsonSerializer.SerializeToElement(new { mode = "attackReadiness", slot = 2 }));
+        Require(verifiedAttackReadiness.Count == 2 &&
+            verifiedAttackReadiness["mode"] == "attackReadiness" &&
+            verifiedAttackReadiness["slot"] == "2",
+            "read-only original attack prerequisites lost native squad slot");
+        foreach (string relocation in new[] { "randomRelocate", "allianceRelocate" })
+        {
+            Dictionary<string, string> readiness = Feature018GameCommandService.ReadFields(
+                "feature018_relocation_preflight",
+                JsonSerializer.SerializeToElement(new { action = relocation, profileId = "approved-runtime" }));
+            Require(readiness.Count == 1 && readiness["action"] == relocation,
+                "authenticated native F9/F10 readiness forwarded untrusted UI fields");
+        }
+        foreach (object invalidRelocation in new object[]
+        {
+            new { action = "randomRelocate", itemUuid = "forged-stack" },
+            new { action = "allianceRelocate", destinationPoint = 501 },
+            new { action = "randomRelocate", authorizedUid = "3133546747002212" },
+            new { action = "allianceRelocate", optIn = true },
+            new { action = "MoveCrossServer" },
+            new { action = "randomRelocate", profileId = "" },
+            new { action = "randomRelocate", profileId = 2 },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_relocation_preflight",
+                    JsonSerializer.SerializeToElement(invalidRelocation))));
+        using (JsonDocument repeatedRelocation = JsonDocument.Parse(
+            "{\"action\":\"randomRelocate\",\"action\":\"allianceRelocate\"}"))
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_relocation_preflight",
+                    repeatedRelocation.RootElement)));
         foreach (object invalidEditor in new object[]
         {
             new { mode = "inventory", slot = 1 },
             new { mode = "selectorTarget", targetUuid = "123" },
             new { mode = "selectorTarget", pointIndex = 1723 },
+            new { mode = "attackReadiness" },
+            new { mode = "attackReadiness", slot = 0 },
+            new { mode = "attackReadiness", slot = 5 },
+            new { mode = "attackReadiness", slot = 1, targetUuid = "forged" },
+            new { mode = "attackReadiness", slot = 1, authorizedUid = "3133546747002212" },
             new { mode = "staffingEditor", slot = 2 },
             new { mode = "staffingEditor", slot = 2, editorOptIn = false },
             new { mode = "staffingEditor", slot = 0, editorOptIn = true },

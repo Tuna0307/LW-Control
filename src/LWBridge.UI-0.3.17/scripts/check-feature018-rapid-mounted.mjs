@@ -59,7 +59,18 @@ window.chrome = { webview: {
     if (request.command === "hotkey_config_get") {
       response = { attack: true, attackMarchSpeedupItem: false };
     } else if (request.command === "feature018_attack_prepare") {
-      if (request.payload.mode === "selectorTarget") {
+      if (request.payload.mode === "attackReadiness") {
+        assert.deepEqual(request.payload,
+          { mode: "attackReadiness", slot: 1,
+            profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
+        response = { observation: "native_attack_readonly_prerequisite_inventory",
+          slot: 1, formationUuid: "1001", sourcePrerequisitesObserved: false,
+          outstandingReasons: ["native_formation_soldiers_or_heroes_unstaffed"],
+          physicalCursorTargetVerified: false, safeToDispatchFromPhysicalCursor: false,
+          serverAcknowledgementCorrelated: false, serverRequestTokenEchoVerified: false,
+          nativeMarchPostStateVerified: false, attackDispatched: false,
+          requestDispatched: false, staffingMutationPerformed: false };
+      } else if (request.payload.mode === "selectorTarget") {
         assert.deepEqual(request.payload,
           { mode: "selectorTarget", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
         response = { observation: "native_typed_formation_selector_readonly",
@@ -145,6 +156,27 @@ window.chrome = { webview: {
         wornByOtherHero: 0, uninstallSlots: 1,
         slots: [{ heroUuid: "12112", slot: 1, state: "replaceRequired" }],
       };
+    } else if (request.command === "feature018_relocation_preflight") {
+      assert.deepEqual(request.payload,
+        { action: request.payload.action,
+          profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId },
+        "Relocation readiness must never accept browser-selected items, UID or targets");
+      const alliance = request.payload.action === "allianceRelocate";
+      assert.equal(alliance || request.payload.action === "randomRelocate", true);
+      response = { observation: "original_v26_authenticated_relocation_readiness",
+        action: request.payload.action, ownerUid: "3133546747002289",
+        sourceServerId: 2289, selfServerId: 2289, currentServerId: 2289,
+        readOnly: true, originalPacketSend: false, requestDispatched: false,
+        serverReplyObserved: false, serverAckAttributable: false,
+        relocationConfirmed: false, destinationVerified: false,
+        originalNativeRoute: alliance ? "MoveCrossServer_BackToSrcServer" : "ItemUse",
+        ownerItemPresent: !alliance, itemId: alliance ? null : "88421",
+        actionable: !alliance, homeDirectRelocationEnabled: false,
+        chooserRequestEligible: false,
+        currentBlocker: alliance
+          ? "Original source-home F10 would send MoveCrossServer, not AllianceMoveCity"
+          : null,
+      };
     } else if (request.command === "feature018_shield_shop") {
       assert.equal(request.payload.slot === 8 || request.payload.slot === 12, true);
       const duration = request.payload.slot;
@@ -185,6 +217,9 @@ window.chrome = { webview: {
           observation: "native_owned_shield_consumption_and_MAIN_SHIELD",
           slot: 8, itemId: "81008", consumedCount: 1,
           durationMilliseconds: 28800000, remainingMilliseconds: 28799000,
+          nativeItemUseReplyObserved: true, nativeItemUseReplyMatched: true,
+          nativeItemUseReplyCount: 1, nativeReplyCausalityConfirmed: false,
+          itemUseProofKind: "matching_original_itemuse_reply_and_shield_poststate_no_nonce",
         } : { awaitingGameConfirmation: true, requestDispatched: false, slot: 8 };
       } else {
         shieldUseSends++;
@@ -256,6 +291,7 @@ const equipPanel = () => document.querySelector("[data-feature018-equipment-pref
 const shieldPanel = () => document.querySelector("[data-feature018-shield-inventory]");
 const attackPanel = () => document.querySelector("[data-feature018-attack-readiness]");
 const shopPanel = () => document.querySelector("[data-feature018-shield-shop]");
+const relocationPanel = () => document.querySelector("[data-feature018-relocation-readiness]");
 const buttons = () => [...panel().querySelectorAll("button")];
 const chooser = () => panel().querySelector('select[aria-label*="拥有的道具"]');
 const consent = () => panel().querySelector('input[type="checkbox"]');
@@ -266,6 +302,7 @@ assert.ok(panel(), "New rapid item workflow did not mount in Hotkeys");
 assert.ok(equipPanel(), "Read-only original equipment preset inspection did not mount");
 assert.ok(shieldPanel(), "Read-only native shield inventory control did not mount");
 assert.ok(attackPanel(), "Native QWER owner staffing panel missing");
+assert.ok(relocationPanel(), "Original F9/F10 relocation source panel missing");
 assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 0,
   "Native attack readiness automatically ran or changed a formation on mount");
 await flush(() => attackPanel().querySelector("button").click());
@@ -275,6 +312,35 @@ assert.match(attackPanel().textContent, /还没有可核实的出征编队/, "Ze
 assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 1,
   "QWER read-only readiness initiated more than one source observation");
 assert.equal(nativeStaffingEditorOpens, 0, "Read-only attack inventory opened formation editor");
+assert.equal(commands.filter((request) =>
+  request.command === "feature018_relocation_preflight").length, 0,
+  "Native relocation readiness unexpectedly ran on mount");
+await flush(() => relocationPanel().querySelector("button").click());
+assert.match(relocationPanel().textContent, /88421/,
+  "F9 native owned item eligibility not shown in read-only UI");
+assert.match(relocationPanel().textContent, /尚未证明/,
+  "Original F9 readiness falsely reported a game relocation");
+const relocationSelector = relocationPanel().querySelector("select");
+await flush(() => {
+  relocationSelector.value = "allianceRelocate";
+  relocationSelector.dispatchEvent(new window.Event("change", { bubbles: true }));
+});
+await flush(() => relocationPanel().querySelector("button").click());
+assert.match(relocationPanel().textContent, /MoveCrossServer_BackToSrcServer/,
+  "Original F10 cross-server packet mismatch hidden from the source read");
+assert.equal(commands.filter((request) =>
+  request.command === "feature018_hotkey_action" &&
+  ["randomRelocate", "allianceRelocate"].includes(request.payload.action)).length, 0,
+  "Relocation source-only inspection dispatched a game item or teleported");
+const readAttackReady = [...attackPanel().querySelectorAll("button")]
+  .find((button) => button.textContent.includes("核对选定队伍及目标的全部原生出征条件"));
+assert.ok(readAttackReady, "Read-only original attack prerequisite join missing");
+await flush(() => readAttackReady.click());
+assert.match(attackPanel().textContent, /native_formation_soldiers_or_heroes_unstaffed/,
+  "Unstaffed real native formation blocker hidden by readiness UI");
+assert.match(attackPanel().textContent, /当前物理鼠标目标、原生服务器回复/,
+  "Source prerequisites were confused with physical attack causality");
+assert.equal(nativeStaffingEditorOpens, 0, "Readiness changed formation or invoked native editor");
 const readSelectedTarget = [...attackPanel().querySelectorAll("button")]
   .find((button) => button.textContent.includes("只读核对游戏当前已选择的目标"));
 assert.ok(readSelectedTarget, "Original native selector read-only inspection absent");
@@ -361,6 +427,8 @@ await flush(() => shopButtons().at(-1).click());
 assert.equal(shieldUseSends, 1, "Owned shield poststate check repeated item use");
 assert.match(shopPanel().textContent, /道具减少及 MAIN_SHIELD 生效均已确认/,
   "Native ItemUse did not require item and MAIN_SHIELD proof");
+assert.match(shopPanel().textContent, /没有请求 nonce/,
+  "Matching original ItemUse callback was reported as uniquely attributed server ACK");
 assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
   "Hotkeys mounting automatically used or inspected consumables");
 assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 0,
