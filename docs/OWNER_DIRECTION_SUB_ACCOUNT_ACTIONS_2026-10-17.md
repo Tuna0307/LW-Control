@@ -3,10 +3,12 @@
 Owner statement (chat, 2026-10-17): "the worker are allow to do anything he want, attack, plundered etc. cause
 this is my sub account. so you can do whatever you want to the account".
 
-Scope recorded by the lead:
-- Account: the game account currently logged into the installed Last War client and used in all MAP-014..017
-  sessions (home server 2212). Record its player name/UID at the start of each live session; if a different
-  account is ever logged in, stop live actions and report.
+Scope recorded by the lead (CORRECTED 2026-10-17 by owner: the lead's first version wrongly named server 2212):
+- **Sub-account = server 2289, UID 3133546747002289** (verified by the worker's R2 login receipt
+  `native-ui-20261017-040607/feature018-account-admission.json`). Actions below are allowed ONLY when the logged-in
+  game reports exactly this UID on server 2289. Check UID+server before every action; on mismatch stop.
+- **Main account = home server 2212: NO account-changing actions ever.** Only read-only observation (e.g. Map
+  scans) is allowed there, exactly as before.
 - Now allowed for feature recovery/testing: normal in-game actions through the game's own client — attacks,
   plunder, marches, claims, sharing, building/upgrades, using in-game items/speedups/gems, joining events,
   relocation/teleport, server switching, mini-games.

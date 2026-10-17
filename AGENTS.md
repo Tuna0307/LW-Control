@@ -1,3 +1,8 @@
+Latest lead correction, 2026-10-17: the SUB-ACCOUNT is server 2289, UID 3133546747002289
+(actions allowed). Server 2212 is the owner's MAIN account: read-only only. Worker does
+FEATURE-RECOVERY-018 R3 live proof on 2289 — see the R2/R3 sections of
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
 Latest lead audit, 2026-10-17: FEATURE-RECOVERY-018 8d99f358 NOT ACCEPTED (no live proof).
 Lead restored owner-session game scripts and archived the stale recovery journal; live work is
 unblocked. Worker does R2 on the same branch/PR #14 — see

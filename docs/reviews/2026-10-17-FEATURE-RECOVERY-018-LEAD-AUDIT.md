@@ -25,3 +25,16 @@ running, the lead restored the three files from the journal's backup
    messages to that HWND), or bring only the task-owned game window forward. Never touch owner windows.
 3. A feature may end NOT_POSSIBLE only with a live-tested reason (not "no provider yet").
 4. Final ZIP from the final commit, report update, status READY_FOR_LEAD_AUDIT or PARTIAL.
+
+## R2 audit — source c12bc5d0 (lead)
+Worker correctly refused all gameplay: the logged-in account was UID 3133546747002289 on server 2289, while the
+lead's authority note wrongly named 2212. Owner confirmed 2289 is the sub-account and 2212 the main account. The
+authority doc is corrected. No action was performed on any account; four live sessions restored original scripts.
+LEAD018-01 (exit restore) fixed in 0982279e. Status remains PARTIAL — no live feature proof yet.
+
+## R3 assignment — same branch/PR #14
+Run the live proof on the sub-account (2289, UID 3133546747002289) now. Replace every server-2212 action gate with
+the exact 2289 UID+server gate; keep 2212 read-only. For each inventoried feature: real before/after proof, or
+NOT_POSSIBLE only with a live-tested reason. Resolve SOURCE_GAP items (Q/W/E/R cursor target, F6/F7/F8 shield
+items, Alt+1-4 equipment, diamond speedups) by live experiments on the sub-account rather than static analysis.
+Final ZIP, report, status READY_FOR_LEAD_AUDIT or PARTIAL.
