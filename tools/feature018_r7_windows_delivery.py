@@ -13,6 +13,7 @@ game can start or that any feature completed an authenticated game action.
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 import os
 from pathlib import Path
@@ -52,6 +53,9 @@ def run(*args: str, cwd: Path = ROOT) -> None:
 
 
 def build() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--round", choices=("R7", "R8"), default="R7")
+    release = parser.parse_args().round
     if os.name != "nt":
         raise RuntimeError("Windows executable delivery requires an actual Windows host")
     if git("branch", "--show-current") != BRANCH or git("status", "--porcelain"):
@@ -67,7 +71,7 @@ def build() -> None:
         if not original_file.is_file() or digest(original_file) != expected:
             raise RuntimeError("Original installed game-script triplet integrity changed: " + name)
 
-    destination = ROOT / "artifacts/feature018" / ("delivery-r7-" + sha[:8])
+    destination = ROOT / "artifacts/feature018" / ("delivery-" + release.lower() + "-" + sha[:8])
     # Never overwrite an earlier attempt or replace any artifact.
     destination.mkdir(parents=True, exist_ok=False)
     frontend = destination / "fresh-ui"
@@ -102,7 +106,7 @@ def build() -> None:
         "sha256": digest(p), "size": p.stat().st_size,
     } for p in all_files}
     manifest = {
-        "task": "FEATURE-RECOVERY-018", "round": "R7",
+        "task": "FEATURE-RECOVERY-018", "round": release,
         "branch": BRANCH, "commit": sha,
         "status": "PARTIAL", "compiledWindowsPe": True,
         "canonicalProductionUiSourceMatched": True,
@@ -112,12 +116,13 @@ def build() -> None:
         "previousDenialsNotRetried": [
             "R4 WinError5 recovery.json.tmp-to-recovery.json",
             "R5 EPERM npm ci unlink esbuild.exe",
+            "R7 PSSecurityException npm.ps1 execution-policy denial",
         ],
         "uiIdentity": identity, "originalGameScriptsSha256": ORIGINAL_HASHES,
         "files": records,
     }
     readme = (
-        "FEATURE-RECOVERY-018 R7 - COMPILED WINDOWS BUILD / PARTIAL\n"
+        f"FEATURE-RECOVERY-018 {release} - COMPILED WINDOWS BUILD / PARTIAL\n"
         "This contains a compiled Windows Desktop executable and its canonical,\n"
         "source-fingerprint-verified Vite frontend plus the native Lua bridge.\n"
         "The app/game startup, user-account state and remaining game-action\n"
@@ -129,12 +134,12 @@ def build() -> None:
         f"Exact committed source: {sha}\n"
         "Status: PARTIAL; see docs/FEATURE_RECOVERY_018_WORKER_REPORT.md\n"
     ).encode()
-    target = destination / ("LW-Control-FEATURE-RECOVERY-018-R7-PARTIAL-" + sha[:12] + ".zip")
+    target = destination / ("LW-Control-FEATURE-RECOVERY-018-" + release + "-PARTIAL-" + sha[:12] + ".zip")
     with zipfile.ZipFile(target, "x", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in all_files:
             archive.write(path, path.relative_to(executable).as_posix())
         archive.writestr("RELEASE-MANIFEST.json", json.dumps(manifest, indent=2).encode())
-        archive.writestr("README-R7-PARTIAL.txt", readme)
+        archive.writestr("README-" + release + "-PARTIAL.txt", readme)
     with zipfile.ZipFile(target) as archive:
         if archive.testzip() is not None:
             raise RuntimeError("Windows archive CRC failed")
@@ -149,7 +154,7 @@ def build() -> None:
         "uiArtifactFingerprint": identity["artifactFingerprint"],
     }
     (destination / "integrity.json").write_text(json.dumps(result, indent=2) + "\n")
-    print("FEATURE018_R7_COMPILED_WINDOWS_SOURCE_MATCHED_PARTIAL", json.dumps(result))
+    print("FEATURE018_" + release + "_COMPILED_WINDOWS_SOURCE_MATCHED_PARTIAL", json.dumps(result))
 
 
 if __name__ == "__main__":
