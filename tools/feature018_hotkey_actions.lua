@@ -157,6 +157,44 @@ local function resolve_squad(slot)
             marches=marches}, nil
 end
 
+local function resolve_pending_recall(slot, pending)
+    local player, uid = current_account()
+    local center = rawget(_G, "DataCenter")
+    local formations = member(center, "ArmyFormationDataManager")
+    local marches = member(center, "WorldMarchDataManager")
+    if uid == nil or formations == nil or marches == nil then
+        return nil, "Native owner/formation/march data unavailable"
+    end
+    if uid ~= pending.uid or player ~= pending.player or center ~= pending.center or
+       marches ~= pending.marches then
+        return nil, "Native recall owner or march manager changed after dispatch"
+    end
+    local ok_formation, formation = invoke(formations, "GetOneArmyInfoByIndex", slot)
+    local formation_id = id_string(member(formation, "uuid"))
+    if not ok_formation or formation_id ~= pending.formation then
+        return nil, "Formation slot changed while its return was pending"
+    end
+    local march_uuid_number = tonumber(pending.uuid)
+    if march_uuid_number == nil or march_uuid_number % 1 ~= 0 then
+        return nil, "Pending march UUID is not a native integer"
+    end
+    -- Once BACK_HOME starts, v26 may immediately stop returning this march
+    -- from GetOwnerFormationMarch even though the exact WorldMarch remains in
+    -- the manager until it reaches home. Query the UUID captured before the
+    -- one-shot OnBackHome call instead of rediscovering a now-empty slot.
+    local ok_fresh, fresh = invoke(marches, "GetMarch", march_uuid_number)
+    if not ok_fresh or not same_march(fresh, uid, formation_id, pending.uuid) then
+        return nil, "Pending authoritative march is no longer available"
+    end
+    local ok_target, target = invoke(fresh, "GetMarchTargetType")
+    if not ok_target or target == nil then
+        return nil, "Pending authoritative march target type unavailable"
+    end
+    return {uuid=pending.uuid, uuid_number=march_uuid_number,
+            uid=uid, formation=formation_id, target=target,
+            slot=slot, player=player, center=center, marches=marches}, nil
+end
+
 local function session_id(fields)
     local keys = {"profileId", "launchSessionId", "challenge", "gamePid"}
     local result = {}
@@ -296,11 +334,22 @@ local function recall(fields, game_input_clear)
        game_input_clear() ~= true) then
         return blocked("Current-game text input focus could not be cleared")
     end
-    local selected, reason = resolve_squad(slot)
-    if selected == nil then return unavailable(reason) end
+    local pending = outstanding[slot]
+    if pending and (pending.uid ~= admitted or pending.server ~= server) then
+        return blocked("Native recall account/server changed after dispatch; earlier return remains unresolved")
+    end
+    local selected, reason
+    if query_only and pending then
+        selected, reason = resolve_pending_recall(slot, pending)
+    else
+        selected, reason = resolve_squad(slot)
+    end
+    if selected == nil then
+        if query_only and pending then return blocked(reason) end
+        return unavailable(reason)
+    end
     local target_enum = member(rawget(_G, "MarchTargetType"), "BACK_HOME")
     if target_enum == nil then return unavailable("Native BACK_HOME target enum unavailable") end
-    local pending = outstanding[slot]
     if pending and (pending.uuid ~= selected.uuid or pending.formation ~= selected.formation) then
         return blocked("Squad changed while its earlier return was pending")
     end

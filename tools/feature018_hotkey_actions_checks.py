@@ -29,6 +29,7 @@ state = {
     playerUid='1183884595002296', focusClear=true, canReturn=true,
     ownerUid='1183884595002296', formationId=1001, candidateFormationId=1001,
     squadUuid=803001, candidateUid='1183884595002296', target=17, dispatches=0,
+        hideFormationMarch=false,
     slot=1, numberOfOwnedShield=2, numberOfOwnedShield12=1,
     numberOfOwnedShield24=1, fallbackCalls=0, inventoryReads=0,
     itemUseCalls=0,
@@ -58,6 +59,7 @@ DataCenter = {
             if uid ~= state.playerUid or formation~=state.formationId then
                 return nil
             end
+            if state.hideFormationMarch then return nil end
             return {uuid=state.squadUuid,ownerUid=state.candidateUid,
                     ownerFormationUuid=state.candidateFormationId,
                     GetMarchTargetType=function(self)return state.target end}
@@ -657,6 +659,19 @@ def test_recall_original_reply_and_queued_poststate():
             data["serverAcknowledgementCorrelated"] is False and
             state["dispatches"] == 1,
             "original identity-matched return reply plus independent poststate contract failed")
+
+    lua, _, _, state, call = scenario()
+    require(call()["state"] == "accepted", "return send unavailable")
+    state["hideFormationMarch"] = True
+    return_reply(lua, state)
+    state["target"] = 77
+    returning = call(query_only=True)
+    require(returning["state"] == "confirmed" and
+            returning["data"]["marchUuid"] == "803001" and
+            returning["data"]["formationUuid"] == "1001" and
+            returning["data"]["nativeReturnReplyMatched"] is True and
+            state["dispatches"] == 1,
+            "query-only recall lost exact pending UUID after formation lookup became empty")
 
     for wrong in (
         {"uuid": 803002}, {"ownerUid": "3133546747002212"},
