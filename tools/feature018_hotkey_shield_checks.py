@@ -27,6 +27,10 @@ state = {
   season = false, meteorite = false, protectEnd = 0,
   serverTime = 1000000, focus = true, failCD = false,
 }
+LuaEntry = {Player = {uid='3133546747002289',
+  GetSourceServerId=function(self) return 2289 end,
+  GetSelfServerId=function(self) return 2289 end,
+  GetCurServerId=function(self) return 2289 end}}
 DataCenter = {
   ItemData = {GetItemList=function(self, t, u)
     assert(t==4 and u==1)
@@ -177,6 +181,61 @@ def main():
     state["items"][2]["itemId"] = 9
     require(command(runtime, module, 8)["state"] == "unsupported" and state["sent"] == 0,
             "ambiguous identical-duration owned item stacks consumed arbitrarily")
+
+    # The game bridge admits a profile, but the mutating Lua producer must
+    # also independently bind exact native player identity and all servers.
+    for expression in (
+        "LuaEntry.Player.uid='3133546747002212'",
+        'LuaEntry.Player.GetSourceServerId=function() return 2212 end',
+        'LuaEntry.Player.GetSelfServerId=function() return 2212 end',
+        'LuaEntry.Player.GetCurServerId=function() return 2212 end',
+        'LuaEntry.Player.GetSelfServerId=nil',
+        'LuaEntry.Player.uid=nil',
+    ):
+        runtime, module, state = run()
+        runtime.execute(expression)
+        require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 0
+                and state["cooldownSets"] == 0,
+                "foreign/missing native owner reached ItemUse: " + expression)
+
+    runtime, module, state = run()
+    require(command(runtime, module, 8)["state"] == "accepted", "baseline owned ItemUse")
+    runtime.execute("LuaEntry.Player.GetCurServerId=function() return 2212 end")
+    require(command(runtime, module, 8, query=True)["state"] == "failed",
+            "read-only ItemUse status used across a main-account transition")
+    require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 1,
+            "unresolved ItemUse resent on the main account")
+    runtime.execute("LuaEntry.Player.GetCurServerId=function() return 2289 end")
+    state["items"][1]["count"] = 1
+    state["effectEnd"][501] = state["serverTime"] + 8 * 3600000
+    require(command(runtime, module, 8, query=True)["state"] == "confirmed" and state["sent"] == 1,
+            "original owner could not safely read independent ItemUse poststate")
+
+    runtime, module, state = run()
+    runtime.execute('''
+      local prior=DataCenter.StatusManager.SetUseShieldCD
+      DataCenter.StatusManager.SetUseShieldCD=function(self)
+        prior(self)
+        LuaEntry.Player.uid='3133546747002212'
+      end
+    ''')
+    require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 0,
+            "game owner changed during cooldown and reached mutable ItemUse")
+
+    runtime, module, state = run()
+    runtime.execute('''
+      local original=SFSNetwork.SendMessage
+      SFSNetwork.SendMessage=function(...) original(...); return false end
+    ''')
+    require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 1,
+            "uncertain native ItemUse boolean result was reported as dispatched")
+    require(command(runtime, module, 8)["state"] == "failed" and state["sent"] == 1,
+            "uncertain false ItemUse result allowed a duplicate")
+    state["items"][1]["count"] = 1
+    state["effectEnd"][501] = state["serverTime"] + 8 * 3600000
+    require(command(runtime, module, 8, query=True)["state"] == "confirmed" and
+            state["sent"] == 1,
+            "uncertain transmitted ItemUse could not be independently verified")
 
     print("FEATURE018_HOTKEY_SHIELD_LUA53_OFFLINE_PASS")
 

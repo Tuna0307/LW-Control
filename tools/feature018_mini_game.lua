@@ -54,13 +54,29 @@ local function is_integer(value)
     return type(value) == "number" and value > 0 and value % 1 == 0
 end
 
+-- The bridge fences its owner lease, but the native account can change while
+-- an asynchronous packet is in flight. Re-read the original Player identity
+-- and every native server getter at dispatch, serialization, reply and proof.
+-- Never trust a request-supplied UID or the currently selected UI profile.
+local function land_owner_verified()
+    local player = member(rawget(_G, "LuaEntry"), "Player")
+    if tostring(member(player, "uid")) ~= "3133546747002289" then return false end
+    for _, getter in ipairs({ "GetSourceServerId", "GetSelfServerId", "GetCurServerId" }) do
+        local ok, server = invoke(player, getter)
+        if not ok or tostring(server) ~= "2289" then return false end
+    end
+    return true
+end
+
 -- v26 SFSNetwork creates a NEW EMPTY message for incoming replies, so the
 -- outbound and inbound message objects cannot be used as a request nonce.
 -- Observe the real serializer and the exact UnlockUserLand reply landId;
 -- never promote PushUnlockLand or a changed next-cell index into this ACK.
 local function install_land_observer()
     if land_observer ~= nil then
-        return land_observer.class.OnCreate == land_observer.create and
+        return package ~= nil and package.loaded ~= nil and
+               package.loaded["Net.Msgs.UnlockUserLandMessage"] == land_observer.class and
+               land_observer.class.OnCreate == land_observer.create and
                land_observer.class.HandleMessage == land_observer.reply
     end
     local path = "Net.Msgs.UnlockUserLandMessage"
@@ -77,6 +93,7 @@ local function install_land_observer()
         if proof ~= nil and tonumber(id) == proof.cellId then
             proof.targetRequestCount = proof.targetRequestCount + 1
             if proof.dispatching then proof.ownRequestObserved = true end
+            if not land_owner_verified() then proof.ownerMismatchSeen = true end
         end
         return original_create(self, id, ...)
     end
@@ -89,6 +106,10 @@ local function install_land_observer()
         if proof ~= nil and land_proof == proof and id == proof.cellId then
             proof.replyCount = proof.replyCount + 1
             proof.replyObserved = true
+            if proof.targetRequestCount ~= 1 or not proof.ownRequestObserved then
+                proof.replyBeforeSoleRequest = true
+            end
+            if not land_owner_verified() then proof.ownerMismatchSeen = true end
             proof.replyLandId = id
             proof.replyErrorCode = member(packet, "errorCode")
             proof.replyNativeState = member(packet, "state")
@@ -97,7 +118,7 @@ local function install_land_observer()
             local ok, row = invoke(manager, "GetLandLockDataById", id)
             local states = rawget(_G, "LandLockState")
             local state = ok and member(row, "state") or nil
-            proof.replyAfterUnlocked = state ~= nil and
+            proof.replyAfterUnlocked = not proof.ownerMismatchSeen and state ~= nil and
                 (state == member(states, "Unlocked") or state == member(states, "Finished"))
         end
         return result
@@ -108,12 +129,15 @@ local function install_land_observer()
     return true
 end
 
-local function land_receipt(id)
+local function land_receipt(id, fresh_unlocked)
     local proof = land_proof
     if proof == nil or proof.cellId ~= id then return nil end
     local intact = land_observer ~= nil and
+        package ~= nil and package.loaded ~= nil and
+        package.loaded["Net.Msgs.UnlockUserLandMessage"] == land_observer.class and
         land_observer.class.OnCreate == land_observer.create and
         land_observer.class.HandleMessage == land_observer.reply
+    local owner_intact = land_owner_verified() and not proof.ownerMismatchSeen
     return {
         requestId = proof.requestId, beforeState = "locked",
         targetRequestCount = proof.targetRequestCount,
@@ -122,8 +146,10 @@ local function land_receipt(id)
         replyLandId = proof.replyLandId, replyErrorCode = proof.replyErrorCode,
         replyNativeState = proof.replyNativeState,
         replyAfterUnlocked = proof.replyAfterUnlocked == true,
-        observerIntact = intact,
-        requestCausalityConfirmed = intact and proof.dispatched == true and
+        observerIntact = intact, accountFenceIntact = owner_intact,
+        freshPostStateVerified = fresh_unlocked == true,
+        requestCausalityConfirmed = intact and owner_intact and fresh_unlocked == true and
+            not proof.replyBeforeSoleRequest and proof.dispatched == true and
             proof.targetRequestCount == 1 and proof.ownRequestObserved == true and
             proof.replyCount == 1 and proof.replyErrorCode == nil and
             proof.replyAfterUnlocked == true,
@@ -132,7 +158,7 @@ local function land_receipt(id)
 end
 
 local function land_confirmed(data)
-    data.requestProof = land_receipt(data.cellId)
+    data.requestProof = land_receipt(data.cellId, data.state == "unlocked")
     return { state = "confirmed", data = data }
 end
 
@@ -207,7 +233,9 @@ local function land_status(fields)
                                { cellId = id })
         end
         local matching_pending = id == last_land_request_id
-        if resolved and matching_pending then
+        local proof = land_receipt(id, resolved)
+        if resolved and matching_pending and proof ~= nil and
+           proof.requestCausalityConfirmed then
             last_land_request_id = nil
             last_observed_unlocked_id = id
         end
@@ -218,7 +246,9 @@ local function land_status(fields)
                               (resolved and "unlocked" or "locked"),
             exactCellLookup = true,
             observation = "native_land_lock_state",
-            awaitingGameConfirmation = not resolved and matching_pending or nil
+            awaitingGameConfirmation = not resolved and matching_pending or nil,
+            awaitingCorrelatedReply = matching_pending and
+                (proof == nil or not proof.requestCausalityConfirmed) or nil
         })
     end
     if not is_integer(last_land_request_id) then
@@ -262,12 +292,17 @@ local function land_status(fields)
     local now = member(row, "state")
     local current_id = last_land_request_id
     if now == member(states, "Unlocked") or now == member(states, "Finished") then
-        last_land_request_id = nil
-        last_observed_unlocked_id = current_id
+        local proof = land_receipt(current_id, true)
+        if proof ~= nil and proof.requestCausalityConfirmed then
+            last_land_request_id = nil
+            last_observed_unlocked_id = current_id
+        end
         return land_confirmed({
             cellId = current_id, cellType = "city_land_lock",
             state = "unlocked", kind = "city_land_lock",
-            observation = "native_land_lock_state"
+            observation = "native_land_lock_state",
+            awaitingCorrelatedReply = proof == nil or
+                not proof.requestCausalityConfirmed
         })
     end
     if now == member(states, "Locked") then
@@ -287,10 +322,18 @@ local function land_unlock_one(fields)
         return blocked("Earlier land unlock is awaiting a native state transition",
                        { cellId = last_land_request_id })
     end
+    if not land_owner_verified() then
+        return blocked("Land unlock requires UID 3133546747002289 on native server 2289")
+    end
+    if type(fields) ~= "table" then
+        return blocked("Land unlock requires a valid native request")
+    end
     local next_land, reason = next_locked_land()
     if next_land == nil then return unsupported(reason) end
     local id, row, land = next_land.id, next_land.row, next_land.manager
-    if fields.expectedCellId ~= nil and tostring(id) ~= fields.expectedCellId then
+    if fields.expectedCellId ~= nil and
+       (type(fields.expectedCellId) ~= "string" or
+        tostring(id) ~= fields.expectedCellId) then
         return blocked("The next locked land ID changed; refresh before acting", { cellId = id })
     end
     local pve_ok, pve = invoke(row, "GetCurPve")
@@ -323,6 +366,9 @@ local function land_unlock_one(fields)
        member(check_row, "state") ~= member(next_land.states, "Locked") then
         return blocked("Land changed before the native request could be sent", { cellId = id })
     end
+    if not land_owner_verified() then
+        return blocked("Native land owner changed before send", { cellId = id })
+    end
     land_proof = { cellId = id, requestId = fields.requestId,
         targetRequestCount = 0, replyCount = 0, dispatching = true }
     -- Latch BEFORE native code: a throw can follow a packet being sent.
@@ -330,9 +376,19 @@ local function land_unlock_one(fields)
     last_land_request_id = id
     local ok, send_result = pcall(send, unlock, id)
     land_proof.dispatching = false
-    land_proof.dispatched = ok and send_result ~= false
+    -- Original v26 SFSNetwork.SendMessage: NewMessage(...) serializes via
+    -- OnCreate before SendLuaMessage. If our exact serializer was not called
+    -- once, packet submission is uncertain even if SendMessage returned.
+    land_proof.dispatched = ok and send_result ~= false and
+        land_proof.ownRequestObserved == true and
+        land_proof.targetRequestCount == 1 and not land_proof.ownerMismatchSeen and
+        land_owner_verified() and install_land_observer()
     if not ok or send_result == false then
         return blocked("Native UnlockUserLand dispatch failed", { cellId = id })
+    end
+    if not land_proof.dispatched then
+        return blocked("Native UnlockUserLand serializer or account changed; send uncertain",
+                       { cellId = id })
     end
     return { state = "accepted", data = {
         cellId = id, cellType = "city_land_lock", kind = "city_land_lock", requestDispatched = true,

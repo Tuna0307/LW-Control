@@ -159,11 +159,13 @@ internal sealed class Feature018OwnedGameExchange
                     if (state is "unsupported" or "failed")
                         throw new BridgeCommandException(
                             Text(result, "errorCode") is { Length: > 0 } code ? code : "GAME_ACTION_FAILED",
-                            Text(result, "error") is { Length: > 0 } message ? message : "Game action failed.");
+                            Text(result, "error") is { Length: > 0 } message ? message : "Game action failed.",
+                            result.TryGetProperty("data", out var diagnostic) ? diagnostic.Clone() : null);
                     // Accepted or queued does not constitute a confirmed game
                     // result and must not be returned as a success.
                     throw new BridgeCommandException("GAME_ACTION_UNCONFIRMED",
-                        "Game did not confirm this action or state read.");
+                        "Game did not confirm this action or state read.",
+                        result.TryGetProperty("data", out var unconfirmed) ? unconfirmed.Clone() : null);
                 }
                 catch (FileNotFoundException) { }
                 catch (DirectoryNotFoundException) { }

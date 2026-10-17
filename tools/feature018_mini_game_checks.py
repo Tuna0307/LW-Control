@@ -68,6 +68,22 @@ class NativeLandAckChecks(unittest.TestCase):
             self.assertEqual(land5["state"], expected)
             self.assertEqual(land6["state"], "locked")
 
+    def test_original_sfs_send_serializes_before_network_submission(self):
+        # v26 SFSNetwork.NewMessage calls the concrete OnCreate packet writer;
+        # ToBinary is evaluated before SendLuaMessage. The land observer may
+        # therefore treat an unobserved OnCreate as uncertain, never accepted.
+        send = self.method("Net/SFSNetwork.luac", "SendMessage")
+        instructions = list(disassemble(send))
+        new = next(i for i, op in enumerate(instructions) if "NewMessage" in op)
+        binary = next(i for i, op in enumerate(instructions) if "ToBinary" in op)
+        binary_call = next(i for i, op in enumerate(instructions)
+                           if i > binary and "CALL" in op and "A=6" in op)
+        dispatched = next(i for i, op in enumerate(instructions)
+                          if i > binary_call and "CALL" in op and "A=3" in op)
+        self.assertLess(new, binary)
+        self.assertLess(binary_call, dispatched,
+                        "native send must serialize before SendLuaMessage invocation")
+
     def test_server_error_is_not_a_land_state_confirmation(self):
         local = self.method("Net/Msgs/UnlockUserLandMessage.luac", "HandleMessage")
         broadcast = self.method("Net/Msgs/PushUnlockLandMessage.luac", "HandleMessage")
@@ -111,6 +127,28 @@ class NativeLandAckChecks(unittest.TestCase):
             self.assertEqual(vm.execute(handler, {}, ok_packet, globals_=source_globals,
                                         upvalues=upvalues), ())
             self.assertEqual(changes, [ok_packet])
+
+    def test_season_four_food_house_read_only_availability_has_native_sources(self):
+        # Original v26 IsVail requires both the current activity and sheepData;
+        # CheckHasGame inspects the native cache/eliminate/stack collections.
+        # These are read-only live-precondition observations, not game success.
+        module = "DataCenter/LWSheep/LWSheepDataManager.luac"
+        activity = self.method(module, "GetActivityData")
+        valid = self.method(module, "IsVail")
+        playable = self.method(module, "CheckHasGame")
+        self.assertTrue({"ActivityListDataManager", "GetActivityDataById", "activityId"}
+                        <= {str(c) for c in activity["constants"]})
+        self.assertTrue({"GetActivityData", "sheepData"}
+                        <= {str(c) for c in valid["constants"]})
+        self.assertTrue({"cache", "eliminate", "stack"}
+                        <= {str(c) for c in playable["constants"]})
+        source = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")
+        status = source.split("local function sheep_status()", 1)[1]
+        status = status.split("local function sheep_board(view)", 1)[0]
+        for original in ("GetActivityData", "IsVail", "GetCurrentLevel", "CheckHasGame"):
+            self.assertIn(original, status)
+        self.assertNotIn("SendMessage", status)
+        self.assertNotIn("OnClickCard", status)
 
     def test_status_supports_explicit_read_only_id_without_implicit_resend(self):
         source = (ROOT / "feature018_mini_game.lua").read_text(encoding="utf-8")

@@ -55,6 +55,10 @@ internal static class Feature018OwnedGameExchangeChecks
             JsonSerializer.SerializeToElement(new { expectedCellId = 6 }));
         Require(targetedLand.Count == 1 && targetedLand["expectedCellId"] == "6",
             "read-only exact previously dispatched land-cell status field lost");
+        var targetedUnlock = Feature018GameCommandService.ReadFields("monopoly_cell_open",
+            JsonSerializer.SerializeToElement(new { expectedCellId = 6 }));
+        Require(targetedUnlock.Count == 1 && targetedUnlock["expectedCellId"] == "6",
+            "one-shot native land unlock must preserve its expected locked cell ID");
         var scopedLand = Feature018GameCommandService.ReadFields("mini_land_status",
             JsonSerializer.SerializeToElement(new { profileId = "approved-runtime", expectedCellId = 6 }));
         Require(scopedLand.Count == 1 && scopedLand["expectedCellId"] == "6",
@@ -78,6 +82,9 @@ internal static class Feature018OwnedGameExchangeChecks
             await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
                 Feature018GameCommandService.ReadFields("mini_land_status",
                     JsonSerializer.SerializeToElement(invalid))));
+        await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+            Feature018GameCommandService.ReadFields("monopoly_cell_open",
+                JsonSerializer.SerializeToElement(new { expectedCellId = 6, gemOptIn = true }))));
         string root = Path.Combine(Path.GetTempPath(), "feature018-exchange-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try

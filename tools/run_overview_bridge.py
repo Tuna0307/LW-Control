@@ -326,6 +326,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         -- this owner's handlers execute. Every later command and async pump
         -- also verifies the current exact sub-account in the native bridge.
         if feature018_previous_owner ~= nil and feature018_previous_owner ~= current_feature_owner then
+            if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
@@ -343,6 +344,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         if feature018_owner_missing_since == nil then
             feature018_owner_missing_since = observed_second
         elseif observed_second - feature018_owner_missing_since >= 3 then
+            if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end

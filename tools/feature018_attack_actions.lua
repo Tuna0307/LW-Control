@@ -105,6 +105,109 @@ local function number(value)
     return nil
 end
 
+local function selected_window()
+    local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
+    if not ok_ui then return nil end
+    local found
+    for _,key in ipairs({"UIFormationSelectListV2","UIFormationSelectListNew"}) do
+        local name=member(rawget(_G,"UIWindowNames"),key)
+        local ok_open,opened=invoke(ui,"IsWindowOpen",name)
+        local ok_window,window=invoke(ui,"GetWindow",name)
+        if name and ok_open and opened==true and ok_window and member(window,"Ctrl") then
+            if found then return nil end -- ambiguous simultaneously open targets
+            found={ui=ui,window=window,ctrl=member(window,"Ctrl"),name=name}
+        end
+    end
+    return found
+end
+
+-- Observation only. Preserve the original static sender, exact arguments,
+-- return values and exceptions. Track ONLY exact pending formation/march,
+-- target kind and target UUID on the two source-native attack routes.
+local observed_send
+local function observe_attack_sender()
+    local net=rawget(_G,"SFSNetwork")
+    local original=member(net,"SendMessage")
+    if original==observed_send then return true end
+    if type(original)~="function" then return false end
+    observed_send=function(route,...)
+        local args=table.pack(...)
+        local defs=rawget(_G,"MsgDefines")
+        local created=route==member(defs,"WorldMarchFormationNew")
+        local changed=route==member(defs,"WorldMarchChange")
+        local matched={}
+        if created or changed then
+            for _,transaction in pairs(attacks) do
+                local identity=created and transaction.formation or transaction.oldUuid
+                if identity and ident(args[1])==identity and args[2]==transaction.kind and
+                   ident(args[3])==transaction.targetUuid then
+                    transaction.sendCount=(transaction.sendCount or 0)+1
+                    transaction.outboundRoute=created and "WorldMarchFormationNew" or "WorldMarchChange"
+                    transaction.outboundFormationOrMarch=ident(args[1])
+                    transaction.outboundTargetType=args[2]
+                    transaction.outboundTargetUuid=ident(args[3])
+                    transaction.outboundPath=type(args[4])=="string" and args[4] or nil
+                    matched[#matched+1]=transaction
+                end
+            end
+        end
+        local returned=table.pack(pcall(original,route,table.unpack(args,1,args.n)))
+        for _,transaction in ipairs(matched) do
+            transaction.senderReturned=returned[1]
+            transaction.senderReturnedFalse=returned[1] and returned[2]==false
+            transaction.senderError=not returned[1] and tostring(returned[2]) or nil
+        end
+        if not returned[1] then error(returned[2],0) end
+        return table.unpack(returned,2,returned.n)
+    end
+    net.SendMessage=observed_send
+    return net.SendMessage==observed_send
+end
+
+local observed_replies={}
+local function observe_attack_replies()
+    for _,name in ipairs({"WorldMarchFormationNewMessage","WorldMarchChangeMessage"}) do
+        if not observed_replies[name] then
+            local ok,class=pcall(require,"Net.Msgs."..name)
+            local original=ok and member(class,"HandleMessage") or nil
+            if type(original)=="function" then
+                local source_route=name=="WorldMarchFormationNewMessage" and
+                    "WorldMarchFormationNew" or "WorldMarchChange"
+                local wrapper=function(self,response,...)
+                    for _,transaction in pairs(attacks) do
+                        -- The same session may contain a separate squad recall
+                        -- or another attack. A change ACK is not a create ACK.
+                        if (transaction.sendCount or 0)>0 and
+                           transaction.outboundRoute==source_route then
+                            transaction.replyObserved=true
+                            transaction.replyMessage=name
+                            transaction.replyErrorCode=member(response,"errorCode") and tostring(member(response,"errorCode")) or nil
+                            transaction.replyUuid=ident(member(response,"uuid"))
+                            transaction.replyOwnerUid=ident(member(response,"ownerUid"))
+                            -- Errors may omit owner/formation IDs. Route-only
+                            -- observations are diagnostic, never success ACKs.
+                            transaction.replyCorrelation="message_route_only"
+                        end
+                    end
+                    return original(self,response,...)
+                end
+                class.HandleMessage=wrapper
+                observed_replies[name]=wrapper
+            end
+        end
+    end
+end
+
+local function transaction_view(transaction)
+    if not transaction then return nil end
+    local view={}
+    for _,key in ipairs({"formation","kind","targetUuid","sendCount","outboundRoute",
+        "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
+        "senderReturned","senderReturnedFalse","senderError","replyObserved","replyMessage",
+        "replyErrorCode","replyUuid","replyOwnerUid","replyCorrelation"}) do view[key]=transaction[key] end
+    return view
+end
+
 local function exact_session(fields)
     if type(fields) ~= "table" then return nil end
     local parts = {}
@@ -417,10 +520,17 @@ function M.Prepare(fields, input_clear)
     local manager = member(center,"WorldMarchDataManager")
     local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok_all, all = invoke(manager,"GetAllMarches")
-    local candidates, squads = {}, {}
+    local candidates, squads, owned_marches = {}, {}, {}
     local function candidate(raw)
         local value = member(raw,"Value") or raw
         local uuid, n = ident(member(value,"uuid"))
+        if uuid and ident(member(value,"ownerUid"))==uid then
+            owned_marches[uuid]={uuid=uuid,ownerUid=uid,
+                formationUuid=ident(member(value,"ownerFormationUuid")),
+                targetUuid=ident(member(value,"targetUuid")),targetType=member(value,"target"),
+                status=member(value,"status"),startTime=number(member(value,"startTime")),
+                endTime=number(member(value,"endTime"))}
+        end
         local monster_id = integer(member(value,"monsterId"))
         if not uuid or not monster_id then return end
         local ok_template, template = invoke(member(center,"MonsterTemplateManager"),"GetMonsterTemplate",monster_id)
@@ -431,7 +541,12 @@ function M.Prepare(fields, input_clear)
         local ok_pos,pos = invoke(troop,"GetPosition")
         local transform = member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
         local ok_tile,tile = false,nil
-        if ok_pos and type(transform) == "function" then ok_tile,tile=pcall(transform,pos) end
+        -- v26 WorldToTileIndex takes the world position AND the target scene.
+        -- Omitting ForceChangeScene.World silently drops otherwise valid targets.
+        local world_scene=member(rawget(_G,"ForceChangeScene"),"World")
+        if ok_pos and type(transform)=="function" and world_scene~=nil then
+            ok_tile,tile=pcall(transform,pos,world_scene)
+        end
         if not ok_fresh or not ok_troop or ident(member(fresh,"uuid")) ~= uuid or
            not ok_tile or not integer(tile) then return end
         candidates[#candidates+1]={uuid=uuid,monsterId=monster_id,level=level,
@@ -452,28 +567,55 @@ function M.Prepare(fields, input_clear)
     for slot=1,4 do
         local ok_form,form=invoke(member(center,"ArmyFormationDataManager"),"GetOneArmyInfoByIndex",slot)
         local uuid,n=ident(member(form,"uuid"))
-        local _,march=invoke(manager,"GetOwnerFormationMarch",member(member(rawget(_G,"LuaEntry"),"Player"),"uid"),n,
+        local lookup_ok,march=invoke(manager,"GetOwnerFormationMarch",member(member(rawget(_G,"LuaEntry"),"Player"),"uid"),n,
             member(member(rawget(_G,"LuaEntry"),"Player"),"allianceId"))
+        local heroes=member(form,"heroes")
+        local hero_count=type(heroes)=="table" and 0 or nil
+        if hero_count then for _ in pairs(heroes) do hero_count=hero_count+1 end end
+        local soldiers=member(form,"soldiers")
+        local soldier_count=type(soldiers)=="table" and 0 or nil
+        if soldier_count then for _,value in pairs(soldiers) do
+            local amount=number(value)
+            if amount and amount>0 then soldier_count=soldier_count+amount end
+        end end
+        local _,local_heroes=invoke(form,"GetLocalHeroesCount")
+        local _,stamina=invoke(member(center,"ArmyFormationDataManager"),"GetCurStaminaByUuid",n)
         squads[tostring(slot)]={unlocked=ok_form and uuid ~= nil,formationUuid=uuid,
             marchUuid=ident(member(march,"uuid")),targetType=member(march,"target"),
-            endTime=number(member(march,"endTime"))}
+            endTime=number(member(march,"endTime")),lookupSucceeded=lookup_ok,
+            formationState=number(member(form,"state")),formationIndex=number(member(form,"index")),
+            heroCount=hero_count,localHeroCount=number(local_heroes),soldierCount=soldier_count,
+            stamina=number(stamina),maxNum=number(member(form,"maxNum")),
+            pendingTransaction=transaction_view(attacks[tostring(slot)])}
+    end
+    local selector=selected_window()
+    local selector_data
+    if selector then
+        selector_data={name=selector.name}
+        for _,key in ipairs({"formationType","targetType","targetPoint","targetUuid","timeIndex",
+            "autoBackHome","selectFormationUuid","currentFormationUuid","targetServerId","defaultMarchIndex"}) do
+            local value=member(selector.ctrl,key)
+            if type(value)=="number" or type(value)=="string" or type(value)=="boolean" then selector_data[key]=value end
+        end
     end
     table.sort(candidates,function(a,b) if a.level~=b.level then return a.level<b.level end return a.uuid<b.uuid end)
     if fields.mode == "open" then
         local selected
         for _,item in ipairs(candidates) do if item.uuid == fields.targetUuid then selected=item end end
         if not selected then return failed("Requested monster is absent from fresh native ordinary-monster candidates") end
-        local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
-        local name=member(rawget(_G,"UIWindowNames"),"UIFormationSelectListV2")
+        local open=member(rawget(_G,"UIUtil"),"OpenFormationSelectUI")
         local kind=member(rawget(_G,"MarchTargetType"),"ATTACK_MONSTER")
-        if not ok_ui or not name or not kind then return unsupported("Native formation selector unavailable") end
-        local ok_open=invoke(ui,"OpenWindow",name,1,kind,selected.pointIndex,tonumber(selected.uuid))
+        if type(open)~="function" or not kind then return unsupported("Native formation selector helper unavailable") end
+        local ok_open=pcall(open,1,kind,selected.pointIndex,tonumber(selected.uuid),nil,nil,nil,2289,0)
         if not ok_open then return failed("Native selector opening failed") end
         return {state="confirmed",data={observation="native_attack_selector_open_invoked",
-            targetUuid=selected.uuid,targetPoint=selected.pointIndex,marchDispatched=false}}
+            targetUuid=selected.uuid,targetPoint=selected.pointIndex,targetServerId=2289,
+            source="UIUtil.OpenFormationSelectUI",marchDispatched=false}}
     end
     return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",
-        candidates=candidates,squads=squads,requestDispatched=false}}
+        candidates=candidates,squads=squads,ownedMarches=owned_marches,
+        currentSelector=selector_data,playerUidNativeType=type(member(member(rawget(_G,"LuaEntry"),"Player"),"uid")),
+        requestDispatched=false}}
 end
 
 -- Diamond template metadata is also read-only: the original CellsCallBack
@@ -673,6 +815,12 @@ local function attack_selected(fields, input_clear, uid)
     if prior then
         if prior.uid ~= uid or prior.formation ~= formation or
            prior.session ~= current_session then return failed("Pending attack session/formation changed") end
+        if prior.senderReturnedFalse or prior.senderError or
+           prior.replyErrorCode or (prior.sendCount or 0)>1 then
+            local result=failed("Native attack sender or route may have failed; observe retained transaction before retry")
+            result.data={nativeTransaction=transaction_view(prior)}
+            return result
+        end
         if prior.receipt then
             local copy={}
             for k,v in pairs(fields) do copy[k]=v end
@@ -699,7 +847,8 @@ local function attack_selected(fields, input_clear, uid)
         local fresh, uuid = fresh_owned(existing)
         local ok_type, kind = invoke(fresh,"GetMarchTargetType")
         local start_time = number(member(fresh,"startTime"))
-        if fresh and ok_type and kind == prior.kind and
+        if fresh and ok_type and kind == prior.kind and prior.sendCount==1 and
+           prior.senderReturned==true and prior.senderReturnedFalse~=true and
            ident(member(fresh,"targetUuid")) == prior.targetUuid and
            (not prior.oldUuid or uuid ~= prior.oldUuid or
             start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
@@ -709,7 +858,8 @@ local function attack_selected(fields, input_clear, uid)
                 targetUuid=prior.targetUuid,targetType=kind,
                 targetSource="open_native_formation_selector",currentCursorVerified=false,
                 priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
-                currentStartTime=start_time,requestDispatched=false}
+                currentStartTime=start_time,requestDispatched=false,
+                transaction=transaction_view(prior)}
             if prior.allowItem or prior.allowDiamond then
                 local options=owned_speedup_items()
                 local chosen
@@ -742,23 +892,20 @@ local function attack_selected(fields, input_clear, uid)
             return {state="confirmed",data=receipt}
         end
         return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
-            awaitingGameConfirmation=true,requestDispatched=false}}
+            awaitingGameConfirmation=true,requestDispatched=false,
+            nativeTransaction=transaction_view(prior)}}
     end
     if fields.queryOnly == "1" then return failed("No pending native attack to observe") end
-    local ui_type = rawget(_G,"UIManager")
-    local ok_ui, ui = invoke(ui_type,"GetInstance")
-    local name = member(rawget(_G,"UIWindowNames"),"UIFormationSelectListV2")
-    local ok_open, opened = invoke(ui,"IsWindowOpen",name)
-    local ok_window, window = invoke(ui,"GetWindow",name)
-    local ctrl = member(window,"Ctrl")
+    local selector=selected_window()
+    local window=selector and selector.window
+    local ctrl=selector and selector.ctrl
     local target_uuid, target_number = ident(member(ctrl,"targetUuid"))
     local kind = member(ctrl,"targetType")
     local kinds = rawget(_G,"MarchTargetType")
     local is_city = kind ~= nil and kind == member(kinds,"ATTACK_CITY")
     local is_army = kind ~= nil and kind == member(kinds,"ATTACK_ARMY")
     local is_monster = kind ~= nil and kind == member(kinds,"ATTACK_MONSTER")
-    if not ok_ui or not name or not ok_open or opened ~= true or
-       not ok_window or not ctrl or not target_uuid or
+    if not selector or not ctrl or not target_uuid or
        not (is_city or is_army or is_monster) then
         return failed("Open the native attack formation selector on a current city/army/monster target first")
     end
@@ -786,15 +933,27 @@ local function attack_selected(fields, input_clear, uid)
        member(ctrl,"targetType") ~= kind or ident(member(ctrl,"targetUuid")) ~= target_uuid then
         return failed("Native selector changed immediately before attack")
     end
+    if not observe_attack_sender() then return unsupported("Native attack sender observation unavailable") end
+    observe_attack_replies()
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
-        allowDiamond=fields.allowRapidDiamond=="1"}
-    local ok = invoke(ctrl,method,form_number)
-    if not ok then return failed("Original native attack controller rejected invocation; do not retry until observed") end
+        allowDiamond=fields.allowRapidDiamond=="1",sendCount=0}
+    local ok, invocation_result = invoke(ctrl,method,form_number)
+    local transaction=attacks[fields.slot]
+    if not ok or invocation_result==false or transaction.senderError or
+       transaction.senderReturnedFalse or transaction.sendCount>1 then
+        -- A thrown controller, a false sender result or duplicate observation
+        -- may still have changed native state. Keep the fence and allow only
+        -- independent observation; never authorize an automatic second send.
+        local result=failed("Original native attack controller or sender failed; observe retained transaction before retry")
+        result.data={nativeTransaction=transaction_view(transaction)}
+        return result
+    end
     return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
         targetUuid=target_uuid,targetType=kind,requestDispatched=false,accepted=true,
         nativeControllerInvoked=true,
+        nativeTransaction=transaction_view(attacks[fields.slot]),
         awaitingGameConfirmation=true,targetSource="open_native_formation_selector",
         currentCursorVerified=false}}
 end

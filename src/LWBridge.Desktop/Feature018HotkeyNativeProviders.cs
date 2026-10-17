@@ -240,6 +240,12 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("relocationConfirmed", out var relocated) && relocated.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("replyObserved", out var reply) && reply.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("ownerUid", out var moveOwner) && moveOwner.GetString() == LWBridgeWindow.Feature018ApprovedGameUid &&
+                    evidence.TryGetProperty("sourceServerId", out var moveServer) && moveServer.TryGetInt32(out int moveServerId) &&
+                    moveServerId == LWBridgeWindow.Feature018ApprovedServerId &&
+                    evidence.TryGetProperty("beforeWorldPointId", out var beforePoint) && beforePoint.TryGetInt64(out long oldPoint) &&
+                    evidence.TryGetProperty("afterWorldPointId", out var afterPoint) && afterPoint.TryGetInt64(out long newPoint) &&
+                    oldPoint is >= 0 and < 10000000 && newPoint is >= 0 and < 10000000 && oldPoint != newPoint &&
                     IsNativeUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
                     evidence.TryGetProperty("beforeCount", out var beforeItem) && beforeItem.TryGetInt32(out int beforeMoveCount) &&
                     evidence.TryGetProperty("afterCount", out var afterItem) && afterItem.TryGetInt32(out int afterMoveCount) &&

@@ -306,7 +306,6 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             }
             case "city_layout_snapshot_get":
             case "city_layout_apply_status":
-            case "monopoly_cell_open":
             case "mini_sheep_status":
             case "mini_sheep_board":
             case "mini_chest_position":
@@ -332,6 +331,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Shield inventory inspection accepts no spend arguments.");
                 break;
+            case "monopoly_cell_open":
             case "mini_land_status":
                 // An accepted UnlockUserLand packet is not a successful
                 // land transition. The native producer can inspect the exact
@@ -345,7 +345,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                       string.IsNullOrWhiteSpace(landProfile.GetString()) ||
                       landProfile.GetString()!.Length > 128)))
                     throw new BridgeCommandException("INVALID_REQUEST",
-                        "Land status accepts only its routing profile and native target cell ID.");
+                        "Land operation accepts only its routing profile and native target cell ID.");
                 if (payload.TryGetProperty("expectedCellId", out JsonElement cell))
                 {
                     if (cell.ValueKind != JsonValueKind.Number ||

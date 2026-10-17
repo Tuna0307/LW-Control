@@ -10,6 +10,11 @@ from lupa.lua53 import LuaRuntime
 FIXTURE = r'''
 LandLockState={Locked=1, Unlocked=2, Finished=3}
 LandLockCondition={Unknown=0}
+Account={uid='3133546747002289',source=2289,selfServer=2289,current=2289}
+LuaEntry={Player={uid=Account.uid,
+  GetSourceServerId=function() return Account.source end,
+  GetSelfServerId=function() return Account.selfServer end,
+  GetCurServerId=function() return Account.current end}}
 local row={state=1, GetCurPve=function() return 0 end}
 Row=row
 DataCenter={LandLockManager={Enabled=function() return true end,
@@ -69,7 +74,12 @@ class LandPacketChecks(unittest.TestCase):
         self.assertTrue(proof['requestCausalityConfirmed'])
         self.assertEqual(proof['replyLandId'], 6)
         self.assertTrue(proof['replyAfterUnlocked'])
+        self.assertTrue(proof['accountFenceIntact'])
+        self.assertTrue(proof['freshPostStateVerified'])
         self.assertEqual(lua.globals().SendCount, 1)
+        # The next native action can only start after a matching reply and
+        # fresh exact-row proof retired the latch.
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'unsupported')
 
     def test_unrelated_reply_and_external_poststate_never_prove_causality(self):
         lua, mod = self.start()
@@ -78,6 +88,92 @@ class LandPacketChecks(unittest.TestCase):
         proof = self.proof(lua, mod)
         self.assertFalse(proof['replyObserved'])
         self.assertFalse(proof['requestCausalityConfirmed'])
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 1)
+        self.assertTrue(mod.LandStatus(lua.table())['data']['awaitingCorrelatedReply'])
+
+    def test_external_change_cannot_release_latch_through_implicit_status(self):
+        lua, mod = self.start()
+        lua.execute('Row.state=3')
+        status = mod.LandStatus(lua.table())
+        self.assertEqual(status['data']['state'], 'unlocked')
+        self.assertTrue(status['data']['awaitingCorrelatedReply'])
+        self.assertFalse(status['data']['requestProof']['requestCausalityConfirmed'])
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 1)
+
+    def test_native_account_fence_rejects_uid_and_every_server_getter(self):
+        lua, mod = fixture()
+        lua.execute("LuaEntry.Player.uid='3133546747002212'")
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        for getter in ('source', 'selfServer', 'current'):
+            lua.globals().Account[getter] = 2212
+            self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+            lua.globals().Account[getter] = 2289
+        self.assertEqual(lua.globals().SendCount, 0)
+
+    def test_owner_changes_during_preflight_before_dispatch(self):
+        lua, mod = fixture()
+        lua.execute("local old=DataCenter.LandLockManager.GetLandLockDataById; "
+                    "DataCenter.LandLockManager.GetLandLockDataById=function(...) "
+                    "Account.current=2212; return old(...) end")
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 0)
+
+    def test_reply_arriving_on_other_account_never_credits_owner(self):
+        lua, mod = self.start()
+        lua.execute("LuaEntry.Player.uid='3133546747002212'")
+        lua.globals().Reply(6, 2, None)
+        lua.execute("LuaEntry.Player.uid='3133546747002289'")
+        proof = self.proof(lua, mod)
+        self.assertFalse(proof['accountFenceIntact'])
+        self.assertFalse(proof['requestCausalityConfirmed'])
+        self.assertTrue(mod.LandStatus(lua.table())['data']['awaitingCorrelatedReply'])
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 1)
+
+    def test_owner_changes_at_serialization_latches_uncertain_send(self):
+        lua, mod = fixture()
+        lua.execute("SFSNetwork.SendMessage=function(command,id) "
+                    "SendCount=SendCount+1; Account.selfServer=2212; "
+                    "NativeClass.OnCreate({},id); Account.selfServer=2289 end")
+        result = mod.LandUnlockOne(lua.table())
+        self.assertEqual(result['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 1)
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        lua.globals().Reply(6, 2, None)
+        self.assertFalse(self.proof(lua, mod)['requestCausalityConfirmed'])
+
+    def test_missing_serializer_observation_is_uncertain_not_accepted(self):
+        lua, mod = fixture()
+        lua.execute("SFSNetwork.SendMessage=function() SendCount=SendCount+1 end")
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 1)
+
+    def test_reloaded_native_packet_class_invalidates_observer_proof(self):
+        lua, mod = self.start()
+        lua.globals().Reply(6, 2, None)
+        lua.execute("package.loaded['Net.Msgs.UnlockUserLandMessage']={OnCreate=OriginalCreate, "
+                    "HandleMessage=OriginalReply}")
+        self.assertFalse(self.proof(lua, mod)['observerIntact'])
+        self.assertFalse(self.proof(lua, mod)['requestCausalityConfirmed'])
+        self.assertEqual(mod.LandUnlockOne(lua.table())['state'], 'failed')
+
+    def test_stale_or_nonmatching_explicit_target_never_sends(self):
+        lua, mod = fixture()
+        for invalid in ('5', '06', 6, '', '-1', '10001'):
+            result = mod.LandUnlockOne(lua.table_from({'expectedCellId': invalid}))
+            self.assertEqual(result['state'], 'failed')
+        self.assertEqual(lua.globals().SendCount, 0)
+
+    def test_late_relocked_row_does_not_keep_stale_success_receipt(self):
+        lua, mod = self.start()
+        lua.globals().Reply(6, 2, None)
+        self.assertTrue(self.proof(lua, mod)['requestCausalityConfirmed'])
+        lua.execute('Row.state=1')
+        self.assertFalse(self.proof(lua, mod)['requestCausalityConfirmed'])
 
     def test_duplicate_native_target_request_invalidates_correlation(self):
         lua, mod = self.start()

@@ -46,9 +46,23 @@ internal sealed partial class LWBridgeWindow
                     RandomRelocate = true, AllianceRelocate = true }, JsonOptions.Default), token);
             await Save();
             DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(13);
+            DateTimeOffset? missingOwnerSince = null;
             while (DateTimeOffset.UtcNow < expires)
             {
-                Owned();
+                token.ThrowIfCancellationRequested();
+                // A heartbeat may briefly disappear while the native producer
+                // rewrites it at login/scene transitions. A missing heartbeat
+                // must never admit commands, but it must not abort the owned
+                // proof before any operation is queued either.
+                if (!IsOwner())
+                {
+                    missingOwnerSince ??= DateTimeOffset.UtcNow;
+                    if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(15))
+                        throw new InvalidDataException("Staged proof lost its exact 2289 owner for 15 seconds.");
+                    await Task.Delay(200, token);
+                    continue;
+                }
+                missingOwnerSince = null;
                 if (!File.Exists(queue)) { await Task.Delay(200, token); continue; }
                 JsonDocument request;
                 try { request = JsonDocument.Parse(await File.ReadAllTextAsync(queue, token)); }
@@ -84,16 +98,20 @@ internal sealed partial class LWBridgeWindow
                         else if (kind == "key")
                         {
                             string binding = root.GetProperty("binding").GetString()!;
+                            Feature018HotkeyIntent expected = Feature018OwnedWindowKeys.ExpectedIntent(binding)
+                                ?? throw new InvalidDataException("Unknown original hotkey binding");
                             int before = feature018R2KeyOutcomes.Count;
                             var sent = await Feature018OwnedWindowKeys.PressAsync(owner, binding,
                                 IsOwner, () => feature018InputClear &&
                                     feature018Capture?.IsExactForegroundOwner() == true &&
                                     DateTimeOffset.UtcNow - feature018InputObservedAt < TimeSpan.FromMilliseconds(280), token);
                             if (sent.Pressed)
-                                for (int i = 0; i < 100 && feature018R2KeyOutcomes.Count == before; i++)
+                                for (int i = 0; i < 180 && !feature018R2KeyOutcomes.ToArray().Skip(before).Any(
+                                    item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot); i++)
                                 { Owned(); await Task.Delay(250, token); }
                             result = new { delivered = sent,
-                                outcomes = feature018R2KeyOutcomes.ToArray().Skip(before).ToArray() };
+                                outcomes = feature018R2KeyOutcomes.ToArray().Skip(before).Where(
+                                    item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot).ToArray() };
                         }
                         else if (kind == "tab")
                         {
@@ -118,6 +136,7 @@ internal sealed partial class LWBridgeWindow
                     {
                         log.Add(new { id, kind, request = root.Clone(), state = "failed",
                             code = error is BridgeCommandException native ? native.Code : null,
+                            details = error is BridgeCommandException diagnostic ? diagnostic.Details : null,
                             error = error.Message, observedAtUtc = DateTimeOffset.UtcNow });
                     }
                     await Save();

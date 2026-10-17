@@ -118,6 +118,11 @@ DataCenter={
 }
 MsgDefines={WorldMarchRapid=173}
 SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
+ if route==99 then
+  assert(uuid==state.formation and itemid==17 and buy==990123)
+  state.attackSends=(state.attackSends or 0)+1
+  return
+ end
  assert(route==173 and uuid==state.uuid and ((itemid==3108 and buy==false) or (itemid==9999 and buy==true)))
  state.rpcCount=state.rpcCount+1
  state.rpcArgs={route,uuid,itemid,buy}
@@ -181,8 +186,18 @@ def check_original() -> None:
             "d3c3bb47b11e555ccd646510628c2e428000436ffa8bc8bac290a1320094e245",
             {"OnAttackOtherCity": ["GetPointInfo", "TryStartMarch"],
              "OnAttackArmy": ["GetTroop", "TryStartMarch"],
+             "SendCreateMarchToServer": ["WorldMarchFormationNew", "SendMessage"],
+             "SendChangeMarchToServer": ["WorldMarchChange", "SendMessage"],
              "TryStartMarch": ["GetCostStaminaByTargetType", "CheckFormation",
                                "SendCreateMarchMessage", "StartMarch"]}),
+        "Util/UIUtil.luac": (
+            "73c1da103424ae1f7156f9988ef3498925418890fec8b3e2837a2a885d1cbf3f",
+            {"OpenFormationSelectUI": ["formation_v2_switch",
+                                        "UIFormationSelectListV2",
+                                        "UIFormationSelectListNew", "OpenWindow"]}),
+        "DataCenter/MonsterManager/MonsterTemplateManager.luac": (
+            "2b6d67baea00cf54e99df638e2f175cf4504ebc08e27a1e9150fbfbe5fa54f96",
+            {"GetMonsterTemplate": [], "TryGetMonsterTemplate": []}),
         "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac": (
             "25db92ba9a39791ff8fb500e2b00034f894dc5cf1d98200454e582bb24daa84c",
             {"InitData": ["targetType", "targetPoint", "targetUuid"],
@@ -210,6 +225,9 @@ def check_original() -> None:
             "69dec0f3e14286770c728a2b42d8542f8f3b9e0f493bc2bcb75c9cf4f69a8dd9",
             {"HandleMessage": ["errorCode", None, "SceneManager", "World",
                                "HandleFormationMarch", "FetchFormationSoldier"]}),
+        "Net/Msgs/WorldMarchChangeMessage.luac": (
+            "71453f2d7287ddb1f012e05cea71755f6bc704971a59425b6c54834c96fe8160",
+            {"HandleMessage": ["errorCode", None, "HandleFormationMarchChange"]}),
     }
     for name, (digest, methods) in expectations.items():
         require(hashlib.sha256(entries[name]).hexdigest() == digest,
@@ -236,6 +254,16 @@ def check_original() -> None:
                 require(source_guard < source_apply and
                         "sourceLine=126 " in instructions[source_apply],
                         "native march response success guard/apply route changed")
+            if name.endswith("MarchUtil.luac") and name_ in (
+                    "SendCreateMarchToServer", "SendChangeMarchToServer"):
+                route = ("WorldMarchFormationNew" if name_ == "SendCreateMarchToServer"
+                         else "WorldMarchChange")
+                line = ("sourceLine=2012 " if name_ == "SendCreateMarchToServer"
+                        else "sourceLine=2064 ")
+                instructions = disassemble(proto)
+                require(any(line in x and f"'{route}'" in x for x in instructions) and
+                        any(line in x and "'SendMessage'" in x for x in instructions),
+                        f"native {name_} does not dispatch the source-backed route")
 
 
 def test_selected_attack_and_diamond():
@@ -249,9 +277,11 @@ def test_selected_attack_and_diamond():
       nativeCtrl.OnCreateClick=function(self,formation)
         assert(formation==state.formation)
         state.attackDelegateCount=state.attackDelegateCount+1
+        SFSNetwork.SendMessage(99,formation,17,990123,'current-path')
       end
       nativeCtrl.OnAtkClick=nativeCtrl.OnCreateClick
       nativeCtrl.OnCheckTime=nativeCtrl.OnCreateClick
+      MsgDefines.WorldMarchFormationNew=99
       nativeWindow={Ctrl=nativeCtrl}
       UIManager={GetInstance=function() return {
         IsWindowOpen=function() return true end,
@@ -266,7 +296,8 @@ def test_selected_attack_and_diamond():
         fields.update(extra)
         return module.Handle(vm.table_from(fields),vm.globals().input_clear)
     first=call()
-    require(first['state']=='accepted' and state['attackDelegateCount']==1,
+    require(first['state']=='accepted' and state['attackDelegateCount']==1 and
+            first['data']['nativeTransaction']['sendCount']==1 and state['attackSends']==1,
             'native selector did not dispatch fixed own squad exactly once')
     require(call(queryOnly='1')['state']=='accepted' and state['attackDelegateCount']==1,
             'pending attack was resent or falsely confirmed without native march')
@@ -315,9 +346,127 @@ def test_selected_attack_and_diamond():
             'main-account server entered mutable attack controller')
 
 
+def test_attack_sender_correlation_negatives():
+    # A controller call alone is not a network receipt. The source-backed
+    # formation/march route must match slot, native kind and target UUID,
+    # and a matching owned march transition must follow independently.
+    for mode, immediate, later, sends in (
+            ('no_send', 'accepted', 'accepted', 0),
+            ('wrong_target', 'accepted', 'accepted', 1),
+            ('double', 'failed', 'failed', 2),
+            ('sender_false', 'failed', 'failed', 1),
+            ('sender_throw', 'failed', 'failed', 1),
+            ('reply_error', 'accepted', 'failed', 1),
+            # A negative controller return can still follow a real send. A
+            # subsequent independent matching native march can settle it.
+            ('controller_false', 'failed', 'confirmed', 1)):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.existingAbsent=true; state.startTime=1000; state.targetUuid=990123
+          state.sendMode='""" + mode + """'
+          package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+            return {HandleMessage=function(self,response) end}
+          end
+          package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
+            return {HandleMessage=function(self,response) end}
+          end
+          MsgDefines.WorldMarchFormationNew=99
+          UIWindowNames={UIFormationSelectListV2='formation'}
+          nativeCtrl={targetType=17,targetUuid=990123,targetPoint=state.touchedTile}
+          SFSNetwork.SendMessage=function(route,form,kind,target,path)
+            assert(route==99 and form==state.formation and kind==17)
+            state.attackSends=(state.attackSends or 0)+1
+            if state.sendMode=='sender_false' then return false end
+            if state.sendMode=='sender_throw' then error('simulated native sender failure') end
+          end
+          nativeCtrl.OnCheckTime=function(self,formation)
+            state.attackDelegateCount=state.attackDelegateCount+1
+            if state.sendMode=='no_send' then return end
+            local target=state.sendMode=='wrong_target' and 990124 or 990123
+            SFSNetwork.SendMessage(99,formation,17,target,'path')
+            if state.sendMode=='double' then
+              SFSNetwork.SendMessage(99,formation,17,target,'path')
+            end
+            if state.sendMode=='controller_false' then return false end
+          end
+          nativeWindow={Ctrl=nativeCtrl}
+          UIManager={GetInstance=function() return {
+            IsWindowOpen=function(self,name) return name=='formation' end,
+            GetWindow=function(self,name) return name=='formation' and nativeWindow end
+          } end}
+        """)
+        module=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        def call(**extra):
+            fields=dict(action='attack',slot='1',authorizedUid='3133546747002289',
+                        profileId='profile',launchSessionId='launch',
+                        challenge='request',gamePid='7020')
+            fields.update(extra)
+            return module.Handle(vm.table_from(fields),vm.globals().input_clear)
+        dispatched=call()
+        require(dispatched['state']==immediate and
+                vm.globals().state.attackDelegateCount==1 and
+                (vm.globals().state.attackSends or 0)==sends,
+                'unexpected native attack dispatch outcome: '+mode)
+        if mode in ('double','sender_false','sender_throw'):
+            require(dispatched['data']['nativeTransaction']['sendCount']>=1,
+                    'failed outbound request lost no-retry transaction fence: '+mode)
+        if mode=='reply_error':
+            vm.execute("require('Net.Msgs.WorldMarchChangeMessage').HandleMessage({}, {errorCode='unrelated_recall'})")
+            unrelated=call(queryOnly='1')
+            require(unrelated['state']=='accepted' and
+                    unrelated['data']['nativeTransaction']['replyObserved'] is None,
+                    'unrelated recall/change ACK was attributed to a create attack')
+            vm.execute("require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage({}, {errorCode='native_reject'})")
+        vm.globals().state.existingAbsent=False
+        polled=call(queryOnly='1')
+        require(polled['state']==later and
+                vm.globals().state.attackDelegateCount==1 and
+                (vm.globals().state.attackSends or 0)==sends,
+                'unproven native attack was confirmed or resent: '+mode)
+
+
+def test_native_prepare_helper():
+    vm=LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    vm.execute("""
+      MarchTargetType.ATTACK_MONSTER=19
+      DataCenter.WorldMarchDataManager.GetAllMarches=function() return {
+        {uuid=990123,monsterId=100,ownerUid=999},
+        {uuid=state.uuid,ownerUid=state.uid,ownerFormationUuid=state.formation,target=17}}
+      end
+      DataCenter.MonsterTemplateManager={GetMonsterTemplate=function(self,id)
+        assert(id==100);return {level=1,special=0} end}
+      CS.SceneManager.World.GetMarch=function(self,id)
+        if id==990123 then return {uuid=id,monsterId=100,ownerUid=999} end end
+      CS.SceneManager.World.GetTroop=function(self,id)
+        if id==990123 then return {GetPosition=function()return CS.SceneManager.World.curTouchPoint end} end end
+      UIUtil={OpenFormationSelectUI=function(...)
+        local a=table.pack(...)
+        assert(a.n==9 and a[1]==1 and a[2]==19 and a[3]==35723 and a[4]==990123)
+        assert(a[5]==nil and a[6]==nil and a[7]==nil and a[8]==2289 and a[9]==0)
+        state.prepared=true
+      end}
+    """)
+    module=vm.execute(SOURCE.read_text(encoding='utf-8'))
+    fields=dict(mode='inventory',authorizedUid='3133546747002289',profileId='profile',
+                launchSessionId='launch',challenge='request',gamePid='7020')
+    observed=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(observed['state']=='confirmed' and observed['data']['candidates'][1]['uuid']=='990123' and
+            observed['data']['ownedMarches']['555110']['formationUuid']=='1001',
+            'native prepare lost current ordinary-monster or independently owned march identity')
+    fields.update(mode='open',targetUuid='990123')
+    opened=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(opened['state']=='confirmed' and vm.globals().state.prepared is True and
+            vm.globals().state.rpcCount==0,
+            'native configured formation helper was not used or prepare sent gameplay RPC')
+
+
 def main():
     check_original()
     test_selected_attack_and_diamond()
+    test_attack_sender_correlation_negatives()
+    test_native_prepare_helper()
     state, call, inspect = mock()
     inv = inspect()
     require(inv["state"] == "confirmed" and
