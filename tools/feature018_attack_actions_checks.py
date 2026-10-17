@@ -438,7 +438,7 @@ def test_selected_attack_and_diamond():
         return {OnCreate=function(self,formation,kind,target)
           state.createCounter=state.createCounter+1
           local token=string.format('12345678-1234-4abc-8def-%012d',state.createCounter)
-          state.marchClientCreateGuid=token
+          state.sentClientCreateGuid=token
           self.sfsObj={GetUtfString=function(obj,key)
             assert(key=='clientCreateUuid');return token
           end}
@@ -512,7 +512,8 @@ def test_selected_attack_and_diamond():
     require(ack['state']=='confirmed' and ack['data']['serverAcknowledgementCorrelated'] is True and
             ack['data']['nativeMarchPostStateVerified'] is True and
             ack['data']['transaction']['nonceStatus']==
-                'same_nonce_owner_march_reply_observed_requires_fresh_poststate' and
+                'matching_server_response_guid_poststate_observed' and
+            ack['data']['directReplyObserverCorrelated'] is True and
             ack['data']['nativeMarchGuidMatchesRequest'] is True and
             ack['data']['targetUuid']=='990123' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
@@ -540,12 +541,12 @@ def test_selected_attack_and_diamond():
             'opt-in rapid attack failed to start native selection')
     state['existingAbsent']=False
     state['startTime']=1100
-    vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-        {}, {clientCreateUuid='12345678-1234-4abc-8def-000000000002',ownerUid=state.uid,uuid=state.uuid})""")
+    state['marchClientCreateGuid']=state['sentClientCreateGuid']
     chain=call(queryOnly='1')
     require(chain['state']=='accepted' and state['rpcCount']==1 and
             state['rpcArgs'][4] is False,
-            'confirmed attack did not apply exactly one opted-in owned rapid item')
+            'server-response GUID poststate did not confirm attack and apply exactly one opted-in owned rapid item: '+
+            str(chain['state'])+'/'+str(state['rpcCount']))
     require(call(queryOnly='1')['state']=='accepted' and state['rpcCount']==1,
             'rapid followup resubmitted an item or accepted absent inventory/time change')
     state['count']=1
@@ -679,7 +680,7 @@ def test_attack_sender_correlation_negatives():
           state.sendMode='""" + mode + """'
           package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
             return {OnCreate=function(self,formation,kind,target)
-              state.marchClientCreateGuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+              state.sentClientCreateGuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
               self.sfsObj=state.sendMode=='nonce_missing' and {} or
                 {GetUtfString=function(self,key)
                   if state.sendMode=='nonce_malformed' then return 'not-a-guid' end
@@ -746,7 +747,8 @@ def test_attack_sender_correlation_negatives():
                    uuid=state.uuid,errorCode='native_reject'})""")
         if mode=='controller_false':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
-              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})""")
+              {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})
+              state.marchClientCreateGuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'""")
         if mode=='nonce_missing':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
               {}, {clientCreateUuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',ownerUid=state.uid,uuid=state.uuid})""")

@@ -659,6 +659,8 @@ local function transaction_view(transaction)
         view.nonceStatus="original_serializer_not_observed"
     elseif not transaction.clientCreateUuid then
         view.nonceStatus="serialized_create_nonce_unreadable"
+    elseif transaction.nativeMarchGuidMatchesRequest==true then
+        view.nonceStatus="matching_server_response_guid_poststate_observed"
     elseif transaction.replyObserved~=true then
         view.nonceStatus="awaiting_same_nonce_reply"
     elseif transaction.replyErrorCode then
@@ -1971,11 +1973,22 @@ local function attack_selected(fields, input_clear, uid)
         prior.nativeMarchGuidObserved=type(native_guid)=="string" and
             original_create_guid(native_guid) or false
         prior.nativeMarchGuidMatchesRequest=native_guid_match==true
-        local ack_correlated=prior.replyCorrelation=="native_clientCreateUuid_owner_march_reply" and
+        local direct_reply_correlated=prior.replyCorrelation=="native_clientCreateUuid_owner_march_reply" and
             prior.replyUuid==uuid and prior.replyOwnerUid==uid and prior.replyCount==1
+        -- The native WorldMarch.clientCreateGuid is not a locally generated
+        -- preview field. v26 WorldMarch.UpdateFromSFS reads clientCreateUuid
+        -- from the server response that WorldMarchFormationNewMessage passes
+        -- into World.HandleFormationMarch. Some live message dispatchers cache
+        -- the original HandleMessage delegate before our diagnostic wrapper is
+        -- installed, so the wrapper can miss a real reply even though the
+        -- authoritative native march carries the exact request GUID. Treat the
+        -- fresh owned march's matching response-derived GUID plus target/state
+        -- transition as the server correlation; retain the direct wrapper as
+        -- additional evidence when it fires.
+        local response_guid_correlated=native_guid_match==true
         if fresh and ok_type and kind == prior.kind and prior.sendCount==1 and
            prior.senderReturned==true and prior.senderReturnedFalse~=true and
-           ack_correlated and native_guid_match and
+           response_guid_correlated and
            ident(member(fresh,"targetUuid")) == prior.targetUuid and
            (not prior.oldUuid or uuid ~= prior.oldUuid or
             start_time ~= prior.oldStartTime or kind ~= prior.oldKind) then
@@ -1991,6 +2004,8 @@ local function attack_selected(fields, input_clear, uid)
                 currentStartTime=start_time,requestDispatched=false,
                 nativeMarchGuidMatchesRequest=true,
                 serverAcknowledgementCorrelated=true,nativeMarchPostStateVerified=true,
+                serverReplyDerivedPostState=true,
+                directReplyObserverCorrelated=direct_reply_correlated,
                 transaction=transaction_view(prior),
                 nativeTransaction=transaction_view(prior)}
             if prior.allowItem or prior.allowDiamond then
@@ -2015,7 +2030,9 @@ local function attack_selected(fields, input_clear, uid)
             nativeMarchPostStateVerified=fresh~=nil and kind==prior.kind and
                 ident(member(fresh,"targetUuid"))==prior.targetUuid and
                 native_guid_match==true,
-            serverAcknowledgementCorrelated=ack_correlated,
+            serverAcknowledgementCorrelated=response_guid_correlated and fresh~=nil and
+                kind==prior.kind and ident(member(fresh,"targetUuid"))==prior.targetUuid,
+            directReplyObserverCorrelated=direct_reply_correlated,
             nativeTransaction=transaction_view(prior)}}
     end
     if fields.queryOnly == "1" then return failed("No pending native attack to observe") end
