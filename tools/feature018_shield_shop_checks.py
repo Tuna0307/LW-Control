@@ -15,6 +15,10 @@ def fixture():
     state.templates[2].price=2500
     state.templates[3].price=5000
     MsgDefines.UIShopBuy='UIShopBuy'
+    DataCenter.ItemManager={ItemBuyHandle=function(self,reply)
+      state.originalBuyReplyHandled=(state.originalBuyReplyHandled or 0)+1
+      state.lastBuyReply=reply
+    end}
     SFSNetwork.SendMessage=function(name,data)
       assert(name=='UIShopBuy' and (data.itemId=='9' or data.itemId=='10' or data.itemId=='11') and data.num==1)
       state.sent=state.sent+1

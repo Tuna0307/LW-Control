@@ -30,6 +30,8 @@ local mark_array = nil
 local pending_shield = nil
 local SHIELD_PENDING_SECONDS = 45
 local pending_purchase = nil
+local purchase_observer = nil
+local PURCHASE_OBSERVER_SECONDS = 90
 local armed_shield_replace = nil
 
 local function member(value, key)
@@ -552,6 +554,96 @@ local function shield_shop_pre_send_unchanged(center, player, chosen, before_gol
     return matching == 1
 end
 
+-- ORIGINAL v26 Net/Msgs/UIShopBuyMessage.HandleMessage (f7bcd809...) routes
+-- the reply through DataCenter.ItemManager.ItemBuyHandle (febee839..., root/2).
+-- ItemBuyHandle reads errorCode, reply.item.id/itemId, costGold, remainGold
+-- and updates the native ItemData/Player caches. A matched reply is useful
+-- evidence, but there is NO request nonce: even an exact match is not a
+-- causally unique proof that this adapter originated the server reply.
+-- Observe only our one in-flight purchase and ALWAYS run the original first.
+local function restore_purchase_observer()
+    local observer = purchase_observer
+    if observer == nil then return true end
+    purchase_observer = nil
+    if member(observer.manager, "ItemBuyHandle") ~= observer.wrapper then
+        return false  -- A different owner replaced the handler; never clobber it.
+    end
+    local ok = pcall(function()
+        observer.manager.ItemBuyHandle = observer.rawOriginal
+    end)
+    return ok and member(observer.manager, "ItemBuyHandle") == observer.original
+end
+
+local function install_purchase_observer(pending, center, player)
+    if purchase_observer ~= nil then return false end
+    local manager = member(center, "ItemManager")
+    if type(manager) ~= "table" then return false end
+    local original = member(manager, "ItemBuyHandle")
+    if type(original) ~= "function" then return false end
+    local raw_original = rawget(manager, "ItemBuyHandle")
+    local observer = {manager=manager, original=original, rawOriginal=raw_original}
+    observer.wrapper = function(self, reply)
+        if pending_purchase == pending and type(pending.sentAt) == "number" and
+           (os.time() - pending.sentAt > PURCHASE_OBSERVER_SECONDS or
+            os.time() < pending.sentAt) then
+            pending.observerExpired = true
+            restore_purchase_observer() -- Leave the no-resend tombstone intact.
+        end
+        local ok_original, original_result = pcall(original, self, reply)
+        local active = pending_purchase
+        if active == pending and purchase_observer == observer then
+            active.replyCount = active.replyCount + 1
+            local source_item = member(reply, "item")
+            local raw_id = member(source_item, "id")
+            local raw_item_id = member(source_item, "itemId")
+            local response_id = digit_id(raw_id ~= nil and raw_id or raw_item_id)
+            -- ItemManager.ItemBuyHandle overwrites itemId from item.id when
+            -- present. Refuse inconsistent dual IDs instead of accepting the
+            -- other field before the original cache applies its update.
+            local conflicting_ids = raw_id ~= nil and raw_item_id ~= nil and
+                digit_id(raw_id) ~= digit_id(raw_item_id)
+            local cost = number(member(reply, "costGold"))
+            local remaining = number(member(reply, "remainGold"))
+            local source_error = member(reply, "errorCode")
+            local owned = ok_original and self == manager and
+                rawget(_G, "DataCenter") == center and
+                member(rawget(_G, "LuaEntry"), "Player") == player and
+                native_sub_account()
+            if not conflicting_ids and response_id == pending.itemId and
+               source_error == nil and
+               cost == pending.price and remaining == pending.gold - pending.price and
+               owned and active.replyCount == 1 then
+                active.replyMatched = true
+            else
+                -- An unrelated/malformed/error reply or an original-handler
+                -- failure makes source attribution ambiguous for this lease.
+                -- A later reply may not clear this tombstone.
+                active.replyAmbiguous = true
+                active.replyMatched = false
+            end
+            active.replyError = source_error ~= nil
+            if not owned then active.replyOwnerOrHandlerUncertain = true end
+        end
+        if not ok_original then error(original_result) end
+        return original_result
+    end
+    local ok_install = pcall(function()
+        manager.ItemBuyHandle = observer.wrapper
+    end)
+    if not ok_install or member(manager, "ItemBuyHandle") ~= observer.wrapper then
+        if ok_install then
+            pcall(function()
+                if rawget(manager, "ItemBuyHandle") == observer.wrapper then
+                    manager.ItemBuyHandle = raw_original
+                end
+            end)
+        end
+        return false
+    end
+    purchase_observer = observer
+    return true
+end
+
 -- Original v26 UIShopBuyMessage (f7bcd809...) serializes itemId as UtfString
 -- and num as Int; CityShieldPage.Refresh/BuyOrUse sources Goods.price and
 -- Player.gold. This explicit provisioning operation buys inventory only.
@@ -659,18 +751,86 @@ local function shield_shop(fields)
     end
     if fields.mode == "status" then
         local pending = pending_purchase
-        if pending == nil or pending.itemId ~= chosen.itemId then return invalid("No matching shield purchase") end
+        if pending == nil or pending.itemId ~= chosen.itemId or
+           pending.hours ~= hours or pending.statusId ~= chosen.statusId then
+            return invalid("No matching shield purchase")
+        end
         if not native_sub_account() or
            rawget(_G,"DataCenter") ~= center or
-           member(rawget(_G,"LuaEntry"),"Player") ~= player then
+           member(rawget(_G,"LuaEntry"),"Player") ~= player or
+           pending.player ~= player or pending.center ~= center or
+           member(center,"ItemManager") ~= pending.manager then
             return invalid("Native shield purchase owner changed during observation")
         end
+        local observed_reply = pending.replyCount > 0
+        local observer_intact = purchase_observer ~= nil and
+            purchase_observer.manager == pending.manager and
+            member(purchase_observer.manager,"ItemBuyHandle") == purchase_observer.wrapper
+        data.nativeShopReplyObserved = observed_reply
+        data.nativeShopReplyMatched = pending.replyMatched and not pending.replyAmbiguous
+        data.nativeShopReplyCount = pending.replyCount
+        data.nativeReplyCausalityConfirmed = false -- No native request nonce.
+        data.nativeShopReplyOrigin = "original_ItemManager_ItemBuyHandle_no_nonce"
+        if pending.replyAmbiguous then
+            if type(pending.sentAt) == "number" and
+               (os.time() - pending.sentAt > PURCHASE_OBSERVER_SECONDS or
+                os.time() < pending.sentAt) then
+                restore_purchase_observer()
+                pending.observerExpired = true
+            end
+            data.nativeReplyAmbiguous = true
+            data.awaitingGameConfirmation = true
+            return {state="accepted", data=data}
+        end
+        if not observer_intact and not pending.observerExpired then
+            -- A newly installed different handler can hide an error/reply.
+            -- Do not declare a matching poststate while observation was lost.
+            if type(pending.sentAt) == "number" and
+               (os.time() - pending.sentAt > PURCHASE_OBSERVER_SECONDS or
+                os.time() < pending.sentAt) then
+                restore_purchase_observer()
+                pending.observerExpired = true
+            end
+            data.nativeReplyAmbiguous = true
+            data.awaitingGameConfirmation = true
+            return {state="accepted",data=data}
+        end
         if count == pending.count + 1 and gold == pending.gold - pending.price then
+            if pending.replyMatched and not observer_intact then
+                -- If our observer was overwritten, the previous reply
+                -- cannot be treated as intact handler evidence.
+                data.nativeShopReplyMatched = false
+                data.nativeReplyAmbiguous = true
+            end
+            data.purchaseProofKind = data.nativeShopReplyMatched and
+                "matching_original_reply_and_cached_poststate_no_nonce" or
+                "native_cached_inventory_and_gold_only"
+            -- The mounted original Hotkeys view gates its completion on
+            -- this exact stable observation. Preserve that contract; put
+            -- additional R7 reply evidence in purchaseProofKind instead.
+            data.observation = "native_shield_purchase_inventory_and_gold"
+            data.nativeReplyHandlerEvidenceOnly = data.nativeShopReplyMatched
+            if not restore_purchase_observer() then
+                data.nativeReplyAmbiguous = true
+                data.nativeShopReplyMatched = false
+                data.purchaseProofKind = "native_cached_inventory_and_gold_only"
+                data.observation = "native_shield_purchase_inventory_and_gold"
+            end
             pending_purchase = nil
-            data.observation="native_shield_purchase_inventory_and_gold"
             data.beforeCount=pending.count; data.beforeGold=pending.gold
             data.spentGems=pending.price; data.purchasedCount=1
             return {state="confirmed",data=data}
+        end
+        if type(pending.sentAt) == "number" and
+           (os.time() - pending.sentAt > PURCHASE_OBSERVER_SECONDS or
+            os.time() < pending.sentAt) then
+            -- A timeout retires only the temporary game-handler observer.
+            -- The no-resend pending request remains unresolved indefinitely.
+            restore_purchase_observer()
+            pending.observerExpired = true
+            data.nativeReplyObserverExpired = true
+        elseif not observer_intact then
+            data.nativeReplyAmbiguous = true
         end
         data.awaitingGameConfirmation=true
         return {state="accepted",data=data}
@@ -693,7 +853,14 @@ local function shield_shop(fields)
        not native_sub_account() then
         return invalid("Native shield item price, stock, balance or owner changed before purchase")
     end
-    pending_purchase={owner=owner,itemId=chosen.itemId,count=count,gold=gold,price=chosen.price}
+    pending_purchase={owner=owner,itemId=chosen.itemId,hours=hours,
+        statusId=chosen.statusId,count=count,gold=gold,price=chosen.price,
+        center=center,player=player,manager=member(center,"ItemManager"),
+        sentAt=os.time(),replyCount=0,replyMatched=false,replyAmbiguous=false}
+    if not install_purchase_observer(pending_purchase,center,player) then
+        pending_purchase=nil  -- No packet has been sent; safe to decline.
+        return unavailable("Original ItemBuyHandle reply observer cannot be safely installed")
+    end
     local sent, send_result = pcall(send,message,{itemId=chosen.itemId,num=1})
     if not sent or send_result == false then
         return invalid("Native shop sender result uncertain; state must be observed, no retry")
@@ -781,8 +948,12 @@ local function shield_use(fields)
         if pending == nil or pending.hours ~= hours then
             return invalid("No matching sent shield to verify")
         end
-        if os.time() - pending.sentAt > SHIELD_PENDING_SECONDS then
+        local elapsed = os.time() - pending.sentAt
+        if elapsed < 0 or elapsed > SHIELD_PENDING_SECONDS then
             return invalid("Shield ItemUse remains unconfirmed; manual state refresh required")
+        end
+        if pending.player ~= player or pending.center ~= center then
+            return invalid("Native shield pending ItemUse belongs to another native player/session")
         end
         local snapshot = shield_snapshot()
         if snapshot.state ~= "confirmed" then return snapshot end
@@ -891,7 +1062,8 @@ local function shield_use(fields)
     end
     armed_shield_replace=nil
     pending_shield = {
-        owner=owner, hours=hours, uuid=item.uuid, itemId=item.itemId,
+        owner=owner, player=player, center=center,
+        hours=hours, uuid=item.uuid, itemId=item.itemId,
         statusId=item.statusId, durationMs=item.durationMs, count=item.count,
         beforeClock=before.data.serverTimeMilliseconds,
         beforeEndTime=before.data.endTime, sentAt=os.time()
