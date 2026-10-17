@@ -64,3 +64,24 @@ Owner wants the original "press G to add troops while clearing stages" working f
 3. Then stop and hand back (owner tests G before the rest). Push once at this checkpoint.
 After owner OK: continue the live-first list from the "Lead status check" section (skip shields, Black Market,
 Food House). Commit locally freely, push only at checkpoints. One-off OS errors are not denials (LEAD018-02).
+
+## R12 result (lead) — 2026-10-18
+Owner tested G in a normal 關卡 stage: WORKS. Lead added owner-configurable soldiers per G press (1–50, default 5) in
+1dcb94c0; tests pass; owner-test ZIP `artifacts/feature018-g-1dcb94c0/`.
+
+## R13 assignment — same branch/PR #14 (owner priorities)
+1. **Any account (product rule).** The owner wants these features on whatever account they use. Remove the fixed
+   UID/server gates (2553945035002288 / 2288, and any 2289/2212 constants) from product code: C# hotkey session
+   admission, Feature018OwnedGameExchange, native providers, overview bridge heartbeat, and all feature018 Lua
+   (`hotkey_actions`, `attack_actions`, `equipment_actions`, `mini_game`, City, relocation). Replace them with a
+   **same-account fence**: record the logged-in UID/server when an action starts and abort if it changes before the
+   action finishes. Keep the worker **test rule** separate: workers' live proof runs still act only on the 2288
+   sub-account and never on 2212 — that check lives in the proof harness only, not in the shipped app.
+2. **Q/W/E/R attack like the original.** Original: hover the mouse over a target on the world map (enemy city, ally
+   city reinforcement, monster, resource node, city ruin; skip world bosses and rally monsters) and press Q/W/E/R to
+   send squad 1/2/3/4 there. Implement the real cursor→world-tile mapping (game camera screen-to-world /
+   touch-camera raycast for the mouse position in the game window) and the target lookup at that tile; then the
+   original march send. If a target popup is already open from a click, using it is fine too. Prove live on 2288:
+   hover + Q on a monster and on a resource node → march sent, then A recalls it.
+3. Rebuild the owner-test ZIP (README must describe the configurable G count and any-account use). Push only at
+   checkpoints. Report back for owner test before continuing other hotkeys.
