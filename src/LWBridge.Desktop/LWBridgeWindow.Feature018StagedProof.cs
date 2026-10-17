@@ -101,6 +101,9 @@ internal sealed partial class LWBridgeWindow
                             Feature018HotkeyIntent expected = Feature018OwnedWindowKeys.ExpectedIntent(binding)
                                 ?? throw new InvalidDataException("Unknown original hotkey binding");
                             int before = feature018R2KeyOutcomes.Count;
+                            Feature018HotkeyCapture? exactCapture = feature018Capture;
+                            string captureId = exactCapture?.CaptureId ?? "";
+                            long priorCaptureSequence = exactCapture?.LastObservedSequence ?? long.MaxValue;
                             var sent = await Feature018OwnedWindowKeys.PressAsync(owner, binding,
                                 IsOwner, () => feature018InputClear &&
                                     feature018Capture?.IsExactForegroundOwner() == true &&
@@ -111,14 +114,23 @@ internal sealed partial class LWBridgeWindow
                                 { Owned(); await Task.Delay(250, token); }
                             var observed = feature018R2KeyOutcomes.ToArray().Skip(before).Where(
                                 item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot).ToArray();
+                            var captured = ReferenceEquals(exactCapture, feature018Capture) &&
+                                exactCapture is not null
+                                ? exactCapture.SnapshotCapturedIntents().Where(record =>
+                                    Feature018KeyProofCorrelation.CapturedIntentCandidate(sent,
+                                        record, captureId, priorCaptureSequence, expected)).ToArray()
+                                : Array.Empty<Feature018CapturedIntent>();
                             result = new { delivered = sent,
                                 outcomes = observed,
+                                capturedIntents = captured,
+                                ownedCaptureRecognitionObserved = captured.Length == 1,
                                 temporalCandidates = observed.Where(item =>
                                     Feature018KeyProofCorrelation.TemporalCandidate(sent,
                                         item.Kind, item.Slot, expected.Kind.ToString(),
                                         expected.Slot, item.ObservedAtUtc)).ToArray(),
                                 recognized = false,
-                                recognitionAttribution = "unproven_kind_slot_and_time_only" };
+                                recognitionAttribution =
+                                    "capture_observation_and_os_key_window_only_origin_and_native_ack_not_proven" };
                         }
                         else if (kind == "tab")
                         {

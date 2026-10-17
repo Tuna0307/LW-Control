@@ -39,6 +39,33 @@ internal static class Feature018KeyProofCorrelationChecks
             "prior queued kind/slot callback counted as physical key result");
         Check(!Candidate(receipt, completed: t.AddSeconds(13)),
             "unrelated later callback counted as injected physical key result");
+        Feature018HotkeyIntent key = new(Feature018HotkeyKind.UseShield, 8);
+        var capture = new Feature018CapturedIntent("capture-A", 15, key.Kind, key.Slot,
+            4208, 9911, t.AddMilliseconds(180));
+        bool Captured(Feature018CapturedIntent current, string scope = "capture-A",
+            long baseline = 14, Feature018OwnedKeyReceipt? os = null) =>
+            Feature018KeyProofCorrelation.CapturedIntentCandidate(
+                os ?? receipt, current, scope, baseline, key);
+        Check(Captured(capture),
+            "actual capture's independently sequenced event was hidden");
+        Check(!Captured(capture, scope: "capture-foreign"),
+            "capture from previous owner/session was misattributed");
+        Check(!Captured(capture, baseline: 15),
+            "preexisting recognizer event was misattributed");
+        Check(!Captured(capture with { ForegroundHwnd = 9912 }),
+            "foreign game window recognizer event was attributed");
+        Check(!Captured(capture with { GamePid = 2212 }),
+            "wrong process recognizer event was attributed");
+        Check(!Captured(capture with { Kind = Feature018HotkeyKind.RecallSquad }),
+            "wrong captured kind was attributed");
+        Check(!Captured(capture with { Slot = 12 }),
+            "wrong captured slot was attributed");
+        Check(!Captured(capture with { ObservedAtUtc = t.AddMilliseconds(99) }),
+            "capture event before injection was attributed");
+        Check(!Captured(capture with { ObservedAtUtc = t.AddMilliseconds(370) }),
+            "capture event after OS release was attributed");
+        Check(!Captured(capture, os: receipt with { Pressed = false }),
+            "denied OS injection counted a timer recognition");
         Console.WriteLine("FEATURE018_KEY_PROOF_TEMPORAL_ONLY_PASS nativeIntentCorrelation=false");
     }
 }

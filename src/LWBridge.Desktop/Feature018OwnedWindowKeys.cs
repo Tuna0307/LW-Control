@@ -35,6 +35,10 @@ internal static class Feature018OwnedWindowKeys
     private const int BaselineSampleIntervalMilliseconds = 35;
     private const int RequiredBaselineSamples = 3;
     private static readonly int[] PrimaryHoldSampleDelaysMilliseconds = [45, 45, 95];
+    // Two proof calls in the same desktop process must never overlap their
+    // SendInput edges (Q while another Alt+number is held creates a different
+    // chord). Reject concurrent attempts instead of queuing an implicit replay.
+    private static int ownedPressInFlight;
     private delegate bool EnumerateWindow(nint hwnd, nint value);
 
     // Makes OS focus denial, input-stream rejection, and asynchronous admission
@@ -167,6 +171,25 @@ internal static class Feature018OwnedWindowKeys
     {
         if (!TryKeyPlan(binding, out byte[] keys))
             return new(binding, session.GamePid, 0, false, "unsupported_key_binding");
+        if (Interlocked.CompareExchange(ref ownedPressInFlight, 1, 0) != 0)
+            return new(binding, session.GamePid, 0, false,
+                "owned_game_key_press_already_in_progress");
+        try
+        {
+            return await PressSingleWithPlatformAsync(session, binding, keys,
+                authenticatedApprovedOwner, gameInputClear, platform, token);
+        }
+        finally
+        {
+            Volatile.Write(ref ownedPressInFlight, 0);
+        }
+    }
+
+    private static async Task<Feature018OwnedKeyReceipt> PressSingleWithPlatformAsync(
+        OverviewMapScanSession session, string binding, byte[] keys,
+        Func<bool> authenticatedApprovedOwner, Func<bool> gameInputClear,
+        IPlatform platform, CancellationToken token)
+    {
         // Validate all identifying process fields before even selecting an HWND.
         if (!authenticatedApprovedOwner() || !platform.SameProcess(session))
             return new(binding, session.GamePid, 0, false, "approved_game_identity_unavailable");

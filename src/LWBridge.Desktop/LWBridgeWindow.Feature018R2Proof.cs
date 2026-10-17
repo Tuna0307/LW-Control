@@ -400,6 +400,9 @@ internal sealed partial class LWBridgeWindow
             {
                 Owned();
                 int previouslySeen = feature018R2KeyOutcomes.Count;
+                Feature018HotkeyCapture? exactCapture = feature018Capture;
+                string captureId = exactCapture?.CaptureId ?? "";
+                long priorCaptureSequence = exactCapture?.LastObservedSequence ?? long.MaxValue;
                 Feature018HotkeyIntent expected =
                     Feature018OwnedWindowKeys.ExpectedIntent(binding) ??
                     throw new InvalidDataException("Unmapped R2 binding " + binding);
@@ -434,14 +437,23 @@ internal sealed partial class LWBridgeWindow
                     Feature018KeyProofCorrelation.TemporalCandidate(delivered,
                         result.Kind, result.Slot, expected.Kind.ToString(),
                         expected.Slot, result.ObservedAtUtc)).ToArray();
+                var captured = ReferenceEquals(exactCapture, feature018Capture) &&
+                    exactCapture is not null
+                    ? exactCapture.SnapshotCapturedIntents().Where(record =>
+                        Feature018KeyProofCorrelation.CapturedIntentCandidate(delivered,
+                            record, captureId, priorCaptureSequence, expected)).ToArray()
+                    : Array.Empty<Feature018CapturedIntent>();
                 evidence["hotkeyRealKey_" + binding] = new
                 {
                     delivered, outcomes, temporalCandidates = candidates,
+                    capturedIntents = captured,
+                    ownedCaptureRecognitionObserved = captured.Length == 1,
                     // No intent-event unique ID ties the game's callback to
                     // this OS injection. Even a native provider Confirmed
                     // status from the same kind/slot could be another press.
                     recognized = false,
-                    recognitionAttribution = "unproven_kind_slot_and_time_only",
+                    recognitionAttribution =
+                        "capture_observation_and_os_key_window_only_origin_and_native_ack_not_proven",
                     temporalCandidateObserved = candidates.Length > 0,
                     confirmedByNativeProvider = false,
                     nativeProviderConfirmedCandidate = candidates.Any(item => item.Status == "Confirmed"),

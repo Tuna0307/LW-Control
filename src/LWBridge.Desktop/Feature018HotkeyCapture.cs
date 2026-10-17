@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -20,6 +21,15 @@ internal enum Feature018HotkeyKind
 
 internal readonly record struct Feature018HotkeyIntent(
     Feature018HotkeyKind Kind, int Slot = 0);
+
+/// <summary>
+/// Direct observation from the actual owned WinForms 30ms key recognizer.
+/// This carries an independent per-capture sequence; it cannot prove which
+/// physical device generated a key, or that game RPC succeeded.
+/// </summary>
+internal sealed record Feature018CapturedIntent(
+    string CaptureId, long Sequence, Feature018HotkeyKind Kind, int Slot,
+    int GamePid, long ForegroundHwnd, DateTimeOffset ObservedAtUtc);
 
 /// <summary>
 /// Pure edge recognizer. Releases must be seen after entering the game window
@@ -131,7 +141,14 @@ internal sealed class Feature018HotkeyCapture : IDisposable
     private readonly DateTime startTimeUtc;
     private readonly Func<bool> authenticatedOwnerAndTextInputClear;
     private readonly Action<Feature018HotkeyIntent> onIntent;
+    private readonly string captureId = Guid.NewGuid().ToString("N");
+    private readonly ConcurrentQueue<Feature018CapturedIntent> observed = new();
+    private long observedSequence;
     private bool disposed;
+
+    internal string CaptureId => captureId;
+    internal long LastObservedSequence => Interlocked.Read(ref observedSequence);
+    internal Feature018CapturedIntent[] SnapshotCapturedIntents() => observed.ToArray();
 
     internal Feature018HotkeyCapture(
         int gamePid,
@@ -184,7 +201,19 @@ internal sealed class Feature018HotkeyCapture : IDisposable
             if ((GetAsyncKeyState((int)key) & 0x8000) != 0) down.Add(key);
         }
         Feature018HotkeyIntent? intent = recognizer.Observe(down, true, true);
-        if (intent is not null) onIntent(intent.Value);
+        if (intent is not null)
+        {
+            // Double-check that this remains the exact authenticated owner's
+            // foreground root, including after the Win32 key-state reads.
+            // The app's separate game-side input-clear admission still applies.
+            if (!IsExactForegroundOwner()) { recognizer.Disarm(); return; }
+            nint hwnd = GetForegroundWindow();
+            long sequence = Interlocked.Increment(ref observedSequence);
+            observed.Enqueue(new(captureId, sequence, intent.Value.Kind, intent.Value.Slot,
+                gamePid, hwnd.ToInt64(), DateTimeOffset.UtcNow));
+            while (observed.Count > 128) observed.TryDequeue(out _);
+            onIntent(intent.Value);
+        }
     }
 
     internal bool IsExactForegroundOwner()

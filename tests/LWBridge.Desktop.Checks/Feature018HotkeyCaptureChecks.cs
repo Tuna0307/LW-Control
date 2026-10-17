@@ -46,6 +46,7 @@ internal static class Feature018HotkeyCaptureChecks
         internal readonly List<int> Delays = [];
         internal readonly HashSet<Keys> DownKeys = [];
         internal Action<int, CancellationToken>? OnDelay;
+        internal Func<int, CancellationToken, Task>? OnAsyncDelay;
 
         public bool SameProcess(OverviewMapScanSession _) => ProcessMatches;
         public nint ForegroundWindow() => Foreground;
@@ -75,7 +76,7 @@ internal static class Feature018HotkeyCaptureChecks
             Delays.Add(milliseconds);
             OnDelay?.Invoke(milliseconds, token);
             token.ThrowIfCancellationRequested();
-            return Task.CompletedTask;
+            return OnAsyncDelay?.Invoke(milliseconds, token) ?? Task.CompletedTask;
         }
     }
 
@@ -680,6 +681,58 @@ internal static class Feature018HotkeyCaptureChecks
                 api.Delays.SequenceEqual(new[] { 420, 35, 35, 45, 45, 95, 70 }) &&
                 api.SendAttempts.SequenceEqual(new[] { ((byte)0x51, false), ((byte)0x51, true) }),
             "already-foreground exact HWND lacked temporally distinct Q down samples");
+
+        // Concurrent proof callers share one process-level Win32 input stream.
+        // Do not let Alt+number and Q interleave into another chord or silently
+        // queue a second action whose native result cannot be attributed.
+        api = new FakeOwnedKeyPlatform();
+        var held = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        api.OnAsyncDelay = (ms, token) => ms == 420
+            ? held.Task.WaitAsync(token) : Task.CompletedTask;
+        Task<Feature018OwnedKeyReceipt> first = Press(owner, api, "Alt+2");
+        Require(!first.IsCompleted && api.Delays.SequenceEqual(new[] { 420 }) &&
+                api.SendAttempts.Count == 0,
+            "first owned game key request failed to hold its input admission lease");
+        var concurrent = new FakeOwnedKeyPlatform();
+        Feature018OwnedKeyReceipt overlap = await Press(owner, concurrent, "Q");
+        Require(!overlap.Pressed && overlap.Hwnd == 0 &&
+                overlap.Observation == "owned_game_key_press_already_in_progress" &&
+                concurrent.ActivationCalls == 0 && concurrent.DiscoveryCalls == 0 &&
+                concurrent.Delays.Count == 0 && concurrent.SendAttempts.Count == 0,
+            "overlapping independent Q sent OS input while an Alt chord was in flight");
+        held.SetResult(true);
+        result = await first;
+        Require(result.Pressed && api.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x12, false), ((byte)0x32, false),
+                    ((byte)0x32, true), ((byte)0x12, true) }),
+            "active Alt chord was corrupted by denied overlapping key attempt");
+        result = await Press(owner, concurrent, "F6");
+        Require(result.Pressed && concurrent.SendAttempts.SequenceEqual(new[] {
+                    ((byte)0x75, false), ((byte)0x75, true) }),
+            "finished key attempt leaked its one-at-a-time admission lease");
+
+        api = new FakeOwnedKeyPlatform();
+        using (var cancelledWaiting = new CancellationTokenSource())
+        {
+            var blocked = new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            api.OnAsyncDelay = (ms, token) => ms == 420
+                ? blocked.Task.WaitAsync(token) : Task.CompletedTask;
+            Task<Feature018OwnedKeyReceipt> interrupted =
+                Press(owner, api, "Alt+1", token: cancelledWaiting.Token);
+            Require(!interrupted.IsCompleted, "cancellation fixture did not suspend admission");
+            cancelledWaiting.Cancel();
+            try
+            {
+                await interrupted;
+                throw new InvalidOperationException("cancelled admission unexpectedly returned");
+            }
+            catch (OperationCanceledException) { }
+            Require(api.SendAttempts.Count == 0, "cancelled admission injected an action");
+        }
+        result = await Press(owner, new FakeOwnedKeyPlatform(), "Q");
+        Require(result.Pressed, "cancelled admission retained a stale global key lease");
 
         // A second visible top-level window of the *same* verified game process
         // can legitimately have focus. Never seize an arbitrary first sibling.
