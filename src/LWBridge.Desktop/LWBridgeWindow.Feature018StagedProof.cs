@@ -109,9 +109,16 @@ internal sealed partial class LWBridgeWindow
                                 for (int i = 0; i < 180 && !feature018R2KeyOutcomes.ToArray().Skip(before).Any(
                                     item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot); i++)
                                 { Owned(); await Task.Delay(250, token); }
+                            var observed = feature018R2KeyOutcomes.ToArray().Skip(before).Where(
+                                item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot).ToArray();
                             result = new { delivered = sent,
-                                outcomes = feature018R2KeyOutcomes.ToArray().Skip(before).Where(
-                                    item => item.Kind == expected.Kind.ToString() && item.Slot == expected.Slot).ToArray() };
+                                outcomes = observed,
+                                temporalCandidates = observed.Where(item =>
+                                    Feature018KeyProofCorrelation.TemporalCandidate(sent,
+                                        item.Kind, item.Slot, expected.Kind.ToString(),
+                                        expected.Slot, item.ObservedAtUtc)).ToArray(),
+                                recognized = false,
+                                recognitionAttribution = "unproven_kind_slot_and_time_only" };
                         }
                         else if (kind == "tab")
                         {

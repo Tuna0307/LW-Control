@@ -28,6 +28,7 @@ await HomeSecondaryRuntimeCompositionChecks.RunAsync();
 await Feature018HotkeyConfigChecks.RunAsync();
 await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018HotkeyCaptureChecks.RunAsync();
+Feature018KeyProofCorrelationChecks.Run();
 await Feature018EquipmentProviderChecks.RunAsync();
 Feature018ChestMonitorChecks.Run();
 await HomeR2RecoveryChecks.RunAsync();

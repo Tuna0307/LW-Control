@@ -430,11 +430,21 @@ internal sealed partial class LWBridgeWindow
                     .Skip(previouslySeen)
                     .Where(result => result.Kind == expected.Kind.ToString() &&
                         result.Slot == expected.Slot).ToArray();
+                var candidates = outcomes.Where(result =>
+                    Feature018KeyProofCorrelation.TemporalCandidate(delivered,
+                        result.Kind, result.Slot, expected.Kind.ToString(),
+                        expected.Slot, result.ObservedAtUtc)).ToArray();
                 evidence["hotkeyRealKey_" + binding] = new
                 {
-                    delivered, outcomes,
-                    recognized = outcomes.Length > 0,
-                    confirmedByNativeProvider = outcomes.Any(item => item.Status == "Confirmed"),
+                    delivered, outcomes, temporalCandidates = candidates,
+                    // No intent-event unique ID ties the game's callback to
+                    // this OS injection. Even a native provider Confirmed
+                    // status from the same kind/slot could be another press.
+                    recognized = false,
+                    recognitionAttribution = "unproven_kind_slot_and_time_only",
+                    temporalCandidateObserved = candidates.Length > 0,
+                    confirmedByNativeProvider = false,
+                    nativeProviderConfirmedCandidate = candidates.Any(item => item.Status == "Confirmed"),
                 };
                 await Save();
                 if (!delivered.Pressed)
