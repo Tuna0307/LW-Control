@@ -192,6 +192,9 @@ def check_original() -> None:
             {"OnAttackOtherCity": ["GetPointInfo", "TryStartMarch"],
              "OnAttackArmy": ["GetTroop", "TryStartMarch"],
              "CheckFormation": ["GetOneArmyInfoByUuid", "heroes", "GetCanAddHeroNum"],
+             "GetMaxCanAddSoldierNum": ["building_base", "APS_FORMATION_SIZE",
+                                        "APS_FORMATION_SIZE_ENHANCE",
+                                        "GetFormationMaxNumByFormationIndex"],
              "SendCreateMarchToServer": ["WorldMarchFormationNew", "SendMessage"],
              "SendChangeMarchToServer": ["WorldMarchChange", "SendMessage"],
              "TryStartMarch": ["GetCostStaminaByTargetType", "CheckFormation",
@@ -207,7 +210,11 @@ def check_original() -> None:
         "DataCenter/ArmyFormationData/ArmyFormationDataManager.luac": (
             "0df480a74c338b9830f16b7b455ae0f1a77877a78896f0fedde381c28d7cbce7",
             {"GetOneArmyInfoByIndex": [],
+             "GetArmyUnFormationList": ["ArmyManager", "GetArmyFreeList", "walk"],
              "AutoAddSoldierByForm": ["soldiers", "AutoAddSoldier"]}),
+        "DataCenter/ArmyManager/ArmyManager.luac": (
+            "e090fc4c93abcc7e22d97838171945332955165d45768e63587b5bf269835485",
+            {"GetArmyFreeList": ["allArmy", "walk"]}),
         "UI/UIFormation/UIFormationSelectListV2/Controller/UIFormationSelectListV2Ctrl.luac": (
             "25db92ba9a39791ff8fb500e2b00034f894dc5cf1d98200454e582bb24daa84c",
             {"InitData": ["targetType", "targetPoint", "targetUuid"],
@@ -220,6 +227,12 @@ def check_original() -> None:
             "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
             {"InitData": ["curTouchPoint", "GetPointInfoByUuid",
                           "GetCurServerId", "pointId"]}),
+        "UI/UIMainMapPointToSelect/View/UIMainMapPointToSelectView.luac": (
+            "8178cafadb703205a6e8ac259337fe28ed4ff90e535370ac4a8d8eead30452a1",
+            {"OnContentClick": ["touchCamera", "ScreenPointToRay",
+                                "position", "GetIntersectionPoint",
+                                "WorldPointSelectViewDataManager",
+                                "ChangeSelectZone"]}),
         "UI/UIWorldPoint/View/UIWorldPointView.luac": (
             "e49f0a80b37ae2ecc3abf808c4fa2d2ed5eb146f4224cdf1cf348a1f461636ff",
             {"ReInit": ["GetPointData", "pointId", "ctrl"]}),
@@ -276,6 +289,15 @@ def check_original() -> None:
                 written=next(i for i,x in enumerate(instructions)
                              if "sourceLine=47 " in x and "'clientCreateUuid'" in x)
                 require(saved<written, "original source create nonce generator/serializer drifted")
+            if name.endswith("ArmyFormationDataManager.luac") and name_ == "AutoAddSoldierByForm":
+                instr=disassemble(proto)
+                require(any("sourceLine=920 " in x and "'soldiers'" in x for x in instr) and
+                        any("sourceLine=956 " in x and "'AutoAddSoldier'" in x for x in instr),
+                        "native formation auto-assignment stopped mutating the formation")
+            if name.endswith("UIWorldPointCtrl.luac") and name_ == "InitData":
+                require("ScreenPointToRay" not in constants_seen and
+                        "mousePosition" not in constants_seen,
+                        "original current main-world point unexpectedly uses fresh cursor raycast")
             if name.endswith("MarchUtil.luac") and name_ in (
                     "SendCreateMarchToServer", "SendChangeMarchToServer"):
                 route = ("WorldMarchFormationNew" if name_ == "SendCreateMarchToServer"
@@ -328,7 +350,9 @@ def test_selected_attack_and_diamond():
         return module.Handle(vm.table_from(fields),vm.globals().input_clear)
     first=call()
     require(first['state']=='accepted' and state['attackDelegateCount']==1 and
-            first['data']['nativeTransaction']['sendCount']==1 and state['attackSends']==1,
+            first['data']['nativeTransaction']['sendCount']==1 and
+            first['data']['nativeTransaction']['nonceStatus']=='awaiting_same_nonce_reply' and
+            state['attackSends']==1,
             'native selector did not dispatch fixed own squad exactly once')
     require(call(queryOnly='1')['state']=='accepted' and state['attackDelegateCount']==1,
             'pending attack was resent or falsely confirmed without native march')
@@ -343,6 +367,8 @@ def test_selected_attack_and_diamond():
     ack=call(queryOnly='1')
     require(ack['state']=='confirmed' and ack['data']['serverAcknowledgementCorrelated'] is True and
             ack['data']['nativeMarchPostStateVerified'] is True and
+            ack['data']['transaction']['nonceStatus']==
+                'same_nonce_owner_march_reply_observed_requires_fresh_poststate' and
             ack['data']['targetUuid']=='990123' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
@@ -403,6 +429,7 @@ def test_attack_sender_correlation_negatives():
             ('reply_wrong_nonce', 'accepted', 'accepted', 1),
             ('reply_wrong_owner', 'accepted', 'accepted', 1),
             ('reply_wrong_march', 'accepted', 'accepted', 1),
+            ('reply_duplicate', 'accepted', 'accepted', 1),
             # A negative controller return can still follow a real send. A
             # subsequent independent matching native march can settle it.
             ('controller_false', 'failed', 'confirmed', 1)):
@@ -485,6 +512,11 @@ def test_attack_sender_correlation_negatives():
         if mode=='reply_wrong_march':
             vm.execute("""require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
               {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=123})""")
+        if mode=='reply_duplicate':
+            vm.execute("""for i=1,2 do
+              require('Net.Msgs.WorldMarchFormationNewMessage').HandleMessage(
+                {}, {clientCreateUuid='mock-create-nonce',ownerUid=state.uid,uuid=state.uuid})
+              end""")
         vm.globals().state.existingAbsent=False
         polled=call(queryOnly='1')
         require(polled['state']==later and
@@ -498,6 +530,28 @@ def test_native_prepare_helper():
     vm.execute(GAME)
     vm.execute("""
       MarchTargetType.ATTACK_MONSTER=19
+      DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+        if slot~=state.slot then return nil end
+        return {uuid=state.formation,ownerUid=state.uid,index=slot,
+          heroes=state.heroCount>0 and {[1]=777} or {},
+          soldiers={[101]=state.soldierCount},
+          GetLocalHeroesCount=function()return state.localHeroCount end}
+      end
+      DataCenter.ArmyManager={GetArmyFreeList=function()
+        return {[101]=state.freeTroops or 70}
+      end}
+      DataCenter.ArmyFormationDataManager.GetArmyUnFormationList=function()
+        if state.badFreeType then return {[-1]=5} end
+        return {[101]=state.freeTroops or 70}
+      end
+      MarchUtil.GetMaxCanAddSoldierNum=function(heroes,index)
+        assert(index==1 and type(heroes)=='table')
+        if state.badCapacity then return nil end
+        return state.capacity or 150
+      end
+      DataCenter.ArmyFormationDataManager.AutoAddSoldierByForm=function()
+        error('read-only inventory must not mutate formation')
+      end
       DataCenter.WorldMarchDataManager.GetAllMarches=function() return {
         {uuid=990123,monsterId=100,ownerUid=999},
         {uuid=state.uuid,ownerUid=state.uid,ownerFormationUuid=state.formation,target=17}}
@@ -522,14 +576,60 @@ def test_native_prepare_helper():
     require(observed['state']=='confirmed' and observed['data']['candidates'][1]['uuid']=='990123' and
             observed['data']['ownedMarches']['555110']['formationUuid']=='1001' and
             observed['data']['squads']['1']['soldierCount']==110 and
-            observed['data']['squads']['1']['staffedForAttack'] is True,
+            observed['data']['squads']['1']['staffedForAttack'] is True and
+            observed['data']['unassignedSoldiers']['observed'] is True and
+            observed['data']['unassignedSoldiers']['total']==70 and
+            observed['data']['squads']['1']['formationCapacity']==150 and
+            observed['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is True and
+            observed['data']['staffingPreparationPerformed'] is False,
             'native prepare lost current ordinary-monster or independently owned march identity')
     vm.globals().state.soldierCount=0
     no_soldiers=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
     require(no_soldiers['state']=='confirmed' and
             no_soldiers['data']['squads']['1']['soldierCount']==0 and
-            no_soldiers['data']['squads']['1']['staffedForAttack'] is False,
+            no_soldiers['data']['squads']['1']['staffedForAttack'] is False and
+            no_soldiers['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is True,
             'missing soldier staffing was advertised as dispatch-ready')
+    vm.globals().state.badFreeType=True
+    bad_free=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(bad_free['state']=='confirmed' and
+            bad_free['data']['unassignedSoldiers']['observed'] is False and
+            bad_free['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'malformed native free soldier record reported as actionable')
+    vm.globals().state.badFreeType=False
+    vm.globals().state.badCapacity=True
+    no_capacity=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(no_capacity['state']=='confirmed' and
+            no_capacity['data']['squads']['1']['formationCapacity'] is None and
+            no_capacity['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'unknown native formation capacity advertised a viable staffing path')
+    vm.globals().state.badCapacity=False
+    vm.globals().state.freeTroops=0
+    no_free=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(no_free['state']=='confirmed' and
+            no_free['data']['unassignedSoldiers']['total']==0 and
+            no_free['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'depleted native free soldier inventory advertised a viable staffing path')
+    vm.globals().state.freeTroops=None
+    vm.globals().state.capacity=0
+    no_headroom=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(no_headroom['state']=='confirmed' and
+            no_headroom['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'zero native formation capacity advertised a viable staffing path')
+    vm.globals().state.capacity=None
+    vm.globals().state.heroCount=0
+    no_hero=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(no_hero['state']=='confirmed' and
+            no_hero['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'no assigned heroes advertised a viable staffing path')
+    vm.globals().state.heroCount=1
+    vm.globals().state.localHeroCount=0
+    local_heroes_absent=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
+    require(local_heroes_absent['state']=='confirmed' and
+            local_heroes_absent['data']['squads']['1']['staffedForAttack'] is False and
+            local_heroes_absent['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
+            'native local-zero heroes bypassed game formation staffing gate')
+    vm.globals().state.localHeroCount=None
     vm.globals().state.soldierCount=110
     fields.update(mode='open',targetUuid='990123')
     opened=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
@@ -641,6 +741,17 @@ def main():
             "read-only native clicked-world point provenance missing")
     require(prestate["freshLookups"] == 1,
             "existing march must be independently re-fetched once")
+    vm.globals().Input=vm.table_from({"mousePosition": vm.table_from({"x":33,"y":45})})
+    pointer_spoof=preflight()
+    require(pointer_spoof['state']=='confirmed' and
+            pointer_spoof['data']['currentCursorVerified'] is False and
+            pointer_spoof['data']['freshTouchVerified'] is False and
+            pointer_spoof['data']['safeToDispatch'] is False and
+            pointer_spoof['data']['targetSource']=='SceneManager.World.curTouchPoint_last_touch' and
+            prestate['attackDelegateCount']==0,
+            'unverified physical pointer spoofed original game current-world touch')
+    require(prestate["freshLookups"] == 2,
+            "cursor spoof read-only preflight must revalidate the existing march independently")
     prestate["existingAbsent"] = True
     lookups_before = prestate["freshLookups"]
     idle = preflight()

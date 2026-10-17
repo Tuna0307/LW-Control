@@ -142,9 +142,63 @@ local function formation_staffing(form)
         end
         result.heroCount=count
     end
+    local ok_local,local_count=invoke(form,"GetLocalHeroesCount")
+    local n_local=ok_local and number(local_count) or nil
+    if n_local~=nil and n_local>=0 and n_local%1==0 then
+        result.localHeroCount=n_local
+    end
     result.staffedForAttack=result.soldierCount~=nil and
-        result.soldierCount>0 and result.heroCount~=nil and result.heroCount>0
+        result.soldierCount>0 and result.heroCount~=nil and result.heroCount>0 and
+        (result.localHeroCount==nil or result.localHeroCount>0)
     return result
+end
+
+-- R5: v26 ArmyFormationDataManager.GetArmyUnFormationList (root/24,
+-- lines 552-564) is the game's read-only projection of
+-- ArmyManager.GetArmyFreeList (root/13, lines 234-240). The latter reads
+-- allArmy[k].free; the former clamps negative counts to zero. In contrast,
+-- AutoAddSoldierByForm (root/43, 917-959) CLEARS formation.soldiers and
+-- mutates the formation, so must never be called by an inventory/preflight.
+local function unassigned_soldier_inventory(center)
+    local formation_manager=member(center,"ArmyFormationDataManager")
+    local ok_free,free=invoke(formation_manager,"GetArmyUnFormationList")
+    if not ok_free or type(free)~="table" then
+        return {observed=false,reason="native_unassigned_soldier_list_unavailable",
+            total=nil,countByType={},source="ArmyFormationDataManager.GetArmyUnFormationList"}
+    end
+    local summary={observed=false,total=nil,countByType={},
+        source="ArmyFormationDataManager.GetArmyUnFormationList"}
+    local total,n=0,0
+    for soldier_id,count in pairs(free) do
+        n=n+1
+        if n>256 then summary.reason="native_unassigned_list_exceeds_bounded_types"; return summary end
+        local key=ident(soldier_id)
+        local amount=number(count)
+        if not key or amount==nil or amount<0 or amount%1~=0 or amount>1000000000 then
+            summary.reason="invalid_native_unassigned_soldier_record"
+            return summary
+        end
+        summary.countByType[key]=amount
+        total=total+amount
+    end
+    summary.observed=true
+    summary.total=total
+    return summary
+end
+
+-- v26 MarchUtil.GetMaxCanAddSoldierNum (root/45, 1073-1101) reads
+-- building_base k5, APS_FORMATION_SIZE/ENHANCE and
+-- GetFormationMaxNumByFormationIndex. It does not assign troops. This
+-- capacity is advisory and never authorizes an attack by itself.
+local function formation_capacity(form)
+    local index=number(member(form,"index"))
+    if not index or index<1 or index%1~=0 then return nil end
+    local method=member(rawget(_G,"MarchUtil"),"GetMaxCanAddSoldierNum")
+    if type(method)~="function" then return nil end
+    local ok,capacity=pcall(method,member(form,"heroes"),index)
+    local n=ok and number(capacity) or nil
+    if n and n>=0 and n%1==0 and n<=1000000000 then return n end
+    return nil
 end
 
 local function selected_window()
@@ -308,6 +362,25 @@ local function transaction_view(transaction)
         "clientCreateUuid","routeReplyCount","replyObserved","replyMessage","replyCount",
         "replyErrorCode","replyUuid","replyOwnerUid","replyClientCreateUuid",
         "replyApplied","replyCorrelation"}) do view[key]=transaction[key] end
+    if (transaction.sendCount or 0)~=1 then
+        view.nonceStatus="no_unique_observed_create_send"
+    elseif transaction.senderError or transaction.senderReturnedFalse then
+        view.nonceStatus="sender_outcome_uncertain"
+    elseif transaction.serializerObserved~=true then
+        view.nonceStatus="original_serializer_not_observed"
+    elseif not transaction.clientCreateUuid then
+        view.nonceStatus="serialized_create_nonce_unreadable"
+    elseif transaction.replyObserved~=true then
+        view.nonceStatus="awaiting_same_nonce_reply"
+    elseif transaction.replyErrorCode then
+        view.nonceStatus="same_nonce_server_error"
+    elseif transaction.replyCorrelation=="native_clientCreateUuid_owner_march_reply" then
+        view.nonceStatus="same_nonce_owner_march_reply_observed_requires_fresh_poststate"
+    else
+        view.nonceStatus="same_nonce_reply_incomplete"
+    end
+    -- A transport/serializer observation alone never licenses a duplicate
+    -- request, proves a physical pointer, or substitutes for march poststate.
     return view
 end
 
@@ -626,6 +699,7 @@ function M.Prepare(fields, input_clear)
     local world = member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok_all, all = invoke(manager,"GetAllMarches")
     local candidates, squads, owned_marches = {}, {}, {}
+    local unassigned=unassigned_soldier_inventory(center)
     local function candidate(raw)
         local value = member(raw,"Value") or raw
         local uuid, n = ident(member(value,"uuid"))
@@ -675,14 +749,23 @@ function M.Prepare(fields, input_clear)
         local lookup_ok,march=invoke(manager,"GetOwnerFormationMarch",member(member(rawget(_G,"LuaEntry"),"Player"),"uid"),n,
             member(member(rawget(_G,"LuaEntry"),"Player"),"allianceId"))
         local staffing=formation_staffing(form)
-        local _,local_heroes=invoke(form,"GetLocalHeroesCount")
+        local local_heroes=staffing.localHeroCount
         local _,stamina=invoke(member(center,"ArmyFormationDataManager"),"GetCurStaminaByUuid",n)
+        local capacity=formation_capacity(form)
+        local has_heroes=staffing.heroCount~=nil and staffing.heroCount>0 and
+            (local_heroes==nil or local_heroes>0)
+        local can_prepare=ok_form and uuid~=nil and staffing.soldierCount~=nil and
+            unassigned.observed and unassigned.total>0 and capacity~=nil and
+            capacity>staffing.soldierCount and has_heroes
         squads[tostring(slot)]={unlocked=ok_form and uuid ~= nil,formationUuid=uuid,
             marchUuid=ident(member(march,"uuid")),targetType=member(march,"target"),
             endTime=number(member(march,"endTime")),lookupSucceeded=lookup_ok,
             formationState=number(member(form,"state")),formationIndex=number(member(form,"index")),
             heroCount=staffing.heroCount,localHeroCount=number(local_heroes),
             soldierCount=staffing.soldierCount,staffedForAttack=staffing.staffedForAttack,
+            formationCapacity=capacity,
+            canPrepareWithUnassignedSoldiers=can_prepare==true,
+            preparationMethod="native_formation_assignment_ui_required_no_mutation",
             stamina=number(stamina),maxNum=number(member(form,"maxNum")),
             pendingTransaction=transaction_view(attacks[tostring(slot)])}
     end
@@ -712,6 +795,7 @@ function M.Prepare(fields, input_clear)
     end
     return {state="confirmed",data={observation="native_ordinary_monsters_and_owned_squads",
         candidates=candidates,squads=squads,ownedMarches=owned_marches,
+        unassignedSoldiers=unassigned,staffingPreparationPerformed=false,
         currentSelector=selector_data,playerUidNativeType=type(member(member(rawget(_G,"LuaEntry"),"Player"),"uid")),
         requestDispatched=false}}
 end
