@@ -286,7 +286,12 @@ const shopConsent = shopPanel().querySelector('input[type="checkbox"]');
 assert.ok(shopConsent, "Affordable shield inventory preflight had no explicit consent");
 assert.equal(shopButtons()[1].disabled, true, "Gold spend opened without consent");
 await flush(() => shopConsent.click());
-await flush(() => shopButtons()[1].click());
+await flush(() => {
+  // Two physical browser clicks before React can commit the disabled state
+  // must never become two native one-item gold transactions.
+  const buy = shopButtons()[1];
+  buy.click(); buy.click();
+});
 assert.equal(shieldShopSends, 1, "Native purchase did not send exactly once");
 assert.ok(shopPanel().textContent.includes("不得重复发送"),
   "Pending native purchase did not display no-retry warning");
@@ -301,7 +306,10 @@ assert.ok(shopPanel().querySelector('input[type="checkbox"]'),
   "Owned shield missing separate consumption consent");
 assert.equal(shopButtons()[1].disabled, true, "ItemUse enabled without separate consent");
 await flush(() => shopPanel().querySelector('input[type="checkbox"]').click());
-await flush(() => shopButtons()[1].click());
+await flush(() => {
+  const use = shopButtons()[1];
+  use.click(); use.click();
+});
 assert.equal(shieldUseSends, 1, "Owned shield ItemUse must dispatch only once");
 shieldUseConfirmed = true; shieldCount = 0;
 await flush(() => shopButtons().at(-1).click());

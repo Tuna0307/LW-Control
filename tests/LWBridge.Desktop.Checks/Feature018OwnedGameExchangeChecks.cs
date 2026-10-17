@@ -98,6 +98,19 @@ internal static class Feature018OwnedGameExchangeChecks
             await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
                 Feature018GameCommandService.ReadFields("feature018_shield_shop",
                     JsonSerializer.SerializeToElement(forged))));
+        foreach (string duplicate in new[]
+        {
+            "{\"mode\":\"inspect\",\"mode\":\"buy\",\"slot\":8,\"gemOptIn\":true}",
+            "{\"mode\":\"buy\",\"slot\":8,\"slot\":24,\"gemOptIn\":true}",
+            "{\"mode\":\"buy\",\"slot\":8,\"gemOptIn\":true,\"gemOptIn\":true}",
+            "{\"mode\":\"inspect\",\"slot\":8,\"profileId\":\"a\",\"profileId\":\"b\"}",
+        })
+        {
+            using JsonDocument duplicatePayload = JsonDocument.Parse(duplicate);
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_shield_shop",
+                    duplicatePayload.RootElement)));
+        }
         await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
             Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
                 JsonSerializer.SerializeToElement(new { itemId = "10001", itemOptIn = true }))));

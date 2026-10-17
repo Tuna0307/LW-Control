@@ -132,14 +132,15 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 // The only spend arguments are mode-specific *true* consent.
                 // Unused/forged fields must not be silently accepted on a
                 // read-only shop inspection or a different spending mode.
+                var shieldShopKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (JsonProperty property in payload.EnumerateObject())
                 {
                     bool known = property.Name is "mode" or "slot" or "profileId" ||
                         (mode == "buy" && property.Name == "gemOptIn") ||
                         (mode == "armUse" && property.Name == "shieldReplaceOptIn");
-                    if (!known)
+                    if (!known || !shieldShopKeys.Add(property.Name))
                         throw new BridgeCommandException("INVALID_REQUEST",
-                            "Native shield shop accepts only the selected action and its exact confirmation.");
+                            "Native shield shop requires unique fields for the selected action and its exact confirmation.");
                 }
                 if (payload.TryGetProperty("profileId", out JsonElement shieldRoutingProfile) &&
                     (shieldRoutingProfile.ValueKind != JsonValueKind.String ||

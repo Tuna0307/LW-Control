@@ -408,14 +408,19 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const nativeInFlight = useRef(false);
+  const nativePending = useRef(null);
   const live = online && !previewEnabled;
   useEffect(() => {
+    nativeInFlight.current = false;
+    nativePending.current = null;
     setShop(null); setOwned(false); setConsent(""); setPending(null);
     setStatus(""); setError(""); setBusy(false);
   }, [duration, live, backendBridge.profileGeneration]);
 
   async function inspect() {
-    if (!live || busy || pending) return;
+    if (!live || busy || pending || nativeInFlight.current || nativePending.current) return;
+    nativeInFlight.current = true;
     const owner = backendBridge.currentProfileOwner();
     setBusy(true); setError(""); setStatus(""); setShop(null); setOwned(false); setConsent("");
     try {
@@ -450,16 +455,22 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
     } catch (cause) {
       if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
     } finally {
+      nativeInFlight.current = false;
       if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
     }
   }
   async function act(kind) {
-    if (!live || busy || pending || !shop || consent !== kind ||
+    if (!live || busy || pending || nativeInFlight.current || nativePending.current ||
+        !shop || consent !== kind ||
         (kind === "buy" ? shop.count !== 0 || !shop.canAffordNativePrice : !owned)) return;
     const owner = backendBridge.currentProfileOwner();
     const baseline = { kind, duration, itemId: String(shop.itemId),
       count: shop.count, gold: shop.gold, price: shop.nativePrice };
     // Tombstone before any mutating mailbox call. A timeout can follow a send.
+    // React state updates are batched. The synchronous refs stop two browser
+    // click events in the same task from launching two native item sends.
+    nativePending.current = baseline;
+    nativeInFlight.current = true;
     setPending(baseline); setBusy(true); setConsent(""); setError(""); setStatus("pending");
     try {
       const result = await backendBridge.invokeProfileScoped(
@@ -480,11 +491,14 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
       if (backendBridge.isCurrentProfileOwner(owner))
         setError((cause.code || cause.message) + " — " + words.error);
     } finally {
+      nativeInFlight.current = false;
       if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
     }
   }
   async function check() {
-    if (!live || busy || !pending) return;
+    if (!live || busy || !pending || nativeInFlight.current ||
+        nativePending.current !== pending) return;
+    nativeInFlight.current = true;
     const owner = backendBridge.currentProfileOwner();
     const baseline = pending;
     setBusy(true); setError("");
@@ -513,6 +527,7 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
         result.remainingMilliseconds > 0 &&
         result.remainingMilliseconds <= result.durationMilliseconds + 15000;
       if (bought || used) {
+        nativePending.current = null;
         setPending(null); setShop(null); setOwned(false);
         setStatus(bought ? "purchased" : "used");
       } else if (result?.awaitingGameConfirmation === true &&
@@ -526,6 +541,7 @@ function ShieldNativeActionPanel({ online, previewEnabled }) {
       if (backendBridge.isCurrentProfileOwner(owner))
         setError((cause.code || cause.message) + " — " + words.error);
     } finally {
+      nativeInFlight.current = false;
       if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
     }
   }
