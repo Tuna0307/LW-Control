@@ -399,7 +399,15 @@ local function observe_step(step)
     local ok, item = invoke(hero.object,"GetEquipBySlotType",step.slot)
     if not ok then return false,"Native slot reader failed" end
     local current = item and exact_id(member(item,"uuid")) or ""
-    if current ~= step.after then return nil end
+    if current ~= step.after then
+        if current ~= step.before then
+            -- The native push/slot has changed to a THIRD item, not this
+            -- original HeroEquipInstall/Uninstall step's expected result.
+            -- A different player's or manual update is not a pending ACK.
+            return false,"Native gear slot changed to an unexpected equipment UUID"
+        end
+        return nil
+    end
     if step.after ~= "" then
         local inv, reason = inventory_for_target(
             member(rawget(_G,"DataCenter"),"EquipDataManager"),step.after,hero,step.slot)

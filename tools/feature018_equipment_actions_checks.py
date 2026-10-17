@@ -359,6 +359,51 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
         self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
 
+    def test_saved_preset_2_apply_then_saved_preset_1_restore_exact_gear_and_owner(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(state['hero101']['equips'][1]['uuid'],501)
+        self.assertEqual(state['hero202']['equips'][1]['uuid'],503)
+        total=0
+        for selected in (2,1):
+            initial=call(slot=selected)
+            self.assertEqual(initial['state'],'accepted')
+            for _ in range(10):
+                lua.globals().apply_push()
+                next_state=call(query=True,slot=selected)
+                if next_state['state']=='confirmed':
+                    break
+            self.assertEqual(next_state['state'],'confirmed')
+            self.assertTrue(next_state['data']['nativeSlotPoststateVerified'])
+            self.assertFalse(next_state['data']['perSlotReplyCorrelated'])
+            self.assertEqual(next_state['data']['completedSteps'],4)
+            self.assertEqual(next_state['data']['dispatchedSteps'],4)
+            total+=4
+            self.assertEqual(state['sent'],total)
+            if selected==2:
+                self.assertEqual(state['hero101']['equips'][1]['uuid'],502)
+                self.assertEqual(state['hero202']['equips'][1]['uuid'],501)
+            else:
+                self.assertEqual(state['hero101']['equips'][1]['uuid'],501)
+                self.assertEqual(state['hero202']['equips'][1]['uuid'],503)
+                self.assertEqual(state['items'][502]['heroUuid'],0)
+                self.assertEqual(state['items'][501]['heroUuid'],101)
+                self.assertEqual(state['items'][503]['heroUuid'],202)
+        self.assertEqual(call(query=True,slot=1)['state'],'failed')
+
+    def test_unrelated_equipment_change_while_waiting_cannot_advance_or_send(self):
+        lua,module,state,presets,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("""
+          state.hero101.equips[1]=state.items[503]
+          state.items[501].heroUuid=0
+          state.items[503].heroUuid=101
+          state.hero202.equips[1]=nil
+        """)
+        response=call(query=True)
+        self.assertEqual(response['state'],'failed')
+        self.assertIn('unexpected equipment UUID',response['error'])
+        self.assertEqual(state['sent'],1)
+
     def test_exact_2289_uid_and_all_three_native_servers_before_every_step(self):
         lua,_,state,_,call=self.fixture();call();lua.globals().apply_push()
         lua.execute('function LuaEntry.Player:GetCurServerId()return 2212 end')

@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-7"}
+local M = {VERSION = "feature018-relocation-actions-8"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -296,6 +296,12 @@ local function preflight(fields, input_clear, action)
             return unavailable(marks_error, snapshot)
         end
         snapshot.allianceRally = marks
+        snapshot.actionReadiness.originalNativeRoute =
+            marks.nativeChooserWouldOpen and "UIChooseRallyPoint" or
+            "MoveCrossServer_BackToSrcServer"
+        snapshot.actionReadiness.chooserRequestEligible =
+            marks.nativeChooserWouldOpen and marks.otherServerRally ~= nil
+        snapshot.actionReadiness.homeDirectRelocationEnabled = false
     end
     local owner_token = session .. "/" .. snapshot.ownerUid .. "/" .. snapshot.sourceServerId
     if owner_token ~= last_owner then
@@ -345,8 +351,10 @@ local function preflight(fields, input_clear, action)
     -- Even if an external/manual relocation changed the city coordinate after
     -- this snapshot, it cannot turn a never-sent hotkey into a success.
     return unavailable(action == "randomRelocate"
-        and "No source-verified F9 random destination, owned item mapping or warning/confirmation producer"
-        or "No source-verified F10 chosen alliance rally target and validated UI confirmation", snapshot)
+        and "Original F9 bag item is source identified but random destination/server ACK are not established by read-only preflight"
+        or (snapshot.allianceRally and snapshot.allianceRally.nativeChooserWouldOpen
+            and "Original F10 native rally chooser requires explicit user selection; no relocation or server ACK observed"
+            or "Original F10 source-home route sends MoveCrossServer, not AllianceMoveCity; direct send suppressed"), snapshot)
 end
 
 -- Recovery of the actual random/alliance item branch:
@@ -358,11 +366,17 @@ end
 -- We reject every currently active native warning rather than silently accepting
 -- its callback: battlefield, season hunter, meteorite, zombie challenge, virus.
 -- Thus a sent request has traversed the same no-warning native conditions.
--- Reply observation wraps only existing original handlers during the outstanding
--- transaction, calls them unchanged, and restores them before reporting success.
--- F10 DOES NOT send WorldMv: original AllianceMoveCityMessage.HandleMessage
--- result=1 invokes BuildManager:WorldMvHandle(reply, 240). A plain WorldMv
--- reply to that manager must never count as this alliance action's ACK.
+-- F9 ItemUse reply observation wraps the original ItemUseHandle during its
+-- outstanding request and restores it before reporting success. Without a
+-- matching native ItemUse UUID and independent inventory+position it remains
+-- unconfirmed; the server's random destination is never predicted.
+-- Important v26 correction: AllianceMoveCityToSourceRallyPoint on *this*
+-- source=self=2289 home world invokes upvalue MoveCityFromOtherToSource.
+-- That upvalue instead sends MsgDefines.MoveCrossServer (BackToSrcServer,
+-- dstPoint=0, useCrossItem=not CanFreeAllianceMove). Its line-136
+-- AllianceMoveCity sender runs only on the OTHER branch and is not the 2289
+-- direct F10 packet. Never invoke this mismatched direct path or claim its
+-- WorldMvHandle(reason=240) could acknowledge the attempted request.
 local pending=nil
 local function clear_hook(tx)
     if tx.hook and member(tx.manager,tx.method)==tx.hook then
@@ -446,6 +460,92 @@ inspect_relocation_readiness=function(action)
     end
     return readiness
 end
+-- R8 read-only endpoint for authenticated feature018_relocation_preflight.
+-- Unlike the historical preflightOnly before/after tracker, this obtains an
+-- independent CURRENT original-v26 readiness observation; it never creates
+-- a pending action, opens a chooser, touches network or attributes a reply.
+-- "actionable" here means only that an original F9 ItemUse REQUEST can be
+-- attempted under the native owner+stock+warning+focus guards. It does not
+-- mean the server will choose a valid destination or acknowledge the move.
+-- F10's source=self=2289 native direct route is MoveCrossServer; it is
+-- NEVER actionable as relocation even if a UI chooser is available.
+function M.Readiness(fields,input_clear,action)
+    if action==nil and type(fields)=="table" then action=fields.action end
+    if action~="randomRelocate" and action~="allianceRelocate" then
+        return failed("GAME_PRECONDITION_FAILED",
+            "Original relocation readiness requires exact F9 or F10 action")
+    end
+    if not key_identity(fields,action) then
+        return failed("GAME_PRECONDITION_FAILED",
+            "Original relocation readiness requires an exact owner session and slot zero")
+    end
+    local snapshot,why=world_snapshot()
+    if not snapshot then return unavailable(why) end
+    local focus_ok,focus_clear=false,false
+    if type(input_clear)=="function" then
+        focus_ok,focus_clear=pcall(input_clear)
+    end
+    local input_ready=focus_ok and focus_clear==true
+    local item=inspect_relocation_readiness(action)
+    local rally, rally_error
+    if action=="allianceRelocate" and snapshot.inAlliance then
+        rally,rally_error=alliance_rally_snapshot(
+            member(rawget(_G,"LuaEntry"),"Player"))
+    end
+    local ui=rawget(_G,"UIManager")
+    local chooser_components_present=
+        type(member(ui,"GetInstance"))=="function" and
+        member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")~=nil
+    local chooser_eligible=action=="allianceRelocate" and
+        snapshot.inAlliance and rally~=nil and
+        rally.nativeChooserWouldOpen and rally.otherServerRally~=nil and
+        chooser_components_present and input_ready and item.ownerItemPresent and
+        item.warningsClear
+    local sender_ready=type(member(rawget(_G,"SFSNetwork"),"SendMessage"))=="function" and
+        member(rawget(_G,"MsgDefines"),"ItemUse")~=nil and
+        type(member(member(rawget(_G,"DataCenter"),"ItemManager"),
+            "ItemUseHandle"))=="function"
+    local f9_ready=action=="randomRelocate" and input_ready and
+        item.ownerItemPresent and item.warningsClear and sender_ready
+    local route=action=="randomRelocate" and "ItemUse" or
+        (not snapshot.inAlliance and "AllianceMembershipRequired" or
+        (rally and rally.nativeChooserWouldOpen and "UIChooseRallyPoint" or
+         "MoveCrossServer_BackToSrcServer"))
+    local blocker
+    if not input_ready then blocker="Native game text input is active or unverifiable"
+    elseif not item.ownerItemPresent then blocker=item.itemBlocker
+    elseif not item.warningsClear then blocker=item.warningBlocker
+    elseif action=="randomRelocate" and not sender_ready then
+        blocker="Original ItemUse sender or reply observer unavailable"
+    elseif action=="allianceRelocate" and not snapshot.inAlliance then
+        blocker="Native F10 alliance membership unavailable"
+    elseif action=="allianceRelocate" and rally_error then blocker=rally_error
+    elseif action=="allianceRelocate" and not (rally and rally.nativeChooserWouldOpen) then
+        blocker="Original source-home F10 would send MoveCrossServer, not AllianceMoveCity"
+    elseif action=="allianceRelocate" and not chooser_components_present then
+        blocker="Original F10 chooser UI not available"
+    end
+    return {state="confirmed",data={
+        observation="original_v26_authenticated_relocation_readiness",
+        readOnly=true,action=action,slot=0,
+        ownerUid=snapshot.ownerUid,sourceServerId=snapshot.sourceServerId,
+        selfServerId=snapshot.selfServerId,currentServerId=snapshot.currentServerId,
+        worldPointId=snapshot.worldPointId,inAlliance=snapshot.inAlliance,
+        inputFocusClear=input_ready,
+        ownerItemPresent=item.ownerItemPresent,itemType=item.itemType,
+        itemId=item.itemId,itemUuid=item.itemUuid,itemCount=item.itemCount,
+        warningsClear=item.warningsClear,warningBlocker=item.warningBlocker,
+        nativeItemBlocker=item.itemBlocker,
+        originalNativeRoute=route,originalPacketSend=false,
+        requestDispatched=false,serverReplyObserved=false,
+        serverAckAttributable=false,relocationConfirmed=false,
+        destinationVerified=false,actionable=f9_ready==true,
+        nativeItemUseRequestReady=f9_ready==true,
+        chooserRequestEligible=chooser_eligible==true,
+        chooserVisibleVerified=false,ownerSelectionRequired=chooser_eligible==true,
+        homeDirectRelocationEnabled=false,
+        currentBlocker=blocker}}
+end
 local function action_receipt(tx,snapshot,confirmed)
     return {state=confirmed and "confirmed" or "accepted",data={
         observation=confirmed and "native_relocation_reply_item_and_world_position" or "native_relocation_pending",
@@ -457,6 +557,35 @@ local function action_receipt(tx,snapshot,confirmed)
         awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
         replyObserved=tx.reply==true,worldMvAcknowledged=confirmed and tx.action=="allianceRelocate",
         warningsClear=true,readOnly=false}}
+end
+-- Original TryAllianceMoveCity lines 40-47: when a genuine same-alliance
+-- OtherServerRally exists, open the original chooser UI only. The owner must
+-- make a separate native destination/confirmation choice. Opening the dialog
+-- is not a MoveCrossServer/AllianceMoveCity request or evidence of relocation.
+local function request_original_f10_chooser(snapshot,marks)
+    local ui=rawget(_G,"UIManager")
+    local ok_manager,manager=invoke(ui,"GetInstance")
+    local window=member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")
+    if not ok_manager or manager==nil or
+       type(member(manager,"OpenWindow"))~="function" or window==nil then
+        return unavailable("Original F10 rally chooser UI not available",snapshot)
+    end
+    local ok_open=pcall(member(manager,"OpenWindow"),manager,
+        window,{anim=true},{costType=4,isInviteMove=false})
+    if not ok_open then
+        return failed("GAME_ACTION_UNCONFIRMED",
+            "Native F10 chooser open outcome unknown; no relocation ACK")
+    end
+    return {state="accepted",data={
+        observation="original_v26_F10_rally_chooser_open_requested",
+        action="allianceRelocate",ownerUid=snapshot.ownerUid,
+        sourceServerId=snapshot.sourceServerId,
+        otherServerRally=marks.otherServerRally,homeRally=marks.homeRally,
+        chooserRequestMade=true,chooserVisibleVerified=false,
+        ownerSelectionRequired=true,destinationAuthorized=false,
+        requestDispatched=false,gameRequestAcknowledged=false,
+        relocationConfirmed=false,itemDebitedVerified=false,
+        sourceVersion=26,readOnly=false}}
 end
 local function perform(fields,input_clear,action)
     if type(fields)~="table" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation fields") end
@@ -473,13 +602,6 @@ local function perform(fields,input_clear,action)
     if pending then
         if pending.token~=token or pending.action~=action then
             return failed("GAME_PRECONDITION_FAILED","An owned relocation is unresolved; never repeat or replace it")
-        end
-        if action=="allianceRelocate" then
-            local current_rally=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
-            if not current_rally or current_rally.ownerAllianceUid~=pending.allianceUid or
-               not current_rally.homeRally or current_rally.homeRally.worldPointId~=pending.rallyPoint then
-                return failed("GAME_ACTION_UNCONFIRMED","Native alliance owner/rally changed during relocation")
-            end
         end
         local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
         local ok,item=invoke(itemdata,"GetItemById",pending.item.nativeItemId)
@@ -506,35 +628,30 @@ local function perform(fields,input_clear,action)
     if not clear then return failed("GAME_PRECONDITION_FAILED",why) end
     local item,item_reason=owned_item(action)
     if not item then return unavailable(item_reason,snapshot) end
-    local rally,alliance_uid
+    local alliance_uid,chooser_marks
     if action=="allianceRelocate" then
         if not snapshot.inAlliance then return failed("GAME_PRECONDITION_FAILED","Native alliance membership required") end
         local marks,why=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
-        if not marks or not marks.homeRally or not marks.homeRally.authorizedHomeServer then
-            return failed("GAME_PRECONDITION_FAILED",why or "Exact same-alliance home rally missing")
+        if not marks then
+            return failed("GAME_PRECONDITION_FAILED",why or "Original F10 native alliance marks unavailable")
         end
         -- Original TryAllianceMoveCity first checks OtherServerRally. If it
         -- exists, the original F10 route opens UIChooseRallyPoint, leaving the
         -- actual choice to the owner. Directly invoking home-rally here would
         -- silently bypass that native chooser and select another outcome.
         if marks.nativeChooserWouldOpen then
-            return unavailable("Original F10 requires native rally chooser; selected other-server/home target not confirmed")
+            if not marks.otherServerRally then
+                return unavailable("Original F10 chooser mark is not owner-verified",snapshot)
+            end
+            chooser_marks=marks
+        else
+            -- Exact source=self=current=2289 owner fence makes this native
+            -- original request MoveCrossServer, NOT AllianceMoveCity. It
+            -- cannot be paired with the old WorldMvHandle(reason=240)
+            -- confirmation; reject rather than spending a cross-server item.
+            return unavailable("Original F10 same-home rally route sends MoveCrossServer, not AllianceMoveCity; no authorized direct relocation ACK",snapshot)
         end
-        rally=marks.homeRally;alliance_uid=marks.ownerAllianceUid
-        if type(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"))~="function" then
-            return unavailable("Original chosen home-rally relocation method unavailable")
-        end
-        -- Original ToSourceRallyPoint on the home world defers the send
-        -- through ChangeToWorld while the player is inside the City scene.
-        -- F10 can only claim a synchronous dispatch from the world scene.
-        if static_bool(rawget(_G,"SceneUtils"),"GetIsInCity")~=false then
-            return unavailable("Native F10 requires current world scene; City transition would defer the send")
-        end
-        local owner_player=member(rawget(_G,"LuaEntry"),"Player")
-        local ok_login,source_login=invoke(owner_player,"IsLoginSourceServer")
-        if not ok_login or source_login~=true then
-            return unavailable("Native F10 source-server login status unverified")
-        end
+        alliance_uid=marks.ownerAllianceUid
     end
     -- Native focus checks and item/rally readers can cross a game-session
     -- transition. Revalidate the exact owner, three servers and before
@@ -561,73 +678,49 @@ local function perform(fields,input_clear,action)
             final_warning_reason or "Native relocation warning changed before dispatch")
     end
     if action=="allianceRelocate" then
-        if not final_owner.inAlliance or
-           static_bool(rawget(_G,"SceneUtils"),"GetIsInCity")~=false then
+        if not final_owner.inAlliance then
             return failed("GAME_PRECONDITION_FAILED",
-                "Native F10 alliance membership/world scene changed before dispatch")
-        end
-        local login_ok,source_login=invoke(
-            member(rawget(_G,"LuaEntry"),"Player"),"IsLoginSourceServer")
-        if not login_ok or source_login~=true then
-            return failed("GAME_PRECONDITION_FAILED",
-                "Native F10 source-server login changed before dispatch")
+                "Native F10 alliance membership changed before chooser")
         end
         local fresh=alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player"))
+        local old_remote=chooser_marks and chooser_marks.otherServerRally
+        local now_remote=fresh and fresh.otherServerRally
         if not fresh or fresh.ownerAllianceUid~=alliance_uid or
-           fresh.nativeChooserWouldOpen or not fresh.homeRally or
-           not fresh.homeRally.authorizedHomeServer or
-           fresh.homeRally.markType~=rally.markType or
-           fresh.homeRally.worldPointId~=rally.worldPointId then
+           not fresh.nativeChooserWouldOpen or not old_remote or not now_remote or
+           old_remote.serverId~=now_remote.serverId or
+           old_remote.markType~=now_remote.markType or
+           old_remote.worldPointId~=now_remote.worldPointId then
             return failed("GAME_PRECONDITION_FAILED",
-                "Original native alliance rally target changed before dispatch")
+                "Original native alliance chooser mark changed before opening")
         end
+        return request_original_f10_chooser(final_owner,fresh)
+    end
+    if action~="randomRelocate" then
+        return failed("GAME_PRECONDITION_FAILED",
+            "Original relocation sender is unavailable for this action")
     end
     local center=rawget(_G,"DataCenter")
-    local manager=member(center,action=="randomRelocate" and "ItemManager" or "BuildManager")
-    local method=action=="randomRelocate" and "ItemUseHandle" or "WorldMvHandle"
+    local manager=member(center,"ItemManager")
+    local method="ItemUseHandle"
     local original=member(manager,method)
     if type(original)~="function" then return unavailable("Original relocation reply handler unavailable") end
     local send=member(rawget(_G,"SFSNetwork"),"SendMessage")
     local message=member(rawget(_G,"MsgDefines"),"ItemUse")
-    if action=="randomRelocate" and (type(send)~="function" or message==nil) then return unavailable("Original random relocation ItemUse sender unavailable") end
-    if action=="allianceRelocate" and
-       (type(send)~="function" or member(rawget(_G,"MsgDefines"),"AllianceMoveCity")==nil) then
-        return unavailable("Original native AllianceMoveCity sender unavailable")
+    if type(send)~="function" or message==nil then
+        return unavailable("Original random relocation ItemUse sender unavailable")
     end
     local tx={token=token,action=action,item=item,before=snapshot.worldPointId,
-        manager=manager,method=method,original=original,reply=false,
-        allianceUid=alliance_uid,rallyPoint=rally and rally.worldPointId or nil}
+        manager=manager,method=method,original=original,reply=false}
     tx.hook=function(self,response,...)
         local returns=table.pack(original(self,response,...))
         local current=world_snapshot()
         if pending==tx and current and token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
-            if action=="randomRelocate" then
-                if tostring(member(response,"itemId"))==item.itemId and
-                   uid(member(response,"uuid"))==item.itemUuid then
-                    -- ItemUseHandle supports responses with only itemId and
-                    -- updates inventory via GetItemById. That is not a unique
-                    -- acknowledgement of our original owned stack UUID.
-                    tx.reply=member(response,"errorCode")==nil
-                    tx.rejected=not tx.reply
-                end
-            elseif select(1,...)==240 and integer(member(response,"result"),1)==1 and
-                   integer(member(response,"serverId"),1)==HOME_SERVER then
-                -- AllianceMoveCityMessage forwards only result=1 to this
-                -- native handler with reason=240. Its authoritative server
-                -- point must agree with the independent native position
-                -- AFTER the original WorldMvHandle updates that position.
-                local point=member(response,"worldMainPoint")
-                local embedded=member(member(response,"buildInfo"),"pId")
-                local server_point=point and integer(point,0) or
-                    embedded and integer(embedded,0)
-                if server_point and server_point<10000000 and
-                   (point==nil or integer(point,0)==server_point) and
-                   (embedded==nil or integer(embedded,0)==server_point) and
-                   server_point==current.worldPointId then
-                    tx.replyPoint=server_point
-                    tx.reply=member(response,"errorCode")==nil
-                    tx.rejected=not tx.reply
-                end
+            if tostring(member(response,"itemId"))==item.itemId and
+               uid(member(response,"uuid"))==item.itemUuid then
+                -- ItemUseHandle can handle itemId-only responses; those
+                -- cannot independently acknowledge our exact owned stack.
+                tx.reply=member(response,"errorCode")==nil
+                tx.rejected=not tx.reply
             end
         end
         return table.unpack(returns,1,returns.n)
@@ -635,12 +728,7 @@ local function perform(fields,input_clear,action)
     local installed=pcall(function()manager[method]=tx.hook end)
     if not installed or member(manager,method)~=tx.hook then return unavailable("Native relocation reply observer could not be attached") end
     pending=tx -- before call, including uncertain exceptions: never retransmit
-    local sent
-    if action=="randomRelocate" then
-        sent=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
-    else
-        sent=pcall(member(rawget(_G,"MoveCityUtil"),"AllianceMoveCityToSelectedRallyPoint"),rally.markType,4,false,nil)
-    end
+    local sent=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
     if not sent then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
         error="Relocation outcome unknown; observe only and never repeat",data=action_receipt(tx,snapshot,false).data} end
     return action_receipt(tx,snapshot,false)
