@@ -17,6 +17,10 @@ from inspect_current import root_methods  # noqa: E402
 
 
 EXPECTED = {
+    'DataCenter/ItemData/ItemData.luac':
+        'b462613ee0ab9df7c39f618c968c4920552c4c74c54a52c74d3520e561c95f6f',
+    'Net/Msgs/ActSignInRewardMessage.luac':
+        '31f775d76976363acb5b610ece08ddf87dc4f6c23136925c7ec26cfc22376e79',
     'Net/Msgs/ItemUseMessage.luac':
         '9313f37b8183fd7338fcfc82cfd3a0d211db1d9cc5ac67fc5d0692de78262a1c',
     'Net/Msgs/UIShopBuyMessage.luac':
@@ -57,6 +61,12 @@ def check():
     handler_fields = method(shop, 'HandleMessage', ['ItemManager', 'ItemBuyHandle'])
     reply_fields = method(inventory, 'ItemBuyHandle', ['errorCode', 'remainGold',
         'costGold', 'item', 'id', 'itemId', 'gold', 'payTotal', 'UpdateOneItem'])
+    # R9 stack-specific inverse: ItemBuyHandle submits reply.item intact to
+    # ItemData.UpdateOneItem. That handler keys ItemInfos by reply.item.uuid
+    # then applies its itemId/count, so total same-type stock is insufficient
+    # to correlate an original native shop reply to the owned stack.
+    method('DataCenter/ItemData/ItemData.luac', 'UpdateOneItem',
+           ['uuid', 'ItemInfos', 'UpdateInfo', 'itemId', 'count', 'ItemIdAndUuid'])
     assert 'requestUuid' not in send_fields and 'requestUuid' not in reply_fields
     assert 'requestId' not in send_fields and 'requestId' not in reply_fields
     assert 'clientCreateUuid' not in handler_fields and 'clientCreateUuid' not in reply_fields
@@ -78,10 +88,13 @@ def check():
            ['errorCode', 'AddRewardsAndRes', 'taskInfo', 'UpdateOneDailyTaskInfo'])
     method(rewards, 'ReturnRewardParamForView',
            ['Gold', 'sm_addGoldCount', 'rewardType', 'count'])
+    method('Net/Msgs/ActSignInRewardMessage.luac', 'HandleMessage',
+           ['errorCode', 'reward', 'AddRewards', 'OnGetEventInfo'])
     print('FEATURE018_R7_SHIELD_REPLY_NATIVE_V26_SOURCE_PASS')
     print('ORIGINAL_SHOP_REPLY_FIELDS: errorCode,item.id,costGold,remainGold; NO request nonce')
+    print('R9_SHOP_STACK: original ItemData.UpdateOneItem uses reply.item.uuid, itemId and count')
     print('ORIGINAL_ITEMUSE_REPLY_FIELDS: errorCode,uuid,itemId,count; NO request nonce')
-    print('GOLD_REWARD_AMOUNT: no verified current-2289 claimable Gold payout')
+    print('GOLD_REWARD_AMOUNT: sign-in reply AddRewards sourced; no verified current-2289 claimable Gold payout')
 
 
 if __name__ == '__main__':

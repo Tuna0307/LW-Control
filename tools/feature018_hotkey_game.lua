@@ -444,6 +444,29 @@ local function owned_item_count(uuid, item_id)
     return count
 end
 
+-- v26 ItemData.UpdateOneItem (DataCenter/ItemData/ItemData.luac root/16)
+-- indexes ItemInfos by the server-returned item.uuid. Aggregate per-itemId
+-- stock is insufficient to prove the exact returned shop stack exists.
+-- Fail closed on duplicate UUID entries, a changed itemId or malformed count.
+local function owned_exact_stack_count(items, uuid, item_id)
+    -- Reuse the SAME ItemData:GetItemList snapshot already used for total
+    -- stock; do not trigger a second native list fetch while correlating.
+    if type(items) ~= "table" then return nil end
+    local count, found = nil, 0
+    for _, item in pairs(items) do
+        if native_item_uuid(member(item, "uuid")) == uuid then
+            found = found + 1
+            if found > 1 or digit_id(member(item, "itemId")) ~= item_id then
+                return nil
+            end
+            local amount = number(member(item, "count"))
+            if amount == nil or amount < 0 or amount % 1 ~= 0 then return nil end
+            count = amount
+        end
+    end
+    return count
+end
+
 local function source_matched_shield_row(row, hours)
     -- In v26 StatusManager.GetShieldStatusIds root/3/0 uses
     -- tonumber(StatusTab.effect) == EffectDefine.MAIN_SHIELD. Its result is
@@ -598,6 +621,17 @@ local function install_purchase_observer(pending, center, player)
             local raw_id = member(source_item, "id")
             local raw_item_id = member(source_item, "itemId")
             local response_id = digit_id(raw_id ~= nil and raw_id or raw_item_id)
+            local raw_uuid = member(source_item, "uuid")
+            local response_uuid = native_item_uuid(raw_uuid)
+            local response_count = number(member(source_item, "count"))
+            -- The original ItemBuyHandle hands this entire item to
+            -- ItemData.UpdateOneItem, whose primary identity is item.uuid.
+            -- If the reply exposes the new stack, verify its exact identity
+            -- and purchased count rather than attributing any new same-id
+            -- stack to this request. A reply without a UUID remains weaker
+            -- handler evidence, never proof of a particular stack.
+            local inconsistent_stack = raw_uuid ~= nil and
+                (response_uuid == nil or response_count ~= 1)
             -- ItemManager.ItemBuyHandle overwrites itemId from item.id when
             -- present. Refuse inconsistent dual IDs instead of accepting the
             -- other field before the original cache applies its update.
@@ -610,11 +644,13 @@ local function install_purchase_observer(pending, center, player)
                 rawget(_G, "DataCenter") == center and
                 member(rawget(_G, "LuaEntry"), "Player") == player and
                 native_sub_account()
-            if not conflicting_ids and response_id == pending.itemId and
+            if not conflicting_ids and not inconsistent_stack and
+               response_id == pending.itemId and
                source_error == nil and
                cost == pending.price and remaining == pending.gold - pending.price and
                owned and active.replyCount == 1 then
                 active.replyMatched = true
+                active.replyStackUuid = response_uuid
             else
                 -- An unrelated/malformed/error reply or an original-handler
                 -- failure makes source attribution ambiguous for this lease.
@@ -796,6 +832,24 @@ local function shield_shop(fields)
             data.awaitingGameConfirmation = true
             return {state="accepted",data=data}
         end
+        -- The original v26 source updates ItemData by reply.item.uuid. If a
+        -- reply supplied that identity, enforce *that exact new stack* is in
+        -- the native inventory. Equal total stock + Gold is not enough when
+        -- the reply's own stack went missing or a different stack appeared.
+        if pending.replyStackUuid ~= nil then
+            local stack_count = owned_exact_stack_count(
+                owned, pending.replyStackUuid, pending.itemId)
+            if stack_count ~= 1 then
+                pending.replyAmbiguous = true
+                pending.replyMatched = false
+                data.nativeShopReplyMatched = false
+                data.nativeReplyStackMismatch = true
+                data.nativeReplyAmbiguous = true
+                data.awaitingGameConfirmation = true
+                return {state="accepted",data=data}
+            end
+            data.nativeShopReplyStackMatched = true
+        end
         if count == pending.count + 1 and gold == pending.gold - pending.price then
             if pending.replyMatched and not observer_intact then
                 -- If our observer was overwritten, the previous reply
@@ -804,7 +858,9 @@ local function shield_shop(fields)
                 data.nativeReplyAmbiguous = true
             end
             data.purchaseProofKind = data.nativeShopReplyMatched and
-                "matching_original_reply_and_cached_poststate_no_nonce" or
+                (data.nativeShopReplyStackMatched and
+                "matching_original_reply_owned_stack_and_cached_poststate_no_nonce" or
+                "matching_original_reply_and_cached_poststate_no_nonce") or
                 "native_cached_inventory_and_gold_only"
             -- The mounted original Hotkeys view gates its completion on
             -- this exact stable observation. Preserve that contract; put
