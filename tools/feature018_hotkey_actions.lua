@@ -275,14 +275,22 @@ local function observe_recall_replies()
             local found
             for slot,pending in pairs(outstanding) do
                 if pending.dispatchStarted and pending.uuid == uuid and
-                   pending.uid == uid and pending.formation == formation and
                    target == pending.returnTarget and
-                   target_server == pending.server and
-                   (member(response,"ownerCurServerId") == nil or owner_server == pending.server) and
+                   (uid == nil or pending.uid == uid) and
+                   (formation == nil or pending.formation == formation) and
+                   (target_server == nil or target_server == pending.server) and
+                   (owner_server == nil or owner_server == pending.server) and
                    pending_recall_owner(pending) then
-                    if found then return nil end
-                    found = {pending=pending,slot=slot,uuid=uuid,uid=uid,
-                        formation=formation,target=target,targetServer=target_server}
+                    local ok_current,current=invoke(pending.marches,"GetMarch",
+                        tonumber(pending.uuid))
+                    if ok_current and same_march(current,pending.uid,
+                          pending.formation,pending.uuid) then
+                        if found then return nil end
+                        found = {pending=pending,slot=slot,uuid=uuid,
+                            uid=uid or pending.uid,
+                            formation=formation or pending.formation,
+                            target=target,targetServer=target_server or pending.server}
+                    end
                 end
             end
             return found

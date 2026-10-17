@@ -721,8 +721,7 @@ def test_recall_original_reply_and_queued_poststate():
         {"uuid": 803002}, {"ownerUid": "3133546747002212"},
         {"ownerFormationUuid": 1002}, {"target": 17},
         {"targetServer": 2212}, {"ownerCurServerId": 2212},
-        {"errorCode": "recall_denied"}, {"ownerUid": None},
-        {"ownerFormationUuid": None}, {"targetServer": None},
+        {"errorCode": "recall_denied"},
     ):
         lua, _, _, state, call = scenario()
         require(call()["state"] == "accepted", "return send unavailable")
@@ -734,6 +733,29 @@ def test_recall_original_reply_and_queued_poststate():
                 outcome["data"]["identityMatchedReturnReplyObserved"] is False and
                 state["dispatches"] == 1,
                 "unrelated/error/incomplete original reply donated recall proof: " + repr(wrong))
+
+    for partial in (
+        {"ownerUid": None},
+        {"ownerFormationUuid": None},
+        {"targetServer": None},
+        {"ownerCurServerId": None},
+        {"ownerUid": None, "ownerFormationUuid": None,
+         "targetServer": None, "ownerCurServerId": None},
+    ):
+        lua, _, _, state, call = scenario()
+        require(call()["state"] == "accepted", "return send unavailable")
+        return_reply(lua, state, **partial)
+        state["target"] = 77
+        outcome = call(query_only=True)
+        require(outcome["state"] == "confirmed" and
+                outcome["data"]["nativeReturnReplyMatched"] is True and
+                outcome["data"]["replyMarchUuid"] == "803001" and
+                outcome["data"]["replyOwnerUid"] == "1183884595002296" and
+                outcome["data"]["replyFormationUuid"] == "1001" and
+                outcome["data"]["replyTargetServer"] == "2296" and
+                state["dispatches"] == 1,
+                "partial exact uuid/target reply was not joined to native owner/formation: " +
+                repr(partial))
 
     lua, _, _, state, call = scenario()
     require(call()["state"] == "accepted", "return send unavailable")
