@@ -1310,8 +1310,6 @@ local function native_hover_target(fields,uid)
     end
     local scene=member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local unity=member(rawget(_G,"CS"),"UnityEngine")
-    local create=member(rawget(_G,"Vector3"),"New") or
-        member(member(unity,"Vector3"),"New")
     local width=number(member(member(unity,"Screen"),"width"))
     local height=number(member(member(unity,"Screen"),"height"))
     local pointer=member(member(unity,"Input"),"mousePosition")
@@ -1320,15 +1318,14 @@ local function native_hover_target(fields,uid)
        x<0 or y<0 or x>=width or y>=height then
         return nil,failed("Physical hover cursor is outside the native Unity viewport")
     end
-    if type(create)~="function" or
-       type(member(scene,"GetRaycastHitMarch"))~="function" then
+    if pointer==nil or type(member(scene,"GetRaycastHitMarch"))~="function" then
         return nil,unsupported("Native WorldArmy march cursor raycast unavailable")
     end
-    local ok_vec,screen=pcall(create,x,y,0)
-    if not ok_vec or screen==nil then
-        return nil,unsupported("Native WorldArmy raycast screen vector unavailable")
-    end
-    local ok_hit,hit=invoke(scene,"GetRaycastHitMarch",screen)
+    -- Unity Input.mousePosition is already the exact native Vector3 consumed
+    -- by WorldInputManager.GetRaycastHitMarch -> WorldScene.ScreenPointToRay.
+    -- Reconstructing it through the Lua Vector3.New wrapper is unnecessary and
+    -- can change the marshalled object seen by the current xLua method.
+    local ok_hit,hit=invoke(scene,"GetRaycastHitMarch",pointer)
     if not ok_hit then return nil,unsupported("Native WorldArmy march raycast failed") end
     local latest_pointer=member(member(unity,"Input"),"mousePosition")
     if number(member(latest_pointer,"x"))~=x or

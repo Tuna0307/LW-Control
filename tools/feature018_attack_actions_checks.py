@@ -1440,12 +1440,16 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
           state.touchCalls=0
           state.hoverAlliance=0
           state.raycastCalls=0
+          state.vectorNewCalls=0
           MarchTargetType.ATTACK_MONSTER=19
           MarchTargetType.COLLECT=20
           NewMarchType={MONSTER=7}
           CS.UnityEngine={Screen={width=1280,height=1134},
             Input={mousePosition={x=700,y=400}},
-            Vector3={New=function(x,y,z) return {x=x,y=y,z=z} end}}
+            Vector3={New=function(x,y,z)
+              state.vectorNewCalls=state.vectorNewCalls+1
+              return {x=x,y=y,z=z,synthetic=true}
+            end}}
           Vector3=CS.UnityEngine.Vector3
           CS.SceneManager.World.GetTouchPoint=function(self,p)
             state.touchCalls=state.touchCalls+1
@@ -1460,7 +1464,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             return state.touchedTile
           end
           CS.SceneManager.World.GetRaycastHitMarch=function(self,p)
-            assert(p.x==700 and p.y==400)
+            assert(p==CS.UnityEngine.Input.mousePosition and p.x==700 and p.y==400)
             state.raycastCalls=state.raycastCalls+1
             if state.raycastCalls==2 and state.hoverAllianceDrift then state.hoverAlliance=700 end
             if state.raycastCalls==3 and state.resourceOccupancyDrift then state.resourceGather=555110 end
@@ -1540,6 +1544,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             return mod.Handle(vm.table_from(dict(payload,**changes)),
                               vm.globals().input_clear)
         first=execute()
+        require(state.vectorNewCalls==0,
+                'physical native hover reconstructed Unity Input.mousePosition')
         if target in ('boss','occupied_resource',
                       'unknown_ground_point','monster_same_alliance','monster_unknown_alliance',
                       'monster_alliance_drift','owner_alliance_unknown',
