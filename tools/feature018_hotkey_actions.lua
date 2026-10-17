@@ -647,6 +647,7 @@ end
 -- Explicitly owner-confirmed Frontline UI action. This is the same original
 -- ParkourBattleLogic five-AddMember producer as G, not a server-scored reward.
 -- The original Sunday battle must already exist; never manufacture one.
+local frontline_ui_attempts = {}
 function M.RegisterFrontline(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end
@@ -657,6 +658,13 @@ function M.RegisterFrontline(feature, frozen_hotkeys)
         end
         local uid, denial = authorized_subaccount()
         if not uid then return denial end
+        local identity = session_id(fields)
+        if identity == nil then
+            return blocked("Original Frontline UI action requires an exact native owner session")
+        end
+        if frontline_ui_attempts[identity] then
+            return blocked("Original Frontline UI action already attempted in this owner session; no repeat")
+        end
         local input = frozen_hotkeys.TextInputClear
         if type(input) ~= "function" then
             return blocked("Original native text-input focus gate unavailable")
@@ -666,12 +674,28 @@ function M.RegisterFrontline(feature, frozen_hotkeys)
             return blocked("Native game text input is active or unverified")
         end
         local mini = rawget(_G,"LWBridgeFeature018MiniGame")
-        if type(member(mini,"FrontlineReinforce")) ~= "function" then
+        if type(member(mini,"FrontlineReinforce")) ~= "function" or
+           type(member(mini,"FrontlineStatus")) ~= "function" then
             return unavailable("Original Sunday Frontline battle producer unavailable")
+        end
+        local ready, snapshot = pcall(mini.FrontlineStatus)
+        if not ready or type(snapshot) ~= "table" or snapshot.state ~= "confirmed" or
+           type(snapshot.data) ~= "table" or
+           snapshot.data.observation ~= "native_frontline_sunday_battle_readonly" or
+           snapshot.data.actionEligible ~= true or
+           snapshot.data.uncertainPriorAction ~= false or
+           snapshot.data.requestDispatched ~= false or
+           snapshot.data.serverAckObserved ~= false then
+            return blocked("Native Frontline source battle is not independently action-ready")
         end
         -- Source-native action independently revalidates UID2289, all three
         -- servers, Sunday event, exact live UI, hero, five GUIDs and count.
         -- It is not safe to retry if it throws after some AddMember calls.
+        -- The browser latch is lost when a tab remounts. Retain a second,
+        -- native one-intent tombstone for this authenticated game session
+        -- BEFORE any original AddMember is called. The separate physical G
+        -- producer remains owned by the native hotkey route.
+        frontline_ui_attempts[identity] = true
         local ok, result = pcall(mini.FrontlineReinforce, fields)
         if not ok or type(result) ~= "table" then
             return blocked("Native reinforcement outcome is uncertain: never auto-retry")

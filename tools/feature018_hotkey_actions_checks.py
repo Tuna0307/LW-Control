@@ -374,6 +374,12 @@ def test_consent_bound_source_frontline_action():
     lua.execute('''
       state.frontlineCalls=0
       LWBridgeFeature018MiniGame={
+        FrontlineStatus=function()
+          return {state='confirmed',data={
+            observation='native_frontline_sunday_battle_readonly',
+            actionEligible=true,uncertainPriorAction=false,
+            requestDispatched=false,serverAckObserved=false}}
+        end,
         FrontlineReinforce=function(fields)
           state.frontlineCalls=state.frontlineCalls+1
           assert(fields.action=='frontlineReinforce' and fields.slot=='5')
@@ -397,7 +403,9 @@ def test_consent_bound_source_frontline_action():
             "Original Frontline native local producer not registered uniquely")
     call=feature.handlers["feature018_frontline_action"]
     def request(**changes):
-        return call(lua.table_from({"action":"frontlineReinforce","slot":"5",**changes}))
+        return call(lua.table_from({"action":"frontlineReinforce","slot":"5",
+            "profileId":"profile","launchSessionId":"launch",
+            "challenge":"challenge","gamePid":"7020",**changes}))
     for opt in (None,"0",True):
         require(request(frontlineOptIn=opt)["state"]=="failed" and
                 state["frontlineCalls"]==0,
@@ -418,6 +426,9 @@ def test_consent_bound_source_frontline_action():
             result["data"]["serverAckObserved"] is False and
             state["frontlineCalls"]==1 and state["dispatches"]==0,
             "Original local Frontline five distinct soldiers were mislabeled as server scoring")
+    require(request(frontlineOptIn="1")["state"]=="failed" and
+            state["frontlineCalls"]==1,
+            "Native UI remount/another fresh consent repeated an earlier original five-unit action")
     lua.execute('''LWBridgeFeature018MiniGame.FrontlineReinforce=function(fields)
       state.frontlineCalls=state.frontlineCalls+1
       return {state='confirmed',data={observation='native_ParkourBattleLogic_GetMemberCount',
@@ -425,7 +436,7 @@ def test_consent_bound_source_frontline_action():
         addedMembers=5,observedCreatedUnits=5,unitIdentityVerified=true,
         observationScope='native_local_battle',serverAckObserved=true}}
     end''')
-    require(request(frontlineOptIn="1")["state"]=="failed" and
+    require(request(frontlineOptIn="1",launchSessionId="newlaunch")["state"]=="failed" and
             state["frontlineCalls"]==2,
             "Forged local soldier response was promoted to invented server acknowledgement")
 
