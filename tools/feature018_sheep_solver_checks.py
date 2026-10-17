@@ -227,11 +227,10 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
                          'failed')
         self.assertEqual(lua.globals().GameOpens, 0)
 
-    def test_synchronous_exact_native_click_ack_drains_queue_without_false_failure(self):
-        # Simulated source UI ordering: OnClickCard enqueues a sent operation,
-        # its matching reply invokes SeasonSheepOpHandle immediately, and
-        # SyncFinish removes the operation before the click method returns.
-        # This can occur on an immediate local callback; it must never resend.
+    def three_card_board(self, auto_reply):
+        # Inert source-shaped current level, UI tile, sent syncOps queue,
+        # matching response and SyncFinish. Delayed replies are delivered by
+        # test code only; neither fixture nor solver contacts a real server.
         lua, solver = self.fixture()
         lua.execute(r'''
         SheepGameState={Doing=1,Success=2}
@@ -242,6 +241,7 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           cls[name]=function() end
         end
         ClickCount=0
+        AutoReply=false
         Game={gameState=1,showCards={{}},visualList={},mapCards={},
           removeList={},temporaryList={}}
         function Game:CanClick(id) return self.visualList[id]~=nil end
@@ -263,10 +263,11 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           View.cardViews[id]={card=card,OnClickCard=function()
             ClickCount=ClickCount+1
             table.insert(View.syncOps,{serverPos=point,isSend=true})
-            View:SeasonSheepOpHandle({type=3,opPointId=point})
+            if AutoReply then View:SeasonSheepOpHandle({type=3,opPointId=point}) end
           end}
         end
         function cls.SeasonSheepOpHandle(self,packet)
+          if packet.type~=3 or points[packet.opPointId]==nil then return end
           local id=points[packet.opPointId]
           assert(id and #self.syncOps==1)
           assert(self.syncOps[1].serverPos==packet.opPointId)
@@ -277,11 +278,23 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
           for _ in pairs(Game.mapCards) do empty=false end
           if empty then Game.gameState=2;Game.rewardsInfo={1} end
         end
+        function AckFirst()
+          local queued=View.syncOps[1]
+          assert(queued)
+          View:SeasonSheepOpHandle({type=3,opPointId=queued.serverPos})
+        end
         package.loaded['UI.LWSeason4.LWUISheepGame.View.LWUISheepGameView']=cls
         ''')
+        lua.globals().AutoReply = auto_reply
         self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
                          'accepted')
         self.assertTrue(solver.BindView(lua.globals().View))
+        return lua, solver
+
+    def test_synchronous_exact_native_click_ack_drains_queue_without_false_failure(self):
+        # Original native callback can synchronously drain the exactly sent
+        # operation while OnClickCard is on the stack. Never resend that click.
+        lua, solver = self.three_card_board(auto_reply=True)
         for _ in range(18):
             solver.Pump()
             if solver.Status()['data']['status'] == 'completed':
@@ -291,6 +304,64 @@ class NativeSeasonFourOwnerLua53Checks(unittest.TestCase):
         self.assertEqual(final['confirmedMoves'], 3)
         self.assertEqual(lua.globals().ClickCount, 3)
         self.assertFalse(final['awaitingServer'])
+
+    def test_delayed_original_click_replies_confirm_three_moves_once_each(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        acknowledgements = 0
+        for _ in range(40):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                # A Pump while queued cannot issue a second native tile click.
+                before = lua.globals().ClickCount
+                solver.Pump()
+                self.assertEqual(lua.globals().ClickCount, before)
+                lua.globals().AckFirst()
+                acknowledgements += 1
+            if solver.Status()['data']['status'] == 'completed':
+                break
+        status = solver.Status()['data']
+        self.assertEqual(status['status'], 'completed')
+        self.assertEqual(status['confirmedMoves'], 3)
+        self.assertEqual(acknowledgements, 3)
+        self.assertEqual(lua.globals().ClickCount, 3)
+
+    def test_stop_fences_uncertain_click_until_exact_old_ack(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        self.assertEqual(lua.globals().ClickCount, 1)
+        stopped = solver.Stop(lua.table_from({'taskName': 'sheepGame'}))['data']
+        self.assertEqual(stopped['status'], 'stopped')
+        self.assertTrue(stopped['restartFenced'])
+        self.assertTrue(stopped['awaitingServer'])
+        attempt = solver.Start(lua.table_from({'taskName': 'sheepGame'}))
+        self.assertEqual(attempt['state'], 'failed')
+        lua.execute("View:SeasonSheepOpHandle({type=3,opPointId='999_0_1'})")
+        lua.execute("View:SeasonSheepOpHandle({type=4,opPointId='10_0_1'})")
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'failed', 'wrong point and error event never retire old request')
+        lua.globals().AckFirst()
+        self.assertFalse(solver.Status()['data']['restartFenced'])
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'accepted', 'matching original SyncFinish may retire old fence')
+        self.assertEqual(lua.globals().ClickCount, 1)
+
+    def test_lease_loss_preserves_uncertain_request_even_if_hook_unloaded(self):
+        lua, solver = self.three_card_board(auto_reply=False)
+        for _ in range(8):
+            solver.Pump()
+            if len(lua.globals().View.syncOps) == 1:
+                break
+        self.assertEqual(len(lua.globals().View.syncOps), 1)
+        solver.CleanupAfterLeaseLoss()
+        self.assertTrue(solver.Status()['data']['restartFenced'])
+        self.assertTrue(solver.Status()['data']['awaitingServer'])
+        self.assertEqual(solver.Start(lua.table_from({'taskName': 'sheepGame'}))['state'],
+                         'failed')
+        self.assertEqual(lua.globals().ClickCount, 1)
 
 
 if __name__ == "__main__":

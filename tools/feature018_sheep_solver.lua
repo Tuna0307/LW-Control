@@ -20,6 +20,10 @@ local M = { VERSION = 'feature018-sheep-solver-1' }
 local run = nil
 local observed = nil
 local owner_class = nil
+-- Stop/timeout may race a native Click already submitted by OnClickCard.
+-- Until the original result handler consumes that exact sent syncOps entry,
+-- starting a new run could attribute the old reply to the new run's point ID.
+local unresolved_move = nil
 local MAX_CARDS, MAX_SEARCH_NODES, SEARCH_SLICE = 108, 24000, 160
 local MAX_MOVES, MOVE_TIMEOUT, BOARD_TIMEOUT = 108, 12, 18
 
@@ -265,6 +269,11 @@ local function stop_internal(reason)
     if run == nil then return end
     run.error = reason
     if run.status ~= 'completed' then run.status = reason == 'stopped' and 'stopped' or 'solve_failed' end
+    if run.pending ~= nil and not run.pending.ack then
+        -- Retain the exact view and original pending record across Stop and
+        -- a future lease transition; neither action cancels an in-flight send.
+        unresolved_move = {view = observed, pending = run.pending}
+    end
     run.pending = nil
     -- The planner is a coroutine. Releasing the actual field on Stop also
     -- releases its captured source-native board while the game stays open.
@@ -278,14 +287,19 @@ local function executing_or_preparing()
 end
 
 local function status()
-    if run == nil then return result('confirmed', nil, {taskName = 'sheepGame', status = 'idle', running = false}) end
+    if run == nil then return result('confirmed', nil, {
+        taskName = 'sheepGame', status = 'idle', running = false,
+        awaitingServer = unresolved_move ~= nil,
+        restartFenced = unresolved_move ~= nil
+    }) end
     local active = run.status == 'opening' or run.status == 'solving' or run.status == 'executing'
     return result('confirmed', nil, {
         taskName = 'sheepGame', status = run.status, running = active,
         currentLevel = run.level, confirmedMoves = run.confirmed or 0,
         totalMoves = run.plan and #run.plan or 0,
         searchNodes = run.nodes or 0, elapsedSeconds = clock() - run.started,
-        awaitingServer = run.pending ~= nil, error = run.error,
+        awaitingServer = run.pending ~= nil or unresolved_move ~= nil,
+        restartFenced = unresolved_move ~= nil, error = run.error,
         terminal = not active,
         source = 'native_Season4_LWSheep_server_ack'
     })
@@ -330,12 +344,27 @@ local function hook_loaded_view()
     end
     local response = function(view, packet, ...)
         local pending = run and run.pending or nil
+        local retired = unresolved_move ~= nil and unresolved_move.view == view and
+                        unresolved_move.pending or nil
         local event = rawget(_G, 'SheepGameOpType')
         local is_click = pending ~= nil and observed == view and event ~= nil and
                          get(packet, 'type') == get(event, 'Click')
+        local is_retired_click = retired ~= nil and event ~= nil and
+                                 get(packet, 'type') == get(event, 'Click') and
+                                 get(packet, 'opPointId') == retired.point
         local queued_before = is_click and queued_point_count(view, pending.point, true) or nil
+        local retired_before = is_retired_click and
+                               queued_point_count(view, retired.point, true) or nil
         local ok, value = pcall(prior_result, view, packet, ...)
-        if run ~= nil and run.pending == pending and observed == view then
+        if is_retired_click and unresolved_move ~= nil and
+           unresolved_move.pending == retired then
+            local retired_after = queued_point_count(view, retired.point, false)
+            if ok and retired_before == 1 and retired_after == 0 and
+               approved_native_owner() then
+                unresolved_move = nil
+            end
+        end
+        if pending ~= nil and run ~= nil and run.pending == pending and observed == view then
             if is_click then
                 if get(packet, 'opPointId') == pending.point then
                     -- SeasonSheepOpHandle can ignore a Click packet when the
@@ -474,6 +503,9 @@ end
 local function start(request)
     if request == nil or request.taskName ~= 'sheepGame' then
         return result('unsupported', 'Only sheepGame automation is admitted')
+    end
+    if unresolved_move ~= nil then
+        return result('failed', 'Prior Food House Click still awaits source-correlated server reconciliation; no restart')
     end
     if run ~= nil and (run.status == 'solving' or run.status == 'executing' or run.status == 'opening') then
         return result('failed', 'Current Food House level is already being processed')

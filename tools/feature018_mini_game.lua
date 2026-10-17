@@ -18,6 +18,8 @@ local bound_chest_view = nil
 local bound_sheep_view = nil
 local watched_ui_classes = {}
 local marker_owned_view = nil
+local marker_owned_target = nil
+local marker_initializing_view = nil
 local land_observer = nil
 local land_proof = nil
 
@@ -563,13 +565,16 @@ local function frontline_context()
     if not found then return nil, "The native primary hero is no longer alive" end
     local count_ok, count = invoke(logic, "GetMemberCount")
     local team_ok, team_count = invoke(team, "GetMemberCount")
+    local allocated = member(logic, "unitGuid")
     if not count_ok or not team_ok or type(count) ~= "number" or
-       count % 1 ~= 0 or count < 1 or team_count ~= count then
-        return nil, "Native Parkour team count is not independently readable"
+       count % 1 ~= 0 or count < 1 or team_count ~= count or
+       not is_integer(allocated) then
+        return nil, "Native Parkour team count or GUID allocator is unreadable"
     end
     return { battle = battle, logic = logic, team = team, heroId = primary_id,
              heroLevel = level, count = count,
-             eventId = member(event, "frontBreakSundayActId") }
+             eventId = member(event, "frontBreakSundayActId"),
+             lastGuid = allocated }
 end
 
 local function frontline_units(team)
@@ -584,9 +589,11 @@ local function frontline_units(team)
     for _, unit in pairs(slots) do
         if unit ~= nil then
             local guid = member(unit, "guid")
-            if not is_integer(guid) and
-               not (type(guid) == "string" and guid ~= "") then return nil end
-            local id = type(guid) .. ":" .. tostring(guid)
+            -- Source MemberUnit.Init:32 obtains a numeric GUID solely through
+            -- ParkourBattleLogic.AllotUnitGuid (+1). String GUIDs are not
+            -- genuine source-created soldier identities.
+            if not is_integer(guid) then return nil end
+            local id = tostring(guid)
             if ids[id] then return nil end
             ids[id] = true
             refs[unit] = id
@@ -616,6 +623,7 @@ local function frontline_reinforce(fields)
            current.team ~= context.team or current.heroId ~= context.heroId or
            current.heroLevel ~= context.heroLevel or
            current.eventId ~= context.eventId or
+           current.lastGuid ~= context.lastGuid + confirmed or
            current.count ~= context.count + confirmed then
             return blocked(changed or "Native Parkour team changed during reinforcement", {
                 beforeCount = context.count, observedAdded = confirmed,
@@ -645,6 +653,7 @@ local function frontline_reinforce(fields)
                     local hero = member(unit, "hero")
                     new_units = new_units + 1
                     if prior_ids[guid] or
+                       member(unit, "guid") ~= member(context.logic, "unitGuid") or
                        member(unit, "originalHeroId") ~= context.heroId or
                        member(hero, "heroId") ~= context.heroId or
                        member(hero, "level") ~= context.heroLevel then
@@ -657,6 +666,7 @@ local function frontline_reinforce(fields)
             end
         end
         if not ok or not count_ok or after ~= context.count + confirmed + 1 or
+           member(context.logic, "unitGuid") ~= context.lastGuid + confirmed + 1 or
            not identities_match or new_units ~= 1 then
             return blocked("Native Parkour member addition was not confirmed", {
                 beforeCount = context.count, observedAdded = confirmed,
@@ -672,6 +682,8 @@ local function frontline_reinforce(fields)
         beforeCount = context.count, afterCount = context.count + confirmed,
         addedMembers = confirmed, unitIdentityVerified = true,
         observedCreatedUnits = confirmed,
+        guidAllocatorBefore = context.lastGuid,
+        guidAllocatorAfter = context.lastGuid + confirmed,
         -- Original AddMember has no per-key server request or response. This
         -- confirms five distinct client battle units, not a server score ACK.
         serverAckObserved = false, observationScope = "native_local_battle",
@@ -741,6 +753,8 @@ local function clear_owned_chest_marker()
         if not ok or member(effect, "activeSelf") ~= false then return false end
     end
     marker_owned_view = nil
+    marker_owned_target = nil
+    marker_initializing_view = nil
     return true
 end
 
@@ -761,13 +775,21 @@ end
 
 local function retire_chest_marker_if_ineligible(view)
     if marker_owned_view ~= view then return true end
+    if marker_initializing_view == view then return true end
     -- Same-view state transitions are not view teardown. The source game can
     -- change SwitchEnd -> ShowBigReward, set curSelectIndex on OnClickBox, or
     -- set received on OnTreasureChestEndResult without hiding switchEffect.
-    if member(view, "switchState") == "SwitchEnd" and
-       member(view, "received") ~= true and
-       member(view, "curSelectIndex") == nil then
-        return true
+    -- Also catch reward identity / physical-position drift on an unchanged
+    -- SwitchEnd view: a previously valid marker must never point elsewhere.
+    local target = marker_owned_target
+    if target ~= nil then
+        local current = chest_snapshot(view)
+        if current.state == "confirmed" and
+           current.data.bestRewardBoxIndex == target.index and
+           chest_effect_at(view, target.x, target.y, target.z) and
+           chest_effect_at(view, current.data.x, current.data.y, current.data.z) then
+            return true
+        end
     end
     return clear_owned_chest_marker()
 end
@@ -804,7 +826,11 @@ local function mark_chest()
     -- verified inactive effect before the *single* native call and undo any
     -- partial activation. Retain ownership if cleanup itself is unsuccessful.
     marker_owned_view = view
+    marker_owned_target = {index = data.bestRewardBoxIndex,
+                           x = data.x, y = data.y, z = data.z}
+    marker_initializing_view = view
     local ok = pcall(show, view, data.x, data.y, data.z)
+    marker_initializing_view = nil
     local still_eligible = chest_snapshot(view)
     if not ok or still_eligible.state ~= "confirmed" or
        still_eligible.data.bestRewardBoxIndex ~= data.bestRewardBoxIndex or
@@ -885,6 +911,7 @@ function M.TryObserveUiClasses()
         else
             local cls = loaded[entry.path]
             local original_update = member(cls, "Update")
+            local original_create = member(cls, "OnCreate")
             local original_destroy = member(cls, "OnDestroy")
             local original_state = member(cls, "ChangeSwitchState")
             local original_click = member(cls, "OnClickBox")
@@ -892,6 +919,7 @@ function M.TryObserveUiClasses()
             local original_close = member(cls, "OnBtnCloseClick")
             local original_black = member(cls, "OnBtnBlackClick")
             if type(cls) == "table" and type(original_update) == "function" and
+               type(original_create) == "function" and
                type(original_destroy) == "function" and
                type(original_state) == "function" and
                type(original_click) == "function" and
@@ -903,6 +931,14 @@ function M.TryObserveUiClasses()
                     retire_chest_marker_if_ineligible(view)
                     local value = original_update(view, ...)
                     retire_chest_marker_if_ineligible(view)
+                    return value
+                end
+                local create = function(view, ...)
+                    -- Original OnCreate runs ComponentDefine and DataDefine,
+                    -- which populate rewardDatas, boxItems and the best index.
+                    -- Bind only after that original initialization succeeded.
+                    local value = original_create(view, ...)
+                    M.BindTreasureChestView(view)
                     return value
                 end
                 local state = function(view, next_state, ...)
@@ -941,11 +977,14 @@ function M.TryObserveUiClasses()
                         -- effect before its native objects become invalid.
                         clear_owned_chest_marker()
                         marker_owned_view = nil
+                        marker_owned_target = nil
+                        marker_initializing_view = nil
                     end
                     if bound_chest_view == view then bound_chest_view = nil end
                     return original_destroy(view, ...)
                 end
                 local ok = pcall(function()
+                    cls.OnCreate = create
                     cls.Update = update
                     cls.OnDestroy = destroy
                     cls.ChangeSwitchState = state
@@ -957,11 +996,13 @@ function M.TryObserveUiClasses()
                 if ok then
                     watched_ui_classes[entry.path] = {
                         class = cls, originalUpdate = original_update,
+                        originalCreate = original_create,
                         originalDestroy = original_destroy,
                         originalState = original_state, originalClick = original_click,
                         originalResult = original_result,
                         originalClose = original_close, originalBlack = original_black,
-                        updateWrapper = update, destroyWrapper = destroy,
+                        updateWrapper = update, createWrapper = create,
+                        destroyWrapper = destroy,
                         stateWrapper = state, clickWrapper = click,
                         resultWrapper = chest_result,
                         closeWrapper = close, blackWrapper = black,
@@ -971,6 +1012,7 @@ function M.TryObserveUiClasses()
                     -- A class whose methods cannot be safely wrapped cannot
                     -- be observed; do not leave a half-installed replacement.
                     pcall(function()
+                        if member(cls, "OnCreate") == create then cls.OnCreate = original_create end
                         if member(cls, "Update") == update then cls.Update = original_update end
                         if member(cls, "OnDestroy") == destroy then cls.OnDestroy = original_destroy end
                         if member(cls, "ChangeSwitchState") == state then cls.ChangeSwitchState = original_state end
@@ -989,9 +1031,14 @@ end
 function M.RemoveUiObservation()
     clear_owned_chest_marker()
     marker_owned_view = nil
+    marker_owned_target = nil
+    marker_initializing_view = nil
     for path, saved in pairs(watched_ui_classes) do
         -- Never overwrite a different mod's subsequently installed method.
         pcall(function()
+            if member(saved.class, "OnCreate") == saved.createWrapper then
+                saved.class.OnCreate = saved.originalCreate
+            end
             if member(saved.class, "Update") == saved.updateWrapper then
                 saved.class.Update = saved.originalUpdate
             end

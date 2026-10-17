@@ -229,6 +229,11 @@ class NativeLandAckChecks(unittest.TestCase):
             self.assertTrue({"ctrl", "CloseSelf"} <=
                             {str(value) for value in method["constants"]})
 
+    def test_original_chest_construction_populates_box_state_before_view_binding(self):
+        native = self.method("UI/LWTreasureChest/UITreasureChestView.luac", "OnCreate")
+        self.assertTrue({"ComponentDefine", "DataDefine"} <=
+                        {str(value) for value in native["constants"]})
+
     def test_frontline_event_must_be_launched_by_original_sunday_activity(self):
         event = self.method("DataCenter/ActFrontBreakSundayManger/ActFrontBreakSundayData.luac",
                             "EnterStage")
@@ -240,10 +245,26 @@ class NativeLandAckChecks(unittest.TestCase):
         self.assertTrue({"fromActFrontBreakSunday", "frontBreakSundayActId", "param"} <=
                         {str(value) for value in result["constants"]})
 
+    def test_original_frontline_unit_guid_comes_only_from_numeric_allocator(self):
+        allocator = self.method(
+            "DataCenter/LWBattle/Logic/ParkourBattle/ParkourBattleLogic.luac",
+            "AllotUnitGuid")
+        member_init = self.method("Scene/LWBattle/ParkourBattle/Team/MemberUnit.luac", "Init")
+        self.assertTrue({"unitGuid", "1"} <=
+                        {str(v) for v in allocator["constants"]})
+        self.assertTrue({"guid", "AllotUnitGuid", "logic"} <=
+                        {str(v) for v in member_init["constants"]})
+        end_packet = self.method(
+            "Net/Msgs/FrontBreakSunday/FrontBreakSundayChallengeResultMessage.luac",
+            "OnCreate")
+        self.assertTrue({"PutInt", "id", "soldier"} <=
+                        {str(v) for v in end_packet["constants"]})
+        self.assertNotIn("AddMember", {str(v) for v in end_packet["constants"]})
+
 
 class NativeChestMarkerLua53Checks(unittest.TestCase):
     @staticmethod
-    def fixture():
+    def fixture(bind=True):
         from lupa.lua53 import LuaRuntime
         runtime = LuaRuntime(unpack_returned_tuples=True)
         runtime.execute(r'''
@@ -253,11 +274,12 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
           GetSelfServerId=function() return Account.selfServer end,
           GetCurServerId=function() return Account.current end}}
         local cls = {}
-        for _,name in ipairs({'Update','OnDestroy','ChangeSwitchState','OnClickBox',
+        for _,name in ipairs({'OnCreate','Update','OnDestroy','ChangeSwitchState','OnClickBox',
           'OnTreasureChestEndResult','OnBtnCloseClick','OnBtnBlackClick'}) do
             cls[name] = function(self, ...) return name end
         end
         ChestClass = cls
+        OriginalCreate = cls.OnCreate
         OriginalClose, OriginalBlack = cls.OnBtnCloseClick, cls.OnBtnBlackClick
         package.loaded['UI.LWTreasureChest.UITreasureChestView'] = cls
         NativeBox = {IsMoving=function() return false end,
@@ -281,8 +303,36 @@ class NativeChestMarkerLua53Checks(unittest.TestCase):
         ''')
         producer = runtime.execute((ROOT / "feature018_mini_game.lua").read_text(
             encoding="utf-8"))
-        assert producer.BindTreasureChestView(runtime.globals().Chest)
+        if bind:
+            assert producer.BindTreasureChestView(runtime.globals().Chest)
         return runtime, producer
+
+    def test_native_oncreate_binds_active_view_without_waiting_for_update(self):
+        runtime, mini = self.fixture(bind=False)
+        self.assertEqual(mini.MarkChest()['state'], 'unsupported')
+        self.assertEqual(mini.TryObserveUiClasses(), 1)
+        runtime.execute('Chest:OnCreate()')
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+        mini.CleanupAfterLeaseLoss()
+        self.assertTrue(runtime.eval('ChestClass.OnCreate == OriginalCreate'))
+
+    def test_same_view_winning_chest_drift_retires_stale_gui_marker(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('NativeBox.GetCurPosition=function() return {x=88,y=24,z=36} end')
+        runtime.execute('Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
+        self.assertEqual(mini.UnmarkChest()['state'], 'unsupported')
+
+    def test_native_update_retains_marker_only_while_reward_identity_is_stable(self):
+        runtime, mini = self.fixture()
+        self.assertEqual(mini.MarkChest()['state'], 'confirmed')
+        runtime.execute('Chest:Update()')
+        self.assertTrue(runtime.globals().Effect.activeSelf)
+        runtime.execute('Chest.bestRewardIndex=3')
+        runtime.execute('Chest:Update()')
+        self.assertFalse(runtime.globals().Effect.activeSelf)
 
     def test_marker_shown_only_when_native_effect_reaches_winning_chest(self):
         runtime, mini = self.fixture()
@@ -361,7 +411,7 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
           {IsWindowOpen=function(self,name) return name=='Parkour' end} end}
         Team = {defaultHeroIds={203},teamUnits={{guid=1,originalHeroId=203,
           hero={heroId=203,level=12}}}}
-        Logic = {team=Team, param={fromActFrontBreakSunday=true,
+        Logic = {team=Team,unitGuid=1,param={fromActFrontBreakSunday=true,
           frontBreakSundayActId=114}, GetMemberCount=function(self)
           return #self.team.teamUnits end}
         Team.logic = Logic
@@ -369,7 +419,8 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         Sends = 0
         Logic.AddMember = function(self,heroId,level,fromNative)
           Sends = Sends + 1
-          table.insert(self.team.teamUnits, {guid=1+Sends,
+          self.unitGuid=self.unitGuid+1
+          table.insert(self.team.teamUnits, {guid=self.unitGuid,
             originalHeroId=heroId, hero={heroId=heroId,level=level}})
         end
         DataCenter = {LWBattleManager={logic=Logic,curLogic=Logic,
@@ -405,8 +456,28 @@ class NativeFrontlineLua53Checks(unittest.TestCase):
         self.assertEqual(result['data']['frontBreakSundayActId'], 114)
         self.assertFalse(result['data']['serverAckObserved'])
         self.assertEqual(result['data']['observationScope'], 'native_local_battle')
+        self.assertEqual(result['data']['guidAllocatorBefore'], 1)
+        self.assertEqual(result['data']['guidAllocatorAfter'], 6)
         self.assertEqual(runtime.globals().Sends, 5)
         self.assertEqual(len(runtime.globals().Team.teamUnits), 6)
+
+    def test_fabricated_new_member_guid_never_counts_as_native_reinforcement(self):
+        for change in (
+            "Logic.AddMember=function(self) Sends=Sends+1;self.unitGuid=self.unitGuid+1;"
+            "table.insert(self.team.teamUnits,{guid='fake',originalHeroId=203,"
+            "hero={heroId=203,level=12}}) end",
+            "Logic.AddMember=function(self) Sends=Sends+1;"
+            "table.insert(self.team.teamUnits,{guid=1+Sends,originalHeroId=203,"
+            "hero={heroId=203,level=12}}) end",
+            "Logic.AddMember=function(self) Sends=Sends+1;self.unitGuid=self.unitGuid+2;"
+            "table.insert(self.team.teamUnits,{guid=self.unitGuid,originalHeroId=203,"
+            "hero={heroId=203,level=12}}) end"):
+            runtime, mini = self.fixture()
+            runtime.execute(change)
+            result = self.call(runtime, mini)
+            self.assertEqual(result['state'], 'failed')
+            self.assertEqual(result['data']['observedAdded'], 0)
+            self.assertEqual(runtime.globals().Sends, 1)
 
     def test_owner_change_mid_reinforcement_stops_before_third_addition(self):
         runtime, mini = self.fixture()
