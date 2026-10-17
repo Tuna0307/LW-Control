@@ -268,6 +268,143 @@ local function native_sub_account()
     return true
 end
 
+-- Original v26 DailyTaskManager.GetAllDailyTask (root/16) selects visible
+-- unreceived DailyQuest tasks. DailyTaskInfo.UpdateInfo (root/2) stores the
+-- *server supplied* state and RewardManager.ReturnRewardParamForView result.
+-- Only TaskState.CanReceive establishes a currently claimable DAILY task.
+-- The native Gold reward view uses Player.sm_addGoldCount (RewardManager
+-- root/13), which is NOT a reliable per-task promised gold amount. Even a
+-- matching ResourceType.Gold must not be summed into an earning forecast.
+-- No TryReqUpdateData, DailyTaskReward, sign-in, gift or pay RPC is called.
+local function sign_in_claim_observation()
+    -- v26 LWActSignInManager.OnGetEventInfo fills infos[eventId] from server
+    -- events. ClaimActReward(eventId, 0) gates IsEnd and
+    -- GetCanClaimRewardDay()>0 before sending ClaimActSignInReward(eventId,0).
+    -- LWActSignInInfo.GetCanClaimRewardDay returns a COUNT of claimable days,
+    -- not a day index. Never pass the count as a CanClaimAtDay index.
+    local result = {availability="source_unavailable", source="native_sign_in_infos",
+        route="ClaimActSignInReward", goldRewardVerified=false,
+        readOnly=true, requestDispatched=false}
+    local manager = member(rawget(_G, "DataCenter"), "LWActSignInManager")
+    local infos = member(manager, "infos")
+    if type(infos) ~= "table" then return result end
+    local candidates, scanned, qualifying = {}, 0, 0
+    for key, info in pairs(infos) do
+        scanned = scanned + 1
+        if scanned > 64 then
+            result.availability="too_many_unverified_sign_in_events"
+            return result
+        end
+        local id = digit_id(key)
+        local ok_end, ended = invoke(info, "IsEnd")
+        local ok_day, day = invoke(info, "GetCanClaimRewardDay")
+        local parsed_day = number(day)
+        if id ~= nil and ok_end and ended == false and
+           ok_day and parsed_day ~= nil and parsed_day > 0 and
+           parsed_day % 1 == 0 then
+            qualifying = qualifying + 1
+            if #candidates < 16 then
+                candidates[#candidates+1] = {eventId=id,originalClaimAnyDay=0,
+                    nativeAvailableRewardCount=parsed_day,
+                    claimability="native_cached_IsEnd_GetCanClaimRewardDay_count",
+                    goldRewardVerified=false,requestDispatched=false}
+            end
+        end
+    end
+    result.availability="native_cached"
+    result.loadedEventCount=scanned
+    result.claimableEventCount=qualifying
+    result.claimableEventsTruncated=qualifying > #candidates
+    table.sort(candidates, function(a,b) return a.eventId < b.eventId end)
+    result.claimableEvents=type(mark_array)=="function" and mark_array(candidates) or candidates
+    return result
+end
+
+local function daily_gold_claim_observation()
+    if not native_sub_account() then return nil end
+    local data = member(rawget(_G, "DataCenter"), "DailyTaskManager")
+    local task_states = rawget(_G, "TaskState")
+    local claim_state = member(task_states, "CanReceive")
+    local gold_type = member(rawget(_G, "ResourceType"), "Gold")
+    local report = {observation="native_visible_daily_tasks_read_only",
+        readOnly=true, requestDispatched=false, goldEarned=false,
+        goldAmountVerified=false, route="DailyTaskReward",
+        rewardClass="unverified", availability="source_unavailable",
+        signInRoute="ClaimActSignInReward", signInClaimabilityVerified=false,
+        allianceGiftRoute="AllianceGiftGetReward", allianceGiftClaimabilityVerified=false}
+    report.signIn = sign_in_claim_observation()
+    if type(member(data, "GetAllDailyTask")) ~= "function" or
+       claim_state == nil or number(claim_state) == nil or
+       member(data, "dailyQuestTasks") == nil then
+        return report
+    end
+    local ok, tasks = invoke(data, "GetAllDailyTask")
+    if not ok or type(tasks) ~= "table" then return report end
+    local results, scanned, eligible, gold_candidates = {}, 0, 0, 0
+    local unidentified = 0
+    for _, task in pairs(tasks) do
+        scanned = scanned + 1
+        if scanned > 256 then
+            report.availability="too_many_unverified_tasks"
+            return report
+        end
+        if number(member(task, "state")) == number(claim_state) then
+            local id = digit_id(member(task, "id"))
+            if id == nil then
+                unidentified = unidentified + 1
+            else
+                eligible = eligible + 1
+                local reward = member(task, "reward")
+                local has_gold, readable = false, type(reward) == "table"
+                if readable then
+                    local scanned_rewards = 0
+                    for _, item in pairs(reward) do
+                        scanned_rewards = scanned_rewards + 1
+                        if scanned_rewards > 64 then readable = false; break end
+                        local reward_type = number(member(item, "rewardType"))
+                        if number(gold_type) == nil or reward_type == nil then
+                            readable = false
+                        elseif reward_type == number(gold_type) then
+                            has_gold = true
+                        end
+                    end
+                end
+                if has_gold and readable then gold_candidates = gold_candidates + 1 end
+                if #results < 16 then
+                    results[#results+1] = {taskId=id, route="DailyTaskReward",
+                        sourceState="TaskState.CanReceive",
+                        goldRewardTypeMatched=has_gold and readable,
+                        currencyClassificationComplete=readable,
+                        goldAmountVerified=false, requestDispatched=false}
+                end
+            end
+        end
+    end
+    if not native_sub_account() then return nil end
+    table.sort(results, function(a,b) return tostring(a.taskId or "") < tostring(b.taskId or "") end)
+    report.availability="native_observed"
+    report.freshServerStateVerified=false
+    report.visibleTaskCount=scanned
+    report.claimableDailyTaskCount=eligible
+    report.unidentifiedClaimableTaskCount=unidentified
+    report.goldTypeMatchedDailyTaskCount=gold_candidates
+    report.claimableTasksTruncated=eligible > #results
+    report.claimableDailyTasks=type(mark_array)=="function" and mark_array(results) or results
+    return report
+end
+
+-- Optional authenticated inspection entry for the existing shop read path.
+-- Returns no user-requested claim action, even when a reward is claimable.
+function M.GoldClaimableSnapshot(fields)
+    if type(fields) ~= "table" or shield_owner(fields) == nil or
+       not native_sub_account() then
+        return invalid("Current authorized native player/session required for reward inspection")
+    end
+    local observation = daily_gold_claim_observation()
+    if observation == nil then return invalid("Native reward inspector owner changed") end
+    return {state="confirmed", data=observation}
+end
+
 local function owned_item_count(uuid, item_id)
     local center = rawget(_G, "DataCenter")
     local items = member(center, "ItemData")
@@ -440,6 +577,11 @@ local function shield_shop(fields)
         data.currencySource = "native_Player_gold"
         data.purchaseRoute = "native_UIShopBuy_one_item_with_consent"
         data.nativeMatchedShieldStacks = observed_stacks
+        local claim = M.GoldClaimableSnapshot(fields)
+        if claim.state ~= "confirmed" or not native_sub_account() then
+            return invalid("Native shield/gold inspection owner changed")
+        end
+        data.nativeGoldClaimRoutes = claim.data
         return {state="confirmed",data=data}
     end
     if fields.mode == "armUse" then
