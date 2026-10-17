@@ -188,11 +188,16 @@ local function formation_staffing(form)
     local ok_local,local_count=invoke(form,"GetLocalHeroesCount")
     local n_local=ok_local and number(local_count) or nil
     if n_local~=nil and n_local>=0 and n_local%1==0 then result.localHeroCount=n_local end
-    result.heroesReady=result.heroCount~=nil and result.heroCount>0 and
-        (result.localHeroCount==nil or result.localHeroCount>0)
+    -- V2 BestSelect invokes ArmyFormationInfo:ConscriptSoldier() with no
+    -- local-hero mode. That original path gates on HasHero(), whose v26
+    -- implementation is simply table.count(self.heroes) > 0, then fills the
+    -- nested soldiers[heroSlot].supply values shown by the chooser. canMarch
+    -- and heroTotalSoldierCapacity are useful diagnostics but are not the
+    -- original chooser's final staffing predicate and can remain stale while
+    -- the freshly conscripted chooser already displays a valid 170/170.
+    result.heroesReady=result.heroCount~=nil and result.heroCount>0
     result.staffedForAttack=result.soldierCount~=nil and result.soldierCount>0 and
-        result.heroesReady and (not current or (result.canMarch==true and
-        result.heroTotalSoldierCapacity~=nil and result.heroTotalSoldierCapacity>0))
+        result.heroesReady
     return result
 end
 

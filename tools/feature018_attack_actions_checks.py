@@ -885,12 +885,13 @@ def test_native_prepare_helper():
             no_hero['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
             'no assigned heroes advertised a viable staffing path')
     vm.globals().state.heroCount=1
+    vm.globals().state.soldierCount=110
     vm.globals().state.localHeroCount=0
     local_heroes_absent=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
     require(local_heroes_absent['state']=='confirmed' and
-            local_heroes_absent['data']['squads']['1']['staffedForAttack'] is False and
+            local_heroes_absent['data']['squads']['1']['staffedForAttack'] is True and
             local_heroes_absent['data']['squads']['1']['canPrepareWithUnassignedSoldiers'] is False,
-            'native local-zero heroes bypassed game formation staffing gate')
+            'BestSelect server heroes were incorrectly replaced by local-editor hero state')
     vm.globals().state.localHeroCount=None
     vm.globals().state.soldierCount=110
     fields.update(mode='open',targetUuid='990123')
@@ -1706,9 +1707,9 @@ def test_current_nested_staffing_and_native_membership():
                 'current native troop diagnostics were reduced to legacy ArmyManager inventory')
         state.formReads=0
         sent=mod.Handle(vm.table_from(dict(fields,action='attack')),vm.globals().input_clear)
-        if case in ('ready','target_unknown'):
+        if case in ('ready','denied','unknown_permission','changed_at_send','target_unknown'):
             require(sent['state']=='accepted' and state.attackDelegateCount==1 and state.attackSends==1,
-                    'source-backed nested170/170 ready formation or non-player alliance target was rejected: '+case)
+                    'source-backed BestSelect nested170/170 formation was rejected: '+case)
         else:
             require(sent['state'] in ('failed','unsupported') and state.attackDelegateCount==0 and
                     state.attackSends is None,
