@@ -3340,9 +3340,15 @@ local function observe_game_connection()
     end
     local ok_uid, uid = call(player, "GetUid")
     local ok_server, server_id = call(player, "GetCurServerId")
+    -- A server/account switch may interleave these two native getters.
+    -- Never publish a mixed old-UID/new-server heartbeat as an owner.
+    local ok_uid_again, uid_again = call(player, "GetUid")
+    local ok_server_again, server_again = call(player, "GetCurServerId")
     local world_pos = safe_get(player, "PlayerWorldPointId")
     if type(logged_in) ~= "boolean" or type(connected) ~= "boolean" or
-       type(connecting) ~= "boolean" or not ok_uid or not ok_server then
+       type(connecting) ~= "boolean" or not ok_uid or not ok_server or
+       not ok_uid_again or not ok_server_again or
+       uid ~= uid_again or tostring(server_id) ~= tostring(server_again) then
         return { observed = false }
     end
     return {
@@ -3768,12 +3774,37 @@ function M.Pump()
     -- five-second heartbeat; the host expires after 30 seconds of no frames.
     write_pipe_heartbeat(active)
     write_pipe_transport_diagnostic()
+    -- Native UpdateManager may accept AddUpdate without subsequently invoking
+    -- its callback on this client build. The LuaEntry lifecycle *does* drive
+    -- this authenticated heartbeat in real v26. Poll the independent FEATURE018
+    -- mailbox from this proven path. The producer rechecks exact UID/server,
+    -- live lease and session/challenge before dispatching any command.
+    local feature018_producer = rawget(_G, "LWBridgeFeature018GameBridge")
+    if type(feature018_producer) == "table" and
+       type(feature018_producer.Pump) == "function" then
+        pcall(feature018_producer.Pump)
+    end
+    return true
+end
+
+local feature018_periodic_tick = nil
+function M.SetFeature018PeriodicTick(callback)
+    if type(callback) ~= "function" or feature018_periodic_tick ~= nil then return false end
+    feature018_periodic_tick = callback
     return true
 end
 
 function M.Register()
     if registration_method ~= nil then return true end
-    update_callback = function() M.Pump() end
+    -- The normal Overview heartbeat continues during game play after the
+    -- one-shot LuaEntry lifecycle methods stop firing. Poll FEATURE018's
+    -- mailbox and asynchronous City/Sheep jobs on that same owned callback.
+    update_callback = function()
+        M.Pump()
+        if feature018_periodic_tick ~= nil then
+            pcall(feature018_periodic_tick)
+        end
+    end
     local manager = rawget(_G, "UpdateManager")
     local instance = manager
     if manager ~= nil and type(safe_get(manager, "GetInstance")) == "function" then
@@ -3805,6 +3836,55 @@ function M.Register()
     end
     M.Pump()
     return registration_method ~= nil
+end
+
+-- FEATURE018 producer admission for a separately packaged game module. A
+-- fresh authenticated native UID/server, together with the host lease, forms
+-- the command's account identity. No particular player or server is privileged
+-- by the shipped app. Delayed responses must still match their START identity.
+local function feature018_current_account()
+    local game = observe_game_connection()
+    local uid = game.gameUid and tostring(game.gameUid) or nil
+    local server = tonumber(game.serverId)
+    if game.observed ~= true or game.loggedIn ~= true or
+       game.connected ~= true or game.connecting ~= false or
+       not uid or #uid > 20 or not uid:match("^[1-9]%d*$") or
+       not server or server < 1 or server % 1 ~= 0 then return nil end
+    return {uid=uid, server=server}
+end
+local function feature018_control_current()
+    if active == nil then return false end
+    -- A host control rotation can precede the next regular Overview Pump.
+    local control = read_control()
+    return control ~= nil and control.profileId == active.profileId and
+        control.sessionId == active.sessionId and control.challenge == active.challenge and
+        control.gamePid == active.gamePid
+end
+function M.IsAuthorizedFeature018Request(values, native_server)
+    if active == nil or type(values) ~= "table" then return false end
+    if active.profileId ~= values.profileId or active.sessionId ~= values.launchSessionId or
+       active.challenge ~= values.challenge or active.gamePid ~= tonumber(values.gamePid) then
+        return false
+    end
+    if not feature018_control_current() then return false end
+    if lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then return false end
+    local account = feature018_current_account()
+    return account ~= nil and type(values.authorizedUid) == "string" and
+        values.authorizedUid == account.uid and
+        (native_server == nil or tostring(native_server) == tostring(account.server))
+end
+
+-- Read-only owner-token gate for exact-session cleanup of transient feature
+-- UI wrappers and chest markers; unavailable on a stale or missing host lease.
+function M.Feature018OwnerToken()
+    local account = feature018_current_account()
+    if not feature018_control_current() or
+       lease_is_fresh(active, tonumber(os.time()) or 0) ~= true or
+       account == nil then
+        return nil
+    end
+    return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
+        .. ':' .. account.uid .. ':' .. tostring(account.server)
 end
 
 -- Registration is deliberately lazy. LuaEntry is loaded before all current-client

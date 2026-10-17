@@ -478,6 +478,10 @@ internal sealed partial class LWBridgeWindow : Form
             if (profileRegistryService is not null) services.Add(profileRegistryService);
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
+            if (overviewLifecycleService is not null)
+                services.Add(equipmentConfigService is null
+                    ? new Feature018GameCommandService(overviewLifecycleService)
+                    : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService));
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
@@ -539,6 +543,7 @@ internal sealed partial class LWBridgeWindow : Form
         ownerEvidence?.Record("session-start", new { processId = Environment.ProcessId, profileId = config.Snapshot.ProfileId, initialView });
         Shown += OnShown;
         FormClosed += OnFormClosed;
+        StartFeature018HotkeyMonitoring();
         InitializeHome004IsolatedRouteFault(isolatedRootPath);
     }
 
@@ -1568,8 +1573,13 @@ internal sealed partial class LWBridgeWindow : Form
 
         bool intervalAcceptance = ownerFixNativeProof && !ownerFixRemoteProof &&
             Environment.GetEnvironmentVariable("LWBRIDGE_MAP016_AUTO_INTERVAL") == "1";
+        // The staged FEATURE018 queue intentionally permits 13 minutes after
+        // authentication; its outer lifecycle timeout must not cancel it at 8.
+        bool feature018StagedProof = ownerFixNativeProof && !ownerFixRemoteProof &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1" &&
+            Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") == "1";
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(
-            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : 8));
+            intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : feature018StagedProof ? 16 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;
         JsonElement startJson = default;
@@ -1633,6 +1643,13 @@ internal sealed partial class LWBridgeWindow : Form
             ownedMapSession = overviewLifecycleService.GetReadyMapScanSession()
                 ?? throw new InvalidDataException("The normal production UI lifecycle reached connected state without a ready owned Map session.");
 
+            if (ownerFixNativeProof && !ownerFixRemoteProof &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1")
+            {
+                await RunFeature018PackagedUiProofAsync(core, fullOutputPath, directory,
+                    ownedMapSession, operationCts.Token);
+                return;
+            }
             if (ownerFixNativeProof && !ownerFixRemoteProof &&
                 !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("LWBRIDGE_MAP017_UI_MODE")))
             {
@@ -6310,6 +6327,7 @@ internal sealed partial class LWBridgeWindow : Form
 
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
+        StopFeature018HotkeyMonitoring();
         home004RouteFaultTimer?.Stop();
         home004RouteFaultTimer?.Dispose();
         Interlocked.Exchange(ref profileRuntimeClosed, 1);

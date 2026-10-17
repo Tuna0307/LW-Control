@@ -24,6 +24,7 @@ export function previewHotkeyConfig() {
     randomRelocate: false,
     allianceRelocate: false,
     frontlineReinforce: true,
+    frontlineReinforceCount: 5,
     treasureChestHint: false,
     attackMarchSpeedupItem: true,
     attackMarchSpeedupDiamond: false,
