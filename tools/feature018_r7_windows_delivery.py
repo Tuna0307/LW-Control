@@ -54,7 +54,7 @@ def run(*args: str, cwd: Path = ROOT) -> None:
 
 def build() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--round", choices=("R7", "R8", "R9", "R10"), default="R7")
+    parser.add_argument("--round", choices=("R7", "R8", "R9", "R10", "R11"), default="R7")
     release = parser.parse_args().round
     if os.name != "nt":
         raise RuntimeError("Windows executable delivery requires an actual Windows host")
