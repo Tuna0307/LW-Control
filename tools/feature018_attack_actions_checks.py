@@ -453,6 +453,7 @@ def test_selected_attack_and_diamond():
         return module.Handle(vm.table_from(fields),vm.globals().input_clear)
     first=call()
     require(first['state']=='accepted' and state['attackDelegateCount']==1 and
+            first['data']['requestDispatched'] is True and
             first['data']['nativeTransaction']['sendCount']==1 and
             first['data']['nativeTransaction']['nonceStatus']=='awaiting_same_nonce_reply' and
             state['attackSends']==1,
@@ -552,6 +553,98 @@ def test_selected_attack_and_diamond():
             'main-account server entered mutable attack controller')
 
 
+def test_attack_final_action_boundary_and_sender_truth():
+    # The native v26 OnAtkClick branches on GetOwnerFormationMarch; the
+    # adapter must not enter a create-march controller after that slot gains
+    # an existing march, nor act on a foreign/stale formation. A witnessed
+    # original packet send enables the desktop's query-only ACK polling.
+    for mode in ('foreign_initial', 'foreign_refresh', 'wrong_slot',
+                 'late_march', 'owner_midflight', 'server_midflight',
+                 'deferred_dialog', 'original_send'):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute("""
+          state.existingAbsent=true;state.startTime=1000;state.targetUuid=990123
+          state.formReads=0;state.marchReads=0
+          MsgDefines.WorldMarchFormationNew=99
+          local getForm=DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex
+          DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+            state.formReads=state.formReads+1
+            local form=getForm(self,slot)
+            if state.checkMode=='foreign_initial' or
+                (state.checkMode=='foreign_refresh' and state.formReads==2) then
+              form.ownerUid=111
+            end
+            if state.checkMode=='wrong_slot' then form.index=2 end
+            if state.formReads==2 then
+              if state.checkMode=='owner_midflight' then LuaEntry.Player.uid=222 end
+              if state.checkMode=='server_midflight' then state.serverId=2212 end
+            end
+            return form
+          end
+          local getMarch=DataCenter.WorldMarchDataManager.GetOwnerFormationMarch
+          DataCenter.WorldMarchDataManager.GetOwnerFormationMarch=function(self,uid,form,alliance)
+            state.marchReads=state.marchReads+1
+            if state.checkMode=='late_march' and state.marchReads==2 then
+              return {uuid=555110,ownerUid=state.uid,ownerFormationUuid=state.formation}
+            end
+            return getMarch(self,uid,form,alliance)
+          end
+          package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+            return {OnCreate=function(self,formation,kind,target)
+              local token='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+              self.sfsObj={GetUtfString=function(_,key)
+                assert(key=='clientCreateUuid'); return token
+              end}
+            end,HandleMessage=function(self,response) end}
+          end
+          UIWindowNames={UIFormationSelectListV2='formation'}
+          nativeCtrl={targetType=17,targetUuid=990123,targetPoint=state.touchedTile}
+          nativeCtrl.OnCheckTime=function(self,formation)
+            state.attackDelegateCount=state.attackDelegateCount+1
+            if state.checkMode~='deferred_dialog' then
+              SFSNetwork.SendMessage(99,formation,17,990123,'native-route')
+            end
+          end
+          nativeWindow={Ctrl=nativeCtrl}
+          UIManager={GetInstance=function()return {
+            IsWindowOpen=function(_,name)return name=='formation' end,
+            GetWindow=function(_,name)return name=='formation' and nativeWindow end,
+          }end}
+        """)
+        vm.globals().state.checkMode=mode
+        module=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        def call(**extra):
+            fields=dict(action='attack',slot='1',authorizedUid='3133546747002289',
+                        profileId='profile',launchSessionId='launch',
+                        challenge='request',gamePid='7020')
+            fields.update(extra)
+            return module.Handle(vm.table_from(fields),vm.globals().input_clear)
+        result=call()
+        state=vm.globals().state
+        if mode in ('foreign_initial','foreign_refresh','wrong_slot','late_march',
+                    'owner_midflight','server_midflight'):
+            require(result['state']=='failed' and
+                    state.attackDelegateCount==0 and (state.attackSends or 0)==0,
+                    'native owner/index or pre-send march race sent a request: '+mode)
+        else:
+            expected_send=0 if mode=='deferred_dialog' else 1
+            require(result['state']=='accepted' and
+                    result['data']['requestDispatched'] is (expected_send==1) and
+                    result['data']['awaitingGameConfirmation'] is True and
+                    state.attackDelegateCount==1 and
+                    (state.attackSends or 0)==expected_send,
+                    'native action reported a packet that was not actually observed: '+mode)
+            polled=call(queryOnly='1')
+            require(polled['state']=='accepted' and
+                    polled['data']['requestDispatched'] is False and
+                    (state.attackSends or 0)==expected_send,
+                    'queryOnly status attempted a duplicate attack send: '+mode)
+        if mode=='late_march':
+            require(state.marchReads==2,
+                    'original native formation was not revalidated at send boundary')
+
+
 def test_attack_sender_correlation_negatives():
     # A controller call alone is not a network receipt. The source-backed
     # formation/march route must match slot, native kind and target UUID,
@@ -629,6 +722,10 @@ def test_attack_sender_correlation_negatives():
                 vm.globals().state.attackDelegateCount==1 and
                 (vm.globals().state.attackSends or 0)==sends,
                 'unexpected native attack dispatch outcome: '+mode)
+        if immediate=='accepted':
+            require(dispatched['data']['requestDispatched'] is
+                    (mode not in ('no_send','wrong_target','late_manual')),
+                    'native packet dispatch receipt does not match original sender: '+mode)
         if mode in ('double','sender_false','sender_throw'):
             require(dispatched['data']['nativeTransaction']['sendCount']>=1,
                     'failed outbound request lost no-retry transaction fence: '+mode)
@@ -1134,6 +1231,7 @@ def main():
     check_original()
     check_installed_managed_nonce_source()
     test_selected_attack_and_diamond()
+    test_attack_final_action_boundary_and_sender_truth()
     test_attack_sender_correlation_negatives()
     test_native_prepare_helper()
     test_manual_native_formation_editor_no_automatic_march()

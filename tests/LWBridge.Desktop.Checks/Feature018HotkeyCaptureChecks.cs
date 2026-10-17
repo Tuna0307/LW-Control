@@ -370,6 +370,23 @@ internal static class Feature018HotkeyCaptureChecks
                 noNativePacket.Reason == "native_game_request_not_dispatched" &&
                 stub.Calls == 5,
             "explicitly absent original F9 game send was misreported as Submitted");
+        stub.Receipt = () => throw new BridgeCommandException(
+            "GAME_ACTION_UNCONFIRMED", "Original ItemUse SendMessage returned false after an attempted send",
+            JsonSerializer.SerializeToElement(new
+            {
+                action = "randomRelocate", requestDispatched = false,
+                nativeSendAttempted = true, nativeSendOutcomeUncertain = true,
+            }));
+        int beforeUncertain = stub.Calls;
+        Feature018HotkeyActionOutcome ambiguousF9 = await wired[
+            Feature018HotkeyKind.RandomRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.RandomRelocate)),
+                CancellationToken.None);
+        Require(ambiguousF9.Status == Feature018HotkeyActionStatus.Submitted &&
+                !ambiguousF9.Working &&
+                ambiguousF9.Reason == "native_action_outcome_unconfirmed_dispatch_unknown" &&
+                stub.Calls == beforeUncertain + 1,
+            "original F9 SendMessage false/throw was falsely classified as definitely not sent or automatically retried");
 
         // Even two distinct provider instances (e.g., a retired capture and
         // its newly created replacement) share the same native mutating route.

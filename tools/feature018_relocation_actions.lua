@@ -83,6 +83,17 @@ local function uid(value)
     return nil
 end
 
+-- ItemUseMessage.OnCreate serializes the bag stack UUID through PutUtfString.
+-- Unlike Player.uid or allianceId it is an opaque native item token; decimal-
+-- only account validation rejects legitimate alphanumeric item UUIDs.
+local function native_item_uuid(value)
+    if type(value) ~= "string" and type(value) ~= "number" then return nil end
+    local token = tostring(value)
+    if #token < 1 or #token > 128 or token == "0" or
+       token:find("[^%w_-]") then return nil end
+    return token
+end
+
 local function failed(code, reason)
     return {state="failed", errorCode=code, error=reason}
 end
@@ -432,7 +443,7 @@ local function owned_item(action)
     local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
     local ok,item=invoke(itemdata,"GetItemById",item_id)
     local count=item and integer(member(item,"count"),0) or 0
-    local item_uid=item and uid(member(item,"uuid"))
+    local item_uid=item and native_item_uuid(member(item,"uuid"))
     if not ok or not item_uid or not count or count<1 then return nil,"No owned native relocation item: "..name end
     if tostring(member(item,"itemId"))~=tostring(item_id) then return nil,"Owned relocation item identity mismatch" end
     local expired=static_bool(rawget(_G,"UIUtil"),"CheckItemIsExpiredByUuid",member(item,"uuid"))
@@ -592,7 +603,10 @@ local function action_receipt(tx,snapshot,confirmed)
         afterCount=tx.afterCount,beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
         acknowledgedWorldPointId=tx.replyPoint,
         worldPointChanged=snapshot.worldPointId~=tx.before,
-        requestDispatched=true,oneSendNoRetry=true,
+        requestDispatched=tx.sendOutcomeConfirmed==true,
+        nativeSendAttempted=true,
+        nativeSendOutcomeUncertain=tx.sendOutcomeUncertain==true,
+        oneSendNoRetry=true,
         awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
         replyObserved=tx.reply==true,worldMvAcknowledged=false,
         replyExactItemUuidObserved=tx.reply==true,
@@ -715,11 +729,27 @@ local function perform(fields,input_clear,action)
         if pending.token~=token or pending.action~=action then
             return failed("GAME_PRECONDITION_FAILED","An owned relocation is unresolved; never repeat or replace it")
         end
+        if pending.observerDetached then
+            -- Dispose explicitly detaches our original handler. Preserve the
+            -- prior accepted but causally unresolved status without retrying.
+            return action_receipt(pending,snapshot,false)
+        end
+        -- A reply for the same numeric itemId after a native manager or
+        -- session swap cannot authenticate the earlier ItemUse. Retain the
+        -- tombstone even when the original handler was displaced.
+        if member(rawget(_G,"LuaEntry"),"Player")~=pending.player or
+           rawget(_G,"DataCenter")~=pending.center or
+           member(pending.center,"ItemManager")~=pending.manager or
+           member(pending.manager,pending.method)~=pending.hook then
+            pending.observerDetached=true
+            return failed("GAME_ACTION_UNCONFIRMED",
+                "Original relocation reply handler or player session changed after dispatch; never resend")
+        end
         local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
         local ok,item=invoke(itemdata,"GetItemById",pending.item.nativeItemId)
         local count=item and integer(member(item,"count"),0) or 0
         if not ok or count==nil then return failed("GAME_ACTION_UNCONFIRMED","Native relocation inventory unavailable after dispatch") end
-        if item~=nil and uid(member(item,"uuid"))~=pending.item.itemUuid then
+        if item~=nil and native_item_uuid(member(item,"uuid"))~=pending.item.itemUuid then
             return failed("GAME_ACTION_UNCONFIRMED","Native relocation item stack identity changed after dispatch")
         end
         pending.afterCount=count
@@ -824,13 +854,19 @@ local function perform(fields,input_clear,action)
         return unavailable("Original random relocation ItemUse sender unavailable")
     end
     local tx={token=token,action=action,item=item,before=snapshot.worldPointId,
+        center=center,player=member(rawget(_G,"LuaEntry"),"Player"),
         manager=manager,method=method,original=original,reply=false}
     tx.hook=function(self,response,...)
         local returns=table.pack(original(self,response,...))
         local current=world_snapshot()
-        if pending==tx and current and token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
+        if pending==tx and current and self==manager and
+           rawget(_G,"DataCenter")==tx.center and
+           member(tx.center,"ItemManager")==tx.manager and
+           member(rawget(_G,"LuaEntry"),"Player")==tx.player and
+           member(manager,method)==tx.hook and
+           token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
             if tostring(member(response,"itemId"))==item.itemId and
-               uid(member(response,"uuid"))==item.itemUuid then
+               native_item_uuid(member(response,"uuid"))==item.itemUuid then
                 -- ItemUseHandle can handle itemId-only responses; those
                 -- cannot independently acknowledge our exact owned stack.
                 -- Original v26 ItemManager.ItemUseHandle lines 49-52 marks
@@ -854,8 +890,12 @@ local function perform(fields,input_clear,action)
     if not installed or member(manager,method)~=tx.hook then return unavailable("Native relocation reply observer could not be attached") end
     pending=tx -- before call, including uncertain exceptions: never retransmit
     local sent,send_result=pcall(send,message,{uuid=item.nativeUuid,num=1,useItemFromType=0})
-    if not sent or send_result==false then return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
-        error="Relocation outcome unknown; observe only and never repeat",data=action_receipt(tx,snapshot,false).data} end
+    if not sent or send_result==false then
+        tx.sendOutcomeUncertain=true
+        return {state="failed",errorCode="GAME_ACTION_UNCONFIRMED",
+            error="Relocation outcome unknown; observe only and never repeat",data=action_receipt(tx,snapshot,false).data}
+    end
+    tx.sendOutcomeConfirmed=true
     return action_receipt(tx,snapshot,false)
 end
 function M.RandomRelocate(fields,input_clear)

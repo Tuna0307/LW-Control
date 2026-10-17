@@ -441,7 +441,90 @@ def test_consent_bound_source_frontline_action():
             "Forged local soldier response was promoted to invented server acknowledgement")
 
 
+def test_original_recall_uncertain_native_send_is_one_intent_across_challenge_rotation():
+    lua,_,_,state,call=scenario()
+    lua.execute("""
+        MarchUtil.OnBackHome=function(uuid)
+          assert(uuid==state.squadUuid)
+          state.dispatches=state.dispatches+1
+          error('original method threw after native send')
+        end
+    """)
+    first=call()
+    require(first['state']=='failed' and state['dispatches']==1 and
+            'uncertain' in first['error'],
+            'throwing native recall did not preserve an uncertain one-send fence')
+    for challenge in ('challenge','rotatedChallenge'):
+        repeat=call(challenge=challenge)
+        require(repeat['state']=='accepted' and
+                repeat['data']['requestDispatched'] is False and
+                state['dispatches']==1,
+                'new challenge replayed uncertain original recall sender')
+    state['target']=77
+    post=call(challenge='rotatedChallenge',query_only=True)
+    require(post['state']=='confirmed' and
+            post['data']['nativeReplyCausalityConfirmed'] is False and
+            post['data']['priorDispatchOutcomeUncertain'] is True and
+            post['data']['observedAfterPreviousDispatch'] is False and
+            state['dispatches']==1,
+            'uncertain native send was misreported as an acknowledged dispatch')
+
+    lua,_,_,state,call=scenario()
+    lua.execute("""
+        MarchUtil.OnBackHome=function(uuid)
+          state.dispatches=state.dispatches+1
+          return false
+        end
+    """)
+    require(call()['state']=='failed' and state['dispatches']==1,
+            'original return false was treated as proven request dispatch')
+    require(call(challenge='newChallenge')['state']=='accepted' and
+            state['dispatches']==1,
+            'false native return retried a potentially sent recall')
+
+    lua,_,_,state,call=scenario()
+    require(call()['state']=='accepted' and state['dispatches']==1,
+            'baseline return sender did not dispatch')
+    require(call(challenge='newChallenge')['state']=='accepted' and
+            state['dispatches']==1,
+            'challenge rotation sent a second recall against the same march')
+    lua.execute("""
+        local original=DataCenter.WorldMarchDataManager
+        DataCenter.WorldMarchDataManager=setmetatable({}, {__index=original})
+    """)
+    result=call(challenge='newChallenge',query_only=True)
+    require(result['state']=='failed' and 'manager' in result['error'] and
+            state['dispatches']==1,
+            'new native march manager reused an earlier session return receipt')
+
+    for change in ('server','manager'):
+        lua,actions,_,state,_=scenario()
+        lua.execute("""
+            local reads=0
+            frozen.TextInputClear=function()
+              reads=reads+1
+              if reads==2 then
+                if '%s'=='server' then
+                  state.currentServer=2212
+                else
+                  local original=DataCenter.WorldMarchDataManager
+                  DataCenter.WorldMarchDataManager=setmetatable({}, {__index=original})
+                end
+              end
+              return true
+            end
+        """ % change)
+        wrapped=actions.Wrap(lua.globals().frozen)
+        fields=lua.table_from({'action':'recall','slot':'1',
+            'profileId':'profile','launchSessionId':'launch',
+            'challenge':'challenge','gamePid':'7020'})
+        result=wrapped(fields)
+        require(result['state']=='failed' and state['dispatches']==0,
+                'native '+change+' changed in late focus callback but recall was sent')
+
+
 def main():
+    test_original_recall_uncertain_native_send_is_one_intent_across_challenge_rotation()
     test_consent_bound_source_frontline_action()
     test_registered_relocation_readonly()
     test_original_v26_item_use_ack_limits()

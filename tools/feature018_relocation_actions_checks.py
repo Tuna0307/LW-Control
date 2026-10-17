@@ -1172,6 +1172,65 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(result['data']['itemUuid'],'1392040870727446886')
         self.assertEqual(state['sends'],1)
 
+    def test_f9_opaque_native_stack_uuid_sends_and_matches_exact_original_reply(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local prev=DataCenter.ItemData.GetItemById
+        function DataCenter.ItemData:GetItemById(id)
+          if id==5004 then return {uuid='A97D-42ef_099',itemId=5004,count=world.randomCount} end
+          return prev(self,id)
+        end
+        SFSNetwork.SendMessage=function(msg,args)
+          assert(msg=='itemuse' and type(args.uuid)=='string')
+          assert(args.uuid=='A97D-42ef_099' and args.num==1)
+          world.sends=world.sends+1
+        end
+        """)
+        first=call()
+        self.assertEqual(first['state'],'accepted')
+        self.assertEqual(first['data']['itemUuid'],'A97D-42ef_099')
+        self.assertEqual(state['sends'],1)
+        lua.execute("world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid='A97D-42ef_099',opType=0})")
+        final=call(query=True)
+        self.assertEqual(final['state'],'confirmed')
+        self.assertTrue(final['data']['replyExactItemUuidObserved'])
+        self.assertFalse(final['data']['serverAckAttributable'])
+        self.assertEqual(state['sends'],1)
+
+    def test_f9_wrong_opaque_reply_uuid_cannot_confirm_changed_world_and_item(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        local prev=DataCenter.ItemData.GetItemById
+        function DataCenter.ItemData:GetItemById(id)
+          if id==5004 then return {uuid='A97D-42ef_099',itemId=5004,count=world.randomCount} end
+          return prev(self,id)
+        end
+        SFSNetwork.SendMessage=function()world.sends=world.sends+1 end
+        """)
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid='A97D-42ef_098',opType=0})")
+        query=call(query=True)
+        self.assertEqual(query['state'],'accepted')
+        self.assertFalse(query['data']['replyObserved'])
+        self.assertEqual(state['sends'],1)
+
+    def test_f9_observer_displaced_after_reply_blocks_confirmation_and_replay(self):
+        lua,_,state,call=self.fixture()
+        self.assertEqual(call()['state'],'accepted')
+        lua.execute("""
+        world.position=600123
+        DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004,opType=0})
+        DataCenter.ItemManager.ItemUseHandle=function()end
+        """)
+        final=call(query=True)
+        self.assertEqual(final['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertIn('handler',final['error'])
+        subsequent=call()
+        self.assertEqual(subsequent['state'],'accepted')
+        self.assertTrue(subsequent['data']['observerDetached'])
+        self.assertFalse(subsequent['data']['relocationConfirmed'])
+        self.assertEqual(state['sends'],1)
+
     def test_wrong_account_or_server_after_send_never_confirms_or_resends(self):
         lua,_,state,call=self.fixture();call()
         lua.execute("LuaEntry.Player.uid='different'")
@@ -1181,8 +1240,15 @@ class RelocationActionChecks(unittest.TestCase):
     def test_unknown_send_exception_preserves_tombstone(self):
         lua,_,state,call=self.fixture()
         lua.execute("SFSNetwork.SendMessage=function()world.sends=world.sends+1;error('uncertain')end")
-        self.assertEqual(call()['errorCode'],'GAME_ACTION_UNCONFIRMED')
-        self.assertEqual(call(query=True)['state'],'accepted');self.assertEqual(state['sends'],1)
+        first=call()
+        self.assertEqual(first['errorCode'],'GAME_ACTION_UNCONFIRMED')
+        self.assertFalse(first['data']['requestDispatched'])
+        self.assertTrue(first['data']['nativeSendAttempted'])
+        self.assertTrue(first['data']['nativeSendOutcomeUncertain'])
+        query=call(query=True)
+        self.assertEqual(query['state'],'accepted')
+        self.assertFalse(query['data']['requestDispatched'])
+        self.assertEqual(state['sends'],1)
 
     def test_sender_returned_false_preserves_f9_one_send_and_pending_observer(self):
         lua,_,state,call=self.fixture()
@@ -1193,7 +1259,9 @@ class RelocationActionChecks(unittest.TestCase):
         again=call()
         self.assertEqual(again['state'],'accepted')
         self.assertTrue(again['data']['oneSendNoRetry'])
-        self.assertTrue(again['data']['requestDispatched'])
+        self.assertFalse(again['data']['requestDispatched'])
+        self.assertTrue(again['data']['nativeSendAttempted'])
+        self.assertTrue(again['data']['nativeSendOutcomeUncertain'])
         self.assertFalse(again['data']['serverAckAttributable'])
         self.assertEqual(state['sends'],1)
 

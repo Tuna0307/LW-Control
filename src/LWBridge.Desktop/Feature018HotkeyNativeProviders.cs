@@ -122,6 +122,19 @@ internal sealed class Feature018HotkeyNativeProviders
             bool nativeAcceptedOnly =
                 evidence.TryGetProperty("accepted", out var accepted) &&
                 accepted.ValueKind == JsonValueKind.True;
+            // The original native action receipt preserves requestDispatched
+            // after its reply and independent after-state have settled. Do
+            // not demote a *completed* action to pending merely because it
+            // truthfully records that the original game sender fired once.
+            // A send-only or ambiguous receipt still cannot reach Confirmed:
+            // it must explicitly be no longer pending AND pass the exact
+            // source-specific poststate/reply contract below.
+            if (dispatchedNativeRequest &&
+                evidence.TryGetProperty("awaitingGameConfirmation", out var completed) &&
+                completed.ValueKind == JsonValueKind.False &&
+                ConfirmedReceiptMatches(command.Intent, evidence))
+                return new(Feature018HotkeyActionStatus.Confirmed,
+                    "verified_native_game_state_observation", evidence.Clone());
             if (dispatchedNativeRequest || nativeAcceptedOnly)
             {
                 // A source-backed accepted UI chooser/preflight need not have
@@ -158,7 +171,8 @@ internal sealed class Feature018HotkeyNativeProviders
                         _ => null,
                     };
                     if (uuidProperty is not null &&
-                        ((command.Intent.Kind == Feature018HotkeyKind.UseShield
+                        ((command.Intent.Kind is Feature018HotkeyKind.UseShield or
+                            Feature018HotkeyKind.RandomRelocate or Feature018HotkeyKind.AllianceRelocate
                             ? IsNativeItemUseUuid(evidence, uuidProperty)
                             : IsNativeUuid(evidence, uuidProperty)) ||
                          (uuidProperty == "presetId" && evidence.TryGetProperty("presetId", out var preset) &&
@@ -209,6 +223,19 @@ internal sealed class Feature018HotkeyNativeProviders
             // relocation packet, nor mistake absence of evidence for success.
             if (error.Details is JsonElement data && data.ValueKind == JsonValueKind.Object)
             {
+                // SendMessage returning false or throwing may occur AFTER the
+                // packet escaped to the game network. Native F9 now reports
+                // attempted-but-uncertain explicitly. The false confirmation
+                // flag is not evidence of no outbound packet; never invite a
+                // retransmission from the keyboard or report a definite miss.
+                bool uncertainAttempt =
+                    data.TryGetProperty("nativeSendAttempted", out var attempted) &&
+                    attempted.ValueKind == JsonValueKind.True &&
+                    data.TryGetProperty("nativeSendOutcomeUncertain", out var unsure) &&
+                    unsure.ValueKind == JsonValueKind.True;
+                if (uncertainAttempt)
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        "native_action_outcome_unconfirmed_dispatch_unknown");
                 bool noPacket =
                     data.TryGetProperty("requestDispatched", out var notSent) &&
                     notSent.ValueKind == JsonValueKind.False ||
@@ -265,6 +292,8 @@ internal sealed class Feature018HotkeyNativeProviders
                         CommandName, request, deadline.Token).ConfigureAwait(false);
                     if (response is JsonElement gameState &&
                         gameState.ValueKind == JsonValueKind.Object &&
+                        !(gameState.TryGetProperty("awaitingGameConfirmation", out var stillPending) &&
+                          stillPending.ValueKind == JsonValueKind.True) &&
                         ConfirmedReceiptMatches(command.Intent, gameState))
                     {
                         if (gameState.GetProperty(uuidProperty).GetString() != sentUuid)
@@ -327,10 +356,17 @@ internal sealed class Feature018HotkeyNativeProviders
             case Feature018HotkeyKind.RandomRelocate:
             case Feature018HotkeyKind.AllianceRelocate:
                 return observed.GetString() == "native_relocation_reply_item_and_world_position" &&
+                    evidence.TryGetProperty("awaitingGameConfirmation", out var movePending) && movePending.ValueKind == JsonValueKind.False &&
                     evidence.TryGetProperty("action", out var movedAction) &&
-                    movedAction.GetString() == ActionName(intent.Kind) &&
+                    movedAction.ValueKind == JsonValueKind.String && movedAction.GetString() == ActionName(intent.Kind) &&
+                    evidence.TryGetProperty("requestDispatched", out var relocationSent) && relocationSent.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("relocationConfirmed", out var relocated) && relocated.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("replyObserved", out var reply) && reply.ValueKind == JsonValueKind.True &&
+                    // v26 ItemUse carries an exact opaque UTF stack UUID.
+                    // The itemId fallback or opType=1 must never confirm F9.
+                    evidence.TryGetProperty("replyExactItemUuidObserved", out var exactStack) && exactStack.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("replyUseOperationCompatible", out var normalUse) && normalUse.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var independentAfter) && independentAfter.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("ownerUid", out var moveOwner) && moveOwner.GetString() == LWBridgeWindow.Feature018ApprovedGameUid &&
                     evidence.TryGetProperty("sourceServerId", out var moveServer) && moveServer.TryGetInt32(out int moveServerId) &&
@@ -338,7 +374,7 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("beforeWorldPointId", out var beforePoint) && beforePoint.TryGetInt64(out long oldPoint) &&
                     evidence.TryGetProperty("afterWorldPointId", out var afterPoint) && afterPoint.TryGetInt64(out long newPoint) &&
                     oldPoint is >= 0 and < 10000000 && newPoint is >= 0 and < 10000000 && oldPoint != newPoint &&
-                    IsNativeUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
+                    IsNativeItemUseUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
                     evidence.TryGetProperty("beforeCount", out var beforeItem) && beforeItem.TryGetInt32(out int beforeMoveCount) &&
                     evidence.TryGetProperty("afterCount", out var afterItem) && afterItem.TryGetInt32(out int afterMoveCount) &&
                     beforeMoveCount > 0 && afterMoveCount == beforeMoveCount - 1;

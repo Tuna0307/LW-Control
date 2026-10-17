@@ -47,9 +47,15 @@ internal static class Feature018EquipmentProviderChecks
     {
         ["observation"] = "native_relocation_reply_item_and_world_position",
         ["action"] = action, ["slot"] = 0, ["relocationConfirmed"] = true,
-        ["replyObserved"] = true, ["worldPointChanged"] = true,
+        ["requestDispatched"] = true, ["awaitingGameConfirmation"] = false,
+        ["replyObserved"] = true,
+        ["replyExactItemUuidObserved"] = true,
+        ["replyUseOperationCompatible"] = true,
+        ["independentWorldAndInventoryPoststateVerified"] = true,
+        ["clientRequestNonceAvailable"] = false, ["serverAckAttributable"] = false,
+        ["worldPointChanged"] = true,
         ["ownerUid"] = Owner.GameUid, ["sourceServerId"] = Owner.ServerId,
-        ["itemUuid"] = "9007199254740993", ["itemId"] = "10004",
+        ["itemUuid"] = "e43623c3ec5e4cd78ae1b3f904094fd7", ["itemId"] = "10004",
         ["beforeCount"] = 2, ["afterCount"] = 1,
         ["beforeWorldPointId"] = 440444, ["afterWorldPointId"] = 540544,
     };
@@ -66,6 +72,7 @@ internal static class Feature018EquipmentProviderChecks
         await TrustedEquipmentConfigSurvivesPendingAndConfirmationAsync();
         await ChangedPresetDuringConfirmationIsRejectedAsync();
         await ChangedRelocationItemDuringConfirmationIsRejectedAsync();
+        await OriginalOpaqueRelocationItemUsesSingleSendAndReadOnlyPollAsync();
         await InvalidFinalObservationsAreRejectedAsync();
         Console.WriteLine("FEATURE018_EQUIPMENT_RELOCATION_PROVIDER_PASS");
     }
@@ -167,6 +174,37 @@ internal static class Feature018EquipmentProviderChecks
             "relocation identity mismatch caused another action send");
     }
 
+    private static async Task OriginalOpaqueRelocationItemUsesSingleSendAndReadOnlyPollAsync()
+    {
+        const string ownedStack = "e43623c3ec5e4cd78ae1b3f904094fd7";
+        var service = new FakeCommands
+        {
+            Respond = (count, _) => count == 1 ? Pending(ownedStack, false) : Element(Relocation()),
+        };
+        Feature018HotkeyActionOutcome outcome = await Coordinator(service).TryDispatchAsync(
+            new(Feature018HotkeyKind.RandomRelocate, 0));
+        Require(outcome.Working && service.Requests.Count == 2 &&
+                !service.Requests[0].TryGetProperty("queryOnly", out _) &&
+                service.Requests[1].TryGetProperty("queryOnly", out JsonElement readOnly) &&
+                readOnly.ValueKind == JsonValueKind.True,
+            "opaque original ItemUse stack UUID did not confirm via exactly one initial send and one read-only query");
+        var bad = new FakeCommands
+        {
+            Respond = (count, _) =>
+            {
+                if (count == 1) return Pending(ownedStack, false);
+                JsonObject wrongItem = Relocation();
+                wrongItem["itemUuid"] = "different-original-stack";
+                return Element(wrongItem);
+            },
+        };
+        Feature018HotkeyActionOutcome mismatch = await Coordinator(bad).TryDispatchAsync(
+            new(Feature018HotkeyKind.RandomRelocate, 0));
+        Require(mismatch.Status == Feature018HotkeyActionStatus.SessionChanged && !mismatch.Working &&
+                bad.Requests.Count == 2 && bad.Requests[1].GetProperty("queryOnly").GetBoolean(),
+            "opaque original ItemUse stack mismatch was credited or led to a second send");
+    }
+
     private static async Task InvalidFinalObservationsAreRejectedAsync()
     {
         var equipmentCases = new Action<JsonObject>[]
@@ -192,19 +230,28 @@ internal static class Feature018EquipmentProviderChecks
             var service = new FakeCommands { Respond = (_, _) => Element(Relocation(action)) };
             Require((await Coordinator(service).TryDispatchAsync(new(kind, 0))).Working,
                 "valid native relocation reply plus consumed item and changed city was rejected");
+            int negativeIndex = 0;
             foreach (var corrupt in new Action<JsonObject>[]
             {
                 data => data["action"] = action == "randomRelocate" ? "allianceRelocate" : "randomRelocate",
+                data => data["requestDispatched"] = false,
+                data => data["awaitingGameConfirmation"] = null,
                 data => data["replyObserved"] = false,
+                data => data["replyExactItemUuidObserved"] = false,
+                data => data["replyUseOperationCompatible"] = false,
+                data => data["independentWorldAndInventoryPoststateVerified"] = false,
                 data => data["worldPointChanged"] = false,
                 data => data["afterCount"] = 2,
-                data => data["itemUuid"] = "not-a-native-uuid",
+                data => data["itemUuid"] = "not:a:native:stack:uuid",
             })
             {
                 JsonObject data = Relocation(action); corrupt(data);
                 service.Respond = (_, _) => Element(data);
-                Require((await Coordinator(service).TryDispatchAsync(new(kind, 0))).Status ==
-                        Feature018HotkeyActionStatus.Failed, "unmatched relocation reply, item or action falsely confirmed");
+                Feature018HotkeyActionOutcome outcome = await Coordinator(service).TryDispatchAsync(new(kind, 0));
+                Require(!outcome.Working &&
+                        outcome.Status is Feature018HotkeyActionStatus.Failed or Feature018HotkeyActionStatus.Submitted,
+                    $"unmatched relocation reply, item or action falsely confirmed ({kind} case {negativeIndex}: {outcome.Status}/{outcome.Reason})");
+                negativeIndex++;
             }
         }
     }

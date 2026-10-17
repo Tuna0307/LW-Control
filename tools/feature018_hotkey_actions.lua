@@ -148,7 +148,8 @@ local function resolve_squad(slot)
     end
     return {uuid=march_uuid, uuid_number=tonumber(march_uuid),
             uid=uid, formation=formation_id, target=target,
-            slot=slot, marches=marches}, nil
+            slot=slot, player=player, center=center,
+            marches=marches}, nil
 end
 
 local function session_id(fields)
@@ -186,7 +187,10 @@ local function recall(fields, game_input_clear)
     local identity = session_id(fields)
     if identity == nil then return blocked("Exact authenticated game identity absent") end
     if owner_token ~= identity then
-        outstanding = {}
+        -- A bridge challenge/launch token can rotate while the original
+        -- native march is still processing OnBackHome. Keep one-send fences
+        -- in this Lua VM until the *march* changes or native poststate proves
+        -- BACK_HOME; rotating a token must not retransmit that march.
         owner_token = identity
     end
     local query_only = fields.queryOnly == "1"
@@ -212,6 +216,10 @@ local function recall(fields, game_input_clear)
         return blocked("Squad changed while its earlier return was pending")
     end
     if pending then
+        if pending.player ~= member(rawget(_G,"LuaEntry"),"Player") or
+           pending.marches ~= selected.marches then
+            return blocked("Native march player/manager changed after recall; earlier return remains unresolved")
+        end
         local current = read_return_state(selected)
         if current == nil then return blocked("Pending march state could not be revalidated") end
         if current == target_enum then
@@ -221,7 +229,8 @@ local function recall(fields, game_input_clear)
                 marchUuid=selected.uuid, formationUuid=selected.formation,
                 target="BACK_HOME", returning=true,
                 nativePostStateObserved=true,
-                observedAfterPreviousDispatch=true,
+                observedAfterPreviousDispatch=pending.dispatchOutcomeUncertain~=true,
+                priorDispatchOutcomeUncertain=pending.dispatchOutcomeUncertain==true,
                 priorTarget=pending.beforeTarget,
                 -- WorldMarchChange has no verified per-request echoed nonce;
                 -- a cached BACK_HOME transition after our send can coincide
@@ -266,6 +275,16 @@ local function recall(fields, game_input_clear)
     if game_input_clear() ~= true then
         return blocked("Text focus changed before return-home dispatch")
     end
+    -- Focus readers and original formation lookups execute native methods.
+    -- Recheck the current owner and exact producer objects immediately before
+    -- the one native OnBackHome action, including all three server getters.
+    local still_owned = authorized_subaccount()
+    if still_owned ~= selected.uid or
+       member(rawget(_G,"LuaEntry"),"Player") ~= selected.player or
+       rawget(_G,"DataCenter") ~= selected.center or
+       member(selected.center,"WorldMarchDataManager") ~= selected.marches then
+        return blocked("Native recall owner, home server or march manager changed before dispatch")
+    end
     local final_target = read_return_state(selected)
     if final_target == nil or final_target ~= selected.target then
         return blocked("March target changed immediately before dispatch")
@@ -274,10 +293,20 @@ local function recall(fields, game_input_clear)
     if type(member(util, "OnBackHome")) ~= "function" then
         return unavailable("Current game MarchUtil.OnBackHome missing")
     end
-    local sent = pcall(member(util, "OnBackHome"), selected.uuid_number)
-    if not sent then return blocked("Native return-home method rejected request") end
-    outstanding[slot] = {uuid=selected.uuid,formation=selected.formation,
-                          beforeTarget=selected.target,sentAt=os.time()}
+    -- The original method can throw or return false AFTER sending a network
+    -- request. Fence before crossing native code and preserve that fence on
+    -- uncertain outcomes. A later BACK_HOME observation is never a unique
+    -- network ACK because the original RPC does not echo this hotkey token.
+    local tx = {uuid=selected.uuid,formation=selected.formation,
+                beforeTarget=selected.target,sentAt=os.time(),
+                player=member(rawget(_G,"LuaEntry"),"Player"),
+                marches=selected.marches,dispatchOutcomeUncertain=true}
+    outstanding[slot] = tx
+    local sent, send_result = pcall(member(util, "OnBackHome"), selected.uuid_number)
+    if not sent or send_result == false then
+        return blocked("Native return-home send outcome is uncertain; observe prior intent without resending")
+    end
+    tx.dispatchOutcomeUncertain=false
     -- Native method sends an RPC; only a later game-owned WorldMarch target
     -- of BACK_HOME confirms its effective state transition.
     return {state="accepted",data={

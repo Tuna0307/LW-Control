@@ -1197,6 +1197,14 @@ local function attack_selected(fields, input_clear, uid)
     local ok_form, form = invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
     local formation, form_number = ident(member(form,"uuid"))
     if not ok_form or not formation then return failed("Selected squad is not unlocked") end
+    local form_owner=member(form,"ownerUid")
+    if form_owner~=nil and ident(form_owner)~=uid then
+        return failed("Native selected squad belongs to another owner")
+    end
+    local form_index=member(form,"index")
+    if form_index~=nil and number(form_index)~=tonumber(fields.slot) then
+        return failed("Native selected squad index changed")
+    end
     local ok_existing, existing = invoke(marches,"GetOwnerFormationMarch",
         member(player,"uid"),form_number,member(player,"allianceId"))
     if not ok_existing then return failed("Native formation march lookup failed") end
@@ -1341,7 +1349,11 @@ local function attack_selected(fields, input_clear, uid)
     if type(member(ctrl,method)) ~= "function" then return unsupported("Original native attack controller missing") end
     local ok_fresh_form,fresh_form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
     local fresh_staffing=formation_staffing(fresh_form)
+    local fresh_owner=member(fresh_form,"ownerUid")
+    local fresh_index=member(fresh_form,"index")
     if not ok_fresh_form or ident(member(fresh_form,"uuid"))~=formation or
+       (fresh_owner~=nil and ident(fresh_owner)~=uid) or
+       (fresh_index~=nil and number(fresh_index)~=tonumber(fields.slot)) or
        not fresh_staffing.staffedForAttack or
        fresh_staffing.soldierCount~=staffing.soldierCount or
        fresh_staffing.heroCount~=staffing.heroCount then
@@ -1369,6 +1381,22 @@ local function attack_selected(fields, input_clear, uid)
        fresh_target.targetServerId~=target.targetServerId then
         return failed("Native selector changed immediately before attack")
     end
+    -- The original controller branches on GetOwnerFormationMarch. A separate
+    -- action may have started a squad march while the selector/nonce hooks
+    -- were being resolved; sending then could take the uncorrelated CHANGE
+    -- route instead of the create-march route we can acknowledge by GUID.
+    -- Re-read immediately before invocation and retain the one-shot fence
+    -- if the current native formation is no longer idle.
+    local ok_final_march,final_march=invoke(marches,"GetOwnerFormationMarch",
+        member(player,"uid"),form_number,member(player,"allianceId"))
+    if not ok_final_march or final_march~=nil then
+        return failed("Native squad march appeared or became unreadable before attack")
+    end
+    -- Authentication and server admission are mutable game state. A native
+    -- selector/formation callback may have switched the current account or
+    -- server since the beginning of this command; recheck at the send edge.
+    local final_uid,final_owner_error=owner_and_focus(fields,input_clear,false)
+    if final_uid~=uid then return final_owner_error end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetUuid=target_uuid,oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
@@ -1387,8 +1415,16 @@ local function attack_selected(fields, input_clear, uid)
         result.data={nativeTransaction=transaction_view(transaction)}
         return result
     end
+    -- This is an original network *send* witness, not a server ACK. The
+    -- desktop hotkey provider must now poll queryOnly to check the exact
+    -- original GUID/owner/target poststate; controller-only actions (native
+    -- deferred dialogs) cannot claim a packet was sent.
+    local dispatched=transaction.sendCount==1 and
+        transaction.outboundRoute=="WorldMarchFormationNew" and
+        transaction.senderReturned==true and transaction.senderReturnedFalse~=true
     return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
-        targetUuid=target_uuid,targetType=kind,requestDispatched=false,accepted=true,
+        targetUuid=target_uuid,targetType=kind,requestDispatched=dispatched,
+        accepted=true,
         nativeControllerInvoked=true,
         nativeTransaction=transaction_view(attacks[fields.slot]),
         awaitingGameConfirmation=true,targetSource="open_native_formation_selector",
