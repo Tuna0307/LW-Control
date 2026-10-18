@@ -291,7 +291,15 @@ R16 (for CoS, later):
    (ignore them). Attack card description stays.
 2. Prove nothing else broke: UI build/check, Desktop.Checks, attack/hotkey Lua checks; one live Q→A on
    4799432499002212 (attack still works, no item/diamond change).
-3. New owner-test ZIP (README: speed-ups removed by owner decision).
+3. Owner addendum: BUILD the two missing Q/W/E/R hover targets from the original: (a) hover an ALLY city (same
+   alliance) + key = send that squad as reinforcement (the game's own reinforce/garrison march, not an attack);
+   (b) hover a CITY RUIN + key = send that squad to the ruin with the game's own march type for ruins. Recover the
+   original target classification and march type from the 0.3.17 original + current client (rea). Keep the
+   guildless-only rule for attacking players; ally cities must never be attacked. Worker proves these offline
+   (source/Lua checks, read-only hover classification if a target is visible) but does NOT send live
+   reinforcement/ruin marches: the owner tests those personally.
+4. New owner-test ZIP (README: speed-ups removed by owner decision; ally reinforcement and ruins built but
+   untested — owner to test).
 Handoff rule unchanged; record progress under "R16 progress".
 
 ### R16 progress (worker updates this)
