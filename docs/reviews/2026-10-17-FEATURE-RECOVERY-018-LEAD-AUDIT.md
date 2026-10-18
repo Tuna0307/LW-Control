@@ -411,3 +411,14 @@ Verified by lead: local HEAD = remote 4f090efd, tree clean. Attack + hotkey Lua 
   journal; no game/app process.
 Open: owner live test of ally reinforcement and ruins; F9/F10; City Layout "result uncertain"; shields/Alt+1–4
 set aside by owner.
+
+## Owner test of R16 — 2026-10-19
+- Ally city reinforcement (hover + Q on same-alliance city): **WORKS** (owner confirmed).
+- City ruin: not tested yet. Needs the profession skill 攻城精通 (Siege Mastery) level 1, which unlocks 拆除廢墟
+  (demolish ruins); owner's account does not have it. Owner will test once learned.
+- Owner question: the Mini Games panel "Frontline: original G adds five units / Inspect active original battle"
+  is a worker test panel (reads the running battle's soldier count, then a separate click button adds five). It
+  duplicates the G hotkey card and still says "five" although the count is now configurable. Lead recommends
+  removing it, together with the other worker diagnostic panels in HotkeyPages.jsx (NativeAttackReadinessPanel,
+  ShieldOwnedInventoryPanel, ShieldNativeActionPanel, EquipmentNativePreflightPanel,
+  RelocationNativeReadinessPanel) so only the original feature cards remain. Pending owner decision; next round.
