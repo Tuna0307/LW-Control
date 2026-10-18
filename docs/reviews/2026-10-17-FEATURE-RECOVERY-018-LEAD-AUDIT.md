@@ -183,3 +183,35 @@ Lead direction for the next worker:
 3. Diagnose and fix the 15 s owner loss in 175459 before the next long run.
 4. Get the first real positive now: hover + Q on a monster → march visible + server reply. No more guard hardening
    until one march has been sent and recalled.
+
+## Lead audit of CoS R14 run — 2026-10-18 (source fbf6b63a)
+CoS stopped. 24 commits, all pushed (local = origin fbf6b63a), working tree clean, no game/app/python processes left.
+Lead re-ran: attack, hotkey, city game, city live driver, relocation, diamond rapid, rapid integration and Mini
+checks all PASS; full `tests/LWBridge.Desktop.Checks` PASS (`HOME_FEATURE_DELIVERY_CHECKS_OK`).
+All 15 live runs since 21:17 restored the exact original game scripts with no recovery journal.
+
+Per task:
+- Task 2 Q/W: **ACCEPTED (live)**. Physical hover+Q monster `native-ui-20261017-192001` and hover+W empty oil
+  `native-ui-20261017-200539`, both Confirmed by server-response GUID, screenshots `r14-q/w-confirmed-visible-march.png`.
+  Repeated in later runs (214424 Q Confirmed).
+- Task 3 A/S: **ACCEPTED (live)**. S `native-ui-20261017-205511`, A `native-ui-20261017-213119`, both Confirmed by
+  server-applied BACK_HOME on the exact march (not a raw reply match; documented honestly).
+- Task 4 speed-ups: **NOT PROVEN**. Code only (fbf6b63a gem rapid path, item path); no live run found.
+- Task 5 F9/F10: **NOT PROVEN**. Code only (63d33498); no live run found.
+- Task 6 City Layout: **PARTIAL live**. Snapshot of the real 2296 city (33 buildings) read; single moves and swaps
+  were sent and server-applied (050340: 3 moves completed); in-flight Cancel proven in `native-ui-20261018-051405`
+  (`task6CancelProven=true`). Lead compared that run's before/after snapshots with the original positions from
+  220737: **0 of 33 buildings differ — the owner's city is back to its original layout.** Open defects: single-move
+  completion often reported CITY_LAYOUT_RESULT_UNCERTAIN (no matching native reply), and 051122 restore preflight
+  failed with GAME_ACCOUNT_CHANGED (same transient owner-loss family as 175459/220737).
+- Task 7 ZIP: **NOT BUILT** (only packaging script prepared in cc777949).
+- Worker did not update the R14 progress list after Task 3; this section is the current status.
+
+Difficulties seen: (1) the bridge intermittently loses the "same account" heartbeat for a few seconds, which
+aborts runs or marks results uncertain; (2) the game often applies a move/recall without sending a reply our code
+can match, so the worker had to switch to "server-applied after-state" evidence; (3) the game process sometimes
+vanished mid-run (211733/213119/213826 "exact owned game process is unavailable"); (4) time spent on extra proof
+rigour rather than moving to Tasks 4/5/7.
+
+Next (not yet assigned): speed-ups live, F9/F10 live, fix the transient owner loss, make City single-move report
+Completed from server-applied state, owner-test ZIP.
