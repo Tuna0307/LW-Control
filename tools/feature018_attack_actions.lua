@@ -394,6 +394,14 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
        (number(member(target,"PointType")) or number(member(target,"pointType")))==6 then
         target_alliance="0"
     end
+    -- City alliance IDs are native strings and may be opaque GUID/hex IDs.
+    -- A read nonempty string is membership, even when it is not numeric.
+    -- This changes refusal classification only; it can never permit a send.
+    if not target_alliance and not is_march and read_ok and
+       type(raw_alliance)=="string" and raw_alliance~="" and
+       (number(member(target,"PointType")) or number(member(target,"pointType")))==6 then
+        target_alliance=raw_alliance
+    end
     if not target_alliance then
         local result=failed("Target alliance identity unknown; attack suppressed")
         result.data={targetAllianceReader=reader,targetAllianceReadSucceeded=read_ok,
@@ -401,7 +409,10 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
         return nil,result
     end
     if target_alliance~="0" then
-        return nil,failed("Player target belongs to an alliance; only guildless players may be attacked")
+        local result=failed("Player target belongs to an alliance; only guildless players may be attacked")
+        result.data={targetAllianceReader=reader,targetAllianceReadSucceeded=read_ok,
+            targetAllianceRaw=raw_alliance}
+        return nil,result
     end
     return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
         targetAllianceRaw=raw_alliance,targetAllianceReader=reader,

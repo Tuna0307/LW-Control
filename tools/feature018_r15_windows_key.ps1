@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$RunDirectory,
-    [Parameter(Mandatory=$true)][ValidateSet('Q','W','A','S')][string]$Key
+    [Parameter(Mandatory=$true)][ValidateSet('Q','W','A','S')][string]$Key,
+    [ValidateRange(0,4000)][int]$RecallAfterMilliseconds = 0
 )
 $ErrorActionPreference = 'Stop'
 $run = (Resolve-Path -LiteralPath $RunDirectory).Path
@@ -52,3 +53,19 @@ try {
     uid=$admission.uid; serverId=$admission.serverId; keyDownUtc=$started;
     keyUpUtc=[DateTimeOffset]::UtcNow; input='Windows virtual key via windows-mcp PowerShell';
     gameAcknowledgementProven=$false } | ConvertTo-Json -Compress
+if ($RecallAfterMilliseconds -gt 0) {
+    if ($Key -ne 'Q') { throw 'Immediate recall pair is supported only for explicit Q then A' }
+    Start-Sleep -Milliseconds $RecallAfterMilliseconds
+    $returnWindow = Assert-ExactGame
+    $returnStarted = [DateTimeOffset]::UtcNow
+    try {
+        [Feature018R15PhysicalKey]::keybd_event([byte][char]'A', 0, 0, [UIntPtr]::Zero)
+        Start-Sleep -Milliseconds 300
+    } finally {
+        [Feature018R15PhysicalKey]::keybd_event([byte][char]'A', 0, 2, [UIntPtr]::Zero)
+    }
+    [pscustomobject]@{ key='A'; gamePid=$admission.gamePid; hwnd=$returnWindow;
+        uid=$admission.uid; serverId=$admission.serverId; keyDownUtc=$returnStarted;
+        keyUpUtc=[DateTimeOffset]::UtcNow; input='Windows virtual key via windows-mcp PowerShell';
+        gameAcknowledgementProven=$false } | ConvertTo-Json -Compress
+}

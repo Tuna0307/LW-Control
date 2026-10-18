@@ -1374,6 +1374,13 @@ def test_native_alliance_field_selection_for_typed_targets():
                     'explicit zero native alliance rejected for '+category)
             if category=='city':
                 state.worldPointType=6
+                state.worldAlliance='15f557d90bf9485594cc0ebb6fd89ebc'
+                guild_city=observe()
+                require(guild_city['state']=='failed' and 'belongs to an alliance' in guild_city['error'] and
+                        'guildless' in guild_city['error'] and
+                        guild_city['data']['targetAllianceReadSucceeded'] is True and
+                        guild_city['data']['targetAllianceRaw']==state.worldAlliance,
+                        'native opaque city alliance ID did not explain guildless-only refusal')
                 state.worldAlliance=''
                 require(observe()['state']=='confirmed' and
                         observe()['data']['target']['targetAllianceUid']=='0',
