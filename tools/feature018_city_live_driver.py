@@ -181,6 +181,22 @@ def started_job(result, label):
     return job_id
 
 
+def completed_evidence_count(status):
+    """Count only source-attributed native completion evidence.
+
+    Raw reply correlation is strongest.  Current v26 can bypass diagnostic
+    reply wrappers, so the City producer also accepts an exact server-applied
+    BuildingMove event + authoritative poststate without claiming raw-reply
+    causality.  The producer records those paths separately; every completed
+    step must be accounted for by exactly one of them.
+    """
+    raw = status.get('matchingNativeReplies', 0)
+    server = status.get('serverAppliedPostStateCount', 0)
+    if not isinstance(raw, int) or not isinstance(server, int) or raw < 0 or server < 0:
+        raise RuntimeError(f'Native City completion evidence counters are invalid: {status}')
+    return raw + server
+
+
 def apply_and_confirm(client, payload, desired, expected_before, evidence_prefix):
     started = client.command('city_layout_apply_start', payload)
     job_id = started_job(started, evidence_prefix)
@@ -189,7 +205,7 @@ def apply_and_confirm(client, payload, desired, expected_before, evidence_prefix
             status.get('jobId') != job_id or
             status.get('completedMoves') != status.get('totalMoves') or
             status.get('dispatchedMoves') != status.get('totalMoves') or
-            status.get('matchingNativeReplies') != status.get('totalMoves')):
+            completed_evidence_count(status) != status.get('totalMoves')):
         raise RuntimeError(f'{evidence_prefix} native completion was not fully confirmed: {status}')
     expected_after = dict(expected_before)
     expected_after.update(desired)
@@ -237,7 +253,7 @@ def restore(client, original, parent_job_id, evidence_prefix):
             status.get('restoreOfJobId') != parent_job_id or
             status.get('completedMoves') != status.get('totalMoves') or
             status.get('dispatchedMoves') != status.get('totalMoves') or
-            status.get('matchingNativeReplies') != status.get('totalMoves')):
+            completed_evidence_count(status) != status.get('totalMoves')):
         raise RuntimeError(f'{evidence_prefix} original-layout restoration unconfirmed: {status}')
     final = client.snapshot()
     require_exact_positions(final, original,
@@ -324,7 +340,7 @@ def city(client, excluded):
             status.get('jobId') == cancel_job_id and not status.get('inFlight') and
             status.get('cancelRequested') is True and
             status.get('completedMoves') == status.get('dispatchedMoves') and
-            status.get('matchingNativeReplies') == status.get('completedMoves') and
+            completed_evidence_count(status) == status.get('completedMoves') and
             0 < status.get('dispatchedMoves', 0) < status.get('totalMoves', 0))
         if not client.evidence['cancelInFlightProven']:
             raise RuntimeError(f'Cancel did not stop a real in-flight multi-move City job: {cancelled}; {status}')
