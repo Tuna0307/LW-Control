@@ -259,3 +259,20 @@ Handoff rule unchanged: after each task commit and update "R15 progress" below; 
 - R15 city membership source recovery: run070654 refused WhattaTops with unknown target alliance before any send and exited0/restored. Installed BuildPointInfo ctor RID13427 copies protobuf string allianceId; protobuf BuildInfo ctor RID43782 defaults it to empty string, setter RID43798 rejects null. The adapter now reads that actual native string (narrow BuildPointInfo public-field reflection fallback if exposed as base PointInfo); only a successfully read typed-city empty string is normalized to no alliance. Nil/unreadable stays blocked. Exact target alliance raw value/reader are now retained in attack receipts. Source/Lua suite and final typed-empty receipt regression pass. Next: republish for actual city march/refusal/A and R15 ZIP.
 
 - R15 Task 3 **PROVEN live** (2026-10-18), source85c58362: `artifacts/map014-takeover/native-ui-20261018-071429/r15-task3-summary.json`, exact UID4799432499002212/2212/game24556/sessionc402f1e0f33e4a15a5983c3119a52f60. Physical hover+Q on WhattaTops city (targetUUID1349056560080921695, point156129) sent ATTACK_CITY11 once and Confirmed exact server-response GUID. Native receipt records `targetAllianceRaw=""`, normalized0, reader `native_member_allianceId`; `r15-guildless-city-after-q.png` visibly shows the outbound city march (16s ETA). Final rapid physical Q/A pair Confirmed same march1427557175043597470, createGUID060ed19e-d65e-4d85-848d-9f0aaaa6d8fe; A proved server-applied non-BACK_HOME→BACK_HOME. Earlier first A was late after battle/auto return; a second paired helper exited1 before issuing A; neither is credited as recall. Final pair keys in `r15-city-immediate-q-a-keys.jsonl`. Physical hover+Q on [A3VN]njopari was refused with no send, native target alliance string15f557d90bf9485594cc0ebb6fd89ebc read successfully; app refusal visible in `feature018-r2-stage-2.png`. Follow-up message-only classification now calls a nonempty string alliance membership rather than unknown, preserving dispatch eligibility; full Lua suite passes. All squads home before Stop. Next: final any-account R15 package from pushed source, updated README, extracted-package refusal/feedback smoke and final restoration receipt.
+
+## Lead audit of Codex R15 — 2026-10-18 (source 9ad8ab71)
+Codex ran out of tokens during its final packaged smoke run. All 9 commits pushed (remote = 9ad8ab71), tree clean.
+Lead re-ran attack + hotkey Lua checks and full Desktop.Checks: PASS.
+- Task 1 harness pin to 4799432499002212/2212: ACCEPTED.
+- Task 2 repeat use: **ACCEPTED (live)** `native-ui-20261018-065538`: 3× Q→A cycles, then Q+W → A+S, one session.
+  Root cause: a consumed hover intent (`cursor_open_pending`) was kept after a confirmed send and blocked the next
+  press. Also found: Windows-MCP plain-letter shortcuts send VK_PACKET, not VK_Q; worker used a held-VK helper.
+- Task 3 guildless city attack: **ACCEPTED (live)** `native-ui-20261018-071429`: Q on guildless city WhattaTops sent
+  ATTACK_CITY and was server-confirmed, A recalled it; Q on an alliance player ([A3VN]) refused with no send.
+- Task 4 ZIP: built by worker from 9ad8ab71,
+  `artifacts/feature018-r15-9ad8ab71/LW-Control-FEATURE-018-R15-PARTIAL-9ad8ab715ade.zip`, SHA-256
+  37c1eee042978a6bfcfe537702908a8775b27f88c46477cef6fc4539532fa834. Lead verified: no test UID in any file, CRC ok,
+  honest README.
+- Cleanup: the worker's packaged smoke run `native-ui-20261018-072738` was left open (game + app). Lead sent the
+  harness `finish`: exit 0, original scripts restored, no journal, restoration proven. Smoke test itself unfinished.
+All R15 runs exited 0 with exact restoration.
