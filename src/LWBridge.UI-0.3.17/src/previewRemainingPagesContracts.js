@@ -26,8 +26,6 @@ export function previewHotkeyConfig() {
     frontlineReinforce: true,
     frontlineReinforceCount: 5,
     treasureChestHint: false,
-    attackMarchSpeedupItem: true,
-    attackMarchSpeedupDiamond: false,
     previewUnrelatedField: "preserve-me",
   };
 }

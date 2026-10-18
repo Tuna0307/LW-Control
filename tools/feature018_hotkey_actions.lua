@@ -741,21 +741,14 @@ function M.Wrap(frozen_hotkeys)
             end
             return result
         end
-        if fields.action == "attack" or fields.action == "speedupItem" or
-           fields.action == "speedupDiamond" then
-            if fields.action == "speedupItem" or fields.action == "speedupDiamond" then
-                local authenticated = {}
-                for key, value in pairs(fields) do authenticated[key] = value end
-                authenticated.authorizedUid = uid
-                fields = authenticated
-            end
+        if fields.action == "attack" then
             local action_module = rawget(_G, "LWBridgeFeature018AttackActions")
             if type(member(action_module, "Handle")) ~= "function" then
-                return unavailable("Current v26 attack/rapid producer is unavailable")
+                return unavailable("Current v26 attack producer is unavailable")
             end
             local ok, result = pcall(action_module.Handle, fields, input)
             if not ok or type(result) ~= "table" then
-                return blocked("Attack/rapid adapter did not provide native game evidence")
+                return blocked("Attack adapter did not provide native game evidence")
             end
             return result
         end
@@ -789,18 +782,14 @@ function M.Wrap(frozen_hotkeys)
     end
 end
 
--- Explicit owned-march item and paid rapid commands for the mounted Hotkeys
--- panel. Paid use still requires the original UILWRapid confirmation dialog;
--- this wrapper only admits the user's exact opt-in and native template ID.
--- The real UID is obtained inside the already owner-admitted game, never from
--- a browser-provided identifier; all three current native server getters must
--- agree at each command boundary.
--- The existing Q/W/E/R path remains independent and cannot implicitly spend.
-function M.RegisterRapid(feature, frozen_hotkeys)
+-- Register the read-only attack preparation companion used by the Hotkeys UI.
+-- Mutating Q/W/E/R attacks continue through RegisterGame's authenticated
+-- feature018_hotkey_action path.
+function M.RegisterAttack(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end
     local input = frozen_hotkeys.TextInputClear
-    feature.RegisterHandler("feature018_attack_prepare",function(fields)
+    return feature.RegisterHandler("feature018_attack_prepare",function(fields)
         local uid,denial=authorized_subaccount()
         if not uid then return denial end
         local adapter=rawget(_G,"LWBridgeFeature018AttackActions")
@@ -811,92 +800,6 @@ function M.RegisterRapid(feature, frozen_hotkeys)
         local result=adapter.Prepare(copy,input)
         if result.state == "confirmed" and type(member(result.data,"candidates")) == "table" then
             feature.Array(result.data.candidates)
-        end
-        return result
-    end)
-    return feature.RegisterHandler("feature018_rapid_action", function(fields)
-        if type(fields) ~= "table" or
-           (fields.mode ~= "inventory" and fields.mode ~= "itemUse" and fields.mode ~= "status" and
-            fields.mode ~= "diamondInventory" and fields.mode ~= "diamondUse" and
-            fields.mode ~= "diamondStatus") or
-           type(fields.slot) ~= "string" or not fields.slot:match("^[1-4]$") then
-            return blocked("Invalid owned march rapid mode or squad slot")
-        end
-        local uid, denial = authorized_subaccount()
-        if not uid then return denial end
-        local adapter = rawget(_G, "LWBridgeFeature018AttackActions")
-        if type(member(adapter, "Handle")) ~= "function" or
-           type(member(adapter, "OwnedSpeedupInventory")) ~= "function" or
-           type(member(adapter, "DiamondSpeedupPreflight")) ~= "function" then
-            return unavailable("Current v26 owned march speedup adapter missing")
-        end
-        local diamond = fields.mode == "diamondInventory" or
-            fields.mode == "diamondUse" or fields.mode == "diamondStatus"
-        local copy = {
-            action = diamond and "speedupDiamond" or "speedupItem",
-            slot = fields.slot, authorizedUid = uid,
-            profileId = fields.profileId, launchSessionId = fields.launchSessionId,
-            challenge = fields.challenge, gamePid = fields.gamePid,
-        }
-        if fields.mode == "itemUse" then
-            if fields.itemOptIn ~= "1" or type(fields.itemId) ~= "string" or
-               not fields.itemId:match("^[1-9]%d*$") or fields.diamondOptIn ~= nil then
-                return blocked("No explicit owned-item speedup consent and valid item ID")
-            end
-            copy.itemOptIn, copy.itemId = "1", fields.itemId
-        elseif fields.mode == "diamondUse" then
-            if fields.diamondOptIn ~= "1" or type(fields.itemId) ~= "string" or
-               not fields.itemId:match("^[1-9]%d*$") or fields.itemOptIn ~= nil then
-                return blocked("No explicit paid rapid consent and valid native buy item ID")
-            end
-            copy.diamondOptIn, copy.itemId = "1", fields.itemId
-        elseif fields.mode == "status" or fields.mode == "diamondStatus" then
-            if fields.itemId ~= nil or fields.itemOptIn ~= nil or fields.diamondOptIn ~= nil then
-                return blocked("Read-only rapid status may not specify spending arguments")
-            end
-            copy.queryOnly = "1"
-        elseif fields.itemId ~= nil or fields.itemOptIn ~= nil or fields.diamondOptIn ~= nil then
-            return blocked("Read-only rapid inventory may not specify an item spend")
-        end
-        local ok, result
-        if fields.mode == "inventory" then
-            ok, result = pcall(adapter.OwnedSpeedupInventory, copy, input)
-            if ok and type(result) == "table" and result.state == "confirmed" and
-               type(member(result, "data")) == "table" and
-               type(result.data.items) == "table" and #result.data.items == 0 and
-               type(feature.Array) == "function" then
-                feature.Array(result.data.items)
-            end
-        elseif fields.mode == "diamondInventory" then
-            ok, result = pcall(adapter.DiamondSpeedupPreflight, copy, input)
-            if ok and type(result) == "table" and result.state == "confirmed" and
-               type(member(result, "data")) == "table" and
-               type(result.data.options) == "table" and #result.data.options == 0 and
-               type(feature.Array) == "function" then
-                feature.Array(result.data.options)
-            end
-        else
-            ok, result = pcall(adapter.Handle, copy, input)
-        end
-        if not ok or type(result) ~= "table" then
-            return blocked("Original march rapid producer gave no verifiable result")
-        end
-        if (fields.mode == "status" or fields.mode == "diamondStatus") and
-           result.state == "accepted" then
-            -- This confirms only the *observation of an unconfirmed pending
-            -- request*, not that item/gem use succeeded.
-            return {state = "confirmed", data = {
-                state = "pending", requestDispatched = false,
-                observation = fields.mode == "diamondStatus" and
-                    "native_rapid_diamond_request_unconfirmed" or
-                    "native_rapid_item_request_unconfirmed",
-                marchUuid = member(result.data, "marchUuid"),
-                slot = tonumber(fields.slot),
-            }}
-        end
-        if (fields.mode == "status" or fields.mode == "diamondStatus") and
-           result.state == "confirmed" then
-            result.data.state = "confirmed"
         end
         return result
     end)

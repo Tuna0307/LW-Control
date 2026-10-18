@@ -44,7 +44,7 @@
     if (monsterLocaleFixture) fixtureCounts.monster = fixtureMonsterRows.length;
     const fixtureDefaults = {
         status: {xluaOnline: false, pending: 0, config: {auto_weekend_shield: true, auto_attack_shield: true, auto_force_update_reload: false, auto_close_popup: false, tasks: {}}},
-        hotkeys: Object.fromEntries(['attack', 'recall', 'shieldOverlay', 'shieldUse', 'equipment', 'randomRelocate', 'allianceRelocate', 'frontlineReinforce', 'attackMarchSpeedupItem', 'attackMarchSpeedupDiamond'].map(key => [key, false])),
+        hotkeys: Object.fromEntries(['attack', 'recall', 'shieldOverlay', 'shieldUse', 'equipment', 'randomRelocate', 'allianceRelocate', 'frontlineReinforce'].map(key => [key, false])),
         metrics: {showFps: false, showPing: false},
         equipment: {equipmentPresets: [], initialEquipmentConfig: null},
         vip: {selectedSkinId: null, autoApplyOnStart: false, favoriteSkinIds: []}

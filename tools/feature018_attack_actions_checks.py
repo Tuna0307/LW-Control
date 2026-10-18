@@ -108,29 +108,8 @@ DataCenter={
            GetMarchTargetType=function(self) return state.targetType end}
   end
  },
- ItemData={
-  GetItemsByType=function(self,category)
-   assert(category==state.category)
-   if not state.ownsItem then return {} end
-   return {{itemId=3108,count=state.count},
-           {itemId=666,count=1}}
-  end,
-  GetItemById=function(self,id)
-   if id==3108 and state.ownsItem then
-     return {itemId=id,count=(state.stale and state.count+1 or state.count)}
-   end
-   return nil
-  end
- },
- ItemTemplateManager={
-  GetTypeListByType=function(self,category)
-   assert(category==state.category)
-   return {{id=3108,para1="1;5",para3="100",price=0},
-           {id=9999,para1="1;10",para3="100",price=10}}
-  end
- }
 }
-MsgDefines={WorldMarchRapid=173}
+MsgDefines={}
 SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
  if route==99 then
   assert(uuid==state.formation and itemid==17 and buy==990123)
@@ -138,11 +117,7 @@ SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
   require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate({},uuid,itemid,buy)
   return
  end
- assert(route==173 and uuid==state.uuid and ((itemid==3108 and buy==false) or (itemid==9999 and buy==true)))
- state.rpcCount=state.rpcCount+1
- state.rpcArgs={route,uuid,itemid,buy}
- if state.failRpc then error("simulated_rpc_reject") end
- if state.failRpcFalse then return false end
+ error("unexpected network route "..tostring(route))
 end}
 MarchUtil={
  TryStartMarch=function(...) state.attackDelegateCount=state.attackDelegateCount+1 end,
@@ -233,35 +208,6 @@ def check_installed_managed_nonce_source() -> None:
                 "original XLua WorldMarch clientCreateGuid getter is missing")
 
 
-def mock():
-    vm = LuaRuntime(unpack_returned_tuples=True)
-    vm.execute(GAME)
-    module = vm.execute(SOURCE.read_text(encoding="utf-8"))
-    state = vm.globals().state
-
-    def call(action="speedupItem", slot="1", item_id="3108", **overrides):
-        fields = {
-            "action": action, "slot": slot, "itemId": item_id,
-            "itemOptIn": "1", "authorizedUid": "4799432499002212",
-            "profileId": "profile", "launchSessionId": "launch",
-            "challenge": "request", "gamePid": "7020",
-        }
-        fields.update(overrides)
-        return module.Handle(vm.table_from(fields), vm.globals().input_clear)
-
-    def inspect(**overrides):
-        fields = {
-            "slot": "1", "authorizedUid": "4799432499002212",
-            "profileId": "profile", "launchSessionId": "launch",
-            "challenge": "request", "gamePid": "7020",
-        }
-        fields.update(overrides)
-        return module.OwnedSpeedupInventory(vm.table_from(fields),
-                                             vm.globals().input_clear)
-
-    return state, call, inspect
-
-
 def check_original() -> None:
     fv, cv, records = original.probe.read_lwlf(original.probe.paths()["data"])
     entries = dict(records)
@@ -338,16 +284,6 @@ def check_original() -> None:
         "UI/UIWorldPoint/View/UIWorldPointView.luac": (
             "e49f0a80b37ae2ecc3abf808c4fa2d2ed5eb146f4224cdf1cf348a1f461636ff",
             {"ReInit": ["GetPointData", "pointId", "ctrl"]}),
-        "UI/UILWRapid/View/UILWRapidView.luac": (
-            "19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3",
-            {"GetAllItems": ["GOODS_TYPE_108", "GetItemsByType", "GetTypeListByType"],
-             "ReInit": ["GetMarch", "endTime", "ItemSpdMenu_Troop"],
-             "ConfirmUse": ["SendMessage", "WorldMarchRapid", "UseTool", "ReduceTime"],
-             "ConfirmBuy": ["WorldMarchRapid", "UpdateGold"],
-             "CellsCallBack": ["ShowUseDiamondConfirm", "ConfirmUse"]}),
-        "Net/Msgs/WorldMarchRapidMessage.luac": (
-            "1ba6497b62d041729d2e7b5a7dd907e5067fec8b92893e5e63ecd9cc2e00a8f5",
-            {"HandleMessage": ["errorCode", "remainGold"]}),
         "Net/Msgs/WorldMarchFormationNewMessage.luac": (
             "69dec0f3e14286770c728a2b42d8542f8f3b9e0f493bc2bcb75c9cf4f69a8dd9",
             {"OnCreate": ["SaveCreateMarchRecordTime", "PutUtfString", "clientCreateUuid"],
@@ -436,7 +372,7 @@ def check_original() -> None:
                         f"native {name_} does not dispatch the source-backed route")
 
 
-def test_selected_attack_and_diamond():
+def test_selected_attack():
     vm = LuaRuntime(unpack_returned_tuples=True)
     vm.execute(GAME)
     vm.execute("""
@@ -489,7 +425,7 @@ def test_selected_attack_and_diamond():
         profileId='profile',launchSessionId='launch',
         challenge='request',gamePid='7020')),vm.globals().input_clear)
     require(editor_attempt['state']=='failed' and
-            'unresolved attack or rapid transaction' in editor_attempt['error'] and
+            'unresolved attack transaction' in editor_attempt['error'] and
             state['attackDelegateCount']==1,
             'native staffing editor shortcut bypassed a pending attack fence')
     pending_view=module.Prepare(vm.table_from(dict(
@@ -499,7 +435,7 @@ def test_selected_attack_and_diamond():
         challenge='request',gamePid='7020')),vm.globals().input_clear)
     require(pending_view['state']=='confirmed' and
             pending_view['data']['sourcePrerequisitesObserved'] is False and
-            'native_attack_or_speedup_transaction_pending' in
+            'native_attack_transaction_pending' in
               list(pending_view['data']['outstandingReasons'].values()) and
             pending_view['data']['requestDispatched'] is False and
             state['attackDelegateCount']==1 and state['attackSends']==1,
@@ -542,16 +478,6 @@ def test_selected_attack_and_diamond():
             'exact authoritative owned squad/target transition not recognized')
     require(call()['state']=='unsupported' and state['attackSends']==1,
             'an existing active march was retargeted without a correlatable native change ACK')
-    require(call(action='speedupDiamond',itemId='9999')['state']=='failed' and
-            state['rpcCount']==0,
-            'diamond paid action did not require explicit opt-in')
-    for opts in ({'diamondOptIn':'1'}, {'diamondOptIn':'1','userConfirmed':'1'}):
-        require(call(action='speedupDiamond',itemId='9999',**opts)['state']=='unsupported' and
-                state['rpcCount']==0,
-                'diamond purchase proceeded without the original UILWRapid route')
-    require(call(action='speedupDiamond',itemId='9999',diamondOptIn='1',queryOnly='1')['state']=='failed' and
-            state['rpcCount']==0,
-            'diamond status query invented a pending paid transaction')
     state['existingAbsent']=True
     state['soldierCount']=0
     require(call()['state']=='failed' and state['attackSends']==1,
@@ -561,29 +487,9 @@ def test_selected_attack_and_diamond():
     require(call()['state']=='failed' and state['attackSends']==1,
             'unassigned original squad heroes dispatched an attack')
     state['heroCount']=1
-    require(call(allowRapidDiamond='1')['state']=='unsupported' and
-            state['attackSends']==1 and state['rpcCount']==0,
-            'attack-linked automatic diamond buy bypassed native modal confirmation')
-    require(call(allowRapidItem='1')['state']=='accepted',
-            'opt-in rapid attack failed to start native selection')
-    state['existingAbsent']=False
-    state['startTime']=1100
-    state['marchClientCreateGuid']=state['sentClientCreateGuid']
-    chain=call(queryOnly='1')
-    require(chain['state']=='accepted' and state['rpcCount']==1 and
-            state['rpcArgs'][4] is False,
-            'server-response GUID poststate did not confirm attack and apply exactly one opted-in owned rapid item: '+
-            str(chain['state'])+'/'+str(state['rpcCount']))
-    require(call(queryOnly='1')['state']=='accepted' and state['rpcCount']==1,
-            'rapid followup resubmitted an item or accepted absent inventory/time change')
-    state['count']=1
-    state['endTime']=2800
-    finished=call(queryOnly='1')
-    require(finished['state']=='confirmed' and finished['data']['speedup']['currentCount']==1 and
-            state['rpcCount']==1,
-            'composed attack rapid did not require independent owned-item and march-time poststate')
     state['serverId']=2296
-    require(call()['state']=='failed' and state['attackDelegateCount']==2,
+    require(call()['state']=='failed' and state['attackDelegateCount']==1 and
+            state['attackSends']==1,
             'main-account server entered mutable attack controller')
 
 
@@ -2006,109 +1912,19 @@ def test_current_nested_staffing_and_native_membership():
                     'unready/malformed/drifted current nested staffing dispatched: '+case)
 
 
-def main():
-    check_original()
-    check_installed_managed_nonce_source()
-    test_selected_attack_and_diamond()
-    test_resource_create_sender_correlation()
-    test_current_nested_staffing_and_native_membership()
-    test_original_world_scene_cursor_projection_is_read_only()
-    test_original_hover_monster_and_resource_one_shot_chooser()
-    test_attack_final_action_boundary_and_sender_truth()
-    test_attack_sender_correlation_negatives()
-    test_native_prepare_helper()
-    test_manual_native_formation_editor_no_automatic_march()
-    test_original_selector_typed_target_preflight_and_dispatch_revalidation()
-    test_native_alliance_field_selection_for_typed_targets()
-    test_original_reply_observer_required_before_native_controller()
-    test_readonly_end_to_end_source_prerequisites()
-    state, call, inspect = mock()
-    inv = inspect()
-    require(inv["state"] == "confirmed" and
-            inv["data"]["observation"] == "native_owned_rapid_item_candidates" and
-            len(inv["data"]["items"]) == 1 and
-            inv["data"]["items"][1]["itemId"] == "3108",
-            "native inventory must exclude absent templates and unowned items")
-    require(state["rpcCount"] == 0, "inventory introspection dispatched an RPC")
-    preflight = call(action="attack")
-    require(preflight["state"] in ("failed", "unsupported") and state["rpcCount"] == 0,
-            "attack without a verifiable live native hovered target must not dispatch")
-    require(call(action="attack", targetUuid="990123", targetType="ATTACK_CITY")["state"] in
-            ("failed", "unsupported") and state["rpcCount"] == 0,
-            "caller target fields may not substitute a physical native hovered target")
-    readonly_target = inspect()
-    require(readonly_target["state"] == "confirmed",
-            "owned speedup inventory regressed after target preflight")
-    diamond = call(action="speedupDiamond", diamondOptIn="1",
-                   userConfirmed="1", itemId="9999", price="10")
-    require(diamond["state"] == "unsupported" and state["rpcCount"] == 0,
-            "diamond rapid requires source-native modal confirmation callback")
-    dispatched = call()
-    require(dispatched["state"] == "accepted" and
-            dispatched["data"]["requestDispatched"] is True and
-            state["rpcCount"] == 1,
-            "owned march/item sender not invoked exactly once")
-    require(state["rpcArgs"][2] == 555110 and
-            state["rpcArgs"][3] == 3108 and state["rpcArgs"][4] is False,
-            "item route did not preserve real v26 sender arguments")
-    in_flight = call(queryOnly="1")
-    require(in_flight["state"] == "accepted" and
-            in_flight["data"]["requestDispatched"] is False and
-            state["rpcCount"] == 1,
-            "duplicate item was sent before authoritative poststate")
-    state["inputClear"] = False
-    require(call(queryOnly="1")["state"] == "accepted" and
-            state["rpcCount"] == 1,
-            "read-only query wrongly required keyboard focus or resent item")
-    require(inspect()["state"] == "confirmed" and state["rpcCount"] == 1,
-            "read-only inventory snapshot incorrectly required keyboard focus")
-    require(call()["state"] == "failed" and state["rpcCount"] == 1,
-            "pending request with active text input bypassed send focus gate")
-    state["inputClear"] = True
-    reconnected = call(challenge="newverifiedchallenge")
-    require(reconnected["state"] == "accepted" and
-            reconnected["data"]["requestDispatched"] is False and
-            state["rpcCount"] == 1,
-            "session change resent unresolved consumable")
-    state["endTime"] = 2800
-    require(call(queryOnly="1")["state"] == "accepted",
-            "march-time-only optimistic change falsely confirmed")
-    state["count"] = 1
-    confirm = call(queryOnly="1")
-    require(confirm["state"] == "confirmed" and
-            confirm["data"]["currentEndTime"] == 2800 and
-            confirm["data"]["currentCount"] == 1,
-            "both independent native observations required for confirmation")
-    require(state["rpcCount"] == 1, "querying confirmation resent RPC")
-
-    for failure in ('failRpc','failRpcFalse'):
-        state,call,inspect=mock()
-        state[failure]=True
-        uncertain=call()
-        require(uncertain['state']=='failed' and state['rpcCount']==1,
-                'native sender failure not reported after one attempted spend: '+failure)
-        state[failure]=False
-        blocked=call()
-        require(blocked['state']=='accepted' and state['rpcCount']==1 and
-                blocked['data']['requestDispatched'] is False,
-                'native sender failure permitted second item spend: '+failure)
-        state['endTime']=2700
-        state['count']=1
-        receipt=call(queryOnly='1')
-        require(receipt['state']=='confirmed' and state['rpcCount']==1,
-                'failed/uncertain native sender lost eventual independent poststate: '+failure)
-
-    state, call, inspect = mock()
+def test_attack_target_preflight_snapshot():
     vm = LuaRuntime(unpack_returned_tuples=True)
     vm.execute(GAME)
     preflight_module = vm.execute(SOURCE.read_text(encoding="utf-8"))
     prestate = vm.globals().state
+
     def preflight(**overrides):
         fields = {"slot": "1", "profileId": "profile", "launchSessionId": "launch",
                   "challenge": "request", "gamePid": "7020", "authorizedUid": "4799432499002212"}
         fields.update(overrides)
         return preflight_module.AttackTargetPreflight(
             vm.table_from(fields), vm.globals().input_clear)
+
     valid = preflight()
     require(valid["state"] == "confirmed" and
             valid["data"]["worldObjectReverseLookupVerified"] is True and
@@ -2145,8 +1961,7 @@ def main():
     prestate["inputClear"] = False
     require(preflight()["state"] == "confirmed", "read-only attack snapshot requires keyboard focus")
     prestate["inputClear"] = True
-    for kwargs in ({"authorizedUid": "999"}, {"slot": "5"},
-                   {"pointIndex": "99999"}):
+    for kwargs in ({"authorizedUid": "999"}, {"slot": "5"}, {"pointIndex": "99999"}):
         require(preflight(**kwargs)["state"] == "failed",
                 "unsafe attack preflight request accepted")
     require(preflight(pointIndex="35723")["state"] == "confirmed",
@@ -2185,57 +2000,43 @@ def main():
     require(prestate["rpcCount"] == 0 and prestate["attackDelegateCount"] == 0,
             "read-only target preflight emitted any native attack or RPC")
 
-    state, call, inspect = mock()
-    cases = [
-        ({"queryOnly": "1"}, "failed", "query without sent request"),
-        ({"itemOptIn": "0"}, "failed", "missing spend opt-in"),
-        ({"itemId": "9999"}, "failed", "template never owned"),
-        ({"itemId": "666"}, "failed", "owned item has no rapid template"),
-        ({"authorizedUid": "300"}, "failed", "wrong admitted account"),
-        ({"profileId": "unsafe session"}, "failed", "forged bridge identity"),
-        ({"slot": "5"}, "failed", "unknown formation"),
-        ({"action": "attack"}, "failed", "cursor-selected target unresolved"),
-        ({"action": "speedupDiamond"}, "failed", "diamond paid opt-in missing"),
-    ]
-    for fields, expected, label in cases:
-        require(call(**fields)["state"] == expected, label)
-        require(state["rpcCount"] == 0, f"unverified path sent request: {label}")
-    state["inputClear"] = False
-    require(call()["state"] == "failed" and state["rpcCount"] == 0,
-            "editing Unity game text bypassed focus guard")
-    state["inputClear"] = True
-    state["formation"] = float(9007199254740994)
-    require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
-            "unsafe or no-longer-canonical formation was accepted")
-    state["formation"] = 1001
-    state["owner"] = 444
-    require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
-            "foreign march owner passed selection")
-    state["owner"] = 4799432499002212
-    state["formOwner"] = 2020
-    require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
-            "foreign formation passed selection")
-    state["formOwner"] = 1001
-    state["targetType"] = 94
-    require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
-            "nonattack world march incorrectly admitted for attack speedup")
-    state["targetType"] = 17
-    state["stale"] = True
-    require(call()["state"] == "failed" and state["rpcCount"] == 0,
-            "stale mismatched item manager admitted")
-    state["stale"] = False
-    state["count"] = 0
-    require(call()["state"] == "failed" and state["rpcCount"] == 0,
-            "depleted item consumed")
-    state["count"] = 2
-    state["endTime"] = state["now"]
-    require(call()["state"] == "failed" and state["rpcCount"] == 0,
-            "already completed march speedup sent")
-    state["endTime"] = 3000
-    state["failRpc"] = True
-    require(call()["state"] == "failed" and state["rpcCount"] == 1,
-            "sender exception incorrectly accepted as dispatch success")
 
+def test_speedup_paths_retired():
+    source = SOURCE.read_text(encoding="utf-8")
+    for retired in ("WorldMarchRapid", "speedupItem", "speedupDiamond", "allowRapid",
+                    "OwnedSpeedupInventory", "DiamondSpeedupPreflight"):
+        require(retired not in source, "retired march-speedup source token remains: " + retired)
+
+    vm = LuaRuntime(unpack_returned_tuples=True)
+    vm.execute(GAME)
+    module = vm.execute(source)
+    base = {"slot": "1", "authorizedUid": "4799432499002212",
+            "profileId": "profile", "launchSessionId": "launch",
+            "challenge": "request", "gamePid": "7020"}
+    for action in ("speedupItem", "speedupDiamond"):
+        result = module.Handle(vm.table_from(dict(base, action=action)), vm.globals().input_clear)
+        require(result["state"] == "unsupported" and vm.globals().state.attackSends is None,
+                "retired march-speedup action reached native sender: " + action)
+
+
+def main():
+    check_original()
+    check_installed_managed_nonce_source()
+    test_selected_attack()
+    test_resource_create_sender_correlation()
+    test_current_nested_staffing_and_native_membership()
+    test_original_world_scene_cursor_projection_is_read_only()
+    test_original_hover_monster_and_resource_one_shot_chooser()
+    test_attack_final_action_boundary_and_sender_truth()
+    test_attack_sender_correlation_negatives()
+    test_native_prepare_helper()
+    test_manual_native_formation_editor_no_automatic_march()
+    test_original_selector_typed_target_preflight_and_dispatch_revalidation()
+    test_native_alliance_field_selection_for_typed_targets()
+    test_original_reply_observer_required_before_native_controller()
+    test_readonly_end_to_end_source_prerequisites()
+    test_attack_target_preflight_snapshot()
+    test_speedup_paths_retired()
     print("FEATURE018_ATTACK_ACTIONS_SOURCE_AND_LUA53_OFFLINE_PASS")
 
 

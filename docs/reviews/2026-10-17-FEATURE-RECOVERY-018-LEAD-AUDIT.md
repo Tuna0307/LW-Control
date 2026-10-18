@@ -303,4 +303,25 @@ R16 (for CoS, later):
 Handoff rule unchanged; record progress under "R16 progress".
 
 ### R16 progress (worker updates this)
-- (none yet)
+- **Task 1 — march speed-ups removed (2026-10-18):** recorded as FEATURE-018-D01
+  OWNER_DIRECTION in docs/FEATURE_018_BEHAVIOR_DIFFERENCES.md. The Attack card no
+  longer renders the inventory/diamond speed-up choices or warning, the separate
+  current-march speed-up panel is gone, and all nine canonical locale catalogs no
+  longer define the retired copy. HotkeyConfig no longer exposes or saves
+  attackMarchSpeedupItem / attackMarchSpeedupDiamond; an on-disk legacy
+  runtime-config.json with both fields enabled loads successfully, projects neither
+  field, and the next save removes them. The Desktop command schema/provider and game
+  Lua now expose only normal attack behavior: feature018_rapid_action,
+  speedupItem, speedupDiamond, WorldMarchRapid, item/diamond consent and the
+  three rapid-only check files are retired. Q/W/E/R attack payloads contain no
+  speed-up/item/diamond fields. The explicit legacy WebUi recovery bundle was also
+  stripped of its old speed-up controls/copy so --legacy-ui cannot surface the
+  retired feature. Focused evidence is PASS: FEATURE018_HOTKEY_CONFIG_PASS,
+  FEATURE018_HOTKEY_CAPTURE_PASS, full Desktop delivery runner
+  HOME_FEATURE_DELIVERY_CHECKS_OK, FEATURE018_HOTKEY_ACTIONS_LUA53_OFFLINE_PASS,
+  FEATURE018_ATTACK_ACTIONS_SOURCE_AND_LUA53_OFFLINE_PASS,
+  FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS; canonical UI build/package identity
+  b2bf57249bc2de7c9fd658a6a4d363a9f922e275c9b1b5cc218bdcc504da987d /
+  908f94c9c8e2204632385f65b6cb3ae4a0e0343bcb99daac56782a74cf6091a1.
+  Task 2 live Q→A and no-item/no-diamond regression remains to be run after this
+  checkpoint.

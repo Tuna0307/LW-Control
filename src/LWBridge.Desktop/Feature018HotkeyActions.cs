@@ -11,8 +11,6 @@ internal sealed record Feature018HotkeySession(
 internal sealed record Feature018HotkeyCommand(
     Feature018HotkeySession Session,
     Feature018HotkeyIntent Intent,
-    bool AllowMarchSpeedupItems = false,
-    bool AllowMarchSpeedupDiamonds = false,
     string? ExpectedStageRunId = null,
     int ReinforceCount = 5);
 
@@ -150,8 +148,6 @@ internal sealed class Feature018HotkeyActions
             var command = new Feature018HotkeyCommand(
                 expected,
                 intent,
-                intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupItem,
-                intent.Kind == Feature018HotkeyKind.AttackSquad && config.AttackMarchSpeedupDiamond,
                 expectedStageRunId,
                 config.Normalized().FrontlineReinforceCount);
             Feature018HotkeyActionOutcome result = await producer(command, cancellationToken)

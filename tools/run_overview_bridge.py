@@ -264,7 +264,7 @@ if type(hotkey) ~= "table" then error("FEATURE018 Hotkeys module did not return 
     between = between.replace(mini_marker, hotkey_load + mini_marker, 1)
     hotkey_actions_load = b'''local ok_attack_actions, attack_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018AttackActions")
 if not ok_attack_actions or type(attack_actions) ~= "table" or type(attack_actions.Handle) ~= "function" then
-    error("FEATURE018 source-backed attack/rapid module unavailable")
+    error("FEATURE018 source-backed attack module unavailable")
 end
 rawset(_G, "LWBridgeFeature018AttackActions", attack_actions)
 local ok_relocation_actions, relocation_actions = pcall(require, "DataCenter.Global.LWBridgeFeature018RelocationActions")
@@ -304,7 +304,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     between = between.replace(register_marker, register_marker +
         b'if type(mini.RegisterHandlers) == "function" then mini.RegisterHandlers(feature) end\n' +
         b'if type(hotkey.Register) == "function" then hotkey.Register(feature) end\n' +
-        b'if type(hotkey_actions.RegisterRapid) == "function" then hotkey_actions.RegisterRapid(feature, hotkey) end\n' +
+        b'if type(hotkey_actions.RegisterAttack) == "function" then hotkey_actions.RegisterAttack(feature, hotkey) end\n' +
         b'if type(hotkey_actions.RegisterShieldInventory) == "function" then hotkey_actions.RegisterShieldInventory(feature) end\n' +
         b'if type(hotkey_actions.RegisterEquipment) == "function" then hotkey_actions.RegisterEquipment(feature, hotkey) end\n' +
         b'if type(hotkey_actions.RegisterRelocation) == "function" then hotkey_actions.RegisterRelocation(feature, hotkey) end\n' +

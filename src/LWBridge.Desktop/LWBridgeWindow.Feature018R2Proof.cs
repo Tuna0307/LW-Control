@@ -484,19 +484,13 @@ internal sealed partial class LWBridgeWindow
             // Current-v26 SOURCE_GAP experiments: use the authenticated
             // native read-only inspection doors even when a physical shortcut
             // could not be recognized. Never forge equipment UUIDs, a world
-            // cursor target, rapid item consent, or a diamond-confirm click.
+            // cursor target, or a mutable native action.
             for (int slot = 1; slot <= 4; slot++)
             {
                 Owned();
                 await Command("feature018_hotkey_action", new
                 { action = "attack", slot, authorizedUid = uid },
                     "r3AttackTargetPreflightSlot" + slot);
-                await Command("feature018_hotkey_action", new
-                { action = "speedupDiamond", slot, authorizedUid = uid },
-                    "r3DiamondPreflightSlot" + slot);
-                await Command("feature018_rapid_action", new
-                { mode = "inventory", slot },
-                    "r3RapidInventorySlot" + slot);
                 await Command("feature018_equipment_preflight", new { slot },
                     "r3EquipmentOwnerPreflightSlot" + slot);
             }

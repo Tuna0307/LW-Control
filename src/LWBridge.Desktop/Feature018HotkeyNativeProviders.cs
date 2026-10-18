@@ -86,7 +86,7 @@ internal sealed class Feature018HotkeyNativeProviders
 
         // The game-side current-player UID comparison is a second identity
         // fence for an attack. Other game actions keep their native two-field
-        // command contract; no unproven speedup is implied.
+        // command contract.
         JsonElement request = command.Intent.Kind == Feature018HotkeyKind.AttackSquad
             ? JsonSerializer.SerializeToElement(new
             {
@@ -95,8 +95,6 @@ internal sealed class Feature018HotkeyNativeProviders
                 authorizedUid = command.Session.GameUid,
                 expectedGameUid = command.Session.GameUid,
                 expectedServerId = command.Session.ServerId,
-                allowRapidItem = command.AllowMarchSpeedupItems,
-                allowRapidDiamond = command.AllowMarchSpeedupDiamonds,
             }, JsonOptions.Default)
             : command.Intent.Kind == Feature018HotkeyKind.ReinforceFrontline && command.ExpectedStageRunId is not null
             ? JsonSerializer.SerializeToElement(new
@@ -435,7 +433,7 @@ internal sealed class Feature018HotkeyNativeProviders
         // This method does not capture or synthesize a physical key press.
         // The parent action broker admitted that original key and pins its
         // session. Each query is separately fenced by the game exchange
-        // against the same native UID/server; never include speedup consent.
+        // against the same native UID/server.
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         deadline.CancelAfter(TimeSpan.FromSeconds(3));
         JsonElement query = JsonSerializer.SerializeToElement(new

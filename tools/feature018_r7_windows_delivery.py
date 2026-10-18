@@ -63,11 +63,6 @@ R14_LIVE_PREREQUISITES = {
         "An exact owned live march from the selected formation, one original return "
         "send, and a server-applied same-march BACK_HOME transition."
     ),
-    "marchSpeedup": (
-        "An exact owned live march; item rapid also needs an owned usable item, while "
-        "gem rapid needs explicit paid opt-in, sufficient in-game gems and the native "
-        "confirmation path. Both require authoritative shorter arrival plus exact debit."
-    ),
     "F9": (
         "An owned usable random-relocation item, clear native warnings/input, one "
         "original ItemUse send, matching reply, item debit and authoritative city-position change."

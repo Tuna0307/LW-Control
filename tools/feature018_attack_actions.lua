@@ -1,4 +1,4 @@
--- FEATURE-RECOVERY-018 isolated v26 attack / item-march-rapid adapter.
+-- FEATURE-RECOVERY-018 isolated v26 attack adapter.
 --
 -- Original, installed current 3/26 bytecode (offline, game package untouched):
 --   Util/MarchUtil.luac SHA256 d3c3bb47b11e555ccd646510628c2e428000436ffa8bc8bac290a1320094e245
@@ -43,38 +43,13 @@
 --     HandleMessage root/1 line 90 applies HandleFormationMarchChange.
 --     No safe exact same-march request/reply correlation for retargeting
 --     or A/S/D/F recall is proved inside this attack adapter.
---   UI/UILWRapid/View/UILWRapidView.luac SHA256
---     19bd32d6cedc24586089e19e12c070b3b73fac7e170dd4917ca8041a11720da3
---     ReInit root/11 lines 307-331 reads WorldMarchDataManager.GetMarch(uuid)
---     and its endTime; GetAllItems root/27 lines 641-667 enumerates
---     ItemData.GetItemsByType(GOODS_TYPE_108), ItemTemplateManager.GetTypeListByType.
---     CellsCallBack root/20 lines 469-489 selects a possessed item.
---     ConfirmUse root/21 lines 493-527 sends
---     SFSNetwork.SendMessage(MsgDefines.WorldMarchRapid, uuid, itemId, false),
---     then OPTIMISTICALLY reduces UI time/inventory without server success.
---     ConfirmBuy root/22 lines 529-546 instead sends (uuid, template.id, true);
---     CellsCallBack root/20 lines 441-459 demands native diamond confirmation.
---   Net/Msgs/WorldMarchRapidMessage.luac SHA256
---     1ba6497b62d041729d2e7b5a7dd907e5067fec8b92893e5e63ecd9cc2e00a8f5
---     HandleMessage root/1 lines 17-28 checks errorCode and remainGold,
---     but supplies no per-march success receipt usable by this adapter.
---
 -- Registration: prime's authenticated Hotkey handler should call
--- M.Handle(fields, frozenHotkey.TextInputClear), for actions "attack",
--- "speedupItem" and "speedupDiamond". "speedupItem" must be a *separate*
--- opt-in request for an already-existing current user's slot march, not
--- assumed part of any source-unsupported cursor attack. No action on require.
+-- M.Handle(fields, frozenHotkey.TextInputClear), for action "attack".
+-- No action on require.
 
 local M = { VERSION = "feature018-attack-actions-1" }
-local pending, current_session = {}, nil
+local current_session = nil
 local attacks = {}
--- Paid rapid replies contain remainGold but no march/item echo. Keep exactly
--- one bridge-owned paid transaction process-wide so any other rapid send makes
--- attribution ambiguous instead of donating its reply to this action.
-local diamond_pending = nil
-local validate_diamond_send_edge
-local active_diamond_confirm = nil
-local PENDING_LIMIT = 45
 
 local function member(object, key)
     if object == nil then return nil end
@@ -533,58 +508,6 @@ local function observe_attack_sender()
         local defs=rawget(_G,"MsgDefines")
         local created=route==member(defs,"WorldMarchFormationNew")
         local changed=route==member(defs,"WorldMarchChange")
-        local rapid=route==member(defs,"WorldMarchRapid")
-        local rapid_transaction=rapid and diamond_pending or nil
-        local rapid_exact=false
-        if rapid_transaction and rapid_transaction.terminal~=true then
-            rapid_transaction.routeSendCount=(rapid_transaction.routeSendCount or 0)+1
-            rapid_exact=ident(args[1])==rapid_transaction.uuid and
-                ident(args[2])==rapid_transaction.itemId and args[3]==true
-            if not rapid_exact then
-                -- Any other paid rapid packet while this dialog owns the one
-                -- global paid lane is blocked before the original sender.
-                -- A non-paid/item rapid is preserved but makes this reply
-                -- attribution permanently ambiguous.
-                rapid_transaction.competingSendObserved=true
-                rapid_transaction.competingSendCount=
-                    (rapid_transaction.competingSendCount or 0)+1
-                if args[3]==true then
-                    rapid_transaction.terminalError="Competing paid WorldMarchRapid send blocked"
-                    rapid_transaction.terminal=true
-                    error(rapid_transaction.terminalError,0)
-                end
-            elseif active_diamond_confirm~=rapid_transaction then
-                rapid_transaction.competingSendObserved=true
-                rapid_transaction.competingSendCount=
-                    (rapid_transaction.competingSendCount or 0)+1
-                rapid_transaction.terminalError=
-                    "Matching paid rapid send did not originate from original UILWRapid ConfirmBuy callback"
-                rapid_transaction.terminal=true
-                error(rapid_transaction.terminalError,0)
-            elseif (rapid_transaction.sendCount or 0)>0 then
-                -- A duplicate exact paid packet could spend twice. Abort this
-                -- second call before the original sender and before native
-                -- ConfirmBuy performs its optimistic local gold/time mutation.
-                rapid_transaction.duplicateMatchingSendObserved=true
-                rapid_transaction.terminalError="Duplicate matching paid rapid send blocked"
-                rapid_transaction.terminal=true
-                error(rapid_transaction.terminalError,0)
-            elseif type(validate_diamond_send_edge)~="function" then
-                rapid_transaction.terminalError="Paid rapid send-edge validator unavailable"
-                rapid_transaction.terminal=true
-                error(rapid_transaction.terminalError,0)
-            else
-                local valid, reason=validate_diamond_send_edge(rapid_transaction)
-                if not valid then
-                    rapid_transaction.terminalError=reason or
-                        "Paid rapid native state changed before confirmation"
-                    rapid_transaction.terminal=true
-                    error(rapid_transaction.terminalError,0)
-                end
-                rapid_transaction.sendCount=1
-                rapid_transaction.sendObservedAt=os.time()
-            end
-        end
         local matched={}
         if created or changed then
             for _,transaction in pairs(attacks) do
@@ -626,11 +549,6 @@ local function observe_attack_sender()
         active_create_send=created and #matched==1 and matched[1] or nil
         local returned=table.pack(pcall(original,route,table.unpack(args,1,args.n)))
         active_create_send=previous_active
-        if rapid_transaction and rapid_exact then
-            rapid_transaction.senderReturned=returned[1]
-            rapid_transaction.senderReturnedFalse=returned[1] and returned[2]==false
-            rapid_transaction.senderError=not returned[1] and tostring(returned[2]) or nil
-        end
         for _,transaction in ipairs(matched) do
             transaction.senderReturned=returned[1]
             transaction.senderReturnedFalse=returned[1] and returned[2]==false
@@ -840,123 +758,6 @@ local function owner_and_focus(fields, input_clear, read_only)
     return uid, nil
 end
 
-local function slot_march(slot, uid)
-    if type(slot) ~= "string" or not slot:match("^[1-4]$") then
-        return nil, failed("Expected current squad 1 through 4")
-    end
-    local center = rawget(_G,"DataCenter")
-    local formations = member(center,"ArmyFormationDataManager")
-    local marches = member(center,"WorldMarchDataManager")
-    if not formations or not marches then
-        return nil, unsupported("Current native formation/march data unavailable")
-    end
-    local ok_form, form = invoke(formations,"GetOneArmyInfoByIndex",tonumber(slot))
-    local form_id, form_number = ident(member(form,"uuid"))
-    if not ok_form or not form_id then
-        return nil, unsupported("Current squad slot lacks authoritative formation UUID")
-    end
-    -- Exact v26 FormationSelectListV2Ctrl.OnAtkClick call includes the
-    -- authenticated player's allianceId as its third native parameter.
-    local player = member(rawget(_G,"LuaEntry"),"Player")
-    local alliance_id = member(player,"allianceId")
-    if alliance_id == nil then
-        return nil, unsupported("Native current-account alliance identity unavailable")
-    end
-    local ok_match, candidate = invoke(marches,"GetOwnerFormationMarch",
-        member(player,"uid"),form_number,alliance_id)
-    local march_id, march_number = ident(member(candidate,"uuid"))
-    if not ok_match or not march_id or
-       ident(member(candidate,"ownerUid")) ~= uid or
-       ident(member(candidate,"ownerFormationUuid")) ~= form_id then
-        return nil, unsupported("Native selected march owner/formation UUID mismatch")
-    end
-    local ok_fresh, fresh = invoke(marches,"GetMarch",march_number)
-    if not ok_fresh or not fresh or
-       ident(member(fresh,"uuid")) ~= march_id or
-       ident(member(fresh,"ownerUid")) ~= uid or
-       ident(member(fresh,"ownerFormationUuid")) ~= form_id then
-        return nil, unsupported("Fresh march UUID/owner/formation mismatch")
-    end
-    local end_time = number(member(fresh,"endTime"))
-    local ok_target, target = invoke(fresh,"GetMarchTargetType")
-    local kinds = rawget(_G,"MarchTargetType")
-    local city_attack = member(kinds,"ATTACK_CITY")
-    local army_attack = member(kinds,"ATTACK_ARMY")
-    local monster_attack = member(kinds,"ATTACK_MONSTER")
-    if not ok_target or target == nil or
-       not ((city_attack ~= nil and target == city_attack) or
-            (army_attack ~= nil and target == army_attack) or
-            (monster_attack ~= nil and target == monster_attack)) then
-        return nil, unsupported("Fresh owned march is not a source-classified city/army attack")
-    end
-    local clock_type = rawget(_G,"UITimeManager")
-    local ok_clock, clock = invoke(clock_type,"GetInstance")
-    local ok_now, now_value = invoke(clock,"GetServerTime")
-    local now = number(now_value)
-    if not ok_clock or not ok_now or not now or not end_time or
-       end_time <= now then
-        return nil, failed("Source march end-time is absent or already reached")
-    end
-    return {uuid=march_id,uuidNumber=march_number,formation=form_id,
-            uid=uid,slot=slot,endTime=end_time,now=now,
-            targetType=target,native=fresh}, nil
-end
-
--- Only original rapid-screen inventory/template producers. No guessed item
--- IDs, localized names, or diamond purchases. The caller must select one
--- specific existing item ID from the returned inventory.
-local function owned_speedup_items()
-    local center = rawget(_G,"DataCenter")
-    local category = member(rawget(_G,"GOODS_TYPE"),"GOODS_TYPE_108")
-    local items = member(center,"ItemData")
-    local template_manager = member(center,"ItemTemplateManager")
-    if category == nil or items == nil or template_manager == nil then
-        return nil, unsupported("Native rapid-item category, inventory or templates absent")
-    end
-    local ok_owned, owned = invoke(items,"GetItemsByType",category)
-    local ok_templates, templates = invoke(template_manager,"GetTypeListByType",category)
-    if not ok_owned or type(owned) ~= "table" or
-       not ok_templates or type(templates) ~= "table" then
-        return nil, unsupported("Native category-108 inventory/template snapshot unavailable")
-    end
-    local by_id, options = {}, {}
-    for _, template in pairs(templates) do
-        local key, n = ident(member(template,"id"))
-        if key then by_id[key] = {id=n,template=template} end
-    end
-    for _, item in pairs(owned) do
-        local key = ident(member(item,"itemId"))
-        local count = integer(member(item,"count"))
-        local match = key and by_id[key]
-        if match and count then
-            local _, check = invoke(items,"GetItemById",match.id)
-            local check_key = ident(member(check,"itemId"))
-            local check_count = integer(member(check,"count"))
-            if check_key == key and check_count == count then
-                options[key] = {itemId=key,itemIdNumber=match.id,count=count,
-                                template=match.template}
-            end
-        end
-    end
-    return options, nil
-end
-
-function M.OwnedSpeedupInventory(fields, input_clear)
-    local uid, error = owner_and_focus(fields,input_clear,true)
-    if not uid then return error end
-    local march, march_error = slot_march(fields.slot,uid)
-    if not march then return march_error end
-    local options, items_error = owned_speedup_items()
-    if not options then return items_error end
-    local view = {}
-    for _, item in pairs(options) do
-        view[#view+1] = {itemId=item.itemId,count=item.count}
-    end
-    table.sort(view,function(a,b) return tonumber(a.itemId)<tonumber(b.itemId) end)
-    return {state="confirmed",data={observation="native_owned_rapid_item_candidates",
-        marchUuid=march.uuid,slot=march.slot,items=view,dispatchPerformed=false}}
-end
-
 -- Native read-only attack preflight. This intentionally observes an existing
 -- game world last TOUCH and one owned formation, without treating an earlier
 -- touch as the current physical cursor or resolving target-specific battle
@@ -1118,8 +919,8 @@ local function open_manual_staffing_editor(fields,uid)
        not fields.slot:match("^[1-4]$") then
         return failed("Explicit native formation editor consent and slot 1 to 4 required")
     end
-    if attacks[fields.slot] or pending[fields.slot] then
-        return failed("Native slot has an unresolved attack or rapid transaction; editor shortcut fenced")
+    if attacks[fields.slot] then
+        return failed("Native slot has an unresolved attack transaction; editor shortcut fenced")
     end
     local selector=selected_window()
     if not selector then
@@ -1222,8 +1023,8 @@ local function attack_readiness(fields,uid)
     elseif existing~=nil then
         reasons[#reasons+1]="native_formation_has_existing_march"
     end
-    if attacks[fields.slot] or pending[fields.slot] then
-        reasons[#reasons+1]="native_attack_or_speedup_transaction_pending"
+    if attacks[fields.slot] then
+        reasons[#reasons+1]="native_attack_transaction_pending"
     end
     if not target then
         reasons[#reasons+1]=selection and "native_typed_selector_target_invalid"
@@ -1952,503 +1753,6 @@ function M.Prepare(fields, input_clear)
         requestDispatched=false}}
 end
 
-local rapid_reply_observer, rapid_reply_owner
-local function observe_diamond_reply()
-    local ok, class=pcall(require,"Net.Msgs.WorldMarchRapidMessage")
-    local current=ok and member(class,"HandleMessage") or nil
-    if rapid_reply_observer then
-        return class==rapid_reply_owner and current==rapid_reply_observer
-    end
-    if type(current)~="function" then return false end
-    local original=current
-    rapid_reply_observer=function(self,response,...)
-        local transaction=diamond_pending
-        local response_error=member(response,"errorCode")
-        local remain_gold=number(member(response,"remainGold"))
-        local returned=table.pack(pcall(original,self,response,...))
-        -- The v26 response has no uuid or itemId. It can belong to this paid
-        -- action only while the single global transaction still has exactly
-        -- one unique matching paid send and no competing rapid packet.
-        if transaction and transaction.terminal~=true and
-           transaction.sendCount==1 and transaction.competingSendObserved~=true then
-            transaction.replyObserved=true
-            transaction.replyCount=(transaction.replyCount or 0)+1
-            transaction.replyErrorCode=response_error~=nil and tostring(response_error) or nil
-            transaction.replyRemainGold=remain_gold
-            transaction.replyApplied=returned[1]
-            if transaction.replyCount~=1 then
-                transaction.terminalError="Multiple rapid replies observed for one paid transaction"
-            end
-        end
-        if not returned[1] then error(returned[2],0) end
-        return table.unpack(returned,2,returned.n)
-    end
-    class.HandleMessage=rapid_reply_observer
-    rapid_reply_owner=class
-    return member(class,"HandleMessage")==rapid_reply_observer
-end
-
-local function diamond_confirmation_gates()
-    local player=member(rawget(_G,"LuaEntry"),"Player")
-    local key=member(rawget(_G,"UserSettingKey"),"DIAMOND_USAGE_REMINDER")
-    local show_type=member(rawget(_G,"TodayNoSecondConfirmType"),"BuyUseDialog")
-    local manager=member(rawget(_G,"DataCenter"),"SecondConfirmManager")
-    if player==nil or key==nil or show_type==nil or manager==nil then
-        return false,"Native diamond confirmation settings unavailable"
-    end
-    local ok_setting,setting=invoke(player,"GetUserSetting",key)
-    local ok_today,today=invoke(manager,"GetTodayCanShowSecondConfirm",show_type)
-    if not ok_setting or tostring(setting)~="1" then
-        return false,"Native diamond usage reminder is disabled; refusing silent auto-confirm"
-    end
-    if not ok_today or today~=true then
-        return false,"Native diamond second-confirm dialog is suppressed for today"
-    end
-    return true,nil
-end
-
-local function current_rapid_window(march, allow_open)
-    local ok_ui,ui=invoke(rawget(_G,"UIManager"),"GetInstance")
-    local name=member(rawget(_G,"UIWindowNames"),"UILWRapid")
-    local troop=member(rawget(_G,"ItemSpdMenu"),"ItemSpdMenu_Troop")
-    if not ok_ui or ui==nil or name==nil or troop==nil then
-        return nil,unsupported("Original UILWRapid window route unavailable")
-    end
-    local ok_open,opened=invoke(ui,"IsWindowOpen",name)
-    if not ok_open then return nil,unsupported("Native UILWRapid open-state unavailable") end
-    if opened~=true then
-        if not allow_open then return nil,failed("Original UILWRapid window is no longer open") end
-        local ok_launch=invoke(ui,"OpenWindow",name,{anim=true},troop,march.uuidNumber)
-        if not ok_launch then return nil,failed("Original UILWRapid window could not be opened") end
-        return nil,{state="accepted",data={
-            observation="native_rapid_window_open_requested",slot=tonumber(march.slot),
-            marchUuid=march.uuid,requestDispatched=false,awaitingOriginalUI=true}}
-    end
-    local ok_window,window=invoke(ui,"GetWindow",name)
-    local view=ok_window and member(window,"View") or nil
-    if window==nil or view==nil or type(member(view,"CellsCallBack"))~="function" or
-       type(member(view,"ConfirmBuy"))~="function" or
-       type(member(view,"GetAllItems"))~="function" or
-       type(member(view,"GetTokenIdAndType"))~="function" then
-        return nil,failed("Original UILWRapid view is not ready")
-    end
-    if ident(member(view,"uuid"))~=march.uuid or member(view,"speedType")~=troop then
-        return nil,failed("Open UILWRapid belongs to another native march or speedup type")
-    end
-    return {ui=ui,name=name,window=window,view=view,troop=troop},nil
-end
-
-local function rapid_buy_options(window_state)
-    local view=window_state and window_state.view
-    if view==nil then return nil,failed("Native UILWRapid view unavailable") end
-    local ok_refresh=invoke(view,"GetAllItems")
-    local items=member(view,"items")
-    local buys=member(view,"buyItems")
-    local item_num=integer(member(view,"itemNum"))
-    if not ok_refresh or type(items)~="table" or type(buys)~="table" then
-        return nil,failed("Original UILWRapid buyItems refresh failed")
-    end
-    if item_num==nil then item_num=#items end
-    if item_num<0 or item_num%1~=0 then
-        return nil,failed("Original UILWRapid item count is invalid")
-    end
-    local options={}
-    local count=0
-    for index,template in ipairs(buys) do
-        count=count+1
-        if count>256 then return nil,failed("Native rapid purchase list is unexpectedly large") end
-        local id,id_number=ident(member(template,"id"))
-        local price=number(member(template,"price"))
-        local para3=number(member(template,"para3"))
-        if id and price and price>0 and price%1==0 and para3 and para3>0 then
-            options[id]={itemId=id,itemIdNumber=id_number,template=template,
-                index=item_num+index,price=price,para3=para3}
-        end
-    end
-    return options,nil
-end
-
-local function rapid_gem_cost(window_state,option)
-    local view=window_state and window_state.view
-    local fn=member(view,"GetTokenIdAndType")
-    if type(fn)~="function" then return nil,failed("Native rapid currency route unavailable") end
-    local result=table.pack(pcall(fn,view))
-    if not result[1] then return nil,failed("Native rapid currency observation failed") end
-    local token_id=number(result[2])
-    local token_type=result[3]
-    if token_id==nil or token_id<0 or token_id%1~=0 or token_type==nil then
-        return nil,failed("Native rapid token identity is invalid")
-    end
-    local credit=0
-    if token_id>0 then
-        local get_count=member(rawget(_G,"CurrencyUtil"),"GetCurrencyCount")
-        if type(get_count)~="function" then
-            return nil,failed("Native rapid token balance route unavailable")
-        end
-        local ok_count,count=pcall(get_count,token_id,token_type)
-        count=ok_count and number(count) or nil
-        if count==nil or count<0 then return nil,failed("Native rapid token balance unavailable") end
-        credit=math.min(count,option.price)
-    end
-    local gem_need=math.max(option.price-credit,0)
-    local player=member(rawget(_G,"LuaEntry"),"Player")
-    local gold=number(member(player,"gold"))
-    if gold==nil or gold<0 or gold%1~=0 then
-        return nil,failed("Current native gem balance unavailable")
-    end
-    return {tokenId=token_id,tokenType=token_type,tokenCredit=credit,
-        gemNeed=gem_need,gold=gold},nil
-end
-
-local function exact_diamond_option(march,item_id,allow_open)
-    local window_state,window_error=current_rapid_window(march,allow_open)
-    if not window_state then return nil,window_error end
-    local view_end=number(member(window_state.view,"endTime"))
-    if view_end~=march.endTime then
-        return nil,failed("UILWRapid end-time snapshot differs from the fresh native march")
-    end
-    local options,options_error=rapid_buy_options(window_state)
-    if not options then return nil,options_error end
-    local option=type(item_id)=="string" and options[item_id] or nil
-    if not option then return nil,failed("Requested gem speedup is absent from original UILWRapid buyItems") end
-    local cost,cost_error=rapid_gem_cost(window_state,option)
-    if not cost then return nil,cost_error end
-    return {window=window_state,option=option,cost=cost},nil
-end
-
--- Read-only paid-template preflight is sourced from the actual open UILWRapid
--- buyItems after GetAllItems applies its owned-item/para3 filtering. It never
--- invokes CellsCallBack and therefore cannot show payment or spend gems.
-function M.DiamondSpeedupPreflight(fields, input_clear)
-    local uid, error=owner_and_focus(fields,input_clear,true)
-    if not uid then return error end
-    local march,march_error=slot_march(fields.slot,uid)
-    if not march then return march_error end
-    local window_state,window_error=current_rapid_window(march,false)
-    if not window_state then return window_error end
-    if number(member(window_state.view,"endTime"))~=march.endTime then
-        return failed("UILWRapid end-time snapshot differs from the fresh native march")
-    end
-    local options,options_error=rapid_buy_options(window_state)
-    if not options then return options_error end
-    local gates,gate_error=diamond_confirmation_gates()
-    local result={}
-    for _,option in pairs(options) do
-        local cost=rapid_gem_cost(window_state,option)
-        if cost then
-            result[#result+1]={itemId=option.itemId,listedPrice=option.price,
-                tokenCredit=cost.tokenCredit,gemCost=cost.gemNeed,currentGold=cost.gold,
-                affordable=cost.gemNeed>0 and cost.gemNeed<=cost.gold,
-                nativeConfirmGuaranteed=gates==true,
-                safeToOffer=gates==true and cost.gemNeed>0 and cost.gemNeed<=cost.gold}
-        end
-    end
-    table.sort(result,function(a,b)return tonumber(a.itemId)<tonumber(b.itemId) end)
-    return {state="confirmed",data={observation="native_rapid_purchase_buyItems",
-        marchUuid=march.uuid,slot=tonumber(march.slot),options=result,
-        nativeDiamondReminderEnabled=gates==true,
-        confirmationGateError=gate_error,requestDispatched=false}}
-end
-
-local function speedup_item(fields, input_clear, uid)
-    if diamond_pending then
-        return failed("A paid rapid transaction is unresolved; item rapid is temporarily fenced")
-    end
-    local march, march_error = slot_march(fields.slot,uid)
-    if not march then return march_error end
-    local options, options_error = owned_speedup_items()
-    if not options then return options_error end
-    local previous = pending[fields.slot]
-    if previous then
-        if previous.uuid ~= march.uuid or previous.formation ~= march.formation or
-           previous.uid ~= uid or previous.targetType ~= march.targetType then
-            return failed("Earlier speedup march/owner identity changed")
-        end
-        -- Unlike rapid UI's speculative ReduceTime/UseTool, this adapter
-        -- only observes fresh native poststate and never mutates game caches.
-        local before_item = options[previous.itemId]
-        local current_count = before_item and before_item.count or 0
-        if march.endTime < previous.endTime and current_count < previous.count then
-            pending[fields.slot] = nil
-            return {state="confirmed",data={
-                observation="native_march_endTime_and_item_count_transition",
-                slot=fields.slot,marchUuid=march.uuid,itemId=previous.itemId,
-                priorEndTime=previous.endTime,currentEndTime=march.endTime,
-                priorCount=previous.count,currentCount=current_count}}
-        end
-        if os.time() - previous.sentAt >= PENDING_LIMIT then
-            return failed("Speedup poststate unconfirmed; do not retry in this session")
-        end
-        return {state="accepted",data={requestDispatched=false,
-            awaitingGameConfirmation=true,slot=fields.slot,marchUuid=march.uuid}}
-    end
-    if fields.queryOnly == "1" then
-        return failed("No pending item-speedup request to observe")
-    end
-    if fields.itemOptIn ~= "1" then
-        return failed("Item speedup opt-in is absent")
-    end
-    if type(fields.itemId) ~= "string" or not fields.itemId:match("^%d+$") or
-       not options[fields.itemId] then
-        return failed("Requested item is not a verified owned rapid-speedup item")
-    end
-    local item = options[fields.itemId]
-    if item.count < 1 then return failed("Speedup item is depleted") end
-    local send = member(rawget(_G,"SFSNetwork"),"SendMessage")
-    local route = member(rawget(_G,"MsgDefines"),"WorldMarchRapid")
-    if type(send) ~= "function" or route == nil then
-        return unsupported("Native WorldMarchRapid request route unavailable")
-    end
-    if input_clear() ~= true then
-        return failed("Text focus changed before rapid-item dispatch")
-    end
-    -- TOCTOU: verify fresh owner/formation/march/time and item count again.
-    local final, final_error = slot_march(fields.slot,uid)
-    if not final then return final_error end
-    local latest, latest_error = owned_speedup_items()
-    if not latest then return latest_error end
-    local fresh_item = latest[fields.itemId]
-    if final.uuid ~= march.uuid or final.formation ~= march.formation or
-       final.endTime ~= march.endTime or final.targetType ~= march.targetType or
-       not fresh_item or
-       fresh_item.count ~= item.count then
-        return failed("Owned march/item changed immediately before speedup dispatch")
-    end
-    -- The v26 method is a static function, NOT a colon call.
-    pending[fields.slot] = {uid=uid,formation=final.formation,uuid=final.uuid,
-        targetType=final.targetType,
-        itemId=fields.itemId,count=fresh_item.count,endTime=final.endTime,
-        sentAt=os.time()}
-    -- A send may reach the server before returning false/raising locally.
-    -- Install the one-shot tombstone before calling the actual native sender.
-    local ok, result = pcall(send,route,final.uuidNumber,fresh_item.itemIdNumber,false)
-    if not ok or result == false then
-        return failed("Native rapid item send outcome uncertain; no retry until authoritative poststate")
-    end
-    return {state="accepted",data={requestDispatched=true,
-        awaitingGameConfirmation=true,slot=fields.slot,marchUuid=final.uuid,
-        itemId=fields.itemId}}
-end
-
-validate_diamond_send_edge=function(transaction)
-    local uid,denial=owner_and_focus(transaction.fields,transaction.inputClear,false)
-    if uid~=transaction.uid then return false,denial and denial.error or "Paid rapid owner changed" end
-    if current_session~=transaction.session then return false,"Paid rapid server/session changed" end
-    local account=native_account()
-    if not account or account.uid~=transaction.uid or account.server~=transaction.server or
-       account.player~=transaction.player then
-        return false,"Paid rapid native account changed while confirmation was open"
-    end
-    local march,march_error=slot_march(transaction.slot,transaction.uid)
-    if not march then return false,march_error and march_error.error end
-    if march.uuid~=transaction.uuid or march.formation~=transaction.formation or
-       march.targetType~=transaction.targetType or march.endTime~=transaction.preEndTime then
-        return false,"Paid rapid exact march changed while confirmation was open"
-    end
-    local exact,exact_error=exact_diamond_option(march,transaction.itemId,false)
-    if not exact then return false,exact_error and exact_error.error end
-    if exact.window.window~=transaction.window or exact.window.view~=transaction.view or
-       member(exact.window.view,"ConfirmBuy")~=transaction.confirmWrapper or
-       exact.option.price~=transaction.price or
-       exact.option.para3~=transaction.para3 or exact.cost.gemNeed~=transaction.gemNeed or
-       exact.cost.tokenId~=transaction.tokenId or exact.cost.tokenType~=transaction.tokenType or
-       exact.cost.tokenCredit~=transaction.tokenCredit or exact.cost.gold~=transaction.preGold then
-        return false,"Paid rapid window/item/currency state changed while confirmation was open"
-    end
-    local gates,gate_error=diamond_confirmation_gates()
-    if not gates then return false,gate_error end
-    return true,nil
-end
-
-local function install_diamond_confirm_wrapper(transaction)
-    local view=transaction and transaction.view
-    local original=member(view,"ConfirmBuy")
-    if type(original)~="function" then return false end
-    local wrapper
-    wrapper=function(self,template,reduce_time,...)
-        local current=diamond_pending
-        local template_id=ident(member(template,"id"))
-        if current~=transaction or self~=view or template_id~=transaction.itemId then
-            return original(self,template,reduce_time,...)
-        end
-        if transaction.confirmInvoked then
-            transaction.terminalError="Duplicate original UILWRapid ConfirmBuy callback blocked"
-            transaction.terminal=true
-            error(transaction.terminalError,0)
-        end
-        transaction.confirmInvoked=true
-        transaction.confirmInvokedAt=os.time()
-        local previous=active_diamond_confirm
-        active_diamond_confirm=transaction
-        local returned=table.pack(pcall(original,self,template,reduce_time,...))
-        active_diamond_confirm=previous
-        if not returned[1] then error(returned[2],0) end
-        return table.unpack(returned,2,returned.n)
-    end
-    local ok=pcall(function() view.ConfirmBuy=wrapper end)
-    if not ok or member(view,"ConfirmBuy")~=wrapper then return false end
-    transaction.originalConfirmBuy=original
-    transaction.confirmWrapper=wrapper
-    return true
-end
-
-local function restore_diamond_confirm_wrapper(transaction)
-    if not transaction or not transaction.view or not transaction.confirmWrapper or
-       not transaction.originalConfirmBuy then return end
-    pcall(function()
-        if member(transaction.view,"ConfirmBuy")==transaction.confirmWrapper then
-            transaction.view.ConfirmBuy=transaction.originalConfirmBuy
-        end
-    end)
-end
-
-local function diamond_status(fields,uid)
-    local transaction=diamond_pending
-    if not transaction then return failed("No pending gem-speedup transaction to observe") end
-    if transaction.uid~=uid or transaction.slot~=fields.slot or
-       transaction.session~=current_session then
-        return failed("Pending gem-speedup belongs to another owner/session/slot")
-    end
-    if not observe_attack_sender() or not observe_diamond_reply() then
-        return failed("Paid rapid native observer ownership changed")
-    end
-    if transaction.competingSendObserved then
-        transaction.terminalError="Competing WorldMarchRapid send made paid reply attribution ambiguous"
-        return failed(transaction.terminalError)
-    end
-    if transaction.duplicateMatchingSendObserved or transaction.terminalError then
-        return failed(transaction.terminalError or "Paid rapid transaction became ambiguous")
-    end
-    if (transaction.sendCount or 0)==0 then
-        if os.time()-transaction.startedAt>=PENDING_LIMIT then
-            -- Do not release the global lane merely because no packet has
-            -- appeared yet: the native modal callback can still exist and a
-            -- late owner confirmation must remain attributable and fenced.
-            return failed("Native gem confirmation has no paid send yet; transaction fence retained")
-        end
-        return {state="accepted",data={observation="native_diamond_dialog_pending",
-            slot=tonumber(fields.slot),marchUuid=transaction.uuid,itemId=transaction.itemId,
-            requestDispatched=false,awaitingUserConfirmation=true}}
-    end
-    if transaction.senderError or transaction.senderReturnedFalse then
-        return failed("Paid rapid sender outcome uncertain; no retry in this session")
-    end
-    if transaction.replyObserved~=true then
-        return {state="accepted",data={observation="native_paid_rapid_reply_pending",
-            slot=tonumber(fields.slot),marchUuid=transaction.uuid,itemId=transaction.itemId,
-            requestDispatched=false,awaitingGameConfirmation=true}}
-    end
-    if transaction.replyCount~=1 or transaction.replyApplied~=true then
-        return failed("Paid rapid reply callback was not uniquely applied")
-    end
-    if transaction.replyErrorCode then
-        -- Original ConfirmBuy already performed optimistic local cache
-        -- mutation before this error reply. Keep the paid lane fenced instead
-        -- of allowing a retry against potentially stale gold/view state.
-        return failed("Native paid rapid server reply rejected the request: "..transaction.replyErrorCode)
-    end
-    local remain=transaction.replyRemainGold
-    if remain==nil or remain>=transaction.preGold or
-       transaction.preGold-remain~=transaction.gemNeed then
-        return failed("Paid rapid success reply has no exact expected remainGold debit")
-    end
-    local player=member(rawget(_G,"LuaEntry"),"Player")
-    local gold=number(member(player,"gold"))
-    if gold~=remain then
-        return {state="accepted",data={observation="native_paid_rapid_gold_poststate_pending",
-            slot=tonumber(fields.slot),marchUuid=transaction.uuid,itemId=transaction.itemId,
-            requestDispatched=false,awaitingGameConfirmation=true}}
-    end
-    local march,march_error=slot_march(fields.slot,uid)
-    if not march then return march_error end
-    if march.uuid~=transaction.uuid or march.formation~=transaction.formation or
-       march.targetType~=transaction.targetType then
-        return failed("Paid rapid fresh march identity changed after server reply")
-    end
-    if march.endTime>=transaction.preEndTime then
-        if os.time()-transaction.startedAt>=PENDING_LIMIT then
-            return failed("Paid rapid reply observed but exact march endTime decrease remains unconfirmed")
-        end
-        return {state="accepted",data={observation="native_paid_rapid_march_poststate_pending",
-            slot=tonumber(fields.slot),marchUuid=transaction.uuid,itemId=transaction.itemId,
-            requestDispatched=false,awaitingGameConfirmation=true}}
-    end
-    restore_diamond_confirm_wrapper(transaction)
-    diamond_pending=nil
-    return {state="confirmed",data={
-        observation="native_paid_rapid_reply_gold_and_march_transition",
-        slot=tonumber(fields.slot),marchUuid=transaction.uuid,itemId=transaction.itemId,
-        priorGold=transaction.preGold,currentGold=gold,remainGold=remain,
-        gemCost=transaction.gemNeed,priorEndTime=transaction.preEndTime,
-        currentEndTime=march.endTime,serverReplyObserved=true,requestDispatched=false}}
-end
-
--- Invoke the original view callback only after paid opt-in and preflight. The
--- game owns the visible ShowUseDiamondConfirm dialog and its ConfirmBuy callback.
-local function speedup_diamond(fields, input_clear, uid)
-    if fields.queryOnly=="1" then return diamond_status(fields,uid) end
-    if diamond_pending then return failed("Another gem-speedup transaction is still unresolved") end
-    if fields.diamondOptIn~="1" then return failed("Gem speedup paid opt-in is absent") end
-    if type(fields.itemId)~="string" or not fields.itemId:match("^[1-9]%d*$") then
-        return failed("Gem speedup requires an exact native buy item ID")
-    end
-    local march,march_error=slot_march(fields.slot,uid)
-    if not march then return march_error end
-    local exact,exact_error=exact_diamond_option(march,fields.itemId,true)
-    if not exact then return exact_error end
-    if exact.cost.gemNeed<=0 then
-        return failed("Selected native rapid option would not use gems and has no paid confirmation")
-    end
-    if exact.cost.gemNeed>exact.cost.gold then
-        -- CellsCallBack would enter GoToUtil.GotoPayTips here. Refuse before
-        -- invoking it so this command can never open the payment path.
-        return failed("Insufficient in-game gems for selected rapid option")
-    end
-    local gates,gate_error=diamond_confirmation_gates()
-    if not gates then return failed(gate_error) end
-    if type(input_clear)~="function" or input_clear()~=true then
-        return failed("Text focus changed before native gem confirmation")
-    end
-    if not observe_attack_sender() or not observe_diamond_reply() then
-        return unsupported("Native paid rapid send/reply observers unavailable")
-    end
-    local account=native_account()
-    if not account or account.uid~=uid then return failed("Native paid rapid owner changed") end
-    local fields_copy={}
-    for k,v in pairs(fields) do fields_copy[k]=v end
-    diamond_pending={uid=uid,server=account.server,player=account.player,session=current_session,
-        slot=fields.slot,uuid=march.uuid,formation=march.formation,targetType=march.targetType,
-        preEndTime=march.endTime,preGold=exact.cost.gold,itemId=fields.itemId,
-        price=exact.option.price,para3=exact.option.para3,template=exact.option.template,
-        tokenId=exact.cost.tokenId,tokenType=exact.cost.tokenType,
-        tokenCredit=exact.cost.tokenCredit,gemNeed=exact.cost.gemNeed,
-        window=exact.window.window,view=exact.window.view,inputClear=input_clear,
-        fields=fields_copy,startedAt=os.time(),sendCount=0,routeSendCount=0,replyCount=0}
-    if not install_diamond_confirm_wrapper(diamond_pending) then
-        diamond_pending=nil
-        return unsupported("Original UILWRapid ConfirmBuy callback cannot be safely observed")
-    end
-    local ok,callback_result=pcall(exact.window.view.CellsCallBack,exact.window.view,
-        exact.option.index,exact.option.template,true)
-    local transaction=diamond_pending
-    if not ok then
-        if transaction and (transaction.sendCount or 0)==0 then
-            restore_diamond_confirm_wrapper(transaction)
-            diamond_pending=nil
-        end
-        return failed("Original UILWRapid CellsCallBack failed before safe paid dispatch: "..tostring(callback_result))
-    end
-    if transaction and transaction.competingSendObserved then
-        return failed("Competing WorldMarchRapid send made paid reply attribution ambiguous")
-    end
-    return {state="accepted",data={observation="native_diamond_confirmation_opened",
-        slot=tonumber(fields.slot),marchUuid=march.uuid,itemId=fields.itemId,
-        gemCost=exact.cost.gemNeed,priorGold=exact.cost.gold,
-        priorEndTime=march.endTime,requestDispatched=transaction and transaction.sendCount==1 or false,
-        awaitingUserConfirmation=transaction and transaction.sendCount==0 or false,
-        awaitingGameConfirmation=transaction and transaction.sendCount==1 or false}}
-end
-
 -- Adaptation: the CURRENT open native formation selector owns the typed
 -- target. This is deliberately distinct from the original physical-pointer
 -- shortcut. No last-touch or caller-supplied target can dispatch a march.
@@ -2495,31 +1799,6 @@ local function attack_selected(fields, input_clear, uid)
             local result=failed("Native attack sender or route may have failed; observe retained transaction before retry")
             result.data={nativeTransaction=transaction_view(prior)}
             return result
-        end
-        if prior.receipt then
-            local copy={}
-            for k,v in pairs(fields) do copy[k]=v end
-            copy.action,copy.itemId=prior.rapidAction,prior.rapidItem
-            copy.itemOptIn,copy.diamondOptIn="1","1"
-            copy.queryOnly=prior.rapidSent and "1" or nil
-            local result
-            if prior.rapidAction == "speedupItem" then result=speedup_item(copy,input_clear,uid)
-            else result=speedup_diamond(copy,input_clear,uid) end
-            if result.state == "confirmed" then
-                prior.receipt.speedup=result.data
-                attacks[fields.slot]=nil
-                release_confirmed_hover(fields.slot)
-                return {state="confirmed",data=prior.receipt}
-            end
-            if result.state == "accepted" then
-                prior.rapidSent=true
-                return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
-                    awaitingGameConfirmation=true,requestDispatched=false,
-                    ownerUid=uid,sourceServerId=tonumber(prior.server)}}
-            end
-            -- The attack happened, but requested speedup did not confirm.
-            -- Retain the fence so another key edge cannot double-spend.
-            return failed("Attack confirmed; requested rapid remains unconfirmed: "..tostring(result.error))
         end
         local fresh, uuid = fresh_owned(existing)
         local ok_type, kind = invoke(fresh,"GetMarchTargetType")
@@ -2579,19 +1858,6 @@ local function attack_selected(fields, input_clear, uid)
                 directReplyObserverCorrelated=direct_reply_correlated,
                 transaction=transaction_view(prior),
                 nativeTransaction=transaction_view(prior)}
-            if prior.allowItem or prior.allowDiamond then
-                local options=owned_speedup_items()
-                local chosen
-                if prior.allowItem and options then
-                    for id in pairs(options) do
-                        if not chosen or tonumber(id)<tonumber(chosen) then chosen=id end
-                    end
-                end
-                if chosen then prior.rapidAction,prior.rapidItem="speedupItem",chosen end
-                if not prior.rapidAction then return failed("Attack confirmed; no permitted native rapid item or purchase template") end
-                prior.receipt=receipt
-                return attack_selected(fields,input_clear,uid)
-            end
             attacks[fields.slot] = nil
             release_confirmed_hover(fields.slot)
             return {state="confirmed",data=receipt}
@@ -2608,9 +1874,6 @@ local function attack_selected(fields, input_clear, uid)
             nativeTransaction=transaction_view(prior)}}
     end
     if fields.queryOnly == "1" then return failed("No pending native attack to observe") end
-    if fields.allowRapidDiamond=="1" then
-        return unsupported("Attack-linked diamond rapid requires original native purchase confirmation")
-    end
     local selector=selected_window()
     local window=selector and selector.window
     local ctrl=selector and selector.ctrl
@@ -2709,8 +1972,7 @@ local function attack_selected(fields, input_clear, uid)
         targetAllianceUid=send_target.targetAllianceUid,targetAllianceRaw=send_target.targetAllianceRaw,
         targetAllianceReader=send_target.targetAllianceReader,
         oldUuid=old_uuid,oldKind=old_kind,
-        oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
-        allowDiamond=fields.allowRapidDiamond=="1",sendCount=0,
+        oldStartTime=old_start,sentAt=os.time(),sendCount=0,
         hoverOrigin=cursor_open_pending~=nil and
             cursor_open_pending.session==current_session and
             cursor_open_pending.consumed==true and cursor_open_pending.slot==fields.slot,
@@ -2858,10 +2120,9 @@ local function attack_from_native_hover(fields,input_clear,uid)
 end
 
 function M.Handle(fields, input_clear)
-    if type(fields) ~= "table" then return failed("Invalid rapid/attack command") end
-    if fields.action ~= "attack" and fields.action ~= "speedupItem" and
-       fields.action ~= "speedupDiamond" then
-        return unsupported("Unknown attack/rapid action")
+    if type(fields) ~= "table" then return failed("Invalid attack command") end
+    if fields.action ~= "attack" then
+        return unsupported("Unknown attack action")
     end
     -- Never accept caller-derived hovered IDs/tiles/pixels for a mutating
     -- action, even if a native chooser is already open. Only the native
@@ -2878,13 +2139,7 @@ function M.Handle(fields, input_clear)
     -- opening or automatic second send is possible from a bare queryOnly.
     local uid, error = owner_and_focus(fields,input_clear,fields.queryOnly == "1")
     if not uid then return error end
-    if fields.action == "attack" then
-        return attack_from_native_hover(fields,input_clear,uid)
-    end
-    if fields.action == "speedupDiamond" then
-        return speedup_diamond(fields,input_clear,uid)
-    end
-    return speedup_item(fields,input_clear,uid)
+    return attack_from_native_hover(fields,input_clear,uid)
 end
 
 return M

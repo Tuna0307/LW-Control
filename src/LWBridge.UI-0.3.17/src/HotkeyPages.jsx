@@ -8,7 +8,6 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
   const { t } = useI18n();
   const enabled = config[card.key] === true;
   const cardWarning = card.warning ? t(card.warning) : "";
-  const sourceAttack = card.key === "attack";
   return (
     <article className={`hotkey-card${cardWarning ? " hotkey-card-danger" : ""}`} data-preview-fixture={previewEnabled ? "hotkeys-config" : undefined}>
       <div className="hotkey-card-header">
@@ -17,13 +16,6 @@ function HotkeyCard({ card, config, pendingField, onSaveField, previewEnabled = 
       </div>
       <h3>{t(card.title)}</h3>
       <p>{t(card.description)}</p>
-      {sourceAttack ? (
-        <div className="hotkey-attack-settings">
-          <label className="hotkey-attack-toggle"><input type="checkbox" checked={config.attackMarchSpeedupItem === true} disabled={pendingField !== null} onChange={() => onSaveField({ ...config, attackMarchSpeedupItem: config.attackMarchSpeedupItem !== true }, "attackMarchSpeedupItem")} /><span>{t("hotkeys.attackSpeedupItem")}</span></label>
-          <label className="hotkey-attack-toggle"><input type="checkbox" checked={config.attackMarchSpeedupDiamond === true} disabled={pendingField !== null} onChange={() => onSaveField({ ...config, attackMarchSpeedupDiamond: config.attackMarchSpeedupDiamond !== true }, "attackMarchSpeedupDiamond")} /><span>{t("hotkeys.attackSpeedupDiamond")}</span></label>
-          <small>{t("hotkeys.attackSpeedupWarning")}</small>
-        </div>
-      ) : null}
       {card.key === "frontlineReinforce" ? (
         <label className="hotkey-attack-toggle">
           {t("hotkeys.frontlineReinforce.countLabel")}
@@ -259,198 +251,6 @@ function NativeAttackReadinessPanel({ online, previewEnabled }) {
     {editorOpened ? <span className="hotkey-state enabled" role="status">{words.editorOpened}</span> : null}
     {error ? <div className="automation-error" role="alert">{error}</div> : null}
   </article>;
-}
-
-// Original speedup switches are only *preferences* for a target that has not
-// yet been source-verified. Keep their intent separate from this explicit,
-// owned ATTACK-march item action: never convert a preference into a purchase.
-// Native item-use returns a submission; two independent game data changes
-// must be observed before reporting completion.
-function OwnedRapidItemPanel({ online, previewEnabled }) {
-  const { t, language } = useI18n();
-  const chinese = language?.startsWith("zh");
-  const words = chinese ? {
-    title: "当前行军道具加速", inspect: "读取当前编队与拥有的加速道具",
-    slot: "编队", item: "拥有的道具", empty: "该编队没有已核实的可用加速道具",
-    consent: "仅同意消耗所选的一件库存道具，不使用钻石",
-    send: "使用一件道具", pending: "已提交，等待游戏行军时间和库存确认",
-    confirmed: "已由游戏行军时间及道具库存共同确认",
-    notConfirmed: "未获得权威确认；请在游戏中检查，不要重复使用",
-    check: "只读取前一次请求的状态",
-    hint: "只处理当前账号已拥有的攻击行军和库存道具。不会创建攻击，也不会购买钻石。",
-  } : {
-    title: "Current-march item speedup", inspect: "Inspect owned attack march and items",
-    slot: "Squad", item: "Owned item", empty: "No verified owned speedup item for this squad",
-    consent: "I approve consuming exactly one selected owned item. Never spend diamonds.",
-    send: "Use one owned item", pending: "Request sent; waiting for both march time and inventory confirmation",
-    confirmed: "Confirmed by game march time and owned inventory",
-    notConfirmed: "Unconfirmed. Inspect the game state before attempting any other item use.",
-    check: "Read previous request status only",
-    hint: "Requires an existing owned ATTACK march. This does not start attacks or buy diamonds.",
-  };
-  const [slot, setSlot] = useState(1);
-  const [items, setItems] = useState([]);
-  const [itemId, setItemId] = useState("");
-  const [marchUuid, setMarchUuid] = useState("");
-  const [consent, setConsent] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState("");
-  const live = online && !previewEnabled;
-
-  useEffect(() => {
-    // Never reuse a selected consumable, old consent or pending appearance
-    // after the profile owner, slot or authenticated connection changes.
-    setItems([]); setItemId(""); setMarchUuid(""); setConsent(false);
-    setPending(false); setStatus(""); setError(""); setBusy(false);
-  }, [slot, live, backendBridge.profileGeneration]);
-
-  async function inspect() {
-    if (!live || busy || pending) return;
-    const owner = backendBridge.currentProfileOwner();
-    setBusy(true); setError(""); setStatus(""); setItems([]); setItemId(""); setConsent(false);
-    try {
-      const response = await backendBridge.invokeProfileScoped(
-        "feature018_rapid_action", { mode: "inventory", slot }, 10000);
-      if (!backendBridge.isCurrentProfileOwner(owner)) return;
-      if (response?.observation !== "native_owned_rapid_item_candidates" ||
-          Number(response?.slot) !== slot || typeof response?.marchUuid !== "string" ||
-          !Array.isArray(response?.items)) {
-        throw new Error("Native rapid inventory provenance is unverified");
-      }
-      const options = response.items.filter((entry) =>
-        /^\d+$/.test(String(entry?.itemId || "")) &&
-        Number.isSafeInteger(entry?.count) && entry.count > 0);
-      setMarchUuid(response.marchUuid);
-      setItems(options);
-      setItemId(options.length ? String(options[0].itemId) : "");
-    } catch (cause) {
-      if (backendBridge.isCurrentProfileOwner(owner)) setError(cause.code || cause.message);
-    } finally {
-      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
-    }
-  }
-
-  async function useOne() {
-    if (!live || busy || pending || !consent || !marchUuid ||
-        !items.some((entry) => String(entry.itemId) === itemId && entry.count > 0)) return;
-    const owner = backendBridge.currentProfileOwner();
-    setBusy(true); setConsent(false); setError(""); setStatus("");
-    try {
-      const response = await backendBridge.invokeProfileScoped(
-        "feature018_rapid_action",
-        { mode: "itemUse", slot, itemId, itemOptIn: true }, 10000);
-      if (!backendBridge.isCurrentProfileOwner(owner)) return;
-      if (response?.requestDispatched !== true ||
-          response?.awaitingGameConfirmation !== true ||
-          Number(response?.slot) !== slot ||
-          response?.marchUuid !== marchUuid ||
-          String(response?.itemId) !== itemId) {
-        throw new Error("Original march rapid sender gave no correlated dispatch receipt");
-      }
-      setPending(true);
-      setStatus("pending");
-      setItems([]); setItemId("");
-    } catch (cause) {
-      // A timeout or dropped response could still follow a server send.
-      // Never auto-retry or claim the selected item was not used.
-      if (backendBridge.isCurrentProfileOwner(owner)) {
-        setError((cause.code || cause.message) + " — " + words.notConfirmed);
-        setItems([]); setItemId("");
-      }
-    } finally {
-      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
-    }
-  }
-
-  async function readPrevious() {
-    if (!live || busy) return;
-    const owner = backendBridge.currentProfileOwner();
-    setBusy(true); setError("");
-    try {
-      const result = await backendBridge.invokeProfileScoped(
-        "feature018_rapid_action", { mode: "status", slot }, 10000);
-      if (!backendBridge.isCurrentProfileOwner(owner)) return;
-      if (result?.state === "confirmed" &&
-          result.observation === "native_march_endTime_and_item_count_transition" &&
-          result.marchUuid === marchUuid) {
-        setStatus("confirmed"); setPending(false);
-      } else if (result?.state === "pending" && result.requestDispatched === false) {
-        setStatus("pending");
-      } else {
-        throw new Error("Native march/item status has no authoritative completion receipt");
-      }
-    } catch (cause) {
-      if (backendBridge.isCurrentProfileOwner(owner))
-        setError((cause.code || cause.message) + " — " + words.notConfirmed);
-    } finally {
-      if (backendBridge.isCurrentProfileOwner(owner)) setBusy(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!live || !pending) return undefined;
-    let active = true;
-    let checking = false;
-    let tries = 0;
-    const owner = backendBridge.currentProfileOwner();
-    const timer = window.setInterval(async () => {
-      if (!active || checking) return;
-      checking = true;
-      tries++;
-      try {
-        const result = await backendBridge.invokeProfileScoped(
-          "feature018_rapid_action", { mode: "status", slot }, 10000);
-        if (!active || !backendBridge.isCurrentProfileOwner(owner)) return;
-        if (result?.state === "confirmed" &&
-            result.observation === "native_march_endTime_and_item_count_transition" &&
-            result.marchUuid === marchUuid) {
-          setStatus("confirmed"); setPending(false);
-        } else if (result?.state !== "pending" || result.requestDispatched !== false) {
-          setStatus("unconfirmed"); setPending(false);
-        }
-      } catch {
-        if (active && backendBridge.isCurrentProfileOwner(owner)) {
-          setStatus("unconfirmed"); setPending(false);
-        }
-      } finally {
-        checking = false;
-        if (active && tries >= 12 && backendBridge.isCurrentProfileOwner(owner)) {
-          setStatus((old) => old === "confirmed" ? old : "unconfirmed");
-          setPending(false);
-        }
-      }
-    }, 1500);
-    return () => { active = false; window.clearInterval(timer); };
-  }, [live, pending, slot, marchUuid, backendBridge.profileGeneration]);
-
-  return (
-    <article className="hotkey-card hotkey-rapid-card" data-feature018-rapid>
-      <h3>{words.title}</h3>
-      <p>{words.hint}</p>
-      <label>{words.slot} <select aria-label={words.slot} value={slot} disabled={busy || pending} onChange={(event) => setSlot(Number(event.target.value))}>
-        {[1, 2, 3, 4].map((number) => <option key={number} value={number}>{t("automation.squad", { index: number })}</option>)}
-      </select></label>
-      <div className="mini-game-actions"><button type="button" disabled={!live || busy || pending} onClick={() => void inspect()}>{words.inspect}</button></div>
-      {marchUuid && items.length === 0 && status !== "pending" ? <small>{words.empty}</small> : null}
-      {items.length > 0 ? <>
-        <label>{words.item} <select aria-label={words.item} value={itemId} disabled={busy || pending}
-          onChange={(event) => { setItemId(event.target.value); setConsent(false); }}>
-          {items.map((item) => <option key={item.itemId} value={String(item.itemId)}>#{item.itemId} × {item.count}</option>)}
-        </select></label>
-        <label><input type="checkbox" checked={consent} disabled={busy || pending || !live}
-          onChange={(event) => setConsent(event.target.checked)} /> {words.consent}</label>
-        <div className="mini-game-actions"><button type="button" className="primary" disabled={!live || busy || pending || !consent || !itemId}
-          onClick={() => void useOne()}>{words.send}</button></div>
-      </> : null}
-      <div className="mini-game-actions"><button type="button" disabled={!live || busy} onClick={() => void readPrevious()}>{words.check}</button></div>
-      {status ? <span role="status" className={status === "confirmed" ? "hotkey-state enabled" : "hotkey-state"}>
-        {status === "confirmed" ? words.confirmed : status === "pending" ? words.pending : words.notConfirmed}
-      </span> : null}
-      {error ? <div className="automation-error" role="alert">{error}</div> : null}
-    </article>
-  );
 }
 
 // Inspect the exact game's shield items and their original 8/12/24-hour
@@ -1531,7 +1331,6 @@ export function RecoveredHotkeyPanel({ category = "hotkeys", previewState = "", 
       {(hotkeyConfig || isMiniGames) ? <div className="hotkey-grid">
         {hotkeyConfig ? cards.map((card) => <HotkeyCard key={card.key} card={card} config={hotkeyConfig} pendingField={pendingField} onSaveField={saveHotkeyField} previewEnabled={previewEnabled} />) : null}
         {!isMiniGames && hotkeyConfig ? <NativeAttackReadinessPanel online={online} previewEnabled={previewEnabled} /> : null}
-        {!isMiniGames && hotkeyConfig ? <OwnedRapidItemPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldOwnedInventoryPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <ShieldNativeActionPanel online={online} previewEnabled={previewEnabled} /> : null}
         {!isMiniGames && hotkeyConfig ? <EquipmentNativePreflightPanel online={online} previewEnabled={previewEnabled} /> : null}

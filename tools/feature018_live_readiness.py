@@ -18,8 +18,6 @@ READS = [
     ("shieldInventory", "feature018_shield_inventory_get", {}),
     *((f"shieldShop{hours}", "feature018_shield_shop",
        {"mode": "inspect", "slot": hours}) for hours in (8, 12, 24)),
-    *((f"rapidInventory{slot}", "feature018_rapid_action",
-       {"mode": "inventory", "slot": slot}) for slot in (1, 2)),
     *((f"recall{slot}", "feature018_hotkey_action",
        {"action": "recall", "slot": slot, "queryOnly": True}) for slot in (1, 2)),
     ("randomRelocation", "feature018_relocation_preflight",

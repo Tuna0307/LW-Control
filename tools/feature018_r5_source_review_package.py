@@ -41,7 +41,7 @@ def source_file(path: str) -> bool:
         path.endswith(".cs")) or path in {
         "tests/LWBridge.Desktop.Checks/Program.cs",
         "src/LWBridge.UI-0.3.17/src/HotkeyPages.jsx",
-        "src/LWBridge.UI-0.3.17/scripts/check-feature018-rapid-mounted.mjs",
+        "src/LWBridge.UI-0.3.17/scripts/check-feature018-hotkeys-mounted.mjs",
         "src/LWBridge.UI-0.3.17/scripts/check-feature018-land-mounted.mjs",
         "docs/FEATURE_RECOVERY_018_WORKER_REPORT.md",
         "docs/FEATURE_RECOVERY_018_INVENTORY.md",

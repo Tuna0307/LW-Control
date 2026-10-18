@@ -23,7 +23,6 @@ internal static class Feature018HotkeyConfigChecks
                 "hotkey_config_get", Empty(), CancellationToken.None))!;
             Require(initial.Attack && initial.Recall && initial.ShieldOverlay && initial.ShieldUse &&
                     initial.Equipment && initial.FrontlineReinforce && !initial.TreasureChestHint &&
-                    !initial.AttackMarchSpeedupItem && !initial.AttackMarchSpeedupDiamond &&
                     !initial.RandomRelocate && !initial.AllianceRelocate,
                 "original hotkey defaults changed");
 
@@ -39,16 +38,46 @@ internal static class Feature018HotkeyConfigChecks
                 "hotkey_config_get", Empty(), CancellationToken.None))!;
             Require(reread == expected, "native persisted fields did not survive reopen");
 
-            var oldTen = new
+            // R16 retired march speed-ups entirely. Existing profile files may
+            // still contain both old fields, including enabled values. They
+            // must deserialize as ordinary hotkey config without reintroducing
+            // either preference into the current model or a subsequent save.
+            var legacySaved = new
             {
-                attack = true, attackMarchSpeedupItem = false, attackMarchSpeedupDiamond = false,
-                recall = true, shieldOverlay = true, shieldUse = true, equipment = true,
-                randomRelocate = false, allianceRelocate = false, frontlineReinforce = true,
+                hotkeys = new
+                {
+                    attack = true,
+                    attackMarchSpeedupItem = true,
+                    attackMarchSpeedupDiamond = true,
+                    recall = true,
+                    shieldOverlay = true,
+                    shieldUse = true,
+                    equipment = true,
+                    randomRelocate = false,
+                    allianceRelocate = false,
+                    frontlineReinforce = true,
+                },
             };
-            HotkeyConfig migrated = (HotkeyConfig)(await reopen.InvokeAsync(
-                "hotkey_config_save", JsonSerializer.SerializeToElement(oldTen),
-                CancellationToken.None))!;
-            Require(migrated.TreasureChestHint == false, "legacy ten-key save did not retain safe default");
+            File.WriteAllText(path, JsonSerializer.Serialize(legacySaved, JsonOptions.Default));
+            var legacyOpen = new HotkeyConfigCommandService(path);
+            HotkeyConfig migrated = (HotkeyConfig)(await legacyOpen.InvokeAsync(
+                "hotkey_config_get", Empty(), CancellationToken.None))!;
+            Require(migrated.Attack && migrated.Recall && migrated.ShieldOverlay && migrated.ShieldUse &&
+                    migrated.Equipment && migrated.FrontlineReinforce && !migrated.RandomRelocate &&
+                    !migrated.AllianceRelocate && !migrated.TreasureChestHint,
+                "legacy saved hotkeys with retired speed-up fields did not load safely");
+            JsonElement migratedJson = JsonSerializer.SerializeToElement(migrated, JsonOptions.Default);
+            Require(!migratedJson.TryGetProperty("attackMarchSpeedupItem", out _) &&
+                    !migratedJson.TryGetProperty("attackMarchSpeedupDiamond", out _),
+                "retired march speed-up fields survived current hotkey projection");
+            _ = await legacyOpen.InvokeAsync("hotkey_config_save", migratedJson, CancellationToken.None);
+            using (JsonDocument persisted = JsonDocument.Parse(File.ReadAllText(path)))
+            {
+                JsonElement hotkeys = persisted.RootElement.GetProperty("hotkeys");
+                Require(!hotkeys.TryGetProperty("attackMarchSpeedupItem", out _) &&
+                        !hotkeys.TryGetProperty("attackMarchSpeedupDiamond", out _),
+                    "current save preserved retired march speed-up fields");
+            }
 
             bool rejected = false;
             try

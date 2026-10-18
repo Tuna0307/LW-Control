@@ -6,8 +6,6 @@ namespace LWBridge.Desktop;
 
 internal sealed record HotkeyConfig(
     bool Attack = true,
-    bool AttackMarchSpeedupItem = false,
-    bool AttackMarchSpeedupDiamond = false,
     bool Recall = true,
     bool ShieldOverlay = true,
     bool ShieldUse = true,
@@ -415,8 +413,6 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
     private static readonly string[] BooleanFields =
     [
         "attack",
-        "attackMarchSpeedupItem",
-        "attackMarchSpeedupDiamond",
         "recall",
         "shieldOverlay",
         "shieldUse",
@@ -472,8 +468,6 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
 
         return new HotkeyConfig(
             payload.GetProperty("attack").GetBoolean(),
-            payload.GetProperty("attackMarchSpeedupItem").GetBoolean(),
-            payload.GetProperty("attackMarchSpeedupDiamond").GetBoolean(),
             payload.GetProperty("recall").GetBoolean(),
             payload.GetProperty("shieldOverlay").GetBoolean(),
             payload.GetProperty("shieldUse").GetBoolean(),

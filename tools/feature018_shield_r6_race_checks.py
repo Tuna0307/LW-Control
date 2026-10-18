@@ -235,15 +235,5 @@ class ShieldUseAfterCooldownRaces(unittest.TestCase):
         self.assertEqual(shield.command(lua,module,8,query=True)['state'],'confirmed')
         self.assertEqual(state['sent'],1)
 
-    def test_explicit_native_paid_rapid_callback_not_available_from_shield_module(self):
-        lua, module, state = shield.run()
-        attempted=module.Handle(lua.table_from({
-            'action':'speedupDiamond','slot':'1','gemOptIn':'1',
-            'profileId':'profile','launchSessionId':'launch','challenge':'nonce','gamePid':'1',
-        }))
-        self.assertEqual(attempted['state'], 'failed')
-        self.assertEqual(state['sent'],0)
-
-
 if __name__ == '__main__':
     unittest.main()
