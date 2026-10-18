@@ -440,4 +440,17 @@ feature cards." Record as OWNER_DIRECTION in the behaviour-differences ledger.
 Handoff rule unchanged; record progress under "R17 progress".
 
 ### R17 progress (worker updates this)
-- (none yet)
+- Task 1 complete: removed all six worker diagnostic panels from `HotkeyPages.jsx` and their inline bilingual
+  copy. Hotkeys now renders only the seven recovered 0.3.17 cards; Mini Games keeps the original G card and its
+  configurable soldiers-per-press field, plus the original treasure/Land/Sheep cards. Reworked the two
+  panel-specific mounted checks into absence/original-card regressions. Removing the Frontline panel exposed a
+  stale positional Land fixture in `check-mini-r2.mjs`; its existing Land/Sheep test was retained and the unlocked
+  reply fixture was updated with the already-required exact-cell causality fields.
+- Backend caller audit for Task 1: no diagnostic endpoint command removed. The endpoint names still have
+  non-panel Desktop/tooling/check callers, while physical hotkeys use the preserved `feature018_hotkey_action`
+  provider path. This follows the R17 rule to remove a backend command only when nothing except a deleted panel
+  calls it.
+- Focused Task 1 checks pass: `check-feature018-hotkeys-mounted.mjs` reports seven original cards and diagnostics
+  removed; `check-feature018-land-mounted.mjs` reports original G count preserved and the Frontline diagnostic
+  removed. Before screenshots were captured under ignored `artifacts/feature018-r17-ui/`; after screenshots and
+  the full R17 verification matrix are Task 2.

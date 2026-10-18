@@ -127,7 +127,9 @@ assert.match(sheepCard().textContent, /4\s*\/\s*9/,
 assert.match(sheepCard().textContent, /Current level:\s*5/,
   "running game should show the manager's current level");
 
-landReply = { cellId: 56, state: "unlocked" };
+landReply = { cellId: 56, state: "unlocked", exactCellLookup: true,
+  requestProof: { requestCausalityConfirmed: true, replyLandId: 56,
+    targetRequestCount: 1, replyCount: 1, accountFenceIntact: true } };
 await tick(1000);
 assert.equal(landCard().querySelector("button").disabled, false,
   "source-confirmed Land unlock did not retire its pending tab action");

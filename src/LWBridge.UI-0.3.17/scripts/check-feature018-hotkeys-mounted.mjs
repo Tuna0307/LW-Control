@@ -24,16 +24,18 @@ window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() 
 
 let receiver;
 const commands = [];
-let shieldReads = 0;
-let equipmentActions = 0;
-let equipmentQuerySteps = 0;
-let nativeStaffingEditorOpens = 0;
-let shieldGold = 176;
-let shieldCount = 0;
-let shieldShopSends = 0;
-let shieldUseSends = 0;
-let shieldShopConfirmed = false;
-let shieldUseConfirmed = false;
+const config = {
+  attack: true,
+  recall: true,
+  shieldOverlay: true,
+  shieldUse: false,
+  equipment: true,
+  randomRelocate: false,
+  allianceRelocate: false,
+  frontlineReinforce: true,
+  frontlineReinforceCount: 5,
+  treasureChestHint: false,
+};
 window.__LWBridgeBootstrap = {
   mode: "live", sessionId: "hotkeys-inert-session",
   profiles: { selectedProfileId: "hotkeys-approved-profile" },
@@ -44,175 +46,11 @@ window.chrome = { webview: {
   postMessage(request) {
     if (request.kind !== "invoke") return;
     commands.push(request);
-    let response;
-    if (request.command === "hotkey_config_get") {
-      response = { attack: true };
-    } else if (request.command === "feature018_attack_prepare") {
-      if (request.payload.mode === "attackReadiness") {
-        assert.deepEqual(request.payload,
-          { mode: "attackReadiness", slot: 1,
-            profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
-        response = { observation: "native_attack_readonly_prerequisite_inventory",
-          slot: 1, formationUuid: "1001", sourcePrerequisitesObserved: false,
-          outstandingReasons: ["native_formation_soldiers_or_heroes_unstaffed"],
-          physicalCursorTargetVerified: false, safeToDispatchFromPhysicalCursor: false,
-          serverAcknowledgementCorrelated: false, serverRequestTokenEchoVerified: false,
-          nativeMarchPostStateVerified: false, attackDispatched: false,
-          requestDispatched: false, staffingMutationPerformed: false };
-      } else if (request.payload.mode === "selectorTarget") {
-        assert.deepEqual(request.payload,
-          { mode: "selectorTarget", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
-        response = { observation: "native_typed_formation_selector_readonly",
-          requestDispatched: false, safeToDispatchFromPhysicalCursor: false,
-          target: { uuid: "778812", point: 35723,
-            requestDispatched: false, currentCursorVerified: false,
-            physicalCursorTargetVerified: false } };
-      } else if (request.payload.mode === "staffingEditor") {
-        assert.equal(request.payload.slot, 1);
-        assert.equal(request.payload.editorOptIn, true);
-        assert.equal(request.payload.authorizedUid, undefined);
-        nativeStaffingEditorOpens++;
-        response = { observation: "native_manual_formation_editor_open",
-          slot: 1, formationUuid: "1001", operatorMustSaveInOriginalGame: true,
-          formationSaveSent: false, attackDispatched: false,
-          requestDispatched: false, staffingPreparationPerformed: false };
-      } else {
-        assert.deepEqual(request.payload,
-          { mode: "inventory", profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId });
-        response = { observation: "native_ordinary_monsters_and_owned_squads",
-        requestDispatched: false, staffingPreparationPerformed: false,
-        candidates: [], currentSelector: { name: "UIFormationSelectListV2" },
-        unassignedSoldiers: { observed: true, total: 120 },
-        squads: { "1": { unlocked: true, formationUuid: "1001", heroCount: 5, soldierCount: 0,
-          formationCapacity: 280, staffedForAttack: false,
-          canPrepareWithUnassignedSoldiers: true },
-          "2": { unlocked: true, heroCount: 5, soldierCount: 0, formationCapacity: 300,
-            staffedForAttack: false, canPrepareWithUnassignedSoldiers: true },
-          "3": { unlocked: false }, "4": { unlocked: false } },
-        };
-      }
-    } else if (request.command === "feature018_shield_inventory_get") {
-      assert.deepEqual(request.payload, { profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId },
-        "Read-only shield inventory may carry only the profile-scoped routing field");
-      shieldReads++;
-      response = { observation: "native_MAIN_SHIELD_StatusTab_owned_item_duration_join",
-        durationMappingVerified: true, readOnly: true, requestDispatched: false,
-        // Current v26 ItemUse PutUtfString UUID, independently observed on
-        // the 2288 account; it is not constrained to a 20-digit number.
-        items: [{ itemId: "81008", uuid: "e43623c3ec5e4cd78ae1b3f904094fd7", count: shieldCount || 2,
-          statusId: "7801", durationHours: 8, uniqueDuration: true },
-          { itemId: "81024", uuid: "882024", count: 1,
-            statusId: "7803", durationHours: 24, uniqueDuration: false }] };
-    } else if (request.command === "feature018_equipment_preflight") {
-      assert.equal(request.payload.slot, 1);
-      assert.equal(request.payload.presetId, undefined);
-      assert.equal(request.payload.authorizedUid, undefined);
-      assert.equal(request.payload.confirmedEquipmentPresets, undefined);
-      response = { observation: "native_HeroEquip_slot_inventory_preflight",
-        readOnly: true, readyToApply: false, requestDispatched: false, slot: 1,
-        presetId: "confirmed-native-preset", changedSlots: 1,
-        wornByOtherHero: 0, uninstallSlots: 1,
-        slots: [{ heroUuid: "12112", slot: 1, state: "replaceRequired" }],
-      };
-    } else if (request.command === "feature018_relocation_preflight") {
-      assert.deepEqual(request.payload,
-        { action: request.payload.action,
-          profileId: window.__LWBridgeBootstrap.profiles.selectedProfileId },
-        "Relocation readiness must never accept browser-selected items, UID or targets");
-      const alliance = request.payload.action === "allianceRelocate";
-      assert.equal(alliance || request.payload.action === "randomRelocate", true);
-      response = { observation: "original_v26_authenticated_relocation_readiness",
-        action: request.payload.action, ownerUid: "2553945035002288",
-        sourceServerId: 2288, selfServerId: 2288, currentServerId: 2288,
-        readOnly: true, originalPacketSend: false, requestDispatched: false,
-        serverReplyObserved: false, serverAckAttributable: false,
-        relocationConfirmed: false, destinationVerified: false,
-        originalNativeRoute: alliance ? "MoveCrossServer_BackToSrcServer" : "ItemUse",
-        ownerItemPresent: !alliance, itemId: alliance ? null : "88421",
-        actionable: !alliance, homeDirectRelocationEnabled: false,
-        chooserRequestEligible: false,
-        currentBlocker: alliance
-          ? "Original source-home F10 would send MoveCrossServer, not AllianceMoveCity"
-          : null,
-      };
-    } else if (request.command === "feature018_shield_shop") {
-      assert.equal(request.payload.slot === 8 || request.payload.slot === 12, true);
-      const duration = request.payload.slot;
-      const price = duration === 8 ? 1500 : 2500;
-      const itemId = duration === 8 ? "81008" : "81012";
-      response = { observation: "native_shield_shop_inventory",
-        itemId, durationHours: duration, nativePrice: price, gold: shieldGold,
-        count: shieldCount, readOnly: true, requestDispatched: false,
-        canAffordNativePrice: shieldGold >= price,
-        additionalGoldNeeded: Math.max(0, price-shieldGold),
-        nativeGoldClaimRoutes: { readOnly: true, requestDispatched: false,
-          goldEarned: false, goldAmountVerified: false,
-          availability: "native_observed", claimableDailyTaskCount: 2,
-          goldTypeMatchedDailyTaskCount: 1,
-          signIn: { availability: "native_cached", claimableEventCount: 1 } },
-      };
-      if (request.payload.mode === "buy") {
-        assert.equal(request.payload.gemOptIn, true);
-        assert.equal(duration, 8);
-        shieldShopSends++;
-        response = { ...response, readOnly: false, requestDispatched: true,
-          awaitingGameConfirmation: true };
-      } else if (request.payload.mode === "status") {
-        assert.equal(request.payload.gemOptIn, undefined);
-        response = shieldShopConfirmed ? {
-          ...response, observation: "native_shield_purchase_inventory_and_gold",
-          beforeCount: 0, beforeGold: 3000, spentGems: 1500, purchasedCount: 1,
-          nativeShopReplyObserved: true, nativeShopReplyMatched: true,
-          nativeShopReplyCount: 1, nativeReplyCausalityConfirmed: false,
-          nativeShopReplyStackMatched: true,
-          purchaseProofKind: "matching_original_reply_owned_stack_and_cached_poststate_no_nonce",
-        } : { ...response, awaitingGameConfirmation: true };
-      } else assert.equal(request.payload.mode, "inspect");
-    } else if (request.command === "feature018_hotkey_action" &&
-        request.payload.action === "shieldUse") {
-      assert.equal(request.payload.slot, 8);
-      if (request.payload.queryOnly === true) {
-        response = shieldUseConfirmed ? {
-          observation: "native_owned_shield_consumption_and_MAIN_SHIELD",
-          slot: 8, itemId: "81008", consumedCount: 1,
-          durationMilliseconds: 28800000, remainingMilliseconds: 28799000,
-          nativeItemUseReplyObserved: true, nativeItemUseReplyMatched: true,
-          nativeItemUseReplyCount: 1, nativeReplyCausalityConfirmed: false,
-          itemUseProofKind: "matching_original_itemuse_reply_and_shield_poststate_no_nonce",
-        } : { awaitingGameConfirmation: true, requestDispatched: false, slot: 8 };
-      } else {
-        shieldUseSends++;
-        response = { requestDispatched: true, awaitingGameConfirmation: true, slot: 8 };
-      }
-    } else if (request.command === "feature018_hotkey_action") {
-      assert.equal(request.payload.action, "equipment");
-      assert.equal(request.payload.slot, 1);
-      assert.equal(request.payload.presetId, undefined,
-        "Equipment UI must never provide a forged persisted preset ID");
-      assert.equal(request.payload.authorizedUid, undefined,
-        "Equipment UI must never select the native game account");
-      assert.equal(request.payload.confirmedEquipmentPresets, undefined,
-        "Equipment UI must never supply equipment UUIDs");
-      if (request.payload.queryOnly === true) {
-        equipmentQuerySteps++;
-        response = equipmentQuerySteps >= 2 ? {
-          observation: "native_HeroEquip_preset_slots_applied", equipmentApplied: true,
-          action: "equipment", slot: 1, presetId: "confirmed-native-preset",
-          completedSteps: 2, plannedSteps: 2,
-          slots: [{ currentEquipUuid: "991", targetEquipUuid: "991" }],
-        } : { observation: "native_HeroEquip_preset_pending", equipmentApplied: false,
-          awaitingGameConfirmation: true, action: "equipment", slot: 1,
-          presetId: "confirmed-native-preset", completedSteps: 1, plannedSteps: 2 };
-      } else {
-        equipmentActions++;
-        response = { observation: "native_HeroEquip_preset_pending", equipmentApplied: false,
-          awaitingGameConfirmation: true, action: "equipment", slot: 1,
-          presetId: "confirmed-native-preset", completedSteps: 0, plannedSteps: 2 };
-      }
-    } else throw Error("Unexpected native command: " + request.command);
+    if (request.command !== "hotkey_config_get")
+      throw Error("Unexpected Hotkeys diagnostic/native command: " + request.command);
     queueMicrotask(() => receiver?.({ data: {
       kind: "response", sessionId: window.__LWBridgeBootstrap.sessionId,
-      id: request.id, ok: true, result: response,
+      id: request.id, ok: true, result: { ...config },
     } }));
   },
 } };
@@ -238,193 +76,50 @@ const flush = (action) => React.act(async () => {
   if (action) await action();
   for (let i = 0; i < 30; i++) await Promise.resolve();
 });
-const equipPanel = () => document.querySelector("[data-feature018-equipment-preflight]");
-const shieldPanel = () => document.querySelector("[data-feature018-shield-inventory]");
-const attackPanel = () => document.querySelector("[data-feature018-attack-readiness]");
-const shopPanel = () => document.querySelector("[data-feature018-shield-shop]");
-const relocationPanel = () => document.querySelector("[data-feature018-relocation-readiness]");
 
-await flush(() => mounted.render(React.createElement(I18nProvider, {},
-  React.createElement(HotkeysPage, { online: true }))));
-assert.equal(document.querySelector(".hotkey-attack-settings"), null,
-  "Retired attack march speedup controls rendered in Hotkeys");
-assert.equal(document.querySelector("[data-feature018-rapid]"), null,
-  "Retired current-march speedup panel rendered in Hotkeys");
-assert.doesNotMatch(document.body.textContent, /当前行军道具加速|Current-march item speedup/i,
-  "Retired current-march speedup copy remained visible");
-assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
-  "Retired feature018_rapid_action ran while mounting Hotkeys");
-assert.ok(equipPanel(), "Read-only original equipment preset inspection did not mount");
-assert.ok(shieldPanel(), "Read-only native shield inventory control did not mount");
-assert.ok(attackPanel(), "Native QWER owner staffing panel missing");
-assert.ok(relocationPanel(), "Original F9/F10 relocation source panel missing");
-assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 0,
-  "Native attack readiness automatically ran or changed a formation on mount");
-await flush(() => attackPanel().querySelector("button").click());
-assert.match(attackPanel().textContent, /空闲士兵: 120/, "Native available soldier count not visible");
-assert.match(attackPanel().textContent, /已编入士兵: 0/, "Native zero-staffed slot not shown");
-assert.match(attackPanel().textContent, /还没有可核实的出征编队/, "Zero soldiers reported as attack-ready");
-assert.equal(commands.filter((r) => r.command === "feature018_attack_prepare").length, 1,
-  "QWER read-only readiness initiated more than one source observation");
-assert.equal(nativeStaffingEditorOpens, 0, "Read-only attack inventory opened formation editor");
-assert.equal(commands.filter((request) =>
-  request.command === "feature018_relocation_preflight").length, 0,
-  "Native relocation readiness unexpectedly ran on mount");
-await flush(() => relocationPanel().querySelector("button").click());
-assert.match(relocationPanel().textContent, /88421/,
-  "F9 native owned item eligibility not shown in read-only UI");
-assert.match(relocationPanel().textContent, /尚未证明/,
-  "Original F9 readiness falsely reported a game relocation");
-const relocationSelector = relocationPanel().querySelector("select");
-await flush(() => {
-  relocationSelector.value = "allianceRelocate";
-  relocationSelector.dispatchEvent(new window.Event("change", { bubbles: true }));
-});
-await flush(() => relocationPanel().querySelector("button").click());
-assert.match(relocationPanel().textContent, /MoveCrossServer_BackToSrcServer/,
-  "Original F10 cross-server packet mismatch hidden from the source read");
-assert.equal(commands.filter((request) =>
-  request.command === "feature018_hotkey_action" &&
-  ["randomRelocate", "allianceRelocate"].includes(request.payload.action)).length, 0,
-  "Relocation source-only inspection dispatched a game item or teleported");
-const readAttackReady = [...attackPanel().querySelectorAll("button")]
-  .find((button) => button.textContent.includes("核对选定队伍及目标的全部原生出征条件"));
-assert.ok(readAttackReady, "Read-only original attack prerequisite join missing");
-await flush(() => readAttackReady.click());
-assert.match(attackPanel().textContent, /native_formation_soldiers_or_heroes_unstaffed/,
-  "Unstaffed real native formation blocker hidden by readiness UI");
-assert.match(attackPanel().textContent, /当前物理鼠标目标、原生服务器回复/,
-  "Source prerequisites were confused with physical attack causality");
-assert.equal(nativeStaffingEditorOpens, 0, "Readiness changed formation or invoked native editor");
-const readSelectedTarget = [...attackPanel().querySelectorAll("button")]
-  .find((button) => button.textContent.includes("只读核对游戏当前已选择的目标"));
-assert.ok(readSelectedTarget, "Original native selector read-only inspection absent");
-await flush(() => readSelectedTarget.click());
-assert.match(attackPanel().textContent, /778812/, "Exact original selector target missing from Hotkeys");
-assert.match(attackPanel().textContent, /不能证明当前物理鼠标/,
-  "Remembered native selector was promoted into a physical cursor witness");
-assert.equal(nativeStaffingEditorOpens, 0,
-  "Native read-only selector inspection automatically opened editor");
-const editorConsent = attackPanel().querySelector('input[type="checkbox"]');
-assert.ok(editorConsent, "Confirmed original formation selector had no explicit manual editor consent");
-const editorButton = () => [...attackPanel().querySelectorAll("button")].at(-1);
-assert.equal(editorButton().disabled, true, "Formation editor opened without opt-in");
-await flush(() => editorConsent.click());
-await flush(() => { const button = editorButton(); button.click(); button.click(); });
-assert.equal(nativeStaffingEditorOpens, 1, "Double click opened original native editor twice");
-assert.match(attackPanel().textContent, /未保存编队、未派遣攻击/,
-  "Read-only editor open was falsely classified as saved formation or attack");
-assert.ok(shopPanel(), "Owner-gated shield purchase/use control did not mount");
-assert.equal(shieldReads, 0, "Mounting the Hotkeys page unexpectedly read native shield items");
-await flush(() => shieldPanel().querySelector("button").click());
-assert.equal(shieldReads, 1, "Explicit shield inventory inspect did not query game exactly once");
-assert.match(shieldPanel().textContent, /8 小时/,
-  "Native shield 8-hour duration missing from Chinese live panel");
-assert.match(shieldPanel().textContent, /24 小时/,
-  "Native shield 24-hour duration missing from Chinese live panel");
-assert.match(shieldPanel().textContent, /有多个同持续时间道具/,
-  "Ambiguous item duration was silently represented as safe to use");
-assert.equal(shieldShopSends, 0, "Native shield shop auto-purchased on mount/inventory");
-const shopButtons = () => [...shopPanel().querySelectorAll("button")];
-const selectDuration = (value) => {
-  const combo = shopPanel().querySelector("select");
-  combo.value = String(value);
-  combo.dispatchEvent(new window.Event("change", { bubbles: true }));
-};
-await flush(() => selectDuration(12));
-await flush(() => shopButtons()[0].click());
-assert.match(shopPanel().textContent, /2324/,
-  "Read-only 12h purchase did not report native gold deficit");
-assert.match(shopPanel().textContent, /奖励类型含金币的任务: 1/,
-  "Read-only native Gold reward class was hidden despite source eligibility");
-assert.match(shopPanel().textContent, /金币数量、实际领取及服务器入账均未核实/,
-  "Cached reward eligibility was promoted to a real gold amount or claim");
-assert.equal(shopPanel().querySelector('input[type="checkbox"]'), null,
-  "Insufficient gold exposed a purchase consent action");
-assert.equal(shieldShopSends, 0);
-shieldGold = 3000;
-await flush(() => selectDuration(8));
-await flush(() => shopButtons()[0].click());
-const shopConsent = shopPanel().querySelector('input[type="checkbox"]');
-assert.ok(shopConsent, "Affordable shield inventory preflight had no explicit consent");
-assert.equal(shopButtons()[1].disabled, true, "Gold spend opened without consent");
-await flush(() => shopConsent.click());
-await flush(() => {
-  // Two physical browser clicks before React can commit the disabled state
-  // must never become two native one-item gold transactions.
-  const buy = shopButtons()[1];
-  buy.click(); buy.click();
-});
-assert.equal(shieldShopSends, 1, "Native purchase did not send exactly once");
-assert.ok(shopPanel().textContent.includes("不得重复发送"),
-  "Pending native purchase did not display no-retry warning");
-shieldShopConfirmed = true;
-shieldCount = 1; shieldGold = 1500;
-await flush(() => shopButtons().at(-1).click());
-assert.equal(shieldShopSends, 1, "Read-only purchase status retriggered shop");
-assert.match(shopPanel().textContent, /游戏库存\+1及金币扣费确认/,
-  "Gold and item count native poststate did not confirm purchase");
-assert.match(shopPanel().textContent, /准确道具 UUID、数量与库存及金币变化/,
-  "R9 native exact shop reply stack proof was rejected by mounted shield UI");
-assert.match(shopPanel().textContent, /仍无请求 nonce/,
-  "A matching original shop stack was misreported as a unique network acknowledgement");
-await flush(() => shopButtons()[0].click());
-assert.ok(shopPanel().querySelector('input[type="checkbox"]'),
-  "Owned shield missing separate consumption consent");
-assert.equal(shopButtons()[1].disabled, true, "ItemUse enabled without separate consent");
-await flush(() => shopPanel().querySelector('input[type="checkbox"]').click());
-await flush(() => {
-  const use = shopButtons()[1];
-  use.click(); use.click();
-});
-assert.equal(shieldUseSends, 1, "Owned shield ItemUse must dispatch only once");
-shieldUseConfirmed = true; shieldCount = 0;
-await flush(() => shopButtons().at(-1).click());
-assert.equal(shieldUseSends, 1, "Owned shield poststate check repeated item use");
-assert.match(shopPanel().textContent, /道具减少及 MAIN_SHIELD 生效均已确认/,
-  "Native ItemUse did not require item and MAIN_SHIELD proof");
-assert.match(shopPanel().textContent, /没有请求 nonce/,
-  "Matching original ItemUse callback was reported as uniquely attributed server ACK");
-assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
-  "Retired feature018_rapid_action ran during non-speedup Hotkeys interactions");
-assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 0,
-  "Hotkeys mount must not claim to inspect or apply saved equipment");
-await flush(() => equipPanel().querySelector("button").click());
-assert.match(equipPanel().textContent, /已核对当前装备；尚未执行预设应用/,
-  "Native equipment preflight was confused with applying the preset");
-assert.equal(commands.filter((r) => r.command === "feature018_equipment_preflight").length, 1,
-  "Explicit equipment inspection did not invoke its separate read-only native command");
-const equipConsent = equipPanel().querySelector('input[type="checkbox"]');
-assert.ok(equipConsent, "Source-confirmed equipment preflight exposed no explicit apply consent");
-assert.equal(equipmentActions, 0, "Inspecting native equipment sent an install");
-await flush(() => equipConsent.click());
-await flush(() => [...equipPanel().querySelectorAll("button")].at(-1).click());
-assert.equal(equipmentActions, 1, "Explicit apply must begin exactly one native transaction");
-assert.match(equipPanel().textContent, /正在等待游戏确认/, "Pending equipment install falsely showed success");
-for (let i = 0; i < 2; i++) {
-  await flush(() => [...equipPanel().querySelectorAll("button")].at(-1).click());
+const workerPanelSelectors = [
+  "[data-feature018-attack-readiness]",
+  "[data-feature018-shield-inventory]",
+  "[data-feature018-shield-shop]",
+  "[data-feature018-equipment-preflight]",
+  "[data-feature018-relocation-readiness]",
+  "[data-feature018-frontline-native]",
+];
+const expectedBindings = ["Q / W / E / R", "A / S / D / F", "Space", "F6 / F7 / F8",
+  "Alt + 1～4", "F9", "F10"];
+
+function assertOriginalHotkeysOnly() {
+  const page = document.querySelector('[data-hotkey-category="hotkeys"]');
+  assert.ok(page, "Hotkeys page did not mount");
+  const cards = [...page.querySelectorAll(".hotkey-grid > article.hotkey-card")];
+  assert.equal(cards.length, 7, "Hotkeys must contain exactly the original seven 0.3.17 cards");
+  assert.deepEqual(cards.map((card) => card.querySelector("kbd.hotkey-binding")?.textContent), expectedBindings,
+    "Original Hotkeys card order or binding changed");
+  for (const selector of workerPanelSelectors)
+    assert.equal(page.querySelector(selector), null, `Worker diagnostic panel remained: ${selector}`);
+  assert.equal(page.querySelector(".hotkey-attack-settings"), null,
+    "Retired attack march speedup controls rendered in Hotkeys");
+  assert.equal(page.querySelector("[data-feature018-rapid]"), null,
+    "Retired current-march speedup panel rendered in Hotkeys");
+  assert.doesNotMatch(page.textContent, /当前行军道具加速|Current-march item speedup/i,
+    "Retired current-march speedup copy remained visible");
 }
-assert.equal(equipmentActions, 1, "Native verification resent the initial install");
-assert.equal(equipmentQuerySteps, 2, "Native equipment sequence did not progress in exact status order");
-assert.match(equipPanel().textContent, /已核对所有英雄装备槽位/, "Fully confirmed gear state did not complete preset");
-assert.equal(document.querySelector(".hotkey-attack-settings"), null,
-  "Retired attack speedup controls returned after other Hotkeys interactions");
-assert.equal(document.querySelector("[data-feature018-rapid]"), null,
-  "Retired current-march panel returned after other Hotkeys interactions");
-assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
-  "Retired feature018_rapid_action ran after other Hotkeys interactions");
 
-backendBridge.setSelectedProfile("hotkeys-unapproved-second-profile");
 await flush(() => mounted.render(React.createElement(I18nProvider, {},
   React.createElement(HotkeysPage, { online: true }))));
-assert.doesNotMatch(shieldPanel().textContent, /8 小时/,
-  "Other profile inherited previously inspected native shield inventory");
-assert.equal(document.querySelector(".hotkey-attack-settings"), null,
-  "Retired attack speedup controls rendered after profile switch");
-assert.equal(document.querySelector("[data-feature018-rapid]"), null,
-  "Retired current-march speedup panel rendered after profile switch");
-assert.equal(commands.filter((r) => r.command === "feature018_rapid_action").length, 0,
-  "Profile switch invoked retired feature018_rapid_action");
+assertOriginalHotkeysOnly();
+assert.deepEqual(commands.map((request) => request.command), ["hotkey_config_get"],
+  "Mounting Hotkeys invoked a removed worker diagnostic command");
+
+backendBridge.setSelectedProfile("hotkeys-second-profile");
+window.__LWBridgeBootstrap.profiles.selectedProfileId = "hotkeys-second-profile";
+await flush(() => mounted.render(React.createElement(I18nProvider, {},
+  React.createElement(HotkeysPage, { online: true }))));
+assertOriginalHotkeysOnly();
+assert.ok(commands.length >= 2, "Profile switch did not reload original Hotkeys settings");
+assert.equal(commands.every((request) => request.command === "hotkey_config_get"), true,
+  "Profile switch invoked a removed worker diagnostic command");
+
 await flush(() => mounted.unmount());
 backendBridge.dispose();
-console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS rapid=retired attackReadiness=preserved equipment=preserved shield=preserved profileRetired=fenced");
+console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS cards=original-seven diagnostics=removed rapid=retired profileSwitch=clean");
