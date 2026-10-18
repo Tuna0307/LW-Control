@@ -276,3 +276,23 @@ Lead re-ran attack + hotkey Lua checks and full Desktop.Checks: PASS.
 - Cleanup: the worker's packaged smoke run `native-ui-20261018-072738` was left open (game + app). Lead sent the
   harness `finish`: exit 0, original scripts restored, no journal, restoration proven. Smoke test itself unfinished.
 All R15 runs exited 0 with exact restoration.
+
+## Owner decision and R16 assignment — 2026-10-18
+Owner: "i want to remove all this feature … i dont need it" — the Attack card's march speed-up options:
+"Use speedup items from the inventory", "Buy speedups with diamonds when items run out" and their warning text.
+Record as OWNER_DIRECTION removal in the behaviour-differences ledger.
+
+R16 (for CoS, later):
+1. Remove march speed-ups completely: both Attack-card checkboxes + warning, the separate "Current-march item
+   speedup" panel in HotkeyPages.jsx, their locale keys (all 9 languages), the config fields
+   `attackMarchSpeedupItem` / `attackMarchSpeedupDiamond` from save, the C# command/provider paths and the
+   Lua item/diamond ("rapid") speed-up code and their checks. Q/W/E/R must keep sending marches exactly as now
+   (never use items or diamonds). Old saved settings that still contain those fields must load without error
+   (ignore them). Attack card description stays.
+2. Prove nothing else broke: UI build/check, Desktop.Checks, attack/hotkey Lua checks; one live Q→A on
+   4799432499002212 (attack still works, no item/diamond change).
+3. New owner-test ZIP (README: speed-ups removed by owner decision).
+Handoff rule unchanged; record progress under "R16 progress".
+
+### R16 progress (worker updates this)
+- (none yet)
