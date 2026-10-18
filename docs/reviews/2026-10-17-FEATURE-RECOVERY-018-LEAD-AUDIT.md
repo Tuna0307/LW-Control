@@ -396,3 +396,18 @@ Handoff rule unchanged; record progress under "R16 progress".
   `artifacts/map014-takeover/native-ui-20261018-082907/r16-post-timeout-restoration.json`
   proves all three installed v26 script hashes exactly equal that run's captured
   originals, no LastWar/LWBridge process remains, and no recovery journal exists.
+
+## Lead audit of CoS R16 — 2026-10-18 (source 4f090efd): ACCEPTED for owner test
+Verified by lead: local HEAD = remote 4f090efd, tree clean. Attack + hotkey Lua checks, full Desktop.Checks
+(`HOME_FEATURE_DELIVERY_CHECKS_OK`) and UI check (`LWB317_UI_COMPLETE_CHECKS_OK`, 9 languages) PASS.
+- Speed-up removal (e870f3cd): ACCEPTED. UI controls, item panel, config fields, rapid/diamond Lua and their checks
+  removed (−2,361 lines); no speed-up config references left in UI/C#/Lua.
+- Regression (28be4c6b): live Q→A on 4799432499002212 confirmed, items and diamonds unchanged — accepted per report.
+- Ally reinforcement + city ruin (6360b1c4): built with offline checks only, as assigned. **Owner to test live.**
+- Proof UID removed from the compiled owner build (4f090efd).
+- ZIP `artifacts/feature018-r16-4f090efd/release/LW-Control-FEATURE-018-R16-OWNER-TEST-4f090efd1df3.zip`
+  SHA-256 4e63284d…86d0f7: lead re-hashed, CRC ok, 92 entries, no test UID (ASCII or UTF-16), honest README.
+- Cleanup: lead hashed the live game scripts in LocalLow/…/lwScripts — exact v26 originals; no active recovery
+  journal; no game/app process.
+Open: owner live test of ally reinforcement and ruins; F9/F10; City Layout "result uncertain"; shields/Alt+1–4
+set aside by owner.
