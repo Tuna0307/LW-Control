@@ -323,9 +323,12 @@ def city(client, excluded):
     settled = False
     cancel_job_id = None
     try:
-        started = client.command('city_layout_apply_start', cancel_payload)
+        combined = client.request('cityApplyCancel', payload=cancel_payload)
+        started = combined.get('started')
+        cancelled = combined.get('cancelled')
+        if combined.get('immediateCancel') is not True:
+            raise RuntimeError(f'City immediate Cancel harness result malformed: {combined}')
         cancel_job_id = started_job(started, 'cityCancel')
-        cancelled = client.command('city_layout_apply_cancel', {'jobId': cancel_job_id})
         status = client.await_job(cancel_job_id)
         settled = not status.get('inFlight', True)
         client.evidence['cityCancelReturned'] = cancelled

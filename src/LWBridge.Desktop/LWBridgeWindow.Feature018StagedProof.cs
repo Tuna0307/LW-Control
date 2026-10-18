@@ -138,6 +138,32 @@ internal sealed partial class LWBridgeWindow
                                 root.TryGetProperty("payload", out var payload) ? payload : empty.RootElement,
                                 token);
                         }
+                        else if (kind == "cityApplyCancel")
+                        {
+                            // The live server can settle all three local City swap
+                            // moves inside the staged queue's 200 ms outer poll.
+                            // Exercise the exact production Start + Cancel services
+                            // back-to-back in this sole controller instead of adding
+                            // a synthetic Lua/game cancellation path.
+                            JsonElement payload = root.GetProperty("payload");
+                            object? started = await game.InvokeAsync(
+                                "city_layout_apply_start", payload, token);
+                            Owned();
+                            JsonElement startedJson = JsonSerializer.SerializeToElement(
+                                started, JsonOptions.Default);
+                            if (!startedJson.TryGetProperty("status", out JsonElement status) ||
+                                !status.TryGetProperty("jobId", out JsonElement rawJob) ||
+                                rawJob.ValueKind != JsonValueKind.String ||
+                                string.IsNullOrWhiteSpace(rawJob.GetString()))
+                                throw new InvalidDataException(
+                                    "City start did not return a job ID for immediate Cancel.");
+                            string jobId = rawJob.GetString()!;
+                            object? cancelled = await game.InvokeAsync(
+                                "city_layout_apply_cancel",
+                                JsonSerializer.SerializeToElement(new { jobId }, JsonOptions.Default),
+                                token);
+                            result = new { started, cancelled, immediateCancel = true };
+                        }
                         else if (kind == "equipmentConfig")
                         {
                             string command = root.GetProperty("command").GetString()!;

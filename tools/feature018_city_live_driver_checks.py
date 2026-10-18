@@ -38,6 +38,12 @@ class FakeClient:
         self.saves += 1
 
     def request(self, kind, **fields):
+        if kind == 'cityApplyCancel':
+            started = self.command('city_layout_apply_start', fields['payload'])
+            job_id = started['status']['jobId']
+            cancelled = self.command('city_layout_apply_cancel', {'jobId': job_id})
+            return {'started': started, 'cancelled': cancelled,
+                    'immediateCancel': True}
         self.tab_requests.append((kind, fields))
         return True
 
