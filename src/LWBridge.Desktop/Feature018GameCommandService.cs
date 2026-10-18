@@ -360,32 +360,39 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 break;
             case "feature018_rapid_action":
             {
-                // Explicit owned-march rapid workflow. Unlike Q/W/E/R this
-                // command never invents a cursor target or spends diamonds.
-                // The game bridge resolves its own authenticated UID and
-                // current attack-march/owned-item state, never a UI-supplied UID.
+                // Explicit owned-march rapid workflow. Paid modes admit only
+                // the exact native buy item plus explicit consent; Lua still
+                // requires the original UILWRapid confirmation dialog and
+                // independently verifies the native owner/poststate.
                 string mode = ReadValue(payload, "mode", 16);
-                if (mode is not ("inventory" or "itemUse" or "status"))
+                if (mode is not ("inventory" or "itemUse" or "status" or
+                    "diamondInventory" or "diamondUse" or "diamondStatus"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Invalid rapid action mode.");
                 if (!payload.TryGetProperty("slot", out JsonElement rawSlot) ||
                     !rawSlot.TryGetInt32(out int slot) || slot is < 1 or > 4)
                     throw new BridgeCommandException("INVALID_REQUEST", "Rapid squad slot must be 1–4.");
                 fields["mode"] = mode;
                 fields["slot"] = slot.ToString(CultureInfo.InvariantCulture);
-                if (mode == "itemUse")
+                if (mode is "itemUse" or "diamondUse")
                 {
-                    if (!payload.TryGetProperty("itemOptIn", out JsonElement consent) ||
+                    string consentName = mode == "itemUse" ? "itemOptIn" : "diamondOptIn";
+                    string oppositeConsentName = mode == "itemUse" ? "diamondOptIn" : "itemOptIn";
+                    if (payload.TryGetProperty(oppositeConsentName, out _))
+                        throw new BridgeCommandException("INVALID_REQUEST",
+                            "Rapid spending cannot mix item and diamond consent fields.");
+                    if (!payload.TryGetProperty(consentName, out JsonElement consent) ||
                         consent.ValueKind != JsonValueKind.True)
                         throw new BridgeCommandException("INVALID_REQUEST",
-                            "Owned speedup item use requires an explicit user confirmation.");
+                            "Rapid spending requires an explicit user confirmation.");
                     string item = ReadValue(payload, "itemId", 20);
                     if (!item.All(char.IsAsciiDigit) || item[0] == '0')
                         throw new BridgeCommandException("INVALID_REQUEST",
                             "Rapid item ID must be a positive native item identifier.");
                     fields["itemId"] = item;
-                    fields["itemOptIn"] = "1";
+                    fields[consentName] = "1";
                 }
                 else if (payload.TryGetProperty("itemOptIn", out _) ||
+                         payload.TryGetProperty("diamondOptIn", out _) ||
                          payload.TryGetProperty("itemId", out _))
                     throw new BridgeCommandException("INVALID_REQUEST",
                         "Rapid inventory/status must never carry spending arguments.");

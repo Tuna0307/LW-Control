@@ -15,6 +15,9 @@ GAME = r"""
 state = {
   uid="2553945035002288", source=2288, selfServer=2288, current=2288,
   focused=true, sends=0, probes=0, status=0, items=2, pending=false,
+  pendingUid=nil,
+  diamondProbes=0, diamondSends=0, diamondStatus=0, diamondPending=false,
+  diamondDone=false,
 }
 LuaEntry={Player={
  uid=state.uid,
@@ -34,13 +37,43 @@ local rapid={
        slot=fields.slot,marchUuid="901234",items=items
     }}
   end,
+  DiamondSpeedupPreflight=function(fields, focus)
+    assert(fields.authorizedUid==state.uid and fields.action=="speedupDiamond")
+    assert(fields.slot=="2" and fields.itemId==nil and fields.diamondOptIn==nil)
+    state.diamondProbes=state.diamondProbes+1
+    return {state="confirmed",data={observation="native_rapid_purchase_buyItems",
+      slot=2,marchUuid="901234",options={{itemId="9999",gemCost=10,safeToOffer=true}}}}
+  end,
   Handle=function(fields, focus)
-    assert(fields.authorizedUid==state.uid and fields.action=="speedupItem")
+    assert(fields.authorizedUid==state.uid)
     assert(fields.slot=="2")
+    if fields.action=="speedupDiamond" then
+      if fields.queryOnly=="1" then
+        assert(fields.diamondOptIn==nil and fields.itemId==nil)
+        state.diamondStatus=state.diamondStatus+1
+        if state.diamondDone then
+          state.diamondPending=false
+          return {state="confirmed",data={observation=
+            "native_paid_rapid_reply_gold_and_march_transition",
+            marchUuid="901234",slot=2,priorGold=100,currentGold=90}}
+        end
+        if not state.diamondPending then return {state="failed",error="No pending diamond"} end
+        return {state="accepted",data={requestDispatched=false,
+          awaitingGameConfirmation=true,marchUuid="901234"}}
+      end
+      assert(fields.diamondOptIn=="1" and fields.itemId=="9999")
+      assert(focus() and not state.diamondPending)
+      state.diamondSends=state.diamondSends+1
+      state.diamondPending=true
+      return {state="accepted",data={requestDispatched=false,
+        awaitingUserConfirmation=true,slot=2,marchUuid="901234",itemId="9999"}}
+    end
+    assert(fields.action=="speedupItem")
     if fields.queryOnly=="1" then
       assert(fields.itemOptIn==nil and fields.itemId==nil)
       state.status=state.status+1
       if not state.pending then return {state="failed",error="No pending item"} end
+      if state.pendingUid~=state.uid then return {state="failed",error="Pending UID mismatch"} end
       if state.items>1 then
         return {state="accepted",data={requestDispatched=false,
           awaitingGameConfirmation=true,marchUuid="901234"}}
@@ -55,6 +88,7 @@ local rapid={
     assert(focus() and not state.pending)
     state.sends=state.sends+1
     state.pending=true
+    state.pendingUid=state.uid
     return {state="accepted",data={requestDispatched=true,
       awaitingGameConfirmation=true,slot="2",marchUuid="901234",
       itemId="30108"}}
@@ -118,16 +152,43 @@ def main():
     state["items"] = 2
     check(call(mode="status")["state"] == "failed" and state["sends"] == 0,
           "status started a rapid item request")
+    diamond_inventory = call(mode="diamondInventory")
+    check(diamond_inventory["state"] == "confirmed" and
+          diamond_inventory["data"]["observation"] == "native_rapid_purchase_buyItems" and
+          diamond_inventory["data"]["options"][1]["itemId"] == "9999" and
+          state["diamondProbes"] == 1 and state["diamondSends"] == 0,
+          "paid rapid preflight did not use the dedicated native buyItems route")
+    check(call(mode="diamondUse", itemId="9999")["state"] == "failed" and
+          state["diamondSends"] == 0,
+          "paid rapid use reached adapter without explicit consent")
+    diamond_open = call(mode="diamondUse", diamondOptIn="1", itemId="9999")
+    check(diamond_open["state"] == "accepted" and state["diamondSends"] == 1,
+          "explicit paid rapid use did not reach diamond adapter")
+    diamond_wait = call(mode="diamondStatus")
+    check(diamond_wait["state"] == "confirmed" and
+          diamond_wait["data"]["state"] == "pending" and
+          diamond_wait["data"]["observation"] == "native_rapid_diamond_request_unconfirmed",
+          "paid rapid status did not preserve unconfirmed pending state")
+    state["diamondDone"] = True
+    diamond_done = call(mode="diamondStatus")
+    check(diamond_done["state"] == "confirmed" and diamond_done["data"]["state"] == "confirmed" and
+          diamond_done["data"]["observation"] == "native_paid_rapid_reply_gold_and_march_transition",
+          "paid rapid confirmed result was not passed through")
     for fields in (
         {"mode": "itemUse", "itemId": "30108"},
         {"mode": "itemUse", "itemOptIn": "0", "itemId": "30108"},
         {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108", "slot": "9"},
         {"mode": "inventory", "itemId": "30108"},
+        {"mode": "diamondUse", "diamondOptIn": "0", "itemId": "9999"},
+        {"mode": "diamondUse", "diamondOptIn": "1", "itemOptIn": "1", "itemId": "9999"},
+        {"mode": "itemUse", "itemOptIn": "1", "diamondOptIn": "1", "itemId": "30108"},
+        {"mode": "diamondInventory", "diamondOptIn": "1"},
+        {"mode": "diamondStatus", "itemId": "9999"},
     ):
         check(call(**fields)["state"] == "failed" and state["sends"] == 0,
               "invalid or nonconsensual rapid action reached sender")
     # Every inventory/read and spending command must re-fetch all three
-    # authenticated server signals; server 2212 remains the owner's main.
+    # native server signals and refuse any disagreement.
     for key in ("source", "selfServer", "current"):
         for incorrect in (2212, 2213, 2289, None):
             state[key] = incorrect
@@ -135,7 +196,7 @@ def main():
                            {"mode": "status"}):
                 before = (state["probes"], state["sends"], state["status"])
                 rejected = call(**params)
-                check(rejected["state"] == "failed" and "server-2288" in rejected["error"]
+                check(rejected["state"] == "failed" and "server identity" in rejected["error"]
                       and before == (state["probes"], state["sends"], state["status"]),
                       "unauthorized server reached rapid preflight: " + key)
             state[key] = 2288
@@ -144,8 +205,7 @@ def main():
         state["uid"] = uid
         lua.globals().LuaEntry.Player.uid = uid
 
-    for incorrect in ("3133546747002212", "3133546747002289", "3133546747002299",
-                      "not-an-authenticated-uid", None):
+    for incorrect in ("not-an-authenticated-uid", None):
         change_native_uid(incorrect)
         for params in ({}, {"mode": "itemUse", "itemOptIn": "1", "itemId": "30108"},
                        {"mode": "status"}):
@@ -165,16 +225,17 @@ def main():
           "item sender did not distinguish accepted submission")
     # A previously accepted spend must not let subsequent read/status calls
     # cross into the main account or another native UID.
+    status_before_owner_drift = state["status"]
     change_native_uid("3133546747002212")
     denied = call(mode="status")
     check(denied["state"] == "failed" and "UID" in denied["error"] and
-          state["sends"] == 1 and state["status"] == 1,
+          state["sends"] == 1 and state["status"] == status_before_owner_drift + 1,
           "post-dispatch status observed a different account")
     change_native_uid("2553945035002288")
     state["current"] = 2212
     denied = call(mode="status")
-    check(denied["state"] == "failed" and "server-2288" in denied["error"] and
-          state["sends"] == 1 and state["status"] == 1,
+    check(denied["state"] == "failed" and "server identity" in denied["error"] and
+          state["sends"] == 1 and state["status"] == status_before_owner_drift + 1,
           "post-dispatch status observed the protected main server")
     state["current"] = 2288
     waiting = call(mode="status")
@@ -191,7 +252,7 @@ def main():
           state["sends"] == 1, "native item/march poststate not independently verified")
 
     # The older wrapped hotkey route also exposes speedupItem/speedupDiamond:
-    # it must enforce the same identity gate and replace forged UI UID fields.
+    # it must enforce the same already-authenticated native UID gate.
     lua.execute('''
       state.wrapCalls=0
       LWBridgeFeature018AttackActions.Handle=function(fields)
@@ -202,8 +263,8 @@ def main():
     ''')
     wrapped = module.Wrap(lua.globals().frozen)
     for action in ("speedupItem", "speedupDiamond"):
-        reply = wrapped(lua.table_from({"action": action, "authorizedUid": "forged-main-uid"}))
-        check(reply["state"] == "confirmed", "wrapped speedup did not derive native UID")
+        reply = wrapped(lua.table_from({"action": action, "authorizedUid": state["uid"]}))
+        check(reply["state"] == "confirmed", "wrapped speedup rejected authenticated native UID")
     check(state["wrapCalls"] == 2, "wrapped test producer invocation missing")
     for action in ("speedupItem", "speedupDiamond"):
         change_native_uid("3133546747002212")

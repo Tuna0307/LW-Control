@@ -29,6 +29,10 @@ MODULES = {
         "af84359d3b485c27d903a6d5846c765887bc5f9a30501d7c2fdf11d6a29b1afa",
     "Net/Msgs/WorldMarchRapidMessage.luac":
         "1ba6497b62d041729d2e7b5a7dd907e5067fec8b92893e5e63ecd9cc2e00a8f5",
+    "Util/UIUtil.luac":
+        "73c1da103424ae1f7156f9988ef3498925418890fec8b3e2837a2a885d1cbf3f",
+    "DataCenter/SecondConfirmManager/SecondConfirmManager.luac":
+        "817008106de4f560b8b96c163f5ac0a1da9bbf280b0894967dac9e598580d3cf",
     "UI/UILWQuest/UILWQuestList/Component/UILWDailyTaskItem.luac":
         "94ef0fb6f815c891519d85acb6fc91d21e3171bd76780efc18c9ecff63a5f3c8",
     "DataCenter/LWActSignInManager/LWActSignInManager.luac":
@@ -83,6 +87,8 @@ def check() -> None:
     rapid = "UI/UILWRapid/View/UILWRapidView.luac"
     currency = "Util/CurrencyUtil.luac"
     reply = "Net/Msgs/WorldMarchRapidMessage.luac"
+    ui_util = "Util/UIUtil.luac"
+    second_confirm = "DataCenter/SecondConfirmManager/SecondConfirmManager.luac"
 
     # Explicitly distinguish the original buy-and-use shortcut from the
     # separately proven inventory-only UIShopBuy followed by ItemUse.
@@ -123,6 +129,12 @@ def check() -> None:
     has(currency, "GetCurrencyCount", "ConsumeType_Resource_Item",
         "ConsumeType_Item", "ConsumeType_Resource", "ResourceType", "Gold",
         "Player", "gold", "GetCountByItemId", "GetItemCount")
+    has(ui_util, "ShowUseDiamondConfirm", "GetUserSetting", "DIAMOND_USAGE_REMINDER",
+        "GetTodayCanShowSecondConfirm", "ShowSecondMessage", "TODAY_NO_SHOW")
+    has(second_confirm, "GetTodayCanShowSecondConfirm", "GetPrivateString",
+        "IsSameDayForServer", "GetServerSeconds")
+    has(reply, "OnCreate", "PutLong", "PutUtfString", "PutInt", "PutBool",
+        "uuid", "itemId", "itemNum", "useGold")
     has(reply, "HandleMessage", "errorCode", "remainGold")
 
     # Native read-only daily manager and parsed quest-view fields support a

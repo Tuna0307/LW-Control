@@ -348,6 +348,45 @@ internal static class Feature018HotkeyCaptureChecks
                 stub.Calls == 1 && !stub.LastPayload.TryGetProperty("queryOnly", out _),
             "F10 accepted chooser falsely counted as packet send or triggered query retry");
 
+        var f10PollStub = new StubNativeCommandService();
+        f10PollStub.Receipt = () => f10PollStub.Calls == 1
+            ? JsonSerializer.SerializeToElement(new
+            {
+                accepted = true, requestDispatched = false, slot = 0,
+                action = "allianceRelocate", ownerUid = session.GameUid,
+                sourceServerId = session.ServerId, itemUuid = "991001",
+                chooserRequestMade = true, ownerSelectionRequired = true,
+                originalPacketSend = false,
+            })
+            : JsonSerializer.SerializeToElement(new
+            {
+                observation = "native_alliance_relocation_reply_world_position",
+                action = "allianceRelocate", slot = 0,
+                ownerUid = session.GameUid, sourceServerId = session.ServerId,
+                itemUuid = "991001", itemId = "5005",
+                chooserRequestMade = true, ownerSelectionRequired = true,
+                ownerSelectedRemoteRallyObserved = true,
+                allianceMoveRequestObserved = true, allianceMoveSendCount = 1,
+                allianceMoveReplyObserved = true, worldMvReason240Observed = true,
+                replyResultOneObserved = true, serverAckAttributableByOneSendFence = true,
+                requestDispatched = true, relocationConfirmed = true,
+                awaitingGameConfirmation = false,
+                independentWorldAndInventoryPoststateVerified = true,
+                worldPointChanged = true, selectedRallyServerId = 2213, replyServerId = 2213,
+                beforeWorldPointId = 440444, afterWorldPointId = 540544,
+                acknowledgedWorldPointId = 540544, beforeCount = 2, afterCount = 1,
+            });
+        var f10Wired = new Feature018HotkeyNativeProviders(f10PollStub).Create();
+        Feature018HotkeyActionOutcome f10Confirmed = await f10Wired[
+            Feature018HotkeyKind.AllianceRelocate](
+                new Feature018HotkeyCommand(session, new(Feature018HotkeyKind.AllianceRelocate)),
+                CancellationToken.None);
+        Require(f10Confirmed.Status == Feature018HotkeyActionStatus.Confirmed &&
+                f10Confirmed.Working && f10PollStub.Calls == 2 &&
+                f10PollStub.LastPayload.TryGetProperty("queryOnly", out var f10QueryOnly) &&
+                f10QueryOnly.ValueKind == JsonValueKind.True,
+            "F10 chooser owner-selection/reason240 continuation did not confirm through read-only polling");
+
         stub.Receipt = () => JsonSerializer.SerializeToElement(new
         {
             accepted = true, requestDispatched = true,
@@ -851,6 +890,25 @@ internal static class Feature018HotkeyCaptureChecks
         Require(rapidStatus.Count == 2 && !rapidStatus.ContainsKey("itemOptIn") &&
                 !rapidStatus.ContainsKey("itemId"),
             "rapid status polling must be read-only");
+        var diamondInventory = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new { mode = "diamondInventory", slot = 2 }));
+        Require(diamondInventory.Count == 2 && diamondInventory["mode"] == "diamondInventory" &&
+                !diamondInventory.ContainsKey("diamondOptIn") && !diamondInventory.ContainsKey("itemId"),
+            "paid rapid inventory added a spending request");
+        var diamondRapidUse = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new
+            {
+                mode = "diamondUse", slot = 2, diamondOptIn = true, itemId = "9999",
+            }));
+        Require(diamondRapidUse["mode"] == "diamondUse" && diamondRapidUse["slot"] == "2" &&
+                diamondRapidUse["diamondOptIn"] == "1" && diamondRapidUse["itemId"] == "9999" &&
+                !diamondRapidUse.ContainsKey("authorizedUid"),
+            "dedicated paid rapid request lost explicit consent or native buy item ID");
+        var diamondRapidStatus = Feature018GameCommandService.ReadFields("feature018_rapid_action",
+            JsonSerializer.SerializeToElement(new { mode = "diamondStatus", slot = 2 }));
+        Require(diamondRapidStatus.Count == 2 && !diamondRapidStatus.ContainsKey("diamondOptIn") &&
+                !diamondRapidStatus.ContainsKey("itemId"),
+            "paid rapid status polling must be read-only");
         foreach (string raw in new[]
         {
             """{"mode":"itemUse","slot":1,"itemId":"331008","itemOptIn":false}""",
@@ -860,6 +918,13 @@ internal static class Feature018HotkeyCaptureChecks
             """{"mode":"status","slot":2,"itemId":"331008"}""",
             """{"mode":"itemUse","slot":0,"itemId":"331008","itemOptIn":true}""",
             """{"mode":"itemUse","slot":5,"itemId":"331008","itemOptIn":true}""",
+            """{"mode":"diamondUse","slot":1,"itemId":"9999","diamondOptIn":false}""",
+            """{"mode":"diamondUse","slot":1,"itemId":"9999"}""",
+            """{"mode":"diamondUse","slot":1,"itemId":"bad","diamondOptIn":true}""",
+            """{"mode":"diamondUse","slot":1,"itemId":"9999","diamondOptIn":true,"itemOptIn":true}""",
+            """{"mode":"itemUse","slot":1,"itemId":"331008","itemOptIn":true,"diamondOptIn":true}""",
+            """{"mode":"diamondInventory","slot":1,"diamondOptIn":true}""",
+            """{"mode":"diamondStatus","slot":1,"itemId":"9999"}""",
             """{"mode":"buyDiamond","slot":1}""",
         })
         {

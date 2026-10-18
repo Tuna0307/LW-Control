@@ -521,11 +521,16 @@ def test_selected_attack_and_diamond():
             'exact authoritative owned squad/target transition not recognized')
     require(call()['state']=='unsupported' and state['attackSends']==1,
             'an existing active march was retargeted without a correlatable native change ACK')
-    for opts in ({}, {'diamondOptIn':'1'}, {'diamondOptIn':'1','userConfirmed':'1'},
-                 {'diamondOptIn':'1','queryOnly':'1'}):
+    require(call(action='speedupDiamond',itemId='9999')['state']=='failed' and
+            state['rpcCount']==0,
+            'diamond paid action did not require explicit opt-in')
+    for opts in ({'diamondOptIn':'1'}, {'diamondOptIn':'1','userConfirmed':'1'}):
         require(call(action='speedupDiamond',itemId='9999',**opts)['state']=='unsupported' and
                 state['rpcCount']==0,
-                'direct diamond purchase bypassed original native confirmation callback')
+                'diamond purchase proceeded without the original UILWRapid route')
+    require(call(action='speedupDiamond',itemId='9999',diamondOptIn='1',queryOnly='1')['state']=='failed' and
+            state['rpcCount']==0,
+            'diamond status query invented a pending paid transaction')
     state['existingAbsent']=True
     state['soldierCount']=0
     require(call()['state']=='failed' and state['attackSends']==1,
@@ -2000,7 +2005,7 @@ def main():
         ({"profileId": "unsafe session"}, "failed", "forged bridge identity"),
         ({"slot": "5"}, "failed", "unknown formation"),
         ({"action": "attack"}, "failed", "cursor-selected target unresolved"),
-        ({"action": "speedupDiamond"}, "unsupported", "diamond confirmation UI unresolved"),
+        ({"action": "speedupDiamond"}, "failed", "diamond paid opt-in missing"),
     ]
     for fields, expected, label in cases:
         require(call(**fields)["state"] == expected, label)
