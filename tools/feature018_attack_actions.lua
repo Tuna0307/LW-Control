@@ -359,23 +359,12 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
             targetAllianceVerified=true,sameAlliance=false,
             allianceCheckRequired=false}
     end
-    local _,ok_in,in_alliance,ok_uid,native_uid,raw=
+    local _,_,_,_,native_uid,raw=
         player_alliance_observation(account and account.player)
-    local field=alliance_identity(raw)
-    local own
-    if ok_in and in_alliance==false then
-        -- Original explicit membership false is a known unaffiliated owner.
-        -- Positive contradictory identity is unknown, never silently ignored.
-        if (field and field~="0") or (alliance_identity(native_uid) and
-            alliance_identity(native_uid)~="0") then
-            return nil,failed("Own alliance membership contradicts identity; attack suppressed")
-        end
-        own="0"
-    elseif ok_in and in_alliance==true and ok_uid then
-        own=alliance_identity(native_uid)
-        if own=="0" or (field and field~=own) then own=nil end
-    end
-    if not own then return nil,failed("Own alliance identity unknown; attack suppressed") end
+    -- R15 permits only an explicitly guildless PLAYER target. The owner's
+    -- membership cannot change that target's eligibility; keep it diagnostic
+    -- without making an unreadable/contradictory owner alliance a new gate.
+    local own=alliance_identity(native_uid) or alliance_identity(raw)
     local target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
     if not target_alliance then
         return nil,failed("Target alliance identity unknown; attack suppressed")
@@ -1731,7 +1720,6 @@ local function native_hover_open(fields,input_clear,uid)
        fresh.scene~=target.scene or fresh.category~=target.category or
        fresh.point~=target.point or fresh.uuidText~=target.uuidText or
        fresh.source~=target.source or
-       fresh.ownerAllianceUid~=target.ownerAllianceUid or
        fresh.targetAllianceUid~=target.targetAllianceUid or
        fresh.pixelX~=target.pixelX or fresh.pixelY~=target.pixelY or
        input_clear()~=true then
@@ -2637,7 +2625,6 @@ local function attack_selected(fields, input_clear, uid)
        fresh_target.selectorServer~=target.selectorServer or
        fresh_target.targetOwnerUid~=target.targetOwnerUid or
        fresh_target.targetServerId~=target.targetServerId or
-       fresh_target.ownerAllianceUid~=target.ownerAllianceUid or
        fresh_target.targetAllianceUid~=target.targetAllianceUid then
         return failed("Native selector changed immediately before attack")
     end
@@ -2667,7 +2654,6 @@ local function attack_selected(fields, input_clear, uid)
     if not send_target then return send_target_error end
     if send_target.kind~=kind or send_target.uuid~=target_uuid or
        send_target.point~=target.point or
-       send_target.ownerAllianceUid~=target.ownerAllianceUid or
        send_target.targetAllianceUid~=target.targetAllianceUid then
         return failed("Target or alliance changed at native attack send edge")
     end

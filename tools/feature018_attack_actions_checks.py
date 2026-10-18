@@ -1247,7 +1247,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
             'explicit unaffiliated city was not observed as neutral')
     state.worldAlliance=0
     for case in ('point','selectorServer','worldOwner','worldUnavailable','kind',
-                 'sameAlliance','unknownAlliance','otherAlliance','ownerAlliance'):
+                 'sameAlliance','unknownAlliance','otherAlliance'):
         vm.execute("""nativeCtrl.targetPoint=35723
           nativeCtrl.targetServerId=2212; nativeCtrl.targetType=17""")
         state.worldPresent=True
@@ -1315,8 +1315,14 @@ def test_native_alliance_field_selection_for_typed_targets():
         else:
             for own in (None, -1, True, 'unreadable', ''):
                 vm.globals().LuaEntry.Player.allianceId=own
+                require(observe()['state']=='confirmed',
+                        'unreadable owner alliance blocked explicitly guildless '+category+': '+repr(own))
+                state.worldAlliance=None
+                state.targetAlliance=None
                 require(observe()['state']=='failed',
-                        'unknown owner alliance accepted for '+category+': '+repr(own))
+                        'unreadable owner alliance admitted unknown target alliance: '+category)
+                state.worldAlliance=0
+                state.targetAlliance=0
             state.forceNoAlliance=True
             vm.globals().LuaEntry.Player.allianceId=''
             require(observe()['state']=='confirmed',
@@ -1928,7 +1934,7 @@ def test_current_nested_staffing_and_native_membership():
                 'current native troop diagnostics were reduced to legacy ArmyManager inventory')
         state.formReads=0
         sent=mod.Handle(vm.table_from(dict(fields,action='attack')),vm.globals().input_clear)
-        if case in ('ready','denied','unknown_permission','changed_at_send'):
+        if case in ('ready','denied','unknown_permission','changed_at_send','alliance_contradiction'):
             require(sent['state']=='accepted' and state.attackDelegateCount==1 and state.attackSends==1,
                     'source-backed BestSelect nested170/170 formation was rejected: '+case)
         else:
