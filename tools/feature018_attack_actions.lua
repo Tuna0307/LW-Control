@@ -350,6 +350,24 @@ local function player_alliance_observation(player)
     return data,ok_in,in_alliance,ok_uid,native_uid,raw
 end
 
+local function native_target_alliance(target,is_march)
+    local field=is_march and "allianceUid" or "allianceId"
+    local value=member(target,field)
+    if value~=nil then return value,"native_member_"..field,true end
+    if is_march then return nil,"native_member_"..field,false end
+    -- World.GetPointInfo may expose a base PointInfo userdata. allianceId is
+    -- declared only by BuildPointInfo; Map's native city reader likewise uses
+    -- reflection when the direct base userdata member is unavailable.
+    local ok_type,native_type=invoke(target,"GetType")
+    if not ok_type or tostring(member(native_type,"FullName"))~="BuildPointInfo" then
+        return nil,"native_member_"..field,false
+    end
+    local ok_field,info=invoke(native_type,"GetField","allianceId")
+    if not ok_field or info==nil then return nil,"BuildPointInfo.GetField",false end
+    local ok_value,native_value=invoke(info,"GetValue",target)
+    return native_value,"BuildPointInfo.allianceId_reflection",ok_value
+end
+
 local function target_alliance_guard(account,target,requires_player_alliance,is_march)
     -- Ordinary monsters/resources are not player-alliance targets in the
     -- original flow. Their own native type/occupancy/server checks decide
@@ -365,14 +383,28 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
     -- membership cannot change that target's eligibility; keep it diagnostic
     -- without making an unreadable/contradictory owner alliance a new gate.
     local own=alliance_identity(native_uid) or alliance_identity(raw)
-    local target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
+    local raw_alliance,reader,read_ok=native_target_alliance(target,is_march)
+    local target_alliance=alliance_identity(raw_alliance)
+    -- Installed BuildPointInfo::.ctor(Protobuf.WorldPointInfo) RID13427
+    -- copies Protobuf.BuildInfo.get_AllianceId() to its string allianceId.
+    -- Protobuf.BuildInfo::.ctor RID43782 initializes that field to "" and
+    -- set_AllianceId RID43798 rejects null. An explicitly READ empty string
+    -- on a typed city is the protocol's no-alliance value; nil is unreadable.
+    if not is_march and read_ok and raw_alliance=="" and
+       (number(member(target,"PointType")) or number(member(target,"pointType")))==6 then
+        target_alliance="0"
+    end
     if not target_alliance then
-        return nil,failed("Target alliance identity unknown; attack suppressed")
+        local result=failed("Target alliance identity unknown; attack suppressed")
+        result.data={targetAllianceReader=reader,targetAllianceReadSucceeded=read_ok,
+            targetAllianceRaw=raw_alliance}
+        return nil,result
     end
     if target_alliance~="0" then
         return nil,failed("Player target belongs to an alliance; only guildless players may be attacked")
     end
     return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
+        targetAllianceRaw=raw_alliance,targetAllianceReader=reader,
         targetAllianceVerified=true,sameAlliance=false,
         allianceCheckRequired=true}
 end
@@ -438,6 +470,7 @@ local function native_selector_target(ctrl,uid)
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
         targetOwnerUid=owner,targetServerId=target_server,
         ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
+        targetAllianceRaw=alliance.targetAllianceRaw,targetAllianceReader=alliance.targetAllianceReader,
         targetAllianceVerified=true,
         observation="open_native_formation_selector_only",
         currentCursorVerified=false,physicalCursorTargetVerified=false,
@@ -719,6 +752,7 @@ local function transaction_view(transaction)
     if not transaction then return nil end
     local view={}
     for _,key in ipairs({"formation","kind","targetPoint","targetUuid","sendCount","outboundRoute",
+        "targetAllianceUid","targetAllianceRaw","targetAllianceReader",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
         "senderReturned","senderReturnedFalse","senderError","serializerObserved",
         "unattributedMatchingSendObserved","unattributedSendCount",
@@ -1613,7 +1647,7 @@ local function native_hover_target(fields,uid)
         if not ok_reverse or reverse==nil or ident(member(reverse,"uuid"))~=uuid or
            integer(member(reverse,"mainIndex"))~=integer(member(point,"mainIndex")) or
            ident(member(reverse,"ownerUid"))~=owner or
-           member(reverse,"allianceId")~=member(point,"allianceId") or
+           select(1,native_target_alliance(reverse,false))~=select(1,native_target_alliance(point,false)) or
            (member(reverse,"serverId")~=nil and
             tostring(member(reverse,"serverId"))~=account.server) then
             return nil,failed("Hovered city reverse identity or alliance changed")
@@ -2524,6 +2558,8 @@ local function attack_selected(fields, input_clear, uid)
                     "open_native_formation_selector",
                 currentCursorVerified=prior.hoverOrigin==true,
                 ownerUid=uid,sourceServerId=tonumber(prior.server),
+                targetAllianceUid=prior.targetAllianceUid,targetAllianceRaw=prior.targetAllianceRaw,
+                targetAllianceReader=prior.targetAllianceReader,
                 priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
                 currentStartTime=start_time,requestDispatched=false,
                 nativeMarchGuidMatchesRequest=true,
@@ -2659,6 +2695,8 @@ local function attack_selected(fields, input_clear, uid)
     end
     attacks[fields.slot] = {session=current_session,uid=uid,formation=formation,
         kind=kind,targetPoint=target.point,targetUuid=target_uuid,
+        targetAllianceUid=send_target.targetAllianceUid,targetAllianceRaw=send_target.targetAllianceRaw,
+        targetAllianceReader=send_target.targetAllianceReader,
         oldUuid=old_uuid,oldKind=old_kind,
         oldStartTime=old_start,sentAt=os.time(),allowItem=fields.allowRapidItem=="1",
         allowDiamond=fields.allowRapidDiamond=="1",sendCount=0,

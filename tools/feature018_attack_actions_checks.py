@@ -216,6 +216,12 @@ def check_installed_managed_nonce_source() -> None:
                ("ParseFormationUpdate",))
         verify(0x06003289, "WorldMarchDataManager::ParseFormationUpdate",
                ("'uuid'", "GetLong", "ParsePushWorldMarchAdd"))
+        verify(0x06000000 | 13427, "BuildPointInfo::.ctor",
+               ("Protobuf.BuildInfo::get_AllianceId", "BuildPointInfo::allianceId : string"))
+        verify(0x06000000 | 43782, "Protobuf.BuildInfo::.ctor",
+               ("ldstr ''", "Protobuf.BuildInfo::allianceId_ : string"))
+        verify(0x06000000 | 43798, "Protobuf.BuildInfo::set_AllianceId",
+               ("ProtoPreconditions::CheckNotNull", "Protobuf.BuildInfo::allianceId_ : string"))
         # This method is a registered Lua property getter; the native GUID
         # can be used as an independent poststate witness IF actually visible
         # on a fresh owner march. Source membership alone is not live proof.
@@ -435,6 +441,7 @@ def test_selected_attack_and_diamond():
     vm.execute(GAME)
     vm.execute("""
       state.existingAbsent=true; state.startTime=1000; state.targetUuid=990123
+      state.worldPointType=6;state.worldAlliance=''
       state.worldType=0; LuaEntry.Player.gold=100
       UIWindowNames={UIFormationSelectListV2='formation'}
       nativeCtrl={targetType=17,targetUuid=990123,targetPoint=state.touchedTile}
@@ -528,6 +535,9 @@ def test_selected_attack_and_diamond():
             ack['data']['directReplyObserverCorrelated'] is True and
             ack['data']['nativeMarchGuidMatchesRequest'] is True and
             ack['data']['targetUuid']=='990123' and
+            ack['data']['targetAllianceUid']=='0' and ack['data']['targetAllianceRaw']=='' and
+            ack['data']['targetAllianceReader']=='native_member_allianceId' and
+            ack['data']['transaction']['targetAllianceUid']=='0' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
     require(call()['state']=='unsupported' and state['attackSends']==1,
@@ -1351,6 +1361,8 @@ def test_native_alliance_field_selection_for_typed_targets():
                         'monster target incorrectly required alliance identity: '+repr(alliance))
         else:
             for alliance in (700, 701, None, -1, True, 'invalid', ''):
+                if category=='city' and alliance=='':
+                    continue
                 state.worldAlliance=alliance
                 state.targetAlliance=alliance
                 require(observe()['state']=='failed',
@@ -1360,6 +1372,50 @@ def test_native_alliance_field_selection_for_typed_targets():
             require(observe()['state']=='confirmed' and
                     observe()['data']['target']['targetAllianceUid']=='0',
                     'explicit zero native alliance rejected for '+category)
+            if category=='city':
+                state.worldPointType=6
+                state.worldAlliance=''
+                require(observe()['state']=='confirmed' and
+                        observe()['data']['target']['targetAllianceUid']=='0',
+                        'native typed city protocol empty-string alliance was not guildless')
+                state.worldAlliance=None
+                require(observe()['state']=='failed',
+                        'unreadable nil city alliance became guildless')
+                vm.execute("""
+                  local getPoint=CS.SceneManager.World.GetPointInfo
+                  CS.SceneManager.World.GetPointInfo=function(self,id)
+                    local point=getPoint(self,id)
+                    point.allianceId=nil
+                    point.GetType=function()return {
+                      FullName=state.nativeCityType or 'BuildPointInfo',
+                      GetField=function(self,key)
+                        assert(key=='allianceId')
+                        if state.missingAllianceField then return nil end
+                        return {GetValue=function(self,target)
+                          assert(target==point)
+                          return state.worldAlliance
+                        end}
+                      end,
+                    }end
+                    return point
+                  end
+                """)
+                state.worldAlliance=''
+                reflected=observe()
+                require(reflected['state']=='confirmed' and
+                        reflected['data']['target']['targetAllianceUid']=='0' and
+                        reflected['data']['target']['targetAllianceReader']=='BuildPointInfo.allianceId_reflection',
+                        'base PointInfo userdata did not read actual typed city alliance field')
+                for alliance in (None, 701, 'unreadable'):
+                    state.worldAlliance=alliance
+                    require(observe()['state']=='failed',
+                            'null/positive/unreadable reflected city alliance became guildless')
+                state.worldAlliance=''
+                state.missingAllianceField=True
+                require(observe()['state']=='failed','missing reflected field became guildless')
+                state.missingAllianceField=False
+                state.nativeCityType='PointInfo'
+                require(observe()['state']=='failed','base runtime type became guildless')
         require(state.attackDelegateCount==0 and state.rpcCount==0,
                 'alliance preflight issued gameplay: '+category)
 
