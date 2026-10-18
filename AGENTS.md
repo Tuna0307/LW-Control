@@ -1,3 +1,8 @@
+Latest lead update, 2026-10-18 (later): test sub-account is now UID 4799432499002212 on server 2212 — lock on
+UID (owner MAIN is also on 2212 and stays read-only). Player attacks only on guildless players. Worker does
+FEATURE-RECOVERY-018 R15 (repeat Q bug, guildless player-city attack, ZIP) — see the R15 section of
+docs/reviews/2026-10-17-FEATURE-RECOVERY-018-LEAD-AUDIT.md.
+
 Latest lead update, 2026-10-18: sub-account is now UID 1183884595002296 / server 2296 (actions only there;
 2212 read-only; never attack own-alliance targets; NEVER test Unlock Land Cell). Worker does FEATURE-RECOVERY-018
 R14 (Q/W/E/R, recall, speed-ups, F9/F10, City Layout) — see the R14 section of

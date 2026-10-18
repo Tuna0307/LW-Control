@@ -223,3 +223,27 @@ and extended the package gate to scan UI JSX (7ca3d0cd). UI checks pass. ZIP bui
 `artifacts/feature018-r14-7ca3d0cd/LW-Control-FEATURE-018-R14-PARTIAL-7ca3d0cd39db.zip`, SHA-256
 9c10c4947cbd66d921a9c1389aa0500b6d652c886eec42727685275af33d3a26, no test UID in any shipped file. README lists
 working (G, Q/W/E/R monster+resource, A/S/D/F, Land Cell), partial (City Layout) and untested features.
+
+## Owner test of R14 ZIP and R15 assignment — 2026-10-18
+Owner tested ZIP 7ca3d0cd on their own account:
+- Hover + Q on a resource: squad marched; A recalled it. **Then a second Q did nothing** (repeat use broken).
+- A/S recall works on squads the owner dispatched manually.
+- Q on a player city does not work. Owner rule: only guildless players may be attacked.
+New test sub-account: **UID 4799432499002212 on server 2212** (see authority doc; lock on UID, not server).
+
+R15 tasks (live on 4799432499002212, real key presses in the game window):
+1. Move the proof harness pin to UID 4799432499002212 / server 2212 (harness only, product stays any-account).
+   The harness must refuse any other UID on 2212.
+2. **Repeat use bug:** Q → march → A recall → wait until home → Q again must send again. Find what stays stuck after
+   the first send (one-shot latch, pending/outstanding state, cached chooser, hover pointer, focus admission) and fix
+   it. Prove at least 3 cycles of Q→A in one session, plus Q then W (two squads) then A and S, without restarting.
+   Also: pressing Q while that squad is already out must give a clear message, not silence.
+3. **Player city attack:** hover over a guildless player's city on the world map + Q → squad attacks it (server
+   reply + visible march). Use the Map scan to find guildless cities nearby if needed. Guild players must be
+   refused with a clear message. Then recall with A.
+4. Rebuild the owner-test ZIP with `tools/feature018_r14_package.py` (rename to R15 if you like) from the final
+   pushed commit; update the README.
+Handoff rule unchanged: after each task commit and update "R15 progress" below; push at task checkpoints.
+
+### R15 progress (worker updates this)
+- (none yet)

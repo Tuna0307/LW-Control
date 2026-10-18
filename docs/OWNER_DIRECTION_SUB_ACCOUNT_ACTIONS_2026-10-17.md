@@ -48,3 +48,12 @@ This supersedes older "no claims/plunder/sharing/attacks/marches/spending/reloca
   breaks the game. No live Land Cell requests at all.
 - Set aside until the owner says so: Space shield countdown, F6/F7/F8 shields, Alt+1–4 equipment presets.
 - Mini Games tab is accepted as done for now (G works; Food House/Black Market wait for their events).
+
+## Owner update (2026-10-18, later) — new sub-account UID 4799432499002212 on server 2212
+- The approved test sub-account is now **UID 4799432499002212**, which is on **server 2212** — the same server as the
+  owner's MAIN account. Lock every action to this exact **UID** (server alone is NOT enough). Any other UID on
+  2212, including the owner's main account, stays read-only. 1183884595002296/2296 is no longer approved.
+- **Player attacks: only players with no alliance (no guild).** Never attack a player who is in any alliance, and
+  never target the owner's main account. Monsters and resource fields are fine. If a target's alliance cannot be
+  read, do not send. The Map scan may be used to find guildless player cities.
+- All other 2026-10-18 rules stay: in-game currency/gems allowed, never real money; never press Unlock Land Cell.
