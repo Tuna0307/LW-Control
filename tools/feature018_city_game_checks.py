@@ -68,6 +68,28 @@ BuildingUtils = {
     end,
 }
 SceneUtils = {GetIsInCity = function() return true end}
+EventId = {BuildingMove='native_building_move'}
+local NativeEventListeners = {}
+local NativeEventManager = {
+    AddListener=function(self, eventId, handler)
+        local listeners=NativeEventListeners[eventId] or {}
+        NativeEventListeners[eventId]=listeners
+        listeners[#listeners+1]=handler
+    end,
+    RemoveListener=function(self, eventId, handler)
+        local listeners=NativeEventListeners[eventId] or {}
+        for i=#listeners,1,-1 do
+            if listeners[i]==handler then table.remove(listeners,i) end
+        end
+    end,
+    Broadcast=function(self, eventId, data)
+        local listeners=NativeEventListeners[eventId] or {}
+        local copy={}
+        for i=1,#listeners do copy[i]=listeners[i] end
+        for i=1,#copy do copy[i](data) end
+    end,
+}
+EventManager = {GetInstance=function() return NativeEventManager end}
 -- Deliberately disagree with the placement manager: World is not the v26
 -- placement rule's authoritative CityPointManager tile classifier.
 CS = {SceneManager = {World = {GetPointType = function(self, pointId)
@@ -103,7 +125,13 @@ DataCenter = {
            if reply.errorCode == nil and reply.buildInfo then
                local data = reply.buildInfo
                local building = self:GetBuildingDataByUuid(data.uuid)
-               if building then building.pointId=data.pointId end
+               if building then
+                   local old={uuid=building.uuid,itemId=building.itemId,
+                       pointId=building.pointId}
+                   building.pointId=data.pointId
+                   EventManager:GetInstance():Broadcast(EventId.BuildingMove,
+                       {uuid=building.uuid,old=old,new=building})
+               end
            end
        end,
        FreeBuildingReplaceNewHandle=function(self, reply)
@@ -429,6 +457,36 @@ def check_original_game_wire() -> None:
           any('sourceLine=4123' in line and "'uuid'" in line for line in move_poststate) and
           any('sourceLine=4124' in line and 'BuildingMove' in line for line in move_poststate),
           'original Move authoritative UUID-bound poststate changed')
+    add_building = list(disassemble(native_method(
+        'DataCenter/BuildManager/BuildManager.luac', 'AddBuilding')))
+    event_add = native_method('Framework/UI/Message/EventManager.luac', 'AddListener')
+    event_remove = native_method('Framework/UI/Message/EventManager.luac', 'RemoveListener')
+    inner_move = native_method('Scene/Pathfinding/Map/InnerCityMapManager.luac', 'OnBuildMove')
+    ui_move_block = [line for line in source if any(
+        f'sourceLine={line_no}' in line for line_no in range(455, 460))]
+    send_native = list(disassemble(native_method('Net/SFSNetwork.luac', 'SendMessage')))
+    create_native = list(disassemble(native_move))
+    check(not any('AddBuilding' in line or 'BuildWorldMoveNewHandle' in line
+                  for line in ui_move_block) and
+          not any("'UpdateInfo'" in line or "'allBuilding'" in line
+                  for line in ui_move_block) and
+          sum("'pointId'" in line and 'SETTABLE  A=3' in line
+              for line in ui_move_block) == 1 and
+          not any('AddBuilding' in line or "'pointId'" in line
+                  for line in send_native) and
+          not any('AddBuilding' in line or "'UpdateInfo'" in line or
+                  "'allBuilding'" in line for line in create_native) and
+          any("'AddOneChangeMoveBuild'" in line for line in create_native) and
+          any("'SetCurrentBuildMoveState'" in line for line in create_native) and
+          any('sourceLine=322' in line and "'UpdateInfo'" in line
+              for line in add_building) and
+          any('sourceLine=4120' in line and "'AddBuilding'" in line
+              for line in move_poststate) and
+          any('sourceLine=4124' in line and "'BuildingMove'" in line
+              for line in move_poststate) and
+          event_add['params'] == 3 and event_remove['params'] == 3 and
+          inner_move['params'] == 1,
+          'source no longer proves send path is non-authoritative and response path emits server-applied BuildingMove')
 
     # R3 native 2289 receipt 063021: accepting a SendMessage invocation and
     # subsequently timing out does not establish server acceptance or a
@@ -816,6 +874,106 @@ def main():
           lua_proxy.globals().NativeMoveMessageOriginalInvocations == 2 and
           proxy_complete['pendingNativeReplyObserved'] is False,
           'exact userdata/native-proxy Move reply was missed')
+
+    # Live R14 proved both the manager and message-class hooks can be bypassed.
+    # Reproduce an even stronger bypass by retaining the original global
+    # dispatcher before apply_start installs its wrapper, then deliver the
+    # exact response through that cached dispatcher. No raw observer may claim
+    # correlation; only the server-handler BuildingMove event plus exact
+    # authoritative from->target poststate may settle the step.
+    lua_fallback, _ = fake()
+    get_fallback = lambda name, fields=None: lua_fallback.globals().Act(name, fields)
+    fallback_revision = get_fallback('city_layout_snapshot_get')['data']['layoutRevision']
+    lua_fallback.execute('CachedOriginalDispatcherForFallback = SFSNetwork.HandleMessage')
+    check(get_fallback('city_layout_apply_start', lua_fallback.globals().Fields(
+        fallback_revision, '101:3'))['state'] == 'accepted',
+          'server-applied fallback fixture failed to send')
+    lua_fallback.execute('''
+      CachedOriginalDispatcherForFallback(MsgDefines.BuildWorldMoveNew, {
+        buildInfo={uuid=101,pointId=3,bId=11}})
+    ''')
+    fallback_complete = get_fallback(
+        'city_layout_apply_status', lua_fallback.globals().Fields(
+            fallback_revision, ''))['data']
+    check(fallback_complete['state'] == 'completed' and
+          fallback_complete['completedMoves'] == 1 and
+          fallback_complete['matchingNativeReplies'] == 0 and
+          fallback_complete['nativeMoveDispatcherReplyCount'] == 0 and
+          fallback_complete['nativeMoveMessageReplyCount'] == 0 and
+          fallback_complete['nativeMoveServerEventCount'] == 1 and
+          fallback_complete['serverAppliedPostStateObserved'] is True and
+          fallback_complete['serverAppliedPostStateCount'] == 1 and
+          fallback_complete['rawReplyCorrelated'] is False and
+          fallback_complete['exactRequestCausality'] is False and
+          lua_fallback.globals().NativeMoveDispatcherOriginalInvocations == 1 and
+          lua_fallback.globals().NativeMoveMessageOriginalInvocations == 1,
+          'source-proven server-applied poststate fallback was not distinctly classified')
+
+    # A target already present before apply_start is stale input, not a
+    # post-dispatch transition, and must never become fallback confirmation.
+    lua_preexisting, _ = fake()
+    get_preexisting = lambda name, fields=None: lua_preexisting.globals().Act(name, fields)
+    preexisting_revision = get_preexisting('city_layout_snapshot_get')['data']['layoutRevision']
+    lua_preexisting.execute('DataCenter.BuildManager.allBuilding[101].pointId=3')
+    preexisting = get_preexisting('city_layout_apply_start',
+                                  lua_preexisting.globals().Fields(
+                                      preexisting_revision, '101:3'))
+    check(preexisting['state'] == 'confirmed' and
+          preexisting['data']['accepted'] is False and
+          len(lua_preexisting.globals().ObservedMoves) == 0,
+          'preexisting target point was misclassified as a post-send transition')
+
+    # The server-only event must describe this exact building and exact target.
+    # A response applying the same building to a different point is stale, not
+    # a fallback success.
+    lua_wrong_poststate, _ = fake()
+    get_wrong_poststate = lambda name, fields=None: lua_wrong_poststate.globals().Act(name, fields)
+    wrong_revision = get_wrong_poststate('city_layout_snapshot_get')['data']['layoutRevision']
+    lua_wrong_poststate.execute(
+        'CachedOriginalDispatcherWrongPoststate = SFSNetwork.HandleMessage')
+    check(get_wrong_poststate('city_layout_apply_start',
+                              lua_wrong_poststate.globals().Fields(
+                                  wrong_revision, '101:3'))['state'] == 'accepted',
+          'wrong-poststate fallback fixture failed to send')
+    lua_wrong_poststate.execute('''
+      CachedOriginalDispatcherWrongPoststate(MsgDefines.BuildWorldMoveNew, {
+        buildInfo={uuid=101,pointId=4,bId=11}})
+    ''')
+    wrong_poststate = get_wrong_poststate(
+        'city_layout_apply_status', lua_wrong_poststate.globals().Fields(
+            wrong_revision, ''))['data']
+    check(wrong_poststate['state'] == 'failed' and
+          wrong_poststate['errorCode'] == 'CITY_LAYOUT_STALE' and
+          wrong_poststate['matchingNativeReplies'] == 0 and
+          wrong_poststate['serverAppliedPostStateObserved'] is False,
+          'wrong server building point falsely satisfied fallback')
+
+    # Any second BuildWorldMoveNew send is an outbound collision. Even if the
+    # first target later appears with the server-only event, fallback remains
+    # fenced because causality is ambiguous.
+    lua_multi_send, _ = fake()
+    get_multi_send = lambda name, fields=None: lua_multi_send.globals().Act(name, fields)
+    multi_revision = get_multi_send('city_layout_snapshot_get')['data']['layoutRevision']
+    lua_multi_send.execute('CachedOriginalDispatcherMultiSend = SFSNetwork.HandleMessage')
+    check(get_multi_send('city_layout_apply_start', lua_multi_send.globals().Fields(
+        multi_revision, '101:3'))['state'] == 'accepted',
+          'multi-send fallback fixture failed to send')
+    lua_multi_send.execute('''
+      SFSNetwork.SendMessage(MsgDefines.BuildWorldMoveNew,
+        {uuid=101,pointId=3,lastIndex=1})
+      CachedOriginalDispatcherMultiSend(MsgDefines.BuildWorldMoveNew, {
+        buildInfo={uuid=101,pointId=3,bId=11}})
+    ''')
+    multi_send = get_multi_send(
+        'city_layout_apply_status', lua_multi_send.globals().Fields(
+            multi_revision, ''))['data']
+    check(multi_send['state'] == 'failed' and
+          multi_send['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
+          multi_send['nativeMoveOutboundCount'] == 2 and
+          multi_send['outboundCollisionObserved'] is True and
+          multi_send['matchingNativeReplies'] == 0 and
+          multi_send['serverAppliedPostStateObserved'] is False,
+          'multiple outbound Move sends incorrectly unlocked poststate fallback')
 
     # An exact-looking response on a different inbound command must not even
     # increment the BuildWorldMoveNew dispatcher route telemetry, much less

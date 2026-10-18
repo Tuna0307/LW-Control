@@ -870,6 +870,13 @@ local function status_data(job)
         nativeMoveMessageReplyCount = job.nativeMoveMessageReplyCount or 0,
         nativeMoveDispatcherReplyCount = job.nativeMoveDispatcherReplyCount or 0,
         nativeMoveDispatcherIdentityCount = job.nativeMoveDispatcherIdentityCount or 0,
+        nativeMoveServerEventCount = job.nativeMoveServerEventCount or 0,
+        serverAppliedPostStateObserved = (job.serverAppliedPostStateCount or 0) > 0,
+        serverAppliedPostStateCount = job.serverAppliedPostStateCount or 0,
+        rawReplyCorrelated = (job.matchingNativeReplies or 0) > 0,
+        exactRequestCausality = job.completed > 0 and
+            (job.matchingNativeReplies or 0) == job.completed and
+            (job.serverAppliedPostStateCount or 0) == 0,
         matchingNativeReplies = job.matchingNativeReplies or 0,
         pendingNativeReplyObserved = job.waiting ~= nil and
             job.replyForStep == job.waiting or false,
@@ -903,6 +910,17 @@ local function remove_dispatcher_reply_observer(job)
     job.dispatcherReplyObserver = nil
 end
 
+local function remove_server_move_event_observer(job)
+    if not job or not job.serverMoveEventObserver then return end
+    if job.serverMoveEventManager and job.serverMoveEventId ~= nil then
+        pcall(function()
+            job.serverMoveEventManager:RemoveListener(
+                job.serverMoveEventId, job.serverMoveEventObserver)
+        end)
+    end
+    job.serverMoveEventObserver = nil
+end
+
 local function remove_replace_observer(job)
     if not job or not job.replaceObserver then return end
     if job.replyManager and
@@ -921,6 +939,7 @@ local function remove_send_observer(job)
 end
 
 local function remove_move_observers(job)
+    remove_server_move_event_observer(job)
     remove_dispatcher_reply_observer(job)
     remove_message_reply_observer(job)
     remove_reply_observer(job)
@@ -1027,6 +1046,7 @@ local function move_observers_intact(job)
     local message = rawget(_G, 'MsgDefines')
     return type(job.messageReplyObserver) == 'function' and
         type(job.dispatcherReplyObserver) == 'function' and
+        type(job.serverMoveEventObserver) == 'function' and
         type(job.replyObserver) == 'function' and
         type(job.replaceObserver) == 'function' and
         type(job.sendObserver) == 'function' and
@@ -1034,6 +1054,7 @@ local function move_observers_intact(job)
         job.messageReplyClass.HandleMessage == job.messageReplyObserver and
         job.dispatcherNetwork == net and
         net ~= nil and net.HandleMessage == job.dispatcherReplyObserver and
+        job.serverMoveEventManager ~= nil and job.serverMoveEventId ~= nil and
         job.replyManager ~= nil and
         job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
         job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver and
@@ -1090,6 +1111,67 @@ local function confirm_native_move_reply(job, step, from, bm)
         job.replyForStep = step
         job.matchingNativeReplies = (job.matchingNativeReplies or 0) + 1
     end
+end
+
+local function observe_server_applied_move_event(job)
+    -- BuildWorldMoveNewHandle v26 applies response.buildInfo through AddBuilding
+    -- and then broadcasts EventId.BuildingMove with {uuid, old, new}. The
+    -- original Move UI/OnCreate/SendMessage path does not emit this event or
+    -- mutate the authoritative BuildingDate point. Subscribe instead of
+    -- replacing EventManager methods, so cached reply delegates cannot bypass
+    -- this server-applied witness.
+    if job.serverMoveEventObserver then return true end
+    local events = rawget(_G, 'EventManager')
+    local ids = rawget(_G, 'EventId')
+    if not events or not ids or ids.BuildingMove == nil or
+        type(events.GetInstance) ~= 'function' then return false end
+    local ok, manager = pcall(function() return events:GetInstance() end)
+    if not ok or manager == nil or type(manager.AddListener) ~= 'function' or
+        type(manager.RemoveListener) ~= 'function' then return false end
+    local event_id = ids.BuildingMove
+    local function observer(move_data)
+        if M.active ~= job or not job.waiting then return end
+        if account_changed(job) then return end
+        local step = job.waiting
+        local source = job.sources[step.uuid]
+        local uuid = reply_field(move_data, 'uuid')
+        local old = reply_field(move_data, 'old')
+        local new = reply_field(move_data, 'new')
+        local old_point = reply_field(old, 'pointId')
+        local new_point = reply_field(new, 'pointId')
+        local old_item = reply_field(old, 'itemId')
+        local new_item = reply_field(new, 'itemId')
+        if source ~= nil and job.ownSendObserved == true and
+            job.nativeMoveSendCount == 1 and not move_result_ambiguous(job) and
+            tostring(uuid or '') == step.uuid and
+            tonumber(old_point) == step.from and
+            tonumber(new_point) == step.pointId and
+            tonumber(old_item) == source.public.itemId and
+            tonumber(new_item) == source.public.itemId then
+            job.serverMoveEventForStep = step
+            job.nativeMoveServerEventCount =
+                (job.nativeMoveServerEventCount or 0) + 1
+        end
+    end
+    local added = pcall(function() manager:AddListener(event_id, observer) end)
+    if not added then return false end
+    job.serverMoveEventManager, job.serverMoveEventId,
+        job.serverMoveEventObserver = manager, event_id, observer
+    return true
+end
+
+local function server_applied_poststate_ready(job, step, building)
+    local source = step and job.sources[step.uuid] or nil
+    return source ~= nil and M.active == job and not job.accountChanged and
+        same_account(job.account) and job.nativeSenderReturned == true and
+        job.ownSendObserved == true and job.nativeMoveSendCount == 1 and
+        not move_result_ambiguous(job) and move_observers_intact(job) and
+        job.preSendStep == step and job.preSendPointId == step.from and
+        job.preSendItemId == source.public.itemId and
+        job.dispatched == job.completed + 1 and
+        job.serverMoveEventForStep == step and building ~= nil and
+        tonumber(building.pointId) == step.pointId and
+        tonumber(building.itemId) == source.public.itemId
 end
 
 local function observe_native_move_dispatcher(job, bm, net, message)
@@ -1338,10 +1420,11 @@ local function dispatch_step(job)
     if not observe_native_move_replies(job, meta.ctx.bm) or
         not observe_native_move_message_replies(job, meta.ctx.bm) or
         not observe_native_move_dispatcher(job, meta.ctx.bm, net, message) or
+        not observe_server_applied_move_event(job) or
         not observe_native_replace_replies(job, meta.ctx.bm) or
         not observe_native_move_sends(job, net, message) then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'Native building Move dispatcher/message/manager/Replace reply/source hooks cannot be observed safely.'
+        job.error = 'Native building Move dispatcher/message/manager/server-event/Replace reply/source hooks cannot be observed safely.'
         -- A partial observer installation did not send a packet. Release it.
         remove_move_observers(job)
         return false
@@ -1364,9 +1447,22 @@ local function dispatch_step(job)
     -- original server-owned building.uuid object (never parse it via double).
     -- Replace (line 430) is a different action and packet: it may legitimately
     -- leave an already placed building unchanged even when SendMessage returns.
+    local pre_send = meta.ctx.bm:GetBuildingDataByUuid(step.nativeUuid)
+    if not pre_send or tonumber(pre_send.pointId) ~= step.from or
+        tonumber(pre_send.itemId) ~= building.public.itemId then
+        job.state, job.errorCode = 'failed', 'CITY_LAYOUT_STALE'
+        job.error = 'The authoritative building changed before the native Move send.'
+        remove_move_observers(job)
+        return false
+    end
     job.waiting = step
     job.replyForStep = nil
+    job.serverMoveEventForStep = nil
     job.ownSendObserved = false
+    job.nativeSenderReturned = false
+    job.preSendStep = step
+    job.preSendPointId = tonumber(pre_send.pointId)
+    job.preSendItemId = tonumber(pre_send.itemId)
     job.nativeMoveSendCount = 0
     job.nativeReplaceReplyCount = 0
     job.outboundContended = false
@@ -1385,6 +1481,7 @@ local function dispatch_step(job)
             or ('The native move sender raised: ' .. tostring(failure))
         return false
     end
+    job.nativeSenderReturned = true
     return true
 end
 
@@ -1395,8 +1492,13 @@ local function progress_job(job)
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local building = bm and bm:GetBuildingDataByUuid(current.nativeUuid)
     local observed = building and tonumber(building.pointId)
-    if observed == current.pointId and job.replyForStep == current and
-        not move_result_ambiguous(job) and move_observers_intact(job) then
+    local raw_reply = observed == current.pointId and
+        job.replyForStep == current and not move_result_ambiguous(job) and
+        move_observers_intact(job)
+    local server_poststate = observed == current.pointId and
+        job.replyForStep ~= current and
+        server_applied_poststate_ready(job, current, building)
+    if raw_reply or server_poststate then
         -- BuildWorldMoveNewHandle invokes AddBuilding on the server's
         -- buildInfo then broadcasts BuildingMove({uuid,old,new}); inspecting
         -- native BuildingDate plus full translated footprint avoids mistaking
@@ -1416,6 +1518,10 @@ local function progress_job(job)
         end
         job.waiting = nil
         job.completed = job.completed + 1
+        if server_poststate then
+            job.serverAppliedPostStateCount =
+                (job.serverAppliedPostStateCount or 0) + 1
+        end
         if job.cancelRequested then job.state = 'cancelled'
         elseif job.completed == #job.steps then job.state = 'completed'
         else dispatch_step(job) end
@@ -1424,7 +1530,7 @@ local function progress_job(job)
         end
     elseif observed == current.pointId then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
-        job.error = 'The target position changed without a matching native Move reply; an unconfirmed packet remains outstanding.'
+        job.error = 'The target position changed without an exact raw reply or source-proven server-applied Move event; an unconfirmed packet remains outstanding.'
     elseif move_result_ambiguous(job) or not move_observers_intact(job) then
         job.state, job.errorCode = 'failed', 'CITY_LAYOUT_RESULT_UNCERTAIN'
         job.error = 'An overlapping native building action or displaced request/reply observer prevents safe server result attribution.'
@@ -1455,14 +1561,21 @@ local function reconcile_timed_out(job)
     local pending = job.waiting
     local bm = rawget(_G, 'DataCenter') and _G.DataCenter.BuildManager
     local record = bm and bm:GetBuildingDataByUuid(pending.nativeUuid)
+    local raw_reply = job.replyForStep == pending
+    local server_poststate = not raw_reply and
+        server_applied_poststate_ready(job, pending, record)
     if move_result_ambiguous(job) or not move_observers_intact(job) or
-        job.replyForStep ~= pending or not record or
+        (not raw_reply and not server_poststate) or not record or
         tonumber(record.pointId) ~= pending.pointId then return end
     job.expected[pending.uuid] = pending.pointId
     local positions_match = check_positions(job)
     if account_changed(job) then return end
     if positions_match then
         job.completed = job.completed + 1
+        if server_poststate then
+            job.serverAppliedPostStateCount =
+                (job.serverAppliedPostStateCount or 0) + 1
+        end
         if owner_lost then
             job.errorCode = 'CITY_LAYOUT_OWNER_LOSS_RECONCILED'
             job.error = 'The late native building result was observed after ownership was interrupted. Remaining layout moves were cancelled.'
