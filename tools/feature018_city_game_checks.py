@@ -152,12 +152,25 @@ DataCenter = {
         return pointId ~= 24
     end},
 }
+CachedBuildWorldMoveNewHandle = DataCenter.BuildManager.BuildWorldMoveNewHandle
+BuildWorldMoveNewMessageClass = {
+    HandleMessage=function(self, reply)
+        -- Reproduce the live v26 cached-delegate bypass: the message class
+        -- retains the manager callback that existed before City installs its
+        -- manager-level observer. Only a message-class hook can see this raw
+        -- reply while still allowing the cached original to apply poststate.
+        return CachedBuildWorldMoveNewHandle(DataCenter.BuildManager, reply)
+    end,
+}
+package.preload['Net.Msgs.BuildWorldMoveNewMessage'] = function()
+    return BuildWorldMoveNewMessageClass
+end
 for pointId=1,CityTileCount*CityTileCount do
     DataCenter.CityZoneManager.allZonePoint[pointId] = {zone_type=1}
 end
 function ConfirmNativeMove(uuid, pointId)
     local building=DataCenter.BuildManager:GetBuildingDataByUuid(uuid)
-    DataCenter.BuildManager:BuildWorldMoveNewHandle({
+    require('Net.Msgs.BuildWorldMoveNewMessage'):HandleMessage({
         buildInfo={uuid=uuid,pointId=pointId,bId=building.itemId}})
 end
 handlers = {}
@@ -372,6 +385,23 @@ def check_original_game_wire() -> None:
           any('sourceLine=23' in line and "'Fail'" in line for line in reply) and
           any('sourceLine=24' in line and 'BuildWorldMoveNewHandle' in line for line in reply),
           'original Move ACK/error handler changed')
+    network_handle = native_method('Net/SFSNetwork.luac', 'HandleMessage')
+    network_dispatch = list(disassemble(network_handle['children'][0]))
+    network_get_type = list(disassemble(native_method('Net/SFSNetwork.luac', 'GetMsgType')))
+    msg_map = list(disassemble(bytecode.parse_chunk(
+        probe.decode_lenc(files['Net/Config/MsgMap.luac']))))
+    check(any('sourceLine=40' in line and "'NewEmpty'" in line
+              for line in network_dispatch) and
+          any('sourceLine=41' in line and "'HandleMessage'" in line
+              for line in network_dispatch) and
+          any('sourceLine=12' in line and "'require'" in line
+              for line in network_get_type) and
+          any('sourceLine=15 SETTABUP' in line for line in network_get_type) and
+          any('sourceLine=854' in line and "'BuildWorldMoveNew'" in line
+              for line in msg_map) and
+          any('sourceLine=854' in line and
+              "'Net.Msgs.BuildWorldMoveNewMessage'" in line for line in msg_map),
+          'v26 incoming Move dispatcher no longer resolves/caches the message class then calls instance HandleMessage')
     move_poststate = list(disassemble(native_method(
         'DataCenter/BuildManager/BuildManager.luac', 'BuildWorldMoveNewHandle')))
     check(any('sourceLine=4113 GETTABLE' in line and 'errorCode' in line for line in move_poststate) and

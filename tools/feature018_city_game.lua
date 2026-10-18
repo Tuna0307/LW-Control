@@ -882,6 +882,15 @@ local function remove_reply_observer(job)
     job.replyObserver = nil
 end
 
+local function remove_message_reply_observer(job)
+    if not job or not job.messageReplyObserver then return end
+    if job.messageReplyClass and
+        job.messageReplyClass.HandleMessage == job.messageReplyObserver then
+        job.messageReplyClass.HandleMessage = job.originalMessageReplyHandler
+    end
+    job.messageReplyObserver = nil
+end
+
 local function remove_replace_observer(job)
     if not job or not job.replaceObserver then return end
     if job.replyManager and
@@ -900,6 +909,7 @@ local function remove_send_observer(job)
 end
 
 local function remove_move_observers(job)
+    remove_message_reply_observer(job)
     remove_reply_observer(job)
     remove_replace_observer(job)
     remove_send_observer(job)
@@ -1002,9 +1012,12 @@ local function move_observers_intact(job)
     local data = rawget(_G, 'DataCenter')
     local net = rawget(_G, 'SFSNetwork')
     local message = rawget(_G, 'MsgDefines')
-    return type(job.replyObserver) == 'function' and
+    return type(job.messageReplyObserver) == 'function' and
+        type(job.replyObserver) == 'function' and
         type(job.replaceObserver) == 'function' and
         type(job.sendObserver) == 'function' and
+        job.messageReplyClass ~= nil and
+        job.messageReplyClass.HandleMessage == job.messageReplyObserver and
         job.replyManager ~= nil and
         job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
         job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver and
@@ -1027,6 +1040,75 @@ local function reply_field(value, key)
     return field, true
 end
 
+local function pending_native_move_reply(job, response, bm)
+    local step = job.waiting
+    local info, info_readable = reply_field(response, 'buildInfo')
+    local error_code, error_readable = reply_field(response, 'errorCode')
+    local reply_uuid, uuid_readable = reply_field(info, 'uuid')
+    local reply_point, point_readable = reply_field(info, 'pointId')
+    local reply_item, item_readable = reply_field(info, 'bId')
+    local source = step and job.sources[step.uuid] or nil
+    local matching = M.active == job and not job.accountChanged and
+        same_account(job.account) and step ~= nil and source ~= nil and
+        move_observers_intact(job) and
+        job.ownSendObserved == true and
+        not move_result_ambiguous(job) and
+        job.nativeMoveSendCount == 1 and
+        info_readable and info ~= nil and error_readable and error_code == nil and
+        uuid_readable and point_readable and item_readable and
+        tostring(reply_uuid) == step.uuid and
+        tonumber(reply_point) == step.pointId and
+        tonumber(reply_item) == source.public.itemId
+    local before = matching and bm:GetBuildingDataByUuid(step.nativeUuid) or nil
+    local from = before and tonumber(before.pointId)
+    return matching and step or nil, from
+end
+
+local function confirm_native_move_reply(job, step, from, bm)
+    if step == nil or M.active ~= job or job.accountChanged or
+        not same_account(job.account) or from ~= step.from or
+        job.replyForStep == step then return end
+    local after = bm:GetBuildingDataByUuid(step.nativeUuid)
+    if after and tonumber(after.pointId) == step.pointId and
+        tonumber(after.itemId) == job.sources[step.uuid].public.itemId then
+        job.replyForStep = step
+        job.matchingNativeReplies = (job.matchingNativeReplies or 0) + 1
+    end
+end
+
+local function observe_native_move_message_replies(job, bm)
+    -- Net/SFSNetwork.HandleMessage v26 resolves MsgMap[cmd] to the message
+    -- CLASS table, creates class:NewEmpty(), then dynamically calls the
+    -- instance HandleMessage(response). Hook that class method so a cached
+    -- BuildManager delegate inside the original message body cannot bypass
+    -- our raw server-reply witness. The original message handler still runs
+    -- exactly once and remains solely responsible for applying game state.
+    if job.messageReplyObserver then
+        return job.messageReplyClass ~= nil and
+            job.messageReplyClass.HandleMessage == job.messageReplyObserver
+    end
+    local ok, class = pcall(require, 'Net.Msgs.BuildWorldMoveNewMessage')
+    if not ok or type(class) ~= 'table' then return false end
+    local original = class.HandleMessage
+    if type(original) ~= 'function' then return false end
+    local function observer(self, response, ...)
+        if M.active == job then account_changed(job) end
+        local step, from = pending_native_move_reply(job, response, bm)
+        job.messageReplyInProgress = true
+        local returned = table.pack(pcall(original, self, response, ...))
+        job.messageReplyInProgress = false
+        if M.active == job then account_changed(job) end
+        if returned[1] then confirm_native_move_reply(job, step, from, bm) end
+        if not returned[1] then error(returned[2], 0) end
+        return table.unpack(returned, 2, returned.n)
+    end
+    class.HandleMessage = observer
+    if class.HandleMessage ~= observer then return false end
+    job.messageReplyClass, job.originalMessageReplyHandler,
+        job.messageReplyObserver = class, original, observer
+    return true
+end
+
 local function observe_native_move_replies(job, bm)
     -- v26 BuildWorldMoveNewMessage.HandleMessage delegates the exact server
     -- payload to BuildManager:BuildWorldMoveNewHandle. Its success branch
@@ -1041,39 +1123,15 @@ local function observe_native_move_replies(job, bm)
     if type(previous) ~= 'function' then return false end
     local function observer(self, response, ...)
         if M.active == job then account_changed(job) end
-        local step = job.waiting
-        local info, info_readable = reply_field(response, 'buildInfo')
-        local error_code, error_readable = reply_field(response, 'errorCode')
-        local reply_uuid, uuid_readable = reply_field(info, 'uuid')
-        local reply_point, point_readable = reply_field(info, 'pointId')
-        local reply_item, item_readable = reply_field(info, 'bId')
-        local matching = M.active == job and not job.accountChanged and
-            same_account(job.account) and step ~= nil and
-            move_observers_intact(job) and
-            job.ownSendObserved == true and
-            not move_result_ambiguous(job) and
-            job.nativeMoveSendCount == 1 and
-            info_readable and info ~= nil and error_readable and error_code == nil and
-            uuid_readable and point_readable and item_readable and
-            tostring(reply_uuid) == step.uuid and
-            tonumber(reply_point) == step.pointId and
-            tonumber(reply_item) == job.sources[step.uuid].public.itemId
-        local before = matching and self:GetBuildingDataByUuid(step.nativeUuid) or nil
-        local from = before and tonumber(before.pointId)
+        local step, from
+        if job.messageReplyInProgress ~= true then
+            step, from = pending_native_move_reply(job, response, self)
+        end
         -- Always invoke the original handler once with its original receiver
         -- and arguments, preserving the game-owned reply and error handling.
         previous(self, response, ...)
         if M.active == job then account_changed(job) end
-        if matching and not job.accountChanged and
-            same_account(job.account) and from == step.from and
-            job.replyForStep ~= step then
-            local after = self:GetBuildingDataByUuid(step.nativeUuid)
-            if after and tonumber(after.pointId) == step.pointId and
-                tonumber(after.itemId) == job.sources[step.uuid].public.itemId then
-                job.replyForStep = step
-                job.matchingNativeReplies = (job.matchingNativeReplies or 0) + 1
-            end
-        end
+        confirm_native_move_reply(job, step, from, self)
     end
     bm.BuildWorldMoveNewHandle = observer
     if bm.BuildWorldMoveNewHandle ~= observer then return false end
@@ -1210,10 +1268,11 @@ local function dispatch_step(job)
         return false
     end
     if not observe_native_move_replies(job, meta.ctx.bm) or
+        not observe_native_move_message_replies(job, meta.ctx.bm) or
         not observe_native_replace_replies(job, meta.ctx.bm) or
         not observe_native_move_sends(job, net, message) then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'Native building Move and Replace reply/source hooks cannot be observed safely.'
+        job.error = 'Native building Move message/manager/Replace reply/source hooks cannot be observed safely.'
         -- A partial observer installation did not send a packet. Release it.
         remove_move_observers(job)
         return false
