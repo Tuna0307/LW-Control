@@ -1,9 +1,9 @@
-"""Sole-controller staged FEATURE018 queue client and bounded City/Land proofs.
+"""Sole-controller staged FEATURE018 queue client for the R14 City proof.
 
 This tool does not launch/control windows or edit installed scripts. Invoke it
 only against the primary controller's already running owned staged-proof app.
 Every mutation is sent once; timeout aborts rather than retransmitting. City
-restoration is attempted only after the current native job has settled.
+restoration uses the settled native job's immutable original-layout witness.
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ class StageQueue:
         self.result_path = result_path or self.directory / 'native-ui-map.json'
         stamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         self.evidence_path = self.directory / f'feature018-city-driver-{stamp}.json'
-        self.evidence = {'schemaVersion': 1, 'state': 'running', 'operations': []}
+        self.evidence = {'schemaVersion': 2, 'state': 'running', 'operations': []}
         self.save()
 
     def save(self):
@@ -89,10 +89,13 @@ class StageQueue:
     def snapshot(self):
         return self.command('city_layout_snapshot_get')
 
-    def await_job(self, timeout=45):
+    def await_job(self, expected_job_id=None, timeout=45):
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             status = self.command('city_layout_apply_status')
+            if expected_job_id is not None and status.get('jobId') != expected_job_id:
+                raise RuntimeError(
+                    f'Native city job identity changed while waiting for {expected_job_id}: {status}')
             if status.get('state') not in ('running', 'cancelling'):
                 return status
             time.sleep(.1)
@@ -105,7 +108,44 @@ def positions(snapshot):
 
 def placement_payload(snapshot, desired):
     return {'baseRevision': snapshot['layoutRevision'], 'placements': [
-        {'uuid': key, 'targetPointId': point} for key, point in desired.items()]}
+        {'uuid': key, 'targetPointId': point} for key, point in sorted(desired.items())]}
+
+
+def require_exact_positions(snapshot, expected, reason):
+    observed = positions(snapshot)
+    if observed != expected:
+        raise RuntimeError(f'{reason}: expected {expected}, observed {observed}')
+
+
+def find_single(client, snapshot, excluded):
+    """Choose one source-discovered legal empty destination and revalidate it."""
+    attempts = 0
+    for candidate in snapshot.get('moveCandidates', []):
+        uuid_text = str(candidate.get('uuid', ''))
+        if uuid_text in excluded:
+            continue
+        from_point = candidate.get('fromPointId')
+        target_point = candidate.get('targetPointId')
+        if not isinstance(from_point, int) or not isinstance(target_point, int) or from_point == target_point:
+            continue
+        attempts += 1
+        if attempts > 30:
+            break
+        desired = {uuid_text: target_point}
+        payload = placement_payload(snapshot, desired)
+        validation = client.command('city_layout_validate', payload)
+        if any(issue.get('code') == 'CITY_LAYOUT_STALE'
+               for issue in validation.get('issues', [])):
+            raise RuntimeError('City snapshot changed during single-move candidate search; no movement sent')
+        planned = validation.get('plannedMoves', [])
+        if (validation.get('valid') and validation.get('totalMoves') == 1 and
+                validation.get('temporaryMoves') == 0 and len(planned) == 1 and
+                str(planned[0].get('uuid')) == uuid_text and
+                planned[0].get('fromPointId') == from_point and
+                planned[0].get('pointId') == target_point and
+                planned[0].get('temporary') is False):
+            return desired, payload, validation
+    raise RuntimeError('No source-valid single-building City move found in bounded search')
 
 
 def find_swap(client, snapshot, excluded):
@@ -130,70 +170,172 @@ def find_swap(client, snapshot, excluded):
     raise RuntimeError('No source-valid same-size swap/buffer found in bounded search')
 
 
-def restore(client, original, touched):
-    latest = client.snapshot()
-    current = positions(latest)
-    desired = {key: original[key] for key in touched if current.get(key) != original[key]}
-    if desired:
-        payload = placement_payload(latest, desired)
-        validation = client.command('city_layout_validate', payload)
-        if not validation.get('valid'):
-            raise RuntimeError(f'Original-layout restoration validation rejected: {validation}')
-        client.command('city_layout_apply_start', payload)
-        status = client.await_job()
-        if status.get('state') != 'completed' or status.get('inFlight'):
-            raise RuntimeError(f'Original-layout restoration unconfirmed: {status}')
+def started_job(result, label):
+    if not isinstance(result, dict):
+        raise RuntimeError(f'{label} returned a malformed native City result: {result}')
+    status = result.get('status', {})
+    job_id = status.get('jobId')
+    if (result.get('accepted') is not True or result.get('requestDispatched') is not True or
+            not isinstance(job_id, str) or not job_id):
+        raise RuntimeError(f'{label} did not dispatch an attributable native City job: {result}')
+    return job_id
+
+
+def apply_and_confirm(client, payload, desired, expected_before, evidence_prefix):
+    started = client.command('city_layout_apply_start', payload)
+    job_id = started_job(started, evidence_prefix)
+    status = client.await_job(job_id)
+    if (status.get('state') != 'completed' or status.get('inFlight') or
+            status.get('jobId') != job_id or
+            status.get('completedMoves') != status.get('totalMoves') or
+            status.get('dispatchedMoves') != status.get('totalMoves') or
+            status.get('matchingNativeReplies') != status.get('totalMoves')):
+        raise RuntimeError(f'{evidence_prefix} native completion was not fully confirmed: {status}')
+    expected_after = dict(expected_before)
+    expected_after.update(desired)
+    after = client.snapshot()
+    require_exact_positions(after, expected_after,
+                            f'{evidence_prefix} authoritative full-layout comparison failed')
+    client.evidence[evidence_prefix + 'Started'] = started
+    client.evidence[evidence_prefix + 'Status'] = status
+    client.evidence[evidence_prefix + 'After'] = after
+    client.save()
+    return job_id, after
+
+
+def restore(client, original, parent_job_id, evidence_prefix):
+    """Restore only through the exact settled job's immutable native baseline."""
+    preflight = client.command('city_layout_restore_preflight', {'jobId': parent_job_id})
+    if (preflight.get('jobId') != parent_job_id or preflight.get('ready') is not True or
+            preflight.get('pendingNativeMove') is True or
+            preflight.get('historicalUncertaintyInPlan') is True):
+        raise RuntimeError(f'{evidence_prefix} original-layout restore preflight rejected: {preflight}')
+    if preflight.get('restorationRequired') is not True:
+        final = client.snapshot()
+        require_exact_positions(final, original,
+                                f'{evidence_prefix} claimed no restore while layout differed')
+        if preflight.get('originalLayoutConfirmed') is not True:
+            raise RuntimeError(
+                f'{evidence_prefix} original layout was not affirmatively confirmed: {preflight}')
+        client.evidence[evidence_prefix + 'RestorePreflight'] = preflight
+        client.evidence[evidence_prefix + 'RestoredSnapshot'] = final
+        client.save()
+        return final
+    if not preflight.get('plannedMoves'):
+        raise RuntimeError(f'{evidence_prefix} required restoration without a native plan: {preflight}')
+    started = client.command('city_layout_restore_start', {
+        'jobId': parent_job_id, 'restoreOptIn': True})
+    restore_job_id = started_job(started, evidence_prefix + ' restore')
+    start_status = started.get('status', {})
+    if (start_status.get('restoration') is not True or
+            start_status.get('restoreOfJobId') != parent_job_id):
+        raise RuntimeError(f'{evidence_prefix} restore job lost parent provenance: {started}')
+    status = client.await_job(restore_job_id)
+    if (status.get('state') != 'completed' or status.get('inFlight') or
+            status.get('jobId') != restore_job_id or
+            status.get('restoration') is not True or
+            status.get('restoreOfJobId') != parent_job_id or
+            status.get('completedMoves') != status.get('totalMoves') or
+            status.get('dispatchedMoves') != status.get('totalMoves') or
+            status.get('matchingNativeReplies') != status.get('totalMoves')):
+        raise RuntimeError(f'{evidence_prefix} original-layout restoration unconfirmed: {status}')
     final = client.snapshot()
-    after = positions(final)
-    if any(after.get(key) != value for key, value in original.items()):
-        raise RuntimeError('Full original city anchor comparison failed after restoration')
-    client.evidence['restoredOriginalPositions'] = True
+    require_exact_positions(final, original,
+                            f'{evidence_prefix} full original city anchor comparison failed')
+    final_preflight = client.command(
+        'city_layout_restore_preflight', {'jobId': restore_job_id})
+    if (final_preflight.get('jobId') != restore_job_id or
+            final_preflight.get('ready') is not True or
+            final_preflight.get('restorationRequired') is not False or
+            final_preflight.get('originalLayoutConfirmed') is not True or
+            final_preflight.get('pendingNativeMove') is True):
+        raise RuntimeError(
+            f'{evidence_prefix} restored native job did not confirm the original layout: {final_preflight}')
+    client.evidence[evidence_prefix + 'RestorePreflight'] = preflight
+    client.evidence[evidence_prefix + 'RestoreStarted'] = started
+    client.evidence[evidence_prefix + 'RestoreStatus'] = status
+    client.evidence[evidence_prefix + 'RestoreConfirmed'] = final_preflight
+    client.evidence[evidence_prefix + 'RestoredSnapshot'] = final
     client.save()
     return final
+
+
+def expected_after_planned_moves(original, planned_moves, completed_moves):
+    expected = dict(original)
+    if not isinstance(completed_moves, int) or completed_moves < 0 or completed_moves > len(planned_moves):
+        raise RuntimeError('Cancelled City job reported an invalid completed-move count')
+    for step in planned_moves[:completed_moves]:
+        expected[str(step['uuid'])] = step['pointId']
+    return expected
 
 
 def city(client, excluded):
     client.request('tab', index=4)
     original_snapshot = client.snapshot()
     original = positions(original_snapshot)
-    desired, payload, validation = find_swap(client, original_snapshot, excluded)
-    touched = set(desired)
     client.evidence['cityBefore'] = original_snapshot
+    client.evidence['cityOriginalPositions'] = original
+    client.save()
+
+    single_desired, single_payload, single_validation = find_single(
+        client, original_snapshot, excluded)
+    client.evidence['citySingleValidation'] = single_validation
+    client.save()
+    single_job_id, _ = apply_and_confirm(
+        client, single_payload, single_desired, original, 'citySingle')
+    restored = restore(client, original, single_job_id, 'citySingle')
+
+    desired, payload, validation = find_swap(client, restored, excluded)
+    touched = set(desired)
     client.evidence['citySwapValidation'] = validation
     client.save()
+    swap_job_id, _ = apply_and_confirm(
+        client, payload, desired, original, 'citySwap')
+    restored = restore(client, original, swap_job_id, 'citySwap')
+
+    # Use the same source-valid pair from the fully restored layout, with a fresh
+    # revision. Submit Cancel immediately after start so the receipt records
+    # whether a real native Move was in flight at the time Cancel was consumed.
+    _, cancel_payload, cancel_validation = find_swap(client, restored, excluded)
+    if {p['uuid'] for p in cancel_payload['placements']} != touched:
+        raise RuntimeError('Restored candidate pair changed; no cancel-test mutation sent')
+    client.evidence['cityCancelValidation'] = cancel_validation
+    client.save()
     settled = False
+    cancel_job_id = None
     try:
-        client.command('city_layout_apply_start', payload)
-        status = client.await_job()
-        settled = not status.get('inFlight', True)
-        after = client.snapshot()
-        client.evidence['citySwapAfter'] = after
-        client.evidence['citySwapStatus'] = status
-        if status.get('state') != 'completed' or any(positions(after).get(k) != v for k, v in desired.items()):
-            raise RuntimeError('Swap authoritative poststate did not match the validated plan')
-        restored = restore(client, original, touched)
-        # Use the same validated pair, fresh revision. Submit Cancel immediately
-        # on start result; timing is observed, never invented or forced by mocks.
-        _, cancel_payload, cancel_validation = find_swap(client, restored, excluded)
-        if {p['uuid'] for p in cancel_payload['placements']} != touched:
-            raise RuntimeError('Restored candidate pair changed; no cancel-test mutation sent')
-        client.evidence['cityCancelValidation'] = cancel_validation
-        settled = False
         started = client.command('city_layout_apply_start', cancel_payload)
-        cancelled = client.command('city_layout_apply_cancel', {'jobId': started['status']['jobId']})
-        status = client.await_job()
+        cancel_job_id = started_job(started, 'cityCancel')
+        cancelled = client.command('city_layout_apply_cancel', {'jobId': cancel_job_id})
+        status = client.await_job(cancel_job_id)
         settled = not status.get('inFlight', True)
         client.evidence['cityCancelReturned'] = cancelled
         client.evidence['cityCancelStatus'] = status
-        client.evidence['cityCancelAfter'] = client.snapshot()
+        after = client.snapshot()
+        client.evidence['cityCancelAfter'] = after
         client.evidence['cancelInFlightProven'] = (
+            cancelled.get('accepted') is True and
+            cancelled.get('status', {}).get('jobId') == cancel_job_id and
             cancelled.get('status', {}).get('cancelRequestedWhileInFlight') is True and
             status.get('state') == 'cancelled' and
-            status.get('dispatchedMoves', 0) < status.get('totalMoves', 0))
+            status.get('jobId') == cancel_job_id and not status.get('inFlight') and
+            status.get('cancelRequested') is True and
+            status.get('completedMoves') == status.get('dispatchedMoves') and
+            status.get('matchingNativeReplies') == status.get('completedMoves') and
+            0 < status.get('dispatchedMoves', 0) < status.get('totalMoves', 0))
+        if not client.evidence['cancelInFlightProven']:
+            raise RuntimeError(f'Cancel did not stop a real in-flight multi-move City job: {cancelled}; {status}')
+        expected_cancelled = expected_after_planned_moves(
+            original, cancel_validation.get('plannedMoves', []), status['completedMoves'])
+        require_exact_positions(after, expected_cancelled,
+                                'Cancelled City authoritative partial layout mismatch')
         client.save()
     finally:
-        if settled:
-            restore(client, original, touched)
+        if settled and cancel_job_id is not None:
+            restore(client, original, cancel_job_id, 'cityCancel')
+            client.evidence['restoredOriginalPositions'] = True
+            client.evidence['task6EndToEndProven'] = client.evidence.get('cancelInFlightProven') is True
+            client.save()
         else:
             client.evidence['restorationState'] = 'PENDING_UNSETTLED_NATIVE_JOB_NO_CONFLICTING_SEND'
             client.save()
