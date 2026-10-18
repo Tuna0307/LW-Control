@@ -367,16 +367,16 @@ def check_original_game_wire() -> None:
           'original Move serializer and rollback anchor differ from producer')
     reply = list(disassemble(native_method(
         'Net/Msgs/BuildWorldMoveNewMessage.luac', 'HandleMessage')))
-    check(any('sourceLine=22' in line and 'errorCode' in line for line in reply) and
+    check(any('sourceLine=22 GETTABLE' in line and 'errorCode' in line for line in reply) and
           any('sourceLine=23' in line and "'Success'" in line for line in reply) and
           any('sourceLine=23' in line and "'Fail'" in line for line in reply) and
           any('sourceLine=24' in line and 'BuildWorldMoveNewHandle' in line for line in reply),
           'original Move ACK/error handler changed')
     move_poststate = list(disassemble(native_method(
         'DataCenter/BuildManager/BuildManager.luac', 'BuildWorldMoveNewHandle')))
-    check(any('sourceLine=4113' in line and 'errorCode' in line for line in move_poststate) and
-          any('sourceLine=4114' in line and 'buildInfo' in line for line in move_poststate) and
-          any('sourceLine=4117' in line and 'uuid' in line for line in move_poststate) and
+    check(any('sourceLine=4113 GETTABLE' in line and 'errorCode' in line for line in move_poststate) and
+          any('sourceLine=4114 GETTABLE' in line and 'buildInfo' in line for line in move_poststate) and
+          any('sourceLine=4117 GETTABLE' in line and 'uuid' in line for line in move_poststate) and
           any('sourceLine=4120' in line and 'AddBuilding' in line for line in move_poststate) and
           any('sourceLine=4125' in line and 'bId' in line for line in move_poststate) and
           any('sourceLine=4123' in line and "'uuid'" in line for line in move_poststate) and
@@ -705,6 +705,54 @@ def main():
           confirmed['matchingNativeReplies'] == 1 and
           lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
           'exact native reply did not advance or restore original game handler')
+
+    # The live xLua reply can be a native/userdata proxy rather than a Lua
+    # table. Shipped v26 bytecode indexes the payload with GETTABLE, so the
+    # observer must accept any object with that same indexing contract while
+    # still requiring exact UUID/point/item + the original handler's poststate.
+    class NativeProxy:
+        pass
+
+    lua_proxy, _ = fake()
+    get_proxy = lambda name, fields=None: lua_proxy.globals().Act(name, fields)
+    proxy_revision = get_proxy('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get_proxy('city_layout_apply_start', lua_proxy.globals().Fields(
+        proxy_revision, '101:3'))['state'] == 'accepted',
+          'native-proxy reply fixture failed to send')
+    proxy_reply = NativeProxy()
+    proxy_reply.errorCode = None
+    proxy_reply.buildInfo = NativeProxy()
+    proxy_reply.buildInfo.uuid = 101
+    proxy_reply.buildInfo.pointId = 3
+    proxy_reply.buildInfo.bId = 11
+    wrong_proxy_reply = NativeProxy()
+    wrong_proxy_reply.errorCode = None
+    wrong_proxy_reply.buildInfo = NativeProxy()
+    wrong_proxy_reply.buildInfo.uuid = 102
+    wrong_proxy_reply.buildInfo.pointId = 2
+    wrong_proxy_reply.buildInfo.bId = 12
+    lua_proxy.globals().NativeProxyReply = proxy_reply
+    lua_proxy.globals().WrongNativeProxyReply = wrong_proxy_reply
+    check(lua_proxy.eval('type(NativeProxyReply)') == 'userdata' and
+          lua_proxy.eval('type(NativeProxyReply.buildInfo)') == 'userdata',
+          'reply regression did not exercise a non-table native proxy')
+    lua_proxy.execute(
+        'DataCenter.BuildManager:BuildWorldMoveNewHandle(WrongNativeProxyReply)')
+    proxy_unrelated = get_proxy(
+        'city_layout_apply_status', lua_proxy.globals().Fields(proxy_revision, ''))['data']
+    check(proxy_unrelated['state'] == 'running' and
+          proxy_unrelated['completedMoves'] == 0 and
+          proxy_unrelated['matchingNativeReplies'] == 0,
+          'foreign userdata/native-proxy Move reply matched pending job')
+    lua_proxy.execute(
+        'DataCenter.BuildManager:BuildWorldMoveNewHandle(NativeProxyReply)')
+    proxy_complete = get_proxy(
+        'city_layout_apply_status', lua_proxy.globals().Fields(proxy_revision, ''))['data']
+    check(proxy_complete['state'] == 'completed' and
+          proxy_complete['completedMoves'] == 1 and
+          proxy_complete['matchingNativeReplies'] == 1 and
+          proxy_complete['pendingNativeReplyObserved'] is False,
+          'exact userdata/native-proxy Move reply was missed')
 
     lua, producer = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)

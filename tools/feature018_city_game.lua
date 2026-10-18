@@ -1016,6 +1016,17 @@ local function move_observers_intact(job)
         job.sendNetwork.SendMessage == job.sendObserver
 end
 
+local function reply_field(value, key)
+    -- Native/xLua message payloads need not be Lua tables. The admitted v26
+    -- handlers use GETTABLE directly for response.errorCode/buildInfo and for
+    -- buildInfo.uuid/pointId/bId, so mirror that exact index contract behind
+    -- pcall instead of rejecting userdata/native proxy objects by type().
+    if value == nil then return nil, false end
+    local ok, field = pcall(function() return value[key] end)
+    if not ok then return nil, false end
+    return field, true
+end
+
 local function observe_native_move_replies(job, bm)
     -- v26 BuildWorldMoveNewMessage.HandleMessage delegates the exact server
     -- payload to BuildManager:BuildWorldMoveNewHandle. Its success branch
@@ -1031,17 +1042,22 @@ local function observe_native_move_replies(job, bm)
     local function observer(self, response, ...)
         if M.active == job then account_changed(job) end
         local step = job.waiting
-        local info = type(response) == 'table' and response.buildInfo or nil
+        local info, info_readable = reply_field(response, 'buildInfo')
+        local error_code, error_readable = reply_field(response, 'errorCode')
+        local reply_uuid, uuid_readable = reply_field(info, 'uuid')
+        local reply_point, point_readable = reply_field(info, 'pointId')
+        local reply_item, item_readable = reply_field(info, 'bId')
         local matching = M.active == job and not job.accountChanged and
             same_account(job.account) and step ~= nil and
             move_observers_intact(job) and
             job.ownSendObserved == true and
             not move_result_ambiguous(job) and
             job.nativeMoveSendCount == 1 and
-            type(info) == 'table' and response.errorCode == nil and
-            tostring(info.uuid) == step.uuid and
-            tonumber(info.pointId) == step.pointId and
-            tonumber(info.bId) == job.sources[step.uuid].public.itemId
+            info_readable and info ~= nil and error_readable and error_code == nil and
+            uuid_readable and point_readable and item_readable and
+            tostring(reply_uuid) == step.uuid and
+            tonumber(reply_point) == step.pointId and
+            tonumber(reply_item) == job.sources[step.uuid].public.itemId
         local before = matching and self:GetBuildingDataByUuid(step.nativeUuid) or nil
         local from = before and tonumber(before.pointId)
         -- Always invoke the original handler once with its original receiver
