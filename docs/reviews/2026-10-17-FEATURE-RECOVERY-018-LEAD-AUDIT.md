@@ -478,3 +478,12 @@ Handoff rule unchanged; record progress under "R17 progress".
 - **Task 2 cleanup:** the same run was explicitly finished. `owned-exit.json` reports exit 0, no error,
   `restorationAudit.state=proven`, all `LWScripts.data` / `LWScripts.txt` / `version.txt` hashes equal the captured
   originals, and no recovery journal. No task-owned LastWar or LWBridge process remains. R17 packaging is next.
+- **Task 3 / package source prepared:** `tools/feature018_r17_package.py` carries forward the accepted R16 release
+  gates and emits an R17 OWNER_TEST ZIP only from a clean pushed commit whose Windows ProductVersion embeds that
+  exact SHA. It verifies the canonical production UI fingerprint, every Desktop-linked OverviewBridge source,
+  per-file hashes/ZIP CRC, and scans every uncompressed ZIP entry for all historical/test account UIDs in both
+  ASCII/UTF-8 and UTF-16LE. README-R17 records the owner-directed removal of worker diagnostic panels, preservation
+  of all original hotkeys/cards and the G count setting, the fresh R17 G and guildless Q→A positives, the owner's
+  successful R16 ally-city reinforcement test, and the still-unavailable ruin test prerequisite. It explicitly
+  keeps Unlock Land Cell out of this owner test. The external ZIP/receipt will be generated only after this package
+  source checkpoint is pushed, so its embedded `SOURCE-COMMIT.txt` remains the authoritative final source witness.
