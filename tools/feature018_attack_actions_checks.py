@@ -688,7 +688,21 @@ def test_resource_create_sender_correlation():
         vm.globals().state.existingAbsent=True
         vm.globals().state.marchClientCreateGuid=None
         vm.globals().state.startTime=1000+cycle
+        if cycle==1:
+            vm.execute('nativeCtrl.targetType=nil;nativeCtrl.targetPoint=nil;nativeCtrl.targetUuid=nil')
         sent=call()
+        if cycle==1:
+            require(sent['state']=='accepted' and sent['data']['awaitingNativeChooser'] is True and
+                    vm.globals().state.attackSends is None and vm.globals().state.openCalls==1,
+                    'published Ctrl before native InitData aborted pending hover')
+            for stage in ('nativeCtrl.targetType=20', 'nativeCtrl.targetUuid=0'):
+                vm.execute(stage)
+                deferred=call(queryOnly='1')
+                require(deferred['state']=='accepted' and deferred['data']['awaitingNativeChooser'] is True and
+                        vm.globals().state.attackSends is None and vm.globals().state.openCalls==1,
+                        'partial native target initialization sent or reopened chooser')
+            vm.execute('nativeCtrl.targetPoint=35723')
+            sent=call(queryOnly='1')
         require(sent['state']=='accepted' and sent['data']['requestDispatched'] is True and
                 vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
                 'repeat physical hover did not send once in same VM: '+str(cycle)+' / '+str(sent['error']))
@@ -1810,6 +1824,33 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                 pending['data']['requestDispatched'] is False and
                 state.openCalls==1 and state.rpcCount==0,
                 'queryOnly chooser poll repeated a physical hover or sent a march')
+        if target=='resource':
+            vm.execute("""
+              UIWindowNames={UIFormationSelectListV2='formation'}
+              deferredCtrl={targetPoint=35723,targetUuid=0,targetServerId=state.serverId}
+              UIManager={GetInstance=function()return {
+                IsWindowOpen=function(self,name)return name=='formation' end,
+                GetWindow=function(self,name)return name=='formation' and {Ctrl=deferredCtrl} end,
+              }end}
+            """)
+            raycast_count=state.raycastCalls
+            deferred=execute(queryOnly='1')
+            require(deferred['state']=='accepted' and deferred['data']['awaitingNativeChooser'] is True and
+                    state.openCalls==1 and state.raycastCalls==raycast_count and state.rpcCount==0,
+                    'partial Ctrl target initialization did not preserve frozen hover without raycast/send: '+
+                    str(deferred['state'])+'/'+str(deferred['error']))
+            for mutation in ('deferredCtrl.targetPoint=35724',
+                             'deferredCtrl.targetUuid=990123',
+                             'deferredCtrl.targetServerId=2296',
+                             'deferredCtrl.targetType=17'):
+                vm.execute('deferredCtrl.targetType=nil;deferredCtrl.targetPoint=35723;'
+                           'deferredCtrl.targetUuid=0;deferredCtrl.targetServerId=2212')
+                vm.execute(mutation)
+                rejected=execute(queryOnly='1')
+                require(rejected['state']=='failed' and state.openCalls==1 and
+                        state.raycastCalls==raycast_count and state.rpcCount==0,
+                        'missing target field concealed concrete native mismatch: '+mutation)
+            vm.execute('UIManager=nil')
         repeat=execute()
         require(repeat['state']=='accepted' and state.openCalls==1 and
                 state.rpcCount==0,

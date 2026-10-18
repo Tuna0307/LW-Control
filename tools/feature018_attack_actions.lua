@@ -2742,7 +2742,7 @@ local function attack_from_native_hover(fields,input_clear,uid)
             return failed("Pending hover chooser's original squad changed")
         end
         local selector=selected_window()
-        if not selector then
+        local function waiting_for_chooser()
             return {state="accepted",data={
                 observation="original_hover_waiting_for_native_chooser",
                 accepted=true,
@@ -2755,6 +2755,30 @@ local function attack_from_native_hover(fields,input_clear,uid)
                 nativePopupTargetVerified=prior.nativePopupTargetVerified,
                 chooserRequestMade=true,
                 requestDispatched=false,nativeSelectorConfirmed=false}}
+        end
+        if not selector then return waiting_for_chooser() end
+        -- OpenWindow can publish Ctrl before InitData assigns the target.
+        -- Wait only for missing/zero native identity fields whose populated
+        -- siblings still agree with the retained physical-hover intent. A
+        -- concrete different kind/UUID/tile/server remains an immediate error.
+        -- This path neither reacquires the cursor nor opens/sends anything;
+        -- the original sentAt deadline above still applies on every poll.
+        local kind=member(selector.ctrl,"targetType")
+        local point=member(selector.ctrl,"targetPoint")
+        local uuid=member(selector.ctrl,"targetUuid")
+        local server=member(selector.ctrl,"targetServerId")
+        local expected_kind=member(rawget(_G,"MarchTargetType"),prior.kind)
+        local is_resource=prior.kind=="COLLECT"
+        local missing_kind=kind==nil or kind==0
+        local missing_point=point==nil or tostring(point)=="0"
+        local missing_uuid=uuid==nil or tostring(uuid)=="0"
+        local known_fields_match=(missing_kind or kind==expected_kind) and
+            (missing_point or integer(point)==prior.point) and
+            (missing_uuid or (not is_resource and ident(uuid)==prior.uuid)) and
+            (server==nil or tostring(server)=="0" or tostring(server)==prior.server)
+        if known_fields_match and (missing_kind or missing_point or
+            (not is_resource and missing_uuid)) then
+            return waiting_for_chooser()
         end
         local target,reason=native_selector_target(selector.ctrl,uid)
         if not target or target.kind~=member(rawget(_G,"MarchTargetType"),prior.kind) or
