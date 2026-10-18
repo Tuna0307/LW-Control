@@ -454,3 +454,27 @@ Handoff rule unchanged; record progress under "R17 progress".
   removed; `check-feature018-land-mounted.mjs` reports original G count preserved and the Frontline diagnostic
   removed. Before screenshots were captured under ignored `artifacts/feature018-r17-ui/`; after screenshots and
   the full R17 verification matrix are Task 2.
+- **Task 2 — regressions proven (2026-10-19):** exact before/after Hotkeys and Mini Games screenshots are under
+  `artifacts/feature018-r17-ui/`. The before set was rendered from parent `66de5525`; the after set is R17 source.
+  After removal Hotkeys contains exactly the seven recovered cards, and Mini Games retains the original G card with
+  its soldiers-per-press input plus Treasure Chest, Land and Sheep. Canonical UI build/check PASS
+  (`LWB317_PRODUCTION_UI_BUILD_OK`, `LWB317_UI_COMPLETE_CHECKS_OK`, all nine locales), full
+  `tests/LWBridge.Desktop.Checks` PASS (`HOME_FEATURE_DELIVERY_CHECKS_OK`), and both Hotkey/attack Lua suites PASS
+  (`FEATURE018_HOTKEY_ACTIONS_LUA53_OFFLINE_PASS`, `FEATURE018_ATTACK_ACTIONS_SOURCE_AND_LUA53_OFFLINE_PASS`).
+  The first Desktop run hit only an `esbuild.exe` EPERM while the screenshot Vite server still held that binary;
+  after the evidence server closed, the unchanged suite passed normally.
+- **Task 2 live — Q→A and G still work:** pushed source `b3bb37db` package
+  `artifacts/feature018-r17-task2/windows/LWBridge.Desktop.exe` admitted only exact UID
+  `4799432499002212` / server `2212` in
+  `artifacts/map014-takeover/native-ui-20261018-183342` (game PID 8820, session
+  `0e0a7752666447efab6400b392387b2d`). A no-send native hover check first classified the target as
+  `guildless_player_city`, alliance `0`, UUID `1349057083047715926`, point `759192`. One physical Q then sent one
+  `ATTACK_CITY` march and returned **Confirmed** with response-derived client GUID
+  `25d631c8-9a2b-4e8b-8199-d056b2de7f96` / march `1427557180999509106`; one physical A returned that same march
+  with the accepted server-applied `BACK_HOME` poststate. In a fresh Frontline Breakthrough stage, one physical G
+  returned **Confirmed** and changed the native Parkour team from **4 → 9**, with five verified new unit identities
+  and configured count 5. The helper now admits G so the required real VK path can be used (plain-letter desktop
+  shortcuts are VK_PACKET). No Land Cell request was issued.
+- **Task 2 cleanup:** the same run was explicitly finished. `owned-exit.json` reports exit 0, no error,
+  `restorationAudit.state=proven`, all `LWScripts.data` / `LWScripts.txt` / `version.txt` hashes equal the captured
+  originals, and no recovery journal. No task-owned LastWar or LWBridge process remains. R17 packaging is next.

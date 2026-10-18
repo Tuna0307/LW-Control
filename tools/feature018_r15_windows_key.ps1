@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$true)][string]$RunDirectory,
-    [Parameter(Mandatory=$true)][ValidateSet('Q','W','A','S')][string]$Key,
+    [Parameter(Mandatory=$true)][ValidateSet('Q','W','A','S','G')][string]$Key,
     [ValidateRange(0,4000)][int]$RecallAfterMilliseconds = 0
 )
 $ErrorActionPreference = 'Stop'
