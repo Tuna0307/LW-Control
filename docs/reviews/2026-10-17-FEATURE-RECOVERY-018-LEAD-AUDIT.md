@@ -215,3 +215,11 @@ rigour rather than moving to Tasks 4/5/7.
 
 Next (not yet assigned): speed-ups live, F9/F10 live, fix the transient owner loss, make City single-move report
 Completed from server-applied state, owner-test ZIP.
+
+## Lead-built R14 owner-test ZIP — 2026-10-18
+Owner asked for a test build to try on their own accounts. Lead found and fixed two leftover 2288 account checks in
+the Hotkeys UI (F9/F10 prerequisites panel, G battle status panel) — they would have failed on any other account —
+and extended the package gate to scan UI JSX (7ca3d0cd). UI checks pass. ZIP built from pushed 7ca3d0cd:
+`artifacts/feature018-r14-7ca3d0cd/LW-Control-FEATURE-018-R14-PARTIAL-7ca3d0cd39db.zip`, SHA-256
+9c10c4947cbd66d921a9c1389aa0500b6d652c886eec42727685275af33d3a26, no test UID in any shipped file. README lists
+working (G, Q/W/E/R monster+resource, A/S/D/F, Land Cell), partial (City Layout) and untested features.
