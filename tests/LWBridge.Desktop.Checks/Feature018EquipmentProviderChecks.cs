@@ -50,6 +50,8 @@ internal static class Feature018EquipmentProviderChecks
         ["requestDispatched"] = true, ["awaitingGameConfirmation"] = false,
         ["replyObserved"] = true,
         ["replyExactItemUuidObserved"] = true,
+        ["replyItemIdFallbackObserved"] = false,
+        ["replyItemIdentityCorrelated"] = true,
         ["replyUseOperationCompatible"] = true,
         ["independentWorldAndInventoryPoststateVerified"] = true,
         ["clientRequestNonceAvailable"] = false, ["serverAckAttributable"] = false,
@@ -58,6 +60,26 @@ internal static class Feature018EquipmentProviderChecks
         ["itemUuid"] = "e43623c3ec5e4cd78ae1b3f904094fd7", ["itemId"] = "10004",
         ["beforeCount"] = 2, ["afterCount"] = 1,
         ["beforeWorldPointId"] = 440444, ["afterWorldPointId"] = 540544,
+    };
+    private static JsonObject AllianceRelocation() => new()
+    {
+        ["observation"] = "native_alliance_relocation_reply_world_position",
+        ["action"] = "allianceRelocate", ["slot"] = 0,
+        ["relocationConfirmed"] = true, ["requestDispatched"] = true,
+        ["awaitingGameConfirmation"] = false,
+        ["ownerSelectedRemoteRallyObserved"] = true,
+        ["allianceMoveRequestObserved"] = true, ["allianceMoveSendCount"] = 1,
+        ["allianceMoveReplyObserved"] = true, ["worldMvReason240Observed"] = true,
+        ["replyResultOneObserved"] = true,
+        ["serverAckAttributableByOneSendFence"] = true,
+        ["independentWorldAndInventoryPoststateVerified"] = true,
+        ["worldPointChanged"] = true,
+        ["ownerUid"] = Owner.GameUid, ["sourceServerId"] = Owner.ServerId,
+        ["selectedRallyServerId"] = 2213, ["replyServerId"] = 2213,
+        ["itemUuid"] = "e43623c3ec5e4cd78ae1b3f904094fd7", ["itemId"] = "10005",
+        ["beforeCount"] = 2, ["afterCount"] = 1,
+        ["beforeWorldPointId"] = 440444, ["afterWorldPointId"] = 540544,
+        ["acknowledgedWorldPointId"] = 540544,
     };
     private static JsonElement Pending(string identity = "owner-preset", bool equipment = true) =>
         Element(new JsonObject
@@ -224,37 +246,74 @@ internal static class Feature018EquipmentProviderChecks
                     Feature018HotkeyActionStatus.Failed, "incomplete or mismatched equipment observation falsely confirmed");
             Require(service.Requests.Count == 1, "invalid equipment receipt initiated polling/retransmit");
         }
-        foreach (var kind in new[] { Feature018HotkeyKind.RandomRelocate, Feature018HotkeyKind.AllianceRelocate })
+        var randomService = new FakeCommands { Respond = (_, _) => Element(Relocation()) };
+        Require((await Coordinator(randomService).TryDispatchAsync(
+                    new(Feature018HotkeyKind.RandomRelocate, 0))).Working,
+            "valid native F9 relocation reply plus consumed item and changed city was rejected");
+        JsonObject fallback = Relocation();
+        fallback["replyExactItemUuidObserved"] = false;
+        fallback["replyItemIdFallbackObserved"] = true;
+        var fallbackService = new FakeCommands { Respond = (_, _) => Element(fallback) };
+        Require((await Coordinator(fallbackService).TryDispatchAsync(
+                    new(Feature018HotkeyKind.RandomRelocate, 0))).Working,
+            "original ItemUse itemId fallback with one-send poststate was rejected");
+        int randomNegativeIndex = 0;
+        foreach (var corrupt in new Action<JsonObject>[]
         {
-            string action = Feature018HotkeyNativeProviders.ActionName(kind);
-            var service = new FakeCommands { Respond = (_, _) => Element(Relocation(action)) };
-            Require((await Coordinator(service).TryDispatchAsync(new(kind, 0))).Working,
-                "valid native relocation reply plus consumed item and changed city was rejected");
-            int negativeIndex = 0;
-            foreach (var corrupt in new Action<JsonObject>[]
-            {
-                data => data["action"] = action == "randomRelocate" ? "allianceRelocate" : "randomRelocate",
-                data => data["requestDispatched"] = false,
-                data => data["awaitingGameConfirmation"] = null,
-                data => data["replyObserved"] = false,
-                data => data["replyExactItemUuidObserved"] = false,
-                data => data["replyUseOperationCompatible"] = false,
-                data => data["independentWorldAndInventoryPoststateVerified"] = false,
-                data => data["worldPointChanged"] = false,
-                data => data["ownerUid"] = "2553945035002288",
-                data => data["sourceServerId"] = 2288,
-                data => data["afterCount"] = 2,
-                data => data["itemUuid"] = "not:a:native:stack:uuid",
-            })
-            {
-                JsonObject data = Relocation(action); corrupt(data);
-                service.Respond = (_, _) => Element(data);
-                Feature018HotkeyActionOutcome outcome = await Coordinator(service).TryDispatchAsync(new(kind, 0));
-                Require(!outcome.Working &&
-                        outcome.Status is Feature018HotkeyActionStatus.Failed or Feature018HotkeyActionStatus.Submitted,
-                    $"unmatched relocation reply, item or action falsely confirmed ({kind} case {negativeIndex}: {outcome.Status}/{outcome.Reason})");
-                negativeIndex++;
-            }
+            data => data["action"] = "allianceRelocate",
+            data => data["requestDispatched"] = false,
+            data => data["awaitingGameConfirmation"] = null,
+            data => data["replyObserved"] = false,
+            data => { data["replyExactItemUuidObserved"] = false; data["replyItemIdFallbackObserved"] = false; },
+            data => { data["replyExactItemUuidObserved"] = true; data["replyItemIdFallbackObserved"] = true; },
+            data => data["replyItemIdentityCorrelated"] = false,
+            data => data["replyUseOperationCompatible"] = false,
+            data => data["independentWorldAndInventoryPoststateVerified"] = false,
+            data => data["worldPointChanged"] = false,
+            data => data["ownerUid"] = "2553945035002288",
+            data => data["sourceServerId"] = 2288,
+            data => data["afterCount"] = 2,
+            data => data["itemUuid"] = "not:a:native:stack:uuid",
+        })
+        {
+            JsonObject data = Relocation(); corrupt(data);
+            randomService.Respond = (_, _) => Element(data);
+            Feature018HotkeyActionOutcome outcome = await Coordinator(randomService)
+                .TryDispatchAsync(new(Feature018HotkeyKind.RandomRelocate, 0));
+            Require(!outcome.Working,
+                $"unmatched F9 relocation receipt falsely confirmed (case {randomNegativeIndex}: {outcome.Status}/{outcome.Reason})");
+            randomNegativeIndex++;
+        }
+
+        var allianceService = new FakeCommands { Respond = (_, _) => Element(AllianceRelocation()) };
+        Require((await Coordinator(allianceService).TryDispatchAsync(
+                    new(Feature018HotkeyKind.AllianceRelocate, 0))).Working,
+            "valid F10 owner-selection/reason240 relocation receipt was rejected");
+        int allianceNegativeIndex = 0;
+        foreach (var corrupt in new Action<JsonObject>[]
+        {
+            data => data["action"] = "randomRelocate",
+            data => data["requestDispatched"] = false,
+            data => data["ownerSelectedRemoteRallyObserved"] = false,
+            data => data["allianceMoveRequestObserved"] = false,
+            data => data["allianceMoveSendCount"] = 2,
+            data => data["allianceMoveReplyObserved"] = false,
+            data => data["worldMvReason240Observed"] = false,
+            data => data["replyResultOneObserved"] = false,
+            data => data["serverAckAttributableByOneSendFence"] = false,
+            data => data["replyServerId"] = 2214,
+            data => data["acknowledgedWorldPointId"] = 540545,
+            data => data["independentWorldAndInventoryPoststateVerified"] = false,
+            data => data["afterCount"] = 2,
+        })
+        {
+            JsonObject data = AllianceRelocation(); corrupt(data);
+            allianceService.Respond = (_, _) => Element(data);
+            Feature018HotkeyActionOutcome outcome = await Coordinator(allianceService)
+                .TryDispatchAsync(new(Feature018HotkeyKind.AllianceRelocate, 0));
+            Require(!outcome.Working,
+                $"unmatched F10 relocation receipt falsely confirmed (case {allianceNegativeIndex}: {outcome.Status}/{outcome.Reason})");
+            allianceNegativeIndex++;
         }
     }
 }

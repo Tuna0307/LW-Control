@@ -43,7 +43,7 @@
 -- observes that request without retransmission; preflightOnly=1 preserves the
 -- earlier source observation. No action occurs when this module is loaded.
 
-local M = {VERSION = "feature018-relocation-actions-10"}
+local M = {VERSION = "feature018-relocation-actions-11"}
 local baseline = {}
 local last_owner = nil
 local inspect_relocation_readiness
@@ -185,6 +185,33 @@ local function same_world_owner(first, second)
         first.sourceServerId==second.sourceServerId and
         first.selfServerId==second.selfServerId and
         first.currentServerId==second.currentServerId
+end
+
+-- F10 can legitimately move to another alliance server after the owner makes
+-- the chooser selection. At that point source/self/current need not remain
+-- equal, so pending confirmation uses a narrower identity snapshot: exact
+-- player UID + source server + current native position, while retaining the
+-- observed self/current values as evidence rather than rejecting the move.
+local function pending_world_snapshot()
+    local player=member(rawget(_G,"LuaEntry"),"Player")
+    local player_uid=uid(member(player,"uid"))
+    local ok_source,source_server=invoke(player,"GetSourceServerId")
+    local ok_self,self_server=invoke(player,"GetSelfServerId")
+    local ok_current,current_server=invoke(player,"GetCurServerId")
+    local ok_pos,position=invoke(player,"GetMainWorldPos")
+    local ok_alliance,in_alliance=invoke(player,"IsInAlliance")
+    source_server=ok_source and integer(source_server,1) or nil
+    self_server=ok_self and integer(self_server,1) or nil
+    current_server=ok_current and integer(current_server,1) or nil
+    position=ok_pos and integer(position,0) or nil
+    if not player_uid or not source_server or not self_server or
+       not current_server or position==nil or not ok_alliance or
+       type(in_alliance)~="boolean" then
+        return nil,"Native pending relocation owner/server/position snapshot incomplete"
+    end
+    return {ownerUid=player_uid,sourceServerId=source_server,
+        selfServerId=self_server,currentServerId=current_server,
+        worldPointId=position,inAlliance=in_alliance},nil
 end
 
 -- The original F10 TryAllianceMoveCity first reads the OTHER-server rally.
@@ -387,9 +414,10 @@ end
 -- its callback: battlefield, season hunter, meteorite, zombie challenge, virus.
 -- Thus a sent request has traversed the same no-warning native conditions.
 -- F9 ItemUse reply observation wraps the original ItemUseHandle during its
--- outstanding request and restores it before reporting success. Without a
--- matching native ItemUse UUID and independent inventory+position it remains
--- unconfirmed; the server's random destination is never predicted.
+-- outstanding request and restores it before reporting success. The reply must
+-- match either the exact native ItemUse UUID or the original nil-UUID itemId
+-- fallback, and independent inventory+position poststate is always required;
+-- the server's random destination is never predicted.
 -- Important v26 correction: AllianceMoveCityToSourceRallyPoint on *this*
 -- source=self=2288 home world invokes upvalue MoveCityFromOtherToSource.
 -- That upvalue instead sends MsgDefines.MoveCrossServer (BackToSrcServer,
@@ -404,6 +432,17 @@ local function clear_hook(tx)
         tx.manager[tx.method]=tx.original
     end
 end
+local function clear_chooser_hooks(tx)
+    if not tx then return end
+    if tx.selectionHook and tx.moveUtil and
+       member(tx.moveUtil,tx.selectionMethod)==tx.selectionHook then
+        tx.moveUtil[tx.selectionMethod]=tx.selectionOriginal
+    end
+    if tx.worldHook and tx.buildManager and
+       member(tx.buildManager,tx.worldMethod)==tx.worldHook then
+        tx.buildManager[tx.worldMethod]=tx.worldOriginal
+    end
+end
 function M.Dispose()
     if pending then
         clear_hook(pending)
@@ -411,6 +450,10 @@ function M.Dispose()
         -- the one-send tombstone, but never imply its detached observer can
         -- still correlate a future ItemUseHandle invocation.
         pending.observerDetached=true
+    end
+    if chooser_pending then
+        clear_chooser_hooks(chooser_pending)
+        chooser_pending.observerDetached=true
     end
     chooser_pending=nil
 end
@@ -525,6 +568,7 @@ function M.Readiness(fields,input_clear,action)
     end
     local ui=rawget(_G,"UIManager")
     local chooser_components_present,chooser_already_open=false,false
+    local f10_observer_ready=false
     if action=="allianceRelocate" then
         local window=member(rawget(_G,"UIWindowNames"),"UIChooseRallyPoint")
         local ok,manager=invoke(ui,"GetInstance")
@@ -537,10 +581,21 @@ function M.Readiness(fields,input_clear,action)
                 chooser_already_open=visible
             end
         end
+        local move_util=rawget(_G,"MoveCityUtil")
+        local build_manager=member(rawget(_G,"DataCenter"),"BuildManager")
+        f10_observer_ready=
+            type(member(move_util,"AllianceMoveCityToSelectedRallyPoint"))=="function" and
+            type(member(build_manager,"WorldMvHandle"))=="function" and
+            type(member(rawget(_G,"SFSNetwork"),"SendMessage"))=="function" and
+            member(rawget(_G,"MsgDefines"),"AllianceMoveCity")~=nil
     end
+    local alliance_move_route=action=="allianceRelocate" and rally~=nil and
+        rally.otherServerRally~=nil and
+        rally.otherServerRally.serverId~=snapshot.selfServerId
     local chooser_eligible=action=="allianceRelocate" and
         snapshot.inAlliance and rally~=nil and
         rally.nativeChooserWouldOpen and rally.otherServerRally~=nil and
+        alliance_move_route and f10_observer_ready and
         chooser_components_present and input_ready and item.ownerItemPresent and
         item.warningsClear and not chooser_already_open
     local sender_ready=type(member(rawget(_G,"SFSNetwork"),"SendMessage"))=="function" and
@@ -576,6 +631,11 @@ function M.Readiness(fields,input_clear,action)
     elseif action=="allianceRelocate" and rally_error then blocker=rally_error
     elseif action=="allianceRelocate" and not (rally and rally.nativeChooserWouldOpen) then
         blocker="Original source-home F10 would send MoveCrossServer, not AllianceMoveCity"
+    elseif action=="allianceRelocate" and rally and rally.otherServerRally and
+           rally.otherServerRally.serverId==snapshot.selfServerId then
+        blocker="Selected F10 OtherServerRally would send MoveCrossServer, not AllianceMoveCity"
+    elseif action=="allianceRelocate" and not f10_observer_ready then
+        blocker="Original F10 selection/send/reason240 reply observer unavailable"
     elseif action=="allianceRelocate" and not chooser_components_present then
         blocker="Original F10 chooser UI not available"
     elseif action=="allianceRelocate" and chooser_already_open then
@@ -610,6 +670,8 @@ function M.Readiness(fields,input_clear,action)
         originalItemUseOutstanding=pending~=nil,
         nativeChooserRequestOutstanding=chooser_pending~=nil,
         chooserRequestEligible=chooser_eligible==true,
+        allianceMoveReplyObserverReady=f10_observer_ready,
+        allianceMoveSelectionRouteEligible=alliance_move_route==true,
         chooserVisibleVerified=chooser_already_open,
         chooserAlreadyOpen=chooser_already_open,
         ownerSelectionRequired=(rally~=nil and rally.nativeChooserWouldOpen)==true,
@@ -630,7 +692,9 @@ local function action_receipt(tx,snapshot,confirmed)
         oneSendNoRetry=true,
         awaitingGameConfirmation=not confirmed,relocationConfirmed=confirmed,
         replyObserved=tx.reply==true,worldMvAcknowledged=false,
-        replyExactItemUuidObserved=tx.reply==true,
+        replyExactItemUuidObserved=tx.replyIdentityMode=="exactUuid" and tx.reply==true,
+        replyItemIdFallbackObserved=tx.replyIdentityMode=="itemIdFallback" and tx.reply==true,
+        replyItemIdentityCorrelated=tx.reply==true and tx.replyIdentityMode~=nil,
         replyUseOperationCompatible=tx.replyUseOperationCompatible==true,
         independentWorldAndInventoryPoststateVerified=confirmed,
         clientRequestNonceAvailable=false,serverAckAttributable=false,
@@ -663,8 +727,11 @@ end
 local function chooser_receipt(snapshot,tx,visible)
     return {state="accepted",data={
         observation="original_v26_F10_rally_chooser_native_window_lifecycle",
-        action="allianceRelocate",ownerUid=snapshot.ownerUid,
+        accepted=true,
+        action="allianceRelocate",slot=0,ownerUid=snapshot.ownerUid,
         sourceServerId=snapshot.sourceServerId,
+        itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,
+        beforeCount=tx.item.count,afterCount=tx.afterCount,
         beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
         otherServerRally=tx.remote,homeRally=tx.home,
         chooserRequestMade=true,chooserVisibleVerified=false,
@@ -678,15 +745,97 @@ local function chooser_receipt(snapshot,tx,visible)
         relocationConfirmed=false,itemDebitedVerified=false,
         originalPacketSend=false,readOnly=tx.observationOnly,sourceVersion=26}}
 end
+
+local function read_relocation_item_after(tx)
+    local itemdata=member(rawget(_G,"DataCenter"),"ItemData")
+    local ok,item=invoke(itemdata,"GetItemById",tx.item.nativeItemId)
+    local count=item and integer(member(item,"count"),0) or 0
+    if not ok or count==nil then return nil,"Native F10 relocation inventory unavailable after selection" end
+    if item~=nil and native_item_uuid(member(item,"uuid"))~=tx.item.itemUuid then
+        return nil,"Native F10 relocation item stack identity changed after selection"
+    end
+    return count,nil
+end
+
+local function f10_receipt(snapshot,tx,confirmed)
+    return {state=confirmed and "confirmed" or "accepted",data={
+        observation=confirmed and "native_alliance_relocation_reply_world_position" or
+            "native_alliance_relocation_pending",
+        accepted=not confirmed,
+        action="allianceRelocate",slot=0,ownerUid=tx.ownerUid,
+        sourceServerId=tx.sourceServerId,selfServerId=snapshot.selfServerId,
+        currentServerId=snapshot.currentServerId,
+        itemId=tx.item.itemId,itemUuid=tx.item.itemUuid,
+        beforeCount=tx.item.count,afterCount=tx.afterCount,
+        beforeWorldPointId=tx.before,afterWorldPointId=snapshot.worldPointId,
+        acknowledgedWorldPointId=tx.replyPoint,
+        worldPointChanged=snapshot.worldPointId~=tx.before,
+        otherServerRally=tx.remote,homeRally=tx.home,
+        selectedRallyServerId=tx.remote.serverId,
+        selectedRallyWorldPointId=tx.remote.worldPointId,
+        chooserRequestMade=true,chooserVisibleVerified=false,
+        chooserStillOpen=false,ownerSelectionRequired=true,
+        ownerSelectedRallyObserved=tx.ownerSelectedRallyObserved==true,
+        ownerSelectedRemoteRallyObserved=tx.ownerSelectedRemoteRallyObserved==true,
+        selectionCostType=tx.selectionCostType,
+        allianceMoveRequestObserved=tx.allianceMoveRequestObserved==true,
+        allianceMoveSendCount=tx.allianceMoveSendCount or 0,
+        nativeSendAttempted=tx.nativeSendAttempted==true,
+        nativeSendOutcomeUncertain=tx.nativeSendOutcomeUncertain==true,
+        requestDispatched=tx.requestDispatched==true,
+        originalPacketSend=tx.requestDispatched==true,
+        oneSendNoRetry=true,
+        awaitingGameConfirmation=tx.requestDispatched==true and not confirmed,
+        gameRequestAcknowledged=tx.replyObserved==true,
+        allianceMoveReplyObserved=tx.replyObserved==true,
+        worldMvReason240Observed=tx.worldMvReason240Observed==true,
+        replyResultOneObserved=tx.replyResultOneObserved==true,
+        replyServerId=tx.replyServerId,
+        serverAckAttributableByOneSendFence=tx.serverAckAttributableByOneSendFence==true,
+        clientRequestNonceAvailable=false,
+        serverAckAttributable=tx.serverAckAttributableByOneSendFence==true,
+        relocationConfirmed=confirmed,
+        itemDebitedVerified=confirmed,
+        independentWorldAndInventoryPoststateVerified=confirmed,
+        observerDetached=tx.observerDetached==true,
+        readOnly=tx.observationOnly,sourceVersion=26}}
+end
+
 local function observe_original_f10_chooser(snapshot,token,query)
     local tx=chooser_pending
     if not tx or tx.token~=token then
         return failed("GAME_PRECONDITION_FAILED",
             "No exact owner/session native F10 chooser request to observe")
     end
-    if snapshot.worldPointId~=tx.before or not snapshot.inAlliance then
+    if snapshot.ownerUid~=tx.ownerUid or snapshot.sourceServerId~=tx.sourceServerId then
         return failed("GAME_ACTION_UNCONFIRMED",
-            "Native owner alliance or city position changed after chooser request; no attributed relocation")
+            "Native owner/source server changed after F10 chooser request")
+    end
+    tx.observationOnly=query
+    if tx.ownerSelectedRallyObserved then
+        local count,item_error=read_relocation_item_after(tx)
+        if count==nil then return failed("GAME_ACTION_UNCONFIRMED",item_error) end
+        tx.afterCount=count
+        local confirmed=tx.observerDetached~=true and
+            tx.ownerSelectedRemoteRallyObserved==true and
+            tx.requestDispatched==true and tx.allianceMoveRequestObserved==true and
+            tx.allianceMoveSendCount==1 and tx.replyObserved==true and
+            tx.worldMvReason240Observed==true and tx.replyResultOneObserved==true and
+            tx.replyServerId==tx.remote.serverId and
+            tx.replyPoint~=nil and snapshot.worldPointId==tx.replyPoint and
+            snapshot.worldPointId~=tx.before and count==tx.item.count-1
+        local result=f10_receipt(snapshot,tx,confirmed)
+        if confirmed then
+            clear_chooser_hooks(tx)
+            chooser_pending=nil
+        end
+        return result
+    end
+    if snapshot.selfServerId~=tx.selfServerId or
+       snapshot.currentServerId~=tx.currentServerId or
+       snapshot.worldPointId~=tx.before or not snapshot.inAlliance then
+        return failed("GAME_ACTION_UNCONFIRMED",
+            "Native owner alliance/server/city position changed before F10 owner selection")
     end
     local current,why=alliance_rally_snapshot(
         member(rawget(_G,"LuaEntry"),"Player"))
@@ -700,10 +849,9 @@ local function observe_original_f10_chooser(snapshot,token,query)
     end
     local observed,err=native_chooser_state()
     if not observed then return unavailable(err) end
-    tx.observationOnly=query
     return chooser_receipt(snapshot,tx,observed.visible)
 end
-local function request_original_f10_chooser(snapshot,marks,token)
+local function request_original_f10_chooser(snapshot,marks,token,item)
     local observed,err=native_chooser_state()
     if not observed then return unavailable(err,snapshot) end
     if type(member(observed.manager,"OpenWindow"))~="function" then
@@ -712,10 +860,151 @@ local function request_original_f10_chooser(snapshot,marks,token)
     if observed.visible then
         return unavailable("Original native rally chooser was already open; cannot attribute it to this F10 request",snapshot)
     end
+    local remote=marks.otherServerRally
+    if not remote or remote.serverId==snapshot.selfServerId then
+        return unavailable("Original selected F10 rally would route through MoveCrossServer, not AllianceMoveCity",snapshot)
+    end
+    local move_util=rawget(_G,"MoveCityUtil")
+    local selection_method="AllianceMoveCityToSelectedRallyPoint"
+    local selection_original=member(move_util,selection_method)
+    local center=rawget(_G,"DataCenter")
+    local build_manager=member(center,"BuildManager")
+    local world_method="WorldMvHandle"
+    local world_original=member(build_manager,world_method)
+    local network=rawget(_G,"SFSNetwork")
+    local send_original=member(network,"SendMessage")
+    local alliance_message=member(rawget(_G,"MsgDefines"),"AllianceMoveCity")
+    if type(selection_original)~="function" or type(world_original)~="function" or
+       type(send_original)~="function" or alliance_message==nil then
+        return unavailable("Original F10 selection/send/reason240 reply observer unavailable",snapshot)
+    end
     local tx={token=token,before=snapshot.worldPointId,
+        ownerUid=snapshot.ownerUid,sourceServerId=snapshot.sourceServerId,
+        selfServerId=snapshot.selfServerId,currentServerId=snapshot.currentServerId,
         allianceUid=marks.ownerAllianceUid,
-        remote=marks.otherServerRally,home=marks.homeRally,
-        observationOnly=false}
+        remote=remote,home=marks.homeRally,item=item,
+        observationOnly=false,moveUtil=move_util,
+        selectionMethod=selection_method,selectionOriginal=selection_original,
+        buildManager=build_manager,worldMethod=world_method,worldOriginal=world_original}
+
+    tx.worldHook=function(self,response,reason,...)
+        local returns=table.pack(world_original(self,response,reason,...))
+        if chooser_pending==tx and self==build_manager and
+           member(build_manager,world_method)==tx.worldHook and
+           tx.requestDispatched==true and tx.allianceMoveSendCount==1 and
+           reason==240 and not tx.replyObserved then
+            local reply_server=integer(member(response,"serverId"),1)
+            local reply_result=integer(member(response,"result"),0)
+            local point=integer(member(response,"worldMainPoint"),0)
+            local build=member(response,"buildInfo")
+            local build_point=build and integer(member(build,"pId"),0) or nil
+            if build_point~=nil then point=build_point end
+            local post=pending_world_snapshot()
+            local count=read_relocation_item_after(tx)
+            if member(response,"errorCode")==nil and reply_result==1 and
+               reply_server==tx.remote.serverId and point~=nil and post and
+               post.ownerUid==tx.ownerUid and post.sourceServerId==tx.sourceServerId and
+               count~=nil then
+                tx.replyObserved=true
+                tx.worldMvReason240Observed=true
+                tx.replyResultOneObserved=true
+                tx.replyServerId=reply_server
+                tx.replyPoint=point
+                tx.afterCount=count
+                tx.afterWorldPointId=post.worldPointId
+                tx.serverAckAttributableByOneSendFence=true
+            else
+                tx.reason240MismatchObserved=true
+            end
+        end
+        return table.unpack(returns,1,returns.n)
+    end
+
+    tx.selectionHook=function(kind,cost,invite,pin,...)
+        local current=pending_world_snapshot()
+        local fresh=current and current.ownerUid==tx.ownerUid and
+            current.sourceServerId==tx.sourceServerId and
+            current.selfServerId==tx.selfServerId and
+            current.currentServerId==tx.currentServerId and
+            current.worldPointId==tx.before and current.inAlliance and
+            alliance_rally_snapshot(member(rawget(_G,"LuaEntry"),"Player")) or nil
+        local fresh_remote=fresh and fresh.otherServerRally
+        local exact_remote=chooser_pending==tx and kind==tx.remote.markType and
+            cost==4 and invite==false and pin==nil and fresh_remote and
+            fresh.ownerAllianceUid==tx.allianceUid and
+            fresh_remote.serverId==tx.remote.serverId and
+            fresh_remote.worldPointId==tx.remote.worldPointId and
+            fresh_remote.markType==tx.remote.markType and
+            fresh_remote.serverId~=current.selfServerId
+        tx.ownerSelectedRallyObserved=true
+        tx.ownerSelectedRemoteRallyObserved=exact_remote==true
+        tx.selectedMarkType=integer(kind,1)
+        tx.selectionCostType=integer(cost,0)
+        local send_hook
+        if exact_remote then
+            send_hook=function(message,...)
+                local args=table.pack(...)
+                local track=chooser_pending==tx and message==alliance_message
+                if track then
+                    tx.nativeSendAttempted=true
+                    tx.allianceMoveSendCount=(tx.allianceMoveSendCount or 0)+1
+                    if tx.allianceMoveSendCount==1 and args[1]==4 and
+                       args[2]==false and args[3]==nil then
+                        tx.allianceMoveRequestObserved=true
+                    else
+                        tx.nativeSendOutcomeUncertain=true
+                    end
+                end
+                local sent=table.pack(pcall(send_original,message,table.unpack(args,1,args.n)))
+                if track then
+                    if not sent[1] or sent[2]==false then
+                        tx.nativeSendOutcomeUncertain=true
+                    elseif tx.allianceMoveSendCount==1 and tx.allianceMoveRequestObserved and
+                           not tx.nativeSendOutcomeUncertain then
+                        tx.requestDispatched=true
+                    end
+                end
+                if not sent[1] then error(sent[2],0) end
+                return table.unpack(sent,2,sent.n)
+            end
+            local hooked=pcall(function()network.SendMessage=send_hook end)
+            if not hooked or member(network,"SendMessage")~=send_hook then
+                tx.nativeSendOutcomeUncertain=true
+                send_hook=nil
+            end
+        end
+        local returns=table.pack(pcall(selection_original,kind,cost,invite,pin,...))
+        if send_hook and member(network,"SendMessage")==send_hook then
+            network.SendMessage=send_original
+        end
+        if exact_remote and ((tx.allianceMoveSendCount or 0)~=1 or
+           tx.allianceMoveRequestObserved~=true or tx.nativeSendOutcomeUncertain==true) then
+            tx.requestDispatched=false
+        end
+        if member(move_util,selection_method)==tx.selectionHook then
+            move_util[selection_method]=selection_original
+        end
+        if not exact_remote then
+            tx.selectionRouteMismatch=true
+            if member(build_manager,world_method)==tx.worldHook then
+                build_manager[world_method]=world_original
+            end
+        end
+        if not returns[1] then
+            tx.nativeSendOutcomeUncertain=tx.nativeSendAttempted==true
+            error(returns[2],0)
+        end
+        return table.unpack(returns,2,returns.n)
+    end
+
+    local installed_world=pcall(function()build_manager[world_method]=tx.worldHook end)
+    local installed_selection=pcall(function()move_util[selection_method]=tx.selectionHook end)
+    if not installed_world or not installed_selection or
+       member(build_manager,world_method)~=tx.worldHook or
+       member(move_util,selection_method)~=tx.selectionHook then
+        clear_chooser_hooks(tx)
+        return unavailable("Original F10 native observers could not be attached",snapshot)
+    end
     -- Tombstone BEFORE the GUI request. If native OpenWindow throws after
     -- partially opening, repeating would spuriously reset its user selection.
     chooser_pending=tx
@@ -736,19 +1025,25 @@ local function perform(fields,input_clear,action)
     local session=key_identity(fields,action)
     if not session then return failed("GAME_PRECONDITION_FAILED","Invalid owned relocation session") end
     if fields.queryOnly~=nil and fields.queryOnly~="1" then return failed("GAME_PRECONDITION_FAILED","Invalid relocation query mode") end
+    if chooser_pending then
+        if action~="allianceRelocate" then
+            return failed("GAME_PRECONDITION_FAILED",
+                "Original F10 chooser request unresolved; cannot dispatch another relocation")
+        end
+        local observed,observed_reason=pending_world_snapshot()
+        if not observed then return failed("GAME_PRECONDITION_FAILED",observed_reason) end
+        if observed.ownerUid~=fields.authorizedUid then
+            return failed("GAME_PRECONDITION_FAILED","Relocation request UID differs from native owner")
+        end
+        local observed_token=session.."/"..observed.ownerUid.."/"..observed.sourceServerId
+        return observe_original_f10_chooser(observed,observed_token,true)
+    end
     local snapshot,reason=world_snapshot()
     if not snapshot then return failed("GAME_PRECONDITION_FAILED",reason) end
     if snapshot.ownerUid~=fields.authorizedUid then
         return failed("GAME_PRECONDITION_FAILED","Relocation request UID differs from native owner")
     end
     local token=session.."/"..snapshot.ownerUid.."/"..snapshot.sourceServerId
-    if chooser_pending then
-        if action~="allianceRelocate" then
-            return failed("GAME_PRECONDITION_FAILED",
-                "Original F10 chooser request unresolved; cannot dispatch another relocation")
-        end
-        return observe_original_f10_chooser(snapshot,token,true)
-    end
     if pending then
         if pending.token~=token or pending.action~=action then
             return failed("GAME_PRECONDITION_FAILED","An owned relocation is unresolved; never repeat or replace it")
@@ -781,7 +1076,9 @@ local function perform(fields,input_clear,action)
             clear_hook(pending)
             return failed("GAME_ACTION_UNCONFIRMED","Original relocation reply rejected the request; no automatic retry")
         end
-        local confirmed=pending.observerDetached~=true and
+        local identity_safe=pending.replyIdentityMode=="exactUuid" or
+            (pending.replyIdentityMode=="itemIdFallback" and pending.sendOutcomeConfirmed==true)
+        local confirmed=pending.observerDetached~=true and identity_safe and
             pending.reply==true and pending.replyUseOperationCompatible==true and
             snapshot.worldPointId~=pending.before and count==pending.item.count-1
         local result=action_receipt(pending,snapshot,confirmed)
@@ -810,6 +1107,9 @@ local function perform(fields,input_clear,action)
         if marks.nativeChooserWouldOpen then
             if not marks.otherServerRally then
                 return unavailable("Original F10 chooser mark is not owner-verified",snapshot)
+            end
+            if marks.otherServerRally.serverId==snapshot.selfServerId then
+                return unavailable("Original selected F10 OtherServerRally routes through MoveCrossServer, not AllianceMoveCity",snapshot)
             end
             chooser_marks=marks
         else
@@ -860,7 +1160,10 @@ local function perform(fields,input_clear,action)
             return failed("GAME_PRECONDITION_FAILED",
                 "Original native alliance chooser mark changed before opening")
         end
-        local result=request_original_f10_chooser(final_owner,fresh,token)
+        if now_remote.serverId==final_owner.selfServerId then
+            return unavailable("Original selected F10 OtherServerRally changed to MoveCrossServer route",final_owner)
+        end
+        local result=request_original_f10_chooser(final_owner,fresh,token,final_item)
         local after=world_snapshot()
         if not same_world_owner(snapshot,after) then
             return failed("GAME_ACTION_UNCONFIRMED",
@@ -894,10 +1197,15 @@ local function perform(fields,input_clear,action)
            member(rawget(_G,"LuaEntry"),"Player")==tx.player and
            member(manager,method)==tx.hook and
            token==session.."/"..current.ownerUid.."/"..current.sourceServerId then
+            local response_uuid=member(response,"uuid")
+            local exact_uuid=native_item_uuid(response_uuid)==item.itemUuid
+            local item_id_fallback=response_uuid==nil
             if tostring(member(response,"itemId"))==item.itemId and
-               native_item_uuid(member(response,"uuid"))==item.itemUuid then
-                -- ItemUseHandle can handle itemId-only responses; those
-                -- cannot independently acknowledge our exact owned stack.
+               (exact_uuid or item_id_fallback) then
+                -- Original ItemUseHandle falls back to itemId only when uuid
+                -- is absent. Never treat a present-but-wrong UUID as that
+                -- fallback; independent stack/count/world poststate and the
+                -- existing one-send owner tombstone remain mandatory.
                 -- Original v26 ItemManager.ItemUseHandle lines 49-52 marks
                 -- opType=1 as a non-normal-use operation. Never credit that
                 -- event (or an unrecognized opType) as a sent ItemUse reply
@@ -907,6 +1215,7 @@ local function perform(fields,input_clear,action)
                 if use_operation then
                     tx.reply=member(response,"errorCode")==nil
                     tx.replyUseOperationCompatible=tx.reply
+                    tx.replyIdentityMode=exact_uuid and "exactUuid" or "itemIdFallback"
                     tx.rejected=not tx.reply
                 else
                     tx.incompatibleOperationObserved=true

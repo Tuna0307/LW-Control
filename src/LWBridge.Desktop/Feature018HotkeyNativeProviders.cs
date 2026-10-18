@@ -163,6 +163,16 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.GetProperty("formationUuid").GetString()!, cancellationToken)
                     .ConfigureAwait(false);
             }
+            if (command.Intent.Kind == Feature018HotkeyKind.AllianceRelocate &&
+                nativeAcceptedOnly && !dispatchedNativeRequest &&
+                IsF10ChooserReceipt(command, evidence, null) &&
+                evidence.TryGetProperty("chooserRequestMade", out var f10ChooserMade) &&
+                f10ChooserMade.ValueKind == JsonValueKind.True)
+            {
+                return await PollNativeF10ChooserAsync(command,
+                    evidence.GetProperty("itemUuid").GetString()!, cancellationToken)
+                    .ConfigureAwait(false);
+            }
             // The original native action receipt preserves requestDispatched
             // after its reply and independent after-state have settled. Do
             // not demote a *completed* action to pending merely because it
@@ -202,13 +212,18 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("slot", out JsonElement sentSlot) &&
                     sentSlot.TryGetInt32(out int slot) && slot == command.Intent.Slot)
                 {
+                    if (command.Intent.Kind == Feature018HotkeyKind.AllianceRelocate &&
+                        IsF10ChooserReceipt(command, evidence, null))
+                        return await PollNativeF10ChooserAsync(command,
+                            evidence.GetProperty("itemUuid").GetString()!, cancellationToken)
+                            .ConfigureAwait(false);
                     string? uuidProperty = command.Intent.Kind switch
                     {
                         Feature018HotkeyKind.RecallSquad => "marchUuid",
                         Feature018HotkeyKind.AttackSquad => "formationUuid",
                         Feature018HotkeyKind.UseShield => "itemUuid",
                         Feature018HotkeyKind.ApplyEquipmentPreset => "presetId",
-                        Feature018HotkeyKind.RandomRelocate or Feature018HotkeyKind.AllianceRelocate => "itemUuid",
+                        Feature018HotkeyKind.RandomRelocate => "itemUuid",
                         _ => null,
                     };
                     if (uuidProperty is not null &&
@@ -361,6 +376,29 @@ internal sealed class Feature018HotkeyNativeProviders
         return true;
     }
 
+    private static bool IsF10ChooserReceipt(
+        Feature018HotkeyCommand command, JsonElement data, string? itemUuid)
+    {
+        if (command.Intent.Kind != Feature018HotkeyKind.AllianceRelocate ||
+            command.Intent.Slot != 0 ||
+            !data.TryGetProperty("slot", out var slot) ||
+            !slot.TryGetInt32(out int actualSlot) || actualSlot != 0 ||
+            !data.TryGetProperty("action", out var action) ||
+            action.ValueKind != JsonValueKind.String || action.GetString() != "allianceRelocate" ||
+            !data.TryGetProperty("ownerUid", out var owner) ||
+            owner.ValueKind != JsonValueKind.String || owner.GetString() != command.Session.GameUid ||
+            !data.TryGetProperty("sourceServerId", out var server) ||
+            !server.TryGetInt32(out int serverId) || serverId != command.Session.ServerId ||
+            !IsNativeItemUseUuid(data, "itemUuid") ||
+            (itemUuid is not null && data.GetProperty("itemUuid").GetString() != itemUuid) ||
+            !data.TryGetProperty("chooserRequestMade", out var chooser) ||
+            chooser.ValueKind != JsonValueKind.True ||
+            !data.TryGetProperty("ownerSelectionRequired", out var selection) ||
+            selection.ValueKind != JsonValueKind.True)
+            return false;
+        return true;
+    }
+
     private static bool AttackHasExactlyOneNativeRpc(JsonElement data, string formationUuid)
     {
         if (!data.TryGetProperty("nativeTransaction", out var transaction) ||
@@ -483,6 +521,100 @@ internal sealed class Feature018HotkeyNativeProviders
             "native_attack_chooser_pending_no_verified_game_rpc");
     }
 
+    private async Task<Feature018HotkeyActionOutcome> PollNativeF10ChooserAsync(
+        Feature018HotkeyCommand command, string itemUuid,
+        CancellationToken cancellationToken)
+    {
+        // F10 itself only opens the original chooser. The owner performs the
+        // native selection; these follow-ups are read-only and may observe the
+        // exact selected AllianceMoveCity send plus its reason-240 reply. They
+        // never reopen the chooser or synthesize a second relocation request.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromSeconds(60));
+        JsonElement query = JsonSerializer.SerializeToElement(new
+        {
+            action = "allianceRelocate", slot = 0, queryOnly = true,
+            expectedGameUid = command.Session.GameUid,
+            expectedServerId = command.Session.ServerId,
+        }, JsonOptions.Default);
+        try
+        {
+            for (int poll = 0; poll < 240; poll++)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(250), deadline.Token)
+                    .ConfigureAwait(false);
+                JsonElement response;
+                try
+                {
+                    object? raw = await gameCommands.InvokeAsync(
+                        CommandName, query, deadline.Token).ConfigureAwait(false);
+                    if (raw is not JsonElement payload || payload.ValueKind != JsonValueKind.Object)
+                        return new(Feature018HotkeyActionStatus.Failed,
+                            "native_f10_chooser_followup_receipt_missing");
+                    response = payload;
+                }
+                catch (BridgeCommandException error) when (
+                    error.Code is "GAME_CONNECTION_UNAVAILABLE" or "GAME_ACCOUNT_NOT_AUTHORIZED" or
+                        "GAME_ACCOUNT_CHANGED")
+                {
+                    return new(Feature018HotkeyActionStatus.SessionChanged,
+                        "native_f10_authenticated_session_changed");
+                }
+                catch (BridgeCommandException error) when (error.Code == "GAME_ACTION_UNCONFIRMED")
+                {
+                    continue;
+                }
+                catch (BridgeCommandException error)
+                {
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        NativeRejectionReason("native_f10_followup_unavailable", error),
+                        NativeRejectionDetails(error));
+                }
+
+                if (!IsF10ChooserReceipt(command, response, itemUuid))
+                    return new(Feature018HotkeyActionStatus.SessionChanged,
+                        "native_f10_chooser_identity_changed");
+                bool awaiting = response.TryGetProperty("awaitingGameConfirmation", out var waiting) &&
+                                waiting.ValueKind == JsonValueKind.True;
+                if (!awaiting && ConfirmedReceiptMatches(command.Intent, response,
+                        command.Session, command.ReinforceCount))
+                    return new(Feature018HotkeyActionStatus.Confirmed,
+                        "verified_native_game_state_observation", response.Clone());
+
+                bool selected = response.TryGetProperty("ownerSelectedRallyObserved", out var chosen) &&
+                                chosen.ValueKind == JsonValueKind.True;
+                bool dispatched = response.TryGetProperty("requestDispatched", out var sent) &&
+                                  sent.ValueKind == JsonValueKind.True;
+                if (selected && !dispatched)
+                {
+                    bool uncertain = response.TryGetProperty("nativeSendOutcomeUncertain", out var unsure) &&
+                                     unsure.ValueKind == JsonValueKind.True;
+                    return new(Feature018HotkeyActionStatus.Submitted,
+                        uncertain ? "native_f10_selection_send_outcome_unconfirmed" :
+                            "native_f10_owner_selection_not_alliance_move", response.Clone());
+                }
+            }
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return new(Feature018HotkeyActionStatus.Submitted,
+                "native_f10_owner_selection_or_ack_pending");
+        }
+        return new(Feature018HotkeyActionStatus.Submitted,
+            "native_f10_owner_selection_or_ack_pending");
+    }
+
+    private static bool F9ReplyIdentityMatches(JsonElement evidence)
+    {
+        bool exact = evidence.TryGetProperty("replyExactItemUuidObserved", out var exactStack) &&
+                     exactStack.ValueKind == JsonValueKind.True;
+        bool fallback = evidence.TryGetProperty("replyItemIdFallbackObserved", out var itemIdFallback) &&
+                        itemIdFallback.ValueKind == JsonValueKind.True;
+        return exact != fallback &&
+            evidence.TryGetProperty("replyItemIdentityCorrelated", out var correlated) &&
+            correlated.ValueKind == JsonValueKind.True;
+    }
+
     private async Task<Feature018HotkeyActionOutcome> PollAfterSendAsync(
         Feature018HotkeyCommand command, string uuidProperty, string sentUuid,
         CancellationToken cancellationToken)
@@ -580,7 +712,6 @@ internal sealed class Feature018HotkeyNativeProviders
                         current.GetString() == target.GetString());
 
             case Feature018HotkeyKind.RandomRelocate:
-            case Feature018HotkeyKind.AllianceRelocate:
                 return observed.GetString() == "native_relocation_reply_item_and_world_position" &&
                     evidence.TryGetProperty("awaitingGameConfirmation", out var movePending) && movePending.ValueKind == JsonValueKind.False &&
                     evidence.TryGetProperty("action", out var movedAction) &&
@@ -588,9 +719,11 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("requestDispatched", out var relocationSent) && relocationSent.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("relocationConfirmed", out var relocated) && relocated.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("replyObserved", out var reply) && reply.ValueKind == JsonValueKind.True &&
-                    // v26 ItemUse carries an exact opaque UTF stack UUID.
-                    // The itemId fallback or opType=1 must never confirm F9.
-                    evidence.TryGetProperty("replyExactItemUuidObserved", out var exactStack) && exactStack.ValueKind == JsonValueKind.True &&
+                    // v26 ItemUseHandle accepts either the exact opaque stack
+                    // UUID or its original itemId fallback when response.uuid
+                    // is genuinely absent. The Lua one-send/owner/poststate
+                    // fence distinguishes that fallback from a wrong UUID.
+                    F9ReplyIdentityMatches(evidence) &&
                     evidence.TryGetProperty("replyUseOperationCompatible", out var normalUse) && normalUse.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var independentAfter) && independentAfter.ValueKind == JsonValueKind.True &&
                     evidence.TryGetProperty("worldPointChanged", out var moved) && moved.ValueKind == JsonValueKind.True &&
@@ -605,6 +738,37 @@ internal sealed class Feature018HotkeyNativeProviders
                     evidence.TryGetProperty("beforeCount", out var beforeItem) && beforeItem.TryGetInt32(out int beforeMoveCount) &&
                     evidence.TryGetProperty("afterCount", out var afterItem) && afterItem.TryGetInt32(out int afterMoveCount) &&
                     beforeMoveCount > 0 && afterMoveCount == beforeMoveCount - 1;
+
+            case Feature018HotkeyKind.AllianceRelocate:
+                return observed.GetString() == "native_alliance_relocation_reply_world_position" &&
+                    evidence.TryGetProperty("awaitingGameConfirmation", out var f10Pending) && f10Pending.ValueKind == JsonValueKind.False &&
+                    evidence.TryGetProperty("action", out var f10Action) &&
+                    f10Action.ValueKind == JsonValueKind.String && f10Action.GetString() == "allianceRelocate" &&
+                    evidence.TryGetProperty("requestDispatched", out var f10Sent) && f10Sent.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("relocationConfirmed", out var f10Confirmed) && f10Confirmed.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("ownerSelectedRemoteRallyObserved", out var remoteSelected) && remoteSelected.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("allianceMoveRequestObserved", out var requestObserved) && requestObserved.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("allianceMoveSendCount", out var sendCount) && sendCount.TryGetInt32(out int sends) && sends == 1 &&
+                    evidence.TryGetProperty("allianceMoveReplyObserved", out var replyObserved) && replyObserved.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("worldMvReason240Observed", out var reason240) && reason240.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("replyResultOneObserved", out var resultOne) && resultOne.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("serverAckAttributableByOneSendFence", out var attributed) && attributed.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("independentWorldAndInventoryPoststateVerified", out var f10Poststate) && f10Poststate.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("worldPointChanged", out var f10Moved) && f10Moved.ValueKind == JsonValueKind.True &&
+                    evidence.TryGetProperty("ownerUid", out var f10Owner) &&
+                    f10Owner.ValueKind == JsonValueKind.String && f10Owner.GetString() == session.GameUid &&
+                    evidence.TryGetProperty("sourceServerId", out var f10Source) && f10Source.TryGetInt32(out int f10SourceServer) &&
+                    f10SourceServer == session.ServerId &&
+                    evidence.TryGetProperty("selectedRallyServerId", out var selectedServer) && selectedServer.TryGetInt32(out int selectedServerId) && selectedServerId > 0 &&
+                    evidence.TryGetProperty("replyServerId", out var replyServer) && replyServer.TryGetInt32(out int replyServerId) && replyServerId == selectedServerId &&
+                    evidence.TryGetProperty("beforeWorldPointId", out var f10Before) && f10Before.TryGetInt64(out long f10OldPoint) &&
+                    evidence.TryGetProperty("afterWorldPointId", out var f10After) && f10After.TryGetInt64(out long f10NewPoint) &&
+                    f10OldPoint is >= 0 and < 10000000 && f10NewPoint is >= 0 and < 10000000 && f10OldPoint != f10NewPoint &&
+                    evidence.TryGetProperty("acknowledgedWorldPointId", out var acknowledgedPoint) && acknowledgedPoint.TryGetInt64(out long ackPoint) && ackPoint == f10NewPoint &&
+                    IsNativeItemUseUuid(evidence, "itemUuid") && IsNativeUuid(evidence, "itemId") &&
+                    evidence.TryGetProperty("beforeCount", out var f10BeforeItem) && f10BeforeItem.TryGetInt32(out int f10BeforeCount) &&
+                    evidence.TryGetProperty("afterCount", out var f10AfterItem) && f10AfterItem.TryGetInt32(out int f10AfterCount) &&
+                    f10BeforeCount > 0 && f10AfterCount == f10BeforeCount - 1;
 
             case Feature018HotkeyKind.AttackSquad:
                 return observed.GetString() == "native_owned_formation_attack_target_transition" &&

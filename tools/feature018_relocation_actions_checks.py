@@ -884,6 +884,63 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['dialogs'],1)
         self.assertEqual(state['sends'],0)
 
+    def test_f10_owner_selected_remote_alliance_move_reason240_confirms(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        local priorSend=SFSNetwork.SendMessage
+        SFSNetwork.SendMessage=function(msg,...)
+          if msg==MsgDefines.AllianceMoveCity then
+            world.sends=world.sends+1
+            return true
+          end
+          return priorSend(msg,...)
+        end
+        MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
+          assert(kind==702 and cost==4 and invite==false and pin==nil)
+          return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)
+        end
+        """)
+        opened=call('allianceRelocate')
+        self.assertEqual(opened['state'],'accepted')
+        self.assertFalse(opened['data']['requestDispatched'])
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        sent=call('allianceRelocate',query=True)
+        self.assertEqual(sent['state'],'accepted')
+        self.assertTrue(sent['data']['ownerSelectedRemoteRallyObserved'])
+        self.assertTrue(sent['data']['allianceMoveRequestObserved'])
+        self.assertEqual(sent['data']['allianceMoveSendCount'],1)
+        self.assertTrue(sent['data']['requestDispatched'])
+        self.assertTrue(sent['data']['awaitingGameConfirmation'])
+        self.assertEqual(state['sends'],1)
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2213,result=1,worldMainPoint=600123},240)')
+        final=call('allianceRelocate',query=True)
+        self.assertEqual(final['state'],'confirmed')
+        data=final['data']
+        self.assertEqual(data['observation'],'native_alliance_relocation_reply_world_position')
+        self.assertTrue(data['allianceMoveReplyObserved'])
+        self.assertTrue(data['worldMvReason240Observed'])
+        self.assertTrue(data['replyResultOneObserved'])
+        self.assertTrue(data['serverAckAttributableByOneSendFence'])
+        self.assertEqual(data['replyServerId'],2213)
+        self.assertEqual(data['acknowledgedWorldPointId'],600123)
+        self.assertEqual(data['beforeCount'],2)
+        self.assertEqual(data['afterCount'],1)
+        self.assertTrue(data['independentWorldAndInventoryPoststateVerified'])
+
+    def test_f10_same_server_other_rally_is_not_reason240_eligible(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2288,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        """)
+        result=call('allianceRelocate')
+        self.assertEqual(result['state'],'unsupported')
+        self.assertIn('MoveCrossServer',result['error'])
+        self.assertEqual(state['sends'],0)
+        self.assertEqual(state['dialogs'],0)
+
     def test_f10_chooser_open_accepted_without_actual_window_remains_unverified(self):
         lua,_,state,call=self.fixture()
         lua.execute("""
@@ -998,7 +1055,7 @@ class RelocationActionChecks(unittest.TestCase):
             self.assertEqual(state['sends'],0)
             self.assertEqual(state['dialogs'],0)
 
-    def test_f9_item_reply_without_exact_uuid_never_acknowledges(self):
+    def test_f9_item_reply_without_uuid_uses_original_item_id_fallback_with_poststate(self):
         lua,_,state,call=self.fixture()
         lua.execute("""
         DataCenter.ItemManager.ItemUseHandle=function(self,response)
@@ -1010,16 +1067,16 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(call()['state'],'accepted')
         lua.execute("world.position=600123;DataCenter.ItemManager:ItemUseHandle({itemId=5004})")
         pending=call(query=True)
-        self.assertEqual(pending['state'],'accepted')
-        self.assertFalse(pending['data']['replyObserved'])
-        self.assertFalse(pending['data']['relocationConfirmed'])
+        self.assertEqual(pending['state'],'confirmed')
+        self.assertTrue(pending['data']['replyItemIdFallbackObserved'])
+        self.assertFalse(pending['data']['replyExactItemUuidObserved'])
+        self.assertTrue(pending['data']['replyItemIdentityCorrelated'])
+        self.assertTrue(pending['data']['replyObserved'])
+        self.assertTrue(pending['data']['relocationConfirmed'])
         self.assertEqual(state['sends'],1)
-        lua.execute('DataCenter.ItemManager:ItemUseHandle({itemId=5004,uuid=100004})')
-        # Missing UUID must not have burned the observer; a subsequent exact
-        # matching response and observed poststate may be confirmed without
-        # dispatching a second ItemUse.
         final=call(query=True)
-        self.assertEqual(final['state'],'confirmed')
+        self.assertEqual(final['state'],'failed')
+        self.assertIn('No dispatched relocation',final['error'])
         self.assertEqual(state['sends'],1)
 
     def test_f9_same_uuid_but_nonuse_optype_cannot_confirm_or_trigger_second_send(self):
