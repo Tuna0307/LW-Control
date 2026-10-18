@@ -422,3 +422,22 @@ set aside by owner.
   removing it, together with the other worker diagnostic panels in HotkeyPages.jsx (NativeAttackReadinessPanel,
   ShieldOwnedInventoryPanel, ShieldNativeActionPanel, EquipmentNativePreflightPanel,
   RelocationNativeReadinessPanel) so only the original feature cards remain. Pending owner decision; next round.
+
+## R17 assignment — 2026-10-19
+Owner decision: "remove the Frontline panel and all the other worker test panels … keep only the original
+feature cards." Record as OWNER_DIRECTION in the behaviour-differences ledger.
+1. Remove from the UI (HotkeyPages.jsx) the worker diagnostic panels: FrontlineNativeActionPanel ("Frontline:
+   original G adds five units / Inspect active original battle"), NativeAttackReadinessPanel,
+   ShieldOwnedInventoryPanel, ShieldNativeActionPanel, EquipmentNativePreflightPanel,
+   RelocationNativeReadinessPanel, plus their unused locale text and UI checks that only test those panels.
+   The Hotkeys and Mini Games tabs must show only the original 0.3.17 feature cards (with the G count setting).
+   Do NOT remove the hotkey features themselves (G, Q/W/E/R incl. ally reinforcement and ruins, A/S/D/F, Space,
+   F6/F7/F8, Alt+1–4, F9/F10) or the backend commands the hotkeys use. Remove a backend command only if nothing
+   but a deleted panel calls it.
+2. Checks: UI build + check, Desktop.Checks, attack/hotkey Lua checks. Screenshot of the Hotkeys and Mini Games
+   tabs before/after. Live: one hover+Q→A and one G press in a stage on 4799432499002212 still work.
+3. Owner-test ZIP (R17 package script), README updated.
+Handoff rule unchanged; record progress under "R17 progress".
+
+### R17 progress (worker updates this)
+- (none yet)
