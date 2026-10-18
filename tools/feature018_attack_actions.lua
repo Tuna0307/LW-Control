@@ -343,6 +343,79 @@ local function native_target_alliance(target,is_march)
     return native_value,"BuildPointInfo.allianceId_reflection",ok_value
 end
 
+local function opaque_alliance_identity(value)
+    if value==0 or value=="0" or value=="" then return "0" end
+    local id=ident(value)
+    if id then return id end
+    if type(value)=="string" and value~="" then return value end
+    return nil
+end
+
+-- Ordinary player bases use the same typed BuildPointInfo for enemy and ally
+-- clicks. The original UI decides between AttackCity and AssistanceCity from
+-- the native alliance string. Preserve the empty-string guildless protocol
+-- value while also accepting opaque nonnumeric alliance IDs for an exact
+-- same-alliance comparison.
+local function city_alliance_relation(account,target)
+    local _,ok_in,in_alliance,ok_uid,native_uid,raw=
+        player_alliance_observation(account and account.player)
+    local own=opaque_alliance_identity(ok_uid and native_uid or raw)
+    if ok_in and type(in_alliance)=="boolean" then
+        if in_alliance==true and (own==nil or own=="0") then own=nil
+        elseif in_alliance==false then
+            if own~=nil and own~="0" then own=nil else own="0" end
+        end
+    end
+    local raw_alliance,reader,read_ok=native_target_alliance(target,false)
+    local target_alliance=read_ok and opaque_alliance_identity(raw_alliance) or nil
+    local point_type=number(member(target,"PointType")) or number(member(target,"pointType"))
+    if point_type~=6 or not read_ok or target_alliance==nil then
+        local result=failed("Target alliance identity unknown; city action suppressed")
+        result.data={targetAllianceReader=reader,targetAllianceReadSucceeded=read_ok,
+            targetAllianceRaw=raw_alliance}
+        return nil,result
+    end
+    local relation
+    if target_alliance=="0" then relation="guildless"
+    elseif own~=nil and own~="0" and target_alliance==own then relation="same_alliance"
+    elseif own==nil then relation="owner_alliance_unknown"
+    else relation="other_alliance" end
+    return {relation=relation,ownerAllianceUid=own,targetAllianceUid=target_alliance,
+        targetAllianceRaw=raw_alliance,targetAllianceReader=reader,
+        targetAllianceVerified=true},nil
+end
+
+local function ruin_eligibility(account,target)
+    local point_type=number(member(target,"PointType")) or number(member(target,"pointType"))
+    if point_type~=38 then return nil,failed("Native hovered point is not a destroyed city ruin") end
+    local types=rawget(_G,"BuildingTypes")
+    local build_id=member(target,"buildId")
+    local ruin_a=member(types,"LW_CITY_RUIN")
+    local ruin_b=member(types,"LW_CITY_RUIN_1")
+    if ruin_a==nil or ruin_b==nil or
+       (build_id~=ruin_a and build_id~=ruin_b) then
+        return nil,failed("Destroyed city ruin build identity is unsupported or changed")
+    end
+    local center=rawget(_G,"DataCenter")
+    local mastery=member(center,"MasteryManager")
+    local ok_show,show=invoke(mastery,"IsShowWorldMasteryBtn")
+    if not ok_show or show~=true then
+        return nil,failed("Destroyed city ruin is not eligible for the native mastery action")
+    end
+    local ok_in,in_alliance=invoke(account and account.player,"IsInAlliance")
+    if not ok_in or in_alliance~=true then
+        return nil,failed("Destroyed city ruin march requires current alliance membership")
+    end
+    local gather=member(rawget(_G,"MasteryHome"),"Gather")
+    if gather==nil then return nil,unsupported("Native MasteryHome.Gather classification unavailable") end
+    local ok_data,data=invoke(mastery,"GetData")
+    local home=(ok_data and data and member(data,"home_id")) or 0
+    if home==gather then
+        return nil,failed("Destroyed city ruin march is unavailable from mastery Gather home")
+    end
+    return {buildId=build_id,homeId=home},nil
+end
+
 local function target_alliance_guard(account,target,requires_player_alliance,is_march)
     -- Ordinary monsters/resources are not player-alliance targets in the
     -- original flow. Their own native type/occupancy/server checks decide
@@ -399,18 +472,19 @@ local function native_selector_target(ctrl,uid)
     local kind=member(ctrl,"targetType")
     local kinds=rawget(_G,"MarchTargetType")
     local is_city=kind~=nil and kind==member(kinds,"ATTACK_CITY")
+    local is_assistance=kind~=nil and kind==member(kinds,"ASSISTANCE_CITY")
     local is_army=kind~=nil and kind==member(kinds,"ATTACK_ARMY")
     local is_monster=kind~=nil and kind==member(kinds,"ATTACK_MONSTER")
     local is_resource=kind~=nil and kind==member(kinds,"COLLECT")
     local is_ruin=kind~=nil and kind==member(kinds,"ATTACK_PLAYER_RUIN_BUILDING")
     local uuid,native_uuid=ident(member(ctrl,"targetUuid"))
     if (not uuid and not is_resource) or
-       not (is_city or is_army or is_monster or is_resource or is_ruin) then
+       not (is_city or is_assistance or is_army or is_monster or is_resource or is_ruin) then
         return nil, failed("Open a native formation selector on a typed city/army/monster/resource/ruin target")
     end
     local point=member(ctrl,"targetPoint")
     local point_id=ident(point)
-    if (is_city or is_resource or is_ruin) and not point_id then
+    if (is_city or is_assistance or is_resource or is_ruin) and not point_id then
         return nil, failed("Native point selector has no original targetPoint")
     end
     local account=native_account()
@@ -426,7 +500,7 @@ local function native_selector_target(ctrl,uid)
     local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok,target
     if is_resource then ok,target=invoke(world,"GetResourcePointInfoByIndex",tonumber(point_id))
-    elseif is_city or is_ruin then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
+    elseif is_city or is_assistance or is_ruin then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
     else ok,target=invoke(world,"GetMarch",native_uuid) end
     if not ok or target==nil or (not is_resource and ident(member(target,"uuid"))~=uuid) then
         return nil, failed("Native typed selector target is absent or changed")
@@ -450,14 +524,37 @@ local function native_selector_target(ctrl,uid)
     if target_server~=nil and tostring(target_server)~=account.server then
         return nil, failed("Native typed selector target belongs to another server")
     end
-    local alliance,alliance_error=target_alliance_guard(
-        account,target,is_city or is_army or is_ruin,is_army)
-    if not alliance then return nil,alliance_error end
+    local alliance,alliance_error
+    if is_city or is_assistance then
+        alliance,alliance_error=city_alliance_relation(account,target)
+        if not alliance then return nil,alliance_error end
+        if is_city and alliance.relation~="guildless" then
+            local result=failed("Attack-city selector target belongs to an alliance; only guildless player cities may be attacked")
+            result.data={targetAllianceReader=alliance.targetAllianceReader,
+                targetAllianceReadSucceeded=true,targetAllianceRaw=alliance.targetAllianceRaw}
+            return nil,result
+        end
+        if is_assistance and alliance.relation~="same_alliance" then
+            local result=failed("Reinforcement selector is not an exact same-alliance player city")
+            result.data={targetAllianceReader=alliance.targetAllianceReader,
+                targetAllianceReadSucceeded=true,targetAllianceRaw=alliance.targetAllianceRaw}
+            return nil,result
+        end
+    elseif is_ruin then
+        local eligible,ruin_error=ruin_eligibility(account,target)
+        if not eligible then return nil,ruin_error end
+        alliance={ownerAllianceUid=nil,targetAllianceUid=nil,
+            targetAllianceVerified=true,sameAlliance=false,
+            allianceCheckRequired=false}
+    else
+        alliance,alliance_error=target_alliance_guard(account,target,is_army,is_army)
+        if not alliance then return nil,alliance_error end
+    end
     return {kind=kind,uuid=uuid,point=point,selectorServer=selector_server,
         targetOwnerUid=owner,targetServerId=target_server,
         ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
         targetAllianceRaw=alliance.targetAllianceRaw,targetAllianceReader=alliance.targetAllianceReader,
-        targetAllianceVerified=true,
+        targetAllianceVerified=true,cityAllianceRelation=alliance.relation,
         observation="open_native_formation_selector_only",
         currentCursorVerified=false,physicalCursorTargetVerified=false,
         requestDispatched=false}
@@ -1445,7 +1542,7 @@ local function native_hover_target(fields,uid)
     if point_type==6 and (fields.targetKind==nil or intent=="city") then
         local point_id=integer(member(point,"pointIndex"))
         local uuid,native_uuid=ident(member(point,"uuid"))
-        local owner=ident(member(point,"ownerUid"))
+        local owner,owner_native=ident(member(point,"ownerUid"))
         if not point_id or not uuid or not owner or owner==uid then
             return nil,failed("Hovered player city owner/identity is unreadable or belongs to this account")
         end
@@ -1464,16 +1561,57 @@ local function native_hover_target(fields,uid)
             tostring(member(reverse,"serverId"))~=account.server) then
             return nil,failed("Hovered city reverse identity or alliance changed")
         end
-        local alliance,denial=target_alliance_guard(account,point,true,false)
+        local alliance,denial=city_alliance_relation(account,point)
         if not alliance then return nil,denial end
-        return {category="guildless_player_city",targetType="ATTACK_CITY",point=point_id,
+        local category,target_type
+        if alliance.relation=="guildless" then
+            category,target_type="guildless_player_city","ATTACK_CITY"
+        elseif alliance.relation=="same_alliance" then
+            category,target_type="same_alliance_player_city","ASSISTANCE_CITY"
+        elseif alliance.relation=="owner_alliance_unknown" then
+            return nil,failed("Own alliance identity is unknown; same-alliance reinforcement cannot be proven")
+        else
+            return nil,failed("Player target belongs to another alliance; only guildless players may be attacked")
+        end
+        return {category=category,targetType=target_type,point=point_id,
             uuid=native_uuid,uuidText=uuid,server=account.server,uid=account.uid,
+            targetOwnerUid=owner,targetOwnerUidNative=owner_native,
             ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
+            targetAllianceRaw=alliance.targetAllianceRaw,targetAllianceReader=alliance.targetAllianceReader,
             scene=scene,pixelX=cursor.pixelX,pixelY=cursor.pixelY,
             source="UIUtil.OnClickWorld+World.GetPointInfo+GetPointInfoByUuid",
             nativeCursorRaycastVerified=true},nil
     end
-    if intent=="city" or point_type~=7 then
+    if point_type==38 and (fields.targetKind==nil or intent=="ruin") then
+        local point_id=integer(member(point,"pointIndex"))
+        local uuid,native_uuid=ident(member(point,"uuid"))
+        if not point_id or not uuid then
+            return nil,failed("Hovered destroyed city ruin identity is unreadable")
+        end
+        if member(point,"serverId")~=nil and
+           tostring(member(point,"serverId"))~=account.server then
+            return nil,failed("Hovered destroyed city ruin belongs to another server")
+        end
+        local ok_reverse,reverse=invoke(scene,"GetPointInfoByUuid",native_uuid)
+        if not ok_reverse or reverse==nil or ident(member(reverse,"uuid"))~=uuid or
+           integer(member(reverse,"mainIndex"))~=integer(member(point,"mainIndex")) or
+           member(reverse,"buildId")~=member(point,"buildId") or
+           (member(reverse,"serverId")~=nil and
+            tostring(member(reverse,"serverId"))~=account.server) then
+            return nil,failed("Hovered destroyed city ruin reverse identity changed")
+        end
+        local eligible,denial=ruin_eligibility(account,point)
+        if not eligible then return nil,denial end
+        local eligible_reverse,reverse_denial=ruin_eligibility(account,reverse)
+        if not eligible_reverse then return nil,reverse_denial end
+        return {category="destroyed_city_ruin",targetType="ATTACK_PLAYER_RUIN_BUILDING",
+            point=point_id,uuid=native_uuid,uuidText=uuid,server=account.server,uid=account.uid,
+            targetOwnerUid=ident(member(point,"ownerUid")),
+            scene=scene,pixelX=cursor.pixelX,pixelY=cursor.pixelY,
+            source="UIUtil.OnClickWorld+World.GetPointInfo+GetPointInfoByUuid",
+            nativeCursorRaycastVerified=true},nil
+    end
+    if intent=="city" or intent=="ruin" or point_type~=7 then
         return nil,failed("Native hovered point is not an ordinary WorldResource")
     end
     local point_id=integer(member(point,"pointIndex"))
@@ -1512,8 +1650,9 @@ end
 
 local function native_hover_open(fields,input_clear,uid)
     if fields.targetKind~=nil and fields.targetKind~="monster" and
-       fields.targetKind~="resource" and fields.targetKind~="city" then
-        return failed("Original hover targetKind must be monster, resource or city")
+       fields.targetKind~="resource" and fields.targetKind~="city" and
+       fields.targetKind~="ruin" then
+        return failed("Original hover targetKind must be monster, resource, city or ruin")
     end
     if cursor_open_pending and cursor_open_pending.session==current_session then
         return failed("Earlier original cursor formation opening may still be pending")
@@ -1565,6 +1704,8 @@ local function native_hover_open(fields,input_clear,uid)
     if fresh.uid~=target.uid or fresh.server~=target.server or
        fresh.scene~=target.scene or fresh.category~=target.category or
        fresh.point~=target.point or fresh.uuidText~=target.uuidText or
+       fresh.targetOwnerUid~=target.targetOwnerUid or
+       fresh.targetOwnerUidNative~=target.targetOwnerUidNative or
        fresh.source~=target.source or
        fresh.targetAllianceUid~=target.targetAllianceUid or
        fresh.pixelX~=target.pixelX or fresh.pixelY~=target.pixelY or
@@ -1577,6 +1718,7 @@ local function native_hover_open(fields,input_clear,uid)
     end
     local pending={session=current_session,uid=uid,server=account.server,
         kind=fresh.targetType,point=fresh.point,uuid=fresh.uuidText,
+        targetOwnerUid=fresh.targetOwnerUid,targetAllianceUid=fresh.targetAllianceUid,
         slot=slot,formation=formation,consumed=false,sentAt=os.time(),
         source=fresh.source,
         nativeCursorRaycastVerified=fresh.nativeCursorRaycastVerified==true,
@@ -1599,6 +1741,27 @@ local function native_hover_open(fields,input_clear,uid)
         -- (ATTACK_CITY, pointId, uuid, -1, 1, nil, targetServerId).
         ok,result=pcall(opener,kind,fresh.point,fresh.uuid,-1,1,nil,
             tonumber(account.server))
+    elseif fresh.targetType=="ASSISTANCE_CITY" then
+        -- UIWorldPointBtn.OnBtnClick AssistanceCity source1777-1784 calls
+        -- WorldBattleUtil.TrySendAssistanceMarch with the exact MainCity
+        -- assistance payload. Require that current UI mode explicitly exposes
+        -- this native path; otherwise refuse instead of bypassing its legacy
+        -- UIFormationAssistance fallback.
+        local battle=rawget(_G,"WorldBattleUtil")
+        local enabled=member(battle,"EnableShowWorldAssistanceInfo")
+        local send=member(battle,"TrySendAssistanceMarch")
+        local assistance=member(rawget(_G,"AssistanceType"),"MainCity")
+        local ok_enabled,show=pcall(enabled)
+        if type(enabled)~="function" or type(send)~="function" or
+           assistance==nil or not ok_enabled or show~=true then
+            return unsupported("Original same-alliance AssistanceCity march route is unavailable")
+        end
+        ok,result=pcall(send,{uuid=fresh.uuid,playerUid=fresh.targetOwnerUidNative,
+            pointId=fresh.point,asType=assistance,isThroneCity=false,
+            isCrossServerThrone=false})
+    elseif fresh.targetType=="ATTACK_PLAYER_RUIN_BUILDING" then
+        -- UIWorldPointBtn.OnBtnClick source3004 exact five-argument ruin tuple.
+        ok,result=pcall(opener,kind,fresh.point,fresh.uuid,-1,1)
     else
         -- UIWorldPointBtn root/13/43 line2265 passes the server in arg7.
         ok,result=pcall(opener,kind,fresh.point,nil,nil,nil,nil,
@@ -1611,6 +1774,7 @@ local function native_hover_open(fields,input_clear,uid)
         accepted=true,
         targetCategory=fresh.category,targetPoint=tostring(fresh.point),
         targetUuid=fresh.uuidText,targetServerId=tonumber(account.server),
+        targetAllianceUid=fresh.targetAllianceUid,
         ownerUid=uid,sourceServerId=tonumber(account.server),slot=slot and tonumber(slot) or nil,
         formationUuid=formation,awaitingNativeChooser=true,chooserRequestMade=true,
         nativeCursorRaycastVerified=true,originalUIInvoked=true,
@@ -2046,6 +2210,8 @@ local function attack_from_native_hover(fields,input_clear,uid)
                 awaitingNativeChooser=true,awaitingGameConfirmation=false,
                 slot=tonumber(fields.slot),formationUuid=prior.formation,
                 targetPoint=tostring(prior.point),targetUuid=prior.uuid,
+                targetOwnerUid=prior.targetOwnerUid,
+                targetAllianceUid=prior.targetAllianceUid,
                 ownerUid=uid,sourceServerId=tonumber(account.server),
                 hoverSource=prior.source,
                 nativeCursorRaycastVerified=prior.nativeCursorRaycastVerified,
@@ -2081,6 +2247,8 @@ local function attack_from_native_hover(fields,input_clear,uid)
         if not target or target.kind~=member(rawget(_G,"MarchTargetType"),prior.kind) or
            target.uuid~=prior.uuid or
            not target.point or tonumber(target.point)~=prior.point or
+           (prior.targetOwnerUid~=nil and target.targetOwnerUid~=prior.targetOwnerUid) or
+           (prior.targetAllianceUid~=nil and target.targetAllianceUid~=prior.targetAllianceUid) or
            (target.selectorServer~=nil and
             tonumber(target.selectorServer)~=tonumber(account.server)) then
             return reason or failed("Original hovered chooser target changed")

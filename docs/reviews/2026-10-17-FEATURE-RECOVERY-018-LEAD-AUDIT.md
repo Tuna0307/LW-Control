@@ -349,3 +349,26 @@ Handoff rule unchanged; record progress under "R16 progress".
   r16-q-a-keys.jsonl. Task 3 ally-city reinforcement and city-ruin recovery remains
   offline-only for implementation/verification; no live reinforcement or ruin send
   is authorized for this worker.
+- **Task 3 — ally-city reinforcement and city ruin built OFFLINE (2026-10-18):**
+  original/current v26 source pins an ordinary allied player base to the
+  `AssistanceCity` button, whose preferred native route is
+  `WorldBattleUtil.TrySendAssistanceMarch` with `AssistanceType.MainCity`; that
+  helper maps to symbolic `MarchTargetType.ASSISTANCE_CITY`. This remains distinct
+  from `WORLD_ALLIANCE_CITY` / `ASSISTANCE_ALLIANCE_CITY`. Hover classification now
+  preserves the existing guildless-only attack rule: a typed PlayerBuilding with
+  explicit no-alliance still uses `ATTACK_CITY`, an exact same-alliance city uses
+  the native MainCity assistance route, other/unknown alliance targets cannot
+  dispatch, and an ally city can never enter `ATTACK_CITY`. Destroyed-city ruins
+  are source-pinned WorldPointType 38 and require native `LW_CITY_RUIN` /
+  `LW_CITY_RUIN_1`, `MasteryManager:IsShowWorldMasteryBtn()`, current alliance
+  membership and non-`MasteryHome.Gather`; their original entrypoint is exactly
+  `MarchUtil.OnClickStartMarch(ATTACK_PLAYER_RUIN_BUILDING, pointId, uuid, -1, 1)`.
+  The existing one-create sender/GUID/poststate transaction fence now accepts both
+  symbolic kinds and still rejects duplicate/unattributed sends. Boss, special
+  monster and occupied/rally exclusions are unchanged. Source/Lua regression is
+  PASS (`FEATURE018_ATTACK_ACTIONS_SOURCE_AND_LUA53_OFFLINE_PASS` and
+  `FEATURE018_HOTKEY_ACTIONS_LUA53_OFFLINE_PASS`), including same-alliance native
+  assistance payload, ruin mastery/alliance/build negatives, exact ruin five-arg
+  tuple, and fresh response-derived create-GUID confirmation for both new kinds.
+  No game session was opened for Task 3 and no live reinforcement or ruin march was
+  sent; the owner remains the first live tester for those two targets.

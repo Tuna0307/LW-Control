@@ -55,14 +55,15 @@ CS={SceneManager={World={
  curTouchPoint={x=state.touchedX,y=0,z=state.touchedZ},
  GetPointInfo=function(self,pointId)
    if not state.worldPresent or pointId~=state.touchedTile then return nil end
-   return {uuid=state.worldUuid,mainIndex=state.worldMain,
+   return {uuid=state.worldUuid,mainIndex=state.worldMain,buildId=state.worldBuildId,
            pointIndex=pointId,isMainPoint=true,PointType=state.worldPointType or 4,
            ownerUid=state.worldOwner,serverId=state.worldServer,allianceId=state.worldAlliance}
  end,
  GetPointInfoByUuid=function(self,uuid)
    if uuid~=state.worldUuid then return nil end
    if not state.reverseValid then return {uuid=17} end
-   return {uuid=state.worldUuid, mainIndex=state.reverseMain,
+   return {uuid=state.worldUuid, mainIndex=state.reverseMain,buildId=state.worldBuildId,
+           PointType=state.worldPointType or 4,
            serverId=state.worldServer, ownerUid=state.worldOwner,allianceId=state.worldAlliance}
  end
 }}}
@@ -233,6 +234,13 @@ def check_original() -> None:
              "SendChangeMarchToServer": ["WorldMarchChange", "SendMessage"],
              "TryStartMarch": ["GetCostStaminaByTargetType", "CheckFormation",
                                "SendCreateMarchMessage", "StartMarch"]}),
+        "Util/WorldBattleUtil.luac": (
+            "12ef759b7f0392cc036d25950b7a138444665c6e87f2660095608bc3f127e4e7",
+            {"TrySendAssistanceMarch": ["FormationAssistanceDataManager",
+                                       "GetFocusedPointAssistanceInfo",
+                                       "AssistanceType", "MainCity",
+                                       "MarchTargetType", "ASSISTANCE_CITY",
+                                       "MarchUtil", "OnClickStartMarch"]}),
         "Util/UIUtil.luac": (
             "73c1da103424ae1f7156f9988ef3498925418890fec8b3e2837a2a885d1cbf3f",
             {"OpenFormationSelectUI": ["formation_v2_switch",
@@ -271,10 +279,17 @@ def check_original() -> None:
         "UI/UIWorldPoint/Controller/UIWorldPointCtrl.luac": (
             "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
             {"InitData": ["curTouchPoint", "GetPointInfoByUuid",
-                          "GetCurServerId", "pointId"]}),
+                          "GetCurServerId", "pointId"],
+             "PreProcessPointData": ["LW_CITY_RUIN", "LW_CITY_RUIN_1",
+                                     "IsShowWorldMasteryBtn",
+                                     "AttackPlayerRuinBuilding",
+                                     "AssistanceCity"]}),
         "UI/UIWorldPoint/Component/UIWorldPointBtn.luac": (
             "31fa9297595702c199e5bd23c90e8aa727236e371d7c461f3eb6639f5c580748",
-            {"OnBtnClick": ["ATTACK_CITY", "OnClickStartMarch"]}),
+            {"OnBtnClick": ["ATTACK_CITY", "OnClickStartMarch",
+                            "AssistanceCity", "TrySendAssistanceMarch",
+                            "ATTACK_PLAYER_RUIN_BUILDING",
+                            "MasteryManager", "GetData", "IsInAlliance"]}),
         "UI/UIMainMapPointToSelect/View/UIMainMapPointToSelectView.luac": (
             "8178cafadb703205a6e8ac259337fe28ed4ff90e535370ac4a8d8eead30452a1",
             {"OnContentClick": ["touchCamera", "ScreenPointToRay",
@@ -360,6 +375,42 @@ def check_original() -> None:
                         any('LOADK     R[24]' in x and '=1' in x for x in city_call) and
                         any('CALL      A=19 B=8 C=1' in x for x in city_call),
                         'original player city chooser seven-argument tuple changed')
+                assistance=[x for x in instructions
+                            if any(f"sourceLine={line} " in x
+                                   for line in range(1777,1785))]
+                require(any("'TrySendAssistanceMarch'" in x for x in assistance) and
+                        any("'MainCity'" in x for x in assistance) and
+                        any("'playerUid'" in x for x in assistance) and
+                        any("'pointId'" in x for x in assistance) and
+                        any("CALL      A=18 B=2 C=1" in x for x in assistance),
+                        'original same-alliance AssistanceCity payload/call changed')
+                ruin=[x for x in instructions if 'sourceLine=3004 ' in x]
+                require(any("'ATTACK_PLAYER_RUIN_BUILDING'" in x for x in ruin) and
+                        any("'OnClickStartMarch'" in x for x in ruin) and
+                        any('LOADK     R[24]' in x and '=-1' in x for x in ruin) and
+                        any('LOADK     R[25]' in x and '=1' in x for x in ruin) and
+                        any('CALL      A=20 B=6 C=1' in x for x in ruin),
+                        'original destroyed-city ruin five-argument tuple changed')
+            if name.endswith("WorldBattleUtil.luac") and name_ == "TrySendAssistanceMarch":
+                instructions=disassemble(proto)
+                require(any("sourceLine=65 " in x and "'ASSISTANCE_CITY'" in x
+                            for x in instructions) and
+                        any("sourceLine=72 " in x and "'OnClickStartMarch'" in x
+                            for x in instructions) and
+                        any("sourceLine=72 " in x and "CALL      A=12 B=4 C=1" in x
+                            for x in instructions),
+                        'native MainCity assistance no longer maps to ASSISTANCE_CITY')
+            if name.endswith("UIWorldPointCtrl.luac") and name_ == "PreProcessPointData":
+                instructions=disassemble(proto)
+                require(any("sourceLine=2460 " in x and "'LW_CITY_RUIN'" in x
+                            for x in instructions) and
+                        any("sourceLine=2460 " in x and "'LW_CITY_RUIN_1'" in x
+                            for x in instructions) and
+                        any("sourceLine=2462 " in x and "'IsShowWorldMasteryBtn'" in x
+                            for x in instructions) and
+                        any("sourceLine=2463 " in x and "'AttackPlayerRuinBuilding'" in x
+                            for x in instructions),
+                        'original destroyed-city ruin button classification changed')
             if name.endswith("MarchUtil.luac") and name_ in (
                     "SendCreateMarchToServer", "SendChangeMarchToServer"):
                 route = ("WorldMarchFormationNew" if name_ == "SendCreateMarchToServer"
@@ -655,6 +706,7 @@ def test_attack_final_action_boundary_and_sender_truth():
         vm.execute(GAME)
         vm.execute("""
           state.existingAbsent=true;state.startTime=1000;state.targetUuid=990123
+          state.worldPointType=6
           state.formReads=0;state.marchReads=0
           MsgDefines.WorldMarchFormationNew=99
           local getForm=DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex
@@ -760,6 +812,7 @@ def test_attack_sender_correlation_negatives():
         vm.execute(GAME)
         vm.execute("""
           state.existingAbsent=true; state.startTime=1000; state.targetUuid=990123
+          state.worldPointType=6
           state.sendMode='""" + mode + """'
           package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
             return {OnCreate=function(self,formation,kind,target)
@@ -1083,6 +1136,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
       state.targetPoint=state.touchedTile
       state.targetServerId=2212
       state.targetType=17
+      state.worldPointType=6
       state.revalidationCase='stable'
       state.targetLookups=0
       state.formationLookups=0
@@ -1153,10 +1207,14 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
     vm.execute("nativeCtrl.targetServerId=2296")
     require(prep()['state']=='failed','foreign selector server passed target check')
     vm.execute("nativeCtrl.targetServerId=2212")
-    for alliance in (700, 701, None, -1, True, 'invalid', ''):
+    for alliance in (700, 701, None, -1, True, 'invalid'):
         state.worldAlliance=alliance
         require(prep()['state']=='failed' and state.attackDelegateCount==0,
                 'same or unknown city alliance accepted: '+repr(alliance))
+    state.worldAlliance=''
+    require(prep()['state']=='confirmed' and
+            prep()['data']['target']['targetAllianceUid']=='0',
+            'typed empty-string city alliance was not treated as guildless')
     state.worldAlliance=0
     require(prep()['state']=='confirmed' and
             prep()['data']['target']['targetAllianceUid']=='0',
@@ -1202,6 +1260,7 @@ def test_native_alliance_field_selection_for_typed_targets():
             return {id=301,mainIndex=id,serverId=state.serverId,
               gatherMarchUuid=state.resourceGather}
           end
+          state.worldPointType=6
           UIWindowNames={UIFormationSelectListV2='formation'}
           nativeCtrl={targetType=17,targetPoint=state.touchedTile,
             targetUuid=state.worldUuid,targetServerId=state.serverId}
@@ -1339,6 +1398,7 @@ def test_original_reply_observer_required_before_native_controller():
         vm.execute(GAME)
         vm.execute("""
           state.existingAbsent=true
+          state.worldPointType=6
           UIWindowNames={UIFormationSelectListV2='native-selector'}
           nativeCtrl={targetType=17,targetPoint=state.touchedTile,
                       targetUuid=state.worldUuid}
@@ -1407,6 +1467,7 @@ def test_readonly_end_to_end_source_prerequisites():
     vm.execute(GAME)
     vm.execute("""
       state.existingAbsent=true
+      state.worldPointType=6
       UIWindowNames={UIFormationSelectListV2='formation'}
       nativeCtrl={targetType=17,targetUuid=state.worldUuid,
                   targetPoint=state.touchedTile,targetServerId=2212}
@@ -1599,8 +1660,11 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                    'monster_same_alliance', 'monster_unknown_alliance',
                    'monster_alliance_drift', 'owner_alliance_unknown',
                    'resource', 'resource_unknown_occupancy', 'resource_occupancy_drift',
-                   'city', 'city_allied', 'city_unknown_alliance', 'city_alliance_drift',
+                   'city', 'city_allied', 'city_other_alliance',
+                   'city_unknown_alliance', 'city_alliance_drift',
                    'city_own', 'city_reverse_changed',
+                   'ruin', 'ruin_no_mastery', 'ruin_gather_home',
+                   'ruin_no_alliance', 'ruin_wrong_build', 'ruin_reverse_changed',
                    'boss', 'occupied_resource', 'unknown_ground_point'):
         vm=LuaRuntime(unpack_returned_tuples=True)
         vm.execute(GAME)
@@ -1619,6 +1683,24 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
           state.vectorNewCalls=0
           MarchTargetType.ATTACK_MONSTER=19
           MarchTargetType.COLLECT=20
+          MarchTargetType.ASSISTANCE_CITY=21
+          MarchTargetType.ATTACK_PLAYER_RUIN_BUILDING=22
+          AssistanceType={MainCity=501}
+          BuildingTypes={LW_CITY_RUIN=9001,LW_CITY_RUIN_1=9002}
+          MasteryHome={Gather=2}
+          state.masteryShow=true
+          state.masteryHome=1
+          DataCenter.MasteryManager={
+            IsShowWorldMasteryBtn=function() return state.masteryShow end,
+            GetData=function() return {home_id=state.masteryHome} end,
+          }
+          WorldBattleUtil={
+            EnableShowWorldAssistanceInfo=function() return true end,
+            TrySendAssistanceMarch=function(params)
+              state.openCalls=state.openCalls+1
+              state.assistanceArgs=params
+            end,
+          }
           NewMarchType={MONSTER=7}
           CS.UnityEngine={Screen={width=1280,height=1134},
             Input={mousePosition={x=700,y=400}},
@@ -1688,11 +1770,19 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             vm.execute('state.hover=0')
         if target.startswith('city'):
             vm.execute('state.hover=0;state.worldPointType=6;state.worldAlliance=0')
-        if target=='city_allied': state.worldAlliance=701
+        if target=='city_allied': state.worldAlliance=700
+        if target=='city_other_alliance': state.worldAlliance=701
         if target=='city_unknown_alliance': state.worldAlliance=None
         if target=='city_alliance_drift': state.cityAllianceDrift=True
         if target=='city_own': state.worldOwner=state.uid
         if target=='city_reverse_changed': state.reverseMain=35724
+        if target.startswith('ruin'):
+            vm.execute('state.hover=0;state.worldPointType=38;state.worldBuildId=9001;state.worldAlliance=nil')
+        if target=='ruin_no_mastery': state.masteryShow=False
+        if target=='ruin_gather_home': state.masteryHome=2
+        if target=='ruin_no_alliance': vm.execute('LuaEntry.Player.allianceId=0')
+        if target=='ruin_wrong_build': state.worldBuildId=7777
+        if target=='ruin_reverse_changed': state.reverseMain=35724
         if target in ('monster_popup_raycast_miss','monster_popup_cursor_mismatch'):
             vm.execute("""
               state.hover=0
@@ -1746,8 +1836,10 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         if target in ('boss','occupied_resource',
                       'unknown_ground_point','monster_popup_cursor_mismatch',
                       'owner_alliance_unknown',
-                      'city_allied','city_unknown_alliance','city_alliance_drift',
+                      'city_other_alliance','city_unknown_alliance','city_alliance_drift',
                       'city_own','city_reverse_changed',
+                      'ruin_no_mastery','ruin_gather_home','ruin_no_alliance',
+                      'ruin_wrong_build','ruin_reverse_changed',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             require(first['state']=='failed' and state.openCalls==0 and
                     state.rpcCount==0,
@@ -1788,6 +1880,22 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                     args[4]==-1 and args[5]==1 and args[6] is None and
                     args[7]==2212 and args['n']==7,
                     'native city hover did not preserve original ATTACK_CITY chooser tuple')
+        elif target=='city_allied':
+            params=state.assistanceArgs
+            require(params is not None and params['uuid']==990123 and
+                    params['playerUid']==999 and params['pointId']==35723 and
+                    params['asType']==501 and params['isThroneCity'] is False and
+                    params['isCrossServerThrone'] is False and
+                    first['data']['targetAllianceUid']=='700',
+                    'same-alliance city hover did not use original MainCity assistance route: '+
+                    repr({k:(params[k] if params is not None else None)
+                          for k in ('uuid','playerUid','pointId','asType',
+                                    'isThroneCity','isCrossServerThrone')})+
+                    ' alliance='+repr(first['data']['targetAllianceUid']))
+        elif target=='ruin':
+            require(args[1]==22 and args[2]==35723 and args[3]==990123 and
+                    args[4]==-1 and args[5]==1 and args['n']==5,
+                    'destroyed city ruin did not preserve original five-argument march tuple')
         else:
             require(args[1]==20 and args[2]==35723 and args[3] is None and
                     args[7]==2212 and args['n']==7 and
@@ -1850,6 +1958,7 @@ def test_current_nested_staffing_and_native_membership():
           state.currentCanMarch=true
           state.formReads=0
           state.forceNoAlliance=true
+          state.worldPointType=6
           LuaEntry.Player.allianceId=''
           DataCenter.WorldMarchDataManager.GetOwnerFormationMarch=function()return nil end
           DataCenter.SoldierDataManager={
@@ -1910,6 +2019,90 @@ def test_current_nested_staffing_and_native_membership():
             require(sent['state'] in ('failed','unsupported') and state.attackDelegateCount==0 and
                     state.attackSends is None,
                     'unready/malformed/drifted current nested staffing dispatched: '+case)
+
+
+def test_ally_city_and_ruin_selector_send_confirmation():
+    for category, kind, point_type, alliance, build_id in (
+            ('ally_city', 21, 6, 700, None),
+            ('city_ruin', 22, 38, None, 9001)):
+        vm=LuaRuntime(unpack_returned_tuples=True)
+        vm.execute(GAME)
+        vm.execute(f"""
+          state.existingAbsent=true
+          state.startTime=1000
+          state.targetUuid=state.worldUuid
+          state.worldPointType={point_type}
+          state.worldAlliance={'nil' if alliance is None else alliance}
+          state.worldBuildId={'nil' if build_id is None else build_id}
+          state.routeKind={kind}
+          MarchTargetType.ASSISTANCE_CITY=21
+          MarchTargetType.ATTACK_PLAYER_RUIN_BUILDING=22
+          BuildingTypes={{LW_CITY_RUIN=9001,LW_CITY_RUIN_1=9002}}
+          MasteryHome={{Gather=2}}
+          DataCenter.MasteryManager={{
+            IsShowWorldMasteryBtn=function() return true end,
+            GetData=function() return {{home_id=1}} end,
+          }}
+          MsgDefines.WorldMarchFormationNew=99
+          package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
+            return {{OnCreate=function(self,formation,targetType,targetUuid)
+              self.sfsObj={{GetUtfString=function(_,key)
+                assert(key=='clientCreateUuid')
+                return 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+              end}}
+            end,HandleMessage=function() end}}
+          end
+          package.preload['Net.Msgs.WorldMarchChangeMessage']=function()
+            return {{HandleMessage=function() end}}
+          end
+          SFSNetwork.SendMessage=function(route,formation,targetType,targetUuid,path)
+            assert(route==99 and formation==state.formation and
+                   targetType==state.routeKind and targetUuid==state.worldUuid)
+            state.attackSends=(state.attackSends or 0)+1
+            require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate(
+              {{}},formation,targetType,targetUuid,path)
+          end
+          UIWindowNames={{UIFormationSelectListV2='formation'}}
+          nativeCtrl={{targetType=state.routeKind,targetUuid=state.worldUuid,
+                      targetPoint=state.touchedTile}}
+          nativeCtrl.OnCheckTime=function(self,formation)
+            state.attackDelegateCount=state.attackDelegateCount+1
+            SFSNetwork.SendMessage(99,formation,state.routeKind,state.worldUuid,
+                                   '165123;'..tostring(state.touchedTile))
+          end
+          nativeWindow={{Ctrl=nativeCtrl}}
+          UIManager={{GetInstance=function()return {{
+            IsWindowOpen=function(_,name)return name=='formation' end,
+            GetWindow=function(_,name)return name=='formation' and nativeWindow end,
+          }}end}}
+        """)
+        mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
+        fields=dict(action='attack',slot='1',authorizedUid='4799432499002212',
+                    profileId='profile',launchSessionId='launch',
+                    challenge='request',gamePid='7020')
+        first=mod.Handle(vm.table_from(fields),vm.globals().input_clear)
+        state=vm.globals().state
+        require(first['state']=='accepted' and
+                first['data']['requestDispatched'] is True and
+                state.attackDelegateCount==1 and state.attackSends==1 and
+                first['data']['nativeTransaction']['outboundTargetType']==kind and
+                first['data']['nativeTransaction']['outboundTargetUuid']=='990123',
+                category+' selector did not produce exactly one source-correlated create send')
+        state.existingAbsent=False
+        state.targetType=kind
+        state.targetUuid=state.worldUuid
+        state.marchClientCreateGuid='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
+        state.startTime=2000
+        confirmed=mod.Handle(vm.table_from(dict(fields,queryOnly='1')),
+                             vm.globals().input_clear)
+        require(confirmed['state']=='confirmed' and
+                confirmed['data']['targetType']==kind and
+                confirmed['data']['targetUuid']=='990123' and
+                confirmed['data']['nativeMarchGuidMatchesRequest'] is True and
+                confirmed['data']['serverAcknowledgementCorrelated'] is True and
+                confirmed['data']['nativeMarchPostStateVerified'] is True and
+                state.attackSends==1,
+                category+' did not confirm from exact response-derived march poststate')
 
 
 def test_attack_target_preflight_snapshot():
@@ -2025,6 +2218,7 @@ def main():
     test_selected_attack()
     test_resource_create_sender_correlation()
     test_current_nested_staffing_and_native_membership()
+    test_ally_city_and_ruin_selector_send_confirmation()
     test_original_world_scene_cursor_projection_is_read_only()
     test_original_hover_monster_and_resource_one_shot_chooser()
     test_attack_final_action_boundary_and_sender_truth()
