@@ -325,3 +325,27 @@ Handoff rule unchanged; record progress under "R16 progress".
   908f94c9c8e2204632385f65b6cb3ae4a0e0343bcb99daac56782a74cf6091a1.
   Task 2 live Q→A and no-item/no-diamond regression remains to be run after this
   checkpoint.
+- **Task 2 — attack regression proven live (2026-10-18):** from pushed Task 1
+  checkpoint e870f3cd13cd6ce9258e2b90e51596473c89d6b4, the canonical UI build,
+  production-build check, full UI check, full Desktop delivery runner, Hotkeys Lua
+  suite and attack Lua suite all passed. Fresh isolated run
+  artifacts/map014-takeover/native-ui-20261018-082907 admitted exact UID
+  4799432499002212/server 2212/game PID 27148/session
+  5f9dc1eb77f4484f91c0dbca75b7efc7. A native physical-cursor read classified
+  Ranjitsinh as player city UUID 1321165592854001462/point 123154; the existing
+  no-send city guard independently accepted it as guildless_player_city with
+  requestDispatched=false/worldMarchSent=false. Exactly one guarded physical Q then
+  A pair was delivered. Q is Confirmed with exactly one WorldMarchFormationNew,
+  ATTACK_CITY target type 11, source-generated clientCreateUuid
+  d91c5716-9a2e-42d3-9f87-054a7363913d, exact server-derived GUID poststate and
+  march UUID 1427557175748240473; the target alliance native string was empty and
+  normalized to guildless. A is Confirmed on the same march via authoritative
+  non-BACK_HOME→BACK_HOME server-applied poststate. The R16 staged proof captured
+  native GOODS_TYPE_108 inventory and LuaEntry.Player.gold immediately before and
+  after the pair: inventory []→[] and gold/diamond balance 130243→130243. The
+  temporary read-only staged observer was removed after capture, so no extra
+  inventory/rapid command ships. Evidence:
+  artifacts/map014-takeover/native-ui-20261018-082907/r16-task2-summary.json and
+  r16-q-a-keys.jsonl. Task 3 ally-city reinforcement and city-ruin recovery remains
+  offline-only for implementation/verification; no live reinforcement or ruin send
+  is authorized for this worker.
