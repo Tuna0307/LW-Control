@@ -217,8 +217,8 @@ def test_full_task6_sequence():
     client = FakeClient()
     driver.city(client, set())
     check(client.current == ORIGINAL, 'full Task 6 flow did not end at exact original anchors')
-    check(client.tab_requests == [('tab', {'index': 4})],
-          'driver did not select only the City Layout tab')
+    check(client.tab_requests == [],
+          'City mutation controller opened a UI tab and created a competing live command producer')
     check(client.evidence.get('task6EndToEndProven') is True and
           client.evidence.get('restoredOriginalPositions') is True and
           client.evidence.get('cancelInFlightProven') is True,

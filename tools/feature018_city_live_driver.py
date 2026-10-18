@@ -270,7 +270,10 @@ def expected_after_planned_moves(original, planned_moves, completed_moves):
 
 
 def city(client, excluded):
-    client.request('tab', index=4)
+    # Do not click the product City tab from the mutation controller. Mounting
+    # CityLayoutPage immediately starts its own snapshot/draft/status requests,
+    # which would create a second live command producer racing this sole-driver
+    # queue. UI/screenshots are captured separately after settled backend state.
     original_snapshot = client.snapshot()
     original = positions(original_snapshot)
     client.evidence['cityBefore'] = original_snapshot
