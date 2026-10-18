@@ -964,9 +964,10 @@ function RelocationNativeReadinessPanel({ online, previewEnabled }) {
           native.relocationConfirmed !== false ||
           native.destinationVerified !== false ||
           native.serverAckAttributable !== false ||
-          native.sourceServerId !== 2288 ||
-          native.selfServerId !== 2288 || native.currentServerId !== 2288 ||
-          String(native.ownerUid) !== "2553945035002288" ||
+          !Number.isInteger(native.sourceServerId) || native.sourceServerId <= 0 ||
+          native.selfServerId !== native.sourceServerId ||
+          native.currentServerId !== native.sourceServerId ||
+          !/^[1-9]\d{0,19}$/.test(String(native.ownerUid)) ||
           (action === "allianceRelocate" &&
             (native.actionable !== false ||
              native.homeDirectRelocationEnabled !== false)))
@@ -1054,7 +1055,8 @@ function FrontlineNativeActionPanel({ online, previewEnabled }) {
   const validRead = (data) =>
     data?.observation === "native_parkour_battle_readonly" &&
     data?.readOnly === true && data?.requestDispatched === false &&
-    data?.ownerUid === "2553945035002288" && data?.sourceServerId === 2288 &&
+    /^[1-9]\d{0,19}$/.test(String(data?.ownerUid)) &&
+    Number.isInteger(data?.sourceServerId) && data.sourceServerId > 0 &&
     data?.observationScope === "native_local_battle" &&
     data?.serverAckObserved === false &&
     (data?.stageMode === "normal" || data?.stageMode === "sunday") &&

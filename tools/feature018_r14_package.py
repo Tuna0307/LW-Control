@@ -114,7 +114,8 @@ def verify_account_agnostic_sources() -> None:
     native.append(ROOT / "tools/current_overview_bridge.lua")
     managed = sorted((ROOT / "src/LWBridge.Desktop").glob("Feature018*.cs"))
     managed.append(ROOT / "src/LWBridge.Desktop/LWBridgeWindow.Feature018Hotkeys.cs")
-    for source in native + managed:
+    ui = sorted((ROOT / "src/LWBridge.UI-0.3.17/src").glob("*.jsx"))
+    for source in native + managed + ui:
         if not source.is_file():
             raise RuntimeError("R14 product source missing: " + str(source))
         comment_prefix = "--" if source.suffix == ".lua" else "//"
