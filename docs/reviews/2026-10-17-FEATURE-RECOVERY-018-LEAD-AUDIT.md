@@ -487,3 +487,14 @@ Handoff rule unchanged; record progress under "R17 progress".
   successful R16 ally-city reinforcement test, and the still-unavailable ruin test prerequisite. It explicitly
   keeps Unlock Land Cell out of this owner test. The external ZIP/receipt will be generated only after this package
   source checkpoint is pushed, so its embedded `SOURCE-COMMIT.txt` remains the authoritative final source witness.
+
+## Lead audit of R17 — 2026-10-19 (source 3939fb01): ACCEPTED for owner test
+Verified by lead: HEAD = remote 3939fb01, tree clean. None of the six panel names remain in the UI source; the ZIP's
+JS has no "Inspect active original battle" / "original G adds five" text. Attack, hotkey and Mini Lua checks,
+Desktop.Checks (`HOME_FEATURE_DELIVERY_CHECKS_OK`) and UI check (9 languages) PASS. Live Q→A on a guildless city and
+G 4→9 in a Frontline stage reported in `native-ui-20261018-183342` (exit 0, restoration proven).
+ZIP `artifacts/feature018-r17-3939fb01/release/LW-Control-FEATURE-018-R17-OWNER-TEST-3939fb010d36.zip` SHA-256
+5644b303…f4e0eb: re-hashed, CRC ok, 92 entries, same layout as R16, SOURCE-COMMIT = 3939fb01, no test UID.
+Cleanup: live game scripts in LocalLow are the exact v26 originals, no active journal, no game/app process. Two
+earlier runs (165523, 171602) left no exit receipt, but nothing is left running and the files are original. The
+r17 City receipt (175655) is a read-only snapshot, no moves.
