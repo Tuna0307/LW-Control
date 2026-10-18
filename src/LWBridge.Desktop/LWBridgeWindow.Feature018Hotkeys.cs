@@ -171,6 +171,16 @@ internal sealed partial class LWBridgeWindow
         try
         {
             Feature018HotkeyActionOutcome result = await actions.TryDispatchAsync(intent);
+            // Keep rejected physical presses visible in the app. Only the
+            // still-current broker may publish into this profile's document.
+            if (ReferenceEquals(actions, feature018Actions) && !sessionClosed &&
+                IsCurrentDocument(documentSession))
+                SendEvent(documentSession, "bridge://hotkey-outcome", new
+                {
+                    kind = intent.Kind.ToString(), slot = intent.Slot,
+                    status = result.Status.ToString(), reason = result.Reason,
+                    observedAtUtc = DateTimeOffset.UtcNow,
+                });
             if (intent.Kind == Feature018HotkeyKind.ShieldRemaining &&
                 result.Status == Feature018HotkeyActionStatus.Confirmed &&
                 result.AuthoritativeObservation is { } shield &&

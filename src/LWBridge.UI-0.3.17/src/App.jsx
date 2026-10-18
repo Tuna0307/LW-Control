@@ -10,6 +10,7 @@ import { GameAssetImageProvider, createProfileGameAssetReader } from "./GameAsse
 import offlineDot from "./assets/dot-offline.png";
 import onlineDot from "./assets/dot-online.png";
 import { backendBridge } from "./backendBridge.js";
+import { HotkeyFeedback } from "./HotkeyFeedback.jsx";
 import { LANGUAGES, useI18n } from "./i18n.jsx";
 import { DEFAULT_SCAN_STATE, connectionState, createMapApi, unwrapProfileEvent } from "./mapBackend.js";
 import {
@@ -1502,6 +1503,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </div>
       </header>
 
+      <HotkeyFeedback profileId={backendBridge.profileId} />
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
         {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}

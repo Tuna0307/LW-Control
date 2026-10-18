@@ -27,13 +27,13 @@ from rgmd_disasm import Resolver, disasm as managed_disasm  # noqa: E402
 
 GAME = """
 state={
- uid=1183884595002296, expectedUid="1183884595002296", formation=1001, owner=1183884595002296, formOwner=1001,
- freshOwner=1183884595002296, freshFormOwner=1001, freshUuid=555110, freshPresent=true,
+ uid=4799432499002212, expectedUid="4799432499002212", formation=1001, owner=4799432499002212, formOwner=1001,
+ freshOwner=4799432499002212, freshFormOwner=1001, freshUuid=555110, freshPresent=true,
  existingAbsent=false, freshLookups=0,
- targetType=17, serverId=2296, formationOwner=1183884595002296, touchedTile=35723,
+ targetType=17, serverId=2212, formationOwner=4799432499002212, touchedTile=35723,
  formationMarchBroken=false,
  touchedX=12, touchedZ=37, worldUuid=990123, worldOwner=999,
- worldServer=2296, worldMain=35723, reverseValid=true, worldAlliance=701,
+ worldServer=2212, worldMain=35723, reverseValid=true, worldAlliance=0,
  reverseMain=35723, worldPresent=true,
  uuid=555110, slot=1, endTime=3000, now=2000, count=2,
  soldierCount=110, heroCount=1, createCounter=0,
@@ -236,7 +236,7 @@ def mock():
     def call(action="speedupItem", slot="1", item_id="3108", **overrides):
         fields = {
             "action": action, "slot": slot, "itemId": item_id,
-            "itemOptIn": "1", "authorizedUid": "1183884595002296",
+            "itemOptIn": "1", "authorizedUid": "4799432499002212",
             "profileId": "profile", "launchSessionId": "launch",
             "challenge": "request", "gamePid": "7020",
         }
@@ -245,7 +245,7 @@ def mock():
 
     def inspect(**overrides):
         fields = {
-            "slot": "1", "authorizedUid": "1183884595002296",
+            "slot": "1", "authorizedUid": "4799432499002212",
             "profileId": "profile", "launchSessionId": "launch",
             "challenge": "request", "gamePid": "7020",
         }
@@ -320,6 +320,9 @@ def check_original() -> None:
             "7298256e4a5181a335cfd2ce8c89c9454452211b2feab68eac57827e0465af6d",
             {"InitData": ["curTouchPoint", "GetPointInfoByUuid",
                           "GetCurServerId", "pointId"]}),
+        "UI/UIWorldPoint/Component/UIWorldPointBtn.luac": (
+            "31fa9297595702c199e5bd23c90e8aa727236e371d7c461f3eb6639f5c580748",
+            {"OnBtnClick": ["ATTACK_CITY", "OnClickStartMarch"]}),
         "UI/UIMainMapPointToSelect/View/UIMainMapPointToSelectView.luac": (
             "8178cafadb703205a6e8ac259337fe28ed4ff90e535370ac4a8d8eead30452a1",
             {"OnContentClick": ["touchCamera", "ScreenPointToRay",
@@ -407,6 +410,14 @@ def check_original() -> None:
                 require("ScreenPointToRay" not in constants_seen and
                         "mousePosition" not in constants_seen,
                         "original current main-world point unexpectedly uses fresh cursor raycast")
+            if name.endswith("UIWorldPointBtn.luac") and name_ == "OnBtnClick":
+                instructions=disassemble(proto)
+                city_call=[x for x in instructions if 'sourceLine=1678 ' in x]
+                require(any("'OnClickStartMarch'" in x for x in city_call) and
+                        any('LOADK     R[23]' in x and '=-1' in x for x in city_call) and
+                        any('LOADK     R[24]' in x and '=1' in x for x in city_call) and
+                        any('CALL      A=19 B=8 C=1' in x for x in city_call),
+                        'original player city chooser seven-argument tuple changed')
             if name.endswith("MarchUtil.luac") and name_ in (
                     "SendCreateMarchToServer", "SendChangeMarchToServer"):
                 route = ("WorldMarchFormationNew" if name_ == "SendCreateMarchToServer"
@@ -454,7 +465,7 @@ def test_selected_attack_and_diamond():
     module = vm.execute(SOURCE.read_text(encoding='utf-8'))
     state = vm.globals().state
     def call(action='attack', **extra):
-        fields=dict(action=action,slot='1',authorizedUid='1183884595002296',
+        fields=dict(action=action,slot='1',authorizedUid='4799432499002212',
                     profileId='profile',launchSessionId='launch',challenge='request',gamePid='7020')
         fields.update(extra)
         return module.Handle(vm.table_from(fields),vm.globals().input_clear)
@@ -467,7 +478,7 @@ def test_selected_attack_and_diamond():
             'native selector did not dispatch fixed own squad exactly once')
     editor_attempt=module.Prepare(vm.table_from(dict(
         mode='staffingEditor',slot='1',editorOptIn='1',
-        authorizedUid='1183884595002296',
+        authorizedUid='4799432499002212',
         profileId='profile',launchSessionId='launch',
         challenge='request',gamePid='7020')),vm.globals().input_clear)
     require(editor_attempt['state']=='failed' and
@@ -476,7 +487,7 @@ def test_selected_attack_and_diamond():
             'native staffing editor shortcut bypassed a pending attack fence')
     pending_view=module.Prepare(vm.table_from(dict(
         mode='attackReadiness',slot='1',
-        authorizedUid='1183884595002296',
+        authorizedUid='4799432499002212',
         profileId='profile',launchSessionId='launch',
         challenge='request',gamePid='7020')),vm.globals().input_clear)
     require(pending_view['state']=='confirmed' and
@@ -561,7 +572,7 @@ def test_selected_attack_and_diamond():
     require(finished['state']=='confirmed' and finished['data']['speedup']['currentCount']==1 and
             state['rpcCount']==1,
             'composed attack rapid did not require independent owned-item and march-time poststate')
-    state['serverId']=2212
+    state['serverId']=2296
     require(call()['state']=='failed' and state['attackDelegateCount']==2,
             'main-account server entered mutable attack controller')
 
@@ -613,7 +624,7 @@ def test_resource_create_sender_correlation():
         """ % ('35723' if non_nil_target else '0',
                  '12345;35724' if wrong_path else '12345;35723'))
         mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
-        fields=dict(action='attack',slot='1',authorizedUid='1183884595002296',
+        fields=dict(action='attack',slot='1',authorizedUid='4799432499002212',
                     profileId='profile',launchSessionId='launch',
                     challenge='request',gamePid='7020')
         def call(**extra):
@@ -647,6 +658,50 @@ def test_resource_create_sender_correlation():
             ' / marchGuid='+str(vm.globals().state.marchClientCreateGuid)+
             ' target='+str(vm.globals().state.targetUuid)+
             ' type='+str(vm.globals().state.targetType))
+
+    # Exercise the real physical-hover -> native chooser -> send -> server
+    # poststate path repeatedly in ONE VM. This catches the consumed chooser
+    # latch surviving the first success, which selected-chooser tests miss.
+    vm,call=fixture()
+    vm.execute("""
+      state.selectorOpen=false;state.worldPointType=7;state.openCalls=0
+      CS.UnityEngine={Screen={width=1280,height=1134},
+        Input={mousePosition={x=700,y=400}}}
+      CS.SceneManager.World.GetRaycastHitMarch=function() return 0 end
+      CS.SceneManager.World.GetTouchPoint=function()return {x=12,y=0,z=37}end
+      CS.SceneManager.World.WorldToTile=function(self,p)return p end
+      CS.SceneManager.World.TilePosToIndex=function()return 35723 end
+      MarchUtil.OnClickStartMarch=function(kind,point)
+        assert(kind==20 and point==35723)
+        state.openCalls=state.openCalls+1;state.selectorOpen=true
+      end
+      local send=nativeCtrl.OnCheckTime
+      nativeCtrl.OnCheckTime=function(...)
+        send(...);state.selectorOpen=false
+      end
+      UIManager={GetInstance=function()return {
+        IsWindowOpen=function(self,name)return name=='formation' and state.selectorOpen end,
+        GetWindow=function(self,name)return name=='formation' and state.selectorOpen and nativeWindow end,
+      }end}
+    """)
+    for cycle in range(1,4):
+        vm.globals().state.existingAbsent=True
+        vm.globals().state.marchClientCreateGuid=None
+        vm.globals().state.startTime=1000+cycle
+        sent=call()
+        require(sent['state']=='accepted' and sent['data']['requestDispatched'] is True and
+                vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
+                'repeat physical hover did not send once in same VM: '+str(cycle)+' / '+str(sent['error']))
+        vm.globals().state.existingAbsent=False
+        vm.globals().state.marchClientCreateGuid='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff'
+        require(call(queryOnly='1')['state']=='confirmed',
+                'repeat hover did not confirm source poststate: '+str(cycle))
+        require(call(queryOnly='1')['state']=='failed' and vm.globals().state.attackSends==cycle,
+                'late query replayed a settled hover intent')
+        occupied=call()
+        require(occupied['state']=='failed' and 'occupied' in occupied['error'] and
+                vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
+                'physical Q on active squad lacked clear no-send feedback')
 
     for bad_kwargs,label in (({'non_nil_target':True},'non-nil targetUuid'),
                              ({'wrong_path':True},'wrong target path')):
@@ -683,7 +738,7 @@ def test_attack_final_action_boundary_and_sender_truth():
             if state.checkMode=='wrong_slot' then form.index=2 end
             if state.formReads==2 then
               if state.checkMode=='owner_midflight' then LuaEntry.Player.uid=222 end
-              if state.checkMode=='server_midflight' then state.serverId=2212 end
+              if state.checkMode=='server_midflight' then state.serverId=2296 end
             end
             return form
           end
@@ -720,7 +775,7 @@ def test_attack_final_action_boundary_and_sender_truth():
         vm.globals().state.checkMode=mode
         module=vm.execute(SOURCE.read_text(encoding='utf-8'))
         def call(**extra):
-            fields=dict(action='attack',slot='1',authorizedUid='1183884595002296',
+            fields=dict(action='attack',slot='1',authorizedUid='4799432499002212',
                         profileId='profile',launchSessionId='launch',
                         challenge='request',gamePid='7020')
             fields.update(extra)
@@ -817,7 +872,7 @@ def test_attack_sender_correlation_negatives():
         """)
         module=vm.execute(SOURCE.read_text(encoding='utf-8'))
         def call(**extra):
-            fields=dict(action='attack',slot='1',authorizedUid='1183884595002296',
+            fields=dict(action='attack',slot='1',authorizedUid='4799432499002212',
                         profileId='profile',launchSessionId='launch',
                         challenge='request',gamePid='7020')
             fields.update(extra)
@@ -927,12 +982,12 @@ def test_native_prepare_helper():
       UIUtil={OpenFormationSelectUI=function(...)
         local a=table.pack(...)
         assert(a.n==9 and a[1]==1 and a[2]==19 and a[3]==35723 and a[4]==990123)
-        assert(a[5]==nil and a[6]==nil and a[7]==nil and a[8]==2296 and a[9]==0)
+        assert(a[5]==nil and a[6]==nil and a[7]==nil and a[8]==2212 and a[9]==0)
         state.prepared=true
       end}
     """)
     module=vm.execute(SOURCE.read_text(encoding='utf-8'))
-    fields=dict(mode='inventory',authorizedUid='1183884595002296',profileId='profile',
+    fields=dict(mode='inventory',authorizedUid='4799432499002212',profileId='profile',
                 launchSessionId='launch',challenge='request',gamePid='7020')
     observed=module.Prepare(vm.table_from(fields),vm.globals().input_clear)
     require(observed['state']=='confirmed' and observed['data']['candidates'][1]['uuid']=='990123' and
@@ -1043,7 +1098,7 @@ def test_manual_native_formation_editor_no_automatic_march():
     mod=vm.execute(SOURCE.read_text(encoding="utf-8"))
     def edit(**extra):
         fields=dict(mode='staffingEditor',slot='1',editorOptIn='1',
-                    authorizedUid='1183884595002296',profileId='profile',
+                    authorizedUid='4799432499002212',profileId='profile',
                     launchSessionId='launch',challenge='request',gamePid='7020')
         fields.update(extra)
         return mod.Prepare(vm.table_from(fields),vm.globals().input_clear)
@@ -1080,7 +1135,7 @@ def test_manual_native_formation_editor_no_automatic_march():
     require(edit()['state']=='failed' and state.editOpens==1,
             'second editor launch occurred while native editor already open')
     state.editorOpen=False
-    state.serverId=2212
+    state.serverId=2296
     require(edit()['state']=='confirmed' and state.editOpens==2,
             'another authenticated native server was incorrectly denied by shipped product')
     state.editorOpen=False
@@ -1096,7 +1151,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
       state.existingAbsent=true
       state.targetUuid=990123
       state.targetPoint=state.touchedTile
-      state.targetServerId=2296
+      state.targetServerId=2212
       state.targetType=17
       state.revalidationCase='stable'
       state.targetLookups=0
@@ -1104,7 +1159,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
       MarchTargetType.ATTACK_MONSTER=19
       UIWindowNames={UIFormationSelectListV2='native-selector'}
       nativeCtrl={targetType=17,targetUuid=state.worldUuid,targetPoint=state.touchedTile,
-                  targetServerId=2296}
+                  targetServerId=2212}
       nativeCtrl.OnCheckTime=function()
         state.attackDelegateCount=state.attackDelegateCount+1
         error('unexpected send in isolated source revalidation test')
@@ -1119,7 +1174,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
         state.formationLookups=state.formationLookups+1
         if state.formationLookups==2 then
           if state.revalidationCase=='point' then nativeCtrl.targetPoint=35724 end
-          if state.revalidationCase=='selectorServer' then nativeCtrl.targetServerId=2212 end
+          if state.revalidationCase=='selectorServer' then nativeCtrl.targetServerId=2296 end
           if state.revalidationCase=='worldOwner' then state.worldOwner=state.uid end
           if state.revalidationCase=='sameAlliance' then state.worldAlliance=700 end
           if state.revalidationCase=='unknownAlliance' then state.worldAlliance=nil end
@@ -1140,7 +1195,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
     """)
     mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
     state=vm.globals().state
-    basic=dict(slot='1',authorizedUid='1183884595002296',profileId='profile',
+    basic=dict(slot='1',authorizedUid='4799432499002212',profileId='profile',
                launchSessionId='launch',challenge='request',gamePid='7020')
     def prep(**extra):
         fields=dict(basic,mode='selectorTarget')
@@ -1151,7 +1206,7 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
             witness['data']['target']['uuid']=='990123' and
             witness['data']['target']['point']==35723 and
             witness['data']['target']['targetOwnerUid']=='999' and
-            witness['data']['target']['selectorServer']==2296 and
+            witness['data']['target']['selectorServer']==2212 and
             witness['data']['target']['currentCursorVerified'] is False and
             witness['data']['safeToDispatchFromPhysicalCursor'] is False and
             state.attackDelegateCount==0,
@@ -1162,13 +1217,13 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
     state.worldOwner=state.uid
     require(prep()['state']=='failed', 'owned native city selector passed target check')
     state.worldOwner=999
-    state.worldServer=2212
-    require(prep()['state']=='failed','foreign native city point server passed target check')
     state.worldServer=2296
-    vm.execute("nativeCtrl.targetServerId=2212")
-    require(prep()['state']=='failed','foreign selector server passed target check')
+    require(prep()['state']=='failed','foreign native city point server passed target check')
+    state.worldServer=2212
     vm.execute("nativeCtrl.targetServerId=2296")
-    for alliance in (700, None, -1, True, 'invalid', ''):
+    require(prep()['state']=='failed','foreign selector server passed target check')
+    vm.execute("nativeCtrl.targetServerId=2212")
+    for alliance in (700, 701, None, -1, True, 'invalid', ''):
         state.worldAlliance=alliance
         require(prep()['state']=='failed' and state.attackDelegateCount==0,
                 'same or unknown city alliance accepted: '+repr(alliance))
@@ -1176,14 +1231,14 @@ def test_original_selector_typed_target_preflight_and_dispatch_revalidation():
     require(prep()['state']=='confirmed' and
             prep()['data']['target']['targetAllianceUid']=='0',
             'explicit unaffiliated city was not observed as neutral')
-    state.worldAlliance=701
+    state.worldAlliance=0
     for case in ('point','selectorServer','worldOwner','worldUnavailable','kind',
                  'sameAlliance','unknownAlliance','otherAlliance','ownerAlliance'):
         vm.execute("""nativeCtrl.targetPoint=35723
-          nativeCtrl.targetServerId=2296; nativeCtrl.targetType=17""")
+          nativeCtrl.targetServerId=2212; nativeCtrl.targetType=17""")
         state.worldPresent=True
         state.worldOwner=999
-        state.worldAlliance=701
+        state.worldAlliance=0
         vm.execute('LuaEntry.Player.allianceId=700')
         state.revalidationCase=case
         state.formationLookups=0
@@ -1205,7 +1260,7 @@ def test_native_alliance_field_selection_for_typed_targets():
         vm=LuaRuntime(unpack_returned_tuples=True)
         vm.execute(GAME)
         vm.execute("""
-          state.targetAlliance=701
+          state.targetAlliance=0
           state.resourceGather=0
           MarchTargetType.ATTACK_MONSTER=19
           MarchTargetType.COLLECT=20
@@ -1231,7 +1286,7 @@ def test_native_alliance_field_selection_for_typed_targets():
         if category=='resource':
             vm.globals().nativeCtrl.targetUuid=None
         mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
-        fields=vm.table_from(dict(mode='selectorTarget',authorizedUid='1183884595002296',
+        fields=vm.table_from(dict(mode='selectorTarget',authorizedUid='4799432499002212',
             profileId='profile',launchSessionId='launch',challenge='request',gamePid='7020'))
         def observe():
             return mod.Prepare(fields,vm.globals().input_clear)
@@ -1251,8 +1306,16 @@ def test_native_alliance_field_selection_for_typed_targets():
             state.forceNoAlliance=True
             vm.globals().LuaEntry.Player.allianceId=''
             require(observe()['state']=='confirmed',
-                    'source-proven unaffiliated owner did not treat player target as non-alliance: '+
+                    'source-proven unaffiliated owner rejected explicit guildless player: '+
                     category)
+            for alliance in (701, None):
+                state.worldAlliance=alliance
+                state.targetAlliance=alliance
+                rejected=observe()
+                require(rejected['state']=='failed' and 'alliance' in rejected['error'],
+                        'unaffiliated owner bypassed target alliance fence: '+category)
+            state.worldAlliance=0
+            state.targetAlliance=0
             state.forceNoAlliance=False
         vm.globals().LuaEntry.Player.allianceId=700
         if category=='resource':
@@ -1261,13 +1324,13 @@ def test_native_alliance_field_selection_for_typed_targets():
                 require(observe()['state']=='failed',
                         'unknown/occupied typed resource accepted: '+repr(occupied))
         elif category=='monster':
-            for alliance in (700, None, -1, True, 'invalid', ''):
+            for alliance in (700, 701, None, -1, True, 'invalid', ''):
                 state.worldAlliance=alliance
                 state.targetAlliance=alliance
                 require(observe()['state']=='confirmed',
                         'monster target incorrectly required alliance identity: '+repr(alliance))
         else:
-            for alliance in (700, None, -1, True, 'invalid', ''):
+            for alliance in (700, 701, None, -1, True, 'invalid', ''):
                 state.worldAlliance=alliance
                 state.targetAlliance=alliance
                 require(observe()['state']=='failed',
@@ -1321,7 +1384,7 @@ def test_original_reply_observer_required_before_native_controller():
         state.observerMode=mode
         mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
         def attack(slot):
-            fields=dict(action='attack',slot=str(slot),authorizedUid='1183884595002296',
+            fields=dict(action='attack',slot=str(slot),authorizedUid='4799432499002212',
                         profileId='profile',launchSessionId='launch',challenge='request',gamePid='7020')
             return mod.Handle(vm.table_from(fields),vm.globals().input_clear)
         if mode!='missing':
@@ -1357,7 +1420,7 @@ def test_readonly_end_to_end_source_prerequisites():
       state.existingAbsent=true
       UIWindowNames={UIFormationSelectListV2='formation'}
       nativeCtrl={targetType=17,targetUuid=state.worldUuid,
-                  targetPoint=state.touchedTile,targetServerId=2296}
+                  targetPoint=state.touchedTile,targetServerId=2212}
       nativeWindow={Ctrl=nativeCtrl}
       UIManager={GetInstance=function()return {
         IsWindowOpen=function(self,name)
@@ -1386,7 +1449,7 @@ def test_readonly_end_to_end_source_prerequisites():
     state=vm.globals().state
     mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
     fields=dict(mode='attackReadiness',slot='1',
-                authorizedUid='1183884595002296',profileId='profile',
+                authorizedUid='4799432499002212',profileId='profile',
                 launchSessionId='launch',challenge='request',gamePid='7020')
     def read(**overrides):
         return mod.Prepare(vm.table_from(dict(fields,**overrides)),vm.globals().input_clear)
@@ -1415,7 +1478,7 @@ def test_readonly_end_to_end_source_prerequisites():
         ('heroCount',0,'native_formation_soldiers_or_heroes_unstaffed'),
         ('formationOwner',123,'native_formation_owner_mismatch'),
         ('worldPresent',False,'native_typed_selector_target_invalid'),
-        ('worldServer',2212,'native_typed_selector_target_invalid'),
+        ('worldServer',2296,'native_typed_selector_target_invalid'),
         ('selectorOpen',False,'native_typed_selector_not_open')):
         old=state[flag]
         state[flag]=value
@@ -1477,7 +1540,7 @@ def test_original_world_scene_cursor_projection_is_read_only():
     """)
     state=vm.globals().state
     mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
-    base=dict(mode='cursorPoint',authorizedUid='1183884595002296',
+    base=dict(mode='cursorPoint',authorizedUid='4799432499002212',
               profileId='profile',launchSessionId='launch',
               challenge='request',gamePid='7020')
     def probe(**changes):
@@ -1530,7 +1593,7 @@ def test_original_world_scene_cursor_projection_is_read_only():
             'invalid viewport sample was accepted')
     vm.execute("""
       CS.SceneManager.World.GetTouchPoint=function(self,p)
-        state.serverId=2212
+        state.serverId=2296
         return {x=state.touchedX,y=0,z=state.touchedZ}
       end
     """)
@@ -1547,6 +1610,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                    'monster_same_alliance', 'monster_unknown_alliance',
                    'monster_alliance_drift', 'owner_alliance_unknown',
                    'resource', 'resource_unknown_occupancy', 'resource_occupancy_drift',
+                   'city', 'city_allied', 'city_unknown_alliance', 'city_alliance_drift',
+                   'city_own', 'city_reverse_changed',
                    'boss', 'occupied_resource', 'unknown_ground_point'):
         vm=LuaRuntime(unpack_returned_tuples=True)
         vm.execute(GAME)
@@ -1590,6 +1655,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             state.raycastCalls=state.raycastCalls+1
             if state.raycastCalls==2 and state.hoverAllianceDrift then state.hoverAlliance=700 end
             if state.raycastCalls==3 and state.resourceOccupancyDrift then state.resourceGather=555110 end
+            if state.raycastCalls==2 and state.cityAllianceDrift then state.worldAlliance=701 end
             return state.hover
           end
           CS.SceneManager.World.GetResourcePointInfoByIndex=function(self,id)
@@ -1631,6 +1697,13 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         if target in ('resource','occupied_resource','unknown_ground_point',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             vm.execute('state.hover=0')
+        if target.startswith('city'):
+            vm.execute('state.hover=0;state.worldPointType=6;state.worldAlliance=0')
+        if target=='city_allied': state.worldAlliance=701
+        if target=='city_unknown_alliance': state.worldAlliance=None
+        if target=='city_alliance_drift': state.cityAllianceDrift=True
+        if target=='city_own': state.worldOwner=state.uid
+        if target=='city_reverse_changed': state.reverseMain=35724
         if target in ('monster_popup_raycast_miss','monster_popup_cursor_mismatch'):
             vm.execute("""
               state.hover=0
@@ -1660,8 +1733,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             vm.execute('state.groundMissing=true')
         if target=='monster_no_soldiers':
             vm.execute('''state.soldierCount=0;state.heroCount=2
-              state.uid=1183884595002296
-              state.serverId=2296
+              state.uid=4799432499002212
+              state.serverId=2212
               state.formationOwner=state.uid
               LuaEntry.Player.uid=state.uid''')
         if target=='unknown_ground_point':
@@ -1672,7 +1745,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
             vm.execute('state.resourceGather=555110')
         mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
         payload=dict(action='attack',slot='1',
-                     authorizedUid='1183884595002296',
+                     authorizedUid='4799432499002212',
                      profileId='profile',launchSessionId='launch',
                      challenge='request',gamePid='7020')
         def execute(**changes):
@@ -1684,6 +1757,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         if target in ('boss','occupied_resource',
                       'unknown_ground_point','monster_popup_cursor_mismatch',
                       'owner_alliance_unknown',
+                      'city_allied','city_unknown_alliance','city_alliance_drift',
+                      'city_own','city_reverse_changed',
                       'resource_unknown_occupancy','resource_occupancy_drift'):
             require(first['state']=='failed' and state.openCalls==0 and
                     state.rpcCount==0,
@@ -1693,8 +1768,8 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         require(first['state']=='accepted' and
                 first['data']['awaitingNativeChooser'] is True and
                 first['data']['requestDispatched'] is False and
-                first['data']['ownerUid']=='1183884595002296' and
-                first['data']['sourceServerId']==2296 and
+                first['data']['ownerUid']=='4799432499002212' and
+                first['data']['sourceServerId']==2212 and
                 first['data']['chooserRequestMade'] is True and
                 first['data']['formationUuid']=='1001' and
                 state.openCalls==1 and state.rpcCount==0,
@@ -1719,9 +1794,14 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
                         'UIWorldPoint.Ctrl' in first['data']['hoverSource'] and
                         state.touchCalls>=2,
                         'native popup fallback did not require a fresh matching physical cursor tile')
+        elif target=='city':
+            require(args[1]==17 and args[2]==35723 and args[3]==990123 and
+                    args[4]==-1 and args[5]==1 and args[6] is None and
+                    args[7]==2212 and args['n']==7,
+                    'native city hover did not preserve original ATTACK_CITY chooser tuple')
         else:
             require(args[1]==20 and args[2]==35723 and args[3] is None and
-                    args[7]==2296 and args['n']==7 and
+                    args[7]==2212 and args['n']==7 and
                     first['data']['targetUuid']=='35723',
                     'original resource gather selector/mainIndex/send namespace was lost')
         pending=execute(queryOnly='1')
@@ -1734,7 +1814,7 @@ def test_original_hover_monster_and_resource_one_shot_chooser():
         require(repeat['state']=='accepted' and state.openCalls==1 and
                 state.rpcCount==0,
                 'repeated physical hotkey reopened already pending native chooser')
-        state.serverId=2212
+        state.serverId=2296
         changed=execute(queryOnly='1')
         require(changed['state']=='failed' and state.openCalls==1 and
                 state.rpcCount==0,
@@ -1798,7 +1878,7 @@ def test_current_nested_staffing_and_native_membership():
             vm.execute('LuaEntry.Player.allianceId=0;LuaEntry.Player.IsInAlliance=function()return true end')
         if case=='target_unknown': state.worldAlliance=None
         mod=vm.execute(SOURCE.read_text(encoding='utf-8'))
-        fields=dict(slot='1',authorizedUid='1183884595002296',profileId='profile',
+        fields=dict(slot='1',authorizedUid='4799432499002212',profileId='profile',
                     launchSessionId='launch',challenge='request',gamePid='7020')
         inventory=mod.Prepare(vm.table_from(dict(fields,mode='inventory')),vm.globals().input_clear)
         require(inventory['state']=='confirmed' and
@@ -1807,7 +1887,7 @@ def test_current_nested_staffing_and_native_membership():
                 'current native troop diagnostics were reduced to legacy ArmyManager inventory')
         state.formReads=0
         sent=mod.Handle(vm.table_from(dict(fields,action='attack')),vm.globals().input_clear)
-        if case in ('ready','denied','unknown_permission','changed_at_send','target_unknown'):
+        if case in ('ready','denied','unknown_permission','changed_at_send'):
             require(sent['state']=='accepted' and state.attackDelegateCount==1 and state.attackSends==1,
                     'source-backed BestSelect nested170/170 formation was rejected: '+case)
         else:
@@ -1915,7 +1995,7 @@ def main():
     prestate = vm.globals().state
     def preflight(**overrides):
         fields = {"slot": "1", "profileId": "profile", "launchSessionId": "launch",
-                  "challenge": "request", "gamePid": "7020", "authorizedUid": "1183884595002296"}
+                  "challenge": "request", "gamePid": "7020", "authorizedUid": "4799432499002212"}
         fields.update(overrides)
         return preflight_module.AttackTargetPreflight(
             vm.table_from(fields), vm.globals().input_clear)
@@ -1965,7 +2045,7 @@ def main():
         ("formationOwner", 777, "failed"),
         ("owner", 777, "failed"),
         ("formOwner", 777, "failed"),
-        ("worldOwner", 1183884595002296, "failed"),
+        ("worldOwner", 4799432499002212, "failed"),
         ("worldServer", 777, "failed"),
         ("reverseValid", False, "unsupported"),
         ("reverseMain", 44000, "unsupported"),
@@ -2021,7 +2101,7 @@ def main():
     state["owner"] = 444
     require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
             "foreign march owner passed selection")
-    state["owner"] = 1183884595002296
+    state["owner"] = 4799432499002212
     state["formOwner"] = 2020
     require(call()["state"] == "unsupported" and state["rpcCount"] == 0,
             "foreign formation passed selection")

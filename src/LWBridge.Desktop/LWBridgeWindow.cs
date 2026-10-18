@@ -20,6 +20,7 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://dispatch-plunder-changed",
         "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
+        "bridge://hotkey-outcome",
     ];
     private static readonly HashSet<string> ProfileScopedEvents = new(StringComparer.Ordinal)
     {
@@ -32,6 +33,7 @@ internal sealed partial class LWBridgeWindow : Form
         "bridge://dispatch-plunder-changed",
         "bridge://truck-plunder-changed",
         "bridge://local-map-auto-scan-changed",
+        "bridge://hotkey-outcome",
     };
 
     private readonly string? capturePath;

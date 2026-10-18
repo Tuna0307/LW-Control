@@ -377,18 +377,11 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
     end
     if not own then return nil,failed("Own alliance identity unknown; attack suppressed") end
     local target_alliance=alliance_identity(member(target,is_march and "allianceUid" or "allianceId"))
-    -- If the current player is source-proven unaffiliated, no other player
-    -- can be in the same alliance. Target alliance identity need not exist.
-    if own=="0" then
-        return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
-            targetAllianceVerified=target_alliance~=nil,sameAlliance=false,
-            allianceCheckRequired=true}
-    end
     if not target_alliance then
         return nil,failed("Target alliance identity unknown; attack suppressed")
     end
-    if own~="0" and target_alliance==own then
-        return nil,failed("Target belongs to own alliance; attack suppressed")
+    if target_alliance~="0" then
+        return nil,failed("Player target belongs to an alliance; only guildless players may be attacked")
     end
     return {ownerAllianceUid=own,targetAllianceUid=target_alliance,
         targetAllianceVerified=true,sameAlliance=false,
@@ -1431,6 +1424,15 @@ end
 -- this value: a floating point conversion corrupts march UUIDs above 2^53.
 
 local cursor_open_pending
+local function release_confirmed_hover(slot)
+    -- The chooser is one-shot only for its own send. A confirmed transaction
+    -- must not leave a process-lifetime latch that blocks the next physical
+    -- key, or a different squad. Late queryOnly polls still cannot open UI.
+    if cursor_open_pending and cursor_open_pending.session==current_session and
+       cursor_open_pending.slot==slot and cursor_open_pending.consumed==true then
+        cursor_open_pending=nil
+    end
+end
 local function native_hover_target(fields,uid)
     if fields.samplePixelX~=nil or fields.samplePixelY~=nil then
         return nil,failed("Native hover action requires the physical game cursor")
@@ -1576,7 +1578,7 @@ local function native_hover_target(fields,uid)
             source=hover_source,nativeCursorRaycastVerified=popup_point==nil,
             nativePopupTargetVerified=popup_point~=nil},nil
     end
-    if intent~="resource" then
+    if intent~="resource" and intent~="city" then
         return nil,failed("Unsupported native hover intent")
     end
     if hit_id then
@@ -1604,7 +1606,39 @@ local function native_hover_target(fields,uid)
         end
         point=canonical
     end
-    if number(member(point,"PointType"))~=7 then
+    local point_type=number(member(point,"PointType"))
+    if point_type==6 and (fields.targetKind==nil or intent=="city") then
+        local point_id=integer(member(point,"pointIndex"))
+        local uuid,native_uuid=ident(member(point,"uuid"))
+        local owner=ident(member(point,"ownerUid"))
+        if not point_id or not uuid or not owner or owner==uid then
+            return nil,failed("Hovered player city owner/identity is unreadable or belongs to this account")
+        end
+        if member(point,"serverId")~=nil and
+           tostring(member(point,"serverId"))~=account.server then
+            return nil,failed("Hovered player city belongs to another server")
+        end
+        -- Canonical point and reverse UUID lookup must describe the same
+        -- current native city. Never authorize a remembered popup/touch ID.
+        local ok_reverse,reverse=invoke(scene,"GetPointInfoByUuid",native_uuid)
+        if not ok_reverse or reverse==nil or ident(member(reverse,"uuid"))~=uuid or
+           integer(member(reverse,"mainIndex"))~=integer(member(point,"mainIndex")) or
+           ident(member(reverse,"ownerUid"))~=owner or
+           member(reverse,"allianceId")~=member(point,"allianceId") or
+           (member(reverse,"serverId")~=nil and
+            tostring(member(reverse,"serverId"))~=account.server) then
+            return nil,failed("Hovered city reverse identity or alliance changed")
+        end
+        local alliance,denial=target_alliance_guard(account,point,true,false)
+        if not alliance then return nil,denial end
+        return {category="guildless_player_city",targetType="ATTACK_CITY",point=point_id,
+            uuid=native_uuid,uuidText=uuid,server=account.server,uid=account.uid,
+            ownerAllianceUid=alliance.ownerAllianceUid,targetAllianceUid=alliance.targetAllianceUid,
+            scene=scene,pixelX=cursor.pixelX,pixelY=cursor.pixelY,
+            source="UIUtil.OnClickWorld+World.GetPointInfo+GetPointInfoByUuid",
+            nativeCursorRaycastVerified=true},nil
+    end
+    if intent=="city" or point_type~=7 then
         return nil,failed("Native hovered point is not an ordinary WorldResource")
     end
     local point_id=integer(member(point,"pointIndex"))
@@ -1643,8 +1677,8 @@ end
 
 local function native_hover_open(fields,input_clear,uid)
     if fields.targetKind~=nil and fields.targetKind~="monster" and
-       fields.targetKind~="resource" then
-        return failed("Original hover targetKind must be monster or resource")
+       fields.targetKind~="resource" and fields.targetKind~="city" then
+        return failed("Original hover targetKind must be monster, resource or city")
     end
     if cursor_open_pending and cursor_open_pending.session==current_session then
         return failed("Earlier original cursor formation opening may still be pending")
@@ -1726,6 +1760,11 @@ local function native_hover_open(fields,input_clear,uid)
     if fresh.targetType=="ATTACK_MONSTER" then
         -- UIWorldPointBtn root/13 line1491 uses (kind,point,uuid,-1,1).
         ok,result=pcall(opener,kind,fresh.point,fresh.uuid,-1,1)
+    elseif fresh.targetType=="ATTACK_CITY" then
+        -- v26 UIWorldPointBtn.OnBtnClick root/13 sourceLine1678:
+        -- (ATTACK_CITY, pointId, uuid, -1, 1, nil, targetServerId).
+        ok,result=pcall(opener,kind,fresh.point,fresh.uuid,-1,1,nil,
+            tonumber(account.server))
     else
         -- UIWorldPointBtn root/13/43 line2265 passes the server in arg7.
         ok,result=pcall(opener,kind,fresh.point,nil,nil,nil,nil,
@@ -2436,6 +2475,7 @@ local function attack_selected(fields, input_clear, uid)
             if result.state == "confirmed" then
                 prior.receipt.speedup=result.data
                 attacks[fields.slot]=nil
+                release_confirmed_hover(fields.slot)
                 return {state="confirmed",data=prior.receipt}
             end
             if result.state == "accepted" then
@@ -2518,6 +2558,7 @@ local function attack_selected(fields, input_clear, uid)
                 return attack_selected(fields,input_clear,uid)
             end
             attacks[fields.slot] = nil
+            release_confirmed_hover(fields.slot)
             return {state="confirmed",data=receipt}
         end
         return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,

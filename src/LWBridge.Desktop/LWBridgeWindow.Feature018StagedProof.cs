@@ -83,7 +83,7 @@ internal sealed partial class LWBridgeWindow
                     ShieldOverlay = true, ShieldUse = true, Equipment = true,
                     RandomRelocate = true, AllianceRelocate = true }, JsonOptions.Default), token);
             await Save();
-            DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(13);
+            DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(35);
             DateTimeOffset? missingOwnerSince = null;
             while (DateTimeOffset.UtcNow < expires)
             {
@@ -216,6 +216,12 @@ internal sealed partial class LWBridgeWindow
                             // Windows computer-use tool, outside the harness sender.
                             result = new { outcomes = feature018R2KeyOutcomes.ToArray(),
                                 capturedIntents = feature018Capture?.SnapshotCapturedIntents(),
+                                captureId = feature018Capture?.CaptureId,
+                                foregroundOwned = feature018Capture?.IsExactForegroundOwner(),
+                                inputClear = feature018InputClear,
+                                inputObservedAtUtc = feature018InputObservedAt,
+                                authenticatedAccount = ReadFeature018AuthenticatedAccount(lifecycle, owner),
+                                preferences = feature018Preferences,
                                 observedAtUtc = DateTimeOffset.UtcNow,
                                 inputOriginProvenByThisRead = false };
                         }
