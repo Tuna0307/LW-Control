@@ -115,6 +115,8 @@ internal static class Feature018HotkeyCaptureChecks
 
     internal static async Task RunAsync()
     {
+        Environment.SetEnvironmentVariable("LWBRIDGE_FEATURE018_PROOF_UID", "4799432499002212");
+        Environment.SetEnvironmentVariable("LWBRIDGE_FEATURE018_PROOF_SERVER", "2212");
         if (!LWBridgeWindow.Feature018IsApprovedAccount("4799432499002212", 2212) ||
             LWBridgeWindow.Feature018IsApprovedAccount("1183884595002296", 2296) ||
             LWBridgeWindow.Feature018IsApprovedAccount("4799432499002213", 2212) ||

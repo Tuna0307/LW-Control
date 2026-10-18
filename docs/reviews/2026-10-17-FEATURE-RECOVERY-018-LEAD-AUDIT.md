@@ -372,3 +372,27 @@ Handoff rule unchanged; record progress under "R16 progress".
   tuple, and fresh response-derived create-GUID confirmation for both new kinds.
   No game session was opened for Task 3 and no live reinforcement or ruin march was
   sent; the owner remains the first live tester for those two targets.
+- **Task 4 / cleanup — R16 owner package checkpoint (2026-10-18):**
+  `tools/feature018_r16_package.py` is the R16 copy of the accepted R15 packager,
+  updated for an OWNER_TEST release. It refuses a dirty/unpushed branch, requires
+  the Windows ProductVersion to end in the exact pushed HEAD, verifies every linked
+  OverviewBridge source against that checkout, CRC/hash-checks every ZIP entry and
+  scans every uncompressed entry for all historical/test account UIDs in both
+  ASCII/UTF-8 and UTF-16LE. The fixed R16 proof UID/server were removed from the
+  owner Desktop binary: isolated proof identity now comes only from proof-launch
+  environment variables. README-R16 states that march speed-ups were removed by
+  owner decision, that old speed-up settings are ignored, and that ally-city
+  reinforcement plus destroyed-city ruin hover are built/source-verified but
+  intentionally untested live for the owner to test personally. It also says not
+  to press Unlock Land Cell during this R16 owner test. The final external ZIP and
+  `r16-package-receipt.json` are generated only after this exact source checkpoint
+  is pushed; their embedded `SOURCE-COMMIT.txt` / R16 integrity manifest are the
+  authoritative commit/hash witnesses.
+  Full Desktop checks pass (`HOME_FEATURE_DELIVERY_CHECKS_OK`), both Hotkey/attack
+  Lua suites pass, `git diff --check` passes, and the packager preflight proves the
+  UTF-16 test-UID detector. The earlier successful Task 2 live session later hit
+  the outer 900-second harness timeout and therefore lacked its normal owned-exit
+  file. Independent post-timeout cleanup evidence at
+  `artifacts/map014-takeover/native-ui-20261018-082907/r16-post-timeout-restoration.json`
+  proves all three installed v26 script hashes exactly equal that run's captured
+  originals, no LastWar/LWBridge process remains, and no recovery journal exists.
