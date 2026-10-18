@@ -867,6 +867,9 @@ local function status_data(job)
         inboundReplaceCollisionObserved = job.inboundContended == true,
         nativeMoveCollisionObserved = move_result_ambiguous(job),
         nativeReplaceReplyCount = job.nativeReplaceReplyCount or 0,
+        nativeMoveMessageReplyCount = job.nativeMoveMessageReplyCount or 0,
+        nativeMoveDispatcherReplyCount = job.nativeMoveDispatcherReplyCount or 0,
+        nativeMoveDispatcherIdentityCount = job.nativeMoveDispatcherIdentityCount or 0,
         matchingNativeReplies = job.matchingNativeReplies or 0,
         pendingNativeReplyObserved = job.waiting ~= nil and
             job.replyForStep == job.waiting or false,
@@ -891,6 +894,15 @@ local function remove_message_reply_observer(job)
     job.messageReplyObserver = nil
 end
 
+local function remove_dispatcher_reply_observer(job)
+    if not job or not job.dispatcherReplyObserver then return end
+    if job.dispatcherNetwork and
+        job.dispatcherNetwork.HandleMessage == job.dispatcherReplyObserver then
+        job.dispatcherNetwork.HandleMessage = job.originalDispatcherHandleMessage
+    end
+    job.dispatcherReplyObserver = nil
+end
+
 local function remove_replace_observer(job)
     if not job or not job.replaceObserver then return end
     if job.replyManager and
@@ -909,6 +921,7 @@ local function remove_send_observer(job)
 end
 
 local function remove_move_observers(job)
+    remove_dispatcher_reply_observer(job)
     remove_message_reply_observer(job)
     remove_reply_observer(job)
     remove_replace_observer(job)
@@ -1013,11 +1026,14 @@ local function move_observers_intact(job)
     local net = rawget(_G, 'SFSNetwork')
     local message = rawget(_G, 'MsgDefines')
     return type(job.messageReplyObserver) == 'function' and
+        type(job.dispatcherReplyObserver) == 'function' and
         type(job.replyObserver) == 'function' and
         type(job.replaceObserver) == 'function' and
         type(job.sendObserver) == 'function' and
         job.messageReplyClass ~= nil and
         job.messageReplyClass.HandleMessage == job.messageReplyObserver and
+        job.dispatcherNetwork == net and
+        net ~= nil and net.HandleMessage == job.dispatcherReplyObserver and
         job.replyManager ~= nil and
         job.replyManager.BuildWorldMoveNewHandle == job.replyObserver and
         job.replyManager.FreeBuildingReplaceNewHandle == job.replaceObserver and
@@ -1076,6 +1092,50 @@ local function confirm_native_move_reply(job, step, from, bm)
     end
 end
 
+local function observe_native_move_dispatcher(job, bm, net, message)
+    -- Net/SFSNetwork.HandleMessage v26 has the exact signature (cmd, t).
+    -- It resolves GetMsgType(cmd), then its xpcall closure creates
+    -- msgType:NewEmpty() and invokes msg:HandleMessage(t). Observe here, one
+    -- layer above any cached class/manager delegate. Only the exact
+    -- BuildWorldMoveNew command is eligible; every other inbound command is
+    -- delegated unchanged and cannot affect City reply attribution.
+    if job.dispatcherReplyObserver then
+        return job.dispatcherNetwork == net and
+            net.HandleMessage == job.dispatcherReplyObserver
+    end
+    local original = net.HandleMessage
+    if type(original) ~= 'function' then return false end
+    local function observer(cmd, response, ...)
+        if M.active == job then account_changed(job) end
+        local step, from
+        local matching_route = M.active == job and job.waiting ~= nil and
+            cmd == message.BuildWorldMoveNew
+        if matching_route then
+            job.nativeMoveDispatcherReplyCount =
+                (job.nativeMoveDispatcherReplyCount or 0) + 1
+            step, from = pending_native_move_reply(job, response, bm)
+            if step ~= nil then
+                job.nativeMoveDispatcherIdentityCount =
+                    (job.nativeMoveDispatcherIdentityCount or 0) + 1
+            end
+        end
+        job.dispatcherReplyInProgress = matching_route
+        local returned = table.pack(pcall(original, cmd, response, ...))
+        job.dispatcherReplyInProgress = false
+        if M.active == job then account_changed(job) end
+        if matching_route and returned[1] then
+            confirm_native_move_reply(job, step, from, bm)
+        end
+        if not returned[1] then error(returned[2], 0) end
+        return table.unpack(returned, 2, returned.n)
+    end
+    net.HandleMessage = observer
+    if net.HandleMessage ~= observer then return false end
+    job.dispatcherNetwork, job.originalDispatcherHandleMessage,
+        job.dispatcherReplyObserver = net, original, observer
+    return true
+end
+
 local function observe_native_move_message_replies(job, bm)
     -- Net/SFSNetwork.HandleMessage v26 resolves MsgMap[cmd] to the message
     -- CLASS table, creates class:NewEmpty(), then dynamically calls the
@@ -1093,7 +1153,14 @@ local function observe_native_move_message_replies(job, bm)
     if type(original) ~= 'function' then return false end
     local function observer(self, response, ...)
         if M.active == job then account_changed(job) end
-        local step, from = pending_native_move_reply(job, response, bm)
+        if M.active == job and job.waiting then
+            job.nativeMoveMessageReplyCount =
+                (job.nativeMoveMessageReplyCount or 0) + 1
+        end
+        local step, from
+        if job.dispatcherReplyInProgress ~= true then
+            step, from = pending_native_move_reply(job, response, bm)
+        end
         job.messageReplyInProgress = true
         local returned = table.pack(pcall(original, self, response, ...))
         job.messageReplyInProgress = false
@@ -1124,7 +1191,8 @@ local function observe_native_move_replies(job, bm)
     local function observer(self, response, ...)
         if M.active == job then account_changed(job) end
         local step, from
-        if job.messageReplyInProgress ~= true then
+        if job.messageReplyInProgress ~= true and
+            job.dispatcherReplyInProgress ~= true then
             step, from = pending_native_move_reply(job, response, self)
         end
         -- Always invoke the original handler once with its original receiver
@@ -1269,10 +1337,11 @@ local function dispatch_step(job)
     end
     if not observe_native_move_replies(job, meta.ctx.bm) or
         not observe_native_move_message_replies(job, meta.ctx.bm) or
+        not observe_native_move_dispatcher(job, meta.ctx.bm, net, message) or
         not observe_native_replace_replies(job, meta.ctx.bm) or
         not observe_native_move_sends(job, net, message) then
         job.state, job.errorCode = 'failed', 'GAME_METHOD_UNAVAILABLE'
-        job.error = 'Native building Move message/manager/Replace reply/source hooks cannot be observed safely.'
+        job.error = 'Native building Move dispatcher/message/manager/Replace reply/source hooks cannot be observed safely.'
         -- A partial observer installation did not send a packet. Release it.
         remove_move_observers(job)
         return false

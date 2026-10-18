@@ -153,24 +153,37 @@ DataCenter = {
     end},
 }
 CachedBuildWorldMoveNewHandle = DataCenter.BuildManager.BuildWorldMoveNewHandle
+NativeMoveMessageOriginalInvocations = 0
 BuildWorldMoveNewMessageClass = {
     HandleMessage=function(self, reply)
         -- Reproduce the live v26 cached-delegate bypass: the message class
         -- retains the manager callback that existed before City installs its
         -- manager-level observer. Only a message-class hook can see this raw
         -- reply while still allowing the cached original to apply poststate.
+        NativeMoveMessageOriginalInvocations = NativeMoveMessageOriginalInvocations + 1
         return CachedBuildWorldMoveNewHandle(DataCenter.BuildManager, reply)
     end,
 }
 package.preload['Net.Msgs.BuildWorldMoveNewMessage'] = function()
     return BuildWorldMoveNewMessageClass
 end
+CachedBuildWorldMoveNewMessageHandle = BuildWorldMoveNewMessageClass.HandleMessage
+NativeMoveDispatcherOriginalInvocations = 0
+SFSNetwork.HandleMessage = function(cmd, reply)
+    NativeMoveDispatcherOriginalInvocations = NativeMoveDispatcherOriginalInvocations + 1
+    -- Deliberately use the class callback cached before City installs its
+    -- class hook, reproducing the live bypass at both lower observer layers.
+    if cmd == MsgDefines.BuildWorldMoveNew then
+        return CachedBuildWorldMoveNewMessageHandle(BuildWorldMoveNewMessageClass, reply)
+    end
+    return false
+end
 for pointId=1,CityTileCount*CityTileCount do
     DataCenter.CityZoneManager.allZonePoint[pointId] = {zone_type=1}
 end
 function ConfirmNativeMove(uuid, pointId)
     local building=DataCenter.BuildManager:GetBuildingDataByUuid(uuid)
-    require('Net.Msgs.BuildWorldMoveNewMessage'):HandleMessage({
+    SFSNetwork.HandleMessage(MsgDefines.BuildWorldMoveNew, {
         buildInfo={uuid=uuid,pointId=pointId,bId=building.itemId}})
 end
 handlers = {}
@@ -390,7 +403,11 @@ def check_original_game_wire() -> None:
     network_get_type = list(disassemble(native_method('Net/SFSNetwork.luac', 'GetMsgType')))
     msg_map = list(disassemble(bytecode.parse_chunk(
         probe.decode_lenc(files['Net/Config/MsgMap.luac']))))
-    check(any('sourceLine=40' in line and "'NewEmpty'" in line
+    check(network_handle['params'] == 2 and
+          network_handle['locals'][0][0] == 'cmd' and
+          network_handle['locals'][1][0] == 't' and
+          any('sourceLine=37' in line for line in disassemble(network_handle)) and
+          any('sourceLine=40' in line and "'NewEmpty'" in line
               for line in network_dispatch) and
           any('sourceLine=41' in line and "'HandleMessage'" in line
               for line in network_dispatch) and
@@ -712,6 +729,8 @@ def main():
     get = lambda name, fields=None: lua.globals().Act(name, fields)
     revision = get('city_layout_snapshot_get')['data']['layoutRevision']
     lua.execute('OriginalNativeMoveReply = DataCenter.BuildManager.BuildWorldMoveNewHandle')
+    lua.execute("OriginalNativeMoveMessageReply = require('Net.Msgs.BuildWorldMoveNewMessage').HandleMessage")
+    lua.execute('OriginalNativeMoveDispatcher = SFSNetwork.HandleMessage')
     check(get('city_layout_apply_start', lua.globals().Fields(
         revision, '101:3'))['state'] == 'accepted',
           'native reply attribution fixture failed to send')
@@ -733,8 +752,15 @@ def main():
                     lua.globals().Fields(revision,''))['data']
     check(confirmed['state'] == 'completed' and
           confirmed['matchingNativeReplies'] == 1 and
-          lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply'),
-          'exact native reply did not advance or restore original game handler')
+          confirmed['nativeMoveDispatcherReplyCount'] == 1 and
+          confirmed['nativeMoveDispatcherIdentityCount'] == 1 and
+          confirmed['nativeMoveMessageReplyCount'] == 0 and
+          lua.globals().NativeMoveDispatcherOriginalInvocations == 1 and
+          lua.globals().NativeMoveMessageOriginalInvocations == 1 and
+          lua.eval('DataCenter.BuildManager.BuildWorldMoveNewHandle == OriginalNativeMoveReply') and
+          lua.eval("require('Net.Msgs.BuildWorldMoveNewMessage').HandleMessage == OriginalNativeMoveMessageReply") and
+          lua.eval('SFSNetwork.HandleMessage == OriginalNativeMoveDispatcher'),
+          'exact dispatcher-layer native reply did not advance or restore original game handlers')
 
     # The live xLua reply can be a native/userdata proxy rather than a Lua
     # table. Shipped v26 bytecode indexes the payload with GETTABLE, so the
@@ -767,22 +793,51 @@ def main():
           lua_proxy.eval('type(NativeProxyReply.buildInfo)') == 'userdata',
           'reply regression did not exercise a non-table native proxy')
     lua_proxy.execute(
-        'DataCenter.BuildManager:BuildWorldMoveNewHandle(WrongNativeProxyReply)')
+        "SFSNetwork.HandleMessage(MsgDefines.BuildWorldMoveNew, WrongNativeProxyReply)")
     proxy_unrelated = get_proxy(
         'city_layout_apply_status', lua_proxy.globals().Fields(proxy_revision, ''))['data']
     check(proxy_unrelated['state'] == 'running' and
           proxy_unrelated['completedMoves'] == 0 and
-          proxy_unrelated['matchingNativeReplies'] == 0,
+          proxy_unrelated['matchingNativeReplies'] == 0 and
+          proxy_unrelated['nativeMoveDispatcherReplyCount'] == 1 and
+          proxy_unrelated['nativeMoveDispatcherIdentityCount'] == 0,
           'foreign userdata/native-proxy Move reply matched pending job')
     lua_proxy.execute(
-        'DataCenter.BuildManager:BuildWorldMoveNewHandle(NativeProxyReply)')
+        "SFSNetwork.HandleMessage(MsgDefines.BuildWorldMoveNew, NativeProxyReply)")
     proxy_complete = get_proxy(
         'city_layout_apply_status', lua_proxy.globals().Fields(proxy_revision, ''))['data']
     check(proxy_complete['state'] == 'completed' and
           proxy_complete['completedMoves'] == 1 and
           proxy_complete['matchingNativeReplies'] == 1 and
+          proxy_complete['nativeMoveDispatcherReplyCount'] == 2 and
+          proxy_complete['nativeMoveDispatcherIdentityCount'] == 1 and
+          proxy_complete['nativeMoveMessageReplyCount'] == 0 and
+          lua_proxy.globals().NativeMoveDispatcherOriginalInvocations == 2 and
+          lua_proxy.globals().NativeMoveMessageOriginalInvocations == 2 and
           proxy_complete['pendingNativeReplyObserved'] is False,
           'exact userdata/native-proxy Move reply was missed')
+
+    # An exact-looking response on a different inbound command must not even
+    # increment the BuildWorldMoveNew dispatcher route telemetry, much less
+    # confirm from a coincidentally matching poststate.
+    lua_unrelated_route, _ = fake()
+    get_unrelated_route = lambda name, fields=None: lua_unrelated_route.globals().Act(name, fields)
+    unrelated_revision = get_unrelated_route('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get_unrelated_route('city_layout_apply_start', lua_unrelated_route.globals().Fields(
+        unrelated_revision, '101:3'))['state'] == 'accepted',
+          'unrelated-dispatch fixture failed to send')
+    lua_unrelated_route.execute('''
+      SFSNetwork.HandleMessage('some_other_command', {
+        buildInfo={uuid=101,pointId=3,bId=11}})
+    ''')
+    unrelated_route = get_unrelated_route(
+        'city_layout_apply_status', lua_unrelated_route.globals().Fields(
+            unrelated_revision, ''))['data']
+    check(unrelated_route['state'] == 'running' and
+          unrelated_route['matchingNativeReplies'] == 0 and
+          unrelated_route['nativeMoveDispatcherReplyCount'] == 0 and
+          unrelated_route['nativeMoveDispatcherIdentityCount'] == 0,
+          'unrelated dispatcher command entered City Move reply attribution')
 
     lua, producer = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
@@ -848,6 +903,31 @@ def main():
           no_reply['errorCode'] == 'GAME_METHOD_UNAVAILABLE' and
           len(lua_no_reply.globals().ObservedMoves) == 0,
           'missing original Move ACK handler allowed unverified dispatch')
+
+    lua_no_message_reply, _ = fake()
+    no_message_reply_revision = lua_no_message_reply.globals().Act(
+        'city_layout_snapshot_get')['data']['layoutRevision']
+    lua_no_message_reply.execute(
+        "require('Net.Msgs.BuildWorldMoveNewMessage').HandleMessage = nil")
+    no_message_reply = lua_no_message_reply.globals().Act(
+        'city_layout_apply_start', lua_no_message_reply.globals().Fields(
+            no_message_reply_revision, '101:3'))
+    check(no_message_reply['state'] == 'failed' and
+          no_message_reply['errorCode'] == 'GAME_METHOD_UNAVAILABLE' and
+          len(lua_no_message_reply.globals().ObservedMoves) == 0,
+          'missing message-layer Move ACK handler allowed unverified dispatch')
+
+    lua_no_dispatcher_reply, _ = fake()
+    no_dispatcher_reply_revision = lua_no_dispatcher_reply.globals().Act(
+        'city_layout_snapshot_get')['data']['layoutRevision']
+    lua_no_dispatcher_reply.execute('SFSNetwork.HandleMessage = nil')
+    no_dispatcher_reply = lua_no_dispatcher_reply.globals().Act(
+        'city_layout_apply_start', lua_no_dispatcher_reply.globals().Fields(
+            no_dispatcher_reply_revision, '101:3'))
+    check(no_dispatcher_reply['state'] == 'failed' and
+          no_dispatcher_reply['errorCode'] == 'GAME_METHOD_UNAVAILABLE' and
+          len(lua_no_dispatcher_reply.globals().ObservedMoves) == 0,
+          'missing global dispatcher Move ACK handler allowed unverified dispatch')
 
     lua, _ = fake()
     get = lambda name, fields=None: lua.globals().Act(name, fields)
