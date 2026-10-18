@@ -16,8 +16,8 @@ from pathlib import Path
 import time
 import uuid
 
-UID = '1183884595002296'
-SERVER = 2296
+UID = '4799432499002212'
+SERVER = 2212
 HISTORICAL_UNACKNOWLEDGED_CITY_UUID = '1392040865799139725'
 
 
@@ -41,7 +41,7 @@ class StageQueue:
             return None
         game = value.get('game', {})
         if str(game.get('uid')) != UID or game.get('serverId') != SERVER:
-            raise RuntimeError('Staged app does not report the exact authorized 2296 UID')
+            raise RuntimeError('Staged app does not report the exact authorized 2212 UID')
         return value
 
     def request(self, kind, *, timeout=40, **fields):

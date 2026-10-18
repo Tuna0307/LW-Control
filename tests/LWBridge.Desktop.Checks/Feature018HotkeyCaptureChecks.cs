@@ -115,6 +115,13 @@ internal static class Feature018HotkeyCaptureChecks
 
     internal static async Task RunAsync()
     {
+        if (!LWBridgeWindow.Feature018IsApprovedAccount("4799432499002212", 2212) ||
+            LWBridgeWindow.Feature018IsApprovedAccount("1183884595002296", 2296) ||
+            LWBridgeWindow.Feature018IsApprovedAccount("4799432499002213", 2212) ||
+            LWBridgeWindow.Feature018IsApprovedAccount(null, 2212) ||
+            LWBridgeWindow.Feature018IsApprovedAccount("4799432499002212", 2296))
+            throw new InvalidDataException("R15 harness must admit only exact sub-account UID, including on shared server 2212");
+
         await NativeAttackRejectionDiagnosticsChecksAsync();
         await AttackNativeChooserContinuationChecksAsync();
         var recognizer = new Feature018HotkeyRecognizer();
@@ -1040,11 +1047,11 @@ internal static class Feature018HotkeyCaptureChecks
 
     private static async Task NativeAttackRejectionDiagnosticsChecksAsync()
     {
-        // This is the captured account shape observed in the 2296 Q failure;
+        // This is the captured account shape observed in the 2212 Q failure;
         // no game or keyboard is contacted. Native failed receipts must retain
         // the distinguishing rejection, never become a positive observation.
-        var session = new Feature018HotkeySession("2296-test-profile", "2296-session",
-            "1183884595002296", 2296);
+        var session = new Feature018HotkeySession("2212-test-profile", "2212-session",
+            "4799432499002212", 2212);
         var command = new Feature018HotkeyCommand(session,
             new Feature018HotkeyIntent(Feature018HotkeyKind.AttackSquad, 1));
         foreach ((string code, string nativeReason) in new[]
@@ -1067,7 +1074,7 @@ internal static class Feature018HotkeyCaptureChecks
                     outcome.Reason.Contains(nativeReason, StringComparison.Ordinal) &&
                     outcome.AuthoritativeObservation is null && stub.Calls == 1 &&
                     !stub.LastPayload.TryGetProperty("queryOnly", out _),
-                "2296 captured Q rejection lost the original native code/message or falsely claimed a send");
+                "2212 captured Q rejection lost the original native code/message or falsely claimed a send");
         }
 
         var diagnostic = JsonSerializer.SerializeToElement(new
@@ -1091,14 +1098,14 @@ internal static class Feature018HotkeyCaptureChecks
 
         // Reproduce the actual ExchangeAsync -> GameCommandService -> provider
         // failed-response route, rather than only throwing a stub exception.
-        string root = Path.Combine(Path.GetTempPath(), "feature018-2296-rejection-" +
+        string root = Path.Combine(Path.GetTempPath(), "feature018-2212-rejection-" +
             Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try
         {
             string requestPath = Path.Combine(root, "feature018-request.txt");
             string responsePath = Path.Combine(root, "feature018-response.json");
-            var owner = new OverviewMapScanSession("2296-test-profile", "2296-session",
+            var owner = new OverviewMapScanSession("2212-test-profile", "2212-session",
                 "test-challenge", 43210, @"C:\test\LastWar.exe", "2026-10-17T00:00:00Z");
             int nativeCalls = 0;
             var exchange = new Feature018OwnedGameExchange(
@@ -1114,7 +1121,7 @@ internal static class Feature018HotkeyCaptureChecks
                             values["action"] == "attack" && values["slot"] == "1" &&
                             values["authorizedUid"] == session.GameUid &&
                             !values.ContainsKey("queryOnly"),
-                        "2296 native failure test issued a different command or duplicate keyboard intent");
+                        "2212 native failure test issued a different command or duplicate keyboard intent");
                     nativeCalls++;
                     File.WriteAllText(responsePath, JsonSerializer.Serialize(new
                     {
@@ -1143,7 +1150,7 @@ internal static class Feature018HotkeyCaptureChecks
                     routed.AuthoritativeObservation is { ValueKind: JsonValueKind.Object } native &&
                     native.GetProperty("nativePrecondition").GetString() == "hover_absent" &&
                     nativeCalls == 1,
-                "real 2296 mailbox failed envelope was collapsed into generic rejection");
+                "real 2212 mailbox failed envelope was collapsed into generic rejection");
         }
         finally
         {

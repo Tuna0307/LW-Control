@@ -15,7 +15,7 @@ SOURCE = (HERE / "feature018_attack_actions.lua").read_text(encoding="utf-8")
 
 GAME = r"""
 state={
- uid="1183884595002296",server=2296,focused=true,endTime=3000,now=2000,
+ uid="4799432499002212",server=2212,focused=true,endTime=3000,now=2000,
  target=11,reminder="1",todayConfirm=true,tokenId=0,tokenCount=0,
  itemPresent=true,windowOpen=true,sends=0,payments=0,modals=0,refreshes=0,
 }

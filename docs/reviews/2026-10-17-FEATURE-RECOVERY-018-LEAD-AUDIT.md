@@ -246,4 +246,4 @@ R15 tasks (live on 4799432499002212, real key presses in the game window):
 Handoff rule unchanged: after each task commit and update "R15 progress" below; push at task checkpoints.
 
 ### R15 progress (worker updates this)
-- (none yet)
+- R15 Task 1 checkpoint (2026-10-18): harness, staged queue and City driver now require exact UID `4799432499002212` / server `2212`; the shipped product retains per-session any-account admission. Managed regression explicitly refuses another UID on 2212, null UID, wrong server and the retired 2296 account. Full Desktop checks PASS (`HOME_FEATURE_DELIVERY_CHECKS_OK`; `artifacts/feature018-r15-task1-checks.log`), current-owner hotkey and diamond Lua checks PASS. Live admission is next, followed by repeat Q/A proof; no R15 gameplay positive is claimed yet.

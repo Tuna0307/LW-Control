@@ -61,7 +61,7 @@ internal sealed partial class LWBridgeWindow
             if (IsOwner()) return;
             if (!lifecycle.OwnsExactProcess(owner.GamePid))
                 throw new InvalidDataException("Staged proof exact owned game process is unavailable.");
-            throw new InvalidDataException("Staged proof lost its authenticated 2296 account/session owner.");
+            throw new InvalidDataException("Staged proof lost its authenticated approved UID 4799432499002212 / 2212 account/session owner.");
         }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
@@ -106,7 +106,7 @@ internal sealed partial class LWBridgeWindow
                         await SaveOwnerLoss("authenticated_owner_unavailable_15_seconds",
                             missingOwnerSince);
                         throw new InvalidDataException(
-                            "Staged proof authenticated 2296 account/session owner was unavailable for 15 seconds while the exact game process remained owned.");
+                            "Staged proof authenticated approved UID 4799432499002212 / 2212 account/session owner was unavailable for 15 seconds while the exact game process remained owned.");
                     }
                     await Task.Delay(200, token);
                     continue;
