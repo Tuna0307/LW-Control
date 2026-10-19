@@ -136,7 +136,7 @@ local function targets(p,level)
     end
     local all=available_monsters();local found={}
     for _,t in ipairs(all)do
-        if not seen[t.uuid] and engine.Matches(p,t,level)then found[#found+1]=t end
+        if (not seen[t.uuid] or seen[t.uuid]<=now()) and engine.Matches(p,t,level)then found[#found+1]=t end
     end
     table.sort(found,function(a,b)return (a.distance or math.huge)<(b.distance or math.huge)end)
     if #found>0 then return found end
@@ -201,7 +201,7 @@ local function send(o,slot,p,t)
         error(receipt.error or 'Uncertain native monster send')
     end
     jobs[slot]={fields=f,target=t,sentAt=now(),phase='ack',receipt=receipt}
-    seen[t.uuid]=true
+    seen[t.uuid]=now()+60
     return tostring(slot)
 end
 local function observe(job)
@@ -261,7 +261,9 @@ function M.Start(request)
     if config.enabled~=true then return failed('Monster AFK master switch is off')end
     if engine.IsRunning() then
         if not owned(owner) then return failed('Running AFK belongs to another account/session')end
-        engine.Configure(config);return M.Status()
+        local status,error=engine.Configure(config)
+        if not status then return failed(error)end
+        return M.Status()
     end
     if next(jobs)~=nil then return failed('A prior native march is still in flight; wait for reconciliation')end
     owner={uid=a.uid,server=a.server,token=token,fields={}}
@@ -328,6 +330,7 @@ function M.Catalog()
 end
 function M.Pump()
     if last_pump==now()then return end;last_pump=now()
+    for uuid,expires in pairs(seen)do if expires<=now()then seen[uuid]=nil end end
     if owner and owned(owner) and not engine.IsRunning() then
         for slot in pairs(jobs) do
             local ok,m=march(slot)

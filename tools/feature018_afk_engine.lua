@@ -65,9 +65,7 @@ function M.Pause(reason)
     if run and run.running then run.state='waiting';run.step=reason or 'account_changed' end
 end
 function M.Bind(adapter) api=assert(adapter);return M end
-function M.Start(owner,config)
-    if run and run.running then return nil,'Already running; Stop before starting again' end
-    if not api or not api.Owned(owner) then return nil,'Account/session is not current' end
+local function validate_config(config)
     if type(config)~='table' or type(config.strategies)~='table' then return nil,'Profile settings are invalid' end
     for _,p in ipairs(config.strategies)do
         if p.enabled then
@@ -83,6 +81,13 @@ function M.Start(owner,config)
             if p.distanceFilterEnabled and (type(p.maxDistance)~='number' or p.maxDistance<=0)then return nil,'Invalid distance limit'end
         end
     end
+    return true
+end
+function M.Start(owner,config)
+    if run and run.running then return nil,'Already running; Stop before starting again' end
+    if not api or not api.Owned(owner) then return nil,'Account/session is not current' end
+    local valid,error=validate_config(config)
+    if not valid then return nil,error end
     run={owner=copy(owner),config=copy(config),running=true,state='running',step='scanning_nearby',
         processed={},pending={},levels={},rows={},receipts={},lastError=nil}
     for _,p in ipairs(enabled_profiles(config)) do run.processed[p.id]=0;run.levels[p.id]=p.minLevel or 1 end
@@ -97,6 +102,8 @@ function M.Stop(reason)
 end
 function M.Configure(config)
     if not run then return nil,'No captured running account' end
+    local valid,error=validate_config(config)
+    if not valid then return nil,error end
     run.config=copy(config)
     for _,p in ipairs(enabled_profiles(config)) do
         run.processed[p.id]=run.processed[p.id] or 0
@@ -142,7 +149,7 @@ function M.Pump()
                 if result.completed then
                     run.processed[job.profileId]=(run.processed[job.profileId] or 0)+1
                     run.receipts[#run.receipts+1]=copy(result.receipt)
-                    if #run.receipts>100 then table.remove(run.receipts,1)end
+                    if #run.receipts>20 then table.remove(run.receipts,1)end
                     run.pending[slot]=nil
                     local completed_profile=p
                     for _,candidate in ipairs(profiles)do if candidate.id==job.profileId then completed_profile=candidate end end
