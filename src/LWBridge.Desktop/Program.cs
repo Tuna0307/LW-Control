@@ -106,6 +106,27 @@ internal static class Program
         if (ownerEvidencePath is not null && (capturePath is not null || liveProbePath is not null || hostProbePath is not null || firstLiveResultPath is not null))
             throw new ArgumentException("--owner-evidence is passive normal-app instrumentation and cannot be combined with capture/probe/replay modes.");
         string initialView = ReadValueOption(args, "--view") ?? "overview";
+        string? startupStateProof = ReadPathOption(args, "--startup-state-proof");
+        bool normalStartup = capturePath is null && liveProbePath is null && hostProbePath is null &&
+            firstLiveResultPath is null && homeMapCampaignProofPath is null;
+        if (startupStateProof is not null && (!normalStartup || isolatedRootPath is null))
+            throw new ArgumentException("--startup-state-proof requires an explicit isolated normal data root.");
+        if (normalStartup)
+        {
+            IReadOnlyList<string> cleared = StartupMapScanCleanup.Clear(DesktopApplicationPaths.Create(isolatedRootPath).Root);
+            if (startupStateProof is not null)
+            {
+                // Same production startup boundary, without a window/game launch.
+                File.WriteAllText(startupStateProof, System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    state = "completed", clearedDatabases = cleared,
+                    source = System.Reflection.Assembly.GetExecutingAssembly()
+                        .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                        .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().First().InformationalVersion,
+                }, JsonOptions.Indented));
+                return;
+            }
+        }
         string? language = ReadValueOption(args, "--language");
         string? theme = ReadValueOption(args, "--theme");
         var window = new LWBridgeWindow(

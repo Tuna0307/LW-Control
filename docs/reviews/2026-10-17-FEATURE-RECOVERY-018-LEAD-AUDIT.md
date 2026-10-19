@@ -572,3 +572,14 @@ Handoff rule unchanged; record progress under "R18 progress".
   (HOME_FEATURE_DELIVERY_CHECKS_OK), legacy setting/status migration and Hotkey/attack Lua suites PASS. Logs:
   artifacts/feature018-r18-task1-{ui-build,ui-check,desktop}.log. No game started or desktop input used.
   Task 2 next: all-profile/all-server startup Map scan clear with packaged preservation proof.
+
+- **Task 2 complete (2026-10-19):** normal production startup now clears all canonical and legacy Map
+  scan databases under every saved profile before opening any profile runtime. All servers' published rows,
+  scan runs/blocks/staging and transient treasure states are cleared; settings, marks, action history, profile
+  files, hotkeys and G count remain. A live-scan lease prevents deleting underneath another app's active scan.
+  Packaged process proof uses the exact production startup boundary with --startup-state-proof and exits
+  before creating a window/game. Controlled two-profile/two-server seed: 44,828 old rows per profile -> zero;
+  a later-session inserted row also disappears on a second start. Six durable config/profile/controller files
+  retained byte-identical SHA-256s, Map app_settings retained, G count 17 retained. Proof:
+  artifacts/feature018-r18-task2/startup-proof/receipt.json; reproducible via tools/feature018_r18_startup_check.py.
+  Fresh Release publish PASS. This is packaged controlled startup evidence, not a native scan/gameplay positive.

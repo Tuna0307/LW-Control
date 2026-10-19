@@ -498,6 +498,21 @@ public sealed partial class MapStore : IDisposable
         }
     }
 
+    public void ClearAllScanData()
+    {
+        lock (gate)
+        {
+            using SqliteTransaction transaction = connection.BeginTransaction();
+            using SqliteCommand command = connection.CreateCommand();
+            command.Transaction = transaction;
+            // OWNER_DIRECTION R18: map rows are valid only for this app session.
+            // Settings, player marks, profiles and durable action history survive.
+            command.CommandText = "DELETE FROM scan_records; DELETE FROM scan_blocks; DELETE FROM scan_runs; DELETE FROM map_records; DELETE FROM treasure_claim_states;";
+            command.ExecuteNonQuery();
+            transaction.Commit();
+        }
+    }
+
     public (int DeletedRuns, int DeletedRecords) ClearServer(int serverId)
     {
         ValidateServerId(serverId);
