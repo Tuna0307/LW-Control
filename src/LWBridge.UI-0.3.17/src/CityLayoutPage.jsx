@@ -685,7 +685,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   event.stopPropagation();
                   finishPointer();
                 }}
-              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level" title={t("cityLayout.level", { level: building.level })} aria-label={t("cityLayout.level", { level: building.level })}>{building.level}</small></button>;
+              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" loading="eager" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level" title={t("cityLayout.level", { level: building.level })} aria-label={t("cityLayout.level", { level: building.level })}>{building.level}</small></button>;
               })}
             </div>
           </div>
@@ -693,7 +693,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
         </div>
         <aside className="city-layout-inspector">
           <strong>{t("cityLayout.properties")}</strong>
-          {selected ? <><div className="city-layout-selected"><GameAssetImage assetPath={selected.iconPath} alt={displayName(selected)} className="city-layout-selected-icon" /><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
+          {selected ? <><div className="city-layout-selected"><GameAssetImage assetPath={selected.iconPath} alt={displayName(selected)} className="city-layout-selected-icon" loading="eager" /><span><strong>{displayName(selected)}</strong><small>{t("cityLayout.level", { level: selected.level })}</small></span></div><dl><div><dt>{t("cityLayout.footprint")}</dt><dd>{selected.tileX}×{selected.tileY}</dd></div><div><dt>{t("cityLayout.movable")}</dt><dd>{t(selected.movable ? "common.yes" : "common.no")}</dd></div><div><dt>{t("cityLayout.rule")}</dt><dd>{t(selected.isFlag ? "cityLayout.rule.flag" : "cityLayout.rule.normal")}</dd></div></dl></> : null}
           <div className={`city-layout-validation ${validationInvalid ? "invalid" : "valid"}`} role={validationInvalid ? "alert" : undefined}>{validationInvalid ? validationIssueText : t("cityLayout.validation.valid")}</div>
           {serverValidation?.valid ? <div className="city-layout-validation valid">{t("cityLayout.validation.server", { moves: serverValidation.totalMoves, temporary: serverValidation.temporaryMoves })}</div> : null}
           <strong>{t("cityLayout.changes", { count: placements.length })}</strong>

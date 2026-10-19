@@ -35,6 +35,7 @@ internal sealed partial class OverviewLifecycleService
     private bool healthRecordValid;
     private readonly RecoveryMonitorObservation monitorObservation = new();
     private readonly object recoveryTraceGate = new();
+    private string? recoveryAuditSession;
     private ulong recoveryNoticeId;
     private OverviewRecoveryStatus recoveryStatus = IdleRecoveryStatus();
 
@@ -344,7 +345,10 @@ internal sealed partial class OverviewLifecycleService
                 : ReadRecoveryHeartbeat(snapshot);
             if (snapshot is not null) UpdateHealthRecord(snapshot.GamePid, heartbeat);
             if (heartbeat.RecoveryConfirmed && heartbeat.RecoveryReason is not null)
-                await StartRecoveryAsync(heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected).ConfigureAwait(false);
+                await StartRecoveryAsync(heartbeat.RecoveryReason, heartbeat.RecoveryUpdateDetected,
+                    new("native_game_request", heartbeat.BridgeOnline, heartbeat.GameStateObserved,
+                        heartbeat.GameHealthy, null, null, null, null, null,
+                        heartbeat.HeartbeatFresh, heartbeat.AuthenticatedRouteConnected)).ConfigureAwait(false);
 
             if (!RecoveryEnabledAndDesired()) return;                        // 0x41a8c0-0x41a8e5 (state M untouched)
             if (IsActiveRecoveryState(CurrentRecoveryStatus.State)) return;  // 0x41a932-0x41a951
@@ -360,7 +364,10 @@ internal sealed partial class OverviewLifecycleService
                 m.OfflinePid = 0;
                 m.Missing = m.Missing == uint.MaxValue ? m.Missing : m.Missing + 1;
                 if (m.Missing <= 1) return;
-                await StartRecoveryAsync("processExit", updateDetected: false).ConfigureAwait(false);
+                await StartRecoveryAsync("processExit", updateDetected: false,
+                    new("process_missing", heartbeat.BridgeOnline, heartbeat.GameStateObserved,
+                        heartbeat.GameHealthy, false, null, null, null, null,
+                        heartbeat.HeartbeatFresh, heartbeat.AuthenticatedRouteConnected)).ConfigureAwait(false);
                 return;
             }
 
@@ -389,7 +396,12 @@ internal sealed partial class OverviewLifecycleService
             if (reason is null && m.UnhealthySince > 0 && !healthy && online &&
                 now - m.UnhealthySince >= OverviewRecoveryPolicy.LoginUnavailableThreshold.TotalMilliseconds) reason = "disconnect";                              // 0x41ac53
             if (reason is not null)
-                await StartRecoveryAsync(reason, updateDetected: false).ConfigureAwait(false);
+                await StartRecoveryAsync(reason, updateDetected: false,
+                    new(!online ? "bridge_offline" : "game_unhealthy", online,
+                        heartbeat.GameStateObserved, healthy, true, updating, hung,
+                        m.OfflineSince > 0 ? now - m.OfflineSince : null,
+                        m.UnhealthySince > 0 ? now - m.UnhealthySince : null,
+                        heartbeat.HeartbeatFresh, heartbeat.AuthenticatedRouteConnected)).ConfigureAwait(false);
         }
         finally { recoverySerial.Release(); }
     }
@@ -397,7 +409,8 @@ internal sealed partial class OverviewLifecycleService
     // ---------------------------------------------------------------------------------------------
     // start_recovery (0x41b03a) + run spawn
     // ---------------------------------------------------------------------------------------------
-    private async Task StartRecoveryAsync(string reason, bool updateDetected)
+    private async Task StartRecoveryAsync(string reason, bool updateDetected,
+        RecoveryTriggerDiagnostic? trigger = null)
     {
         if (!RecoveryEnabledAndDesired()) return;                            // same three preconditions as the tick
         RecoveryRunState? run = null;
@@ -414,10 +427,12 @@ internal sealed partial class OverviewLifecycleService
             {
                 ulong noticeId = unchecked(recoveryNoticeId + 1);
                 recoveryNoticeId = noticeId;
+                recoveryAuditSession = instanceId;
                 long startedAt = RecoveryNow().ToUnixTimeMilliseconds();
                 run = new RecoveryRunState(++recoveryRunSequence, reason, startedAt, noticeId)
                 {
                     Cancellation = CancellationTokenSource.CreateLinkedTokenSource(recoveryLifetime.Token),
+                    AuditSession = recoveryAuditSession,
                 };
                 activeRecoveryRun = run;
                 CancellationTokenSource? previous = Interlocked.Exchange(ref activeRecoveryCancellation, run.Cancellation);
@@ -426,7 +441,8 @@ internal sealed partial class OverviewLifecycleService
                     null, noticeId, true);
             }
         }
-        if (published is not null) PublishRecoveryStatus(published);
+        if (run is not null) WriteRecoveryAudit("trigger", published, trigger, run.AuditSession);
+        if (published is not null) PublishRecoveryStatus(published, run?.AuditSession);
         if (run is null) return;
 
         await InitRecoveryRunAsync(run).ConfigureAwait(false);
@@ -766,11 +782,12 @@ internal sealed partial class OverviewLifecycleService
             recoveryStatus = next;
             published = next;
         }
-        PublishRecoveryStatus(published);
+        PublishRecoveryStatus(published, run.AuditSession);
     }
 
-    private void PublishRecoveryStatus(OverviewRecoveryStatus status)
+    private void PublishRecoveryStatus(OverviewRecoveryStatus status, string? auditSession = null)
     {
+        WriteRecoveryAudit("state", status, null, auditSession);
         // HOME-004 R3-R1: opt-in, sanitized native event receipt for a bounded
         // isolated Home run. No tokens, profiles, paths or process identities.
         // Disabled in normal usage. The native status producer remains the
@@ -811,6 +828,35 @@ internal sealed partial class OverviewLifecycleService
         try { RecoveryStatusChanged?.Invoke(status); }
         catch { }
     }
+
+    private void WriteRecoveryAudit(string eventType, OverviewRecoveryStatus? status,
+        RecoveryTriggerDiagnostic? trigger, string? auditSession = null)
+    {
+        string? session;
+        lock (stateGate) session = auditSession ?? recoveryAuditSession;
+        if (!Guid.TryParseExact(session, "N", out Guid parsed)) return;
+        OverviewRecoveryAuditWriter.Append(Path.Combine(evidenceRoot, parsed.ToString("N")), new
+        {
+            schemaVersion = 1,
+            utc = RecoveryNow().ToString("O"),
+            type = eventType,
+            state = status?.State,
+            reason = status?.Reason is "disconnect" or "crossDisconnect" or "forceUpdate" or
+                "exitPrompt" or "processExit" or "hang" ? status.Reason : null,
+            restarted = status?.Restarted,
+            attempts = status?.Attempts,
+            hasError = status?.Error is not null,
+            authenticatedRoutes = bridgeHostState?.ConnectedRouteCount,
+            listenerStarted = bridgeHostState?.IsRpcTransportStarted,
+            failedRpcSessions = bridgeHostState?.FailedRpcSessionCount,
+            trigger,
+        });
+    }
+
+    private sealed record RecoveryTriggerDiagnostic(string Source, bool BridgeOnline,
+        bool GameStateObserved, bool GameHealthy, bool? ProcessPresent,
+        bool? UpdateProcessPresent, bool? HungWindow, long? OfflineMilliseconds,
+        long? UnhealthyMilliseconds, bool HeartbeatFresh, bool? AuthenticatedRouteConnected);
 
     private void RecoverySetState(RecoveryRunState run, string label, int attempts) =>
         MutateRecoveryStatus(run, s =>
@@ -863,7 +909,7 @@ internal sealed partial class OverviewLifecycleService
             };
             ReleaseRecoveryRunLocked(run);
         }
-        PublishRecoveryStatus(published);
+        PublishRecoveryStatus(published, run.AuditSession);
     }
 
     private void FinishRecoveryRunFailed(RecoveryRunState run, string code) => FinishRecoveryRun(run, success: false, code);
@@ -895,7 +941,7 @@ internal sealed partial class OverviewLifecycleService
             published = recoveryStatus = IdleRecoveryStatus(noticeId: recoveryStatus.NoticeId);   // 0x41c201 keeps the notice id
             ReleaseRecoveryRunLocked(run);
         }
-        PublishRecoveryStatus(published);
+        PublishRecoveryStatus(published, run.AuditSession);
     }
 
     private void ReleaseRecoveryRunLocked(RecoveryRunState run)
@@ -1065,6 +1111,7 @@ internal sealed partial class OverviewLifecycleService
         internal long StartedAtUnixMilliseconds { get; }
         internal ulong NoticeId { get; }
         internal CancellationTokenSource Cancellation { get; init; } = null!;
+        internal string? AuditSession { get; init; }
         internal bool Finished;
         internal long StableSince;         // [+0x68]
         internal long LastActivity;        // [+0x70]
@@ -1126,7 +1173,8 @@ internal sealed partial class OverviewLifecycleService
                 (testHooks?.AuthenticatedRouteConnected?.Invoke(snapshot.InstanceId) ??
                  (testHooks is not null || bridgeHostState?.IsRouteConnected(snapshot.InstanceId) == true));
             bool observed = MatchesBool(root, "gameStateObserved", true);
-            if (!observed) return new(routeConnected, false, false, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            if (!observed) return new(routeConnected, false, false, recoveryConfirmed, recoveryReason,
+                recoveryUpdateDetected, true, routeConnected);
             bool healthy = MatchesBool(root, "gameReady", true) &&
                 MatchesBool(root, "loggedIn", true) &&
                 MatchesBool(root, "connected", true) &&
@@ -1135,7 +1183,8 @@ internal sealed partial class OverviewLifecycleService
                 !string.IsNullOrWhiteSpace(uid.GetString()) &&
                 root.TryGetProperty("serverId", out JsonElement server) && server.TryGetInt32(out int serverId) && serverId > 0 &&
                 root.TryGetProperty("worldPos", out JsonElement world) && world.TryGetInt64(out long worldPos) && worldPos > 0;
-            return new(routeConnected, true, healthy, recoveryConfirmed, recoveryReason, recoveryUpdateDetected);
+            return new(routeConnected, true, healthy, recoveryConfirmed, recoveryReason,
+                recoveryUpdateDetected, true, routeConnected);
         }
         catch
         {
@@ -1338,5 +1387,7 @@ internal sealed partial class OverviewLifecycleService
         bool GameHealthy,
         bool RecoveryConfirmed,
         string? RecoveryReason,
-        bool RecoveryUpdateDetected);
+        bool RecoveryUpdateDetected,
+        bool HeartbeatFresh = false,
+        bool? AuthenticatedRouteConnected = null);
 }

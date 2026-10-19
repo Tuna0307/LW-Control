@@ -106,7 +106,7 @@ function cacheFor(readImage) {
 
 // Original x byte 1307. Caller supplies a verified existing/local reader; absent
 // readers retain placeholders and never dispatch native or service work.
-export function GameAssetImage({ assetPath, spriteName, alt, className, deferUntilVisible = false, readImage: explicitReader }) {
+export function GameAssetImage({ assetPath, spriteName, alt, className, loading = "lazy", deferUntilVisible = false, readImage: explicitReader }) {
   const inheritedReader = useContext(GameAssetReaderContext);
   const readImage = explicitReader === undefined ? inheritedReader : explicitReader;
   const source = normalizeGameAssetSource(assetPath, spriteName);
@@ -138,6 +138,6 @@ export function GameAssetImage({ assetPath, spriteName, alt, className, deferUnt
     if (!sourceKey || !ready || src || !cache) return undefined;
     return cache.subscribe(source, { load: (value) => setLoaded({ sourceKey, cache, src: value }) });
   }, [sourceKey, source?.assetPath, source?.spriteName, ready, src, cache]);
-  return src ? <img className={className} src={src} alt={alt} loading="lazy" decoding="async" />
+  return src ? <img className={className} src={src} alt={alt} loading={loading} decoding="async" />
     : <span ref={ref} className={`${className} game-asset-placeholder`} aria-label={alt} />;
 }

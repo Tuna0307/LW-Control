@@ -632,6 +632,15 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['sends'],0)
         self.assertEqual(state['dialogs'],0)
 
+    def test_hex_alliance_passes_final_native_dispatch_edge(self):
+        lua,module,state,call=self.fixture()
+        state['allianceUid']='3785645e55a040a9a1df48e3cca7b06c'
+        state['homeRally']['allianceId']=state['allianceUid']
+        result=call('allianceRelocate')
+        self.assertEqual(state['sends'],1)
+        self.assertTrue(result['data']['requestDispatched'])
+        self.assertEqual(result['data']['allianceMoveSendCount'],1)
+
     def test_readiness_f10_same_home_native_sender_and_separate_chooser(self):
         lua,module,state,_=self.fixture()
         fields=lua.table_from({'action':'allianceRelocate','slot':'0',

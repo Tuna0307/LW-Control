@@ -12,7 +12,7 @@ import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog, cr
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
-export function SquadsPage({ previewState = "", profileId = "", activeTab, onActiveTabChange }) {
+export function SquadsPage({ previewState = "", profileId = "", online = false, activeTab, onActiveTabChange }) {
   const { t } = useI18n();
   const equipmentPreview = previewState.startsWith("squads-equipment");
   const previewEnabled = previewState.startsWith("squads-profile") || equipmentPreview;
@@ -43,7 +43,7 @@ export function SquadsPage({ previewState = "", profileId = "", activeTab, onAct
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
       {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
-      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} profileId={profileId} refreshCount={equipmentRefreshCount} />}</Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} profileId={profileId} online={online} refreshCount={equipmentRefreshCount} />}</Activity> : null}
     </section>
   );
 }

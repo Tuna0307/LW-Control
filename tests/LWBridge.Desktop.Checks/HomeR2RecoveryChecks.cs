@@ -246,6 +246,7 @@ internal static class HomeR2RecoveryChecks
 
     internal static async Task RunAsync()
     {
+        RecoveryAuditRotationAndFailure();
         await SharedLuaPackageRejectsSecondInstallation();
         await ConcurrentDifferentRootStartsShareLuaAdmission();
         await ProcessExitOffAndOn();
@@ -272,6 +273,40 @@ internal static class HomeR2RecoveryChecks
             .SequenceEqual(new double[] { 120000, 300000, 600000 }),
             "original maintenance retry table");
         Console.WriteLine("HOME004_R2_NATIVE_MONITOR_OK off/on exit, exact hang/disconnect/login boundaries, failed retry/stable, disable, Stop, held stale cleanup/successor; game launches=0");
+    }
+
+    private static void RecoveryAuditRotationAndFailure()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), "recovery-audit-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            for (int n = 0; n < 200; n++)
+                OverviewRecoveryAuditWriter.Append(directory, new { sequence = n, diagnostic = new string('x', 1000) });
+            string path = Path.Combine(directory, "recovery-events.jsonl");
+            string previous = Path.Combine(directory, "recovery-events.previous.jsonl");
+            Require(File.Exists(previous) && new FileInfo(path).Length <= OverviewRecoveryAuditWriter.MaximumFileBytes &&
+                new FileInfo(previous).Length <= OverviewRecoveryAuditWriter.MaximumFileBytes,
+                "persistent audit retains two bounded files when state evidence rotates");
+            Require(JsonDocument.Parse(File.ReadLines(path).Last()).RootElement.GetProperty("sequence").GetInt32() == 199,
+                "rotation preserves the newest complete diagnostic row");
+            // An unwritable directory must never turn recovery into a failure.
+            OverviewRecoveryAuditWriter.Append(path, new { sequence = 200 });
+        }
+        finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+    }
+
+    private static JsonElement RecoveryAuditTrigger(Case c)
+    {
+        string text = File.ReadAllText(Path.Combine(c.Root, "overview-evidence", c.Session, "recovery-events.jsonl"));
+        Require(!text.Contains(c.Challenge, StringComparison.Ordinal) && !text.Contains(c.Profile, StringComparison.Ordinal) &&
+            !text.Contains(c.Exe, StringComparison.Ordinal), "persistent audit omits credentials, profile and image paths");
+        foreach (string line in text.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            using JsonDocument row = JsonDocument.Parse(line);
+            if (row.RootElement.GetProperty("type").GetString() == "trigger")
+                return row.RootElement.GetProperty("trigger").Clone();
+        }
+        throw new InvalidOperationException("Missing persistent recovery trigger");
     }
 
     private static async Task SharedLuaPackageRejectsSecondInstallation()
@@ -763,6 +798,13 @@ internal static class HomeR2RecoveryChecks
         await c.Observe();
         Require(c.Service.CurrentRecoveryStatus.Reason == "disconnect",
             "online unhealthy at >=180000ms starts disconnect recovery");
+        JsonElement unhealthyTrigger = RecoveryAuditTrigger(c);
+        Require(unhealthyTrigger.GetProperty("Source").GetString() == "game_unhealthy" &&
+            unhealthyTrigger.GetProperty("BridgeOnline").GetBoolean() &&
+            unhealthyTrigger.GetProperty("HeartbeatFresh").GetBoolean() &&
+            unhealthyTrigger.GetProperty("AuthenticatedRouteConnected").GetBoolean() &&
+            unhealthyTrigger.GetProperty("UnhealthyMilliseconds").GetInt64() == 180000,
+            "persisted trigger distinguishes login/game-health timeout from transport loss");
         await c.Stop();
     }
 
@@ -848,6 +890,14 @@ internal static class HomeR2RecoveryChecks
                 on.Service.CurrentRecoveryStatus.State == "waiting" && on.Alive &&
                 on.TerminateCalls == 0,
             "missing authenticated route triggers disconnect at 60s despite continuously fresh heartbeat");
+        JsonElement pipeTrigger = RecoveryAuditTrigger(on);
+        Require(pipeTrigger.GetProperty("Source").GetString() == "bridge_offline" &&
+            !pipeTrigger.GetProperty("BridgeOnline").GetBoolean() &&
+            pipeTrigger.GetProperty("HeartbeatFresh").GetBoolean() &&
+            !pipeTrigger.GetProperty("AuthenticatedRouteConnected").GetBoolean() &&
+            pipeTrigger.GetProperty("ProcessPresent").GetBoolean() &&
+            pipeTrigger.GetProperty("OfflineMilliseconds").GetInt64() == 60000,
+            "persisted trigger distinguishes route loss with a still-present process");
         await on.Tick();
         on.Advance(60_000); await on.Tick();
         Require(!on.Alive && on.TerminateCalls == 1 && on.StopCalls == 1,

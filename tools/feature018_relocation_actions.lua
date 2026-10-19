@@ -187,6 +187,15 @@ local function same_world_owner(first, second)
         first.currentServerId==second.currentServerId
 end
 
+-- Alliance IDs are native opaque strings (current v26 uses hex), unlike
+-- decimal player/march UIDs. Preserve their exact value for both sides.
+local function alliance_id(value)
+    if type(value)~="string" and type(value)~="number" then return nil end
+    local result=tostring(value)
+    if result=="" or result=="0" or not result:find("%S") then return nil end
+    return result
+end
+
 -- F10 can legitimately move to another alliance server after the owner makes
 -- the chooser selection. At that point source/self/current need not remain
 -- equal, so pending confirmation uses a narrower identity snapshot: exact
@@ -220,14 +229,6 @@ end
 -- MsgDefines.AllianceMoveCity. Opening the handler as a "safe dialog" would
 -- therefore be unsafe. Only inspect getters proven read-only in original v26.
 local function alliance_rally_snapshot(player)
-    -- Alliance IDs are native opaque strings (current v26 uses hex), unlike
-    -- decimal player/march UIDs. Preserve their exact value for both sides.
-    local function alliance_id(value)
-        if type(value)~="string" and type(value)~="number" then return nil end
-        local result=tostring(value)
-        if result=="" or result=="0" or not result:find("%S") then return nil end
-        return result
-    end
     local ok_home,home_server=invoke(player,"GetCurServerId")
     home_server=ok_home and integer(home_server,1) or nil
     if not home_server then return nil,"Current native home server unavailable" end
@@ -997,7 +998,7 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
             cost==4 and invite==false and pin==nil and fresh_remote and
             final and final.ownerUid==tx.ownerUid and final.sourceServerId==tx.sourceServerId and
             final.selfServerId==tx.selfServerId and final.currentServerId==tx.currentServerId and
-            final.worldPointId==tx.before and final.inAlliance and uid(final_alliance)==tx.allianceUid and
+            final.worldPointId==tx.before and final.inAlliance and alliance_id(final_alliance)==tx.allianceUid and
             fresh.ownerAllianceUid==tx.allianceUid and
             fresh.nativeChooserWouldOpen==not tx.direct and
             fresh_remote.serverId==tx.remote.serverId and

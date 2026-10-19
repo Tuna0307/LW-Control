@@ -24,9 +24,26 @@ export function normalizeEquipmentConfig(value, presetName = (index) => `Preset 
     ...(value?.initialEquipmentConfig ? { initialEquipmentConfig: clone(value.initialEquipmentConfig) } : {}),
   };
 }
-export function setEquipmentSlot(config, presetIndex, squadIndex, positionNumber, slot, equipUuid) {
+export function setEquipmentSlot(config, presetIndex, squadIndex, positionNumber, slot, equipUuid, snapshot) {
   const next = clone(config), preset = next.equipmentPresets[presetIndex];
-  const position = preset?.squads.find((entry) => entry.squadIndex === squadIndex)?.positions.find((entry) => entry.position === positionNumber);
+  // A fresh preset is editable immediately. Retain all native hero/position
+  // identities, with empty loadouts, so editing one slot never copies other
+  // current gear implicitly or sends an incomplete formation on Apply.
+  if (preset && !preset.squads.length && snapshot) {
+    preset.squads = equipmentPositionSnapshot(snapshot).map((squad) => ({
+      ...squad, positions: squad.positions.map((position) => ({ ...position, equips: [] })),
+    }));
+  }
+  let squad = preset?.squads.find((entry) => entry.squadIndex === squadIndex);
+  let position = squad?.positions.find((entry) => entry.position === positionNumber);
+  if (preset && !position && snapshot) {
+    const native = equipmentPositionSnapshot(snapshot).find((entry) => entry.squadIndex === squadIndex)?.positions.find((entry) => entry.position === positionNumber);
+    if (native) {
+      if (!squad) { squad = { squadIndex, positions: [] }; preset.squads.push(squad); }
+      position = { ...native, equips: [] }; squad.positions.push(position);
+      squad.positions.sort((left, right) => left.position - right.position);
+    }
+  }
   if (!position) throw new Error("Load the current equipment into this preset before editing it.");
   // A native equipment UUID can belong to only one saved position. Moving it
   // clears its former slot instead of creating a preset the native sender rejects.

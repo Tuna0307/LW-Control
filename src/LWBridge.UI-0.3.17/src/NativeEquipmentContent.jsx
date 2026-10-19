@@ -7,7 +7,7 @@ import { createEquipmentRuntime, equipmentPositionSnapshot, equipmentSlots, norm
 const clone = (value) => structuredClone(value);
 const itemCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.reduce((sum, position) => sum + position.equips.length, 0), 0) || 0;
 const positionCount = (preset) => preset?.squads.reduce((count, squad) => count + squad.positions.length, 0) || 0;
-export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridge = backendBridge }) {
+export function NativeEquipmentContent({ profileId = "", online = true, refreshCount = 0, bridge = backendBridge }) {
   const { t, language } = useI18n();
   const [snapshot, setSnapshot] = useState(null), [config, setConfig] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0), [busy, setBusy] = useState("");
@@ -40,7 +40,10 @@ export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridg
     return () => { retired = true; generation.current += 1; };
   // Translation changes update names without discarding unsaved equipment edits.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runtime, refreshCount, revision]);
+  // A transport reconnect need not change profileId or bridge identity. Read
+  // again on its connection transition, keeping this runtime's pending-send
+  // fence so reconnection can never repeat an uncertain equipment mutation.
+  }, [runtime, online, refreshCount, revision]);
   const keys = useMemo(() => [...new Set([
     ...(snapshot?.items || []).map((item) => item.nameKey),
     ...(snapshot?.squads || []).flatMap((squad) => squad.positions.map((position) => position.heroNameKey || position.nameKey)),
@@ -73,7 +76,7 @@ export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridg
   const name = (key, fallback) => texts[key] && texts[key] !== key ? texts[key] : fallback;
   const items = useMemo(() => new Map((snapshot?.items || []).map((item) => [String(item.equipUuid), item])), [snapshot]);
   const selected = config?.equipmentPresets[selectedIndex];
-  const disabled = Boolean(busy || !runtime || !snapshot || !config);
+  const disabled = Boolean(busy || !online || !runtime || !snapshot || !config);
   const operation = async (kind, action) => {
     if (disabled) return;
     const captured = runtime;
@@ -99,7 +102,7 @@ export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridg
   });
   return <div className="equipment-preset-layout" data-native-equipment="true" data-equipment-busy={busy || undefined}>
     {error ? <div className="equipment-result equipment-result-rejected" style={{ gridColumn: "1 / -1" }} role="alert">{error}</div> : null}
-    {!runtime ? <div className="map-empty" style={{ gridColumn: "1 / -1" }}>{t("status.gameDisconnectedDisabled")}</div> : null}
+    {!runtime || !online ? <div className="map-empty" style={{ gridColumn: "1 / -1" }}>{t("status.gameDisconnectedDisabled")}</div> : null}
     <aside className="equipment-preset-rail">
       <strong>{t("squad.equipmentPresets")}</strong>
       <div className="equipment-preset-list">{(config?.equipmentPresets || []).map((preset, index) => <button type="button" key={preset.id} className={index === selectedIndex ? "active" : ""} disabled={Boolean(busy)} onClick={() => setSelectedIndex(index)}><span title={preset.name}>{preset.name}</span><small>Alt+{index + 1} · {t("squad.presetSummary", { positions: positionCount(preset), equips: itemCount(preset) })}</small></button>)}</div>
@@ -117,6 +120,7 @@ export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridg
         </div>
       </div>
       {selected ? <label className="equipment-preset-actions">{t("squad.presetNamePrompt")}<input aria-label={t("squad.presetNamePrompt")} value={selected.name} disabled={disabled || runtime?.pending} onChange={(event) => editName(event.target.value)} /></label> : null}
+      {selected ? <p className="equipment-preset-hint">{t("squad.equipmentCaptureHint")}</p> : null}
       <div className="equipment-preset-squads">{(snapshot?.squads || []).map((squad) => <section className="equipment-preset-squad" key={squad.squadIndex}>
         <div className="equipment-preset-squad-header"><strong>{t("squad.number", { number: squad.squadIndex })}</strong></div>
         <div className="equipment-preset-positions">{squad.positions.map((position) => {
@@ -132,11 +136,12 @@ export function NativeEquipmentContent({ profileId = "", refreshCount = 0, bridg
               return <label className={`preset-equipment-slot quality-${gear?.quality || 0}`} key={slot} title={`${t(`squad.equipmentSlot${slot}`)} · ${t("squad.currentEquipmentPreset", { name: gearName(currentGear) })}`}>
                 <strong style={{ maxWidth: "100%", overflowWrap: "anywhere", fontSize: "var(--font-footnote)" }}>{t(`squad.equipmentSlot${slot}`)}</strong>
                 {gear?.iconPath ? <GameAssetImage assetPath={gear.iconPath} alt={gearName(gear)} className="equipment-icon" /> : null}
-                <select style={{ width: "100%", minWidth: 0, maxWidth: "100%" }} title={`${gearName(gear)}${item ? ` · ${item.equipUuid}` : ""}`} aria-label={`${squad.squadIndex}:${position.position}:${slot}`} value={String(item?.equipUuid || "")} disabled={disabled || !saved || runtime?.pending} onChange={(event) => setConfig(setEquipmentSlot(config, selectedIndex, squad.squadIndex, position.position, slot, event.target.value))}>
+                <select style={{ width: "100%", minWidth: 0, maxWidth: "100%" }} title={`${gearName(gear)}${item ? ` · ${item.equipUuid}` : ""}`} aria-label={`${squad.squadIndex}:${position.position}:${slot}`} value={String(item?.equipUuid || "")} disabled={disabled || runtime?.pending} onChange={(event) => setConfig(setEquipmentSlot(config, selectedIndex, squad.squadIndex, position.position, slot, event.target.value, snapshot))}>
                   <option value="">{t("squad.emptyEquipment")}</option>
                   {[...items.values()].filter((entry) => entry.slot === slot).map((entry) => <option value={String(entry.equipUuid)} key={entry.equipUuid}>{gearName(entry)}{entry.level != null ? ` · Lv.${entry.level}` : ""} · {entry.equipUuid}</option>)}
                 </select>
-                <span title={gearName(currentGear)}>{gearName(currentGear)}</span>
+                {currentGear?.iconPath ? <GameAssetImage assetPath={currentGear.iconPath} alt={gearName(currentGear)} className="equipment-icon" /> : null}
+                <span title={gearName(currentGear)}>{t("squad.currentEquipmentSlot", { name: gearName(currentGear) })}</span>
               </label>;
             })}</div>
           </article>;

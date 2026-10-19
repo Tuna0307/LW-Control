@@ -8,6 +8,7 @@ import { withHomeLaunchFeedback } from "./locales/home-launch-feedback.js";
 import { withMapScanControlTexts } from "./locales/map017-scan-controls.js";
 import { withFrontlineCountTexts } from "./locales/feature018-g-count.js";
 import { withAfkRuntimeTexts } from "./locales/feature018-afk-runtime.js";
+import { withR23Feedback } from "./locales/feature018-r23-feedback.js";
 
 export const LANGUAGES = Object.freeze([
   { code: "en", name: "English" },
@@ -21,7 +22,7 @@ export const LANGUAGES = Object.freeze([
   { code: "pt", name: "Português" },
 ]);
 
-const withMapExtras = (language, catalog) => withAfkRuntimeTexts(language,withFrontlineCountTexts(language, withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog))))))));
+const withMapExtras = (language, catalog) => withR23Feedback(language, withAfkRuntimeTexts(language,withFrontlineCountTexts(language, withMapScanControlTexts(language, withHomeLaunchFeedback(language, withZombieBossTexts(language, withGhostRewardTexts(language, withMapOtherTexts(language, withMapNameFeedback(language, catalog)))))))));
 const LOADERS = {
   en: () => Promise.resolve(withMapExtras("en", englishMessages)),
   "zh-CN": () => import("./locales/zh-CN.js").then((module) => withMapExtras("zh-CN", module.default)),

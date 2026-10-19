@@ -7,16 +7,16 @@ import { createEquipmentRuntime, equipmentPositionSnapshot, normalizeEquipmentCo
 const baseline = {
   readOnly: true, ownerUid: "10001", serverId: 999,
   squads: [{ squadIndex: 1, positions: [
-    { position: 2, heroUuid: "20002", heroItemId: 200, heroNameKey: "hero-native", equips: [{ slot: 1, equipUuid: "501" }] },
+    { position: 2, heroUuid: "20002", heroItemId: 200, heroNameKey: "hero-native", iconPath: "Assets/Hero/native.png", equips: [{ slot: 1, equipUuid: "501" }] },
     { position: 5, heroUuid: "20005", heroItemId: 201, equips: [] },
   ] }],
-  items: [{ equipUuid: "501", slot: 1, itemId: "301", nameKey: "gear-native", level: 3 }, { equipUuid: "502", slot: 1, itemId: "302", nameKey: "gear-spare", level: 4 }],
+  items: [{ equipUuid: "501", slot: 1, itemId: "301", nameKey: "gear-native", iconPath: "Assets/Item/native.png", level: 3 }, { equipUuid: "502", slot: 1, itemId: "302", nameKey: "gear-spare", level: 4 }],
 };
 function fakeBridge() {
   let generation = 1, saved = { equipmentPresets: [] }, current = structuredClone(baseline), pending;
   const calls = [];
   const bridge = {
-    available: true, profileId: "A", calls,
+    available: true, online: true, profileId: "A", calls,
     currentProfileOwner: () => ({ profileId: bridge.profileId, generation }),
     isCurrentProfileOwner: (owner) => owner?.profileId === bridge.profileId && owner.generation === generation,
     retire() { generation += 1; },
@@ -24,7 +24,10 @@ function fakeBridge() {
       calls.push({ command, payload: structuredClone(payload) });
       if (command === "equipment_config_get") return structuredClone(saved);
       if (command === "equipment_config_save") { saved = structuredClone(payload); return structuredClone(saved); }
-      if (command === "feature018_equipment_snapshot") return structuredClone(current);
+      if (command === "feature018_equipment_snapshot") {
+        if (!bridge.online) throw Object.assign(new Error("There is no authenticated owned game session"), { code: "GAME_CONNECTION_UNAVAILABLE" });
+        return structuredClone(current);
+      }
       if (command === "lastwar_map_localize") return { language: payload.language, buildId: "26", gameRoot: "C:/native-game", localeSha256: "selected-hash", englishSha256: "english-hash", texts: Object.fromEntries(payload.keys.map((key) => [key, { "hero-native": "Native Hero", "gear-native": "Native Cannon", "gear-spare": "Native Spare" }[key] || key])) };
       if (command === "feature018_hotkey_action" || command === "feature018_equipment_restore") {
         if (!payload.queryOnly) {
@@ -47,6 +50,9 @@ function fakeBridge() {
 const bridge = fakeBridge(), runtime = createEquipmentRuntime(bridge, "A", { wait: async () => {} });
 const fresh = await runtime.snapshot();
 const config = normalizeEquipmentConfig(await runtime.readConfig());
+const editedFresh = setEquipmentSlot(config, 0, 1, 5, 1, "502", fresh);
+assert.deepEqual(editedFresh.equipmentPresets[0].squads[0].positions.map((position) => [position.position, position.heroUuid, position.equips]), [[2, "20002", []], [5, "20005", [{ slot: 1, equipUuid: "502" }]]]);
+assert.deepEqual(config.equipmentPresets[0].squads, [], "Editing an empty preset must not mutate the source config");
 config.equipmentPresets[0].squads = equipmentPositionSnapshot(fresh);
 const moved = setEquipmentSlot(config, 0, 1, 5, 1, "501");
 assert.deepEqual(moved.equipmentPresets[0].squads[0].positions.map((position) => position.position), [2, 5], "Native position gaps must be retained");
@@ -83,17 +89,44 @@ Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} });
 localStorage.setItem("lwbridge.language", "en");
-const bundle = await build({ stdin: { contents: 'export { NativeEquipmentContent } from "./NativeEquipmentContent.jsx"; export { I18nProvider } from "./i18n.jsx"; export { createBackendBridge } from "./backendBridge.js";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
+const bundle = await build({ stdin: { contents: 'export { NativeEquipmentContent } from "./NativeEquipmentContent.jsx"; export { GameAssetImageProvider } from "./GameAssetImage.jsx"; export { I18nProvider } from "./i18n.jsx"; export { createBackendBridge } from "./backendBridge.js";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const loaded = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, loaded, loaded.exports);
-const { NativeEquipmentContent, I18nProvider, createBackendBridge } = loaded.exports, mountedBridge = fakeBridge();
+const { NativeEquipmentContent, GameAssetImageProvider, I18nProvider, createBackendBridge } = loaded.exports, mountedBridge = fakeBridge();
 const { createRoot } = req("react-dom/client"), mounted = createRoot(document.getElementById("root"));
 const flush = async (fn) => React.act(async () => { if (fn) await fn(); for (let i = 0; i < 50; i++) await Promise.resolve(); });
-await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: mountedBridge }))));
+const imageCalls = [], readImage = async ({ assetPath }) => { imageCalls.push(assetPath); return { dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aWlQAAAAASUVORK5CYII=" }; };
+const renderEquipment = (online) => flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(GameAssetImageProvider, { readImage }, React.createElement(NativeEquipmentContent, { profileId: "A", online, bridge: mountedBridge })))));
+mountedBridge.online = false;
+await renderEquipment(false);
+assert.match(document.querySelector('[role="alert"]').textContent, /no authenticated/);
+assert.equal(document.querySelectorAll('[data-equipment-position]').length, 0);
+mountedBridge.online = true;
+// Refresh retries the real read even before the header receives its next
+// connection event; mutation controls remain disabled during that interval.
+await flush(() => [...document.querySelectorAll('button')].find((button) => button.textContent === "Refresh").click());
+assert.equal(document.querySelectorAll('[data-equipment-position]').length, 2);
+assert.equal(document.querySelector('[data-equipment-action="capture"]').disabled, true);
+mountedBridge.online = false;
+await renderEquipment(false);
+await flush(() => [...document.querySelectorAll('button')].find((button) => button.textContent === "Refresh").click());
+mountedBridge.online = true;
+await renderEquipment(true);
+assert.equal(document.querySelector('[role="alert"]'), null, "Reconnect must reload without another click");
+assert.equal(mountedBridge.calls.filter((call) => call.command === "feature018_hotkey_action" || call.command === "feature018_equipment_restore").length, 0, "Read retry/reconnect must never send equipment actions");
 assert.equal(document.querySelectorAll(".equipment-preset-list button").length, 4);
 assert.deepEqual([...document.querySelectorAll("[data-equipment-position]")].map((entry) => entry.dataset.equipmentPosition), ["1:2", "1:5"]);
 assert.match(document.body.textContent, /Native Hero/);
 assert.match(document.body.textContent, /Native Cannon/);
 assert.doesNotMatch(document.body.textContent, /Fixture|Preview|Ember|Steel Vanguard/);
+assert.match(document.body.textContent, /Press Save current squads/);
+assert.match(document.body.textContent, /Wearing now: Native Cannon/);
+assert.equal(document.querySelector('select[aria-label="1:2:1"]').disabled, false, "Fresh preset must be editable before Capture");
+await flush(() => { const freshSelect = document.querySelector('select[aria-label="1:5:1"]'); Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, "value").set.call(freshSelect, "502"); freshSelect.dispatchEvent(new window.Event("change", { bubbles: true })); });
+assert.equal(document.querySelector('select[aria-label="1:5:1"]').value, "502");
+await flush(() => new Promise((resolve) => setTimeout(resolve, 20)));
+assert.ok(document.querySelector('img.equipment-position-hero-icon'));
+assert.ok(document.querySelector('img.equipment-icon'));
+assert.deepEqual([...new Set(imageCalls)].sort(), ["Assets/Hero/native.png", "Assets/Item/native.png"]);
 await flush(() => document.querySelector('[data-equipment-action="capture"]').click());
 assert.equal(mountedBridge.saved.equipmentPresets[0].squads[0].positions[0].position, 2);
 assert.equal(mountedBridge.saved.initialEquipmentConfig.ownerUid, baseline.ownerUid);

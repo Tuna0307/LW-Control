@@ -457,6 +457,30 @@ local function observe_step(step)
 end
 -- Source read-only owner snapshot for saving ordinary app equipment presets.
 -- Returned gear identifiers are native UUID strings, never template IDs.
+-- Native pictures follow UIHeroCellSmall (HeroUtils.GetHeroIconPath with
+-- hero.modelId / HeroIconType.small_icon / hero:GetSkinId()) and
+-- BaseUIEquipItem.Show (string.format(LoadPath.ItemPath, equip.config.icon)).
+-- These are optional read-only metadata; an unavailable picture never changes
+-- the admitted equipment plan, UUID, or native slot transaction.
+local function hero_icon_path(hero)
+    local fn=member(rawget(_G,"HeroUtils"),"GetHeroIconPath")
+    local kind=member(rawget(_G,"HeroIconType"),"small_icon")
+    local model=member(hero,"modelId")
+    if type(fn)~="function" or model==nil or kind==nil then return nil end
+    local ok_skin,skin=invoke(hero,"GetSkinId")
+    if not ok_skin then return nil end
+    local ok,path=pcall(fn,model,kind,skin)
+    if ok and type(path)=="string" and path:match("%S") then return path end
+    return nil
+end
+local function equipment_icon_path(item)
+    local pattern=member(rawget(_G,"LoadPath"),"ItemPath")
+    local icon=member(member(item,"config"),"icon")
+    if type(pattern)~="string" or type(icon)~="string" or not icon:match("%S") then return nil end
+    local ok,path=pcall(string.format,pattern,icon)
+    if ok and type(path)=="string" and path:match("%S") then return path end
+    return nil
+end
 function M.Snapshot(fields)
     local start_uid,start_server=native_session(fields)
     if not start_uid then return blocked("Equipment snapshot requires an authenticated native account") end
@@ -476,6 +500,7 @@ function M.Snapshot(fields)
                     if not hero then return unavailable(reason) end
                     local entry={position=position,heroUuid=hero.uuid,equips={},
                         heroNameKey=tostring(member(hero.object,"firstName") or ""),
+                        iconPath=hero_icon_path(hero.object),
                         level=member(hero.object,"level")}
                     for slot=1,4 do
                         local ok_item,item=invoke(hero.object,"GetEquipBySlotType",slot)
@@ -503,6 +528,7 @@ function M.Snapshot(fields)
             candidates[#candidates+1]={equipUuid=id,slot=slot,
                 itemId=tostring(member(item,"configId") or ""),
                 nameKey=tostring(member(member(item,"config"),"name") or ""),
+                iconPath=equipment_icon_path(item),
                 level=member(item,"level"),quality=member(member(item,"config"),"quality"),
                 heroType=member(member(item,"config"),"heroType"),
                 heroUuid=exact_id(member(item,"heroUuid")) or "",

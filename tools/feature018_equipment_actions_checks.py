@@ -151,6 +151,19 @@ class OriginalV26Evidence(unittest.TestCase):
         self.assertTrue(any("sourceLine=33" in line and "slotType" in line
                             for line in lines.splitlines()))
 
+    def test_original_hero_and_equipment_picture_sources(self):
+        hero = "\n".join(disassemble(self.body(
+            "UI/UIHero2/Common/UIHeroCellSmall.luac", "root/13")))
+        for key in ("GetHeroIconPath", "modelId", "GetSkinId"):
+            self.assertIn(key, hero)
+        hero_resolver = "\n".join(disassemble(self.body(
+            "UI/UIHero2/HeroUtils.luac", "GetHeroIconPath")))
+        self.assertIn("small_icon", hero_resolver)
+        gear = "\n".join(disassemble(self.body(
+            "UI/UILWHero/UIHeroEquipListPanel/Component/BaseUIEquipItem.luac", "root/9")))
+        for key in ("sourceLine=105", "LoadSpriteAsync", "ItemPath", "icon", "format"):
+            self.assertIn(key, gear)
+
     def test_original_install_serialization_and_uncorrelated_reply(self):
         module = "Net/Msgs/HeroEquipInstallMessage.luac"
         sender = self.body(module, "OnCreate")
@@ -376,6 +389,27 @@ class EquipmentApplyChecks(unittest.TestCase):
         self.assertEqual(stock['level'],7)
         self.assertEqual(len(data['items']),4);self.assertEqual(state['sent'],0)
         self.assertTrue(data['readOnly']);self.assertFalse(data['requestDispatched'])
+
+    def test_native_snapshot_pictures_use_native_skin_and_item_icon(self):
+        lua,module,state,_,_=self.fixture()
+        lua.execute('''
+        function DataCenter.EquipDataManager:GetAllEquipList()return state.items end
+        HeroIconType={small_icon=17}
+        HeroUtils={GetHeroIconPath=function(model,kind,skin)
+          assert(model==77 and kind==17 and skin==88)
+          return "Assets/Hero/native-skin.png"
+        end}
+        state.hero101.modelId=77
+        function state.hero101:GetSkinId()return 88 end
+        LoadPath={ItemPath="Assets/Item/%s.png"}
+        state.items[501].config.icon="native-cannon"
+        ''')
+        data=module.Snapshot(fields(lua,authorizedUid='2553945035002288'))['data']
+        self.assertEqual(data['squads'][1]['positions'][1]['iconPath'], 'Assets/Hero/native-skin.png')
+        stock=next(item for item in data['items'].values() if item['equipUuid']=='501')
+        self.assertEqual(stock['iconPath'], 'Assets/Item/native-cannon.png')
+        self.assertIsNone(data['squads'][2]['positions'][1]['iconPath'])
+        self.assertEqual(state['sent'],0)
 
     def test_sequential_real_install_uninstall_waits_for_native_push(self):
         lua,_,state,_,call=self.fixture()
