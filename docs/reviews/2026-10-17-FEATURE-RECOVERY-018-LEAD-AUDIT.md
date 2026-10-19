@@ -1028,3 +1028,17 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
   encodings. After this checkpoint is pushed, create the authoritative R22 owner ZIP from that exact final HEAD in
   `artifacts/feature018-r22-<HEAD8>/release/`; its external `r22-package-receipt.json` is the final artifact identity,
   so no later tracked source/doc commit is needed. Game remains closed, original scripts restored, no journal.
+
+## Lead audit of R22 — 2026-10-20 (source 1f45410f)
+HEAD = remote 1f45410f, clean. Attack, hotkey, City and equipment Lua checks, Desktop.Checks and UI check PASS
+(lead re-run). No game/app running; live game scripts are exact v26 originals; no active journal.
+ZIP `artifacts/feature018-r22-1f45410f/release/LW-Control-FEATURE-018-R22-OWNER-TEST-1f45410f6d4e.zip` SHA-256
+c41b3223…e3cc98: re-hashed, CRC ok, 96 entries, SOURCE-COMMIT = 1f45410f, no test UID.
+- Task 1 Equipment tab: ACCEPTED. Lead viewed `r22-equipment-tab-loaded.png`: real heroes (Lv.100) and gear names
+  load in the real tab; preset save/apply/restore done from the tab's buttons (session 151531).
+- Task 2 Q/W/E/R spam: logic ACCEPTED offline (no more "consumed once"; uncertain sends never replayed), but the
+  live proof sent nothing — all three orders were refused because the squad's existing march was "broken". Owner to
+  test with a healthy squad.
+- Task 3 City images: PARTIAL. Lead viewed `r22-city-layout-building-images.png`: in a block of identical level-19
+  Farms only the left column shows the picture; the other Farms in the same rows are blank ("decoded seven grid
+  images"). Likely image loading stops after a few requests or only for visible-first cells. Needs a follow-up fix.
