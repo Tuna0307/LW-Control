@@ -76,16 +76,16 @@ assert.equal(raceBridge.calls.filter((call) => call.command === "feature018_hotk
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), req = createRequire(path.join(root, "package.json"));
 const { JSDOM } = req("jsdom"), { build } = req("esbuild"), React = req("react");
-const dom = new JSDOM('<div id="root"></div>', { url: "http://127.0.0.1/" });
+const dom = new JSDOM('<div id="root"></div><div id="real-bridge-root"></div>', { url: "http://127.0.0.1/" });
 for (const key of ["window", "document", "HTMLElement", "HTMLDialogElement", "Event", "MouseEvent", "Node", "MutationObserver", "localStorage"])
   globalThis[key] = key === "window" ? dom.window : dom.window[key];
 Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.window.navigator });
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} });
 localStorage.setItem("lwbridge.language", "en");
-const bundle = await build({ stdin: { contents: 'export { NativeEquipmentContent } from "./NativeEquipmentContent.jsx"; export { I18nProvider } from "./i18n.jsx";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
+const bundle = await build({ stdin: { contents: 'export { NativeEquipmentContent } from "./NativeEquipmentContent.jsx"; export { I18nProvider } from "./i18n.jsx"; export { createBackendBridge } from "./backendBridge.js";', resolveDir: path.join(root, "src"), loader: "jsx" }, bundle: true, write: false, platform: "browser", format: "cjs", jsx: "automatic", external: ["react", "react/*", "react-dom", "react-dom/*"], loader: { ".png": "dataurl", ".svg": "dataurl" }, logLevel: "silent" });
 const loaded = { exports: {} }; new Function("require", "module", "exports", bundle.outputFiles[0].text)(req, loaded, loaded.exports);
-const { NativeEquipmentContent, I18nProvider } = loaded.exports, mountedBridge = fakeBridge();
+const { NativeEquipmentContent, I18nProvider, createBackendBridge } = loaded.exports, mountedBridge = fakeBridge();
 const { createRoot } = req("react-dom/client"), mounted = createRoot(document.getElementById("root"));
 const flush = async (fn) => React.act(async () => { if (fn) await fn(); for (let i = 0; i < 50; i++) await Promise.resolve(); });
 await flush(() => mounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: mountedBridge }))));
@@ -107,5 +107,40 @@ await flush(() => document.querySelector('[data-equipment-action="restore"]').cl
 await flush(() => new Promise((resolve) => setTimeout(resolve, 180)));
 assert.deepEqual(equipmentPositionSnapshot(await mountedBridge.invokeProfileScoped("feature018_equipment_snapshot")), equipmentPositionSnapshot(baseline));
 assert.equal(document.querySelector('[role="alert"]'), null);
-await flush(() => mounted.unmount()); dom.window.close();
-console.log("FEATURE018_R21_EQUIPMENT_UI_OK: native gear/current positions, four saved ordinals, apply/poll, immutable owner baseline/restore, localization, profile-generation fence");
+await flush(() => mounted.unmount());
+
+// Regression for the real WebView payload shape that exposed R22: the
+// production bridge appends profileId to every profile-scoped call. Mount the
+// actual component through createBackendBridge and require that exact wire
+// payload for the equipment snapshot rather than an empty fake-adapter call.
+let nativeReceiver;
+const wireCalls = [];
+const nativeHost = {
+  __LWBridgeBootstrap: { mode: "live", sessionId: "r22-equipment-mounted", profiles: { selectedProfileId: "A" } },
+  chrome: { webview: {
+    addEventListener(type, callback) { if (type === "message") nativeReceiver = callback; },
+    removeEventListener() {},
+    postMessage(message) {
+      if (message.kind !== "invoke") return;
+      wireCalls.push(structuredClone(message));
+      let result;
+      if (message.command === "equipment_config_get") result = { equipmentPresets: [] };
+      else if (message.command === "feature018_equipment_snapshot") result = structuredClone(baseline);
+      else if (message.command === "lastwar_map_localize") result = { language: message.payload.language, buildId: "26", gameRoot: "C:/native-game", localeSha256: "selected-hash", englishSha256: "english-hash", texts: Object.fromEntries(message.payload.keys.map((key) => [key, key])) };
+      else throw new Error(`Unexpected real-bridge command ${message.command}`);
+      queueMicrotask(() => nativeReceiver({ data: { kind: "response", sessionId: "r22-equipment-mounted", id: message.id, ok: true, result } }));
+    },
+  } },
+  setTimeout,
+  clearTimeout,
+};
+const realBridge = createBackendBridge(nativeHost);
+const realMounted = createRoot(document.getElementById("real-bridge-root"));
+await flush(() => realMounted.render(React.createElement(I18nProvider, {}, React.createElement(NativeEquipmentContent, { profileId: "A", bridge: realBridge }))));
+const wireSnapshot = wireCalls.find((call) => call.command === "feature018_equipment_snapshot");
+assert.ok(wireSnapshot, "real bridge did not issue mounted equipment snapshot");
+assert.deepEqual(wireSnapshot.payload, { profileId: "A" }, "mounted equipment snapshot must carry only the real profile routing field");
+assert.equal(document.querySelector('#real-bridge-root [role="alert"]'), null);
+assert.equal(document.querySelectorAll('#real-bridge-root [data-equipment-position]').length, 2);
+await flush(() => realMounted.unmount()); realBridge.dispose(); dom.window.close();
+console.log("FEATURE018_R21_EQUIPMENT_UI_OK: native gear/current positions, four saved ordinals, apply/poll, immutable owner baseline/restore, localization, profile-generation fence, real bridge profileId payload");

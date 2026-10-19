@@ -94,6 +94,12 @@ internal sealed partial class LWBridgeWindow
             }
             throw new InvalidDataException($"Original {name} panel failed to render");
         }
+        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R22_EQUIPMENT_PROOF") == "1")
+        {
+            await RunFeature018R22EquipmentTabProofAsync(core, outputPath, directory,
+                owner, uid, serverId, token);
+            return;
+        }
         try
         {
             await Nav(4, ".city-layout-panel, .city-layout-empty", "City Layout");

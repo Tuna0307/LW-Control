@@ -287,8 +287,17 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 }
                 break;
             case "feature018_equipment_snapshot":
-                if (payload.EnumerateObject().Any())
-                    throw new BridgeCommandException("INVALID_REQUEST", "Equipment snapshot accepts an empty authenticated request only.");
+                // The profile-scoped UI adapter adds profileId as routing
+                // metadata. Native account authority still comes from the
+                // independently authenticated game session; never forward or
+                // trust this caller-provided route as a UID/server identity.
+                if (payload.EnumerateObject().Any(p => p.Name != "profileId") ||
+                    (payload.TryGetProperty("profileId", out JsonElement equipmentProfile) &&
+                     (equipmentProfile.ValueKind != JsonValueKind.String ||
+                      string.IsNullOrWhiteSpace(equipmentProfile.GetString()) ||
+                      equipmentProfile.GetString()!.Length > 128)))
+                    throw new BridgeCommandException("INVALID_REQUEST",
+                        "Equipment snapshot accepts owner routing profile only.");
                 break;
             case "feature018_shield_shop":
             {

@@ -205,6 +205,22 @@ internal static class Feature018OwnedGameExchangeChecks
         Require(Feature018GameCommandService.ReadFields("feature018_shield_inventory_get",
             JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
             "read-only shield must discard profile-scoped UI routing metadata");
+        Require(Feature018GameCommandService.ReadFields("feature018_equipment_snapshot",
+            JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
+            "read-only equipment snapshot rejected or forwarded profile-scoped UI routing metadata");
+        Require(Feature018GameCommandService.ReadFields("feature018_equipment_snapshot",
+            JsonSerializer.SerializeToElement(new { })).Count == 0,
+            "read-only equipment snapshot stopped accepting the legacy empty payload");
+        foreach (object forbiddenEquipmentSnapshot in new object[]
+        {
+            new { profileId = "" },
+            new { profileId = new string('x', 129) },
+            new { profileId = "approved-runtime", ownerUid = "3133546747002212" },
+            new { profileId = "approved-runtime", slot = 1 },
+        })
+            await RequireErrorAsync("INVALID_REQUEST", () => Task.Run(() =>
+                Feature018GameCommandService.ReadFields("feature018_equipment_snapshot",
+                    JsonSerializer.SerializeToElement(forbiddenEquipmentSnapshot))));
         Require(Feature018GameCommandService.ReadFields("mini_frontline_status",
             JsonSerializer.SerializeToElement(new { profileId = "approved-runtime" })).Count == 0,
             "original Frontline status forwarded untrusted client owner identity");
