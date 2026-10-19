@@ -19,6 +19,7 @@ import compact_lua53 as lua53  # noqa: E402
 import run_live_resource_probe as probe  # noqa: E402
 from feature018_mini_lua import ORIGINAL_ENTRY_SHA256  # noqa: E402
 from inspect_current import disassemble, root_methods  # noqa: E402
+from execute_selected import execute  # noqa: E402
 
 SCRIPT = ROOT / "feature018_relocation_actions.lua"
 
@@ -421,11 +422,9 @@ class OriginalV26Sources(unittest.TestCase):
                               (17,'NeedNoticeAllianceMoveCityPosition')):
             self.assertIn(warning,body['children'][index]['constants'])
 
-    def test_original_f10_source_home_uses_move_cross_server_not_alliance_ack(self):
-        # MoveCityUtil's source==self branch on the authorized 2288 home world
-        # invokes MoveCityFromOtherToSource, not the line-136 AllianceMoveCity.
-        # The latter branch and its reason-240 reply are never a valid
-        # matching ACK for the source==self path.
+    def test_original_f10_direct_and_cross_server_sender_source_signatures(self):
+        # Root/6 EQ A=1 takes the line136 direct sender on equality; mere
+        # presence of both routes did not distinguish the old inverted claim.
         move=self.check_method('Util/MoveCityUtil.luac','AllianceMoveCityToSourceRallyPoint',
             'd53c624e4dcc87b6228f8ac650704868e321332614d36321b88800b5f8562de4',
             ('AllianceMoveCity','SendMessage','GetSourceServerId','GetSelfServerId',
@@ -450,10 +449,8 @@ class OriginalV26Sources(unittest.TestCase):
         self.assertEqual(other['upvalueNames'][1],'MoveCityFromOtherToRally')
         self.assertTrue(any('sourceLine=99' in row and 'AllianceMoveCity' in row
                             for row in disassemble(other)))
-        # The selected foreign rally route has a *conditional* native
-        # MoveCrossServer path when its mark server == owner self server,
-        # but otherwise sends AllianceMoveCity (still a potentially
-        # cross-server gameplay action). Neither branch is authorized here.
+        # The selected rally route likewise sends AllianceMoveCity on equal
+        # servers; unequal servers enter MoveCityFromOtherToRally.
         cross_foreign=root['children'][1]
         for token in ('MoveCrossServer','OtherAllianceRallyPoint','dstPoint',
                       'useCrossItem','CanFreeAllianceMove'):
@@ -466,6 +463,32 @@ class OriginalV26Sources(unittest.TestCase):
             self.assertIn(token,chooser['constants'])
         self.assertTrue(any('sourceLine=47' in row and 'OpenWindow' in row
                             for row in disassemble(chooser)))
+
+    def test_original_executed_equal_and_unequal_server_branches(self):
+        raw=self.members['Util/MoveCityUtil.luac']
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+            'd53c624e4dcc87b6228f8ac650704868e321332614d36321b88800b5f8562de4')
+        root=lua53.parse_chunk(probe.decode_lenc(raw))
+        for method_index in (5,6):
+            for target_server in (2288,2213):
+                calls=[]
+                player={'IsInAlliance':lambda _:True,
+                    'GetSourceServerId':lambda _:target_server,
+                    'GetSelfServerId':lambda _:2288}
+                events={}
+                events.update(GetInstance=lambda _:events,Broadcast=lambda *args:None)
+                env={'LuaEntry':{'Player':player},
+                    'SceneUtils':{'GetIsInCity':lambda:False},
+                    'SFSNetwork':{'SendMessage':lambda *args:calls.append(args)},
+                    'MsgDefines':{'AllianceMoveCity':'AllianceMoveCity'},
+                    'EventManager':events,'EventId':{'SetMovingUI':1},
+                    'UIMovingType':{'Open':1},'MarkType':{'Alliance_OtherServerRally':702},
+                    'DataCenter':{'AllianceRallyPointDataManager':{
+                        'GetMyAllianceRallyPoint':lambda *args:{'server':target_server}}}}
+                execute(root['children'][method_index],4,False,None,
+                    globals_=env,upvalues={1:lambda:calls.append(('crossServerHelper',))})
+                self.assertEqual(calls,[('AllianceMoveCity',4,False,None)]
+                    if target_server==2288 else [('crossServerHelper',)])
         reply=self.check_method('Net/Msgs/Alliance/AllianceMoveCityMessage.luac',
             'HandleMessage','dfed59efaad7ec93cb0b89be67ff5d5e6720443b7ac3332f1ef5f86bb5a84579',
             ('WorldMvHandle','result','errorCode'))
@@ -479,6 +502,14 @@ class OriginalV26Sources(unittest.TestCase):
             ('PutUtfString','uuid','num','useItemFromType'))
         self.assertTrue(any('sourceLine=16' in line and 'PutUtfString' in line
                             for line in disassemble(serializer)))
+
+    def test_original_read_only_free_cooldown_and_cross_server_getters(self):
+        free=self.check_method('DataCenter/Global/PlayerInfo.luac','CheckIfHasFreeAlMove',
+            '7b676b165212689d1213258464cfd7d23fa3ae0332a3f0ff565c8ec8c484a7b1',
+            ('CheckIfAllianceFuncOpen','AllianceMoveCity','lastFreeAlMoveTime','TP_CD','GetServerTime'))
+        self.assertNotIn('SendMessage',free['constants'])
+        self.check_method('DataCenter/AllianceCompete/LeagueMatchManager.luac','GetCrossMoveCDEnd',
+            '08ede22e5178b8c5ce7aa4471ecfa4dfdaa7bf806827957751539f43551408bf',('crossMoveCDEnd',))
 
 
 
@@ -523,12 +554,22 @@ class RelocationActionChecks(unittest.TestCase):
         world.moveOriginal=DataCenter.BuildManager.WorldMvHandle
         MsgDefines={ItemUse='itemuse',AllianceMoveCity='allianceMoveCity'}
         SFSNetwork.SendMessage=function(msg,args)
+          if msg==MsgDefines.AllianceMoveCity then
+            assert(args==4)
+            world.sends=world.sends+1
+            return true
+          end
           assert(msg=='itemuse' and args.uuid=='100004' and args.num==1)
           world.sends=world.sends+1
         end
+        MoveCityUtil.AllianceMoveCityToSourceRallyPoint=function(cost,invite,pin)
+          assert(cost==4 and invite==false and pin==nil)
+          world.sourceCalls=(world.sourceCalls or 0)+1
+          return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)
+        end
         MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
           assert(kind==701 and cost==4 and invite==false and pin==nil)
-          world.sends=world.sends+1
+          return MoveCityUtil.AllianceMoveCityToSourceRallyPoint(cost,invite,pin)
         end
         UIWindowNames={UIChooseRallyPoint='native-choose-rally'}
         UIManager={GetInstance=function()return {
@@ -579,7 +620,7 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['sends'],0)
         self.assertEqual(state['dialogs'],0)
 
-    def test_r8_readiness_f10_same_home_route_is_never_misidentified_as_alliance_move(self):
+    def test_readiness_f10_same_home_native_sender_and_separate_chooser(self):
         lua,module,state,_=self.fixture()
         fields=lua.table_from({'action':'allianceRelocate','slot':'0',
             'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
@@ -591,12 +632,13 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(result['state'],'confirmed')
         data=result['data']
         self.assertEqual(data['action'],'allianceRelocate')
-        self.assertEqual(data['originalNativeRoute'],'MoveCrossServer_BackToSrcServer')
-        self.assertFalse(data['actionable'])
+        self.assertEqual(data['originalNativeRoute'],'AllianceMoveCityToSourceRallyPoint')
+        self.assertTrue(data['actionable'])
+        self.assertTrue(data['homeDirectRelocationEnabled'])
         self.assertFalse(data['chooserRequestEligible'])
         self.assertFalse(data['requestDispatched'])
         self.assertFalse(data['originalPacketSend'])
-        self.assertIn('MoveCrossServer',data['currentBlocker'])
+        self.assertIsNone(data['currentBlocker'])
         lua.execute("""
         world.otherRally={allianceId=world.allianceUid,type=702,
           server=2213,pos=6610023,
@@ -842,17 +884,117 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(state['sends'],0)
         self.assertEqual(state['dialogs'],1)
 
-    def test_f10_same_home_native_move_cross_server_not_falsely_called_alliance_move(self):
+    def test_f10_same_home_native_sender_confirms_reply_position_and_item_debit(self):
         lua,_,state,call=self.fixture()
         response=call('allianceRelocate')
-        self.assertEqual(response['state'],'unsupported')
-        self.assertIn('MoveCrossServer',response['error'])
-        self.assertEqual(state['sends'],0)
+        self.assertEqual(response['state'],'accepted')
+        self.assertTrue(response['data']['nativeDirectRequest'])
+        self.assertFalse(response['data']['chooserRequestMade'])
+        self.assertFalse(response['data']['ownerSelectionRequired'])
+        self.assertTrue(response['data']['requestDispatched'])
+        self.assertEqual(state['sends'],1)
+        self.assertEqual(state['sourceCalls'],1)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        self.assertEqual(state['sends'],1)
         lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,result=1,worldMainPoint=514998},240)')
         result=call('allianceRelocate',True)
-        self.assertEqual(result['state'],'failed')
-        self.assertEqual(state['sends'],0)
+        self.assertEqual(result['state'],'confirmed')
+        self.assertEqual(result['data']['beforeCount'],2)
+        self.assertEqual(result['data']['afterCount'],1)
+        self.assertEqual(result['data']['acknowledgedWorldPointId'],514998)
+        self.assertEqual(state['sends'],1)
         self.assertTrue(lua.eval('DataCenter.BuildManager.WorldMvHandle==world.moveOriginal'))
+
+    def test_f10_paid_item_preflight_exposes_free_and_cross_cooldowns_without_blocking(self):
+        lua,module,state,call=self.fixture()
+        lua.execute('''
+        function LuaEntry.Player:CheckIfHasFreeAlMove()return false,200000 end
+        DataCenter.LeagueMatchManager={GetCrossMoveCDEnd=function()return 300000 end}
+        UITimeManager={GetInstance=function(self)return self end,
+          GetServerTime=function()return 100000 end}
+        DataCenter.AllianceRallyPointDataManager.CanAllianceMoveCity=function()return true end
+        ''')
+        request=lua.table_from({'action':'allianceRelocate','slot':'0',
+            'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
+        status=module.Readiness(request,lua.eval('function()return true end'))
+        self.assertTrue(status['data']['actionable'])
+        diag=status['data']['alliancePreconditions']
+        self.assertTrue(diag['readOnly'])
+        self.assertTrue(diag['freeAllowanceKnown'])
+        self.assertFalse(diag['freeAllowanceAvailable'])
+        self.assertEqual(diag['freeAllowanceCooldownEndMs'],200000)
+        self.assertEqual(diag['crossServerCooldownEndMs'],300000)
+        self.assertEqual(diag['serverTimeMs'],100000)
+        self.assertFalse(diag['freeAllowanceBlocksPaidItem'])
+        self.assertFalse(diag['crossServerCooldownBlocksSameHomePaidItem'])
+        self.assertTrue(diag['nativeAllianceMoveAllowed'])
+        self.assertEqual(status['data']['allianceRally']['homeRally']['worldPointId'],514999)
+        self.assertEqual(state['sends'],0)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        self.assertEqual(state['sends'],1)
+
+    def test_f10_direct_unknown_send_and_dispose_keep_one_send_tombstone(self):
+        lua,module,state,call=self.fixture()
+        lua.execute('''
+        SFSNetwork.SendMessage=function(msg,...)
+          world.sends=world.sends+1
+          error('inert unknown native send outcome')
+        end
+        ''')
+        self.assertEqual(call('allianceRelocate')['state'],'failed')
+        self.assertEqual(state['sends'],1)
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
+        module.Dispose()
+        self.assertTrue(lua.eval('DataCenter.BuildManager.WorldMvHandle==world.moveOriginal'))
+        observed=call('allianceRelocate')
+        self.assertEqual(observed['state'],'accepted')
+        self.assertTrue(observed['data']['observerDetached'])
+        self.assertEqual(state['sends'],1)
+        self.assertEqual(call('randomRelocate')['state'],'failed')
+
+    def test_f10_direct_last_mark_reader_account_change_never_dispatches(self):
+        lua,_,state,call=self.fixture()
+        lua.execute('''
+        local original=DataCenter.AllianceRallyPointDataManager.GetMyAllianceRallyPoint
+        local reads=0
+        function DataCenter.AllianceRallyPointDataManager:GetMyAllianceRallyPoint(kind)
+          if kind==701 then
+            reads=reads+1
+            if reads==3 then LuaEntry.Player.uid='8880000123456789' end
+          end
+          return original(self,kind)
+        end
+        ''')
+        self.assertEqual(call('allianceRelocate')['state'],'failed')
+        self.assertEqual(state['sends'],0)
+
+    def test_f10_direct_native_sender_account_change_or_wrong_route_never_transmits(self):
+        for body in (
+            "LuaEntry.Player.uid='8880000123456789';return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)",
+            "return SFSNetwork.SendMessage('MoveCrossServer',{serverId=2213})",
+        ):
+            lua,_,state,call=self.fixture()
+            lua.execute('MoveCityUtil.AllianceMoveCityToSourceRallyPoint=function(cost,invite,pin) '+body+' end')
+            result=call('allianceRelocate')
+            self.assertEqual(result['state'],'failed')
+            self.assertEqual(state['sends'],0)
+
+    def test_f10_readonly_diagnostic_reader_account_change_fails_final_owner_check(self):
+        lua,module,state,_=self.fixture()
+        lua.execute('''
+        function LuaEntry.Player:CheckIfHasFreeAlMove()
+          self.uid='8880000123456789'
+          return true
+        end
+        ''')
+        request=lua.table_from({'action':'allianceRelocate','slot':'0',
+            'profileId':'owner','launchSessionId':'launch','challenge':'challenge',
+            'gamePid':'8123','authorizedUid':'2553945035002288'})
+        result=module.Readiness(request,lua.eval('function()return true end'))
+        self.assertEqual(result['state'],'failed')
+        self.assertIn('owner/server changed',result['error'])
+        self.assertEqual(state['sends'],0)
 
     def test_f10_other_server_native_choice_is_not_silently_bypassed(self):
         lua,_,state,call=self.fixture()
@@ -887,7 +1029,7 @@ class RelocationActionChecks(unittest.TestCase):
     def test_f10_owner_selected_remote_alliance_move_reason240_confirms(self):
         lua,_,state,call=self.fixture()
         lua.execute("""
-        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2288,
           pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
         local priorSend=SFSNetwork.SendMessage
         SFSNetwork.SendMessage=function(msg,...)
@@ -914,7 +1056,7 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertTrue(sent['data']['requestDispatched'])
         self.assertTrue(sent['data']['awaitingGameConfirmation'])
         self.assertEqual(state['sends'],1)
-        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2213,result=1,worldMainPoint=600123},240)')
+        lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,result=1,worldMainPoint=600123},240)')
         final=call('allianceRelocate',query=True)
         self.assertEqual(final['state'],'confirmed')
         data=final['data']
@@ -923,23 +1065,53 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertTrue(data['worldMvReason240Observed'])
         self.assertTrue(data['replyResultOneObserved'])
         self.assertTrue(data['serverAckAttributableByOneSendFence'])
-        self.assertEqual(data['replyServerId'],2213)
+        self.assertEqual(data['replyServerId'],2288)
         self.assertEqual(data['acknowledgedWorldPointId'],600123)
         self.assertEqual(data['beforeCount'],2)
         self.assertEqual(data['afterCount'],1)
         self.assertTrue(data['independentWorldAndInventoryPoststateVerified'])
 
-    def test_f10_same_server_other_rally_is_not_reason240_eligible(self):
+    def test_f10_foreign_server_chooser_selection_never_calls_cross_server_native_route(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2213,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
+          world.foreignSelectorCalls=(world.foreignSelectorCalls or 0)+1
+          world.sends=world.sends+1
+          world.lastMessage='MoveCrossServer'
+          return true
+        end
+        """)
+        opened=call('allianceRelocate')
+        self.assertEqual(opened['state'],'accepted')
+        self.assertEqual(state['dialogs'],1)
+        self.assertEqual(state['sends'],0)
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        self.assertEqual(state['sends'],0)
+        self.assertIsNone(state['lastMessage'])
+        self.assertIsNone(state['foreignSelectorCalls'])
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        self.assertEqual(state['sends'],0)
+        self.assertIsNone(state['lastMessage'])
+        self.assertIsNone(state['foreignSelectorCalls'])
+        observed=call('allianceRelocate',query=True)
+        self.assertEqual(observed['state'],'accepted')
+        self.assertFalse(observed['data']['nativeSelectedRallyObserved'])
+        self.assertFalse(observed['data']['requestDispatched'])
+        self.assertFalse(observed['data']['relocationConfirmed'])
+
+    def test_f10_same_server_other_rally_preserves_native_chooser(self):
         lua,_,state,call=self.fixture()
         lua.execute("""
         world.otherRally={allianceId=world.allianceUid,type=702,server=2288,
           pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
         """)
         result=call('allianceRelocate')
-        self.assertEqual(result['state'],'unsupported')
-        self.assertIn('MoveCrossServer',result['error'])
+        self.assertEqual(result['state'],'accepted')
+        self.assertTrue(result['data']['chooserRequestMade'])
         self.assertEqual(state['sends'],0)
-        self.assertEqual(state['dialogs'],0)
+        self.assertEqual(state['dialogs'],1)
 
     def test_f10_chooser_open_accepted_without_actual_window_remains_unverified(self):
         lua,_,state,call=self.fixture()
@@ -1193,9 +1365,9 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertTrue(data['sourceServerLogin'])
         self.assertTrue(data['ownerItemPresent'])
         self.assertFalse(data['destinationVerified'])
-        self.assertEqual(data['originalNativeRoute'],'MoveCrossServer_BackToSrcServer')
+        self.assertEqual(data['originalNativeRoute'],'AllianceMoveCityToSourceRallyPoint')
         self.assertFalse(data['chooserRequestEligible'])
-        self.assertFalse(data['homeDirectRelocationEnabled'])
+        self.assertTrue(data['homeDirectRelocationEnabled'])
         self.assertEqual(state['sends'],0)
 
     def test_readonly_readiness_reports_missing_owned_item_without_send(self):
@@ -1244,13 +1416,14 @@ class RelocationActionChecks(unittest.TestCase):
     def test_f10_unrelated_alliance_reply_is_not_an_ack_on_home_world(self):
         for reply in ('{serverId=2288,result=2,worldMainPoint=514998}',
                       '{serverId=2288,result=1,worldMainPoint=514998,buildInfo={pId=514999}}',
-                      '{serverId=2288,result=1,worldMainPoint=514998}'):
+                      '{serverId=2213,result=1,worldMainPoint=514998}'):
             lua,_,state,call=self.fixture()
-            self.assertEqual(call('allianceRelocate')['state'],'unsupported')
+            self.assertEqual(call('allianceRelocate')['state'],'accepted')
             lua.execute('DataCenter.BuildManager:WorldMvHandle('+reply+',240)')
             observed=call('allianceRelocate',True)
-            self.assertEqual(observed['state'],'failed',reply)
-            self.assertEqual(state['sends'],0,reply)
+            self.assertEqual(observed['state'],'accepted',reply)
+            self.assertFalse(observed['data']['relocationConfirmed'],reply)
+            self.assertEqual(state['sends'],1,reply)
 
     def test_missing_warning_or_item_never_dispatches(self):
         lua,_,state,call=self.fixture()
@@ -1259,13 +1432,14 @@ class RelocationActionChecks(unittest.TestCase):
         lua.execute('DataCenter.ActMeteoriteBattleManager.NeedNoticeRandomMoveCity=function()return false end;world.randomCount=0')
         self.assertEqual(call()['state'],'unsupported');self.assertEqual(state['sends'],0)
 
-    def test_f10_no_source_home_rpc_even_if_external_world_move_occurs(self):
+    def test_f10_external_world_move_without_exact_reply_cannot_confirm(self):
         lua,_,state,call=self.fixture()
-        self.assertEqual(call('allianceRelocate')['state'],'unsupported')
+        self.assertEqual(call('allianceRelocate')['state'],'accepted')
         lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,worldMainPoint=514998})')
         result=call('allianceRelocate',True)
-        self.assertEqual(result['state'],'failed')
-        self.assertEqual(state['sends'],0)
+        self.assertEqual(result['state'],'accepted')
+        self.assertFalse(result['data']['relocationConfirmed'])
+        self.assertEqual(state['sends'],1)
 
     def test_f10_deferred_city_or_missing_source_sender_rejected_without_dispatch(self):
         lua,_,state,call=self.fixture()
