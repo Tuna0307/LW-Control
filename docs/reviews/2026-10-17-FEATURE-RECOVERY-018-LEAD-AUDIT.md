@@ -1014,3 +1014,17 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
   The task-owned app/game exited 0; `owned-exit.json` proves all three v26 scripts restored exactly and no recovery
   journal remained. No desktop input, layout move/apply, player target, or Land Cell action was used. Task 4 final
   R22 qualification/package is next.
+- **Task 4 final qualification/package-source checkpoint (2026-10-20):** the complete production UI check passes,
+  including the real-bridge Equipment `profileId` payload regression and mounted City checks; full
+  `tests/LWBridge.Desktop.Checks` passes through `HOME_FEATURE_DELIVERY_CHECKS_OK`. The attack-actions,
+  hotkey-actions, hotkey-game and game-bridge Lua suites pass. City game/candidate/swap/grid-audit/live-driver all
+  pass. Equipment actions pass 30/30 and the equipment integration/native-preflight bridge suite passes.
+  `tools/feature018_r22_package.py` carries forward the clean-pushed-source, exact Windows ProductVersion,
+  production-UI fingerprint, linked OverviewBridge source hashes, ZIP CRC and per-entry SHA gates, and adds source
+  contracts for R22's routed Equipment snapshot, fresh rapid-order settlement fence and native
+  `GetBuildIconPath`/`iconPath` City snapshot. `README-R22.txt` explains the real-tab Equipment fix, new-order Q/W/E/R
+  behavior, City grid/properties images and the bounded live proof. Every publish/ZIP/manifest entry is scanned for
+  all current/historical test UIDs in ASCII, UTF-16LE and UTF-16BE; positive detection witnesses pass for all three
+  encodings. After this checkpoint is pushed, create the authoritative R22 owner ZIP from that exact final HEAD in
+  `artifacts/feature018-r22-<HEAD8>/release/`; its external `r22-package-receipt.json` is the final artifact identity,
+  so no later tracked source/doc commit is needed. Game remains closed, original scripts restored, no journal.
