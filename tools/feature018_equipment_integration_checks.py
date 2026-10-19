@@ -1,7 +1,8 @@
 """Inert game-bridge registration of trusted persisted equipment preflight.
 
 No installed game/client/account is touched; spoofed UI fields cannot create
-equipment item installs. Only the exact 2288 sub-account may be inspected.
+equipment item installs. The handler derives the authenticated native UID and
+admits any coherent source/self/current server identity.
 """
 import sys
 from pathlib import Path
@@ -89,22 +90,43 @@ def main():
            good["data"]["requestDispatched"] is False and
            state["inspections"]==1 and state["sends"]==0,
            "owner-derived persisted preset preflight mutated game state")
+    expected_inspections=1
+    for coherent in (2212,2213,2289):
+        state["source"]=coherent
+        state["selfServer"]=coherent
+        state["current"]=coherent
+        admitted=call()
+        expected_inspections+=1
+        ensure(admitted["state"]=="confirmed" and
+               state["inspections"]==expected_inspections and state["sends"]==0,
+               "coherent authenticated server was rejected")
+    state["source"]=2288
+    state["selfServer"]=2288
+    state["current"]=2288
     for server in ("source","selfServer","current"):
-        for incorrect in (2212,2213,2289,None):
-            state[server]=incorrect
-            denied=call()
-            ensure(denied["state"]=="failed" and
-                   "server-2288" in denied["error"] and state["inspections"]==1,
-                   "unapproved server was admitted for equipment: "+server)
+        state[server]=2212
+        denied=call()
+        ensure(denied["state"]=="failed" and
+               "server identity disagrees" in denied["error"] and
+               state["inspections"]==expected_inspections,
+               "mixed native server identity was admitted for equipment: "+server)
         state[server]=2288
 
-    for incorrect in ("3133546747002212","3133546747002289","3133546747002299","invalid",None):
+    for other_uid in ("3133546747002212","3133546747002289","3133546747002299"):
+        state["uid"]=other_uid
+        vm.globals().LuaEntry.Player.uid=other_uid
+        admitted=call()
+        expected_inspections+=1
+        ensure(admitted["state"]=="confirmed" and
+               state["inspections"]==expected_inspections and state["sends"]==0,
+               "authenticated native UID was rejected")
+    for incorrect in ("invalid",None):
         state["uid"]=incorrect
         vm.globals().LuaEntry.Player.uid=incorrect
         denied=call()
         ensure(denied["state"]=="failed" and "UID" in denied["error"] and
-               state["inspections"]==1,
-               "main-account, other-account or invalid native UID passed equipment")
+               state["inspections"]==expected_inspections,
+               "invalid native UID passed equipment")
     state["uid"]="2553945035002288"
     vm.globals().LuaEntry.Player.uid=state["uid"]
     ensure(call(slot="5")["state"]=="failed", "invalid ordinal passed equipment")

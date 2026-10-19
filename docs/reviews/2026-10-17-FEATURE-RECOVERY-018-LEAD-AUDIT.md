@@ -871,3 +871,40 @@ Desktop.Checks and UI check: all PASS (including the uncommitted work below).
 - Task 6 ZIP: NOT BUILT.
 Next worker: review and commit the uncommitted Task 4/5 work (do not discard), live-prove City names in the
 background, report the F10 root cause, then build the R21 ZIP.
+
+### R21 progress — Task 4/5 recovery completion attempt (2026-10-19)
+- **Task 4 City names implementation committed (54e08664):** the native City snapshot now carries the current
+  building-level game-text key; the production City Layout resolves those keys through the installed game-text
+  reader in the app-selected language. At 100% zoom the grid uses compact numeric levels, and each building button
+  retains the full localized name plus level in its tooltip/accessibility label. The R21 City-names mounted check
+  is part of the normal UI check. Offline City and UI checks pass.
+- **Task 4 live proof is blocked by an owner-owned active session, so no screenshot is claimed.** The required
+  background proof launcher refused to start because the global recovery journal was already active. Independent
+  ownership review tied that journal to the owner's currently running R20 owner-test app: the app started at
+  20:19:21 local, its recorded game session started 15 seconds later, the journal/profile heartbeat is the approved
+  test UID on server 2212, gameDesiredRunning=true, and the installed scripts are still that session's candidate
+  bytes rather than the journal's captured originals. I did not clear the journal, restore scripts, stop the app,
+  or attach my proof driver to it. Therefore the required English/Chinese live City screenshots remain pending.
+- **Task 5 F10 root cause, in plain words:** the previous recovery read the original v26 Lua equality/jump branch
+  backwards. When the player's source server equals the self/home server, the original game sends AllianceMoveCity
+  with cost type 4. The old recovered adapter treated that valid equal-server branch as the cross-server path and
+  suppressed it, so F10 could reach prechecks yet never send the normal same-home alliance relocation. Executed
+  original-bytecode tests now prove equal server -> AllianceMoveCity; unequal server -> cross-server helper.
+- **Task 5 implementation committed and hardened (4c79bcc0, ab08e487):** same-home F10 uses the recovered original
+  sender and keeps exact UID/server/alliance/rally/item/warning/cooldown evidence. The chooser and direct paths
+  revalidate the exact AllianceMoveCity(4,false,nil) route at the network edge, fail closed if the send observer
+  cannot attach, keep a one-click/one-send tombstone through ACK/Dispose, block owner/route TOCTOU and foreign-server
+  selections, and confirm only from one attributed send + reason-240 reply + independent position and item-debit
+  poststate. The relocation suite is 79/79 PASS. Independent adversarial review re-ran hook-install denial, owner
+  change, MoveCrossServer substitution, foreign double-selection and successful immediate double-click cases with
+  zero unobserved retries.
+- **Task 5 live preconditions/relocation were not run because the same owner-owned R20 recovery session still owns
+  the global game bridge state.** No F10 relocation request was sent by this worker. This means alliance membership,
+  current native rally/territory target, relocation-item stock and cooldown still need the requested fresh read-only
+  observation in a task-owned exact-UID session before a live F10 attempt; if any one is missing, owner test should
+  report that blocker instead of relocating.
+- **Task 6 packaging implementation:** tools/feature018_r21_package.py verifies the final pushed source identity,
+  canonical production UI and linked bridge sources, checks R21 re-target/banner/Equipment/City/F10 source markers,
+  embeds an R21 README covering all five owner-facing changes, and scans every ZIP entry for known test-account UIDs
+  in ASCII, UTF-16LE and UTF-16BE. The final ZIP is produced only after the tracked tree is committed/pushed and the
+  complete R21 verification set passes.

@@ -141,7 +141,7 @@ internal sealed partial class LWBridgeWindow
                     try
                     {
                         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" &&
-                            kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture"))
+                            kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture" or "cityNames"))
                             throw new InvalidDataException("R18 background proof forbids input, show and window operations.");
                         await WaitOwnedAsync();
                         object? result;
@@ -199,6 +199,97 @@ internal sealed partial class LWBridgeWindow
                                 JsonSerializer.SerializeToElement(new { jobId }, JsonOptions.Default),
                                 token);
                             result = new { started, cancelled, immediateCancel = true };
+                        }
+                        else if (kind == "cityNames")
+                        {
+                            // R21 background-only visual proof. This drives only
+                            // the isolated app WebView: no OS input, focus/window
+                            // operation or game mutation is performed. The City
+                            // page itself reads native snapshot/name data through
+                            // the production authenticated bridge.
+                            if (await core.ExecuteScriptAsync(
+                                "(()=>{const b=document.querySelectorAll('.side-nav button')[4];if(!b)return false;b.click();return true;})()") != "true")
+                                throw new InvalidDataException("R21 City Layout navigation is unavailable");
+
+                            async Task<JsonElement> CaptureCityLanguage(string language, string fileName)
+                            {
+                                string languageJson = JsonSerializer.Serialize(language, JsonOptions.Default);
+                                string switched = await core.ExecuteScriptAsync($$"""
+                                    (() => {
+                                      const select = document.querySelector('.language-select select');
+                                      if (!select) return false;
+                                      if (select.value !== {{languageJson}}) {
+                                        select.value = {{languageJson}};
+                                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                                      }
+                                      return true;
+                                    })()
+                                    """);
+                                if (switched != "true")
+                                    throw new InvalidDataException("R21 app language selector is unavailable");
+
+                                JsonElement settled = default;
+                                for (int poll = 0; poll < 180; poll++)
+                                {
+                                    Owned();
+                                    string raw = await core.ExecuteScriptAsync("""
+                                        (() => {
+                                          const panel = document.querySelector('.city-layout-panel');
+                                          const buildings = [...document.querySelectorAll('.city-layout-grid [data-city-building-id]')];
+                                          const titles = buildings.map(b => b.title || '');
+                                          const levels = buildings.map(b => b.querySelector('.city-layout-building-level')?.textContent || '');
+                                          const visibleNames = [...document.querySelectorAll('.city-layout-building-name')].map(n => n.textContent || '');
+                                          const loading = !!document.querySelector('.city-layout-name-preview[role=status]');
+                                          const error = document.querySelector('.city-layout-error[role=alert]')?.textContent || '';
+                                          return {
+                                            language: document.documentElement.lang || '',
+                                            livePanel: !!panel && !panel.hasAttribute('data-preview-fixture'),
+                                            zoom: document.querySelector('.city-layout-zoom output')?.textContent || '',
+                                            buildingCount: buildings.length,
+                                            loading,
+                                            error,
+                                            titles,
+                                            levels,
+                                            visibleNames,
+                                            fallbackIdCount: titles.filter(v => /^#\\d+/.test(v)).length,
+                                            rawNameKeyCount: titles.filter(v => /(?:^|\\s)(?:native_|building_)/i.test(v)).length,
+                                            readableLevelCount: levels.filter(v => /^\\d+$/.test(v)).length,
+                                          };
+                                        })()
+                                        """);
+                                    using JsonDocument metricsDoc = JsonDocument.Parse(raw);
+                                    JsonElement metrics = metricsDoc.RootElement;
+                                    bool ready = metrics.GetProperty("language").GetString() == language &&
+                                        metrics.GetProperty("livePanel").GetBoolean() &&
+                                        metrics.GetProperty("zoom").GetString() == "100%" &&
+                                        metrics.GetProperty("buildingCount").GetInt32() > 0 &&
+                                        !metrics.GetProperty("loading").GetBoolean() &&
+                                        string.IsNullOrEmpty(metrics.GetProperty("error").GetString()) &&
+                                        metrics.GetProperty("fallbackIdCount").GetInt32() == 0 &&
+                                        metrics.GetProperty("rawNameKeyCount").GetInt32() == 0 &&
+                                        metrics.GetProperty("readableLevelCount").GetInt32() == metrics.GetProperty("buildingCount").GetInt32() &&
+                                        metrics.GetProperty("visibleNames").GetArrayLength() > 0;
+                                    if (ready) { settled = metrics.Clone(); break; }
+                                    await Task.Delay(100, token);
+                                }
+                                if (settled.ValueKind == JsonValueKind.Undefined)
+                                    throw new InvalidDataException("R21 City names did not settle at 100% zoom in " + language);
+                                await using (var image = File.Create(Path.Combine(directory, fileName)))
+                                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, image);
+                                return settled;
+                            }
+
+                            JsonElement english = await CaptureCityLanguage("en", "feature018-r21-city-en.png");
+                            JsonElement chinese = await CaptureCityLanguage("zh-CN", "feature018-r21-city-zh-CN.png");
+                            string? englishFirst = english.GetProperty("titles").EnumerateArray().FirstOrDefault().GetString();
+                            string? chineseFirst = chinese.GetProperty("titles").EnumerateArray().FirstOrDefault().GetString();
+                            bool localizedDifference = !string.IsNullOrWhiteSpace(englishFirst) &&
+                                !string.IsNullOrWhiteSpace(chineseFirst) && englishFirst != chineseFirst;
+                            if (!localizedDifference)
+                                throw new InvalidDataException("R21 City English/Chinese names did not differ");
+                            result = new { english, chinese, localizedDifference,
+                                screenshots = new[] { "feature018-r21-city-en.png", "feature018-r21-city-zh-CN.png" },
+                                gameMutationDispatched = false };
                         }
                         else if (kind == "equipmentConfig")
                         {
