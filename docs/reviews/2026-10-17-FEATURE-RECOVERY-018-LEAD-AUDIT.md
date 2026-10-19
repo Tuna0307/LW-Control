@@ -931,3 +931,6 @@ City-names UI check, Desktop.Checks and UI check PASS (lead re-run).
   (candidate) state with journal stage `active_ready_deferred_restore` (game PID 50508, started 20:19). An exact
   backup of the originals exists (`overview-bridge-backups/20261019-121928-…`, hashes match). Restoration pending
   owner OK. Lesson for owner prompts: close the owner's own LW-Control app/game before a worker live test.
+Owner approved restore (2026-10-19 22:4x): with no game/app running, lead copied the originals back from
+`overview-bridge-backups/20261019-121928-…`; installed hashes now 49f6249d / 52d5b30c / 5f9c4ab0 (exact v26), and the
+stale journal was archived as `recovery.lead-restored-20261019.json`. Worker live tests are unblocked.
