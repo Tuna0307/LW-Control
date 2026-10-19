@@ -528,3 +528,5 @@ Owner is interested in (explain/keep, status to be checked): Monster AFK (master
 and the Equipment Schemes tab ("recover equipment schemes" — make it work like the original).
 Note for the assignment: without automatic stamina items, Monster AFK pauses when stamina runs out (free daily
 stamina on the Automation tab is separate). Lead to confirm with owner before removing stamina auto-use.
+Owner confirmed (2026-10-19): KEEP the "Use Stamina items automatically" card. Remove only Auto Alliance Drill,
+Auto Garrison and Zombie Bus Garrison.
