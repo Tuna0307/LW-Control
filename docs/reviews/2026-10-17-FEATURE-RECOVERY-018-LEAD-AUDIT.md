@@ -563,4 +563,12 @@ Do not live-test: F6/F7/F8, Alt+1–4 keys, F9/F10, city ruins, Unlock Land Cell
 Handoff rule unchanged; record progress under "R18 progress".
 
 ### R18 progress (worker updates this)
-- (none yet)
+- **Task 1 complete (2026-10-19), pushed 72277796:** removed Auto Garrison and Zombie Bus Garrison
+  cards/settings, preview fixtures, all nine locale keys and locale regeneration entries. Retired the native
+  AllianceGarrisonConfigCommandService, primary/retained registrations and automation task name. Legacy enabled
+  settings/status entries are ignored and disappear on the next config write. Monster AFK / Shared AFK Profiles,
+  Auto Alliance Drill, automatic stamina items and G count remain. OWNER_DIRECTION: FEATURE-018-D03. Current Lua
+  has no executor for either removed feature. Canonical UI build/full check (nine locales), full Desktop.Checks
+  (HOME_FEATURE_DELIVERY_CHECKS_OK), legacy setting/status migration and Hotkey/attack Lua suites PASS. Logs:
+  artifacts/feature018-r18-task1-{ui-build,ui-check,desktop}.log. No game started or desktop input used.
+  Task 2 next: all-profile/all-server startup Map scan clear with packaged preservation proof.
