@@ -553,6 +553,28 @@ def test_selected_attack():
     require(redirected['state']=='confirmed' and redirected['data']['serverAppliedChangePostState'] and
             redirected['data']['marchUuid']==str(state['uuid']) and state['changeSends']==1,
             'exact same-march target/startTime poststate did not confirm redirect')
+    vm.execute('savedAtk=nativeCtrl.OnAtkClick;nativeCtrl.OnAtkClick=function()return false end')
+    refused=call()
+    require(refused['state']=='failed' and state['changeSends']==1,
+            'refused native retarget unexpectedly sent')
+    cleared=call(queryOnly='1')
+    require(cleared['state']=='confirmed' and cleared['data']['priorOrderNeverSent'] and
+            state['changeSends']==1,'zero-send retarget permanently fenced the squad')
+    vm.execute('nativeCtrl.OnAtkClick=savedAtk')
+    require(call()['data']['requestDispatched'] and state['changeSends']==2,
+            'next explicit order failed after refused zero-send retarget')
+    state['startTime']=1002
+    require(call(queryOnly='1')['state']=='confirmed','next order did not settle')
+    vm.execute('nativeCtrl.OnAtkClick=function(...)savedAtk(...);error("after send")end')
+    uncertain=call()
+    require(uncertain['state']=='failed' and state['changeSends']==3,
+            'throw-after-send was not retained as uncertain')
+    require(call(queryOnly='1')['state']=='accepted' and state['changeSends']==3,
+            'uncertain retarget was replayed or prematurely cleared')
+    state['startTime']=1003
+    require(call(queryOnly='1')['state']=='confirmed' and state['changeSends']==3,
+            'settled native retarget stayed fenced after a controller exception')
+    vm.execute('nativeCtrl.OnAtkClick=savedAtk')
     state['soldierCount']=110
     vm.execute('nativeCtrl.targetUuid=990123;state.worldUuid=990123')
     state['existingAbsent']=True

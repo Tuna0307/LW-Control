@@ -1070,7 +1070,9 @@ R23 tasks: fix 1, 2, 4, 5; diagnose 3 and fix if it is ours. Background only; ow
 Owner reminder: close your own LW-Control app and game before the worker starts live tests.
 
 ### R23 progress (worker updates this)
-- (none yet)
+- Task 1 source/offline checkpoint: zero-send re-target records are retired without a replay; uncertain sends retain a clear fence, and independently verified target/startTime or absent-march + idle-formation poststate releases it. Attack source/Lua53 suite passes, including refused re-target -> next explicit order and controller throw after send -> confirmation. Native R23 proof still pending.
+- Task 2 source/offline checkpoint: F10 reads owner and rally alliance IDs as exact opaque non-empty strings (hex supported), retaining owner/type/server/point and item/send gates. Relocation suite: 80 checks passed. Live eligibility not yet assessed.
+- Session preparation: no current owner LWBridge/LastWar/launcher process found. The stale owner-session journal was reviewed against its exact session/PID/start/path and authenticated backup. Supported `run_overview_bridge.py stop` proved PID absent and restored the exact original v26 triplet; it cleared the stale journal without touching a live owner process. Historical disconnect trigger remains UNKNOWN; controlled restart is PROVEN (see forthcoming R23 disconnect report).
 
 ### R23 addendum (owner, 2026-10-20) — part of R23
 6. Equipment Schemes dropdowns cannot be clicked. Lead: NativeEquipmentContent.jsx disables each slot <select> when

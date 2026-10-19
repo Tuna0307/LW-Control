@@ -1973,6 +1973,13 @@ local function attack_selected(fields, input_clear, uid)
     end
     local prior = attacks[fields.slot]
     if prior then
+        if (prior.hotkeyRetarget or prior.automationRetarget) and
+           prior.session==current_session and prior.uid==uid and
+           (prior.sendCount or 0)==0 and not prior.unattributedMatchingSendObserved then
+            attacks[fields.slot]=nil;release_confirmed_hover(fields.slot)
+            return {state="confirmed",data={requestDispatched=false,priorOrderNeverSent=true,
+                nativeTransaction=transaction_view(prior)}}
+        end
         if prior.hotkeyRetarget then return M.AutomationObserve(fields,input_clear)end
         if prior.uid ~= uid or prior.formation ~= formation or
            prior.session ~= current_session then return failed("Pending attack session/formation changed") end
@@ -2452,13 +2459,18 @@ function M.AutomationObserve(fields,input_clear)
     if not uid then return denial end
     local prior=attacks[fields.slot]
     if prior and (prior.automationRetarget or prior.hotkeyRetarget) then
-        if prior.session~=current_session or prior.uid~=uid or prior.sendCount~=1 or
-           prior.senderError or prior.senderReturnedFalse or prior.unattributedMatchingSendObserved then
-            return failed("Native continuous-march transaction lost its single-send fence")
+        if prior.session~=current_session or prior.uid~=uid then
+            return failed("Pending continuous-march account/session changed")
+        end
+        if (prior.sendCount or 0)==0 and not prior.unattributedMatchingSendObserved then
+            attacks[fields.slot]=nil;release_confirmed_hover(fields.slot)
+            return {state="confirmed",data={requestDispatched=false,priorOrderNeverSent=true,
+                nativeTransaction=transaction_view(prior)}}
         end
         local ok,march=invoke(member(rawget(_G,"DataCenter"),"WorldMarchDataManager"),"GetMarch",tonumber(prior.oldUuid))
         local type_ok,kind=invoke(march,"GetMarchTargetType")
-        if ok and ident(member(march,"uuid"))==prior.oldUuid and
+        if prior.sendCount==1 and not prior.unattributedMatchingSendObserved and
+           ok and ident(member(march,"uuid"))==prior.oldUuid and
            ident(member(march,"ownerUid"))==uid and ident(member(march,"ownerFormationUuid"))==prior.formation and
            type_ok and kind==prior.kind and native_attack_target_matches(prior,march) and
            number(member(march,"startTime"))~=prior.oldStartTime then
@@ -2472,6 +2484,28 @@ function M.AutomationObserve(fields,input_clear)
                 targetAllianceUid=prior.targetAllianceUid,serverAcknowledgementCorrelated=true,
                 serverAppliedChangePostState=true,correlation="native_single_change_march_target_startTime",
                 nativeTransaction=transaction_view(prior)}}
+        end
+        -- A settled, removed native march cannot still be redirected. Require
+        -- both independent getters to agree that the exact owned formation is
+        -- now idle; a lookup failure, timeout or elapsed timer never releases it.
+        local account=native_account()
+        local forms=member(rawget(_G,"DataCenter"),"ArmyFormationDataManager")
+        local form_ok,form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+        local idle_ok,owned=invoke(member(rawget(_G,"DataCenter"),"WorldMarchDataManager"),
+            "GetOwnerFormationMarch",account and member(account.player,"uid"),
+            member(form,"uuid"),account and member(account.player,"allianceId"))
+        if ok and march==nil and form_ok and ident(member(form,"uuid"))==prior.formation and
+           idle_ok and owned==nil then
+            attacks[fields.slot]=nil;release_confirmed_hover(fields.slot)
+            return {state="confirmed",data={requestDispatched=false,priorMarchSettledIdle=true,
+                priorAttackSuccessUnknown=true,nativeTransaction=transaction_view(prior)}}
+        end
+        if prior.sendCount~=1 or prior.senderError or prior.senderReturnedFalse or
+           prior.unattributedMatchingSendObserved then
+            local result=failed("Previous native march send is uncertain; waiting for native state to settle; never replayed")
+            result.data={awaitingGameConfirmation=true,requestDispatched=false,
+                nativeTransaction=transaction_view(prior)}
+            return result
         end
         return {state="accepted",data={accepted=true,awaitingGameConfirmation=true,slot=tonumber(fields.slot),
             formationUuid=prior.formation,ownerUid=uid,sourceServerId=tonumber(prior.server),

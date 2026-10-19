@@ -220,6 +220,14 @@ end
 -- MsgDefines.AllianceMoveCity. Opening the handler as a "safe dialog" would
 -- therefore be unsafe. Only inspect getters proven read-only in original v26.
 local function alliance_rally_snapshot(player)
+    -- Alliance IDs are native opaque strings (current v26 uses hex), unlike
+    -- decimal player/march UIDs. Preserve their exact value for both sides.
+    local function alliance_id(value)
+        if type(value)~="string" and type(value)~="number" then return nil end
+        local result=tostring(value)
+        if result=="" or result=="0" or not result:find("%S") then return nil end
+        return result
+    end
     local ok_home,home_server=invoke(player,"GetCurServerId")
     home_server=ok_home and integer(home_server,1) or nil
     if not home_server then return nil,"Current native home server unavailable" end
@@ -228,7 +236,7 @@ local function alliance_rally_snapshot(player)
         owner_alliance=member(player,"allianceId") -- original bag Ctrl 286 compares this native field
         owner_alliance_ok=owner_alliance~=nil
     end
-    owner_alliance = uid(owner_alliance)
+    owner_alliance = alliance_id(owner_alliance)
     if not owner_alliance_ok or not owner_alliance then
         return nil, "Native owner alliance UID not verifiable"
     end
@@ -253,7 +261,7 @@ local function alliance_rally_snapshot(player)
         local ok, mark = invoke(marks, "GetMyAllianceRallyPoint", mark_type)
         if not ok then return nil, "Native F10 rally read failed" end
         if mark == nil then return false, nil end
-        local mark_alliance = uid(member(mark, "allianceId"))
+        local mark_alliance = alliance_id(member(mark, "allianceId"))
         local mark_server = integer(member(mark, "server"), 1)
         local mark_pos = integer(member(mark, "pos"), 0)
         local seen_type = integer(member(mark, "type"), 1)

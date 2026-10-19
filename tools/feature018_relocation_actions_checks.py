@@ -92,6 +92,18 @@ def scenario():
 
 
 class InertRelocationChecks(unittest.TestCase):
+    def test_hex_alliance_ids_preserved_and_mismatched_marks_rejected(self):
+        _, _, state, call = scenario()
+        alliance = '15f557d90bf9485594cc0ebb6fd89ebc'
+        state['allianceUid'] = alliance
+        state['homeRally']['allianceId'] = alliance
+        result = call('allianceRelocate')
+        self.assertEqual(result['data']['allianceRally']['ownerAllianceUid'], alliance)
+        self.assertTrue(result['data']['allianceRally']['homeRally']['sameOwnerAlliance'])
+        state['homeRally']['allianceId'] = 'another-native-alliance'
+        self.assertIn('owner/type/server/point mismatch', call('allianceRelocate')['error'])
+        self.assert_no_side_effects(state)
+
     def assert_no_side_effects(self, state):
         self.assertEqual(state["sends"], 0)
         self.assertEqual(state["dialogs"], 0)
