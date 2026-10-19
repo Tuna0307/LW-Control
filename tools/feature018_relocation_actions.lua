@@ -966,6 +966,10 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
     end
 
     tx.selectionHook=function(kind,cost,invite,pin,...)
+        if tx.selectionConsumed then
+            tx.duplicateSelectionBlocked=true
+            return false
+        end
         local current=pending_world_snapshot()
         local fresh=current and current.ownerUid==tx.ownerUid and
             current.sourceServerId==tx.sourceServerId and
@@ -993,6 +997,11 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
             fresh_remote.markType==tx.remote.markType and
             fresh_remote.serverId==current.selfServerId
         tx.selectionObserved=true
+        -- One native chooser click gets one chance to pass the complete send
+        -- fence. Keep this tombstone even when the selector/send later fails or
+        -- throws: the original chooser does not close itself after OnBtnMoveClick,
+        -- so a second click must never become an unobserved retry.
+        tx.selectionConsumed=true
         tx.ownerSelectedRallyObserved=not tx.direct
         tx.ownerSelectedRemoteRallyObserved=not tx.direct and exact_remote==true
         tx.selectedNativeRallyObserved=exact_remote==true
@@ -1011,17 +1020,32 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
         if exact_remote then
             send_hook=function(message,...)
                 local args=table.pack(...)
-                if tx.direct then
-                    local dispatch_owner=pending_world_snapshot()
-                    if message~=alliance_message or not dispatch_owner or
-                       dispatch_owner.ownerUid~=tx.ownerUid or
-                       dispatch_owner.sourceServerId~=tx.sourceServerId or
-                       dispatch_owner.selfServerId~=tx.selfServerId or
-                       dispatch_owner.currentServerId~=tx.currentServerId or
-                       dispatch_owner.worldPointId~=tx.before then
-                        tx.directRefused=true
-                        return false
-                    end
+                -- Revalidate the route at the actual network call for BOTH the
+                -- direct and chooser paths. The native selector is arbitrary
+                -- game code between our precheck and SendMessage: account,
+                -- rally, route or message can change in that interval.
+                local dispatch_owner=pending_world_snapshot()
+                local dispatch_player=member(rawget(_G,"LuaEntry"),"Player")
+                local dispatch_marks=dispatch_owner and alliance_rally_snapshot(dispatch_player) or nil
+                local dispatch_remote=dispatch_marks and
+                    (tx.direct and dispatch_marks.homeRally or dispatch_marks.otherServerRally) or nil
+                local dispatch_ok=chooser_pending==tx and message==alliance_message and
+                    args[1]==4 and args[2]==false and args[3]==nil and dispatch_owner and
+                    dispatch_owner.ownerUid==tx.ownerUid and
+                    dispatch_owner.sourceServerId==tx.sourceServerId and
+                    dispatch_owner.selfServerId==tx.selfServerId and
+                    dispatch_owner.currentServerId==tx.currentServerId and
+                    dispatch_owner.worldPointId==tx.before and dispatch_owner.inAlliance and
+                    dispatch_marks and dispatch_marks.ownerAllianceUid==tx.allianceUid and
+                    dispatch_remote and dispatch_remote.serverId==tx.remote.serverId and
+                    dispatch_remote.worldPointId==tx.remote.worldPointId and
+                    dispatch_remote.markType==tx.remote.markType and
+                    dispatch_remote.serverId==dispatch_owner.selfServerId
+                if not dispatch_ok then
+                    tx.selectionDispatchRefused=true
+                    tx.selectionRouteMismatch=message~=alliance_message or tx.selectionRouteMismatch==true
+                    if tx.direct then tx.directRefused=true end
+                    return false
                 end
                 local track=chooser_pending==tx and message==alliance_message
                 if track then
@@ -1050,11 +1074,11 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
             if not hooked or member(network,"SendMessage")~=send_hook then
                 tx.nativeSendOutcomeUncertain=true
                 send_hook=nil
-                if tx.direct then
-                    tx.directRefused=true
-                    clear_chooser_hooks(tx)
-                    return
-                end
+                tx.selectionDispatchRefused=true
+                if tx.direct then tx.directRefused=true end
+                -- Fail closed for chooser too. Its selector tombstone stays
+                -- installed until confirmation/Dispose, blocking a second click.
+                return false
             end
         end
         local returns
@@ -1070,9 +1094,9 @@ local function request_original_f10_chooser(snapshot,marks,token,item,direct)
            tx.allianceMoveRequestObserved~=true or tx.nativeSendOutcomeUncertain==true) then
             tx.requestDispatched=false
         end
-        if member(move_util,selection_method)==tx.selectionHook then
-            move_util[selection_method]=selection_original
-        end
+        -- For chooser mode, retain the selection tombstone after the first
+        -- click until the correlated reason-240 ACK confirms or Dispose runs.
+        -- Direct mode never replaces the selector method.
         if not returns[1] then
             tx.nativeSendOutcomeUncertain=tx.nativeSendAttempted==true
             error(returns[2],0)

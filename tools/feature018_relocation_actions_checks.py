@@ -1041,6 +1041,7 @@ class RelocationActionChecks(unittest.TestCase):
         end
         MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
           assert(kind==702 and cost==4 and invite==false and pin==nil)
+          world.selectorCalls=(world.selectorCalls or 0)+1
           return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)
         end
         """)
@@ -1056,6 +1057,9 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertTrue(sent['data']['requestDispatched'])
         self.assertTrue(sent['data']['awaitingGameConfirmation'])
         self.assertEqual(state['sends'],1)
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        self.assertEqual(state['sends'],1)
+        self.assertEqual(state['selectorCalls'],1)
         lua.execute('DataCenter.BuildManager:WorldMvHandle({serverId=2288,result=1,worldMainPoint=600123},240)')
         final=call('allianceRelocate',query=True)
         self.assertEqual(final['state'],'confirmed')
@@ -1070,6 +1074,60 @@ class RelocationActionChecks(unittest.TestCase):
         self.assertEqual(data['beforeCount'],2)
         self.assertEqual(data['afterCount'],1)
         self.assertTrue(data['independentWorldAndInventoryPoststateVerified'])
+
+    def test_f10_chooser_send_hook_install_failure_never_calls_native_selector(self):
+        lua,_,state,call=self.fixture()
+        lua.execute("""
+        world.otherRally={allianceId=world.allianceUid,type=702,server=2288,
+          pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+        local originalSend=SFSNetwork.SendMessage
+        SFSNetwork=setmetatable({}, {
+          __index=function(self,key) if key=='SendMessage' then return originalSend end end,
+          __newindex=function(self,key,value) end,
+        })
+        MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin)
+          world.selectorCalls=(world.selectorCalls or 0)+1
+          return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)
+        end
+        """)
+        opened=call('allianceRelocate')
+        self.assertEqual(opened['state'],'accepted')
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        self.assertEqual(state['sends'],0)
+        self.assertIsNone(state['selectorCalls'])
+        lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+        self.assertEqual(state['sends'],0)
+        self.assertIsNone(state['selectorCalls'])
+
+    def test_f10_chooser_dispatch_time_owner_or_message_change_never_transmits(self):
+        for body in (
+            "LuaEntry.Player.uid='8880000123456789';return SFSNetwork.SendMessage(MsgDefines.AllianceMoveCity,cost,invite,pin)",
+            "return SFSNetwork.SendMessage('MoveCrossServer',{serverId=2213})",
+        ):
+            with self.subTest(body=body):
+                lua,_,state,call=self.fixture()
+                lua.execute("""
+                world.otherRally={allianceId=world.allianceUid,type=702,server=2288,
+                  pos=6610023,GetPointIndex=function(self)return math.floor(self.pos/10)end}
+                local oldSend=SFSNetwork.SendMessage
+                SFSNetwork.SendMessage=function(msg,...)
+                  if msg=='MoveCrossServer' then world.sends=world.sends+1;return true end
+                  return oldSend(msg,...)
+                end
+                """)
+                lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint=function(kind,cost,invite,pin) '+body+' end')
+                opened=call('allianceRelocate')
+                self.assertEqual(opened['state'],'accepted')
+                lua.execute('MoveCityUtil.AllianceMoveCityToSelectedRallyPoint(702,4,false,nil)')
+                self.assertEqual(state['sends'],0)
+                observed=call('allianceRelocate',query=True)
+                if "LuaEntry.Player.uid" in body:
+                    self.assertEqual(observed['state'],'failed')
+                    self.assertIn('UID differs',observed['error'])
+                else:
+                    self.assertEqual(observed['state'],'accepted')
+                    self.assertFalse(observed['data']['requestDispatched'])
+                    self.assertFalse(observed['data']['relocationConfirmed'])
 
     def test_f10_foreign_server_chooser_selection_never_calls_cross_server_native_route(self):
         lua,_,state,call=self.fixture()
