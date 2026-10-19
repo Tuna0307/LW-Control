@@ -753,3 +753,34 @@ suggests the Automation tab tasks may also lack runtimes; to be verified before 
 Owner plans (2026-10-19): Monster AFK — main purpose is attacking level-10 zombies; owner tests next week.
 Auto Alliance Drill — owner tests when the alliance drill event starts. Stamina items — owner tests when free.
 Lead clarified to owner: these are NOT built yet (no runtime); they must be built before any test.
+
+## R20 assignment — build Monster AFK, stamina items, Auto Alliance Drill (2026-10-19, due before next week)
+These three have UI and saved settings but NO runtime. Build real engines that follow the existing Squads / AFK
+settings exactly (recover original 0.3.17 behaviour/contract from research/offline-controller evidence where
+available; label OWN_DESIGN where unknown). Background only: the owner may be using the PC — no mouse/keyboard,
+no Windows-MCP input, no focus stealing; drive the game only through the app's own commands/native bridge.
+Account rules unchanged (sub 4799432499002212 on 2212, lock on UID; monsters only, never players).
+1. **Monster AFK** (owner priority: attacking level-10 zombies):
+   - master switch on/off; each Shared AFK Profile's target type/name, level and distance limits, "attack level by
+     level", squad assignments, execution count (0 = forever), continuous attack (no return);
+   - find targets with the game's own monster search / world data, send the assigned idle squad with the game's own
+     march path (reuse the proven Q/W/E/R native send in tools/feature018_attack_actions.lua), wait for the battle
+     result / return, repeat; skip world bosses and rally-only monsters unless the profile says "Launch rally";
+   - "Launch rally" and "Join Alliance rallies" options: build them too, using the game's own rally routes;
+   - pause when stamina is too low (unless stamina items are on), when a squad is busy, or when the account
+     changes; Stop always stops new sends; status shown in the app (running / waiting / current target / count).
+   Live proof on 4799432499002212: one profile on squad 1, level-10 ordinary zombie monster, execution count 3 →
+   three confirmed attacks then it stops by itself; then Stop mid-run works.
+2. **Use Stamina items automatically**: when stamina is below the set limit, use the cheapest owned stamina item
+   (never buy with gems unless the setting says so), confirm stamina went up. Live proof on 4799432499002212
+   (stamina below limit → one item used → stamina higher, item count −1).
+3. **Auto Alliance Drill**: when an alliance drill is running, the first free squad in the priority order launches
+   a rally on the drill target, others join; stops when the drill ends. Build + offline checks; live proof only if a
+   drill is running (otherwise the owner tests when the event starts).
+4. Owner-test ZIP (R20 package script, no test UID), README with how to use each feature and what was proven.
+Checks: new Lua checks for each engine (start/stop/limits/stamina pause/account change/no player targets), UI
+check,
+Desktop.Checks. Handoff rule unchanged; record progress under "R20 progress".
+
+### R20 progress (worker updates this)
+- (none yet)
