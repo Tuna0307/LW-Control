@@ -7,7 +7,7 @@ import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from ".
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { backendBridge } from "./backendBridge.js";
-import { createMonsterAfkAdapter, emptyMonsterAfkConfig } from "./squadsAfkRuntime.js";
+import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog } from "./squadsAfkRuntime.js";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
@@ -209,7 +209,7 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
         const runtime = await backendBridge.invokeProfileScoped("feature018_afk_status");
         if (!retired) { setNativeRuntime(runtime); setNativeError(""); }
         if (!retired && Date.now() - catalogAt > 30_000) {
-          const catalog = await backendBridge.invokeProfileScoped("monster_catalog_options");
+          const catalog = normalizeAfkCatalog(await backendBridge.invokeProfileScoped("monster_catalog_options"));
           if (!retired) { catalogAt = Date.now(); setNativeTargets(catalog.options || []); setNativeSquads(catalog.unlockedSquads || []); setNativeMembers(catalog.allianceMembers || null); }
         }
       } catch (error) { if (!retired) setNativeError(error.message); }

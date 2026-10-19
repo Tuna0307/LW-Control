@@ -13,6 +13,9 @@ export function normalizeMonsterAfkConfig(value) {
   }));
   return { ...emptyMonsterAfkConfig(), ...config, strategies, allianceDrill: { ...emptyMonsterAfkConfig().allianceDrill, ...config.allianceDrill, joinRestrictions: normalizeJoinRestrictions(config.allianceDrill?.joinRestrictions, 1, true) } };
 }
+export function normalizeAfkCatalog(value = {}) {
+  return { ...value, options: (Array.isArray(value.options) ? value.options : []).map((target) => ({ ...target, monsterIds: Array.isArray(target.monsterIds) ? target.monsterIds : [] })), unlockedSquads: Array.isArray(value.unlockedSquads) ? value.unlockedSquads : [] };
+}
 export function createMonsterAfkAdapter(bridge, profileId, valid) {
   const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); return bridge.invokeProfileScoped(command, payload); };
   return {

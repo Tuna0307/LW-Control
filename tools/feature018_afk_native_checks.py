@@ -116,6 +116,65 @@ def main():
         GetMarchTargetType=function()return state.kind end,clientCreateGuid='12345678-1234-4abc-8def-000000000001'}
       assert(attack.AutomationObserve(fields,input).state=='confirmed')
     ''')
+    vm.globals().engine_source = (ROOT / 'tools/feature018_afk_engine.lua').read_text(encoding='utf-8')
+    vm.execute('''
+      package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=attack
+      package.preload['DataCenter.Global.LWBridgeFeature018AfkEngine']=function()return assert(load(engine_source))()end
+      package.preload['rapidjson']=function()return {decode=function()return {enabled=true,strategies={}}end}end
+      overview={Feature018OwnerToken=function()return state.lease and 'owned' or nil end,Feature018SessionToken=function()return state.lease end}
+      transport={handlers={},RegisterHandler=function(name,fn)transport.handlers[name]=fn end,
+        Array=function(t)return setmetatable(t,{__feature018_array=true})end}
+      state.march=nil;state.lease='session'
+      local scheduler=require('DataCenter.Global.LWBridgeFeature018AfkEngine')
+      local bind=scheduler.Bind
+      scheduler.Bind=function(adapter)native_adapter=adapter;return bind(adapter)end
+    ''')
+    native = vm.execute((ROOT / 'tools/feature018_afk_native.lua').read_text(encoding='utf-8'))
+    vm.globals().native = native
+    vm.execute('''
+      native.Register(transport,overview)
+      local s=native.Status().data
+      assert(getmetatable(s.rows).__feature018_array and getmetatable(s.receipts).__feature018_array,
+        'The feature transport, not the Overview owner, must tag empty JSON arrays')
+      local c=native.Catalog().data
+      assert(getmetatable(c.options).__feature018_array and getmetatable(c.allianceMembers.members).__feature018_array)
+      fields.confirmedAfkConfig='fixture';assert(native.Start(fields).state=='confirmed')
+      LuaEntry.Player.uid='2002';native.CleanupAfterLeaseLoss()
+      assert(native.Status().data.running and native.Status().data.step=='account_changed')
+      state.now=state.now+1;native.Pump();assert(native.Status().data.state=='waiting')
+      LuaEntry.Player.uid='1001';state.now=state.now+1;native.Pump()
+      assert(native.Status().data.running)
+      state.lease=nil;native.CleanupAfterLeaseLoss();assert(not native.Status().data.running)
+      state.lease='session';assert(native.Start(fields).state=='confirmed')
+      package.preload['Net.Msgs.FindMonsterMessage']=function()return {HandleMessage=function()end}end
+      MsgDefines.FindMonster=101
+      local previous_send=SFSNetwork.SendMessage
+      SFSNetwork.SendMessage=function(route,...)
+        if route==101 then state.finds=(state.finds or 0)+1;return end
+        return previous_send(route,...)
+      end
+      state.visible=nil;state.moves=0
+      CS.SceneManager.World.GetMarch=function(self,uuid)
+        if uuid~=state.visible then return nil end
+        return {uuid=uuid,monsterId=10,GetMarchType=function()return 7 end,IsMonsterOrBoss=function()return true end}
+      end
+      DataCenter.WorldMarchDataManager.GetAllMarches=function()
+        return state.visible and {{uuid=state.visible,monsterId=10}} or {}
+      end
+      GoToUtil={MoveToWorldMarchAndOpen=function(point,uuid)
+        state.moves=state.moves+1;state.visible=uuid
+      end}
+      local p={id='search',kind='farm',searchable=true,monsterType=2,monsterNameKey='zombie',
+        minLevel=10,maxLevel=10,levelFilterEnabled=true}
+      native_adapter.Targets(p,10);assert(state.finds==1)
+      require('Net.Msgs.FindMonsterMessage').HandleMessage({}, {uuid=502,pointId=100105})
+      local first=native_adapter.Targets(p,10);assert(#first==1 and state.moves==1)
+      state.visible=nil;state.now=state.now+11
+      native_adapter.Targets(p,10);assert(state.finds==2)
+      require('Net.Msgs.FindMonsterMessage').HandleMessage({}, {uuid=503,pointId=100106})
+      local second=native_adapter.Targets(p,10);assert(#second==1 and state.moves==2,
+        'Each new native search result must acquire its own AOI, not inherit a prior moved flag')
+    ''')
     print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')
 
 

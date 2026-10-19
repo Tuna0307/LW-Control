@@ -3,7 +3,7 @@
 local M={VERSION='feature018-afk-native-1'}
 local engine=require('DataCenter.Global.LWBridgeFeature018AfkEngine')
 local attack=require('DataCenter.Global.LWBridgeFeature018AttackActions')
-local bridge,owner,search,last_pump
+local bridge,array,owner,search,last_pump
 local jobs,seen,join_wait,continuous_ready,joined,kicked={},{},{},{},{},{}
 local function get(o,k) if o==nil then return nil end;local ok,v=pcall(function()return o[k]end);if ok then return v end end
 local function call(o,k,...) local f=get(o,k);if type(f)~='function' then return false end;return pcall(f,o,...) end
@@ -103,6 +103,7 @@ local function search_monster(p,level)
     local net=rawget(_G,'SFSNetwork');local route=get(rawget(_G,'MsgDefines'),'FindMonster')
     if not ok or not tonumber(home) or not route or type(get(net,'SendMessage'))~='function' then return 'Native monster search unavailable' end
     search.pending=true;search.nextAt=now()+10;search.level=level;search.profileId=p.id;search.uuid=nil
+    search.moved=nil;search.received=nil;search.error=nil
     -- Original UISearchCtrl.OnSearchClick and FindMonsterMessage.OnCreate.
     local sent,err=pcall(net.SendMessage,route,home,level,false,nil,p.monsterType or 0)
     if not sent then search.pending=false;search.error=tostring(err)end
@@ -276,7 +277,7 @@ end
 function M.Stop()engine.Stop();return M.Status()end
 function M.Status()
     local data=engine.Status();data.owner=nil;data.config=nil;data.pending=nil
-    if bridge and bridge.Array then bridge.Array(data.rows);bridge.Array(data.receipts)end
+    if array then array(data.rows);array(data.receipts)end
     data.observation='native_monster_afk_runtime';data.readOnly=true
     return result(data)
 end
@@ -313,10 +314,10 @@ function M.Catalog()
             end
         end
     end
-    if bridge and bridge.Array then
-        for _,option in ipairs(options)do bridge.Array(option.monsterIds)end
+    if array then
+        for _,option in ipairs(options)do array(option.monsterIds)end
     end
-    if bridge and bridge.Array then bridge.Array(options)end
+    if array then array(options)end
     local unlocked,members={},{}
     for slot=1,4 do if form(slot)then unlocked[#unlocked+1]=slot end end
     local members_ok,all_members=call(center('AllianceMemberDataManager'),'GetAllMember')
@@ -324,7 +325,7 @@ function M.Catalog()
         local uid=id(get(m,'uid'));local name=get(m,'name')
         if uid and type(name)=='string' then members[#members+1]={uid=uid,name=name}end
     end)end
-    if bridge and bridge.Array then bridge.Array(unlocked);bridge.Array(members)end
+    if array then array(unlocked);array(members)end
     return result({options=options,monsters=available_monsters(),unlockedSquads=unlocked,
         allianceMembers={ready=members_ok and all_members~=nil,members=members,selfUid=id(get(player(),'uid')),online=true},readOnly=true})
 end
@@ -346,7 +347,7 @@ function M.CleanupAfterLeaseLoss()
     else engine.Stop('Session lease lost')end
 end
 function M.Register(feature,overview)
-    bridge=overview
+    bridge=overview;array=feature.Array
     rawset(_G,'LWBridgeFeature018AfkNative',M)
     feature.RegisterHandler('feature018_afk_status',M.Status)
     feature.RegisterHandler('monster_catalog_options',M.Catalog)
