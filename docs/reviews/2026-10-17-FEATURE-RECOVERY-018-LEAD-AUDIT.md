@@ -915,3 +915,19 @@ background, report the F10 root cause, then build the R21 ZIP.
   After this audit checkpoint is pushed, the authoritative R21 owner-test ZIP is regenerated from that exact final
   HEAD and identified by artifacts/feature018-r21-<HEAD8>/release/r21-package-receipt.json; no later tracked change
   is needed to identify it.
+
+## Lead audit of R21 finish — 2026-10-19 (source bf59ccc9)
+HEAD = remote bf59ccc9, nothing uncommitted. Attack, hotkey, City, relocation and equipment Lua checks, R21
+City-names UI check, Desktop.Checks and UI check PASS (lead re-run).
+- Task 4 City names: code ACCEPTED offline; live screenshot NOT done.
+- Task 5 F10: root cause found — the recovered code read the game's "same server" branch backwards, so a normal
+  same-home alliance relocation was blocked as if it were cross-server. Fix committed; 79 relocation checks pass.
+  NOT live-proven.
+- Both live proofs were blocked correctly: the owner's own R20 app + game were running and held the shared game
+  bridge (recovery journal). The worker did not touch the owner's session.
+- Task 6 ZIP: `artifacts/feature018-r21-bf59ccc9/release/LW-Control-FEATURE-018-R21-OWNER-TEST-bf59ccc9ad63.zip`
+  SHA-256 e9db5764…6d69c0: re-hashed, CRC ok, 118 entries, SOURCE-COMMIT = bf59ccc9, no test UID.
+- Found at audit time (22:40): no game/app running, but the owner's R20 session left the game scripts in the bridge
+  (candidate) state with journal stage `active_ready_deferred_restore` (game PID 50508, started 20:19). An exact
+  backup of the originals exists (`overview-bridge-backups/20261019-121928-…`, hashes match). Restoration pending
+  owner OK. Lesson for owner prompts: close the owner's own LW-Control app/game before a worker live test.
