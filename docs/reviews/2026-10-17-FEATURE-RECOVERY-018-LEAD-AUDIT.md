@@ -963,4 +963,18 @@ R22 tasks (background only; owner tests keys):
 Owner reminder: close your own LW-Control app and game before the worker starts live tests.
 
 ### R22 progress (worker updates this)
-- (none yet)
+- **Task 1 Equipment Schemes complete (2026-10-19), source `61b2a895`:**
+  `feature018_equipment_snapshot` now accepts only the profile-scoped UI routing `profileId` (validated non-empty
+  string, max 128) in addition to the legacy empty request, discards it before the game transport, and still rejects
+  every other caller field. Desktop exchange coverage includes the routed real-UI shape plus forbidden owner/slot
+  fields. The mounted Equipment check now creates the production `createBackendBridge` and proves the real WebView
+  wire payload is exactly `{profileId:"A"}`. Fresh exact-commit Windows publish ProductVersion
+  `1.0.0+61b2a89547335fd31e73f75359e8f1b9279c955c` passed the dedicated background packaged-tab proof in
+  `artifacts/map014-takeover/native-ui-20261019-151531`: authenticated UID `4799432499002212`/server `2212`, 15
+  native hero positions and 60 gear selectors loaded, page Refresh succeeded, preset 1 was captured with the tab's
+  own button, the tab removed equipped UUID `1376833201183958087` from `1:1:1` and Apply produced the corresponding
+  native slot change, then the tab's Restore returned both every slot assignment and every inventory wearer exactly
+  to the initial snapshot. `r22-equipment-tab-loaded.png` and `r22-equipment-tab-restored.png` are the WebView
+  captures. The task-owned app/game exited 0; `owned-exit.json` proves exact v26 script restoration for all three
+  files and no recovery journal. Focused UI/equipment tests and Release Desktop build pass; no desktop input or Land
+  Cell action was used. Task 2 rapid Q/W/E/R intent recovery is next.
