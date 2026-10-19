@@ -129,6 +129,27 @@ local function point_xy(point_id, width)
     return idx % width, math.floor(idx / width)
 end
 
+-- RECOVERED v26 BuildingDesTemplate.InitData line 150 copies the game's
+-- localization key from getValue("name"). UI/UIBuildDetailsView.ShowPanel
+-- lines 297/311 passes the *current level template's* name to GetString.
+-- BuildingDesTemplate SHA256 e6399b9726bd06da76ed410625282bf719f64afa9a2ff09facf8a63ad220f0d9
+-- UIBuildDetailsView SHA256 243ef43ffbcc425e045f632441f8f93f906972477b99b22f6891c4af53b86c0e
+-- Expose the key, not the current Chinese translation: the app reads the
+-- admitted installed locale matching its own selected language.
+local function building_name_key(templates, building, description)
+    local value
+    if type(templates.GetBuildingLevelTemplate) == 'function' then
+        local ok, level = pcall(templates.GetBuildingLevelTemplate,
+            templates, building.itemId, building.level)
+        if ok and level then value = level.name end
+    end
+    if value == nil or value == '' then value = description.name end
+    if type(value) ~= 'string' and type(value) ~= 'number' then return nil end
+    local key = tostring(value)
+    if #key == 0 or #key > 256 or key:find('[\r\n%z]') then return nil end
+    return key
+end
+
 local function at_xy(x, y, width)
     if x < 0 or y < 0 or x >= width or y >= width then return nil end
     return y * width + x + 1
@@ -312,6 +333,7 @@ local function snapshot()
                 tileY = tile_y,
                 level = tonumber(building.level) or 0,
                 itemId = tonumber(building.itemId) or 0,
+                nameKey = building_name_key(ctx.templates, building, template),
             }
             by_uuid[uuid] = { public = entry, nativeUuid = building.uuid,
                 native = building, template = template }

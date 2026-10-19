@@ -105,7 +105,7 @@ end}
 MsgDefines = {FreeBuildingReplaceNew = 'native_free_building_replace_new',
               BuildWorldMoveNew = 'native_build_world_move_new'}
 local templates = {
-  [11] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
+  [11] = {name='native_building_11', tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
   [12] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
   [13] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return false end},
   [700] = {tileX=1, tileY=1, zoneType=1, CanMove=function(self) return true end},
@@ -358,6 +358,21 @@ def check_original_game_wire() -> None:
         for child in path.split('/')[1:]:
             root = root['children'][int(child)]
         return root
+
+    name_module = 'DataCenter/BuildManager/BuildingDesTemplate.luac'
+    check(hashlib.sha256(files[name_module]).hexdigest() ==
+          'e6399b9726bd06da76ed410625282bf719f64afa9a2ff09facf8a63ad220f0d9',
+          'building-name recovery no longer matches the admitted native template')
+    template_name = list(disassemble(native_method(name_module, 'InitData')))
+    check(any('sourceLine=150' in line and "'name'" in line and 'SETTABLE' in line
+              for line in template_name),
+          'native building description no longer reads the localization name key')
+    name_view = list(disassemble(native_method(
+        'UI/UIBuildDetails/View/UIBuildDetailsView.luac', 'ShowPanel')))
+    check(any('sourceLine=297' in line and 'GetBuildingLevelTemplate' in line for line in name_view) and
+          any('sourceLine=311' in line and "'name'" in line for line in name_view) and
+          any('sourceLine=311' in line and 'GetString' in line for line in name_view),
+          'native building UI no longer localizes the current level template name')
 
     ui = native_method('UI/UIPlaceBuild/View/UIPlaceBuildView.luac', 'OnConfirmBtnClick')
     source = list(disassemble(ui))
@@ -612,6 +627,17 @@ def main():
     check(baseline['buildings'][1]['occupiedPoints'][1] == 1,
           'source native building footprint missing')
     revision = baseline['layoutRevision']
+    check(baseline['buildings'][1]['nameKey'] == 'native_building_11',
+          'snapshot omitted the native building description name key')
+    lua.execute("""
+      DataCenter.BuildTemplateManager.GetBuildingLevelTemplate=function(self,id,level)
+        if id==11 and level==6 then return {name='native_building_11_level6'} end
+      end
+    """)
+    named = get('city_layout_snapshot_get')['data']
+    check(named['buildings'][1]['nameKey'] == 'native_building_11_level6' and
+          named['layoutRevision'] == revision and len(lua.globals().ObservedMoves) == 0,
+          'native current-level name must take priority without changing geometry or sending')
     check(get('city_layout_snapshot_get')['data']['layoutRevision'] == revision,
           'snapshot revision changed without a game-state change')
 

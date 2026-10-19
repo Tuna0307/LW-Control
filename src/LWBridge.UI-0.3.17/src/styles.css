@@ -60,6 +60,12 @@
 @media (max-width:600px){.map-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.map-auto-scan-grid{grid-template-columns:1fr}}
 
 /* FEATURE-RECOVERY-018 R19 responsive layout qualification. */
+/* R21: compact level numbers fit a 24px cell at 100% canvas zoom. The full
+   localized name and level remain in every building's tooltip/accessible name. */
+.city-layout-building-level{font-size:12px;font-weight:700;line-height:16px;min-width:16px;padding:0 3px;color:var(--text);background:var(--surface);text-shadow:none;border-radius:2px;top:1px;right:1px}
+.city-layout-building-name{font-size:12px;line-height:1.2;padding:2px}
+.city-layout-selected small,.city-layout-building-list small{font-size:12px;line-height:1.4;color:var(--muted-strong)}
+
 .monster-afk-toolbar{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
 .monster-afk-compact-card .automation-card-header h3,
 .monster-afk-compact-card .automation-card-header p,

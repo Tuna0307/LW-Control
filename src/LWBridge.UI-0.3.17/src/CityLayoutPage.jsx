@@ -48,6 +48,9 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const [restoreReviewBusy, setRestoreReviewBusy] = useState(false);
   const restoreReviewInFlight = useRef(false);
   const [reloadRevision, setReloadRevision] = useState(0);
+  const [localizedNames, setLocalizedNames] = useState({ context: "", values: {}, error: "", loading: false });
+  const [nameRetry, setNameRetry] = useState(0);
+  const nameGeneration = useRef(0);
   const draftQueueRef = useRef(Promise.resolve());
   const draftRevisionRef = useRef(fixture?.draftRevision ?? 0);
   const dragStateRef = useRef(null);
@@ -85,10 +88,46 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     : CITY_LAYOUT_LOCALIZED_ISSUES.has(validationIssue?.code) ? t(`cityLayout.issue.${validationIssue.code}`)
       : t("common.actionFailed");
   const changedIds = useMemo(() => new Set(placements.map((placement) => placement.uuid)), [placements]);
-  // Current v26 snapshot exposes an authoritative itemId even when localized
-  // building names/assets cannot be read. Never leave every live building
-  // visually anonymous when the preview-only names are absent.
-  const displayName = (building) => building?.name || building?.nameKey || (building?.itemId != null ? `#${building.itemId}` : building?.uuid || "");
+  const nameKeys = useMemo(() => [...new Set((layout?.buildings || []).map((building) => building.nameKey).filter((key) => typeof key === "string" && key))].sort(), [layout]);
+  const nameSignature = nameKeys.join("\0");
+  const nameContext = `${backendBridge.profileId}|${backendBridge.profileGeneration}|${language}|${reloadRevision}|${nameSignature}`;
+  const currentNameContext = useRef(nameContext);
+  currentNameContext.current = nameContext;
+  const names = localizedNames.context === nameContext ? localizedNames.values : {};
+  const displayName = (building) => names[building?.nameKey] && names[building.nameKey] !== building.nameKey
+    ? names[building.nameKey] : building?.name || building?.nameKey || (building?.itemId != null ? `#${building.itemId}` : building?.uuid || "");
+  useEffect(() => {
+    const generation = ++nameGeneration.current;
+    let retired = false;
+    const current = () => !retired && nameGeneration.current === generation && currentNameContext.current === nameContext;
+    setLocalizedNames({ context: nameContext, values: {}, error: "", loading: false });
+    if (previewEnabled || !online || !backendBridge.profileId || !nameKeys.length) return undefined;
+    const owner = backendBridge.currentProfileOwner();
+    setLocalizedNames({ context: nameContext, values: {}, error: "", loading: true });
+    const read = async (keys) => {
+      requireCityOwner(owner);
+      const response = await backendBridge.invokeProfileScoped("lastwar_map_localize", { language, keys });
+      requireCityOwner(owner);
+      if (response?.language !== language || !response.buildId || !response.gameRoot || !response.localeSha256 || !response.englishSha256 || !response.texts || keys.some((key) => typeof response.texts[key] !== "string")) throw new Error("Installed game building text source is unavailable.");
+      return response;
+    };
+    const identity = (value) => [value.buildId, value.gameRoot.toLowerCase(), value.localeSha256, value.englishSha256].join("|");
+    (async () => {
+      try {
+        const expected = identity(await read([])), values = {};
+        for (let offset = 0; offset < nameKeys.length; offset += 200) {
+          if (!current()) return;
+          const response = await read(nameKeys.slice(offset, offset + 200));
+          if (identity(response) !== expected) throw new Error("Installed game building locale changed while names were loading.");
+          Object.assign(values, response.texts);
+        }
+        if (current()) setLocalizedNames({ context: nameContext, values, error: "", loading: false });
+      } catch (error) { if (current()) setLocalizedNames({ context: nameContext, values: {}, error: error.message || String(error), loading: false }); }
+    })();
+    return () => { retired = true; nameGeneration.current += 1; };
+  // Translation and presentation are independent of the saved movement plan.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewEnabled, online, language, nameContext, nameSignature, nameRetry]);
 
   const commitPlacements = (next) => {
     if (cityPlacementSignature(next) === cityPlacementSignature(placements)) return;
@@ -551,6 +590,8 @@ export function CityLayoutPage({ previewState = "", online = false }) {
       {stale ? <div className="city-layout-warning">{t("cityLayout.stale")} <button type="button" onClick={() => void discardStaleDraft()}>{t("cityLayout.discardDraft")}</button></div> : null}
       {layout.isInCity ? null : <div className="city-layout-warning">{t("cityLayout.enterCity")}</div>}
       {errorText ? <div className="city-layout-error">{errorText}</div> : null}
+      {!previewEnabled && localizedNames.context === nameContext && localizedNames.error ? <div className="city-layout-error" role="alert">{t("map.namesUnavailable", { detail: localizedNames.error })} <button type="button" onClick={() => setNameRetry((value) => value + 1)}>{t("map.namesRetry")}</button></div> : null}
+      {!previewEnabled && localizedNames.context === nameContext && localizedNames.loading ? <div className="city-layout-name-preview" role="status">{t("map.namesLoading")}</div> : null}
       <div className="city-layout-workbench">
         <div className="city-layout-center">
           <div className="city-layout-main-heading">
@@ -644,7 +685,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   event.stopPropagation();
                   finishPointer();
                 }}
-              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level">{t("cityLayout.level", { level: building.level })}</small></button>;
+              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level" title={t("cityLayout.level", { level: building.level })} aria-label={t("cityLayout.level", { level: building.level })}>{building.level}</small></button>;
               })}
             </div>
           </div>
