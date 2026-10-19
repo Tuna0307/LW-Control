@@ -95,7 +95,8 @@ def main():
       assert(rally and rally.monster and not rally.player and rally.monsterId==10 and rally.memberCount==1)
       assert(rally.uuid=='700' and rally.monsterUuid=='501' and rally.pointIndex==100101)
       war.type=10;assert(attack.AutomationRallyInfo('700',true)==nil,'Player rally must be excluded')
-      war.type=9;war.attackAllianceId=8;assert(attack.AutomationRallyInfo('700',true)==nil)
+      war.type=9;MarchStatus={MOVING=1};leader.status=1;assert(attack.AutomationRallyInfo('700',true)==nil)
+      leader.status=0;war.attackAllianceId=8;assert(attack.AutomationRallyInfo('700',true)==nil)
       war.attackAllianceId=7;war.targetUid=11;assert(attack.AutomationRallyInfo('700',true)==nil)
       war.targetUid=10;state.march=nil
       UIWindowNames={UIFormationSelectListV2='formation'}
@@ -117,13 +118,16 @@ def main():
       assert(attack.AutomationObserve(fields,input).state=='confirmed')
     ''')
     vm.globals().engine_source = (ROOT / 'tools/feature018_afk_engine.lua').read_text(encoding='utf-8')
+    vm.globals().drill_source = (ROOT / 'tools/feature018_drill_engine.lua').read_text(encoding='utf-8')
     vm.globals().stamina_source = (ROOT / 'tools/feature018_stamina_engine.lua').read_text(encoding='utf-8')
     vm.execute('''
       package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=attack
       package.preload['DataCenter.Global.LWBridgeFeature018AfkEngine']=function()return assert(load(engine_source))()end
+      package.preload['DataCenter.Global.LWBridgeFeature018DrillEngine']=function()return assert(load(drill_source))()end
       package.preload['DataCenter.Global.LWBridgeFeature018StaminaEngine']=function()return assert(load(stamina_source))()end
       package.preload['rapidjson']=function()return {decode=function(text)
         if text=='{}'then return {}end
+        if text=='drill-fixture'then return {allianceDrill={enabled=true,activeRally=true,squadIndexes={1}}}end
         if text=='stamina-fixture'then return {enabled=true,minStamina=101,preferFifty=false}end
         return {enabled=true,strategies={}}
       end}end
@@ -180,14 +184,19 @@ def main():
       require('Net.Msgs.FindMonsterMessage').HandleMessage({}, {uuid=503,pointId=100106})
       local second=native_adapter.Targets(p,10);assert(#second==1 and state.moves==2,
         'Each new native search result must acquire its own AOI, not inherit a prior moved flag')
-      GOODS_TYPE={GOODS_TYPE_3=3};GOODS_TYPE2={StaminaItem=88}
-      state.item={id=5,uuid='stamina-owned',count=2};state.itemUses=0
-      DataCenter.ItemData={GetItemList=function(self,a,b)
-        assert(a==3 and b==88,'Inventory must be classified as native stamina items')
-        if state.driftAfterItemRead then LuaEntry.Player.uid='2002'end
-        return {state.item}
+      -- Regression: the retired category returns EMPTY, while current
+      -- Energy/UseItem routes name real owned stock. Ignore buy routes.
+      ResLackContextType={Energy=3};LWResourceLackGetWay={UseItem=1}
+      state.item={itemId=5,uuid='stamina-owned',count=2};state.itemUses=0
+      DataCenter.LWResourceLackManager={GetSpecialResWay=function(self,kind)
+        assert(kind==3);return {{tips=1,para1='5'},{tips=9,para1='6'},{tips=1,para1='5'}}
       end}
-      DataCenter.ItemTemplateManager={GetItemTemplate=function(self,id)if id==5 then return {para='50'}end end}
+      GoodsUtil={GetGoodsReturnItemCount=function(id)assert(id==5);return 50 end}
+      DataCenter.ItemData={GetItemList=function()return {}end,GetItemById=function(self,id)
+        assert(id==5,'Purchase routes must never be inspected as consumable stock')
+        if state.driftAfterItemRead then LuaEntry.Player.uid='2002'end
+        return state.item
+      end}
       MsgDefines.ItemUse=102
       local with_search=SFSNetwork.SendMessage
       SFSNetwork.SendMessage=function(route,payload,...)
@@ -207,6 +216,23 @@ def main():
       native.StopStamina();state.stamina=50;assert(native.StartStamina(fields).state=='confirmed')
       state.driftAfterItemRead=true;state.now=state.now+1;native.Pump()
       assert(state.itemUses==1,'Account change during inventory read must block item send')
+      state.driftAfterItemRead=false;LuaEntry.Player.uid='1001';native.StopStamina()
+      AllyDrillStage={AttackStage=8};WorldMonsterSpecialType={AllyDrill=5}
+      local event={stage=1,deadline=300000,point=100105,server=123}
+      state.drillMoves=0
+      UITimeManager={GetInstance=function()return {GetServerTime=function()return state.now*1000 end}end}
+      DataCenter.AllyDrillDataManager={GetCurStageAndCountDown=function()return event.stage,event.deadline end,
+        GetActInfo=function()return {data={bossPointId=event.point,bossServerId=event.server}}end,
+        JumpToDrill=function()state.drillMoves=state.drillMoves+1 end}
+      fields.confirmedAfkConfig='drill-fixture';assert(native.StartDrill(fields).state=='confirmed')
+      state.now=state.now+1;native.Pump();assert(state.drillMoves==0 and not native.DrillStatus().data.active)
+      event.stage=8;native.DrillStatus();assert(state.drillMoves==0,'Read-only status cannot move the game camera')
+      state.now=state.now+1;native.Pump();assert(state.drillMoves==1)
+      state.now=state.now+1;native.Pump();assert(state.drillMoves==1,'Target acquisition must be rate limited')
+      event.server=124;state.now=state.now+31;native.Pump();assert(state.drillMoves==1,'Cross-server event must not move or send')
+      native.StopDrill();event.server=123;state.now=state.now+31;native.Pump();assert(state.drillMoves==1)
+      assert(native.Status().data.allianceDrill.running==false)
+
     ''')
     print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')
 

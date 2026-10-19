@@ -27,7 +27,12 @@ export function createMonsterAfkAdapter(bridge, profileId, valid) {
         try { await invoke("automation_stop", { taskName: "monsterSweep" }); }
         catch (error) { if (!["GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code)) throw error; }
       }
+      if (!draft.allianceDrill.enabled) {
+        try { await invoke("automation_stop", { taskName: "allianceDrill" }); }
+        catch (error) { if (!["GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code)) throw error; }
+      }
       const saved = normalizeMonsterAfkConfig(await invoke("monster_afk_config_save", draft));
+      if (saved.allianceDrill.enabled) await invoke("automation_start", { taskName: "allianceDrill" });
       if (saved.enabled) await invoke("feature018_afk_configure");
       return saved;
     },

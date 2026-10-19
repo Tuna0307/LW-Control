@@ -52,6 +52,7 @@ FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
 FEATURE018_SHEEP_MODULE = "DataCenter.Global.LWBridgeFeature018SheepSolver"
 FEATURE018_AFK_ENTRIES = {
+    "DataCenter/Global/LWBridgeFeature018DrillEngine.luac": "feature018_drill_engine.lua",
     "DataCenter/Global/LWBridgeFeature018StaminaEngine.luac": "feature018_stamina_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",

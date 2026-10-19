@@ -567,6 +567,10 @@ function M.CleanupAfterLeaseLoss()
 end
 
 local function start(request)
+    if request and request.taskName == 'allianceDrill' then
+        local afk=rawget(_G,'LWBridgeFeature018AfkNative')
+        return afk and afk.StartDrill(request) or result('unsupported','Drill runtime unavailable')
+    end
     if request and request.taskName == 'staminaPotion' then
         local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
         if type(afk) == 'table' then return afk.StartStamina(request) end
@@ -646,6 +650,10 @@ local function start(request)
 end
 
 local function stop(request)
+    if request and request.taskName == 'allianceDrill' then
+        local afk=rawget(_G,'LWBridgeFeature018AfkNative')
+        return afk and afk.StopDrill(request) or result('unsupported','Drill runtime unavailable')
+    end
     if request and request.taskName == 'staminaPotion' then
         local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
         if type(afk) == 'table' then return afk.StopStamina(request) end

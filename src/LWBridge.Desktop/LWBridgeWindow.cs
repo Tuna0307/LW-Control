@@ -485,9 +485,14 @@ internal sealed partial class LWBridgeWindow : Form
             if (profileSettingsService is not null) services.Add(profileSettingsService);
             if (hotkeyConfigService is not null) services.Add(hotkeyConfigService);
             if (overviewLifecycleService is not null)
-                services.Add(equipmentConfigService is null
+            {
+                var featureCommands = equipmentConfigService is null
                     ? new Feature018GameCommandService(overviewLifecycleService)
-                    : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService, profileRuntimeConfigStore));
+                    : new Feature018GameCommandService(overviewLifecycleService, equipmentConfigService, profileRuntimeConfigStore);
+                services.Add(featureCommands);
+                automationStatusService?.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
+                    await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+            }
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);

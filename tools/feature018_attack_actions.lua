@@ -2478,6 +2478,8 @@ function M.AutomationRallyInfo(uuid,join)
        ident(member(war,"uuid"))~=tostring(uuid) or not ident(member(leader,"uuid")) or ident(member(leader,"ownerUid"))==account.uid or
        not eligible or can_join~=true then return nil end
     if member(war,"type")~=member(rawget(_G,"AllianceTeamType"),"ATTACK_BOSS") then return nil end
+    local moving=member(rawget(_G,"MarchStatus"),"MOVING")
+    if moving~=nil and member(leader,"status")==moving then return nil end
     -- AllianceWarInfo.targetUid is the MONSTER TEMPLATE ID, not a march UUID.
     -- UIAllianceWarMainTableCtrl.GetWarItemData lines 310-318 reads exactly
     -- this template for ATTACK_BOSS. The targetUuid field is the world UUID.

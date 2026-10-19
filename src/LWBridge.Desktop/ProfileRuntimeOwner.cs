@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Map317 = LWBridge.Map317;
 
 namespace LWBridge.Desktop;
@@ -196,6 +197,9 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                         : Task.FromException<object?>(new BridgeCommandException(
                             "PROFILE_RUNTIME_UNAVAILABLE",
                             "The requested profile has no active local runtime owner.")));
+            var featureCommands = new Feature018GameCommandService(lifecycle, equipment, runtimeConfigStore);
+            automationStatus.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
+                await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
             INativeAsyncCommandService[] commands =
             [
                 orderedReconcile,
@@ -206,7 +210,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 profileRegistryService,
                 settings,
                 hotkeys,
-                new Feature018GameCommandService(lifecycle, equipment, runtimeConfigStore),
+                featureCommands,
                 visualMetrics,
                 equipment,
                 monsterAfk,

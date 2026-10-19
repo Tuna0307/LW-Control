@@ -111,4 +111,39 @@ all scripts were restored and temporary profiles were disabled/removed.
 
 Native rally routes are built and covered by inert source-shaped checks. A
 live rally/event positive has not yet been observed. Automatic stamina items
-and the independent Drill engine are the next ordered R20 tasks.
+and the independent Drill engine are now implemented; their current qualification follows.
+
+### Current Energy item route (correction)
+
+The legacy UIFormationAddStamina category produced zero native rows and was
+incorrectly treated as a resource gap. The owner's backpack screenshot disproved
+that inference. Current FormationStaminaSlider.OnAddClick (source lines 134–137)
+uses ResLackContextType.Energy. The implementation now reads the current
+LWResourceLackManager.GetSpecialResWay(Energy) catalog, admits only native
+LWResourceLackGetWay.UseItem entries, resolves para1 with ItemData.GetItemById,
+and uses GoodsUtil.GetGoodsReturnItemCount for recovery. The current
+LWResourceLackCell.OnMultUseClick line 2808 sends ItemUse {uuid,num}; no purchase
+route is admitted. ItemInfo.itemId, count and UUID are re-read before sending.
+A count decrease of exactly one AND a stamina increase are required for proof.
+New source disassemblies are retained in artifacts/feature018-r20-source/energy-*.
+The old empty result is a reader failure, not proof that the account had no items.
+
+### Independent Alliance Drill engine
+
+Current AllyDrillDataManager.GetCurStageAndCountDown returns stage and nextTs;
+RefreshStage establishes AttackStage and battleEndTime in server milliseconds.
+GetActInfo.data supplies bossPointId/bossServerId. An armed active engine uses
+that manager's normal JumpToDrill to acquire the unique typed Drill monster;
+status reads never move the camera. It never starts, signs, donates or claims
+an event. Native own-account/session and target identity are checked again at
+send time. Event end/target change/Stop discard unsent native choosers.
+
+Priority scheduling is OWN_DESIGN. The first free selected squad leads when
+Active Rally is enabled. Others join eligible allied rallies for that exact
+monster under saved join restrictions. The current client rejects joining a
+rally led by the same account (AllianceWarDataManager.CheckJoinAllianceWarByWarData
+lines 494–496); the engine preserves this native restriction. Other squads
+therefore wait for eligible allied leaders. Native acknowledgements, not chooser
+opens, count as confirmed sends. Additional live event behavior remains unproven
+until an alliance drill is available. Inert scheduler/native checks and the
+production UI/managed command boundary checks cover the built routes.

@@ -144,7 +144,10 @@ function M.Pump()
             if job then
                 used[slot]=true
                 row.profileId=job.profileId;row.currentTarget=copy(job.target)
-                local result=api.Observe(job)
+                if not p.enabled and api.CancelUnsent and api.CancelUnsent(job)then
+                    run.pending[slot]=nil;row.step='stopped';goto next_slot
+                end
+                local result=api.Observe(job,p.enabled==true)
                 row.step=result.step or 'attacking'
                 if result.failed then
                     run.running=false;run.state='failed';run.lastError=result.error or 'Native send outcome uncertain';return

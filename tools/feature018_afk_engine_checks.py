@@ -65,6 +65,18 @@ def main():
         assert(engine.JoinReady(r,target,wait,103))
         r.enabled=false;target.player=true;assert(not engine.JoinReady(r,target,{},103))
     ''')
+    lua.execute('''
+        local sends,cancels=0,0
+        engine.Bind({Owned=function()return true end,Free=function()return true end,
+            Stamina=function()return 100,10 end,Targets=function()return {{uuid='m',monster=true,level=10,monsterType=0,special=0}}end,
+            Send=function()sends=sends+1;return 'chooser'end,
+            CancelUnsent=function()cancels=cancels+1;return true end,
+            Observe=function()error('Disabled unsent profile must not dispatch its chooser')end})
+        engine.Stop();local c={enabled=true,strategies={{id='p',enabled=true,kind='farm',monsterType=0,rally=true,squadIndexes={1},executionLimit=0}}}
+        assert(engine.Start({},c));engine.Pump();assert(sends==1)
+        c.strategies={};assert(engine.Configure(c));engine.Pump()
+        assert(sends==1 and cancels==1 and engine.Status().processed.p==0)
+    ''')
     for name in ['feature018_afk_native.lua', 'feature018_attack_actions.lua']:
         source = (ROOT / 'tools' / name).read_text(encoding='utf-8')
         assert lua.eval('function(s) local f,e=load(s);return f~=nil,e end')(source)[0], name

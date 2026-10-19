@@ -83,6 +83,21 @@ internal static class Feature018AfkRuntimeChecks
             await service.InvokeAsync("feature018_afk_configure", JsonSerializer.SerializeToElement(new { }), CancellationToken.None);
             if (!observed!.ContainsKey("confirmedAfkConfig"))
                 throw new InvalidDataException("AFK Configure did not carry trusted profile settings");
+            await service.InvokeAsync("automation_start", JsonSerializer.SerializeToElement(new { taskName = "allianceDrill" }), CancellationToken.None);
+            if (observed!["confirmedAfkConfig"] != config.ToJsonString() || !service.CanHandle("feature018_drill_status"))
+                throw new InvalidDataException("Drill did not receive trusted settings/status route");
+            var runtimeStatus = new AutomationStatusCommandService(store, Path.Combine(root, "runtime.json"));
+            runtimeStatus.SetNativeStatusReader(_ => Task.FromResult<JsonNode?>(JsonNode.Parse("""
+                {"running":true,"state":"running","processed":{"p":3},"rows":[],"staminaPotion":{"running":true,"used":1},"allianceDrill":{"running":true,"step":"waiting_event"}}
+                """)));
+            JsonNode merged = (JsonNode)(await runtimeStatus.InvokeAsync("automation_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None))!;
+            if (merged["tasks"]?["monsterSweep"]?["processed"]?["p"]?.GetValue<int>() != 3 ||
+                merged["tasks"]?["allianceDrill"]?["step"]?.GetValue<string>() != "waiting_event")
+                throw new InvalidDataException("Automation status did not use actual native engine state");
+            runtimeStatus.SetNativeStatusReader(_ => throw new BridgeCommandException("GAME_DISCONNECTED", "fixture"));
+            merged = (JsonNode)(await runtimeStatus.InvokeAsync("automation_status", JsonSerializer.SerializeToElement(new { }), CancellationToken.None))!;
+            if (merged["tasks"]?["monsterSweep"]?["running"]?.GetValue<bool>() != false)
+                throw new InvalidDataException("Disconnected native status retained a running claim");
             Console.WriteLine("FEATURE018_AFK_MANAGED_RUNTIME_CHECKS_OK");
         }
         finally { Directory.Delete(root, true); }

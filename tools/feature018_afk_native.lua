@@ -4,9 +4,11 @@ local M={VERSION='feature018-afk-native-1'}
 local engine=require('DataCenter.Global.LWBridgeFeature018AfkEngine')
 local attack=require('DataCenter.Global.LWBridgeFeature018AttackActions')
 local potion=require('DataCenter.Global.LWBridgeFeature018StaminaEngine')
+local drill=require('DataCenter.Global.LWBridgeFeature018DrillEngine')
+local drill_acquired_at=0
 local bridge,array,owner,search,last_pump
 local jobs,seen,join_wait,continuous_ready,joined,kicked={},{},{},{},{},{}
-local function get(o,k) if o==nil then return nil end;local ok,v=pcall(function()return o[k]end);if ok then return v end end
+local function get(o,k) if o==nil then return nil end;local ok,v=pcall(function()return o[k]end);if ok then return v end;return nil end
 local function call(o,k,...) local f=get(o,k);if type(f)~='function' then return false end;return pcall(f,o,...) end
 local function id(v) if v==nil then return nil end;local s=tostring(v);if s:match('^[1-9]%d*$') then return s end end
 local function center(k)return get(rawget(_G,'DataCenter'),k)end
@@ -66,8 +68,8 @@ local function available_monsters()
     end)end
     return out
 end
-local function fields(slot)
-    local out={};for k,v in pairs(owner.fields)do out[k]=v end;out.slot=tostring(slot);return out
+local function fields(slot,captured)
+    local out={};for k,v in pairs(captured.fields)do out[k]=v end;out.slot=tostring(slot);return out
 end
 local function clear_input()
     -- Native text-edit state only; no Windows key polling or input.
@@ -149,6 +151,7 @@ local function targets(p,level)
 end
 local function free(slot,p)
     if jobs[slot] then return false end
+    for _,pending in pairs(jobs)do if pending.phase=='chooser' then return false end end
     local ok,m=march(slot)
     if ok and m==nil then continuous_ready[slot]=nil;return form(slot)~=nil end
     if not ok or not p or not (p.continuousAttack or p.continuousJoin) or
@@ -179,23 +182,39 @@ local function stamina_snapshot()
         end
     end
     if not energy then return nil,'Native stamina is unavailable' end
-    local goods=get(rawget(_G,'GOODS_TYPE'),'GOODS_TYPE_3')
-    local category=get(rawget(_G,'GOODS_TYPE2'),'StaminaItem')
-    if goods==nil or category==nil then return nil,'Native stamina item classification unavailable' end
-    local ok,list=call(center('ItemData'),'GetItemList',goods,category)
-    if not ok then return nil,'Native stamina inventory unavailable' end
-    local items={}
-    each(list,function(item)
-        local item_id,count=tonumber(get(item,'id')),tonumber(get(item,'count'))
+    -- Current FormationStaminaSlider.OnAddClick uses the Energy resource-lack
+    -- catalog. The old UIFormationAddStamina StaminaItem category is obsolete
+    -- for today's bag items and can return empty despite owned energy stock.
+    local energy_kind=get(rawget(_G,'ResLackContextType'),'Energy')
+    local use_item=get(rawget(_G,'LWResourceLackGetWay'),'UseItem')
+    local goods_util=rawget(_G,'GoodsUtil')
+    if energy_kind==nil or use_item==nil or type(get(goods_util,'GetGoodsReturnItemCount'))~='function' then
+        return nil,'Current native Energy item catalog unavailable'
+    end
+    local ok,list=call(center('LWResourceLackManager'),'GetSpecialResWay',energy_kind)
+    if not ok or list==nil then return nil,'Current native Energy item list unavailable' end
+    local items,rejected,raw_count,known={},{},0,{}
+    each(list,function(route)
+        raw_count=raw_count+1
+        if get(route,'tips')~=use_item then return end -- Never buy/claim/shop.
+        local route_id=tonumber(get(route,'para1'))
+        if not route_id or known[route_id] then return end;known[route_id]=true
+        local item_ok,item=call(center('ItemData'),'GetItemById',route_id)
+        if not item_ok or not item then return end
+        local item_id,count=tonumber(get(item,'itemId')),tonumber(get(item,'count'))
         local uuid=get(item,'uuid');uuid=uuid~=nil and tostring(uuid) or nil
-        local template_ok,template=call(center('ItemTemplateManager'),'GetItemTemplate',item_id)
-        local recovery=template_ok and tonumber(get(template,'para')) or nil
-        if item_id and item_id>0 and item_id%1==0 and count and count>=0 and count%1==0 and uuid and uuid~='0' and #uuid<=128 and
-           uuid:match('^[%w_-]+$') and recovery and recovery>0 and recovery<10000000 then
+        local recovery_ok,recovery=pcall(goods_util.GetGoodsReturnItemCount,route_id)
+        recovery=recovery_ok and tonumber(recovery) or nil
+        if item_id==route_id and item_id>0 and item_id%1==0 and count and count>=0 and count%1==0 and uuid and uuid~='0' and #uuid>0 and #uuid<=128 and
+           recovery and recovery>0 and recovery<10000000 then
             items[#items+1]={id=item_id,uuid=uuid,count=count,recovery=recovery,staminaItem=true}
+        elseif #rejected<20 then
+            rejected[#rejected+1]={id=item_id,count=count,routeItemId=route_id,recovery=recovery,
+                uuidType=type(get(item,'uuid')),itemType=type(item)}
         end
     end)
-    return {stamina=energy,items=items}
+    return {stamina=energy,items=items,rawItemCount=raw_count,rejectedItems=rejected,
+        source='LWResourceLackManager.GetSpecialResWay.Energy.UseItem',nativeListType=type(list)}
 end
 potion.Bind({Owned=owned,Now=now,Snapshot=stamina_snapshot,Use=function(o,item)
     if not owned(o) then return false,'Stamina item owner changed' end
@@ -210,13 +229,13 @@ potion.Bind({Owned=owned,Now=now,Snapshot=stamina_snapshot,Use=function(o,item)
     local net=rawget(_G,'SFSNetwork');local route=get(rawget(_G,'MsgDefines'),'ItemUse')
     if type(get(net,'SendMessage'))~='function' or route==nil then return false,'Native ItemUse unavailable'end
     if not owned(o) then return false,'Stamina account changed at send boundary'end
-    -- UIFormationAddStaminaView.CellsCallBack lines 303-307. No buy route.
+    -- Current LWResourceLackCell.OnMultUseClick line 2808. No buy route.
     local ok,value=pcall(net.SendMessage,route,{uuid=item.uuid,num=1})
     return ok and value~=false,not ok and tostring(value) or nil
 end})
 local function send(o,slot,p,t)
     if not owned(o) or not free(slot,p) then return nil,'Assigned squad/account changed' end
-    local f=fields(slot)
+    local f=fields(slot,o)
     local _,existing=march(slot)
     if p.kind=='join' or p.rally then
         if p.kind=='join' then
@@ -229,14 +248,14 @@ local function send(o,slot,p,t)
         if existing~=nil and p.kind=='join' and p.continuousJoin then
             receipt=attack.AutomationContinue(f,clear_input,t,continuous_ready[slot],true)
             if receipt.state=='accepted' and get(receipt.data,'requestDispatched') then
-                jobs[slot]={fields=f,target=t,sentAt=now(),phase='ack',join=true,receipt=receipt}
+                jobs[slot]={activity=p.activity or 'monsterSweep',fields=f,target=t,sentAt=now(),phase='ack',join=true,receipt=receipt}
                 return tostring(slot)
             end
             return nil,receipt.error or 'Continuous rally join not dispatched'
         end
         receipt=attack.AutomationRallyOpen(f,clear_input,t,p.kind=='join')
         if receipt.state=='failed' or receipt.state=='unsupported' then return nil,receipt.error end
-        jobs[slot]={fields=f,target=t,sentAt=now(),phase='chooser',join=p.kind=='join',receipt=receipt}
+        jobs[slot]={activity=p.activity or 'monsterSweep',fields=f,target=t,sentAt=now(),phase='chooser',join=p.kind=='join',receipt=receipt}
         return tostring(slot)
     end
     local receipt
@@ -245,18 +264,19 @@ local function send(o,slot,p,t)
     if receipt.state~='accepted' or not get(receipt.data,'requestDispatched') then
         -- A producer can have sent even when its exception escapes. Retain a
         -- tombstone and stop; the scheduler must never retry an ambiguous send.
-        jobs[slot]={uncertain=true,fields=f,target=t,receipt=receipt}
+        jobs[slot]={activity=p.activity or 'monsterSweep',uncertain=true,fields=f,target=t,receipt=receipt}
         error(receipt.error or 'Uncertain native monster send')
     end
-    jobs[slot]={fields=f,target=t,sentAt=now(),phase='ack',receipt=receipt}
+    jobs[slot]={activity=p.activity or 'monsterSweep',fields=f,target=t,sentAt=now(),phase='ack',receipt=receipt}
     seen[t.uuid]=now()+60
     return tostring(slot)
 end
-local function observe(job)
+local function observe(job,allow_send)
     local native=jobs[job.slot]
     if not native then return {failed=true,error='Native pending march missing'} end
     if native.uncertain then return {failed=true,error='Native send outcome uncertain; restart suppressed'} end
     if native.phase=='chooser' then
+        if allow_send==false then return {step='waiting_event'}end
         if now()-native.sentAt>20 then return {failed=true,error='Native rally chooser timed out; no retry'}end
         local receipt=attack.AutomationRallyDispatch(native.fields,clear_input,native.target,native.join)
         if receipt.state=='failed' or receipt.state=='unsupported' then return {failed=true,error=receipt.error}end
@@ -271,7 +291,7 @@ local function observe(job)
         elseif reply.state=='failed' or now()-native.sentAt>30 then
             return {failed=true,error=reply.error or 'Native march acknowledgement timed out'}
         end
-        return {step='attacking'}
+        return {step='attacking',acknowledged=native.phase=='battle',receipt=native.ack}
     end
     local ok,m=march(job.slot)
     if not ok then return {step='waiting_squad'}end
@@ -294,13 +314,110 @@ local function observe(job)
         if m~=nil then continuous_ready[job.slot]=native.marchUuid end
         return {completed=true,receipt=receipt,step='returning'}
     end
-    return {step='attacking'}
+    return {step='attacking',acknowledged=true,receipt=native.ack}
 end
 engine.Bind({Owned=owned,Free=free,Stamina=stamina,Targets=targets,Send=send,Observe=observe,
+    CancelUnsent=function(job)
+        local pending=jobs[job.slot]
+        if pending and pending.activity~='allianceDrill' and pending.phase=='chooser' then jobs[job.slot]=nil;return true end
+        return false
+    end,
     MaxLevel=function(p)local ok,v=call(center('MonsterTemplateManager'),'GetMonsterMaxLevelbyType',p.monsterType or 0);return ok and tonumber(v) or p.minLevel end,
     Stop=function()
-        for slot,job in pairs(jobs)do if job.phase=='chooser' then jobs[slot]=nil end end
+        for slot,job in pairs(jobs)do if job.phase=='chooser' and job.activity~='allianceDrill' then jobs[slot]=nil end end
     end})
+-- The native event manager supplies both stage and millisecond deadline.
+-- This reader never starts/signs/donates to an event. Only an armed active
+-- engine may use the manager's normal JumpToDrill to acquire its own target.
+local function drill_snapshot(captured,acquire)
+    local dm=center('AllyDrillDataManager')
+    local ok,stage,deadline=call(dm,'GetCurStageAndCountDown')
+    local attack_stage=get(rawget(_G,'AllyDrillStage'),'AttackStage')
+    local time_ok,timer=call(rawget(_G,'UITimeManager'),'GetInstance')
+    local clock_ok,server_time=call(time_ok and timer or nil,'GetServerTime')
+    local info_ok,info=call(dm,'GetActInfo');local data=info_ok and get(info,'data')
+    local point,server=tonumber(get(data,'bossPointId')),id(get(data,'bossServerId'))
+    local active=ok and attack_stage~=nil and stage==attack_stage and tonumber(deadline) and
+        clock_ok and tonumber(server_time) and tonumber(deadline)>tonumber(server_time)
+    local out={active=active==true,stage=tostring(stage),deadline=tonumber(deadline),
+        serverTime=tonumber(server_time),pointIndex=point,serverId=server,rallies={},ownRallyExists=false,readOnly=not acquire}
+    if not out.active then return out end
+    if not point or not captured or server~=captured.server then
+        out.error='Native Drill target server/point unavailable or changed';return out
+    end
+    local special=rawget(_G,'WorldMonsterSpecialType') or {}
+    local matches={}
+    for _,target in ipairs(available_monsters())do
+        local is_drill=false
+        for _,key in ipairs({'AllyDrill','AllyDrillHugeSandWorm','AllyDrillRoadHog'})do
+            if special[key]~=nil and target.special==special[key]then is_drill=true end
+        end
+        if is_drill and target.pointIndex==point then matches[#matches+1]=target end
+    end
+    if #matches==1 then out.target=matches[1]
+    elseif acquire and owned(captured) and now()>=drill_acquired_at then
+        drill_acquired_at=now()+30
+        call(dm,'JumpToDrill')
+    end
+    if not out.target then out.error='Waiting for the unique native Drill monster';return out end
+    for slot=1,4 do
+        local present,m=march(slot)
+        local type_ok,kind=call(m,'GetMarchTargetType')
+        if present and type_ok and kind==get(rawget(_G,'MarchTargetType'),'RALLY_FOR_BOSS') and
+           id(get(m,'targetUuid'))==out.target.uuid then out.ownRallyExists=true end
+    end
+    local rallies_ok,groups=call(center('AllianceWarDataManager'),'GetAllCanJoinAllianceWarData')
+    if rallies_ok then each(groups,function(group)each(group,function(war)
+        local uuid=id(get(war,'uuid'));local rally=uuid and attack.AutomationRallyInfo(uuid,true)
+        if rally and rally.monsterUuid==out.target.uuid then
+            if joined[uuid] and rally.ownerIsMember==false and rally.departureTime and rally.departureTime>now()then kicked[uuid]=true end
+            rally.kicked=kicked[uuid]==true;out.rallies[#out.rallies+1]=clean_target(rally)
+        end
+    end)end)end
+    return out
+end
+local function drill_join_ready(config,rally)
+    local key='allianceDrill:'..rally.uuid;join_wait[key]=join_wait[key] or {}
+    return engine.JoinReady(config.joinRestrictions,rally,join_wait[key],now())
+end
+drill.Bind({Owned=owned,Snapshot=drill_snapshot,Free=function(slot)return free(slot,{})end,
+    Stamina=function(slot,role)return stamina(slot,{kind=role=='member' and 'join' or 'farm',rally=true})end,
+    JoinReady=drill_join_ready,Observe=observe,
+    CancelUnsent=function(job)
+        local pending=jobs[job.slot]
+        if pending and pending.activity=='allianceDrill' and pending.phase=='chooser' then
+            jobs[job.slot]=nil;return true
+        end
+        return false
+    end,
+    Send=function(captured,slot,role,target,config)
+        local fresh=drill_snapshot(captured,false)
+        if not fresh.active or not fresh.target or
+           (role=='leader' and fresh.target.uuid~=target.uuid) or
+           (role=='member' and fresh.target.uuid~=target.monsterUuid)then return nil,'Drill ended/target changed before send'end
+        local profile={id='allianceDrill',activity='allianceDrill',kind=role=='member' and 'join' or 'farm',
+            rally=true,joinRestrictions=config.joinRestrictions}
+        return send(captured,slot,profile,target)
+    end})
+function M.StartDrill(request)
+    local a=account();local token=bridge and bridge.Feature018OwnerToken()
+    if not a or request.authorizedUid~=a.uid or not token then return failed('Drill account admission absent')end
+    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
+    if not ok or type(config)~='table' then return failed('Confirmed Drill settings absent')end
+    local captured={uid=a.uid,server=a.server,token=token,fields={}}
+    for _,k in ipairs({'authorizedUid','profileId','launchSessionId','challenge','gamePid'})do captured.fields[k]=request[k]end
+    local started,error=drill.Start(captured,config.allianceDrill)
+    if not started then return failed(error)end
+    return M.DrillStatus()
+end
+function M.StopDrill()drill.Stop();return M.DrillStatus()end
+function M.DrillStatus()
+    local status=drill.Status()
+    local a=account();status.event=drill_snapshot(a,false)
+    if array then array(status.rows);array(status.receipts);array(status.event.rallies)end
+    status.observation='native_alliance_drill_runtime';status.readOnly=true
+    return result(status)
+end
 function M.Start(request)
     local a=account();local token=bridge and bridge.Feature018OwnerToken()
     if not a or request.authorizedUid~=a.uid or not token then return failed('Fresh native account admission absent')end
@@ -313,7 +430,9 @@ function M.Start(request)
         if not status then return failed(error)end
         return M.Status()
     end
-    if next(jobs)~=nil then return failed('A prior native march is still in flight; wait for reconciliation')end
+    for _,job in pairs(jobs)do
+        if job.activity~='allianceDrill' then return failed('A prior native march is still in flight; wait for reconciliation')end
+    end
     owner={uid=a.uid,server=a.server,token=token,fields={}}
     for _,k in ipairs({'authorizedUid','profileId','launchSessionId','challenge','gamePid'})do owner.fields[k]=request[k]end
     seen={};join_wait={}
@@ -342,6 +461,7 @@ function M.Status()
     local data=engine.Status();data.owner=nil;data.config=nil;data.pending=nil
     if array then array(data.rows);array(data.receipts)end
     data.observation='native_monster_afk_runtime';data.readOnly=true
+    data.allianceDrill=M.DrillStatus().data
     data.staminaPotion=potion.Status()
     if array then array(data.staminaPotion.receipts)end
     return result(data)
@@ -361,7 +481,7 @@ function M.StaminaStatus()
     local status=potion.Status();local snapshot,error=stamina_snapshot()
     status.inventory=snapshot;status.inventoryError=error;status.readOnly=true
     status.observation='native_stamina_item_runtime'
-    if array then array(status.receipts);if snapshot then array(snapshot.items)end end
+    if array then array(status.receipts);if snapshot then array(snapshot.items);array(snapshot.rejectedItems)end end
     return result(status)
 end
 function M.Catalog()
@@ -418,18 +538,20 @@ function M.Pump()
     if owner and owned(owner) and not engine.IsRunning() then
         for slot in pairs(jobs) do
             local ok,m=march(slot)
-            if ok and m==nil and not jobs[slot].uncertain then jobs[slot]=nil end
+            if ok and m==nil and not jobs[slot].uncertain and jobs[slot].activity~='allianceDrill' then jobs[slot]=nil end
         end
     end
     local potion_ok,potion_error=pcall(potion.Pump)
     if not potion_ok then potion.Fail(potion_error)end
+    local drill_ok,drill_error=pcall(drill.Pump)
+    if not drill_ok then drill.Fail(tostring(drill_error))end
     local ok,error=pcall(engine.Pump)
     if not ok then engine.Stop(tostring(error))end
 end
 function M.CleanupAfterLeaseLoss()
     local token=bridge and get(bridge,'Feature018SessionToken')
     if type(token)=='function' and token()~=nil then engine.Pause('account_changed')
-    else engine.Stop('Session lease lost');potion.Stop()end
+    else engine.Stop('Session lease lost');potion.Stop();drill.Stop()end
 end
 function M.Register(feature,overview)
     bridge=overview;array=feature.Array
@@ -438,5 +560,6 @@ function M.Register(feature,overview)
     feature.RegisterHandler('feature018_afk_configure',M.Configure)
     feature.RegisterHandler('monster_catalog_options',M.Catalog)
     feature.RegisterHandler('feature018_stamina_status',M.StaminaStatus)
+    feature.RegisterHandler('feature018_drill_status',M.DrillStatus)
 end
 return M
