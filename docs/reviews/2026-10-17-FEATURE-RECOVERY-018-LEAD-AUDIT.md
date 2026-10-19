@@ -643,3 +643,15 @@ Handoff rule unchanged; record progress under "R18 progress".
   equal the original. Sent staged finish: own host39768 and game15588 exited0, no error, restorationAudit=proven,
   all three installed script hashes exactly equal admitted v26 originals, no recovery journal. The owner's
   R17 app PID11544 remains untouched; no task-owned game/app or launcher remains. Receipt owned-exit.json.
+
+- **Task 6 package source prepared (2026-10-19):** tools/feature018_r18_package.py carries forward the
+  clean-pushed-commit, exact Windows ProductVersion, production UI fingerprint, linked bridge source hashes,
+  ZIP CRC/per-entry manifest gates. It scans all uncompressed entries for current/historical test UIDs in
+  ASCII, UTF-16LE and UTF-16BE; explicit inert positive-detection witnesses pass for all three encodings.
+  README-R18 records garrison removals, session-only scans, multi-city Space data proof/owner visual test,
+  live City Layout and Equipment Scheme restore, and the exact NOT WORKING Monster AFK dependency. Earlier
+  G/Q/A positives are labelled historical; reserved owner key/event tests remain pending. Packaging review
+  found the opt-in legacy recovery bundle still displayed Auto Garrison: removed that legacy component/call
+  and its nine locale catalogs too. All ten modified legacy JS files parse and have no retired card keys;
+  the canonical retained controls are unchanged. Final publish/ZIP and extracted startup proof follow this
+  pushed source checkpoint; their exact SOURCE-COMMIT/integrity receipt are authoritative.
