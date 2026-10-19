@@ -692,3 +692,20 @@ owner's own R17 app is running. City summary: 109 buildings back in their origin
     ("FEATURE018 only supports the original sheepGame task"); no runtime producer. Needs to be built.
   * **Equipment Schemes**: the native apply/restore commands work live (exact before/after match), but the
     Equipment Schemes TAB still shows preview fixture data and is not wired to the real game. Needs wiring.
+
+## Lead UI layout review at different window sizes — 2026-10-19
+Owner: "when i drag the size of the ui, some card look awkward". Lead checked the UI preview at 900, 1100 and 1600 px.
+Problems found (worst first):
+1. Squads / AFK → AFK Tasks: below ~1100 px the page spills past the right edge (33 px horizontal scroll at 900);
+   the three top toggle cards cut their titles ("Monster AFK mas…", "Use Stamina items…", "Launch priority: 1 · Jo…");
+   the Shared AFK Profiles column gets so narrow profile names shrink to one letter; the AFK Target dropdown text is cut.
+2. Squads / AFK → Equipment Schemes: preset names cut, squad position cards crammed (hero names, "Lv.3…", "Em…"),
+   the third position card runs off the right side.
+3. Automation: two-column card grid pairs short and tall cards, leaving large empty gaps (e.g. Auto Training next
+   to Automatic Construction); at 900 px the category tab bar is cut off ("Pro…") with no scroll hint.
+4. Mini Games: an odd number of cards leaves half a row empty and cards have uneven heights.
+5. Top bar: at ≤1100 px it wraps into two rows (Preview / Pending tasks drop under the logo).
+6. Map Data table: at narrow widths columns squeeze (status text "Fully plunde…" cut, "Marke d" header wraps).
+7. Hotkeys, Home, City Layout: acceptable; City Layout's right properties panel is tight at 1100.
+Next: fix responsive layout (min widths, wrapping, grid that packs cards, no horizontal page scroll at 900 px+),
+before/after screenshots at 900/1100/1400/1600, UI checks pass.
