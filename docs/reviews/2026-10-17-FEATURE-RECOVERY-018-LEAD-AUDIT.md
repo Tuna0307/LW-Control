@@ -743,3 +743,10 @@ Automation cards pack in two columns and tabs wrap; Mini Games (zh-CN, 1100 px) 
 scrolls inside itself. Minor: at 900 px the Automation tab "Resource gathering" wraps onto two lines (acceptable).
 ZIP `artifacts/feature018-r19-6548ede5/release/LW-Control-FEATURE-018-R19-OWNER-TEST-6548ede55aba.zip` SHA-256
 657e11ad…99cb76: re-hashed, CRC ok, 92 entries, SOURCE-COMMIT = 6548ede5, no test UID.
+
+## Lead status of the Squads / AFK tab — 2026-10-19
+Source check: the only native `automation_start` handler is the Food House `sheepGame` solver
+(tools/feature018_sheep_solver.lua). There is no runtime for Monster AFK (`monsterSweep`), automatic stamina items
+(`staminaPotion`) or Auto Alliance Drill — their settings save but nothing runs. Equipment Schemes: native
+apply/restore commands work live (R18), but the tab shows preview data and is not wired. The same source check
+suggests the Automation tab tasks may also lack runtimes; to be verified before any owner claim.
