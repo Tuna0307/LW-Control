@@ -1,6 +1,6 @@
 """Submit one operation to an already running isolated FEATURE018 proof.
 
-No process startup, installed-script mutation, account selection or retries.
+No process startup, installed-script mutation, account selection or gameplay retries.
 The packaged app independently checks UID/server/session before execution.
 """
 import argparse
@@ -55,7 +55,26 @@ def submit(directory, operation, timeout=45):
                 raise RuntimeError("Previous one-shot request has no receipt; existing queue untouched, never resend")
         temporary = directory / ("feature018-live-request-" + operation["id"] + ".tmp")
         temporary.write_text(json.dumps(operation), encoding="utf-8")
-        temporary.replace(target)
+        # Windows may briefly deny replacement while the app reads the OLD
+        # request file. Retry only atomic publication of this same request ID;
+        # never create another operation or replay an ambiguous game command.
+        for attempt in range(5):
+            try:
+                temporary.replace(target)
+                break
+            except PermissionError:
+                if not temporary.exists():
+                    published = json.loads(target.read_text("utf-8-sig"))
+                    if published.get("id") == operation["id"]:
+                        break
+                    raise
+                if attempt == 4:
+                    raise
+                fresh = json.loads(result_path.read_text("utf-8-sig"))
+                same_owner(fresh)
+                if fresh.get("state") != "running" or (directory / "owned-exit.json").exists():
+                    raise RuntimeError("Owner stopped before request publication; nothing resubmitted")
+                time.sleep(0.1)
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             try:

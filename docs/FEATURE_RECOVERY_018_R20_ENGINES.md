@@ -96,3 +96,19 @@ filters, stamina/account/squad pauses, Stop, native typed monster admission,
 create GUID correlation, continuous change post-state, allied monster rally
 admission and player-rally rejection. They are fixtures, not live rally proof.
 The original 0.3.17 engine's internal scheduling algorithm remains unknown.
+
+### Task 1 corrected-source qualification
+
+Source `12b146dc` completed a fresh three-attack/auto-stop proof in
+`artifacts/map014-takeover/native-ui-20261019-055515`, followed by a two-attempt
+continuous proof using the same native march and a fresh Stop-in-flight proof.
+See `r20-fixed-count3-final.json`, `r20-continuous-08.json` and
+`r20-fixed-stop-final.json`. Continuous behavior reuses an existing returning
+march before it reaches HQ; the server can briefly label it Returning. After
+the finite limit the squad returned home. The source fix also reobserved native
+Chinese target names and proper empty arrays. All task-owned processes exited,
+all scripts were restored and temporary profiles were disabled/removed.
+
+Native rally routes are built and covered by inert source-shaped checks. A
+live rally/event positive has not yet been observed. Automatic stamina items
+and the independent Drill engine are the next ordered R20 tasks.
