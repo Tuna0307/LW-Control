@@ -242,6 +242,19 @@ def main():
       state.now=state.now+1;native.Pump();assert(state.sends==before_sends+1,'Active Drill must dispatch its native rally route: '..tostring(native.DrillStatus().data.lastError))
       native.StopDrill();state.now=state.now+1;native.Pump()
       assert(state.sends==before_sends+1,'Drill Stop cannot send again')
+      local normal_form=DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex
+      DataCenter.ArmyFormationDataManager.GetOneArmyInfoByIndex=function(self,slot)
+        if slot==2 then return {uuid=102,ownerUid='1001',index=2}end
+        return normal_form(self,slot)
+      end
+      attack.AutomationRallyOpen=function()return {state='accepted',data={awaitingNativeChooser=true}}end
+      attack.AutomationRallyDispatch=function()return {state='failed',error='ambiguous dispatch fixture'}end
+      local captured={uid='1001',server='123',token='owned',fields=fields}
+      assert(native_adapter.Send(captured,2,{kind='farm',rally=true},{uuid='503'}))
+      assert(native_adapter.Observe({slot=2}).failed)
+      native.Stop()
+      assert(not native_adapter.Free(2,{}),'Stop must retain uncertain rally dispatch reservation')
+
 
 
     ''')

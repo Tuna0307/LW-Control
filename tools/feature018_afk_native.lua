@@ -279,7 +279,13 @@ local function observe(job,allow_send)
         if allow_send==false then return {step='waiting_event'}end
         if now()-native.sentAt>20 then return {failed=true,error='Native rally chooser timed out; no retry'}end
         local receipt=attack.AutomationRallyDispatch(native.fields,clear_input,native.target,native.join)
-        if receipt.state=='failed' or receipt.state=='unsupported' then return {failed=true,error=receipt.error}end
+        if receipt.state=='failed' or receipt.state=='unsupported' then
+            -- A dispatch exception may follow a real native send. Retain the
+            -- reservation across Stop/reconfigure instead of calling it an
+            -- unsent chooser and allowing an automatic replay.
+            native.uncertain=true;native.phase='uncertain'
+            return {failed=true,error=receipt.error}
+        end
         if get(receipt.data,'requestDispatched')==true then native.phase='ack';native.receipt=receipt end
         return {step=native.join and 'joining' or 'attacking'}
     end
