@@ -71,9 +71,19 @@ def main():
                 if launch == 0:
                     # A later session's scan must also be cleared at the next start.
                     db.execute("INSERT INTO map_records(kind,server_id,record_key,updated_at,data_json) VALUES ('city',12345,'restart-witness',1,'{}')")
-    receipt = {'state': 'proven', 'controlled': True, 'nativeGameplay': False, 'packagedExe': str(exe),
+    readback = {}
+    for profile in ('startup-A', 'startup-B'):
+        config = json.loads((out / 'profiles' / profile / 'runtime/config.json').read_text(encoding='utf-8'))
+        assert config['hotkeys']['frontlineReinforceCount'] == 17
+        assert config['hotkeys']['attack'] is False
+        assert config['tasks']['monsterSweep']['strategies'][0]['id'] == 'keep-shared-profile'
+        assert config['tasks']['staminaPotion']['enabled'] is True
+        readback[profile] = {'gCount': config['hotkeys']['frontlineReinforceCount'],
+            'sharedAfkProfile': config['tasks']['monsterSweep']['strategies'][0]['id'],
+            'staminaItemsEnabled': config['tasks']['staminaPotion']['enabled']}
+    receipt = {'state': 'proven' , 'controlled': True, 'nativeGameplay': False, 'packagedExe': str(exe),
         'oldRows': before, 'twoConsecutiveStartsCleared': True, 'durableFileHashesPreserved': hashes,
-        'mapSettingsPreserved': True, 'gCountPreserved': 17}
+        'mapSettingsPreserved': True, 'gCountPreserved': readback['startup-A']['gCount'], 'configReadback': readback}
     (out / 'receipt.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
     print('FEATURE018_R18_PACKAGED_STARTUP_PASS', json.dumps(receipt))
 

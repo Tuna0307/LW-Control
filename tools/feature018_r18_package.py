@@ -234,6 +234,8 @@ R18 CHANGES AND VERIFIED SCOPE
 - Equipment Schemes: one native gear removal and the original scheme restore
   passed through commands. Every hero slot and inventory wearer was restored.
   Physical Alt+1-4 remains an owner test.
+  The canonical Equipment Schemes tab is still fixture-only/offline and is
+  not wired to the native snapshot/apply commands. Tab UI wiring is unfinished.
 
 MONSTER AFK STATUS: NOT WORKING
 One enabled ordinary-monster Shared AFK Profile on squad 1 was saved.
@@ -303,7 +305,7 @@ def main() -> None:
             "visibleCityShields": {"nativeDataComparedToMapColumn": True, "physicalSpaceOwnerTestPending": True},
             "cityLayout": {"singleSwapCancelRestoreNativeProven": True, "all109PositionsRestored": True},
             "monsterAfk": {"runtimeAvailable": False, "statusCheck": "START_REJECTED_SHEEP_GAME_ONLY"},
-            "equipmentSchemes": {"commandApplyRestoreNativeProven": True, "physicalAltKeysOwnerTestPending": True},
+            "equipmentSchemes": {"commandApplyRestoreNativeProven": True, "physicalAltKeysOwnerTestPending": True, "canonicalTabNativeWiring": False},
             "originalFeatureCardsOnly": {"workerDiagnosticPanelsRemoved": True,
                                          "removedByOwnerDirection": True},
             "frontlineG": {"configurableSoldiersPerPress": [1, 50], "default": 5,

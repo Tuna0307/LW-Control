@@ -655,3 +655,21 @@ Handoff rule unchanged; record progress under "R18 progress".
   and its nine locale catalogs too. All ten modified legacy JS files parse and have no retired card keys;
   the canonical retained controls are unchanged. Final publish/ZIP and extracted startup proof follow this
   pushed source checkpoint; their exact SOURCE-COMMIT/integrity receipt are authoritative.
+
+- **Task 5 UI qualification (source check):** the successful Equipment Scheme test is specifically the
+  native command path. Canonical SquadsPage.EquipmentContent still reads previewEquipmentFixture and an
+  in-memory preview config adapter; normal production previewState is empty, so that tab is offline/empty
+  and does not call the native snapshot/apply services. UI wiring remains unfinished. This was not added
+  under the R18 status-only task. README-R18 explicitly records the gap; do not treat native command proof
+  as an end-to-end Equipment Schemes tab pass.
+- **Task 6 verification / final-source handoff (2026-10-19):** fresh Release publish and R18 packaging gates
+  passed on verification checkpoint faefbfa2: exact pushed ProductVersion, production UI fingerprint,
+  16 linked bridge source matches, 114 ZIP entries, CRC/per-file hashes and all current/historical test UIDs
+  absent in ASCII, UTF-16LE and UTF-16BE. Hotkey/attack Lua suites and bridge/visible-city-shield checks PASS;
+  full Desktop.Checks passed at the final runtime-code checkpoint. The README now also qualifies the
+  canonical Equipment Schemes UI gap above. After this final audit/source checkpoint is pushed, the
+  owner ZIP is regenerated from that exact HEAD (not the older verification ZIP), then extracted for the
+  two-start stale-row/settings smoke. The authoritative final filename, SOURCE-COMMIT, SHA-256 and UID-scan
+  result are in artifacts/feature018-r18-<HEAD8>/release/r18-package-receipt.json. This source-pinned external
+  receipt is the final artifact handback; no later code/doc commit is needed to identify it. All live work
+  is finished with exact restoration; owner-only physical key/event checks remain pending as recorded.
