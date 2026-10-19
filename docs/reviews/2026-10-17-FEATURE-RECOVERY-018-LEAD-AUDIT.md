@@ -1071,3 +1071,18 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
 
 ### R23 progress (worker updates this)
 - (none yet)
+
+### R23 addendum (owner, 2026-10-20) — part of R23
+6. Equipment Schemes dropdowns cannot be clicked. Lead: NativeEquipmentContent.jsx disables each slot <select> when
+   the preset has no saved entry for that position (`!saved`), so a fresh preset shows "Empty" everywhere and nothing
+   is editable until the user finds "Save current squads". Fix: dropdowns editable on an empty preset too; one-line
+   hint ("Press Save current squads to copy your current gear into this preset"); show gear and hero pictures
+   (iconPath). Meaning: the dropdown picks which owned item goes in that slot for this preset; the text under it is
+   what the hero wears now.
+7. Automation → Chat (Red Packet, Fireworks / Egg, Treasure): cards show "Game disconnected. Actions are disabled" /
+   "Disconnected" while the header says Connected; nothing can be clicked. Recover the original 0.3.17 behaviour:
+   listen to chat and automatically claim red packets, fireworks/eggs and treasure, with each card's settings and
+   "Run now". Wire the Automation tab to the real connection state. Real engines with the game's own claim routes;
+   never spend gems or real money. Live-prove on 4799432499002212 if a claimable item appears in chat; otherwise prove
+   the listener sees chat messages and report; owner tests the rest. Also report which other Automation cards have a
+   real engine and which do not (status list only; build only Chat now).
