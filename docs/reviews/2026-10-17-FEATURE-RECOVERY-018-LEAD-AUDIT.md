@@ -750,3 +750,6 @@ Source check: the only native `automation_start` handler is the Food House `shee
 (`staminaPotion`) or Auto Alliance Drill — their settings save but nothing runs. Equipment Schemes: native
 apply/restore commands work live (R18), but the tab shows preview data and is not wired. The same source check
 suggests the Automation tab tasks may also lack runtimes; to be verified before any owner claim.
+Owner plans (2026-10-19): Monster AFK — main purpose is attacking level-10 zombies; owner tests next week.
+Auto Alliance Drill — owner tests when the alliance drill event starts. Stamina items — owner tests when free.
+Lead clarified to owner: these are NOT built yet (no runtime); they must be built before any test.
