@@ -934,3 +934,33 @@ City-names UI check, Desktop.Checks and UI check PASS (lead re-run).
 Owner approved restore (2026-10-19 22:4x): with no game/app running, lead copied the originals back from
 `overview-bridge-backups/20261019-121928-…`; installed hashes now 49f6249d / 52d5b30c / 5f9c4ab0 (exact v26), and the
 stale journal was archived as `recovery.lead-restored-20261019.json`. Worker live tests are unblocked.
+
+## Owner test of R21 and R22 assignment — 2026-10-19
+Owner results (R21 ZIP):
+- City Layout names now show (e.g. Headquarters, Drill Ground, Golden Marshal Statue). But no building images: the
+  grid and the Building properties box show an empty grey square. Lead: the UI already renders
+  `GameAssetImage assetPath={building.iconPath}`; the native City snapshot never fills `iconPath`.
+- Spamming Q on different targets → "Q: Native hover chooser was already consumed once"
+  (tools/feature018_attack_actions.lua ~2214): after one send, the consumed hover latch blocks every new Q press
+  until that send is confirmed.
+- Equipment Schemes tab in the real app: "Equipment snapshot accepts an empty authenticated request only.", no
+  squads, Refresh does nothing. Lead: equipmentRuntime.js calls `invokeProfileScoped("feature018_equipment_snapshot")`,
+  which adds `profileId`; Feature018GameCommandService.cs (~line 290) rejects any non-empty payload. R21's proof used
+  raw commands, not the real tab, so this was missed.
+R22 tasks (background only; owner tests keys):
+1. Equipment tab: accept the owner-routing `profileId` (only that) for feature018_equipment_snapshot, like restore
+   does. Prove through the REAL tab in the packaged app (WebView harness, no desktop input): open tab → squads and
+   gear load → save preset 1 → apply → restore, all from the tab's buttons. Add a mounted check that uses the real
+   bridge payload shape.
+2. Q/W/E/R spam: every new key press is a new intent. A consumed earlier chooser must not block a new press: if the
+   squad is out use the R21 redirect, if home create a new march; still never replay an uncertain send and keep the
+   guildless/own-alliance rules. Prove three rapid Q presses on different targets via native commands, each one
+   accepted or giving a clear specific reason (e.g. "squad already heading to this target").
+3. City Layout images: fill `iconPath` in the City snapshot from the game's own building icon (same asset source as
+   Map images) so the grid and properties box show the building picture. Prove with a screenshot of the worker's own
+   app window.
+4. Owner-test ZIP (R22 package), README. Checks: UI, Desktop.Checks, attack/hotkey/City/equipment Lua suites.
+Owner reminder: close your own LW-Control app and game before the worker starts live tests.
+
+### R22 progress (worker updates this)
+- (none yet)
