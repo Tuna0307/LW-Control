@@ -14,6 +14,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     private const int EquipmentPresetWireLimit = 14000;
     private readonly Feature018OwnedGameExchange exchange;
     private readonly EquipmentConfigCommandService? equipmentConfig;
+    private readonly Feature018AuthenticatedGameAccount? requiredAccount;
     internal Feature018GameCommandService(OverviewLifecycleService lifecycle)
         : this(new Feature018OwnedGameExchange(lifecycle)) { }
     internal Feature018GameCommandService(OverviewLifecycleService lifecycle,
@@ -22,10 +23,12 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     internal Feature018GameCommandService(Feature018OwnedGameExchange exchange)
         : this(exchange, null) { }
     internal Feature018GameCommandService(Feature018OwnedGameExchange exchange,
-        EquipmentConfigCommandService? equipmentConfig)
+        EquipmentConfigCommandService? equipmentConfig,
+        Feature018AuthenticatedGameAccount? requiredAccount = null)
     {
         this.exchange = exchange ?? throw new ArgumentNullException(nameof(exchange));
         this.equipmentConfig = equipmentConfig;
+        this.requiredAccount = requiredAccount;
     }
 
     public bool CanHandle(string command) => command is
@@ -103,7 +106,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             RequireReadOnlyEquipmentPreflight(observed, fields);
             return observed;
         }
-        TimeSpan timeout = command switch
+        TimeSpan timeout = command.StartsWith("city_layout_", StringComparison.Ordinal) ? TimeSpan.FromSeconds(30) : command switch
         {
             "city_layout_apply_start" or "city_layout_restore_start" => TimeSpan.FromSeconds(30),
             "city_layout_validate" => TimeSpan.FromSeconds(10),
@@ -119,7 +122,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
         return await exchange.ExchangeAsync(command, fields, timeout, cancellationToken,
             allowAcceptedDispatch: acceptsSubmission,
-            expectedAccount: capturedHotkeyAccount).ConfigureAwait(false);
+            expectedAccount: requiredAccount ?? capturedHotkeyAccount).ConfigureAwait(false);
     }
 
     internal static Dictionary<string, string> ReadFields(string command, JsonElement payload)

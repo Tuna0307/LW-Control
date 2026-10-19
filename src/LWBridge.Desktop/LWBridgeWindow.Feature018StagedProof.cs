@@ -13,9 +13,8 @@ internal sealed partial class LWBridgeWindow
         string uid, int serverId, CancellationToken token)
     {
         var lifecycle = overviewLifecycleService!;
-        var game = equipmentConfigService is null
-            ? new Feature018GameCommandService(lifecycle)
-            : new Feature018GameCommandService(lifecycle, equipmentConfigService);
+        var game = new Feature018GameCommandService(new Feature018OwnedGameExchange(lifecycle),
+            equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId));
         var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
         bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
             lifecycle.OwnsExactProcess(owner.GamePid) &&
@@ -63,6 +62,19 @@ internal sealed partial class LWBridgeWindow
                 throw new InvalidDataException("Staged proof exact owned game process is unavailable.");
             throw new InvalidDataException("Staged proof lost its configured authenticated proof account/session owner.");
         }
+        async Task WaitOwnedAsync()
+        {
+            DateTimeOffset until = DateTimeOffset.UtcNow.AddSeconds(30);
+            while (!IsOwner())
+            {
+                token.ThrowIfCancellationRequested();
+                var account = ReadFeature018AuthenticatedAccount(lifecycle, owner);
+                if (!lifecycle.OwnsExactProcess(owner.GamePid) || !lifecycle.MatchesOwnedMapScanSession(owner) ||
+                    (account is not null && account != approved) || DateTimeOffset.UtcNow >= until)
+                    throw new InvalidDataException("Staged proof owner changed or remained unavailable; no operation replayed.");
+                await Task.Delay(100, token);
+            }
+        }
         var log = new List<object>();
         var consumed = new HashSet<string>(StringComparer.Ordinal);
         string queue = Path.Combine(directory, "feature018-live-request.json");
@@ -94,6 +106,8 @@ internal sealed partial class LWBridgeWindow
                 // proof before any operation is queued either.
                 if (!IsOwner())
                 {
+                    if (ReadFeature018AuthenticatedAccount(lifecycle, owner) is { } changed && changed != approved)
+                        throw new InvalidDataException("Staged proof authenticated UID/server changed.");
                     missingOwnerSince ??= DateTimeOffset.UtcNow;
                     if (!lifecycle.OwnsExactProcess(owner.GamePid))
                     {
@@ -101,12 +115,12 @@ internal sealed partial class LWBridgeWindow
                         throw new InvalidDataException(
                             "Staged proof exact owned game process is unavailable.");
                     }
-                    if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(15))
+                    if (DateTimeOffset.UtcNow - missingOwnerSince > TimeSpan.FromSeconds(60))
                     {
-                        await SaveOwnerLoss("authenticated_owner_unavailable_15_seconds",
+                        await SaveOwnerLoss("authenticated_owner_unavailable_60_seconds",
                             missingOwnerSince);
                         throw new InvalidDataException(
-                            "Staged proof configured authenticated proof account/session owner was unavailable for 15 seconds while the exact game process remained owned.");
+                            "Staged proof configured authenticated proof account/session owner was unavailable for 60 seconds while the exact game process remained owned.");
                     }
                     await Task.Delay(200, token);
                     continue;
@@ -129,7 +143,7 @@ internal sealed partial class LWBridgeWindow
                         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" &&
                             kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture"))
                             throw new InvalidDataException("R18 background proof forbids input, show and window operations.");
-                        Owned();
+                        await WaitOwnedAsync();
                         object? result;
                         if (kind == "command")
                         {
@@ -268,7 +282,7 @@ internal sealed partial class LWBridgeWindow
                             result = file;
                         }
                         else throw new InvalidDataException("Unsupported proof operation");
-                        Owned();
+                        await WaitOwnedAsync();
                         log.Add(new { id, kind, request = root.Clone(), state = "returned", result,
                             observedAtUtc = DateTimeOffset.UtcNow });
                     }

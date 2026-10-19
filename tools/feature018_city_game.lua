@@ -102,7 +102,7 @@ local function same_account(owner)
     if owner == nil then return false end
     local current = native_account()
     return current ~= nil and current.uid == owner.uid and
-        current.server == owner.server and current.player == owner.player
+        current.server == owner.server
 end
 
 local function request_account(values)
@@ -949,7 +949,17 @@ end
 
 local function account_changed(job)
     if job.accountChanged then return true end
-    if same_account(job.account) then return false end
+    local current = native_account()
+    if current == nil then
+        -- Absence pauses a job; it does not prove a different account.
+        -- No progress/send occurs until the same identity is fresh again.
+        job.accountTemporarilyUnavailable = true
+        return true
+    end
+    if current.uid == job.account.uid and current.server == job.account.server then
+        job.accountTemporarilyUnavailable = nil
+        return false
+    end
     -- An old native packet cannot be revoked, and a late un-nonced reply
     -- after an account switch must not confirm or unlock the old job.
     job.accountChanged = true
@@ -1169,7 +1179,10 @@ local function server_applied_poststate_ready(job, step, building)
         job.preSendStep == step and job.preSendPointId == step.from and
         job.preSendItemId == source.public.itemId and
         job.dispatched == job.completed + 1 and
-        job.serverMoveEventForStep == step and building ~= nil and
+        -- The sender/UI placement changes visual state only. BuildingDate.pointId
+        -- changes through server AddBuilding/UpdateInfo (v26 source 322, 4120).
+        -- An event callback is supplementary to the authoritative after-state.
+        building ~= nil and
         tonumber(building.pointId) == step.pointId and
         tonumber(building.itemId) == source.public.itemId
 end

@@ -287,6 +287,17 @@ def test_native_game_connection_observation() -> None:
 
 
 if __name__ == "__main__":
+    lua, module = make_bridge()
+    module.RegisterHandler('city_layout_apply_status', lua.eval("""function()
+        calls=calls+1; current_uid=nil
+        return {state='confirmed',data={completed=true}}
+    end"""))
+    assert issue(lua, module, 'city-pause', command='city_layout_apply_status')
+    assert lua.globals().response_text == '' and lua.globals().calls == 1
+    assert not module.Pump() and lua.globals().calls == 1
+    lua.execute("current_uid='3133546747002212'")
+    assert module.Pump() and lua.globals().calls == 1
+    assert json.loads(lua.globals().response_text)['data']['completed'] is True
     test_bridge_account_and_replay()
     test_overview_gate()
     test_native_game_connection_observation()

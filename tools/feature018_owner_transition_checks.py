@@ -65,6 +65,17 @@ def check() -> None:
     assert tick(10, None) == (2, 2, 2, 4, 4)
     assert tick(14, None) == (3, 3, 3, 4, 4), "missing owner remained armed"
 
+    # R18: a still-fresh exact session can have a temporarily missing account.
+    # Pause City through >15s, but never dispatch until that account returns.
+    lua.execute('bridge.Feature018SessionToken=function() return "same-session" end')
+    before = tick(20, "owner-C")
+    assert tick(21, None)[3:] == before[3:]
+    after_gap = tick(40, None)
+    assert after_gap[0] == before[0] and after_gap[3:] == before[3:], 'City aborted during transient account gap'
+    returned = tick(41, "owner-C")
+    assert returned[0] == before[0] and returned[3] == before[3]+1
+    assert tick(42, "owner-D")[0] == returned[0]+1, 'real account change inherited City job'
+
 
 if __name__ == "__main__":
     check()

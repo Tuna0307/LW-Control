@@ -1007,14 +1007,26 @@ def main():
     producer.Pump()
     point_only = get('city_layout_apply_status',
                      lua.globals().Fields(revision,''))['data']
-    check(point_only['state'] == 'failed' and
-          point_only['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN' and
-          point_only['completedMoves'] == 0 and point_only['inFlight'] is True and
+    check(point_only['state'] == 'completed' and
+          point_only['completedMoves'] == 1 and point_only['inFlight'] is False and
           point_only['matchingNativeReplies'] == 0 and
-          get('city_layout_apply_start', lua.globals().Fields(
-              get('city_layout_snapshot_get')['data']['layoutRevision'],
-              '101:4'))['errorCode'] == 'CITY_LAYOUT_RESULT_UNCERTAIN',
-          'local coordinate-only change falsely released uncertain native Move')
+          point_only['serverAppliedPostStateCount'] == 1,
+          'R18 authoritative BuildingDate after-state did not complete without an event')
+
+    # Missing identity pauses the same in-flight job, without dispatch or poison.
+    lua, producer = fake()
+    get = lambda name, fields=None: lua.globals().Act(name, fields)
+    revision = get('city_layout_snapshot_get')['data']['layoutRevision']
+    check(get('city_layout_apply_start', lua.globals().Fields(revision,'101:3'))['state'] == 'accepted', 'pause fixture')
+    lua.execute('NativeLoggedIn=false')
+    producer.Pump()
+    check(len(lua.globals().ObservedMoves) == 1 and producer.active['state'] == 'running' and
+          producer.active['accountChanged'] is None, 'unavailable identity aborted or resent City job')
+    lua.execute('NativeLoggedIn=true; DataCenter.BuildManager.allBuilding[101].pointId=3')
+    producer.Pump()
+    check(get('city_layout_apply_status',lua.globals().Fields(revision,''))['data']['state'] == 'completed',
+          'same identity did not resume authoritative City after-state')
+
 
     # The safe synthetic adjacent UUID is > 2^53. Preserve an exact native
     # integer through the decimal lookup and original Move wire, without

@@ -356,8 +356,11 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
             if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
-            if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
-            feature018_previous_owner = nil
+            local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
+            if session_token == nil then
+                if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
+                feature018_previous_owner = nil
+            end
             feature018_owner_missing_since = nil
         end
     end

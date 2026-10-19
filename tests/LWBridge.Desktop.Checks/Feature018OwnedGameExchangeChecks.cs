@@ -89,6 +89,7 @@ internal static class Feature018OwnedGameExchangeChecks
 
     internal static async Task RunAsync()
     {
+        await CityTransientIdentityAsync();
         FreshHeartbeatReadRaceChecks();
         var city = Feature018GameCommandService.ReadFields("city_layout_apply_start",
             JsonSerializer.SerializeToElement(new
@@ -595,5 +596,53 @@ internal static class Feature018OwnedGameExchangeChecks
             Console.WriteLine("FEATURE018_EXCHANGE_OWNER_CORRELATION_PASS");
         }
         finally { Directory.Delete(root, recursive: true); }
+    }
+    private static async Task CityTransientIdentityAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "r18-city-identity-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            string request = Path.Combine(root, "request.txt"), reply = Path.Combine(root, "reply.json");
+            var owner = new OverviewMapScanSession("city-profile", "city-session", "city-challenge",
+                12345, @"C:\test\LastWar.exe", "2026-10-19T00:00:00Z");
+            var account = new Feature018AuthenticatedGameAccount("90001", 999);
+            bool available = false;
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            var sent = new HashSet<string>();
+            var exchange = new Feature018OwnedGameExchange(
+                () => available ? owner : null, value => value == owner, request, reply,
+                utcNow: () => now, currentAccount: _ => available ? account : null,
+                retainedSession: () => owner,
+                delay: (_, _) =>
+                {
+                    if (!available)
+                    {
+                        Require(!File.Exists(request), "City sent during unavailable identity");
+                        now = now.AddSeconds(16);
+                        available = true;
+                    }
+                    else
+                    {
+                        var wire = File.ReadAllLines(request).Select(line => line.Split('=', 2))
+                            .Where(pair => pair.Length == 2).ToDictionary(pair => pair[0], pair => pair[1]);
+                        sent.Add(wire["requestId"]);
+                        File.WriteAllText(reply, JsonSerializer.Serialize(new
+                        {
+                            schemaVersion = 1, requestId = wire["requestId"], profileId = owner.ProfileId,
+                            launchSessionId = owner.SessionId, challenge = owner.Challenge, gamePid = owner.GamePid,
+                            command = wire["command"], observedAt = now.ToUnixTimeMilliseconds(),
+                            state = "confirmed", data = new { pausedAndResumed = true },
+                        }));
+                    }
+                    return Task.CompletedTask;
+                });
+            JsonElement value = await exchange.ExchangeAsync("city_layout_apply_status", null,
+                TimeSpan.FromSeconds(30), CancellationToken.None, expectedAccount: account);
+            Require(value.GetProperty("pausedAndResumed").GetBoolean() && sent.Count == 1,
+                "City transient 16s identity gap aborted or replayed request");
+        }
+        finally { Directory.Delete(root, true); }
+        Console.WriteLine("FEATURE018_CITY_TRANSIENT_IDENTITY_PASS");
     }
 }

@@ -3888,6 +3888,15 @@ function M.Feature018OwnerToken()
 end
 
 -- Registration is deliberately lazy. LuaEntry is loaded before all current-client
+-- Account-independent identity used only to PAUSE a City job. It never admits
+-- a command or native move without the full fresh account token above.
+function M.Feature018SessionToken()
+    if not feature018_control_current() or
+       lease_is_fresh(active, tonumber(os.time()) or 0) ~= true then return nil end
+    return active.profileId .. ':' .. active.sessionId .. ':' .. active.challenge .. ':' .. tostring(active.gamePid)
+end
+
+-- Registration is deliberately lazy. LuaEntry is loaded before all current-client
 -- update/timer surfaces are guaranteed to exist; the preserved LuaEntry lifecycle
 -- wrapper retries Register after original lifecycle calls without making module load
 -- depend on early UpdateManager availability.

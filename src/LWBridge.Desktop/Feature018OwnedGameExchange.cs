@@ -16,6 +16,7 @@ internal sealed class Feature018OwnedGameExchange
 {
     private static readonly TimeSpan PollPeriod = TimeSpan.FromMilliseconds(50);
     private readonly Func<OverviewMapScanSession?> currentSession;
+    private readonly Func<OverviewMapScanSession?>? retainedSession;
     private readonly Func<OverviewMapScanSession, bool> isSameSession;
     private readonly Func<OverviewMapScanSession, bool> approvedAccount;
     private readonly Func<OverviewMapScanSession, Feature018AuthenticatedGameAccount?>? currentAccount;
@@ -36,7 +37,8 @@ internal sealed class Feature018OwnedGameExchange
             Path.Combine(lifecycle.RuntimeRoot, "feature018-request.txt"),
             Path.Combine(lifecycle.RuntimeRoot, "feature018-response.json"),
             currentAccount: owner => ReadFreshAuthenticatedAccount(
-                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), owner)) { }
+                Path.Combine(lifecycle.RuntimeRoot, "heartbeat.json"), owner),
+            retainedSession: () => lifecycle.GetOwnedMapScanSession()) { }
 
     internal Feature018OwnedGameExchange(
         Func<OverviewMapScanSession?> currentSession,
@@ -46,9 +48,11 @@ internal sealed class Feature018OwnedGameExchange
         Func<DateTimeOffset>? utcNow = null,
         Func<TimeSpan, CancellationToken, Task>? delay = null,
         Func<OverviewMapScanSession, bool>? approvedAccount = null,
-        Func<OverviewMapScanSession, Feature018AuthenticatedGameAccount?>? currentAccount = null)
+        Func<OverviewMapScanSession, Feature018AuthenticatedGameAccount?>? currentAccount = null,
+        Func<OverviewMapScanSession?>? retainedSession = null)
     {
         this.currentSession = currentSession;
+        this.retainedSession = retainedSession;
         this.isSameSession = isSameSession;
         this.approvedAccount = approvedAccount ?? (_ => true);
         this.currentAccount = currentAccount;
@@ -79,9 +83,31 @@ internal sealed class Feature018OwnedGameExchange
         await operationGate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            OverviewMapScanSession owner = currentSession() ?? throw new BridgeCommandException(
+            bool cityRequest = command.StartsWith("city_layout_", StringComparison.Ordinal);
+            DateTimeOffset deadline = utcNow() + timeout;
+            OverviewMapScanSession owner = currentSession() ?? (cityRequest ? retainedSession?.Invoke() : null) ?? throw new BridgeCommandException(
                 "GAME_CONNECTION_UNAVAILABLE", "There is no authenticated owned game session.");
-            Feature018AuthenticatedGameAccount? account = RequireSameOwner(owner);
+            async Task<Feature018AuthenticatedGameAccount?> RequireOwnerAsync(Feature018AuthenticatedGameAccount? expected = null)
+            {
+                if (!cityRequest) return RequireSameOwner(owner, expected);
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    OverviewMapScanSession? ready = currentSession();
+                    if (!isSameSession(owner) || (ready is not null && ready != owner))
+                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "City session changed; pending actions are never replayed.");
+                    if (!approvedAccount(owner))
+                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "City account is not authorized.");
+                    Feature018AuthenticatedGameAccount? fresh = currentAccount?.Invoke(owner);
+                    if (fresh is not null && expected is not null && fresh != expected)
+                        throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE", "City UID/server changed; pending actions are never replayed.");
+                    if (ready == owner && (currentAccount is null || fresh is not null)) return fresh;
+                    if (utcNow() >= deadline)
+                        throw new BridgeCommandException("GAME_ACCOUNT_NOT_AUTHORIZED", "City request paused for an unavailable account; no request was replayed.");
+                    await delay(PollPeriod, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            Feature018AuthenticatedGameAccount? account = await RequireOwnerAsync(expectedAccount).ConfigureAwait(false);
             if (expectedAccount is not null && account != expectedAccount)
                 throw new BridgeCommandException("GAME_CONNECTION_UNAVAILABLE",
                     "The game UID or server changed since FEATURE018 input admission.");
@@ -130,7 +156,7 @@ internal sealed class Feature018OwnedGameExchange
             {
                 await File.WriteAllTextAsync(temporary, string.Join('\n', lines) + "\n",
                     new UTF8Encoding(false), cancellationToken).ConfigureAwait(false);
-                RequireSameOwner(owner, account);
+                await RequireOwnerAsync(account).ConfigureAwait(false);
                 File.Move(temporary, requestPath, overwrite: true);
             }
             finally
@@ -138,11 +164,10 @@ internal sealed class Feature018OwnedGameExchange
                 if (File.Exists(temporary)) File.Delete(temporary);
             }
 
-            DateTimeOffset deadline = issued + timeout;
             while (utcNow() < deadline)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                RequireSameOwner(owner, account);
+                await RequireOwnerAsync(account).ConfigureAwait(false);
                 try
                 {
                     using FileStream file = new(responsePath, FileMode.Open, FileAccess.Read,
@@ -166,7 +191,7 @@ internal sealed class Feature018OwnedGameExchange
                         observed < issued.AddSeconds(-2) || observed > utcNow().AddSeconds(5))
                         throw new BridgeCommandException("GAME_RESPONSE_UNTRUSTED", "A FEATURE018 game response did not match the owned request.");
 
-                    RequireSameOwner(owner, account);
+                    await RequireOwnerAsync(account).ConfigureAwait(false);
                     string state = Text(result, "state");
                     if (state == "confirmed" && result.TryGetProperty("data", out JsonElement data))
                         return data.Clone();

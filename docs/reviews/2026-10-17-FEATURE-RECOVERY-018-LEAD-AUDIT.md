@@ -603,3 +603,23 @@ Handoff rule unchanged; record progress under "R18 progress".
   proven, exact v26 originals and no recovery journal. REA cannot parse the custom .rdl format; current
   source pins use the existing hash-gated RGMD reader (artifacts/feature018-r18-{world-fields,shield-cil}.txt).
   No gameplay action, input injection, shield use or anti-cheat change was performed.
+
+- **Task 4 complete (2026-10-19):** native BuildingDate destination + full-city expected positions now
+  complete a move even when no raw reply/event callback is observable. Source checks prove the original
+  visual/send paths do not update BuildingDate.pointId; the server AddBuilding/UpdateInfo path does. The
+  one-send/foreign-send/identity/footprint guards remain. A missing native account pauses rather than poisons
+  the City job; the wrapper keeps it while the exact session lease remains fresh. City exchange waits for
+  fresh identity (30s bound), retains an already-run result across a transient missing account without
+  rerunning its handler, and still rejects a concrete UID/server/session change. Staged commands pin the
+  admitted UID/server, wait through transient observation gaps and refuse explicit account mismatch.
+  Inert City/source/swap/cancel/restoration, bridge replay, owner-transition and live-driver checks PASS;
+  full Desktop.Checks PASS, including a simulated 16s identity gap with one request and no replay.
+  Live: native-ui-20261019-005144, exact UID4799432499002212/2212/game15588/session
+  a4ad77a9d995421dbee610755b305349. Single 1/1 Completed, swap 3/3 Completed; Cancel consumed while a
+  3-move job was in flight, settled Cancelled with exactly 1 dispatched/completed move. Raw reply counts
+  were zero; authoritative server-applied after-state counts account for every completed move. Each run
+  restored through the native immutable-original Restore command. Final full snapshot equals all **109**
+  original building positions exactly (r18-city-summary.json and feature018-city-driver-20261019-005257.json).
+  The same background-only session remains open solely for Task 5; final exit/restoration will be recorded
+  below. One earlier incremental publish omitted ProductionUi and exited before game start; corrected with
+  the verified unchanged canonical UI. No desktop input, forbidden key or Land Cell request used.

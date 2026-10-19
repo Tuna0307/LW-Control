@@ -13,6 +13,7 @@ local result_path = root .. [[\feature018-response.json]]
 local accepted_requests = {}
 local MAX_ACCEPTED_REQUESTS = 2048
 local REPLAY_WINDOW_MS = 40000
+local pending_city_response = nil
 
 local function encode_string(value)
     return '"' .. tostring(value):gsub('\\', '\\\\'):gsub('"', '\\"'):
@@ -137,6 +138,24 @@ function M.Array(values)
     return setmetatable(values, { __feature018_array = true })
 end
 function M.Pump()
+    if pending_city_response ~= nil then
+        local pending = pending_city_response
+        local account = account_signature()
+        if account == nil then return false end -- Pause; never rerun the handler.
+        if account ~= pending.account or not current_owner(pending.values, pending.server) then
+            pending_city_response = nil
+            respond(pending.values, 'failed', 'GAME_ACCOUNT_CHANGED',
+                'City account/session changed; the earlier request is never replayed', nil)
+            return true
+        end
+        pending_city_response = nil
+        local result = pending.result
+        if not pending.ok then respond(pending.values, 'failed', 'GAME_ACTION_FAILED', tostring(result), nil)
+        elseif type(result) == 'table' then
+            respond(pending.values, result.state, result.errorCode, result.error, result.data)
+        else respond(pending.values, 'failed', 'GAME_RESULT_INVALID', 'Invalid retained City result', nil) end
+        return true
+    end
     local values = read_request()
     if type(values) ~= 'table' then return false end
     local start_account, start_server = account_signature()
@@ -154,7 +173,14 @@ function M.Pump()
         return true
     end
     local ok, result = pcall(handler, values)
-    if account_signature()~=start_account or not current_owner(values, start_server) then
+    local after_account = account_signature()
+    if after_account == nil and values.command:match('^city_layout_') then
+        -- Keep the already-run result while identity is temporarily unavailable.
+        -- A later same-owner observation can deliver it once, without resending.
+        pending_city_response = {values=values,account=start_account,server=start_server,ok=ok,result=result}
+        return true
+    end
+    if after_account~=start_account or not current_owner(values, start_server) then
         respond(values,'failed','GAME_ACCOUNT_CHANGED','Native account/session changed during game action; earlier send outcome may be uncertain',nil)
         return true
     end
