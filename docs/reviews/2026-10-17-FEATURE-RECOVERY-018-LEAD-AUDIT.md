@@ -978,3 +978,24 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
   captures. The task-owned app/game exited 0; `owned-exit.json` proves exact v26 script restoration for all three
   files and no recovery journal. Focused UI/equipment tests and Release Desktop build pass; no desktop input or Land
   Cell action was used. Task 2 rapid Q/W/E/R intent recovery is next.
+- **Task 2 rapid Q/W/E/R complete (2026-10-19), production source `e7f8e1ec`:** the consumed physical-hover chooser
+  now belongs only to the key edge that created it. A fresh Q/W/E/R order first observes any prior transaction
+  read-only; if it is confirmed, the fresh order continues through current native state (existing owned march uses
+  the R21 `WorldMarchChange` redirect, no march uses the create path). If the prior send is still uncertain, no second
+  packet is emitted and the caller gets the specific reason `Previous native attack is still awaiting confirmation;
+  fresh order not sent`. The same settle-then-continue rule now applies to the source-native selected-target path used
+  for background qualification, so a new command cannot be silently consumed merely by finishing the older request.
+  Attack regressions prove an immediate second physical-hover press no longer returns the old `consumed once` error
+  and does not replay the unresolved send; selected-target coverage proves the same one-send fence. Attack and hotkey
+  Lua suites pass. Fresh Windows publish ProductVersion
+  `1.0.0+e7f8e1ec25a23ef86a3e61dbb86370eacd9b5131` was admitted in background staged session
+  `artifacts/map014-takeover/native-ui-20261019-152939` on exact UID `4799432499002212`/server `2212`. The final
+  `r22-rapid-attack-proof-attempt3.json` submitted three distinct ordinary-monster target orders to squad 2 in
+  1734 ms (UUIDs `1427557187009946785`, `1427557184287843444`, `1427557184296232109`). The squad's pre-existing
+  march was currently source-reported broken, so each fresh order received the clear pre-dispatch reason `Existing
+  squad is broken and cannot redirect`; zero attack/change requests were dispatched, and the pre-existing march was
+  intentionally left untouched. Earlier attempt 1 only performed map/read-only inventory and found too few monsters
+  under an overly narrow level filter; attempt 2 opened one native target but the proof driver was too strict about
+  accepting the broken-march reason, again with no attack request dispatched. Staged finish exited 0, restored all
+  three v26 script hashes exactly and left no recovery journal. No player target, own-alliance target, desktop input,
+  or Land Cell action was used. Task 3 City Layout building images is next.

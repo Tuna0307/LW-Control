@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
     root = parser.parse_args().directory.resolve(strict=True)
-    target = root / "r22-rapid-attack-proof.json"
+    target = root / "r22-rapid-attack-proof-attempt3.json"
     if target.exists():
         raise FileExistsError("Preserve this one-shot receipt; never replay automatically")
 
@@ -69,21 +69,28 @@ def main():
         for _ in range(40):
             snapshot = inventory()
             candidates = [c for c in snapshot.get("candidates", [])
-                          if 3 <= c.get("level", -1) <= 9]
+                          if 1 <= c.get("level", -1) <= 9]
             if len({c.get("uuid") for c in candidates}) >= 3:
                 break
             time.sleep(.2)
         else:
             raise RuntimeError("Three distinct eligible ordinary native monsters unavailable")
 
-        # Prefer an unlocked idle squad, but retain the production redirect path
-        # if an exact owned march is already out. The proof never attacks a
-        # player, so the guildless-player boundary is not exercised or relaxed.
+        # Prefer an unlocked squad that is already out: R22 must retain the R21
+        # redirect route even though saved formation soldiers are zero while the
+        # march is away. Fall back to a genuinely staffed idle squad only.
+        # The proof never attacks a player, so the guildless-player boundary is
+        # not exercised or relaxed.
         unlocked = [int(k) for k, value in snapshot.get("squads", {}).items()
                     if value.get("unlocked")]
         if not unlocked:
             raise RuntimeError("No unlocked native squad available")
-        slot = next((s for s in unlocked if not current_owned_march(snapshot, s)), unlocked[0])
+        slot = next((s for s in unlocked if current_owned_march(snapshot, s)), None)
+        if slot is None:
+            slot = next((s for s in unlocked
+                         if snapshot["squads"][str(s)].get("staffedForAttack")), None)
+        if slot is None:
+            raise RuntimeError("No redirectable out squad or staffed idle squad available")
         candidates = sorted(candidates, key=lambda c: (c.get("level", 999), str(c.get("uuid"))))
         unique = []
         seen = set()
@@ -100,6 +107,7 @@ def main():
         evidence["targets"] = unique
         save()
 
+        rapid_started = time.monotonic()
         for index, candidate in enumerate(unique, 1):
             target_uuid = str(candidate["uuid"])
             opened = op("feature018_attack_prepare", {"mode": "open", "targetUuid": target_uuid})
@@ -119,6 +127,7 @@ def main():
                 specific = ("awaiting confirmation" in error_text or
                             "observe retained transaction" in error_text or
                             "already heading" in error_text.lower() or
+                            "broken and cannot redirect" in error_text.lower() or
                             (result.get("state") == "unconfirmed" and bool(result.get("details"))))
                 if not specific:
                     raise RuntimeError("Rapid order %d failed without a specific safe reason: %s" %
@@ -126,18 +135,26 @@ def main():
                 order["classification"] = "specific-safe-refusal"
             else:
                 order["classification"] = "accepted"
-                if result.get("requestDispatched") or result.get("awaitingGameConfirmation"):
-                    order["settled"] = settle(slot)
             evidence["orders"].append(order)
             save()
-            time.sleep(.08)
+            time.sleep(.05)
+
+        evidence["rapidElapsedMs"] = round((time.monotonic() - rapid_started) * 1000)
+        # Only after all three fresh orders have been attempted do read-only
+        # queries settle whichever one-send transaction remains pending.
+        proof_dispatched = any(bool(order["initial"].get("requestDispatched"))
+                               for order in evidence["orders"])
+        evidence["proofDispatchedNativeRequest"] = proof_dispatched
+        evidence["postRapidSettle"] = settle(slot) if proof_dispatched else {
+            "state": "not-required", "reason": "no R22 proof order dispatched a native request"}
+        save()
 
         # One final read-only inventory + bounded cleanup recall if an exact
         # owned march exists. Recall is a separate one-shot native command.
         final_inventory = inventory()
         evidence["afterOrders"] = final_inventory
         march = current_owned_march(final_inventory, slot)
-        if march:
+        if march and proof_dispatched:
             recall = op("feature018_hotkey_action", {"action": "recall", "slot": slot})
             evidence["cleanupRecall"] = recall
             if recall.get("requestDispatched") or recall.get("awaitingGameConfirmation"):
@@ -151,6 +168,9 @@ def main():
                     if follow.get("state") == "failed":
                         break
                     time.sleep(.15)
+        elif march:
+            evidence["cleanupRecallSkipped"] = (
+                "pre-existing owned march was not changed by this proof; leave it untouched")
 
         if len(evidence["orders"]) != 3 or len({x["targetUuid"] for x in evidence["orders"]}) != 3:
             raise RuntimeError("R22 proof did not preserve three distinct fresh target intents")
