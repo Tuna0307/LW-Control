@@ -908,3 +908,10 @@ background, report the F10 root cause, then build the R21 ZIP.
   embeds an R21 README covering all five owner-facing changes, and scans every ZIP entry for known test-account UIDs
   in ASCII, UTF-16LE and UTF-16BE. The final ZIP is produced only after the tracked tree is committed/pushed and the
   complete R21 verification set passes.
+- **Task 6 verification checkpoint (b271c4f9):** fresh Release publish + R21 packaging gates pass: exact pushed
+  ProductVersion/source identity, production UI fingerprint, 20 linked bridge source hashes, 118 ZIP entries,
+  CRC/per-entry hashes, and all known test UIDs absent from every entry in ASCII, UTF-16LE and UTF-16BE. The
+  verification ZIP SHA-256 is 8e220d4513420c7ef5aad90a8b59af8ec77544f6d4f2f0f9fa25302aa6e00da6.
+  After this audit checkpoint is pushed, the authoritative R21 owner-test ZIP is regenerated from that exact final
+  HEAD and identified by artifacts/feature018-r21-<HEAD8>/release/r21-package-receipt.json; no later tracked change
+  is needed to identify it.
