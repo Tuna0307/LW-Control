@@ -4,6 +4,7 @@ import { activateTraining, automationDraftError, initialAutomationDraft, preview
 import { AutomationMeta, previewFutureTime } from "./AutomationMeta.jsx";
 import { DispatchAssistManual } from "./DispatchAssistManual.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
+import { NativeChatAutomationCard } from "./NativeChatAutomationCard.jsx";
 import { dispatchWeeklyQualities, previewAssistFixture, previewAutomationAvailableSquads, previewAutomationRuntime, previewResourceGatherConfig, previewResourceGatherRuntime, previewTradeFixture, railwayWeeklyQualities, validPreviewResourceGatherConfig } from "./previewAutomationFixtures.js";
 import { Activity, useEffect, useId, useState } from "react";
 import { buildTradePurchaseDays, resolveTradeName, tradePurchaseRowKey } from "./tradePurchaseHistory.js";
@@ -124,7 +125,7 @@ const previewTrainRewards = [
   { key: "fixture-chest", name: "Fixture Chest", count: 2 },
 ];
 
-function AutomationConfigPreview({ title, enabled, previewState = "", config, assistConfig, availableSquads, onLocalError }) {
+export function AutomationConfigPreview({ title, enabled, previewState = "", config, assistConfig, availableSquads, onLocalError }) {
   return <AutomationFields title={title} enabled={enabled} previewState={previewState} config={config} assistConfig={assistConfig} availableSquads={availableSquads} onLocalError={onLocalError} />;
 }
 
@@ -392,7 +393,7 @@ function AutomationFields({ title, enabled, previewState, config, assistConfig =
   return null;
 }
 
-function AutomationCard({ title, description, previewEnabled, previewState = "", profileId = "", onConfigStatus, availableSquads }) {
+function AutomationCard({ title, description, online = false, previewEnabled, previewState = "", profileId = "", onConfigStatus, availableSquads }) {
   const { english, language, t } = useI18n();
   const failFirstSave = previewState === "automation-save-error" || (previewState === "automation-weekly-save-error" && title === "Trucks") || (previewState === "automation-secret-weekly-save-error" && title === "Secret Task");
   const failFirstAssistSave = title === "Secret Task" && previewState === "automation-assist-save-error";
@@ -439,7 +440,7 @@ function AutomationCard({ title, description, previewEnabled, previewState = "",
           <button className="automation-header-switch" type="button" role="switch" aria-checked={enabled} disabled={!previewEnabled || actionBusy || (title === "Automatic Official Application" && Number(config.draft.positionId ?? 0) === 0)} aria-label={`${t(toggleLabel)}: ${t(enabled ? "common.enabled" : "common.disabled")}`} onClick={() => setEnabled((value) => !value)}><Switch checked={enabled} /></button>
         </div>
       </div>
-      <AutomationMeta online={previewEnabled} active={active} state={sourceAutomationState(runtimeState, active)} actionBusy={actionBusy} presentation={presentation} />
+      <AutomationMeta online={previewEnabled || online} active={active} state={sourceAutomationState(runtimeState, active)} actionBusy={actionBusy} presentation={presentation} />
       {fieldError ? <div role="alert" className="automation-error">{t(fieldError)}</div> : visibleDraftError ? <div role="alert" className="automation-error">{t(visibleDraftError)}</div> : null}
       {(hasSettings || actionLabel) ? <div className="automation-config">
         {(settingsCollapsible || actionLabel) ? <div className="automation-config-actions">
@@ -621,7 +622,7 @@ function TradeStationCard({ previewEnabled, previewState = "", profileId = "" })
   );
 }
 
-export function AutomationPage({ previewState = "", profileId = "", activeCategory, onActiveCategoryChange }) {
+export function AutomationPage({ previewState = "", profileId = "", online = false, activeCategory, onActiveCategoryChange }) {
   const { english, t } = useI18n();
   const [localCategory, setLocalCategory] = useState("daily");
   const category = activeCategory ?? localCategory;
@@ -645,7 +646,9 @@ export function AutomationPage({ previewState = "", profileId = "", activeCatego
   useEffect(() => {
     if (previewEnabled && discoveredSquads.length > 0) setAvailableSquads(discoveredSquads);
   }, [previewEnabled, previewState, discoveredSquads.join(",")]);
-  const renderCards = (cards) => cards.map(([title, description]) => <AutomationCard key={title} title={title} description={description} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
+  const renderCards = (cards) => cards.map(([title, description]) => !previewEnabled && ["Red Packet", "Fireworks / Egg", "Treasure"].includes(title)
+    ? <NativeChatAutomationCard key={`${profileId}:${title}`} title={title} description={description} online={online} profileId={profileId} availableSquads={[1, 2, 3, 4]} />
+    : <AutomationCard key={title} title={title} description={description} online={online} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} onConfigStatus={onConfigStatus} availableSquads={availableSquads} />);
   const pageStatus = aggregateState === "error" ? "automation.configSave.error" : aggregateState === "saving" ? "automation.configSave.saving" : previewState === "automation-saving"
     ? "automation.configSave.saving"
     : previewState === "automation-save-error"
@@ -656,7 +659,7 @@ export function AutomationPage({ previewState = "", profileId = "", activeCatego
   return (
     <section className="panel" data-preview-fixture={previewEnabled ? previewState : undefined}>
       {Object.entries(configStates).map(([title, entry]) => entry.state === "error" && entry.store ? <PreviewConfigError key={title} config={{ error: true, saving: false, store: entry.store }} t={t} label={title === "__resourceGather" ? t("automation.category.resourceGather") : title === "Dispatch Assist" ? t("automation.dispatchAssist") : english(title)} /> : null)}
-      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled ? (pageStatus ? t(pageStatus) : t("status.gameConnected")) : t("status.gameDisconnectedDisabled")} subtitleClassName={pageStatus === "automation.configSave.error" ? "error-text" : "muted"} />
+      <PanelTitle title={t("nav.automation")} subtitle={previewEnabled || online ? (pageStatus ? t(pageStatus) : t("status.gameConnected")) : t("status.gameDisconnectedDisabled")} subtitleClassName={pageStatus === "automation.configSave.error" ? "error-text" : "muted"} />
       <div className="automation-categories" role="tablist" aria-label={t("nav.automation")}>
         {automationCategories.map(([key, label]) => (
           <button

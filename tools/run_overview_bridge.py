@@ -56,6 +56,7 @@ FEATURE018_AFK_ENTRIES = {
     "DataCenter/Global/LWBridgeFeature018StaminaEngine.luac": "feature018_stamina_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",
+    "DataCenter/Global/LWBridgeFeature018ChatEngine.luac": "feature018_chat_engine.lua",
 }
 MESSAGE = "LWbridge is running"
 
@@ -316,6 +317,11 @@ if not ok_afk then error(afk) end
 if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a table") end
 '''
     between = between.replace(mini_marker, afk_load + mini_marker, 1)
+    chat_load = b'''local ok_chat, chat = pcall(require, "DataCenter.Global.LWBridgeFeature018ChatEngine")
+if not ok_chat then error(chat) end
+if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a table") end
+'''
+    between = between.replace(mini_marker, chat_load + mini_marker, 1)
     register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
     if between.count(register_marker) != 1:
         raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
@@ -330,6 +336,7 @@ if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a tabl
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
         b'if type(afk.Register) == "function" then afk.Register(feature, bridge) end\n' +
+        b'if type(chat.Register) == "function" then chat.Register(feature, bridge) end\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
     # A Mini Game view wrapper or marker belongs to exactly one authenticated
     # Overview session. The native bridge controls whether that owner is still
@@ -350,6 +357,7 @@ if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a tabl
             if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
+            if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
         end
@@ -369,6 +377,7 @@ if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a tabl
             if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
             if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
+            if type(chat.CleanupAfterLeaseLoss) == "function" then pcall(chat.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
             if session_token == nil then
@@ -381,6 +390,7 @@ if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a tabl
     if current_feature_owner ~= nil then
         if type(city.Pump) == "function" then pcall(city.Pump) end
         if type(afk.Pump) == "function" then pcall(afk.Pump) end
+        if type(chat.Pump) == "function" then pcall(chat.Pump) end
         if type(sheep.Pump) == "function" then pcall(sheep.Pump) end
         if type(feature.Pump) == "function" then pcall(feature.Pump) end
     end

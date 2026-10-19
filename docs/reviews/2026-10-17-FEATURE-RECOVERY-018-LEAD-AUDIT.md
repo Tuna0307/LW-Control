@@ -1117,3 +1117,6 @@ restarted the game; first trigger unknown, logging added (docs/FEATURE018_R23_DI
 paths, all decoded in WebView; full-view screenshot pending. 7 Chat — built, uncommitted, no live proof yet; the
 Automation-card status list not written yet. 8 ZIP — not built.
 Note: the "R23 progress checkpoint" block above appears twice (worker paste duplicate); content is identical.
+
+### R23 progress continuation - CoS recovery
+- Recovered the lead-preserved Codex handoff without discarding any listed R23 file. Reviewed the native Chat config/status path, packaged R23 UI proof harness, bridge injection, Chat claim engine and package gates; removed only the accidental extra project-file EOF blank line. Focused `feature018_chat_engine_checks.py`, `feature018_r23_package_checks.py`, mounted `check-r23-chat.mjs`, and `git diff --check` PASS. The owner's pre-existing untracked `.claude/launch.json` remains untouched and excluded from this checkpoint. Fresh corrected F10 native proof is next.

@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 namespace LWBridge.Desktop;
 
-internal sealed class AutomationStatusCommandService : INativeAsyncCommandService
+internal sealed class AutomationStatusCommandService : INativeAsyncCommandService, IDisposable
 {
     internal static readonly string[] TaskNames =
     [
@@ -47,6 +47,40 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         command == "automation_status";
 
     private Func<CancellationToken, Task<JsonNode?>>? nativeStatusReader;
+    private Func<CancellationToken, Task<JsonNode?>>? nativeChatStatusReader;
+    private readonly CancellationTokenSource chatShutdown = new();
+    private System.Threading.Timer? chatTimer;
+    private int chatPolling;
+    private readonly object chatGate = new();
+    private JsonNode? chatStatus;
+
+    // This callback captures the profile's own command service/lifecycle, never
+    // the window's currently selected profile. Lua separately fences its UID,
+    // server and exact launch lease before every asynchronous dispatch.
+    internal void SetNativeChatStatusReader(Func<CancellationToken, Task<JsonNode?>> reader)
+    {
+        nativeChatStatusReader = reader ?? throw new ArgumentNullException(nameof(reader));
+        chatTimer ??= new System.Threading.Timer(_ => _ = PollChatAsync(), null, TimeSpan.Zero, TimeSpan.FromSeconds(3));
+    }
+
+    private async Task PollChatAsync()
+    {
+        if (chatShutdown.IsCancellationRequested || Interlocked.Exchange(ref chatPolling, 1) != 0) return;
+        try
+        {
+            JsonNode? observed = await nativeChatStatusReader!(chatShutdown.Token).ConfigureAwait(false);
+            lock (chatGate) chatStatus = observed?.DeepClone();
+        }
+        catch (Exception) { lock (chatGate) chatStatus = null; }
+        finally { Interlocked.Exchange(ref chatPolling, 0); }
+    }
+
+    public void Dispose()
+    {
+        chatTimer?.Dispose(); chatTimer = null;
+        if (!chatShutdown.IsCancellationRequested) chatShutdown.Cancel();
+        lock (chatGate) chatStatus = null;
+    }
 
     internal void SetNativeStatusReader(Func<CancellationToken, Task<JsonNode?>> reader) =>
         nativeStatusReader = reader ?? throw new ArgumentNullException(nameof(reader));
@@ -65,6 +99,14 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         }
 
         JsonNode status = CreateStatus();
+        JsonNode? chat;
+        lock (chatGate) chat = chatStatus?.DeepClone();
+        var services = new JsonObject();
+        foreach (string kind in ChatAutomationConfigCommandService.Kinds)
+            services[kind] = chat?["services"]?[kind]?.DeepClone() ?? new JsonObject
+            { ["state"] = "disconnected", ["running"] = false, ["pendingCount"] = 0 };
+        status["services"] = services;
+        status["chatListener"] = chat?["listener"]?.DeepClone();
         if (nativeStatusReader is null) return status;
         JsonNode? native;
         try { native = await nativeStatusReader(cancellationToken).ConfigureAwait(false); }

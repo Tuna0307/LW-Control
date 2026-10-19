@@ -492,10 +492,13 @@ internal sealed partial class LWBridgeWindow : Form
                 services.Add(featureCommands);
                 automationStatusService?.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
                     await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+                automationStatusService?.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(
+                    await featureCommands.InvokeAsync("feature018_chat_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
             }
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
+            if (profileRuntimeConfigStore is not null) services.Add(new ChatAutomationConfigCommandService(profileRuntimeConfigStore));
             if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
             if (automationStatusService is not null) services.Add(automationStatusService);
             if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
@@ -647,8 +650,11 @@ internal sealed partial class LWBridgeWindow : Form
             lock (retainedProfileRuntimes)
                 retainedProfileRuntimes.Remove(profileId, out removed);
             if (removed is not null)
+            {
+                removed.AutomationStatus?.Dispose();
                 DisposeRetiredProfileRuntime(removed.Auto, removed.Map,
                     removed.Drafts, removed.Settings, removed.Lifecycle, bridgeHost: null);
+            }
         }
         finally { profileSwapGate.Release(); }
     }
@@ -6336,6 +6342,7 @@ internal sealed partial class LWBridgeWindow : Form
     private void OnFormClosed(object? sender, FormClosedEventArgs e)
     {
         StopFeature018HotkeyMonitoring();
+        automationStatusService?.Dispose();
         home004RouteFaultTimer?.Stop();
         home004RouteFaultTimer?.Dispose();
         Interlocked.Exchange(ref profileRuntimeClosed, 1);
@@ -6353,6 +6360,7 @@ internal sealed partial class LWBridgeWindow : Form
             // selection history must not determine which ones survive shutdown.
             foreach (RetainedProfileRuntime runtime in retainedProfileRuntimes.Values)
             {
+                runtime.AutomationStatus?.Dispose();
                 if (ReferenceEquals(runtime.Lifecycle, overviewLifecycleService))
                     continue;
                 DisposeRetiredProfileRuntime(

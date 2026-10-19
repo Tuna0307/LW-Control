@@ -200,6 +200,8 @@ internal sealed class ProfileRuntimeOwner : IDisposable
             var featureCommands = new Feature018GameCommandService(lifecycle, equipment, runtimeConfigStore);
             automationStatus.SetNativeStatusReader(async token => JsonSerializer.SerializeToNode(
                 await featureCommands.InvokeAsync("feature018_afk_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
+            automationStatus.SetNativeChatStatusReader(async token => JsonSerializer.SerializeToNode(
+                await featureCommands.InvokeAsync("feature018_chat_status", JsonSerializer.SerializeToElement(new { }), token).ConfigureAwait(false)));
             INativeAsyncCommandService[] commands =
             [
                 orderedReconcile,
@@ -211,6 +213,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 settings,
                 hotkeys,
                 featureCommands,
+                new ChatAutomationConfigCommandService(runtimeConfigStore),
                 visualMetrics,
                 equipment,
                 monsterAfk,
@@ -276,6 +279,7 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         try { Map317.Dispose(); } catch { }
         try { CityLayoutDraft.Dispose(); } catch { }
         try { ProfileSettings.Dispose(); } catch { }
+        try { AutomationStatus.Dispose(); } catch { }
         try { OverviewLifecycle.Close(); } catch { }
         if (ownsBridgeHostState)
             try { BridgeHostState.Close(); } catch { }

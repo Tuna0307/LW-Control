@@ -141,11 +141,23 @@ internal sealed partial class LWBridgeWindow
                     try
                     {
                         if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" &&
-                            kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture" or "cityNames"))
+                            kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture" or "cityNames" or "r23Ui"))
                             throw new InvalidDataException("R18 background proof forbids input, show and window operations.");
                         await WaitOwnedAsync();
                         object? result;
-                        if (kind == "command")
+                        if (kind == "r23Ui")
+                        {
+                            string surface = root.GetProperty("surface").GetString()!;
+                            string receipt = Path.Combine(directory, "r23-" + surface + "-ui.json");
+                            if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
+                            if (surface == "equipment")
+                                await RunFeature018R23EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "city")
+                                await RunFeature018R23CityImageProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else throw new InvalidDataException("Unsupported R23 UI surface");
+                            result = JsonDocument.Parse(await File.ReadAllTextAsync(receipt, token)).RootElement.Clone();
+                        }
+                        else if (kind == "command")
                         {
                             string command = root.GetProperty("command").GetString()!;
                             if (command.StartsWith("mini_land_", StringComparison.Ordinal) ||
