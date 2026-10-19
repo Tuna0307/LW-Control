@@ -120,6 +120,9 @@ local all = { [101] = FixtureBuilding(101,11,1), [102] = FixtureBuilding(102,12,
               [103] = FixtureBuilding(103,13,6)}
 DataCenter = {
     BuildManager = {allBuilding=all,
+       GetBuildIconPath=function(self, itemId, level)
+           return 'Assets/City/Building/'..tostring(itemId)..'/level_'..tostring(level)..'.png'
+       end,
        GetBuildingDataByUuid=function(self, uuid) return self.allBuilding[uuid] end,
        BuildWorldMoveNewHandle=function(self, reply)
            if reply.errorCode == nil and reply.buildInfo then
@@ -373,6 +376,9 @@ def check_original_game_wire() -> None:
           any('sourceLine=311' in line and "'name'" in line for line in name_view) and
           any('sourceLine=311' in line and 'GetString' in line for line in name_view),
           'native building UI no longer localizes the current level template name')
+    check(any('sourceLine=309' in line and 'GetBuildIconPath' in line for line in name_view) and
+          any('sourceLine=309' in line and 'LoadSpriteAuto' in line for line in name_view),
+          'native building UI no longer resolves its picture through BuildManager.GetBuildIconPath')
 
     ui = native_method('UI/UIPlaceBuild/View/UIPlaceBuildView.luac', 'OnConfirmBtnClick')
     source = list(disassemble(ui))
@@ -629,6 +635,9 @@ def main():
     revision = baseline['layoutRevision']
     check(baseline['buildings'][1]['nameKey'] == 'native_building_11',
           'snapshot omitted the native building description name key')
+    check(baseline['buildings'][1]['iconPath'] == 'Assets/City/Building/11/level_6.png' and
+          baseline['buildings'][2]['iconPath'] == 'Assets/City/Building/12/level_6.png',
+          'snapshot omitted the original game building icon asset path')
     lua.execute("""
       DataCenter.BuildTemplateManager.GetBuildingLevelTemplate=function(self,id,level)
         if id==11 and level==6 then return {name='native_building_11_level6'} end

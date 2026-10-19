@@ -150,6 +150,23 @@ local function building_name_key(templates, building, description)
     return key
 end
 
+-- RECOVERED v26 UIBuildDetailsView.ShowPanel source line 309 loads the
+-- building picture with exactly:
+--   DataCenter.BuildManager:GetBuildIconPath(buildId, level)
+--   build_icon:LoadSpriteAuto(resolvedPath, ...)
+-- Keep City Layout on that same game-owned asset identity instead of deriving
+-- filenames from item IDs or description data. GameAssetImage consumes this
+-- path through the same native asset-image reader used by Map imagery.
+local function building_icon_path(build_manager, building)
+    if type(build_manager.GetBuildIconPath) ~= 'function' then return nil end
+    local ok, value = pcall(build_manager.GetBuildIconPath, build_manager,
+        building.itemId, building.level)
+    if not ok or value == nil then return nil end
+    local path = tostring(value)
+    if #path == 0 or #path > 1024 or path:find('[\r\n%z]') then return nil end
+    return path
+end
+
 local function at_xy(x, y, width)
     if x < 0 or y < 0 or x >= width or y >= width then return nil end
     return y * width + x + 1
@@ -185,6 +202,7 @@ local function context()
         type(land.CanBuildByPointId) ~= 'function' or
         type(zone.CanPutBuildByPoint) ~= 'function' or
         type(templates.GetBuildingDesTemplate) ~= 'function' or
+        type(bm.GetBuildIconPath) ~= 'function' or
         type(scene_utils.GetIsInCity) ~= 'function' or
         type(building_utils.CanMoveBuild) ~= 'function' or
         type(building_utils.IsInFlagPosition) ~= 'function' or
@@ -325,6 +343,10 @@ local function snapshot()
             end
             local movable = move_result
             local is_flag = building.itemId == ctx.flagItemId
+            local icon_path = building_icon_path(ctx.bm, building)
+            if not icon_path then
+                return nil, 'Current game building icon source is unavailable'
+            end
             local entry = {
                 uuid = uuid, pointId = point_id, x = x, y = y,
                 occupiedPoints = occupied, regionId = CITY_REGION,
@@ -334,6 +356,7 @@ local function snapshot()
                 level = tonumber(building.level) or 0,
                 itemId = tonumber(building.itemId) or 0,
                 nameKey = building_name_key(ctx.templates, building, template),
+                iconPath = icon_path,
             }
             by_uuid[uuid] = { public = entry, nativeUuid = building.uuid,
                 native = building, template = template }

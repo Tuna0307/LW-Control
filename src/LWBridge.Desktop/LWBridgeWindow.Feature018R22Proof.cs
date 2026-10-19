@@ -191,4 +191,111 @@ internal sealed partial class LWBridgeWindow
             throw;
         }
     }
+
+    // R22 packaged City proof: the production page must receive game-owned
+    // building icon paths and resolve them through GameAssetImage. This proof is
+    // read-only: it navigates, selects one building and captures the WebView.
+    // It never drags a building, applies a layout or invokes any land action.
+    private async Task RunFeature018R22CityImageProofAsync(
+        CoreWebView2 core, string outputPath, string directory,
+        OverviewMapScanSession owner, string uid, int serverId,
+        CancellationToken token)
+    {
+        OverviewLifecycleService lifecycle = overviewLifecycleService
+            ?? throw new InvalidOperationException("FEATURE018 lifecycle missing");
+        var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
+        bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
+            lifecycle.OwnsExactProcess(owner.GamePid) &&
+            lifecycle.MatchesOwnedMapScanSession(owner) &&
+            ReadFeature018AuthenticatedAccount(lifecycle, owner) == approved;
+        void Owned()
+        {
+            token.ThrowIfCancellationRequested();
+            if (!IsOwner())
+                throw new InvalidDataException(
+                    "R22 City image proof lost the exact authenticated owned game session.");
+        }
+        async Task WaitDom(string expression, string stage, int polls = 400)
+        {
+            for (int i = 0; i < polls; i++)
+            {
+                Owned();
+                if (await core.ExecuteScriptAsync(expression) == "true") return;
+                await Task.Delay(100, token);
+            }
+            throw new InvalidDataException("R22 City image WebView did not settle: " + stage);
+        }
+        async Task Save(object receipt) => await File.WriteAllTextAsync(outputPath,
+            JsonSerializer.Serialize(receipt,
+                new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
+
+        await Save(new
+        {
+            schemaVersion = 1,
+            state = "running",
+            proof = "actual_packaged_city_building_asset_images",
+            game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+            startedAtUtc = DateTimeOffset.UtcNow,
+        });
+        try
+        {
+            Owned();
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelectorAll('.side-nav button')[4];if(!b)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R22 City image proof could not open City Layout.");
+            await WaitDom(
+                "(()=>{const g=document.querySelector('.city-layout-grid');const b=[...document.querySelectorAll('.city-layout-building')];return !!g&&b.length>0&&!document.querySelector('.city-layout-error[role=alert]');})()",
+                "native City grid");
+            await WaitDom(
+                "(()=>[...document.querySelectorAll('img.city-layout-grid-icon')].some(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')))()",
+                "grid building image asset");
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelector('.city-layout-building');if(!b)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R22 City image proof could not select a building.");
+            await WaitDom(
+                "(()=>{const i=document.querySelector('img.city-layout-selected-icon');return !!i&&i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/');})()",
+                "Building properties image asset");
+
+            using JsonDocument counts = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                "(()=>({buildings:document.querySelectorAll('.city-layout-building').length,gridImages:[...document.querySelectorAll('img.city-layout-grid-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,selectedImages:[...document.querySelectorAll('img.city-layout-selected-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,selectedName:document.querySelector('.city-layout-selected strong')?.textContent||''}))()"));
+            JsonElement data = counts.RootElement;
+            int buildings = data.GetProperty("buildings").GetInt32();
+            int gridImages = data.GetProperty("gridImages").GetInt32();
+            int selectedImages = data.GetProperty("selectedImages").GetInt32();
+            string selectedName = data.GetProperty("selectedName").GetString() ?? "";
+            if (buildings < 1 || gridImages < 1 || selectedImages != 1)
+                throw new InvalidDataException("R22 City image proof did not render both building image surfaces.");
+
+            await using (var file = File.Create(Path.Combine(directory, "r22-city-layout-building-images.png")))
+                await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, file);
+            Owned();
+            await Save(new
+            {
+                schemaVersion = 1,
+                state = "proven",
+                proof = "actual_packaged_city_building_asset_images",
+                game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+                buildings,
+                loadedGridImages = gridImages,
+                loadedPropertiesImages = selectedImages,
+                selectedName,
+                screenshot = "r22-city-layout-building-images.png",
+                readOnly = true,
+                finishedAtUtc = DateTimeOffset.UtcNow,
+            });
+        }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            await Save(new
+            {
+                schemaVersion = 1,
+                state = "partial",
+                proof = "actual_packaged_city_building_asset_images",
+                game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+                error = error.Message,
+                finishedAtUtc = DateTimeOffset.UtcNow,
+            });
+            throw;
+        }
+    }
 }

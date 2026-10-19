@@ -100,6 +100,12 @@ internal sealed partial class LWBridgeWindow
                 owner, uid, serverId, token);
             return;
         }
+        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R22_CITY_IMAGE_PROOF") == "1")
+        {
+            await RunFeature018R22CityImageProofAsync(core, outputPath, directory,
+                owner, uid, serverId, token);
+            return;
+        }
         try
         {
             await Nav(4, ".city-layout-panel, .city-layout-empty", "City Layout");
