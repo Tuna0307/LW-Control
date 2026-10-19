@@ -532,3 +532,35 @@ Owner confirmed (2026-10-19): KEEP the "Use Stamina items automatically" card. R
 Auto Garrison and Zombie Bus Garrison.
 Owner correction (2026-10-19, final): remove ONLY Auto Garrison and Zombie Bus Garrison. KEEP Auto Alliance Drill
 and the "Use Stamina items automatically" card. This supersedes the two notes above.
+
+## R18 assignment — BACKGROUND ONLY (2026-10-19)
+Owner will be using the PC's keyboard and mouse. The worker may start its own task-owned game (logged in as
+4799432499002212) and leave it in the background, but must NOT use the mouse or keyboard, Windows-MCP input,
+the key helper (feature018_r15_windows_key.ps1), focus stealing, minimising/moving windows or anything that
+touches what the owner is doing. Screenshots only of the worker's own windows if needed. All live checks go
+through the app's own commands / staged proof queue (no physical keys).
+Tasks, in order:
+1. Remove Auto Garrison and Zombie Bus Garrison (owner decision): UI cards/settings (SquadsPage.jsx), locale keys
+   (9 languages), C# config/command services (e.g. AllianceGarrisonConfigCommandService, "allianceGarrison" task
+   name) and their Lua/automation code and checks. Old saved settings load safely and are ignored. KEEP Auto Alliance
+   Drill, Use Stamina items automatically, Monster AFK, Shared AFK Profiles. OWNER_DIRECTION ledger entry.
+2. Map scans wiped at app start (owner: data goes stale): on each app start clear saved map scan rows for all
+   servers; keep profiles, settings, hotkey config, G count. Prove with a packaged-app start: old rows gone,
+   settings still there.
+3. Space shield countdown fix (build): holding Space on the world map shows, above each visible shielded city,
+   its remaining shield time; releasing hides it. Read-only. Prove the data side in the background: a native
+   read-only query lists visible cities with shield end times (compare with the Map City "Shield Ends" column).
+   The physical Space key test is the owner's.
+4. City Layout reliability: report a move/swap as Completed when the building's real position afterwards matches
+   the plan (server-applied after-state), instead of "result uncertain"; fix the brief account/session dropout
+   (GAME_ACCOUNT_CHANGED / owner lost for 15 s) so a running job does not abort. Prove on 4799432499002212 through
+   the City Layout commands: one move, one swap, Cancel, restore — and the city ends exactly as it started.
+5. Status check (no new features): run Monster AFK with one Shared AFK Profile on one squad against an ordinary
+   monster, and apply then restore one Equipment Scheme, both through the app's commands. Report what works and
+   what does not, with the exact reason.
+6. Owner-test ZIP (R18 package script), README updated, no test UID inside.
+Do not live-test: F6/F7/F8, Alt+1–4 keys, F9/F10, city ruins, Unlock Land Cell (owner tests those).
+Handoff rule unchanged; record progress under "R18 progress".
+
+### R18 progress (worker updates this)
+- (none yet)
