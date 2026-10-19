@@ -999,3 +999,18 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
   accepting the broken-march reason, again with no attack request dispatched. Staged finish exited 0, restored all
   three v26 script hashes exactly and left no recovery journal. No player target, own-alliance target, desktop input,
   or Land Cell action was used. Task 3 City Layout building images is next.
+- **Task 3 City Layout building images complete (2026-10-20), production source `75b55f47`, visual-proof source
+  `40feb183`:** the native City snapshot now resolves every building picture through the current game's own
+  `BuildManager.GetBuildIconPath(buildId, level)`, recovered from the same `UIBuildDetailsView.ShowPanel` path that
+  feeds the game's `LoadSpriteAuto`; `iconPath` is returned with the existing native building record and consumed by
+  the already-shipped `GameAssetImage` reader. The City Lua suite verifies the original v26 source call plus the exact
+  snapshot path, and the City candidate/swap/grid-audit and mounted City checks plus Release Desktop build pass.
+  Fresh Windows ProductVersion `1.0.0+40feb183a76120e128e508be7f3ac583058ebf73` passed the final background
+  packaged-WebView proof in `artifacts/map014-takeover/native-ui-20261019-161052` on exact UID
+  `4799432499002212`/server `2212`. The real City tab loaded 109 buildings, decoded seven grid images, selected a
+  decoded Farm (`农田`) and scrolled it into the visible grid, and decoded the matching Building properties image.
+  `r22-city-layout-building-images.png` visibly contains building artwork in both the grid and properties panel;
+  `native-ui-map.json` records `visibleSelectedGridImages=1`, `loadedPropertiesImages=1`, and `readOnly=true`.
+  The task-owned app/game exited 0; `owned-exit.json` proves all three v26 scripts restored exactly and no recovery
+  journal remained. No desktop input, layout move/apply, player target, or Land Cell action was used. Task 4 final
+  R22 qualification/package is next.
