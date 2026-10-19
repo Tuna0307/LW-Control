@@ -250,20 +250,24 @@ internal sealed partial class LWBridgeWindow
                 "(()=>[...document.querySelectorAll('img.city-layout-grid-icon')].some(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')))()",
                 "grid building image asset");
             if (await core.ExecuteScriptAsync(
-                    "(()=>{const b=document.querySelector('.city-layout-building');if(!b)return false;b.click();return true;})()") != "true")
+                    "(()=>{const i=[...document.querySelectorAll('img.city-layout-grid-icon')].find(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/'));const b=i?.closest('.city-layout-building');if(!b)return false;b.scrollIntoView({block:'center',inline:'center'});b.click();return true;})()") != "true")
                 throw new InvalidDataException("R22 City image proof could not select a building.");
             await WaitDom(
                 "(()=>{const i=document.querySelector('img.city-layout-selected-icon');return !!i&&i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/');})()",
                 "Building properties image asset");
+            await WaitDom(
+                "(()=>{const v=document.querySelector('.city-layout-grid-viewport');const i=document.querySelector('.city-layout-building[aria-pressed=true] img.city-layout-grid-icon');if(!v||!i||!i.complete||i.naturalWidth<1||!i.src.startsWith('data:image/'))return false;const a=i.getBoundingClientRect(),b=v.getBoundingClientRect();return a.right>b.left&&a.left<b.right&&a.bottom>b.top&&a.top<b.bottom;})()",
+                "selected grid building visible for screenshot");
 
             using JsonDocument counts = JsonDocument.Parse(await core.ExecuteScriptAsync(
-                "(()=>({buildings:document.querySelectorAll('.city-layout-building').length,gridImages:[...document.querySelectorAll('img.city-layout-grid-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,selectedImages:[...document.querySelectorAll('img.city-layout-selected-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,selectedName:document.querySelector('.city-layout-selected strong')?.textContent||''}))()"));
+                "(()=>{const v=document.querySelector('.city-layout-grid-viewport');const visible=i=>{if(!v)return false;const a=i.getBoundingClientRect(),b=v.getBoundingClientRect();return a.right>b.left&&a.left<b.right&&a.bottom>b.top&&a.top<b.bottom};return {buildings:document.querySelectorAll('.city-layout-building').length,gridImages:[...document.querySelectorAll('img.city-layout-grid-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,visibleSelectedGridImages:[...document.querySelectorAll('.city-layout-building[aria-pressed=true] img.city-layout-grid-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')&&visible(i)).length,selectedImages:[...document.querySelectorAll('img.city-layout-selected-icon')].filter(i=>i.complete&&i.naturalWidth>0&&i.src.startsWith('data:image/')).length,selectedName:document.querySelector('.city-layout-selected strong')?.textContent||''}})()"));
             JsonElement data = counts.RootElement;
             int buildings = data.GetProperty("buildings").GetInt32();
             int gridImages = data.GetProperty("gridImages").GetInt32();
+            int visibleSelectedGridImages = data.GetProperty("visibleSelectedGridImages").GetInt32();
             int selectedImages = data.GetProperty("selectedImages").GetInt32();
             string selectedName = data.GetProperty("selectedName").GetString() ?? "";
-            if (buildings < 1 || gridImages < 1 || selectedImages != 1)
+            if (buildings < 1 || gridImages < 1 || visibleSelectedGridImages != 1 || selectedImages != 1)
                 throw new InvalidDataException("R22 City image proof did not render both building image surfaces.");
 
             await using (var file = File.Create(Path.Combine(directory, "r22-city-layout-building-images.png")))
@@ -277,6 +281,7 @@ internal sealed partial class LWBridgeWindow
                 game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
                 buildings,
                 loadedGridImages = gridImages,
+                visibleSelectedGridImages,
                 loadedPropertiesImages = selectedImages,
                 selectedName,
                 screenshot = "r22-city-layout-building-images.png",
