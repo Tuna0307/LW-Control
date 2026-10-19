@@ -348,4 +348,212 @@ internal sealed partial class LWBridgeWindow
             throw;
         }
     }
+
+    // R23 packaged Chat proof: exercise the three production Chat automation
+    // cards through their actual WebView controls while the exact authenticated
+    // game session is owned. A Red Packet enabled-setting round trip proves the
+    // persisted UI adapter reaches the trusted native config. The proof restores
+    // the switch to its starting value and never enables replies, Treasure search
+    // or Treasure dispatch. It intentionally does not press Run now, because an
+    // earlier one-shot native Treasure submission may still be awaiting a terminal
+    // claimed-state and must never be replayed merely to prove the UI.
+    private async Task RunFeature018R23ChatTabProofAsync(
+        CoreWebView2 core, string outputPath, string directory,
+        OverviewMapScanSession owner, string uid, int serverId,
+        CancellationToken token)
+    {
+        OverviewLifecycleService lifecycle = overviewLifecycleService
+            ?? throw new InvalidOperationException("FEATURE018 lifecycle missing");
+        var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
+        var game = new Feature018GameCommandService(new Feature018OwnedGameExchange(lifecycle),
+            equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId),
+            profileRuntimeConfigStore);
+
+        bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
+            lifecycle.OwnsExactProcess(owner.GamePid) &&
+            lifecycle.MatchesOwnedMapScanSession(owner) &&
+            ReadFeature018AuthenticatedAccount(lifecycle, owner) == approved;
+        void Owned()
+        {
+            token.ThrowIfCancellationRequested();
+            if (!IsOwner())
+                throw new InvalidDataException(
+                    "R23 Chat proof lost the exact authenticated owned game session.");
+        }
+        async Task WaitDom(string expression, string stage, int polls = 300)
+        {
+            for (int i = 0; i < polls; i++)
+            {
+                Owned();
+                if (await core.ExecuteScriptAsync(expression) == "true") return;
+                await Task.Delay(100, token);
+            }
+            throw new InvalidDataException("R23 Chat WebView did not settle: " + stage);
+        }
+        async Task<JsonElement> Status()
+        {
+            Owned();
+            object? result = await game.InvokeAsync("feature018_chat_status",
+                JsonSerializer.SerializeToElement(new { profileId = owner.ProfileId }, JsonOptions.Default), token);
+            Owned();
+            return result is JsonElement json
+                ? json.Clone()
+                : throw new InvalidDataException("R23 Chat native status was unavailable.");
+        }
+        static bool Enabled(JsonElement status, string kind) =>
+            status.GetProperty("services").GetProperty(kind).GetProperty("enabled").GetBoolean();
+        async Task WaitNativeEnabled(string kind, bool expected, string stage, int polls = 100)
+        {
+            for (int i = 0; i < polls; i++)
+            {
+                JsonElement status = await Status();
+                if (Enabled(status, kind) == expected) return;
+                await Task.Delay(100, token);
+            }
+            throw new InvalidDataException("R23 Chat native config did not settle: " + stage);
+        }
+        async Task Capture(string name)
+        {
+            Owned();
+            await using var file = File.Create(Path.Combine(directory, name));
+            await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, file);
+        }
+        async Task Save(object receipt) => await File.WriteAllTextAsync(outputPath,
+            JsonSerializer.Serialize(receipt,
+                new JsonSerializerOptions(JsonOptions.Default) { WriteIndented = true }), token);
+
+        await Save(new
+        {
+            schemaVersion = 1,
+            state = "running",
+            proof = "actual_packaged_chat_automation_tab",
+            game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+            startedAtUtc = DateTimeOffset.UtcNow,
+        });
+
+        bool initialRedPacket = false;
+        bool initialRead = false;
+        try
+        {
+            Owned();
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelectorAll('.side-nav button')[1];if(!b)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R23 Chat proof could not open Automation.");
+            await WaitDom("document.querySelectorAll('.automation-categories button').length>=5", "Automation categories");
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const b=document.querySelectorAll('.automation-categories button')[4];if(!b)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R23 Chat proof could not open Chat category.");
+            await WaitDom(
+                "(()=>{const cards=[...document.querySelectorAll('[data-native-chat]')];return cards.length===3&&cards.every(c=>{const s=c.querySelector('button[role=switch]');return s&&!s.disabled&&c.querySelector('.automation-card-meta-row')&&!c.querySelector('[role=alert]')})})()",
+                "native Chat cards");
+
+            using JsonDocument dom = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                "(()=>({cards:[...document.querySelectorAll('[data-native-chat]')].map(c=>({kind:c.dataset.nativeChat,state:c.querySelector('.automation-card-meta-row')?.textContent||'',enabled:c.querySelector('button[role=switch]')?.getAttribute('aria-checked')==='true'})),panel:document.querySelector('.panel-title p')?.textContent||''}))()"));
+            JsonElement domRoot = dom.RootElement;
+            int cardCount = domRoot.GetProperty("cards").GetArrayLength();
+            if (cardCount != 3)
+                throw new InvalidDataException("R23 Chat proof did not render all three native Chat cards.");
+            JsonElement red = domRoot.GetProperty("cards").EnumerateArray()
+                .First(card => card.GetProperty("kind").GetString() == "redPacket");
+            initialRedPacket = red.GetProperty("enabled").GetBoolean();
+            initialRead = true;
+
+            JsonElement before = await Status();
+            if (Enabled(before, "redPacket") != initialRedPacket)
+                throw new InvalidDataException("R23 Chat WebView and native Red Packet config disagree before edit.");
+            JsonElement beforeListener = before.GetProperty("listener");
+            if (!beforeListener.GetProperty("ready").GetBoolean())
+                throw new InvalidDataException("R23 Chat native listener is not ready.");
+
+            await Capture("r23-chat-tab-connected.png");
+
+            bool changed = !initialRedPacket;
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const c=document.querySelector('[data-native-chat=redPacket]');const b=c?.querySelector('button[role=switch]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R23 Chat Red Packet settings switch was unavailable.");
+            await WaitDom(
+                $"document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')==='{changed.ToString().ToLowerInvariant()}'",
+                "Red Packet changed setting");
+            await WaitNativeEnabled("redPacket", changed, "Red Packet changed setting");
+
+            if (await core.ExecuteScriptAsync(
+                    "(()=>{const c=document.querySelector('[data-native-chat=redPacket]');const b=c?.querySelector('button[role=switch]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
+                throw new InvalidDataException("R23 Chat Red Packet settings restore was unavailable.");
+            await WaitDom(
+                $"document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')==='{initialRedPacket.ToString().ToLowerInvariant()}'",
+                "Red Packet restored setting");
+            await WaitNativeEnabled("redPacket", initialRedPacket, "Red Packet restored setting");
+
+            await Task.Delay(2200, token);
+            JsonElement after = await Status();
+            JsonElement listener = after.GetProperty("listener");
+            int observedMessages = listener.GetProperty("observedMessages").GetInt32();
+            int eventMessages = listener.GetProperty("eventMessages").GetInt32();
+            int retainedMessages = listener.GetProperty("retainedMessages").GetInt32();
+            int roomCount = listener.GetProperty("roomCount").GetInt32();
+            int eventListenerCount = listener.GetProperty("eventListenerCount").GetInt32();
+            if (!listener.GetProperty("ready").GetBoolean() || observedMessages < 1 || roomCount < 1 || eventListenerCount < 1)
+                throw new InvalidDataException("R23 Chat listener did not observe native chat data.");
+
+            using JsonDocument finalDom = JsonDocument.Parse(await core.ExecuteScriptAsync(
+                "(()=>({cards:[...document.querySelectorAll('[data-native-chat]')].map(c=>({kind:c.dataset.nativeChat,state:c.querySelector('.automation-card-meta-row')?.textContent||'',enabled:c.querySelector('button[role=switch]')?.getAttribute('aria-checked')==='true',observed:c.querySelector('p.muted')?.textContent||''})),panel:document.querySelector('.panel-title p')?.textContent||''}))()"));
+            await Capture("r23-chat-tab-listening.png");
+            Owned();
+            await Save(new
+            {
+                schemaVersion = 1,
+                state = "proven",
+                proof = "actual_packaged_chat_automation_tab",
+                game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+                cards = finalDom.RootElement.GetProperty("cards").Clone(),
+                panelStatus = finalDom.RootElement.GetProperty("panel").GetString(),
+                realConnected = true,
+                settingsSavedThroughRealSwitch = true,
+                redPacketInitialEnabled = initialRedPacket,
+                redPacketChangedEnabled = changed,
+                redPacketRestoredEnabled = Enabled(after, "redPacket"),
+                settingsRestoredExactly = Enabled(after, "redPacket") == initialRedPacket,
+                listener = new { ready = true, observedMessages, eventMessages, retainedMessages, roomCount, eventListenerCount },
+                noSpending = new
+                {
+                    redPacket = after.GetProperty("services").GetProperty("redPacket").GetProperty("capabilities").GetProperty("noSpending").GetBoolean(),
+                    fireworks = after.GetProperty("services").GetProperty("fireworks").GetProperty("capabilities").GetProperty("noSpending").GetBoolean(),
+                    treasure = after.GetProperty("services").GetProperty("treasure").GetProperty("capabilities").GetProperty("noSpending").GetBoolean(),
+                },
+                claimAction = "not_run_in_ui_harness_to_avoid_replaying_prior_unconfirmed_treasure",
+                screenshotConnected = "r23-chat-tab-connected.png",
+                screenshotListening = "r23-chat-tab-listening.png",
+                finishedAtUtc = DateTimeOffset.UtcNow,
+            });
+        }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            if (initialRead && IsOwner())
+            {
+                try
+                {
+                    string expected = initialRedPacket.ToString().ToLowerInvariant();
+                    string current = await core.ExecuteScriptAsync(
+                        "document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')");
+                    if (current != JsonSerializer.Serialize(expected))
+                    {
+                        await core.ExecuteScriptAsync(
+                            "(()=>{const b=document.querySelector('[data-native-chat=redPacket] button[role=switch]');if(!b||b.disabled)return false;b.click();return true;})()");
+                        await WaitNativeEnabled("redPacket", initialRedPacket, "Red Packet recovery restore", 60);
+                    }
+                }
+                catch { /* The partial receipt below records the primary proof failure. */ }
+            }
+            await Save(new
+            {
+                schemaVersion = 1,
+                state = "partial",
+                proof = "actual_packaged_chat_automation_tab",
+                game = new { owner.ProfileId, owner.SessionId, owner.GamePid, uid, serverId },
+                error = error.Message,
+                finishedAtUtc = DateTimeOffset.UtcNow,
+            });
+            throw;
+        }
+    }
 }

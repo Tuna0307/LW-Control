@@ -1,5 +1,9 @@
 -- R23 OWN_DESIGN scheduling of RECOVERED 0.3.17 Chat settings.
--- Native v26 routes and message discrimination: docs/FEATURE018_R23_CHAT_RECOVERY.md.
+-- Native v26 routes and message discrimination. DetectEventClaimTreasureMessage
+-- (archived original SHA256 eb7ac9ba1e7b69779155138fbe87df176f0d65e3987b131839f8706f7d0b9b8c)
+-- serializes uuid + targetServer and its HandleMessage treats errorCode as the
+-- failure terminal; on success it applies reply.reward through RewardManager and
+-- then calls ActDetectTreasureDataManager:OnGetDigTimesMsg(reply).
 -- No action on require. No purchases, item-use, gifts sent or currency routes.
 local M={}
 local bridge,array,owner,events,ledger_owner
@@ -7,6 +11,7 @@ local configs,queue,seen,replies={},{},{},{}
 local listener={ready=false,observedMessages=0,eventMessages=0,retainedMessages=0}
 local services={}
 local last_scan=0
+local treasure_observer
 local function get(o,k)local ok,v=pcall(function()return o and o[k]end);if ok then return v end end
 local function call(o,k,...)local f=get(o,k);if type(f)~='function'then return false end;return pcall(f,o,...)end
 local function invoke(o,k,...)local f=get(o,k);if type(f)~='function'then return false end;return pcall(f,...)end
@@ -134,6 +139,66 @@ local function ack(kind,uuid,data)
         end
     end
 end
+local claimed
+local function response_value(response,key,getter)
+    local direct=get(response,key);if direct~=nil then return direct end
+    local ok,value=call(response,getter,key);if ok then return value end
+end
+local function treasure_observer_intact()
+    return treasure_observer and get(treasure_observer.class,'HandleMessage')==treasure_observer.wrapper
+end
+local function restore_treasure_observer()
+    local observer=treasure_observer;treasure_observer=nil
+    if not observer then return true end
+    if get(observer.class,'HandleMessage')~=observer.wrapper then return false end
+    observer.class.HandleMessage=observer.original;return true
+end
+local function install_treasure_observer()
+    if treasure_observer then return treasure_observer_intact() end
+    local ok,class=pcall(require,'Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage')
+    local original=ok and get(class,'HandleMessage')
+    if type(original)~='function'then return false end
+    local wrapper
+    wrapper=function(self,response,...)
+        local captured
+        pcall(function()
+            if not owned()then return end
+            local found,count
+            for _,job in pairs(queue)do
+                if job.kind=='treasure'and job.state=='sent'then found=job;count=(count or 0)+1 end
+            end
+            if count~=1 or not found then return end
+            local reply_uuid=id(response_value(response,'uuid','GetLong'))
+            if reply_uuid and reply_uuid~=found.uuid then return end
+            captured={job=found,key=found.key,error=get(response,'errorCode'),
+                reward=get(response,'reward')~=nil,replyUuid=reply_uuid}
+        end)
+        local returned=table.pack(pcall(original,self,response,...))
+        if returned[1]and captured then pcall(function()
+            local job=captured.job
+            if not treasure_observer_intact()or not owned()or queue[captured.key]~=job or job.state~='sent'then return end
+            local s=service('treasure');job.replyObserved=true;job.replyUuid=captured.replyUuid
+            job.replyRewardPresent=captured.reward;job.confirmedAt=clock()
+            if captured.error~=nil then
+                job.state='failed';s.failed=s.failed+1;s.lastResult='failed';s.state='failed'
+                s.error='Native Treasure claim was rejected: '..tostring(captured.error)
+                s.receipts[#s.receipts+1]={uuid=job.uuid,state='failed',at=clock(),nativeReply=true,
+                    error=tostring(captured.error),correlation='single_inflight_owner_session'}
+            else
+                job.state='success';s.claimed=s.claimed+1;s.lastResult='success';s.state='success';s.error=nil
+                s.receipts[#s.receipts+1]={uuid=job.uuid,state='success',at=clock(),nativeReply=true,
+                    rewardPresent=captured.reward,nativePostState=claimed(job),
+                    correlation='single_inflight_owner_session'}
+            end
+            if #s.receipts>30 then table.remove(s.receipts,1)end
+        end)end
+        if not returned[1]then error(returned[2],0)end
+        return table.unpack(returned,2,returned.n)
+    end
+    class.HandleMessage=wrapper
+    treasure_observer={class=class,original=original,wrapper=wrapper}
+    return treasure_observer_intact()
+end
 local function subscribe()
     local ok,manager=call(rawget(_G,'EventManager'),'GetInstance')
     if not ok or not manager then return end
@@ -157,7 +222,7 @@ function M.Detach()
     if events then for _,r in ipairs(events.rows)do call(events.manager,'RemoveListener',r[1],r[2])end end
     events=nil;listener.eventListenerCount=0
 end
-local function claimed(job)
+claimed=function(job)
     local p=get(rawget(_G,'LuaEntry'),'Player');local uid=id(get(p,'uid'))
     local data=decode(job.message)or job.data
     for _,u in ipairs(data.uids or {})do if tostring(u)==uid then return true end end
@@ -202,6 +267,7 @@ local function claim(job)
         return invoke(network,'SendMessage',get(route,'GetFireworksGift'),{uuid=tonumber(job.uuid),ownerUid=tostring(data.ownerUid),type=kind})
     elseif job.kind=='treasure'then
         if not job.server or job.server<=0 or not get(route,'DetectEventClaimTreasure')then return false,'Native Treasure target server unavailable'end
+        if not treasure_observer_intact()then return false,'Native Treasure terminal observer unavailable'end
         if not owned()then return false,'Chat owner lease changed'end
         job.state='sent';job.sentAt=clock();job.sendCount=1
         return invoke(network,'SendMessage',get(route,'DetectEventClaimTreasure'),tonumber(job.uuid),job.server)
@@ -218,6 +284,12 @@ function M.Pump()
         if job.state=='queued'and (config.enabled or job.force)and job.due<=clock()then
             if job.expires and job.expires<=clock()then job.state='expired'
             elseif claimed(job)then job.state='already_claimed'
+            elseif job.kind=='treasure'and (function()
+                for _,other in pairs(queue)do
+                    if other~=job and other.kind=='treasure'and other.state=='sent'then return true end
+                end
+                return false
+            end)()then s.state='waiting_ack'
             else
                 local yes,error=claim(job)
                 if job.sendCount==1 then s.submitted=s.submitted+1;s.lastResult='submitted';s.state='waiting_ack'
@@ -256,7 +328,7 @@ function M.Configure(request)
     if ledger_owner~=ledger_signature then M.CleanupAfterLeaseLoss();queue={};seen={}end
     ledger_owner=ledger_signature
     owner={account=signature,token=token};configs=settings
-    subscribe();scan();return M.Status()
+    subscribe();install_treasure_observer();scan();return M.Status()
 end
 function M.Run(request)
     local configured=M.Configure(request);if configured.state~='confirmed'then return configured end
@@ -271,7 +343,10 @@ function M.Status()
         for _,r in ipairs(replies)do if r.job.kind==kind then s.replyPendingCount=s.replyPendingCount+1 end end
         for _,job in pairs(queue)do if job.kind==kind and (job.state=='queued'or job.state=='sent')then s.pendingCount=s.pendingCount+1 end end
         if not owned()then s.state='disconnected'elseif not s.enabled and s.pendingCount==0 then s.state='disabled'end
-        s.capabilities={claims=true,reply=true,search=false,dispatch=false,noSpending=true}
+        s.capabilities={claims=kind~='treasure'or treasure_observer_intact(),reply=true,search=false,dispatch=false,noSpending=true}
+        if kind=='treasure'and not treasure_observer_intact()then
+            s.warning='Treasure native response terminal is unavailable; claims are disabled'
+        end
         if kind=='treasure'and (config.searchEnabled or config.dispatchEnabled)then
             s.warning='Treasure search / dispatch source route is not qualified; chat claims remain active'
         end
@@ -285,7 +360,7 @@ function M.Read(request)
     return M.Status()
 end
 function M.CleanupAfterLeaseLoss()
-    M.Detach();configs={};replies={};owner=nil;listener.ready=false
+    M.Detach();restore_treasure_observer();configs={};replies={};owner=nil;listener.ready=false
 end
 function M.Register(feature,overview)
     bridge=overview;array=feature.Array

@@ -154,6 +154,8 @@ internal sealed partial class LWBridgeWindow
                                 await RunFeature018R23EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
                                 await RunFeature018R23CityImageProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "chat")
+                                await RunFeature018R23ChatTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else throw new InvalidDataException("Unsupported R23 UI surface");
                             result = JsonDocument.Parse(await File.ReadAllTextAsync(receipt, token)).RootElement.Clone();
                         }

@@ -38,6 +38,10 @@ def main():
       SFSNetwork={SendMessage=function(route,...)state.sent[#state.sent+1]={route,...};if state.throw then error('uncertain send')end end}
       CS={SceneManager={World={GetPointInfoByUuid=function(self,uuid)return {uuid=uuid,IsHaveGetReward=function()return state.treasureGot end}end}}}
       package.preload.rapidjson=function()return {decode=function(s)if s=='config'then return state.config end;error('invalid json')end}end
+      state.treasureOriginalCalls=0
+      package.preload['Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage']=function()
+        return {HandleMessage=function(self,response)state.treasureOriginalCalls=state.treasureOriginalCalls+1 end}
+      end
       state.config={redPacket={enabled=true,claimDelaySeconds={2,2},replyEnabled=true,replyDelaySeconds={2,2},replies={'thanks'}},
         fireworks={enabled=true,claimDelaySeconds={0,0}},treasure={enabled=true,claimDelaySeconds={0,0}}}
       request={authorizedUid='1001',confirmedChatConfig='config'}
@@ -53,6 +57,8 @@ def main():
     vm.execute('''
       engine.Register(feature,overview);assert(#state.sent==0,'Require must be inert')
       assert(engine.Configure(request).state=='confirmed')
+      local treasureClass=require('Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage')
+      assert(engine.Status().data.services.treasure.capabilities.claims==true)
       local ordinary=msg(0,'999',1);state.callbacks[1](ordinary)
       assert(engine.Status().data.listener.observedMessages==1 and #state.sent==0)
       state.messages={msg(611,'red',2),msg(693,'3001',3),msg(600,'4001',4)}
@@ -64,7 +70,10 @@ def main():
       state.now=state.now+2000;engine.Pump();assert(#state.sent==3 and state.sent[3][1]==10)
       assert(state.sent[3][2]=='red'and state.sent[3][3]==1 and state.sent[3][4]==1 and state.sent[3][5]==123)
       state.callbacks[2]({redPacket={uuid='red'}});assert(state.replyCount==0)
-      state.treasureGot=true;engine.Pump();assert(engine.Status().data.services.treasure.claimed==1)
+      treasureClass.HandleMessage(treasureClass,{reward={id=1}})
+      local ts=engine.Status().data.services.treasure
+      assert(ts.claimed==1 and ts.receipts[1].nativeReply==true and ts.receipts[1].rewardPresent==true)
+      assert(state.treasureOriginalCalls==1,'Original Treasure reply handler must still run')
       state.now=state.now+2000;engine.Pump();assert(state.replyCount==1)
       engine.Run({kind='redPacket',authorizedUid='1001',confirmedChatConfig='config'});engine.Pump();assert(#state.sent==3,'No duplicate UUID claims')
       -- Disable while a delayed event is queued: no later automatic send/reply.
@@ -83,6 +92,7 @@ def main():
       assert(engine.Configure(request).state=='failed')
       LuaEntry.Player.uid='1001';state.token=nil;engine.Pump();assert(#state.sent==5)
       engine.CleanupAfterLeaseLoss();assert(state.callbacks[1]==nil and state.callbacks[2]==nil)
+      assert(treasureClass.HandleMessage(treasureClass,{reward={id=2}})==nil and state.treasureOriginalCalls==2,'Treasure reply hook must restore original')
       -- A different account/session must not inherit any queued targets.
       LuaEntry.Player.uid='2002';request.authorizedUid='2002';state.token='other';state.messages={}
       assert(engine.Configure(request).state=='confirmed');state.now=state.now+3000;engine.Pump();assert(#state.sent==5)
