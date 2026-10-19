@@ -34,8 +34,8 @@
 .map-searchbar{min-width:0;flex-wrap:wrap;gap:8px}
 .map-searchbar>input{min-width:120px;flex:1 1 160px}
 .map-auto-scan-grid{grid-template-columns:minmax(0,2fr) minmax(120px,1fr)}
-.map-table-scroll{max-width:100%;overflow:visible}
-.map-table{width:100%;min-width:0!important;table-layout:fixed}
+.map-table-scroll{max-width:100%;overflow:auto}
+.map-table{width:100%;min-width:900px!important;table-layout:fixed}
 .map-table th,.map-table td{padding:8px 5px;white-space:normal;overflow-wrap:anywhere;word-break:normal}
 .map-table .map-column-coordinate{width:100px}
 .map-table .map-column-mark{width:32px}
@@ -58,3 +58,100 @@
 .map-tabs button{justify-content:center;min-width:0}
 @media (max-width:1100px){.map-table th,.map-table td{font-size:12px}.map-table .map-column-coordinate{width:105px}}
 @media (max-width:600px){.map-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.map-auto-scan-grid{grid-template-columns:1fr}}
+
+/* FEATURE-RECOVERY-018 R19 responsive layout qualification. */
+.monster-afk-toolbar{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+.monster-afk-compact-card .automation-card-header h3,
+.monster-afk-compact-card .automation-card-header p,
+.monster-afk-profile-heading strong,
+.equipment-preset-list>button span,
+.equipment-position-hero strong,
+.preset-equipment-slot span,
+.automation-card-header h3,
+.automation-card-header p{
+  max-width:100%;
+  text-overflow:clip;
+  white-space:normal;
+  overflow:visible;
+  overflow-wrap:anywhere;
+}
+
+.equipment-preset-positions{
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  overflow-x:visible;
+}
+
+.automation-categories{
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  overflow:visible;
+}
+.automation-categories button{
+  flex:1 1 118px;
+  min-width:0;
+  min-height:34px;
+  padding:5px 12px;
+  white-space:normal;
+  line-height:1.25;
+}
+.automation-grid{
+  display:block;
+  columns:310px;
+  column-gap:10px;
+}
+.automation-grid>.automation-card,
+.automation-grid>.trade-station-panel{
+  width:100%;
+  margin:0 0 10px;
+  break-inside:avoid;
+}
+
+.hotkey-panel[data-hotkey-category="miniGames"] .hotkey-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));
+  align-items:stretch;
+}
+.hotkey-panel[data-hotkey-category="miniGames"] .hotkey-card{height:100%}
+
+.map-table--truck,.map-table--railway{min-width:1620px!important}
+.map-table--dispatch,.map-table--ghost{min-width:1480px!important}
+.map-table--scheduled-plunder{min-width:1480px!important}
+.map-table--scheduled-secret{min-width:1410px!important}
+.map-table--scheduled-truck{min-width:1240px!important}
+.map-table .map-column-coordinate{width:120px;min-width:120px}
+.map-table .map-column-mark{width:78px;min-width:78px}
+.map-table-scroll{scrollbar-gutter:stable}
+
+@media (min-width:1100px){
+  .top-bar{flex-flow:row nowrap;align-items:center}
+  .brand-lockup{flex:0 auto}
+  .top-bar .status-strip{flex:0 auto;order:initial;width:auto;justify-content:flex-start}
+  .top-actions{flex:0 auto;display:flex;flex-wrap:nowrap;justify-content:flex-end}
+  .language-select{grid-column:auto}
+}
+
+@media (max-width:1099px){
+  .top-bar{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 12px}
+  .brand-lockup{grid-column:1;grid-row:1;min-width:0}
+  .top-bar .status-strip{grid-column:2;grid-row:1;order:initial;width:auto;justify-content:flex-end;min-width:0}
+  .top-actions{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;justify-content:flex-end}
+  .language-select{grid-column:auto}
+}
+
+@media (max-width:1200px){
+  .monster-afk-layout{grid-template-columns:1fr}
+  .monster-afk-profiles,.monster-afk-editor{min-width:0}
+  .equipment-preset-positions{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+  .equipment-position-items{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .city-layout-workbench{grid-template-columns:minmax(0,1fr) minmax(250px,280px)}
+}
+
+@media (max-width:999px){
+  .equipment-preset-layout{grid-template-columns:1fr}
+  .equipment-preset-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));max-height:none}
+  .city-layout-workbench{grid-template-columns:1fr}
+  .city-layout-center{order:1}
+  .city-layout-sidebar{order:2}
+  .city-layout-inspector{order:3}
+  .hotkey-panel[data-hotkey-category="miniGames"] .hotkey-grid>.hotkey-card:last-child:nth-child(odd){grid-column:1/-1}
+}
