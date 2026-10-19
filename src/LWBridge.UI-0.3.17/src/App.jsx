@@ -1503,7 +1503,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
         </div>
       </header>
 
-      <HotkeyFeedback profileId={backendBridge.profileId} />
+      <HotkeyFeedback profileId={backendBridge.profileId} activeRoute={activeRoute} />
       <div className={`app-layout${showProfiles ? "" : " single-profile"}`}>
         {showProfiles ? <aside className="profile-sidebar"><ProfileSidebar
           state={shellProfiles}
