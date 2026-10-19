@@ -623,3 +623,23 @@ Handoff rule unchanged; record progress under "R18 progress".
   The same background-only session remains open solely for Task 5; final exit/restoration will be recorded
   below. One earlier incremental publish omitted ProductionUi and exited before game start; corrected with
   the verified unchanged canonical UI. No desktop input, forbidden key or Land Cell request used.
+
+- **Task 5 status check complete (2026-10-19), no new features:** same admitted background session
+  native-ui-20261019-005144; reproducible one-shot queue driver tools/feature018_r18_status_check.py.
+  Equipment Scheme **PROVEN LIVE**: saved a native baseline, applied a scheme removing one gear UUID
+  1376833201183958087 from squad1/hero1397117333692523610, then applied the original scheme to restore it.
+  Apply and restore each dispatched/completed exactly one native HeroEquip step; equipmentApplied=true,
+  nativeSlotPoststateVerified=true. Per-slot reply correlation remains explicitly false. All 15 heroes'
+  equipment-slot maps and every inventory item's wearer exactly match the baseline afterwards.
+  Monster AFK **DOES NOT RUN**: saved one enabled Shared AFK Profile configured for an ordinary-monster
+  farm on squad1, executionLimit1, then invoked the app's automation_start taskName=monsterSweep command.
+  It returned INVALID_REQUEST: "FEATURE018 only supports the original sheepGame task." automation_status
+  reports monsterSweep enabled=true / running=false / step=not_loaded; the checkout has config persistence
+  but no Monster AFK runtime producer, and its production AFK presentation remains disabled. No ordinary
+  monster march was sent or claimed as passed. The temporary profile was disabled/removed afterwards;
+  final status enabled=false/running=false/not_loaded. Evidence: r18-task5-status.json in that session.
+  Equipment works through commands; physical Alt+1-4 remains the owner's test. No new AFK feature was added.
+- **Task 4/5 final cleanup:** re-read the native city after the status tests; all 109 positions still exactly
+  equal the original. Sent staged finish: own host39768 and game15588 exited0, no error, restorationAudit=proven,
+  all three installed script hashes exactly equal admitted v26 originals, no recovery journal. The owner's
+  R17 app PID11544 remains untouched; no task-owned game/app or launcher remains. Receipt owned-exit.json.
