@@ -477,6 +477,11 @@ def test_selected_attack():
             first['data']['nativeTransaction']['nonceStatus']=='awaiting_same_nonce_reply' and
             state['attackSends']==1,
             'native selector did not dispatch fixed own squad exactly once')
+    fresh_while_pending=call()
+    require(fresh_while_pending['state']=='failed' and
+            'Previous native attack is still awaiting confirmation' in fresh_while_pending['error'] and
+            state['attackDelegateCount']==1 and state['attackSends']==1,
+            'fresh selected target command replayed or silently consumed the unresolved prior send')
     editor_attempt=module.Prepare(vm.table_from(dict(
         mode='staffingEditor',slot='1',editorOptIn='1',
         authorizedUid='4799432499002212',
@@ -694,6 +699,14 @@ def test_resource_create_sender_correlation():
         require(sent['state']=='accepted' and sent['data']['requestDispatched'] is True and
                 vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
                 'repeat physical hover did not send once in same VM: '+str(cycle)+' / '+str(sent['error']))
+        if cycle==1:
+            rapid=call()
+            require(rapid['state']=='failed' and
+                    'Previous native attack is still awaiting confirmation' in rapid['error'] and
+                    'consumed' not in rapid['error'].lower() and
+                    vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
+                    'fresh physical press inherited consumed chooser or replayed unresolved send: '+
+                    str(rapid['state'])+' / '+str(rapid['error']))
         vm.globals().state.existingAbsent=False
         vm.globals().state.marchClientCreateGuid='bbbbbbbb-cccc-4ddd-8eee-ffffffffffff'
         require(call(queryOnly='1')['state']=='confirmed',

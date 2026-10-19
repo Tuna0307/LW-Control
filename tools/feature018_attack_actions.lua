@@ -2197,8 +2197,43 @@ end
 -- Persist its *original raycast* identity in this VM until the exact native
 -- chooser is available. A queryOnly poll may consume that intent ONCE; it
 -- must never raycast again, launch a second chooser, or retry a prior send.
+local function settle_previous_attack_for_fresh_order(fields,input_clear,uid)
+    if fields.queryOnly=="1" or not attacks[fields.slot] then return true,nil end
+    local observe={}
+    for key,value in pairs(fields) do observe[key]=value end
+    observe.queryOnly="1"
+    local settled=attack_selected(observe,input_clear,uid)
+    if settled.state=="failed" then return false,settled end
+    if settled.state~="confirmed" then
+        local result=failed("Previous native attack is still awaiting confirmation; fresh order not sent")
+        result.data=settled.data
+        return false,result
+    end
+    return true,nil
+end
 local function attack_from_native_hover(fields,input_clear,uid)
     local prior=cursor_open_pending
+    -- A consumed chooser belongs only to the physical key edge that created
+    -- it. A later Q/W/E/R edge is a new order, so it must never inherit that
+    -- chooser latch. Keep the network transaction fence independent: for the
+    -- same squad, first make a read-only observation of the prior send. Only a
+    -- confirmed prior transaction may be retired before opening the new hover
+    -- order; an unresolved/uncertain send remains one-shot and blocks a second
+    -- create/change packet with a specific reason. A different squad can drop
+    -- the old chooser latch while its own transaction remains independently
+    -- fenced in attacks[slot].
+    if prior and prior.session==current_session and prior.consumed==true and
+       fields.queryOnly~="1" then
+        if prior.uid~=uid then
+            return failed("Consumed native hover chooser belongs to another account")
+        end
+        if fields.slot==prior.slot then
+            local ready,reason=settle_previous_attack_for_fresh_order(fields,input_clear,uid)
+            if not ready then return reason end
+        end
+        if cursor_open_pending==prior then cursor_open_pending=nil end
+        prior=nil
+    end
     if prior and prior.session==current_session then
         if fields.slot~=prior.slot or prior.uid~=uid then
             return failed("Pending hovered chooser belongs to another squad or account")
@@ -2297,7 +2332,11 @@ local function attack_from_native_hover(fields,input_clear,uid)
     if fields.queryOnly=="1" then
         return attack_selected(fields,input_clear,uid)
     end
-    if selected_window() then return attack_selected(fields,input_clear,uid) end
+    if selected_window() then
+        local ready,reason=settle_previous_attack_for_fresh_order(fields,input_clear,uid)
+        if not ready then return reason end
+        return attack_selected(fields,input_clear,uid)
+    end
     local opened=native_hover_open(fields,input_clear,uid)
     if opened.state~="accepted" then return opened end
     local immediate=attack_from_native_hover(fields,input_clear,uid)
