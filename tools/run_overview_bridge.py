@@ -51,6 +51,10 @@ FEATURE018_CITY_ENTRY = "DataCenter/Global/LWBridgeFeature018CityGame.luac"
 FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
 FEATURE018_SHEEP_MODULE = "DataCenter.Global.LWBridgeFeature018SheepSolver"
+FEATURE018_AFK_ENTRIES = {
+    "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
+    "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",
+}
 MESSAGE = "LWbridge is running"
 
 # HOME 009 R2 D. EXACT_CONTRACT_RECONSTRUCTED from lwbridge-0.3.17.exe (SHA-256 4E9C3113...D6783), profile launch
@@ -305,6 +309,11 @@ if not ok_sheep then error(sheep) end
 if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a table") end
 '''
     between = between.replace(mini_marker, sheep_load + mini_marker, 1)
+    afk_load = b'''local ok_afk, afk = pcall(require, "DataCenter.Global.LWBridgeFeature018AfkNative")
+if not ok_afk then error(afk) end
+if type(afk) ~= "table" then error("FEATURE018 AFK adapter did not return a table") end
+'''
+    between = between.replace(mini_marker, afk_load + mini_marker, 1)
     register_marker = b'rawset(_G, "LWBridgeFeature018GameBridge", feature)\n'
     if between.count(register_marker) != 1:
         raise OverviewBridgeError("FEATURE018 game module registration seam is not unique")
@@ -318,6 +327,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         b'if type(hotkey_actions.RegisterFrontline) == "function" then hotkey_actions.RegisterFrontline(feature, hotkey) end\n' +
         b'if type(city.Register) == "function" then city.Register(feature) end\n' +
         b'if type(sheep.Register) == "function" then sheep.Register(feature) end\n' +
+        b'if type(afk.Register) == "function" then afk.Register(feature, bridge) end\n' +
         b'rawset(_G, "LWBridgeFeature018MiniGame", mini)\n', 1)
     # A Mini Game view wrapper or marker belongs to exactly one authenticated
     # Overview session. The native bridge controls whether that owner is still
@@ -337,6 +347,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         if feature018_previous_owner ~= nil and feature018_previous_owner ~= current_feature_owner then
             if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             if type(city.CleanupAfterLeaseLoss) == "function" then pcall(city.CleanupAfterLeaseLoss) end
         end
@@ -355,6 +366,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
         elseif observed_second - feature018_owner_missing_since >= 3 then
             if type(relocation_actions) == "table" and type(relocation_actions.Dispose) == "function" then pcall(relocation_actions.Dispose) end
             if type(mini.CleanupAfterLeaseLoss) == "function" then pcall(mini.CleanupAfterLeaseLoss) end
+            if type(afk.CleanupAfterLeaseLoss) == "function" then pcall(afk.CleanupAfterLeaseLoss) end
             if type(sheep.CleanupAfterLeaseLoss) == "function" then pcall(sheep.CleanupAfterLeaseLoss) end
             local session_token = type(bridge.Feature018SessionToken) == "function" and bridge.Feature018SessionToken() or nil
             if session_token == nil then
@@ -366,6 +378,7 @@ if type(sheep) ~= "table" then error("FEATURE018 Sheep solver did not return a t
     end
     if current_feature_owner ~= nil then
         if type(city.Pump) == "function" then pcall(city.Pump) end
+        if type(afk.Pump) == "function" then pcall(afk.Pump) end
         if type(sheep.Pump) == "function" then pcall(sheep.Pump) end
         if type(feature.Pump) == "function" then pcall(feature.Pump) end
     end
@@ -484,6 +497,12 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     output.append((FEATURE018_EQUIPMENT_ENTRY, equipment_entry))
     output.append((FEATURE018_CITY_ENTRY, city_entry))
     output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
+    for entry, filename in FEATURE018_AFK_ENTRIES.items():
+        plain = (HERE / filename).read_bytes()
+        encoded = lr.encode_lenc(plain)
+        if len(encoded) > 0xFFFF or lr.decode_lenc(encoded) != plain:
+            raise OverviewBridgeError("AFK module LENC round-trip/size failed: " + filename)
+        output.append((entry, encoded))
     data = directory / "LWScripts.data"
     metadata = directory / "LWScripts.txt"
     version = directory / "version.txt"
@@ -514,6 +533,9 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("Overview candidate FEATURE018 City serialization verification failed")
     if lr.decode_lenc(verify_map[FEATURE018_SHEEP_ENTRY]) != sheep_plain:
         raise OverviewBridgeError("Overview candidate FEATURE018 Sheep serialization verification failed")
+    for entry, filename in FEATURE018_AFK_ENTRIES.items():
+        if lr.decode_lenc(verify_map[entry]) != (HERE / filename).read_bytes():
+            raise OverviewBridgeError("AFK candidate source differs: " + filename)
     package_crc = lr.crc32_file(data)
     metadata.write_text(f"{data.stat().st_size}|{package_crc}", encoding="utf-8")
     version.write_text(str(content_version), encoding="utf-8")

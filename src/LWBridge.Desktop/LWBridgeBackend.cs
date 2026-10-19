@@ -240,6 +240,12 @@ internal sealed class LWBridgeBackend
                 "monster_catalog_options",
                 StringComparison.Ordinal))
         {
+            if (asyncCommands?.CanHandle(command) == true)
+            {
+                ValidateCommandScope(command, payload);
+                return await asyncCommands.InvokeAsync(command, payload, cancellationToken)
+                    .ConfigureAwait(false);
+            }
             return await MonsterCatalogOptionsAsync(
                     payload,
                     cancellationToken)

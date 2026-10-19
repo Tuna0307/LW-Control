@@ -567,6 +567,10 @@ function M.CleanupAfterLeaseLoss()
 end
 
 local function start(request)
+    if request and request.taskName == 'monsterSweep' then
+        local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
+        if type(afk) == 'table' then return afk.Start(request) end
+    end
     if request == nil or request.taskName ~= 'sheepGame' then
         return result('unsupported', 'Only sheepGame automation is admitted')
     end
@@ -638,6 +642,10 @@ local function start(request)
 end
 
 local function stop(request)
+    if request and request.taskName == 'monsterSweep' then
+        local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
+        if type(afk) == 'table' then return afk.Stop(request) end
+    end
     if request == nil or request.taskName ~= 'sheepGame' then
         return result('unsupported', 'Only sheepGame stop is admitted')
     end

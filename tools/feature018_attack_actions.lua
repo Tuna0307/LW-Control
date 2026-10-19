@@ -468,7 +468,7 @@ local function target_alliance_guard(account,target,requires_player_alliance,is_
         allianceCheckRequired=true}
 end
 
-local function native_selector_target(ctrl,uid)
+local function native_selector_target(ctrl,uid,automation_rally)
     local kind=member(ctrl,"targetType")
     local kinds=rawget(_G,"MarchTargetType")
     local is_city=kind~=nil and kind==member(kinds,"ATTACK_CITY")
@@ -477,9 +477,11 @@ local function native_selector_target(ctrl,uid)
     local is_monster=kind~=nil and kind==member(kinds,"ATTACK_MONSTER")
     local is_resource=kind~=nil and kind==member(kinds,"COLLECT")
     local is_ruin=kind~=nil and kind==member(kinds,"ATTACK_PLAYER_RUIN_BUILDING")
+    local is_rally=automation_rally==true and kind~=nil and
+        (kind==member(kinds,"RALLY_FOR_BOSS") or kind==member(kinds,"JOIN_RALLY"))
     local uuid,native_uuid=ident(member(ctrl,"targetUuid"))
     if (not uuid and not is_resource) or
-       not (is_city or is_assistance or is_army or is_monster or is_resource or is_ruin) then
+       not (is_city or is_assistance or is_army or is_monster or is_resource or is_ruin or is_rally) then
         return nil, failed("Open a native formation selector on a typed city/army/monster/resource/ruin target")
     end
     local point=member(ctrl,"targetPoint")
@@ -491,6 +493,12 @@ local function native_selector_target(ctrl,uid)
     if not account or account.uid~=uid then
         return nil,failed("Native selector account changed")
     end
+    if is_rally then
+        local info=M.AutomationRallyInfo(uuid,kind==member(kinds,"JOIN_RALLY"))
+        if not info or info.monster~=true or info.player==true then
+            return nil,failed("AFK rally selector does not resolve to a current native monster")
+        end
+    end
     local selector_server=member(ctrl,"targetServerId")
     local server=number(selector_server)
     if selector_server~=nil and (server==nil or
@@ -499,10 +507,14 @@ local function native_selector_target(ctrl,uid)
     end
     local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
     local ok,target
-    if is_resource then ok,target=invoke(world,"GetResourcePointInfoByIndex",tonumber(point_id))
+    if is_rally and kind==member(kinds,"JOIN_RALLY") then
+        local rally=M.AutomationRallyInfo(uuid,true)
+        target=rally and rally.native;ok=target~=nil
+    elseif is_resource then ok,target=invoke(world,"GetResourcePointInfoByIndex",tonumber(point_id))
     elseif is_city or is_assistance or is_ruin then ok,target=invoke(world,"GetPointInfo",tonumber(point_id))
     else ok,target=invoke(world,"GetMarch",native_uuid) end
-    if not ok or target==nil or (not is_resource and ident(member(target,"uuid"))~=uuid) then
+    if not ok or target==nil or (not is_resource and
+       not (is_rally and kind==member(kinds,"JOIN_RALLY")) and ident(member(target,"uuid"))~=uuid) then
         return nil, failed("Native typed selector target is absent or changed")
     end
     if is_resource and (not integer(member(target,"id")) or
@@ -2044,7 +2056,7 @@ local function attack_selected(fields, input_clear, uid)
     if not selector or not ctrl then
         return failed("Open the native attack formation selector on a current city/army/monster target first")
     end
-    local target,denial=native_selector_target(ctrl,uid)
+    local target,denial=native_selector_target(ctrl,uid,fields.automationRally==true)
     if not target then return denial end
     local target_uuid,kind=target.uuid,target.kind
     local staffing=formation_staffing(form)
@@ -2090,7 +2102,7 @@ local function attack_selected(fields, input_clear, uid)
     -- Re-resolve the typed target AFTER them, at the last safe boundary
     -- immediately preceding the native controller call.
     local fresh_selector=selected_window()
-    local fresh_target=fresh_selector and native_selector_target(fresh_selector.ctrl,uid)
+    local fresh_target=fresh_selector and native_selector_target(fresh_selector.ctrl,uid,fields.automationRally==true)
     if input_clear() ~= true or not fresh_selector or
        fresh_selector.window~=window or fresh_selector.ctrl~=ctrl or
        member(window,"Ctrl")~=ctrl or not fresh_target or
@@ -2124,7 +2136,7 @@ local function attack_selected(fields, input_clear, uid)
     end
     -- Final owner/march lookups may run native callbacks. Check membership
     -- again at the send edge, including a changed own alliance.
-    local send_target,send_target_error=native_selector_target(ctrl,uid)
+    local send_target,send_target_error=native_selector_target(ctrl,uid,fields.automationRally==true)
     if not send_target then return send_target_error end
     if send_target.kind~=kind or send_target.uuid~=target_uuid or
        send_target.point~=target.point or
@@ -2285,6 +2297,259 @@ local function attack_from_native_hover(fields,input_clear,uid)
         return immediate
     end
     return immediate
+end
+
+-- R20: authenticated automation has a different source of intent from physical
+-- hover. Only this private Lua API admits a freshly typed native MONSTER. It
+-- shares the Q/W/E/R serializer, send fence and server-derived GUID receipt.
+-- No public hotkey payload can select this path.
+function M.AutomationMonsterInfo(uuid)
+    local world=member(member(rawget(_G,"CS"),"SceneManager"),"World")
+    local ok,target=invoke(world,"GetMarch",tonumber(uuid))
+    local ok_type,kind=invoke(target,"GetMarchType")
+    local monster_kind=member(rawget(_G,"NewMarchType"),"MONSTER")
+    local ok_monster,is_monster=invoke(target,"IsMonsterOrBoss")
+    local monster_id=integer(member(target,"monsterId"))
+    local ok_template,template=invoke(member(rawget(_G,"DataCenter"),"MonsterTemplateManager"),
+        "GetMonsterTemplate",monster_id)
+    if not ok or ident(member(target,"uuid"))~=tostring(uuid) or not ok_type or
+       not monster_id or not ok_template or template==nil or
+       (kind~=monster_kind and not (ok_monster and is_monster==true)) then return nil end
+    local ok_troop,troop=invoke(world,"GetTroop",tonumber(uuid))
+    local ok_pos,pos=invoke(troop,"GetPosition")
+    local transform=member(rawget(_G,"SceneUtils"),"WorldToTileIndex")
+    local ok_point,point=false,nil
+    if ok_troop and ok_pos and type(transform)=="function" then
+        ok_point,point=pcall(transform,pos,member(rawget(_G,"ForceChangeScene"),"World"))
+    end
+    if not ok_point or not integer(point) then return nil end
+    local special=number(member(template,"special"))
+    if special==nil then return nil end
+    local name_key=member(template,"name")
+    local ok_name,name=invoke(template,"GetName")
+    if not ok_name then
+        ok_name,name=invoke(member(member(rawget(_G,"CS"),"GameEntry"),"Localization"),"GetString",name_key)
+    end
+    return {uuid=tostring(uuid),monster=true,player=false,monsterId=monster_id,
+        monsterType=number(member(template,"type")),special=special,
+        level=number(member(template,"level")),nameKey=name_key,
+        name=ok_name and tostring(name) or tostring(name_key or ""),
+        pointIndex=point,worldBoss=kind~=monster_kind,rallyOnly=special~=0,
+        native=target}
+end
+
+function M.AutomationSend(fields, input_clear, target, continuous)
+    local uid,denial=owner_and_focus(fields,input_clear,false)
+    if not uid then return denial end
+    if attacks[fields.slot] then return attack_selected(fields,input_clear,uid) end
+    local fresh=target and M.AutomationMonsterInfo(target.uuid)
+    if not fresh or fresh.player or fresh.worldBoss or fresh.special~=0 or
+       fresh.monsterId~=target.monsterId or fresh.pointIndex~=target.pointIndex then
+        return failed("AFK target is not the same fresh ordinary native monster")
+    end
+    local account=native_account()
+    local center=rawget(_G,"DataCenter")
+    local forms=member(center,"ArmyFormationDataManager")
+    local manager=member(center,"WorldMarchDataManager")
+    local ok_form,form=invoke(forms,"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local formation,native_form=ident(member(form,"uuid"))
+    local ok_march,march=invoke(manager,"GetOwnerFormationMarch",member(account.player,"uid"),
+        native_form,member(account.player,"allianceId"))
+    if not ok_form or not formation or not ok_march or march~=nil or
+       (member(form,"ownerUid")~=nil and ident(member(form,"ownerUid"))~=uid) then
+        return failed("AFK assigned formation is busy or has no verified owner")
+    end
+    -- Original BestSelect lines 2123-2125 uses the formation's own conscription
+    -- method. It allocates the current owned soldiers; no invented troop count.
+    local ok_conscript=invoke(form,"ConscriptSoldier")
+    if not ok_conscript or not formation_staffing(form).staffedForAttack then
+        return failed("AFK assigned formation has no staffed native soldiers/heroes")
+    end
+    local ok_energy,energy=invoke(forms,"GetCurStaminaByUuid",native_form)
+    local march_util=rawget(_G,"MarchUtil")
+    if not ok_energy or not number(energy) or type(member(march_util,"OnAttackMonster"))~="function" or
+       not observe_create_serializer() or not observe_attack_sender() or not observe_attack_replies() then
+        return unsupported("Native Monster AFK route/confirmation observer unavailable")
+    end
+    fresh=M.AutomationMonsterInfo(target.uuid)
+    local final_uid=owner_and_focus(fields,input_clear,false)
+    local final_ok,final_march=invoke(manager,"GetOwnerFormationMarch",member(account.player,"uid"),
+        native_form,member(account.player,"allianceId"))
+    if final_uid~=uid or not fresh or fresh.special~=0 or fresh.worldBoss or
+       fresh.monsterId~=target.monsterId or not final_ok or final_march~=nil then
+        return failed("AFK owner, monster or assigned squad changed before send")
+    end
+    local kind=member(rawget(_G,"MarchTargetType"),"ATTACK_MONSTER")
+    local auto=member(rawget(_G,"MarchAutoBackType"),continuous and "NoBack" or "Back")
+    if kind==nil or auto==nil then return unsupported("Native monster route enums absent") end
+    local transaction={session=current_session,uid=uid,formation=formation,kind=kind,
+        targetPoint=fresh.pointIndex,targetUuid=fresh.uuid,server=account.server,
+        sentAt=os.time(),sendCount=0,automation=true}
+    attacks[fields.slot]=transaction
+    active_attack_invocation=transaction
+    -- Original MarchUtil.OnAttackMonster(formation, target, stamina,
+    -- isFormation, autoBackHome, withoutMessageTip), lines 430-539.
+    local ok,error=pcall(march_util.OnAttackMonster,native_form,fresh.native,energy,true,auto,true)
+    active_attack_invocation=nil
+    if not ok or transaction.sendCount~=1 or transaction.senderReturned~=true then
+        local result=failed("Native Monster AFK send was not confirmed; no automatic retry")
+        result.data={nativeTransaction=transaction_view(transaction),detail=not ok and tostring(error) or nil}
+        return result
+    end
+    return {state="accepted",data={requestDispatched=true,nativeTransaction=transaction_view(transaction)}}
+end
+
+function M.AutomationObserve(fields,input_clear)
+    local uid,denial=owner_and_focus(fields,input_clear,true)
+    if not uid then return denial end
+    local prior=attacks[fields.slot]
+    if prior and prior.automationRetarget then
+        if prior.session~=current_session or prior.uid~=uid or prior.sendCount~=1 or
+           prior.senderError or prior.senderReturnedFalse or prior.unattributedMatchingSendObserved then
+            return failed("Native continuous-march transaction lost its single-send fence")
+        end
+        local ok,march=invoke(member(rawget(_G,"DataCenter"),"WorldMarchDataManager"),"GetMarch",tonumber(prior.oldUuid))
+        local type_ok,kind=invoke(march,"GetMarchTargetType")
+        if ok and ident(member(march,"uuid"))==prior.oldUuid and
+           ident(member(march,"ownerUid"))==uid and ident(member(march,"ownerFormationUuid"))==prior.formation and
+           type_ok and kind==prior.kind and native_attack_target_matches(prior,march) and
+           number(member(march,"startTime"))~=prior.oldStartTime then
+            attacks[fields.slot]=nil
+            return {state="confirmed",data={marchUuid=prior.oldUuid,slot=tonumber(fields.slot),
+                targetUuid=prior.targetUuid,serverAcknowledgementCorrelated=true,
+                serverAppliedChangePostState=true,correlation="native_single_change_march_target_startTime",
+                nativeTransaction=transaction_view(prior)}}
+        end
+        return {state="accepted",data={accepted=true,awaitingGameConfirmation=true}}
+    end
+    return attack_selected(fields,input_clear,uid)
+end
+
+function M.AutomationContinue(fields,input_clear,target,expected_march,join)
+    local uid,denial=owner_and_focus(fields,input_clear,false)
+    if not uid then return denial end
+    if attacks[fields.slot]then return M.AutomationObserve(fields,input_clear)end
+    local account=native_account();local center=rawget(_G,"DataCenter")
+    local ok_form,form=invoke(member(center,"ArmyFormationDataManager"),"GetOneArmyInfoByIndex",tonumber(fields.slot))
+    local ok,march=invoke(member(center,"WorldMarchDataManager"),"GetOwnerFormationMarch",member(account.player,"uid"),
+        member(form,"uuid"),member(account.player,"allianceId"))
+    local fresh=target and (join and M.AutomationRallyInfo(target.uuid,true) or M.AutomationMonsterInfo(target.uuid))
+    local type_ok,old_kind=invoke(march,"GetMarchTargetType")
+    local kinds=rawget(_G,"MarchTargetType")
+    if not ok_form or not ok or ident(member(march,"uuid"))~=expected_march or
+       ident(member(march,"ownerUid"))~=uid or not fresh or (not join and (fresh.special~=0 or fresh.worldBoss)) or
+       fresh.monsterId~=target.monsterId or not type_ok or
+       (old_kind~=member(kinds,"STATE") and old_kind~=member(kinds,"BACK_HOME")) then
+        return failed("Continuous attack requires the exact completed owned monster march")
+    end
+    local energy_ok,energy=invoke(member(center,"ArmyFormationDataManager"),"GetCurStaminaByUuid",member(form,"uuid"))
+    if not energy_ok or not observe_attack_sender() or not observe_attack_replies() then
+        return failed("Native continuous march route unavailable")end
+    local transaction={session=current_session,uid=uid,formation=ident(member(form,"uuid")),
+        kind=member(kinds,join and "JOIN_RALLY" or "ATTACK_MONSTER"),targetPoint=fresh.pointIndex,targetUuid=fresh.uuid,
+        server=account.server,oldUuid=expected_march,oldKind=old_kind,
+        oldStartTime=number(member(march,"startTime")),sentAt=os.time(),sendCount=0,automationRetarget=true}
+    if owner_and_focus(fields,input_clear,false)~=uid then return failed("Continuous attack account changed")end
+    attacks[fields.slot]=transaction;active_attack_invocation=transaction
+    local util=rawget(_G,"MarchUtil")
+    local sent
+    if join then
+        sent=pcall(util.OnJoinRally,tonumber(expected_march),member(kinds,"RALLY_FOR_BOSS"),tonumber(fresh.uuid),fresh.pointIndex,energy)
+    else
+        sent=pcall(util.OnAttackMonster,tonumber(expected_march),fresh.native,energy,false,
+            member(rawget(_G,"MarchAutoBackType"),"NoBack"),true)
+    end
+    active_attack_invocation=nil
+    if not sent or transaction.sendCount~=1 or transaction.senderReturned~=true then
+        return failed("Continuous march send uncertain; no automatic retry")end
+    return {state="accepted",data={requestDispatched=true,nativeTransaction=transaction_view(transaction)}}
+end
+
+function M.AutomationRallyInfo(uuid,join)
+    if not join then return M.AutomationMonsterInfo(uuid) end
+    local manager=member(rawget(_G,"DataCenter"),"AllianceWarDataManager")
+    local ok,war=invoke(manager,"GetAllianceWarDataByUuid",tonumber(uuid))
+    local leader=member(war,"leaderMarch")
+    local account=native_account()
+    local alliance=account and member(account.player,"allianceId")
+    local eligible,can_join=invoke(manager,"CheckJoinAllianceWarByWarData",war)
+    if not ok or not war or not account or alliance==nil or tostring(alliance)=="0" or tostring(alliance)=="" or
+       tostring(member(war,"attackAllianceId"))~=tostring(alliance) or
+       ident(member(war,"uuid"))~=tostring(uuid) or not ident(member(leader,"uuid")) or ident(member(leader,"ownerUid"))==account.uid or
+       not eligible or can_join~=true then return nil end
+    if member(war,"type")~=member(rawget(_G,"AllianceTeamType"),"ATTACK_BOSS") then return nil end
+    -- AllianceWarInfo.targetUid is the MONSTER TEMPLATE ID, not a march UUID.
+    -- UIAllianceWarMainTableCtrl.GetWarItemData lines 310-318 reads exactly
+    -- this template for ATTACK_BOSS. The targetUuid field is the world UUID.
+    -- Rally data remains authoritative outside the camera's AOI.
+    local monster_id=integer(member(war,"targetUid"))
+    local template_ok,template=invoke(member(rawget(_G,"DataCenter"),"MonsterTemplateManager"),"GetMonsterTemplate",monster_id)
+    if not template_ok or not template or not monster_id or not ident(member(war,"targetUuid")) then return nil end
+    local name_key=member(template,"name")
+    local name_ok,name=invoke(member(member(rawget(_G,"CS"),"GameEntry"),"Localization"),"GetString",name_key)
+    local info={monster=true,player=false,monsterId=monster_id,monsterUuid=ident(member(war,"targetUuid")),
+        uuid=tostring(uuid),rally=true,joinable=true,worldBoss=true,rallyOnly=true,
+        monsterType=number(member(template,"type")),special=number(member(template,"special")),
+        level=number(member(template,"level")),nameKey=name_key,name=name_ok and tostring(name) or name_key}
+    info.pointIndex=number(member(leader,"startId"))
+    if not info.pointIndex then return nil end
+    info.leaderUid=ident(member(leader,"ownerUid"));info.leaderName=member(leader,"ownerName")
+    local members=member(war,"memberList")
+    if type(members)=="table" then
+        info.memberCount=1;info.ownerIsMember=false
+        for _,m in pairs(members)do
+            if ident(member(m,"uuid"))~=ident(member(leader,"uuid")) then info.memberCount=info.memberCount+1 end
+            if ident(member(m,"ownerUid"))==account.uid then info.ownerIsMember=true end
+        end
+    end
+    local departure=number(member(leader,"endTime"))
+    info.departureTime=departure and (departure>1000000000000 and departure/1000 or departure) or nil
+    info.leaderHeroCount=type(member(leader,"heroes"))=="table" and #leader.heroes or nil
+    info.native=leader
+    return info
+end
+
+function M.AutomationRallyOpen(fields,input_clear,target,join)
+    local uid,denial=owner_and_focus(fields,input_clear,false)
+    if not uid then return denial end
+    local fresh=target and M.AutomationRallyInfo(target.uuid,join)
+    if not fresh or fresh.monsterId~=target.monsterId then return failed("Native monster rally target changed")end
+    local ok_form,form=invoke(member(rawget(_G,"DataCenter"),"ArmyFormationDataManager"),
+        "GetOneArmyInfoByIndex",tonumber(fields.slot))
+    if not ok_form then return failed("Native assigned rally squad absent")end
+    local account=native_account()
+    local ok_busy,busy=invoke(member(rawget(_G,"DataCenter"),"WorldMarchDataManager"),
+        "GetOwnerFormationMarch",member(account.player,"uid"),member(form,"uuid"),member(account.player,"allianceId"))
+    if not ok_busy or busy~=nil then return failed("Assigned rally squad is busy")end
+    local conscript=invoke(form,"ConscriptSoldier")
+    if not conscript or not formation_staffing(form).staffedForAttack then return failed("Assigned rally squad lacks native troops")end
+    local kind=member(rawget(_G,"MarchTargetType"),join and "JOIN_RALLY" or "RALLY_FOR_BOSS")
+    local open=member(rawget(_G,"UIUtil"),"OpenFormationSelectUI")
+    if kind==nil or type(open)~="function" then return unsupported("Native rally chooser unavailable")end
+    if owner_and_focus(fields,input_clear,false)~=uid then return failed("Rally account changed before chooser")end
+    -- Original UIUtil helper selects current V2/new native controller. Its own
+    -- InitRallyTime selects the event-specific rally duration and checks.
+    local rally_kind=join and member(rawget(_G,"MarchTargetType"),"RALLY_FOR_BOSS") or nil
+    local ok=pcall(open,1,kind,fresh.pointIndex,tonumber(fresh.uuid),nil,
+        member(rawget(_G,"MarchAutoBackType"),"Back"),rally_kind,tonumber(account.server),fresh.special,tonumber(fields.slot))
+    if not ok then return failed("Native rally chooser did not open")end
+    return {state="accepted",data={accepted=true,requestDispatched=false,awaitingNativeChooser=true}}
+end
+
+function M.AutomationRallyDispatch(fields,input_clear,target,join)
+    local uid,denial=owner_and_focus(fields,input_clear,false)
+    if not uid then return denial end
+    if attacks[fields.slot] then return attack_selected(fields,input_clear,uid)end
+    local fresh=target and M.AutomationRallyInfo(target.uuid,join)
+    if not fresh or fresh.monsterId~=target.monsterId then return failed("Native monster rally no longer eligible")end
+    local selected=selected_window()
+    if not selected then return {state="accepted",data={accepted=true,awaitingNativeChooser=true}}end
+    local kind=member(rawget(_G,"MarchTargetType"),join and "JOIN_RALLY" or "RALLY_FOR_BOSS")
+    if ident(member(selected.ctrl,"targetUuid"))~=fresh.uuid or member(selected.ctrl,"targetType")~=kind then
+        return failed("Native rally chooser changed target")
+    end
+    fields.automationRally=true
+    return attack_selected(fields,input_clear,uid)
 end
 
 function M.Handle(fields, input_clear)

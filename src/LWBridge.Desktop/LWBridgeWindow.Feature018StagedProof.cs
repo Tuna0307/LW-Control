@@ -14,7 +14,7 @@ internal sealed partial class LWBridgeWindow
     {
         var lifecycle = overviewLifecycleService!;
         var game = new Feature018GameCommandService(new Feature018OwnedGameExchange(lifecycle),
-            equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId));
+            equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId), profileRuntimeConfigStore);
         var approved = new Feature018HotkeySession(owner.ProfileId, owner.SessionId, uid, serverId);
         bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
             lifecycle.OwnsExactProcess(owner.GamePid) &&

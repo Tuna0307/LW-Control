@@ -15,20 +15,23 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     private readonly Feature018OwnedGameExchange exchange;
     private readonly EquipmentConfigCommandService? equipmentConfig;
     private readonly Feature018AuthenticatedGameAccount? requiredAccount;
+    private readonly ProfileRuntimeConfigStore? runtimeConfig;
     internal Feature018GameCommandService(OverviewLifecycleService lifecycle)
         : this(new Feature018OwnedGameExchange(lifecycle)) { }
     internal Feature018GameCommandService(OverviewLifecycleService lifecycle,
-        EquipmentConfigCommandService equipmentConfig)
-        : this(new Feature018OwnedGameExchange(lifecycle), equipmentConfig) { }
+        EquipmentConfigCommandService equipmentConfig, ProfileRuntimeConfigStore? runtimeConfig = null)
+        : this(new Feature018OwnedGameExchange(lifecycle), equipmentConfig, runtimeConfig: runtimeConfig) { }
     internal Feature018GameCommandService(Feature018OwnedGameExchange exchange)
         : this(exchange, null) { }
     internal Feature018GameCommandService(Feature018OwnedGameExchange exchange,
         EquipmentConfigCommandService? equipmentConfig,
-        Feature018AuthenticatedGameAccount? requiredAccount = null)
+        Feature018AuthenticatedGameAccount? requiredAccount = null,
+        ProfileRuntimeConfigStore? runtimeConfig = null)
     {
         this.exchange = exchange ?? throw new ArgumentNullException(nameof(exchange));
         this.equipmentConfig = equipmentConfig;
         this.requiredAccount = requiredAccount;
+        this.runtimeConfig = runtimeConfig;
     }
 
     public bool CanHandle(string command) => command is
@@ -42,6 +45,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_input_focus" or "feature018_visible_city_shields" or
         "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
+        "feature018_afk_status" or "monster_catalog_options" or
         "feature018_shield_inventory_get" or
         "feature018_shield_shop" or
         "feature018_frontline_action" or
@@ -54,6 +58,15 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
+        if (command == "automation_start" && fields["taskName"] == "monsterSweep")
+        {
+            JsonObject tasks = runtimeConfig?.ReadTasksSnapshot() ??
+                throw new BridgeCommandException("STATE_UNAVAILABLE", "Confirmed profile task settings are unavailable.");
+            fields["confirmedAfkConfig"] = tasks["monsterSweep"]?.ToJsonString() ?? "{}";
+            fields["confirmedStaminaConfig"] = tasks["staminaPotion"]?.ToJsonString() ?? "{}";
+            if (fields["confirmedAfkConfig"].Length > 14000)
+                throw new BridgeCommandException("INVALID_REQUEST", "Monster AFK profile settings exceed the native command limit.");
+        }
         Feature018AuthenticatedGameAccount? capturedHotkeyAccount = null;
         if (command == "feature018_hotkey_action")
         {
@@ -355,9 +368,17 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             }
             case "automation_start":
             case "automation_stop":
-                if (ReadValue(payload, "taskName", 32) != "sheepGame")
-                    throw new BridgeCommandException("INVALID_REQUEST", "FEATURE018 only supports the original sheepGame task.");
-                fields["taskName"] = "sheepGame";
+                string taskName = ReadValue(payload, "taskName", 32);
+                if (taskName is not ("sheepGame" or "monsterSweep"))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Unsupported native automation task.");
+                if (payload.EnumerateObject().Any(p => p.Name is not ("taskName" or "profileId")))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Automation accepts only a task name and profile routing.");
+                fields["taskName"] = taskName;
+                break;
+            case "feature018_afk_status":
+            case "monster_catalog_options":
+                if (payload.EnumerateObject().Any(p => p.Name != "profileId"))
+                    throw new BridgeCommandException("INVALID_REQUEST", "Native AFK observations accept only profile routing.");
                 break;
             case "feature018_equipment_preflight":
             {

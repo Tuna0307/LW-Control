@@ -1,0 +1,123 @@
+"""Inert current-client AFK adapter simulation, including real attack adapter.
+
+These Lua tables are protocol-shaped fixtures, never live proof. Native create
+and retarget sends must wait for independently advanced server post-state.
+"""
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'artifacts/map-013-lua-site'))
+from lupa.lua53 import LuaRuntime
+
+
+def main():
+    vm = LuaRuntime(unpack_returned_tuples=True)
+    vm.execute('''
+      state={uid='1001',server=123,now=100,sends=0,changed=0,stamina=100,form=101}
+      os.time=function()return state.now end
+      LuaEntry={Player={uid='1001',allianceId=7,
+        GetSourceServerId=function()return state.server end,GetSelfServerId=function()return state.server end,
+        GetCurServerId=function()return state.server end,GetMainWorldPos=function()return 100100 end}}
+      MarchTargetType={ATTACK_MONSTER=1,BACK_HOME=3,STATE=0,JOIN_RALLY=4,RALLY_FOR_BOSS=5}
+      MarchAutoBackType={Back=1,NoBack=0};NewMarchType={MONSTER=7,PLAYER=1,BOSS=8}
+      ForceChangeScene={World=3};SceneUtils={WorldToTileIndex=function()return 100105 end}
+      local target={uuid=501,monsterId=10,GetMarchType=function()return state.playerTarget and 1 or 7 end,
+        IsMonsterOrBoss=function()return not state.playerTarget end}
+      local formation={uuid=101,ownerUid='1001',index=1,heroes={99},soldiers={[1]=100},
+        ConscriptSoldier=function()end}
+      state.target=target;state.formation=formation
+      CS={SceneManager={World={GetMarch=function(self,uuid)if uuid==501 then return target end;return state.march end,
+        GetTroop=function()return {GetPosition=function()return {x=105,z=100}end}end}}}
+      DataCenter={ArmyFormationDataManager={GetOneArmyInfoByIndex=function(self,slot)if slot==1 then return formation end end,
+        GetCurStaminaByUuid=function()return state.stamina end},
+        MonsterTemplateManager={GetMonsterTemplate=function(self,id)if id~=10 then return nil end;return {level=10,special=state.special or 0,type=2,name='zombie'}end,
+          GetMonsterMaxLevelbyType=function()return 30 end},
+        WorldMarchDataManager={GetOwnerFormationMarch=function()return state.march end,
+          GetMarch=function(self,uuid)if state.march and state.march.uuid==uuid then return state.march end end,
+          GetAllMarches=function()return {target}end}}
+      MsgDefines={WorldMarchFormationNew=99,WorldMarchChange=100}
+      package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()return {
+        OnCreate=function(self)
+          self.sfsObj={GetUtfString=function()return '12345678-1234-4abc-8def-000000000001'end}
+        end,HandleMessage=function()end}end
+      package.preload['Net.Msgs.WorldMarchChangeMessage']=function()return {HandleMessage=function()end}end
+      SFSNetwork={SendMessage=function(route,formation,kind,target)
+        if route==99 then
+          state.sends=state.sends+1;require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate({},formation,kind,target)
+        elseif route==100 then state.changed=state.changed+1
+        else error('unexpected native route')end
+      end}
+      MarchUtil={GetCostStaminaByTargetType=function()return 10 end,
+        OnAttackMonster=function(formation,t,stamina,isFormation,auto)
+          assert(t==target and auto==0)
+          SFSNetwork.SendMessage(isFormation and 99 or 100,formation,1,t.uuid,'100100;100105')
+        end}
+      package.preload['DataCenter.Global.LWBridgeFeature018HotkeyGame']=function()return {TextInputClear=function()return true end}end
+      fields={slot='1',authorizedUid='1001',profileId='profile',launchSessionId='session',challenge='challenge',gamePid='123'}
+      input=function()return true end
+    ''')
+    attack = vm.execute((ROOT / 'tools/feature018_attack_actions.lua').read_text(encoding='utf-8'))
+    vm.globals().attack = attack
+    vm.execute('''
+      local info=attack.AutomationMonsterInfo('501');assert(info.monster and not info.player and info.level==10)
+      state.playerTarget=true;assert(attack.AutomationMonsterInfo('501')==nil)
+      assert(attack.AutomationSend(fields,input,info,true).state=='failed' and state.sends==0)
+      state.playerTarget=false;state.special=8
+      assert(attack.AutomationSend(fields,input,info,true).state=='failed' and state.sends==0)
+      state.special=0;LuaEntry.Player.uid='other'
+      assert(attack.AutomationSend(fields,input,info,true).state=='failed' and state.sends==0)
+      LuaEntry.Player.uid='1001'
+      assert(attack.AutomationSend(fields,input,info,true).data.requestDispatched and state.sends==1)
+      assert(attack.AutomationObserve(fields,input).state=='accepted','A send is not an acknowledgement')
+      state.march={uuid=601,ownerUid='1001',ownerFormationUuid=101,targetUuid=501,startTime=100,
+        GetMarchTargetType=function()return state.kind or 1 end,
+        clientCreateGuid='wrong-guid'}
+      assert(attack.AutomationObserve(fields,input).state=='accepted')
+      state.march.clientCreateGuid='12345678-1234-4abc-8def-000000000001'
+      local r=attack.AutomationObserve(fields,input);assert(r.state=='confirmed' and state.sends==1, r.error or (r.data and r.data.nativeTransaction and r.data.nativeTransaction.nonceStatus) or r.state)
+      state.kind=0
+      local cont=attack.AutomationContinue(fields,input,info,'601')
+      assert(cont.data.requestDispatched and state.changed==1)
+      assert(attack.AutomationObserve(fields,input).state=='accepted')
+      state.kind=1;assert(attack.AutomationObserve(fields,input).state=='accepted','Old startTime must not confirm a retarget')
+      state.march.startTime=200
+      local confirmed=attack.AutomationObserve(fields,input)
+      assert(confirmed.state=='confirmed' and confirmed.data.serverAppliedChangePostState)
+      assert(state.changed==1 and state.sends==1)
+      AllianceTeamType={ATTACK_BOSS=9,ATTACK_CITY=10}
+      local leader={uuid=701,ownerUid='2002',ownerName='ally',startId=100101,endTime=150000,
+        heroes={1,2,3},status=0}
+      local war={uuid=700,leaderMarch=leader,attackAllianceId=7,type=9,targetUuid=501,targetUid=10,memberList={}}
+      DataCenter.AllianceWarDataManager={GetAllianceWarDataByUuid=function(self,uuid)if uuid==700 then return war end end,
+        CheckJoinAllianceWarByWarData=function()return true end}
+      local rally=attack.AutomationRallyInfo('700',true)
+      assert(rally and rally.monster and not rally.player and rally.monsterId==10 and rally.memberCount==1)
+      assert(rally.uuid=='700' and rally.monsterUuid=='501' and rally.pointIndex==100101)
+      war.type=10;assert(attack.AutomationRallyInfo('700',true)==nil,'Player rally must be excluded')
+      war.type=9;war.attackAllianceId=8;assert(attack.AutomationRallyInfo('700',true)==nil)
+      war.attackAllianceId=7;war.targetUid=11;assert(attack.AutomationRallyInfo('700',true)==nil)
+      war.targetUid=10;state.march=nil
+      UIWindowNames={UIFormationSelectListV2='formation'}
+      local window
+      UIManager={GetInstance=function()return {IsWindowOpen=function()return window~=nil end,
+        GetWindow=function()return window end}end}
+      UIUtil={OpenFormationSelectUI=function(_,kind,point,uuid)
+        assert(kind==4 and point==100101 and uuid==700)
+        window={Ctrl={targetType=kind,targetPoint=point,targetUuid=uuid,targetServerId=123,
+          OnCheckTime=function(self,formation)SFSNetwork.SendMessage(99,formation,kind,uuid)end}}
+      end}
+      assert(attack.AutomationRallyOpen(fields,input,rally,true).data.awaitingNativeChooser)
+      assert(state.sends==1,'Opening a rally chooser must not send')
+      assert(attack.AutomationRallyDispatch(fields,input,rally,true).data.requestDispatched)
+      assert(state.sends==2)
+      assert(attack.AutomationObserve(fields,input).state=='accepted')
+      state.kind=4;state.march={uuid=801,ownerUid='1001',ownerFormationUuid=101,targetUuid=700,startTime=300,
+        GetMarchTargetType=function()return state.kind end,clientCreateGuid='12345678-1234-4abc-8def-000000000001'}
+      assert(attack.AutomationObserve(fields,input).state=='confirmed')
+    ''')
+    print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')
+
+
+if __name__ == '__main__':
+    main()

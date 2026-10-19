@@ -57,10 +57,11 @@ function RallyJoinSettings({
   disabled: r = false,
   label: i = "squad.afkJoinConditions",
   previewState = "",
+  members = null,
   ToggleRow
 }) {
   const { t: o } = useI18n();
-  const fixture = previewMemberFixture(previewState);
+  const fixture = members || previewMemberFixture(previewState);
   const n = fixture.online;
   const x = fixture.ready ? { membersReady: true, members: fixture.members, selfUid: fixture.selfUid } : null;
   const v = fixture.failed;
