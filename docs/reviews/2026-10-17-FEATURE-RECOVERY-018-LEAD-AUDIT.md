@@ -673,3 +673,22 @@ Handoff rule unchanged; record progress under "R18 progress".
   result are in artifacts/feature018-r18-<HEAD8>/release/r18-package-receipt.json. This source-pinned external
   receipt is the final artifact handback; no later code/doc commit is needed to identify it. All live work
   is finished with exact restoration; owner-only physical key/event checks remain pending as recorded.
+
+## Lead audit of R18 — 2026-10-19 (source 99d98b1b): ACCEPTED for owner test, with two found gaps
+Verified by lead: HEAD = remote 99d98b1b, tree clean. Attack, hotkey, City game and City live-driver checks,
+Desktop.Checks (`HOME_FEATURE_DELIVERY_CHECKS_OK`) and UI check (9 languages) PASS. No garrison/zombie-bus UI or
+service left (only the legacy-settings cleanup line). ZIP
+`artifacts/feature018-r18-99d98b1b/release/LW-Control-FEATURE-018-R18-OWNER-TEST-99d98b1b0472.zip` SHA-256
+10359077…06734e: re-hashed, CRC ok, 114 entries, SOURCE-COMMIT = 99d98b1b, no test UID (ASCII/UTF-16LE/BE).
+Live session 005144 exit 0, restoration proven; live game scripts are exact v26 originals; no journal; only the
+owner's own R17 app is running. City summary: 109 buildings back in their original positions.
+- Task 1 remove Auto Garrison + Zombie Bus: ACCEPTED.
+- Task 2 wipe map scans at start, settings kept: ACCEPTED (controlled packaged startup proof).
+- Task 3 Space countdown for all visible shielded cities: data side ACCEPTED (2 cities matched Map Shield Ends);
+  physical Space test is the owner's.
+- Task 4 City Layout: ACCEPTED live — move Completed, swap 3/3 Completed, Cancel mid-job, restore, 109/109 exact.
+- Task 5 FOUND GAPS (not fixed, status task only):
+  * **Monster AFK does not exist at runtime**: settings save, but `automation_start monsterSweep` is rejected
+    ("FEATURE018 only supports the original sheepGame task"); no runtime producer. Needs to be built.
+  * **Equipment Schemes**: the native apply/restore commands work live (exact before/after match), but the
+    Equipment Schemes TAB still shows preview fixture data and is not wired to the real game. Needs wiring.
