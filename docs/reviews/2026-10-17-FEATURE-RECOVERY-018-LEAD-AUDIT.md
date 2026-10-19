@@ -1096,3 +1096,24 @@ Owner reminder: close your own LW-Control app and game before the worker starts 
 - Tasks 4/5 source and mounted checks pass: Equipment reconnect/Refresh retries; empty preset dropdowns; localized copy-current hint; native hero/gear iconPath. Native fresh-edit/Save/Apply/Restore proof pending.
 - Task 6 native snapshot had 109 buildings/109 game iconPaths (67 distinct). Eager City images reached the all-buildings-decoded predicate in the real WebView. The initial visual harness failed afterward because its selected-building visibility test ran after zooming without resetting scroll. Retained 100%/zoom captures are partial; strengthened full-view recapture pending. Image-reader identity now refreshes on connection transitions so old failed-path cache entries do not survive reconnect indefinitely.
 - First R23 task-owned game session closed; independent audit proves exact v26 script triplet restoration, no game process or recovery journal left. No owner process was controlled.
+
+## Lead tidy-up after Codex R23 (2026-10-20) — handover to CoS
+Codex ran out of tokens. Pushed = remote bcaa4685 (tasks 1–2 fixes, equipment reload + recovery-trigger logging).
+Codex's last test session `native-ui-20261019-172924` (app from artifacts/feature018-r23-working2 + game) was still
+running; lead sent the harness `finish`: exit 0, restoration proven, scripts exact v26, no journal, nothing running.
+UNCOMMITTED Codex work (Chat engines + R23 tooling), left in the tree for CoS to review and commit, NOT discarded:
+  modified: AutomationStatusCommandService.cs, Feature018GameCommandService.cs, LWBridge.Desktop.csproj,
+  LWBridgeWindow.Feature018StagedProof.cs, LWBridgeWindow.cs, ProfileRuntimeOwner.cs, AutomationPage.jsx,
+  tools/run_overview_bridge.py; new: ChatAutomationConfigCommandService.cs, LWBridgeWindow.Feature018R23Proof.cs,
+  NativeChatAutomationCard.jsx, chatAutomationRuntime.js, scripts/check-r23-chat.mjs, tools/feature018_chat_engine.lua
+  (+_checks.py), tools/feature018_chat_treasure.lua, tools/feature018_r23_package.py (+_checks.py),
+  tools/feature018_r23_rapid_attack_proof.py.
+Lead re-ran with that work in place: attack, hotkey, City, relocation (81), equipment, new Chat engine checks,
+R23 Chat mounted check, Desktop.Checks and UI check — all PASS.
+Status per task: 1 Q fence — accepted (native uncertain-send settle proven; zero-send path offline). 2 F10 — hex fix
+complete incl. final-edge fix; fresh native trial pending. 3 disconnect — diagnosed: the app deliberately
+restarted the game; first trigger unknown, logging added (docs/FEATURE018_R23_DISCONNECT_DIAGNOSIS_2026-10-20.md).
+4/5 equipment reload + dropdowns — code + checks pass; native tab proof pending. 6 City pictures — 109/109 icon
+paths, all decoded in WebView; full-view screenshot pending. 7 Chat — built, uncommitted, no live proof yet; the
+Automation-card status list not written yet. 8 ZIP — not built.
+Note: the "R23 progress checkpoint" block above appears twice (worker paste duplicate); content is identical.
