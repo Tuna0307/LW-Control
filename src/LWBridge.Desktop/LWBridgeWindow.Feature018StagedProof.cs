@@ -126,6 +126,9 @@ internal sealed partial class LWBridgeWindow
                     if (kind == "finish") { log.Add(new { id, kind, state = "finished" }); break; }
                     try
                     {
+                        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" &&
+                            kind is not ("command" or "mapCommand" or "profileCommand" or "equipmentConfig" or "cityApplyCancel" or "capture"))
+                            throw new InvalidDataException("R18 background proof forbids input, show and window operations.");
                         Owned();
                         object? result;
                         if (kind == "command")
@@ -137,6 +140,25 @@ internal sealed partial class LWBridgeWindow
                             result = await game.InvokeAsync(command,
                                 root.TryGetProperty("payload", out var payload) ? payload : empty.RootElement,
                                 token);
+                        }
+                        else if (kind == "mapCommand")
+                        {
+                            string command = root.GetProperty("command").GetString()!;
+                            if (command is not ("map_coordinate_jump" or "map_scan_start" or "map_scan_status" or "map_search" or "map_summary"))
+                                throw new InvalidDataException("Unsupported R18 Map proof command");
+                            result = await map317CommandService!.InvokeAsync(command,
+                                root.TryGetProperty("payload", out var payload) ? payload : empty.RootElement, token);
+                        }
+                        else if (kind == "profileCommand")
+                        {
+                            string command = root.GetProperty("command").GetString()!;
+                            JsonElement payload = root.TryGetProperty("payload", out var arg) ? arg : empty.RootElement;
+                            result = command switch
+                            {
+                                "monster_afk_config_save" => await monsterAfkConfigService!.InvokeAsync(command, payload, token),
+                                "automation_status" => await automationStatusService!.InvokeAsync(command, payload, token),
+                                _ => throw new InvalidDataException("Unsupported R18 profile proof command"),
+                            };
                         }
                         else if (kind == "cityApplyCancel")
                         {

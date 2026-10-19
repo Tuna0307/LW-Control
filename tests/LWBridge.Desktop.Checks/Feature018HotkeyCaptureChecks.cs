@@ -946,7 +946,28 @@ internal static class Feature018HotkeyCaptureChecks
                 "native action mapping differs from game bridge schema: " + key);
         }
 
-        // The visible Space overlay requires the *actual* returned MAIN_SHIELD
+        // Owned shield status remains useful for the item-use path; R18's
+        // visible-city overlay must explicitly reject this older single timer.
+        var shieldPlatform = new FakeCapturePlatform();
+        bool shieldAdmitted = true;
+        using (var shieldCapture = new Feature018HotkeyCapture(43210, @"C:\game\LastWar.exe",
+            DateTime.UtcNow, () => shieldAdmitted, _ => { }, shieldPlatform))
+        {
+            shieldPlatform.DownKeys.Add(Keys.Space);
+            Require(shieldCapture.IsSpaceHeld(), "Space hold not observed");
+            shieldPlatform.DownKeys.Clear();
+            Require(!shieldCapture.IsSpaceHeld(), "Space release left overlay visible");
+            shieldPlatform.DownKeys.Add(Keys.Space);
+            shieldPlatform.OnKeyRead = () => shieldAdmitted = false;
+            Require(!shieldCapture.IsSpaceHeld(), "owner loss during Space sample left overlay visible");
+        }
+        Require(Feature018ShieldStatusOverlay.TryReadCities(JsonSerializer.SerializeToElement(new
+            { observation = "native_visible_city_shields", readOnly = true, cities = new[] { new { uuid = "A" }, new { uuid = "B" } } })),
+            "multiple native city shield rows rejected");
+        Require(!Feature018ShieldStatusOverlay.TryReadCities(JsonSerializer.SerializeToElement(new
+            { observation = "native_MAIN_SHIELD_effect_status_map", readOnly = true, cities = Array.Empty<object>() })),
+            "old own-shield observation admitted to visible-city overlay");
+        // The owned shield observer requires the *actual* returned MAIN_SHIELD
         // timing fields, including absence of a shield. An arbitrary confirmed
         // observation or multiple contradictory shield timers is insufficient.
         JsonElement timed = JsonSerializer.SerializeToElement(new

@@ -272,7 +272,8 @@ function SetFocus(obj)
     CS.UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject = obj
 end
 """
-    focus_runtime, focused_module = create_runtime(BASE + focus_game)
+    from feature018_visible_shield_checks import WORLD
+    focus_runtime, focused_module = create_runtime(BASE + focus_game + WORLD)
     def focused_request(action, slot, **extra):
         return focus_runtime.table_from({
             "action": action, "slot": slot,

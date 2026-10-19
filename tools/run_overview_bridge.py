@@ -83,10 +83,17 @@ class LauncherSpawnError(OverviewBridgeError):
 
 def spawn_selected_launcher(p: dict[str, Path], environment: dict[str, str]):
     try:
+        options = {}
+        if environment.get("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1":
+            startup = lr.subprocess.STARTUPINFO()
+            startup.dwFlags |= lr.subprocess.STARTF_USESHOWWINDOW
+            startup.wShowWindow = 4  # SW_SHOWNOACTIVATE; never focus/move an existing window.
+            options["startupinfo"] = startup
         return lr.subprocess.Popen(
             [str(p["launcher"])],
             cwd=str(p["launcher"].parent),
             env=environment,
+            **options,
         )
     except OSError as error:
         raise LauncherSpawnError(

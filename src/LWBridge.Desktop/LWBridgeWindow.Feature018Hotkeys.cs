@@ -28,6 +28,7 @@ internal sealed partial class LWBridgeWindow
 
     private void StartFeature018HotkeyMonitoring()
     {
+        if (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1") return;
         if (capturePath is not null || liveProbePath is not null ||
             hostProbePath is not null || (normalUiLiveMapProofPath is not null &&
                 (Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_R2_PROOF") != "1" ||
@@ -189,7 +190,12 @@ internal sealed partial class LWBridgeWindow
                 // Source-backed read-only MAIN_SHIELD countdown, displayed
                 // without activating LWBridge or a different window.
                 _ = Feature018ShieldStatusOverlay.ShowIfCurrentOwner(
-                    feature018Capture, shield);
+                    feature018Capture, shield, async () =>
+                    {
+                        var commands = new Feature018GameCommandService(overviewLifecycleService!);
+                        return (JsonElement)(await commands.InvokeAsync("feature018_visible_city_shields",
+                            JsonSerializer.SerializeToElement(new { }), CancellationToken.None))!;
+                    });
             }
             if (feature018R2ApprovedAccount is not null &&
                 feature018R2ApprovedAccount == feature018Account)

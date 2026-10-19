@@ -211,9 +211,13 @@ def audit_session_restoration(destination, prior_hashes, *, installed_dir, game_
 
 
 def admit():
+    # R18 explicitly permits a separate isolated background app while the owner
+    # uses their idle app. Installation admission below still rejects every
+    # existing game/launcher, recovery journal and fresh foreign bridge lease.
+    names = "@('LastWar.exe','LastWarLauncher.exe')" if os.environ.get("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1" else "@('LastWar.exe','LastWarLauncher.exe','LWBridge.Desktop.exe')"
     check = subprocess.run(
         ["powershell", "-NoProfile", "-Command",
-         "Get-CimInstance Win32_Process | Where-Object { $_.Name -in @('LastWar.exe','LastWarLauncher.exe','LWBridge.Desktop.exe') } | Select-Object -ExpandProperty ProcessId"],
+         "Get-CimInstance Win32_Process | Where-Object { $_.Name -in " + names + " } | Select-Object -ExpandProperty ProcessId"],
         capture_output=True, text=True, check=True,
     )
     if check.stdout.strip():

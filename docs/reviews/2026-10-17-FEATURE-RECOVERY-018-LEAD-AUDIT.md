@@ -583,3 +583,23 @@ Handoff rule unchanged; record progress under "R18 progress".
   retained byte-identical SHA-256s, Map app_settings retained, G count 17 retained. Proof:
   artifacts/feature018-r18-task2/startup-proof/receipt.json; reproducible via tools/feature018_r18_startup_check.py.
   Fresh Release publish PASS. This is packaged controlled startup evidence, not a native scan/gameplay positive.
+
+- **Task 3 complete for worker scope (2026-10-19):** Space now reads visible native cities through
+  WorldPointManager.GetMainByScreen / BuildPointInfo.protectEndTime, projects each city through the native
+  world camera, and displays separate read-only countdown labels above protected cities while Space is held.
+  Release, text-input admission loss or loss of the exact foreground game closes the non-activating,
+  click-through display; positions/remaining times refresh while held. The original own-shield status path
+  remains only for shield-item validation. Inert multi-city/seconds/ms/expired/missing/scene checks PASS;
+  hold/release/owner-race checks and full Desktop.Checks PASS (HOME_FEATURE_DELIVERY_CHECKS_OK).
+  Native background proof: artifacts/map014-takeover/native-ui-20261019-004200 on exact approved UID/2212,
+  session 55e8a11ec5074f8a99b9d19eb5354028/game33392. Passive City scan completed 2500/2500, 4288 rows; two
+  simultaneously visible active shielded cities 1349057123795379308 / 1349057347985122434 had end times
+  1792628428 / 1792372406, exactly matching fresh Map City Shield Ends data; countdowns 257696820 / 1674820 ms.
+  Receipts r18-active-visible-shields.json and r18-shield-comparison.json. Physical Space remains OWNER TEST.
+  Background harness disallows key/show/window operations, skips key capture and starts its launcher without
+  activation. The owner's open R17 app stays untouched. First private app attempt failed on the occupied
+  default pipe before game start; second exposed a hardcoded helper pipe path and failed authentication,
+  then exited/restored exactly. Fixed isolated proof pipe propagation; successful run exit0, restoration
+  proven, exact v26 originals and no recovery journal. REA cannot parse the custom .rdl format; current
+  source pins use the existing hash-gated RGMD reader (artifacts/feature018-r18-{world-fields,shield-cil}.txt).
+  No gameplay action, input injection, shield use or anti-cheat change was performed.

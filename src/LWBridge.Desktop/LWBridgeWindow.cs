@@ -358,7 +358,16 @@ internal sealed partial class LWBridgeWindow : Form
             // That fallback is useful for legacy diagnostics, but it must never choose
             // which installation receives the lifecycle/control-pipe ownership.
             GameRootStatus liveGameRoot = new GameInstallationService(config).GetLaunchAdmissionStatus();
-            bridgeHostState = new LWBridgeControlPipeHostState();
+            // R18 isolated background proof must not contend for the owner's
+            // normal app listener. Keep the same SID ACL/handshake and installation
+            // ownership gates on a private, source-valid 16-hex pipe identity.
+            string? isolatedProofPipe = productionPaths?.ExplicitIsolation == true &&
+                Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_BACKGROUND_ONLY") == "1"
+                ? LWBridgeControlPipeContract.FullPathPrefix + Convert.ToHexString(
+                    System.Security.Cryptography.SHA256.HashData(
+                        System.Text.Encoding.UTF8.GetBytes(productionPaths.Root))).ToLowerInvariant()[..16]
+                : null;
+            bridgeHostState = new LWBridgeControlPipeHostState(isolatedProofPipe);
             if (liveGameRoot.Valid)
             {
                 string expectedClientPath =

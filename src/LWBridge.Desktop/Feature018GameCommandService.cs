@@ -36,7 +36,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "mini_chest_position" or "mini_chest_mark" or "mini_chest_unmark" or
         "mini_frontline_status" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
-        "feature018_input_focus" or
+        "feature018_input_focus" or "feature018_visible_city_shields" or
         "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
         "feature018_shield_inventory_get" or
@@ -463,6 +463,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "mini_chest_mark":
             case "mini_chest_unmark":
             case "feature018_input_focus":
+            case "feature018_visible_city_shields":
             case "feature018_sheep_automation_status":
                 if (command == "mini_frontline_status" &&
                     (payload.EnumerateObject().Any(entry => entry.Name != "profileId") ||

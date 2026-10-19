@@ -197,6 +197,16 @@ internal sealed class Feature018HotkeyCapture : IDisposable
     internal string CaptureId => captureId;
     internal long LastObservedSequence => Interlocked.Read(ref observedSequence);
     internal Feature018CapturedIntent[] SnapshotCapturedIntents() => observed.ToArray();
+    internal bool IsSpaceHeld()
+    {
+        try
+        {
+            if (disposed || !IsExactForegroundOwner() || !authenticatedOwnerAndTextInputClear()) return false;
+            bool held = platform.WatchedKeysDown().Contains(Keys.Space);
+            return held && IsExactForegroundOwner() && authenticatedOwnerAndTextInputClear();
+        }
+        catch { return false; }
+    }
 
     internal Feature018HotkeyCapture(
         int gamePid,

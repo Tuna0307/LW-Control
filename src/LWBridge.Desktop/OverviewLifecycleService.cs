@@ -1621,7 +1621,7 @@ internal sealed partial class OverviewLifecycleService : INativeAsyncCommandServ
             if (invocation.ControlPipeLaunchBinding is not null)
             {
                 start.ArgumentList.Add("--control-pipe-path");
-                start.ArgumentList.Add(LWBridgeControlPipeContract.GetCurrentUserFullPath());
+                start.ArgumentList.Add(bridgeHostState?.PipePath ?? LWBridgeControlPipeContract.GetCurrentUserFullPath());
             }
         }
         else
