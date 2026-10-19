@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Web.WebView2.Core;
 
 namespace LWBridge.Desktop;
@@ -20,7 +21,6 @@ internal sealed partial class LWBridgeWindow
         var game = new Feature018GameCommandService(new Feature018OwnedGameExchange(lifecycle),
             equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId),
             profileRuntimeConfigStore);
-
         bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
             lifecycle.OwnsExactProcess(owner.GamePid) &&
             lifecycle.MatchesOwnedMapScanSession(owner) &&
@@ -368,6 +368,11 @@ internal sealed partial class LWBridgeWindow
         var game = new Feature018GameCommandService(new Feature018OwnedGameExchange(lifecycle),
             equipmentConfigService, new Feature018AuthenticatedGameAccount(uid, serverId),
             profileRuntimeConfigStore);
+        ProfileRuntimeConfigStore runtimeStore = profileRuntimeConfigStore
+            ?? throw new InvalidOperationException("FEATURE018 runtime config store missing");
+        JsonObject initialRedPacketConfig = runtimeStore.ReadTasksSnapshot()["redPacket"] is JsonObject savedRedPacket
+            ? (JsonObject)savedRedPacket.DeepClone()
+            : ChatAutomationConfigCommandService.Default("redPacket");
 
         bool IsOwner() => Feature018IsApprovedAccount(uid, serverId) &&
             lifecycle.OwnsExactProcess(owner.GamePid) &&
@@ -444,7 +449,7 @@ internal sealed partial class LWBridgeWindow
                     "(()=>{const b=document.querySelectorAll('.automation-categories button')[4];if(!b)return false;b.click();return true;})()") != "true")
                 throw new InvalidDataException("R23 Chat proof could not open Chat category.");
             await WaitDom(
-                "(()=>{const cards=[...document.querySelectorAll('[data-native-chat]')];return cards.length===3&&cards.every(c=>{const s=c.querySelector('button[role=switch]');return s&&!s.disabled&&c.querySelector('.automation-card-meta-row')&&!c.querySelector('[role=alert]')})})()",
+                "(()=>{const cards=[...document.querySelectorAll('[data-native-chat]')];if(cards.length!==3||!cards.every(c=>c.querySelector('.automation-card-meta-row')&&!c.querySelector('[role=alert]')))return false;return ['redPacket','fireworks'].every(k=>{const s=document.querySelector(`[data-native-chat=${k}] button[role=switch]`);return s&&!s.disabled})})()",
                 "native Chat cards");
 
             using JsonDocument dom = JsonDocument.Parse(await core.ExecuteScriptAsync(
@@ -475,6 +480,9 @@ internal sealed partial class LWBridgeWindow
                 $"document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')==='{changed.ToString().ToLowerInvariant()}'",
                 "Red Packet changed setting");
             await WaitNativeEnabled("redPacket", changed, "Red Packet changed setting");
+            await WaitDom(
+                "(()=>{const b=document.querySelector('[data-native-chat=redPacket] button[role=switch]');return !!b&&!b.disabled})()",
+                "Red Packet changed save completed");
 
             if (await core.ExecuteScriptAsync(
                     "(()=>{const c=document.querySelector('[data-native-chat=redPacket]');const b=c?.querySelector('button[role=switch]');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
@@ -483,6 +491,9 @@ internal sealed partial class LWBridgeWindow
                 $"document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')==='{initialRedPacket.ToString().ToLowerInvariant()}'",
                 "Red Packet restored setting");
             await WaitNativeEnabled("redPacket", initialRedPacket, "Red Packet restored setting");
+            await WaitDom(
+                "(()=>{const b=document.querySelector('[data-native-chat=redPacket] button[role=switch]');return !!b&&!b.disabled})()",
+                "Red Packet restore save completed");
 
             await Task.Delay(2200, token);
             JsonElement after = await Status();
@@ -532,15 +543,11 @@ internal sealed partial class LWBridgeWindow
             {
                 try
                 {
-                    string expected = initialRedPacket.ToString().ToLowerInvariant();
-                    string current = await core.ExecuteScriptAsync(
-                        "document.querySelector('[data-native-chat=redPacket] button[role=switch]')?.getAttribute('aria-checked')");
-                    if (current != JsonSerializer.Serialize(expected))
-                    {
-                        await core.ExecuteScriptAsync(
-                            "(()=>{const b=document.querySelector('[data-native-chat=redPacket] button[role=switch]');if(!b||b.disabled)return false;b.click();return true;})()");
-                        await WaitNativeEnabled("redPacket", initialRedPacket, "Red Packet recovery restore", 60);
-                    }
+                    runtimeStore.SaveResourceAutomationConfig("redPacket",
+                        (JsonObject)initialRedPacketConfig.DeepClone());
+                    await Status();
+                    await WaitNativeEnabled("redPacket", initialRedPacket,
+                        "Red Packet recovery restore", 60);
                 }
                 catch { /* The partial receipt below records the primary proof failure. */ }
             }

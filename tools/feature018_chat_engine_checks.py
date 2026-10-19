@@ -38,10 +38,6 @@ def main():
       SFSNetwork={SendMessage=function(route,...)state.sent[#state.sent+1]={route,...};if state.throw then error('uncertain send')end end}
       CS={SceneManager={World={GetPointInfoByUuid=function(self,uuid)return {uuid=uuid,IsHaveGetReward=function()return state.treasureGot end}end}}}
       package.preload.rapidjson=function()return {decode=function(s)if s=='config'then return state.config end;error('invalid json')end}end
-      state.treasureOriginalCalls=0
-      package.preload['Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage']=function()
-        return {HandleMessage=function(self,response)state.treasureOriginalCalls=state.treasureOriginalCalls+1 end}
-      end
       state.config={redPacket={enabled=true,claimDelaySeconds={2,2},replyEnabled=true,replyDelaySeconds={2,2},replies={'thanks'}},
         fireworks={enabled=true,claimDelaySeconds={0,0}},treasure={enabled=true,claimDelaySeconds={0,0}}}
       request={authorizedUid='1001',confirmedChatConfig='config'}
@@ -57,47 +53,44 @@ def main():
     vm.execute('''
       engine.Register(feature,overview);assert(#state.sent==0,'Require must be inert')
       assert(engine.Configure(request).state=='confirmed')
-      local treasureClass=require('Net.Msgs.RadarCenter.DetectEventClaimTreasureMessage')
-      assert(engine.Status().data.services.treasure.capabilities.claims==true)
+      assert(engine.Status().data.services.treasure.capabilities.claims==false)
       local ordinary=msg(0,'999',1);state.callbacks[1](ordinary)
       assert(engine.Status().data.listener.observedMessages==1 and #state.sent==0)
       state.messages={msg(611,'red',2),msg(693,'3001',3),msg(600,'4001',4)}
       state.now=state.now+1000;engine.Pump()
-      assert(#state.sent==2 and state.sent[1][1]~=10 and state.sent[2][1]~=10,'Independent service queues')
+      assert(#state.sent==1 and state.sent[1][1]==11,'Fireworks claim route must remain real')
+      local treasure=engine.Status().data.services.treasure
+      assert(treasure.failed==1 and treasure.submitted==0 and treasure.capabilities.claims==false,
+        'Uncorrelated Treasure route must fail closed before send')
       assert(engine.Status().data.services.fireworks.claimed==0,'Submission is not confirmation')
       state.callbacks[3]({uuid='not-matching'});assert(engine.Status().data.services.fireworks.claimed==0)
       state.callbacks[3]({uuid=3001});assert(engine.Status().data.services.fireworks.claimed==1)
-      state.now=state.now+2000;engine.Pump();assert(#state.sent==3 and state.sent[3][1]==10)
-      assert(state.sent[3][2]=='red'and state.sent[3][3]==1 and state.sent[3][4]==1 and state.sent[3][5]==123)
+      state.now=state.now+2000;engine.Pump();assert(#state.sent==2 and state.sent[2][1]==10)
+      assert(state.sent[2][2]=='red'and state.sent[2][3]==1 and state.sent[2][4]==1 and state.sent[2][5]==123)
       state.callbacks[2]({redPacket={uuid='red'}});assert(state.replyCount==0)
-      treasureClass.HandleMessage(treasureClass,{reward={id=1}})
-      local ts=engine.Status().data.services.treasure
-      assert(ts.claimed==1 and ts.receipts[1].nativeReply==true and ts.receipts[1].rewardPresent==true)
-      assert(state.treasureOriginalCalls==1,'Original Treasure reply handler must still run')
       state.now=state.now+2000;engine.Pump();assert(state.replyCount==1)
-      engine.Run({kind='redPacket',authorizedUid='1001',confirmedChatConfig='config'});engine.Pump();assert(#state.sent==3,'No duplicate UUID claims')
+      engine.Run({kind='redPacket',authorizedUid='1001',confirmedChatConfig='config'});engine.Pump();assert(#state.sent==2,'No duplicate UUID claims')
       -- Disable while a delayed event is queued: no later automatic send/reply.
       state.callbacks[1](msg(611,'disabled-queued',5));state.config.redPacket.enabled=false
-      engine.Configure(request);state.now=state.now+10000;engine.Pump();assert(#state.sent==3)
+      engine.Configure(request);state.now=state.now+10000;engine.Pump();assert(#state.sent==2)
       -- Explicit Run now remains useful with the switch off.
       state.messages={msg(611,'manual',6)};request.kind='redPacket';engine.Run(request)
-      state.now=state.now+3000;engine.Pump();assert(#state.sent==4)
+      state.now=state.now+3000;engine.Pump();assert(#state.sent==3)
       -- A send that throws must never be retried, even by Run now.
       state.messages={msg(611,'uncertain',7)};engine.Run(request);state.throw=true
-      state.now=state.now+3000;engine.Pump();assert(#state.sent==5);state.throw=false
-      engine.Run(request);state.now=state.now+3000;engine.Pump();assert(#state.sent==5)
+      state.now=state.now+3000;engine.Pump();assert(#state.sent==4);state.throw=false
+      engine.Run(request);state.now=state.now+3000;engine.Pump();assert(#state.sent==4)
       -- An exact account or launch-lease mismatch stops all delayed dispatch.
       state.config.redPacket.enabled=true;state.messages={msg(611,'foreign',8)};engine.Configure(request)
-      LuaEntry.Player.uid='2002';state.now=state.now+3000;engine.Pump();assert(#state.sent==5)
+      LuaEntry.Player.uid='2002';state.now=state.now+3000;engine.Pump();assert(#state.sent==4)
       assert(engine.Configure(request).state=='failed')
-      LuaEntry.Player.uid='1001';state.token=nil;engine.Pump();assert(#state.sent==5)
+      LuaEntry.Player.uid='1001';state.token=nil;engine.Pump();assert(#state.sent==4)
       engine.CleanupAfterLeaseLoss();assert(state.callbacks[1]==nil and state.callbacks[2]==nil)
-      assert(treasureClass.HandleMessage(treasureClass,{reward={id=2}})==nil and state.treasureOriginalCalls==2,'Treasure reply hook must restore original')
       -- A different account/session must not inherit any queued targets.
       LuaEntry.Player.uid='2002';request.authorizedUid='2002';state.token='other';state.messages={}
-      assert(engine.Configure(request).state=='confirmed');state.now=state.now+3000;engine.Pump();assert(#state.sent==5)
+      assert(engine.Configure(request).state=='confirmed');state.now=state.now+3000;engine.Pump();assert(#state.sent==4)
     ''')
-    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, three claim routes, delays, stop, reply, UUID fencing, foreign UID/session')
+    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure fail-closed correlation, delays, stop, reply, UUID fencing, foreign UID/session')
 
 
 if __name__ == '__main__':
