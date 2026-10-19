@@ -517,3 +517,14 @@ Workers do NOT live-test these; owner tests when free and reports back:
 - Space shield countdown — after it is fixed to show all protected cities (worker builds the fix; owner tests).
 - Food House auto-solve and Black Market chest marker — when the events return.
 Remaining worker items: Space countdown fix (build), wipe map scans at app start, City Layout reliability.
+
+## Owner notes on the Squads / AFK tab — 2026-10-19 (not yet assigned)
+Owner decision — REMOVE (OWNER_DIRECTION) from Squads / AFK → AFK Tasks:
+- "Use Stamina items automatically" card (automation.autoUsePotion),
+- Auto Alliance Drill,
+- Auto Garrison,
+- Zombie Bus Garrison.
+Owner is interested in (explain/keep, status to be checked): Monster AFK (master switch + Shared AFK Profiles),
+and the Equipment Schemes tab ("recover equipment schemes" — make it work like the original).
+Note for the assignment: without automatic stamina items, Monster AFK pauses when stamina runs out (free daily
+stamina on the Automation tab is separate). Lead to confirm with owner before removing stamina auto-use.
