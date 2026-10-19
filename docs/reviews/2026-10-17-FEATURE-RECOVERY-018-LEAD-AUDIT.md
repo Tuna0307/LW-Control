@@ -1046,3 +1046,28 @@ R22 published as pre-release hotkeys-test-r22-2026-10-20 (owner approved). Next 
 Layout pictures so EVERY building in the grid and properties box shows its game picture (find why only ~7 decode —
 request limit, de-duplication by path, visible-first loading, or cache misses), prove with screenshots of a full city
 view at 100% and zoomed out.
+
+## Owner test of R22 and R23 assignment — 2026-10-20
+Owner results (R22 ZIP, own account) and lead diagnosis:
+1. Q: "Native continuous-march transaction lost its single-send fence" — tools/feature018_attack_actions.lua ~2457
+   (`AutomationObserve`): a previous re-target record for that squad (automationRetarget/hotkeyRetarget) whose
+   sendCount is not exactly 1 (e.g. a re-target that was refused before sending, sendCount 0) is never cleared and
+   blocks every later press. Fix: a record that never sent is discarded; only a truly uncertain send (sent but not
+   confirmed) may block, with a clear message, and it must clear once the game state settles.
+2. F10: "Native owner alliance UID not verifiable" — tools/feature018_relocation_actions.lua `alliance_rally_snapshot`
+   normalises the alliance id with `uid()`, which only accepts decimal digits. Current v26 alliance ids are hex
+   strings (R15 receipt: "15f557d90bf9485594cc0ebb6fd89ebc"), so F10 fails for every player in an alliance. Fix:
+   read the alliance id as an opaque non-empty string (as the R15 attack guard does); keep all other F10 gates.
+3. App disconnected mid-session ("Reconnecting"); the app then relaunched the game (00:54 → new game PID at 00:58,
+   now connected, heartbeat OK). Cause not yet known (Player-prev.log shows no crash line). Investigate: app logs /
+   recovery reason (game exit, server disconnect, heartbeat timeout, bridge pipe), and whether any F018 command or the
+   Q error path triggered it.
+4. Equipment Schemes tab stayed empty with "There is no authenticated owned game session" while disconnected. It must
+   reload by itself when the game reconnects (and Refresh must retry), not stay empty.
+5. City Layout pictures (queued from R22): every building must show its picture.
+R23 tasks: fix 1, 2, 4, 5; diagnose 3 and fix if it is ours. Background only; owner tests keys. Live-prove F10 only on
+4799432499002212 if it is in an alliance (else offline + owner test). Owner-test ZIP (R23 package).
+Owner reminder: close your own LW-Control app and game before the worker starts live tests.
+
+### R23 progress (worker updates this)
+- (none yet)
