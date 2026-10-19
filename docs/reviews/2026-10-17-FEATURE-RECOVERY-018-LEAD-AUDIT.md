@@ -506,3 +506,14 @@ tools/feature018_hotkey_game.lua) and shows one remaining time. Next round: hold
 each visible shielded city's remaining shield time above that city; release Space → hide. Read-only, no game
 actions. Also pending owner direction: map scan data is not worth keeping between sessions — wipe map scans at app
 start, keep settings/profiles.
+
+## Owner will test personally (set aside for workers) — 2026-10-19
+Owner: "put those that i will test it later aside as record it down, i will test it when i am free".
+Workers do NOT live-test these; owner tests when free and reports back:
+- F6/F7/F8 use 8h/12h/24h shield (needs alliance coins).
+- Alt+1–4 equipment presets.
+- F9 random relocation, F10 alliance relocation.
+- City ruin hover (needs 攻城精通 skill).
+- Space shield countdown — after it is fixed to show all protected cities (worker builds the fix; owner tests).
+- Food House auto-solve and Black Market chest marker — when the events return.
+Remaining worker items: Space countdown fix (build), wipe map scans at app start, City Layout reliability.
