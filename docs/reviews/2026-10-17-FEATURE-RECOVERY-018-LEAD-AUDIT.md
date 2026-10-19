@@ -530,3 +530,5 @@ Note for the assignment: without automatic stamina items, Monster AFK pauses whe
 stamina on the Automation tab is separate). Lead to confirm with owner before removing stamina auto-use.
 Owner confirmed (2026-10-19): KEEP the "Use Stamina items automatically" card. Remove only Auto Alliance Drill,
 Auto Garrison and Zombie Bus Garrison.
+Owner correction (2026-10-19, final): remove ONLY Auto Garrison and Zombie Bus Garrison. KEEP Auto Alliance Drill
+and the "Use Stamina items automatically" card. This supersedes the two notes above.
