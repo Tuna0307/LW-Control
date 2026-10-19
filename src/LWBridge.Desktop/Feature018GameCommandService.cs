@@ -50,7 +50,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_shield_shop" or
         "feature018_frontline_action" or
         "feature018_equipment_preflight" or
-        "feature018_equipment_snapshot" or
+        "feature018_equipment_snapshot" or "feature018_equipment_restore" or
         "feature018_hotkey_action";
 
     public async Task<object?> InvokeAsync(string command, JsonElement payload, CancellationToken cancellationToken)
@@ -70,6 +70,27 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 throw new BridgeCommandException("INVALID_REQUEST", "Monster AFK profile settings exceed the native command limit.");
         }
         Feature018AuthenticatedGameAccount? capturedHotkeyAccount = null;
+        string wireCommand = command;
+        if (command == "feature018_equipment_restore")
+        {
+            if (equipmentConfig is null) throw new BridgeCommandException("STATE_UNAVAILABLE", "Equipment store unavailable.");
+            object? saved = await equipmentConfig.InvokeAsync("equipment_config_get", JsonSerializer.SerializeToElement(new { }), cancellationToken).ConfigureAwait(false);
+            if (saved is not JsonObject stored || stored["initialEquipmentConfig"] is not JsonObject baseline ||
+                baseline["ownerUid"] is not JsonValue owner || !owner.TryGetValue<string>(out string? uid) || !ValidGameUuid(uid) ||
+                baseline["serverId"] is not JsonValue server || !server.TryGetValue<int>(out int baselineServer) || baselineServer <= 0 ||
+                baseline["squads"] is not JsonArray squads)
+                throw new BridgeCommandException("GAME_PRECONDITION_FAILED", "No authenticated initial equipment snapshot is saved.");
+            capturedHotkeyAccount = new Feature018AuthenticatedGameAccount(uid!, baselineServer);
+            if (requiredAccount is not null && requiredAccount != capturedHotkeyAccount)
+                throw new BridgeCommandException("GAME_ACCOUNT_CHANGED", "Initial equipment snapshot belongs to another game account.");
+            var trustedRoot = new JsonObject { ["equipmentPresets"] = new JsonArray(new JsonObject
+                { ["id"] = "initial-native-restore", ["name"] = "Initial equipment", ["squads"] = squads.DeepClone() }) };
+            Dictionary<string, string> trusted = await ReadConfirmedEquipmentPreflightFieldsAsync(
+                JsonSerializer.SerializeToElement(new { slot = 1 }), cancellationToken, trustedRoot).ConfigureAwait(false);
+            if (fields.TryGetValue("queryOnly", out string? query)) trusted["queryOnly"] = query;
+            fields = trusted;
+            wireCommand = "feature018_hotkey_action";
+        }
         if (command == "feature018_hotkey_action")
         {
             bool hasUid = payload.TryGetProperty("expectedGameUid", out JsonElement uid);
@@ -129,13 +150,13 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             _ => TimeSpan.FromSeconds(8),
         };
         bool acceptsSubmission = command is "city_layout_apply_start" or "city_layout_restore_start" or "monopoly_cell_open" or
-            "automation_start" or "automation_stop" or "feature018_hotkey_action" ||
+            "automation_start" or "automation_stop" or "feature018_hotkey_action" or "feature018_equipment_restore" ||
             // cursorOpen only enters the source-native formation chooser;
             // the Lua receipt explicitly reports accepted:true and
             // requestDispatched:false. Never construe it as a march send.
             (command == "feature018_attack_prepare" && fields["mode"] == "cursorOpen") ||
             (command == "feature018_shield_shop" && fields["mode"] is "buy" or "status");
-        return await exchange.ExchangeAsync(command, fields, timeout, cancellationToken,
+        return await exchange.ExchangeAsync(wireCommand, fields, timeout, cancellationToken,
             allowAcceptedDispatch: acceptsSubmission,
             expectedAccount: requiredAccount ?? capturedHotkeyAccount).ConfigureAwait(false);
     }
@@ -254,6 +275,17 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
                 fields["action"] = action;
                 break;
             }
+            case "feature018_equipment_restore":
+                foreach (JsonProperty entry in payload.EnumerateObject())
+                    if (entry.Name is not ("profileId" or "queryOnly"))
+                        throw new BridgeCommandException("INVALID_REQUEST", "Equipment restore accepts only owner routing and query mode.");
+                if (payload.TryGetProperty("queryOnly", out JsonElement restoreQuery))
+                {
+                    if (restoreQuery.ValueKind != JsonValueKind.True)
+                        throw new BridgeCommandException("INVALID_REQUEST", "Restore query mode must be true.");
+                    fields["queryOnly"] = "1";
+                }
+                break;
             case "feature018_equipment_snapshot":
                 if (payload.EnumerateObject().Any())
                     throw new BridgeCommandException("INVALID_REQUEST", "Equipment snapshot accepts an empty authenticated request only.");
@@ -555,7 +587,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
     /// No equipment apply/spend field can be emitted from this method.
     /// </summary>
     internal async Task<Dictionary<string, string>> ReadConfirmedEquipmentPreflightFieldsAsync(
-        JsonElement payload, CancellationToken cancellationToken)
+        JsonElement payload, CancellationToken cancellationToken, JsonObject? trustedOverride = null)
     {
         Dictionary<string, string> fields =
             ReadFields("feature018_equipment_preflight", payload);
@@ -563,7 +595,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             throw new BridgeCommandException("GAME_METHOD_UNAVAILABLE",
                 "Owner-scoped persisted equipment config is unavailable.");
         using JsonDocument empty = JsonDocument.Parse("{}");
-        object? saved = await equipmentConfig.InvokeAsync(
+        object? saved = trustedOverride ?? await equipmentConfig.InvokeAsync(
             "equipment_config_get", empty.RootElement, cancellationToken)
             .ConfigureAwait(false);
         if (saved is not JsonObject root ||
@@ -575,7 +607,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         // Pre-check size before walking potentially arbitrary nested JSON
         // written by older desktop versions. There is no partial truncation.
         string json = presets.ToJsonString();
-        if (json.Length > EquipmentPresetWireLimit ||
+        if (json.Length > EquipmentPresetWireLimit * 4 ||
             json.IndexOfAny(['\r', '\n', '\0']) >= 0)
             throw new BridgeCommandException("GAME_PRECONDITION_FAILED",
                 "Confirmed equipment presets exceed the bounded native preflight schema.");
@@ -641,6 +673,18 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (requestedPositions == 0)
             throw new BridgeCommandException("GAME_PRECONDITION_FAILED",
                 "Saved equipment preset contains no hero positions.");
+        // Only the selected ordinal is acted on. Keep the other identities so
+        // native ordinal lookup stays exact without sending four full armies.
+        var wirePresets = new JsonArray();
+        for (int index = 0; index < presets.Count; index++)
+        {
+            JsonObject preset = (JsonObject)presets[index]!;
+            wirePresets.Add(index == presetIndex ? preset.DeepClone() : new JsonObject
+            { ["id"] = preset["id"]!.DeepClone(), ["name"] = preset["name"]!.DeepClone(), ["squads"] = new JsonArray() });
+        }
+        json = wirePresets.ToJsonString();
+        if (json.Length > EquipmentPresetWireLimit)
+            throw new BridgeCommandException("GAME_PRECONDITION_FAILED", "Selected equipment preset exceeds the native command limit.");
         fields["confirmedEquipmentPresets"] = json;
         fields["presetId"] = presetId;
         fields["action"] = "equipment";

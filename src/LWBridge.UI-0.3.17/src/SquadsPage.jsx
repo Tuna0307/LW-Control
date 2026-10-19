@@ -7,6 +7,7 @@ import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from ".
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { backendBridge } from "./backendBridge.js";
+import { NativeEquipmentContent } from "./NativeEquipmentContent.jsx";
 import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog, createStaminaPotionAdapter, emptyStaminaConfig } from "./squadsAfkRuntime.js";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
@@ -19,7 +20,7 @@ export function SquadsPage({ previewState = "", profileId = "", activeTab, onAct
   const tab = activeTab ?? localTab;
   const [visitedTabs, setVisitedTabs] = useState(() => new Set([tab]));
   const [equipmentRefreshCount, setEquipmentRefreshCount] = useState(0);
-  const equipmentOnline = equipmentPreview && previewState !== "squads-equipment-offline";
+  const equipmentOnline = equipmentPreview ? previewState !== "squads-equipment-offline" : Boolean(profileId && backendBridge.available);
   const availableSquads = previewAfkAvailableSquads(previewState);
   const selectTab = (nextTab) => {
     setVisitedTabs((current) => {
@@ -42,7 +43,7 @@ export function SquadsPage({ previewState = "", profileId = "", activeTab, onAct
         <button type="button" role="tab" className={tab === "equipment" ? "active" : ""} aria-selected={tab === "equipment"} onClick={() => selectTab("equipment")}>{t("squad.tabEquipment")}</button>
       </div>
       {visitedTabs.has("afk") ? <Activity mode={tab === "afk" ? "visible" : "hidden"}><AfkContent key={profileId || "no-profile"} previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} availableSquads={availableSquads} /></Activity> : null}
-      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}><EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /></Activity> : null}
+      {visitedTabs.has("equipment") ? <Activity mode={tab === "equipment" ? "visible" : "hidden"}>{previewEnabled ? <EquipmentContent previewEnabled={previewEnabled} previewState={previewState} profileId={profileId} /> : <NativeEquipmentContent key={profileId} profileId={profileId} refreshCount={equipmentRefreshCount} />}</Activity> : null}
     </section>
   );
 }

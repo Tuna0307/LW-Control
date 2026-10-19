@@ -474,7 +474,9 @@ function M.Snapshot(fields)
                 if exact_id(hero_uuid) then
                     local hero,reason=read_hero(index,position)
                     if not hero then return unavailable(reason) end
-                    local entry={position=position,heroUuid=hero.uuid,equips={}}
+                    local entry={position=position,heroUuid=hero.uuid,equips={},
+                        heroNameKey=tostring(member(hero.object,"firstName") or ""),
+                        level=member(hero.object,"level")}
                     for slot=1,4 do
                         local ok_item,item=invoke(hero.object,"GetEquipBySlotType",slot)
                         if not ok_item then return unavailable("Native gear slot lookup unavailable") end
@@ -499,7 +501,9 @@ function M.Snapshot(fields)
         local slot=number_in_range(member(item,"slot"),1,4)
         if id and slot then
             candidates[#candidates+1]={equipUuid=id,slot=slot,
-                itemId=tostring(member(item,"itemId") or ""),
+                itemId=tostring(member(item,"configId") or ""),
+                nameKey=tostring(member(member(item,"config"),"name") or ""),
+                level=member(item,"level"),quality=member(member(item,"config"),"quality"),
                 heroType=member(member(item,"config"),"heroType"),
                 heroUuid=exact_id(member(item,"heroUuid")) or "",
                 unused=exact_id(member(item,"heroUuid"))==nil}

@@ -365,10 +365,15 @@ class EquipmentApplyChecks(unittest.TestCase):
     def test_native_snapshot_supplies_legitimate_persistable_loadout_and_inventory(self):
         lua,module,state,_,_=self.fixture()
         lua.execute('function DataCenter.EquipDataManager:GetAllEquipList()return state.items end')
+        lua.execute('state.hero101.firstName="hero_native_name"; state.items[501].configId=101; state.items[501].config.name="equip_native_name"; state.items[501].level=7')
         result=module.Snapshot(fields(lua,authorizedUid='2553945035002288'))
         self.assertEqual(result['state'],'confirmed');data=result['data']
         self.assertEqual(data['squads'][1]['positions'][1]['equips'][1]['equipUuid'],'501')
         self.assertEqual(data['squads'][2]['positions'][1]['heroUuid'],'202')
+        self.assertEqual(data['squads'][1]['positions'][1]['heroNameKey'],'hero_native_name')
+        stock=next(item for item in data['items'].values() if item['equipUuid']=='501')
+        self.assertEqual(stock['itemId'],'101');self.assertEqual(stock['nameKey'],'equip_native_name')
+        self.assertEqual(stock['level'],7)
         self.assertEqual(len(data['items']),4);self.assertEqual(state['sent'],0)
         self.assertTrue(data['readOnly']);self.assertFalse(data['requestDispatched'])
 

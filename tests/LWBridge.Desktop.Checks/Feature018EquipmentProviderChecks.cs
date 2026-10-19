@@ -92,6 +92,7 @@ internal static class Feature018EquipmentProviderChecks
     internal static async Task RunAsync()
     {
         await TrustedEquipmentConfigSurvivesPendingAndConfirmationAsync();
+        await InitialEquipmentRestoreUsesTrustedBaselineAsync();
         await ChangedPresetDuringConfirmationIsRejectedAsync();
         await ChangedRelocationItemDuringConfirmationIsRejectedAsync();
         await OriginalOpaqueRelocationItemUsesSingleSendAndReadOnlyPollAsync();
@@ -164,6 +165,70 @@ internal static class Feature018EquipmentProviderChecks
                         !last["confirmedEquipmentPresets"].Contains("forged", StringComparison.Ordinal),
                     "caller-supplied equipment config overrode persisted profile authority");
             }
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static async Task InitialEquipmentRestoreUsesTrustedBaselineAsync()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "feature018-equipment-restore-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            var store = new ProfileRuntimeConfigStore(Path.Combine(root, "config.json"));
+            var saved = JsonNode.Parse("""
+                {"equipmentPresets":[{"id":"user-preset","name":"Keep this preset","squads":[]}],
+                "initialEquipmentConfig":{"ownerUid":"3133546747002289","serverId":2289,
+                "squads":[{"squadIndex":1,"positions":[{"position":1,
+                "equips":[{"slot":1,"equipUuid":"9007199254740995"}]}]}]}}
+                """)!.AsObject();
+            store.SaveEquipmentConfig(saved);
+            var config = new EquipmentConfigCommandService(store);
+            string requestPath = Path.Combine(root, "request.txt"), replyPath = Path.Combine(root, "reply.json");
+            var owner = new OverviewMapScanSession("owner", "launch", "challenge", 12345,
+                @"C:\fake\LastWar.exe", "2026-10-17T00:00:00Z");
+            var sent = new List<Dictionary<string, string>>();
+            var account = new Feature018AuthenticatedGameAccount(Owner.GameUid, Owner.ServerId);
+            var exchange = new Feature018OwnedGameExchange(() => owner, actual => actual == owner,
+                requestPath, replyPath, delay: (_, _) =>
+                {
+                    var fields = File.ReadAllLines(requestPath).Where(line => line.Contains('='))
+                        .Select(line => line.Split('=', 2)).ToDictionary(pair => pair[0], pair => pair[1]);
+                    sent.Add(fields);
+                    File.WriteAllText(replyPath, JsonSerializer.Serialize(new
+                    {
+                        schemaVersion = 1, requestId = fields["requestId"], profileId = fields["profileId"],
+                        launchSessionId = fields["launchSessionId"], challenge = fields["challenge"],
+                        gamePid = int.Parse(fields["gamePid"]), command = fields["command"],
+                        observedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), state = "confirmed",
+                        data = Equipment("initial-native-restore"),
+                    }));
+                    return Task.CompletedTask;
+                }, currentAccount: _ => account);
+            var game = new Feature018GameCommandService(exchange, config);
+            await game.InvokeAsync("feature018_equipment_restore", Element(new()), CancellationToken.None);
+            await game.InvokeAsync("feature018_equipment_restore", Element(new() { ["queryOnly"] = true }), CancellationToken.None);
+            Require(sent.Count == 2 && !sent[0].ContainsKey("queryOnly") && sent[1]["queryOnly"] == "1",
+                "restore did not preserve its one-shot query mode");
+            Require(sent.All(fields => fields["command"] == "feature018_hotkey_action" &&
+                fields["presetId"] == "initial-native-restore" && fields["confirmedEquipmentPresets"].Contains("9007199254740995")),
+                "restore did not use the trusted native initial loadout");
+            object? after = await config.InvokeAsync("equipment_config_get", Element(new()), CancellationToken.None);
+            Require(JsonNode.DeepEquals(saved, after as JsonNode), "restore overwrote the user's saved presets or baseline");
+            try
+            {
+                await game.InvokeAsync("feature018_equipment_restore", Element(new() { ["confirmedEquipmentPresets"] = "forged" }), CancellationToken.None);
+                throw new InvalidOperationException("restore accepted caller equipment");
+            }
+            catch (BridgeCommandException error) { Require(error.Code == "INVALID_REQUEST", "unexpected forged restore error"); }
+            account = account with { GameUid = "10001" };
+            try
+            {
+                await game.InvokeAsync("feature018_equipment_restore", Element(new()), CancellationToken.None);
+                throw new InvalidOperationException("restore accepted another account");
+            }
+            catch (BridgeCommandException error) { Require(error.Code == "GAME_CONNECTION_UNAVAILABLE", "restore lost baseline owner fence"); }
+            Require(sent.Count == 2, "invalid restore reached native mailbox");
         }
         finally { Directory.Delete(root, recursive: true); }
     }
