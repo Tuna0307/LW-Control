@@ -498,3 +498,11 @@ ZIP `artifacts/feature018-r17-3939fb01/release/LW-Control-FEATURE-018-R17-OWNER-
 Cleanup: live game scripts in LocalLow are the exact v26 originals, no active journal, no game/app process. Two
 earlier runs (165523, 171602) left no exit receipt, but nothing is left running and the files are original. The
 r17 City receipt (175655) is a read-only snapshot, no moves.
+
+## Lead finding — Space shield countdown does not match the original (2026-10-19)
+Original 0.3.17 text: "Hold Space to display remaining Shield time above protected cities" (all shielded cities in
+view on the world map). Current build reads only the player's OWN shield (`StatusManager.GetShieldStatusIds`,
+tools/feature018_hotkey_game.lua) and shows one remaining time. Next round: hold Space on the world map → show
+each visible shielded city's remaining shield time above that city; release Space → hide. Read-only, no game
+actions. Also pending owner direction: map scan data is not worth keeping between sessions — wipe map scans at app
+start, keep settings/profiles.
