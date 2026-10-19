@@ -854,3 +854,20 @@ R21 tasks (background only unless the owner says the PC is free; owner tests phy
 - **Task 3 implementation checkpoint:** production Equipment Schemes now reads the native owner gear/inventory, saves ordinal presets 1–4, edits owned UUID slots, applies with one-shot native transactions and resumes pending confirmation. Initial native equipment is saved with UID/server; the new restore command reads that trusted baseline without overwriting presets. Native hero/equipment name keys use the installed game-text reader in the app language. Only the selected preset's full loadout is transmitted, retaining ordinal identities and the native wire bound. Mounted UI, native equipment (30 checks), and full Desktop.Checks pass, including trusted restore, no caller payload substitution, baseline owner fence and exact preset preservation. Background native apply/restore proof is next.
 
 - **Task 3 complete (31a77179 equipment source, native session 115806):** exact UID admission passed. Through the app commands, saved all four ordinal schemes, removed gear UUID 1376833201183958087 from one native slot (one completed uninstall), then used the new trusted initial Restore endpoint (one completed install). Every native hero/slot map and every inventory wearer matches the starting snapshot; saved schemes and initial baseline are unchanged after Restore. Native metadata includes real hero key 900549 and equipment key 431073/configId 410100/level 40. Evidence: r21-equipment-proof.json state=proven. No physical keys or desktop input. The test-owned config is restored by staged cleanup. F10 was not invoked in this session (the build contained an uncommitted offline F10 candidate); Task 5 gets a fresh qualified build. Finished the owned session for exact script restoration. Next: City Layout native names/readable levels.
+
+## Lead audit of R21 partial — 2026-10-19 (pushed 6ab1220a; worker stopped mid-round)
+Pushed = remote 6ab1220a. No game/app running; live game scripts are exact v26 originals; no journal.
+Lead re-ran attack, hotkey, AFK native, City, relocation and equipment Lua checks, the new R21 City-names UI check,
+Desktop.Checks and UI check: all PASS (including the uncommitted work below).
+- Task 1 Q/W/E/R re-target: ACCEPTED (native commands, session 114524): redirect while MOVING on the same march;
+  redirect after recall while returning (squad 3). Physical keys = owner test.
+- Task 2 error banner: ACCEPTED (6 s auto-hide, Close button, clears on tab change).
+- Task 3 Equipment Schemes tab: ACCEPTED (session 115806): real gear read, presets 1–4 saved, apply + restore,
+  every slot back to the start. Alt+1–4 physical = owner test.
+- Task 4 City names: CODED, NOT COMMITTED (CityLayoutPage.jsx, styles.css, feature018_city_game.lua + checks,
+  scripts/check-r21-city-names.mjs); offline checks pass; no live proof yet.
+- Task 5 F10: CODED, NOT COMMITTED (feature018_relocation_actions.lua + checks, large change); no diagnosis report
+  or live proof yet.
+- Task 6 ZIP: NOT BUILT.
+Next worker: review and commit the uncommitted Task 4/5 work (do not discard), live-prove City names in the
+background, report the F10 root cause, then build the R21 ZIP.
