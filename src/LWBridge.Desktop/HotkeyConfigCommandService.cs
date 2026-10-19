@@ -195,7 +195,7 @@ internal sealed class ProfileRuntimeConfigStore
                 if (tasksNode is not JsonObject tasks)
                     throw StateUnavailable();
 
-                return (JsonObject)tasks.DeepClone();
+                return WithoutRetiredTasks((JsonObject)tasks.DeepClone());
             }
             catch (BridgeCommandException) { throw; }
             catch (Exception) { throw StateUnavailable(); }
@@ -204,9 +204,6 @@ internal sealed class ProfileRuntimeConfigStore
 
     internal JsonObject SaveMonsterSweepConfig(JsonObject config) =>
         SaveTaskConfig("monsterSweep", config);
-
-    internal JsonObject SaveAllianceGarrisonConfig(JsonObject config) =>
-        SaveTaskConfig("allianceGarrison", config);
 
     internal JsonObject SaveResourceAutomationConfig(
         string taskName,
@@ -374,7 +371,16 @@ internal sealed class ProfileRuntimeConfigStore
         JsonNode? node = JsonNode.Parse(json);
         if (node is not JsonObject root)
             throw StateUnavailable();
+        if (root["tasks"] is JsonObject tasks) WithoutRetiredTasks(tasks);
         return root;
+    }
+
+    internal static JsonObject WithoutRetiredTasks(JsonObject tasks)
+    {
+        // OWNER_DIRECTION R18: legacy task settings remain loadable but never run.
+        tasks.Remove("allianceGarrison");
+        tasks.Remove("zombieBus");
+        return tasks;
     }
 
     private static HotkeyConfig DecodeHotkeys(JsonNode node)

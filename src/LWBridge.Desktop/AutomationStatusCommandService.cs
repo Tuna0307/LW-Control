@@ -19,7 +19,6 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
         "strongholdResource",
         "allianceCenterResource",
         "allianceGather",
-        "allianceGarrison",
         "railway",
         "dispatch",
         "dispatchAssist",
@@ -107,6 +106,8 @@ internal sealed class AutomationStatusCommandService : INativeAsyncCommandServic
             JsonNode? node = JsonNode.Parse(File.ReadAllText(runtimeStatusPath));
             if (node is null)
                 throw new JsonException("Automation status JSON is null.");
+            if (node["tasks"] is JsonObject tasks)
+                ProfileRuntimeConfigStore.WithoutRetiredTasks(tasks);
             return node;
         }
         catch (BridgeCommandException)

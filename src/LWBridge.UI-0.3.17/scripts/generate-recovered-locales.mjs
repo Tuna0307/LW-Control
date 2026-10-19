@@ -54,6 +54,11 @@ for (const [language, fileName] of Object.entries(sources)) {
   body = body.replace(/\.\.\.e(?:\.[A-Za-z0-9_-]+|\[[^\]]+\])/g, "...shared");
   const messages = Function("shared", `"use strict"; return ({${body}});`)(sharedMessages[language] || {});
 
+  // OWNER_DIRECTION R18: retired automation cards must not return on regeneration.
+  for (const key of Object.keys(messages)) {
+    if (key.startsWith("garrison.") || key.startsWith("zombieBus.")) delete messages[key];
+  }
+
   const banner = [
     "// Generated from the exact recovered LWBridge 0.3.17 locale asset.",
     `// Source: evidence/lwbridge-0.3.17/ui/frontend-package/web/assets/${fileName}`,

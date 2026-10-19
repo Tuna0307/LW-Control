@@ -104,3 +104,15 @@ for (const marker of [
 }
 
 console.log(`LWB317_UI_COMPLETE_CHECKS_OK ${literalKeys.size} referenced keys ${JSON.stringify(localeCounts)}`);
+
+// R18 owner removal must survive locale regeneration and leave the retained cards.
+const squadsR18 = fs.readFileSync(path.join(root, "src/SquadsPage.jsx"), "utf8");
+if (/Garrison|zombieBus|allianceGarrison/.test(squadsR18)) throw new Error("R18 retired card remains");
+for (const key of ["squad.afkMaster", "squad.afkAllianceDrill", "automation.autoUsePotion"]) {
+  if (!squadsR18.includes(key)) throw new Error(`R18 retained card lost: ${key}`);
+}
+for (const code of localeCodes) {
+  const messages = (await import(pathToFileURL(path.join(root, "src/locales", `${code}.js`)))).default;
+  if (Object.keys(messages).some(key => /^(garrison|zombieBus)\./.test(key))) throw new Error(`R18 retired locale: ${code}`);
+}
+console.log("FEATURE018_R18_RETIRED_CARDS_OK");

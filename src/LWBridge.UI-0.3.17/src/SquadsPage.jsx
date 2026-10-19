@@ -1,8 +1,8 @@
 import { Activity, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "./i18n.jsx";
 import { RallyJoinSettings } from "./RallyJoinSettings.jsx";
-import { applyAfkTarget, makePreviewAfkProfile, normalizeJoinRestrictions, previewAfkLevelOutOfRange, previewAfkProfileValid, previewAfkTargets, refreshGarrisonTargets, resolvePreviewAfkTarget, validJoinRestrictions } from "./previewAfkContracts.js";
-import { initialAfkToolbarConfig, previewAfkAvailableSquads, previewAfkMasterStopAck, previewAfkProfileRuntime, previewAfkRuntimeNames, previewDrillRuntime, previewGarrisonMemberFixture, previewGarrisonRuntime, previewZombieBusRuntime } from "./previewAfkCloseoutFixtures.js";
+import { applyAfkTarget, makePreviewAfkProfile, normalizeJoinRestrictions, previewAfkLevelOutOfRange, previewAfkProfileValid, previewAfkTargets, resolvePreviewAfkTarget, validJoinRestrictions } from "./previewAfkContracts.js";
+import { initialAfkToolbarConfig, previewAfkAvailableSquads, previewAfkMasterStopAck, previewAfkProfileRuntime, previewAfkRuntimeNames, previewDrillRuntime } from "./previewAfkCloseoutFixtures.js";
 import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from "./previewConfigHook.jsx";
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
@@ -115,137 +115,6 @@ function AllianceDrillPreviewSettings({ disabled, value, onChange, onJoinRestric
   return <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("squad.afkAllianceDrill")}</strong><span>{t("squad.afkAllianceDrillDescription")}</span></div><div className="monster-afk-drill-inline"><span className="muted">{t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}</span><ToggleRow label={t("squad.afkAllianceDrillActive")} checked={value.activeRally} disabled={disabled} onChange={(activeRally) => patch({ activeRally })} /></div><div className="automation-compact-choice-group automation-squad-priority" role="group" aria-label={t("squad.afkAllianceDrillOrder", { order: value.squadIndexes.join(" → ") || "-" })}>{orderedSquads.map((number) => { const selected = value.squadIndexes.includes(number); return <div className={`automation-squad-priority-item${selected ? " selected" : ""}${draggedSquad === number ? " dragging" : ""}${dragOverSquad === number ? " drag-over" : ""}`} draggable={selected && !disabled} onDragStart={(event) => { if (!selected) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedSquad(number); }} onDragOver={(event) => { if (selected && draggedSquad != null && draggedSquad !== number) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; setDragOverSquad(number); } }} onDrop={(event) => { event.preventDefault(); reorderSquad(number); setDraggedSquad(null); setDragOverSquad(null); }} onDragEnd={() => { setDraggedSquad(null); setDragOverSquad(null); }} key={number}><label><input type="checkbox" checked={selected} disabled={disabled} onChange={() => { const squadIndexes = selected ? value.squadIndexes.filter((item) => item !== number) : [...value.squadIndexes, number]; patch({ enabled: value.enabled && squadIndexes.length > 0, squadIndexes }); }} /><span>{t("squad.number", { number })}</span></label>{selected ? <span className="automation-squad-drag-handle" aria-hidden="true"><DragGlyph /></span> : null}</div>; })}</div><RallyJoinSettings value={value.joinRestrictions || normalizeJoinRestrictions(undefined, 1, true)} onChange={(joinRestrictions) => onJoinRestrictionsChange ? onJoinRestrictionsChange(joinRestrictions) : patch({ joinRestrictions })} disabled={disabled} previewState={previewState} ToggleRow={ToggleRow} />{runtime.filter((row) => row.step === "waiting_join_delay").map((row) => <span className="muted" key={row.squadIndex}>{t("squad.number", { number: row.squadIndex })} · {t("squad.join.waitingDetail", { target: runtimeNames[row.joinTargetNameKey || ""] || row.joinTargetName || "", seconds: row.joinWaitSeconds ?? 0 })}</span>)}</section>;
 }
 
-function GarrisonPickerDialog({ label, onClose, children }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialog.showModal();
-    return () => {
-      dialog.close();
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, []);
-  return <dialog ref={ref} className="app-dialog garrison-modal-backdrop" role="dialog" aria-modal="true" aria-label={label}
-    onCancel={(event) => { event.preventDefault(); onClose(); }}
-    onKeyDown={(event) => {
-      event.stopPropagation();
-      if (event.key !== "Tab") return;
-      const controls = [...event.currentTarget.querySelectorAll("button, [href], input, select, textarea, [tabindex]")]
-        .filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") && element.getClientRects().length > 0);
-      const first = controls[0];
-      const last = controls[controls.length - 1];
-      if (!first) event.preventDefault();
-      else if (event.shiftKey && (document.activeElement === first || !controls.includes(document.activeElement))) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !controls.includes(document.activeElement))) {
-        event.preventDefault(); first.focus();
-      }
-    }}>{children}</dialog>;
-}
-
-function GarrisonPreviewSettings({ disabled, value, onChange, previewState = "", config = null, actionError = "", availableSquads = [1, 2, 3, 4] }) {
-  const { t } = useI18n();
-  const DragGlyph = () => <svg className="ui-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 4h.01M11 4h.01M5 8h.01M11 8h.01M5 12h.01M11 12h.01" /></svg>;
-  const runtime = previewGarrisonRuntime(previewState);
-  const save = (next) => onChange(refreshGarrisonTargets(next, memberFixture.members));
-  const memberFixture = previewGarrisonMemberFixture(previewState);
-  const members = memberFixture.members.filter((member) => member.uid !== memberFixture.selfUid);
-  const memberMap = new Map(memberFixture.members.map((member) => [member.uid, member]));
-  const buildingMap = new Map(runtime.buildings.map((building) => [building.buildId, building]));
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const [pickerSearch, setPickerSearch] = useState("");
-  const [draftAllies, setDraftAllies] = useState(new Set());
-  const [draggedTargetKey, setDraggedTargetKey] = useState("");
-  const [draggedSquad, setDraggedSquad] = useState(null);
-  const filtered = members.filter((member) => !pickerSearch.trim() || member.name.toLowerCase().includes(pickerSearch.trim().toLowerCase()));
-  const [selectionError, setSelectionError] = useState("");
-  const selected = new Set(value.targets.map((target) => target.kind === "allianceBuilding" ? `building:${target.buildId}` : `ally:${target.uid}`));
-  const selectedAllies = value.targets.filter((target) => target.kind === "allyCity");
-  const discoveryReady = runtime.discoveryReady !== false && memberFixture.ready;
-  const availableTargetCount = discoveryReady ? value.targets.filter((target) => target.kind === "allianceBuilding"
-    ? buildingMap.get(target.buildId)?.available === true
-    : memberMap.get(target.uid)?.available === true).length : value.targets.length;
-  const orderedSquads = [...value.squadPriority, ...availableSquads.filter((number) => !value.squadPriority.includes(number))];
-  const targetKey = (target) => target.kind === "allianceBuilding" ? `building:${target.buildId}` : `ally:${target.uid}`;
-  const buildingName = (building) => {
-    const translated = building?.nameKey ? runtime.gameTexts?.[building.nameKey] : "";
-    const name = translated && translated !== building.nameKey ? translated : building?.name || t(building?.role === "center" ? "garrison.center" : "garrison.attachment");
-    return building?.allianceAbbr ? `[${building.allianceAbbr}] ${name}` : name;
-  };
-  const targetName = (target) => target.kind === "allianceBuilding"
-    ? buildingMap.has(target.buildId) ? buildingName(buildingMap.get(target.buildId)) : target.nameSnapshot
-    : memberMap.get(target.uid)?.name || target.nameSnapshot;
-  const reorderTarget = (target) => {
-    if (!draggedTargetKey || draggedTargetKey === targetKey(target)) return;
-    const next = [...value.targets];
-    const sourceIndex = next.findIndex((entry) => targetKey(entry) === draggedTargetKey);
-    const targetIndex = next.findIndex((entry) => targetKey(entry) === targetKey(target));
-    if (sourceIndex < 0 || targetIndex < 0) return;
-    const [moved] = next.splice(sourceIndex, 1);
-    next.splice(targetIndex, 0, moved);
-    save({ ...value, targets: next });
-  };
-  const reorderSquad = (target) => {
-    if (draggedSquad == null || draggedSquad === target) return;
-    const next = [...value.squadPriority];
-    const sourceIndex = next.indexOf(draggedSquad);
-    const targetIndex = next.indexOf(target);
-    if (sourceIndex < 0 || targetIndex < 0) return;
-    const [moved] = next.splice(sourceIndex, 1);
-    next.splice(targetIndex, 0, moved);
-    save({ ...value, squadPriority: next });
-  };
-  const toggleBuilding = (building) => {
-    const key = `building:${building.buildId}`;
-    const targets = selected.has(key)
-      ? value.targets.filter((target) => !(target.kind === "allianceBuilding" && target.buildId === building.buildId))
-      : [...value.targets, { kind: "allianceBuilding", buildId: building.buildId, nameSnapshot: buildingName(building) }];
-    save({ ...value, targets });
-  };
-  useEffect(() => {
-    if (!pickerOpen) return;
-    const closeOnEscape = (event) => { if (event.key === "Escape") setPickerOpen(false); };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [pickerOpen]);
-  return <>
-    <section className="automation-card monster-afk-toolbar-settings garrison-settings">
-      <div className="monster-afk-toolbar-settings-heading"><div><strong>{t("garrison.settings")}</strong><span>{t("garrison.settingsDescription")}</span></div><span className="garrison-count">{t("garrison.selectedTargets", { count: value.targets.length })}</span></div>
-      <div className="garrison-settings-grid">
-        <div className="garrison-target-panel">
-          <div className="garrison-section-heading"><strong>{t("garrison.buildings")}</strong><span>{runtime.buildings.filter((building) => selected.has(`building:${building.buildId}`)).length}/{runtime.buildings.length}</span></div>
-          <div className="garrison-building-grid">{runtime.buildings.map((building) => <label className={`garrison-building ${building.role}${building.available ? "" : " unavailable"}`} key={building.key}><input type="checkbox" checked={selected.has(`building:${building.buildId}`)} disabled={disabled || !building.available} onChange={() => toggleBuilding(building)} /><span>{buildingName(building)}<small>{building.unavailableReason === "season_settled" ? t("garrison.seasonEnded") : building.full ? t("garrison.full") : t(building.role === "center" ? "garrison.center" : "garrison.attachment")}</small></span></label>)}{runtime.buildings.length === 0 ? <p className="muted">{t(disabled ? "garrison.offline" : "garrison.noBuildings")}</p> : null}</div>
-          <div className="garrison-section-heading"><strong>{t("garrison.allies")}</strong><button type="button" disabled={disabled} onClick={() => { setDraftAllies(new Set(selectedAllies.map((target) => target.uid))); setPickerSearch(""); setPickerOpen(true); }}>{t("garrison.chooseAllies")}</button></div>
-          <div className="garrison-selected-allies">{selectedAllies.length ? selectedAllies.map((target) => { const member = memberMap.get(target.uid); return <span className={member?.available === true ? "" : "unavailable"} key={target.uid}>{member?.name || target.nameSnapshot}</span>; }) : <span className="muted">{t("garrison.noSelectedAllies")}</span>}</div>
-          <div className="garrison-section-heading"><strong>{t("garrison.targetPriority")}</strong><span>{t("garrison.dragHint")}</span></div>
-          <div className="garrison-priority-list">{value.targets.map((target, index) => <div className="garrison-priority-item" draggable={!disabled} onDragStart={(event) => { if (disabled) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedTargetKey(targetKey(target)); }} onDragOver={(event) => { if (draggedTargetKey && draggedTargetKey !== targetKey(target)) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; } }} onDrop={(event) => { event.preventDefault(); reorderTarget(target); setDraggedTargetKey(""); }} onDragEnd={() => setDraggedTargetKey("")} key={targetKey(target)}><span>{index + 1}</span><strong>{targetName(target)}</strong><i aria-hidden="true"><DragGlyph /></i></div>)}{value.targets.length === 0 ? <p className="muted">{t("garrison.targetRequired")}</p> : null}</div>
-        </div>
-        <div className="garrison-runtime-panel">
-          <div className="garrison-section-heading"><strong>{t("garrison.squadPriority")}</strong><span>{value.squadPriority.join(" → ") || "-"}</span></div>
-          <div className="automation-compact-choice-group automation-squad-priority">{orderedSquads.map((number) => { const isSelected = value.squadPriority.includes(number); return <div className={`automation-squad-priority-item${isSelected ? " selected" : ""}`} draggable={isSelected && !disabled} onDragStart={(event) => { if (!isSelected || disabled) return; if (event?.dataTransfer) event.dataTransfer.effectAllowed = "move"; setDraggedSquad(number); }} onDragOver={(event) => { if (isSelected && draggedSquad != null && draggedSquad !== number) { event.preventDefault(); if (event?.dataTransfer) event.dataTransfer.dropEffect = "move"; } }} onDrop={(event) => { event.preventDefault(); reorderSquad(number); setDraggedSquad(null); }} onDragEnd={() => setDraggedSquad(null)} key={number}><label><input type="checkbox" checked={isSelected} disabled={disabled} onChange={() => { if (isSelected && value.enabled && value.squadPriority.length === 1) { setSelectionError("garrison.squadRequired"); return; } const squadPriority = isSelected ? value.squadPriority.filter((item) => item !== number) : [...value.squadPriority, number]; save({ ...value, squadPriority }); }} /><span>{t("squad.number", { number })}</span></label>{isSelected ? <span className="automation-squad-drag-handle" aria-hidden="true"><DragGlyph /></span> : null}</div>; })}</div>
-          <p className="muted">{t("garrison.squadHint")}</p>
-          <div className="garrison-section-heading"><strong>{t("garrison.current")}</strong><span>{runtime.guardingCount}/{Math.min(value.squadPriority.length, availableTargetCount)}</span></div>
-          <div className="garrison-assignment-list">{runtime.assignments.length ? runtime.assignments.map((assignment) => <div className="garrison-assignment" key={`${assignment.squadIndex}:${assignment.targetKey}`}><b>{assignment.squadIndex}</b><span><strong>{assignment.targetName}</strong><small>{t(`garrison.state.${assignment.state}`)}</small></span><em className={assignment.state}>{t(assignment.owned ? "garrison.automatic" : "garrison.manual")}</em></div>) : <p className="muted">{t("garrison.noAssignments")}</p>}</div>
-        </div>
-      </div>
-      {config ? <PreviewConfigError config={config} t={t} disabled={disabled} /> : null}
-      {selectionError || actionError || runtime.discoveryError ? <p className="inline-error">{t(selectionError || actionError || runtime.discoveryError)}</p> : null}
-      <div className="garrison-actions"><ToggleRow label={t("garrison.recallOnDisable")} checked={value.recallOnDisable !== false} disabled={disabled} onChange={(recallOnDisable) => save({ ...value, recallOnDisable })} /><button type="button" className="primary-action" disabled data-preview-action="presentation-only" title={t("status.gameDisconnectedDisabled")}>{t("garrison.runNow")}</button></div>
-    </section>
-    {pickerOpen ? <GarrisonPickerDialog label={t("garrison.chooseAllies")} onClose={() => setPickerOpen(false)}><section className="garrison-modal"><div className="garrison-modal-heading"><strong>{t("garrison.chooseAllies")}</strong><button type="button" onClick={() => setPickerOpen(false)}>{t("common.cancel")}</button></div><input aria-label={t("garrison.searchAlly")} value={pickerSearch} onChange={(event) => setPickerSearch(event.target.value)} placeholder={t("garrison.searchAlly")} autoFocus /><div className="garrison-ally-list">{filtered.map((member) => <label className={member.available ? "" : "unavailable"} key={member.uid}><input type="checkbox" checked={draftAllies.has(member.uid)} disabled={!member.available} onChange={(event) => setDraftAllies((current) => { const next = new Set(current); if (event.target.checked) next.add(member.uid); else next.delete(member.uid); return next; })} /><span><strong>{member.name}</strong><small>{t("garrison.allyDetail", { level: member.level, power: Math.round(member.power / 10000) })}</small></span><em>{t(member.available ? member.online ? "garrison.online" : "garrison.offlineMember" : member.unavailableReason === "cross_server" ? "garrison.crossServer" : "garrison.targetLoading")}</em></label>)}</div><div className="garrison-modal-actions"><button type="button" className="primary-action" onClick={() => { const retained = value.targets.filter((target) => target.kind !== "allyCity" || draftAllies.has(target.uid)); const retainedAllies = new Set(retained.filter((target) => target.kind === "allyCity").map((target) => target.uid)); const added = members.filter((member) => member.available && draftAllies.has(member.uid) && !retainedAllies.has(member.uid)).map((member) => ({ kind: "allyCity", uid: member.uid, nameSnapshot: member.name })); save({ ...value, targets: [...retained, ...added] }); setPickerOpen(false); }}>{t("common.completed")}</button></div></section></GarrisonPickerDialog> : null}
-  </>;
-}
-
-function ZombieBusPreviewSettings({ previewState = "", open = true, config = null }) {
-  const { t } = useI18n();
-  const runtime = previewZombieBusRuntime(previewState);
-  return [
-    open ? <section className="automation-card monster-afk-toolbar-settings" key="settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("zombieBus.title")}</strong></div><p className="muted">{t("zombieBus.description")}</p>{runtime.assignments.length ? <div className="zombie-bus-assignments"><table><thead><tr>{["squad","ally","bus","status"].map((key) => <th key={key}>{t(`zombieBus.${key}`)}</th>)}</tr></thead><tbody>{runtime.assignments.map((row) => <tr key={row.squadIndex}><td>{row.squadIndex}</td><td>{row.name || row.uid}</td><td>{row.nameKey && runtime.gameTexts?.[row.nameKey] && runtime.gameTexts[row.nameKey] !== row.nameKey ? runtime.gameTexts[row.nameKey] : t(row.gold === true ? "zombieBus.gold" : row.gold === false ? "zombieBus.normal" : "zombieBus.unknown")}</td><td>{t(`zombieBus.state.${row.state}`)}</td></tr>)}</tbody></table></div> : null}</section> : null,
-    config?.error || runtime.lastError ? <div className="monster-afk-toolbar-settings" key="errors">{config ? <PreviewConfigError config={config} t={t} /> : null}{runtime.lastError ? <p className="automation-error" role="alert">{t(runtime.lastError)}</p> : null}</div> : null,
-  ];
-}
-
 function initialAfkProfiles(previewState) {
   const steel = makePreviewAfkProfile("steel", "Fixture Steel Hunt", "farm", "steel");
   const gold = { ...makePreviewAfkProfile("gold", "Fixture Gold Hunt", "farm", "gold"), squadIndexes: [2], minLevel: 3, maxLevel: 8, levelFilterEnabled: true };
@@ -283,18 +152,6 @@ function initialPotionConfig(previewState) {
 function validPotionConfig(config) {
   return typeof config.enabled === "boolean" && Number.isInteger(config.minStamina)
     && config.minStamina >= 0 && config.minStamina <= 9999 && typeof config.preferFifty === "boolean";
-}
-
-function initialGarrisonConfig(previewState) {
-  return initialAfkToolbarConfig(previewState).garrison;
-}
-
-function validGarrisonConfig(config) {
-  return typeof config.enabled === "boolean" && (!config.enabled || (config.targets.length > 0 && config.squadPriority.length > 0));
-}
-
-function initialZombieConfig(previewState) {
-  return initialAfkToolbarConfig(previewState).zombieBus;
 }
 
 function translatedAfkError(t, value) {
@@ -337,8 +194,6 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
   const storeScope = (scope) => JSON.stringify([profileScope, `${scope}:${previewState}`]);
   const afkConfig = usePreviewConfig(() => previewEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
   const potionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
-  const garrisonConfig = usePreviewConfig(() => initialGarrisonConfig(previewState), validGarrisonConfig, previewState === "squads-profile-garrison-save-error", storeScope("task:allianceGarrison"));
-  const zombieConfig = usePreviewConfig(() => initialZombieConfig(previewState), (value) => typeof value.enabled === "boolean", previewState === "squads-profile-zombie-save-error", storeScope("task:zombieBus"));
   const profiles = afkConfig.draft.strategies;
   const setProfiles = (value, delay = 400) => afkConfig.store.edit((draft) => ({ ...draft, strategies: typeof value === "function" ? value(draft.strategies) : value }), delay);
   const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
@@ -346,9 +201,8 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
   const [draggedProfileId, setDraggedProfileId] = useState("");
   const [dragOverProfileId, setDragOverProfileId] = useState("");
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  const [toolbarPanel, setToolbarPanel] = useState(() => previewState.includes("potion") ? "potion" : previewState.includes("drill") ? "drill" : previewState.includes("garrison") ? "garrison" : previewState.includes("zombie") ? "zombieBus" : null);
+  const [toolbarPanel, setToolbarPanel] = useState(() => previewState.includes("potion") ? "potion" : previewState.includes("drill") ? "drill" : null);
   const [compositionError, setCompositionError] = useState(previewState === "squads-profile-target-failed" ? "common.actionFailed" : "");
-  const [garrisonActionError, setGarrisonActionError] = useState("");
   const newProfileCounter = useRef(1);
   const addControlRef = useRef(null);
   const layoutRef = useRef(null);
@@ -394,18 +248,6 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     if (immediate) { potionConfig.store.edit(next, false); potionConfig.store.flush().catch(() => {}); }
     else potionConfig.store.edit(next);
   };
-  const updateGarrison = (mutator, immediate = false) => {
-    const current = garrisonConfig.store.getSnapshot().draft;
-    const next = typeof mutator === "function" ? mutator(current) : mutator;
-    if (immediate) { garrisonConfig.store.edit(next, false); garrisonConfig.store.flush().catch(() => {}); }
-    else garrisonConfig.store.edit(next);
-  };
-  const updateZombie = (mutator, immediate = true) => {
-    const current = zombieConfig.store.getSnapshot().draft;
-    const next = typeof mutator === "function" ? mutator(current) : mutator;
-    if (immediate) { zombieConfig.store.edit(next, false); zombieConfig.store.flush().catch(() => {}); }
-    else zombieConfig.store.edit(next);
-  };
   const toggleMaster = async (enabled) => {
     if (enabled) {
       afkConfig.store.edit((draft) => ({ ...draft, enabled: true }), false);
@@ -422,17 +264,7 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
       setProfileAction("");
     }
   };
-  const garrisonRuntime = previewGarrisonRuntime(previewState);
-  const garrisonMembers = previewGarrisonMemberFixture(previewState);
-  const zombieRuntime = previewZombieBusRuntime(previewState);
-  const profilePanelHidden = ["drill", "garrison", "zombieBus"].includes(toolbarPanel);
-  const garrisonBuildingMap = new Map(garrisonRuntime.buildings.map((building) => [building.buildId, building]));
-  const garrisonMemberMap = new Map(garrisonMembers.members.map((member) => [member.uid, member]));
-  const garrisonDiscoveryReady = garrisonRuntime.discoveryReady !== false && garrisonMembers.ready;
-  const garrisonAvailableTargetCount = garrisonDiscoveryReady ? garrisonConfig.draft.targets.filter((target) => target.kind === "allianceBuilding"
-    ? garrisonBuildingMap.get(target.buildId)?.available === true
-    : garrisonMemberMap.get(target.uid)?.available === true).length : garrisonConfig.draft.targets.length;
-  const zombieRunning = zombieRuntime.assignments.some((assignment) => ["sending", "marching", "guarding", "recalling", "returning"].includes(assignment.state));
+  const profilePanelHidden = toolbarPanel === "drill";
   const drillRuntime = previewDrillRuntime(previewState);
   const drillState = drillRuntime.some((row) => row.activityRole === "leader") ? "squad.afkAllianceDrillLeading" : drillRuntime.length > 0 ? "squad.afkAllianceDrillJoining" : "squad.afkAllianceDrillWaiting";
   const drillOrder = afkConfig.draft.allianceDrill.squadIndexes.join(" → ") || "-";
@@ -455,17 +287,13 @@ function AfkContent({ previewEnabled, previewState, profileId = "", availableSqu
     }
   };
   return (
-    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty || garrisonConfig.dirty || zombieConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving || garrisonConfig.saving || zombieConfig.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
+    <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
       <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} />
       <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} />
       <div className="monster-afk-toolbar">
         <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />
         <CompactAfkCard title={t("automation.autoUsePotion")} description={t("automation.potionMonsterOnly")} summary={`${t("automation.minStamina")} ${potionConfig.draft.minStamina}`} enabled={potionConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "potion"} onSettings={() => toggleToolbarPanel("potion")} onToggle={(enabled) => updatePotion((draft) => ({ ...draft, enabled }), true)} />
         <CompactAfkCard title={t("squad.afkAllianceDrill")} description={t("squad.afkAllianceDrillDescription")} summary={afkConfig.draft.allianceDrill.enabled && drillRuntime.length > 0 ? `${t(drillState)} · ${drillOrder}` : `${t("squad.afkAllianceDrillOrder", { order: drillOrder })} · ${t(afkConfig.draft.allianceDrill.activeRally ? "squad.afkAllianceDrillActive" : "squad.afkJoin")}`} enabled={afkConfig.draft.allianceDrill.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === "drill"} onSettings={() => toggleToolbarPanel("drill")} onToggle={(enabled) => { if (enabled && afkConfig.draft.allianceDrill.squadIndexes.length === 0) { setToolbarPanel("drill"); setCompositionError("squad.afkAllianceDrillSquadRequired"); return; } updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, enabled } }), true); }} />
-        <CompactAfkCard title={t("garrison.title")} description={t("garrison.description")} summary={garrisonConfig.draft.enabled ? t("garrison.summary", { active: garrisonRuntime.guardingCount, total: Math.min(garrisonConfig.draft.squadPriority.length, garrisonAvailableTargetCount) }) : t("common.disabled")} enabled={garrisonConfig.draft.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "garrison"} onSettings={() => toggleToolbarPanel("garrison")} onToggle={(enabled) => { if (enabled && (!garrisonConfig.draft.targets.length || !garrisonConfig.draft.squadPriority.length)) { setGarrisonActionError(garrisonConfig.draft.targets.length ? "garrison.squadRequired" : "garrison.targetRequired"); return; } setGarrisonActionError(""); updateGarrison((draft) => ({ ...draft, enabled }), true); }} />
-        {toolbarPanel === "garrison" ? <GarrisonPreviewSettings disabled={!previewEnabled} value={garrisonConfig.draft} previewState={previewState} config={garrisonConfig} actionError={garrisonActionError} availableSquads={availableSquads} onChange={(garrison) => updateGarrison(garrison, false)} /> : null}
-        <CompactAfkCard title={t("zombieBus.title")} description={t("zombieBus.description")} summary={previewEnabled ? t(zombieRuntime.lastError ? "common.failed" : zombieRunning ? "automation.running" : zombieConfig.draft.enabled ? "zombieBus.waiting" : "common.disabled") : t("status.disconnected")} enabled={zombieConfig.draft.enabled} disabled={!previewEnabled} settingsOpen={toolbarPanel === "zombieBus"} onSettings={() => toggleToolbarPanel("zombieBus")} onToggle={(enabled) => updateZombie((draft) => ({ ...draft, enabled }), true)} />
-        <ZombieBusPreviewSettings previewState={previewState} open={toolbarPanel === "zombieBus"} config={zombieConfig} />
         {toolbarPanel === "potion" ? <section className="automation-card monster-afk-toolbar-settings"><div className="monster-afk-toolbar-settings-heading"><strong>{t("automation.autoUsePotion")}</strong><span>{t("automation.potionMonsterOnly")}</span></div><div className="monster-afk-card-settings"><label><span>{t("automation.minStamina")}</span><input type="number" min="0" max="9999" step="1" value={Number.isNaN(potionConfig.draft.minStamina) ? "" : potionConfig.draft.minStamina} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, minStamina: event.target.valueAsNumber }), false)} /></label><label><input type="checkbox" checked={potionConfig.draft.preferFifty} disabled={!previewEnabled || Boolean(profileAction)} onChange={(event) => updatePotion((draft) => ({ ...draft, preferFifty: event.target.checked }), false)} /><span>{t("automation.preferFifty")}</span></label></div></section> : null}
         {toolbarPanel === "drill" ? <AllianceDrillPreviewSettings disabled={!previewEnabled || Boolean(profileAction)} value={afkConfig.draft.allianceDrill} previewState={previewState} availableSquads={availableSquads} runtimeNames={runtimeNames} onChange={(allianceDrill) => updateAfk((draft) => ({ ...draft, allianceDrill }), true)} onJoinRestrictionsChange={(joinRestrictions) => updateAfk((draft) => ({ ...draft, allianceDrill: { ...draft.allianceDrill, joinRestrictions } }), false)} /> : null}
       </div>

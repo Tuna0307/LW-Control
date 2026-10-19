@@ -68,7 +68,6 @@ internal sealed partial class LWBridgeWindow : Form
     private VisualMetricsConfigCommandService? visualMetricsConfigService;
     private EquipmentConfigCommandService? equipmentConfigService;
     private MonsterAfkConfigCommandService? monsterAfkConfigService;
-    private AllianceGarrisonConfigCommandService? allianceGarrisonConfigService;
     private ResourceAutomationConfigCommandService? resourceAutomationConfigService;
     private AutomationStatusCommandService? automationStatusService;
     private ClaimDelayConfigCommandService? claimDelayConfigService;
@@ -333,9 +332,6 @@ internal sealed partial class LWBridgeWindow : Form
         monsterAfkConfigService = profileRuntimeConfigStore is null
             ? null
             : new MonsterAfkConfigCommandService(profileRuntimeConfigStore);
-        allianceGarrisonConfigService = profileRuntimeConfigStore is null
-            ? null
-            : new AllianceGarrisonConfigCommandService(profileRuntimeConfigStore);
         resourceAutomationConfigService = profileRuntimeConfigStore is null || profileRuntimeConfigPath is null
             ? null
             : new ResourceAutomationConfigCommandService(
@@ -452,7 +448,6 @@ internal sealed partial class LWBridgeWindow : Form
             visualMetricsConfigService = owner.VisualMetricsConfig;
             equipmentConfigService = owner.EquipmentConfig;
             monsterAfkConfigService = owner.MonsterAfkConfig;
-            allianceGarrisonConfigService = owner.AllianceGarrisonConfig;
             resourceAutomationConfigService = owner.ResourceAutomationConfig;
             automationStatusService = owner.AutomationStatus;
             claimDelayConfigService = owner.ClaimDelayConfig;
@@ -487,7 +482,6 @@ internal sealed partial class LWBridgeWindow : Form
             if (visualMetricsConfigService is not null) services.Add(visualMetricsConfigService);
             if (equipmentConfigService is not null) services.Add(equipmentConfigService);
             if (monsterAfkConfigService is not null) services.Add(monsterAfkConfigService);
-            if (allianceGarrisonConfigService is not null) services.Add(allianceGarrisonConfigService);
             if (resourceAutomationConfigService is not null) services.Add(resourceAutomationConfigService);
             if (automationStatusService is not null) services.Add(automationStatusService);
             if (claimDelayConfigService is not null) services.Add(claimDelayConfigService);
@@ -731,7 +725,7 @@ internal sealed partial class LWBridgeWindow : Form
             owner.Map317, owner.MapAutoScan, owner.CityLayoutDraft, owner.ProfileSettings,
             owner.RuntimeConfigStore, owner.RuntimeConfigPath, owner.HotkeyConfig,
             owner.VisualMetricsConfig, owner.EquipmentConfig, owner.MonsterAfkConfig,
-            owner.AllianceGarrisonConfig, owner.ResourceAutomationConfig,
+            owner.ResourceAutomationConfig,
             owner.AutomationStatus, owner.ClaimDelayConfig);
         lock (retainedProfileRuntimes)
             retainedProfileRuntimes.Add(profileId, runtime);
@@ -825,7 +819,6 @@ internal sealed partial class LWBridgeWindow : Form
         VisualMetricsConfigCommandService? VisualMetrics,
         EquipmentConfigCommandService? Equipment,
         MonsterAfkConfigCommandService? MonsterAfk,
-        AllianceGarrisonConfigCommandService? Garrison,
         ResourceAutomationConfigCommandService? ResourceAutomation,
         AutomationStatusCommandService? AutomationStatus,
         ClaimDelayConfigCommandService? ClaimDelay);
@@ -835,7 +828,7 @@ internal sealed partial class LWBridgeWindow : Form
         map317CommandService, mapAutoScanService, cityLayoutDraftService,
         profileSettingsService, profileRuntimeConfigStore, profileRuntimeConfigPath,
         hotkeyConfigService, visualMetricsConfigService, equipmentConfigService,
-        monsterAfkConfigService, allianceGarrisonConfigService,
+        monsterAfkConfigService,
         resourceAutomationConfigService, automationStatusService, claimDelayConfigService);
 
     private void ActivateProfileRuntime(RetainedProfileRuntime runtime)
@@ -854,7 +847,6 @@ internal sealed partial class LWBridgeWindow : Form
         visualMetricsConfigService = runtime.VisualMetrics;
         equipmentConfigService = runtime.Equipment;
         monsterAfkConfigService = runtime.MonsterAfk;
-        allianceGarrisonConfigService = runtime.Garrison;
         resourceAutomationConfigService = runtime.ResourceAutomation;
         automationStatusService = runtime.AutomationStatus;
         claimDelayConfigService = runtime.ClaimDelay;

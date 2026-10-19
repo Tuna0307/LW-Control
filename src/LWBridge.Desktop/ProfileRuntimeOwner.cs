@@ -27,7 +27,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfigCommandService visualMetricsConfig,
         EquipmentConfigCommandService equipmentConfig,
         MonsterAfkConfigCommandService monsterAfkConfig,
-        AllianceGarrisonConfigCommandService allianceGarrisonConfig,
         ResourceAutomationConfigCommandService resourceAutomationConfig,
         AutomationStatusCommandService automationStatus,
         ClaimDelayConfigCommandService claimDelayConfig,
@@ -48,7 +47,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         VisualMetricsConfig = visualMetricsConfig;
         EquipmentConfig = equipmentConfig;
         MonsterAfkConfig = monsterAfkConfig;
-        AllianceGarrisonConfig = allianceGarrisonConfig;
         ResourceAutomationConfig = resourceAutomationConfig;
         AutomationStatus = automationStatus;
         ClaimDelayConfig = claimDelayConfig;
@@ -70,7 +68,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
     internal VisualMetricsConfigCommandService VisualMetricsConfig { get; }
     internal EquipmentConfigCommandService EquipmentConfig { get; }
     internal MonsterAfkConfigCommandService MonsterAfkConfig { get; }
-    internal AllianceGarrisonConfigCommandService AllianceGarrisonConfig { get; }
     internal ResourceAutomationConfigCommandService ResourceAutomationConfig { get; }
     internal AutomationStatusCommandService AutomationStatus { get; }
     internal ClaimDelayConfigCommandService ClaimDelayConfig { get; }
@@ -116,7 +113,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
         var visualMetrics = new VisualMetricsConfigCommandService(runtimeConfigStore);
         var equipment = new EquipmentConfigCommandService(runtimeConfigStore);
         var monsterAfk = new MonsterAfkConfigCommandService(runtimeConfigStore);
-        var garrison = new AllianceGarrisonConfigCommandService(runtimeConfigStore);
         string automationStatusPath = Path.Combine(
             fullProfileRoot,
             "runtime",
@@ -214,7 +210,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                garrison,
                 resourceAutomation,
                 automationStatus,
                 claimDelay,
@@ -249,7 +244,6 @@ internal sealed class ProfileRuntimeOwner : IDisposable
                 visualMetrics,
                 equipment,
                 monsterAfk,
-                garrison,
                 resourceAutomation,
                 automationStatus,
                 claimDelay,
