@@ -1042,3 +1042,7 @@ c41b3223…e3cc98: re-hashed, CRC ok, 96 entries, SOURCE-COMMIT = 1f45410f, no t
 - Task 3 City images: PARTIAL. Lead viewed `r22-city-layout-building-images.png`: in a block of identical level-19
   Farms only the left column shows the picture; the other Farms in the same rows are blank ("decoded seven grid
   images"). Likely image loading stops after a few requests or only for visible-first cells. Needs a follow-up fix.
+R22 published as pre-release hotkeys-test-r22-2026-10-20 (owner approved). Next round (owner decision): fix City
+Layout pictures so EVERY building in the grid and properties box shows its game picture (find why only ~7 decode —
+request limit, de-duplication by path, visible-first loading, or cache misses), prove with screenshots of a full city
+view at 100% and zoomed out.
