@@ -147,3 +147,15 @@ therefore wait for eligible allied leaders. Native acknowledgements, not chooser
 opens, count as confirmed sends. Additional live event behavior remains unproven
 until an alliance drill is available. Inert scheduler/native checks and the
 production UI/managed command boundary checks cover the built routes.
+
+### Task 2 current-reader live qualification
+
+Source 8281420b, background packaged session native-ui-20261019-105043,
+matched the owner's screenshot: 258 × 50-point and 333 × 10-point items.
+After one finite ordinary level-10 attack (native march 1427557189996291304),
+stamina was 110. Threshold 111 / Prefer 50 off selected one 10-point item.
+`r20-energy-item-after-01.json` records count 333→332 and stamina 110→120,
+used=1/confirmed=true/pending=false. The 50-point stock remained 258. The
+actual automation_status command reflected the same result. No purchase was
+sent. All engines/settings were disabled after proof, and the owned session
+exited with exact script restoration and no recovery journal.
