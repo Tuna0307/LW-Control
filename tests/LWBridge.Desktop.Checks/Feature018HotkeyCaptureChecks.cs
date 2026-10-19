@@ -1181,6 +1181,26 @@ internal static class Feature018HotkeyCaptureChecks
                 happy.LastPayload.GetProperty("expectedServerId").GetInt32() == session.ServerId,
             "native attack chooser was not observed through a single initial request and three read-only polls");
 
+        var redirectReceipt = System.Text.Json.Nodes.JsonNode.Parse(verified.GetRawText())!;
+        redirectReceipt.AsObject().Remove("nativeMarchGuidMatchesRequest");
+        redirectReceipt["serverAppliedChangePostState"] = true;
+        redirectReceipt["priorMarchUuid"] = "9007199254741999";
+        redirectReceipt["priorStartTime"] = 1000;
+        redirectReceipt["currentStartTime"] = 2000;
+        redirectReceipt["nativeTransaction"]!["outboundRoute"] = "WorldMarchChange";
+        redirectReceipt["nativeTransaction"]!["outboundFormationOrMarch"] = "9007199254741999";
+        redirectReceipt["nativeTransaction"]!["oldUuid"] = "9007199254741999";
+        redirectReceipt["nativeTransaction"]!["hotkeyRetarget"] = true;
+        var redirectNative = new StubNativeCommandService
+        { Receipt = () => JsonSerializer.SerializeToElement(redirectReceipt) };
+        var redirectResult = await new Feature018HotkeyNativeProviders(redirectNative).Create()[
+            Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+        Require(redirectResult.Working, "same-march server-applied redirect was rejected because it has no create GUID");
+        redirectReceipt["currentStartTime"] = 1000;
+        redirectResult = await new Feature018HotkeyNativeProviders(redirectNative).Create()[
+            Feature018HotkeyKind.AttackSquad](captured, CancellationToken.None);
+        Require(!redirectResult.Working, "unchanged startTime falsely confirmed a physical hotkey redirect");
+
         // Query-only continuation never inherits speedup item/diamond consent
         // or treats the next poll as a second captured keyboard press.
         var calls = new List<JsonElement>();

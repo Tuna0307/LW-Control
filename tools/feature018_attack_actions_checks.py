@@ -535,6 +535,7 @@ def test_selected_attack():
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
     vm.execute('nativeCtrl.targetUuid=990124;state.worldUuid=990124')
+    state['soldierCount']=0
     redirected=call()
     require(redirected['state']=='accepted' and redirected['data']['requestDispatched'] and state['changeSends']==1,
             'existing owned marching squad did not use the original change route')
@@ -547,6 +548,7 @@ def test_selected_attack():
     require(redirected['state']=='confirmed' and redirected['data']['serverAppliedChangePostState'] and
             redirected['data']['marchUuid']==str(state['uuid']) and state['changeSends']==1,
             'exact same-march target/startTime poststate did not confirm redirect')
+    state['soldierCount']=110
     vm.execute('nativeCtrl.targetUuid=990123;state.worldUuid=990123')
     state['existingAbsent']=True
     state['soldierCount']=0

@@ -2067,10 +2067,10 @@ local function attack_selected(fields, input_clear, uid)
     if not target then return denial end
     local target_uuid,kind=target.uuid,target.kind
     local staffing=formation_staffing(form)
-    if staffing.soldierCount==nil or staffing.heroCount==nil then
+    if existing==nil and (staffing.soldierCount==nil or staffing.heroCount==nil) then
         return unsupported("Native formation soldier/hero staffing cannot be verified")
     end
-    if not staffing.staffedForAttack then
+    if existing==nil and not staffing.staffedForAttack then
         return failed("Selected native formation must contain soldiers and assigned heroes before attack")
     end
     local old, old_uuid
@@ -2091,9 +2091,9 @@ local function attack_selected(fields, input_clear, uid)
     if not ok_fresh_form or ident(member(fresh_form,"uuid"))~=formation or
        (fresh_owner~=nil and ident(fresh_owner)~=uid) or
        (fresh_index~=nil and number(fresh_index)~=tonumber(fields.slot)) or
-       not fresh_staffing.staffedForAttack or
-       fresh_staffing.soldierCount~=staffing.soldierCount or
-       fresh_staffing.heroCount~=staffing.heroCount then
+       (existing==nil and (not fresh_staffing.staffedForAttack or
+        fresh_staffing.soldierCount~=staffing.soldierCount or
+        fresh_staffing.heroCount~=staffing.heroCount)) then
         return failed("Native formation staffing or identity changed before attack")
     end
     if existing==nil and not observe_create_serializer() then
