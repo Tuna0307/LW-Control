@@ -159,3 +159,16 @@ used=1/confirmed=true/pending=false. The 50-point stock remained 258. The
 actual automation_status command reflected the same result. No purchase was
 sent. All engines/settings were disabled after proof, and the owned session
 exited with exact script restoration and no recovery journal.
+
+### Task 3 event availability
+
+The source-8281420b packaged background session reported native stage 1,
+active=false. The independent engine armed with priority [2,1], waited with
+zero confirmed sends, and stopped on command. Production automation_status
+reported the same native waiting state. See r20-drill-event-before.json,
+r20-drill-armed.json, r20-current-automation-status.json and
+r20-final-stop-allianceDrill.json in native-ui-20261019-105043.
+No live active-event rally behavior is claimed. The owner tests when it starts.
+A combined native/attack adapter inert check additionally proves the event-end
+boundary cancels an unsent chooser, while a valid active fixture dispatches the
+source-native rally route. Completion/Stop rows no longer report running=true.

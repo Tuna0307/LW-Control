@@ -114,7 +114,11 @@ function M.Configure(config)
     if config.enabled and needs_run then run.running=true;run.state='running' end
     return M.Status()
 end
-function M.Status() return copy(run or {running=false,state='idle',step='idle',processed={},rows={},receipts={}}) end
+function M.Status()
+    local status=copy(run or {running=false,state='idle',step='idle',processed={},rows={},receipts={}})
+    for _,row in ipairs(status.rows)do row.running=status.running and row.step~='completed' end
+    return status
+end
 function M.Pump()
     if not run or not run.running then return end
     if not api.Owned(run.owner) then run.state='waiting';run.step='account_changed';return end

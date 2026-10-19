@@ -46,6 +46,10 @@ def main():
         if route==99 then
           state.sends=state.sends+1;require('Net.Msgs.WorldMarchFormationNewMessage').OnCreate({},formation,kind,target)
         elseif route==100 then state.changed=state.changed+1
+        elseif route==101 then state.finds=(state.finds or 0)+1
+        elseif route==102 then
+          assert(formation.uuid=='stamina-owned' and formation.num==1)
+          state.itemUses=state.itemUses+1;state.item.count=state.item.count-1;state.stamina=state.stamina+50
         else error('unexpected native route')end
       end}
       MarchUtil={GetCostStaminaByTargetType=function()return 10 end,
@@ -158,11 +162,6 @@ def main():
       state.lease='session';assert(native.Start(fields).state=='confirmed')
       package.preload['Net.Msgs.FindMonsterMessage']=function()return {HandleMessage=function()end}end
       MsgDefines.FindMonster=101
-      local previous_send=SFSNetwork.SendMessage
-      SFSNetwork.SendMessage=function(route,...)
-        if route==101 then state.finds=(state.finds or 0)+1;return end
-        return previous_send(route,...)
-      end
       state.visible=nil;state.moves=0
       CS.SceneManager.World.GetMarch=function(self,uuid)
         if uuid~=state.visible then return nil end
@@ -198,14 +197,6 @@ def main():
         return state.item
       end}
       MsgDefines.ItemUse=102
-      local with_search=SFSNetwork.SendMessage
-      SFSNetwork.SendMessage=function(route,payload,...)
-        if route==102 then
-          assert(payload.uuid=='stamina-owned' and payload.num==1)
-          state.itemUses=state.itemUses+1;state.item.count=state.item.count-1;state.stamina=state.stamina+50;return
-        end
-        return with_search(route,payload,...)
-      end
       fields.confirmedStaminaConfig='stamina-fixture'
       assert(native.StartStamina(fields).state=='confirmed')
       state.now=state.now+1;native.Pump();assert(state.itemUses==1)
@@ -232,6 +223,26 @@ def main():
       event.server=124;state.now=state.now+31;native.Pump();assert(state.drillMoves==1,'Cross-server event must not move or send')
       native.StopDrill();event.server=123;state.now=state.now+31;native.Pump();assert(state.drillMoves==1)
       assert(native.Status().data.allianceDrill.running==false)
+      native.Stop();state.special=5;state.march=nil;event.stage=8;event.deadline=999999
+      state.visible=503
+      local opens=0
+      UIManager={GetInstance=function()return {IsWindowOpen=function()return window~=nil end,GetWindow=function()return window end}end}
+      UIUtil.OpenFormationSelectUI=function(_,kind,point,uuid)
+        assert(kind==5 and uuid==503 and point==100105)
+        opens=opens+1
+        window={Ctrl={targetType=kind,targetPoint=point,targetUuid=uuid,targetServerId=123,
+          OnCheckTime=function(self,formation)SFSNetwork.SendMessage(99,formation,kind,uuid)end}}
+      end
+      assert(native.StartDrill(fields).state=='confirmed')
+      local before_sends=state.sends;state.now=state.now+1;native.Pump()
+      assert(opens==1 and state.sends==before_sends,'Drill opens its native chooser before any send')
+      event.stage=1;state.now=state.now+1;native.Pump()
+      assert(state.sends==before_sends,'Event ending must cancel the actual native adapter chooser')
+      event.stage=8;state.now=state.now+1;native.Pump();assert(opens==2)
+      state.now=state.now+1;native.Pump();assert(state.sends==before_sends+1,'Active Drill must dispatch its native rally route: '..tostring(native.DrillStatus().data.lastError))
+      native.StopDrill();state.now=state.now+1;native.Pump()
+      assert(state.sends==before_sends+1,'Drill Stop cannot send again')
+
 
     ''')
     print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')

@@ -40,8 +40,9 @@ function M.Fail(error)
 end
 function M.Status()
     if not run then return {running=false,state='idle',active=false,rows={},receipts={},confirmedSends=0}end
+    local rows=copy(run.rows);for _,row in ipairs(rows)do row.running=run.running end
     return {running=run.running,state=run.state,step=run.step,active=run.active,
-        confirmedSends=run.confirmedSends,rows=copy(run.rows),receipts=copy(run.receipts),lastError=run.lastError}
+        confirmedSends=run.confirmedSends,rows=rows,receipts=copy(run.receipts),lastError=run.lastError}
 end
 function M.Pump()
     if not run or not (run.running or next(run.pending)~=nil)then return end
