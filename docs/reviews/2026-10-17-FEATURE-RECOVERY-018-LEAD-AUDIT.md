@@ -816,3 +816,31 @@ restoration proven; live game scripts are exact v26 originals; no journal; no ga
   when the event starts. Game rule: a player cannot join their own leader rally, so other squads wait for allies.
 ZIP `artifacts/feature018-r20-final/release/LW-Control-FEATURE-018-R20-OWNER-TEST-bc3e32e6cfcf.zip` SHA-256
 9477d6d8…55fbbdc: re-hashed, CRC ok, 96 entries, SOURCE-COMMIT = bc3e32e6, no test UID.
+
+## Owner test of R20 and R21 assignment — 2026-10-19
+Owner results:
+- F9 random relocation: **WORKS** (owner). F10 alliance relocation: **does not work** (no details yet).
+- City Layout: buildings show only item numbers (#10113000) and tiny "Level N" text — no building names.
+- Alt+1: banner "ApplyEquipmentPreset: No confirmed owner equipment preset is saved." Cause (lead): Alt+1–4 need
+  presets saved in Squads → Equipment Schemes, but that tab still shows sample data and cannot save real presets
+  (R18 gap). Also the hotkey error banner (HotkeyFeedback.jsx) never disappears, even after changing tabs.
+- Q/W/E/R: a squad that is already out (marching, attacking, or recalled and returning) cannot be sent to a new
+  target — it must reach home first. Owner wants to send it again straight away, as the game allows.
+R21 tasks (background only unless the owner says the PC is free; owner tests physical keys):
+1. Q/W/E/R re-target: if the squad for that key is out (marching, returning after battle, or recalled), send it
+   to the hovered target directly with the game's own change-target/redirect route (the Monster AFK continuous
+   path already reuses a returning march). Remove the "squad busy, wait for home" refusal for these cases. Keep the
+   guildless-only and never-own-alliance rules. Prove via native commands on 4799432499002212: attack → retarget
+   while marching; attack → A recall → retarget while returning.
+2. Hotkey error banner: auto-hide after ~6 s, add a close (×) button, clear on tab change; successes stay silent.
+3. Equipment Schemes tab: wire it to the real game (read current gear, save presets 1–4, apply, restore) so Alt+1–4
+   have real presets; replace preview data in production. Prove save + apply + restore through the app.
+4. City Layout: show each building's real Chinese/English name from game text (same localization source as Map
+   names) instead of #itemId; make level text readable at 100% zoom; tooltip with name + level.
+5. F10 alliance relocation: diagnose why it fails for the owner (read-only checks of the native preconditions:
+   alliance membership, alliance territory/target, item, cooldown) and fix; report the exact reason. Do not
+   relocate the owner's main; live relocation only on 4799432499002212 if the precondition is available.
+6. Owner-test ZIP (R21 package), README updated. Checks: UI, Desktop.Checks, relevant Lua suites.
+
+### R21 progress (worker updates this)
+- (none yet)
