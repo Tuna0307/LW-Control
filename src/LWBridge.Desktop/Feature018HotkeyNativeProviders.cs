@@ -405,7 +405,7 @@ internal sealed class Feature018HotkeyNativeProviders
             !count.TryGetInt32(out int sends) || sends != 1 ||
             !transaction.TryGetProperty("outboundRoute", out var route) ||
             route.ValueKind != JsonValueKind.String ||
-            route.GetString() != "WorldMarchFormationNew" ||
+            route.GetString() is not ("WorldMarchFormationNew" or "WorldMarchChange") ||
             !transaction.TryGetProperty("senderReturned", out var senderReturned) ||
             senderReturned.ValueKind != JsonValueKind.True ||
             (transaction.TryGetProperty("senderReturnedFalse", out var returnedFalse) &&
@@ -421,8 +421,13 @@ internal sealed class Feature018HotkeyNativeProviders
             formation.GetString() != formationUuid ||
             (transaction.TryGetProperty("outboundFormationOrMarch", out var transmittedFormation) &&
              (transmittedFormation.ValueKind != JsonValueKind.String ||
-              transmittedFormation.GetString() != formationUuid)))
+              transmittedFormation.GetString() != (route.GetString() == "WorldMarchChange" &&
+                  transaction.TryGetProperty("oldUuid", out var priorMarch) && priorMarch.ValueKind == JsonValueKind.String
+                      ? priorMarch.GetString() : formationUuid))))
             return false;
+        if (route.GetString() == "WorldMarchChange" &&
+            (!transaction.TryGetProperty("hotkeyRetarget", out var redirect) || redirect.ValueKind != JsonValueKind.True ||
+             !IsNativeUuid(transaction, "oldUuid"))) return false;
         return true;
     }
 
@@ -782,8 +787,14 @@ internal sealed class Feature018HotkeyNativeProviders
                         (targetSource.GetString() == "native_physical_hover_original_selector" &&
                          evidence.TryGetProperty("currentCursorVerified", out var hoverVerified) &&
                          hoverVerified.ValueKind == JsonValueKind.True &&
-                         evidence.TryGetProperty("nativeMarchGuidMatchesRequest", out var nativeGuid) &&
-                         nativeGuid.ValueKind == JsonValueKind.True &&
+                         ((evidence.TryGetProperty("nativeMarchGuidMatchesRequest", out var nativeGuid) &&
+                           nativeGuid.ValueKind == JsonValueKind.True) ||
+                          (evidence.TryGetProperty("serverAppliedChangePostState", out var redirected) &&
+                           redirected.ValueKind == JsonValueKind.True &&
+                           evidence.TryGetProperty("priorMarchUuid", out var oldMarch) &&
+                           oldMarch.GetString() == evidence.GetProperty("marchUuid").GetString() &&
+                           evidence.TryGetProperty("priorStartTime", out var oldStart) && oldStart.TryGetInt64(out long beforeStart) &&
+                           evidence.TryGetProperty("currentStartTime", out var newStart) && newStart.TryGetInt64(out long afterStart) && beforeStart != afterStart)) &&
                          evidence.TryGetProperty("serverAcknowledgementCorrelated", out var serverAck) &&
                          serverAck.ValueKind == JsonValueKind.True &&
                          evidence.TryGetProperty("nativeMarchPostStateVerified", out var hoverPoststate) &&

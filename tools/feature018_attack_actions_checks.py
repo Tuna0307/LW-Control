@@ -93,7 +93,8 @@ DataCenter={
    if state.existingAbsent then return nil end
    if tostring(uid)~=tostring(state.uid) or form~=state.formation then return nil end
    return {uuid=state.uuid,ownerUid=state.owner,
-           ownerFormationUuid=state.formOwner,
+           ownerFormationUuid=state.formOwner,startTime=state.startTime,
+           GetMarchTargetType=function()return state.targetType end,
            GetIsBroken=function(self) return state.formationMarchBroken end}
   end,
   GetMarch=function(self,uuid)
@@ -112,6 +113,7 @@ DataCenter={
 }
 MsgDefines={}
 SFSNetwork={SendMessage=function(route,uuid,itemid,buy)
+ if route==100 then state.changeSends=(state.changeSends or 0)+1;return end
  if route==99 then
   assert(uuid==state.formation and itemid==17 and buy==990123)
   state.attackSends=(state.attackSends or 0)+1
@@ -437,7 +439,12 @@ def test_selected_attack():
         state.attackDelegateCount=state.attackDelegateCount+1
         SFSNetwork.SendMessage(99,formation,17,990123,'current-path')
       end
-      nativeCtrl.OnAtkClick=nativeCtrl.OnCreateClick
+      nativeCtrl.OnAtkClick=function(self,formation)
+        assert(formation==state.formation)
+        SFSNetwork.SendMessage(100,state.uuid,17,self.targetUuid,'current-path')
+      end
+      MsgDefines.WorldMarchChange=100
+      package.preload['Net.Msgs.WorldMarchChangeMessage']=function()return {HandleMessage=function()end}end
       nativeCtrl.OnCheckTime=nativeCtrl.OnCreateClick
       MsgDefines.WorldMarchFormationNew=99
       package.preload['Net.Msgs.WorldMarchFormationNewMessage']=function()
@@ -527,8 +534,20 @@ def test_selected_attack():
             ack['data']['transaction']['targetAllianceUid']=='0' and
             ack['data']['currentCursorVerified'] is False and state['attackDelegateCount']==1,
             'exact authoritative owned squad/target transition not recognized')
-    require(call()['state']=='unsupported' and state['attackSends']==1,
-            'an existing active march was retargeted without a correlatable native change ACK')
+    vm.execute('nativeCtrl.targetUuid=990124;state.worldUuid=990124')
+    redirected=call()
+    require(redirected['state']=='accepted' and redirected['data']['requestDispatched'] and state['changeSends']==1,
+            'existing owned marching squad did not use the original change route')
+    require(call(queryOnly='1')['state']=='accepted' and state['changeSends']==1,
+            'a change send alone confirmed or replayed a redirect')
+    state['targetUuid']=990124
+    require(call(queryOnly='1')['state']=='accepted','unchanged startTime confirmed a redirect')
+    state['startTime']=1001
+    redirected=call(queryOnly='1')
+    require(redirected['state']=='confirmed' and redirected['data']['serverAppliedChangePostState'] and
+            redirected['data']['marchUuid']==str(state['uuid']) and state['changeSends']==1,
+            'exact same-march target/startTime poststate did not confirm redirect')
+    vm.execute('nativeCtrl.targetUuid=990123;state.worldUuid=990123')
     state['existingAbsent']=True
     state['soldierCount']=0
     require(call()['state']=='failed' and state['attackSends']==1,
@@ -679,10 +698,12 @@ def test_resource_create_sender_correlation():
                 'repeat hover did not confirm source poststate: '+str(cycle))
         require(call(queryOnly='1')['state']=='failed' and vm.globals().state.attackSends==cycle,
                 'late query replayed a settled hover intent')
+        vm.globals().state.owner=999
         occupied=call()
-        require(occupied['state']=='failed' and 'occupied' in occupied['error'] and
+        require(occupied['state']=='failed' and 'owner' in occupied['error'] and
                 vm.globals().state.attackSends==cycle and vm.globals().state.openCalls==cycle,
-                'physical Q on active squad lacked clear no-send feedback')
+                'physical Q admitted a foreign active march')
+        vm.globals().state.owner=vm.globals().state.uid
 
     for bad_kwargs,label in (({'non_nil_target':True},'non-nil targetUuid'),
                              ({'wrong_path':True},'wrong target path')):

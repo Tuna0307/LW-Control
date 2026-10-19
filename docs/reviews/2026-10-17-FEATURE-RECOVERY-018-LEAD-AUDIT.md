@@ -843,4 +843,4 @@ R21 tasks (background only unless the owner says the PC is free; owner tests phy
 6. Owner-test ZIP (R21 package), README updated. Checks: UI, Desktop.Checks, relevant Lua suites.
 
 ### R21 progress (worker updates this)
-- (none yet)
+- **Task 1 implementation checkpoint (2026-10-19):** traced admitted v26 UIFormationSelectListV2Ctrl.OnAtkClick/ChangeMarchByType and WorldMarchChange serializer. Native hover admission now accepts a verified owned existing march; the selected-controller path invokes OnAtkClick with the formation UUID and retains the same owned march UUID. Change confirmation uses the R20 one-send fence plus changed target/type/startTime server poststate, without inventing a create GUID. Typed guildless/never-own-alliance target checks remain at the final send boundary. Managed hotkey receipts distinguish native change transactions from create transactions; the physical cursor proof remains the owner's. Attack source/Lua suite, AFK native regression and Windows build pass. Background native proof of outbound and recalled-returning redirects is next.

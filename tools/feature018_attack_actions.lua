@@ -625,8 +625,12 @@ local function observe_attack_sender()
                 if created then
                     matches=native_create_send_matches(transaction,args,true)
                 else
-                    matches=identity and ident(args[1])==identity and
-                        args[2]==transaction.kind and ident(args[3])==transaction.targetUuid
+                    local collect=transaction.kind==member(rawget(_G,"MarchTargetType"),"COLLECT")
+                    local path_target=type(args[4])=="string" and args[4]:match(";([^;]+)$")
+                    local target_matches=collect and number(args[3])==0 and
+                        ident(path_target)==ident(transaction.targetPoint) or
+                        not collect and ident(args[3])==transaction.targetUuid
+                    matches=identity and ident(args[1])==identity and args[2]==transaction.kind and target_matches
                 end
                 if matches then
                     if active_attack_invocation==transaction then
@@ -790,6 +794,7 @@ local function transaction_view(transaction)
     if not transaction then return nil end
     local view={}
     for _,key in ipairs({"formation","kind","targetPoint","targetUuid","sendCount","outboundRoute",
+        "oldUuid","oldKind","oldStartTime","hotkeyRetarget",
         "targetAllianceUid","targetAllianceRaw","targetAllianceReader",
         "outboundFormationOrMarch","outboundTargetType","outboundTargetUuid","outboundPath",
         "senderReturned","senderReturnedFalse","senderError","serializerObserved",
@@ -1696,8 +1701,9 @@ local function native_hover_open(fields,input_clear,uid)
         local ok_idle,active=invoke(member(center,"WorldMarchDataManager"),
             "GetOwnerFormationMarch",member(account and account.player,"uid"),
             integer(member(form,"uuid")),member(account and account.player,"allianceId"))
-        if not ok_idle or active~=nil then
-            return failed("Native hover squad is occupied or cannot prove idle")
+        if not ok_idle or active~=nil and
+           (ident(member(active,"ownerUid"))~=uid or ident(member(active,"ownerFormationUuid"))~=formation) then
+            return failed("Native hover squad march owner/formation unavailable")
         end
     end
     local opener=member(rawget(_G,"MarchUtil"),"OnClickStartMarch")
@@ -1967,6 +1973,7 @@ local function attack_selected(fields, input_clear, uid)
     end
     local prior = attacks[fields.slot]
     if prior then
+        if prior.hotkeyRetarget then return M.AutomationObserve(fields,input_clear)end
         if prior.uid ~= uid or prior.formation ~= formation or
            prior.session ~= current_session then return failed("Pending attack session/formation changed") end
         if prior.senderReturnedFalse or prior.senderError or
@@ -2070,10 +2077,8 @@ local function attack_selected(fields, input_clear, uid)
     if existing ~= nil then
         old,old_uuid = fresh_owned(existing)
         if not old then return failed("Existing squad march owner/formation changed") end
-        -- WorldMarchChange carries no source-verifiable request nonce.
-        -- This shortcut must not replace an active march when its own ACK
-        -- cannot be distinguished from another change of the same march.
-        return unsupported("Existing squad march requires a separately correlated native retarget ACK")
+        local broken_ok,broken=invoke(old,"GetIsBroken")
+        if broken_ok and broken==true then return failed("Existing squad is broken and cannot redirect")end
     end
     local _,old_kind = invoke(old,"GetMarchTargetType")
     local old_start = number(member(old,"startTime"))
@@ -2091,7 +2096,7 @@ local function attack_selected(fields, input_clear, uid)
        fresh_staffing.heroCount~=staffing.heroCount then
         return failed("Native formation staffing or identity changed before attack")
     end
-    if not observe_create_serializer() then
+    if existing==nil and not observe_create_serializer() then
         return unsupported("Original create-march request nonce observer unavailable")
     end
     if not observe_attack_sender() then return unsupported("Native attack sender observation unavailable") end
@@ -2122,8 +2127,12 @@ local function attack_selected(fields, input_clear, uid)
     -- if the current native formation is no longer idle.
     local ok_final_march,final_march=invoke(marches,"GetOwnerFormationMarch",
         member(player,"uid"),form_number,member(player,"allianceId"))
-    if not ok_final_march or final_march~=nil then
-        return failed("Native squad march appeared or became unreadable before attack")
+    local final_kind_ok,final_kind=invoke(final_march,"GetMarchTargetType")
+    if not ok_final_march or existing==nil and final_march~=nil or existing~=nil and
+       (ident(member(final_march,"uuid"))~=old_uuid or ident(member(final_march,"ownerUid"))~=uid or
+        ident(member(final_march,"ownerFormationUuid"))~=formation or
+        not final_kind_ok or final_kind~=old_kind or number(member(final_march,"startTime"))~=old_start)then
+        return failed("Native squad march changed or became unreadable before attack")
     end
     -- Authentication and server admission are mutable game state. A native
     -- selector/formation callback may have switched the current account or
@@ -2148,7 +2157,7 @@ local function attack_selected(fields, input_clear, uid)
         targetAllianceUid=send_target.targetAllianceUid,targetAllianceRaw=send_target.targetAllianceRaw,
         targetAllianceReader=send_target.targetAllianceReader,
         oldUuid=old_uuid,oldKind=old_kind,
-        oldStartTime=old_start,sentAt=os.time(),sendCount=0,
+        oldStartTime=old_start,sentAt=os.time(),sendCount=0,hotkeyRetarget=existing~=nil,
         hoverOrigin=cursor_open_pending~=nil and
             cursor_open_pending.session==current_session and
             cursor_open_pending.consumed==true and cursor_open_pending.slot==fields.slot,
@@ -2172,7 +2181,7 @@ local function attack_selected(fields, input_clear, uid)
     -- original GUID/owner/target poststate; controller-only actions (native
     -- deferred dialogs) cannot claim a packet was sent.
     local dispatched=transaction.sendCount==1 and
-        transaction.outboundRoute=="WorldMarchFormationNew" and
+        transaction.outboundRoute==(existing~=nil and "WorldMarchChange" or "WorldMarchFormationNew") and
         transaction.senderReturned==true and transaction.senderReturnedFalse~=true
     return {state="accepted",data={slot=tonumber(fields.slot),formationUuid=formation,
         targetUuid=target_uuid,targetType=kind,requestDispatched=dispatched,
@@ -2403,7 +2412,7 @@ function M.AutomationObserve(fields,input_clear)
     local uid,denial=owner_and_focus(fields,input_clear,true)
     if not uid then return denial end
     local prior=attacks[fields.slot]
-    if prior and prior.automationRetarget then
+    if prior and (prior.automationRetarget or prior.hotkeyRetarget) then
         if prior.session~=current_session or prior.uid~=uid or prior.sendCount~=1 or
            prior.senderError or prior.senderReturnedFalse or prior.unattributedMatchingSendObserved then
             return failed("Native continuous-march transaction lost its single-send fence")
@@ -2414,13 +2423,20 @@ function M.AutomationObserve(fields,input_clear)
            ident(member(march,"ownerUid"))==uid and ident(member(march,"ownerFormationUuid"))==prior.formation and
            type_ok and kind==prior.kind and native_attack_target_matches(prior,march) and
            number(member(march,"startTime"))~=prior.oldStartTime then
-            attacks[fields.slot]=nil
+            attacks[fields.slot]=nil;release_confirmed_hover(fields.slot)
             return {state="confirmed",data={marchUuid=prior.oldUuid,slot=tonumber(fields.slot),
-                targetUuid=prior.targetUuid,serverAcknowledgementCorrelated=true,
+                observation="native_owned_formation_attack_target_transition",formationUuid=prior.formation,
+                targetUuid=prior.targetUuid,targetType=prior.kind,ownerUid=uid,sourceServerId=tonumber(prior.server),
+                targetSource=prior.hoverOrigin and "native_physical_hover_original_selector" or "open_native_formation_selector",
+                currentCursorVerified=prior.hoverOrigin==true,priorMarchUuid=prior.oldUuid,priorStartTime=prior.oldStartTime,
+                currentStartTime=number(member(march,"startTime")),nativeMarchPostStateVerified=true,
+                targetAllianceUid=prior.targetAllianceUid,serverAcknowledgementCorrelated=true,
                 serverAppliedChangePostState=true,correlation="native_single_change_march_target_startTime",
                 nativeTransaction=transaction_view(prior)}}
         end
-        return {state="accepted",data={accepted=true,awaitingGameConfirmation=true}}
+        return {state="accepted",data={accepted=true,awaitingGameConfirmation=true,slot=tonumber(fields.slot),
+            formationUuid=prior.formation,ownerUid=uid,sourceServerId=tonumber(prior.server),
+            nativeTransaction=transaction_view(prior)}}
     end
     return attack_selected(fields,input_clear,uid)
 end
