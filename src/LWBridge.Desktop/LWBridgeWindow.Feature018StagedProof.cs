@@ -169,7 +169,7 @@ internal sealed partial class LWBridgeWindow
                             JsonElement payload = root.TryGetProperty("payload", out var arg) ? arg : empty.RootElement;
                             result = command switch
                             {
-                                "monster_afk_config_save" => await monsterAfkConfigService!.InvokeAsync(command, payload, token),
+                                "monster_afk_config_save" or "stamina_potion_config_save" => await monsterAfkConfigService!.InvokeAsync(command, payload, token),
                                 "automation_status" => await automationStatusService!.InvokeAsync(command, payload, token),
                                 _ => throw new InvalidDataException("Unsupported R18 profile proof command"),
                             };

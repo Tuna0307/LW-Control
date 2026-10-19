@@ -28,7 +28,23 @@ export function createMonsterAfkAdapter(bridge, profileId, valid) {
         catch (error) { if (!["GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code)) throw error; }
       }
       const saved = normalizeMonsterAfkConfig(await invoke("monster_afk_config_save", draft));
-      if (saved.enabled) await invoke("automation_start", { taskName: "monsterSweep" });
+      if (saved.enabled) await invoke("feature018_afk_configure");
+      return saved;
+    },
+  };
+}
+export function createStaminaPotionAdapter(bridge, profileId, valid) {
+  const invoke = (command, payload = {}) => { assertBridgeProfileOwner(bridge, profileId); return bridge.invokeProfileScoped(command, payload); };
+  return {
+    valid,
+    read: async () => ({ ...emptyStaminaConfig(), ...((await invoke("get_status"))?.config?.tasks?.staminaPotion || {}) }),
+    write: async (draft) => {
+      if (!draft.enabled) {
+        try { await invoke("automation_stop", { taskName: "staminaPotion" }); }
+        catch (error) { if (!["GAME_CONNECTION_UNAVAILABLE", "GAME_DISCONNECTED"].includes(error.code)) throw error; }
+      }
+      const saved = await invoke("stamina_potion_config_save", draft);
+      if (saved.enabled) await invoke("automation_start", { taskName: "staminaPotion" });
       return saved;
     },
   };

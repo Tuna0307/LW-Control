@@ -105,10 +105,13 @@ function M.Configure(config)
     local valid,error=validate_config(config)
     if not valid then return nil,error end
     run.config=copy(config)
+    local needs_run=false
     for _,p in ipairs(enabled_profiles(config)) do
         run.processed[p.id]=run.processed[p.id] or 0
         run.levels[p.id]=run.levels[p.id] or p.minLevel or 1
+        if p.executionLimit==0 or run.processed[p.id]<p.executionLimit then needs_run=true end
     end
+    if config.enabled and needs_run then run.running=true;run.state='running' end
     return M.Status()
 end
 function M.Status() return copy(run or {running=false,state='idle',step='idle',processed={},rows={},receipts={}}) end

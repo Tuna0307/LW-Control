@@ -567,6 +567,10 @@ function M.CleanupAfterLeaseLoss()
 end
 
 local function start(request)
+    if request and request.taskName == 'staminaPotion' then
+        local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
+        if type(afk) == 'table' then return afk.StartStamina(request) end
+    end
     if request and request.taskName == 'monsterSweep' then
         local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
         if type(afk) == 'table' then return afk.Start(request) end
@@ -642,6 +646,10 @@ local function start(request)
 end
 
 local function stop(request)
+    if request and request.taskName == 'staminaPotion' then
+        local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
+        if type(afk) == 'table' then return afk.StopStamina(request) end
+    end
     if request and request.taskName == 'monsterSweep' then
         local afk = rawget(_G, 'LWBridgeFeature018AfkNative')
         if type(afk) == 'table' then return afk.Stop(request) end

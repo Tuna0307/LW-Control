@@ -45,7 +45,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "feature018_input_focus" or "feature018_visible_city_shields" or
         "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
-        "feature018_afk_status" or "monster_catalog_options" or
+        "feature018_afk_status" or "feature018_afk_configure" or "feature018_stamina_status" or "monster_catalog_options" or
         "feature018_shield_inventory_get" or
         "feature018_shield_shop" or
         "feature018_frontline_action" or
@@ -58,13 +58,15 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         if (!CanHandle(command))
             throw new BridgeCommandException("COMMAND_NOT_IMPLEMENTED", "Unsupported FEATURE018 command.");
         Dictionary<string, string> fields = ReadFields(command, payload);
-        if (command == "automation_start" && fields["taskName"] == "monsterSweep")
+        if (command == "feature018_afk_configure" ||
+            command == "automation_start" && fields["taskName"] is ("monsterSweep" or "staminaPotion"))
         {
             JsonObject tasks = runtimeConfig?.ReadTasksSnapshot() ??
                 throw new BridgeCommandException("STATE_UNAVAILABLE", "Confirmed profile task settings are unavailable.");
-            fields["confirmedAfkConfig"] = tasks["monsterSweep"]?.ToJsonString() ?? "{}";
+            if (command == "feature018_afk_configure" || fields["taskName"] == "monsterSweep")
+                fields["confirmedAfkConfig"] = tasks["monsterSweep"]?.ToJsonString() ?? "{}";
             fields["confirmedStaminaConfig"] = tasks["staminaPotion"]?.ToJsonString() ?? "{}";
-            if (fields["confirmedAfkConfig"].Length > 14000)
+            if (fields.TryGetValue("confirmedAfkConfig", out string? afkJson) && afkJson.Length > 14000)
                 throw new BridgeCommandException("INVALID_REQUEST", "Monster AFK profile settings exceed the native command limit.");
         }
         Feature018AuthenticatedGameAccount? capturedHotkeyAccount = null;
@@ -369,13 +371,15 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "automation_start":
             case "automation_stop":
                 string taskName = ReadValue(payload, "taskName", 32);
-                if (taskName is not ("sheepGame" or "monsterSweep"))
+                if (taskName is not ("sheepGame" or "monsterSweep" or "staminaPotion"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Unsupported native automation task.");
                 if (payload.EnumerateObject().Any(p => p.Name is not ("taskName" or "profileId")))
                     throw new BridgeCommandException("INVALID_REQUEST", "Automation accepts only a task name and profile routing.");
                 fields["taskName"] = taskName;
                 break;
             case "feature018_afk_status":
+            case "feature018_afk_configure":
+            case "feature018_stamina_status":
             case "monster_catalog_options":
                 if (payload.EnumerateObject().Any(p => p.Name != "profileId"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Native AFK observations accept only profile routing.");

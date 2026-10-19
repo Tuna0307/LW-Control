@@ -3,6 +3,7 @@
 local M={VERSION='feature018-afk-native-1'}
 local engine=require('DataCenter.Global.LWBridgeFeature018AfkEngine')
 local attack=require('DataCenter.Global.LWBridgeFeature018AttackActions')
+local potion=require('DataCenter.Global.LWBridgeFeature018StaminaEngine')
 local bridge,array,owner,search,last_pump
 local jobs,seen,join_wait,continuous_ready,joined,kicked={},{},{},{},{},{}
 local function get(o,k) if o==nil then return nil end;local ok,v=pcall(function()return o[k]end);if ok then return v end end
@@ -157,6 +158,7 @@ local function free(slot,p)
     return type_ok and (kind==get(kinds,'STATE') or kind==get(kinds,'BACK_HOME'))
 end
 local function stamina(slot,p)
+    if potion.IsPending() then return nil,nil end
     local f=form(slot)
     local ok,v=call(center('ArmyFormationDataManager'),'GetCurStaminaByUuid',get(f,'uuid'))
     local util=rawget(_G,'MarchUtil');local kinds=rawget(_G,'MarchTargetType')
@@ -167,6 +169,51 @@ local function stamina(slot,p)
     end
     return ok and tonumber(v) or nil,cost_ok and tonumber(cost) or nil
 end
+local function stamina_snapshot()
+    local energy
+    for slot=1,4 do
+        local f=form(slot)
+        if f then
+            local ok,value=call(center('ArmyFormationDataManager'),'GetCurStaminaByUuid',get(f,'uuid'))
+            if ok then energy=tonumber(value);break end
+        end
+    end
+    if not energy then return nil,'Native stamina is unavailable' end
+    local goods=get(rawget(_G,'GOODS_TYPE'),'GOODS_TYPE_3')
+    local category=get(rawget(_G,'GOODS_TYPE2'),'StaminaItem')
+    if goods==nil or category==nil then return nil,'Native stamina item classification unavailable' end
+    local ok,list=call(center('ItemData'),'GetItemList',goods,category)
+    if not ok then return nil,'Native stamina inventory unavailable' end
+    local items={}
+    each(list,function(item)
+        local item_id,count=tonumber(get(item,'id')),tonumber(get(item,'count'))
+        local uuid=get(item,'uuid');uuid=uuid~=nil and tostring(uuid) or nil
+        local template_ok,template=call(center('ItemTemplateManager'),'GetItemTemplate',item_id)
+        local recovery=template_ok and tonumber(get(template,'para')) or nil
+        if item_id and item_id>0 and item_id%1==0 and count and count>=0 and count%1==0 and uuid and uuid~='0' and #uuid<=128 and
+           uuid:match('^[%w_-]+$') and recovery and recovery>0 and recovery<10000000 then
+            items[#items+1]={id=item_id,uuid=uuid,count=count,recovery=recovery,staminaItem=true}
+        end
+    end)
+    return {stamina=energy,items=items}
+end
+potion.Bind({Owned=owned,Now=now,Snapshot=stamina_snapshot,Use=function(o,item)
+    if not owned(o) then return false,'Stamina item owner changed' end
+    local fresh,error=stamina_snapshot()
+    if not fresh then return false,error end
+    local same=false
+    for _,candidate in ipairs(fresh.items)do
+        if candidate.id==item.id and candidate.uuid==item.uuid and candidate.count==item.count and
+           candidate.recovery==item.recovery and candidate.count>0 then same=true end
+    end
+    if not same then return false,'Native stamina item stock changed before use' end
+    local net=rawget(_G,'SFSNetwork');local route=get(rawget(_G,'MsgDefines'),'ItemUse')
+    if type(get(net,'SendMessage'))~='function' or route==nil then return false,'Native ItemUse unavailable'end
+    if not owned(o) then return false,'Stamina account changed at send boundary'end
+    -- UIFormationAddStaminaView.CellsCallBack lines 303-307. No buy route.
+    local ok,value=pcall(net.SendMessage,route,{uuid=item.uuid,num=1})
+    return ok and value~=false,not ok and tostring(value) or nil
+end})
 local function send(o,slot,p,t)
     if not owned(o) or not free(slot,p) then return nil,'Assigned squad/account changed' end
     local f=fields(slot)
@@ -272,14 +319,50 @@ function M.Start(request)
     seen={};join_wait={}
     local status,error=engine.Start(owner,config)
     if not status then return failed(error)end
+    local potion_ok,potion_config=pcall(json.decode,request.confirmedStaminaConfig or '{}')
+    if potion_ok and type(potion_config)=='table' and potion_config.enabled==true then
+        local started,reason=potion.Start(owner,potion_config)
+        if not started then engine.Stop(reason);return failed(reason)end
+    end
     return M.Status()
 end
 function M.Stop()engine.Stop();return M.Status()end
+function M.Configure(request)
+    local status=engine.Status()
+    if status.state=='idle' or status.state=='stopped' then return M.Start(request)end
+    if not owner or not owned(owner) or request.authorizedUid~=owner.uid then return failed('AFK configuration account changed')end
+    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedAfkConfig or '{}')
+    if not ok then return failed('Confirmed AFK configuration unavailable')end
+    if not config.enabled then return M.Stop()end
+    local configured,error=engine.Configure(config)
+    if not configured then return failed(error)end
+    return M.Status()
+end
 function M.Status()
     local data=engine.Status();data.owner=nil;data.config=nil;data.pending=nil
     if array then array(data.rows);array(data.receipts)end
     data.observation='native_monster_afk_runtime';data.readOnly=true
+    data.staminaPotion=potion.Status()
+    if array then array(data.staminaPotion.receipts)end
     return result(data)
+end
+function M.StartStamina(request)
+    local a=account();local token=bridge and bridge.Feature018OwnerToken()
+    if not a or request.authorizedUid~=a.uid or not token then return failed('Stamina account admission absent')end
+    local json=require('rapidjson');local ok,config=pcall(json.decode,request.confirmedStaminaConfig or '{}')
+    if not ok then return failed('Confirmed stamina settings unavailable')end
+    local captured={uid=a.uid,server=a.server,token=token}
+    local started,error=potion.Start(captured,config)
+    if not started then return failed(error)end
+    return M.StaminaStatus()
+end
+function M.StopStamina()potion.Stop();return M.StaminaStatus()end
+function M.StaminaStatus()
+    local status=potion.Status();local snapshot,error=stamina_snapshot()
+    status.inventory=snapshot;status.inventoryError=error;status.readOnly=true
+    status.observation='native_stamina_item_runtime'
+    if array then array(status.receipts);if snapshot then array(snapshot.items)end end
+    return result(status)
 end
 function M.Catalog()
     local options,groups={},{}
@@ -338,18 +421,22 @@ function M.Pump()
             if ok and m==nil and not jobs[slot].uncertain then jobs[slot]=nil end
         end
     end
+    local potion_ok,potion_error=pcall(potion.Pump)
+    if not potion_ok then potion.Fail(potion_error)end
     local ok,error=pcall(engine.Pump)
     if not ok then engine.Stop(tostring(error))end
 end
 function M.CleanupAfterLeaseLoss()
     local token=bridge and get(bridge,'Feature018SessionToken')
     if type(token)=='function' and token()~=nil then engine.Pause('account_changed')
-    else engine.Stop('Session lease lost')end
+    else engine.Stop('Session lease lost');potion.Stop()end
 end
 function M.Register(feature,overview)
     bridge=overview;array=feature.Array
     rawset(_G,'LWBridgeFeature018AfkNative',M)
     feature.RegisterHandler('feature018_afk_status',M.Status)
+    feature.RegisterHandler('feature018_afk_configure',M.Configure)
     feature.RegisterHandler('monster_catalog_options',M.Catalog)
+    feature.RegisterHandler('feature018_stamina_status',M.StaminaStatus)
 end
 return M

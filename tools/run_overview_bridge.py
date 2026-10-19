@@ -52,6 +52,7 @@ FEATURE018_CITY_MODULE = "DataCenter.Global.LWBridgeFeature018CityGame"
 FEATURE018_SHEEP_ENTRY = "DataCenter/Global/LWBridgeFeature018SheepSolver.luac"
 FEATURE018_SHEEP_MODULE = "DataCenter.Global.LWBridgeFeature018SheepSolver"
 FEATURE018_AFK_ENTRIES = {
+    "DataCenter/Global/LWBridgeFeature018StaminaEngine.luac": "feature018_stamina_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkEngine.luac": "feature018_afk_engine.lua",
     "DataCenter/Global/LWBridgeFeature018AfkNative.luac": "feature018_afk_native.lua",
 }
@@ -437,6 +438,9 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
         raise OverviewBridgeError("current package already contains the FEATURE018 City module")
     if FEATURE018_SHEEP_ENTRY in mapped:
         raise OverviewBridgeError("current package already contains the FEATURE018 Sheep solver module")
+    for entry in FEATURE018_AFK_ENTRIES:
+        if entry in mapped:
+            raise OverviewBridgeError("current package already contains an AFK runtime module")
     wrapper_plain = wrapper_source()
     wrapper = lr.encode_lenc(wrapper_plain)
     if lr.decode_lenc(wrapper) != wrapper_plain:
@@ -499,6 +503,8 @@ def make_candidate(p: dict[str, Path], directory: Path) -> dict[str, object]:
     output.append((FEATURE018_SHEEP_ENTRY, sheep_entry))
     for entry, filename in FEATURE018_AFK_ENTRIES.items():
         plain = (HERE / filename).read_bytes()
+        if plain.startswith(b"\xef\xbb\xbf"):
+            raise OverviewBridgeError("AFK module must not contain a BOM: " + filename)
         encoded = lr.encode_lenc(plain)
         if len(encoded) > 0xFFFF or lr.decode_lenc(encoded) != plain:
             raise OverviewBridgeError("AFK module LENC round-trip/size failed: " + filename)

@@ -117,10 +117,16 @@ def main():
       assert(attack.AutomationObserve(fields,input).state=='confirmed')
     ''')
     vm.globals().engine_source = (ROOT / 'tools/feature018_afk_engine.lua').read_text(encoding='utf-8')
+    vm.globals().stamina_source = (ROOT / 'tools/feature018_stamina_engine.lua').read_text(encoding='utf-8')
     vm.execute('''
       package.loaded['DataCenter.Global.LWBridgeFeature018AttackActions']=attack
       package.preload['DataCenter.Global.LWBridgeFeature018AfkEngine']=function()return assert(load(engine_source))()end
-      package.preload['rapidjson']=function()return {decode=function()return {enabled=true,strategies={}}end}end
+      package.preload['DataCenter.Global.LWBridgeFeature018StaminaEngine']=function()return assert(load(stamina_source))()end
+      package.preload['rapidjson']=function()return {decode=function(text)
+        if text=='{}'then return {}end
+        if text=='stamina-fixture'then return {enabled=true,minStamina=101,preferFifty=false}end
+        return {enabled=true,strategies={}}
+      end}end
       overview={Feature018OwnerToken=function()return state.lease and 'owned' or nil end,Feature018SessionToken=function()return state.lease end}
       transport={handlers={},RegisterHandler=function(name,fn)transport.handlers[name]=fn end,
         Array=function(t)return setmetatable(t,{__feature018_array=true})end}
@@ -174,6 +180,33 @@ def main():
       require('Net.Msgs.FindMonsterMessage').HandleMessage({}, {uuid=503,pointId=100106})
       local second=native_adapter.Targets(p,10);assert(#second==1 and state.moves==2,
         'Each new native search result must acquire its own AOI, not inherit a prior moved flag')
+      GOODS_TYPE={GOODS_TYPE_3=3};GOODS_TYPE2={StaminaItem=88}
+      state.item={id=5,uuid='stamina-owned',count=2};state.itemUses=0
+      DataCenter.ItemData={GetItemList=function(self,a,b)
+        assert(a==3 and b==88,'Inventory must be classified as native stamina items')
+        if state.driftAfterItemRead then LuaEntry.Player.uid='2002'end
+        return {state.item}
+      end}
+      DataCenter.ItemTemplateManager={GetItemTemplate=function(self,id)if id==5 then return {para='50'}end end}
+      MsgDefines.ItemUse=102
+      local with_search=SFSNetwork.SendMessage
+      SFSNetwork.SendMessage=function(route,payload,...)
+        if route==102 then
+          assert(payload.uuid=='stamina-owned' and payload.num==1)
+          state.itemUses=state.itemUses+1;state.item.count=state.item.count-1;state.stamina=state.stamina+50;return
+        end
+        return with_search(route,payload,...)
+      end
+      fields.confirmedStaminaConfig='stamina-fixture'
+      assert(native.StartStamina(fields).state=='confirmed')
+      state.now=state.now+1;native.Pump();assert(state.itemUses==1)
+      state.now=state.now+1;native.Pump()
+      local used=native.StaminaStatus().data
+      assert(used.used==1 and used.receipts[1].countBefore==2 and used.receipts[1].countAfter==1)
+      assert(used.receipts[1].staminaAfter>used.receipts[1].staminaBefore)
+      native.StopStamina();state.stamina=50;assert(native.StartStamina(fields).state=='confirmed')
+      state.driftAfterItemRead=true;state.now=state.now+1;native.Pump()
+      assert(state.itemUses==1,'Account change during inventory read must block item send')
     ''')
     print('FEATURE018_AFK_NATIVE_CHECKS_OK: monster-only/owner guards, create GUID, continuous server post-state, no replay')
 

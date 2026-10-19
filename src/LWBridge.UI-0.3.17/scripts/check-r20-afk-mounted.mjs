@@ -51,7 +51,7 @@ const master = document.querySelector('.monster-afk-toolbar input[type="checkbox
 assert.ok(master && !master.disabled); await flush(() => master.click());
 assert.equal(profiles.get("A").enabled, true);
 assert.equal(profiles.get("A").strategies[0].monsterNameKey, "native-zombie");
-assert.ok(calls.some((c) => c.command === "automation_start" && c.payload.taskName === "monsterSweep"));
+assert.ok(calls.some((c) => c.command === "feature018_afk_configure"));
 await flush(() => master.click());
 assert.equal(profiles.get("A").enabled, false);
 const stop = calls.findLastIndex((c) => c.command === "automation_stop");

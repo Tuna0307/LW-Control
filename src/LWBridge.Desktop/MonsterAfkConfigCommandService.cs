@@ -14,7 +14,7 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
         this.store = store ?? throw new ArgumentNullException(nameof(store));
 
     public bool CanHandle(string command) =>
-        command is "monster_afk_config_save";
+        command is "monster_afk_config_save" or "stamina_potion_config_save";
 
     public Task<object?> InvokeAsync(
         string command,
@@ -22,6 +22,20 @@ internal sealed class MonsterAfkConfigCommandService : INativeAsyncCommandServic
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        if (command == "stamina_potion_config_save")
+        {
+            if (payload.ValueKind != JsonValueKind.Object ||
+                !TryReadBoolean(payload, "enabled", out _) ||
+                !TryReadBoolean(payload, "preferFifty", out _) ||
+                !payload.TryGetProperty("minStamina", out JsonElement minimum) ||
+                minimum.ValueKind != JsonValueKind.Number ||
+                !minimum.TryGetInt32(out int limit) || limit is < 0 or > 9999 ||
+                payload.EnumerateObject().Any(p => p.Name is not ("enabled" or "preferFifty" or "minStamina" or "profileId")))
+                throw Invalid("invalid stamina potion config");
+            var stamina = JsonNode.Parse(payload.GetRawText())!.AsObject();
+            stamina.Remove("profileId");
+            return Task.FromResult<object?>(store.SaveResourceAutomationConfig("staminaPotion", stamina));
+        }
 
         if (command != "monster_afk_config_save")
         {

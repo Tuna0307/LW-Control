@@ -59,6 +59,30 @@ internal static class Feature018AfkRuntimeChecks
                 throw new InvalidDataException("AFK did not use exact authenticated account and persisted config");
             if (!service.CanHandle("feature018_afk_status") || !service.CanHandle("monster_catalog_options"))
                 throw new InvalidDataException("AFK native status/catalogue not routed");
+            var settings = new MonsterAfkConfigCommandService(store);
+            foreach (string invalid in new[]
+            {
+                """{"enabled":true,"minStamina":"10","preferFifty":false}""",
+                """{"enabled":true,"minStamina":-1,"preferFifty":false}""",
+                """{"enabled":true,"minStamina":10,"preferFifty":false,"buyGems":true}""",
+            })
+            {
+                try
+                {
+                    await settings.InvokeAsync("stamina_potion_config_save", JsonDocument.Parse(invalid).RootElement, CancellationToken.None);
+                    throw new InvalidDataException("Invalid stamina settings were saved");
+                }
+                catch (BridgeCommandException error) when (error.Code == "INVALID_REQUEST") { }
+            }
+            JsonElement stamina = JsonSerializer.SerializeToElement(new { enabled = true, minStamina = 50, preferFifty = false });
+            await settings.InvokeAsync("stamina_potion_config_save", stamina, CancellationToken.None);
+            await service.InvokeAsync("automation_start", JsonSerializer.SerializeToElement(new { taskName = "staminaPotion" }), CancellationToken.None);
+            if (observed!["confirmedStaminaConfig"] != store.ReadTasksSnapshot()["staminaPotion"]!.ToJsonString() ||
+                observed.ContainsKey("confirmedAfkConfig"))
+                throw new InvalidDataException("Stamina Start did not use its exact trusted task settings");
+            await service.InvokeAsync("feature018_afk_configure", JsonSerializer.SerializeToElement(new { }), CancellationToken.None);
+            if (!observed!.ContainsKey("confirmedAfkConfig"))
+                throw new InvalidDataException("AFK Configure did not carry trusted profile settings");
             Console.WriteLine("FEATURE018_AFK_MANAGED_RUNTIME_CHECKS_OK");
         }
         finally { Directory.Delete(root, true); }

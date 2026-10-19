@@ -7,7 +7,7 @@ import { PreviewConfigError, usePreviewConfig, usePreviewConfigAdapter } from ".
 import { cloneEquipmentValue, currentEquipmentPresetLabel, currentEquipmentPresetMatches, EQUIPMENT_PRESET_LIMIT, EQUIPMENT_SLOTS, equipmentCatalog, equipmentDirtyPresetIds, equipmentItemCount, equipmentPositionCount, findEquipmentSquad, previewEquipmentFixture, swapEquipmentSquads, swapEquipmentTarget } from "./previewEquipmentContracts.js";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { backendBridge } from "./backendBridge.js";
-import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog } from "./squadsAfkRuntime.js";
+import { createMonsterAfkAdapter, emptyMonsterAfkConfig, normalizeAfkCatalog, createStaminaPotionAdapter, emptyStaminaConfig } from "./squadsAfkRuntime.js";
 import { ToggleRow } from "./sharedPageUI.jsx";
 import { motion, AnimatePresence, useReducedMotion, equipmentMotionProps } from "./EquipmentMotion.jsx";
 
@@ -175,6 +175,13 @@ function translatedAfkError(t, value) {
 }
 
 const AFK_RUNTIME_STEP_KEYS = {
+  waiting_stamina: "squad.runtime.waitingStamina", waiting_squad: "squad.runtime.waitingSquad",
+  account_changed: "squad.runtime.accountPaused", waiting_search: "squad.runtime.waitingSearch",
+  waiting_profiles: "squad.runtime.waitingProfile", confirming_item: "squad.runtime.confirmingItem",
+  no_owned_items: "squad.runtime.noItems", above_limit: "common.waiting", item_confirmed: "common.completed",
+  attacking: "squad.status.fighting", joining: "squad.status.rallying", completed: "common.completed",
+  stopped: "common.stopped", idle: "squad.status.idle",
+
   waiting_join_delay: "squad.join.waiting",
   waiting_nearby_target: "squad.afkStep.waitingNearbyTarget",
   scanning_nearby: "squad.afkStep.scanningNearby",
@@ -199,10 +206,12 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
   const [nativeRuntime, setNativeRuntime] = useState(null);
   const [nativeError, setNativeError] = useState("");
   const liveConfig = usePreviewConfigAdapter(emptyMonsterAfkConfig, createMonsterAfkAdapter(backendBridge, profileId, validMonsterAfkConfig), JSON.stringify([profileId, "native:monsterSweep"]));
+  const livePotionConfig = usePreviewConfigAdapter(emptyStaminaConfig, createStaminaPotionAdapter(backendBridge, profileId, validPotionConfig), JSON.stringify([profileId, "native:staminaPotion"]));
   useEffect(() => {
     if (!nativeReady) return;
     let retired = false, busy = false, catalogAt = 0;
     liveConfig.store.refresh().catch((error) => { if (!retired) setNativeError(error.message); });
+    livePotionConfig.store.refresh().catch((error) => { if (!retired) setNativeError(error.message); });
     const refresh = async () => {
       if (busy || retired) return; busy = true;
       try {
@@ -224,7 +233,8 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
   const storeScope = (scope) => JSON.stringify([profileScope, `${scope}:${previewState}`]);
   const fixtureAfkConfig = usePreviewConfig(() => fixtureEnabled ? initialMonsterAfkConfig(previewState) : { enabled: false, strategies: [], allianceDrill: initialAfkToolbarConfig("").allianceDrill }, validMonsterAfkConfig, previewState === "squads-profile-save-error", storeScope("task:monsterSweep"));
   const afkConfig = nativeReady ? liveConfig : fixtureAfkConfig;
-  const potionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
+  const fixturePotionConfig = usePreviewConfig(() => initialPotionConfig(previewState), validPotionConfig, previewState === "squads-profile-toolbar-save-error" || previewState === "squads-profile-potion-save-error", storeScope("task:staminaPotion"));
+  const potionConfig = nativeReady ? livePotionConfig : fixturePotionConfig;
   const profiles = afkConfig.draft.strategies;
   const setProfiles = (value, delay = 400) => afkConfig.store.edit((draft) => ({ ...draft, strategies: typeof value === "function" ? value(draft.strategies) : value }), delay);
   const [editingId, setEditingId] = useState(() => previewEnabled ? initialAfkProfiles(previewState)[0]?.id || "" : "");
@@ -319,8 +329,9 @@ function AfkContent({ previewEnabled: fixtureEnabled, previewState, profileId = 
   };
   return (
     <div ref={layoutRef} className="monster-afk-layout" data-draft-dirty={afkConfig.dirty || potionConfig.dirty} data-draft-saving={afkConfig.saving || potionConfig.saving} data-preview-fixture={previewEnabled ? "squads-profile" : "runtime-config-unobserved"}>
-      {!fixtureEnabled ? <div role="status" className={nativeError || nativeRuntime?.lastError ? "automation-error" : "muted"}>{nativeError || nativeRuntime?.lastError || (nativeRuntime?.state === "completed" ? t("common.completed") : nativeRuntime?.running ? t("automation.running") : t("squad.status.idle"))}{(Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []).map((row) => <span key={`${row.profileId}:${row.squadIndex}`}> · {t("squad.number", { number: row.squadIndex })}: {row.step} {row.currentTarget?.name || ""} {row.currentTarget?.level ? `Lv.${row.currentTarget.level}` : ""} · {nativeRuntime?.processed?.[row.profileId] || 0}</span>)}</div> : null}
+      {!fixtureEnabled ? <div role="status" className={nativeError || nativeRuntime?.lastError ? "automation-error" : "muted"}>{nativeError || nativeRuntime?.lastError || (t(AFK_RUNTIME_STEP_KEYS[nativeRuntime?.step] || (nativeRuntime?.state === "completed" ? "common.completed" : nativeRuntime?.running ? "automation.running" : "squad.status.idle")))}{(Array.isArray(nativeRuntime?.rows) ? nativeRuntime.rows : []).map((row) => <span key={`${row.profileId}:${row.squadIndex}`}> · {t("squad.number", { number: row.squadIndex })}: {t(AFK_RUNTIME_STEP_KEYS[row.step] || "common.waiting")} {row.currentTarget?.name || ""} {row.currentTarget?.level ? `Lv.${row.currentTarget.level}` : ""} · {nativeRuntime?.processed?.[row.profileId] || 0}</span>)}</div> : null}
       <PreviewConfigError config={afkConfig} t={t} label={t("squad.afkMaster")} />
+      {nativeReady && potionConfig.draft.enabled && nativeRuntime?.staminaPotion ? <div role="status" data-stamina-runtime={nativeRuntime.staminaPotion.state} className={nativeRuntime.staminaPotion.lastError ? "automation-error" : "muted"}>{nativeRuntime.staminaPotion.lastError || t(AFK_RUNTIME_STEP_KEYS[nativeRuntime.staminaPotion.step] || "common.waiting")} · {t("automation.currentStamina")}: {nativeRuntime.staminaPotion.stamina ?? "-"} · {t("squad.runtime.usedItems", { count: nativeRuntime.staminaPotion.used || 0 })}</div> : null}
       <PreviewConfigError config={potionConfig} t={t} label={t("automation.autoUsePotion")} />
       <div className="monster-afk-toolbar">
         <CompactAfkCard title={t("squad.afkMaster")} description={t("squad.afkMasterDescription")} summary={t(afkConfig.draft.enabled ? "common.enabled" : "common.disabled")} enabled={afkConfig.draft.enabled} disabled={!previewEnabled || Boolean(profileAction)} settingsOpen={toolbarPanel === null} onSettings={() => setToolbarPanel(null)} onToggle={(enabled) => void toggleMaster(enabled)} />

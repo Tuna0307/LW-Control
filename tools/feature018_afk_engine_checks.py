@@ -33,6 +33,8 @@ def main():
         complete=true;engine.Pump();engine.Pump();assert(sends==3,'Count must reserve across assigned squads')
         engine.Pump();engine.Pump();assert(sends==3 and engine.Status().state=='completed')
         assert(engine.Status().processed.p==3)
+        assert(engine.Configure(config));engine.Pump()
+        assert(sends==3 and engine.Status().state=='completed','Saving completed profile settings must not restart attacks')
         profile.executionLimit=0;assert(engine.Start({},config));complete=false;engine.Pump()
         local before=sends;engine.Stop();for i=1,10 do engine.Pump()end;assert(sends==before)
         assert(not engine.Matches(profile,{monster=true,player=true,level=10}))
