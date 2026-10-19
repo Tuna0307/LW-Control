@@ -1156,3 +1156,5 @@ Note: the "R23 progress checkpoint" block above appears twice (worker paste dupl
 | Trade Station | Trade Station | No - preview/local UI only in production. |
 | Protection & System | Weekend Shield | No - preview/local UI only in production. |
 | Protection & System | Attack Shield | No - preview/local UI only in production. |
+
+- **Final R23 regression gate complete:** attack actions, hotkey actions/game, City game/candidate/swap/grid-audit/live-driver, relocation (**81/81**), equipment actions (**32/32**) + integration, and Chat engine suites all PASS. Full UI `npm ... run check` PASSes through `FEATURE018_R21_CITY_NAMES_UI_OK`; R23 package-boundary checks PASS; full `tests/LWBridge.Desktop.Checks` PASSes through `HOME_FEATURE_DELIVERY_CHECKS_OK`. No game was launched by the regression suites. Final source-pinned Windows publish/package is next.
