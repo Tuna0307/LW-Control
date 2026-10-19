@@ -709,3 +709,25 @@ Problems found (worst first):
 7. Hotkeys, Home, City Layout: acceptable; City Layout's right properties panel is tight at 1100.
 Next: fix responsive layout (min widths, wrapping, grid that packs cards, no horizontal page scroll at 900 px+),
 before/after screenshots at 900/1100/1400/1600, UI checks pass.
+
+## R19 assignment — responsive UI layout (2026-10-19)
+Fix the 7 problems in "Lead UI layout review at different window sizes" above. UI/CSS only; no game needed, no
+desktop input (owner uses the PC). Preview: `npm.cmd --prefix src/LWBridge.UI-0.3.17 run dev` →
+http://127.0.0.1:4317/?view=<page>&previewLanguage=en&previewState=<state> (e.g. march+squads-profile,
+march+squads-equipment, automation+automation-runtime-running, mini-games+hotkeys-connected,
+map-data+map-actions-ready, city-layout+city-layout-populated-moved, overview+home-connected, hotkeys+hotkeys-connected).
+Acceptance at 900, 1100, 1400 and 1600 px wide, in English AND Chinese (zh-CN), light and dark:
+- no horizontal page scroll; nothing runs off the right edge;
+- card titles/labels wrap instead of being cut to "…" (names may ellipsize only with a tooltip showing the full text);
+- Squads AFK Tasks: toggle cards wrap to new rows; profile list and editor stack vertically when narrow;
+- Equipment Schemes: preset list and squad positions reflow (positions wrap to fewer per row), no clipped cards;
+- Automation and Mini Games: cards pack without big empty gaps (e.g. CSS grid with auto-fill/minmax and
+  align-items:start, or a masonry-style column layout); tab bars wrap or scroll with a visible hint;
+- top bar stays one tidy row down to 1100 px, wraps cleanly below;
+- Map Data table: sensible minimum column widths and horizontal scroll INSIDE the table only;
+- keep the familiar 0.3.17 look; no feature or text changes.
+Deliver before/after screenshots for every page at each width, UI build + check PASS, Desktop.Checks PASS, an
+owner-test ZIP (R19 package script, no test UID) and progress under "R19 progress".
+
+### R19 progress (worker updates this)
+- (none yet)
