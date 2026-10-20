@@ -1476,3 +1476,47 @@ Excluded live actions remain Unlock Land Cell, F6/F7/F8 item use, Treasure claim
 - Added an isolated memory-only proof surface and sufficient opt-in staged lifetime for a genuine final-candidate 30-minute run followed by the strengthened safe-control sweep. Extended explicit retained-native DB reuse to tab proof only after the same complete 2500/2500/zero-failure read-only admission used by browse proof; this is real saved native data, not a preview fixture or current census claim.
 - `tools/r29_run_checkpoint.py` orchestrates only its newly created app/root: exact admitted UID/server, Part-A setting restoration, actual-container scrolling of retained Map/City/equipment data, quiet final-cache sampling, optional bounded ordinary-monster AFK search with one initially idle staffed squad, Stop/config restoration and owned march return, final 30-minute measurement, then the exact Home Close sweep. Account identity is an operator argument; no fixed proof UID is shipped. Failures consume a one-shot operation and end through owned lifecycle cleanup; no excluded actions or OS input are used. AFK proof is limited to ordinary native level-1 targets within distance 1, at most one execution, with all item use/alliance rally settings disabled. Any new native result must be reviewed, not inferred from this driver.
 - Full UI, Release Desktop, every FEATURE018 offline/Lua suite, R29 budget/cache/package tests and original-v26 backup roundtrip all pass. Candidate `29eb18d4` was published locally; final checkpoint driver will be committed before its source-matched use.
+
+## R29 finished by lead (Claude) after workers ran out — 2026-10-21
+Owner asked the lead to continue the leftover R29 work. Lead fixes (all pushed):
+- 39670b18 proof harness: brief heartbeat gaps no longer abort runs (15 s grace for an UNAVAILABLE read only; a
+  different account / lost process still fails at once). Product action gates unchanged. New Desktop check.
+- 90f08395 perf-only per-part Lua timers (owner check, City, AFK, Chat, Sheep, mailbox); empty Map table (scans
+  cleared at app start) is recorded as "no rows", not a scroll failure.
+- 3cc9b0a3 performance fixes from those timers, plus the sweep preset selector bug (unquoted `[data-equipment-preset=1]`).
+
+### R29 performance (final, real numbers)
+| Measure | Before (90f08395) | After (3cc9b0a3) |
+|---|---|---|
+| Our in-game Lua, idle, per second | 223 ms | **75 ms (−66%)** |
+| Our Lua per frame, idle | 2.18 ms | **0.58 ms** |
+| Chat engine per tick (all Chat off) | 8.3 ms (full room rescan every 1 s, up to 185 ms/pass) | **0.08 ms** (no rescan when idle; 15 s when on) |
+| Overview host tick | 20 Hz, 3.6 ms/call | **10 Hz** (heartbeat still 0.75 s; hotkey tick stays 20 Hz) |
+| Frames slower than 50 ms (60 s idle sample) | 78 | **23** |
+| Game CPU (one-core %, idle sample) | 396% | 272% |
+| Unity frame cadence (idle sample) | 102.7 FPS | 130.3 FPS (sessions differ; indicative) |
+| 30-min run: our Lua per second / FPS | 168 ms/s / 49 FPS (pre-fix run) | **86 ms/s / 131.7 FPS** |
+| 30-min memory: app tree / game | — | 700→661 MiB / 1392→1397 MiB (**flat, no leak**) |
+| Tab open time (all tabs, 64 cases) | — | **≤ 613 ms** (target < 1 s) |
+| Preset switch (20 slots) | 8964 ms | **807 ms** (Part A) |
+Limitations: FPS with NO app is unknown (Windows denied passive frame capture without perf-log privilege); FPS here
+is Unity frame cadence, not presented frames.
+
+### R29 tab sweep (final)
+Final packaged runs `native-ui-20261020-160903` and `native-ui-20261020-161509` (exact test UID, exit 0, scripts
+restored, no journal): 64 cases (8 surfaces × connected/disconnected × EN/zh-CN × 900/1600 px), **0 raw-code alerts,
+0 preview-fixture nodes**, 69 safe controls exercised and restored.
+| Tab | What was checked | Bugs found (whole R29) | Fixed? | Evidence |
+|---|---|---|---|---|
+| Home | 8 cases; auto-launch/reconnect prefs; Close Game | Close without confirmation; raw errors | Yes | r29-sweep-*-home-* |
+| Map Data | 8 cases; mode, result tabs/search, filters, item filter, Start/Stop, Clear | Raw errors; labels split at 900 px; stale server-ID error | Yes | r29-sweep-*-map-data-* |
+| Squads / AFK | 8 cases; settings card, Add menu | Offline edits/raw errors/failed-load recovery | Yes | r29-sweep-*-squads-afk-* |
+| Equipment Schemes | 8 cases; Refresh, preset select + restore | Preset read retry; pending fence lost on remount; sweep selector bug | Yes | r29-sweep-*-squads-equipment-* |
+| City Layout | 8 cases; zoom in/out/fit/restore | Opened on blank land; rendered thousands of offscreen cells | Yes (viewport render, centering, lazy icons) | r29-sweep-*-city-layout-* |
+| Hotkeys | 8 cases; 6 config switches | Raw feedback/internal names; untranslated | Yes | r29-sweep-*-hotkeys-* |
+| Mini Games | 8 cases; G switch, G count edit/restore | G count saved every keystroke; raw errors | Yes (save on blur/Enter) | r29-sweep-*-mini-games-* |
+| Settings | 8 cases; focus pref; FPS/ping (Part A) | FPS/ping never applied; fake update/export surfaces | Yes | r29-sweep-*-settings-*, r29-part-a-ui.json |
+| Top bar / account bar | all cases; theme, chooser, hide/restore, note edit | One-game/localization errors | Yes | sweep receipts |
+Not pressed live (screen only): Unlock Land Cell, F6/F7/F8, Treasure claim, Food House, Black Market, Alliance Drill
+rally. Bounded Monster AFK sample skipped (no idle staffed squad that moment; AFK proven live in R20).
+Status: R29 READY for owner test.
