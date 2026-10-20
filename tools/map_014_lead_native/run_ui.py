@@ -288,8 +288,8 @@ def main():
     mode = sys.argv[1]
     saved_db = None
     if len(sys.argv) == 4:
-        if mode != "browse" or sys.argv[2] != "--saved-db":
-            raise RuntimeError("Explicit saved native data is supported only for browse proof")
+        if mode not in ("browse", "feature018-tabs") or sys.argv[2] != "--saved-db":
+            raise RuntimeError("Explicit saved native data is supported only for browse/tab proof")
         saved_db = Path(sys.argv[3]).resolve()
         if not saved_db.is_relative_to((ROOT / "artifacts").resolve()) or not saved_db.is_file():
             raise RuntimeError("Saved proof DB must be an existing task artifact")
@@ -314,7 +314,7 @@ def main():
         raise FileNotFoundError("Preserved genuine published Map database is unavailable")
     store = destination / "profiles" / profile / "map-data"
     store.mkdir(parents=True)
-    if mode in ("browse", "remote", "remote-reuse", "track", "expiry", "saved-clear-reopen"):
+    if saved_db is not None or mode in ("browse", "remote", "remote-reuse", "track", "expiry", "saved-clear-reopen"):
         with sqlite3.connect((source / "map-data.db").resolve().as_uri() + "?mode=ro", uri=True) as readonly, \
              sqlite3.connect(store / "map-data.db") as snapshot:
             readonly.backup(snapshot)
@@ -359,7 +359,8 @@ def main():
         "pid": owned.pid, "publish": str(publish), "source": str(source)
     }, indent=2), encoding="utf-8")
     print(f"MAP014_OWNED_UI_PID={owned.pid} ROOT={destination}", flush=True)
-    deadline = time.monotonic() + (2100 if mode == "auto-interval-20m" else
+    deadline = time.monotonic() + (2800 if mode == "feature018-tabs" and os.environ.get("LWBRIDGE_R29_PERF_PROOF") == "1" else
+                                   2100 if mode == "auto-interval-20m" else
                                    1200 if mode in ("remote", "remote-railway") else 900)
     while owned.poll() is None:
         if time.monotonic() >= deadline:

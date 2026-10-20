@@ -20,6 +20,7 @@ def make_bridge():
         clock = 1000
         request_text, response_text = '', ''
         calls = 0
+        owner_gate_calls = 0
         current_uid = '3133546747002212'
         current_server = 2212
         overview_uid = current_uid
@@ -64,6 +65,7 @@ def make_bridge():
         })
         LWBridgeOverviewBridge = {
             IsAuthorizedFeature018Request = function(values, native_server)
+                owner_gate_calls = owner_gate_calls + 1
                 return allow_lease and values.authorizedUid == overview_uid and
                     values.launchSessionId == current_session and
                     tostring(native_server) == tostring(overview_server)
@@ -107,7 +109,9 @@ def test_bridge_account_and_replay() -> None:
     first = json.loads(v.response_text)
     assert first["state"] == "confirmed" and first["data"]["server"] == 2212
     assert v.calls == 1
+    assert v.owner_gate_calls == 2, "new request must authorize before and after its handler"
     assert not issue(lua, module, "A") and v.calls == 1
+    assert v.owner_gate_calls == 2, "exact consumed envelope must avoid repeated native authorization work"
     assert issue(lua, module, "B") and v.calls == 2
     prior = v.response_text
     assert not issue(lua, module, "A") and v.calls == 2

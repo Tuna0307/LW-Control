@@ -667,18 +667,60 @@ local function reflected_static_value(component, key)
     return nil
 end
 
+-- CLR member metadata is immutable for a concrete Type. Cache descriptors,
+-- never their live component/value or an observed account/connection state.
+-- FIFO bounds also cover absent members and transient resolution failures.
+local REFLECTION_CACHE_MAX_TYPES = 16
+local REFLECTION_CACHE_MAX_MEMBERS = 64
+local reflection_member_cache, reflection_type_order = {}, {}
+local function reflection_member_entry(reflected_type, key, flags)
+    local cached_type = reflection_member_cache[reflected_type]
+    if cached_type == nil then
+        if #reflection_type_order >= REFLECTION_CACHE_MAX_TYPES then
+            reflection_member_cache[table.remove(reflection_type_order, 1)] = nil
+        end
+        cached_type = {members = {}, order = {}}
+        reflection_member_cache[reflected_type] = cached_type
+        reflection_type_order[#reflection_type_order + 1] = reflected_type
+    end
+    local cache_key = tostring(flags) .. ":" .. key
+    local entry = cached_type.members[cache_key]
+    if entry == nil then
+        if #cached_type.order >= REFLECTION_CACHE_MAX_MEMBERS then
+            cached_type.members[table.remove(cached_type.order, 1)] = nil
+        end
+        entry = {}
+        cached_type.members[cache_key] = entry
+        cached_type.order[#cached_type.order + 1] = cache_key
+    end
+    return entry
+end
+
 local function reflected_value(component, key)
     if component == nil then return nil end
     local ok_type, reflected_type = pcall(function() return component:GetType() end)
     if not ok_type or reflected_type == nil then return nil end
     local flags = reflection_flags()
-    local ok_field, field = pcall(function() return reflected_type:GetField(tostring(key), flags) end)
-    if ok_field and field ~= nil then
+    key = tostring(key)
+    local entry = reflection_member_entry(reflected_type, key, flags)
+    if not entry.fieldResolved then
+        local ok_field, field = pcall(function() return reflected_type:GetField(key, flags) end)
+        -- A resolver exception is transient, not proof that a member is absent.
+        if ok_field then entry.fieldResolved = true; entry.field = field end
+    end
+    local field = entry.field
+    if field ~= nil then
         local ok_value, value = pcall(function() return field:GetValue(component) end)
         if ok_value then return value end
     end
-    local ok_property, property = pcall(function() return reflected_type:GetProperty(tostring(key), flags) end)
-    if ok_property and property ~= nil then
+    -- Preserve the original property fallback even when a cached field getter
+    -- throws. A successful nil field value still returns nil above.
+    if not entry.propertyResolved then
+        local ok_property, property = pcall(function() return reflected_type:GetProperty(key, flags) end)
+        if ok_property then entry.propertyResolved = true; entry.property = property end
+    end
+    local property = entry.property
+    if property ~= nil then
         local ok_value, value = pcall(function() return property:GetValue(component, nil) end)
         if ok_value then return value end
     end
@@ -3891,7 +3933,7 @@ local function install_recovery_action_hooks()
     end
 end
 
-function M.Pump()
+local function pump_overview()
     local now = tonumber(os.time()) or 0
     local control, control_error = read_control()
     local fresh, lease_error = false, nil
@@ -3988,6 +4030,83 @@ function M.Pump()
     return true
 end
 
+-- Opt-in measurement of OUR Lua handlers only. No game/anti-cheat hooks or
+-- process attachment. Bounded counters are written every five seconds to the
+-- isolated runtime; normal owner builds perform no diagnostic file writes.
+local perf_enabled = os.getenv("LWBRIDGE_R29_PERF_PROOF") == "1"
+local perf = {schemaVersion=1, frames=0, frameSeconds=0, over25ms=0, over50ms=0,
+    overviewCalls=0, overviewSeconds=0, overviewMaxSeconds=0,
+    featureCalls=0, featureSeconds=0, featureMaxSeconds=0}
+local perf_frame, perf_written = nil, -1000
+local function perf_clock()
+    local cs = rawget(_G, "CS")
+    local stopwatch = cs and cs.System and cs.System.Diagnostics and cs.System.Diagnostics.Stopwatch
+    if stopwatch then
+        local ok, value = pcall(function() return tonumber(stopwatch.GetTimestamp()) / tonumber(stopwatch.Frequency) end)
+        if ok and value then return value end
+    end
+    return tonumber(os.clock()) or 0
+end
+if perf_enabled then
+    function M.PerformanceBegin() return perf_clock() end
+    function M.PerformanceEnd(kind, started)
+        local elapsed = math.max(0, perf_clock() - started)
+        local prefix = kind == "feature018" and "feature" or "overview"
+        perf[prefix.."Calls"] = perf[prefix.."Calls"] + 1
+        perf[prefix.."Seconds"] = perf[prefix.."Seconds"] + elapsed
+        perf[prefix.."MaxSeconds"] = math.max(perf[prefix.."MaxSeconds"], elapsed)
+    end
+end
+local function profile_frame()
+    if not perf_enabled then return end
+    local cs = rawget(_G, "CS")
+    local time = cs and cs.UnityEngine and cs.UnityEngine.Time
+    local frame = time and tonumber(safe_get(time, "frameCount"))
+    if frame ~= nil and frame ~= perf_frame then
+        perf_frame = frame
+        local delta = tonumber(safe_get(time, "unscaledDeltaTime"))
+        if delta and delta > 0 then
+            perf.frames = perf.frames + 1
+            perf.frameSeconds = perf.frameSeconds + delta
+            if delta > 0.025 then perf.over25ms = perf.over25ms + 1 end
+            if delta > 0.05 then perf.over50ms = perf.over50ms + 1 end
+        end
+    end
+end
+function M.Pump()
+    if not perf_enabled then return pump_overview() end
+    profile_frame()
+    local started = perf_clock()
+    local result = pump_overview()
+    M.PerformanceEnd("overview", started)
+    local clock = runtime_clock()
+    if clock - perf_written >= 5 then
+        perf_written = clock
+        perf.observedAt = tonumber(os.time())
+        perf.runtimeSeconds = clock
+        write_json(root .. [[\r29-perf.json]], perf)
+    end
+    return result
+end
+
+-- LuaEntry Update/LateUpdate and UpdateManager can all invoke the bridge in
+-- one rendered frame. Bound periodic work to 20 Hz across those entry points.
+-- Commands retain their independent exact-owner checks at dispatch time.
+local last_overview_tick, last_feature_tick = -1000, -1000
+function M.TryPump()
+    profile_frame()
+    local clock = runtime_clock()
+    if clock >= last_overview_tick and clock - last_overview_tick < 0.05 then return false end
+    last_overview_tick = clock
+    return M.Pump()
+end
+function M.ShouldPumpFeature018()
+    local clock = runtime_clock()
+    if clock >= last_feature_tick and clock - last_feature_tick < 0.05 then return false end
+    last_feature_tick = clock
+    return true
+end
+
 local feature018_periodic_tick = nil
 function M.SetFeature018PeriodicTick(callback)
     if type(callback) ~= "function" or feature018_periodic_tick ~= nil then return false end
@@ -4001,7 +4120,7 @@ function M.Register()
     -- one-shot LuaEntry lifecycle methods stop firing. Poll FEATURE018's
     -- mailbox and asynchronous City/Sheep jobs on that same owned callback.
     update_callback = function()
-        M.Pump()
+        M.TryPump()
         if feature018_periodic_tick ~= nil then
             pcall(feature018_periodic_tick)
         end

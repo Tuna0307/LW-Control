@@ -191,3 +191,8 @@
 .equipment-live-presets input { max-width: 100%; }
 .equipment-live-presets p { color: var(--muted); margin: 6px 0; }
 @media (max-width: 1000px) { .equipment-live-presets .equipment-preset-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* R29: account sidebar leaves a narrow content column at 900px. Keep
+   complete result-kind labels together instead of splitting final letters. */
+.map-tabs{grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))}
+.map-tabs button{white-space:nowrap}

@@ -1484,7 +1484,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
             <button
               className="top-action secondary"
               type="button"
-              onClick={() => setServerJumpOpen((value) => !value)}
+              onClick={() => { setServerJumpErrorKey(""); setServerJumpOpen((value) => !value); }}
             >
               {currentServerId > 0 ? t("server.switchLabelWithId", { server: currentServerId }) : t("server.switchLabel")}
             </button>
@@ -1502,7 +1502,7 @@ export function App({ shellFlagStates = null, subscribeCloseRequests = null, con
                     placeholder={t("server.targetPlaceholder")}
                     type="number"
                     value={serverTarget}
-                    onChange={(event) => setServerTarget(event.target.value)}
+                    onChange={(event) => { setServerTarget(event.target.value); setServerJumpErrorKey(""); }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !serverJumpBusyActive && !serverJumpBlockedText) jumpServer(Number(serverTarget));
                     }}

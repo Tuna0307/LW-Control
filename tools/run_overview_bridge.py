@@ -404,7 +404,10 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
     periodic = (
         b'local feature018_previous_owner = nil\n'
         b'local feature018_owner_missing_since = nil\n'
-        b'local function feature018_periodic()\n' + bound_pump +
+        b'local function feature018_periodic()\n'
+        b'    if type(bridge.ShouldPumpFeature018) == "function" and not bridge.ShouldPumpFeature018() then return end\n'
+        b'    local perf_started = type(bridge.PerformanceBegin) == "function" and bridge.PerformanceBegin() or nil\n' + bound_pump +
+        b'    if perf_started ~= nil then bridge.PerformanceEnd("feature018", perf_started) end\n'
         b'end\n'
         b'if type(bridge.SetFeature018PeriodicTick) ~= "function" or\n'
         b'   bridge.SetFeature018PeriodicTick(feature018_periodic) ~= true then\n'
@@ -419,6 +422,8 @@ if type(chat) ~= "table" then error("FEATURE018 Chat engine did not return a tab
     between = between.replace(original_pump,
         b'    pcall(feature018_periodic)\n', 1)
     between = between.replace(setup, periodic + setup, 1)
+    between = between.replace(b'if type(bridge.Pump) == "function" then pcall(bridge.Pump) end',
+        b'if type(bridge.TryPump) == "function" then pcall(bridge.TryPump) end', 1)
     return prefix + bridge_source() + between
 
 

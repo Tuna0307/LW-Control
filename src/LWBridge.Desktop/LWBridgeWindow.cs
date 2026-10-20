@@ -1604,6 +1604,7 @@ internal sealed partial class LWBridgeWindow : Form
             Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_UI_PROOF") == "1" &&
             Environment.GetEnvironmentVariable("LWBRIDGE_FEATURE018_STAGED_PROOF") == "1";
         using var operationCts = new CancellationTokenSource(TimeSpan.FromMinutes(
+            Environment.GetEnvironmentVariable("LWBRIDGE_R29_PERF_PROOF") == "1" ? 45 :
             intervalAcceptance ? 28 : ownerFixRemoteProof ? 14 : feature018StagedProof ? 16 : 8));
         string? instanceId = null;
         OverviewMapScanSession? ownedMapSession = null;

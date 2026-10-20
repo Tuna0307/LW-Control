@@ -66,6 +66,9 @@ internal sealed partial class LWBridgeWindow
     private async Task R29SweepSwitchLanguageAsync(
         CoreWebView2 core, string language, CancellationToken token, Func<bool>? ownerCheck = null)
     {
+        token.ThrowIfCancellationRequested();
+        if (ownerCheck is not null && !ownerCheck())
+            throw new InvalidDataException("R29 sweep lost owner before language change.");
         string json = JsonSerializer.Serialize(language, JsonOptions.Default);
         string result = await core.ExecuteScriptAsync($$"""
             (() => {
@@ -88,6 +91,9 @@ internal sealed partial class LWBridgeWindow
         CoreWebView2 core, R29SweepSurface surface, CancellationToken token,
         Func<bool>? ownerCheck = null)
     {
+        token.ThrowIfCancellationRequested();
+        if (ownerCheck is not null && !ownerCheck())
+            throw new InvalidDataException("R29 sweep lost owner before navigation.");
         var timer = Stopwatch.StartNew();
         string result = await core.ExecuteScriptAsync($$"""
             (() => {
@@ -98,10 +104,26 @@ internal sealed partial class LWBridgeWindow
             })()
             """);
         if (result != "true") throw new InvalidDataException("R29 sweep route unavailable: " + surface.Key);
-        await R29SweepWaitDomAsync(core, surface.ReadyExpression,
+        string rootSelector = surface.Key switch
+        {
+            "home" => ".quick-actions-panel",
+            "map-data" => ".map-panel",
+            "squads-afk" or "squads-equipment" => ".squad-panel",
+            "city-layout" => ".city-layout-panel,.city-layout-empty",
+            "hotkeys" => ".hotkey-panel[data-hotkey-category=hotkeys]",
+            "mini-games" => ".hotkey-panel[data-hotkey-category=miniGames]",
+            "settings" => ".settings-panel",
+            _ => throw new InvalidDataException("Unknown R29 sweep route."),
+        };
+        // RetainedPages keeps visited routes in hidden React Activity trees.
+        // A matching hidden node is not evidence that navigation committed.
+        await R29SweepWaitDomAsync(core,
+            $"document.querySelectorAll('.side-nav button')[{surface.RouteIndex}]?.classList.contains('active')===true&&({surface.ReadyExpression})&&[...document.querySelectorAll({JsonSerializer.Serialize(rootSelector)})].some(b=>b.getClientRects().length>0)",
             surface.Key + " route", token, ownerCheck, 300);
         if (surface.SquadTab is not null)
         {
+            if (ownerCheck is not null && !ownerCheck())
+                throw new InvalidDataException("R29 sweep lost owner before Squads subtab change.");
             int tabIndex = surface.SquadTab == "afk" ? 0 : 1;
             if (await core.ExecuteScriptAsync($$"""
                 (() => {
@@ -120,6 +142,32 @@ internal sealed partial class LWBridgeWindow
         await R29SweepWaitDomAsync(core,
             "document.querySelectorAll('[data-preview-fixture]').length===0",
             surface.Key + " production fixture fence", token, ownerCheck, 100);
+        if (ownerCheck is not null)
+        {
+            string? dataReady = surface.Key switch
+            {
+                "squads-afk" => "document.querySelector('.monster-afk-layout[data-native-config-ready=true]')?.getClientRects().length>0&&!!document.querySelector('.monster-afk-add-control>button:not(:disabled)')",
+                "squads-equipment" => "document.querySelector('[data-native-equipment]')?.getClientRects().length>0&&document.querySelectorAll('[data-equipment-position]').length>0&&document.querySelectorAll('[data-equipment-preset]').length===4",
+                "city-layout" => "document.querySelector('.city-layout-panel')?.getClientRects().length>0&&document.querySelectorAll('[data-city-building-id]').length>0",
+                "hotkeys" => "document.querySelector('.hotkey-panel[data-hotkey-category=hotkeys] .hotkey-switch:not(:disabled)')?.getClientRects().length>0",
+                "mini-games" => "document.querySelector('.hotkey-panel[data-hotkey-category=miniGames] .hotkey-switch:not(:disabled)')?.getClientRects().length>0",
+                "settings" => "document.querySelectorAll('.settings-panel button[role=switch]').length>=2",
+                _ => null,
+            };
+            if (dataReady is not null)
+                await R29SweepWaitDomAsync(core, dataReady, surface.Key + " first native data", token, ownerCheck, 300);
+        }
+        if (ownerCheck is not null && !ownerCheck())
+            throw new InvalidDataException("R29 sweep lost owner before rendered-state settling.");
+        await core.ExecuteScriptAsync("window.__r29RouteCommitted=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__r29RouteCommitted=true;}));true");
+        await R29SweepWaitDomAsync(core, "window.__r29RouteCommitted===true", surface.Key + " rendered state", token, ownerCheck, 100);
+        if (surface.Key == "city-layout" && ownerCheck is not null)
+            await R29SweepWaitDomAsync(core, """
+                (()=>{const v=document.querySelector('.city-layout-grid-viewport');if(!v)return false;
+                  const vr=v.getBoundingClientRect();
+                  const shown=[...v.querySelectorAll('.city-layout-building')].filter(b=>{const r=b.getBoundingClientRect();return r.right>vr.left&&r.left<vr.right&&r.bottom>vr.top&&r.top<vr.bottom;});
+                  return shown.length>0&&shown.every(b=>{const i=b.querySelector('img.city-layout-grid-icon');return !!i&&i.complete&&i.naturalWidth>0;});})()
+                """, "City visible building icons decoded", token, ownerCheck, 300);
         timer.Stop();
         return timer.Elapsed.TotalMilliseconds;
     }
@@ -219,18 +267,21 @@ internal sealed partial class LWBridgeWindow
             (() => {
               const theme=document.querySelector('.theme-toggle');
               if(!theme)return 'missing-theme';
-              theme.click(); theme.click();
-              const jump=document.querySelector('.server-jump > button');
-              if(jump){jump.click();jump.click();}
-              const hide=document.querySelector('.profile-collapse');
-              if(hide && !hide.disabled){hide.click();}
-              const restore=document.querySelector('.profile-sidebar-restore');
-              if(restore && !restore.disabled){restore.click();}
               return 'ok';
             })()
             """);
         if (JsonSerializer.Deserialize<string>(shellActions, JsonOptions.Default) != "ok")
             throw new InvalidDataException("R29 disconnected shell controls were unavailable.");
+        foreach (string selector in new[] { ".theme-toggle[aria-pressed]", ".server-jump > button" })
+            for (int click = 0; click < 2; click++)
+            {
+                await core.ExecuteScriptAsync($"document.querySelector({JsonSerializer.Serialize(selector)})?.click()");
+                await Task.Delay(100, token);
+            }
+        await core.ExecuteScriptAsync("document.querySelector('.profile-collapse')?.click()");
+        await R29SweepWaitDomAsync(core, "!!document.querySelector('.profile-sidebar-restore')", "disconnected sidebar hidden", token);
+        await core.ExecuteScriptAsync("document.querySelector('.profile-sidebar-restore')?.click()");
+        await R29SweepWaitDomAsync(core, "!!document.querySelector('.profile-sidebar')", "disconnected sidebar restored", token);
 
         // Start through the actual production Home control. The outer proof then
         // observes/authenticates the resulting native instance before any live action.
@@ -281,178 +332,374 @@ internal sealed partial class LWBridgeWindow
         var matrix = await R29SweepMatrixAsync(core, directory, "connected", token, IsOwner);
         var actions = new List<object>();
 
-        // Global safe shell controls.
-        async Task ClickTwice(string selector, string name)
+        // Each action reacquires its element after React commits. Counts of
+        // discovered controls are not evidence that those controls were pressed.
+        static string Element(string selector, int index = 0) =>
+            $"document.querySelectorAll({JsonSerializer.Serialize(selector)})[{index}]";
+        async Task<string> Read(string expression)
+        {
+            Owned();
+            return await core.ExecuteScriptAsync(expression);
+        }
+        async Task Wait(string expression, string name, int polls = 300) =>
+            await R29SweepWaitDomAsync(core, expression, name, token, IsOwner, polls);
+        async Task<bool> Click(string element, string name, string ready, bool optional = false)
         {
             Owned();
             string result = await core.ExecuteScriptAsync($$"""
-                (() => {
-                  const button=document.querySelector({{JsonSerializer.Serialize(selector, JsonOptions.Default)}});
-                  if(!button||button.disabled)return false;
-                  button.click();button.click();return true;
-                })()
+                (()=>{const b={{element}};if(!b||b.disabled||b.getClientRects().length===0)return false;b.click();return true;})()
                 """);
-            if (result != "true") throw new InvalidDataException("R29 safe control unavailable: " + name);
-            actions.Add(new { name, exercised = true, restoredBySecondClick = true });
-        }
-        await ClickTwice(".theme-toggle", "theme toggle");
-        await ClickTwice(".server-jump > button", "server chooser open/close");
-        if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.profile-collapse');if(!b||b.disabled)return false;b.click();return true;})()") == "true")
-        {
-            await R29SweepWaitDomAsync(core, "!!document.querySelector('.profile-sidebar-restore')", "sidebar hidden", token, IsOwner);
-            if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.profile-sidebar-restore');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
-                throw new InvalidDataException("R29 sidebar restore unavailable during sweep.");
-            await R29SweepWaitDomAsync(core, "!!document.querySelector('.profile-sidebar')", "sidebar restored", token, IsOwner);
-            actions.Add(new { name = "sidebar hide/restore", exercised = true, restored = true });
-        }
-
-        // Map: both scan-mode tabs, all result tabs, and a bounded manual start/stop.
-        R29SweepSurface map = R29SweepSurfaces.First(surface => surface.Key == "map-data");
-        await R29SweepNavigateAsync(core, map, token, IsOwner);
-        string mapTabs = await core.ExecuteScriptAsync("""
-            (() => {
-              const scanTabs=[...document.querySelectorAll('.map-scan-tabs button[role=tab],.map-mode-tabs button[role=tab]')];
-              scanTabs.forEach(button=>button.click());
-              const resultTabs=[...document.querySelectorAll('.map-tabs button[role=tab]')];
-              resultTabs.forEach(button=>button.click());
-              return JSON.stringify({scanTabs:scanTabs.length,resultTabs:resultTabs.length});
-            })()
-            """);
-        actions.Add(new { name = "Map scan/result tabs", exercised = true, counts = JsonDocument.Parse(mapTabs).RootElement.Clone() });
-        // Return manual and issue one real Start followed by Stop; no map row/game mutation.
-        await core.ExecuteScriptAsync("document.querySelector('.map-scan-tabs button[role=tab],.map-mode-tabs button[role=tab]')?.click()");
-        string scanStarted = await core.ExecuteScriptAsync("""
-            (() => {
-              const start=[...document.querySelectorAll('.map-actions button')].find(button=>button.classList.contains('primary')&&!button.disabled);
-              if(!start)return false;start.click();return true;
-            })()
-            """);
-        if (scanStarted == "true")
-        {
-            await R29SweepWaitDomAsync(core,
-                "[...document.querySelectorAll('.map-actions button')].some(button=>button.classList.contains('danger')&&!button.disabled)",
-                "Map scan started", token, IsOwner, 300);
-            if (await core.ExecuteScriptAsync("(()=>{const b=[...document.querySelectorAll('.map-actions button')].find(button=>button.classList.contains('danger')&&!button.disabled);if(!b)return false;b.click();return true;})()") != "true")
-                throw new InvalidDataException("R29 Map Stop unavailable after Start.");
-            await R29SweepWaitDomAsync(core,
-                "![...document.querySelectorAll('.map-actions button')].some(button=>button.classList.contains('danger')&&!button.disabled)",
-                "Map scan stopped", token, IsOwner, 300);
-            actions.Add(new { name = "Map manual Start/Stop", exercised = true, restored = true });
-        }
-        else actions.Add(new { name = "Map manual Start/Stop", exercised = false, reason = "start disabled by live state" });
-
-        // City read-only controls. Live move/apply/restore evidence is kept in the
-        // dedicated City proof so this sweep does not duplicate a mutation.
-        R29SweepSurface city = R29SweepSurfaces.First(surface => surface.Key == "city-layout");
-        await R29SweepNavigateAsync(core, city, token, IsOwner);
-        string cityActions = await core.ExecuteScriptAsync("""
-            (() => {
-              const buttons=[...document.querySelectorAll('.city-layout-actions button,.city-layout-zoom button')];
-              const safe=buttons.filter(button=>!button.disabled && (
-                button.closest('.city-layout-zoom') || button===buttons[0]));
-              safe.forEach(button=>button.click());
-              return safe.length;
-            })()
-            """);
-        actions.Add(new { name = "City Refresh/zoom/fit", exercised = int.Parse(cityActions, System.Globalization.CultureInfo.InvariantCulture) > 0,
-            coveredMutationEvidence = "dedicated exact-restore City proof" });
-
-        // Equipment read-only Refresh + preset selection. Direct gear mutation was
-        // already exercised/restored by the R29 speed proof.
-        R29SweepSurface equipment = R29SweepSurfaces.First(surface => surface.Key == "squads-equipment");
-        await R29SweepNavigateAsync(core, equipment, token, IsOwner);
-        string equipmentActions = await core.ExecuteScriptAsync("""
-            (() => {
-              const refresh=document.querySelector('.squad-header button');
-              if(refresh && !refresh.disabled)refresh.click();
-              const presets=[...document.querySelectorAll('.equipment-live-presets .equipment-preset-list > button')];
-              presets.forEach(button=>{if(!button.disabled)button.click();});
-              return JSON.stringify({refresh:!!refresh&&!refresh.disabled,presets:presets.length});
-            })()
-            """);
-        actions.Add(new { name = "Equipment Refresh/preset selection", exercised = true,
-            counts = JsonDocument.Parse(equipmentActions).RootElement.Clone(),
-            coveredMutationEvidence = "R29 preset-speed exact restore" });
-
-        // AFK read-only/config-navigation controls only. Master, stamina auto-use
-        // and Alliance Drill remain intentionally unpressed live.
-        R29SweepSurface afk = R29SweepSurfaces.First(surface => surface.Key == "squads-afk");
-        await R29SweepNavigateAsync(core, afk, token, IsOwner);
-        string afkActions = await core.ExecuteScriptAsync("""
-            (() => {
-              const cards=[...document.querySelectorAll('.monster-afk-compact-card[role=button]')];
-              cards.forEach(card=>card.click());
-              const add=document.querySelector('.monster-afk-add-control > button');
-              if(add && !add.disabled){add.click();add.click();}
-              const profile=document.querySelector('.monster-afk-profile-select');
-              if(profile && !profile.disabled)profile.click();
-              return JSON.stringify({cards:cards.length,add:!!add&&!add.disabled,profile:!!profile&&!profile.disabled});
-            })()
-            """);
-        actions.Add(new { name = "AFK settings/add-menu/profile selection", exercised = true,
-            counts = JsonDocument.Parse(afkActions).RootElement.Clone() });
-
-        // Hotkey enable switches are configuration-only; toggle every switch twice.
-        R29SweepSurface hotkeys = R29SweepSurfaces.First(surface => surface.Key == "hotkeys");
-        await R29SweepNavigateAsync(core, hotkeys, token, IsOwner);
-        int hotkeySwitchCount = JsonSerializer.Deserialize<int>(await core.ExecuteScriptAsync("document.querySelectorAll('.hotkey-switch').length"), JsonOptions.Default);
-        for (int i = 0; i < hotkeySwitchCount; i++)
-        {
-            for (int click = 0; click < 2; click++)
+            if (result != "true")
             {
-                if (await core.ExecuteScriptAsync($"(()=>{{const b=document.querySelectorAll('.hotkey-switch')[{i}];if(!b||b.disabled)return false;b.click();return true;}})()") != "true")
-                    throw new InvalidDataException("R29 Hotkey config switch became stuck.");
-                await R29SweepWaitDomAsync(core,
-                    $"document.querySelectorAll('.hotkey-switch')[{i}]?.disabled===false",
-                    "Hotkey switch save", token, IsOwner, 200);
+                if (!optional) throw new InvalidDataException("R29 safe control unavailable: " + name);
+                actions.Add(new { name, exercised = false, reason = "absent, hidden, or disabled in current native state" });
+                return false;
             }
+            // ExecuteScript completion is not a React commit. In particular,
+            // a second click in the same render can reuse the old toggle value.
+            Owned();
+            await core.ExecuteScriptAsync("window.__r29SweepCommitted=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__r29SweepCommitted=true;}));true");
+            await Wait($"window.__r29SweepCommitted===true&&({ready})", name);
+            return true;
         }
-        actions.Add(new { name = "Hotkey config switches", exercised = hotkeySwitchCount, restored = true });
-
-        // Mini Games: only the G/frontline configuration is live-safe. Land,
-        // Black Market/Treasure marker and Food House are explicitly screen-only.
-        R29SweepSurface mini = R29SweepSurfaces.First(surface => surface.Key == "mini-games");
-        await R29SweepNavigateAsync(core, mini, token, IsOwner);
-        int miniSwitches = JsonSerializer.Deserialize<int>(await core.ExecuteScriptAsync("document.querySelectorAll('.hotkey-switch').length"), JsonOptions.Default);
-        for (int click = 0; click < 2 && miniSwitches > 0; click++)
+        async Task SetInput(string element, string value, string name)
         {
-            if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.hotkey-switch');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
-                throw new InvalidDataException("R29 Mini G config switch became stuck.");
-            await R29SweepWaitDomAsync(core, "document.querySelector('.hotkey-switch')?.disabled===false",
-                "Mini G switch save", token, IsOwner, 200);
+            Owned();
+            if (await core.ExecuteScriptAsync($$"""
+                (()=>{const b={{element}};if(!b||b.disabled)return false;
+                  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(b,{{JsonSerializer.Serialize(value)}});
+                  b.dispatchEvent(new Event('input',{bubbles:true}));b.dispatchEvent(new Event('change',{bubbles:true}));return true;})()
+                """) != "true") throw new InvalidDataException("R29 input unavailable: " + name);
+            Owned();
+            await core.ExecuteScriptAsync("window.__r29SweepCommitted=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__r29SweepCommitted=true;}));true");
+            await Wait($"window.__r29SweepCommitted===true&&({element})?.value==={JsonSerializer.Serialize(value)}", name + " rendered value");
         }
-        actions.Add(new { name = "Mini G config switch", exercised = miniSwitches > 0, restored = true });
+        async Task SetSelect(string element, string jsonValue, string name)
+        {
+            Owned();
+            if (await core.ExecuteScriptAsync($$"""
+                (()=>{const b={{element}};if(!b||b.disabled)return false;
+                  if(![...b.options].some(o=>!o.disabled&&o.value==={{jsonValue}}))return false;
+                  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(b,{{jsonValue}});
+                  b.dispatchEvent(new Event('change',{bubbles:true}));return true;})()
+                """) != "true") throw new InvalidDataException("R29 dropdown unavailable: " + name);
+            Owned();
+            await core.ExecuteScriptAsync("window.__r29SweepCommitted=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__r29SweepCommitted=true;}));true");
+            await Wait($"window.__r29SweepCommitted===true&&({element})?.value==={jsonValue}", name + " rendered selection");
+        }
+        // Restores the observed value even if the changed-state assertion fails.
+        // Rendered restoration is recorded separately from disk/native proof.
+        async Task ToggleAndRestore(string element, string name, string state)
+        {
+            string State() => $"(()=>{{const b={element};return b?({state}):null;}})()";
+            string before = await Read(State());
+            if ((before != "true" && before != "false") || await Read($"!!({element})?.disabled") == "true")
+            {
+                actions.Add(new { name, exercised = false, reason = "configuration control unavailable" });
+                return;
+            }
+            bool attempted = false;
+            try
+            {
+                attempted = true;
+                await Click(element, name + " change", $"!({element})?.disabled&&({State()})!=={before}");
+                // Home preferences can acknowledge asynchronously without a disabled state.
+                await Task.Delay(250, token);
+                await Wait($"!({element})?.disabled&&({State()})!=={before}", name + " changed state retained");
+            }
+            finally
+            {
+                if (attempted)
+                {
+                    await Wait($"!!({element})&&!({element}).disabled", name + " restoration ready");
+                    if (await Read(State()) != before)
+                        await Click(element, name + " restore", $"!({element})?.disabled&&({State()})==={before}");
+                    await Task.Delay(250, token);
+                    await Wait($"({State()})==={before}", name + " restored state retained");
+                }
+            }
+            actions.Add(new { name, exercised = true, renderedStateRestored = true, persistenceIndependentlyVerified = false });
+        }
 
-        // Settings account-focus switch is UI/config-only. FPS/ping is covered by
-        // the dedicated Part-A proof with independent game-side values/restoration.
-        R29SweepSurface settings = R29SweepSurfaces.First(surface => surface.Key == "settings");
-        await R29SweepNavigateAsync(core, settings, token, IsOwner);
-        string settingsFocus = await core.ExecuteScriptAsync("""
-            (() => {
-              const switches=[...document.querySelectorAll('.settings-panel button[role=switch]')];
-              const focus=switches[2];
-              if(!focus||focus.disabled)return false;
-              focus.click();focus.click();return true;
-            })()
-            """);
-        actions.Add(new { name = "Settings account-focus switch", exercised = settingsFocus == "true", restored = true,
-            visualMetricsEvidence = "R29 Part-A exact-owner proof" });
+        await ToggleAndRestore(Element(".theme-toggle[aria-pressed]"), "theme toggle", "b.getAttribute('aria-pressed')==='true'");
+        await Click(Element(".server-jump > button"), "server chooser open", "!!document.querySelector('.server-jump-popover')");
+        // Zero is rejected in App.jumpServer before any native request. Never
+        // submit a valid target or a history/return button in this sweep.
+        string targetBefore = await Read("document.querySelector('.server-jump-form input').value");
+        await SetInput(Element(".server-jump-form input"), "0", "server chooser invalid id");
+        if (await Click(Element(".server-jump-form > button"), "server chooser invalid-id validation",
+            "!!document.querySelector('.server-jump-error')?.textContent.trim()", optional: true))
+        {
+            string error = await Read("document.querySelector('.server-jump-error').textContent.trim()");
+            if (System.Text.RegularExpressions.Regex.IsMatch(JsonSerializer.Deserialize<string>(error) ?? "", @"\b[A-Z][A-Z0-9]+_[A-Z0-9_]+\b"))
+                throw new InvalidDataException("R29 chooser exposed an untranslated error code.");
+            actions.Add(new { name = "server chooser invalid-id validation", exercised = true, nativeJumpRequested = false, error });
+        }
+        await SetInput(Element(".server-jump-form input"), JsonSerializer.Deserialize<string>(targetBefore) ?? "", "server chooser input restore");
+        await Click(Element(".server-jump > button"), "server chooser close", "!document.querySelector('.server-jump-popover')");
+        await Click(Element(".server-jump > button"), "server chooser reopen/error recovery", "!!document.querySelector('.server-jump-popover')&&!document.querySelector('.server-jump-error')");
+        await Click(Element(".server-jump > button"), "server chooser final close", "!document.querySelector('.server-jump-popover')");
+        actions.Add(new { name = "server chooser open/close and error recovery", exercised = true, inputRestored = true });
 
-        // Finish via the actual Home Close Game button. If the R29 shell fix adds
-        // an in-app confirmation, accept it through DOM only. No owner assertion
-        // occurs after this click because losing the task-owned owner is expected.
+        if (await Click(Element(".profile-collapse"), "sidebar hide", "!!document.querySelector('.profile-sidebar-restore')", optional: true))
+        {
+            await Click(Element(".profile-sidebar-restore"), "sidebar restore", "!!document.querySelector('.profile-sidebar')&&!document.querySelector('.profile-sidebar-restore')");
+            actions.Add(new { name = "sidebar hide/restore", exercised = true, renderedStateRestored = true });
+        }
+        const string noteEdit = ".profile-row.active .profile-note-edit:not(.profile-enable-toggle)";
+        if (await Click(Element(noteEdit), "sidebar note editor open",
+            "!!document.querySelector('dialog[open] #profile-note-title')", optional: true))
+        {
+            string noteBefore = await Read("document.querySelector('.profile-dialog input').value");
+            await SetInput(Element(".profile-dialog input"), "R29 unsaved note", "sidebar note unsaved edit");
+            await Click(Element(".profile-dialog-actions button[type=button]"), "sidebar note cancel", "!document.querySelector('dialog[open] #profile-note-title')");
+            await Click(Element(noteEdit), "sidebar note reopen", "!!document.querySelector('dialog[open] #profile-note-title')");
+            await Wait($"document.querySelector('.profile-dialog input').value==={noteBefore}", "sidebar cancelled note unchanged");
+            await Click(Element(".profile-dialog-actions button[type=button]"), "sidebar note final cancel", "!document.querySelector('dialog[open] #profile-note-title')");
+            actions.Add(new { name = "sidebar note edit/cancel", exercised = true, persistedNoteUnchanged = true });
+        }
+
         R29SweepSurface home = R29SweepSurfaces.First(surface => surface.Key == "home");
         await R29SweepNavigateAsync(core, home, token, IsOwner);
+        for (int i = 0; i < 2; i++)
+            await ToggleAndRestore(Element(".quick-actions-panel button[role=switch]", i),
+                i == 0 ? "Home auto-launch preference" : "Home reconnect preference", "b.getAttribute('aria-checked')==='true'");
+
+        // Both modes and every result tab commit separately. Only view/filter
+        // controls are selected below; no row, claim, export, Clear or Auto Run.
+        R29SweepSurface map = R29SweepSurfaces.First(surface => surface.Key == "map-data");
+        await R29SweepNavigateAsync(core, map, token, IsOwner);
+        string scanSelector = ".map-scan-tabs button[role=tab]";
+        string resultSelector = ".map-tabs button[role=tab]";
+        string scanBefore = await Read("[...document.querySelectorAll('.map-scan-tabs button')].findIndex(b=>b.getAttribute('aria-selected')==='true')");
+        string resultBefore = await Read("[...document.querySelectorAll('.map-tabs button')].findIndex(b=>b.getAttribute('aria-selected')==='true')");
+        for (int i = 0; i < 2; i++)
+        {
+            await Click(Element(scanSelector, i), "Map mode " + i,
+                $"({Element(scanSelector, i)})?.getAttribute('aria-selected')==='true'&&{(i == 1 ? "!!" : "!")}document.querySelector('.map-auto-scan-card')");
+            actions.Add(new { name = "Map scan mode", index = i, exercised = true });
+        }
+        await Click(Element(scanSelector), "Map manual mode", $"({Element(scanSelector)})?.getAttribute('aria-selected')==='true'&&!document.querySelector('.map-auto-scan-card')");
+        // Scan-type details open/close only; selected types never change here.
+        await Click(Element(".map-actions .map-category-picker > summary"), "Map scan-type menu open", "document.querySelector('.map-actions .map-category-picker')?.open===true");
+        await Click(Element(".map-actions .map-category-picker > summary"), "Map scan-type menu close", "document.querySelector('.map-actions .map-category-picker')?.open===false");
+        int resultCount = JsonSerializer.Deserialize<int>(await Read($"document.querySelectorAll({JsonSerializer.Serialize(resultSelector)}).length"));
+        for (int tab = 0; tab < resultCount; tab++)
+        {
+            await Click(Element(resultSelector, tab), "Map result tab " + tab, $"({Element(resultSelector, tab)})?.getAttribute('aria-selected')==='true'");
+            string keyword = Element(".map-searchbar > input");
+            string keywordBefore = await Read($"({keyword}).value");
+            int selectCount = JsonSerializer.Deserialize<int>(await Read("document.querySelectorAll('.map-searchbar select').length"));
+            var originalFilters = new List<(string Element, string Value)>();
+            for (int index = 0; index < selectCount; index++)
+            {
+                string select = Element(".map-searchbar select", index);
+                string before = await Read($"({select}).value");
+                originalFilters.Add((select, before));
+                string alternate = await Read($"(()=>{{const b={select};return [...b.options].find(o=>!o.disabled&&o.value!==b.value)?.value??null;}})()");
+                if (alternate == "null")
+                {
+                    actions.Add(new { name = "Map filter dropdown", tab, index, exercised = false, reason = "no alternate option" });
+                    continue;
+                }
+                try { await SetSelect(select, alternate, "Map dropdown change"); }
+                finally { await SetSelect(select, before, "Map dropdown restore"); }
+                actions.Add(new { name = "Map filter dropdown", tab, index, exercised = true, renderedStateRestored = true });
+            }
+            int detailCount = JsonSerializer.Deserialize<int>(await Read("document.querySelectorAll('.map-searchbar details.map-item-filter').length"));
+            for (int index = 0; index < detailCount; index++)
+            {
+                string detail = Element(".map-searchbar details.map-item-filter", index);
+                string initialOpen = await Read($"({detail}).open");
+                await Click($"({detail}).querySelector('summary')", "Map item-filter menu change", $"({detail})?.open!=={initialOpen}");
+                await Click($"({detail}).querySelector('summary')", "Map item-filter menu restore", $"({detail})?.open==={initialOpen}");
+                actions.Add(new { name = "Map item-filter menu", tab, index, exercised = true, openStateRestored = true });
+            }
+            int checkCount = JsonSerializer.Deserialize<int>(await Read("document.querySelectorAll('.map-searchbar input[type=checkbox]').length"));
+            for (int index = 0; index < checkCount; index++)
+                await ToggleAndRestore(Element(".map-searchbar input[type=checkbox]", index), $"Map view filter tab {tab} checkbox {index}", "b.checked");
+            await SetInput(keyword, "R29-no-match", "Map keyword edit");
+            // The first direct searchbar button is Search in current source;
+            // Export and Treasure previews are separate later buttons.
+            bool searched = await Click(Element(".map-searchbar > button"), "Map keyword Search tab " + tab,
+                "!!document.querySelector('.map-result-count')&&document.querySelector('.map-table')?.getAttribute('aria-busy')==='false'", optional: true);
+            await SetInput(keyword, JsonSerializer.Deserialize<string>(keywordBefore) ?? "", "Map keyword restore");
+            // Typing clears the Resource/Monster name filter; put those view
+            // filters back before searching the original view again.
+            foreach (var filter in originalFilters)
+                if (await Read($"({filter.Element})?.value") != filter.Value)
+                    await SetSelect(filter.Element, filter.Value, "Map keyword side-effect filter restore");
+            if (searched) await Click(Element(".map-searchbar > button"), "Map original Search tab " + tab,
+                "!!document.querySelector('.map-result-count')&&document.querySelector('.map-table')?.getAttribute('aria-busy')==='false'");
+            actions.Add(new { name = "Map result tab/search", tab, exercised = true, searchExercised = searched, keywordRestored = true });
+        }
+        // A passive manual scan is the only native work initiated in this tab.
+        bool scanStarted = await Click(Element(".map-actions button.primary"), "Map manual Start",
+            "!!document.querySelector('.map-actions button.danger:not(:disabled)')", optional: true);
+        if (scanStarted)
+        {
+            await Click(Element(".map-actions button.danger"), "Map manual Stop", "!document.querySelector('.map-actions button.danger:not(:disabled)')");
+            actions.Add(new { name = "Map manual Start/Stop", exercised = true, stopped = true, retainedDatasetRestored = false });
+        }
+        await Click(Element(resultSelector, int.Parse(resultBefore, System.Globalization.CultureInfo.InvariantCulture)), "Map result selection restore",
+            $"({Element(resultSelector, int.Parse(resultBefore, System.Globalization.CultureInfo.InvariantCulture))})?.getAttribute('aria-selected')==='true'");
+        await Click(Element(scanSelector, int.Parse(scanBefore, System.Globalization.CultureInfo.InvariantCulture)), "Map mode restore",
+            $"({Element(scanSelector, int.Parse(scanBefore, System.Globalization.CultureInfo.InvariantCulture))})?.getAttribute('aria-selected')==='true'");
+
+        R29SweepSurface city = R29SweepSurfaces.First(surface => surface.Key == "city-layout");
+        await R29SweepNavigateAsync(core, city, token, IsOwner);
+        if (await Click(Element(".city-layout-actions button"), "City Refresh",
+            "document.querySelector('.city-layout-actions button')?.disabled===false&&document.querySelectorAll('[data-city-building-id]').length>0", optional: true))
+            actions.Add(new { name = "City Refresh", exercised = true, nativeLayoutRendered = true });
+        string gridZoom = "document.querySelector('.city-layout-grid').style.gridTemplateColumns.match(/([0-9]+)px/)?.[1]";
+        string originalZoom = await Read(gridZoom);
+        async Task Zoom(int index, string name)
+        {
+            string before = await Read(gridZoom);
+            if (await Click(Element(".city-layout-zoom button", index), name, $"({gridZoom})!=={before}", optional: true))
+                actions.Add(new { name, exercised = true, cellPixels = await Read(gridZoom) });
+        }
+        await Zoom(0, "City zoom out");
+        await Zoom(1, "City zoom in");
+        // Fit may already equal the current zoom, so assert its calculated bound.
+        string fit = "(()=>{const e=document.querySelector('.city-layout-grid-viewport'),g=document.querySelector('.city-layout-grid');const c=Number(g.style.gridTemplateColumns.match(/repeat\\((\\d+)/)?.[1]),r=Number(g.style.gridTemplateRows.match(/repeat\\((\\d+)/)?.[1]);return String(Math.max(4,Math.min(72,Math.floor(Math.min((e.clientWidth-28)/c,(e.clientHeight-28)/r)))));})()";
+        string fitted = await Read(fit);
+        await Click(Element(".city-layout-zoom button", 2), "City fit canvas", $"({gridZoom})==={fitted}");
+        // Restore exactly, including a non-multiple-of-four initial Fit zoom.
+        int desiredZoom = int.Parse(JsonSerializer.Deserialize<string>(originalZoom) ?? "24", System.Globalization.CultureInfo.InvariantCulture);
+        for (int step = 0; step < 20 && await Read(gridZoom) != originalZoom; step++)
+        {
+            int currentZoom = int.Parse(JsonSerializer.Deserialize<string>(await Read(gridZoom)) ?? "0", System.Globalization.CultureInfo.InvariantCulture);
+            if (Math.Abs(currentZoom - desiredZoom) < 4) break;
+            await Zoom(currentZoom < desiredZoom ? 1 : 0, "City zoom restore step");
+        }
+        actions.Add(new { name = "City fit/zoom restoration", exercised = true, originalCellPixels = desiredZoom,
+            renderedZoomRestored = await Read(gridZoom) == originalZoom,
+            reason = "Fit may change zoom modulo four; native placements are never edited" });
+
+        R29SweepSurface equipment = R29SweepSurfaces.First(surface => surface.Key == "squads-equipment");
+        await R29SweepNavigateAsync(core, equipment, token, IsOwner);
+        string refreshBefore = await Read("document.querySelector('.squad-panel').dataset.equipmentRefreshCount");
+        if (await Click(Element(".squad-header button"), "Equipment Refresh",
+            $"document.querySelector('.squad-panel').dataset.equipmentRefreshCount!=={refreshBefore}&&document.querySelector('[data-equipment-sync]')?.dataset.equipmentSync==='synced'", optional: true))
+            actions.Add(new { name = "Equipment Refresh", exercised = true, nativeSyncRendered = true });
+        string presets = ".equipment-live-presets [data-equipment-preset]";
+        string presetBefore = await Read("document.querySelector('.equipment-live-presets [data-equipment-preset].active')?.dataset.equipmentPreset??null");
+        int presetCount = JsonSerializer.Deserialize<int>(await Read($"document.querySelectorAll({JsonSerializer.Serialize(presets)}).length"));
+        for (int i = 0; i < presetCount; i++)
+        {
+            bool pressed = await Click(Element(presets, i), "Equipment preset selection " + i,
+                $"({Element(presets, i)})?.classList.contains('active')===true", optional: true);
+            if (pressed) actions.Add(new { name = "Equipment preset selection", index = i, exercised = true, activeSelectionRendered = true });
+        }
+        if (presetBefore != "null")
+        {
+            string originalPreset = $"document.querySelector('.equipment-live-presets [data-equipment-preset=' + {presetBefore} + ']')";
+            await Click(originalPreset, "Equipment preset selection restore", $"({originalPreset})?.classList.contains('active')===true");
+            actions.Add(new { name = "Equipment preset selection restore", exercised = true, selectionRestored = true, gearEdited = false });
+        }
+
+        R29SweepSurface afk = R29SweepSurfaces.First(surface => surface.Key == "squads-afk");
+        await R29SweepNavigateAsync(core, afk, token, IsOwner);
+        string cards = ".monster-afk-toolbar > .monster-afk-compact-card[role=button]";
+        int cardCount = JsonSerializer.Deserialize<int>(await Read($"document.querySelectorAll({JsonSerializer.Serialize(cards)}).length"));
+        int cardBefore = JsonSerializer.Deserialize<int>(await Read($"[...document.querySelectorAll({JsonSerializer.Serialize(cards)})].findIndex(b=>b.classList.contains('is-selected'))"));
+        for (int i = 0; i < cardCount; i++)
+        {
+            await Click(Element(cards, i), "AFK settings card " + i, $"({Element(cards, i)})?.classList.contains('is-selected')===true");
+            actions.Add(new { name = "AFK settings card", index = i, exercised = true, masterOrPotionOrDrillToggled = false });
+        }
+        if (cardBefore >= 0 && await Read($"({Element(cards, cardBefore)})?.classList.contains('is-selected')===true") != "true")
+            await Click(Element(cards, cardBefore), "AFK settings card restore", $"({Element(cards, cardBefore)})?.classList.contains('is-selected')===true");
+        // Drill settings hide the profile controls. Open the master settings
+        // view temporarily when needed, then restore the original card later.
+        if (cardCount > 0 && await Read("!!document.querySelector('.monster-afk-add-control')") != "true")
+            await Click(Element(cards), "AFK profile controls view", $"({Element(cards)})?.classList.contains('is-selected')===true");
+        // The config and native target catalogue arrive independently. Wait for
+        // the Add button rather than claiming a disabled button was exercised.
+        bool addReady = false;
+        for (int poll = 0; poll < 600; poll++)
+        {
+            if (await Read("document.querySelector('.monster-afk-add-control > button')?.disabled===false") == "true") { addReady = true; break; }
+            await Task.Delay(100, token);
+        }
+        if (addReady)
+        {
+            await Click(Element(".monster-afk-add-control > button"), "AFK Add menu open", "document.querySelector('.monster-afk-add-control > button')?.getAttribute('aria-expanded')==='true'&&!!document.querySelector('.monster-afk-add-menu')");
+            await Click(Element(".monster-afk-add-control > button"), "AFK Add menu close", "document.querySelector('.monster-afk-add-control > button')?.getAttribute('aria-expanded')==='false'&&!document.querySelector('.monster-afk-add-menu')");
+            actions.Add(new { name = "AFK Add menu", exercised = true, catalogueReady = true, strategyAdded = false });
+        }
+        else actions.Add(new { name = "AFK Add menu", exercised = false, reason = "native target catalogue did not enable Add within 60 seconds" });
+        if (await Click(Element(".monster-afk-profile-select"), "AFK profile selection", "document.querySelector('.monster-afk-profile-select')?.getAttribute('aria-pressed')==='true'&&!!document.querySelector('.monster-afk-editor')", optional: true))
+            actions.Add(new { name = "AFK profile selection", exercised = true, configEdited = false, originalEditorSelectionRestored = false });
+        if (cardBefore >= 0 && await Read($"({Element(cards, cardBefore)})?.classList.contains('is-selected')===true") != "true")
+            await Click(Element(cards, cardBefore), "AFK final settings view restore", $"({Element(cards, cardBefore)})?.classList.contains('is-selected')===true");
+
+        R29SweepSurface hotkeys = R29SweepSurfaces.First(surface => surface.Key == "hotkeys");
+        await R29SweepNavigateAsync(core, hotkeys, token, IsOwner);
+        const string hotkeySwitches = ".hotkey-panel[data-hotkey-category=hotkeys] .hotkey-switch";
+        int hotkeySwitchCount = JsonSerializer.Deserialize<int>(await Read($"document.querySelectorAll({JsonSerializer.Serialize(hotkeySwitches)}).length"));
+        for (int i = 0; i < hotkeySwitchCount; i++)
+            await ToggleAndRestore(Element(hotkeySwitches, i), "Hotkey configuration switch " + i, "b.querySelector('.ui-switch')?.classList.contains('is-on')===true");
+
+        R29SweepSurface mini = R29SweepSurfaces.First(surface => surface.Key == "mini-games");
+        await R29SweepNavigateAsync(core, mini, token, IsOwner);
+        // Only the source-identified G card, never another Mini Games switch.
+        string gCard = "[...document.querySelectorAll('.hotkey-panel[data-hotkey-category=miniGames] .hotkey-card')].find(b=>b.querySelector('kbd')?.textContent.trim()==='G')";
+        await ToggleAndRestore($"({gCard})?.querySelector('.hotkey-switch')", "Mini G config switch", "b.querySelector('.ui-switch')?.classList.contains('is-on')===true");
+        string gInput = $"({gCard})?.querySelector('input[type=number]')";
+        string gBefore = await Read($"({gInput})?.value??null");
+        if (gBefore != "null" && await Read($"({gInput})?.disabled===false") == "true")
+        {
+            string original = JsonSerializer.Deserialize<string>(gBefore) ?? "5";
+            string alternate = original == "50" ? "49" : "50";
+            async Task CommitG(string value)
+            {
+                await SetInput(gInput, value, "G reinforcement count edit");
+                Owned();
+                await core.ExecuteScriptAsync($"({gInput}).dispatchEvent(new FocusEvent('focusout',{{bubbles:true}}))");
+                Owned();
+                await core.ExecuteScriptAsync("window.__r29SweepCommitted=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__r29SweepCommitted=true;}));true");
+                await Wait($"window.__r29SweepCommitted===true&&({gInput})?.disabled===false&&({gInput})?.value==={JsonSerializer.Serialize(value)}", "G reinforcement count blur save");
+                await Task.Delay(250, token);
+                await Wait($"({gInput})?.disabled===false&&({gInput})?.value==={JsonSerializer.Serialize(value)}", "G count acknowledged value retained");
+            }
+            try { await CommitG(alternate); }
+            finally { await CommitG(original); }
+            // React Activity reactivates the config-get effect on route return.
+            await R29SweepNavigateAsync(core, hotkeys, token, IsOwner);
+            await R29SweepNavigateAsync(core, mini, token, IsOwner);
+            await Wait($"({gInput})?.value==={gBefore}&&({gInput})?.disabled===false", "G count saved restoration after route return");
+            actions.Add(new { name = "G count change/blur/restore", exercised = true, restoredValueAfterRouteReturn = original, keyPressed = false });
+        }
+        else actions.Add(new { name = "G count change/blur/restore", exercised = false, reason = "G count input unavailable" });
+
+        R29SweepSurface settings = R29SweepSurfaces.First(surface => surface.Key == "settings");
+        await R29SweepNavigateAsync(core, settings, token, IsOwner);
+        // The focus section follows visual metrics only when profiles are shown.
+        // Its own section selector avoids indexing into visual metrics switches.
+        await ToggleAndRestore(Element(".settings-panel > .update-panel:nth-of-type(2) .toggle-row"),
+            "Settings account-focus preference", "b.getAttribute('aria-checked')==='true'");
+        actions.Add(new { name = "Settings FPS/ping", exercised = false, reason = "separate Part-A exact-owner proof; not repeated in safe-control sweep" });
+
+        // Finish via the actual Home Close Game button. If the R29 shell fix adds
+        // an in-app confirmation, accept it through DOM only. Ownership is
+        // checked before both clicks; its loss is expected after confirmation.
+        await R29SweepNavigateAsync(core, home, token, IsOwner);
+        Owned();
         string closeClicked = await core.ExecuteScriptAsync("""
             (() => {
               const buttons=[...document.querySelectorAll('.quick-actions-panel .game-controls button')];
-              const close=buttons.find(button=>!button.classList.contains('primary')&&!button.disabled);
-              if(!close)return false;close.click();return true;
+              // A repair/update layout has no primary Start and is excluded.
+              const close=buttons[0]?.classList.contains('primary')?buttons[1]:null;
+              if(!close||close.disabled)return false;close.click();return true;
             })()
             """);
         if (closeClicked != "true") throw new InvalidDataException("R29 Home Close Game control unavailable.");
-        await Task.Delay(100, token);
-        await core.ExecuteScriptAsync("(()=>{const dialog=document.querySelector('[data-home-close-confirm],.home-close-confirm,.scheme-modal[role=dialog],.scheme-modal');const buttons=dialog?[...dialog.querySelectorAll('button')]:[];const b=buttons.find(x=>x.classList.contains('danger')||x.classList.contains('primary'))||buttons.at(-1);if(b&&!b.disabled)b.click();return true;})()");
+        await Wait("!!document.querySelector('.home-close-confirm[role=dialog] .scheme-modal-actions button.danger')", "Home Close Game confirmation");
+        Owned();
+        if (await core.ExecuteScriptAsync("(()=>{const b=document.querySelector('.home-close-confirm[role=dialog] .scheme-modal-actions button.danger');if(!b||b.disabled)return false;b.click();return true;})()") != "true")
+            throw new InvalidDataException("R29 Home Close Game confirmation unavailable.");
         for (int i = 0; i < 600 && lifecycle.CreateProfileInstanceStatus() is not null; i++)
             await Task.Delay(100, token);
         if (lifecycle.CreateProfileInstanceStatus() is not null)

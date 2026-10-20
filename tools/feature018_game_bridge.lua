@@ -158,6 +158,16 @@ function M.Pump()
     end
     local values = read_request()
     if type(values) ~= 'table' then return false end
+    -- The response file does not remove the request. Avoid repeating native
+    -- account/lease observations for an already-consumed envelope on every
+    -- idle tick. Only an exact previously accepted session/request is skipped;
+    -- every new envelope still takes the complete authorization path below.
+    local prior_parts = {}
+    for _, key in ipairs({'profileId','launchSessionId','challenge','gamePid','requestId'}) do
+        if type(values[key]) ~= 'string' then return false end
+        prior_parts[#prior_parts+1] = values[key]
+    end
+    if accepted_requests[table.concat(prior_parts, '\0')] ~= nil then return false end
     local start_account, start_server = account_signature()
     if not start_account or type(values.authorizedUid) ~= 'string' or
        start_account ~= values.authorizedUid..'/'..start_server or

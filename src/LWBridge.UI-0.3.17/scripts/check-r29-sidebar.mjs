@@ -9,7 +9,6 @@ const req = createRequire(path.resolve(here, "../package.json"));
 const { JSDOM } = req("jsdom");
 const { build } = req("esbuild");
 const React = req("react");
-const { createRoot } = req("react-dom/client");
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', {
   url: "http://127.0.0.1/?view=overview",
@@ -19,6 +18,7 @@ for (const key of [
   "KeyboardEvent", "Node", "MutationObserver", "localStorage",
 ]) globalThis[key] = key === "window" ? dom.window : dom.window[key];
 Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.window.navigator });
+const { createRoot } = req("react-dom/client");
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 globalThis.fetch = () => { throw new Error("R29 sidebar check forbids external network access"); };
 window.matchMedia = () => ({ matches: true });
@@ -174,6 +174,21 @@ await flush(() => {
 for (let i = 0; i < 3; i++) await flush();
 assert.equal(container.querySelector(".server-jump-error")?.textContent, "区服 ID 必须为 1–99999 的整数。",
   "stored server-jump validation must re-localize after switching to zh-CN");
+const serverInput = container.querySelector(".server-jump-form input");
+await flush(() => {
+  Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value").set.call(serverInput, "1");
+  serverInput.dispatchEvent(new Event("input", { bubbles: true }));
+});
+assert.equal(container.querySelector(".server-jump-error")?.textContent || "", "", "editing the rejected value clears stale validation without a native jump");
+await flush(() => {
+  Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value").set.call(serverInput, "0");
+  serverInput.dispatchEvent(new Event("input", { bubbles: true }));
+});
+await flush(() => serverJumpAction.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+assert.ok(container.querySelector(".server-jump-error"));
+await flush(() => serverJumpToggle.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+await flush(() => serverJumpToggle.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+assert.equal(container.querySelector(".server-jump-error")?.textContent || "", "", "reopening the chooser clears the previous validation error");
 await flush(() => {
   languageSelect.value = "en";
   languageSelect.dispatchEvent(new Event("change", { bubbles: true }));

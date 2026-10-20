@@ -4,6 +4,7 @@ import { useI18n } from "./i18n.jsx";
 import { GameAssetImage } from "./GameAssetImage.jsx";
 import { backendBridge } from "./backendBridge.js";
 import { translateActionError } from "./mapInteractions.js";
+import { visibleCityCells, cityBuildingScrollCenter } from "./cityViewport.js";
 
 const CITY_LAYOUT_PREVIEW_STATES = new Set([
   "city-layout-populated",
@@ -78,6 +79,8 @@ export function CityLayoutPage({ previewState = "", online = false }) {
     setRenderedDragState(value);
   };
   const viewportRef = useRef(null);
+  const [viewport, setViewport] = useState(null);
+  const centeredRegion = useRef("");
   const gridRef = useRef(null);
   const draftTimerRef = useRef(0);
   const savedSignatureRef = useRef(cityPlacementSignature(fixture?.placements ?? []));
@@ -99,6 +102,30 @@ export function CityLayoutPage({ previewState = "", online = false }) {
   const selected = buildingsByUuid.get(selectedUuid) ?? null;
   const region = layout?.regions[0] ?? null;
   const regionBuildings = useMemo(() => !layout || !region ? [] : layout.buildings.filter((building) => cityRegionForPoint(layout, placementMap.get(building.uuid) ?? building.pointId) === region.id), [layout, placementMap, region]);
+  const renderedCells = useMemo(() => layout && region ? visibleCityCells(layout.cells, region, viewport, zoom) : [], [layout, region, viewport, zoom]);
+  useEffect(() => {
+    const element = viewportRef.current;
+    if (!element || !region) return undefined;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const scope = `${backendBridge.profileId}|${backendBridge.profileGeneration}|${region.id}`;
+      if (element.clientWidth > 0 && element.clientHeight > 0 && centeredRegion.current !== scope) {
+        const center = cityBuildingScrollCenter(regionBuildings, cellsByPoint, region.bounds, zoom, element.clientWidth, element.clientHeight, placementMap);
+        if (center) { element.scrollLeft = center.left; element.scrollTop = center.top; }
+        centeredRegion.current = scope;
+      }
+      const next = { left: element.scrollLeft, top: element.scrollTop, width: element.clientWidth, height: element.clientHeight };
+      setViewport((current) => current && Object.keys(next).every((key) => current[key] === next[key]) ? current : next);
+    };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(measure); };
+    measure();
+    element.addEventListener("scroll", schedule, { passive: true });
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(schedule) : null;
+    observer?.observe(element);
+    window.addEventListener("resize", schedule);
+    return () => { element.removeEventListener("scroll", schedule); window.removeEventListener("resize", schedule); observer?.disconnect(); if (frame) window.cancelAnimationFrame(frame); };
+  }, [region, cellsByPoint, zoom, regionBuildings, placementMap]);
   const issues = useMemo(() => layout ? cityLayoutIssues(layout, placements) : [], [layout, placements]);
   const validationIssue = issues[0] ?? (serverValidation?.valid === false ? serverValidation.issues?.[0] : null);
   const validationInvalid = issues.length > 0 || serverValidation?.valid === false;
@@ -659,7 +686,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
               onPointerUp={finishPointer}
               onPointerCancel={() => { setDragState(null); setCitySelectionState(null); }}
             >
-              {layout.cells.filter((cell) => cell.regionId === region.id).map((cell) => <span key={cell.pointId} className={`city-layout-cell${cell.unlocked ? "" : " locked"}${cell.road ? " road" : ""}${cell.flagOnly ? " flag-only" : ""}${cell.obstructed ? " obstructed" : ""}`} style={{ gridColumn: cell.x - region.bounds.minX + 1, gridRow: cityGridRow(region.bounds, cell.y), backgroundImage: cell.obstructed ? "repeating-linear-gradient(45deg, transparent 0 4px, var(--warning-line) 4px 8px)" : undefined }} />)}
+              {renderedCells.map((cell) => <span key={cell.pointId} className={`city-layout-cell${cell.unlocked ? "" : " locked"}${cell.road ? " road" : ""}${cell.flagOnly ? " flag-only" : ""}${cell.obstructed ? " obstructed" : ""}`} style={{ gridColumn: cell.x - region.bounds.minX + 1, gridRow: cityGridRow(region.bounds, cell.y), backgroundImage: cell.obstructed ? "repeating-linear-gradient(45deg, transparent 0 4px, var(--warning-line) 4px 8px)" : undefined }} />)}
               {lassoStyle ? <span className="city-layout-lasso" style={lassoStyle} /> : null}
               {regionBuildings.map((building) => {
                 const previewTarget = dragState?.uuids.includes(building.uuid) ? (() => {
@@ -714,7 +741,7 @@ export function CityLayoutPage({ previewState = "", online = false }) {
                   event.stopPropagation();
                   finishPointer();
                 }}
-              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" loading="eager" />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level" title={t("cityLayout.level", { level: building.level })} aria-label={t("cityLayout.level", { level: building.level })}>{building.level}</small></button>;
+              ><GameAssetImage assetPath={building.iconPath} alt="" className="city-layout-grid-icon" loading="eager" deferUntilVisible />{(maxX - minX + 1) * zoom >= 64 && (maxY - minY + 1) * zoom >= 48 ? <strong className="city-layout-building-name">{displayName(building)}</strong> : null}<small className="city-layout-building-level" title={t("cityLayout.level", { level: building.level })} aria-label={t("cityLayout.level", { level: building.level })}>{building.level}</small></button>;
               })}
             </div>
           </div>

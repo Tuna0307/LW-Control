@@ -154,6 +154,8 @@ internal sealed partial class LWBridgeWindow
                                 "r29-part-a" => Path.Combine(directory, "r29-part-a-ui.json"),
                                 "r29-preset-speed" => Path.Combine(directory, "r29-preset-speed.json"),
                                 "r29-sweep" => Path.Combine(directory, "r29-sweep-connected.json"),
+                                "r29-performance" => Path.Combine(directory, "r29-performance.json"),
+                                "r29-scroll" => Path.Combine(directory, "r29-scroll.json"),
                                 _ => Path.Combine(directory, "r23-" + surface + "-ui.json"),
                             };
                             if (File.Exists(receipt)) throw new InvalidDataException("Preserve one-shot R23 UI proof.");
@@ -166,6 +168,10 @@ internal sealed partial class LWBridgeWindow
                                 await RunFeature018R29ConnectedSweepAsync(core, receipt, directory, owner, uid, serverId, token);
                                 completedBySweep = true;
                             }
+                            else if (surface == "r29-performance")
+                                await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token);
+                            else if (surface == "r29-scroll")
+                                await RunFeature018R29PerformanceProofAsync(core, receipt, directory, owner, uid, serverId, token, scrollOnly: true);
                             else if (surface == "equipment")
                                 await RunFeature018R28EquipmentTabProofAsync(core, receipt, directory, owner, uid, serverId, token);
                             else if (surface == "city")
