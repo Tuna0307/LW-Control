@@ -247,6 +247,7 @@ def verify_r27_feature_sources() -> None:
         ),
         ROOT / "src/LWBridge.Desktop/Feature018GameCommandService.cs": (
             'case "feature018_equipment_edit":', "expectedWearerUuid", "only a single explicit slot edit",
+            "equipmentPreflightRoute", "profile routing only.",
         ),
         ROOT / "src/LWBridge.UI-0.3.17/src/locales/feature018-equipment-live.js": (
             '"zh-CN":', '"zh-TW":', "ja:", "ko:", "vi:", "id:", "ru:", "pt:", "en:",

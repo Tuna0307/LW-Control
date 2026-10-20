@@ -6,7 +6,7 @@ import { createLiveEquipmentRuntime, equipmentSlots, normalizeEquipmentConfig } 
 
 export function NativeEquipmentContent({ profileId = "", online = true, active = true, refreshCount = 0, bridge = backendBridge }) {
   const { t, language } = useI18n();
-  const [snapshot, setSnapshot] = useState(null), [busy, setBusy] = useState(false), [healthy, setHealthy] = useState(false);
+  const [snapshot, setSnapshot] = useState(null), [busy, setBusy] = useState(""), [healthy, setHealthy] = useState(false);
   const [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [presets, setPresets] = useState(null), [selectedPreset, setSelectedPreset] = useState(0), [presetName, setPresetName] = useState("");
   const [localized, setLocalized] = useState({ context: "", values: {} });
@@ -94,7 +94,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
   const perform = async (operation, success = "squad.liveEquipmentUpdated") => {
     if (action.current || !runtime) return;
     const owner = runtime;
-    action.current = true; mutationGeneration.current += 1; syncError.current = false; setBusy(true); setError(""); setNotice(""); setDragged(null); setDropTarget("");
+    action.current = true; mutationGeneration.current += 1; syncError.current = false; setBusy(success === "squad.livePresetCaptured" ? "preset-save" : "game-change"); setError(""); setNotice(""); setDragged(null); setDropTarget("");
     try {
       const result = await operation(), fresh = result.snapshot || result;
       owner.assertOwner();
@@ -109,7 +109,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
       }
     } finally {
       action.current = false;
-      if (activeRuntime.current === owner) setBusy(false);
+      if (activeRuntime.current === owner) setBusy("");
     }
   };
   const change = (position, slot, equipUuid) => {
@@ -130,7 +130,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
         {runtime?.pending ? <button type="button" data-equipment-action="resume" disabled={busy || !online} onClick={() => perform(() => runtime.resume())}>{t("squad.liveEquipmentConfirm")}</button> : null}
       </div>
     </div>
-    <div role="status" data-equipment-sync={busy || runtime?.pending ? "updating" : healthy ? "synced" : "offline"}>{t(busy || runtime?.pending ? "squad.liveEquipmentUpdating" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
+    <div role="status" data-equipment-sync={busy || runtime?.pending ? "updating" : healthy ? "synced" : "offline"}>{t(busy === "preset-save" ? "common.processing" : busy || runtime?.pending ? "squad.liveEquipmentUpdating" : healthy ? "squad.liveEquipmentSynced" : "status.gameDisconnectedDisabled")}</div>
     {error ? <div className="equipment-result equipment-result-rejected" role="alert">{error}</div> : null}
     {notice && !busy ? <div className="equipment-result equipment-result-success" role="status">{t(notice, { number: selectedPreset + 1 })}</div> : null}
     <section className="equipment-live-presets" data-equipment-presets="true">
