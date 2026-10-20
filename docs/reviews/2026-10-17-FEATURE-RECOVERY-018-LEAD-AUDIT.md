@@ -1414,3 +1414,20 @@ Fix what is wasteful: stop polling on tabs that are not open, slow down idle pol
 writes, avoid per-frame work when nothing is running, lazy-load heavy pages/images, debounce saves, remove leaks.
 Target: game FPS with the app idle within ~5% of no-app; no visible hitch when pressing hotkeys; tabs open in under
 ~1 s; no steady memory growth. Report a before/after table with real numbers.
+
+## Lead tidy-up of R29 (worker stopped halfway) — 2026-10-20
+Pushed = remote 165a267d ("complete feature018 r29 part a"). No game/app running; live game scripts exact v26; no
+active journal. (Node processes running are the owner's CoS/Codex/REA tool servers, not leftovers.)
+- Part A: DONE and pushed. Preset switch 8964 ms → 807 ms (11× faster, burst send + one final check; the game has
+  no one-click hero-equipment route). Account bar can be fully hidden with a restore button (remembered). Settings
+  FPS/ping now really works in the game (108 FPS / 222 ms read live), restored to off afterwards.
+- Part B (tab bug sweep): IN PROGRESS, UNCOMMITTED. 36 files changed (App, Home, Map, City, Hotkeys, HotkeyFeedback,
+  Equipment, ProfileSidebar, Settings, Squads, AFK/stamina engines, locales, mounted checks) plus new
+  LWBridgeWindow.Feature018R29SweepProof.cs and checks check-r29-home-shell / -hotkeys-mini-responsive /
+  -map-city-errors. Lead re-ran with this work in place: all feature Lua suites, Desktop.Checks, full UI check and
+  the three new R29 checks PASS. No "R29 tab sweep" table, no live sweep evidence yet.
+- Part C (performance): STARTED only — tools/r29_part_c_sampler.py (+ selftest PASS) and
+  artifacts/feature018-r29-perf-research; no before/after measurements or fixes yet.
+- ZIP: not built.
+Next worker: review + commit the Part B work (do not discard), finish the live sweep and its table, do Part C with
+real numbers, then the R29 ZIP.
