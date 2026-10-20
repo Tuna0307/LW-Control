@@ -45,13 +45,33 @@ internal sealed partial class LWBridgeWindow
         }
         async Task<JsonElement> Snapshot()
         {
-            Owned();
-            object? result = await game.InvokeAsync("feature018_equipment_snapshot",
-                JsonSerializer.SerializeToElement(new { profileId = owner.ProfileId }, JsonOptions.Default), token);
-            Owned();
-            return result is JsonElement json
-                ? json.Clone()
-                : throw new InvalidDataException("R28 Equipment native snapshot was unavailable.");
+            // This independent observer is read-only. A heartbeat write can
+            // interrupt admission between two reads; wait for fresh authority
+            // instead of aborting the proof or retrying a gameplay mutation.
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!Feature018IsApprovedAccount(uid, serverId) ||
+                    !lifecycle.OwnsExactProcess(owner.GamePid) || !lifecycle.MatchesOwnedMapScanSession(owner))
+                    throw new InvalidDataException("R28 snapshot owner session changed.");
+                var account = ReadFeature018AuthenticatedAccount(lifecycle, owner);
+                if (account is not null && account != approved)
+                    throw new InvalidDataException("R28 snapshot authenticated account changed.");
+                if (account == approved)
+                {
+                    try
+                    {
+                        object? result = await game.InvokeAsync("feature018_equipment_snapshot",
+                            JsonSerializer.SerializeToElement(new { profileId = owner.ProfileId }, JsonOptions.Default), token);
+                        if (result is not JsonElement json)
+                            throw new InvalidDataException("R28 Equipment native snapshot was unavailable.");
+                        if (IsOwner()) return json.Clone();
+                    }
+                    catch (BridgeCommandException error) when (error.Code == "GAME_ACCOUNT_NOT_AUTHORIZED") { }
+                }
+                await Task.Delay(100, token);
+            }
+            throw new InvalidDataException("R28 snapshot fresh account admission stayed unavailable.");
         }
         static string[] Slots(JsonElement snapshot) => snapshot.GetProperty("squads").EnumerateArray()
             .SelectMany(squad => squad.GetProperty("positions").EnumerateArray().SelectMany(position =>
