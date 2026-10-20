@@ -21,10 +21,11 @@ for frame in range(1201):
     for entry in range(3):
         lua.globals().M.TryPump()
         features += bool(lua.globals().M.ShouldPumpFeature018())
-assert 170 <= lua.globals().calls <= 201, lua.globals().calls
-assert features == lua.globals().calls, (features, lua.globals().calls)
+# 10 s at 120 fps with three competing entry points: Overview ~10 Hz, FEATURE018 ~20 Hz.
+assert 85 <= lua.globals().calls <= 101, lua.globals().calls
+assert 170 <= features <= 201, features
 assert lua.globals().frames == 3603, 'diagnostics must still observe every entry/frame'
 lua.globals().clock = -1
 assert lua.globals().M.TryPump() is True, 'clock reset cannot stall the bridge'
 assert lua.globals().M.ShouldPumpFeature018() is True
-print('R29_PUMP_BUDGET_PASS: competing Update/LateUpdate/callback bounded; frame samples retained; clock reset recovered')
+print('R29_PUMP_BUDGET_PASS: Overview 10 Hz / FEATURE018 20 Hz under competing callbacks; frame samples retained; clock reset recovered')

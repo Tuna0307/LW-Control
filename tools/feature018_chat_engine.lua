@@ -211,10 +211,23 @@ local function claim(job)
     end
     return false,'Unsupported Chat claim'
 end
+-- Live chat arrives through the game's own room events (subscribe/observe).
+-- The full retained-room rescan is only a backup: it walks every room and
+-- message and measured ~165 ms per pass, so it runs every 15 s and only while
+-- a Chat service is enabled or work is pending. Idle owners do no rescan.
+local RESCAN_MS=15000
+local function has_chat_work()
+    for _,config in pairs(configs)do if type(config)=='table'and config.enabled then return true end end
+    if next(replies)~=nil then return true end
+    for _,job in pairs(queue)do if job.state=='queued'or job.state=='sent'then return true end end
+    return false
+end
+M._HasChatWork=has_chat_work
 function M.Pump()
     if not owned()then return end
     subscribe()
-    if clock()-last_scan>=1000 then last_scan=clock();scan()end
+    if not has_chat_work()then return end
+    if clock()-last_scan>=RESCAN_MS then last_scan=clock();scan()end
     for _,job in pairs(queue)do
         local s=service(job.kind);local config=configs[job.kind]or {}
         if job.state=='sent'and claimed(job)then ack(job.kind,job.uuid)end

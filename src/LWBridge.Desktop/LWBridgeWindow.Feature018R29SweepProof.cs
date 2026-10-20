@@ -595,7 +595,7 @@ internal sealed partial class LWBridgeWindow
         }
         if (presetBefore != "null")
         {
-            string originalPreset = $"document.querySelector('.equipment-live-presets [data-equipment-preset=' + {presetBefore} + ']')";
+            string originalPreset = $"document.querySelector('.equipment-live-presets [data-equipment-preset=\"' + CSS.escape({presetBefore}) + '\"]')";
             await Click(originalPreset, "Equipment preset selection restore", $"({originalPreset})?.classList.contains('active')===true");
             actions.Add(new { name = "Equipment preset selection restore", exercised = true, selectionRestored = true, gearEdited = false });
         }

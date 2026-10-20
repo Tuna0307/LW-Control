@@ -27,7 +27,7 @@ def main():
         RedPacketManager={ChannelType={World=1,Alliance=2,Season=3,AliFriend=4}},
         LWFireworkGiftManager={IsThisGiftUuidGot=function(self,uuid)return state.got==uuid end}}
       local room={GetUnblockedChatDatas=function()return state.messages end}
-      local mgr={Room={GetRoomDatas=function()return {room}end},CanNotPickRedPacket=function()return state.blocked or false end,
+      local mgr={Room={GetRoomDatas=function()state.roomScans=(state.roomScans or 0)+1;return {room}end},CanNotPickRedPacket=function()return state.blocked or false end,
         CheckRoomSend=function()return true end,SendChatMsg=function(self,p)assert(p.msg=='thanks');state.replyCount=state.replyCount+1 end}
       ChatManager2={GetInstance=function()return mgr end}
       EventId={RedPacketOpen=2,FireworkGiftGotUpdate=3}
@@ -89,8 +89,20 @@ def main():
       -- A different account/session must not inherit any queued targets.
       LuaEntry.Player.uid='2002';request.authorizedUid='2002';state.token='other';state.messages={}
       assert(engine.Configure(request).state=='confirmed');state.now=state.now+3000;engine.Pump();assert(#state.sent==4)
+      -- R29 performance: idle owners never rescan rooms; enabled owners rescan at most every 15 s.
+      state.config={redPacket={enabled=false},fireworks={enabled=false},treasure={enabled=false}}
+      assert(engine.Configure(request).state=='confirmed');state.roomScans=0
+      for _=1,60 do state.now=state.now+1000;engine.Pump()end
+      assert(state.roomScans==0,'Idle Chat must not rescan rooms every tick')
+      state.config={redPacket={enabled=true,claimDelaySeconds={0,0}},fireworks={enabled=false},treasure={enabled=false}}
+      assert(engine.Configure(request).state=='confirmed');state.roomScans=0
+      for _=1,30 do state.now=state.now+1000;engine.Pump()end
+      assert(state.roomScans>=1 and state.roomScans<=2,'Enabled Chat rescans at most every 15 s: '..state.roomScans)
+      -- A live chat event is still handled immediately between rescans.
+      local before=#state.sent;state.callbacks[1](msg(611,'live-between',9));state.now=state.now+1000;engine.Pump()
+      assert(#state.sent==before+1,'Live event claim must not wait for the backup rescan')
     ''')
-    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure fail-closed correlation, delays, stop, reply, UUID fencing, foreign UID/session')
+    print('FEATURE018_CHAT_ENGINE_OK native-shaped fixtures: listener, Red Packet/Fireworks claims, Treasure fail-closed correlation, delays, stop, reply, UUID fencing, foreign UID/session, idle no-rescan')
 
 
 if __name__ == '__main__':

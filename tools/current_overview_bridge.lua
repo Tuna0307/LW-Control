@@ -4100,19 +4100,23 @@ function M.Pump()
 end
 
 -- LuaEntry Update/LateUpdate and UpdateManager can all invoke the bridge in
--- one rendered frame. Bound periodic work to 20 Hz across those entry points.
--- Commands retain their independent exact-owner checks at dispatch time.
+-- one rendered frame. Bound periodic work across those entry points: the
+-- FEATURE018 command/engine tick stays at 20 Hz (hotkey latency), while the
+-- Overview host tick (control/lease/request-file polling; heartbeat is itself
+-- 0.75 s) runs at 10 Hz. The Map scanner has its own update registration and
+-- is not paced by this tick. Commands keep their exact-owner checks.
 local last_overview_tick, last_feature_tick = -1000, -1000
+local OVERVIEW_INTERVAL, FEATURE_INTERVAL = 0.1, 0.05
 function M.TryPump()
     profile_frame()
     local clock = runtime_clock()
-    if clock >= last_overview_tick and clock - last_overview_tick < 0.05 then return false end
+    if clock >= last_overview_tick and clock - last_overview_tick < OVERVIEW_INTERVAL then return false end
     last_overview_tick = clock
     return M.Pump()
 end
 function M.ShouldPumpFeature018()
     local clock = runtime_clock()
-    if clock >= last_feature_tick and clock - last_feature_tick < 0.05 then return false end
+    if clock >= last_feature_tick and clock - last_feature_tick < FEATURE_INTERVAL then return false end
     last_feature_tick = clock
     return true
 end
