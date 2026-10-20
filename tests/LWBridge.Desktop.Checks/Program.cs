@@ -31,6 +31,7 @@ await Feature018OwnedGameExchangeChecks.RunAsync();
 await Feature018AfkRuntimeChecks.RunAsync();
 await Feature018HotkeyCaptureChecks.RunAsync();
 Feature018KeyProofCorrelationChecks.Run();
+Feature018ProofOwnerGraceChecks.Run();
 await Feature018EquipmentProviderChecks.RunAsync();
 Feature018ChestMonitorChecks.Run();
 await HomeR2RecoveryChecks.RunAsync();
