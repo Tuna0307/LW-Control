@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
+import { createLiveEquipmentRuntime, createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
 import { equipmentPlanTexts } from "../src/locales/feature018-equipment-plan.js";
 import { liveEquipmentTexts } from "../src/locales/feature018-equipment-live.js";
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
@@ -144,6 +144,21 @@ raceBridge.invokeProfileScoped = async (command, payload) => { const value = awa
 const raced = createEquipmentRuntime(raceBridge, "A", { wait: async () => {} });
 await assert.rejects(() => raced.apply(1, config, baseline), (error) => error.code === "PROFILE_GENERATION_RETIRED");
 assert.equal(raceBridge.calls.filter((call) => call.command === "feature018_hotkey_action").length, 0);
+
+// An ambiguous local publication must never be replayed. Explicit native
+// confirmation of no transaction releases the fence for a later user gesture.
+const noTransactionBridge = fakeBridge();
+let starts = 0;
+noTransactionBridge.invokeProfileScoped = async (command, payload) => {
+  if (!payload.queryOnly) { starts += 1; throw Object.assign(new Error("Local publication failed"), { code: "INTERNAL_ERROR" }); }
+  throw Object.assign(new Error("No matching live equipment change is pending"), { code: "EQUIPMENT_EDIT_REJECTED" });
+};
+const noTransaction = createLiveEquipmentRuntime(noTransactionBridge, "A", { wait: async () => {} });
+await assert.rejects(() => noTransaction.edit(baseline.squads[0].positions[0], 1, "502", baseline));
+assert.equal(noTransaction.pending, true);
+await assert.rejects(() => noTransaction.resume());
+assert.equal(noTransaction.pending, false);
+assert.equal(starts, 1, "Failed publication may only be queried, never automatically replayed");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."), req = createRequire(path.join(root, "package.json"));
 const { JSDOM } = req("jsdom"), { build } = req("esbuild"), React = req("react");

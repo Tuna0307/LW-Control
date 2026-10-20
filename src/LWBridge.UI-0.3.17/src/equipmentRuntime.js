@@ -29,7 +29,13 @@ export function createLiveEquipmentRuntime(bridge, profileId, { wait = (ms) => n
       if (now() >= deadline) throw Object.assign(new Error("Equipment confirmation is pending. Resume confirmation before another change."), { code: "EQUIPMENT_CONFIRMATION_PENDING" });
       await wait(150); assertOwner();
       try { result = await invoke("feature018_equipment_edit", { operationId: pending.operationId, queryOnly: true }); }
-      catch (error) { if (!interrupted(error)) throw error; }
+      catch (error) {
+        // The native editor uses this code only when it has no transaction
+        // for this operation (or rejects it before dispatch). A failed local
+        // mailbox publication can therefore be released without replaying it.
+        if (error.code === "EQUIPMENT_EDIT_REJECTED") pending = null;
+        if (!interrupted(error)) throw error;
+      }
     }
     const fresh = await snapshot(); pending = null; return fresh;
   };

@@ -141,6 +141,12 @@ def verify_account_agnostic_sources() -> None:
 
 def verify_r26_retirements() -> None:
     canonical = ROOT / "src/LWBridge.UI-0.3.17/src"
+    live_equipment = (canonical / "NativeEquipmentContent.jsx").read_text(encoding="utf-8")
+    for retired in ("equipment_config_get", "equipment_config_save", "equipment-plan-banner",
+                    'data-equipment-action="capture"', 'data-equipment-action="save"',
+                    'data-equipment-action="apply"', 'data-equipment-action="restore"'):
+        if retired in live_equipment:
+            raise RuntimeError("R26 live Equipment still contains plan workflow: " + retired)
     squads = (canonical / "SquadsPage.jsx").read_text(encoding="utf-8")
     if any(key in squads for key in ("garrison.", "zombieBus.", "allianceGarrison")):
         raise RuntimeError("R26 retired canonical card remains")
