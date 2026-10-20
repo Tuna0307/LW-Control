@@ -1229,3 +1229,16 @@ check PASS (lead re-run). No game/app running; live scripts exact v26; no journa
 - Space shield countdown removed (no "Shield countdown" text in the ZIP's UI).
 ZIP `artifacts/feature018-r24-final-52ca82f4/release/LW-Control-FEATURE-018-R24-OWNER-TEST-52ca82f49e5a.zip`
 SHA-256 6481bf6f…31affe0: re-hashed, CRC ok, 120 entries, SOURCE-COMMIT = 52ca82f4, no test UID.
+
+## Owner test of R24 Equipment Schemes — 2026-10-20 (owner confused; redesign needed)
+Owner: dragging "still has issues", unsure what drag does, whether it syncs with the game, can't drag gear to another
+hero, "not even sure what to test". Screens: Preset 1 "15 positions · 0 items" with every dropdown Empty while
+"Wearing now" shows real gear; one save gave "Access to the path is denied."
+Lead findings:
+- The tab edits a PLAN (preset), not the game. Drag/dropdown only change the plan; the game changes only on
+  "Save and apply to squads" or Alt+1–4. Nothing on screen says this, and a new preset starts EMPTY, so there is
+  nothing to drag (you drag the plan's item, not the "Wearing now" item).
+- "Access to the path is denied": HotkeyConfigCommandService.cs ~348-351 saves with File.WriteAllText + File.Move
+  (overwrite) and no retry — a brief file lock (antivirus/indexer/another reader) fails the save. Needs bounded retry
+  (or File.Replace) and a plain message.
+Pending owner decision on the design (see chat): plan-then-apply (original) vs. live-sync.
