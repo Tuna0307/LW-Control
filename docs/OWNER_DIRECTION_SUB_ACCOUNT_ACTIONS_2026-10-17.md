@@ -57,3 +57,12 @@ This supersedes older "no claims/plunder/sharing/attacks/marches/spending/reloca
   never target the owner's main account. Monsters and resource fields are fine. If a target's alliance cannot be
   read, do not send. The Map scan may be used to find guildless player cities.
 - All other 2026-10-18 rules stay: in-game currency/gems allowed, never real money; never press Unlock Land Cell.
+
+## Owner update (2026-10-20) — remove the Space shield countdown
+- Remove the **Space** shield countdown completely: its Hotkeys card and saved setting, Space key capture, desktop
+  overlay, visible-city shield reader/command, localized countdown text and feature-specific checks are no longer
+  part of FEATURE-RECOVERY-018.
+- Keep **F6/F7/F8 shield item use**. Its native shield inventory/shop paths and the owner's `MAIN_SHIELD` post-state
+  reader remain because they are part of safe 8/12/24-hour item use confirmation, not the removed Space overlay.
+- The exact UID/server account lock, guildless-only player attack rule, real-money ban and Unlock Land Cell ban above
+  remain unchanged.

@@ -182,21 +182,6 @@ internal sealed partial class LWBridgeWindow
                     status = result.Status.ToString(), reason = result.Reason,
                     observedAtUtc = DateTimeOffset.UtcNow,
                 });
-            if (intent.Kind == Feature018HotkeyKind.ShieldRemaining &&
-                result.Status == Feature018HotkeyActionStatus.Confirmed &&
-                result.AuthoritativeObservation is { } shield &&
-                feature018Capture?.IsExactForegroundOwner() == true)
-            {
-                // Source-backed read-only MAIN_SHIELD countdown, displayed
-                // without activating LWBridge or a different window.
-                _ = Feature018ShieldStatusOverlay.ShowIfCurrentOwner(
-                    feature018Capture, shield, async () =>
-                    {
-                        var commands = new Feature018GameCommandService(overviewLifecycleService!);
-                        return (JsonElement)(await commands.InvokeAsync("feature018_visible_city_shields",
-                            JsonSerializer.SerializeToElement(new { }), CancellationToken.None))!;
-                    });
-            }
             if (feature018R2ApprovedAccount is not null &&
                 feature018R2ApprovedAccount == feature018Account)
                 RecordFeature018R2KeyOutcome(new(intent.Kind.ToString(), intent.Slot,

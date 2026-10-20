@@ -43,7 +43,7 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
         "mini_frontline_status" or
         "automation_start" or "automation_stop" or "feature018_sheep_automation_status" or
         "feature018_chat_configure" or "feature018_chat_run" or "feature018_chat_status" or
-        "feature018_input_focus" or "feature018_visible_city_shields" or
+        "feature018_input_focus" or
         "feature018_relocation_preflight" or
         "feature018_attack_prepare" or
         "feature018_afk_status" or "feature018_afk_configure" or "feature018_stamina_status" or "feature018_drill_status" or "monster_catalog_options" or
@@ -497,8 +497,8 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "feature018_hotkey_action":
             {
                 string action = ReadValue(payload, "action", 32);
-                if (action is not ("attack" or "recall" or "shieldOverlay" or
-                    "shieldUse" or "equipment" or "randomRelocate" or "allianceRelocate" or "frontlineReinforce"))
+                if (action is not ("attack" or "recall" or "shieldUse" or "equipment" or
+                    "randomRelocate" or "allianceRelocate" or "frontlineReinforce"))
                     throw new BridgeCommandException("INVALID_REQUEST", "Unknown game hotkey action.");
                 if (!payload.TryGetProperty("slot", out JsonElement slotValue) ||
                     !slotValue.TryGetInt32(out int slot) || !ValidHotkeySlot(action, slot))
@@ -560,7 +560,6 @@ internal sealed class Feature018GameCommandService : INativeAsyncCommandService
             case "mini_chest_mark":
             case "mini_chest_unmark":
             case "feature018_input_focus":
-            case "feature018_visible_city_shields":
             case "feature018_sheep_automation_status":
                 if (command == "mini_frontline_status" &&
                     (payload.EnumerateObject().Any(entry => entry.Name != "profileId") ||

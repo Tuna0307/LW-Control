@@ -149,59 +149,6 @@ function M.ShieldStatusSnapshot()
     return shield_snapshot()
 end
 
--- R18: visible cities, not the local player's Effect status map.
--- Current hash-gated RGMD: WorldPointManager.GetMainByScreen RID13723
--- filters BuildPointInfo to the screen; protectEndTime is field 0x0400274e.
--- WorldScene.TileIndexToWorld RID14789 uses the same native point index.
-function M.VisibleCityShieldSnapshot()
-    local cs = rawget(_G, "CS")
-    local manager = member(cs, "SceneManager")
-    local ids = rawget(_G, "SceneManagerSceneID") or member(cs, "SceneManagerSceneID")
-    if member(manager, "CurrSceneID") == nil or member(ids, "World") == nil or
-       member(manager, "CurrSceneID") ~= member(ids, "World") then
-        return unavailable("Visible city shields require the world map")
-    end
-    local world = member(manager, "World")
-    local points = member(world, "PointManager")
-    local camera = member(member(world, "Camera"), "__camera")
-    local ok_list, cities = invoke(points, "GetMainByScreen")
-    local count = number(member(cities, "Count"))
-    local _, clock = invoke(rawget(_G, "UITimeManager"), "GetInstance")
-    local ok_time, now = invoke(clock, "GetServerTime")
-    now = number(now)
-    if not ok_list or count == nil or count < 0 or count > 512 or
-       count % 1 ~= 0 or camera == nil or not ok_time or now == nil then
-        return unavailable("Native visible-city list, camera or server clock unavailable")
-    end
-    local rows = {}
-    for index = 0, count - 1 do
-        local city = member(cities, index)
-        local point = number(member(city, "pointIndex"))
-        local ending = number(member(city, "protectEndTime"))
-        local uuid = member(city, "uuid")
-        if point == nil or ending == nil or uuid == nil then
-            return unavailable("Visible BuildPointInfo shield fields unavailable")
-        end
-        local ok_pos, pos = invoke(world, "TileIndexToWorld", point)
-        local ok_view, viewport = invoke(camera, "WorldToViewportPoint", pos)
-        local x, y, z = number(member(viewport, "x")), number(member(viewport, "y")), number(member(viewport, "z"))
-        if not ok_pos or not ok_view or x == nil or y == nil or z == nil then
-            return unavailable("Native city screen projection unavailable")
-        end
-        -- The Map City Shield Ends formatter accepts seconds or milliseconds.
-        local end_ms = ending < 1000000000000 and ending * 1000 or ending
-        rows[#rows + 1] = {uuid=tostring(uuid), ownerUid=tostring(member(city, "ownerUid") or ""),
-            ownerName=tostring(member(city, "playerName") or ""), pointId=point,
-            protectEndTime=ending, shieldEndTimeMilliseconds=end_ms,
-            remainingMilliseconds=math.max(0, end_ms-now),
-            active=end_ms > now, viewportX=x, viewportY=y, viewportZ=z}
-    end
-    if mark_array then rows = mark_array(rows) end
-    return {state="confirmed", data={observation="native_visible_city_shields",
-        readOnly=true, source="WorldPointManager.GetMainByScreen+BuildPointInfo.protectEndTime",
-        serverTimeMilliseconds=now, cities=rows}}
-end
-
 -- Native game-side input focus gate for the window-only key sampler.
 -- The v26 `Framework/UI/Component/UIInput.luac` (SHA-256
 -- ed42a0d5ca46d2712d67a078a7f8fb597bbc36b00acd82366ec9ef4fbd15bbce)
@@ -1375,7 +1322,6 @@ local slots = {
     equipment = {"1", "2", "3", "4"},
     shieldUse = {"8", "12", "24"},
     frontlineReinforce = {"5"},
-    shieldOverlay = {"0"},
     randomRelocate = {"0"},
     allianceRelocate = {"0"},
 }
@@ -1402,13 +1348,6 @@ function M.Handle(fields)
             return invalid("Game text input is active or unverifiable: " .. reason)
         end
     end
-    if fields.action == "shieldOverlay" then
-        local status=M.VisibleCityShieldSnapshot()
-        if not same_native_account(account) then
-            return invalid("Native shield overlay account changed during observation")
-        end
-        return status
-    end
     if fields.action == "shieldUse" then
         return shield_use(fields)
     end
@@ -1430,13 +1369,6 @@ function M.Register(feature)
     end)
     if actions ~= true or input ~= true then return false end
     feature.RegisterHandler("feature018_shield_shop", shield_shop)
-    feature.RegisterHandler("feature018_visible_city_shields", function(fields)
-        local account = request_native_account(fields)
-        if not account then return invalid("Visible city shields account unavailable") end
-        local result = M.VisibleCityShieldSnapshot()
-        if not same_native_account(account) then return invalid("Visible city shields account changed") end
-        return result
-    end)
     mark_array = type(feature.Array) == "function" and feature.Array or nil
     return true
 end

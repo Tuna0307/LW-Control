@@ -11,7 +11,6 @@ internal enum Feature018HotkeyKind
 {
     AttackSquad,
     RecallSquad,
-    ShieldRemaining,
     UseShield,
     ApplyEquipmentPreset,
     RandomRelocate,
@@ -41,7 +40,7 @@ internal sealed class Feature018HotkeyRecognizer
     internal static readonly Keys[] Watched =
     [
         Keys.Q, Keys.W, Keys.E, Keys.R, Keys.A, Keys.S, Keys.D, Keys.F,
-        Keys.Space, Keys.F6, Keys.F7, Keys.F8, Keys.F9, Keys.F10,
+        Keys.F6, Keys.F7, Keys.F8, Keys.F9, Keys.F10,
         Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.G, Keys.Menu, Keys.LMenu,
         Keys.RMenu, Keys.ControlKey, Keys.LControlKey, Keys.RControlKey,
         Keys.ShiftKey, Keys.LShiftKey, Keys.RShiftKey, Keys.LWin, Keys.RWin,
@@ -120,7 +119,6 @@ internal sealed class Feature018HotkeyRecognizer
         (Keys.S, new(Feature018HotkeyKind.RecallSquad, 2), false),
         (Keys.D, new(Feature018HotkeyKind.RecallSquad, 3), false),
         (Keys.F, new(Feature018HotkeyKind.RecallSquad, 4), false),
-        (Keys.Space, new(Feature018HotkeyKind.ShieldRemaining), false),
         (Keys.F6, new(Feature018HotkeyKind.UseShield, 8), false),
         (Keys.F7, new(Feature018HotkeyKind.UseShield, 12), false),
         (Keys.F8, new(Feature018HotkeyKind.UseShield, 24), false),
@@ -197,17 +195,6 @@ internal sealed class Feature018HotkeyCapture : IDisposable
     internal string CaptureId => captureId;
     internal long LastObservedSequence => Interlocked.Read(ref observedSequence);
     internal Feature018CapturedIntent[] SnapshotCapturedIntents() => observed.ToArray();
-    internal bool IsSpaceHeld()
-    {
-        try
-        {
-            if (disposed || !IsExactForegroundOwner() || !authenticatedOwnerAndTextInputClear()) return false;
-            bool held = platform.WatchedKeysDown().Contains(Keys.Space);
-            return held && IsExactForegroundOwner() && authenticatedOwnerAndTextInputClear();
-        }
-        catch { return false; }
-    }
-
     internal Feature018HotkeyCapture(
         int gamePid,
         string gamePath,

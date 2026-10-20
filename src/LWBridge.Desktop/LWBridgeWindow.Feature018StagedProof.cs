@@ -92,7 +92,7 @@ internal sealed partial class LWBridgeWindow
         {
             await hotkeyConfigService.InvokeAsync("hotkey_config_save",
                 JsonSerializer.SerializeToElement(original with { Attack = true, Recall = true,
-                    ShieldOverlay = true, ShieldUse = true, Equipment = true,
+                    ShieldUse = true, Equipment = true,
                     RandomRelocate = true, AllianceRelocate = true }, JsonOptions.Default), token);
             await Save();
             DateTimeOffset expires = DateTimeOffset.UtcNow.AddMinutes(35);

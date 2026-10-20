@@ -204,8 +204,6 @@ def main():
 
     exposed = runtime.eval("{RegisterHandler = function(name, handler) return (name == 'feature018_hotkey_action' or name == 'feature018_input_focus') and type(handler) == 'function' end}")
     require(module.Register(exposed) is True, "plugin failed registration contract")
-    lookup = module.Handle(runtime.table_from({"action": "shieldOverlay", "slot": "0"}))
-    require(lookup["state"] == "failed", "Space bypassed unknown game text focus")
     require(module.InputFocusSnapshot()["state"] == "unsupported",
             "unknown input-focus status falsely reported safe")
 
@@ -272,8 +270,7 @@ function SetFocus(obj)
     CS.UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject = obj
 end
 """
-    from feature018_visible_shield_checks import WORLD
-    focus_runtime, focused_module = create_runtime(BASE + focus_game + WORLD)
+    focus_runtime, focused_module = create_runtime(BASE + focus_game)
     def focused_request(action, slot, **extra):
         return focus_runtime.table_from({
             "action": action, "slot": slot,
@@ -284,35 +281,6 @@ end
             "real event system with no selected object rejected")
     require(focused_module.InputFocusSnapshot()["data"]["inputClear"] is True,
             "authenticated focus status was not exposed to game bridge")
-    require(focused_module.Handle(focused_request("shieldOverlay", "0"))["state"] == "confirmed",
-            "Space did not show native shield status when game input was clear")
-    require(focused_module.Handle(focus_runtime.table_from(
-        {"action": "shieldOverlay", "slot": "0"}))["state"] == "failed" and
-            focused_module.Handle(focused_request(
-                "shieldOverlay", "0", authorizedUid="2553945035002288"))["state"] == "failed",
-            "missing or mismatched request UID admitted native shield status")
-    for wrong_getter in ("GetSourceServerId", "GetSelfServerId", "GetCurServerId"):
-        focus_runtime.execute(
-            f"LuaEntry.Player.{wrong_getter}=function() return 2212 end")
-        require(focused_module.Handle(focused_request("shieldOverlay", "0"))["state"] == "failed",
-                "disagreeing native server getter admitted hotkey")
-        focus_runtime.execute(
-            f"LuaEntry.Player.{wrong_getter}=function() return 2289 end")
-    focus_runtime.execute("""
-        LuaEntry.Player.uid='3133546747002212'
-        LuaEntry.Player.GetSourceServerId=function() return 2212 end
-        LuaEntry.Player.GetSelfServerId=function() return 2212 end
-        LuaEntry.Player.GetCurServerId=function() return 2212 end
-    """)
-    require(focused_module.Handle(focused_request(
-        "shieldOverlay", "0", authorizedUid="3133546747002212"))["state"] == "confirmed",
-        "a different valid game UID/server was rejected by shipped hotkey")
-    focus_runtime.execute("""
-        LuaEntry.Player.uid='3133546747002289'
-        LuaEntry.Player.GetSourceServerId=function() return 2289 end
-        LuaEntry.Player.GetSelfServerId=function() return 2289 end
-        LuaEntry.Player.GetCurServerId=function() return 2289 end
-    """)
     for action, slot in [("attack", "1"), ("shieldUse", "8"),
                          ("equipment", "4"), ("frontlineReinforce", "5"),
                          ("randomRelocate", "0"), ("allianceRelocate", "0"),
@@ -331,8 +299,6 @@ end
             "focused native TMP field did not suppress hotkey")
     require(focused_module.InputFocusSnapshot()["data"]["inputClear"] is False,
             "input-focus response failed to disarm native capture")
-    require(focused_module.Handle(focused_request("shieldOverlay", "0"))["state"] == "failed",
-            "Space action bypassed newly selected input field")
     focus_runtime.execute("SetFocus({GetComponentInParent=function(self,typ) return nil end})")
     clear, _ = focused_module.TextInputClear()
     require(clear is True, "ordinary selected game object blocked despite all input classes checked")

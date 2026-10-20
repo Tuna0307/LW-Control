@@ -399,15 +399,15 @@ internal sealed partial class LWBridgeWindow
             // recognized intent, native request and confirmed poststate.
             HotkeyConfig enabled = original with
             {
-                Attack = true, Recall = true, ShieldOverlay = true,
-                ShieldUse = true, Equipment = true, RandomRelocate = true,
+                Attack = true, Recall = true, ShieldUse = true,
+                Equipment = true, RandomRelocate = true,
                 AllianceRelocate = true, FrontlineReinforce = true,
             };
             await prefs.InvokeAsync("hotkey_config_save",
                 JsonSerializer.SerializeToElement(enabled, JsonOptions.Default), token);
             foreach (string binding in new[] {
-                "Q","W","E","R","A","S","D","F","Space",
-                "F6","F7","F8","Alt+1","Alt+2","Alt+3","Alt+4",
+                "Q","W","E","R","A","S","D","F","F6","F7","F8",
+                "Alt+1","Alt+2","Alt+3","Alt+4",
                 "F9","F10","G" })
             {
                 Owned();

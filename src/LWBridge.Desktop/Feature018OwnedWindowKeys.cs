@@ -127,7 +127,7 @@ internal static class Feature018OwnedWindowKeys
         {
             "Q" => [0x51], "W" => [0x57], "E" => [0x45], "R" => [0x52],
             "A" => [0x41], "S" => [0x53], "D" => [0x44], "F" => [0x46],
-            "Space" => [0x20], "F6" => [0x75], "F7" => [0x76],
+            "F6" => [0x75], "F7" => [0x76],
             "F8" => [0x77], "F9" => [0x78], "F10" => [0x79],
             "G" => [0x47],
             "Alt+1" => [Alt, 0x31], "Alt+2" => [Alt, 0x32],
@@ -147,7 +147,6 @@ internal static class Feature018OwnedWindowKeys
         "S" => new(Feature018HotkeyKind.RecallSquad, 2),
         "D" => new(Feature018HotkeyKind.RecallSquad, 3),
         "F" => new(Feature018HotkeyKind.RecallSquad, 4),
-        "Space" => new(Feature018HotkeyKind.ShieldRemaining),
         "F6" => new(Feature018HotkeyKind.UseShield, 8),
         "F7" => new(Feature018HotkeyKind.UseShield, 12),
         "F8" => new(Feature018HotkeyKind.UseShield, 24),

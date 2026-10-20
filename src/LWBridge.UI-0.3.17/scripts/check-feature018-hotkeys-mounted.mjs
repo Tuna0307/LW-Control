@@ -27,7 +27,6 @@ const commands = [];
 const config = {
   attack: true,
   recall: true,
-  shieldOverlay: true,
   shieldUse: false,
   equipment: true,
   randomRelocate: false,
@@ -85,16 +84,18 @@ const workerPanelSelectors = [
   "[data-feature018-relocation-readiness]",
   "[data-feature018-frontline-native]",
 ];
-const expectedBindings = ["Q / W / E / R", "A / S / D / F", "Space", "F6 / F7 / F8",
+const expectedBindings = ["Q / W / E / R", "A / S / D / F", "F6 / F7 / F8",
   "Alt + 1～4", "F9", "F10"];
 
 function assertOriginalHotkeysOnly() {
   const page = document.querySelector('[data-hotkey-category="hotkeys"]');
   assert.ok(page, "Hotkeys page did not mount");
   const cards = [...page.querySelectorAll(".hotkey-grid > article.hotkey-card")];
-  assert.equal(cards.length, 7, "Hotkeys must contain exactly the original seven 0.3.17 cards");
+  assert.equal(cards.length, 6, "Hotkeys must contain exactly the six owner-retained cards");
   assert.deepEqual(cards.map((card) => card.querySelector("kbd.hotkey-binding")?.textContent), expectedBindings,
-    "Original Hotkeys card order or binding changed");
+    "Owner-retained Hotkeys card order or binding changed");
+  assert.equal(cards.some((card) => card.querySelector("kbd.hotkey-binding")?.textContent === "Space"), false,
+    "Removed Space shield countdown card remained visible");
   for (const selector of workerPanelSelectors)
     assert.equal(page.querySelector(selector), null, `Worker diagnostic panel remained: ${selector}`);
   assert.equal(page.querySelector(".hotkey-attack-settings"), null,
@@ -122,4 +123,4 @@ assert.equal(commands.every((request) => request.command === "hotkey_config_get"
 
 await flush(() => mounted.unmount());
 backendBridge.dispose();
-console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS cards=original-seven diagnostics=removed rapid=retired profileSwitch=clean");
+console.log("FEATURE018_HOTKEYS_MOUNTED_OFFLINE_PASS cards=r24-six space=removed diagnostics=removed rapid=retired profileSwitch=clean");

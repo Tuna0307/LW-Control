@@ -36,7 +36,6 @@ internal sealed class Feature018HotkeyNativeProviders
     {
         Feature018HotkeyKind.AttackSquad => "attack",
         Feature018HotkeyKind.RecallSquad => "recall",
-        Feature018HotkeyKind.ShieldRemaining => "shieldOverlay",
         Feature018HotkeyKind.UseShield => "shieldUse",
         Feature018HotkeyKind.ApplyEquipmentPreset => "equipment",
         Feature018HotkeyKind.RandomRelocate => "randomRelocate",
@@ -60,8 +59,6 @@ internal sealed class Feature018HotkeyNativeProviders
             return new(Feature018HotkeyActionStatus.SessionChanged,
                 "native_hotkey_account_snapshot_unavailable");
         }
-        if (command.Intent.Kind == Feature018HotkeyKind.ShieldRemaining)
-            return await ExecuteAdmittedAsync(command, cancellationToken).ConfigureAwait(false);
         if (Interlocked.CompareExchange(ref mutatingNativeActionInFlight, 1, 0) != 0)
             return new(Feature018HotkeyActionStatus.Busy,
                 "another_native_hotkey_mutation_pending");
@@ -826,17 +823,6 @@ internal sealed class Feature018HotkeyNativeProviders
                          actualAttackServer == session.ServerId &&
                          AttackHasExactlyOneNativeRpc(evidence,
                              evidence.GetProperty("formationUuid").GetString()!)));
-            case Feature018HotkeyKind.ShieldRemaining:
-                if (observed.GetString() != "native_MAIN_SHIELD_effect_status_map" ||
-                    !evidence.TryGetProperty("active", out JsonElement active) ||
-                    active.ValueKind is not (JsonValueKind.True or JsonValueKind.False) ||
-                    !evidence.TryGetProperty("serverTimeMilliseconds", out JsonElement clock) ||
-                    !clock.TryGetDouble(out double time) || !double.IsFinite(time) || time < 0 ||
-                    !evidence.TryGetProperty("shieldStatusCount", out JsonElement count) ||
-                    !count.TryGetInt32(out int shields) || shields < 0)
-                    return false;
-                return active.GetBoolean() == (shields > 0);
-
             case Feature018HotkeyKind.RecallSquad:
                 bool recallProof =
                     observed.GetString() == "native_world_march_return_reply_and_target"

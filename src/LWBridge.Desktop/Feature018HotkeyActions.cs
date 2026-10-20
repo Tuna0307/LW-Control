@@ -227,7 +227,6 @@ internal sealed class Feature018HotkeyActions
     {
         Feature018HotkeyKind.AttackSquad => config.Attack,
         Feature018HotkeyKind.RecallSquad => config.Recall,
-        Feature018HotkeyKind.ShieldRemaining => config.ShieldOverlay,
         Feature018HotkeyKind.UseShield => config.ShieldUse,
         Feature018HotkeyKind.ApplyEquipmentPreset => config.Equipment,
         Feature018HotkeyKind.RandomRelocate => config.RandomRelocate,
@@ -243,7 +242,6 @@ internal sealed class Feature018HotkeyActions
         Feature018HotkeyKind.ApplyEquipmentPreset => intent.Slot is >= 1 and <= 4,
         Feature018HotkeyKind.UseShield => intent.Slot is 8 or 12 or 24,
         Feature018HotkeyKind.ReinforceFrontline => intent.Slot == 5,
-        Feature018HotkeyKind.ShieldRemaining or
         Feature018HotkeyKind.RandomRelocate or
         Feature018HotkeyKind.AllianceRelocate => intent.Slot == 0,
         _ => false,

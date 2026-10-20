@@ -21,7 +21,7 @@ internal static class Feature018HotkeyConfigChecks
             JsonElement Empty() => JsonSerializer.SerializeToElement(new { });
             HotkeyConfig initial = (HotkeyConfig)(await commands.InvokeAsync(
                 "hotkey_config_get", Empty(), CancellationToken.None))!;
-            Require(initial.Attack && initial.Recall && initial.ShieldOverlay && initial.ShieldUse &&
+            Require(initial.Attack && initial.Recall && initial.ShieldUse &&
                     initial.Equipment && initial.FrontlineReinforce && !initial.TreasureChestHint &&
                     !initial.RandomRelocate && !initial.AllianceRelocate,
                 "original hotkey defaults changed");
@@ -62,21 +62,23 @@ internal static class Feature018HotkeyConfigChecks
             var legacyOpen = new HotkeyConfigCommandService(path);
             HotkeyConfig migrated = (HotkeyConfig)(await legacyOpen.InvokeAsync(
                 "hotkey_config_get", Empty(), CancellationToken.None))!;
-            Require(migrated.Attack && migrated.Recall && migrated.ShieldOverlay && migrated.ShieldUse &&
+            Require(migrated.Attack && migrated.Recall && migrated.ShieldUse &&
                     migrated.Equipment && migrated.FrontlineReinforce && !migrated.RandomRelocate &&
                     !migrated.AllianceRelocate && !migrated.TreasureChestHint,
                 "legacy saved hotkeys with retired speed-up fields did not load safely");
             JsonElement migratedJson = JsonSerializer.SerializeToElement(migrated, JsonOptions.Default);
             Require(!migratedJson.TryGetProperty("attackMarchSpeedupItem", out _) &&
-                    !migratedJson.TryGetProperty("attackMarchSpeedupDiamond", out _),
-                "retired march speed-up fields survived current hotkey projection");
+                    !migratedJson.TryGetProperty("attackMarchSpeedupDiamond", out _) &&
+                    !migratedJson.TryGetProperty("shieldOverlay", out _),
+                "retired hotkey fields survived current hotkey projection");
             _ = await legacyOpen.InvokeAsync("hotkey_config_save", migratedJson, CancellationToken.None);
             using (JsonDocument persisted = JsonDocument.Parse(File.ReadAllText(path)))
             {
                 JsonElement hotkeys = persisted.RootElement.GetProperty("hotkeys");
                 Require(!hotkeys.TryGetProperty("attackMarchSpeedupItem", out _) &&
-                        !hotkeys.TryGetProperty("attackMarchSpeedupDiamond", out _),
-                    "current save preserved retired march speed-up fields");
+                        !hotkeys.TryGetProperty("attackMarchSpeedupDiamond", out _) &&
+                        !hotkeys.TryGetProperty("shieldOverlay", out _),
+                    "current save preserved retired hotkey fields");
             }
 
             bool rejected = false;

@@ -3,7 +3,6 @@ export const CITY_BASE_CELL_SIZE = 24;
 export const HOTKEY_CARDS = Object.freeze([
   { key: "attack", binding: "Q / W / E / R", title: "hotkeys.attack.title", description: "hotkeys.attack.description", warning: null },
   { key: "recall", binding: "A / S / D / F", title: "hotkeys.recall.title", description: "hotkeys.recall.description", warning: null },
-  { key: "shieldOverlay", binding: "Space", title: "hotkeys.shield.title", description: "hotkeys.shield.description", warning: null },
   { key: "shieldUse", binding: "F6 / F7 / F8", title: "hotkeys.shieldUse.title", description: "hotkeys.shieldUse.description", warning: "hotkeys.shieldUse.warning" },
   { key: "equipment", binding: "Alt + 1～4", title: "hotkeys.equipment.title", description: "hotkeys.equipment.description", warning: null },
   { key: "randomRelocate", binding: "F9", title: "hotkeys.randomRelocate.title", description: "hotkeys.randomRelocate.description", warning: "hotkeys.relocationWarning" },
@@ -18,7 +17,6 @@ export function previewHotkeyConfig() {
   return {
     attack: true,
     recall: true,
-    shieldOverlay: true,
     shieldUse: false,
     equipment: true,
     randomRelocate: false,

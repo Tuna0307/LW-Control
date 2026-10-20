@@ -7,7 +7,6 @@ namespace LWBridge.Desktop;
 internal sealed record HotkeyConfig(
     bool Attack = true,
     bool Recall = true,
-    bool ShieldOverlay = true,
     bool ShieldUse = true,
     bool Equipment = true,
     bool RandomRelocate = false,
@@ -420,7 +419,6 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
     [
         "attack",
         "recall",
-        "shieldOverlay",
         "shieldUse",
         "equipment",
         "randomRelocate",
@@ -475,7 +473,6 @@ internal sealed class HotkeyConfigCommandService : INativeAsyncCommandService
         return new HotkeyConfig(
             payload.GetProperty("attack").GetBoolean(),
             payload.GetProperty("recall").GetBoolean(),
-            payload.GetProperty("shieldOverlay").GetBoolean(),
             payload.GetProperty("shieldUse").GetBoolean(),
             payload.GetProperty("equipment").GetBoolean(),
             payload.GetProperty("randomRelocate").GetBoolean(),
