@@ -920,10 +920,9 @@ function M.RegisterFrontline(feature, frozen_hotkeys)
     end)
 end
 
--- Only the persisted equipment configuration from the currently admitted
--- profile may be examined. This is intentionally NOT an Alt+1..4 apply
--- producer: current v26 replies cannot correlate per-slot equipment changes.
--- No caller-provided preset/hero/equipment UUIDs may enter the game sender.
+-- Legacy preset preflight reads trusted persisted configuration. The separate
+-- owner-directed live Edit route accepts one slot choice; its adapter derives
+-- all other gear from fresh native state and retains the original send fences.
 function M.RegisterEquipment(feature, frozen_hotkeys)
     if type(feature) ~= "table" or type(feature.RegisterHandler) ~= "function" or
        type(frozen_hotkeys) ~= "table" then return false end

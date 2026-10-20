@@ -14,13 +14,13 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
     if (!profileId || !bridge.available) return null;
     try { return createLiveEquipmentRuntime(bridge, profileId); } catch { return null; }
   }, [bridge, profileId]);
-  const activeRuntime = useRef(runtime), action = useRef(false), mutationGeneration = useRef(0);
+  const activeRuntime = useRef(runtime), action = useRef(false), mutationGeneration = useRef(0), syncError = useRef(false);
   activeRuntime.current = runtime;
   const textContext = `${profileId}|${language}`;
   const texts = localized.context === textContext ? localized.values : {};
   useEffect(() => {
     let retired = false, reading = false;
-    setSnapshot(null); setHealthy(false); setError(""); setNotice("");
+    setSnapshot(null); setHealthy(false); setError(""); setNotice(""); syncError.current = false;
     if (!runtime || !online || !active) return undefined;
     const read = async () => {
       if (retired || reading || action.current || runtime.pending) return;
@@ -28,9 +28,12 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
       const generation = mutationGeneration.current;
       try {
         const fresh = await runtime.snapshot();
-        if (!retired && generation === mutationGeneration.current) { setSnapshot(fresh); setHealthy(true); }
+        if (!retired && generation === mutationGeneration.current) {
+          setSnapshot(fresh); setHealthy(true);
+          if (syncError.current) { setError(""); syncError.current = false; }
+        }
       } catch (failure) {
-        if (!retired) { setHealthy(false); setError(String(failure.message || failure)); }
+        if (!retired && generation === mutationGeneration.current) { syncError.current = true; setHealthy(false); setError(String(failure.message || failure)); }
       } finally { reading = false; }
     };
     read();
@@ -74,7 +77,7 @@ export function NativeEquipmentContent({ profileId = "", online = true, active =
   const perform = async (operation) => {
     if (action.current || !runtime) return;
     const owner = runtime;
-    action.current = true; mutationGeneration.current += 1; setBusy(true); setError(""); setNotice(""); setDragged(null); setDropTarget("");
+    action.current = true; mutationGeneration.current += 1; syncError.current = false; setBusy(true); setError(""); setNotice(""); setDragged(null); setDropTarget("");
     try {
       const fresh = await operation();
       owner.assertOwner();

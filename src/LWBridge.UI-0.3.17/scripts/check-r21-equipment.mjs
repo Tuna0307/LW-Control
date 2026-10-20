@@ -5,8 +5,11 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { createEquipmentRuntime, equipmentPositionSnapshot, initializeEquipmentPresets, normalizeEquipmentConfig, setEquipmentSlot, swapNativeEquipmentSquads, swapNativeEquipmentTarget } from "../src/equipmentRuntime.js";
 import { equipmentPlanTexts } from "../src/locales/feature018-equipment-plan.js";
+import { liveEquipmentTexts } from "../src/locales/feature018-equipment-live.js";
 for (const language of ["en", "zh-CN", "zh-TW", "ja", "ko", "vi", "id", "ru", "pt"]) {
   assert.equal(Object.keys(equipmentPlanTexts[language]).length, 7);
+  assert.equal(Object.keys(liveEquipmentTexts[language]).length, 7);
+  for (const value of Object.values(liveEquipmentTexts[language])) assert.ok(value.length > 0);
   for (const text of Object.values(equipmentPlanTexts[language])) assert.ok(text.length > 0);
   assert.ok(equipmentPlanTexts[language]["squad.equipmentPlanOnly"].includes("{number}"));
   assert.ok(equipmentPlanTexts[language]["squad.equipmentUnappliedCount"].includes("{count}"));
